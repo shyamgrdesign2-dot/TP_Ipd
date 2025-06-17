@@ -8,9 +8,10 @@ import {
 } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { isMobile } from "react-device-detect";
+import { isMobile, isChrome, isSafari } from "react-device-detect";
 import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 import config from "./config";
 
 import AppointmentList from "./pages/AppointmentList";
@@ -46,10 +47,12 @@ import BillingDashboard from "./pages/opdBilling/components/billingDashboard/Bil
 import BillingSettings from "./pages/opdBilling/components/advanceBillSettings/BillingSettings";
 import AllPatients from "./pages/allPatients.js/AllPatients";
 import AddAppointment from "./pages/addAppointment/AddAppointment";
-import { checkAccountStatus } from './pages/auth/authService';
+import { checkAccountStatus } from "./pages/auth/authService";
 import PrivateRoute from "./pages/auth/components/PrivateRoute";
 import GetUnlimitedAccess from "./pages/monetization/GetUnlimitedAccess";
 import UpgradeServicesModal from "./pages/monetization/components/UpgradeServicesModal";
+import Onboarding from "./pages/onBoarding/components/Onboarding";
+import FinalSetup from "./pages/FinalSetup";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -60,6 +63,7 @@ const growthbook = new GrowthBook({
 function App() {
   const [searchParams] = useSearchParams();
   const authToken = searchParams.get("authToken");
+  const redirectTo = searchParams.get("redirectTo");
   const location = useLocation();
   const navigate = useNavigate();
   const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
@@ -75,10 +79,10 @@ function App() {
     return Promise.all(
       urls.map(async (url) => {
         try {
-          const response = await fetch(url, { method: 'GET', mode: 'no-cors' });
-          return { url, status: 'success' };
+          const response = await fetch(url, { method: "GET", mode: "no-cors" });
+          return { url, status: "success" };
         } catch (error) {
-          return { url, status: 'error', error };
+          return { url, status: "error", error };
         }
       })
     );
@@ -106,7 +110,6 @@ function App() {
       localStorage.clear();
       sessionStorage.clear();
       window.location.href = "/login";
-
     } catch (error) {
       console.error("Error during logout:", error);
       window.location.href = "/login";
@@ -146,6 +149,34 @@ function App() {
   }, [location.pathname]);
 
   useEffect(() => {
+    const isUserLocked = async () => {
+      try {
+        const decoded = jwtDecode(authToken);
+        const phoneNumber = decoded?.result?.mobile_no;
+        // Check document status
+        const docResponse = await axios.get(
+          `${config.user_management_api_url}/user/pm/info/status?mblNo=${phoneNumber}`,
+          {
+            headers: {
+              api_key: config.api_key,
+              api_secret_key: config.api_secret_key,
+            },
+          }
+        );
+        if (docResponse.data && docResponse.data.status === false) {
+          if (location.pathname !== "/final-setup") {
+            navigate("/final-setup?step=2&isAccountLocked=true");
+          }
+        }
+      } catch (e) {
+        console.error("Error checking account status:", e);
+      }
+    };
+
+    authToken && !isReceptionist && isUserLocked();
+  }, [location.pathname, navigate, authToken, isReceptionist]);
+
+  useEffect(() => {
     // Load features asynchronously when the app renders
     growthbook?.init({ streaming: true });
     const token = authToken || getToken();
@@ -155,6 +186,7 @@ function App() {
         growthbook?.setAttributes({
           doctorId: decodedToken?.result?.doctor_unique_id,
           id: `${decodedToken?.result?.user_id}`,
+          hos_business_id: `${decodedToken?.result?.hospital_business_id}`
         });
       } catch (e) {
         console.log(e);
@@ -181,19 +213,70 @@ function App() {
           { replace: true }
         );
       }
-
     }
   }, [authToken, setToken, navigate]);
 
+  // Add effect to handle redirectTo parameter
+  useEffect(() => {
+    if (redirectTo) {
+      localStorage.setItem('redirectTo', redirectTo);
+
+      // Clean up URL but preserve other params
+      const params = new URLSearchParams(location.search);
+      params.delete("redirectTo");
+
+      // Update URL without the redirectTo parameter
+      navigate({
+        pathname: location.pathname,
+        search: params.toString()
+      }, { replace: true });
+    }
+  }, []);
+
   // Determine where to redirect on root path
   useEffect(() => {
-    if (isRootPath) {
-      const hasAuth = token || authToken;
-      if (!hasAuth) {
-        navigate("/login");
-      }
+    // Skip redirection for receptionist or non-relevant paths
+    if (isReceptionist || (!isRootPath && !isLoginPage)) {
+      return;
     }
-  }, [isRootPath, token, authToken, navigate]);
+
+    // Check authentication and get stored redirect path
+    const hasAuth = token || authToken;
+    const localRedirectTo = localStorage.getItem("redirectTo");
+
+    // Handle unauthenticated users
+    if (!hasAuth) {
+      const urlParams = new URLSearchParams(window.location.search);
+
+      // Only collect UTM params that have values
+      const utmParams = new URLSearchParams();
+      ['utm_source', 'utm_campaign', 'utm_medium', 'utm_content', 'utm_term'].forEach(param => {
+        const value = urlParams.get(param);
+        if (value) {
+          utmParams.append(param, value);
+        }
+      });
+
+      // Construct login URL with UTM parameters
+      const loginUrl = "/login" + (utmParams.toString() ? "?" + utmParams.toString() : "");
+
+      navigate(loginUrl);
+      return;
+    }
+
+    if (isChrome || isSafari) {
+      // Determine and execute redirection
+      const redirectPath = localRedirectTo === "profile" ? "/doctor_profile" : "/";
+
+      // Clean up localStorage if redirecting to profile
+      if (localRedirectTo === "profile") {
+        localStorage.removeItem("redirectTo");
+      }
+
+      navigate(redirectPath);
+    }
+  }, [isRootPath, token, authToken, navigate, redirectTo]);
+
 
 
   //Upgraded Services Modal
@@ -217,92 +300,105 @@ function App() {
   };
 
   return (
-    <>
-      <GrowthBookProvider growthbook={growthbook}>
-        <ErrorBoundary
-          FallbackComponent={ErrorFallback}
-          onError={(error) => {
-            // You can also log the error to an error reporting service like AppSignal
-            // logErrorToMyService(error, errorInfo);
-            console.error(error);
-          }}
-          onReset={(details) => {
-            // Reset the state of your app so the error doesn't happen again
-            console.error(details);
-          }}
-        >
-          <TalkativeWidget
-            region="au"
-            configUuid="3f5d31d7-aae5-43f2-903a-2dc2d90a36f3"
-          />
-          <Provider store={store}>
-            <PersistGate loading={null} persistor={persistor}>
-              {!isLoginPage && (
-                <div style={{
-                  position: 'sticky',
+    <GrowthBookProvider growthbook={growthbook}>
+      <ErrorBoundary
+        FallbackComponent={ErrorFallback}
+        onError={(error) => {
+          // You can also log the error to an error reporting service like AppSignal
+          // logErrorToMyService(error, errorInfo);
+          console.error(error);
+        }}
+        onReset={(details) => {
+          // Reset the state of your app so the error doesn't happen again
+          console.error(details);
+        }}
+      >
+        <TalkativeWidget
+          region="au"
+          configUuid="3f5d31d7-aae5-43f2-903a-2dc2d90a36f3"
+        />
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            {!isLoginPage && (
+              <div
+                style={{
+                  position: "sticky",
                   top: 0,
-                  zIndex: 1000,
-                }}>
-                  <DemoExpirationBanner />
-                  <PlanExpirationBanner />
-                  <ExpiredPlanCard />
-                  <DoctorModal />
-                </div>
-              )}
-              {isUpgradeModal && (
-                <UpgradeServicesModal isUpgradeModal={isUpgradeModal} upgradeList={upgradeList} handleUpgradeModal={handleUpgradeModal} />
-              )}
-              <Routes>
-                {/* Public route */}
-                <Route path="/login" element={<AuthContainer />} />
+                  zIndex: 199,
+                }}
+              >
+                <DemoExpirationBanner />
+                <PlanExpirationBanner />
+                <ExpiredPlanCard />
+                <DoctorModal />
+              </div>
+            )}
+            {isUpgradeModal && (
+              <UpgradeServicesModal isUpgradeModal={isUpgradeModal} upgradeList={upgradeList} handleUpgradeModal={handleUpgradeModal} />
+            )}
+            <Routes>
+              {/* Public route */}
+              {/* <Route path="/login" element={<AuthContainer />} /> */}
+              <Route path="/login" element={<Onboarding />} />
+              <Route path="/final-setup" element={<FinalSetup />} />
 
-                {/* Protected routes */}
-                <Route element={<PrivateRoute />}>
-                  <Route path="/*" element={<AppointmentList />} />
-                  <Route path="create-campaign" element={<MessageCreateCampaign />} />
-                  <Route path="patient_details" element={<PatientDetails />} />
-                  <Route
-                    path="prescription"
-                    element={isMobile ? <TabPrescription /> : <Prescription />}
-                  />
-                  <Route
-                    path="prescription_print_view"
-                    element={<PrescriptionPrintView />}
-                  />
-                  <Route
-                    path="configure_print_setting"
-                    element={<ConfigurePrintSetting />}
-                  />
-                  <Route path="certificate" element={<MedicalCertificate />} />
-                  <Route
-                    path="certificate_print_view"
-                    element={<CertificatePrintView />}
-                  />
-                  <Route
-                    path="smart-prescription"
-                    element={<SmartPrescription />}
-                  />
-                  <Route path="print-smart-rx" element={<SmartRxPreview />} />
-                  <Route path="doctor_profile" element={<DoctorProfile />} />
-                  <Route
-                    path="doctor_website_setting"
-                    element={<DoctorWebsiteSetting />}
-                  />
-                  <Route path="smart-rx-digitise" element={<SmartRxDigitise />} />
-                  <Route path="apollo-consultations" element={<ApolloConsultations />} />
-                  <Route path="gen-rx-print" element={<GenRxPrescriptionPrintView />} />
-                  <Route path="billing-dashboard" element={<BillingDashboard />} />
-                  <Route path="all_patients" element={<AllPatients />} />
-                  <Route path="billing-settings" element={<BillingSettings />} />
-                  <Route path="add-appointment" element={<AddAppointment />} />
-                  <Route path="get-unlimited-access" element={<GetUnlimitedAccess />} />
-                </Route>
-              </Routes>
-            </PersistGate>
-          </Provider>
-        </ErrorBoundary>
-      </GrowthBookProvider>
-    </>
+              {/* Protected routes */}
+              <Route element={<PrivateRoute />}>
+                <Route path="/*" element={<AppointmentList />} />
+                <Route
+                  path="create-campaign"
+                  element={<MessageCreateCampaign />}
+                />
+                <Route path="patient_details" element={<PatientDetails />} />
+                <Route
+                  path="prescription"
+                  element={isMobile ? <TabPrescription /> : <Prescription />}
+                />
+                <Route
+                  path="prescription_print_view"
+                  element={<PrescriptionPrintView />}
+                />
+                <Route
+                  path="configure_print_setting"
+                  element={<ConfigurePrintSetting />}
+                />
+                <Route path="certificate" element={<MedicalCertificate />} />
+                <Route
+                  path="certificate_print_view"
+                  element={<CertificatePrintView />}
+                />
+                <Route
+                  path="smart-prescription"
+                  element={<SmartPrescription />}
+                />
+                <Route path="print-smart-rx" element={<SmartRxPreview />} />
+                <Route path="doctor_profile" element={<DoctorProfile />} />
+                <Route
+                  path="doctor_website_setting"
+                  element={<DoctorWebsiteSetting />}
+                />
+                <Route path="smart-rx-digitise" element={<SmartRxDigitise />} />
+                <Route
+                  path="apollo-consultations"
+                  element={<ApolloConsultations />}
+                />
+                <Route
+                  path="gen-rx-print"
+                  element={<GenRxPrescriptionPrintView />}
+                />
+                <Route
+                  path="billing-dashboard"
+                  element={<BillingDashboard />}
+                />
+                <Route path="all_patients" element={<AllPatients />} />
+                <Route path="billing-settings" element={<BillingSettings />} />
+                <Route path="add-appointment" element={<AddAppointment />} />
+              </Route>
+            </Routes>
+          </PersistGate>
+        </Provider>
+      </ErrorBoundary>
+    </GrowthBookProvider>
   );
 }
 

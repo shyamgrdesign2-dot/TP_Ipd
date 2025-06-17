@@ -56,5 +56,8 @@ export default {
   tatvaPedia_domain_url: env.tatvaPedia_domain_url,
   symptoms_collector_api_url: env.symptoms_collector_api_url,
   monetization_url: env.monetization_url,
-  tp_monetization_disabled_hospital: env.tp_monetization_disabled_hospital
+  tp_monetization_disabled_hospital: env.tp_monetization_disabled_hospital,
+  GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
+  ZYDUS_BUSINESS_ID: env.ZYDUS_BUSINESS_ID,
+  APOLLO_BUSINESS_IDS: env.APOLLO_BUSINESS_IDS,
 };

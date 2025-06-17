@@ -15,7 +15,8 @@ import {
     Button,
     message,
     Modal,
-    Spin
+    Spin,
+    Tour
 } from "antd";
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
@@ -30,11 +31,13 @@ import noData from "../assets/images/nodata-found.svg";
 import visitEnd from '../assets/images/end-visit.svg';
 import ImgcancelEnd from '../assets/images/cancel-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
+import newTag from "../assets/images/new-gif.gif";
 import alertIcon from '../assets/images/alertIcon.svg';
 import { MESSAGE_KEY } from "../utils/constants";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import docimg from "../assets/images/docimg.png";
 import welcomdoc from "../assets/images/welcom-doc.svg";
+import symptoms from "../assets/images/symptoms-green.svg";
 import suporticon from "../assets/images/suport-icon.svg";
 import windoc from "../assets/images/win-doc.png";
 
@@ -76,6 +79,8 @@ import RecentBills from "../pages/opdBilling/components/recentBills/RecentBills"
 import AddAdvance from "../pages/opdBilling/components/advanceDeposit/AddAdvance";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 import { setAdvancedSettings, setBillPrintSettings, setShouldShowOpdBilling } from "../redux/billingSlice";
+import WelcomeModal from "./userOnboarding/welcomeModal/WelcomeModal";
+import { checkSymptomsCollectorTour } from "../api/services/ApiGenRx";
 import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 
 const { TextArea } = Input;
@@ -143,6 +148,7 @@ function AppointmentData({ locationPath }) {
     const isReceptionist = urlParams.has("receptionist");
     const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
       useState(null);
+    const [tourRef, setTourRef] = useState(null);
 
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
 
@@ -157,6 +163,55 @@ function AppointmentData({ locationPath }) {
             return true;
         }
     }
+    
+     // Add the tour handler
+    const onTourHandle = () => {
+        setIsSymptomsCollectorTour(false);
+    };
+
+    // Add the steps configuration
+    const steps = [
+      {
+        title: (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              fontSize: "20px",
+              fontWeight: "500",
+              color: "#1A1A1A",
+              width: "305px",
+            }}
+          >
+            Symptoms Collected
+            <img className="img-fluid" width={52} height={20} src={newTag} />
+          </div>
+        ),
+        description: (
+          <div
+            style={{
+              fontSize: "16px",
+              color: "#454551",
+              lineHeight: "24px",
+              width: "305px",
+            }}
+          >
+            This icon means the AI Agent Mira has collected the patient's{" "}
+            <strong style={{ fontWeight: 600 }}>symptoms</strong> &{" "}
+            <strong style={{ fontWeight: 600 }}>medical history</strong>. You
+            can now <strong style={{ fontWeight: 600 }}>preview</strong> and{" "}
+            <strong style={{ fontWeight: 600 }}>autofill</strong> them into the{" "}
+            <strong style={{ fontWeight: 600 }}>Rx</strong>
+          </div>
+        ),
+        target: () => tourRef,
+        nextButtonProps: {
+          children: <div className="sc-tour-button">Got it</div>,
+          onClick: onTourHandle,
+        },
+      },
+    ];
 
     const handleDrawerUploadDoc = () => {
         setUploadDocDrawer(!uploadDocDrawer);
@@ -477,13 +532,33 @@ function AppointmentData({ locationPath }) {
     const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
     const [patientBills, setPatientBills] = useState([]);
     const [patientWalletBalance, setPatientWalletBalance] = useState(0);
+    const [isSymptomsCollectorTour, setIsSymptomsCollectorTour] = useState(false);
+    const [firstSymptomIndex, setFirstSymptomIndex] = useState(null);
+
+    // Add this useEffect to find the first record with symptoms
+    useEffect(() => {
+      if (
+        selectedTab !== TAB_ZYDUS_ENCOUNTER &&
+        selectedTab !== TAB_ZYDUS_APPOINTMENT
+      ) {
+        const firstIndex = appointmentsData?.findIndex(
+          (record) => record.symptomsGathered
+        );
+        setFirstSymptomIndex(firstIndex);
+      } else {
+        const firstIndex = matchedAppointment?.findIndex(
+          (record) => record.symptomsGathered
+        );
+        setFirstSymptomIndex(firstIndex);
+      }
+    }, [appointmentsData, matchedAppointment, selectedTab]);
 
     const showHideBackModal = () => {
         setIsBackModalOpen(!isBackModalOpen);
     };
 
     useEffect(() => {
-        if (locationPath == '/' && from == 'onboarding') {
+        if (locationPath == '/' && ['onboarding', 'finalSetup'].includes(from)) {
             setModalOpen(true)
         }
     }, [locationPath, from]);
@@ -496,6 +571,7 @@ function AppointmentData({ locationPath }) {
             dispatch(resetObstetricState());
             dispatch(resetUploadDocState());
             dispatch(resetDDxState());
+            getSymptomCollectorTourCheck();
         }
     }, []);
 
@@ -544,6 +620,18 @@ function AppointmentData({ locationPath }) {
             getShowOpdBilling();
         }
     }, []);
+
+    const getSymptomCollectorTourCheck = async () => {
+        const decodedToken = getDecodedToken();
+        const clinicId = String(decodedToken?.result?.clinic_id);
+        const isSymptomsCollectorTourRes = await checkSymptomsCollectorTour({
+          um_id: userId,
+          hm_id: clinicId,
+        });
+        if (isSymptomsCollectorTourRes) {
+            setIsSymptomsCollectorTour(true);
+        }
+    };
 
     const getShowOpdBilling = async () => {
         const res = await checkToShowOpdBilling();
@@ -1010,7 +1098,7 @@ function AppointmentData({ locationPath }) {
         const action = await dispatch(syncZydusPatientAndAppointment(sendData))
         if (action.meta.requestStatus === "fulfilled") {
             if (flag === 1) {
-                goToConsut(record, action);
+                goToConsut(record, action, sendData.business_id);
             } else {
                 let cashManagerSendData = {
                     patient_unique_id: action?.payload?.patient_unique_id !== undefined ? action?.payload?.patient_unique_id : 0,
@@ -1030,7 +1118,8 @@ function AppointmentData({ locationPath }) {
                                     departmentId: record.departmentId,
                                     visitId: record.visitId,
                                     encounterId: record.encounterId,
-                                    employeeId: empNo[empNo.length - 1]
+                                    employeeId: empNo[empNo.length - 1],
+                                    hospital_business_id: tokenData?.hospital_business_id
                                 }
                             }
                         })
@@ -1038,7 +1127,7 @@ function AppointmentData({ locationPath }) {
                         errorMessage('Something went wrong! Please try again later')
                     }
                 } else {
-                    goToConsut(record, action);
+                    goToConsut(record, action, sendData.business_id);
                 }
             }
         } else {
@@ -1046,7 +1135,7 @@ function AppointmentData({ locationPath }) {
         }
     }
 
-    const goToConsut = async (record, action) => {
+    const goToConsut = async (record, action, business_id) => {
         const actionViewPatient = await dispatch(viewPatient({ patient_unique_id: action?.payload?.patient_unique_id, source: 'zydus' }));
         if (actionViewPatient.meta.requestStatus === "fulfilled") {
             navigate("/prescription", {
@@ -1059,6 +1148,7 @@ function AppointmentData({ locationPath }) {
                         visitId: record.visitId,
                         encounterId: record.encounterId,
                         employeeId: empNo[empNo.length - 1],
+                        hospital_business_id: business_id
                     }
                 }
             })
@@ -1308,10 +1398,10 @@ function AppointmentData({ locationPath }) {
         {
             title: selectedTab != TAB_ZYDUS_APPOINTMENT ? "Action" : "",
             key: "action",
-            width: 170,
+            width: 200,
             render: (_, record, index) => (
                 selectedTab != TAB_ZYDUS_APPOINTMENT ?
-                    <div size="middle" style={{ display: "flex" }}>
+                    <div size="middle" style={{ display: "flex", justifyContent: "space-between" }}>
                         {isSmartSyncAccessableFromGB && !isMobile && selectedTab != TAB_ZYDUS_ENCOUNTER ? (
                             isDigitisationTab ?
                                 <>
@@ -1319,7 +1409,7 @@ function AppointmentData({ locationPath }) {
                                         {"Digitise Rx"}
                                     </button>
                                 </> :
-                                <>
+                                <div className="d-flex">
                                     {selectedTab !== TAB_CANCELLED && (
                                         <button
                                             // className="btn btn-outline-primary btn-smart-rx" 
@@ -1347,7 +1437,7 @@ function AppointmentData({ locationPath }) {
                                             Consult
                                         </button>
                                     }
-                                </>
+                                </div>
                         ) : (
                             <>
                                 {selectedTab !== TAB_CANCELLED && selectedTab != TAB_ZYDUS_APPOINTMENT && !finishedData.some((x) => x.pam_ref_id == record.encounterId) && (
@@ -1357,9 +1447,35 @@ function AppointmentData({ locationPath }) {
                                 )}
                             </>
                         )}
+                        {record?.symptomsGathered && (
+                        <>
+                            <img 
+                                ref={index === firstSymptomIndex ? setTourRef : null}
+                                src={symptoms} 
+                                alt="symptoms" 
+                                onClick={() => setIsSymptomsCollectorTour(true)}
+                                style={{ cursor: 'pointer', marginLeft: '10px' }}
+                            />
+                             {index === firstSymptomIndex &&
+                             (<Tour 
+                                placement="bottomRight"
+                                closeIcon={false} 
+                                open={isSymptomsCollectorTour} 
+                                steps={steps} 
+                                onClose={onTourHandle}
+                                maskClosable={true}
+                                style={{
+                                    width: '305px',
+                                    borderRadius: '16px',
+                                    padding: '24px'
+                                }}
+                                width={305}
+                            />)}
+                        </>
+                        )}
                         {!isDigitisationTab && selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT &&
                             <Dropdown
-                                className="btn btn-outline btn-more ms-3"
+                                className="btn btn-outline btn-more ms-3 d-flex align-items-center"
                                 menu={{
                                     items: getMenuItems(record),
                                 }}
@@ -1958,64 +2074,69 @@ function AppointmentData({ locationPath }) {
             </div>)}
 
             {modalOpen && (
-                <Modal
-                    open={modalOpen}
-                    centered
-                    footer={null}
-                    width={window.innerWidth / 1.2}
-                    className="modal-onbording"
-                    onCancel={() => setModalOpen(false)}>
-                    <div style={{ flex: 1 }}>
+                <WelcomeModal 
+                    modalOpen={modalOpen}
+                    setModalOpen={setModalOpen}
+                    profile={profile}
+                />
+                // <Modal
+                //     open={modalOpen}
+                //     centered
+                //     footer={null}
+                //     width={window.innerWidth / 1.2}
+                //     className="modal-onbording"
+                //     onCancel={() => setModalOpen(false)}>
+                //     <div style={{ flex: 1 }}>
 
-                        <div style={{ flex: 1, margin: 20 }}>
+                //         <div style={{ flex: 1, margin: 20 }}>
 
-                            <figure>
-                                <img src={welcomdoc} style={{ width: window.innerWidth / 17, height: window.innerWidth / 17 }} />
-                            </figure>
+                //             <figure>
+                //                 <img src={welcomdoc} style={{ width: window.innerWidth / 17, height: window.innerWidth / 17 }} />
+                //             </figure>
 
-                            <div className='d-flex'>
-                                <div style={{ flex: 1, marginRight: 35 }}>
-                                    <div>
-                                        <h2 className="fw-medium mb-2" style={{ fontSize: 16 }}>Dr. {profile?.um_name.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')},</h2>
-                                        <h3 className="fw-semibold mb-5" style={{ fontSize: 48 }}>Welcome to TatvaPractice</h3>
-                                    </div>
-                                    <div style={{ background: '#fef4f5', padding: 15, borderRadius: 10 }}>
-                                        <span>
-                                            <img src={suporticon} alt={""} />
-                                        </span>
-                                        <h3 className="fs-6 fw-medium" style={{ marginTop: 9 }}>We will connect with you soon</h3>
-                                        <p className="fs-7 fw-normal">
-                                            We will contact you within 24 hours to assist you in setting
-                                            up your digital clinic and provide a walkthrough for writing
-                                            prescription digitally.
-                                        </p>
-                                    </div>
-                                </div>
-                                <figure>
-                                    {/* <img src={docimg} style={{ width: '100%', height: window.innerHeight / 1.9, objectFit: 'contain' }} /> */}
-                                    <iframe width="498" height="392" className="rounded-4" src="https://www.youtube.com/embed/ENARZJhE0iI?si=1TPlavqb5nvR0vx3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                                </figure>
-                            </div>
+                //             <div className='d-flex'>
+                //                 <div style={{ flex: 1, marginRight: 35 }}>
+                //                     <div>
+                //                         <h2 className="fw-medium mb-2" style={{ fontSize: 16 }}>Dr. {profile?.um_name.split(/\s+/).filter(word => (word.toLowerCase() != "Dr".toLowerCase() && word.toLowerCase() != "Dr.".toLowerCase())).join(' ')},</h2>
+                //                         <h3 className="fw-semibold mb-5" style={{ fontSize: 48 }}>Welcome to TatvaPractice</h3>
+                //                     </div>
+                //                     <div style={{ background: '#fef4f5', padding: 15, borderRadius: 10 }}>
+                //                         <span>
+                //                             <img src={suporticon} alt={""} />
+                //                         </span>
+                //                         <h3 className="fs-6 fw-medium" style={{ marginTop: 9 }}>We will connect with you soon</h3>
+                //                         <p className="fs-7 fw-normal">
+                //                             We will contact you within 24 hours to assist you in setting
+                //                             up your digital clinic and provide a walkthrough for writing
+                //                             prescription digitally.
+                //                         </p>
+                //                     </div>
+                //                 </div>
+                //                 <figure>
+                //                     {/* <img src={docimg} style={{ width: '100%', height: window.innerHeight / 1.9, objectFit: 'contain' }} /> */}
+                //                     <iframe width="498" height="392" className="rounded-4" src="https://www.youtube.com/embed/ENARZJhE0iI?si=1TPlavqb5nvR0vx3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                //                 </figure>
+                //             </div>
 
-                        </div>
+                //         </div>
 
-                        {/* <div class="doc-enjoy-secton d-flex align-items-center flex-column">
-                            <h3 className="fs-5 fw-semibold">
-                                <span>
-                                    <img src={windoc} />
-                                </span>
-                                Enjoy your 30 days trial period
-                            </h3>
-                            <p className="fs-7 fw-normal">
-                                This version is free for only 30 days. If you want to use
-                                the version for further, Please take a subscription
-                            </p>
-                        </div> */}
+                //         {/* <div class="doc-enjoy-secton d-flex align-items-center flex-column">
+                //             <h3 className="fs-5 fw-semibold">
+                //                 <span>
+                //                     <img src={windoc} />
+                //                 </span>
+                //                 Enjoy your 30 days trial period
+                //             </h3>
+                //             <p className="fs-7 fw-normal">
+                //                 This version is free for only 30 days. If you want to use
+                //                 the version for further, Please take a subscription
+                //             </p>
+                //         </div> */}
 
 
 
-                    </div>
-                </Modal>
+                //     </div>
+                // </Modal>
             )}
             {uploadDocDrawer && (
                 <Drawer

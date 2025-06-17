@@ -96,7 +96,7 @@ function Header({ locationPath }) {
 
   const navigate = useNavigate();
 
-  const { profile, loading, videoList, siteId, empNo } = useSelector((state) => state.doctors);
+  const { profile, loading, videoList, siteId, empNo, hasLocation } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
   const dispatch = useDispatch();
 
@@ -129,9 +129,16 @@ function Header({ locationPath }) {
   }, [isZydusUserAccessableFromGB]);
 
   useEffect(() => {
+    if (profile && hasLocation === false && !isReceptionist) {
+      const clinicDetails = profile?.hospital_data?.find((e) => e.hm_id == tokenData?.clinic_id);
+      navigate('/final-setup?noLocation=true', { replace: true, state: { clinicDetails } });
+    }
+  }, [hasLocation, navigate, isReceptionist, profile]);
+
+  useEffect(() => {
     dispatch(campaigns());
   }, []);
-
+  
   useEffect(() => {
     if (profile) {
       if (profile.moengage_b2c_send === undefined) {
@@ -1069,7 +1076,7 @@ function Header({ locationPath }) {
           {LOGO_MODAL}
           <Nav className="ms-auto align-items-center d-flex">
             {HOSPITAL_DATA}
-            {profile && profile.SwitchGrowthBook != 0 && (
+            {profile && profile.SwitchGrowthBook != 0 && tokenData?.hospital_business_id != env.zydus_business_id && !isZydusUserAccessableFromGB && (
               <div onClick={checkModalOpenOrClose} className='align-items-center cursor-pointer d-flex fs-14 fw-medium mx-4'>
                 <i className='icon-switch me-2'></i>
                 <span className="text-decoration-underline">Switch To Old View</span>

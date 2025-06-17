@@ -2545,7 +2545,7 @@ body {
         .ant-tour-buttons {
             width: 100%;
             .ant-btn-primary {
-                background-color: #000;
+                background-color: #000 !important;
                 width: 100%;
                 padding: 8.5px 10px;
                 margin: 0;
@@ -2842,4 +2842,76 @@ body {
     opacity: 0.5px;
     background: #FCFCFC;
     border: 1px solid #E2E2EA;
+}
+
+.sc-tour-button {
+    color: white !important;
+}
+
+.symptoms-table-row {
+  display: flex;
+  width: 100%;
+  border-bottom: 1px solid #e8e8e8;
+  margin: 0 !important;
+}
+
+.symptoms-table-row:first-child {
+  border-top: 1px solid #e8e8e8;
+}
+
+.symptoms-table-cell {
+  border-right: 1px solid #e8e8e8;
+  padding: 0;
+  min-height: 41px;
+  display: flex;
+  align-items: center;
+}
+
+.symptoms-table-cell:last-child {
+  border-right: none;
+}
+
+.symptoms-table-cell.center {
+  justify-content: center;
+}
+
+.symptoms-table-cell .ant-select,
+.symptoms-table-cell .ant-input,
+.symptoms-table-cell .ant-input-textarea {
+  width: 100%;
+  border: none !important;
+  border-radius: 0;
+}
+
+/* Remove default ant-design borders */
+.symptoms-select-box {
+    .ant-select-selector,
+    .ant-input,
+    .ant-input-textarea {
+        border: none !important;
+        box-shadow: none !important;
+    }
+}
+
+.sc-popup-btn {
+    &.btn.btn-input:hover {
+        background-color: white !important;
+        span {
+            color: #4B4AD5 !important;
+        }
+    }
+}
+
+.sc-tooltip {
+  &.ant-tooltip .ant-tooltip-inner {
+    background-color: #ffffff;
+    width: 350px;
+    height: 90px;
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  &.ant-tooltip .ant-tooltip-arrow {
+    --antd-arrow-background-color: #ffffff;
+  }
 }

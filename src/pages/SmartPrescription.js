@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import "../pages/smartSync/smartSync.css";
-import { Button, Drawer, message } from "antd";
+import { Button, Drawer, message, Tooltip } from "antd";
 import { useLocation } from "react-router-dom";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
@@ -15,6 +15,7 @@ import {
   SMART_RX_UPLOAD,
   WEBSOCKET_ERROR_MESSAGE,
   PAEDIATRICS,
+  GB_ZYDUS_USER,
 } from "../utils/constants";
 
 import ReconnectingWebSocket from "reconnectingwebsocket";
@@ -62,7 +63,9 @@ import vaccinationImg from "../assets/images/Vaccination.svg";
 import growthChartImg from "../assets/images/growth-chart-dark.svg";
 import obstetricImg from "../assets/images/obstetric-dark.svg";
 import uploadDocImg from "../assets/images/upload-doc-dark.svg";
+import symptomsImg from "../assets/images/Symptoms.svg";
 import labResultImg from "../assets/images/Lab.svg";
+import others from "../assets/images/custom-module.svg";
 import Vaccination from "./vaccination/Vaccination";
 import GrowthChart from "./growthChart/GrowthChart";
 import { viewPatient } from "../redux/appointmentsSlice";
@@ -97,6 +100,10 @@ import {
 import LabParametersList from "../components/LabParametersList";
 import LabParams from "../components/LabParams";
 import ViewLabParam from "../components/ViewLabParams";
+import { setShowSCPopup, setSymptomCollector } from "../redux/ddxSlice";
+import { fetchSymptomsCollectorData } from "../api/services/ApiGenRx";
+import SCBanner from "../components/SCBanner";
+import SCPopup from "../components/SCPopup";
 
 function SmartPrescription() {
   const {
@@ -134,6 +141,7 @@ function SmartPrescription() {
       item?.enablePrint)
   );
   const dispatch = useDispatch();
+  const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
 
   const { state } = useLocation();
   const { patient_data, send_path, caseManagerData, smartRxFilesData, pam_id } = state;
@@ -237,7 +245,7 @@ function SmartPrescription() {
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
 
   const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(GB_SMARTSYNC_CVT);
-
+  const isSCAccessable = useFeatureIsOn("symptoms-collector");
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
   const [privateNotesDrawer, setPrivateNotesDrawer] = useState(false);
@@ -253,6 +261,11 @@ function SmartPrescription() {
   const [isEditDocument, setIsEditDocument] = useState(false);
   const fileInputRef = useRef(null);
   const [cvtDrawer, setCvtDrawer] = useState(false);
+  const [showSCBanner, setShowSCBanner] = useState(false);
+  const [showAllSymptoms, setShowAllSymptoms] = useState(false);
+
+  const { showSCPopup, isAutofillSelected, selectedSymptomsCollector } =
+    useSelector((state) => state.ddx);
 
   const {
     isVaccinationAccessable,
@@ -453,6 +466,34 @@ function SmartPrescription() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (isSCAccessable) {
+      getSymptomsCollectorData();
+    }
+  }, [tokenData]);
+
+  const getSymptomsCollectorData = async () => {
+    const payload = {
+      um_id: String(userId),
+      patient_unique_id: String(patient_data?.patient_unique_id),
+      hm_id: String(tokenData?.clinic_id),
+      pam_id:
+        patient_data !== undefined && patient_data.pam_id !== undefined
+          ? String(patient_data.pam_id)
+          : caseManagerData !== undefined
+          ? String(caseManagerData.pam_id)
+          : 0,
+    };
+    const response = await fetchSymptomsCollectorData(payload);
+    if (response && Object.keys(response)?.length > 0) {
+      dispatch(setSymptomCollector(response?.summary_json_doctor));
+      setShowSCBanner(true);
+      if (patient_data?.pam_status === "0") {
+        dispatch(setShowSCPopup(true));
+      }
+    }
+  };
 
   // Drawer Vitals
   const handleDrawerVital = useCallback(() => {
@@ -1506,7 +1547,193 @@ function SmartPrescription() {
                   </div>
                 </div>
               )}
+              {/* add symptoms box if there is symptoms in SC */}
+              {isAutofillSelected &&
+                selectedSymptomsCollector?.symptoms?.length > 0 && (
+                  <div className="prescription-box-sm p-14">
+                    <div className="d-flex align-items-center">
+                      <img src={symptomsImg} alt="symptoms" className="me-2" />
+                      <div className="title-common">Symptoms</div>
+                      <Tooltip
+                        title={
+                          <div>
+                            The{" "}
+                            <strong style={{ fontWeight: 600 }}>
+                              symptoms
+                            </strong>{" "}
+                            shared by the patient is just for reference. To
+                            include it in the{" "}
+                            <strong style={{ fontWeight: 600 }}>Rx</strong>, you
+                            have to
+                            <strong style={{ fontWeight: 600 }}>
+                              {" "}
+                              write it manually using Smartsync.
+                            </strong>
+                          </div>
+                        }
+                        overlayClassName="sc-tooltip"
+                        placement="topLeft"
+                      >
+                        <div
+                          className="d-flex align-items-center justify-content-center gap-1"
+                          style={{
+                            backgroundColor: "rgba(181, 181, 255, 0.4)",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            marginLeft: "4px",
+                          }}
+                        >
+                          <span
+                            className="text-primary"
+                            style={{
+                              fontSize: "14px",
+                            }}
+                          >
+                            For reference only
+                          </span>
+                          <i
+                            class="icon-info"
+                            style={{
+                              color: "#4B4AD5",
+                              fontSize: 14,
+                            }}
+                          />
+                        </div>
+                      </Tooltip>
+                    </div>
+
+                    <div className="mt-3">
+                      {selectedSymptomsCollector?.symptoms
+                        ?.slice(0, showAllSymptoms ? undefined : 2)
+                        .map((symptomsData, index) => (
+                          <div className="symptoms-box mb-2">
+                            <div className="symptoms-box-left">
+                              <span
+                                className="backbar"
+                                style={{ fontSize: "14px" }}
+                              >
+                                • {symptomsData.name}
+                                {symptomsData.duration &&
+                                  ` (${symptomsData.duration}`}
+                                {symptomsData.severity &&
+                                  `, ${symptomsData.severity}`}
+                                {symptomsData.notes &&
+                                  `, ${symptomsData.notes}`}
+                                {(symptomsData.duration ||
+                                  symptomsData.severity ||
+                                  symptomsData.notes) &&
+                                  ")"}
+                                {index === 1 &&
+                                  !showAllSymptoms &&
+                                  selectedSymptomsCollector?.symptoms?.length >
+                                    2 && (
+                                    <button
+                                      className="btn-link text-primary ms-1"
+                                      style={{
+                                        border: "none",
+                                        background: "none",
+                                        padding: 0,
+                                        textDecoration: "underline",
+                                        display: "inline",
+                                      }}
+                                      onClick={() =>
+                                        setShowAllSymptoms(!showAllSymptoms)
+                                      }
+                                    >
+                                      {showAllSymptoms
+                                        ? "View less"
+                                        : "View more"}
+                                    </button>
+                                  )}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+
+                      {showAllSymptoms &&
+                        selectedSymptomsCollector?.symptoms?.length > 2 && (
+                          <button
+                            className="btn-link text-primary"
+                            style={{
+                              border: "none",
+                              background: "none",
+                              padding: 0,
+                              textDecoration: "none",
+                            }}
+                            onClick={() => setShowAllSymptoms(false)}
+                          >
+                            View less
+                          </button>
+                        )}
+                    </div>
+                  </div>
+                )}
+              {showSCBanner && (
+                <SCBanner handleBanner={() => setShowSCBanner(false)} />
+              )}
               {CUSTOMIZED_PAD_LEFT_LIST()}
+              {selectedSymptomsCollector?.notes && (
+                <div className="prescription-box-sm p-14">
+                  <div style={{ padding: "6px" }}>
+                    <div className="d-flex align-items-center mb-14">
+                      <img className="me-3" src={others} alt="others" />
+                      <div className="title-common">Additional Notes</div>
+                      <Tooltip
+                        title={
+                          <div>
+                            The{" "}
+                            <strong style={{ fontWeight: 600 }}>
+                              Additional Notes
+                            </strong>{" "}
+                            shared by the patient is just for reference. To
+                            include it in the{" "}
+                            <strong style={{ fontWeight: 600 }}>Rx</strong>, you
+                            have to
+                            <strong style={{ fontWeight: 600 }}>
+                              {" "}
+                              write it manually using Smartsync.
+                            </strong>
+                          </div>
+                        }
+                        overlayClassName="sc-tooltip"
+                        placement="topLeft"
+                      >
+                        <div
+                          className="d-flex align-items-center justify-content-center gap-1"
+                          style={{
+                            backgroundColor: "rgba(181, 181, 255, 0.4)",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            marginLeft: "4px",
+                          }}
+                        >
+                          <span
+                            className="text-primary"
+                            style={{
+                              fontSize: "14px",
+                            }}
+                          >
+                            For reference only
+                          </span>
+                          <i
+                            class="icon-info"
+                            style={{
+                              color: "#4B4AD5",
+                              fontSize: 14,
+                            }}
+                          />
+                        </div>
+                      </Tooltip>
+                    </div>
+                    <div
+                      className="d-flex calender-merge-input mt-3"
+                      style={{ fontSize: 14 }}
+                    >
+                      {selectedSymptomsCollector?.notes}
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="prescription-box-sm p-14">
                 <SmartRxFollowUpBox />
               </div>
@@ -1702,6 +1929,7 @@ function SmartPrescription() {
             open={obstetricDrawer}
             width="100%"
             push={false}
+            zIndex={100}
           >
             <Obstetric obstetricDetails={obstetricDetails} obstetricDrawer={obstetricDrawer} handleDrawerObstetric={handleDrawerObstetric} handleDrawerMedicalReport={handleDrawerMedicalReport} />
           </Drawer>
@@ -1825,6 +2053,9 @@ function SmartPrescription() {
             </>
           }
         />
+        {showSCPopup && (
+          <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} />
+        )}
       </>
     </CashManagerContext.Provider>
   );

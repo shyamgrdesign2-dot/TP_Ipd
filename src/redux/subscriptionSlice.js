@@ -63,6 +63,7 @@ export const fetchSubscriptionDetails = createAsyncThunk(
         expiresIn: moment(plan_expiry_date)
           .startOf("day")
           .diff(moment().startOf("day"), "days"),
+        onboarding_date: response?.body?.profile?.onboarding_date,
         planStatus: response?.body?.clinic?.planStatus?.code || "",
         service_mappings: response?.body?.clinic?.service_mappings || []
       };

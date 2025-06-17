@@ -41,11 +41,12 @@ import {
   removeBeforeWhiteSpace,
   capitalizeAfterSentence,
 } from "../../utils/utils";
-import { addModule, searchModule } from "../../redux/customModuleSlice";
+import { addModule, searchModule, userPreModulesRX } from "../../redux/customModuleSlice";
 
 import TabCustomModuleSearch from "../../components/tab_design/TabCustomModuleSearch";
 import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import { MESSAGE_KEY } from "../../utils/constants";
+import { getDecodedToken } from "../../utils/localStorage";
 
 function TabCustomModule({ module }) {
   const { customModules, latestSearchedModules, loading } = useSelector(
@@ -54,8 +55,9 @@ function TabCustomModule({ module }) {
   const { userId } = useSelector((state) => state.doctors);
 
   const dispatch = useDispatch();
+  const decodedToken = getDecodedToken();
 
-  const { customModuleContents, setCustomModuleContents } =
+  const { customModuleContents, setCustomModuleContents, patient_data, tcmId } =
     useContext(CashManagerContext);
 
   const [parentDrawer, setParentDrawer] = useState(false);
@@ -190,6 +192,34 @@ function TabCustomModule({ module }) {
       setMatchedTemplates(filteredTemplates);
     } else {
       setMatchedTemplates(templates);
+    }
+  };
+
+  const loadPreviousClick = async () => {
+    const tokenData = decodedToken?.result;
+    var sendData = {
+      module_id: module?.module_id,
+      hm_business_id: tokenData?.hospital_business_id,
+      um_id: tokenData?.user_id,
+      patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+      tcm_id: tcmId,
+    };
+    const action = await dispatch(userPreModulesRX(sendData));
+    if (action.meta.requestStatus === "fulfilled") {
+
+      const updatedData = action.payload?.moduleContents[0]?.content.map((e) => {
+        return { ...e, unique_id: uuidv4(), notes: e.notes || "" };
+      });
+      // Find the module's existing content and update it
+      const updatedModuleData = [
+        ...moduleData?.filter((e) => e.title || e.notes),
+        ...updatedData,
+      ];
+      // Update the parent state with the new module contents
+      updateCustomModuleContents(updatedModuleData);
+
+    } else {
+      errorMessage(action.error)
     }
   };
 
@@ -920,6 +950,13 @@ function TabCustomModule({ module }) {
             </div>
 
             <div className="d-flex align-items-center">
+                <button
+                  className="btn d-flex align-items-center btn-text"
+                  onClick={loadPreviousClick}
+                >
+                  {" "}
+                  <i className="icon-reload me-2"></i> <span>Load Prev. data</span>
+                </button>
               <button
                 className="btn d-flex align-items-center btn-text"
                 onClick={handleDrawerTemplate}

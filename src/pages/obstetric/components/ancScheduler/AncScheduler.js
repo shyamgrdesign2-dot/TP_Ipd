@@ -208,7 +208,13 @@ const AncScheduler = ({
       const updatedData = ancSchedulerData.map((innerArray, trimesterIndex) => {
         const newArray = [...innerArray];
         if (trimesterIndex === activeCategory) {
-          newArray[index] = { ...newArray[index], [key]: value };
+          newArray[index] = {
+            ...newArray[index],
+            [key]: value,
+            modifiedAt: new Date().toISOString(),
+            modifiedBy: userId,
+          };
+
           if (key !== "enablePrint" && !isOnBlur) {
             newArray[index] = {
               ...newArray[index],

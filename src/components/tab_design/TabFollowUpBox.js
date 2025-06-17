@@ -36,6 +36,9 @@ function TabFollowUpBox() {
     const { followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
     const [followUpInput, setFollowUpInput] = useState('');
     const [saveButton, setSaveButton] = useState(false);
+    const { isAutofillSelected, selectedSymptomsCollector } = useSelector(
+      (state) => state.ddx
+    );
 
     const [dateOptions, setDateOptions] = useState([
         { value: '2', unit: 'day', label: "2 Days" },
@@ -63,6 +66,19 @@ function TabFollowUpBox() {
 
     const [templateDrawer, setTemplateDrawer] = useState(false);
     const [saveDrawer, setSaveDrawer] = useState(false);
+
+    useEffect(() => {
+      if (
+        isAutofillSelected &&
+        selectedSymptomsCollector &&
+        Object.keys(selectedSymptomsCollector)?.length > 0 &&
+        selectedSymptomsCollector?.notes?.length > 0
+      ) {
+        setAdditionalNote(
+          capitalizeAfterSentence(selectedSymptomsCollector?.notes)
+        );
+      }
+    }, [isAutofillSelected, selectedSymptomsCollector]);
 
     useEffect(() => {
         dispatch(listFollowupTemplate());

@@ -346,7 +346,7 @@ const CreateBill = ({
 
   const getPatientDueAmount = async (patientUniqueId) => {
     const patientDueRes = await fetchPatientDueAmount(patientUniqueId);
-      setPatientDueAmount(patientDueRes?.previousDueAmount);
+    setPatientDueAmount(patientDueRes?.previousDueAmount);
   };
 
   const getPatientWalletBalance = async (patientUniqueId) => {
@@ -821,13 +821,13 @@ const CreateBill = ({
       const { masterId, name, quantity, amount, totalAmount } = item;
       return masterId && name && quantity && amount && totalAmount;
     });
-    const updatedPaymentModes = paymentModes?.filter(
-      (item) => item.paymentMode && item.amount > 0
-    );
-    if (updatedPaymentModes?.length !== paymentModes?.length) {
-      setPaymentModeItemMissing(true);
-      return;
-    }
+    // const updatedPaymentModes = paymentModes?.filter(
+    //   (item) => item.paymentMode && item.amount > 0
+    // );
+    // if (updatedPaymentModes?.length !== paymentModes?.length) {
+    //   setPaymentModeItemMissing(true);
+    //   return;
+    // }
     const patientUniqueId =
       patientData?.patient_unique_id || patientDetails?.patientUniqueId;
     const payload = {
@@ -1397,8 +1397,8 @@ const CreateBill = ({
                       disabled={
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
-                          !patientDetails?.patientUniqueId) ||
-                        Number(payableAmount) === 0
+                          !patientDetails?.patientUniqueId)
+                        //    || Number(payableAmount) === 0
                       }
                     >
                       Save & Exit
@@ -1412,8 +1412,8 @@ const CreateBill = ({
                       disabled={
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
-                          !patientDetails?.patientUniqueId) ||
-                        Number(payableAmount) === 0
+                          !patientDetails?.patientUniqueId)
+                        //    || Number(payableAmount) === 0
                       }
                     >
                       Save & Print
@@ -1433,7 +1433,7 @@ const CreateBill = ({
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
                           !patientDetails?.patientUniqueId) ||
-                        Number(payableAmount) === 0 ||
+                        // Number(payableAmount) === 0 ||
                         (isReceptionist &&
                           doctorsList?.length > 1 &&
                           !selectedDoctor)
@@ -1453,7 +1453,7 @@ const CreateBill = ({
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
                           !patientDetails?.patientUniqueId) ||
-                        Number(payableAmount) === 0 ||
+                        // Number(payableAmount) === 0 ||
                         (isReceptionist &&
                           doctorsList?.length > 1 &&
                           !selectedDoctor)

@@ -80,7 +80,7 @@ import TabPane from "antd/es/tabs/TabPane";
 import apexAIImg from "../assets/images/apexAI.svg";
 import blinkingDot from "../assets/images/blinkingDot.gif";
 import DifferentialDiagnosisDrawer from "../components/DifferentialDiagnosisDrawer";
-import { setIsDDxReadyToGenerate } from "../redux/ddxSlice";
+import { setIsDDxReadyToGenerate, setShowSCPopup, setSymptomCollector } from "../redux/ddxSlice";
 import { getDDxDetails } from "../api/services/ApiDDx";
 import { getDecodedToken } from "../utils/localStorage";
 import DDxList from "../components/medical_certificate/DDxList";
@@ -95,6 +95,10 @@ import ConsultationDrawer from "../components/ConsultationDrawer";
 import ExpiredSubModal from "./monetization/components/ExpiredSubModal";
 import { checkCredits } from "../redux/monetizationSlice";
 import { services } from "../redux/doctorsSlice";
+import { fetchSymptomsCollectorData } from "../api/services/ApiGenRx";
+import SCPopup from "../components/SCPopup";
+import SCBanner from "../components/SCBanner";
+import genRxBg from "../assets/images/gen-rx-bg.gif";
 
 function Prescription() {
   const {
@@ -137,6 +141,7 @@ function Prescription() {
   );
   const dispatch = useDispatch();
   const decodedToken = getDecodedToken();
+  const tokenData = decodedToken?.result;
 
   const { state } = useLocation();
   const { patient_data, send_path, caseManagerData } = state;
@@ -170,6 +175,7 @@ function Prescription() {
   const [customModuleContents, setCustomModuleContents] = useState([]);
   const [isGenRxDrawerVisible, setIsGenRxDrawerVisible] = useState(caseManagerData?.smart_prescription_filename || false);
   const [pillupSwitch, setPillupSwitch] = useState(true);
+  const [showSCBanner, setShowSCBanner] = useState(false);
 
   const { servicesList } = useSelector((state) => state.doctors);
 
@@ -268,15 +274,17 @@ function Prescription() {
   const [genRxKnowMoreDrawer, setGenRxKnowMoreDrawer] = useState(false);
   const [tatvaAiKnowMoreDrawer, setTatvaAiKnowMoreDrawer] = useState(false);
   const tp_monetization_enable = !shouldMonetizationDisabled();
+  const [showShimmer, setShowShimmer] = useState(false);
   const isApexAIAccessable = useFeatureIsOn("cdss");
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
   const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
+  const isSCAccessable = useFeatureIsOn("symptoms-collector");
   const {
     isVaccinationAccessable,
     isGrowthChartAccessable,
     isGynaecHistoryAccessable,
   } = useAccess(patient_data?.ageYears);
-  const { isDDxReadyToGenerate } = useSelector(
+  const { isDDxReadyToGenerate, showSCPopup, isAutofillSelected } = useSelector(
     (state) => state.ddx
   );
 
@@ -316,6 +324,17 @@ function Prescription() {
     const response = await fetchAllDocumentCategories();
     dispatch(setUploadDocCategories(response));
   };
+
+  useEffect(() => {
+    if (isAutofillSelected) {
+      setShowShimmer(true);
+      const timer = setTimeout(() => {
+        setShowShimmer(false);
+      }, 1000); // 1 seconds
+
+      return () => clearTimeout(timer); // Cleanup timeout
+    }
+  }, [isAutofillSelected]);
 
   useEffect(() => {
     const clinic_name = getClinicName(profile?.hospital_data);
@@ -674,6 +693,35 @@ function Prescription() {
     getLabParams();
   }, []);
 
+  useEffect(() => {
+    if (isSCAccessable) {
+      getSymptomsCollectorData();
+    }
+  }, []);
+
+
+  const getSymptomsCollectorData = async () => {
+    const payload = {
+      um_id: String(userId),
+      patient_unique_id: String(patient_data?.patient_unique_id),
+      hm_id: String(decodedToken?.result?.clinic_id),
+      pam_id:
+        patient_data !== undefined && patient_data.pam_id !== undefined
+          ? String(patient_data.pam_id)
+          : caseManagerData !== undefined
+          ? String(caseManagerData.pam_id)
+          : 0,
+    };
+    const response = await fetchSymptomsCollectorData(payload);
+    if (response && Object.keys(response)?.length > 0) {
+      dispatch(setSymptomCollector(response?.summary_json_doctor));
+      setShowSCBanner(true);
+      if (patient_data?.pam_status === "0") {
+        dispatch(setShowSCPopup(true));
+      }
+    }
+  };
+
   const fetchGynecHistory = async () => {
     try {
       const data = await getGynecDetails(
@@ -885,6 +933,22 @@ function Prescription() {
     setTatvaAiKnowMoreDrawer((prev) => !prev);
   };
 
+  const ShimmerLoader = () => {
+    return (
+      <div className="sc-shimmer-container">
+        <div className="shimmer-box">
+          <div className="shimmer-header">
+            <div className="shimmer-title"></div>
+            <div className="shimmer-edit"></div>
+          </div>
+          <div className="shimmer-line"></div>
+          <div className="shimmer-line"></div>
+          <div className="shimmer-line"></div>
+        </div>
+      </div>
+    );
+  };
+
   const CUSTOMIZED_PAD_LEFT_LIST = () => {
     return customizedPadLeftList?.map((e, i) => {
       return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
@@ -916,36 +980,40 @@ function Prescription() {
           )}
         </div>
       ) : e.tmdpm_id === 3 && e.tmdpm_status === 0 ? (
-        <div key={i} className="prescription-box-sm p-14">
-          <div className="d-flex align-items-center justify-content-between">
-            <div className="d-flex align-items-center">
-              <img
-                src={MedicalHistory}
-                alt="Medical History"
-                className="me-3"
-              />
-              <div className="title-common">{isGynaecHistoryAccessable ? `Gynec History` : `Medical History`}</div>
-              {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
-                <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
-              </Button> */}
-            </div>
+        <div style={showShimmer ? { background: `url(${genRxBg})`, padding: "2px", borderRadius: "20px", marginBottom: "15px" } : {}}>
+          <div key={i} className="prescription-box-sm p-14" style={showShimmer ? {} : {marginBottom: "15px"}}>
+            <div style={{ background: "white", borderRadius: "17px" }}>
+              <div className="d-flex align-items-center justify-content-between">
+                <div className="d-flex align-items-center">
+                  <img
+                    src={MedicalHistory}
+                    alt="Medical History"
+                    className="me-3"
+                  />
+                  <div className="title-common">{isGynaecHistoryAccessable ? `Gynec History` : `Medical History`}</div>
+                  {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
+                    <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
+                  </Button> */}
+                </div>
 
-            <button
-              className="btn d-flex align-items-center btn-text"
-              onClick={handleDrawerMedicalHistory}
-            >
-              {" "}
-              <i
-                className={`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)
-                  ? "icon-Edit"
-                  : "icon-Add"
-                  } me-1 fs-5`}
-              ></i>{" "}
-              <span>{`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0) ? "Edit" : "Add"
-                }`}</span>
-            </button>
+                <button
+                  className="btn d-flex align-items-center btn-text"
+                  onClick={handleDrawerMedicalHistory}
+                >
+                  {" "}
+                  <i
+                    className={`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)
+                      ? "icon-Edit"
+                      : "icon-Add"
+                      } me-1 fs-5`}
+                  ></i>{" "}
+                  <span>{`${medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0) ? "Edit" : "Add"
+                    }`}</span>
+                </button>
+              </div>
+              {showShimmer ? <ShimmerLoader /> : (medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)) && <MedicalHistoryList gynecHistory={updatedGynecHistory} />}
+            </div>
           </div>
-          {(medicalHistoryData.length > 0 || (updatedGynecHistory && Object.keys(updatedGynecHistory).length > 0)) && <MedicalHistoryList gynecHistory={updatedGynecHistory} />}
         </div>
       ) :
         e.tmdpm_id === 7 &&
@@ -1201,7 +1269,7 @@ function Prescription() {
                           height={20}
                           style={{ marginRight: 8 }}
                         />
-                        Tatva AI
+                        TatvaAI
                         {isDDxReadyToGenerate && generatedDDx?.results?.length > 0 && (
                           <img
                             src={blinkingDot}
@@ -1270,13 +1338,16 @@ function Prescription() {
                   )}
                   </Carousel>
                 } */}
+                {showSCBanner && <SCBanner handleBanner={() => setShowSCBanner(false)} />}
                 {customizedPadRightList?.map((e, i) => {
                   const customModule = customModules?.find(
                     (m) => m.module_id === e.tmdpm_id
                   )
                   return e.tmdpm_id === 5 && e.tmdpm_status === 0 ? (
-                    <div key={i} className="prescription-box-sm">
-                      <SymptomsBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} />
+                    <div key={i} className="prescription-box-sm" style={showShimmer ? { background: `url(${genRxBg})`, padding: "2px" } : {}}>
+                      <div style={showShimmer ? {background: "white", borderRadius: "17px"} : {}}>
+                        <SymptomsBox handleDDxDrawer={handleDDxDrawer} generatedDDx={generatedDDx?.results} />
+                      </div>
                     </div>
                   ) : e.tmdpm_id === 10 && e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
@@ -1533,6 +1604,7 @@ function Prescription() {
           isSubModalOpen={isSubModalOpen}
           showHideSubModal={showHideSubModal} />
 
+        {showSCPopup && !caseManagerData?.smart_prescription_filename && <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} handleGenRx={handleGenRx} />}
       </>
     </CashManagerContext.Provider>
   );

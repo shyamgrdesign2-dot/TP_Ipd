@@ -802,3 +802,17 @@ export const shouldMonetizationDisabled = () => {
 
   return false;
 }
+export const detectOperatingSystem = () => {
+  const userAgent = window.navigator.userAgent;
+  const platform = window.navigator.platform;
+  
+  const os = {
+    Windows: /Win/.test(platform),
+    MacOS: /Mac/.test(platform),
+    Linux: /Linux/.test(platform),
+    iOS: /iPhone|iPad|iPod/.test(userAgent),
+    Android: /Android/.test(userAgent)
+  };
+
+  return Object.keys(os).find(key => os[key]) || 'Unknown';
+};

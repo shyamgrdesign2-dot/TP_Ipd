@@ -19,7 +19,7 @@ const TatvaAiBanner = ({ setShowTatvaAiPopup, handleTatvaAiKnowMore }) => {
         <div style={{ fontSize: 16, fontWeight: 500 }}>
           <div className="d-flex align-items-center">
             Redefine Rx & Diagnosis with{" "}
-            <b style={{ marginLeft: 5 }}>Tatva AI</b>
+            <b style={{ marginLeft: 5 }}>TatvaAI</b>
             <img
               style={{ marginLeft: 10 }}
               src={newTag}

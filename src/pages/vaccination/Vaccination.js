@@ -31,6 +31,7 @@ import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import FullPageLoader from "./components/Loader.js";
 import { getTokenData, handlePrintClick } from "../../utils/utils.js";
+import { getDecodedToken } from "../../utils/localStorage.js";
 
 function Vaccination({ handleDrawerVaccination }) {
   const [isFixed, setIsFixed] = useState(false);
@@ -100,9 +101,13 @@ function Vaccination({ handleDrawerVaccination }) {
   const { profile } = useSelector((state) => state.doctors);
 
   const getPatientDetail = async () => {
-    const {hospital_business_id} = getTokenData();
+    const decodedToken = getDecodedToken();
+    const hospital_bid = decodedToken?.result?.hospital_business_id;
     const patientDetails = await getPatientDetails({
-      hospital_bid: hospital_business_id,
+      hospital_bid:
+        patient_data?.hm_business_id ||
+        patient_data?.hospital_business_id ||
+        hospital_bid,
       patient_uid: patient_data?.patient_unique_id,
       hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
     });

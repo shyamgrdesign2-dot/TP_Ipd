@@ -23,6 +23,8 @@ function SmartRxFollowUpBox() {
 
     const { followUpDate, setFollowUpDate} = useContext(CashManagerContext);
     const [followUpInput, setFollowUpInput] = useState('');
+    const { selectedSymptomsCollector } =
+    useSelector((state) => state.ddx);
 
     const [dateOptions, setDateOptions] = useState([
         { value: '2', unit: 'day', label: "2 Days" },

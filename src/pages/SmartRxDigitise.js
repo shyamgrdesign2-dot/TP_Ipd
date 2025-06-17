@@ -169,11 +169,10 @@ function SmartRxDigitise() {
             // Update the digitized data
             if (response?.data?.data) {
                 setData(response.data.data.refinedData);
+                setIsLoading(false);
             }
         } catch (error) {
             console.error('Error uploading files:', error);
-        } finally {
-            setIsLoading(false);
         }
     };
 

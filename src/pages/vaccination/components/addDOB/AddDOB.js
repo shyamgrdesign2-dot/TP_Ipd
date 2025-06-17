@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
 import "./AddDOB.scss";
 import { viewPatient } from "../../../../redux/appointmentsSlice";
+import { getDecodedToken } from "../../../../utils/localStorage";
 
 const AddDOB = ({
   show,
@@ -20,7 +21,8 @@ const AddDOB = ({
   const dispatch = useDispatch();
   const [dob, setDob] = useState("");
   const { profile } = useSelector((state) => state.doctors);
-  const {hospital_business_id} = getTokenData();
+  const decodedToken = getDecodedToken();
+  const hospital_bid = decodedToken?.result?.hospital_business_id;
 
   useEffect(() => {
     if (patientDetails.DOB) {
@@ -34,7 +36,10 @@ const AddDOB = ({
     const payload = {
       patient_uid: patientDetails?.patient_unique_id,
       patient_pid: patientDetails?.pm_pid,
-      hospital_bid: hospital_business_id,
+      hospital_bid:
+        patientDetails?.hm_business_id ||
+        patientDetails?.hospital_business_id ||
+        hospital_bid,
       hospital_id: patientDetails?.hm_id || profile?.hospital_data?.[0]?.hm_id,
       patient_first_name: patientDetails?.pm_first_name || "",
       patient_middle_name: patientDetails?.pm_middle_name || "",
@@ -58,7 +63,10 @@ const AddDOB = ({
     const payload = {
       patient_uid: patientDetails?.patient_unique_id,
       patient_pid: patientDetails?.vac_pid || patientDetails?.pm_pid,
-      hospital_bid: hospital_business_id,
+      hospital_bid:
+        patientDetails?.hm_business_id ||
+        patientDetails?.hospital_business_id ||
+        hospital_bid,
       hospital_id: patientDetails?.hm_id || profile?.hospital_data?.[0]?.hm_id,
       updated_dob: moment(dob, "DD-MM-YYYY").format("YYYY-MM-DD"),
     };

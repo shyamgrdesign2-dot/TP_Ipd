@@ -3,6 +3,7 @@ import { Navbar } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Button, Popover } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import { errorMessage, getClinicName } from "../utils/utils";
 import VideoModal from './VideoModal';
@@ -20,9 +21,16 @@ import playIcons from '../assets/images/tube-icon.svg';
 import PrintSettingsContext from '../context/PrintSettingsContext';
 import { setCurrentSessionRx } from '../redux/obstetricSlice';
 import { addModule } from '../redux/customModuleSlice';
+import { getDecodedToken } from '../utils/localStorage';
+import { env } from '../EnvironmentConfig';
+import { GB_ZYDUS_USER } from '../utils/constants';
 
 function HeaderPrintSetting({ defaultPrintSettings }) {
     const navigate = useNavigate();
+
+    const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+    const decodedToken = getDecodedToken();
+    const tokenData = decodedToken?.result;
 
     const [popOverVideo, setPopOverVideo] = useState(false);
     const [videoLink, setVideoLink] = useState(null);
@@ -260,9 +268,11 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
                             <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
                         </button>
                     </Popover>
-                    <button className='btn btn-text me-14' onClick={onDefaultPrintsettings}>
-                        <span>Default Settings</span>
-                    </button>
+                    {tokenData?.hospital_business_id != env.zydus_business_id && !isZydusUserAccessableFromGB && (
+                        <button className='btn btn-text me-14' onClick={onDefaultPrintsettings}>
+                            <span>Default Settings</span>
+                        </button>
+                    )}
                     <Button type='button' className="btn-41 btn px-4 btn-primary3 me-4" onClick={() => { 
                             setFlag(3);
                             showHideBackModal(); 

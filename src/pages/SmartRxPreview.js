@@ -266,14 +266,16 @@ function SmartRxPreview() {
         const digitisedData = await fetchRxDigitisedData();
         const appointmentId = digitisedData?.data?.appointmentId;
 
-        // Append other fields to FormData
-        formData.append('doctorId', data.result.user_id);
-        formData.append('patientId', patient_data.patient_unique_id);
-        formData.append('appointmentId', (digitisedData.data) ? appointmentId : state?.pam_id);
-        formData.append('caseId', state.tcm_id);
-    
-        try {
-            const cleanedToken = token.replace(/['"]+/g, '');
+        // Only proceed if digitisedData is null
+        if (!digitisedData?.data) {
+            // Append other fields to FormData
+            formData.append('doctorId', data.result.user_id);
+            formData.append('patientId', patient_data.patient_unique_id);
+            formData.append('appointmentId', state?.pam_id);
+            formData.append('caseId', state.tcm_id);
+        
+            try {
+                const cleanedToken = token.replace(/['"]+/g, '');
 
                 // API call for Rx Digitisation
                 const response = await axios.post(`${baseUrlRxDigitise}/api/v1/rxdigitize/temp-rx`, formData, {
@@ -282,9 +284,9 @@ function SmartRxPreview() {
                         'Authorization': `Bearer ${cleanedToken}`,
                     },
                 });
-                // console.log(response,"response")
-        }catch (error) {
-            console.error('Error uploading files:', error);
+            } catch (error) {
+                console.error('Error uploading files:', error);
+            }
         }
     }; 
 
@@ -452,6 +454,7 @@ function SmartRxPreview() {
                                 tcm_id: state.tcm_id,
                                 print_url: state.print_url,
                                 digitisedData: response?.data,
+                                pam_id: state?.pam_id,
                                 type:"edit"
                             },
                         })
@@ -559,7 +562,7 @@ function SmartRxPreview() {
                                             </p>
                                         </div>
                                     )}
-                                    {!rxDigitiseApiResponse && !showProgressbar && smartRxFile?.length > 0 && (
+                                    {!rxDigitiseApiResponse && !showProgressbar && smartRxFile?.length > 0 && state?.page !== "digitise" && (
                                         <div className="digitise-container p-3 rounded-10px">
                                             <div className="digitise-box-top">
                                                 <img src={successIcon} alt="success" width="40px" height="40px" />

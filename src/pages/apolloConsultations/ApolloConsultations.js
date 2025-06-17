@@ -204,17 +204,23 @@ const ConsultationDetailsPage = () => {
         ),
     },
     {
-      title: "Vaccinations",
-      dataIndex: "vaccinations",
-      key: "vaccinations",
-      render: (vaccinations) =>
-        vaccinations && vaccinations.length > 0 ? (
+      title: "Additional Investigations",
+      dataIndex: "dynamicModules",
+      key: "additionalInvestigations",
+      render: (dynamicModules) => {
+        const crossConsultData = dynamicModules?.find(
+          (item) =>
+            item?.name ===
+            "Additional Investigation (Not Found in Standard Master List)"
+        );
+        return crossConsultData?.content?.length > 0 ? (
           <Button
             type="link"
+            style={{ color: "#4B4AD5" }}
             onClick={() => {
               setModalContent({
-                title: "Vaccinations",
-                list: vaccinations,
+                title: crossConsultData?.name,
+                list: crossConsultData?.content?.map((item) => item.title),
               });
               setVisibleModal(true);
             }}
@@ -224,7 +230,8 @@ const ConsultationDetailsPage = () => {
           </Button>
         ) : (
           ""
-        ),
+        );
+      },
     },
     {
       title: "Surgeries",
@@ -279,6 +286,29 @@ const ConsultationDetailsPage = () => {
       },
     },
     {
+      title: "Vaccinations",
+      dataIndex: "vaccinations",
+      key: "vaccinations",
+      render: (vaccinations) =>
+        vaccinations && vaccinations.length > 0 ? (
+          <Button
+            type="link"
+            onClick={() => {
+              setModalContent({
+                title: "Vaccinations",
+                list: vaccinations,
+              });
+              setVisibleModal(true);
+            }}
+            className="show-more-link"
+          >
+            View
+          </Button>
+        ) : (
+          ""
+        ),
+    },
+    {
       title: "Vaccination Packages",
       dataIndex: "dynamicModules",
       key: "vaccinePackages",
@@ -308,9 +338,11 @@ const ConsultationDetailsPage = () => {
         );
       },
     },
+
     {
       title: "Remarks",
       key: "remarks",
+      width: 90,
       render: (_, record) => {
         const remarks = record.remarks || "";
         const isTruncated = remarks.length > MAX_REMARKS_LENGTH;
@@ -399,21 +431,22 @@ const ConsultationDetailsPage = () => {
       setExcelLoading(true)
       const { consultationsList } = await fetchApolloConsultations(params);
       const workSheetColumnNames = [
-        'Patient Name',
-        'Apollo ID',
-        'Consultation Date & Time',
-        'Doctor Name',
-        'Investigations',
-        'Vaccinations',
-        'Surgeries',
-        'Cross Consult',
-        'Vaccination Packages',
-        'Remaks'
-      ]
+        "Patient Name",
+        "Apollo ID",
+        "Consultation Date & Time",
+        "Doctor Name",
+        "Investigations",
+        "Additional Investigations",
+        "Surgeries",
+        "Cross Consult",
+        "Vaccinations",
+        "Vaccination Packages",
+        "Remaks",
+      ];
 
       const data = []
       consultationsList.map(e => {
-        let crossConsultList = [], vaccinationPackagesList = []
+        let crossConsultList = [], vaccinationPackagesList = [], additionalInvestigationsList = []
         const crossConsultData = e?.dynamicModules?.find((item) => item?.name === "Cross Consult / Referred to")
         if (crossConsultData?.content?.length > 0) {
           crossConsultList = crossConsultData?.content?.map((item) => item.title)
@@ -422,9 +455,18 @@ const ConsultationDetailsPage = () => {
         if (vaccinationPackageData?.content?.length > 0) {
           vaccinationPackagesList = vaccinationPackageData?.content?.map((item) => item.title)
         }
+        const additionalInvestigationsData = e?.dynamicModules?.find(
+          (item) =>
+            item?.name ===
+            "Additional Investigation (Not Found in Standard Master List)"
+        );
+        if (additionalInvestigationsData?.content?.length > 0) {
+          additionalInvestigationsList = additionalInvestigationsData?.content?.map((item) => item.title)
+        }
 
         const sizes = [
           { name: "investigation", size: e?.investigations?.length },
+          { name: "additionalInvestigations", size: additionalInvestigationsList?.length },
           { name: "vaccination", size: e?.vaccinations?.length },
           { name: "surgerie", size: e?.surgeries?.length },
           { name: "crossConsult", size: crossConsultList?.length },
@@ -510,6 +552,27 @@ const ConsultationDetailsPage = () => {
               ])
             })
           }
+        } else if (largest?.name === "additionalInvestigations") {
+          additionalInvestigationsList.map((item, index) => {
+            data.push([
+              e?.patientName,
+              e?.apolloId,
+              moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
+              e?.doctorName,
+              e?.investigations[index] !== undefined
+                ? e?.investigations[index]
+                : "",
+              e?.vaccinations[index] !== undefined
+                ? e?.vaccinations[index]
+                : "",
+              e?.surgeries[index] !== undefined ? e?.surgeries[index] : "",
+              item,
+              additionalInvestigationsList[index] !== undefined
+                ? additionalInvestigationsList[index]
+                : "",
+              e?.remarks,
+            ]);
+          })
         } else {
           data.push([
             e?.patientName,

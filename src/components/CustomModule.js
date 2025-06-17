@@ -37,7 +37,12 @@ import CashManagerContext from "../context/CashManagerContext";
 import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 import ModuleIcon from "../assets/images/custom-module.svg";
 import { MenuOutlined } from "@ant-design/icons";
-import { addModule, clearSearchResults, searchModule } from "../redux/customModuleSlice";
+import {
+  addModule,
+  clearSearchResults,
+  searchModule,
+  userPreModulesRX,
+} from "../redux/customModuleSlice";
 
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import editIcon from "../assets/images/edit-icon-blue.svg";
@@ -46,6 +51,7 @@ import TextArea from "antd/es/input/TextArea";
 import { MESSAGE_KEY } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
+import { getDecodedToken } from "../utils/localStorage";
 
 function CustomModule({ module }) {
   const { customModules, searchModuleResults, loading } = useSelector(
@@ -54,8 +60,9 @@ function CustomModule({ module }) {
   const { userId } = useSelector((state) => state.doctors);
 
   const dispatch = useDispatch();
+  const decodedToken = getDecodedToken();
 
-  const { customModuleContents, setCustomModuleContents } =
+  const { customModuleContents, setCustomModuleContents, patient_data, tcmId } =
     useContext(CashManagerContext);
 
   //PopOver1
@@ -119,11 +126,11 @@ function CustomModule({ module }) {
 
   useEffect(() => {
     const data = [];
-    searchModuleResults.map(({ title }, i) => {
+    searchModuleResults.map(({ title, notes }, i) => {
       return data.push({
-        key: JSON.stringify({ title, i, unique_id: uuidv4() }),
+        key: JSON.stringify({ title, notes, i, unique_id: uuidv4() }),
         value: title,
-        label: <div>{title}</div>,
+        label: <div className="fw-medium">{title}</div>,
       });
     });
     if (searchChildQuery.query?.length === 0) {
@@ -142,6 +149,7 @@ function CustomModule({ module }) {
             unique_id: uuidv4(),
             change: 1,
             title: searchChildQuery?.query,
+            notes: "",
           }),
           value: searchChildQuery?.query,
           label: (
@@ -211,15 +219,47 @@ function CustomModule({ module }) {
   );
 
   const onSelectChild = useCallback(
-    (data, i) => {
+    (data, option, i) => {
       const updatedModuleData = [...moduleData];
+
+      // Try multiple approaches to get the notes
+      let title = data;
+      let notes = "";
+
+      // Approach 1: Parse the key if it exists
+      if (option && option.key && option.key !== -1) {
+        try {
+          const selectedData = JSON.parse(option.key);
+          title = selectedData.title || data;
+          notes = selectedData.notes || "";
+
+          // Only add a new empty entry when an item is selected from dropdown
+          // (when option.key exists and is not -1)
+          updatedModuleData.push({ title: "", notes: "" });
+        } catch (error) {
+          // If parsing fails, try approach 2
+        }
+      }
+
+      // Approach 2: Find the corresponding search result
+      if (!notes && searchModuleResults.length > 0) {
+        const matchingResult = searchModuleResults.find(
+          (result) => result.title === data
+        );
+        if (matchingResult) {
+          notes = matchingResult.notes || "";
+        }
+      }
+
       updatedModuleData[i] = {
         ...updatedModuleData[i],
-        title: data,
+        title: title,
+        notes: notes,
       };
+
       updateCustomModuleContents(updatedModuleData);
     },
-    [moduleData]
+    [moduleData, searchModuleResults]
   );
 
   const onChangeNoteChild = useCallback(
@@ -262,6 +302,35 @@ function CustomModule({ module }) {
       setMatchedTemplates(filteredTemplates);
     } else {
       setMatchedTemplates(templates);
+    }
+  };
+
+  const loadPreviousClick = async () => {
+    const tokenData = decodedToken?.result;
+    var sendData = {
+      module_id: module?.module_id,
+      hm_business_id: tokenData?.hospital_business_id,
+      um_id: tokenData?.user_id,
+      patient_unique_id:
+        patient_data !== undefined ? patient_data.patient_unique_id : 0,
+      tcm_id: tcmId,
+    };
+    const action = await dispatch(userPreModulesRX(sendData));
+    if (action.meta.requestStatus === "fulfilled") {
+      const updatedData = action.payload?.moduleContents[0]?.content.map(
+        (e) => {
+          return { ...e, unique_id: uuidv4(), notes: e.notes || "" };
+        }
+      );
+      // Find the module's existing content and update it
+      const updatedModuleData = [
+        ...moduleData?.filter((e) => e.title || e.notes),
+        ...updatedData,
+      ];
+      // Update the parent state with the new module contents
+      updateCustomModuleContents(updatedModuleData);
+    } else {
+      errorMessage(action.error);
     }
   };
 
@@ -594,7 +663,15 @@ function CustomModule({ module }) {
                             options={childSearchOptions}
                             className="autocomplete-custom w-100 inputborder"
                             defaultActiveFirstOption={true}
-                            onSelect={(data) => onSelectChild(data, index)}
+                            onSelect={(data, option) =>
+                              onSelectChild(data, option, index)
+                            }
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                onSearchChild(e.target.value, index);
+                              }
+                            }}
                           />
                         </div>
                       </Col>
@@ -1002,7 +1079,16 @@ function CustomModule({ module }) {
               <img className="me-2" src={ModuleIcon} alt={module?.name} />
               <div className="title-common">{module?.name}</div>
             </div>
+
             <div className="d-flex align-items-center">
+              <button
+                className="btn d-flex align-items-center btn-text"
+                onClick={loadPreviousClick}
+              >
+                {" "}
+                <i className="icon-reload me-2"></i>{" "}
+                <span>Load Prev. data</span>
+              </button>
               <Popover
                 open={popOver1}
                 onOpenChange={showHideTemplatesListPopover}

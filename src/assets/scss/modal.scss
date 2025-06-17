@@ -313,6 +313,12 @@ body {
     }
 }
 
+.sc-popup {
+    .ant-modal-header {
+        margin: 0px;
+    }
+}
+
 .opd-plan-qr {
     width: 45rem;
     .ant-modal-content {

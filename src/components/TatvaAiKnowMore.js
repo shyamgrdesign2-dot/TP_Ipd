@@ -93,7 +93,7 @@ const TatvaAiKnowMore = ({
           >
             <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
           </Button>
-          <div className="drawer-title">Tatva AI</div>
+          <div className="drawer-title">TatvaAI</div>
         </div>
 
         {/* Tabs */}
@@ -115,14 +115,14 @@ const TatvaAiKnowMore = ({
           >
             Basic Info
           </span>
-          <div className="know-more-section-tilte">What is Tatva AI</div>
+          <div className="know-more-section-tilte">What is TatvaAI</div>
           <div className="know-more-section-content basic-info-section ">
             <img src={tatvaAiIcon} alt="apex-AI" width={72} height={72} />
             <div>
-              Tatva AI is a revolutionary AI-powered healthcare assistant
+              TatvaAI is a revolutionary AI-powered healthcare assistant
               designed to enhance clinical efficiency, accuracy, and
               decision-making for doctors. By integrating cutting-edge
-              artificial intelligence with intuitive workflows, Tatva AI
+              artificial intelligence with intuitive workflows, TatvaAI
               simplifies complex tasks and streamlines the care delivery
               process.
             </div>

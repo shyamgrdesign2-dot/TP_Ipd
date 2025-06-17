@@ -52,13 +52,16 @@ const dev = {
   razorPay_key: "rzp_test_NfYVp2U3ALGItU",
   tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
-  tatvaAi_logout_url:"https://tatva-ai-uat.tatvacare.in/logout",
+  tatvaAi_logout_url: "https://tatva-ai-uat.tatvacare.in/logout",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in",
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
+  GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
+  ZYDUS_BUSINESS_ID: 754811713438773,
+  APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
   tp_monetization_disabled_hospital: [754811713438773, 912841712741834]
 };
@@ -121,16 +124,18 @@ const qa_tp = {
   razorPay_key: "rzp_test_NfYVp2U3ALGItU",
   tatvaAi_api_url: "https://pm-doctor-tatva-qa.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
-  tatvaAi_logout_url:"https://tatva-ai-uat.tatvacare.in/logout",
+  tatvaAi_logout_url: "https://tatva-ai-uat.tatvacare.in/logout",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
-  symptoms_collector_api_url: "https://pm-tatva-agents-qa.tatvacare.in",
+  symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
+  GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
+  ZYDUS_BUSINESS_ID: 754811713438773,
+  APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
   tp_monetization_disabled_hospital: [754811713438773, 912841712741834]
-  // tp_monetization_disabled_hospital: [754811713438773, 912841712741834,427631747743070]
 };
 
 const qa = {
@@ -187,13 +192,16 @@ const qa = {
   razorPay_key: "rzp_test_NfYVp2U3ALGItU",
   tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
-  tatvaAi_logout_url:"https://tatva-ai-uat.tatvacare.in/logout",
+  tatvaAi_logout_url: "https://tatva-ai-uat.tatvacare.in/logout",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-qa.tatvacare.in",
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-qa.tatvacare.in",
+  GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
+  ZYDUS_BUSINESS_ID: 754811713438773,
+  APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
   tp_monetization_disabled_hospital: [754811713438773, 912841712741834]
 };
@@ -257,13 +265,16 @@ const uat = {
   razorPay_key: "rzp_test_NfYVp2U3ALGItU",
   tatvaAi_api_url: "https://pm-doctor-tatva-uat.tatvacare.in",
   tatvaAi_url: "https://tatva-ai-uat.tatvacare.in",
-  tatvaAi_logout_url:"https://tatva-ai-uat.tatvacare.in/logout",
+  tatvaAi_logout_url: "https://tatva-ai-uat.tatvacare.in/logout",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-uat.tatvacare.in",
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
+  GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
+  ZYDUS_BUSINESS_ID: 754811713438773,
+  APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
   monetization_url: "https://pm-tp-monetization-uat.tatvacare.in",
   tp_monetization_disabled_hospital: [754811713438773, 912841712741834]
 };
@@ -303,7 +314,7 @@ const prod = {
     "https://pm-medicalhistory-prod.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-prod.tatvacare.in`,
   zydus_business_id: "368451724046474",
-  zydus_proxy_url: 'https://pm-ict-proxy.tatvacare.in',
+  zydus_proxy_url: "https://pm-ict-proxy.tatvacare.in",
   rx_digitization: "https://pm-rxdigitization-prod.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-prod.tatvacare.in",
   lab_params_api_url: "https://pm-patient-docs-prod.tatvacare.in",
@@ -315,19 +326,28 @@ const prod = {
   opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.com",
   upload_doc_api_url: "https://pm-patient-docs-prod.tatvacare.in",
   central_auth_api_url: "https://pm-central-auth-prod.tatvacare.in",
-  pedia_logout_url: "https://diginext-authserver-prod.tatvacare.in/logout?post_logout_redirect_uri=https://tatvapedia.tatvacare.in&client_id=client",
+  pedia_logout_url:
+    "https://diginext-authserver-prod.tatvacare.in/logout?post_logout_redirect_uri=https://tatvapedia.tatvacare.in&client_id=client",
   bulk_messages: "https://pm-communication-prod.tatvacare.in",
   searchengine_url: "https://pm-searchengine-prod.tatvacare.in",
   razorPay_key: "rzp_live_GvLkPHHNSMs2G3",
   tatvaAi_api_url: "https://pm-doctor-tatva-prod.tatvacare.in",
   tatvaAi_url: "https://tatva-ai.tatvacare.in",
-  tatvaAi_logout_url:"https://tatva-ai.tatvacare.in/logout",
+  tatvaAi_logout_url: "https://tatva-ai.tatvacare.in/logout",
   lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
   lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
   gen_rx_api_url: "https://pm-rxdigitization-prod.tatvacare.in",
   tatvaPedia_api_url: "https://diginext-authserver-prod.tatvacare.in",
-  tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in", 
+  tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in",
   symptoms_collector_api_url: "https://pm-tatva-agents-prod.tatvacare.in",
+  GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
+  ZYDUS_BUSINESS_ID: 368451724046474,
+  APOLLO_BUSINESS_IDS: [
+    345711722419722, 189641711087501, 635211726058248, 817391726308284,
+    389721726761413, 625141727277272, 137621731053002, 268741731506046,
+    549821734513388, 628451726551928, 684191731931706, 879361730721433,
+    538421739782028, 136841742984591,
+  ],
   monetization_url: "https://pm-tp-monetization-prod.tatvacare.in",
   tp_monetization_disabled_hospital: [368451724046474, 345711722419722, 189641711087501, 635211726058248, 817391726308284, 389721726761413, 625141727277272, 137621731053002, 268741731506046, 549821734513388, 628451726551928, 684191731931706, 879361730721433, 538421739782028, 136841742984591]
 };

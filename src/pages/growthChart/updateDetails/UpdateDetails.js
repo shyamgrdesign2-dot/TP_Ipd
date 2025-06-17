@@ -12,6 +12,7 @@ import { disableFutureDates, getMidParentalHeight } from "../growthChartHelper";
 import { useDispatch } from "react-redux";
 import { editPatient } from "../../../redux/appointmentsSlice";
 import { updateDob } from "../../vaccination/service";
+import { getDecodedToken } from "../../../utils/localStorage";
 
 export default function UpdateDetails({
   show,
@@ -132,6 +133,8 @@ export default function UpdateDetails({
   };
 
   const updatePatientDob = async () => {
+    const decodedToken = getDecodedToken();
+    const hospital_bid = decodedToken?.result?.hospital_business_id;
     const payload = {
       pm_salutation: patients_details?.pm_salutation,
       pm_fullname: patients_details?.pm_fullname,
@@ -153,7 +156,10 @@ export default function UpdateDetails({
       const payload = {
         patient_uid: patient_data?.patient_unique_id,
         patient_pid: patient_data?.pm_pid,
-        hospital_bid: hospital_business_id,
+        hospital_bid:
+          patient_data?.hm_business_id ||
+          patient_data?.hospital_business_id ||
+          hospital_bid,
         hospital_id: patient_data?.hm_id || profile?.hospital_data?.[0]?.hm_id,
         updated_dob: moment(dob, "DD-MM-YYYY").format("YYYY-MM-DD"),
       };
