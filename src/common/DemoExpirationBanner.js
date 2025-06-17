@@ -116,7 +116,7 @@ const DemoExpirationBanner = () => {
         </div>
         <p className="expirationMessage text-white">
           {planStatus == TRIAL && EMR_planDetails?.status == PENDING ? (
-            `Your free trial ends in ${remaingDays} days. Purchase a plan to continue hassle-free access!`
+            `Your free trial ends in ${remaingDays > 0 ? remaingDays : 0} days. Purchase a plan to continue hassle-free access!`
           ) : planStatus == PAID && EMR_planDetails?.status == PAID ? (
             'Your payment is being verified. This may take up to 3-6 working days.'
           ) : planStatus == TRIAL && EMR_planDetails?.status == PAID ? (

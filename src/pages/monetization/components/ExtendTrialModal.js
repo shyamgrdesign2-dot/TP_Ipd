@@ -52,7 +52,7 @@ function ExtendTrialModal() {
         const action = await dispatch(extendFreeTrial(b2c));
         if (action.meta.requestStatus === "fulfilled") {
             setIsExpiredModalOpen(false)
-            errorMessage('Free trial extend successfully')
+            errorMessage('Free Trial has been extended successfully')
             dispatch(fetchSubscriptionDetails())
         }
         const clinic_name = getClinicName(profile?.hospital_data);

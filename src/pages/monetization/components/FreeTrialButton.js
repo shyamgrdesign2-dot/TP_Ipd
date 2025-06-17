@@ -36,7 +36,7 @@ function FreeTrialButton({ title, showHideSubModal }) {
                 {AI_planDetails?.credit_balance} free trial
                 <i className="icon-right iconrotate180" style={{ color: AI_planDetails?.credit_balance > 0 ? '#212529' : '#FC5A5A' }}></i>
             </Button>
-        ) : AI_planDetails?.service_type === 'non_ai' && (
+        ) : NonAI_planDetails?.plan_tier === TRIAL && AI_planDetails?.service_type === 'non_ai' && (
             <Button className={`btn rounded-pill btn-free-trials me-3 ${isPurchased() && 'btn-free-0-trials'}`} onClick={showHideSubModal}>
                 {isPurchased() ? 'Free trial expired' : `${remaingDays} days free trial`}
                 <i className="icon-right iconrotate180" style={{ color: isPurchased() ? '#FC5A5A' : '#212529' }}></i>
