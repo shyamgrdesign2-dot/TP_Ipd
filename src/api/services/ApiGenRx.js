@@ -75,3 +75,15 @@ export const checkSymptomsCollectorTour = async function (payload) {
   }
   return res;
 };
+
+export const setAddToRx = async function (payload) {
+  try {
+    await api.post(
+      `/api/v1/agents/set-add-to-rx`,
+      payload,
+      symptomsCollectorBaseUrl
+    );
+  } catch (e) {
+    console.error("Error while setting add to rx: ", e);
+  }
+};

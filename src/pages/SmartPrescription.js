@@ -101,9 +101,10 @@ import LabParametersList from "../components/LabParametersList";
 import LabParams from "../components/LabParams";
 import ViewLabParam from "../components/ViewLabParams";
 import { setShowSCPopup, setSymptomCollector } from "../redux/ddxSlice";
-import { fetchSymptomsCollectorData } from "../api/services/ApiGenRx";
+import { fetchSymptomsCollectorData, setAddToRx } from "../api/services/ApiGenRx";
 import SCBanner from "../components/SCBanner";
 import SCPopup from "../components/SCPopup";
+import { getDecodedToken } from "../utils/localStorage";
 
 function SmartPrescription() {
   const {
@@ -152,7 +153,7 @@ function SmartPrescription() {
     caseManagerData !== undefined
       ? caseManagerData.consultation_date
       : moment().format("YYYY-MM-DD HH:mm:ss");
-
+  const decodedToken = getDecodedToken();
   const [symptomsData, setSymptomsData] = useState([]);
   const [examinationData, setExaminationData] = useState([]);
   const [surgeriesData, setSurgeriesData] = useState([]);
@@ -264,7 +265,7 @@ function SmartPrescription() {
   const [showSCBanner, setShowSCBanner] = useState(false);
   const [showAllSymptoms, setShowAllSymptoms] = useState(false);
 
-  const { showSCPopup, isAutofillSelected, selectedSymptomsCollector } =
+  const { showSCPopup, isAutofillSelected, selectedSymptomsCollector, symptomCollector } =
     useSelector((state) => state.ddx);
 
   const {
@@ -477,7 +478,7 @@ function SmartPrescription() {
     const payload = {
       um_id: String(userId),
       patient_unique_id: String(patient_data?.patient_unique_id),
-      hm_id: String(tokenData?.clinic_id),
+      hm_id: String(decodedToken?.result?.clinic_id),
       pam_id:
         patient_data !== undefined && patient_data.pam_id !== undefined
           ? String(patient_data.pam_id)
@@ -487,7 +488,12 @@ function SmartPrescription() {
     };
     const response = await fetchSymptomsCollectorData(payload);
     if (response && Object.keys(response)?.length > 0) {
-      dispatch(setSymptomCollector(response?.summary_json_doctor));
+      dispatch(
+        setSymptomCollector({
+          ...response?.summary_json_doctor,
+          _id: response?._id,
+        })
+      );
       setShowSCBanner(true);
       if (patient_data?.pam_status === "0") {
         dispatch(setShowSCPopup(true));
@@ -1378,6 +1384,12 @@ function SmartPrescription() {
         const data = response?.message;
       }
       setSmartRxDetails(files || []);
+      if (isAutofillSelected) {
+        await setAddToRx({
+          _id: symptomCollector?._id,
+          addToRx: true,
+        });
+      }
     } catch (error) {
       errorMessage("Error Uploading the prescription, Please try again");
       console.error("Error Submitting the prescription:", error);

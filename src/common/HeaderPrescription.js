@@ -46,6 +46,7 @@ import { placeIctOrder } from '../redux/appointmentsSlice';
 import { getDecodedToken } from '../utils/localStorage';
 import { env } from '../EnvironmentConfig';
 import { updateCredits } from '../redux/monetizationSlice';
+import { setAddToRx } from '../api/services/ApiGenRx';
 
 var oneClickCosultationTemplateId = 0
 
@@ -70,7 +71,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
 
     const navigate = useNavigate();
     const { patient_data, send_path, tcmId, pamId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, surgeriesData, setSurgeriesData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, privateNotesData, setPrivateNotesData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime, customModuleContents, setCustomModuleContents, pillupSwitch, useVoiceRx, useDDX } = useContext(CashManagerContext);
-    const { isAutofillSelected, selectedSymptomsCollector } = useSelector(
+    const { isAutofillSelected, selectedSymptomsCollector, symptomCollector } = useSelector(
         (state) => state.ddx
     );
 
@@ -1093,6 +1094,13 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                         service_name: S_DDX
                     }
                     dispatch(updateCredits(sendData))
+                if (isAutofillSelected) {
+                    await setAddToRx({
+                            _id: symptomCollector?._id,
+                            addToRx: true,
+                        }
+                    );
+                }
                 }
 
                 window.Moengage.track_event("Z_enter_getInvestigationAndMedicine", {
