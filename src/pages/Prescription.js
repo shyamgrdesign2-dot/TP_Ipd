@@ -1198,7 +1198,7 @@ function Prescription() {
       if (labReportID && zydusSelectedLabParams.length === 0) {
         try {
           const response = await axios.post(
-            'https://pm-patient-docs-uat.tatvacare.in/api/v1/lab-reports/getByID',
+            `${env.lab_params_api_url}/api/v1/lab-reports/getByID`,
             {
               labReportID: labReportID,
               source: "zydus-ict",
