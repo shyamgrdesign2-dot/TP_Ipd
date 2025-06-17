@@ -44,6 +44,7 @@ export const fetchSubscriptionDetails = createAsyncThunk(
       } = response?.body?.profile;
 
       return {
+        b2c: response?.body?.clinic?.b2c,
         plan_active_date:
           plan_active_date || response?.body?.profile?.plan_active_date,
         plan_expiry_date:
@@ -63,6 +64,8 @@ export const fetchSubscriptionDetails = createAsyncThunk(
           .startOf("day")
           .diff(moment().startOf("day"), "days"),
         onboarding_date: response?.body?.profile?.onboarding_date,
+        planStatus: response?.body?.clinic?.planStatus?.code || "",
+        service_mappings: response?.body?.clinic?.service_mappings || []
       };
     }
   }

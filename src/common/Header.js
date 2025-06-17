@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { Container, Navbar, Nav } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Select, Button, Checkbox, Popover, Drawer, Dropdown, Spin } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
@@ -27,15 +27,17 @@ import upgradeIcon from "../assets/images/upgrade.svg";
 import profileBg from "../assets/images/profile-bg.svg";
 import goldCrown from "../assets/images/gold-crown.svg";
 import crownIcon from "../assets/images/crown.svg";
+import AISuite from "../assets/images/ai-suite.png";
+import iconMobile from "../assets/images/icon-mobile.svg";
 
 import config from "../config";
-import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds } from "../redux/doctorsSlice";
+import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds, campaigns } from "../redux/doctorsSlice";
 import { viewDoctorWebsite } from "../redux/doctorWebsiteSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage, getDecodedToken } from "../utils/localStorage";
-import { GB_ZYDUS_USER, OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
-import { errorMessage, getClinicName, makeDefaultLogo } from "../utils/utils";
+import { TRIAL, GB_ZYDUS_USER, OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_TATVA_PRACTICE } from "../utils/constants";
+import { errorMessage, getClinicName, makeDefaultLogo, shouldMonetizationDisabled, getTokenData, getDeviceSdkData } from "../utils/utils";
 import { Modal, Card } from "antd";
 import alertIcon from '../assets/images/alertIcon.svg';
 import PremiumUser from "./PremiumUser";
@@ -46,6 +48,9 @@ import { env } from "../EnvironmentConfig";
 import CommonModal from "./CommonModal";
 import { useReactToPrint } from 'react-to-print';
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
+import moment from "moment";
+import AiSuite from "../pages/monetization/components/AiSuite";
+import MedEcoAppKnowMore from "../pages/monetization/components/MedEcoAppKnowMore";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
@@ -60,6 +65,7 @@ function Header({ locationPath }) {
     "opd-plans"
   );
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+  const tp_monetization_enable = !shouldMonetizationDisabled();
 
   const decodedToken = getDecodedToken();
   const apiUrl = env.opd_encryption_url;
@@ -98,8 +104,10 @@ function Header({ locationPath }) {
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
   const [tokenData, setTokenData] = useState(null);
-
   const [isLoading, setIsLoading] = useState(false);
+  const [aiModal, setAiModal] = useState(false);
+  const [medEcoKnowMoreDrawer, setMedEcoKnowMoreDrawer] = useState(false);
+
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
 
@@ -113,7 +121,7 @@ function Header({ locationPath }) {
       dispatch(getDefaultPrintsettings({ default: false }));
       dispatch(listVideo());
     }
-   
+
     const tokenData = decodedToken?.result;
     if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
       dispatch(zydusRefIds())
@@ -127,6 +135,10 @@ function Header({ locationPath }) {
     }
   }, [hasLocation, navigate, isReceptionist, profile]);
 
+  useEffect(() => {
+    dispatch(campaigns());
+  }, []);
+  
   useEffect(() => {
     if (profile) {
       if (profile.moengage_b2c_send === undefined) {
@@ -297,11 +309,11 @@ function Header({ locationPath }) {
                   className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes, Switch
                 </div>
-                <Button 
+                <Button
                   onClick={() => {
                     window.Moengage.track_event("TP_Tatvapedia_Switch_cancelled");
                     showHideLogoModal()
-                  }} 
+                  }}
                   className="lh-lg btn btn-primary3 btn-41 px-4"
                 >
                   <span>No, Stay</span>
@@ -589,24 +601,24 @@ function Header({ locationPath }) {
           iframe.style.height = "0";
           iframe.style.border = "none";
           iframe.style.visibility = "hidden";
-  
+
           // Set a timeout to reject if the iframe doesn't load within 5 seconds
           const timeoutId = setTimeout(() => {
             reject({ url, status: "timeout" });
           }, 5000);
-  
+
           iframe.onload = () => {
             clearTimeout(timeoutId);
             resolve({ url, status: "success" });
           };
-  
+
           iframe.onerror = () => {
             clearTimeout(timeoutId);
             reject({ url, status: "error" });
           };
-  
+
           document.body.appendChild(iframe);
-  
+
           // Cleanup the iframe after it's loaded or failed
           setTimeout(() => {
             document.body.removeChild(iframe);
@@ -614,10 +626,10 @@ function Header({ locationPath }) {
         });
       })
     );
-  
+
     return iframeStatuses;
   };
-  
+
   const handleLogout = async () => {
     const urlsToOpen = [
       config.pedia_logout_url,
@@ -655,7 +667,7 @@ function Header({ locationPath }) {
       // Even if there's an error, clear storage and redirect
       localStorage.clear();
       sessionStorage.clear();
-      
+
       // Redirect to login page
       navigate("/login");
     } finally {
@@ -663,14 +675,19 @@ function Header({ locationPath }) {
       window.isLoggingOut = false;
     }
   };
-  
+
+  const clickBuyNow = () => {
+    navigate('/get-unlimited-access')
+  }
+
   const handleClick = () => {
     const clinic_name = getClinicName(profile?.hospital_data);
     window.Moengage.track_event("BuyPlanNow_Click", {
       doctor_id: profile?.doctor_unique_id,
       clinic_name,
     });
-    dispatch(openModal());
+    // dispatch(openModal());
+    clickBuyNow()
   };
 
   const getMenuItems = () => {
@@ -678,7 +695,7 @@ function Header({ locationPath }) {
       {
         label: (
           <>
-            <div className="me-3">
+            <div className="mx-3">
               {profile?.um_image && planDetails?.currentPlanStatus !== "PAID" ? (
                 <img
                   src={profile?.um_image ?? defaultprofile}
@@ -708,31 +725,42 @@ function Header({ locationPath }) {
       {
         label: (
           <a onClick={() => setUpWebsiteUrl(1)}>
-            <div className="title-common me-5 d-flex align-items-center">
+            <div className="title-common me-4 d-flex align-items-center">
               <i className="icon-profile me-3"></i>My Profile
             </div>
             <i className="icon-right iconrotate180"></i>
           </a>
         ),
-        key: "2",
+        key: "1",
       },
+      // {
+      //   label: (
+      //     <a onClick={handleAiSuite}>
+      //       <div className="title-common me-4 d-flex align-items-center">
+      //         <img src={AISuite} className="me-3" style={{ filter: 'grayscale(100%)' }} alt="AI Suite" />AI Suite
+      //       </div>
+      //       <i className="icon-right iconrotate180"></i>
+      //     </a>
+      //   ),
+      //   key: "2",
+      // },
+      // {
+      //   label: (
+      //     <a onClick={handleMedEcoKnowMore}>
+      //       <div className="title-common me-4 d-flex align-items-center">
+      //         <img src={iconMobile} className="me-3" style={{ filter: 'grayscale(100%)' }} alt="MedEco Mobile App" /> MedEco Mobile App
+      //       </div>
+      //       <i className="icon-right iconrotate180"></i>
+      //     </a>
+      //   ),
+      //   key: "3",
+      // },
       {
         label: (
           <a onClick={() => setUpWebsiteUrl(2)}>
-            <div className="title-common me-5 d-flex align-items-center">
+            <div className="title-common me-4 d-flex align-items-center">
               <i className="icon-group me-3"></i>
               {`${profile?.website_publish && profile?.publish_url ? "Visit" : "Setup"} My Website`}
-            </div>
-            <i className="icon-right iconrotate180"></i>
-          </a>
-        ),
-        key: "3",
-      },
-      {
-        label: (
-          <a onClick={myAvailability}>
-            <div className="title-common me-5 d-flex align-items-center">
-              <i className="icon-calendar me-3"></i>My Availability
             </div>
             <i className="icon-right iconrotate180"></i>
           </a>
@@ -741,9 +769,9 @@ function Header({ locationPath }) {
       },
       {
         label: (
-          <a onClick={accountSettings}>
-            <div className="title-common me-5 d-flex align-items-center">
-              <i className="icon-setting me-3"></i>Account Setting
+          <a onClick={myAvailability}>
+            <div className="title-common me-4 d-flex align-items-center">
+              <i className="icon-calendar me-3"></i>My Availability
             </div>
             <i className="icon-right iconrotate180"></i>
           </a>
@@ -751,21 +779,32 @@ function Header({ locationPath }) {
         key: "5",
       },
       {
-        label:
-          <a onClick={() => ["TRIAL","EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : setUpWebsiteUrl(1)}>
-            <div className="title-common me-5 d-flex align-items-center">
-              {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
-              {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{ filter: 'brightness(0%)' }} alt="" />}
-              {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? "Upgrade Plan" : "Subscription"}
-              {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <div className="gradientBackground d-flex">
-                <div className="demoModeIndicatorSmall bg-danger" />
-                <span className='demoModeLabel'>Demo mode</span>
-              </div>}
+        label: (
+          <a onClick={accountSettings}>
+            <div className="title-common me-4 d-flex align-items-center">
+              <i className="icon-setting me-3"></i>Account Setting
             </div>
             <i className="icon-right iconrotate180"></i>
-          </a>,
-        key: '7',
+          </a>
+        ),
+        key: "6",
       },
+      // {
+      //   label:
+      //     <a onClick={() => ["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : setUpWebsiteUrl(1)}>
+      //       <div className="title-common me-4 d-flex align-items-center">
+      //         {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
+      //         {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{ filter: 'brightness(0%)' }} alt="" />}
+      //         {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? "Upgrade Plan" : "Subscription"}
+      //         {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <div className="gradientBackground d-flex">
+      //           <div className="demoModeIndicatorSmall bg-danger" />
+      //           <span className='demoModeLabel'>Demo mode</span>
+      //         </div>}
+      //       </div>
+      //       <i className="icon-right iconrotate180"></i>
+      //     </a>,
+      //   key: '7',
+      // },
       // {
       //   label:
       //     <a>
@@ -784,7 +823,7 @@ function Header({ locationPath }) {
       // },
 
 
-            // CSS Also comment
+      // CSS Also comment
       // {
       //   type: 'divider',
       // },
@@ -793,7 +832,62 @@ function Header({ locationPath }) {
       //   key: '8',
       // },
     ];
-  
+
+    
+
+    if (tp_monetization_enable) {
+      const aiSuite = {
+        label: (
+          <a onClick={handleAiSuite}>
+            <div className="title-common me-4 d-flex align-items-center">
+              <img src={AISuite} className="me-3" style={{ filter: 'grayscale(100%)' }} alt="AI Suite" />AI Suite
+            </div>
+            <i className="icon-right iconrotate180"></i>
+          </a>
+        ),
+        key: "2",
+      }
+      commonItems.splice(3, 0, aiSuite);
+    }
+
+    const remaingDays = planDetails?.service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_tier === TRIAL ? moment(planDetails?.plan_expiry_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
+    if (tp_monetization_enable && remaingDays > 0) {
+      const freeTrialMenu = [
+        {
+          label:
+            <a onClick={() => ["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? handleClick() : setUpWebsiteUrl(1)}>
+              <div className="title-common me-4 d-flex align-items-center">
+                {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <img loading="lazy" src={upgradeIcon} className="me-3" alt="" />}
+                {planDetails?.currentPlanStatus === "PAID" && <img loading="lazy" src={crownIcon} className="me-3" style={{ filter: 'brightness(0%)' }} alt="" />}
+                {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) ? "Upgrade Plan" : "Subscription"}
+                {["TRIAL", "EXPIRED"].includes(planDetails?.currentPlanStatus) && <div className="gradientBackground d-flex">
+                  <div className="demoModeIndicatorSmall bg-danger" />
+                  <span className='demoModeLabel'>Demo mode</span>
+                </div>}
+              </div>
+              <i className="icon-right iconrotate180"></i>
+            </a>,
+          key: '7',
+        },
+        {
+          type: "divider",
+        },
+        {
+          className: "freeTrialMenu text-center rounded-12px p-3 m-3",
+          label: (
+            <>
+              Your free trial ends in <span className="fw-semibold">{`${remaingDays} days!`}</span>
+              <div className="title-common text-white border p-2 rounded-12px w-100 mt-2 cursor-pointer" style={{ backgroundColor: '#FFFFFF1A' }} onClick={clickBuyNow}>
+                <img loading="lazy" src={crownIcon} className="text-white me-2" alt="" />Get Unlimited Access
+              </div>
+            </>
+          ),
+          key: "8",
+        }
+      ]
+      commonItems.push(...freeTrialMenu)
+    }
+
     const extraItems = [
       {
         label: (
@@ -808,10 +902,10 @@ function Header({ locationPath }) {
         key: "6",
       },
     ];
-  
-  // Log Out Section, If isBrowser is false, then don't include logoutItem
-  const logoutItem = isBrowser
-    ? [
+
+    // Log Out Section, If isBrowser is false, then don't include logoutItem
+    const logoutItem = isBrowser
+      ? [
         {
           type: "divider",
         },
@@ -827,14 +921,14 @@ function Header({ locationPath }) {
           className: "logout-menu-item"
         },
       ]
-    : [];
+      : [];
 
-  
+
     // Combine commonItems, extraItems (if applicable), and logoutItem (always at the end)
     const items = isOpdPlansAccessableFromGB
       ? [...commonItems, ...extraItems, ...logoutItem]
       : [...commonItems, ...logoutItem];
-  
+
     // If not admin, filter out account setting item, else return all items
     return !tokenData?.admin ? items.filter((item) => item.key !== "5") : items;
   };
@@ -856,17 +950,17 @@ function Header({ locationPath }) {
       'Content-Type': 'application/json'
     };
     try {
-        const response = await axios.post(apiUrl, data, { headers });
-        return response.data
+      const response = await axios.post(apiUrl, data, { headers });
+      return response.data
     } catch (error) {
-        console.error('Error:', error);
+      console.error('Error:', error);
     }
   };
 
   const clickOpdPlans = async () => {
     const clinic_Id = decodedToken?.result?.clinic_id;
     const doc_Id = decodedToken?.result?.doctor_unique_id;
-    
+
     const decryptData = { d_id: doc_Id, clinic_Id: clinic_Id };
 
     // Encrypt clinic and doctor ID
@@ -875,7 +969,7 @@ function Header({ locationPath }) {
     const url = `${opdVisitUrl}/tatva-care?p_id=${encryptedCata}`;
     setOpdPlansUrl(url);
   };
-  
+
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
     pageStyle: `
@@ -918,52 +1012,90 @@ function Header({ locationPath }) {
     pdf.save('OPD-Plans.pdf');
   };
 
-  return (
-    <Navbar className="justify-content-between portal-header">
-      {isLoading && (
-        <div className="spinner-overlay">
-          <Spin size="large" />
-        </div>
-      )}
-      <Container fluid>
-        <div>
-          <img onClick={() => {
-            window.Moengage.track_event("TP_Tatvapedia_clicked");
-            showHideLogoModal()
-          }}
-            src={require("../assets/images/logo.png")}
-            className={`d-inline-block align-top cursor-pointer`}
-            style={{ width: '110px' }}
-            alt="Logo"
-          />
-          <Popover open={popOver} onOpenChange={showHideNavigateToTatvaPedia} content={NAVIGATE_TO_TATVAPEDIA}
-            trigger="click" overlayClassName="pop-370 pp-0" placement="bottomRight">
-            <div></div>
-          </Popover>
-        </div>
-        {LOGO_MODAL}
-        <Nav className="ms-auto align-items-center d-flex">
-          {HOSPITAL_DATA}
-          {profile && profile.SwitchGrowthBook != 0 && tokenData?.hospital_business_id != env.zydus_business_id && !isZydusUserAccessableFromGB && (
-            <div onClick={checkModalOpenOrClose} className='align-items-center cursor-pointer d-flex fs-14 fw-medium mx-4'>
-              <i className='icon-switch me-2'></i>
-              <span className="text-decoration-underline">Switch To Old View</span>
-            </div>
-          )}
+  const handleAiSuite = useCallback(() => {
+    setAiModal(!aiModal);
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const tokenData = getTokenData(); 
+    const deviceSdkData = getDeviceSdkData();
+    window.Moengage.track_event("TP_Monetization_AISuite", {
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      um_id: tokenData?.user_id,
+      clinic_id: tokenData?.clinic_id,
+      clinic_Name: clinic_name,
+      payment_Status: planDetails?.currentPlanStatus,
+      ...deviceSdkData
+    });
+  }, [aiModal]);
 
-          <Modal
-            open={(isQRCodeVisible && opdPlansUrl)}
-            centered
-            closeIcon={false}
-            onCancel={showHideBackModal}
-            footer={null}
-            title={null}
-            destroyOnClose
-            className="opd-plan-qr"
-          >
+  const handleMedEcoKnowMore = () => {
+    setMedEcoKnowMoreDrawer((prev) => !prev);
+  };
+
+  const handeProfileDD = (e) => {
+    e.preventDefault();
+    const tokenData = getTokenData();
+    const deviceSdkData = getDeviceSdkData();
+      window.Moengage.track_event("TP_Profile_Section", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        clinic_id: tokenData?.clinic_id,
+        um_id: tokenData?.user_id,
+        ...deviceSdkData
+      });
+  }
+
+  return (
+    <>
+      <Navbar className="justify-content-between portal-header">
+        {isLoading && (
+          <div className="spinner-overlay">
+            <Spin size="large" />
+          </div>
+        )}
+        <Container fluid>
+          <div>
+            <img onClick={() => {
+              window.Moengage.track_event("TP_Tatvapedia_clicked");
+              showHideLogoModal()
+            }}
+              src={require("../assets/images/logo.png")}
+              className={`d-inline-block align-top cursor-pointer`}
+              style={{ width: '110px' }}
+              alt="Logo"
+            />
+            <Popover open={popOver} onOpenChange={showHideNavigateToTatvaPedia} content={NAVIGATE_TO_TATVAPEDIA}
+              trigger="click" overlayClassName="pop-370 pp-0" placement="bottomRight">
+              <div></div>
+            </Popover>
+          </div>
+          {LOGO_MODAL}
+          <Nav className="ms-auto align-items-center d-flex">
+            {HOSPITAL_DATA}
+            {profile && profile.SwitchGrowthBook != 0 && tokenData?.hospital_business_id != env.zydus_business_id && !isZydusUserAccessableFromGB && (
+              <div onClick={checkModalOpenOrClose} className='align-items-center cursor-pointer d-flex fs-14 fw-medium mx-4'>
+                <i className='icon-switch me-2'></i>
+                <span className="text-decoration-underline">Switch To Old View</span>
+              </div>
+            )}
+
+            <Modal
+              open={(isQRCodeVisible && opdPlansUrl)}
+              centered
+              closeIcon={false}
+              onCancel={showHideBackModal}
+              footer={null}
+              title={null}
+              destroyOnClose
+              className="opd-plan-qr"
+            >
               <div className="opd-qr">
                 <button className="qr-close-btn" onClick={showHideBackModal}>
-                <i style={{ fontSize: "2rem" }} className="icon-Cross"></i>
+                  <i style={{ fontSize: "2rem" }} className="icon-Cross"></i>
                 </button>
                 <div ref={printRef} className="opd-plans-inner-contianer">
                   <div className="opd-title" style={{ fontWeight: "700", fontSize: "2rem", color: "#1F2933 !important" }}>
@@ -982,161 +1114,180 @@ function Header({ locationPath }) {
                     Scan the QR to view & buy OPD plans
                   </div>
                 </div>
-                  <div className="d-flex align-items-center justify-content-between gap-4 mt-4">
-                    <ButtonOPD
-                      onClick={handlePrint}
-                      className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
-                  style={{ width: "13rem", height: "3rem" }}
-                    >
-                      <span className="fs-18 align-items-center d-flex "><i className="icon-Print me-2"></i>Print</span>
-                    </ButtonOPD>
-                    <ButtonOPD
-                      onClick={handleDownload}
-                      className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
-                  style={{ width: "13rem", height: "3rem" }}
-                    >
-                      <span className="fs-18 align-items-center d-flex"><i className="icon-download me-2"></i>Download</span>
-                    </ButtonOPD>
-                  </div>
+                <div className="d-flex align-items-center justify-content-between gap-4 mt-4">
+                  <ButtonOPD
+                    onClick={handlePrint}
+                    className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
+                    style={{ width: "13rem", height: "3rem" }}
+                  >
+                    <span className="fs-18 align-items-center d-flex "><i className="icon-Print me-2"></i>Print</span>
+                  </ButtonOPD>
+                  <ButtonOPD
+                    onClick={handleDownload}
+                    className="btn btn-primary1 btn-41 align-items-center d-flex justify-content-center"
+                    style={{ width: "13rem", height: "3rem" }}
+                  >
+                    <span className="fs-18 align-items-center d-flex"><i className="icon-download me-2"></i>Download</span>
+                  </ButtonOPD>
+                </div>
               </div>
-          </Modal>
+            </Modal>
 
-          {locationPath == "/" || locationPath == "/bulk_messages" ? (
-            <div onClick={handleDrawervideo} className="cursor-pointer me-2 video-animat">
-              <img src={playIcon} />
-              <img src={videorotate} />
-            </div> ) : locationPath == "/billing-dashboard" ? (
-            <Popover
-              open={popOverVideo}
-              onOpenChange={showHideVideoListPopover}
-              content={VIDEO_CONTENT(16)}
-              trigger="click"
-              overlayClassName="pop-430 pp-0 videoTutorial"
-              placement="bottom"
-            >
-              <div className="cursor-pointer me-2 video-animat">
+            {locationPath == "/" || locationPath == "/bulk_messages" ? (
+              <div onClick={handleDrawervideo} className="cursor-pointer me-2 video-animat">
                 <img src={playIcon} />
                 <img src={videorotate} />
+              </div>) : locationPath == "/billing-dashboard" ? (
+                <Popover
+                  open={popOverVideo}
+                  onOpenChange={showHideVideoListPopover}
+                  content={VIDEO_CONTENT(16)}
+                  trigger="click"
+                  overlayClassName="pop-430 pp-0 videoTutorial"
+                  placement="bottom"
+                >
+                  <div className="cursor-pointer me-2 video-animat">
+                    <img src={playIcon} />
+                    <img src={videorotate} />
+                  </div>
+                </Popover>
+              ) : (
+              <Popover
+                open={popOverVideo}
+                onOpenChange={showHideVideoListPopover}
+                content={VIDEO_CONTENT(3)}
+                trigger="click"
+                overlayClassName="pop-430 pp-0 videoTutorial"
+                placement="bottom"
+              >
+                <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'>
+                  {/* onClick={showHideVideoListPopover} */}
+                  <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
+                </button>
+              </Popover>
+            )}
+
+            {tp_monetization_enable && (
+              <div className="mx-3 cursor-pointer" onClick={handleAiSuite}>
+                <img src={AISuite} alt="AI Suite" />
               </div>
-            </Popover>
-          ) : (
-            <Popover
-              open={popOverVideo}
-              onOpenChange={showHideVideoListPopover}
-              content={VIDEO_CONTENT(3)}
-              trigger="click"
-              overlayClassName="pop-430 pp-0 videoTutorial"
-              placement="bottom"
-            >
-              <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'>
-                {/* onClick={showHideVideoListPopover} */}
-                <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
-              </button>
-            </Popover>
-          )}
+            )}
 
-          <Drawer title="Video Tutorial" placement="right" onClose={handleDrawervideo} open={videoDrawer} className="modalWidth-400 tab345 playdrawer" width="auto">
-            <div className="mt-20">
-              {videoList?.map((item, i) => {
-                return (
-                  item?.video?.length > 0 && (
-                    <div key={i} className=" ms-4 video-bottom-spacing">
-                      <div className="title-common text-welcome">{item?.category}</div>
-                      <div className="fs-12 fontroboto fw-normal text-main">{item?.description}</div>
-                      <div className="videodrawer-left mt-3">
-                        <Slider {...sliderSettings}>
-                          {item?.video?.map((item1, i1) => {
-                            return (
-                              <div key={i1} className="drawer-slider">
-                                <button type="button"
-                                  onClick={() => {
-                                    setVideoLink(item1)
-                                    const clinic_name = getClinicName(profile?.hospital_data);
-                                    window.Moengage.track_event("TP_Tutorial_Viewed", {
-                                      clinic_name,
-                                      tutorial_type: item?.category,
-                                    });
-                                  }}
-                                >
-                                  <img src={playIconutube} />
-                                </button>
-                                <img src={item1?.thumbnail} />
-                              </div>
-                            )
-                          })}
-                        </Slider>
+            <Drawer title="Video Tutorial" placement="right" onClose={handleDrawervideo} open={videoDrawer} className="modalWidth-400 tab345 playdrawer" width="auto">
+              <div className="mt-20">
+                {videoList?.map((item, i) => {
+                  return (
+                    item?.video?.length > 0 && (
+                      <div key={i} className=" ms-4 video-bottom-spacing">
+                        <div className="title-common text-welcome">{item?.category}</div>
+                        <div className="fs-12 fontroboto fw-normal text-main">{item?.description}</div>
+                        <div className="videodrawer-left mt-3">
+                          <Slider {...sliderSettings}>
+                            {item?.video?.map((item1, i1) => {
+                              return (
+                                <div key={i1} className="drawer-slider">
+                                  <button type="button"
+                                    onClick={() => {
+                                      setVideoLink(item1)
+                                      const clinic_name = getClinicName(profile?.hospital_data);
+                                      window.Moengage.track_event("TP_Tutorial_Viewed", {
+                                        clinic_name,
+                                        tutorial_type: item?.category,
+                                      });
+                                    }}
+                                  >
+                                    <img src={playIconutube} />
+                                  </button>
+                                  <img src={item1?.thumbnail} />
+                                </div>
+                              )
+                            })}
+                          </Slider>
+                        </div>
                       </div>
-                    </div>
+                    )
                   )
-                )
-              })}
-            </div>
-          </Drawer>
+                })}
+              </div>
+            </Drawer>
 
-          {videoLink && (
-            <VideoModal
-              videoLink={videoLink}
-              onCancel={() => setVideoLink(null)}
-            />
-          )}
+            {videoLink && (
+              <VideoModal
+                videoLink={videoLink}
+                onCancel={() => setVideoLink(null)}
+              />
+            )}
 
-          {SWITCH_TO_OLD_MODAL}
+            {SWITCH_TO_OLD_MODAL}
 
-          {!!tokenData?.admin && isOpdBillingAccessable && 
+            {!!tokenData?.admin && isOpdBillingAccessable &&
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      label: (
+                        <a onClick={() => navigate("/billing-settings")}>
+                          <div className="title-settings me-2 d-flex align-items-center">
+                            <img src={billingsIcon} alt="Billing" width={20} height={20} className="me-2" />
+                            Billing Settings
+                          </div>
+                          <i className="icon-right iconrotate180"></i>
+                        </a>
+                      ),
+                      key: "1",
+                    }
+                  ]
+                }}
+                trigger={['click']}
+                className="py-0 nav-link cursor-pointer"
+                overlayClassName="settings-dropdown"
+              >
+                <div className="d-flex align-items-center h-24 w-24">
+                  <i className="icon-setting me-2"></i>
+                </div>
+              </Dropdown>
+            }
+
             <Dropdown
               menu={{
-                items: [
-                  {
-                    label: (
-                      <a onClick={() => navigate("/billing-settings")}>
-                        <div className="title-settings me-2 d-flex align-items-center">
-                          <img src={billingsIcon} alt="Billing" width={20} height={20} className="me-2" />
-                          Billing Settings
-                        </div>
-                        <i className="icon-right iconrotate180"></i>
-                      </a>
-                    ),
-                    key: "1",
-                  }
-                ]
+                items: getMenuItems(),
               }}
               trigger={['click']}
               className="py-0 nav-link cursor-pointer"
-              overlayClassName="settings-dropdown"
+              overlayClassName="prfile-dropdown"
             >
-              <div className="d-flex align-items-center h-24 w-24">
-                <i className="icon-setting me-2"></i>
-              </div>
+              <a onClick={handeProfileDD}>
+                {profile?.um_image && planDetails?.currentPlanStatus !== "PAID" ? (
+                  <img
+                    src={profile?.um_image ?? defaultprofile}
+                    alt="Profile"
+                    className="rounded-circle"
+                    style={{ width: "35px", height: "35px" }}
+                  />
+                ) : planDetails?.currentPlanStatus === "PAID" ? (
+                  <PremiumUser />
+                ) :
+                  <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>
+                }
+              </a>
             </Dropdown>
-          }
+          </Nav>
+        </Container>
+      </Navbar>
 
-          <Dropdown
-            menu={{
-              items: getMenuItems(),
-            }}
-            trigger={['click']}
-            className="py-0 nav-link cursor-pointer"
-            overlayClassName="prfile-dropdown"
-          >
-            <a onClick={(e) => e.preventDefault()}>
-              {profile?.um_image && planDetails?.currentPlanStatus !== "PAID" ? (
-                <img
-                  src={profile?.um_image ?? defaultprofile}
-                  alt="Profile"
-                  className="rounded-circle"
-                  style={{ width: "35px", height: "35px" }}
-                />
-              ) : planDetails?.currentPlanStatus === "PAID" ? (
-                <PremiumUser />
-              ) :
-                <div className='rounded-pill patientProfile border'>{makeDefaultLogo(profile?.um_name)}</div>
-              }
-            </a>
-          </Dropdown>
+      <AiSuite aiModal={aiModal} handleAiSuite={handleAiSuite} />
 
-        </Nav>
-      </Container>
-    </Navbar >
+      <Drawer
+        closeIcon={false}
+        placement="right"
+        onClose={handleMedEcoKnowMore}
+        open={medEcoKnowMoreDrawer}
+        width={600}
+      >
+        <MedEcoAppKnowMore handleMedEcoKnowMore={handleMedEcoKnowMore} />
+      </Drawer>
+
+    </>
   );
 }
 

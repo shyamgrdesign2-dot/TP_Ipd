@@ -3,12 +3,14 @@ import moment from "moment";
 import config from "../config";
 import { message } from "antd";
 import { MESSAGE_KEY } from "../utils/constants";
-import { browserName, isBrowser } from "react-device-detect";
+import { browserName, deviceDetect } from "react-device-detect";
 import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../src/firebase.js";
 import { getDecodedToken } from "./localStorage.js";
 import imageCompression from 'browser-image-compression';
+import numeral from 'numeral'
+import packageJson from '../../package.json';
 
 // export const validateEmail = (email) => {
 //   return String(email)
@@ -188,6 +190,14 @@ export const medicine_freq_dosage_format = (freqDosage) => {
 export const calculateDose = (dosage, weight, concentration) => {
   const dose = (parseFloat(dosage) * parseFloat(weight)) / parseFloat(concentration);
   return !isNaN(dose) ? dose.toFixed(1).replace(/\.0$/, '') : "";
+}
+
+export const formatAmount = (amount) => {
+  return amount.toFixed(2).replace(/\.00$/, '');
+}
+
+export const currencyFormat = (amount) => {
+  return numeral(amount).format('0,0.00').replace(/\.00$/, '');
 }
 
 export const dataUrlToFile = (url, fileName) => {
@@ -642,6 +652,10 @@ export const getTokenData = () => {
   return result;
 }
 
+export const getDeviceSdkData = () => {
+  return { device_info: deviceDetect(), sdk_version: packageJson?.version };
+}
+
 export const compressedFile = async (file) => {
   if (file.size > 2101546) {                       // If file size is greater than 2MB
     try {
@@ -703,47 +717,47 @@ export const trackEvent = (eventName, attributes) => {
 }
 
 export const getIndianLanguageFont = (text, defaultFont = 'Roboto') => {
-        
+
   // Devanagari (Hindi, Marathi, Sanskrit, Nepali, etc.)
   if (/[\u0900-\u097F]/.test(text)) {
     return 'NotoSansDevanagari';
   }
-  
+
   // Bengali/Assamese
   if (/[\u0980-\u09FF]/.test(text)) {
     return 'NotoSansBengali';
   }
-  
+
   // Tamil
   if (/[\u0B80-\u0BFF]/.test(text)) {
     return 'NotoSansTamil';
   }
-  
+
   // Telugu
   if (/[\u0C00-\u0C7F]/.test(text)) {
     return 'NotoSansTelugu';
   }
-  
+
   // Kannada
   if (/[\u0C80-\u0CFF]/.test(text)) {
     return 'NotoSansKannada';
   }
-  
+
   // Malayalam
   if (/[\u0D00-\u0D7F]/.test(text)) {
     return 'NotoSansMalayalam';
   }
-  
+
   // Gujarati
   if (/[\u0A80-\u0AFF]/.test(text)) {
     return 'NotoSansGujarati';
   }
-  
+
   // Punjabi/Gurmukhi
   if (/[\u0A00-\u0A7F]/.test(text)) {
     return 'NotoSansGurmukhi';
   }
-  
+
   // Oriya/Odia
   if (/[\u0B00-\u0B7F]/.test(text)) {
     return 'NotoSansOriya';
@@ -751,13 +765,43 @@ export const getIndianLanguageFont = (text, defaultFont = 'Roboto') => {
 
   //urdu
   if (/[\u0600-\u06FF\u0750-\u077F]/.test(text)) {
-      return 'Urdu';
+    return 'Urdu';
   }
-  
+
   // Default to the regular font if no Indian script is detected
   return defaultFont;
 };
 
+export const isValidGST = (gstNumber) => {
+  // GST Regex Pattern
+  const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+
+  if (!gstRegex.test(gstNumber)) {
+    return false; // Invalid format
+  }
+
+  // Validate State Code (first two digits: 01-35)
+  const stateCode = parseInt(gstNumber.substring(0, 2), 10);
+  if (stateCode < 1 || stateCode > 35) {
+    return false; // Invalid state code
+  }
+
+  return true; // GST is valid
+}
+
+export const shouldMonetizationDisabled = () => {
+  const monetizationDisabled = config?.tp_monetization_disabled_hospital;
+  const monetizationDisabledArray = monetizationDisabled.map(Number);
+  const { hospital_business_id } = getTokenData();
+  // console.log(monetizationDisabled,hospital_business_id)
+  const currentHospital = Number(hospital_business_id);
+
+  if (currentHospital && monetizationDisabledArray.includes(currentHospital)) {
+    return true;
+  }
+
+  return false;
+}
 export const detectOperatingSystem = () => {
   const userAgent = window.navigator.userAgent;
   const platform = window.navigator.platform;

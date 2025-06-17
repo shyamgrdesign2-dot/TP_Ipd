@@ -13,6 +13,7 @@ import styles from "./ConsultationDrawer.module.css";
 import deleteIcon from "../assets/images/delete-gen-rx.svg";
 import micIcon from "../assets/images/mic-gen-rx.svg";
 import pauseIcon from "../assets/images/pause.svg";
+
 import {
   editGenRxDetails,
   generateRx,
@@ -29,8 +30,8 @@ import { getDecodedToken } from "../utils/localStorage";
 import { v4 as uuidv4 } from "uuid";
 import CashManagerContext from "../context/CashManagerContext";
 import { addCaseManager, editCaseManager } from "../redux/caseManagerSlice";
-import { useDispatch } from "react-redux";
-import { errorMessage, getClinicName, trackEvent } from "../utils/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { errorMessage, getClinicName, trackEvent, getTokenData, getDeviceSdkData } from "../utils/utils";
 import { CheckOutlined, CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import deleteModuleIcon from "../assets/images/delete-icon-blue.svg";
 import alertIcon from "../assets/images/alertIcon.svg";
@@ -41,15 +42,25 @@ import VoiceWaveVisualizer from "./WaveVisualizer";
 import GenRXLoaders from "./GenRxLoaders";
 import genRxSendCta from "../assets/images/genRxSendCta.svg";
 import tatvaAiChakra from "../assets/lotties/tatvaAiChakra.lottie";
-import { MESSAGE_KEY } from "../utils/constants";
+import { FREE, MESSAGE_KEY, S_DDX, S_VOICE_RX } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
-import { useSelector } from "react-redux";
+import { checkCredits, updateCredits } from "../redux/monetizationSlice";
+import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
+import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
+import { services } from "../redux/doctorsSlice";
+import { deviceType, osName } from "react-device-detect";
 import SCBanner from "./SCBanner";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
 const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
+
+  const { servicesList } = useSelector((state) => state.doctors);
+  const VOICE_RX_planDetails = servicesList?.find(e => e.service_name === S_VOICE_RX)
+
+  const { useVoiceRx, setUseVoiceRx, useDDX } = useContext(CashManagerContext);
+
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
   const [isRecording, setIsRecording] = useState(false);
@@ -89,6 +100,35 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   const { symptomCollector, isAutofillSelected, selectedSymptomsCollector } =
     useSelector((state) => state.ddx);
   const { TextArea } = Input;
+
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (VOICE_RX_planDetails !== undefined && VOICE_RX_planDetails?.plan_tier === FREE) {
+      setTimeout(() => {
+        setIsSubModalOpen(true)
+      }, 500);
+    }
+  }, [VOICE_RX_planDetails]);
+
+  const showHideSubModal = useCallback(() => {
+    setIsSubModalOpen(!isSubModalOpen);
+    
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const tokenData = getTokenData();
+    const deviceSdkData = getDeviceSdkData(); 
+    window.Moengage.track_event("TP_voiceRx_FreeTrailInfo", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        clinic_id: tokenData?.clinic_id,
+        um_id: tokenData?.user_id,
+        clinic_Name: clinic_name,
+        ...deviceSdkData,
+        
+    });
+  }, [isSubModalOpen]);
 
   const showHideBackModal = useCallback(() => {
     setIsBackModalOpen(!isBackModalOpen);
@@ -261,39 +301,66 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
   };
 
   const handleSend = async () => {
-    if (!isRecording && !(inputText || editableQuery)) return;
-    if (genRxDetails?._id) {
-      const clinic_name = getClinicName(profile?.hospital_data);
-      trackEvent("TP_VoiceRx_editRx", {
-        patient_contact: patient_data?.pm_contact_no || "",
-        patient_id: patient_data?.patient_unique_id || "",
-        doctor_speciality: profile?.dp_name,
-        doctor_unique_id: profile?.doctor_unique_id,
-        clinic_name,
-        rx_id: genRxDetails?._id,
-      });
-    }
-    setShowPrescription(true);
-    setRecordingTime(0);
-    setIsProcessing(true);
-
-    try {
-      if (isRecording) {
-        mediaRecorderRef.current?.stop();
-        await new Promise((resolve) => setTimeout(resolve, 100)); // Ensure audio is processed
-
-        const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/webm",
-        });
-
-        await handleVoiceDigitize(audioBlob, "");
-      } else {
-        await handleVoiceDigitize(null, inputText || editableQuery);
+    if (VOICE_RX_planDetails?.plan_tier === FREE && VOICE_RX_planDetails?.credit_balance <= 0) {
+      showHideSubModal()
+    } else {
+      let sendData = {
+        b2c_id: profile?.b2c,
+        service_name: S_VOICE_RX
       }
-    } catch (error) {
-      console.error("Error processing prescription:", error);
-      message.error(error.message || "Failed to process prescription");
-      setIsProcessing(false);
+      const action = await dispatch(checkCredits(sendData));
+      if (action.meta.requestStatus === "fulfilled") {
+        if (action?.payload?.hasOwnProperty("service_name")) {
+          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
+            if (action?.payload?.credit_balance != VOICE_RX_planDetails?.credit_balance) {
+              await dispatch(services(sendData?.b2c_id))
+            }
+            showHideSubModal()
+          } else {
+            if (!isRecording && !(inputText || editableQuery)) return;
+            if (genRxDetails?._id) {
+              const clinic_name = getClinicName(profile?.hospital_data);
+              trackEvent("TP_VoiceRx_editRx", {
+                patient_contact: patient_data?.pm_contact_no || "",
+                patient_id: patient_data?.patient_unique_id || "",
+                doctor_speciality: profile?.dp_name,
+                doctor_unique_id: profile?.doctor_unique_id,
+                clinic_name,
+                rx_id: genRxDetails?._id,
+              });
+            }
+            setShowPrescription(true);
+            setRecordingTime(0);
+            setIsProcessing(true);
+
+            try {
+              if (isRecording) {
+                mediaRecorderRef.current?.stop();
+                await new Promise((resolve) => setTimeout(resolve, 100)); // Ensure audio is processed
+
+                const audioBlob = new Blob(audioChunksRef.current, {
+                  type: "audio/webm",
+                });
+
+                await handleVoiceDigitize(audioBlob, "");
+              } else {
+                await handleVoiceDigitize(null, inputText || editableQuery);
+              }
+            } catch (error) {
+              console.error("Error processing prescription:", error);
+              message.error(error.message || "Failed to process prescription");
+              setIsProcessing(false);
+            }
+          }
+        } else {
+          typeof action?.payload?.data?.error === 'object' ?
+            errorMessage(action?.payload?.data?.error?.description)
+            :
+            errorMessage(action?.payload?.data?.message)
+        }
+      } else {
+        errorMessage(action.payload.message)
+      }
     }
   };
 
@@ -359,6 +426,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
       const response = genRxDetails?._id
         ? await updateGenRx(formData, genRxDetails?._id)
         : await generateRx(formData);
+
       if (response.success) {
         if (!isFromSC) {
           setPrescriptionData(response.data.digitize);
@@ -410,6 +478,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         });
         setInputText("");
         setIsEditing(false);
+        setUseVoiceRx(true);
       } else {
         throw new Error(response.error || "Failed to process prescription");
       }
@@ -772,6 +841,22 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
         ),
         duration: 5,
       });
+
+      if (useVoiceRx) {
+        let sendData = {
+          b2c_id: profile?.b2c,
+          service_name: S_VOICE_RX
+        }
+        dispatch(updateCredits(sendData))
+      }
+      if (useDDX) {
+        let sendData = {
+          b2c_id: profile?.b2c,
+          service_name: S_DDX
+        }
+        dispatch(updateCredits(sendData))
+      }
+
       navigate("/gen-rx-print", {
         replace: true,
         state: {
@@ -814,7 +899,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
               onChange={handleInputChange}
               onBlur={() => handleInputBlur("followUp")}
               autoFocus
-              // style={{ width: `${textWidth + 10}px` }}
+            // style={{ width: `${textWidth + 10}px` }}
             />
           ) : (
             <span
@@ -865,7 +950,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                             .replace(/^./, (str) => str.toUpperCase())}: `}
                         </span>
                         {activeIndex === key &&
-                        activeType === "vitalsAndBodyComposition" ? (
+                          activeType === "vitalsAndBodyComposition" ? (
                           <input
                             type="text"
                             value={editableText} // Pre-fill the input with the current value
@@ -940,8 +1025,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                   <li key={index}>
                     <div className="medicine-item">
                       {activeIndex === index &&
-                      activeType === type &&
-                      ["advice", "others"].includes(type) ? (
+                        activeType === type &&
+                        ["advice", "others"].includes(type) ? (
                         <input
                           type="text"
                           value={editableText}
@@ -972,7 +1057,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                         type === "diagnosis") &&
                         item?.lineItem &&
                         (activeIndex === index &&
-                        activeType === `${type}-lineItem` ? (
+                          activeType === `${type}-lineItem` ? (
                           <input
                             type="text"
                             value={editableLineItem}
@@ -1078,8 +1163,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                     {localModules?.includes(module)
                       ? module
                       : module
-                          .replace(/([A-Z])/g, " $1")
-                          .replace(/^./, (str) => str.toUpperCase())}
+                        .replace(/([A-Z])/g, " $1")
+                        .replace(/^./, (str) => str.toUpperCase())}
                     {localModules?.includes(module) && (
                       <i
                         className={`icon-Edit fs-21 ms-2 cursor-pointer`}
@@ -1121,8 +1206,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                           {localModules?.includes(module)
                             ? module
                             : module
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())}{" "}
+                              .replace(/([A-Z])/g, " $1")
+                              .replace(/^./, (str) => str.toUpperCase())}{" "}
                           Module
                         </Menu.Item>
                       </Menu>
@@ -1352,6 +1437,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                   Tutorial
                 </span>
               </button>
+
+              <FreeTrialButton title={S_VOICE_RX} showHideSubModal={showHideSubModal} />
 
               {showPrescription && (
                 <Button
@@ -1654,9 +1741,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
                       <GenRXLoaders isProcessing={isProcessing} />
                     ) : (
                       <div
-                        className={`${styles.rightSection} ${
-                          isProcessing ? styles.gradientBorder : ""
-                        }`}
+                        className={`${styles.rightSection} ${isProcessing ? styles.gradientBorder : ""
+                          }`}
                         style={{
                           background: isProcessing ? `url(${genRxBg})` : "",
                         }}
@@ -1858,6 +1944,18 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           </div>
         </>
       </Suspense>
+
+      {visible && (
+        <ExpiredSubModal
+          title={S_VOICE_RX}
+          styles={{
+            mask: { marginLeft: showPrescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)', backdropFilter: 'blur(2px)' },
+            wrapper: { marginLeft: showPrescription ? 0 : window.innerWidth - 640, marginTop: 60, background: 'rgba(0, 0, 0, 0.28)' },
+          }}
+          isSubModalOpen={isSubModalOpen}
+          showHideSubModal={showHideSubModal} />
+      )}
+
     </Drawer>
   );
 };

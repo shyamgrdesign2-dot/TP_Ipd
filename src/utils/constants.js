@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const PERSISTANT_STORAGE_KEY_AUTH_TOKEN = 'persistant.storage.key.auth-token';
 export const PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN = 'persistant.storage.key.zydus-token';
+export const PERSISTANT_STORAGE_KEY_EXTRA = 'persistant.storage.key.extra';
 export const MESSAGE_KEY = 'message_key';
 export const IS_DEV = true;
 export const PAGE_SIZE = 10;
@@ -55,6 +56,24 @@ export const GB_APOLLO_DISABLE_FEATURE = "apollo-disable-feature"
 
 export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
+
+export const FREE = "FREE";
+export const TRIAL = "TRIAL";
+export const PAID = "PAID";
+export const PENDING = "PENDING";
+export const APPROVED = "APPROVED";
+export const REJECTED = "REJECTED";
+export const S_TATVA_PRACTICE = "tatva_practice";
+export const S_VOICE_RX = "voice_rx";
+export const S_SMARTSYNC = "smartsync";
+export const S_RX_DIGITIZATION = "rx_digitization";
+export const S_DDX = "ddx";
+export const S_ASK_TATVA = "ask_tatva";
+export const S_BILLING = "billing";
+export const S_PHARMACY = "pharmacy";
+export const S_IPD = "ipd";
+export const S_OPD_BILLING = "opd_billing";
+export const S_RECEPTIONIST_AGENT = "receptionist_agent";
 
 export const EXTRA_OPTIONS = [
     {
