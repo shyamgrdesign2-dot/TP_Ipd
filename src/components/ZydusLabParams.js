@@ -102,7 +102,7 @@ const ZydusLabParams = ({
 
     const fetchLabResults = async (authToken) => {
         try {
-                const response = await axios.get('https://pm-ict-proxy.tatvacare.in/ictApiProxy/emr/lab/result/list', {
+                const response = await axios.get(`${env.zydus_ict_lab_result_api_url}/ictApiProxy/emr/lab/result/list`, {
                 params: {
                     mrno: mrno,
                     noOfDays: 6000
@@ -595,7 +595,7 @@ const ZydusLabParams = ({
             let response;
             if (labReportID) {
                 response = await axios.post(
-                    'https://pm-patient-docs-uat.tatvacare.in/api/v1/lab-reports/updatebyID',
+                    `${env.lab_params_api_url}/api/v1/lab-reports/updatebyID`,
                     {
                         ...payload,
                         labReportID: labReportID
@@ -604,7 +604,7 @@ const ZydusLabParams = ({
                 );
             } else {
                 response = await axios.post(
-                    'https://pm-patient-docs-uat.tatvacare.in/api/v1/lab-reports/',
+                    `${env.lab_params_api_url}/api/v1/lab-reports/`,
                     payload,
                     apiConfig
                 );
@@ -640,7 +640,7 @@ const ZydusLabParams = ({
     const fetchPreviousSelections = async (labReportID) => {
         try {
             const response = await axios.post(
-                'https://pm-patient-docs-uat.tatvacare.in/api/v1/lab-reports/getByID',
+                `${env.lab_params_api_url}/api/v1/lab-reports/getByID`,
                 {
                     labReportID: labReportID,
                     source: "zydus-ict",
