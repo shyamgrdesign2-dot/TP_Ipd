@@ -110,11 +110,6 @@ function PrescriptionPrintView() {
     const { state } = useLocation();
     const { patient_data, pam_id, labParamsData: passedLabParamsData, zydusSelectedLabParams, labReportID } = state;
 
-    // Log received data immediately
-    console.log("🔍 PrescriptionPrintView - Received from navigation:");
-    console.log("📋 passedLabParamsData:", passedLabParamsData);
-    console.log("🧪 zydusSelectedLabParams:", zydusSelectedLabParams);
-    console.log("🆔 labReportID:", labReportID);
 
     const [selectedLang, setSelectedLang] = useState(1);
 
@@ -167,7 +162,6 @@ function PrescriptionPrintView() {
                 },
             });
             setLabParamsData(response.data?.data?.results || []);
-            console.log("labParamsData", response.data?.data?.results);
         } catch (error) {
             console.error("Error fetching lab params:", error);
         }
@@ -372,9 +366,6 @@ function PrescriptionPrintView() {
     }
 
     const configurePrintUrl = async () => {
-        console.log("🚀 ConfigurePrintUrl - Preparing data for ConfigurePrintSetting:");
-        console.log("📋 labParamsData to pass:", labParamsData);
-        console.log("🧪 zydusLabParamsData to pass:", zydusSelectedLabParams);
         
         var sendData = {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,

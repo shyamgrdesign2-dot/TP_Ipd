@@ -1232,8 +1232,6 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
             </>
         );
     }, [popOverVideo]);
-    console.log("zydusSelectedLabParams ruchi", labReportID,zydusSelectedLabParams);
-    console.log("labParamsData", labParamsData);
     return (
         <Navbar className="justify-content-between headerprescription p-0">
             <Container fluid className='h-100 gx-0 w-100'>

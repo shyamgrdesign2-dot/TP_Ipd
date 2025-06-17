@@ -60,11 +60,6 @@ function ConfigurePrintSetting() {
     const labParamsData = caseManagerData?.labParamsData || [];
     const zydusSelectedLabParams = caseManagerData?.zydusSelectedLabParams || [];
 
-    // Log received data
-    console.log("🎯 ConfigurePrintSetting - Received from PrescriptionPrintView:");
-    console.log("📋 labParamsData:", labParamsData);
-    console.log("🧪 zydusSelectedLabParams:", zydusSelectedLabParams);
-    console.log("🧪 zydusSelectedLabParams length:", zydusSelectedLabParams?.length);
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
@@ -119,7 +114,6 @@ function ConfigurePrintSetting() {
                         enable: "Y",
                         custom_status: "Y"
                     });
-                    console.log("✅ Added Case Option ID 18 'Zydus Lab Results' to print settings at index:", insertIndex);
                 }
             }
             
@@ -169,7 +163,6 @@ function ConfigurePrintSetting() {
         );
         setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
     };
-    console.log("caseManagerData", caseManagerData, "zydusSelectedLabParams", zydusSelectedLabParams);
     return (
         <PrintSettingsContext.Provider value={contextApi}>
             <>
