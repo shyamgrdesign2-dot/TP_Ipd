@@ -7,6 +7,7 @@ import React, {
   useRef,
 } from "react";
 import { Button, Card, Row, Col, Input } from "antd";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -23,6 +24,7 @@ import TabSearchHeader from "./TabSearchHeader";
 
 import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import { useLocation } from "react-router-dom";
+import { GB_APOLLO_DISABLE_FEATURE } from "../../utils/constants";
 
 function TabSurgicalSearch({ passIndex, onClose }) {
   const { parentOptionsList, childOptionsList } = useSelector(
@@ -43,6 +45,8 @@ function TabSurgicalSearch({ passIndex, onClose }) {
   const [childSearchOptions, setChildSearchOptions] = useState([]);
 
   const [selectedIndex, setSelectedIndex] = useState(passIndex);
+
+  const isApolloHosBusinessIdAccessableFromGB = useFeatureIsOn(GB_APOLLO_DISABLE_FEATURE);
 
   //Parent AutoComplete
   useEffect(() => {
@@ -67,7 +71,7 @@ function TabSurgicalSearch({ passIndex, onClose }) {
       });
     });
     if (searchChildQuery.length > 0) {
-      searchChildQuery &&
+      searchChildQuery && !isApolloHosBusinessIdAccessableFromGB &&
         data.push({
           key: JSON.stringify({
             change: 1,
