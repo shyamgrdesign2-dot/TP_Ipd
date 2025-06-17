@@ -54,7 +54,7 @@ import SCBanner from "./SCBanner";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
-const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
+const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID }) => {
 
   const { servicesList } = useSelector((state) => state.doctors);
   const VOICE_RX_planDetails = servicesList?.find(e => e.service_name === S_VOICE_RX)
@@ -810,6 +810,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
           : 0,
       consultation_date: consultationDate,
       smart_prescription_filename: genRxDetails?._id,
+      labReportID: labReportID,
     };
 
     const action =
