@@ -203,10 +203,9 @@ const CvtKnowMore = ({ handleCollapsed }) => {
           </div>
         </div>
 
-        <div className="section" style={{marginTop: -90}}>
-          <ContactSupport className="my-0" />
+        <div id="contactSupport" className="section d-flex align-items-start">
+          <ContactSupport />
         </div>
-        
       </div>
 
       <ExpiredText title={S_RX_DIGITIZATION} />
