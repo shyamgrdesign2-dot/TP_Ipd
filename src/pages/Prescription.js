@@ -1305,7 +1305,6 @@ function Prescription() {
     fetchZydusLabParamsForDisplay();
   }, [labReportID, patient_data?.patient_unique_id]);
 
-  // console.log("selected lab params->", labParamsData,zydusSelectedLabParams)
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
