@@ -59,12 +59,24 @@ const VerifyOTP = ({
       if(isLoginFlow){
         window.Moengage.track_event('TP_NewLoginFlow_Login_Resend_OTP', {
           mobile: "91" + mobileNumber,
-          operating_system: detectOperatingSystem()
+          operating_system: detectOperatingSystem(),
+          utm_campaign: utm.utm_campaign ?? 'NA',
+          utm_source: utm.utm_source ?? 'NA',
+          utm_medium: utm.utm_medium ?? 'NA',
+          utm_content: utm.utm_content ?? 'NA',
+          utm_term: utm.utm_term ?? 'NA',
+          is_marketing: Object.values(utm).some(value => value && value.length > 0),
         })}
       else{
         window.Moengage.track_event('TP_NewLoginFlow_Signup_Resend_OTP', {
           mobile: "91" + mobileNumber,
-          operating_system: detectOperatingSystem()
+          operating_system: detectOperatingSystem(),
+          utm_campaign: utm.utm_campaign ?? 'NA',
+          utm_source: utm.utm_source ?? 'NA',
+          utm_medium: utm.utm_medium ?? 'NA',
+          utm_content: utm.utm_content ?? 'NA',
+          utm_term: utm.utm_term ?? 'NA',
+          is_marketing: Object.values(utm).some(value => value && value.length > 0),
         })
       }
 
@@ -111,7 +123,13 @@ const VerifyOTP = ({
 
                 window.Moengage.track_event('TP_NewLoginFlow_Set_Password_OTP_Submit', {
                   mobile: "91" + mobileNumber,
-                  operating_system: detectOperatingSystem()
+                  operating_system: detectOperatingSystem(),
+                  utm_campaign: utm.utm_campaign ?? 'NA',
+                  utm_source: utm.utm_source ?? 'NA',
+                  utm_medium: utm.utm_medium ?? 'NA',
+                  utm_content: utm.utm_content ?? 'NA',
+                  utm_term: utm.utm_term ?? 'NA',
+                  is_marketing: Object.values(utm).some(value => value && value.length > 0),
                 });
 
                 if (loginResponse.ssoUrl) {
@@ -132,7 +150,13 @@ const VerifyOTP = ({
 
                   window.Moengage.track_event('TP_NewLoginFlow_Login_OTP_Submit', {
                     mobile: "91" + mobileNumber,
-                    operating_system: detectOperatingSystem()
+                    operating_system: detectOperatingSystem(),
+                    utm_campaign: utm.utm_campaign ?? 'NA',
+                    utm_source: utm.utm_source ?? 'NA',
+                    utm_medium: utm.utm_medium ?? 'NA',
+                    utm_content: utm.utm_content ?? 'NA',
+                    utm_term: utm.utm_term ?? 'NA',
+                    is_marketing: Object.values(utm).some(value => value && value.length > 0),
                   });
 
                   if (ssoUrl) {
@@ -159,7 +183,8 @@ const VerifyOTP = ({
                   utm_medium: utm.utm_medium ?? 'NA',
                   utm_content: utm.utm_content ?? 'NA',
                   utm_term: utm.utm_term ?? 'NA',
-                  operating_system: detectOperatingSystem()
+                  operating_system: detectOperatingSystem(),
+                  is_marketing: Object.values(utm).some(value => value && value.length > 0),
                 });
 
                 const queryParams = new URLSearchParams(window.location.search.toString());
