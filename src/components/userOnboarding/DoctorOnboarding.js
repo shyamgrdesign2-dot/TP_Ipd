@@ -258,37 +258,39 @@ const DoctorOnboarding = ({
           }
 
           setIsSubmitting(true);
+          if (res) {
+            const doctorData = {
+              id: res,
+              phone_number: getUserMobileNumber(),
+              doctorName: formData.fullName,
+              departmentId: formData.speciality,
+              // Use real UTM data
+              utm_source: utmParams?.utm_source,
+              utm_campaign: utmParams?.utm_campaign,
+              utm_term: utmParams?.utm_term,
+              utm_content: utmParams?.utm_content,
+              utm_medium: utmParams?.utm_medium,
+            };
 
-          const doctorData = {
-            id: res,
-            phone_number: getUserMobileNumber(),
-            doctorName: formData.fullName,
-            departmentId: formData.speciality,
-            // Use real UTM data
-            utm_source: utmParams?.utm_source,
-            utm_campaign: utmParams?.utm_campaign,
-            utm_term: utmParams?.utm_term,
-            utm_content: utmParams?.utm_content,
-            utm_medium: utmParams?.utm_medium,
-          };
-
-          updateOnboardingDetails(doctorData).then(data => {
-            window.Moengage.track_event("TP_NewLoginFlow_Basic_info_Next", {
-              mobile: getUserMobileNumber(),
-              doctor_name: formData.fullName,
-              speciality: formData.speciality,
-              clinic_name: formData.clinicName,
-              clinic_address: formData.clinicAddress,
-              clinic_pincode: formData.clinicPincode,
-              clinic_lat: formData.clinic_lat,
-              clinic_long: formData.clinic_long,
+            updateOnboardingDetails(doctorData).then(data => {
+              setCurrentStep(1);
+              window.Moengage.track_event("TP_NewLoginFlow_Basic_info_Next", {
+                mobile: getUserMobileNumber(),
+                doctor_name: formData.fullName,
+                speciality: formData.speciality,
+                clinic_name: formData.clinicName,
+                clinic_address: formData.clinicAddress,
+                clinic_pincode: formData.clinicPincode,
+                clinic_lat: formData.clinic_lat,
+                clinic_long: formData.clinic_long,
+              });
+            }).catch((error) => {
+              message.error("Failed to update your information. Please try again.");
+              console.error("Error updating doctor details:", error);
+            }).finally(() => {
+              setIsSubmitting(false);
             });
-          }).catch((error) => {
-            message.error("Failed to update your information. Please try again.");
-            console.error("Error updating doctor details:", error);
-          }).finally(() => {
-            setIsSubmitting(false);
-          });
+          }
         }
       }).catch((error) => {
         console.error("Error during onboarding initialization:", error);

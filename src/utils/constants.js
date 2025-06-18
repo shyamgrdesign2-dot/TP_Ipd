@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const PERSISTANT_STORAGE_KEY_AUTH_TOKEN = 'persistant.storage.key.auth-token';
 export const PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN = 'persistant.storage.key.zydus-token';
+export const PERSISTANT_STORAGE_KEY_MEDECO_TOKEN = "persistant.storage.key.medeco-token";
 export const MESSAGE_KEY = 'message_key';
 export const IS_DEV = true;
 export const PAGE_SIZE = 10;
@@ -56,21 +57,21 @@ export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
 
 export const EXTRA_OPTIONS = [
-    {
-        key: JSON.stringify({ value: "STAT", label: "Stat", tmm_days: parseInt(0), unique_id: uuidv4() }),
-        value: 'STAT',
-        label: 'Stat',
-    },
-    {
-        key: JSON.stringify({ value: "to be continued", label: "To Be Continued", tmm_days: parseInt(0), unique_id: uuidv4() }),
-        value: 'to be continued',
-        label: 'To Be Continued',
-    },
-    {
-        key: JSON.stringify({ value: "till required", label: "Till Required", tmm_days: parseInt(0), unique_id: uuidv4() }),
-        value: 'till required',
-        label: 'Till Required',
-    }
+  {
+    key: JSON.stringify({ value: "STAT", label: "Stat", tmm_days: parseInt(0), unique_id: uuidv4() }),
+    value: 'STAT',
+    label: 'Stat',
+  },
+  {
+    key: JSON.stringify({ value: "to be continued", label: "To Be Continued", tmm_days: parseInt(0), unique_id: uuidv4() }),
+    value: 'to be continued',
+    label: 'To Be Continued',
+  },
+  {
+    key: JSON.stringify({ value: "till required", label: "Till Required", tmm_days: parseInt(0), unique_id: uuidv4() }),
+    value: 'till required',
+    label: 'Till Required',
+  }
 ]
 
 export const ABORTION = "Abortion";

@@ -29,7 +29,7 @@ import DoctorWebsiteSetting from "./pages/DoctorWebsiteSetting";
 import MessageCreateCampaign from "./pages/MessageCreateCampaign";
 
 import { store, persistor } from "./redux/store";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_MEDECO_TOKEN } from "./utils/constants";
 import { useLocalStorage } from "./utils/localStorage";
 
 import { ErrorBoundary } from "react-error-boundary";
@@ -63,11 +63,17 @@ function App() {
   const [searchParams] = useSearchParams();
   const authToken = searchParams.get("authToken");
   const redirectTo = searchParams.get("redirectTo");
+  const medecoToken = searchParams.get("medecoToken");
   const location = useLocation();
   const navigate = useNavigate();
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
+
+  const [getMedecoToken, setMedecoToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_MEDECO_TOKEN
+  );
+
 
   const isLoginPage = location.pathname === "/login";
   const isRootPath = location.pathname === "/";
@@ -116,7 +122,11 @@ function App() {
       window.isLoggingOut = false;
     }
   };
-
+  useEffect(() => {
+    if (medecoToken) {
+      setMedecoToken(medecoToken);
+    }
+  }, []);
   useEffect(() => {
     const checkUserStatus = async () => {
       const token = getToken();

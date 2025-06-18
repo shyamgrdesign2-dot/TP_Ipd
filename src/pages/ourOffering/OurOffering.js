@@ -1,23 +1,23 @@
-import React from 'react'
-import LeftArrowSVG from "../../assets/images/Arrow-left.svg"
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import ShethoscopeImg from "../../assets/images/offerings/Shethoscope.webp"
 import TatvaShotsImg from "../../assets/images/offerings/Tatvashots.webp"
 import TatvaPediaImg from "../../assets/images/offerings/Tatvapedia.webp"
 import RemoteCareImg from "../../assets/images/offerings/Remote_Care.webp"
 import AskTatvaImg from "../../assets/images/offerings/Ask_Tatva.webp"
 import GenerateDDxImg from "../../assets/images/offerings/DDx.webp"
-import QrImg from "../../assets/images/offerings/qr.webp"
 import WhiteGridImg from "../../assets/images/offerings/white_grid.svg"
 import TatvaCareLogo from "../../assets/images/Tatvacare.webp"
 import "./OurOffering.scss"
-import { useNavigate, useSearchParams } from 'react-router-dom'
 
 const OurOffering = () => {
     const [searchParams] = useSearchParams();
     const name = searchParams.get("name");
-    // Remove 'Dr' or 'dr' from name if present
+    const medecoToken = localStorage.getItem("medecoToken");
     const formattedName = name?.replace(/^Dr\s+|^dr\s+/i, '');
-    const mobileNumber = searchParams.get("mobileNumber");
+    const mobileNumberRaw = searchParams.get("mobileNumber");
+    // Remove '91' from the start of the mobile number if present
+    const mobileNumber = mobileNumberRaw ? mobileNumberRaw.replace(/^91/, '') : '';
+    console.log('mobileNumber', mobileNumber)
     const from = searchParams.get("from")
     const speciality = searchParams.get("speciality");
     const navigate = useNavigate()
@@ -62,6 +62,21 @@ const OurOffering = () => {
                     localStorage.setItem("mobileNumber", mobileNumber);
                     navigate(`/final-setup?fullName=${formattedName}&speciality=${speciality}&fromOffering=true`);
                 }
+                break;
+            case "tatva_shots":
+                // window.location.href = `${process.env.REACT_APP_MEDECO_URL}/tatva-shots?authToken=${medecoToken}`;
+                break;
+            case "remote_care":
+                // window.location.href = `${process.env.REACT_APP_MEDECO_URL}/remote-care?authToken=${medecoToken}`;
+                break;
+            case "generate_ddx":
+                // window.location.href = `${process.env.REACT_APP_MEDECO_URL}/ddx-welcome?authToken=${medecoToken}`;
+                break;
+            case "ask_tatva":
+                // window.location.href = `${process.env.REACT_APP_MEDECO_URL}/tatva-ai?authToken=${medecoToken}`;
+                break;
+            case "tatva_pedia":
+                // window.location.href = `${process.env.REACT_APP_MEDECO_URL}/tatvapedia?authToken=${medecoToken}`;
                 break;
             default:
                 break;
