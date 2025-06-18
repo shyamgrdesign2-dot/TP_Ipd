@@ -29,7 +29,7 @@ function AppointmentList() {
   const { profile } = useSelector((state) => state.doctors);
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
-  const {hospital_business_id} = getTokenData();
+  const {hospital_business_id} = getTokenData() || {};
   const isZydus = hospital_business_id === config.ZYDUS_BUSINESS_ID;
   const isApollo = config.APOLLO_BUSINESS_IDS.includes(hospital_business_id);
   
