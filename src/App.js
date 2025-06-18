@@ -393,6 +393,7 @@ function App() {
                 <Route path="all_patients" element={<AllPatients />} />
                 <Route path="billing-settings" element={<BillingSettings />} />
                 <Route path="add-appointment" element={<AddAppointment />} />
+                <Route path="get-unlimited-access" element={<GetUnlimitedAccess />} />
               </Route>
             </Routes>
           </PersistGate>
