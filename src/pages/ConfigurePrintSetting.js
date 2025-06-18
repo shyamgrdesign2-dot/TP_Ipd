@@ -56,6 +56,11 @@ function ConfigurePrintSetting() {
     const {customModules} = useSelector((state) => state.customModules);
     const dispatch = useDispatch();
 
+    // Extract lab params data that was passed from PrescriptionPrintView
+    const labParamsData = caseManagerData?.labParamsData || [];
+    const zydusSelectedLabParams = caseManagerData?.zydusSelectedLabParams || [];
+
+
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
     }, [divRef]);
@@ -69,7 +74,7 @@ function ConfigurePrintSetting() {
         dispatch(getModules(userId));
       }, [userId]);
 
-    const contextApi = { smartRxFile, divWidth, caseManagerData, certificateData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature, medicalHistoryCheckboxOptions, customModules};
+    const contextApi = { smartRxFile, divWidth, caseManagerData, certificateData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature, medicalHistoryCheckboxOptions, labParamsData, zydusSelectedLabParams, customModules};
 
     const TabsPrintSetting = [
         {
@@ -92,6 +97,26 @@ function ConfigurePrintSetting() {
                 ...defaultPrintSettings,
                 qrcode: await QRCode.toDataURL(`${config.doctor_website_url}${parseInt(defaultPrintSettings?.um_contact, 10).toString(36)}_${defaultPrintSettings?.hm_refer_code}`)
             }))
+            
+            // Add Case Option ID 18 for Zydus Lab Results if it doesn't exist and we have Zydus data
+            if (zydusSelectedLabParams?.length > 0 && copyPrintSettings?.prescription?.case_option) {
+                const hasZydusOption = copyPrintSettings.prescription.case_option.find(option => option.id === 18);
+                if (!hasZydusOption) {
+                    // Find Lab Results (ID 15) position to insert Zydus Lab Results (ID 18) after it
+                    const labResultsIndex = copyPrintSettings.prescription.case_option.findIndex(option => option.id === 15);
+                    const insertIndex = labResultsIndex !== -1 ? labResultsIndex + 1 : copyPrintSettings.prescription.case_option.length;
+                    
+                    // Add Zydus Lab Results option
+                    copyPrintSettings.prescription.case_option.splice(insertIndex, 0, {
+                        id: 18,
+                        title: "Zydus Lab Results",
+                        format: "inline",
+                        enable: "Y",
+                        custom_status: "Y"
+                    });
+                }
+            }
+            
             setPrintSettings(copyPrintSettings);
             copyPrintSettings?.logo_enable == 'Y' && copyPrintSettings.logo_image && setFileLogo({ imageShow: true, showFile: copyPrintSettings.logo_image });
             copyPrintSettings?.header_image && setFileHeader({ imageShow: true, showFile: copyPrintSettings.header_image });
@@ -138,7 +163,6 @@ function ConfigurePrintSetting() {
         );
         setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
     };
-
     return (
         <PrintSettingsContext.Provider value={contextApi}>
             <>

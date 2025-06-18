@@ -99,6 +99,9 @@ import { fetchSymptomsCollectorData } from "../api/services/ApiGenRx";
 import SCPopup from "../components/SCPopup";
 import SCBanner from "../components/SCBanner";
 import genRxBg from "../assets/images/gen-rx-bg.gif";
+import LabResultsTable from '../components/LabParams';
+import ZydusLabParams from '../components/ZydusLabParams';
+import ZydusLabParametersList from "../components/ZydusLabParametersList";
 
 function Prescription() {
   const {
@@ -176,6 +179,9 @@ function Prescription() {
   const [isGenRxDrawerVisible, setIsGenRxDrawerVisible] = useState(caseManagerData?.smart_prescription_filename || false);
   const [pillupSwitch, setPillupSwitch] = useState(true);
   const [showSCBanner, setShowSCBanner] = useState(false);
+  const [zydusTestReportDrawer, setZydusTestReportDrawer] = useState(false);
+  const [labReportID, setLabReportID] = useState(null);
+  const [zydusSelectedLabParams, setZydusSelectedLabParams] = useState([]);
 
   const { servicesList } = useSelector((state) => state.doctors);
 
@@ -521,6 +527,11 @@ function Prescription() {
         ))
       }
       setPillupSwitch(caseManagerData?.pillup_fulfilment == 1 ? true : false)
+      
+      // Initialize labReportID from caseManagerData if available
+      if (caseManagerData?.labReportID) {
+        setLabReportID(caseManagerData.labReportID);
+      }
     }
   }, []);
 
@@ -949,8 +960,12 @@ function Prescription() {
     );
   };
 
+  const handleZydusTestReportDrawer = () => {
+    setZydusTestReportDrawer(!zydusTestReportDrawer);
+  };
+
   const CUSTOMIZED_PAD_LEFT_LIST = () => {
-    return customizedPadLeftList?.map((e, i) => {
+    const modules = customizedPadLeftList?.map((e, i) => {
       return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
         <div key={i} className="prescription-box-sm p-14">
           <div className="d-flex align-items-center justify-content-between">
@@ -1170,7 +1185,7 @@ function Prescription() {
                 </div>
               </>
             ) : e.tmdpm_id === 19 &&
-            e.tmdpm_status === 0 && (
+            e.tmdpm_status === 0 ? (
               <>
                 <div className="prescription-box-sm" style={{ overflow: 'hidden' }}>
                   <div className="d-flex align-items-center justify-content-between p-14" style={{ borderBottom: "1px solid #ddd" }}>
@@ -1200,8 +1215,36 @@ function Prescription() {
                   <LabParametersList labParamsData={labParamsData} patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} />
                 </div>
               </>
-            )
-    })
+            ) : null;
+    });
+
+    // Add Zydus Test Reports module if user has Zydus business ID
+    if (tokenData?.hospital_business_id === env.zydus_business_id) {
+      modules.push(
+        <div key="zydus-test-reports" className="prescription-box-sm" style={{ overflow: 'hidden' }}>
+          <div className="d-flex align-items-center justify-content-between p-14" style={{ borderBottom: "1px solid #ddd" }}>
+            <div className="d-flex align-items-center">
+              <img
+                src={labResultImg}
+                alt="zydus-test-report"
+                className="me-3"
+              />
+              <div className="title-common">Zydus Lab Reports</div>
+            </div>
+            <button
+              className="btn d-flex align-items-center btn-text"
+              onClick={handleZydusTestReportDrawer}
+            >
+              <i className="icon-Add me-1 fs-5"></i>
+              <span>View All</span>
+            </button>
+          </div>
+          <ZydusLabParametersList labParamsData={zydusSelectedLabParams} patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} />
+        </div>
+      );
+    }
+
+    return modules;
   }
 
   const handleGenRx = () => {
@@ -1230,11 +1273,42 @@ function Prescription() {
       });
     }
   }
+  // Auto-fetch Zydus lab params when labReportID is available (for ZydusLabParametersList display)
+  useEffect(() => {
+    const fetchZydusLabParamsForDisplay = async () => {
+      if (labReportID && zydusSelectedLabParams.length === 0) {
+        try {
+          const response = await axios.post(
+            `${env.lab_params_api_url}/api/v1/lab-reports/getByID`,
+            {
+              labReportID: labReportID,
+              source: "zydus-ict",
+              patient_unique_id: patient_data?.patient_unique_id
+            },
+            {
+              headers: {
+                'Authorization': `Bearer ${JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN))}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          
+          if (response.data && response.data.data) {
+            setZydusSelectedLabParams(response.data.data);
+          }
+        } catch (error) {
+          console.error("Error fetching Zydus lab params for display:", error);
+        }
+      }
+    };
+
+    fetchZydusLabParamsForDisplay();
+  }, [labReportID, patient_data?.patient_unique_id]);
 
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData} handleGenRx={handleGenRx} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData} zydusSelectedLabParams={zydusSelectedLabParams} handleGenRx={handleGenRx} labReportID={labReportID} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <img src={hey} alt="vitals" className="me-3 hey" />
           <div className="row">
@@ -1584,6 +1658,7 @@ function Prescription() {
             visible={isGenRxDrawerVisible}
             onClose={() => setIsGenRxDrawerVisible(false)}
             handleGenRxKnowMore={handleGenRxKnowMore}
+            labReportID={labReportID}
           />
         )}
         {tatvaAiKnowMoreDrawer && (
@@ -1605,6 +1680,35 @@ function Prescription() {
           showHideSubModal={showHideSubModal} />
 
         {showSCPopup && !caseManagerData?.smart_prescription_filename && <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} handleGenRx={handleGenRx} />}
+        {zydusTestReportDrawer && (
+          <Drawer
+            closeIcon={false}
+            width={880}
+            placement="right"
+            open={zydusTestReportDrawer}
+            onClose={handleZydusTestReportDrawer}
+            bodyStyle={{ backgroundColor: "white" }}
+          >
+            <ZydusLabParams
+              handleZydusTestReportDrawer={handleZydusTestReportDrawer}
+              mrno={patient_data?.mrno}
+              patientId={patient_data?.patient_unique_id}
+              mrcNo={patient_data?.mrno}
+              labReportID={labReportID}
+              setLabReportID={setLabReportID}
+              zydusSelectedLabParams={zydusSelectedLabParams}
+              setZydusSelectedLabParams={setZydusSelectedLabParams}
+              onSave={(newLabReportID) => {
+                if (newLabReportID) {
+                  setLabReportID(newLabReportID);
+                }
+              }}
+              isBackModalOpen={isBackModalOpen}
+              showHideBackModal={showHideBackModal}
+              patientGender={patient_data?.pm_gender}
+            />
+          </Drawer>
+        )}
       </>
     </CashManagerContext.Provider>
   );
