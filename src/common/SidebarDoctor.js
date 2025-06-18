@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "antd";
+import { Button, Drawer } from "antd";
 import { isMobile, isChrome, isSafari } from "react-device-detect";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 
 import config from "../config";
 import { useLocalStorage } from "../utils/localStorage";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { FREE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_ASK_TATVA, S_IPD, S_PHARMACY, S_OPD_BILLING, S_BILLING, TRIAL, S_TATVA_PRACTICE, PERSISTANT_STORAGE_KEY_EXTRA } from "../utils/constants";
 import newGif from "../assets/images/new-gif.gif";
 import ipdIcon from "../assets/images/ipd.svg";
 import patientsIcon from "../assets/images/all-patients.svg";
@@ -23,22 +23,48 @@ import analyticsActiveIcon from "../assets/images/analytics-active.svg";
 import pharmacyActiveIcon from "../assets/images/pharmacy-active.svg";
 import billingsActiveIcon from "../assets/images/billings-active.svg";
 import followUpActiveIcon from "../assets/images/follow-up-active.svg";
+import LockIcon from "../assets/images/lock-icon.svg";
 import tatvaAiActiveIcon from "../assets/images/website-images/tatvaAiActiveIcon.svg";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { errorMessage, getClinicName, trackEvent } from "../utils/utils";
+import { errorMessage, getClinicName, shouldMonetizationDisabled, trackEvent } from "../utils/utils";
 import FullPageLoader from "../pages/vaccination/components/Loader";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
+import moment from "moment";
+import { checkCredits } from "../redux/monetizationSlice";
+import { services } from "../redux/doctorsSlice";
+import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
+import IPDKnowMore from "../pages/monetization/components/IPDKnowMore";
+import PharmacyKnowMore from "../pages/monetization/components/PharmacyKnowMore";
+import AskTatvaKnowMore from "../pages/monetization/components/AskTatvaKnowMore";
 
 function SidebarDoctor() {
+  const dispatch = useDispatch();
+  const { servicesList } = useSelector((state) => state.doctors);
+  const ASK_TATVA_planDetails = servicesList?.find(e => e.service_name === S_ASK_TATVA)
+
+  const { planDetails } = useSelector((state) => state.subscription);
+  const { service_mappings } = planDetails || {};
+  const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
+  const PHARMACY_planDetails = service_mappings?.find(e => e.service_name === S_PHARMACY)
+  const IPD_planDetails = service_mappings?.find(e => e.service_name === S_IPD)
+  const BILLING_planDetails = service_mappings?.find(e => e.service_name === S_BILLING)
+
+  const tp_monetization_enable = !shouldMonetizationDisabled();
+
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
   const { profile } = useSelector((state) => state.doctors);
-  const { planDetails } = useSelector((state) => state.subscription);
   const [tokenData, setTokenData] = useState(null);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [tatvaHovered, SetTatvaHovered] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const [askTatvaKnowMoreDrawer, setAskTatvaKnowMoreDrawer] = useState(false);
+  const [iPDKnowMoreDrawer, setIPDKnowMoreDrawer] = useState(false);
+  const [pharmacyKnowMoreDrawer, setPharmacyKnowMoreDrawer] = useState(false);
+  const [subModalData, setSubModalData] = useState(null);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
 
   const navigate = useNavigate();
   const { isOpdBillingAccessable } = useOpdBilling();
@@ -75,7 +101,95 @@ function SidebarDoctor() {
     }
   }, [profile]);
 
-  const clickOldModule = (moduleName) => {
+  const handleAskTatvaKnowMore = () => {
+    setAskTatvaKnowMoreDrawer((prev) => !prev);
+  };
+
+  const handleIPDKnowMore = () => {
+    setIPDKnowMoreDrawer((prev) => !prev);
+  };
+
+  const handlePharmacyKnowMore = () => {
+    setPharmacyKnowMoreDrawer((prev) => !prev);
+  };
+
+  const showHideSubModal = () => {
+    setIsSubModalOpen(!isSubModalOpen);
+  }
+
+  const isFirstClickOfDay = (key) => {
+    const localStorageExtraData = localStorage.getItem(PERSISTANT_STORAGE_KEY_EXTRA);
+    const jsonData = localStorageExtraData ? JSON.parse(localStorageExtraData) : {};
+    const today = moment().format('YYYY-MM-DD');
+    if (jsonData[`${key}_date`] !== today) {
+      jsonData[`${key}_date`] = today;
+      localStorage.setItem(PERSISTANT_STORAGE_KEY_EXTRA, JSON.stringify(jsonData));
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  const clickOldModule = async (moduleName) => {
+    if (tp_monetization_enable && (moduleName === S_PHARMACY || moduleName === S_IPD)) {
+      setSubModalData({ service_name: moduleName })
+      if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier === TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) {
+        if (isFirstClickOfDay(moduleName)) {
+          handlePharmacyKnowMore();
+        } else {
+          check_SSO(moduleName);
+        }
+      } else if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier !== TRIAL) {
+        check_SSO(moduleName);
+      } else if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) {
+        handlePharmacyKnowMore();
+      } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier === TRIAL && IPD_planDetails?.plan_tier === TRIAL) {
+        if (isFirstClickOfDay(moduleName)) {
+          handleIPDKnowMore();
+        } else {
+          check_SSO(moduleName);
+        }
+      } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier !== TRIAL) {
+        check_SSO(moduleName);
+      } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier === TRIAL) {
+        handleIPDKnowMore();
+      } else {
+        check_SSO(moduleName);
+      }
+    } else {
+      check_SSO(moduleName);
+    }
+
+    // if (tp_monetization_enable && (moduleName === S_PHARMACY || moduleName === S_IPD)) {
+    //   setSubModalData({ service_name: moduleName })
+    //   if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) {
+    //     handlePharmacyKnowMore()
+    //     showHideSubModal()
+    //   } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier === TRIAL) {
+    //     handleIPDKnowMore()
+    //     showHideSubModal()
+    //   } else {
+    //     check_SSO(moduleName);
+    //   }
+    // } else {
+    //   check_SSO(moduleName);
+    // }
+
+    // if (tp_monetization_enable && (moduleName === S_PHARMACY || moduleName === S_IPD)) {
+    //   setSubModalData({ service_name: moduleName })
+    //   if (moduleName === S_PHARMACY) {
+    //     handlePharmacyKnowMore()
+    //   } else if (moduleName === S_IPD) {
+    //     handleIPDKnowMore()
+    //   } else {
+    //     check_SSO(moduleName);
+    //   }
+    // } else {
+    //   check_SSO(moduleName);
+    // }
+  };
+
+  async function check_SSO(moduleName) {
     SSO_TO_PM().then(async (data) => {
       if (moduleName === "opd_billing" && isOpdBillingAccessable) {
         navigate("/billing-dashboard");
@@ -102,7 +216,7 @@ function SidebarDoctor() {
         }
       }
     });
-  };
+  }
 
   async function SSO_TO_PM() {
     try {
@@ -204,7 +318,7 @@ function SidebarDoctor() {
       const tatvaAitoken = response.data.data.token;
 
       // Construct the new URL with the token
-      const newUrl = `${tatvaAiURL}/login?authToken=${tatvaAitoken}`;
+      const newUrl = `${tatvaAiURL}/login?authToken=${tatvaAitoken}&app=ask_tatva`;
 
       setLoading(false);
 
@@ -220,6 +334,53 @@ function SidebarDoctor() {
       errorMessage(error.message);
     }
   };
+
+
+  const checkTatvaAiPurchased = async () => {
+    setSubModalData({ service_name: S_ASK_TATVA })
+    if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
+      showHideSubModal()
+    } else {
+      let sendData = {
+        b2c_id: profile?.b2c,
+        service_name: S_ASK_TATVA
+      }
+      const action = await dispatch(checkCredits(sendData));
+      if (action.meta.requestStatus === "fulfilled") {
+        if (action?.payload?.hasOwnProperty("service_name")) {
+          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
+            if (action?.payload?.credit_balance != ASK_TATVA_planDetails?.credit_balance) {
+              await dispatch(services(sendData?.b2c_id))
+            }
+            showHideSubModal()
+          } else {
+            handleTatvaAi();
+          }
+        } else {
+          typeof action?.payload?.data?.error === 'object' ?
+            errorMessage(action?.payload?.data?.error?.description)
+            :
+            errorMessage(action?.payload?.data?.message)
+        }
+      } else {
+        errorMessage(action.payload.message)
+      }
+    }
+  }
+
+  const tatvaAiRedirectOrDrawer = () => {
+    if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance > 0) {
+      if (isFirstClickOfDay(S_ASK_TATVA)) {
+        handleAskTatvaKnowMore();
+      } else {
+        checkTatvaAiPurchased();
+      }
+    } else if (ASK_TATVA_planDetails?.plan_tier !== FREE) {
+      checkTatvaAiPurchased();
+    } else if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
+      handleAskTatvaKnowMore();
+    }
+  }
 
   const handleHover = (data) => {
     if (data) {
@@ -258,27 +419,33 @@ function SidebarDoctor() {
             }
           >
             <div
-              className={`d-flex align-items-center flex-column ${
-                tatvaHovered ? "hoveredColor" : ""
-              }`}
+              className={`d-flex align-items-center flex-column ${tatvaHovered ? "hoveredColor" : ""
+                }`}
               onMouseEnter={() => handleHover(true)} // Set the hovered item
               onMouseLeave={() => handleHover(false)} // Clear the hovered item
-              onClick={handleTatvaAi}
+              onClick={tatvaAiRedirectOrDrawer}
             >
               <img src={getIcon("tatva_ai", tatvaHovered)} alt="tatva_ai" />
               <div
                 className={`mt-1 px-2 ${tatvaHovered ? "hoveredColor" : ""}`}
                 style={{ fontSize: "12px", fontWeight: "500" }}
               >
-                TatvaAI
+                Ask Tatva
               </div>
             </div>
-            <img
+            {/* <img
               src={newGif}
               className="mx-auto d-block text-center mb-2 position-absolute sidebar-message"
               style={{ right: -4, top: 6, zIndex: -1 }}
               alt="New"
-            />
+            /> */}
+            {/* <div className="trial-sidebar">
+              {(ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance > 0) ? (
+                <span>Trial</span>
+              ) : (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) && (
+                <img src={LockIcon} alt="Trial" />
+              )}
+            </div> */}
           </NavLink>
 
           {profile &&
@@ -290,31 +457,60 @@ function SidebarDoctor() {
               ?.map((item, i) => {
                 const isHovered = hoveredItem === i;
                 return (
-                  <NavLink
-                    key={i}
-                    onClick={() => clickOldModule(item.type)}
-                    replace={true}
-                    className={({ isActive, isPending }) =>
-                      item.type === "opd_billing" &&
-                      window.location.pathname === "/billing-dashboard"
-                        ? "active"
-                        : isHovered
-                        ? ""
-                        : isPending
-                        ? "pending"
-                        : isActive
-                        ? ""
-                        : "active"
-                    }
-                    onMouseEnter={() => setHoveredItem(i)} // Set the hovered item
-                    onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
-                  >
-                    <img
-                      src={getIcon(item.type, isHovered)}
-                      alt={`${item.type}`}
-                    />
-                    <div className="mt-1 px-2">{item.title}</div>
-                  </NavLink>
+                  <div className="position-relative">
+                    <NavLink
+                      key={i}
+                      onClick={() => clickOldModule(item.type)}
+                      replace={true}
+                      className={({ isActive, isPending }) =>
+                        item.type === "opd_billing" &&
+                          window.location.pathname === "/billing-dashboard"
+                          ? "active"
+                          : isHovered
+                            ? ""
+                            : isPending
+                              ? "pending"
+                              : isActive
+                                ? ""
+                                : "active"
+                      }
+                      onMouseEnter={() => setHoveredItem(i)} // Set the hovered item
+                      onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
+                    >
+                      <img
+                        src={getIcon(item.type, isHovered)}
+                        alt={`${item.type}`}
+                      />
+                      <div className="mt-1 px-2">{item.title}</div>
+                    </NavLink>
+                    {tp_monetization_enable && (
+                      item.type === S_PHARMACY ? (
+                        <div className="trial-sidebar">
+                          {(EMR_planDetails?.plan_tier === TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) ? (
+                            <span>Trial</span>
+                          ) : (EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) && (
+                            <img src={LockIcon} alt="Trial" />
+                          )}
+                        </div>
+                      ) : item.type === S_IPD ? (
+                        <div className="trial-sidebar">
+                          {(EMR_planDetails?.plan_tier === TRIAL && IPD_planDetails?.plan_tier === TRIAL) ? (
+                            <span>Trial</span>
+                          ) : (EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier === TRIAL) && (
+                            <img src={LockIcon} alt="Trial" />
+                          )}
+                        </div>
+                      ) : item.type === S_OPD_BILLING && (
+                        <div className="trial-sidebar">
+                          {(EMR_planDetails?.plan_tier === TRIAL && BILLING_planDetails?.plan_tier === TRIAL) ? (
+                            <span>Trial</span>
+                          ) : (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) && (
+                            <img src={LockIcon} alt="Trial" />
+                          )}
+                        </div>
+                      )
+                    )}
+                  </div>
                 );
               })}
 
@@ -362,12 +558,12 @@ function SidebarDoctor() {
                   <div className="text-truncate">Messages</div>
                 )}
               </div>
-              <img
+              {/* <img
                 src={newGif}
                 className="mx-auto d-block text-center mb-2 position-absolute sidebar-message"
                 style={{ right: -4, top: 6, zIndex: -1 }}
                 alt="New"
-              />
+              /> */}
             </div>
           </NavLink>
         )}
@@ -381,14 +577,52 @@ function SidebarDoctor() {
           >
             <i className="icon-announcement fs-3"></i> <br />
           </Button>
-          <img
+          {/* <img
             src={newGif}
             width={42}
             className="mx-auto d-block text-center mb-2"
             alt="New"
-          />
+          /> */}
         </div>
       </div>
+
+      <Drawer
+        closeIcon={false}
+        placement="right"
+        open={askTatvaKnowMoreDrawer}
+        onClose={handleAskTatvaKnowMore}
+        className=".modalWidth-800"
+        width={600}
+      >
+        <AskTatvaKnowMore handleAskTatvaKnowMore={handleAskTatvaKnowMore} onRedirect={checkTatvaAiPurchased} />
+      </Drawer>
+
+      <Drawer
+        closeIcon={false}
+        placement="right"
+        open={iPDKnowMoreDrawer}
+        onClose={handleIPDKnowMore}
+        className=".modalWidth-800"
+        width={600}
+      >
+        <IPDKnowMore handleIPDKnowMore={handleIPDKnowMore} onRedirect={() => check_SSO(subModalData?.service_name)} />
+      </Drawer>
+
+      <Drawer
+        closeIcon={false}
+        placement="right"
+        open={pharmacyKnowMoreDrawer}
+        onClose={handlePharmacyKnowMore}
+        className=".modalWidth-800"
+        width={600}
+      >
+        <PharmacyKnowMore handlePharmacyKnowMore={handlePharmacyKnowMore} onRedirect={() => check_SSO(subModalData?.service_name)} />
+      </Drawer>
+
+      <ExpiredSubModal
+        title={subModalData && subModalData?.hasOwnProperty('service_name') && subModalData?.service_name}
+        isSubModalOpen={isSubModalOpen}
+        showHideSubModal={showHideSubModal} />
     </>
   );
 }

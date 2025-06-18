@@ -58,9 +58,9 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
 
   useEffect(() => {
     const data = [];
-    searchModuleResults.map(({ title }, i) => {
+    searchModuleResults.map(({ title, notes }, i) => {
       return data.push({
-        key: JSON.stringify({ title, i, unique_id: uuidv4() }),
+        key: JSON.stringify({ title, notes, i, unique_id: uuidv4() }),
         value: title,
       });
     });
@@ -71,6 +71,7 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
             unique_id: uuidv4(),
             change: 1,
             title: searchChildQuery,
+            notes: "",
           }),
           value: searchChildQuery,
         });
@@ -114,8 +115,31 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
   );
 
   const onSelectParent = useCallback(
-    (e) => {
-      const newItem = { title: e, notes: "" };
+    (itemData) => {
+      // Handle both search results objects and childSearchOptions objects
+      let title, notes;
+
+      if (itemData.title !== undefined) {
+        // Direct search result object
+        title = itemData.title;
+        notes = itemData.notes || "";
+      } else if (itemData.key) {
+        // childSearchOptions object with key
+        try {
+          const selectedData = JSON.parse(itemData.key);
+          title = selectedData.title || itemData.value;
+          notes = selectedData.notes || "";
+        } catch (error) {
+          title = itemData.value;
+          notes = "";
+        }
+      } else {
+        // Fallback
+        title = itemData.value || itemData;
+        notes = "";
+      }
+
+      const newItem = { title, notes };
       updateCustomModuleContents([...moduleData, newItem]);
       setSearchChildQuery("");
       setSelectedIndex([...moduleData, newItem].length - 1);
@@ -299,7 +323,7 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
                                 key={i}
                                 type="text"
                                 className="btn btn-primary2 chips-custom mb-14 chips-addCustom chips-height"
-                                onClick={() => onSelectParent(item.value)}
+                                onClick={() => onSelectParent(item)}
                               >
                                 "{item.value}"{" "}
                                 <i className="icon-Add mx-2 fs-6"></i>{" "}
@@ -318,7 +342,7 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
                                 className={`${
                                   item.value.length > 26 && "chips-custom-break"
                                 } btn btn-primary2 chips-custom mb-14 me-14`}
-                                onClick={() => onSelectParent(item.value)}
+                                onClick={() => onSelectParent(item)}
                               >
                                 {item.value}
                               </Button>
@@ -344,7 +368,7 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
                                   item?.title?.length > 26 &&
                                   "chips-custom-break"
                                 } btn btn-primary2 chips-custom mb-14 me-14`}
-                                onClick={() => onSelectParent(item?.title)}
+                                onClick={() => onSelectParent(item)}
                               >
                                 {item?.title}
                               </Button>

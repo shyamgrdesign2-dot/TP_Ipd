@@ -19,6 +19,7 @@ import CustomStepper from "./CustomStepper";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { updateHasLocation } from "../../redux/doctorsSlice";
 import { useDispatch } from "react-redux";
+import { detectOperatingSystem } from "../../utils/utils";
 
 const DoctorOnboarding = ({
   visible,
@@ -53,6 +54,8 @@ const DoctorOnboarding = ({
   const { state } = useLocation();
   const clinicDetails = state?.clinicDetails;
   const dispatch = useDispatch();
+  // Get UTM params
+  const utm = getUtmParams();
 
   useEffect(() => {
     if (clinicDetails) {
@@ -538,6 +541,13 @@ const DoctorOnboarding = ({
           clinic_pincode: formData.clinicPincode,
           clinic_lat: formData.clinic_lat,
           clinic_long: formData.clinic_long,
+          utm_campaign: utm.utm_campaign ?? 'NA',
+          utm_source: utm.utm_source ?? 'NA',
+          utm_medium: utm.utm_medium ?? 'NA',
+          utm_content: utm.utm_content ?? 'NA',
+          utm_term: utm.utm_term ?? 'NA',
+          operating_system: detectOperatingSystem(),
+          is_marketing: Object.values(utm).some(value => value && value.length > 0),
         });
       }
       if (!success) return;
@@ -556,6 +566,13 @@ const DoctorOnboarding = ({
           clinic_pincode: formData.clinicPincode,
           clinic_lat: formData.clinic_lat,
           clinic_long: formData.clinic_long,
+          utm_campaign: utm.utm_campaign ?? 'NA',
+          utm_source: utm.utm_source ?? 'NA',
+          utm_medium: utm.utm_medium ?? 'NA',
+          utm_content: utm.utm_content ?? 'NA',
+          utm_term: utm.utm_term ?? 'NA',
+          operating_system: detectOperatingSystem(),
+          is_marketing: Object.values(utm).some(value => value && value.length > 0),
         });
       }
       if (!success) return;
@@ -575,6 +592,13 @@ const DoctorOnboarding = ({
           clinic_pincode: formData.clinicPincode,
           clinic_lat: formData.clinic_lat,
           clinic_long: formData.clinic_long,
+          utm_campaign: utm.utm_campaign ?? 'NA',
+          utm_source: utm.utm_source ?? 'NA',
+          utm_medium: utm.utm_medium ?? 'NA',
+          utm_content: utm.utm_content ?? 'NA',
+          utm_term: utm.utm_term ?? 'NA',
+          operating_system: detectOperatingSystem(),
+          is_marketing: Object.values(utm).some(value => value && value.length > 0),
         });
 
         // Don't navigate or reload - stay on current page
@@ -651,6 +675,13 @@ const DoctorOnboarding = ({
                       clinic_pincode: formData.clinicPincode,
                       clinic_lat: formData.clinic_lat,
                       clinic_long: formData.clinic_long,
+                      utm_campaign: utm.utm_campaign ?? 'NA',
+                      utm_source: utm.utm_source ?? 'NA',
+                      utm_medium: utm.utm_medium ?? 'NA',
+                      utm_content: utm.utm_content ?? 'NA',
+                      utm_term: utm.utm_term ?? 'NA',
+                      operating_system: detectOperatingSystem(),
+                      is_marketing: Object.values(utm).some(value => value && value.length > 0),
                     }
                   );
 

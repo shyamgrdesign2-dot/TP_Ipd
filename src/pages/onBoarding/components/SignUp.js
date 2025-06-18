@@ -172,6 +172,15 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           setIsFromCampaign(false);
           if (isFromCampaign || !isLoginFlow) {
             setErrorType("inputFiled");
+            // Clear UTM params from URL before redirecting
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.delete("utm_source");
+            currentUrl.searchParams.delete("utm_campaign");
+            currentUrl.searchParams.delete("utm_medium");
+            currentUrl.searchParams.delete("utm_content");
+            currentUrl.searchParams.delete("utm_term");
+            window.history.replaceState({}, '', currentUrl.toString());
+            
             setError(
               <>
                 Looks like this account already exists. Please{' '}
@@ -198,7 +207,8 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               utm_medium: utm.utm_medium ?? 'NA',
               utm_content: utm.utm_content ?? 'NA',
               utm_term: utm.utm_term ?? 'NA',
-              operating_system: detectOperatingSystem()
+              operating_system: detectOperatingSystem(),
+              is_marketing: Object.values(utm).some(value => value && value.length > 0),
             });
 
             window.sendOtp(
@@ -214,7 +224,8 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
                     utm_medium: utm.utm_medium ?? 'NA',
                     utm_content: utm.utm_content ?? 'NA',
                     utm_term: utm.utm_term ?? 'NA',
-                    operating_system: detectOperatingSystem()
+                    operating_system: detectOperatingSystem(),
+                    is_marketing: Object.values(utm).some(value => value && value.length > 0),
                   });
                   onViewChange("verifyOTP", mobileNumber, true , "", false,data.message);
                 }
@@ -266,7 +277,8 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
                   utm_medium: utm.utm_medium ?? 'NA',
                   utm_content: utm.utm_content ?? 'NA',
                   utm_term: utm.utm_term ?? 'NA',
-                  operating_system: detectOperatingSystem()
+                  operating_system: detectOperatingSystem(),
+                  is_marketing: Object.values(utm).some(value => value && value.length > 0),
                 });
               window.sendOtp(
                 `91${mobileNumber}`,
@@ -281,7 +293,8 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
                       utm_medium: utm.utm_medium ?? 'NA',
                       utm_content: utm.utm_content ?? 'NA',
                       utm_term: utm.utm_term ?? 'NA',
-                      operating_system: detectOperatingSystem()
+                      operating_system: detectOperatingSystem(),
+                      is_marketing: Object.values(utm).some(value => value && value.length > 0),
                     });
                     onViewChange("verifyOTP", mobileNumber, false, "", false, data.message);
                   }
@@ -332,7 +345,13 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           // moengage event for login via password
           window.Moengage.track_event('TP_NewLoginFlow_Login_With_Password', {
             mobile: "91" + mobileNumber,
-            operating_system: detectOperatingSystem()
+            operating_system: detectOperatingSystem(),
+            utm_campaign: utm.utm_campaign ?? 'NA',
+            utm_source: utm.utm_source ?? 'NA',
+            utm_medium: utm.utm_medium ?? 'NA',
+            utm_content: utm.utm_content ?? 'NA',
+            utm_term: utm.utm_term ?? 'NA',
+            is_marketing: Object.values(utm).some(value => value && value.length > 0),
           });
 
           // If password is set, go to verify password page
@@ -468,7 +487,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               placeholder="Enter your mobile number"
               value={mobileNumber}
               onChange={handleMobileNumberChange}
-              className="phone-input"
+              className="mobile-input phone-input"
               bordered={false}
               maxLength={10}
               type="tel"

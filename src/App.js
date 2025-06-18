@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Routes,
   Route,
@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { isMobile } from "react-device-detect";
+import { isMobile, isChrome, isSafari } from "react-device-detect";
 import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
@@ -49,6 +49,8 @@ import AllPatients from "./pages/allPatients.js/AllPatients";
 import AddAppointment from "./pages/addAppointment/AddAppointment";
 import { checkAccountStatus } from "./pages/auth/authService";
 import PrivateRoute from "./pages/auth/components/PrivateRoute";
+import GetUnlimitedAccess from "./pages/monetization/GetUnlimitedAccess";
+import UpgradeServicesModal from "./pages/monetization/components/UpgradeServicesModal";
 import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
 import OurOffering from "./pages/ourOffering/OurOffering";
@@ -66,9 +68,7 @@ function App() {
   const medecoToken = searchParams.get("medecoToken");
   const location = useLocation();
   const navigate = useNavigate();
-  const [getToken, setToken] = useLocalStorage(
-    PERSISTANT_STORAGE_KEY_AUTH_TOKEN
-  );
+  const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
 
   const [getMedecoToken, setMedecoToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_MEDECO_TOKEN
@@ -96,7 +96,11 @@ function App() {
   };
 
   const handleLogout = async () => {
-    const urlsToOpen = [config.pedia_logout_url, config.tatvaAi_logout_url];
+
+    const urlsToOpen = [
+      config.pedia_logout_url,
+      config.tatvaAi_logout_url,
+    ];
 
     try {
       if (window.isLoggingOut) return;
@@ -105,9 +109,7 @@ function App() {
       const statuses = await openUrlsSilently(urlsToOpen);
       console.log("URL statuses:", statuses);
 
-      const allSuccessful = statuses.every(
-        ({ status }) => status === "success"
-      );
+      const allSuccessful = statuses.every(({ status }) => status === "success");
       if (!allSuccessful) {
         console.warn("Some logout URLs failed:", statuses);
       }
@@ -137,10 +139,7 @@ function App() {
           const doctorUniqueId = decoded?.result?.doctor_unique_id;
 
           if (phoneNumber && doctorUniqueId) {
-            const response = await checkAccountStatus(
-              phoneNumber,
-              doctorUniqueId
-            );
+            const response = await checkAccountStatus(phoneNumber, doctorUniqueId);
             if (response?.account_status === false) {
               handleLogout();
             }
@@ -198,6 +197,7 @@ function App() {
         growthbook?.setAttributes({
           doctorId: decodedToken?.result?.doctor_unique_id,
           id: `${decodedToken?.result?.user_id}`,
+          hos_business_id: `${decodedToken?.result?.hospital_business_id}`
         });
       } catch (e) {
         console.log(e);
@@ -257,21 +257,58 @@ function App() {
 
     // Handle unauthenticated users
     if (!hasAuth) {
-      navigate("/login");
+      const urlParams = new URLSearchParams(window.location.search);
+
+      // Only collect UTM params that have values
+      const utmParams = new URLSearchParams();
+      ['utm_source', 'utm_campaign', 'utm_medium', 'utm_content', 'utm_term'].forEach(param => {
+        const value = urlParams.get(param);
+        if (value) {
+          utmParams.append(param, value);
+        }
+      });
+
+      // Construct login URL with UTM parameters
+      const loginUrl = "/login" + (utmParams.toString() ? "?" + utmParams.toString() : "");
+
+      navigate(loginUrl);
       return;
     }
 
-    // Determine and execute redirection
-    const redirectPath = localRedirectTo === "profile" ? "/doctor_profile" : "/";
+    if (isChrome || isSafari) {
+      // Determine and execute redirection
+      const redirectPath = localRedirectTo === "profile" ? "/doctor_profile" : "/";
 
-    // Clean up localStorage if redirecting to profile
-    if (localRedirectTo === "profile") {
-      localStorage.removeItem("redirectTo");
+      // Clean up localStorage if redirecting to profile
+      if (localRedirectTo === "profile") {
+        localStorage.removeItem("redirectTo");
+      }
+
+      navigate(redirectPath);
     }
-
-    navigate(redirectPath);
   }, [isRootPath, token, authToken, navigate, redirectTo]);
 
+
+
+  //Upgraded Services Modal
+  const upgrade_services = searchParams.get("upgrade_services");
+  const service_list = searchParams.get("service_list");
+  const [isUpgradeModal, setIsUpgradeModal] = useState(false);
+  const [upgradeList, setUpgradeList] = useState(null);
+
+  useEffect(() => {
+    if (upgrade_services) {
+      setIsUpgradeModal(true)
+      setUpgradeList(service_list.split(",").map(s => s.trim()))
+      searchParams.delete('upgrade_services');
+      searchParams.delete("service_list");
+      navigate('/', { replace: true })
+    }
+  }, [upgrade_services]);
+
+  const handleUpgradeModal = () => {
+    setIsUpgradeModal(false);
+  };
 
   return (
     <GrowthBookProvider growthbook={growthbook}>
@@ -306,6 +343,9 @@ function App() {
                 <ExpiredPlanCard />
                 <DoctorModal />
               </div>
+            )}
+            {isUpgradeModal && (
+              <UpgradeServicesModal isUpgradeModal={isUpgradeModal} upgradeList={upgradeList} handleUpgradeModal={handleUpgradeModal} />
             )}
             <Routes>
               {/* Public route */}
