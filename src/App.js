@@ -29,7 +29,7 @@ import DoctorWebsiteSetting from "./pages/DoctorWebsiteSetting";
 import MessageCreateCampaign from "./pages/MessageCreateCampaign";
 
 import { store, persistor } from "./redux/store";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_MEDECO_TOKEN } from "./utils/constants";
 import { useLocalStorage } from "./utils/localStorage";
 
 import { ErrorBoundary } from "react-error-boundary";
@@ -53,6 +53,7 @@ import GetUnlimitedAccess from "./pages/monetization/GetUnlimitedAccess";
 import UpgradeServicesModal from "./pages/monetization/components/UpgradeServicesModal";
 import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
+import OurOffering from "./pages/ourOffering/OurOffering";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -64,9 +65,15 @@ function App() {
   const [searchParams] = useSearchParams();
   const authToken = searchParams.get("authToken");
   const redirectTo = searchParams.get("redirectTo");
+  const medecoToken = searchParams.get("medecoToken");
   const location = useLocation();
   const navigate = useNavigate();
   const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+
+  const [getMedecoToken, setMedecoToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_MEDECO_TOKEN
+  );
+
 
   const isLoginPage = location.pathname === "/login";
   const isRootPath = location.pathname === "/";
@@ -117,7 +124,11 @@ function App() {
       window.isLoggingOut = false;
     }
   };
-
+  useEffect(() => {
+    if (medecoToken) {
+      setMedecoToken(medecoToken);
+    }
+  }, []);
   useEffect(() => {
     const checkUserStatus = async () => {
       const token = getToken();
@@ -340,6 +351,7 @@ function App() {
               {/* Public route */}
               {/* <Route path="/login" element={<AuthContainer />} /> */}
               <Route path="/login" element={<Onboarding />} />
+              <Route path="/our-offerings" element={<OurOffering />} />
               <Route path="/final-setup" element={<FinalSetup />} />
 
               {/* Protected routes */}

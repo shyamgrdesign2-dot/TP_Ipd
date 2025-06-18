@@ -138,7 +138,7 @@ function Header({ locationPath }) {
   useEffect(() => {
     dispatch(campaigns());
   }, []);
-  
+
   useEffect(() => {
     if (profile) {
       if (profile.moengage_b2c_send === undefined) {
@@ -282,35 +282,39 @@ function Header({ locationPath }) {
     }
   };
 
+  const handleRedirectToOffering = async () => {
+    navigate('/our-offerings?from=home');
+  }
+
   const LOGO_MODAL = useMemo(() => {
     return (
       <CommonModal
         isModalOpen={isLogoModalOpen}
         onCancel={showHideLogoModal}
         modalWidth={500}
-        title={"Welcome to TatvaPedia"}
+        title={"Tatvacare"}
         modalBody={
           <>
             <div className="mb-4 fontroboto lh-base">
-              You can explore exclusive bit-sized medical content, expert-curated content, boost your proficiency & learning, and showcase your clinical competencies by submitting content based on your experiences.
-            </div>
+              Tatvacare is your all-in-one platform to simplify clinical practice, patient management, and medical learning.</div>
             <div className="alert-warning rounded-10px p-2 patient-details mb-4">
               <div className="d-flex align-items-center">
                 <img className='me-3' src={alertIcon} alt="Warning" />
                 <span>
                   Are you sure you want to switch? <br />
-                  You will be redirect to TatvaPedia platform.
+                  You will be redirect to Tatvacare platform.
                 </span>
               </div>
             </div>
             <div>
               <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div onClick={tatvaRedirectClick}
+                <div onClick={handleRedirectToOffering}
                   className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes, Switch
                 </div>
                 <Button
                   onClick={() => {
+
                     window.Moengage.track_event("TP_Tatvapedia_Switch_cancelled");
                     showHideLogoModal()
                   }}
@@ -833,7 +837,7 @@ function Header({ locationPath }) {
       // },
     ];
 
-    
+
 
     if (tp_monetization_enable) {
       const aiSuite = {
@@ -1015,7 +1019,7 @@ function Header({ locationPath }) {
   const handleAiSuite = useCallback(() => {
     setAiModal(!aiModal);
     const clinic_name = getClinicName(profile?.hospital_data);
-    const tokenData = getTokenData(); 
+    const tokenData = getTokenData();
     const deviceSdkData = getDeviceSdkData();
     window.Moengage.track_event("TP_Monetization_AISuite", {
       doctor_name: profile?.um_name,
@@ -1038,15 +1042,15 @@ function Header({ locationPath }) {
     e.preventDefault();
     const tokenData = getTokenData();
     const deviceSdkData = getDeviceSdkData();
-      window.Moengage.track_event("TP_Profile_Section", {
-        doctor_name: profile?.um_name,
-        doctor_number: profile?.um_contact,
-        doctor_unique_id: profile?.doctor_unique_id,
-        doctor_specialty: profile?.dp_name,
-        clinic_id: tokenData?.clinic_id,
-        um_id: tokenData?.user_id,
-        ...deviceSdkData
-      });
+    window.Moengage.track_event("TP_Profile_Section", {
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      um_id: tokenData?.user_id,
+      ...deviceSdkData
+    });
   }
 
   return (
