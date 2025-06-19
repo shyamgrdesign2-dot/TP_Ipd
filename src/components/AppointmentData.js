@@ -107,7 +107,7 @@ function AppointmentData({ locationPath }) {
 
     const [searchParams, setSearchParams] = useSearchParams();
     const from = searchParams.get("from");
-    const [modalOpen, setModalOpen] = useState(false);
+    const [modalOpen, setModalOpen] = useState(true);
 
     const { queueCount, finishedCount, cancelledCount, zydusEncounterCount, zydusAappointmentCount, appointmentsData, caseTypes, loading, setOnLoad, finishedData, zydusAappointmentData } = useSelector((state) => state.records);
     const dispatch = useDispatch();
