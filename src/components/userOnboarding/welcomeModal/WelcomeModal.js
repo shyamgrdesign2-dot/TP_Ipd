@@ -68,7 +68,7 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
         footer={null}
         centered
         className="modal-onboarding"
-        closeIcon={!isMobile && <CloseOutlined />}
+        closeIcon={<CloseOutlined />}
         maskClosable={!isMobile}
       >
         <img src={welcomdoc} alt="Welcome" className="welcome-icon" />
@@ -108,7 +108,7 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
           </div>
         )} */}
       </Modal>
-      {isMobile && (
+      {false && (
         <div
           className="device-warning-content"
           style={{
