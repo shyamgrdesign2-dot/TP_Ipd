@@ -1153,7 +1153,7 @@ function Prescription() {
     });
 
     // Add Zydus Test Reports module if user has Zydus business ID
-    if (tokenData?.hospital_business_id === env.zydus_business_id) {
+    if (tokenData?.hospital_business_id == env.zydus_business_id) {
       modules.push(
         <div key="zydus-test-reports" className="prescription-box-sm" style={{ overflow: 'hidden' }}>
           <div className="d-flex align-items-center justify-content-between p-14" style={{ borderBottom: "1px solid #ddd" }}>

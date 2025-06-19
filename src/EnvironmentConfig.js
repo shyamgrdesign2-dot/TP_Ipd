@@ -34,7 +34,7 @@ const dev = {
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: "754811713438773",
   zydus_proxy_url: "https://pm-ict-proxy-uat.tatvacare.in",
-  zydus_ict_lab_result_api_url: "https://pm-ict-proxy.tatvacare.in",
+  zydus_ict_lab_result_api_url: "https://pm-ict-proxy-uat.tatvacare.in",
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
   visit_api_url: "https://pm-visit-integration-uat.tatvacare.in",
   user_management_api_url: "https://user-management77913uat.azurewebsites.net",
@@ -103,7 +103,7 @@ const qa_tp = {
     "https://pm-medicalhistory-qa.tatvacare.in/api/v1/gynec-history",
   obstetric_api_url:
     "https://pm-medicalhistory-qa.tatvacare.in/api/v1/obstetric-history",
-  zydus_ict_lab_result_api_url: "https://pm-ict-proxy.tatvacare.in",
+  zydus_ict_lab_result_api_url: "https://pm-ict-proxy-uat.tatvacare.in",
   zydus_api_url: `https://pm-ingest-webhook-qa.tatvacare.in`,
   zydus_business_id: "754811713438773",
   rx_digitization: "https://pm-rxdigitization-qa.tatvacare.in",
@@ -169,7 +169,7 @@ const qa = {
     "https://pm-medicalhistory-uat.tatvacare.in/api/v1/gynec-history",
   obstetric_api_url:
     "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
-  zydus_ict_lab_result_api_url: "https://pm-ict-proxy.tatvacare.in",
+  zydus_ict_lab_result_api_url: "https://pm-ict-proxy-uat.tatvacare.in",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
   zydus_business_id: "754811713438773",
   zydus_proxy_url: "https://pm-ict-proxy-uat.tatvacare.in",
