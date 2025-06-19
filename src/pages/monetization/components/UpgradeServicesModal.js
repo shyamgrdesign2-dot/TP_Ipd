@@ -70,7 +70,7 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
         infinite: true,
         speed: 500,
         dots: true,
-        arrows: upgradeList.includes(S_TATVA_PRACTICE) && upgradeList?.length === 1 ? false : purchasedData?.length === 2 ? false : true,
+        arrows: upgradeList.includes(S_TATVA_PRACTICE) && upgradeList?.length === 1 ? false : purchasedData?.length <= 2 ? false : true,
         adaptiveHeight: true,
         autoplay: false,
     };
