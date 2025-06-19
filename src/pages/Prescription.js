@@ -899,7 +899,7 @@ function Prescription() {
   };
 
   const CUSTOMIZED_PAD_LEFT_LIST = () => {
-  return  customizedPadLeftList?.map((e, i) => {
+  const modules = customizedPadLeftList?.map((e, i) => {
       return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
         <div key={i} className="prescription-box-sm p-14">
           <div className="d-flex align-items-center justify-content-between">
