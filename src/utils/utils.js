@@ -649,7 +649,7 @@ export const getClinic = (hospitalData) => {
 export const getTokenData = () => {
   const decodedToken = getDecodedToken();
   const result = decodedToken?.result;
-  return result;
+  return result || {};
 }
 
 export const getDeviceSdkData = () => {
@@ -792,7 +792,7 @@ export const isValidGST = (gstNumber) => {
 export const shouldMonetizationDisabled = () => {
   const monetizationDisabled = config?.tp_monetization_disabled_hospital;
   const monetizationDisabledArray = monetizationDisabled.map(Number);
-  const { hospital_business_id } = getTokenData();
+  const { hospital_business_id = null } = getTokenData();
   // console.log(monetizationDisabled,hospital_business_id)
   const currentHospital = Number(hospital_business_id);
 
