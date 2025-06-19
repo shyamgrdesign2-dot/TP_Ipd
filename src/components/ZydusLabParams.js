@@ -857,7 +857,7 @@ const ZydusLabParams = ({
                             }}>
                                 <span>Lab Service/Parameter</span>
                             </th>
-                            {organizedData.dates.map((date, index) => (
+                            {organizedData?.dates?.map((date, index) => (
                                 <th key={date} style={{ 
                                     padding: "10px",
                                     minWidth: "120px",
@@ -885,6 +885,7 @@ const ZydusLabParams = ({
                                     style={{
                                         cursor: "pointer",
                                         width: "100%",
+                                        backgroundColor: "#FAFAFB",
                                     }}
                                     onClick={() => toggleSection(serviceName)}
                                 >
@@ -893,7 +894,7 @@ const ZydusLabParams = ({
                                             position: "sticky",
                                             left: 0,
                                             zIndex: 2,
-                                            background: "#FAFAFB",
+                                            backgroundColor: "#FAFAFB",
                                             padding: "10px",
                                             display: "flex",
                                             alignItems: "center",
@@ -922,41 +923,21 @@ const ZydusLabParams = ({
                                             </button>
                                         )}
                                     </td>
-                                    {organizedData.dates.length < 2 ? (
-                                        <>
+                                    {organizedData?.dates?.map((date, index) => {
+                                        const isLastCell = index === organizedData.dates.length - 1;
+                                        return (
                                             <td
+                                                key={date}
                                                 style={{
-                                                    background: "#FAFAFB",
                                                     width: "160px",
                                                     padding: "10px",
+                                                    textAlign: "right",
+                                                    borderTopRightRadius: isLastCell ? "10px" : "0",
+                                                    borderBottomRightRadius: isLastCell ? "10px" : "0",
                                                 }}
                                             ></td>
-                                            <td
-                                                style={{
-                                                    background: "#FAFAFB",
-                                                    width: "160px",
-                                                    padding: "10px",
-                                                }}
-                                            ></td>
-                                        </>
-                                    ) : (
-                                        organizedData.dates.map((date, index) => {
-                                            const isLastCell = index === organizedData.dates.length - 1;
-                                            return (
-                                                <td
-                                                    key={date}
-                                                    style={{
-                                                        background: "#FAFAFB",
-                                                        width: "160px",
-                                                        padding: "10px",
-                                                        textAlign: "right",
-                                                        borderTopRightRadius: isLastCell ? "10px" : "0",
-                                                        borderBottomRightRadius: isLastCell ? "10px" : "0",
-                                                    }}
-                                                ></td>
-                                            );
-                                        })
-                                    )}
+                                        );
+                                    })}
                                 </tr>
 
                                 {/* Parameters or Direct Result */}
@@ -1077,7 +1058,7 @@ const ZydusLabParams = ({
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    {organizedData.dates.map(date => {
+                                                    {organizedData?.dates?.map(date => {
                                                         const paramDateData = paramData.dates[date];
                                                         const value = renderValue(paramDateData, paramData.referenceRange);
                                                         return (
@@ -1195,7 +1176,7 @@ const ZydusLabParams = ({
                                                         </div>
                                                     </div>
                                                 </td>
-                                                {organizedData.dates.map(date => (
+                                                {organizedData?.dates?.map(date => (
                                                     <td key={date} style={{ padding: "10px" }}>
                                                         {renderValue(testData.dates[date]?.resultvalue, testData.dates[date]?.referenceRange)}
                                                     </td>
