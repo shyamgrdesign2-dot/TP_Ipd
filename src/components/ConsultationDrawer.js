@@ -49,7 +49,7 @@ import SCBanner from "./SCBanner";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
-const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore }) => {
+const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID }) => {
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
   const [isRecording, setIsRecording] = useState(false);
