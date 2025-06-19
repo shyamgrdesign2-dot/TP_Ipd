@@ -857,7 +857,7 @@ const ZydusLabParams = ({
                             }}>
                                 <span>Lab Service/Parameter</span>
                             </th>
-                            {organizedData.dates.map((date, index) => (
+                            {organizedData?.dates?.map((date, index) => (
                                 <th key={date} style={{ 
                                     padding: "10px",
                                     minWidth: "120px",
@@ -923,7 +923,7 @@ const ZydusLabParams = ({
                                             </button>
                                         )}
                                     </td>
-                                    {organizedData.dates.map((date, index) => {
+                                    {organizedData?.dates?.map((date, index) => {
                                         const isLastCell = index === organizedData.dates.length - 1;
                                         return (
                                             <td
@@ -1058,7 +1058,7 @@ const ZydusLabParams = ({
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    {organizedData.dates.map(date => {
+                                                    {organizedData?.dates?.map(date => {
                                                         const paramDateData = paramData.dates[date];
                                                         const value = renderValue(paramDateData, paramData.referenceRange);
                                                         return (
@@ -1176,7 +1176,7 @@ const ZydusLabParams = ({
                                                         </div>
                                                     </div>
                                                 </td>
-                                                {organizedData.dates.map(date => (
+                                                {organizedData?.dates?.map(date => (
                                                     <td key={date} style={{ padding: "10px" }}>
                                                         {renderValue(testData.dates[date]?.resultvalue, testData.dates[date]?.referenceRange)}
                                                     </td>
