@@ -4993,7 +4993,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     return (
                                                         <View style={styles.table}>
                                                             {/* Header Row */}
-                                                            <View style={[styles.headerRow, { borderTop: '1px solid #171725' }]} fixed>
+                                                            <View style={[styles.headerRow, { borderTop: '1px solid #171725', backgroundColor: '#cccccc' }]} fixed>
                                                                 <Text style={[styles.headerCell, { flex: 3, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: "#000" }]}>
                                                                     Test Name
                                                                 </Text>
@@ -5008,7 +5008,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             {serviceGroups.map((serviceGroup, groupIndex) => (
                                                                 <React.Fragment key={groupIndex}>
                                                                     {/* Service Header Row */}
-                                                                    <View style={[styles.row]} wrap={false}>
+                                                                    {/* <View style={[styles.row]} wrap={false}>
                                                                         <Text style={[styles.cell, { 
                                                                             flex: 3, 
                                                                             color: "#171725", 
@@ -5027,7 +5027,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             </Text>
                                                                         ))}
                                                                     </View>
-                                                                    
+                                                                     */}
                                                                     {/* Service Rows */}
                                                                     {serviceGroup.rows.map((row, rowIndex) => (
                                                                         <View key={rowIndex} style={[styles.row]} wrap={false}>
@@ -5036,7 +5036,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 color: "#171725", 
                                                                                 fontFamily: getIndianLanguageFont(row.name, printSettings?.page_format?.font_family), 
                                                                                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                                fontWeight: 400
+                                                                                fontWeight: 600
                                                                             }]}>
                                                                                 {row.name}{row.referenceRange ? ` (${row.referenceRange})` : ''}
                                                                             </Text>
@@ -5047,7 +5047,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                     fontFamily: printSettings?.page_format?.font_family, 
                                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
                                                                                     fontWeight: 400,
-                                                                                    textAlign: 'center'
+                                                                                    textAlign: 'left'
                                                                                 }]}>
                                                                                     {row.results[date] || '-'}
                                                                                 </Text>
