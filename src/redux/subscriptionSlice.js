@@ -64,7 +64,10 @@ export const fetchSubscriptionDetails = createAsyncThunk(
           .startOf("day")
           .diff(moment().startOf("day"), "days"),
         onboarding_date: response?.body?.profile?.onboarding_date,
-        planStatus: response?.body?.clinic?.planStatus?.code || "",
+        c_expiry_reminder_days: response?.body?.clinic?.expiry_reminder_days || 0,
+        c_last_plan_expiry_date: response?.body?.clinic?.last_plan_expiry_date || "",
+        c_last_plan_status: response?.body?.clinic?.lastPlanStatus?.code || "",
+        c_plan_status: response?.body?.clinic?.planStatus?.code || "",
         service_mappings: response?.body?.clinic?.service_mappings || []
       };
     }
