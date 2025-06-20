@@ -38,7 +38,7 @@ const VideoCarousel = () => {
     <div className="video-section">
       <iframe
         width="500"
-        height={isMobileOnly ? "200" : isTablet ? "300" : "350"}
+        height={isMobileOnly ? "200" : "350"}
         src={videos[currentVideo].url}
         title="YouTube video player"
         frameBorder="0"
