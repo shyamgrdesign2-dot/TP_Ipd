@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import moment from 'moment';
 import { getDecodedToken } from '../utils/localStorage';
 import config from '../config';
-import { isIPad13 } from 'react-device-detect';
+import { PAEDIATRIC_DP_ID } from '../utils/constants';
 
 export const genderAge = (patient_data, profile, shouldShowGender = true) => {
     var value = shouldShowGender
@@ -45,6 +45,9 @@ function ProfilePopover(props) {
     const { patients_details } = useSelector(
         (state) => state.records
     );
+
+    const isPaediatric = profile?.dp_id === PAEDIATRIC_DP_ID;
+
     let patientDOB = ''
     if (patients_details?.pm_dob) {
         patientDOB = moment(patients_details.pm_dob).format("DD-MM-YYYY");
@@ -125,7 +128,7 @@ function ProfilePopover(props) {
                 <div className={'align-items-center d-flex h-100'}>
                     <div className='align-items-center d-flex'>
                         <div className='patientName'>{`${getPatientName()},`}</div>
-                        <div className='text-2 fontpoppins fontpoppins1 ms-1'>{patient_data !== undefined ? genderAge(patient_data, profile) : `M, 30y`}</div>
+                        <div className='text-2 fontpoppins fontpoppins1 ms-1'>{patient_data !== undefined ? genderAge(patient_data, profile) : `M, 30y`} {isPaediatric && patientDOB ? `(${patientDOB})` : ''}</div>
                         <i className='icon-right iconrotate270 ms-1'></i>
                     </div>
                 </div>
@@ -134,7 +137,7 @@ function ProfilePopover(props) {
                     <div className={'align-items-center d-flex h-100 ps-3'}>
                         <div className='rounded-pill patientProfile border me-3'>{makeDefaultLogo(patient_data?.pm_fullname)}</div>
                         <div>
-                            <div className='patientName'>{getPatientName()}<div className='text-2'>{patient_data !== undefined ? genderAge(patients_details || patient_data, profile) : `M, 30y`} {locationPath === '/vaccine' && patientDOB ? `(${patientDOB})` : ''}</div></div>
+                            <div className='patientName'>{getPatientName()}<div className='text-2'>{patient_data !== undefined ? genderAge(patients_details || patient_data, profile) : `M, 30y`} {isPaediatric && patientDOB ? `(${patientDOB})` : ''}</div></div>
                         </div>
                         <div className='iconrotate270 align-self-start ms-2 mt-1'>
                             <i className='icon-right'></i>

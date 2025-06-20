@@ -34,7 +34,7 @@ import {
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DifferentialDiagnosis from "./DifferentialDiagnosis";
 import { getDecodedToken } from "../utils/localStorage";
-import { GB_ZYDUS_USER } from "../utils/constants";
+import { GB_APOLLO_DISABLE_FEATURE, GB_ZYDUS_USER } from "../utils/constants";
 import { env } from "../EnvironmentConfig";
 
 const { TextArea } = Input;
@@ -67,6 +67,8 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
   const decodedToken = getDecodedToken();
   const tokenData = decodedToken?.result;
+
+  const isApolloHosBusinessIdAccessableFromGB = useFeatureIsOn(GB_APOLLO_DISABLE_FEATURE);
 
   useEffect(() => {
     if (diagnosisData?.length > 0 && generatedDDx?.length > 0) {
@@ -172,7 +174,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
       });
     }
     else {
-      searchParentQuery && parentOptionsList.findIndex(e => e.investigation_name?.toLowerCase()?.trim() == searchParentQuery?.toLowerCase()?.trim()) === -1 && tokenData?.hospital_business_id != env.zydus_business_id && !isZydusUserAccessableFromGB &&
+      searchParentQuery && parentOptionsList.findIndex(e => e.investigation_name?.toLowerCase()?.trim() == searchParentQuery?.toLowerCase()?.trim()) === -1 && tokenData?.hospital_business_id != env.zydus_business_id && !isZydusUserAccessableFromGB && !isApolloHosBusinessIdAccessableFromGB &&
         data.push({
           key: JSON.stringify({
             unique_id: uuidv4(),

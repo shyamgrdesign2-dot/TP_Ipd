@@ -108,7 +108,8 @@ function PrescriptionPrintView() {
     const navigate = useNavigate();
 
     const { state } = useLocation();
-    const { patient_data, pam_id } = state;
+    const { patient_data, pam_id, labParamsData: passedLabParamsData, zydusSelectedLabParams, labReportID } = state;
+
 
     const [selectedLang, setSelectedLang] = useState(1);
 
@@ -365,6 +366,7 @@ function PrescriptionPrintView() {
     }
 
     const configurePrintUrl = async () => {
+        
         var sendData = {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
             tcm_id: state.tcm_id,
@@ -372,7 +374,7 @@ function PrescriptionPrintView() {
         }
         const action = await dispatch(viewCaseManager(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            navigate('/configure_print_setting', { state: { caseManagerData: {...action.payload, patient_data: {...action.payload.patient_data, pm_id: patient_data?.pm_id}, gynecHistoryData, labParamsData}, pam_id: pam_id } })
+            navigate('/configure_print_setting', { state: { caseManagerData: {...action.payload, patient_data: {...action.payload.patient_data, pm_id: patient_data?.pm_id}, gynecHistoryData, labParamsData, zydusSelectedLabParams: zydusSelectedLabParams}, pam_id: pam_id } })
         } else {
             errorMessage(action.error)
         }

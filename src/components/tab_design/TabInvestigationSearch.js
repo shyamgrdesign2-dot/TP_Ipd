@@ -20,7 +20,7 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { getClinicName } from "../../utils/utils";
 import { useLocation } from "react-router-dom";
 import { getDecodedToken } from "../../utils/localStorage";
-import { GB_ZYDUS_USER } from "../../utils/constants";
+import { GB_APOLLO_DISABLE_FEATURE, GB_ZYDUS_USER } from "../../utils/constants";
 import { env } from "../../EnvironmentConfig";
 
 function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
@@ -47,6 +47,8 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
     const decodedToken = getDecodedToken();
     const tokenData = decodedToken?.result;
 
+    const isApolloHosBusinessIdAccessableFromGB = useFeatureIsOn(GB_APOLLO_DISABLE_FEATURE);
+
     //Parent AutoComplete
     useEffect(() => {
         if (searchChildQuery) {
@@ -70,7 +72,7 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
             });
         });
         if (searchChildQuery.length > 0) {
-            searchChildQuery && childOptionsList.findIndex(e => e.investigation_name?.toLowerCase()?.trim() == searchChildQuery?.toLowerCase()?.trim()) === -1 && tokenData?.hospital_business_id != env.zydus_business_id && !isZydusUserAccessableFromGB &&
+            searchChildQuery && childOptionsList.findIndex(e => e.investigation_name?.toLowerCase()?.trim() == searchChildQuery?.toLowerCase()?.trim()) === -1 && tokenData?.hospital_business_id != env.zydus_business_id && !isZydusUserAccessableFromGB && !isApolloHosBusinessIdAccessableFromGB &&
                 data.push({
                     key: JSON.stringify({
                         unique_id: uuidv4(),

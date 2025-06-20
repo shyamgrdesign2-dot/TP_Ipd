@@ -48,7 +48,7 @@ import { env } from '../EnvironmentConfig';
 
 var oneClickCosultationTemplateId = 0
 
-function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecHistory, labParamsData, handleGenRx }) {
+function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecHistory, labParamsData, zydusSelectedLabParams, handleGenRx, labReportID }) {
 
     const { profile, siteId, storeCode } = useSelector((state) => state.doctors);
 
@@ -1026,7 +1026,9 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     due: updatedDueVaccines
                 },
                 moduleContents: customModuleContents?.map((e) => ({...e, content: e.content.filter((e1) => e1.title || e1.notes)})),
-                pillup_fulfilment: isPillUpAccessableFromGB && pillupSwitch ? 1 : 0
+                pillup_fulfilment: isPillUpAccessableFromGB && pillupSwitch ? 1 : 0,
+                labReportID: labReportID,
+                zydusSelectedLabParams: zydusSelectedLabParams
             };
 
             const decodedToken = getDecodedToken();
@@ -1036,7 +1038,8 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     "departmentId": patient_data?.departmentId,
                     "encounterId": patient_data?.encounterId,
                     "mrno": patient_data?.mrno,
-                    "doctorCode": patient_data?.employeeId
+                    "doctorCode": patient_data?.employeeId,
+                    "zydusSelectedLabParams": zydusSelectedLabParams
                 }
             }
 
@@ -1066,7 +1069,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                         <div className='d-flex align-items-center'>
                             <img src={visitEnd} className='me-3' />
                             <div>
-                                <div className='title-common text-start fontroboto'>{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
+                                <div className='title-common text-start fontroboto'>{`${patient_data?.pm_first_name}'s visit ended successfully.`}</div>
                                 <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div>
                             </div>
                             <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
@@ -1164,7 +1167,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     }
                 }
 
-                navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data } })
+                navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data, labParamsData: labParamsData, zydusSelectedLabParams: zydusSelectedLabParams, labReportID: labReportID } })
             } else {
                 errorMessage(action.error)
             }
@@ -1229,7 +1232,6 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
             </>
         );
     }, [popOverVideo]);
-
     return (
         <Navbar className="justify-content-between headerprescription p-0">
             <Container fluid className='h-100 gx-0 w-100'>

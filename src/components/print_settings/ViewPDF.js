@@ -480,7 +480,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     const getCustomModuleName = (id) => {
         const customModule = customModules.find((module) => module.module_id === id);
-        return customModule ? customModule.name : '';
+        return customModule ? customModule?.printConfig?.nameOverride !== undefined ? customModule?.printConfig?.nameOverride : customModule?.name : '';
     }
 
     const getMarginByFormat = (letterheadFormat, headerFooter, position, defaultValue) => {
@@ -4838,6 +4838,227 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         </View>
                                                     ))}
                                                 </View>
+                                            </View>
+                                        )
+                                    )}
+                                </>
+                            ) : option?.id === 18 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                <>
+                                    {caseManagerData?.zydusSelectedLabParams?.length > 0 && (
+                                        option?.format === 'inline' ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                <Text>
+                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
+                                                        Zydus Lab Results:&nbsp;
+                                                    </Text>
+                                                    {caseManagerData.zydusSelectedLabParams.map((dateEntry, dateIndex) => (
+                                                        <Text key={dateIndex}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 600 }}>
+                                                                {moment(dateEntry.date, "DD-MM-YYYY").format("Do MMM YYYY")}:&nbsp;
+                                                            </Text>
+                                                            {dateEntry.inputs.map((test, testIndex) => (
+                                                                <Text key={testIndex}>
+                                                                    <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(test.serviceName, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                        {test.serviceName}
+                                                                    </Text>
+                                                                    {test.resultvalue !== '-' && (
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            : {test.resultvalue}
+                                                                        </Text>
+                                                                    )}
+                                                                    {test.labResultParameters && test.labResultParameters.map((param, paramIndex) => (
+                                                                        <Text key={paramIndex}>
+                                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(param.parameterName, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                , {param.parameterName}: {param.resultValue}
+                                                                            </Text>
+                                                                        </Text>
+                                                                    ))}
+                                                                    {testIndex < dateEntry.inputs.length - 1 && <Text style={{ color: '#171725' }}>, </Text>}
+                                                                </Text>
+                                                            ))}
+                                                            {dateIndex < caseManagerData.zydusSelectedLabParams.length - 1 && <Text style={{ color: '#171725' }}>; </Text>}
+                                                        </Text>
+                                                    ))}
+                                                </Text>
+                                            </View>
+                                        ) : option?.format === 'listview' ? (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
+                                                    Zydus Lab Results:
+                                                </Text>
+                                                {caseManagerData.zydusSelectedLabParams.map((dateEntry, dateIndex) => (
+                                                    <View key={dateIndex} style={{ marginTop: PX_TO_PT * 10 }}>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 600 }}>
+                                                            {moment(dateEntry.date, "DD-MM-YYYY").format("Do MMM YYYY")}:
+                                                        </Text>
+                                                        {dateEntry.inputs.map((test, testIndex) => (
+                                                            <View key={testIndex} style={{ marginLeft: PX_TO_PT * 15, marginTop: PX_TO_PT * 5 }}>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(test.serviceName, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                    • {test.serviceName}
+                                                                    {test.resultvalue !== '-' && (
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            : {test.resultvalue}
+                                                                        </Text>
+                                                                    )}
+                                                                </Text>
+                                                                {test.labResultParameters && test.labResultParameters.map((param, paramIndex) => (
+                                                                    <Text key={paramIndex} style={{ marginLeft: PX_TO_PT * 15, marginTop: PX_TO_PT * 2, color: '#171725', fontFamily: getIndianLanguageFont(param.parameterName, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                        - {param.parameterName}: {param.resultValue}
+                                                                    </Text>
+                                                                ))}
+                                                            </View>
+                                                        ))}
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        ) : (
+                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
+                                                    Zydus Lab Results:
+                                                </Text>
+                                                {/* Zydus Cross-Tab Table Structure */}
+                                                {(() => {
+                                                    // Process data for cross-tabulation with service grouping
+                                                    const dates = [...new Set(caseManagerData.zydusSelectedLabParams.map(entry => entry.date))]
+                                                        .sort((a, b) => new Date(b.split('-').reverse().join('-')) - new Date(a.split('-').reverse().join('-'))); // Most recent first
+                                                    
+                                                    const serviceGroups = [];
+                                                    const serviceMap = new Map();
+                                                    
+                                                    // Collect all unique services in order they appear
+                                                    caseManagerData.zydusSelectedLabParams.forEach(dateEntry => {
+                                                        dateEntry.inputs.forEach(test => {
+                                                            if (!serviceMap.has(test.serviceName)) {
+                                                                serviceMap.set(test.serviceName, {
+                                                                    serviceName: test.serviceName,
+                                                                    rows: []
+                                                                });
+                                                                serviceGroups.push(serviceMap.get(test.serviceName));
+                                                            }
+                                                        });
+                                                    });
+                                                    
+                                                    // Process each service group
+                                                    serviceGroups.forEach(serviceGroup => {
+                                                        const serviceName = serviceGroup.serviceName;
+                                                        
+                                                        // Check if service has direct results
+                                                        let hasDirectResults = false;
+                                                        const directResults = {};
+                                                        let directReferenceRange = '';
+                                                        
+                                                        caseManagerData.zydusSelectedLabParams.forEach(dateEntry => {
+                                                            const test = dateEntry.inputs.find(t => t.serviceName === serviceName);
+                                                            if (test && test.resultvalue !== '-') {
+                                                                hasDirectResults = true;
+                                                                directResults[dateEntry.date] = test.resultvalue;
+                                                                if (test.referenceRange !== '-') {
+                                                                    directReferenceRange = test.referenceRange;
+                                                                }
+                                                            }
+                                                        });
+                                                        
+                                                        // Add direct result row if exists
+                                                        if (hasDirectResults) {
+                                                            serviceGroup.rows.push({
+                                                                name: serviceName,
+                                                                referenceRange: directReferenceRange,
+                                                                results: directResults
+                                                            });
+                                                        }
+                                                        
+                                                        // Collect all parameters for this service
+                                                        const parameterMap = new Map();
+                                                        
+                                                        caseManagerData.zydusSelectedLabParams.forEach(dateEntry => {
+                                                            const test = dateEntry.inputs.find(t => t.serviceName === serviceName);
+                                                            if (test && test.labResultParameters) {
+                                                                test.labResultParameters.forEach(param => {
+                                                                    if (!parameterMap.has(param.parameterName)) {
+                                                                        parameterMap.set(param.parameterName, {
+                                                                            name: param.parameterName,
+                                                                            referenceRange: param.referenceRange || '',
+                                                                            results: {}
+                                                                        });
+                                                                    }
+                                                                    parameterMap.get(param.parameterName).results[dateEntry.date] = param.resultValue;
+                                                                });
+                                                            }
+                                                        });
+                                                        
+                                                        // Add parameter rows
+                                                        serviceGroup.rows.push(...Array.from(parameterMap.values()));
+                                                    });
+                                                    
+                                                    return (
+                                                        <View style={styles.table}>
+                                                            {/* Header Row */}
+                                                            <View style={[styles.headerRow, { borderTop: '1px solid #171725', backgroundColor: '#cccccc' }]} fixed>
+                                                                <Text style={[styles.headerCell, { flex: 3, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: "#000" }]}>
+                                                                    Test Name
+                                                                </Text>
+                                                                {dates.map((date, index) => (
+                                                                    <Text key={index} style={[styles.headerCell, { flex: 1.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: "#000" }]}>
+                                                                        {moment(date, "DD-MM-YYYY").format("DD MMM YY")}
+                                                                    </Text>
+                                                                ))}
+                                                            </View>
+                                                            
+                                                            {/* Service Groups */}
+                                                            {serviceGroups.map((serviceGroup, groupIndex) => (
+                                                                <React.Fragment key={groupIndex}>
+                                                                    {/* Service Header Row */}
+                                                                    {/* <View style={[styles.row]} wrap={false}>
+                                                                        <Text style={[styles.cell, { 
+                                                                            flex: 3, 
+                                                                            color: "#171725", 
+                                                                            fontFamily: getIndianLanguageFont(serviceGroup.serviceName, printSettings?.page_format?.font_family), 
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                            fontWeight: 600,
+                                                                            backgroundColor: "#f8f9fa"
+                                                                        }]}>
+                                                                            {serviceGroup.serviceName}
+                                                                        </Text>
+                                                                        {dates.map((date, dateIndex) => (
+                                                                            <Text key={dateIndex} style={[styles.cell, { 
+                                                                                flex: 1.5, 
+                                                                                backgroundColor: "#f8f9fa"
+                                                                            }]}>
+                                                                            </Text>
+                                                                        ))}
+                                                                    </View>
+                                                                     */}
+                                                                    {/* Service Rows */}
+                                                                    {serviceGroup.rows.map((row, rowIndex) => (
+                                                                        <View key={rowIndex} style={[styles.row]} wrap={false}>
+                                                                            <Text style={[styles.cell, { 
+                                                                                flex: 3, 
+                                                                                color: "#171725", 
+                                                                                fontFamily: getIndianLanguageFont(row.name, printSettings?.page_format?.font_family), 
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                fontWeight: 600
+                                                                            }]}>
+                                                                                {row.name}{row.referenceRange ? ` (${row.referenceRange})` : ''}
+                                                                            </Text>
+                                                                            {dates.map((date, dateIndex) => (
+                                                                                <Text key={dateIndex} style={[styles.cell, { 
+                                                                                    flex: 1.5, 
+                                                                                    color: "#171725", 
+                                                                                    fontFamily: printSettings?.page_format?.font_family, 
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                    fontWeight: 400,
+                                                                                    textAlign: 'left'
+                                                                                }]}>
+                                                                                    {row.results[date] || '-'}
+                                                                                </Text>
+                                                                            ))}
+                                                                        </View>
+                                                                    ))}
+                                                                </React.Fragment>
+                                                            ))}
+                                                        </View>
+                                                    );
+                                                })()}
                                             </View>
                                         )
                                     )}

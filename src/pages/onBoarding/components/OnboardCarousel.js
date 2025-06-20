@@ -14,6 +14,9 @@ const OnboardingCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progress, setProgress] = useState(0);
   const carouselRef = useRef(null);
+  
+  // Get UTM params
+  const utm = getUtmParams();
 
   const baseCarouselItems = [
     {
@@ -28,14 +31,14 @@ const OnboardingCarousel = () => {
       title: "AI-Powered",
       subtitle: "Clinical Decision Support",
       image: ddxBanner,
-      utmKey: "practice",
+      utmKey: "ddx",
     },
     {
       id: 3,
       title: "Build and Scale Your",
       subtitle: "Online Presence with Us",
       image: practiceManagement,
-      utmKey: "ddx",
+      utmKey: "practice",
     },
     {
       id: 4,
@@ -107,6 +110,12 @@ const OnboardingCarousel = () => {
     window.Moengage.track_event("TP_NewLoginFlow_Explore_more", {
       clicked: true,
       operating_system: detectOperatingSystem(),
+      utm_campaign: utm.utm_campaign ?? 'NA',
+      utm_source: utm.utm_source ?? 'NA',
+      utm_medium: utm.utm_medium ?? 'NA',
+      utm_content: utm.utm_content ?? 'NA',
+      utm_term: utm.utm_term ?? 'NA',
+      is_marketing: Object.values(utm).some(value => value && value.length > 0),
     });
     const trustedBySection = document.getElementById("trusted-by-section");
     if (trustedBySection) {
@@ -171,8 +180,8 @@ const OnboardingCarousel = () => {
         </div>
       </div>
 
-      <div className="explore-more">
-        <button onClick={handleExploreMore}>
+      <div className="explore-more" onClick={handleExploreMore} style={{ cursor: 'pointer' }}>
+        <button>
           Explore more
           <img src={fastBackward} alt="scroll down" className="scroll-arrow" />
         </button>
