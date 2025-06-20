@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Modal, useMediaQuery } from "antd";
 import welcomdoc from "../../../assets/images/welcom-doc.svg";
 import suporticon from "../../../assets/images/suport-icon.svg";
-import { isMobile, isTablet } from "react-device-detect";
+import { isMobileOnly, isMobile, isTablet } from "react-device-detect";
 import "./WelcomeModal.scss";
 import copyIcon from "../../../assets/images/onboard-page-icons/copy.svg";
 import shareIcon from "../../../assets/images/onboard-page-icons/Share.svg";
@@ -38,7 +38,7 @@ const VideoCarousel = () => {
     <div className="video-section">
       <iframe
         width="500"
-        height={isMobile ? "200" : isTablet ? "300" : "350"}
+        height={isMobileOnly ? "200" : isTablet ? "300" : "350"}
         src={videos[currentVideo].url}
         title="YouTube video player"
         frameBorder="0"
@@ -69,8 +69,8 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
         footer={null}
         centered
         className="modal-onboarding"
-        closeIcon={!isMobile && <CloseOutlined />}
-        maskClosable={!isMobile}
+        closeIcon={!isMobileOnly && <CloseOutlined />}
+        maskClosable={!isMobileOnly}
       >
         <div style={{ padding: '0rem 2rem' }}>
           <img src={welcomdoc} alt="Welcome" className="welcome-icon" />
@@ -98,20 +98,18 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
           </div>
         </div>
         {/* this Will be added later along with the monetization feature */}
-        {!isMobile && (
-          <div className="trial-period-footer">
-            <div className="trial-text">
-              <span>🎉</span>
-              <span>Enjoy your <b>7 days</b> trial period</span>
-            </div>
-            <div className="upgrade-link-container">
-              <span>This version is free for only 7 days. If you want to use advance features, Please</span>
-              <Link to="/get-unlimited-access" className="upgrade-link">upgrade your plan →</Link>
-            </div>
+        <div className="trial-period-footer">
+          <div className="trial-text">
+            <span>🎉</span>
+            <span>Enjoy your <b>7 days</b> trial period</span>
           </div>
-        )}
+          <div className="upgrade-link-container">
+            <span>This version is free for only 7 days. If you want to use advance features, Please</span>
+            <Link to="/get-unlimited-access" className="upgrade-link">upgrade your plan →</Link>
+          </div>
+        </div>
       </Modal>
-      {isMobile && (
+      {isMobileOnly && (
         <div
           className="device-warning-content"
           style={{
