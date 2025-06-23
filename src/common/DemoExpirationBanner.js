@@ -115,7 +115,7 @@ const DemoExpirationBanner = () => {
             </strong>
           </div>
           <p className="expirationMessage text-white">
-            {`Your free trial ends in ${remaingDays > 0 ? remaingDays : 0} days. Purchase a plan to continue hassle-free access!`}
+            {`Your free trial ${remaingDays > 0 ? `ends in ${remaingDays} days` : `expired`}. Purchase a plan to continue hassle-free access!`}
           </p>
           <button className="buyPlanButton" onClick={handleClick}>
             <img loading="lazy" src={crownIcon} className="buttonIcon" alt="" />
