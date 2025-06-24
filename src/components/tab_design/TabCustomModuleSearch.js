@@ -22,6 +22,8 @@ import {
 import TabSearchHeader from "./TabSearchHeader";
 
 import { SortableContainer, SortableElement } from "react-sortable-hoc";
+import config from "../../config";
+import { getDecodedToken } from "../../utils/localStorage";
 
 function TabCustomModuleSearch({ passIndex, onClose, module }) {
   const { searchModuleResults } = useSelector((state) => state.customModules);
@@ -116,7 +118,31 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
 
   const onSelectParent = useCallback(
     (itemData) => {
-      // Handle both search results objects and childSearchOptions objects
+      const decodedToken = getDecodedToken();
+      const tokenData = decodedToken?.result;
+      const currentBusinessId = tokenData?.hospital_business_id;
+      const isZydusUser = currentBusinessId === config.ZYDUS_BUSINESS_ID;
+
+      // For Zydus users, use the old behavior (title only)
+      if (isZydusUser) {
+        let title;
+
+        if (itemData.title !== undefined) {
+          title = itemData.title;
+        } else if (itemData.value) {
+          title = itemData.value;
+        } else {
+          title = itemData;
+        }
+
+        const newItem = { title, notes: "" };
+        updateCustomModuleContents([...moduleData, newItem]);
+        setSearchChildQuery("");
+        setSelectedIndex([...moduleData, newItem].length - 1);
+        return;
+      }
+
+      // For non-Zydus users, use the new behavior (title + notes)
       let title, notes;
 
       if (itemData.title !== undefined) {
