@@ -204,17 +204,23 @@ const ConsultationDetailsPage = () => {
         ),
     },
     {
-      title: "Vaccinations",
-      dataIndex: "vaccinations",
-      key: "vaccinations",
-      render: (vaccinations) =>
-        vaccinations && vaccinations.length > 0 ? (
+      title: "Additional Investigations",
+      dataIndex: "dynamicModules",
+      key: "additionalInvestigations",
+      render: (dynamicModules) => {
+        const crossConsultData = dynamicModules?.find(
+          (item) =>
+            item?.name ===
+            "Additional Investigation (Not Found in Standard Master List)"
+        );
+        return crossConsultData?.content?.length > 0 ? (
           <Button
             type="link"
+            style={{ color: "#4B4AD5" }}
             onClick={() => {
               setModalContent({
-                title: "Vaccinations",
-                list: vaccinations,
+                title: crossConsultData?.name,
+                list: crossConsultData?.content?.map((item) => item.title),
               });
               setVisibleModal(true);
             }}
@@ -224,7 +230,8 @@ const ConsultationDetailsPage = () => {
           </Button>
         ) : (
           ""
-        ),
+        );
+      },
     },
     {
       title: "Surgeries",
@@ -279,6 +286,29 @@ const ConsultationDetailsPage = () => {
       },
     },
     {
+      title: "Vaccinations",
+      dataIndex: "vaccinations",
+      key: "vaccinations",
+      render: (vaccinations) =>
+        vaccinations && vaccinations.length > 0 ? (
+          <Button
+            type="link"
+            onClick={() => {
+              setModalContent({
+                title: "Vaccinations",
+                list: vaccinations,
+              });
+              setVisibleModal(true);
+            }}
+            className="show-more-link"
+          >
+            View
+          </Button>
+        ) : (
+          ""
+        ),
+    },
+    {
       title: "Vaccination Packages",
       dataIndex: "dynamicModules",
       key: "vaccinePackages",
@@ -308,9 +338,11 @@ const ConsultationDetailsPage = () => {
         );
       },
     },
+
     {
       title: "Remarks",
       key: "remarks",
+      width: 90,
       render: (_, record) => {
         const remarks = record.remarks || "";
         const isTruncated = remarks.length > MAX_REMARKS_LENGTH;
@@ -399,21 +431,22 @@ const ConsultationDetailsPage = () => {
       setExcelLoading(true)
       const { consultationsList } = await fetchApolloConsultations(params);
       const workSheetColumnNames = [
-        'Patient Name',
-        'Apollo ID',
-        'Consultation Date & Time',
-        'Doctor Name',
-        'Investigations',
-        'Vaccinations',
-        'Surgeries',
-        'Cross Consult',
-        'Vaccination Packages',
-        'Remaks'
-      ]
+        "Patient Name",
+        "Apollo ID",
+        "Consultation Date & Time",
+        "Doctor Name",
+        "Investigations",
+        "Additional Investigations",
+        "Surgeries",
+        "Cross Consult",
+        "Vaccinations",
+        "Vaccination Packages",
+        "Remaks",
+      ];
 
       const data = []
       consultationsList.map(e => {
-        let crossConsultList = [], vaccinationPackagesList = []
+        let crossConsultList = [], vaccinationPackagesList = [], additionalInvestigationsList = []
         const crossConsultData = e?.dynamicModules?.find((item) => item?.name === "Cross Consult / Referred to")
         if (crossConsultData?.content?.length > 0) {
           crossConsultList = crossConsultData?.content?.map((item) => item.title)
@@ -422,9 +455,18 @@ const ConsultationDetailsPage = () => {
         if (vaccinationPackageData?.content?.length > 0) {
           vaccinationPackagesList = vaccinationPackageData?.content?.map((item) => item.title)
         }
+        const additionalInvestigationsData = e?.dynamicModules?.find(
+          (item) =>
+            item?.name ===
+            "Additional Investigation (Not Found in Standard Master List)"
+        );
+        if (additionalInvestigationsData?.content?.length > 0) {
+          additionalInvestigationsList = additionalInvestigationsData?.content?.map((item) => item.title)
+        }
 
         const sizes = [
           { name: "investigation", size: e?.investigations?.length },
+          { name: "additionalInvestigations", size: additionalInvestigationsList?.length },
           { name: "vaccination", size: e?.vaccinations?.length },
           { name: "surgerie", size: e?.surgeries?.length },
           { name: "crossConsult", size: crossConsultList?.length },
@@ -442,13 +484,45 @@ const ConsultationDetailsPage = () => {
                 moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
                 e?.doctorName,
                 item,
-                e?.vaccinations[index] !== undefined ? e?.vaccinations[index] : '',
+                additionalInvestigationsList[index] !== undefined
+                  ? additionalInvestigationsList[index]
+                  : "",
                 e?.surgeries[index] !== undefined ? e?.surgeries[index] : '',
-                crossConsultList[index] !== undefined ? crossConsultList[index] : '',
-                vaccinationPackagesList[index] !== undefined ? vaccinationPackagesList[index] : '',
-                e?.remarks
-              ])
-            })
+                crossConsultList[index] !== undefined ? crossConsultList[index]
+                  : "",
+                e?.vaccinations[index] !== undefined
+                  ? e?.vaccinations[index]
+                  : "",
+                vaccinationPackagesList[index] !== undefined
+                  ? vaccinationPackagesList[index]
+                  : "",
+                e?.remarks,
+              ]);
+            });
+          } else if (largest?.name === "additionalInvestigations") {
+            additionalInvestigationsList.map((item, index) => {
+              data.push([
+                e?.patientName,
+                e?.apolloId,
+                moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
+                e?.doctorName,
+                e?.investigations[index] !== undefined
+                  ? e?.investigations[index]
+                  : "",
+                item,
+                e?.surgeries[index] !== undefined ? e?.surgeries[index] : "",
+                crossConsultList[index] !== undefined
+                  ? crossConsultList[index]
+                  : "",
+                e?.vaccinations[index] !== undefined
+                  ? e?.vaccinations[index]
+                  : "",
+                vaccinationPackagesList[index] !== undefined
+                  ? vaccinationPackagesList[index]
+                  : "",
+                e?.remarks,
+              ]);
+            });
           } else if (largest?.name === "vaccination") {
             e?.vaccinations.map((item, index) => {
               data.push([
@@ -456,14 +530,23 @@ const ConsultationDetailsPage = () => {
                 e?.apolloId,
                 moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
                 e?.doctorName,
-                e?.investigations[index] !== undefined ? e?.investigations[index] : '',
+                e?.investigations[index] !== undefined
+                  ? e?.investigations[index]
+                  : "",
+                additionalInvestigationsList[index] !== undefined
+                  ? additionalInvestigationsList[index]
+                  : "",
+                e?.surgeries[index] !== undefined ? e?.surgeries[index] : "",
+                crossConsultList[index] !== undefined
+                  ? crossConsultList[index]
+                  : "",
                 item,
-                e?.surgeries[index] !== undefined ? e?.surgeries[index] : '',
-                crossConsultList[index] !== undefined ? crossConsultList[index] : '',
-                vaccinationPackagesList[index] !== undefined ? vaccinationPackagesList[index] : '',
-                e?.remarks
-              ])
-            })
+                vaccinationPackagesList[index] !== undefined
+                  ? vaccinationPackagesList[index]
+                  : "",
+                e?.remarks,
+              ]);
+            });
           } else if (largest?.name === "surgerie") {
             e?.vaccinations.map((item, index) => {
               data.push([
@@ -471,14 +554,25 @@ const ConsultationDetailsPage = () => {
                 e?.apolloId,
                 moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
                 e?.doctorName,
-                e?.investigations[index] !== undefined ? e?.investigations[index] : '',
-                e?.vaccinations[index] !== undefined ? e?.vaccinations[index] : '',
+                e?.investigations[index] !== undefined
+                  ? e?.investigations[index]
+                  : "",
+                additionalInvestigationsList[index] !== undefined
+                  ? additionalInvestigationsList[index]
+                  : "",
                 item,
-                crossConsultList[index] !== undefined ? crossConsultList[index] : '',
-                vaccinationPackagesList[index] !== undefined ? vaccinationPackagesList[index] : '',
-                e?.remarks
-              ])
-            })
+                crossConsultList[index] !== undefined
+                  ? crossConsultList[index]
+                  : "",
+                e?.vaccinations[index] !== undefined
+                  ? e?.vaccinations[index]
+                  : "",
+                vaccinationPackagesList[index] !== undefined
+                  ? vaccinationPackagesList[index]
+                  : "",
+                e?.remarks,
+              ]);
+            });
           } else if (largest?.name === "crossConsult") {
             crossConsultList.map((item, index) => {
               data.push([
@@ -486,14 +580,23 @@ const ConsultationDetailsPage = () => {
                 e?.apolloId,
                 moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
                 e?.doctorName,
-                e?.investigations[index] !== undefined ? e?.investigations[index] : '',
-                e?.vaccinations[index] !== undefined ? e?.vaccinations[index] : '',
-                e?.surgeries[index] !== undefined ? e?.surgeries[index] : '',
+                e?.investigations[index] !== undefined
+                  ? e?.investigations[index]
+                  : "",
+                additionalInvestigationsList[index] !== undefined
+                  ? additionalInvestigationsList[index]
+                  : "",
+                e?.surgeries[index] !== undefined ? e?.surgeries[index] : "",
                 item,
-                vaccinationPackagesList[index] !== undefined ? vaccinationPackagesList[index] : '',
-                e?.remarks
-              ])
-            })
+                e?.vaccinations[index] !== undefined
+                  ? e?.vaccinations[index]
+                  : "",
+                vaccinationPackagesList[index] !== undefined
+                  ? vaccinationPackagesList[index]
+                  : "",
+                e?.remarks,
+              ]);
+            });
           } else if (largest?.name === "vaccinationPackages") {
             vaccinationPackagesList.map((item, index) => {
               data.push([
@@ -501,14 +604,23 @@ const ConsultationDetailsPage = () => {
                 e?.apolloId,
                 moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
                 e?.doctorName,
-                e?.investigations[index] !== undefined ? e?.investigations[index] : '',
-                e?.vaccinations[index] !== undefined ? e?.vaccinations[index] : '',
-                e?.surgeries[index] !== undefined ? e?.surgeries[index] : '',
-                crossConsultList[index] !== undefined ? crossConsultList[index] : '',
+                e?.investigations[index] !== undefined
+                  ? e?.investigations[index]
+                  : "",
+                additionalInvestigationsList[index] !== undefined
+                  ? additionalInvestigationsList[index]
+                  : "",
+                e?.surgeries[index] !== undefined ? e?.surgeries[index] : "",
+                crossConsultList[index] !== undefined
+                  ? crossConsultList[index]
+                  : "",
+                e?.vaccinations[index] !== undefined
+                  ? e?.vaccinations[index]
+                  : "",
                 item,
-                e?.remarks
-              ])
-            })
+                e?.remarks,
+              ]);
+            });
           }
         } else {
           data.push([
