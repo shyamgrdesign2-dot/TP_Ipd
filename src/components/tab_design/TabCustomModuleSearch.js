@@ -121,7 +121,7 @@ function TabCustomModuleSearch({ passIndex, onClose, module }) {
       const decodedToken = getDecodedToken();
       const tokenData = decodedToken?.result;
       const currentBusinessId = tokenData?.hospital_business_id;
-      const isZydusUser = currentBusinessId === config.ZYDUS_BUSINESS_ID;
+      const isZydusUser = currentBusinessId == config.ZYDUS_BUSINESS_ID;
 
       // For Zydus users, use the old behavior (title only)
       if (isZydusUser) {
