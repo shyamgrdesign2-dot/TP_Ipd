@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Dropdown, Drawer, Input, Button, Popover, Checkbox, Form } from "antd";
+import { Dropdown, Drawer, Input, Button, Popover, Checkbox, Form, message } from "antd";
 import { DownOutlined } from '@ant-design/icons'
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,12 +10,14 @@ import yearlyPlan from '../../../assets/images/year-plan-corner.svg'
 
 import logoSm from '../../../assets/images/logo-sm.svg';
 import iconEdit from "../../../assets/images/edit.svg";
+import visitEnd from '../../../assets/images/end-visit.svg';
+import imgCloseVisit from '../../../assets/images/close-visit.svg';
 import { currencyFormat, errorMessage, formatAmount, getClinic, getClinicName, getDeviceSdkData, getTokenData, isNumeric, isValidGST, onlyDecimalFormat, onlyNumberFormat, removeBeforeWhiteSpace } from "../../../utils/utils";
 import { kamList, otpSend, otpVerify, paymentOrder, purchaseDetails, verifyPayment } from "../../../redux/monetizationSlice";
 import { fetchSubscriptionDetails } from "../../../redux/subscriptionSlice";
 import { searchPincode } from "../../../redux/appointmentsSlice";
 import { services } from "../../../redux/doctorsSlice";
-import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../../utils/constants";
+import { S_SMARTSYNC, S_TATVA_PRACTICE, MESSAGE_KEY } from "../../../utils/constants";
 import config from "../../../config";
 
 import "../GetUnlimitedAccess.scss";
@@ -602,6 +604,21 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     }, [salesDiscount]);
 
     const clickSalesDiscount = () => {
+
+        message.open({
+            key: MESSAGE_KEY,
+            type: '',
+            className: 'message-appointment',
+            content: (
+                <div className='d-flex align-items-center'>
+                    <img src={visitEnd} className='me-3' />
+                    <div className='fontroboto text-start fw-normal mt-1 fs-18'>Sales Discount Applied Successfully.</div>
+                    <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+                </div>
+            ),
+            duration: 5,
+        });
+
         setDrawerOpen(false);
         const clinic_name = getClinicName(profile?.hospital_data);
         const tokenData = getTokenData();
