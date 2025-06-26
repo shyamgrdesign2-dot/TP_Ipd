@@ -715,7 +715,7 @@ function Header({ locationPath }) {
                 </div>
               )}
             </div>
-            <div className="me-3">
+            <div>
               <div className="text-black titleprint">{profile?.um_name}</div>
               <div className="title-common">{profile?.um_contact}</div>
             </div>
