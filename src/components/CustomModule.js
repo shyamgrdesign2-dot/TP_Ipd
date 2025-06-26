@@ -52,6 +52,7 @@ import { MESSAGE_KEY } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import { getDecodedToken } from "../utils/localStorage";
+import config from "../config";
 
 function CustomModule({ module }) {
   const { customModules, searchModuleResults, loading } = useSelector(
@@ -221,8 +222,27 @@ function CustomModule({ module }) {
   const onSelectChild = useCallback(
     (data, option, i) => {
       const updatedModuleData = [...moduleData];
+      const tokenData = decodedToken?.result;
+      const currentBusinessId = tokenData?.hospital_business_id;
+      const isZydusUser = currentBusinessId == config.ZYDUS_BUSINESS_ID;
 
-      // Try multiple approaches to get the notes
+      // For Zydus users, use the old behavior (title only)
+      if (isZydusUser) {
+        updatedModuleData[i] = {
+          ...updatedModuleData[i],
+          title: data,
+        };
+
+        // Add new empty entry for dropdown selections
+        if (option && option.key && option.key !== -1) {
+          updatedModuleData.push({ title: "", notes: "" });
+        }
+
+        updateCustomModuleContents(updatedModuleData);
+        return;
+      }
+
+      // For non-Zydus users, use the new behavior (title + notes)
       let title = data;
       let notes = "";
 
@@ -234,7 +254,6 @@ function CustomModule({ module }) {
           notes = selectedData.notes || "";
 
           // Only add a new empty entry when an item is selected from dropdown
-          // (when option.key exists and is not -1)
           updatedModuleData.push({ title: "", notes: "" });
         } catch (error) {
           // If parsing fails, try approach 2
@@ -259,7 +278,7 @@ function CustomModule({ module }) {
 
       updateCustomModuleContents(updatedModuleData);
     },
-    [moduleData, searchModuleResults]
+    [moduleData, searchModuleResults, decodedToken]
   );
 
   const onChangeNoteChild = useCallback(
