@@ -1336,6 +1336,23 @@ function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetail
 
                     </Row>
                     <div>Manage your patient information</div>
+                    <div className="my-3">
+                        <Radio.Group
+                            value={printSettings?.header_footer?.show_patient_info || 'first'}
+                            onChange={e => {
+                                setPrintSettings(prev => ({
+                                    ...prev,
+                                    header_footer: {
+                                        ...prev.header_footer,
+                                        show_patient_info: e.target.value
+                                    }
+                                }));
+                            }}
+                        >
+                            <Radio.Button value="first">Only on First Page</Radio.Button>
+                            <Radio.Button value="all">On All Pages</Radio.Button>
+                        </Radio.Group>
+                    </div>
                     {patientInfoShowHide && (
                         <div className="mt-4">
                             <div className="mt-4">
