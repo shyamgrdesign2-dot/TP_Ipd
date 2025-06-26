@@ -12,7 +12,7 @@ import certificatepdf from '../../assets/images/certificate-pdf.svg';
 import CreateCertificate from "./CreateCertificate";
 import PdfThumbnail from "../../common/PdfThumbnail";
 import { listPatientCertificate, deletePatientCertificate } from "../../redux/doctorsSlice";
-import { errorMessage } from "../../utils/utils";
+import { errorMessage, sendMessageToParent } from "../../utils/utils";
 
 import { MESSAGE_KEY } from "../../utils/constants";
 
@@ -46,8 +46,9 @@ function CertificateDetails({ patient_data }) {
     };
 
     async function printInAppContent(item) {
-        navigate(`/patient_details/?url=${item?.certificate}&key=print`, { replace: true, state: { patient_data: patient_data } })
-        navigate(0, { replace: true });
+        sendMessageToParent("print", { url: item?.certificate });
+        // navigate(`/patient_details/?url=${item?.certificate}&key=print`, { replace: true, state: { patient_data: patient_data } })
+        // navigate(0, { replace: true });
     };
 
     const getMenuItems = (item) => {

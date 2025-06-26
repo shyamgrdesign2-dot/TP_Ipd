@@ -816,3 +816,17 @@ export const detectOperatingSystem = () => {
 
   return Object.keys(os).find(key => os[key]) || 'Unknown';
 };
+
+export const sendMessageToParent = (eventName, data = {}) => {
+  try {
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({ action: eventName, data })
+      );
+    } else {
+      console.warn("ReactNativeWebView is not available on the window object.");
+    }
+  } catch (error) {
+    console.log("sendMessageToParent ERROR", error);
+  }
+};
