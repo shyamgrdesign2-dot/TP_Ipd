@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Dropdown, Drawer, Input, Button, Popover, Checkbox, Form, message } from "antd";
+import { Dropdown, Drawer, Input, Button, Popover, Checkbox, Form, message, Alert } from "antd";
 import { DownOutlined } from '@ant-design/icons'
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -754,6 +754,10 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 </Button>
                 <div className="text-center">
                     <Link className="text-decoration-underline fw-medium text-primary" onClick={clickReferralCode}>Have a sales referral code?</Link>
+                </div>
+
+                <div style={{backgroundColor: '#fef4e6'}} className="fs-14 mt-3 p-3 rounded-3">
+                    <span className="fw-semibold">Note: </span>The pricing mentioned above applies to a single doctor's seat.
                 </div>
             </div>
 

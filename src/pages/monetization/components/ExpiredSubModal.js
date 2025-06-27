@@ -12,7 +12,7 @@ import planExpiredSandClock from '../../../assets/images/plan-expired-sand-clock
 import { interest } from "../../../redux/monetizationSlice";
 import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
 import { openModal } from "../../../redux/doctorModalSlice";
-import { S_TATVA_PRACTICE, TRIAL } from "../../../utils/constants";
+import { S_IPD, S_PHARMACY, S_TATVA_PRACTICE, TRIAL } from "../../../utils/constants";
 
 function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
 
@@ -30,7 +30,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
     const clickBuyNow = (service_name) => {
         navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })
         const clinic_name = getClinicName(profile?.hospital_data);
-        const tokenData = getTokenData(); 
+        const tokenData = getTokenData();
         const deviceSdkData = getDeviceSdkData();
         window.Moengage.track_event("TP_Monetization_VoiceRx_GetUnlimitedRx", {
             doctor_name: profile?.um_name,
@@ -59,7 +59,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
         //     errorMessage(action.payload.message)
         // }
         const clinic_name = getClinicName(profile?.hospital_data);
-        const tokenData = getTokenData(); 
+        const tokenData = getTokenData();
         const deviceSdkData = getDeviceSdkData();
         window.Moengage.track_event("TP_Monetization_RequestACallback", {
             doctor_name: profile?.um_name,
@@ -117,7 +117,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                         You can generate up to <span className="fw-bold text-white">{AI_planDetails?.credit_balance} RX</span> using {AI_planDetails?.service_type == 'ai' && 'AI'} {AI_planDetails?.service_display_name} for absolutely free!
                     </div>
                 ) : (
-                    isPurchased() ? (
+                    (isPurchased() || remaingDays < 0) ? (
                         <>
                             <img src={planExpiredSandClock} className="plan-expired-clock" alt="Expired Clock" />
                             <div className="text-white">
@@ -128,9 +128,20 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                     ) : (
                         <>
                             <div className="text-white fs-16">
-                                <span className="fw-bold fs-2 text-white">{remaingDays}</span>
-                                <span className="text-white fw-semibold"> days </span> of free Trial Left! <br />
-                                Enjoy unlimited access to <span className="fw-bold text-white">{AI_planDetails?.service_display_name}</span> using for the next {remaingDays} days for absolutely free!
+                                {remaingDays > 0 ? (
+                                    <>
+                                        <span className="fw-bold fs-2 text-white">{remaingDays}</span>
+                                        <span className="text-white fw-semibold"> days </span> of free Trial Left! <br />
+                                        Enjoy unlimited access to <span className="fw-bold text-white">{NonAI_planDetails?.service_display_name}</span> using for the next {remaingDays} days for absolutely free!
+                                    </>
+                                ) : (
+                                    <>
+                                        Free Trial Left <span className="text-white fw-semibold"> today </span>! <br />
+                                        Enjoy unlimited access to <span className="fw-bold text-white">{NonAI_planDetails?.service_display_name}</span> using for today for absolutely free!
+                                    </>
+                                )}
+
+
                             </div>
                         </>
                     )
@@ -138,7 +149,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
 
                 <div className="bg-white p-4 rounded-5 mt-4">
                     <div className="fs-4 fw-bold text-price">Upgrade Now 🚀</div>
-                    <div className="mt-3 text-price">Unlock unlimited {AI_planDetails?.service_type == 'ai' && 'AI'} {AI_planDetails?.service_display_name}, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
+                    <div className="mt-3 text-price">Unlock unlimited {AI_planDetails?.service_type == 'ai' ? `AI ${AI_planDetails?.service_display_name}` : `${NonAI_planDetails?.service_display_name}`}, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
 
                     {/* {AI_planDetails?.discount && (
                         <CampaignDiscount flag={2} title={AI_planDetails?.service_name}/>
@@ -150,12 +161,14 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                             Request a call back
                         </Button>
                     </div>
-                    <div>
-                        <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(title)}>
-                            <img className="me-2" src={crown} alt="Crown" />
-                            Get Unlimited Access
-                        </Button>
-                    </div>
+                    {![S_PHARMACY, S_IPD].includes(title) &&
+                        <div>
+                            <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(title)}>
+                                <img className="me-2" src={crown} alt="Crown" />
+                                Get Unlimited Access
+                            </Button>
+                        </div>
+                    }
                 </div>
             </Card>
         </Modal>
