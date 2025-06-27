@@ -1336,23 +1336,6 @@ function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetail
 
                     </Row>
                     <div>Manage your patient information</div>
-                    <div className="my-3">
-                        <Radio.Group
-                            value={printSettings?.header_footer?.show_patient_info || 'first'}
-                            onChange={e => {
-                                setPrintSettings(prev => ({
-                                    ...prev,
-                                    header_footer: {
-                                        ...prev.header_footer,
-                                        show_patient_info: e.target.value
-                                    }
-                                }));
-                            }}
-                        >
-                            <Radio.Button value="first">Only on First Page</Radio.Button>
-                            <Radio.Button value="all">On All Pages</Radio.Button>
-                        </Radio.Group>
-                    </div>
                     {patientInfoShowHide && (
                         <>
                             <div className="my-4">
@@ -1368,38 +1351,39 @@ function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                             }
                                         }));
                                     }}
-                                    style={{ width: '100%', display: 'flex' }}
                                 >
-                                    <Radio.Button value="first" style={{ flex: 1, textAlign: 'center' }}>Only on First Page</Radio.Button>
-                                    <Radio.Button value="all" style={{ flex: 1, textAlign: 'center' }}>On All Pages</Radio.Button>
+                                    <Radio.Button value="first">Only on First Page</Radio.Button>
+                                    <Radio.Button value="all">On All Pages</Radio.Button>
                                 </Radio.Group>
                             </div>
                             <div className="mt-4">
-                                <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
-                                    <Col lg={24}>
-                                        <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndPatientInfo}>
-                                            <SortableContext
-                                                // rowKey array
-                                                items={printSettings?.header_footer?.patient_info.map((i) => i.id)}
-                                                strategy={verticalListSortingStrategy}
-                                            >
-                                                <Table
-                                                    className='customize-table table-display-patient'
-                                                    pagination={false}
-                                                    components={{
-                                                        body: {
-                                                            row: CustomRow,
-                                                        },
-                                                    }}
-                                                    rowKey="id"
-                                                    columns={patientInfoTable}
-                                                    dataSource={printSettings?.header_footer?.patient_info}
-                                                    showHeader={false}
-                                                />
-                                            </SortableContext>
-                                        </DndContext>
-                                    </Col>
-                                </Row>
+                                <div className="mt-4">
+                                    <Row justify="space-between" className="align-items-center form_addnewpatient mb-3">
+                                        <Col lg={24}>
+                                            <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndPatientInfo}>
+                                                <SortableContext
+                                                    // rowKey array
+                                                    items={printSettings?.header_footer?.patient_info.map((i) => i.id)}
+                                                    strategy={verticalListSortingStrategy}
+                                                >
+                                                    <Table
+                                                        className='customize-table table-display-patient'
+                                                        pagination={false}
+                                                        components={{
+                                                            body: {
+                                                                row: CustomRow,
+                                                            },
+                                                        }}
+                                                        rowKey="id"
+                                                        columns={patientInfoTable}
+                                                        dataSource={printSettings?.header_footer?.patient_info}
+                                                        showHeader={false}
+                                                    />
+                                                </SortableContext>
+                                            </DndContext>
+                                        </Col>
+                                    </Row>
+                                </div>
                             </div>
                         </>
                     )}
