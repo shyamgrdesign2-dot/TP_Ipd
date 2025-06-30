@@ -21,7 +21,7 @@ import {
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 
-import { errorMessage, getClinic, trackEvent } from "../utils/utils";
+import { errorMessage, getClinic, sendMessageToParent, trackEvent } from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
 
 import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE, PENDING_DIGITISATION_RX, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FETCH_SMART_RX, UNFINISHED_RX_CASE, GB_SMARTSYNC_CVT, TAB_ZYDUS_ENCOUNTER, TAB_ZYDUS_APPOINTMENT, GB_ZYDUS_USER, S_BILLING, S_TATVA_PRACTICE, TRIAL } from "../utils/constants";
@@ -82,6 +82,7 @@ import { setAdvancedSettings, setBillPrintSettings, setShouldShowOpdBilling } fr
 import WelcomeModal from "./userOnboarding/welcomeModal/WelcomeModal";
 import { checkSymptomsCollectorTour } from "../api/services/ApiGenRx";
 import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
+import { EVENTS } from "../utils/events";
 
 const { TextArea } = Input;
 
@@ -1263,8 +1264,9 @@ function AppointmentData({ locationPath }) {
     const onPrintRxUrlClick = async (record) => {
         if (record.print_rx_url) {
             if (!isChrome && !isSafari) {
-                navigate(`/?url=${record.print_rx_url}&key=print`, { replace: true })
-                navigate(0, { replace: true });
+                sendMessageToParent(EVENTS.PRINT, { url: record.print_rx_url });
+                // navigate(`/?url=${record.print_rx_url}&key=print`, { replace: true })
+                // navigate(0, { replace: true });
             } else {
                 await window.open(record.print_rx_url);
             }
