@@ -101,7 +101,7 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
         <div className="trial-period-footer">
           <div className="trial-text">
             <span>🎉</span>
-            <span>Enjoy your <b>7 days</b> trial period</span>
+            <span>Enjoy your trial period</span>
           </div>
           <div className="upgrade-link-container">
             <span>This version is free for only 7 days. If you want to use advance features, Please</span>
