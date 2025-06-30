@@ -1602,99 +1602,77 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {caseManagerData.medical_history.length > 0 && (
                                         option?.format === 'inline' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
-                                                {caseManagerData.medical_history.map((item, i) => {
-                                                    return (
-                                                        option?.medical_history_option?.includes(item.tmmhs_id) && item?.tags?.length > 0 && (
-                                                            <Text key={i} style={{ marginTop: (item?.no_know_history || item?.tags?.length > 0) ? PX_TO_PT * 6 : 0, lineHeight: 1.4 }}>
-                                                                {!item?.no_know_history ? (
-                                                                    item?.tags?.length > 0 && (
-                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;
-                                                                            {item.tags.map((item1, i1) => {
-                                                                                return (
-                                                                                    <>
-                                                                                        {`(`}
-                                                                                        {item1.enable == 'Y' ? (
-                                                                                            <>
-                                                                                                <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                                    {medical_history_title(item?.tmmhs_id)}
-                                                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                        {item1?.title}
-                                                                                                    </Text>
-                                                                                                </Text>
-
-                                                                                                {item1?.since && (
-                                                                                                    <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                                        {` | Since : `}
-                                                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                            {item1?.since}
-                                                                                                        </Text>
-                                                                                                    </Text>
-                                                                                                )}
-
-                                                                                                {item?.tmmhs_id != 3 && (
-                                                                                                    <>
-                                                                                                        {item1?.status && (
-                                                                                                            <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                                                {` | Status : `}
-                                                                                                                <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                                    {item1?.status}
-                                                                                                                </Text>
-                                                                                                            </Text>
-                                                                                                        )}
-                                                                                                        {item1?.medication && (
-                                                                                                            <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                                                {` | Medication : `}
-                                                                                                                <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                                    {item1?.medication}
-                                                                                                                </Text>
-                                                                                                            </Text>
-                                                                                                        )}
-                                                                                                    </>
-                                                                                                )}
-                                                                                                {item?.tmmhs_id == 3 && item1?.relationship && (
-                                                                                                    <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                                        {` | Relative : `}
-                                                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                            {item1?.relationship}
-                                                                                                        </Text>
-                                                                                                    </Text>
-                                                                                                )}
-
-                                                                                                {item1?.note && (
-                                                                                                    <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                                        {` | Note : `}
-                                                                                                        <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(item1?.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                            {item1?.note}
-                                                                                                        </Text>
-                                                                                                    </Text>
-                                                                                                )}
-                                                                                            </>
-                                                                                        ) : (
-                                                                                            <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                {`No ${item1.title}`}
-                                                                                            </Text>
-                                                                                        )}
-                                                                                        {`)`}{item.tags.length - 1 != i1 ? ',' : ''}&nbsp;
-                                                                                    </>
-                                                                                )
-                                                                            })}
-                                                                            {'\n'}</Text>
-                                                                    )
-                                                                ) : (
-                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;
-                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(No known history)`}</Text>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:</Text>
+                                                {(() => {
+                                                    const grouped = {};
+                                                    if (caseManagerData?.medical_history && Array.isArray(caseManagerData.medical_history)) {
+                                                        caseManagerData.medical_history.forEach(item => {
+                                                            if (item && option?.medical_history_option?.includes(item.tmmhs_id)) {
+                                                                if (!grouped[item.title]) {
+                                                                    grouped[item.title] = [];
+                                                                }
+                                                                if (item?.tags?.length > 0 && !item?.no_know_history) {
+                                                                    item.tags.forEach(tag => {
+                                                                        if (tag && tag.enable === 'Y') {
+                                                                            let conditionName = tag.title || '';
+                                                                            let details = '';
+                                                                            let hasDetails = false;
+                                                                            if (tag.since) {
+                                                                                details += ` (Since: ${tag.since}`;
+                                                                                hasDetails = true;
+                                                                            }
+                                                                            if (item.tmmhs_id !== 3 && tag.status) {
+                                                                                details += hasDetails ? ` | Status: ${tag.status}` : ` (Status: ${tag.status}`;
+                                                                                hasDetails = true;
+                                                                            }
+                                                                            if (item.tmmhs_id !== 3 && tag.medication) {
+                                                                                details += hasDetails ? ` | Medication: ${tag.medication}` : ` (Medication: ${tag.medication}`;
+                                                                                hasDetails = true;
+                                                                            }
+                                                                            if (item.tmmhs_id === 3 && tag.relationship) {
+                                                                                details += hasDetails ? ` | Relative: ${tag.relationship}` : ` (Relative: ${tag.relationship}`;
+                                                                                hasDetails = true;
+                                                                            }
+                                                                            if (tag.note) {
+                                                                                details += hasDetails ? ` | Note: ${tag.note}` : ` (Note: ${tag.note}`;
+                                                                                hasDetails = true;
+                                                                            }
+                                                                            if (hasDetails) {
+                                                                                details += `)`;
+                                                                            }
+                                                                            grouped[item.title].push({ conditionName, details, hasDetails });
+                                                                        }
+                                                                    });
+                                                                } else if (item?.no_know_history) {
+                                                                    grouped[item.title].push({ conditionName: 'No known history', details: '', hasDetails: false });
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                    return Object.keys(grouped).map(category => 
+                                                        grouped[category]?.length > 0 ? (
+                                                            <Text key={category} style={{ marginTop: PX_TO_PT * 8, lineHeight: 1.4 }}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                    {category}:
+                                                                </Text>
+                                                                {grouped[category].map((item, index) => (
+                                                                    <Text key={index} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                        {index > 0 ? ', ' : ' '}
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                            {item.conditionName}
+                                                                        </Text>
+                                                                        {item.details}
                                                                     </Text>
-                                                                )}
+                                                                ))}
                                                             </Text>
-                                                        )
-                                                    )
-                                                })}
+                                                        ) : null
+                                                    );
+                                                })()}
                                                 {caseManagerData?.medical_history?.[0]?.medical_history_remarks && (
-                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{'\n'}{`Additional History`}&nbsp;</Text>
+                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, marginTop: PX_TO_PT * 8 }}>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{'\n'}Additional History: </Text>
                                                         <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                            {`(`}{caseManagerData?.medical_history?.[0]?.medical_history_remarks}{`)`}
+                                                            ({caseManagerData?.medical_history?.[0]?.medical_history_remarks})
                                                         </Text>
                                                     </Text>
                                                 )}
