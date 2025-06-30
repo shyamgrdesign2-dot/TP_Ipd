@@ -214,7 +214,6 @@ function App() {
       const params = new URLSearchParams(location.search);
       if (!isReceptionist) {
         params.delete("authToken");
-        console.log(location.pathname);
         // Navigate to appointment list
         // add condition for user comming from Medeco to practice offering page
         if (location.pathname !== "/our-offerings")
