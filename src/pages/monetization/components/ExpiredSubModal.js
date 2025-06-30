@@ -105,15 +105,15 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                         <button className="position-relative z-1 btn p-1 lh-1 btnclose closeButton" onClick={showHideSubModal}>
                             <i className="icon-Cross"></i>
                         </button>
-                        <img className="expiredInfographic" src={expiredInfographic2} alt="Your free trial has Expired" />
-                        <img className="expiredInfographic" style={{ opacity: 0.5 }} src={expiredInfographic2} alt="Your free trial has Expired" />
+                        <img className="expiredInfographic" src={expiredInfographic2} alt="Your trial plan has Expired" />
+                        <img className="expiredInfographic" style={{ opacity: 0.5 }} src={expiredInfographic2} alt="Your trial plan has Expired" />
                     </>
                 }>
 
                 {AI_planDetails?.service_type === 'ai' && AI_planDetails?.credit_balance > 0 ? (
                     <div className="text-white fs-16">
                         <span className="fw-bold fs-2 text-white">{AI_planDetails?.credit_balance}</span>
-                        <span className="text-white fw-semibold">/05</span> free Trial Left! <br />
+                        <span className="text-white fw-semibold">/05</span> Trial Plan Left! <br />
                         You can generate up to <span className="fw-bold text-white">{AI_planDetails?.credit_balance} RX</span> using {AI_planDetails?.service_type == 'ai' && 'AI'} {AI_planDetails?.service_display_name} for absolutely free!
                     </div>
                 ) : (
@@ -121,7 +121,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                         <>
                             <img src={planExpiredSandClock} className="plan-expired-clock" alt="Expired Clock" />
                             <div className="text-white">
-                                Your<span className="text-white fw-semibold"> {AI_planDetails?.service_display_name} free trial  </span>  has expired. <br />
+                                Your<span className="text-white fw-semibold"> {AI_planDetails?.service_display_name} trial plan  </span>  has expired. <br />
                                 Upgrade now to continue a hassle free experience!
                             </div>
                         </>
@@ -131,7 +131,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                                 {remaingDays > 0 ? (
                                     <>
                                         <span className="fw-bold fs-2 text-white">{remaingDays}</span>
-                                        <span className="text-white fw-semibold"> days </span> of free Trial Left! <br />
+                                        <span className="text-white fw-semibold"> days </span> of Trial Plan Left! <br />
                                         Enjoy unlimited access to <span className="fw-bold text-white">{NonAI_planDetails?.service_display_name}</span> using for the next {remaingDays} days for absolutely free!
                                     </>
                                 ) : (

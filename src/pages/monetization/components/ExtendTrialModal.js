@@ -52,7 +52,7 @@ function ExtendTrialModal() {
         const action = await dispatch(extendFreeTrial(b2c));
         if (action.meta.requestStatus === "fulfilled") {
             setIsExpiredModalOpen(false)
-            errorMessage('Free Trial has been extended successfully')
+            errorMessage('Trial plan has been extended successfully')
             dispatch(fetchSubscriptionDetails())
         }
         const clinic_name = getClinicName(profile?.hospital_data);
@@ -146,22 +146,22 @@ function ExtendTrialModal() {
             <Card>
                 {/* className="expired-red-card" Add this class using red color background in above Card tag*/}
                 <>
-                    <img className="expiredInfographic" src={expiredInfographic} alt="Your free trial has Expired" />
+                    <img className="expiredInfographic" src={expiredInfographic} alt="Your trial plan has Expired" />
                     <Row className="position-relative">
                         <Col lg={5}>
                             <div className="expired-modal-title">
-                                Your free trial has Expired!
+                                Your trial plan has Expired!
                             </div>
                             <div className="fontroboto fs-18 text-white mt-4">
-                                Your <b>free trial</b> has expired. Upgrade now to continue a hassle free access!
+                                Your <b>trial plan</b> has expired. Upgrade now to continue a hassle free access!
                             </div>
                             {/* Hide Below code when red color background required */}
                             <div className="extend-free-trial px-5 py-2 mt-4">
                                 <div className="fs-18 py-2 fw-bold text-yellow-light"> 🎁 Wait! Just for You...</div>
-                                <div className="fs-12-1 fw-medium text-yellow-light">Need more time? Extend your free trial by <span className="fw-bold text-yellow-light">7 days</span> — limited-time only!</div>
+                                <div className="fs-12-1 fw-medium text-yellow-light">Need more time? Extend your trial plan by <span className="fw-bold text-yellow-light">7 days</span> — limited-time only!</div>
                                 <hr style={{ borderStyle: "dashed" }} />
                                 <Button className="btn btn-proceed fs-16 fw-semi-bold" style={{ background: '#3D8C40' }} onClick={onExtendFreeTrialClick}>
-                                    Extend Your Free Trial
+                                    Extend Your Trial Plan
                                 </Button>
                             </div>
                             {/* End  */}
