@@ -435,11 +435,6 @@ function Cardiology(props) {
     }
     const printUrl = showDigitalGenRx && voiceRxUrl ? voiceRxUrl : viewCaseManagerData?.print_url;
     sendMessageToParent(EVENTS.PRINT, { url: printUrl });
-    // navigate(
-    //   `/patient_details/?url=${showDigitalGenRx && voiceRxUrl ? voiceRxUrl : viewCaseManagerData?.print_url}&key=print`,
-    //   { replace: true, state: { patient_data: patient_data } }
-    // );
-    // navigate(0, { replace: true });
   };
 
   const handleEditRxClick = () => {

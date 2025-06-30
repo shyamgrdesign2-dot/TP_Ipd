@@ -1265,8 +1265,6 @@ function AppointmentData({ locationPath }) {
         if (record.print_rx_url) {
             if (!isChrome && !isSafari) {
                 sendMessageToParent(EVENTS.PRINT, { url: record.print_rx_url });
-                // navigate(`/?url=${record.print_rx_url}&key=print`, { replace: true })
-                // navigate(0, { replace: true });
             } else {
                 await window.open(record.print_rx_url);
             }
