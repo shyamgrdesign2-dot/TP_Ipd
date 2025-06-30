@@ -214,15 +214,16 @@ function App() {
       const params = new URLSearchParams(location.search);
       if (!isReceptionist) {
         params.delete("authToken");
-
         // Navigate to appointment list
-        navigate(
-          {
-            pathname: "/",
-            search: params.toString(),
-          },
-          { replace: true }
-        );
+        // add condition for user comming from Medeco to practice offering page
+        if (location.pathname !== "/our-offerings")
+          navigate(
+            {
+              pathname: "/",
+              search: params.toString(),
+            },
+            { replace: true }
+          );
       }
     }
   }, [authToken, setToken, navigate]);
