@@ -177,6 +177,46 @@ const PreviewBill = ({
     setBillDetails(billDetailsRes);
   };
 
+  const handlePrintClick = () => {
+    const clinic = getClinic();
+    trackEvent("TP_printbill_billpreviewpage Settings_save", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+      receptionistId: receptionistId,
+      receptionistName: receptionistName,
+    });
+    printContent(
+      printBlob,
+      billData?.patientId,
+      setStartLoader
+    );
+  }
+
+  const handleDownloadClick = () => {
+    const clinic = getClinic();
+    trackEvent("TP_Billing_DownloadBill", {
+      patientName: patient?.name || "",
+      patientId: patient?.id || "",
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+      subscriptionStatus: planDetails?.currentPlanStatus,
+      receptionistId: receptionistId,
+      receptionistName: receptionistName,
+    });
+    handleDownload(
+      pdfUrl,
+      printBlob,
+      billDetails?.patientId,
+      setStartLoader
+    );
+  };
+
   return (
     <div>
       {isPreviewFromTable ? (
@@ -259,23 +299,7 @@ const PreviewBill = ({
                     isReceptionist ? "receptionist-white-btn" : "btn-input"
                   }`}
                   icon={<i className="icon-Print" />}
-                  onClick={() => {
-                    const clinic = getClinic();
-                    trackEvent("TP_printbill_billpreviewpage Settings_save", {
-                      doctorSpeciality: profile?.dp_name,
-                      doctorId: profile?.doctor_unique_id,
-                      doctorContact: profile?.um_contact,
-                      city: clinic?.hm_city,
-                      pincode: clinic?.hm_pincode,
-                      receptionistId: receptionistId,
-                      receptionistName: receptionistName,
-                    });
-                    printContent(
-                      printBlob,
-                      billData?.patientId,
-                      setStartLoader
-                    );
-                  }}
+                  onClick={handlePrintClick}
                 >
                   <span className="fw-semibold">
                     {isDepositReceipt ? "Print Deposit Receipt" : "Print Bill"}
@@ -288,27 +312,7 @@ const PreviewBill = ({
                     isReceptionist ? "receptionist-white-btn" : "btn-input"
                   }`}
                   icon={<i className="icon-download" />}
-                  onClick={() => {
-                    const clinic = getClinic();
-                    trackEvent("TP_Billing_DownloadBill", {
-                      patientName: patient?.name || "",
-                      patientId: patient?.id || "",
-                      doctorSpeciality: profile?.dp_name,
-                      doctorId: profile?.doctor_unique_id,
-                      doctorContact: profile?.um_contact,
-                      city: clinic?.hm_city,
-                      pincode: clinic?.hm_pincode,
-                      subscriptionStatus: planDetails?.currentPlanStatus,
-                      receptionistId: receptionistId,
-                      receptionistName: receptionistName,
-                    });
-                    handleDownload(
-                      pdfUrl,
-                      printBlob,
-                      billDetails?.patientId,
-                      setStartLoader
-                    );
-                  }}
+                  onClick={handleDownloadClick}
                 >
                   <span className="fw-semibold">
                     {isDepositReceipt

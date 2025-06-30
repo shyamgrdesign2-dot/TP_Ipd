@@ -18,6 +18,7 @@ import { MESSAGE_KEY } from "../../utils/constants";
 
 import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
+import { EVENTS } from "../../utils/events";
 
 function CertificateDetails({ patient_data }) {
 
@@ -46,7 +47,7 @@ function CertificateDetails({ patient_data }) {
     };
 
     async function printInAppContent(item) {
-        sendMessageToParent("print", { url: item?.certificate });
+        sendMessageToParent(EVENTS.PRINT, { url: item?.certificate });
         // navigate(`/patient_details/?url=${item?.certificate}&key=print`, { replace: true, state: { patient_data: patient_data } })
         // navigate(0, { replace: true });
     };

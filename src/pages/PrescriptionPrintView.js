@@ -30,6 +30,7 @@ import { checkToShowOpdBilling, fetchBillsByPatient, listAdvancedDepositByPatien
 import moment from "moment";
 import { useOpdBilling } from "./opdBilling/useOpdBilling";
 import { setShouldShowOpdBilling } from "../redux/billingSlice";
+import { printBlobInNewTab } from "./opdBilling/utils/helper";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -256,24 +257,7 @@ function PrescriptionPrintView() {
 
     const printContent = async () => {
         if (isMobile || osName == 'Linux') {
-            try {
-                const blobURL = URL.createObjectURL(printBlob);
-                const printWindow = window.open(blobURL, '_blank');
-
-                if (!printWindow) {
-                    console.error('Unable to open new window for printing');
-                    return;
-                }
-
-                printWindow.onload = () => {
-                    setTimeout(() => {
-                        printWindow.print();
-                        URL.revokeObjectURL(blobURL);
-                    }, 1000);
-                };
-            } catch (error) {
-                console.error('Error occurred while printing:', error);
-            }
+            printBlobInNewTab(printBlob);
         } else {
             var blobURL = URL.createObjectURL(printBlob);
             // Remove all existing iframes

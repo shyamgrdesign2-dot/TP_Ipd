@@ -7,6 +7,7 @@ import { saveAs } from 'file-saver';
 import { pdfjs, Document, Page } from "react-pdf";
 import { getClinicName, getDeviceSdkData, getTokenData } from "../../utils/utils";
 import { useSelector } from "react-redux";
+import { printBlobInNewTab } from "../../pages/opdBilling/utils/helper";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
@@ -26,24 +27,7 @@ const { profile } = useSelector((state) => state.doctors);
 
   const printContent = async () => {
     if (isMobile || osName == 'Linux') {
-      try {
-        const blobURL = URL.createObjectURL(printBlob);
-        const printWindow = window.open(blobURL, '_blank');
-
-        if (!printWindow) {
-          console.error('Unable to open new window for printing');
-          return;
-        }
-
-        printWindow.onload = () => {
-          setTimeout(() => {
-            printWindow.print();
-            URL.revokeObjectURL(blobURL);
-          }, 1000);
-        };
-      } catch (error) {
-        console.error('Error occurred while printing:', error);
-      }
+      printBlobInNewTab(printBlob);
     } else {
       var blobURL = URL.createObjectURL(printBlob);
       // Remove all existing iframes
