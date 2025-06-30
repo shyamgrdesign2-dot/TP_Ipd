@@ -1351,9 +1351,10 @@ function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetail
                                             }
                                         }));
                                     }}
+                                    style={{ width: '100%', display: 'flex' }}
                                 >
-                                    <Radio.Button value="first">Only on First Page</Radio.Button>
-                                    <Radio.Button value="all">On All Pages</Radio.Button>
+                                    <Radio.Button value="first" style={{ flex: 1, textAlign: 'center' }}>Only on First Page</Radio.Button>
+                                    <Radio.Button value="all" style={{ flex: 1, textAlign: 'center' }}>On All Pages</Radio.Button>
                                 </Radio.Group>
                             </div>
                             <div className="mt-4">
