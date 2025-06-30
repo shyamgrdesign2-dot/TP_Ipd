@@ -107,6 +107,7 @@ function CertificatePrintView() {
         if (isMobile || osName == 'Linux') {
             printBlobInNewTab(printBlob);
         } else {
+            if (!printBlob) return;
             var blobURL = URL.createObjectURL(printBlob);
             // Remove all existing iframes
             document.querySelectorAll('iframe').forEach(function (iframe) {
