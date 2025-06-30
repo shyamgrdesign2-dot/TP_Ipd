@@ -8,11 +8,13 @@ import GenerateDDxImg from "../../assets/images/offerings/DDx.webp"
 import WhiteGridImg from "../../assets/images/offerings/white_grid.svg"
 import TatvaCareLogo from "../../assets/images/Tatvacare.webp"
 import "./OurOffering.scss"
+import { useLocalStorage } from '../../utils/localStorage'
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_MEDECO_TOKEN } from '../../utils/constants'
+import config from '../../config'
 
 const OurOffering = () => {
     const [searchParams] = useSearchParams();
     const name = searchParams.get("name");
-    const medecoToken = localStorage.getItem("medecoToken");
     const formattedName = name?.replace(/^Dr\s+|^dr\s+/i, '');
     const mobileNumberRaw = searchParams.get("mobileNumber");
     // Remove '91' from the start of the mobile number if present
@@ -20,6 +22,12 @@ const OurOffering = () => {
     console.log('mobileNumber', mobileNumber)
     const from = searchParams.get("from")
     const speciality = searchParams.get("speciality");
+    const [getMedecoToken, setMedecoToken] = useLocalStorage(
+        PERSISTANT_STORAGE_KEY_MEDECO_TOKEN
+    );
+    const [getPracticeToken, setPracticeToken] = useLocalStorage(
+        PERSISTANT_STORAGE_KEY_AUTH_TOKEN
+    );
     const navigate = useNavigate()
     const CardData = [
         {
@@ -54,6 +62,9 @@ const OurOffering = () => {
         },
     ]
     const handleOfferingClick = (key) => {
+        const medecoToken = getMedecoToken();
+        const practiceToken = getPracticeToken();
+        const MEDECO_WEBVIEW_URL = config.MEDECO_WEBVIEW_URL
         switch (key) {
             case "tatva_practice":
                 if (from === "home") {
@@ -64,19 +75,19 @@ const OurOffering = () => {
                 }
                 break;
             case "tatva_shots":
-                // window.location.href = `${process.env.REACT_APP_MEDECO_URL}/tatva-shots?authToken=${medecoToken}`;
+                window.location.href = `${MEDECO_WEBVIEW_URL}/tatva-shots?authToken=${medecoToken}&&practiceToken=${practiceToken}&&fromPractice=${true}`;
                 break;
             case "remote_care":
-                // window.location.href = `${process.env.REACT_APP_MEDECO_URL}/remote-care?authToken=${medecoToken}`;
+                window.location.href = `${MEDECO_WEBVIEW_URL}/remote-care?authToken=${medecoToken}&&practiceToken=${practiceToken}&&fromPractice=${true}`
                 break;
             case "generate_ddx":
-                // window.location.href = `${process.env.REACT_APP_MEDECO_URL}/ddx-welcome?authToken=${medecoToken}`;
+                window.location.href = `${MEDECO_WEBVIEW_URL}/ddx-welcome?authToken=${medecoToken}&&practiceToken=${practiceToken}&&fromPractice=${true}`;
                 break;
             case "ask_tatva":
-                // window.location.href = `${process.env.REACT_APP_MEDECO_URL}/tatva-ai?authToken=${medecoToken}`;
+                window.location.href = `${MEDECO_WEBVIEW_URL}/tatva-ai?authToken=${medecoToken}&&practiceToken=${practiceToken}&&fromPractice=${true}`;
                 break;
             case "tatva_pedia":
-                // window.location.href = `${process.env.REACT_APP_MEDECO_URL}/tatvapedia?authToken=${medecoToken}`;
+                window.location.href = `${MEDECO_WEBVIEW_URL}/tatvapedia?authToken=${medecoToken}&&practiceToken=${practiceToken}&&fromPractice=${true}`;
                 break;
             default:
                 break;
