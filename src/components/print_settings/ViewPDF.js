@@ -766,38 +766,75 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     )
                 )}
 
-                <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />
+                <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} 
+                      fixed={printSettings?.header_footer?.show_patient_info === 'all'} />
+                {printSettings?.header_footer?.show_patient_info === 'all' ? (
+                    <>
+                        <View style={{ flexDirection: 'row', marginVertical: PX_TO_PT * 15 }} fixed>
+                            <View style={{ flex: 0.7 }}>
+                                {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
+                                    return (
+                                        i % 2 === 0 && (
+                                            <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
+                                                <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
+                                                <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
+                                            </View>
+                                        )
+                                    )
+                                })}
+                            </View>
+                            <View style={{ flex: 0.4 }}>
+                                {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
+                                    return (
+                                        i % 2 === 1 && (
+                                            <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
+                                                <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
+                                                <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
+                                            </View>
+                                        )
+                                    )
+                                })}
+                            </View>
+                        </View>
+                        <View style={{ marginBottom: PX_TO_PT * 15, backgroundColor: '#171725', height: PX_TO_PT * 1, width: '100%' }} fixed />
+                    </>
+                                 ) : (
+                     <>
+                         <View style={{ flexDirection: 'row', marginVertical: PX_TO_PT * 15 }}>
+                             <View style={{ flex: 0.7 }}>
+                                 {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
+                                     return (
+                                         i % 2 === 0 && (
+                                             <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
+                                                 <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
+                                                 <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
+                                             </View>
+                                         )
+                                     )
+                                 })}
+                             </View>
+                             <View style={{ flex: 0.4 }}>
+                                 {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
+                                     return (
+                                         i % 2 === 1 && (
+                                             <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
+                                                 <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
+                                                 <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
+                                             </View>
+                                         )
+                                     )
+                                 })}
+                             </View>
+                         </View>
+                                                
+                         <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 1, width: '100%' }} />
+                     </>
+                 )}
 
-                <View style={{ flexDirection: 'row', marginVertical: PX_TO_PT * 15 }}>
-                    <View style={{ flex: 0.7 }}>
-                        {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
-                            return (
-                                i % 2 === 0 && (
-                                    <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
-                                        <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
-                                        <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
-                                    </View>
-                                )
-                            )
-                        })}
-                    </View>
-                    <View style={{ flex: 0.4 }}>
-                        {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
-                            return (
-                                i % 2 === 1 && (
-                                    <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
-                                        <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
-                                        <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
-                                    </View>
-                                )
-                            )
-                        })}
-                    </View>
-                </View>
-
-                <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 1, width: '100%' }} />
-
-                <View>
+                <View style={{ 
+                    marginTop: (printSettings?.header_footer?.show_patient_info === 'first' || 
+                               !printSettings?.header_footer?.show_patient_info) ? PX_TO_PT * 15 : 0 
+                }}>
                     {printSettings?.prescription?.case_option?.map((option, index) => {
                         let customModule = caseManagerData?.moduleContents?.find(e => e.module_id === option?.id);
                         if(customModule) {
@@ -1417,7 +1454,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontFamily: printSettings?.page_format?.font_family,
                                                                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                 fontWeight: 500
-                                                            }}>Patient’s birth weight:&nbsp;
+                                                            }}>Patient's birth weight:&nbsp;
                                                         </Text>
                                                         <Text
                                                             style={{
@@ -1485,7 +1522,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     fontFamily: printSettings?.page_format?.font_family,
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                     fontWeight: 500
-                                                                }}>Patient’s birth weight:&nbsp;
+                                                                }}>Patient's birth weight:&nbsp;
                                                             </Text>
                                                             <Text
                                                                 style={{
@@ -1555,7 +1592,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     fontFamily: printSettings?.page_format?.font_family,
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                     fontWeight: 500
-                                                                }}>Patient’s birth weight:&nbsp;
+                                                                }}>Patient's birth weight:&nbsp;
                                                             </Text>
                                                             <Text
                                                                 style={{
