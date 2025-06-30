@@ -129,7 +129,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           // Start checking for captcha visibility after initialization
           setTimeout(() => {
             waitForCaptchaVisibility();
-          }, 1000); // Wait 1 second after initialization before checking visibility
+          }, 400); // Wait 1 second after initialization before checking visibility
           
         } catch (error) {
           console.error("Error initializing captcha:", error);
