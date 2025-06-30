@@ -855,7 +855,7 @@ function Header({ locationPath }) {
     }
 
     const remaingDays = planDetails?.service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_tier === TRIAL ? moment(planDetails?.plan_expiry_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
-    if (tp_monetization_enable && remaingDays > 0) {
+    if (tp_monetization_enable && planDetails?.service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_tier === TRIAL) {
       const freeTrialMenu = [
         {
           label:
@@ -880,7 +880,7 @@ function Header({ locationPath }) {
           className: "freeTrialMenu text-center rounded-12px p-3 m-3",
           label: (
             <>
-              Your free trial ends in <span className="fw-semibold">{`${remaingDays} days!`}</span>
+              Your free trial {remaingDays > 0 && 'ends in'} <span className="fw-semibold">{remaingDays > 0 ? `${remaingDays} days!` : `${remaingDays < 0 ? 'expired!' : 'expired today!'}`}</span>
               <div className="title-common text-white border p-2 rounded-12px w-100 mt-2 cursor-pointer" style={{ backgroundColor: '#FFFFFF1A' }} onClick={clickBuyNow}>
                 <img loading="lazy" src={crownIcon} className="text-white me-2" alt="" />Get Unlimited Access
               </div>
