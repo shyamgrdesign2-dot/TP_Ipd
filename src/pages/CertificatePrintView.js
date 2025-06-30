@@ -130,8 +130,6 @@ function CertificatePrintView() {
 
     const printInAppContent = async () => {
         sendMessageToParent(EVENTS.PRINT, { url: printUrl });
-        // navigate(`/certificate_print_view/?url=${printUrl}&key=print`, { replace: true, state: state })
-        // navigate(0, { replace: true });
     };
 
     const handleDownload = async () => {
@@ -152,8 +150,6 @@ function CertificatePrintView() {
 
     const handleInAppDownload = async () => {
         sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
-        // navigate(`/certificate_print_view/?url=${printUrl}&key=download`, { replace: true, state: state })
-        // navigate(0, { replace: true });
     };
 
     const onEditCertificateClick = async () => {
