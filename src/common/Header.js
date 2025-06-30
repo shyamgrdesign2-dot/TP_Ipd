@@ -292,29 +292,29 @@ function Header({ locationPath }) {
         isModalOpen={isLogoModalOpen}
         onCancel={showHideLogoModal}
         modalWidth={500}
-        title={"Tatvacare"}
+        title={"Welcome to TatvaPedia"}
         modalBody={
           <>
             <div className="mb-4 fontroboto lh-base">
-              Tatvacare is your all-in-one platform to simplify clinical practice, patient management, and medical learning.</div>
+              You can explore exclusive bit-sized medical content, expert-curated content, boost your proficiency & learning, and showcase your clinical competencies by submitting content based on your experiences.
+            </div>
             <div className="alert-warning rounded-10px p-2 patient-details mb-4">
               <div className="d-flex align-items-center">
                 <img className='me-3' src={alertIcon} alt="Warning" />
                 <span>
                   Are you sure you want to switch? <br />
-                  You will be redirect to Tatvacare platform.
+                  You will be redirect to TatvaPedia platform.
                 </span>
               </div>
             </div>
             <div>
               <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div onClick={handleRedirectToOffering}
+                <div onClick={tatvaRedirectClick}
                   className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes, Switch
                 </div>
                 <Button
                   onClick={() => {
-
                     window.Moengage.track_event("TP_Tatvapedia_Switch_cancelled");
                     showHideLogoModal()
                   }}
@@ -855,7 +855,7 @@ function Header({ locationPath }) {
     }
 
     const remaingDays = planDetails?.service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_tier === TRIAL ? moment(planDetails?.plan_expiry_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
-    if (tp_monetization_enable && planDetails?.service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)?.plan_tier === TRIAL) {
+    if (tp_monetization_enable && remaingDays > 0) {
       const freeTrialMenu = [
         {
           label:
@@ -880,7 +880,7 @@ function Header({ locationPath }) {
           className: "freeTrialMenu text-center rounded-12px p-3 m-3",
           label: (
             <>
-              Your free trial {remaingDays > 0 && 'ends in'} <span className="fw-semibold">{remaingDays > 0 ? `${remaingDays} days!` : `${remaingDays < 0 ? 'expired!' : 'expired today!'}`}</span>
+              Your free trial ends in <span className="fw-semibold">{`${remaingDays} days!`}</span>
               <div className="title-common text-white border p-2 rounded-12px w-100 mt-2 cursor-pointer" style={{ backgroundColor: '#FFFFFF1A' }} onClick={clickBuyNow}>
                 <img loading="lazy" src={crownIcon} className="text-white me-2" alt="" />Get Unlimited Access
               </div>
