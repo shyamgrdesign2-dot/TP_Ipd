@@ -209,15 +209,13 @@ function App() {
       if (!isReceptionist) {
         params.delete("authToken");
         // Navigate to appointment list
-        // add condition for user comming from Medeco to practice offering page
-        if (location.pathname !== "/our-offerings")
-          navigate(
-            {
-              pathname: "/",
-              search: params.toString(),
-            },
-            { replace: true }
-          );
+        navigate(
+          {
+            pathname: "/",
+            search: params.toString(),
+          },
+          { replace: true }
+        );
       }
     }
   }, [authToken, setToken, navigate]);
