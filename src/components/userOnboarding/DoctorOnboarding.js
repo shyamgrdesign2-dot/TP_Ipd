@@ -475,7 +475,7 @@ const DoctorOnboarding = ({
       // moengage event for basic info step
       if (success) {
         window.Moengage.track_event("TP_NewLoginFlow_Basic_info_Next", {
-          mobile: userMobileNumber,
+          mobile: "91" + userMobileNumber,
           doctor_name: formData.fullName,
           speciality: formData.speciality,
           clinic_name: formData.clinicName,
@@ -500,7 +500,7 @@ const DoctorOnboarding = ({
       // moengage event for clinic details step
       if (success) {
         window.Moengage.track_event("TP_NewLoginFlow_Clinical_info_Next", {
-          mobile: userMobileNumber,
+          mobile: "91" + userMobileNumber,
           doctor_name: formData.fullName,
           speciality: formData.speciality,
           clinic_name: formData.clinicName,
@@ -526,7 +526,7 @@ const DoctorOnboarding = ({
         onClose();
         // moengage event for upload documents step
         window.Moengage.track_event("TP_NewLoginFlow_Submit_setup", {
-          mobile: userMobileNumber,
+          mobile: "91" + userMobileNumber,
           doctor_name: formData.fullName,
           speciality: formData.speciality,
           clinic_name: formData.clinicName,
@@ -609,7 +609,7 @@ const DoctorOnboarding = ({
                   window.Moengage.track_event(
                     "TP_NewLoginFlow_Skip_And_Submit_later",
                     {
-                      mobile: userMobileNumber,
+                      mobile: "91" + userMobileNumber,
                       doctor_name: formData.fullName,
                       speciality: formData.speciality,
                       clinic_name: formData.clinicName,
@@ -734,6 +734,29 @@ const DoctorOnboarding = ({
               <Button
                 block
                 onClick={() => {
+                  
+                  // moengage event for skip and upload later
+                  window.Moengage.track_event(
+                    "TP_NewLoginFlow_Skip_And_Submit_later",
+                    {
+                      mobile: "91" + userMobileNumber,
+                      doctor_name: formData.fullName,
+                      speciality: formData.speciality,
+                      clinic_name: formData.clinicName,
+                      clinic_address: formData.clinicAddress,
+                      clinic_pincode: formData.clinicPincode,
+                      clinic_lat: formData.clinic_lat,
+                      clinic_long: formData.clinic_long,
+                      utm_campaign: utm.utm_campaign ?? 'NA',
+                      utm_source: utm.utm_source ?? 'NA',
+                      utm_medium: utm.utm_medium ?? 'NA',
+                      utm_content: utm.utm_content ?? 'NA',
+                      utm_term: utm.utm_term ?? 'NA',
+                      operating_system: detectOperatingSystem(),
+                      is_marketing: Object.values(utm).some(value => value && value.length > 0),
+                    }
+                  );
+
                   onClose();
                   navigate("/?from=finalSetup");
                 }}

@@ -180,8 +180,8 @@ const OnboardingCarousel = () => {
         </div>
       </div>
 
-      <div className="explore-more">
-        <button onClick={handleExploreMore}>
+      <div className="explore-more" onClick={handleExploreMore} style={{ cursor: 'pointer' }}>
+        <button>
           Explore more
           <img src={fastBackward} alt="scroll down" className="scroll-arrow" />
         </button>
