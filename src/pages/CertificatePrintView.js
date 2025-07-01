@@ -7,7 +7,7 @@ import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { useReactToPrint } from 'react-to-print';
 
-import { inputToLabel, HTMLTransformer, removeLabelTags, errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
+import { inputToLabel, HTMLTransformer, removeLabelTags, errorMessage, removeBeforeWhiteSpace, sendMessageToParent } from "../utils/utils";
 
 import { MESSAGE_KEY } from "../utils/constants";
 
@@ -19,7 +19,8 @@ import HeaderCertificatePrint from "../common/HeaderCertificatePrint";
 import { useSelector, useDispatch } from "react-redux";
 
 import { addCertificate, viewPatientCertificate } from "../redux/doctorsSlice";
-
+import { EVENTS } from "../utils/events";
+import { printBlobInNewTab } from "./opdBilling/utils/helper";
 import { pdfjs, Document, Page } from "react-pdf";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
@@ -104,25 +105,9 @@ function CertificatePrintView() {
 
     const printContent = async () => {
         if (isMobile || osName == 'Linux') {
-            try {
-                const blobURL = URL.createObjectURL(printBlob);
-                const printWindow = window.open(blobURL, '_blank');
-
-                if (!printWindow) {
-                    console.error('Unable to open new window for printing');
-                    return;
-                }
-
-                printWindow.onload = () => {
-                    setTimeout(() => {
-                        printWindow.print();
-                        URL.revokeObjectURL(blobURL);
-                    }, 1000);
-                };
-            } catch (error) {
-                console.error('Error occurred while printing:', error);
-            }
+            printBlobInNewTab(printBlob);
         } else {
+            if (!printBlob) return;
             var blobURL = URL.createObjectURL(printBlob);
             // Remove all existing iframes
             document.querySelectorAll('iframe').forEach(function (iframe) {
@@ -144,8 +129,7 @@ function CertificatePrintView() {
     };
 
     const printInAppContent = async () => {
-        navigate(`/certificate_print_view/?url=${printUrl}&key=print`, { replace: true, state: state })
-        navigate(0, { replace: true });
+        sendMessageToParent(EVENTS.PRINT, { url: printUrl });
     };
 
     const handleDownload = async () => {
@@ -165,8 +149,7 @@ function CertificatePrintView() {
     };
 
     const handleInAppDownload = async () => {
-        navigate(`/certificate_print_view/?url=${printUrl}&key=download`, { replace: true, state: state })
-        navigate(0, { replace: true });
+        sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
     };
 
     const onEditCertificateClick = async () => {

@@ -12,12 +12,13 @@ import certificatepdf from '../../assets/images/certificate-pdf.svg';
 import CreateCertificate from "./CreateCertificate";
 import PdfThumbnail from "../../common/PdfThumbnail";
 import { listPatientCertificate, deletePatientCertificate } from "../../redux/doctorsSlice";
-import { errorMessage } from "../../utils/utils";
+import { errorMessage, sendMessageToParent } from "../../utils/utils";
 
 import { MESSAGE_KEY } from "../../utils/constants";
 
 import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
+import { EVENTS } from "../../utils/events";
 
 function CertificateDetails({ patient_data }) {
 
@@ -46,8 +47,7 @@ function CertificateDetails({ patient_data }) {
     };
 
     async function printInAppContent(item) {
-        navigate(`/patient_details/?url=${item?.certificate}&key=print`, { replace: true, state: { patient_data: patient_data } })
-        navigate(0, { replace: true });
+        sendMessageToParent(EVENTS.PRINT, { url: item?.certificate });
     };
 
     const getMenuItems = (item) => {
