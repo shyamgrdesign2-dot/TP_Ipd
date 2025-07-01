@@ -38,6 +38,7 @@ import BillingKnowMore from "../../../monetization/components/BillingKnowMore";
 import ExpiredSubModal from "../../../monetization/components/ExpiredSubModal";
 import { fetchAdvanceSetting, fetchPatientWalletBalance } from "../../service";
 import { setAdvancedSettings } from "../../../../redux/billingSlice";
+import moment from "moment";
 
 function BillingDashboard({ patientData, fromPath }) {
   const { planDetails } = useSelector((state) => state.subscription);
@@ -88,8 +89,12 @@ function BillingDashboard({ patientData, fromPath }) {
   }, []);
 
   const checkBillingPurchased = async () => {
-    if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
-      showHideSubModal()
+    if (moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') > 0) {
+      if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
+        showHideSubModal()
+      } else {
+        return true;
+      }
     } else {
       return true;
     }

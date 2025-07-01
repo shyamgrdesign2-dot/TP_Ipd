@@ -100,7 +100,7 @@ function AppointmentData({ locationPath }) {
         (state) => state.uploadDoc
     );
     const { isOpdBillChecked } = useSelector(
-      (state) => state.billing
+        (state) => state.billing
     );
     const { isLoading } = useSelector((state) => state.uploadDoc);
     const { advancedSettings } = useSelector((state) => state.billing);
@@ -148,7 +148,7 @@ function AppointmentData({ locationPath }) {
     const urlParams = new URLSearchParams(window.location.search);
     const isReceptionist = urlParams.has("receptionist");
     const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
-      useState(null);
+        useState(null);
     const [tourRef, setTourRef] = useState(null);
 
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
@@ -158,60 +158,64 @@ function AppointmentData({ locationPath }) {
     }
 
     const checkBillingPurchased = async () => {
-        if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
-            showHideSubModal()
+        if (moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') > 0) {
+            if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
+                showHideSubModal()
+            } else {
+                return true;
+            }
         } else {
             return true;
         }
     }
-    
-     // Add the tour handler
+
+    // Add the tour handler
     const onTourHandle = () => {
         setIsSymptomsCollectorTour(false);
     };
 
     // Add the steps configuration
     const steps = [
-      {
-        title: (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              fontSize: "20px",
-              fontWeight: "500",
-              color: "#1A1A1A",
-              width: "305px",
-            }}
-          >
-            Symptoms Collected
-            <img className="img-fluid" width={52} height={20} src={newTag} />
-          </div>
-        ),
-        description: (
-          <div
-            style={{
-              fontSize: "16px",
-              color: "#454551",
-              lineHeight: "24px",
-              width: "305px",
-            }}
-          >
-            This icon means the AI Agent Mira has collected the patient's{" "}
-            <strong style={{ fontWeight: 600 }}>symptoms</strong> &{" "}
-            <strong style={{ fontWeight: 600 }}>medical history</strong>. You
-            can now <strong style={{ fontWeight: 600 }}>preview</strong> and{" "}
-            <strong style={{ fontWeight: 600 }}>autofill</strong> them into the{" "}
-            <strong style={{ fontWeight: 600 }}>Rx</strong>
-          </div>
-        ),
-        target: () => tourRef,
-        nextButtonProps: {
-          children: <div className="sc-tour-button">Got it</div>,
-          onClick: onTourHandle,
+        {
+            title: (
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        fontSize: "20px",
+                        fontWeight: "500",
+                        color: "#1A1A1A",
+                        width: "305px",
+                    }}
+                >
+                    Symptoms Collected
+                    <img className="img-fluid" width={52} height={20} src={newTag} />
+                </div>
+            ),
+            description: (
+                <div
+                    style={{
+                        fontSize: "16px",
+                        color: "#454551",
+                        lineHeight: "24px",
+                        width: "305px",
+                    }}
+                >
+                    This icon means the AI Agent Mira has collected the patient's{" "}
+                    <strong style={{ fontWeight: 600 }}>symptoms</strong> &{" "}
+                    <strong style={{ fontWeight: 600 }}>medical history</strong>. You
+                    can now <strong style={{ fontWeight: 600 }}>preview</strong> and{" "}
+                    <strong style={{ fontWeight: 600 }}>autofill</strong> them into the{" "}
+                    <strong style={{ fontWeight: 600 }}>Rx</strong>
+                </div>
+            ),
+            target: () => tourRef,
+            nextButtonProps: {
+                children: <div className="sc-tour-button">Got it</div>,
+                onClick: onTourHandle,
+            },
         },
-      },
     ];
 
     const handleDrawerUploadDoc = () => {
@@ -292,17 +296,17 @@ function AppointmentData({ locationPath }) {
     };
 
     useEffect(() => {
-      if (uploadDocCategories.length === 0 && !isReceptionist) {
-        getAllDocumentCategories();
-      }
-      if (
-        advancedSettings &&
-        Object.keys(advancedSettings).length === 0 &&
-        isOpdBillingAccessable
-      ) {
-        getAdvanceSettings();
-      }
-      getBillPrintSettings();
+        if (uploadDocCategories.length === 0 && !isReceptionist) {
+            getAllDocumentCategories();
+        }
+        if (
+            advancedSettings &&
+            Object.keys(advancedSettings).length === 0 &&
+            isOpdBillingAccessable
+        ) {
+            getAdvanceSettings();
+        }
+        getBillPrintSettings();
     }, [isOpdBillingAccessable]);
 
     useEffect(() => {
@@ -315,22 +319,22 @@ function AppointmentData({ locationPath }) {
     useEffect(() => {
         if (isReceptionist) {
             const patientRecord = {
-              patient_unique_id: urlParams.get("patient_unique_id"),
-              pam_id: urlParams.get("pam_id"),
-              pm_pid: urlParams.get("pm_pid"),
-              source: urlParams.get("source"),
-              receptionistId: urlParams.get("receptionistId"),
-              receptionistName: urlParams.get("receptionistName"),
+                patient_unique_id: urlParams.get("patient_unique_id"),
+                pam_id: urlParams.get("pam_id"),
+                pm_pid: urlParams.get("pm_pid"),
+                source: urlParams.get("source"),
+                receptionistId: urlParams.get("receptionistId"),
+                receptionistName: urlParams.get("receptionistName"),
             };
             getPatientBills(patientRecord);
             const receptionistTask = urlParams.get("receptionist");
             if (receptionistTask === "bill") {
                 handleRecentBillDrawer();
                 trackEvent("TP_Billing_CreateBill", {
-                  patientId: patientRecord?.patient_unique_id,
-                  source: patientRecord?.source,
-                  receptionistId: patientRecord?.receptionistId,
-                  receptionistName: patientRecord?.receptionistName,
+                    patientId: patientRecord?.patient_unique_id,
+                    source: patientRecord?.source,
+                    receptionistId: patientRecord?.receptionistId,
+                    receptionistName: patientRecord?.receptionistName,
                 });
             } else if (receptionistTask === "advance-deposit") {
                 handleAddAdvanceDrawer();
@@ -538,20 +542,20 @@ function AppointmentData({ locationPath }) {
 
     // Add this useEffect to find the first record with symptoms
     useEffect(() => {
-      if (
-        selectedTab !== TAB_ZYDUS_ENCOUNTER &&
-        selectedTab !== TAB_ZYDUS_APPOINTMENT
-      ) {
-        const firstIndex = appointmentsData?.findIndex(
-          (record) => record.symptomsGathered
-        );
-        setFirstSymptomIndex(firstIndex);
-      } else {
-        const firstIndex = matchedAppointment?.findIndex(
-          (record) => record.symptomsGathered
-        );
-        setFirstSymptomIndex(firstIndex);
-      }
+        if (
+            selectedTab !== TAB_ZYDUS_ENCOUNTER &&
+            selectedTab !== TAB_ZYDUS_APPOINTMENT
+        ) {
+            const firstIndex = appointmentsData?.findIndex(
+                (record) => record.symptomsGathered
+            );
+            setFirstSymptomIndex(firstIndex);
+        } else {
+            const firstIndex = matchedAppointment?.findIndex(
+                (record) => record.symptomsGathered
+            );
+            setFirstSymptomIndex(firstIndex);
+        }
     }, [appointmentsData, matchedAppointment, selectedTab]);
 
     const showHideBackModal = () => {
@@ -578,41 +582,41 @@ function AppointmentData({ locationPath }) {
 
     useEffect(() => {
         if (!createBillDrawer && !isReceptionist) {
-        const timeOutId = setTimeout(async () => {
-            if (selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT) {
-                var sendData = {
-                    startDate: date.startDate,
-                    endDate: date.endDate,
-                    apStatue: (isDigitisationTab && pendingDigitisation?.data) ? 3 : selectedTab,
-                    filterVisitType: visitTypeFilters,
-                    page: pageNo,
-                    search: searchQuery,
-                    sortOrder: sort_order,
-                    fetchBillStatus: advancedSettings?.billingStatusInAppointmentScreen,
-                    ...(isDigitisationTab && pendingDigitisation?.data
-                        ? { cvtAppointmentIdsStr: pendingDigitisation.data }
-                        : {})
+            const timeOutId = setTimeout(async () => {
+                if (selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT) {
+                    var sendData = {
+                        startDate: date.startDate,
+                        endDate: date.endDate,
+                        apStatue: (isDigitisationTab && pendingDigitisation?.data) ? 3 : selectedTab,
+                        filterVisitType: visitTypeFilters,
+                        page: pageNo,
+                        search: searchQuery,
+                        sortOrder: sort_order,
+                        fetchBillStatus: advancedSettings?.billingStatusInAppointmentScreen,
+                        ...(isDigitisationTab && pendingDigitisation?.data
+                            ? { cvtAppointmentIdsStr: pendingDigitisation.data }
+                            : {})
+                    }
+                    // console.log(sendData)
+                    dispatch(getAllAppointment(sendData));
+                } else {
+                    encounterAndFinishDataManage();
                 }
-                // console.log(sendData)
-                dispatch(getAllAppointment(sendData));
-            } else {
-              encounterAndFinishDataManage();
-            }
 
-            // if (searchQuery) {
-            //     const searchTimeOutId = setTimeout(() => {
-            //         dispatch(getAllAppointment(sendData));
-            //     }, 500);
-            //     return () => {
-            //         clearTimeout(searchTimeOutId);
-            //     };
-            // } else {
-            //     dispatch(getAllAppointment(sendData));
-            // }
-        }, 500);
-        return () => {
-            clearTimeout(timeOutId);
-        };
+                // if (searchQuery) {
+                //     const searchTimeOutId = setTimeout(() => {
+                //         dispatch(getAllAppointment(sendData));
+                //     }, 500);
+                //     return () => {
+                //         clearTimeout(searchTimeOutId);
+                //     };
+                // } else {
+                //     dispatch(getAllAppointment(sendData));
+                // }
+            }, 500);
+            return () => {
+                clearTimeout(timeOutId);
+            };
         }
     }, [selectedTab, date, searchQuery, pageNo, visitTypeFilters, sort_order, isDigitisationTab, siteId, createBillDrawer, advancedSettings?.billingStatusInAppointmentScreen]);
 
@@ -626,8 +630,8 @@ function AppointmentData({ locationPath }) {
         const decodedToken = getDecodedToken();
         const clinicId = String(decodedToken?.result?.clinic_id);
         const isSymptomsCollectorTourRes = await checkSymptomsCollectorTour({
-          um_id: userId,
-          hm_id: clinicId,
+            um_id: userId,
+            hm_id: clinicId,
         });
         if (isSymptomsCollectorTourRes) {
             setIsSymptomsCollectorTour(true);
@@ -644,14 +648,14 @@ function AppointmentData({ locationPath }) {
             let encounterData = []
             if (pageNo === 0) {
                 var sendZydusData = {
-                  siteId: siteId,
-                  empNo: empNo.toString(),
-                  date: moment(date.startDate).format(showDateFormat),
-                  apStatue: selectedTab,
-                  page: 0,
-                  filterVisitType: visitTypeFilters,
-                  fetchBillStatus:
-                    advancedSettings?.billingStatusInAppointmentScreen,
+                    siteId: siteId,
+                    empNo: empNo.toString(),
+                    date: moment(date.startDate).format(showDateFormat),
+                    apStatue: selectedTab,
+                    page: 0,
+                    filterVisitType: visitTypeFilters,
+                    fetchBillStatus:
+                        advancedSettings?.billingStatusInAppointmentScreen,
                 };
                 let encounterAction = await dispatch(zydusConsultAppoint(sendZydusData));
                 if (encounterAction.meta.requestStatus === "fulfilled") {
@@ -667,12 +671,12 @@ function AppointmentData({ locationPath }) {
             }
 
             let sendData = {
-              startDate: date.startDate,
-              endDate: date.endDate,
-              apStatue: TAB_FINISHED,
-              page: 0,
-              fetchBillStatus:
-                advancedSettings?.billingStatusInAppointmentScreen,
+                startDate: date.startDate,
+                endDate: date.endDate,
+                apStatue: TAB_FINISHED,
+                page: 0,
+                fetchBillStatus:
+                    advancedSettings?.billingStatusInAppointmentScreen,
             };
 
             let action = await dispatch(copyGetAllAppointment1(sendData));
@@ -1019,14 +1023,14 @@ function AppointmentData({ locationPath }) {
         const tokenData = decodedToken?.result;
         if (tokenData?.hospital_business_id == env.zydus_business_id && isZydusUserAccessableFromGB) {
             var sendZydusData = {
-              siteId: siteId,
-              empNo: empNo.toString(),
-              date: moment(date.startDate).format(showDateFormat),
-              apStatue: TAB_ZYDUS_ENCOUNTER,
-              page: 0,
-              filterVisitType: visitTypeFilters,
-              fetchBillStatus:
-                advancedSettings?.billingStatusInAppointmentScreen,
+                siteId: siteId,
+                empNo: empNo.toString(),
+                date: moment(date.startDate).format(showDateFormat),
+                apStatue: TAB_ZYDUS_ENCOUNTER,
+                page: 0,
+                filterVisitType: visitTypeFilters,
+                fetchBillStatus:
+                    advancedSettings?.billingStatusInAppointmentScreen,
             };
             const action = await dispatch(zydusConsultAppoint(sendZydusData))
             if (action.meta.requestStatus === "fulfilled") {
@@ -1358,7 +1362,7 @@ function AppointmentData({ locationPath }) {
             ellipsis: true,
             filteredValue: visitTypeFilters.split(',') || '',
             filters: selectedTab !== TAB_ZYDUS_APPOINTMENT ? getVisitTypeFilters() : null,
-             render: (text, record) => (
+            render: (text, record) => (
                 <div>
                     <span>{selectedTab !== TAB_ZYDUS_APPOINTMENT ? record.toct_type : record.appointmentStatus}</span>
                     {advancedSettings?.billingStatusInAppointmentScreen && record.billStatus && <span className={`bill-status ${record.billStatus === "Unbilled" ? "bill-status-unbilled" : ""}`}>{record.billStatus}</span>}
@@ -1448,30 +1452,30 @@ function AppointmentData({ locationPath }) {
                             </>
                         )}
                         {record?.symptomsGathered && (
-                        <>
-                            <img 
-                                ref={index === firstSymptomIndex ? setTourRef : null}
-                                src={symptoms} 
-                                alt="symptoms" 
-                                onClick={() => setIsSymptomsCollectorTour(true)}
-                                style={{ cursor: 'pointer', marginLeft: '10px' }}
-                            />
-                             {index === firstSymptomIndex &&
-                             (<Tour 
-                                placement="bottomRight"
-                                closeIcon={false} 
-                                open={isSymptomsCollectorTour} 
-                                steps={steps} 
-                                onClose={onTourHandle}
-                                maskClosable={true}
-                                style={{
-                                    width: '305px',
-                                    borderRadius: '16px',
-                                    padding: '24px'
-                                }}
-                                width={305}
-                            />)}
-                        </>
+                            <>
+                                <img
+                                    ref={index === firstSymptomIndex ? setTourRef : null}
+                                    src={symptoms}
+                                    alt="symptoms"
+                                    onClick={() => setIsSymptomsCollectorTour(true)}
+                                    style={{ cursor: 'pointer', marginLeft: '10px' }}
+                                />
+                                {index === firstSymptomIndex &&
+                                    (<Tour
+                                        placement="bottomRight"
+                                        closeIcon={false}
+                                        open={isSymptomsCollectorTour}
+                                        steps={steps}
+                                        onClose={onTourHandle}
+                                        maskClosable={true}
+                                        style={{
+                                            width: '305px',
+                                            borderRadius: '16px',
+                                            padding: '24px'
+                                        }}
+                                        width={305}
+                                    />)}
+                            </>
                         )}
                         {!isDigitisationTab && selectedTab != TAB_ZYDUS_ENCOUNTER && selectedTab != TAB_ZYDUS_APPOINTMENT &&
                             <Dropdown
@@ -1621,31 +1625,31 @@ function AppointmentData({ locationPath }) {
         }
 
         const response = await fetchBillsByPatient(queryParams);
-            if (isReceptionist) {
-                const patientData = {
-                  patient_unique_id: record?.patient_unique_id || appointmentSelectedFromMenu?.patient_unique_id || urlParams.get("patient_unique_id"),
-                  pm_pid: record?.pm_pid,
-                  pam_id: record?.pam_id,
-                  source: record?.source,
-                  receptionistId: record?.receptionistId,
-                  receptionistName: record?.receptionistName,
-                  pm_fullname: response?.patient?.name,
-                  pm_contact_no: response?.patient?.phone,
-                  pm_salutation: response?.patient?.salutation,
-                  pm_gender: response?.patient?.gender,
-                  tpml_refrence_id: response?.patient?.refId,
-                  address: response?.patient?.address,
-                  ageYears: response?.patient?.ageYears,
-                  ageMonths: response?.patient?.ageMonths,
-                  ageDays: response?.patient?.ageDays,
-                  pm_pid: urlParams.get("pm_pid"),
-                  pam_id: urlParams.get("pam_id"),
-                  source: urlParams.get("source"),
-                  receptionistId: urlParams.get("receptionistId"),
-                  receptionistName: urlParams.get("receptionistName"),
-                };
-                setAppointmentSelectedFromMenu(patientData);
-            }
+        if (isReceptionist) {
+            const patientData = {
+                patient_unique_id: record?.patient_unique_id || appointmentSelectedFromMenu?.patient_unique_id || urlParams.get("patient_unique_id"),
+                pm_pid: record?.pm_pid,
+                pam_id: record?.pam_id,
+                source: record?.source,
+                receptionistId: record?.receptionistId,
+                receptionistName: record?.receptionistName,
+                pm_fullname: response?.patient?.name,
+                pm_contact_no: response?.patient?.phone,
+                pm_salutation: response?.patient?.salutation,
+                pm_gender: response?.patient?.gender,
+                tpml_refrence_id: response?.patient?.refId,
+                address: response?.patient?.address,
+                ageYears: response?.patient?.ageYears,
+                ageMonths: response?.patient?.ageMonths,
+                ageDays: response?.patient?.ageDays,
+                pm_pid: urlParams.get("pm_pid"),
+                pam_id: urlParams.get("pam_id"),
+                source: urlParams.get("source"),
+                receptionistId: urlParams.get("receptionistId"),
+                receptionistName: urlParams.get("receptionistName"),
+            };
+            setAppointmentSelectedFromMenu(patientData);
+        }
         if (response?.bills?.length > 0) {
             const billData = response?.bills?.map((bill) => ({
                 ...bill,
@@ -2074,7 +2078,7 @@ function AppointmentData({ locationPath }) {
             </div>)}
 
             {modalOpen && (
-                <WelcomeModal 
+                <WelcomeModal
                     modalOpen={modalOpen}
                     setModalOpen={setModalOpen}
                     profile={profile}

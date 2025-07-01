@@ -175,23 +175,23 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
     if (dates) {
       if (
         dayjs().format(dateFormat) ==
-          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
+        moment(dateStrings[0], showDateFormat).format(dateFormat) &&
         dayjs().format(dateFormat) ==
-          moment(dateStrings[1], showDateFormat).format(dateFormat)
+        moment(dateStrings[1], showDateFormat).format(dateFormat)
       ) {
         setDateStatus(1);
       } else if (
         dayjs().add(-7, "d").format(dateFormat) ==
-          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
+        moment(dateStrings[0], showDateFormat).format(dateFormat) &&
         dayjs().format(dateFormat) ==
-          moment(dateStrings[1], showDateFormat).format(dateFormat)
+        moment(dateStrings[1], showDateFormat).format(dateFormat)
       ) {
         setDateStatus(2);
       } else if (
         dayjs().add(-1, "M").format(dateFormat) ==
-          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
+        moment(dateStrings[0], showDateFormat).format(dateFormat) &&
         dayjs().format(dateFormat) ==
-          moment(dateStrings[1], showDateFormat).format(dateFormat)
+        moment(dateStrings[1], showDateFormat).format(dateFormat)
       ) {
         setDateStatus(3);
       } else {
@@ -225,8 +225,12 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
   };
 
   const checkBillingPurchased = async () => {
-    if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
-      showHideSubModal()
+    if (moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') > 0) {
+      if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
+        showHideSubModal()
+      } else {
+        return true;
+      }
     } else {
       return true;
     }
@@ -560,7 +564,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
 
   const handleCheckboxChange = async (checkedValues) => {
 
-    console.log(checkedValues,"checkedValues")
+    console.log(checkedValues, "checkedValues")
     setSelectedOptions(checkedValues);
     if (checkedValues.length > 0) {
       try {
@@ -597,17 +601,17 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
 
         const response = patientData
           ? await listAdvancedDepositByPatient({
-              ...params,
-              patientId: patientData?.patient_unique_id,
-            })
+            ...params,
+            patientId: patientData?.patient_unique_id,
+          })
           : await fetchAdvancedDepositDashboard(params);
 
         if (response?.receipts?.length > 0) {
           const updatedReceipts = patientData
             ? response.receipts.map((item) => ({
-                ...item,
-                patient: response.patient,
-              }))
+              ...item,
+              patient: response.patient,
+            }))
             : response.receipts;
 
           allReceipts = [...allReceipts, ...updatedReceipts];
@@ -734,7 +738,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
           onClick={handleDownloadData}
         >
           Download
-          <i class="icon-download fs-18" style={{padding: "10px 6px"}}/>
+          <i class="icon-download fs-18" style={{ padding: "10px 6px" }} />
         </Button>
       </div>
     </div>
@@ -747,8 +751,8 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
         selectedCard === 1
           ? "Deposit"
           : selectedCard === 2
-          ? "Refund"
-          : "Debit",
+            ? "Refund"
+            : "Debit",
       sortBy: sortConfig?.field || "date",
       sortOrder: sortConfig?.order || "desc",
       page: resetData ? 1 : page,
@@ -765,9 +769,9 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
         resetData
           ? response
           : {
-              ...response,
-              receipts: [...(prev?.receipts || []), ...response.receipts],
-            }
+            ...response,
+            receipts: [...(prev?.receipts || []), ...response.receipts],
+          }
       );
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -790,8 +794,8 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
         selectedCard === 1
           ? "Deposit"
           : selectedCard === 2
-          ? "Refund"
-          : "Debit",
+            ? "Refund"
+            : "Debit",
       sortBy: sortConfig?.field || "date",
       sortOrder: sortConfig?.order || "desc",
       page: resetData ? 1 : page,
@@ -817,9 +821,9 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
         resetData
           ? { ...response, receipts: updatedReceipts }
           : {
-              ...response,
-              receipts: [...(prev?.receipts || []), ...updatedReceipts],
-            }
+            ...response,
+            receipts: [...(prev?.receipts || []), ...updatedReceipts],
+          }
       );
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -865,7 +869,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
     const { target } = e;
     if (
       Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) <=
-        5 &&
+      5 &&
       hasMore
     ) {
       loadData(false);
@@ -967,19 +971,19 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
                       </div>
                     </div>
                   )}
-                  onOpenChange={() => {}}
+                  onOpenChange={() => { }}
                   value={[
                     dateRange.startDate != dateRange.endDate
                       ? dayjs(
-                          moment(dateRange.startDate).format(showDateFormat),
-                          showDateFormat
-                        )
+                        moment(dateRange.startDate).format(showDateFormat),
+                        showDateFormat
+                      )
                       : "",
                     dateRange.startDate != dateRange.endDate
                       ? dayjs(
-                          moment(dateRange.endDate).format(showDateFormat),
-                          showDateFormat
-                        )
+                        moment(dateRange.endDate).format(showDateFormat),
+                        showDateFormat
+                      )
                       : "",
                   ]}
                 />
