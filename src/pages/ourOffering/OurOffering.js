@@ -11,11 +11,13 @@ import "./OurOffering.scss"
 import { useLocalStorage } from '../../utils/localStorage'
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_MEDECO_TOKEN } from '../../utils/constants'
 import config from '../../config'
+import { useSelector } from 'react-redux'
 
 const OurOffering = () => {
     const [searchParams] = useSearchParams();
     const name = searchParams.get("name");
-    const formattedName = name?.replace(/^Dr\s+|^dr\s+/i, '');
+    const { profile } = useSelector((state) => state.doctors);
+    const formattedName = name?.replace(/^Dr\s+|^dr\s+/i, '') || (profile?.um_name?.split(/\s+/).filter(word => (word.toLowerCase() !== "dr" && word.toLowerCase() !== "dr.")).join(' '));
     const mobileNumberRaw = searchParams.get("mobileNumber");
     // Remove '91' from the start of the mobile number if present
     const mobileNumber = mobileNumberRaw ? mobileNumberRaw.replace(/^91/, '') : '';
@@ -68,26 +70,26 @@ const OurOffering = () => {
         switch (key) {
             case "tatva_practice":
                 if (from === "home") {
-                    navigate(-1);
+                    navigate("/");
                 } else {
                     localStorage.setItem("mobileNumber", mobileNumber);
                     navigate(`/final-setup?fullName=${formattedName}&speciality=${speciality}&fromOffering=true`);
                 }
                 break;
             case "tatva_shots":
-                window.location.href = `${MEDECO_WEBVIEW_URL}/tatva-shots?authToken=${medecoToken}&&practiceToken=${practiceToken}&&fromPractice=${true}`;
+                window.location.href = `${MEDECO_WEBVIEW_URL}/tatva-shots?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`;
                 break;
             case "remote_care":
-                window.location.href = `${MEDECO_WEBVIEW_URL}/remote-care?authToken=${medecoToken}&&practiceToken=${practiceToken}&&fromPractice=${true}`
+                window.location.href = `${MEDECO_WEBVIEW_URL}/remote-care?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`
                 break;
             case "generate_ddx":
-                window.location.href = `${MEDECO_WEBVIEW_URL}/ddx-welcome?authToken=${medecoToken}&&practiceToken=${practiceToken}&&fromPractice=${true}`;
+                window.location.href = `${MEDECO_WEBVIEW_URL}/ddx-welcome?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`;
                 break;
             case "ask_tatva":
-                window.location.href = `${MEDECO_WEBVIEW_URL}/tatva-ai?authToken=${medecoToken}&&practiceToken=${practiceToken}&&fromPractice=${true}`;
+                window.location.href = `${MEDECO_WEBVIEW_URL}/tatva-ai?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`;
                 break;
             case "tatva_pedia":
-                window.location.href = `${MEDECO_WEBVIEW_URL}/tatvapedia?authToken=${medecoToken}&&practiceToken=${practiceToken}&&fromPractice=${true}`;
+                window.location.href = `${MEDECO_WEBVIEW_URL}/tatvapedia?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`;
                 break;
             default:
                 break;
