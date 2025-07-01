@@ -113,7 +113,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                 {AI_planDetails?.service_type === 'ai' && AI_planDetails?.credit_balance > 0 ? (
                     <div className="text-white fs-16">
                         <span className="fw-bold fs-2 text-white">{AI_planDetails?.credit_balance}</span>
-                        <span className="text-white fw-semibold">/05</span> Trial Plan Left! <br />
+                        <span className="text-white fw-semibold">/05</span> Trial Left! <br />
                         You can generate up to <span className="fw-bold text-white">{AI_planDetails?.credit_balance} RX</span> using {AI_planDetails?.service_type == 'ai' && 'AI'} {AI_planDetails?.service_display_name} for absolutely free!
                     </div>
                 ) : (
