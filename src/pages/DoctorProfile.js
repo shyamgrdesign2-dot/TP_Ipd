@@ -5,6 +5,7 @@ import {
   handleCopy,
   makeDefaultLogo,
   removeSpecialCharectorWithoutDotSpace,
+  shouldMonetizationDisabled,
 } from "../utils/utils";
 import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -44,6 +45,7 @@ function DoctorProfile() {
   const [rewardRecognition, setRewardRecognition] = useState([]);
   const [socialLinks, setSocialLinks] = useState(null);
   const [otherSettings, setOtherSettings] = useState(null);
+  const tp_monetization_enable = !shouldMonetizationDisabled();
 
   // Document states
   const [idProofDoc, setIdProofDoc] = useState(null);
@@ -487,7 +489,7 @@ function DoctorProfile() {
               <div className="d-flex align-items-center">
                 <div className="me-3">
                   {profile?.um_image &&
-                  planDetails?.currentPlanStatus !== "PAID" ? (
+                    planDetails?.currentPlanStatus !== "PAID" ? (
                     <img
                       src={profile?.um_image ?? defaultprofile}
                       alt="Profile"
@@ -515,11 +517,10 @@ function DoctorProfile() {
                 <div className="d-flex align-items-center web-progress-custom">
                   <Flex gap="small" wrap>
                     <Progress
-                      className={`profile-progress-setting mb-1 ${
-                        score > 91
+                      className={`profile-progress-setting mb-1 ${score > 91
                           ? "profile-progress-setting-green"
                           : score > 41 && "profile-progress-setting-yellow"
-                      }`}
+                        }`}
                       // className="profile-progress-setting"
                       type="circle"
                       size="small"
@@ -527,15 +528,15 @@ function DoctorProfile() {
                         score > 91
                           ? "#19BB7A"
                           : score > 41
-                          ? "#FF9431"
-                          : "#FC5A5A"
+                            ? "#FF9431"
+                            : "#FC5A5A"
                       }
                       trailColor={
                         score > 91
                           ? "rgba(25, 187, 122, 0.2)"
                           : score > 41
-                          ? "rgba(255, 148, 49, 0.2)"
-                          : "rgba(252, 90, 90, 0.2)"
+                            ? "rgba(255, 148, 49, 0.2)"
+                            : "rgba(252, 90, 90, 0.2)"
                       }
                       percent={score.toFixed(0)}
                     />
@@ -605,11 +606,10 @@ function DoctorProfile() {
                     className="btn btn-input align-items-center d-flex btn-41 w-100"
                     icon={<i className="icon-group fs-21" />}
                   >
-                    {`${
-                      profile?.website_publish && profile?.publish_url
+                    {`${profile?.website_publish && profile?.publish_url
                         ? "Edit"
                         : "Setup"
-                    } Website`}
+                      } Website`}
                     <i className="icon-right iconrotate180 ms-4" />
                   </Button>
                 </div>
@@ -645,7 +645,7 @@ function DoctorProfile() {
           {/* {["TRIAL", "EXPIRED", "PAID"].includes(planDetails?.currentPlanStatus) && <div className="mb-4">
             <Subscription />
           </div>} */}
-          <SubscriptionNew />
+          {tp_monetization_enable && <SubscriptionNew />}
         </Container>
       </div>
     </>
