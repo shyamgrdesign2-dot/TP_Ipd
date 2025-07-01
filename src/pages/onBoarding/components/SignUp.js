@@ -20,13 +20,86 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   const [isLogin, setIsLogin] = useState(true);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [scriptLoaded, setScriptLoaded] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
+  // const [initialLoading, setInitialLoading] = useState(true);
+  const [captchaVisible, setCaptchaVisible] = useState(false);
   // Get UTM params
   const utm = getUtmParams();
   const inputRef = useRef(null);
 
   const focusInput = () => {
     inputRef.current?.focus();
+  };
+
+  // Function to check if captcha is actually visible
+  const checkCaptchaVisibility = () => {
+    const captchaElement = document.getElementById('captch-id');
+    if (!captchaElement) return false;
+
+    // Check if captcha element has children
+    if (captchaElement.children.length === 0) return false;
+
+    // Check for hCaptcha iframe specifically
+    const hCaptchaIframe = captchaElement.querySelector('iframe[src*="hcaptcha.com"]');
+    if (hCaptchaIframe) {
+      // Check if iframe is visible and has proper dimensions
+      const rect = hCaptchaIframe.getBoundingClientRect();
+      const isVisible = rect.width > 0 && rect.height > 0 && 
+                       rect.top >= 0 && rect.left >= 0 &&
+                       rect.bottom <= window.innerHeight && 
+                       rect.right <= window.innerWidth;
+      
+      // Also check if iframe is not hidden by CSS
+      const computedStyle = window.getComputedStyle(hCaptchaIframe);
+      const isNotHidden = computedStyle.display !== 'none' && 
+                         computedStyle.visibility !== 'hidden' &&
+                         computedStyle.opacity !== '0';
+      
+      return isVisible && isNotHidden;
+    }
+
+    // Check for MSG91 captcha elements
+    const msg91Elements = captchaElement.querySelector('msg91-otp-provider') || 
+                         captchaElement.querySelector('[data-msg91]') ||
+                         captchaElement.querySelector('.msg91-captcha');
+    
+    if (msg91Elements) {
+      const rect = msg91Elements.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    }
+
+    // Fallback: check if any child element is visible
+    for (let child of captchaElement.children) {
+      const rect = child.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  // Function to wait for captcha visibility with polling
+  const waitForCaptchaVisibility = () => {
+    let attempts = 0;
+    const maxAttempts = 30; // 15 seconds with 500ms intervals
+    const interval = 500;
+
+    const checkInterval = setInterval(() => {
+      attempts++;
+      
+      if (checkCaptchaVisibility()) {
+        clearInterval(checkInterval);
+        setCaptchaVisible(true);
+        console.log('Captcha is now visible');
+      } else if (attempts >= maxAttempts) {
+        clearInterval(checkInterval);
+        // Fallback: set as visible even if not detected
+        setCaptchaVisible(true);
+        console.log('Captcha visibility timeout - proceeding anyway');
+      }
+    }, interval);
+
+    return checkInterval;
   };
 
   useEffect(() => {
@@ -52,6 +125,12 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
         try {
           window.initSendOTP(configuration);
           setScriptLoaded(true);
+          
+          // Start checking for captcha visibility after initialization
+          setTimeout(() => {
+            waitForCaptchaVisibility();
+          }, 400); // Wait 1 second after initialization before checking visibility
+          
         } catch (error) {
           console.error("Error initializing captcha:", error);
         }
@@ -79,7 +158,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
             setTimeout(() => {
               initializeCaptcha();
               resolve();
-            }, 1000);
+            },0);
           };
           script.onerror = () => reject(new Error("Script load failed"));
         });
@@ -134,13 +213,13 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
     setIsFromCampaign(!!campaign);
   }, []);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setInitialLoading(false);
-    }, 1500);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setInitialLoading(false);
+  //   }, 1500);
 
-    return () => clearTimeout(timer);
-  }, []);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   const handleGetStarted = async () => {
     if (!scriptLoaded) {
@@ -214,7 +293,6 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
             window.sendOtp(
               `91${mobileNumber}`,
               (data) => {
-                // console.log(data,"data")
                 if (data.type === "success"){
                   // moengage event for OTP sent
                   window.Moengage.track_event('TP_NewLoginFlow_Login_with_OTP_Success', {
@@ -436,29 +514,6 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
     return window.isCaptchaVerified ? window.isCaptchaVerified() : false;
   };
 
-  if (initialLoading) {
-    return (
-      <div className="signup-form-wrapper">
-        <div 
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgb(194 194 194 / 70%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-          }}
-        >
-          <Spin size="large" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="signup-form-wrapper">
       <div className="signup-form-container">
@@ -498,7 +553,22 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           </Form.Item>
 
           <div className="captcha-wrapper" style={{margin: "1.5rem 0 1rem 0"}}>
-            <div id="captch-id" className="captcha-container" />
+            <div id="captch-id" className="captcha-container">
+              {!captchaVisible && (
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center', 
+                  minHeight: '80px',
+                  padding: '1rem'
+                }}>
+                  <Spin size="medium" />
+                  <span style={{ marginLeft: '8px', color: '#666' }}>
+                    Loading captcha...
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
           {error && errorType === "captcha" && <div className="error-message">{error}</div>}

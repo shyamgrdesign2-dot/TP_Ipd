@@ -21,6 +21,7 @@ import ProfileClinicView from "../components/doctor_profile/ProfileClinicView";
 import { TAB_ADDRESS } from "../utils/constants";
 import Subscription from "../components/doctor_profile/Subscription";
 import PremiumUser from "../common/PremiumUser";
+import SubscriptionNew from "../components/doctor_profile/SubscriptionNew";
 import IdProof from "../components/userOnboarding/IdProof";
 import config from "../config";
 
@@ -641,13 +642,10 @@ function DoctorProfile() {
               verificationStatus={mrcStatus}
             />
           </div>
-          {["TRIAL", "EXPIRED", "PAID"].includes(
-            planDetails?.currentPlanStatus
-          ) && (
-            <div className="mb-4">
-              <Subscription />
-            </div>
-          )}
+          {/* {["TRIAL", "EXPIRED", "PAID"].includes(planDetails?.currentPlanStatus) && <div className="mb-4">
+            <Subscription />
+          </div>} */}
+          <SubscriptionNew />
         </Container>
       </div>
     </>
