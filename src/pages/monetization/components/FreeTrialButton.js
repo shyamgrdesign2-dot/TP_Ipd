@@ -38,7 +38,7 @@ function FreeTrialButton({ title, showHideSubModal }) {
             </Button>
         ) : NonAI_planDetails?.plan_tier === TRIAL && NonAI_planDetails?.service_type === 'non_ai' && (
             <Button className={`btn rounded-pill btn-free-trials me-3 ${(isPurchased() || remaingDays < 0) && 'btn-free-0-trials'}`} onClick={showHideSubModal}>
-                {(isPurchased() || remaingDays < 0) ? 'Trial plan expired' : `${remaingDays > 0 ? `${remaingDays} days trail plan` : `Trial plan expired today`}`}
+                {(isPurchased() || remaingDays < 0) ? 'Trial plan expired' : `Trial plan`}
                 <i className="icon-right iconrotate180" style={{ color: (isPurchased() || remaingDays < 0) ? '#FC5A5A' : '#212529' }}></i>
             </Button>
         )

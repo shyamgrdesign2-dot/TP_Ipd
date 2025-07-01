@@ -102,13 +102,13 @@ function ExpiredText({ title, onRedirect }) {
                 )
                 ||
                 (
-                    AI_planDetails?.service_type === 'non_ai' &&
+                    NonAI_planDetails?.service_type === 'non_ai' &&
                     isPurchased()
                 )
             ) ?
                 <div className="position-sticky bottom-0 bg-white w-100 px-4 py-3">
                     <div className="fontroboto fs-16 text-center text-danger-custom">
-                        Your <span className="fw-bold text-danger-custom">{AI_planDetails?.service_display_name} trial plan</span> has expired. <br />
+                        Your <span className="fw-bold text-danger-custom">{AI_planDetails?.service_type == 'ai' ? AI_planDetails?.service_display_name : NonAI_planDetails?.service_display_name} trial plan</span> has expired. <br />
                         Upgrade now to continue a hassle free experience!
                     </div>
                     <Row className="mt-2">
