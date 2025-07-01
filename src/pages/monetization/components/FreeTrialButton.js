@@ -33,7 +33,7 @@ function FreeTrialButton({ title, showHideSubModal }) {
         (AI_planDetails?.plan_tier === FREE && AI_planDetails?.service_type === 'ai') ? (
             <Button className={`btn rounded-pill btn-free-trials me-3 ${AI_planDetails?.credit_balance <= 0 && 'btn-free-0-trials'}`} onClick={showHideSubModal}>
                 <img src={AI_planDetails?.credit_balance <= 0 ? coinSmRed : coinSm} className="me-2" alt="Tatva Icon" />
-                {AI_planDetails?.credit_balance} trials
+                {AI_planDetails?.credit_balance} free trials
                 <i className="icon-right iconrotate180" style={{ color: AI_planDetails?.credit_balance > 0 ? '#212529' : '#FC5A5A' }}></i>
             </Button>
         ) : NonAI_planDetails?.plan_tier === TRIAL && NonAI_planDetails?.service_type === 'non_ai' && (
