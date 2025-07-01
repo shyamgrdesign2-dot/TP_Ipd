@@ -50,13 +50,13 @@ const AskTatvaKnowMore = ({ handleAskTatvaKnowMore, onRedirect }) => {
         <div className="drawer-tabs">
           <Tabs defaultActiveKey="1" onChange={(key) => scrollToSection(key)}>
             <TabPane tab="Basic Info" key="basicInfo" />
-            <TabPane tab="How it works" key="howItWorks" />
+            {/* <TabPane tab="How it works" key="howItWorks" /> */}
             <TabPane tab="Contact Support" key="contactSupport" />
           </Tabs>
         </div>
       </div>
 
-      <div className="px-4 overflow-y-auto">
+      <div className="px-4 overflow-y-auto h-100">
 
         <div id="basicInfo" className="my-5">
           <span className="fs-12-1 fw-medium text-primary">Basic Info</span>
@@ -68,7 +68,7 @@ const AskTatvaKnowMore = ({ handleAskTatvaKnowMore, onRedirect }) => {
           </div>
         </div>
 
-        <div id="howItWorks" className="my-5">
+        {/* <div id="howItWorks" className="my-5">
           <span className="fs-12-1 fw-medium text-primary">How it works</span>
           <div className="fw-semibold fs-20 text-black mb-2">How Does Ask Tatva Work?</div>
           <div className="fs-12-1 mb-2">Please watch this video to know how Ask Tatva works👇</div>
@@ -90,7 +90,7 @@ const AskTatvaKnowMore = ({ handleAskTatvaKnowMore, onRedirect }) => {
           >
             <img width={55} height={55} src={playIcons} />
           </div>
-        </div>
+        </div> */}
 
         <ContactSupport />
       </div>
