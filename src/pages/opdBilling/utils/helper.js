@@ -5,8 +5,6 @@ import { db } from "../../../firebase";
 import { uploadDocsToAzure } from "../../medicalRecords/service";
 import { browserName, isChrome, isMobile, isSafari, osName } from "react-device-detect";
 import moment from "moment";
-import { sendMessageToParent } from "../../../utils/utils";
-import { EVENTS } from "../../../utils/events";
 
 export const handleDownload = async (
   pdfUrl,
@@ -25,13 +23,11 @@ export const handleDownload = async (
       formData.append("patient_unique_id", patientUniqueId);
     }
     const res = await uploadDocsToAzure(formData);
-    const printUrl = res?.[0]?.url;
     if (res?.length > 0) {
-      sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
       handleInAppClick(
         patientUniqueId,
         "download",
-        printUrl,
+        res?.[0]?.url,
         setStartLoader
       );
     }
@@ -43,29 +39,6 @@ export const handleDownload = async (
     }
   }
 };
-
-export const printBlobInNewTab = async (
-  printBlob,
-) => {
-  try {
-    const blobURL = URL.createObjectURL(printBlob);
-    const printWindow = window.open(blobURL, "_blank");
-
-    if (!printWindow) {
-      console.error("Unable to open new window for printing");
-      return;
-    }
-
-    printWindow.onload = () => {
-      setTimeout(() => {
-        printWindow.print();
-        URL.revokeObjectURL(blobURL);
-      }, 1000);
-    };
-  } catch (error) {
-    console.error("Error occurred while printing:", error);
-  }
-}
 
 export const printContent = async (
   printBlob,
@@ -84,13 +57,28 @@ export const printContent = async (
     }
     const res = await uploadDocsToAzure(formData);
     if (res?.length > 0) {
-      const printUrl = res?.[0]?.url;
-      sendMessageToParent(EVENTS.PRINT, { url: printUrl });
-      handleInAppClick(patientUniqueId, "print", printUrl, setStartLoader);
+      handleInAppClick(patientUniqueId, "print", res?.[0]?.url, setStartLoader);
     }
   } else {
     if (isMobile || osName == "Linux") {
-      printBlobInNewTab(printBlob);
+      try {
+        const blobURL = URL.createObjectURL(printBlob);
+        const printWindow = window.open(blobURL, "_blank");
+
+        if (!printWindow) {
+          console.error("Unable to open new window for printing");
+          return;
+        }
+
+        printWindow.onload = () => {
+          setTimeout(() => {
+            printWindow.print();
+            URL.revokeObjectURL(blobURL);
+          }, 1000);
+        };
+      } catch (error) {
+        console.error("Error occurred while printing:", error);
+      }
     } else {
       var blobURL = URL.createObjectURL(printBlob);
       // Remove all existing iframes

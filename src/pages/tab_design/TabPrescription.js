@@ -9,7 +9,7 @@ import { env } from "../../EnvironmentConfig";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS, FREE, GB_ZYDUS_USER, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_DDX } from "../../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, GB_ZYDUS_USER, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 
 import { getPatientBirthWeight, getVitals } from "../../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../../redux/medicalhistorySlice";
@@ -90,7 +90,7 @@ import DDxKnowMore from "../../components/DDxKnowMore";
 import { getDDxDetails } from "../../api/services/ApiDDx";
 import { getDecodedToken } from "../../utils/localStorage";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { errorMessage, getClinicName, trackEvent, getDeviceSdkData, getTokenData, shouldMonetizationDisabled } from "../../utils/utils";
+import { getClinicName, trackEvent } from "../../utils/utils";
 import TabSurgicalBox from "../../components/tab_design/TabSurgicalBox";
 import TabAddCustomModule from "../../components/tab_design/TabAddCustomModule";
 import TabCustomModule from "../../components/tab_design/TabCustomModule";
@@ -101,9 +101,6 @@ import Carousel from "react-multi-carousel";
 import GenRxBanner from "../../components/GenRxBanner";
 import TatvaAiBanner from "../../components/TatvaAiBanner";
 import TatvaAiKnowMore from "../../components/TatvaAiKnowMore";
-import ExpiredSubModal from "../monetization/components/ExpiredSubModal";
-import { checkCredits } from "../../redux/monetizationSlice";
-import { services } from "../../redux/doctorsSlice";
 import SCPopup from "../../components/SCPopup";
 import { fetchSymptomsCollectorData } from "../../api/services/ApiGenRx";
 import SCBanner from "../../components/SCBanner";
@@ -116,8 +113,6 @@ function TabPrescription() {
     timingList,
     userId,
   } = useSelector((state) => state.doctors);
-  const { planDetails } = useSelector((state) => state.subscription);
-  const tp_monetization_enable = !shouldMonetizationDisabled();
   const isApexAIAccessable = useFeatureIsOn("cdss");
   const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
@@ -203,18 +198,6 @@ function TabPrescription() {
   const [pillupSwitch, setPillupSwitch] = useState(true);
   const [showSCBanner, setShowSCBanner] = useState(false);
 
-  const { servicesList } = useSelector((state) => state.doctors);
-
-  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
-  const [subModalData, setSubModalData] = useState(null);
-  const [useVoiceRx, setUseVoiceRx] = useState(false);
-  const [useDDX, setUseDDX] = useState(false);
-
-  const showHideSubModal = (object) => {
-    object && setSubModalData(object)
-    setIsSubModalOpen(!isSubModalOpen);
-  }
-
   const contextApi = {
     patient_data,
     tcmId,
@@ -247,13 +230,8 @@ function TabPrescription() {
     startTime,
     customModuleContents,
     setCustomModuleContents,
-    pillupSwitch,
-    setPillupSwitch,
-    showHideSubModal,
-    useVoiceRx,
-    setUseVoiceRx,
-    useDDX,
-    setUseDDX
+    pillupSwitch, 
+    setPillupSwitch
   };
 
   const [collapsed, setCollapsed] = useState(false);
@@ -491,7 +469,7 @@ function TabPrescription() {
       ) {
         setAdditionalNote(caseManagerData.visit_advice);
       }
-      if (caseManagerData?.moduleContents?.length) {
+      if(caseManagerData?.moduleContents?.length){
         setCustomModuleContents(caseManagerData?.moduleContents?.filter(
           (e) => !!customModules.find((cm) => cm.module_id === e.module_id)
         ))
@@ -536,9 +514,9 @@ function TabPrescription() {
 
   // Drawer Private Notes
   const handleDrawerPrivateNotes = useCallback((data) => {
-    setCollapsedFlag(4);
+      setCollapsedFlag(4);
     setSelectPrivateNotes(data)
-    setPrivateNotesDrawer(!privateNotesDrawer);
+      setPrivateNotesDrawer(!privateNotesDrawer);
   }, [privateNotesDrawer, selectPrivateNotes]);
 
   // Drawer Vaccination
@@ -563,12 +541,12 @@ function TabPrescription() {
   const getLabParams = async () => {
     try {
       const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-      const cleanedToken = token.replace(/['"]+/g, '');
-      const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${patient_data?.patient_unique_id}`, {
-        headers: {
-          'Authorization': `Bearer ${cleanedToken}`,
-        },
-      });
+        const cleanedToken = token.replace(/['"]+/g, '');
+        const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${patient_data?.patient_unique_id}`, {
+          headers: {
+                'Authorization': `Bearer ${cleanedToken}`,
+          },
+        });
       setLabParamsData(response.data?.data?.results || []);
     } catch (error) {
       console.error("Error fetching lab params:", error);
@@ -859,88 +837,44 @@ function TabPrescription() {
   };
 
   const getGenerateDDx = async (field) => {
-    const DDX_planDetails = servicesList?.find(e => e.service_name === S_DDX)
-    if (DDX_planDetails?.plan_tier === FREE && DDX_planDetails?.credit_balance <= 0) {
-      showHideSubModal({ service_name: S_DDX })
-    } else {
-      let sendData = {
-        b2c_id: profile?.b2c,
-        service_name: S_DDX
-      }
-      const action = await dispatch(checkCredits(sendData));
-      if (action.meta.requestStatus === "fulfilled") {
-        if (action?.payload?.hasOwnProperty("service_name")) {
-          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
-            if (action?.payload?.credit_balance != DDX_planDetails?.credit_balance) {
-              await dispatch(services(sendData?.b2c_id))
-            }
-            showHideSubModal({ service_name: S_DDX })
-          } else {
-            setIsDDxLoading(true);
-            setIsDDxGenerated(true);
-            window.Moengage.track_event("TP_CDSS_Ack_GenDx", {
-              clinic_name: getClinicName(profile?.hospital_data),
-              doctor_id: profile?.doctor_unique_id,
-              patient_number: patient_data?.pm_contact_no,
-              patient_id: patient_data?.patient_unique_id,
-              field: field,
-            });
-            const payload = {
-              patientId: patient_data?.patient_unique_id,
-              symptoms: symptomsData?.map((symptom) => {
-                if (symptom) {
-                  return {
-                    name: symptom.symptom_name,
-                    since: symptom.since,
-                    severity: symptom.severity,
-                    notes: symptom.note,
-                  };
-                }
-              }),
-              examinations: examinationData?.map((examination) => {
-                if (examination) {
-                  return {
-                    name: examination.examination_name,
-                    notes: examination.note,
-                  };
-                }
-              }),
-            };
-            const generatedDDxResponse = await getDDxDetails(payload);
-            if (generatedDDxResponse?.results) {
-              setGeneratedDDx(generatedDDxResponse);
-              setLikeDislike(generatedDDxResponse?.results?.map(() => ""));
-              setUseDDX(true);
-            }
-            dispatch(setIsDDxReadyToGenerate(false));
-            setIsDDxLoading(false);
-          }
-        } else {
-          typeof action?.payload?.data?.error === 'object' ?
-            errorMessage(action?.payload?.data?.error?.description)
-            :
-            errorMessage(action?.payload?.data?.message)
-        }
-      } else {
-        errorMessage(action.payload.message)
-      }
-    }
-    const clinic_name = getClinicName(profile?.hospital_data);
-    const tokenData = getTokenData(); 
-    const deviceSdkData = getDeviceSdkData();
-    window.Moengage.track_event("TP_Monetization_GenerateDDX", {
-      doctor_name: profile?.um_name,
-      doctor_number: profile?.um_contact,
-      doctor_unique_id: profile?.doctor_unique_id,
-      doctor_specialty: profile?.dp_name,
-      um_id: tokenData?.user_id,
-      clinic_id: tokenData?.clinic_id,
-      clinic_Name: clinic_name,
-      payment_Status: planDetails?.currentPlanStatus,
-      token_count: DDX_planDetails?.credit_balance,
-      ...deviceSdkData
+    setIsDDxLoading(true);
+    setIsDDxGenerated(true);
+    window.Moengage.track_event("TP_CDSS_Ack_GenDx", {
+      clinic_name: getClinicName(profile?.hospital_data),
+      doctor_id: profile?.doctor_unique_id,
+      patient_number: patient_data?.pm_contact_no,
+      patient_id: patient_data?.patient_unique_id,
+      field: field,
     });
-  }
+    const payload = {
+      patientId: patient_data?.patient_unique_id,
+      symptoms: symptomsData?.map((symptom) => {
+        if (symptom) {
+          return {
+            name: symptom.symptom_name,
+            since: symptom.since,
+            severity: symptom.severity,
+            notes: symptom.note,
+          };
+        }
+      }),
+      examinations: examinationData?.map((examination) => {
+        if (examination) {
+          return {
+            name: examination.examination_name,
+            notes: examination.note,
+          };
+        }
+      }),
+    };
+    const generatedDDxResponse = await getDDxDetails(payload);
+    if (generatedDDxResponse?.results) {
+      setGeneratedDDx(generatedDDxResponse);
+      setLikeDislike(generatedDDxResponse?.results?.map(() => ""));
+    }
+    dispatch(setIsDDxReadyToGenerate(false));
+    setIsDDxLoading(false);
+  };
 
   const handleApexAIClose = () => {
     dispatch(setIsApexAISelected(false));
@@ -950,7 +884,7 @@ function TabPrescription() {
 
   const handleApexAI = () => {
     dispatch(setIsApexAISelected(true));
-    openCollapsed((isVoiceRxAccessable || tp_monetization_enable) ? 10 : 9);
+    openCollapsed(isVoiceRxAccessable ? 10 : 9);
     window.Moengage.track_event("TP_Apex_AI_Ack", {
       clinic_name: getClinicName(profile?.hospital_data),
       doctor_id: profile?.doctor_unique_id,
@@ -974,12 +908,13 @@ function TabPrescription() {
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData} handleGenRx={() => setIsGenRxDrawerVisible(true)} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData} handleGenRx={() => setIsGenRxDrawerVisible(true)}/>
         <div className="w-100 bg-body wrapper2 prescription-wrapper p-0">
           <Layout>
             <div
-              className={`prescription-sidebar ${isApexAISelected ? "prescription-sidebar-ai" : ""
-                }`}
+              className={`prescription-sidebar ${
+                isApexAISelected ? "prescription-sidebar-ai" : ""
+              }`}
             >
               {isApexAISelected ? (
                 <>
@@ -1004,14 +939,10 @@ function TabPrescription() {
                       <i className="icon-Cross" style={{ color: "#7742FE" }} />
                     </div>
                   </button>
-                  {(isVoiceRxAccessable || tp_monetization_enable) && <button
-                    type="button"
-                    className="mb-3 text-center btn btn-action"
-                    onClick={() => openCollapsed(10)}
-                  >
-                    <div
-                      className={`prescription-tab-button rounded-10px`}
-                      style={{ backgroundColor: "inherit" }}
+                  {isVoiceRxAccessable && <button
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={() => openCollapsed(10)}
                     >
                       <div
                         className={`prescription-tab-button rounded-10px`}
@@ -1025,16 +956,11 @@ function TabPrescription() {
                         />
                       </div>
                       <label className="text-white mt-1">Voice Rx</label>
-                    </div>  
                   </button>}
-                  {(isApexAIAccessable || tp_monetization_enable) && <button
-                    type="button"
-                    className="mb-3 text-center btn btn-action"
-                    onClick={() => openCollapsed(9)}
-                  >
-                    <div
-                      className={`prescription-tab-button rounded-10px`}
-                      style={{ backgroundColor: "inherit" }}
+                  {isApexAIAccessable && <button
+                      type="button"
+                      className="mb-3 text-center btn btn-action"
+                      onClick={() => openCollapsed(9)}
                     >
                       <div
                         className={`prescription-tab-button rounded-10px`}
@@ -1046,12 +972,11 @@ function TabPrescription() {
                         />
                       </div>
                       <label className="text-white mt-1">DDx</label>
-                    </div> 
                   </button>}
                 </>
               ) : (
                 <>
-                  {((isApexAIAccessable || isVoiceRxAccessable) || tp_monetization_enable) && (
+                  {(isApexAIAccessable || isVoiceRxAccessable) && (
                     <button
                       type="button"
                       className="mb-3 text-center btn btn-action"
@@ -1059,24 +984,25 @@ function TabPrescription() {
                       style={{ padding: "6px 10px" }}
                     >
                       <div
-                        className={`prescription-tab-button rounded-10px ${collapsedFlag == 1 && "active"
-                          }`}
+                        className={`prescription-tab-button rounded-10px ${
+                          collapsedFlag == 1 && "active"
+                        }`}
                         style={{ position: "relative" }}
                       >
                         <img src={apexAIImg} alt="apex-AI" />
                         {isDDxReadyToGenerate && generatedDDx?.results?.length > 0 && (
-                          <img
-                            src={blinkingDot}
-                            alt="blinking-dot"
-                            width={30}
-                            height={30}
-                            style={{
-                              position: "absolute",
-                              top: -15,
-                              right: -15,
-                            }}
-                          />
-                        )}
+                            <img
+                              src={blinkingDot}
+                              alt="blinking-dot"
+                              width={30}
+                              height={30}
+                              style={{
+                                position: "absolute",
+                                top: -15,
+                                right: -15,
+                              }}
+                            />
+                          )}
                       </div>
                       <label className="text-white mt-1">TatvaAI</label>
                     </button>
@@ -1089,15 +1015,16 @@ function TabPrescription() {
                         className="mb-3 text-center btn btn-action"
                         onClick={() =>
                           vitalsData.length === 0 &&
-                            vitalsPastList.length === 0 &&
-                            !patientBirthWeight
+                          vitalsPastList.length === 0 &&
+                          !patientBirthWeight
                             ? handleDrawerVital()
                             : openCollapsed(1)
                         }
                       >
                         <div
-                          className={`prescription-tab-button rounded-10px ${collapsedFlag == 1 && "active"
-                            }`}
+                          className={`prescription-tab-button rounded-10px ${
+                            collapsedFlag == 1 && "active"
+                          }`}
                         >
                           <img
                             src={collapsedFlag == 1 ? vitalsDark : vitalsWhite}
@@ -1113,14 +1040,15 @@ function TabPrescription() {
                         className="mb-3 text-center btn btn-action"
                         onClick={() =>
                           medicalHistoryData.length === 0 &&
-                            !updatedGynecHistory
+                          !updatedGynecHistory
                             ? handleDrawerMedicalHistory()
                             : openCollapsed(2)
                         }
                       >
                         <div
-                          className={`prescription-tab-button rounded-10px ${collapsedFlag == 2 && "active"
-                            }`}
+                          className={`prescription-tab-button rounded-10px ${
+                            collapsedFlag == 2 && "active"
+                          }`}
                         >
                           <img
                             src={
@@ -1145,8 +1073,9 @@ function TabPrescription() {
                         }
                       >
                         <div
-                          className={`prescription-tab-button rounded-10px  ${collapsedFlag == 4 && "active"
-                            }`}
+                          className={`prescription-tab-button rounded-10px  ${
+                            collapsedFlag == 4 && "active"
+                          }`}
                         >
                           {privateNotesList?.length > 0 && (
                             <div className="notes-dot">
@@ -1175,8 +1104,9 @@ function TabPrescription() {
                         onClick={handleDrawerVaccination}
                       >
                         <div
-                          className={`bg-secondary-light prescription-tab-button rounded-10px ${collapsedFlag === 3 && "active"
-                            }`}
+                          className={`bg-secondary-light prescription-tab-button rounded-10px ${
+                            collapsedFlag === 3 && "active"
+                          }`}
                         >
                           <img
                             src={
@@ -1198,8 +1128,9 @@ function TabPrescription() {
                         onClick={handleDrawerGrowth}
                       >
                         <div
-                          className={`prescription-tab-button rounded-10px ${collapsedFlag === 5 && "active"
-                            }`}
+                          className={`prescription-tab-button rounded-10px ${
+                            collapsedFlag === 5 && "active"
+                          }`}
                         >
                           <img
                             src={
@@ -1221,23 +1152,24 @@ function TabPrescription() {
                         style={{ padding: "0px" }}
                         onClick={() =>
                           examinationHistory?.length === 0 &&
-                            !shouldShowAncHistory &&
-                            !shouldShowImmunisation &&
-                            !obstetricDetails?.lmp &&
-                            !obstetricDetails?.edd &&
-                            !obstetricDetails?.gravidity &&
-                            !obstetricDetails?.parity &&
-                            !obstetricDetails?.livingChildren &&
-                            !obstetricDetails?.abortion &&
-                            !obstetricDetails?.ectopicPregnancies &&
-                            !obstetricDetails?.ceed
+                          !shouldShowAncHistory &&
+                          !shouldShowImmunisation &&
+                          !obstetricDetails?.lmp &&
+                          !obstetricDetails?.edd &&
+                          !obstetricDetails?.gravidity &&
+                          !obstetricDetails?.parity &&
+                          !obstetricDetails?.livingChildren &&
+                          !obstetricDetails?.abortion &&
+                          !obstetricDetails?.ectopicPregnancies &&
+                          !obstetricDetails?.ceed
                             ? handleDrawerObstetric()
                             : openCollapsed(6)
                         }
                       >
                         <div
-                          className={`prescription-tab-button rounded-10px ${collapsedFlag === 6 && "active"
-                            }`}
+                          className={`prescription-tab-button rounded-10px ${
+                            collapsedFlag === 6 && "active"
+                          }`}
                         >
                           <img
                             src={
@@ -1278,8 +1210,9 @@ function TabPrescription() {
                           />
                         )}
                         <div
-                          className={`prescription-tab-button rounded-10px ${collapsedFlag === 7 && "active"
-                            }`}
+                          className={`prescription-tab-button rounded-10px ${
+                            collapsedFlag === 7 && "active"
+                          }`}
                         >
                           <img
                             src={
@@ -1306,8 +1239,9 @@ function TabPrescription() {
                           }
                         >
                           <div
-                            className={`prescription-tab-button rounded-10px ${collapsedFlag === 8 && "active"
-                              }`}
+                            className={`prescription-tab-button rounded-10px ${
+                              collapsedFlag === 8 && "active"
+                            }`}
                           >
                             <img
                               src={
@@ -1407,23 +1341,23 @@ function TabPrescription() {
                   handleAddLabParamsDrawer={handleAddLabParamsDrawer}
                   handleViewLabParamsDrawer={handleViewLabParamsDrawer}
                 />
-              ) :
-                collapsedFlag === 9 && (isApexAIAccessable || tp_monetization_enable) ? (
-                  <TabDDxList
-                    generatedDDx={generatedDDx?.results}
-                    handleDDxDrawer={handleDDxDrawer}
-                    isDDxLoading={isDDxLoading}
-                    handleDDxKnowMore={handleDDxKnowMore}
-                    getGenerateDDx={getGenerateDDx}
-                    isDDxGenerated={isDDxGenerated}
-                  />
+              ) : 
+                collapsedFlag === 9 && isApexAIAccessable ? (
+                <TabDDxList
+                  generatedDDx={generatedDDx?.results}
+                  handleDDxDrawer={handleDDxDrawer}
+                  isDDxLoading={isDDxLoading}
+                  handleDDxKnowMore={handleDDxKnowMore}
+                  getGenerateDDx={getGenerateDDx}
+                  isDDxGenerated={isDDxGenerated}
+                />
                 ) :
-                  collapsedFlag === 10 && (isVoiceRxAccessable || tp_monetization_enable) && (
-                    <TabVoiceRx
-                      handleGenRxKnowMore={handleGenRxKnowMore}
-                      setIsGenRxDrawerVisible={setIsGenRxDrawerVisible}
-                    />
-                  )
+                collapsedFlag === 10 && isVoiceRxAccessable && (
+                  <TabVoiceRx
+                    handleGenRxKnowMore={handleGenRxKnowMore}
+                    setIsGenRxDrawerVisible={setIsGenRxDrawerVisible}
+                  />
+                )
               }
             </Sider>
             <div
@@ -1518,7 +1452,7 @@ function TabPrescription() {
                         generatedDDx={generatedDDx?.results}
                       />
                     </div>
-                  ) :
+                  ) : 
                     e.tmdpm_id === 15 &&
                     e.tmdpm_status === 0 ? (
                     <div key={i} className="prescription-box-sm">
@@ -1773,7 +1707,7 @@ function TabPrescription() {
           </Drawer>
         )}
 
-        {tatvaAiKnowMoreDrawer &&
+        {tatvaAiKnowMoreDrawer && 
           <Drawer
             closeIcon={false}
             placement="right"
@@ -1809,10 +1743,10 @@ function TabPrescription() {
             isFileSizeError
               ? "Exceeded File Size"
               : isFileLimitError
-                ? "Exceeded File Upload Limit"
-                : isFileTypeError
-                  ? "File format not supported"
-                  : "You may lose your data"
+              ? "Exceeded File Upload Limit"
+              : isFileTypeError
+              ? "File format not supported"
+              : "You may lose your data"
           }
           modalBody={
             <>
@@ -1859,12 +1793,6 @@ function TabPrescription() {
           }
         />
       ) : null}
-
-      <ExpiredSubModal
-        title={subModalData && subModalData?.hasOwnProperty('service_name') && subModalData?.service_name}
-        isSubModalOpen={isSubModalOpen}
-        showHideSubModal={showHideSubModal} />
-
       {showSCPopup && !caseManagerData?.smart_prescription_filename && (
         <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} handleGenRx={handleGenRx} />
       )}

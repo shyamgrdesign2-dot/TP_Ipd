@@ -8,11 +8,8 @@ import Welcome from "../../../../common/Welcome";
 
 import { useSelector, useDispatch } from "react-redux";
 import {
-  TRIAL,
   MESSAGE_KEY,
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
-  S_BILLING,
-  S_TATVA_PRACTICE,
 } from "../../../../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { setUserId } from "../../../../redux/doctorsSlice";
@@ -34,17 +31,10 @@ import { Popover } from "antd";
 import { clearSearch } from "../../../../redux/appointmentsSlice";
 import AddAdvance from "../advanceDeposit/AddAdvance";
 import CreateBill from "../createBill/CreateBill";
-import BillingKnowMore from "../../../monetization/components/BillingKnowMore";
-import ExpiredSubModal from "../../../monetization/components/ExpiredSubModal";
 import { fetchAdvanceSetting, fetchPatientWalletBalance } from "../../service";
 import { setAdvancedSettings } from "../../../../redux/billingSlice";
 
 function BillingDashboard({ patientData, fromPath }) {
-  const { planDetails } = useSelector((state) => state.subscription);
-  const { service_mappings } = planDetails || {};
-  const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
-  const BILLING_planDetails = service_mappings?.find(e => e.service_name === S_BILLING)
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   let location = useLocation();
@@ -59,7 +49,7 @@ function BillingDashboard({ patientData, fromPath }) {
   const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
   const [createBillDrawer, setCreateBillDrawer] = useState(false);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
-  const [billingDrawer, setBillingDrawer] = useState(false);
+  const { planDetails } = useSelector((state) => state.subscription);
   const { advancedSettings } = useSelector(
     (state) => state.billing
   );
@@ -76,24 +66,6 @@ function BillingDashboard({ patientData, fromPath }) {
   const isReceptionist = urlParams.has("receptionist");
   const receptionistId = urlParams.get("receptionistId");
   const receptionistName = urlParams.get("receptionistName");
-
-  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
-
-  const showHideSubModal = () => {
-    setIsSubModalOpen(!isSubModalOpen);
-  }
-
-  useEffect(() => {
-    checkBillingPurchased()
-  }, []);
-
-  const checkBillingPurchased = async () => {
-    if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
-      showHideSubModal()
-    } else {
-      return true;
-    }
-  }
 
   useEffect(() => {
     setLocationPath(location.pathname);
@@ -126,39 +98,33 @@ function BillingDashboard({ patientData, fromPath }) {
   };
 
   // Drawer form 3c
-  const handleManage3cBill = async () => {
-    const isPurchased = await checkBillingPurchased()
-    if (isPurchased) {
-      const clinic = getClinic();
-      trackEvent("TP_billing_ManageForm3C", {
-        doctorSpeciality: profile?.dp_name,
-        doctorId: profile?.doctor_unique_id,
-        doctorContact: profile?.um_contact,
-        city: clinic?.hm_city,
-        pincode: clinic?.hm_pincode,
-      });
-      setForm3cDrawer(!form3cDrawer);
-      setForm3cData(null);
-    }
+  const handleManage3cBill = () => {
+    const clinic = getClinic();
+    trackEvent("TP_billing_ManageForm3C", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+    });
+    setForm3cDrawer(!form3cDrawer);
+    setForm3cData(null);
   };
 
-  const handleCreateBillDrawer = useCallback(async () => {
-    const isPurchased = await checkBillingPurchased()
-    if (isPurchased) {
-      const clinic = getClinic();
-      trackEvent("TP_Billing_CreateBill", {
-        doctorSpeciality: profile?.dp_name,
-        doctorId: profile?.doctor_unique_id,
-        doctorContact: profile?.um_contact,
-        source: fromPath || "billing_page",
-        city: clinic?.hm_city,
-        pincode: clinic?.hm_pincode,
-        subscriptionStatus: planDetails?.currentPlanStatus,
-        receptionistId: receptionistId,
-        receptionistName: receptionistName,
-      });
-      setCreateBillDrawer(!createBillDrawer);
-    }
+  const handleCreateBillDrawer = useCallback(() => {
+    const clinic = getClinic();
+    trackEvent("TP_Billing_CreateBill", {
+      doctorSpeciality: profile?.dp_name,
+      doctorId: profile?.doctor_unique_id,
+      doctorContact: profile?.um_contact,
+      source: fromPath || "billing_page",
+      city: clinic?.hm_city,
+      pincode: clinic?.hm_pincode,
+      subscriptionStatus: planDetails?.currentPlanStatus,
+      receptionistId: receptionistId,
+      receptionistName: receptionistName,
+    });
+    setCreateBillDrawer(!createBillDrawer);
   }, [createBillDrawer]);
 
   const showHideBackModal = () => {
@@ -245,9 +211,10 @@ function BillingDashboard({ patientData, fromPath }) {
             return (
               <div
                 key={i1}
-                className={`d-flex ${i1 !== videoList[15]?.video.length - 1 &&
+                className={`d-flex ${
+                  i1 !== videoList[15]?.video.length - 1 &&
                   "pb-3 mb-15 border-bottom"
-                  }`}
+                }`}
               >
                 <div className="tutorial-play me-14">
                   <button
@@ -283,11 +250,6 @@ function BillingDashboard({ patientData, fromPath }) {
     );
   }, [popOverVideo]);
 
-
-  const handleBillingKnowMore = () => {
-    setBillingDrawer((prev) => !prev);
-  };
-
   return (
     <>
       {!patientData && !isReceptionist && (
@@ -300,8 +262,9 @@ function BillingDashboard({ patientData, fromPath }) {
         <div className="w-100 bg-body wrapper">
           <>
             <div
-              className={`welcomesection position-relative mb-3 ${isReceptionist ? "receptionist-welcome" : ""
-                }`}
+              className={`welcomesection position-relative mb-3 ${
+                isReceptionist ? "receptionist-welcome" : ""
+              }`}
             >
               <div className="bg-welcome d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center">
@@ -338,7 +301,7 @@ function BillingDashboard({ patientData, fromPath }) {
                   )}
                 </div>
                 <div className="d-flex gap-1">
-                  {/* {patientData && (
+                  {patientData && (
                     <div className="d-sm-flex d-block">
                       <Popover
                         open={popOverVideo}
@@ -349,7 +312,7 @@ function BillingDashboard({ patientData, fromPath }) {
                         placement="bottom"
                       >
                         <button className="btn d-flex align-items-center btn-text mx-3 tutorial p-0">
-                          onClick={showHideVideoListPopover}
+                          {/* onClick={showHideVideoListPopover} */}
                           <span className="text-decoration-none rounded-5 pe-3 bg-white shadow2">
                             <img height={42} src={tutorial} />
                             Tutorial
@@ -363,15 +326,7 @@ function BillingDashboard({ patientData, fromPath }) {
                         />
                       )}
                     </div>
-                  )} */}
-
-                  <button className="btn d-flex align-items-center btn-text mx-3 tutorial p-0" onClick={handleBillingKnowMore}>
-                    <span className="text-decoration-none rounded-5 pe-3 bg-white shadow2">
-                      <img height={42} src={tutorial} />
-                      Tutorial
-                    </span>
-                  </button>
-
+                  )}
                   {selectedTab === "billingtable" &&
                     !patientData &&
                     !isReceptionist && (
@@ -384,8 +339,9 @@ function BillingDashboard({ patientData, fromPath }) {
                     )}
                   {selectedTab !== "billingtable" && !patientData && (
                     <Button
-                      className={`btn-create-bill ${isReceptionist ? "receptionist-btn" : ""
-                        }`}
+                      className={`btn-create-bill ${
+                        isReceptionist ? "receptionist-btn" : ""
+                      }`}
                       onClick={handleAddAdvanceDrawer}
                     >
                       <span style={{ fontSize: "22px" }}>{"+"}</span>
@@ -394,8 +350,9 @@ function BillingDashboard({ patientData, fromPath }) {
                   )}
                   {(selectedTab === "billingtable" || patientData) && (
                     <Button
-                      className={`btn-create-bill ${isReceptionist ? "receptionist-btn" : ""
-                        }`}
+                      className={`btn-create-bill ${
+                        isReceptionist ? "receptionist-btn" : ""
+                      }`}
                       onClick={handleCreateBillDrawer}
                     >
                       <span style={{ fontSize: "22px" }}>+</span>
@@ -415,7 +372,6 @@ function BillingDashboard({ patientData, fromPath }) {
             totalAdvanceBalance={totalAdvanceBalance}
             createBillDrawer={createBillDrawer}
             addAdvanceDrawer={addAdvanceDrawer}
-            showHideSubModal={showHideSubModal}
           />
         </div>
 
@@ -489,24 +445,6 @@ function BillingDashboard({ patientData, fromPath }) {
           </Drawer>
         )}
       </div>
-      <Drawer
-        closeIcon={false}
-        placement="right"
-        onClose={handleBillingKnowMore}
-        open={billingDrawer}
-        width={600}
-      >
-        <BillingKnowMore handleBillingKnowMore={handleBillingKnowMore} />
-      </Drawer>
-
-      <ExpiredSubModal
-        title={S_BILLING}
-        styles={{
-          mask: { zIndex: 9999 },
-          wrapper: { zIndex: 9999 },
-        }}
-        isSubModalOpen={isSubModalOpen}
-        showHideSubModal={showHideSubModal} />
     </>
   );
 }

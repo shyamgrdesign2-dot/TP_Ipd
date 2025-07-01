@@ -9,20 +9,18 @@ import api from "../api/services/axiosService";
 import writtenRxIcon from '../assets/images/written-rx.svg';
 import digitiseRxIcon from '../assets/images/digitise-rx.svg';
 import cvtInfoIcon from '../assets/images/cvt-info.svg';
-import { FETCH_SMART_RX, S_RX_DIGITIZATION } from "../utils/constants";
+import { FETCH_SMART_RX } from "../utils/constants";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { useSelector, useDispatch } from "react-redux";
 import { env } from "../EnvironmentConfig";
 import HeaderSmartRxDigitise from "../common/HeaderSmartRxDigitise";
 import DigitisedPrescription from "../components/DigitisedPrescription";
 import axios from "axios";
-import { updateCredits } from "../redux/monetizationSlice";
 
 function SmartRxDigitise() {
 
     const divRef = useRef(null);
 
-    const { profile } = useSelector((state) => state.doctors);
     const {
         loading,
     } = useSelector((state) => state.caseManager);
@@ -89,11 +87,6 @@ function SmartRxDigitise() {
             
             // Handle navigation based on the API response
             if (response.status === 204) {
-                let sendData = {
-                    b2c_id: profile?.b2c,
-                    service_name: S_RX_DIGITIZATION
-                }
-                dispatch(updateCredits(sendData))
                 if (state?.page === "patient-summary" || state?.page === "pending-digitization") {
                     navigate(-1); // Go back to the previous page
                 } else {

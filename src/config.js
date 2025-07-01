@@ -48,7 +48,7 @@ export default {
   searchengine_url: env.searchengine_url,
   razorPay_key: env.razorPay_key,
   tatvaAi_api_url: env.tatvaAi_api_url,
-  tatvaAi_url: env.tatvaAi_url,
+  tatvaAi_url : env.tatvaAi_url,
   tatvaAi_logout_url: env.tatvaAi_logout_url,
   lite_api_key: env.lite_api_key,
   lite_secret_key: env.lite_secret_key,
@@ -56,9 +56,7 @@ export default {
   tatvaPedia_api_url: env.tatvaPedia_api_url,
   tatvaPedia_domain_url: env.tatvaPedia_domain_url,
   symptoms_collector_api_url: env.symptoms_collector_api_url,
-  monetization_url: env.monetization_url,
-  tp_monetization_disabled_hospital: env.tp_monetization_disabled_hospital,
   GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
   ZYDUS_BUSINESS_ID: env.ZYDUS_BUSINESS_ID,
-  APOLLO_BUSINESS_IDS: env.APOLLO_BUSINESS_IDS
+  APOLLO_BUSINESS_IDS: env.APOLLO_BUSINESS_IDS,
 };

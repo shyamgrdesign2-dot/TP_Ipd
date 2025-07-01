@@ -24,8 +24,6 @@ import { loadPdf, mergeDocuments, shortenText } from "../../utils/helper";
 import config from "../../../../config";
 import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN } from "../../../../utils/constants";
 import { getDecodedToken } from "../../../../utils/localStorage";
-import { sendMessageToParent } from "../../../../utils/utils";
-import { EVENTS } from "../../../../utils/events";
 
 const RecordCard = ({
   cardData,
@@ -149,7 +147,6 @@ const RecordCard = ({
   };
 
   const handleInAppDownload = async () => {
-    sendMessageToParent(EVENTS.DOWNLOAD, { url });
     const deviceUid = localStorage.getItem("app_device_unique_id");
     if (deviceUid) {
       const docRef = doc(db, "fileDownload", deviceUid);

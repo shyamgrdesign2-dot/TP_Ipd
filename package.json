@@ -1,6 +1,6 @@
 {
   "name": "react-thyrocare",
-  "version": "4.2.0",
+  "version": "4.1.10",
   "private": true,
   "homepage": "/",
   "dependencies": {
@@ -37,7 +37,6 @@
     "lodash": "^4.17.21",
     "lottie-react": "^2.4.0",
     "moment": "^2.29.4",
-    "numeral": "^2.0.6",
     "pdfjs-dist": "^3.11.174",
     "qrcode": "^1.5.3",
     "qrcode.react": "^4.2.0",

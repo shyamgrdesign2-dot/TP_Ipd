@@ -16,7 +16,6 @@ import WalkInConsultationZydus from "./WalkInConsultationZydus";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import { jwtDecode } from "jwt-decode";
 import { setUserId } from "../redux/doctorsSlice";
-import ExtendTrialModal from "./monetization/components/ExtendTrialModal";
 import { getClinicName, getTokenData } from "../utils/utils";
 import DocumentVerificationPopup from "../components/common/DocumentVerificationPopup";
 import config from "../config";
@@ -37,7 +36,7 @@ function AppointmentList() {
   useEffect(() => {
     setLocationPath(location.pathname);
   }, [location]);
-
+  
   useEffect(() => {
     const clinic_name = getClinicName(profile?.hospital_data);
     window.Moengage.track_event("TP_Appointment_Page_Landing", {
@@ -77,8 +76,6 @@ function AppointmentList() {
           {(!isZydus && !isApollo) && <DocumentVerificationPopup />}
         </div>
       </div>
-
-      <ExtendTrialModal />
     </>
   );
 }

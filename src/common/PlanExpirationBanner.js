@@ -2,7 +2,6 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import crownIcon from "../assets/images/crown.svg";
 import { openModal } from "../redux/doctorModalSlice";
-import { useNavigate } from "react-router-dom";
 
 const PlanExpirationBanner = () => {
   const { planDetails } = useSelector((state) => state.subscription);
@@ -14,15 +13,9 @@ const PlanExpirationBanner = () => {
   } = planDetails || {};
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
   const handleClick = () => {
-    // dispatch(openModal());
-    clickBuyNow()
+    dispatch(openModal());
   };
-  const clickBuyNow = () => {
-    navigate('/get-unlimited-access')
-  }
 
   return (
     !is_pm_renew_requested &&

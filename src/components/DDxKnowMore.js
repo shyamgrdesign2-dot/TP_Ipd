@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button, Tabs } from "antd";
 import apexAI from "../assets/images/apexAI.svg";
 import codeIcon from "../assets/images/code.svg";
@@ -8,11 +8,6 @@ import validateHealthcareIcon from "../assets/images/validate-heathcare.svg";
 import playIcons from "../assets/images/tube-icon.svg";
 import { Col, Row } from "react-bootstrap";
 import VideoModal from "../common/VideoModal";
-import ContactSupport from "../pages/monetization/components/ContactSupport";
-import ExpiredText from "../pages/monetization/components/ExpiredText";
-import { S_DDX } from "../utils/constants";
-import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
-import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 
 const { TabPane } = Tabs;
 
@@ -46,18 +41,12 @@ const trustDetails = [
 const DDxKnowMore = ({ handleDDxKnowMore }) => {
   const [shouldShowVideo, setShowVideo] = useState(false);
   const [activeKey, setActiveKey] = useState("basicInfo");
-  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
-
-  const showHideSubModal = useCallback(() => {
-    setIsSubModalOpen(!isSubModalOpen);
-  }, [isSubModalOpen]);
 
   const sectionsRef = useRef({
     basicInfo: null,
     trust: null,
     digitisationProcess: null,
     tips: null,
-    contactSupport: null,
   });
 
   const videoLink = {
@@ -73,38 +62,46 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
   };
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY + window.innerHeight / 3;
-      let currentSection = "basicInfo";
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let closestSection = null;
+        let minDistance = Number.MAX_VALUE;
 
-      Object.entries(sectionsRef.current).forEach(([key, section]) => {
-        if (section) {
-          const { top } = section.getBoundingClientRect();
-          const sectionTop = top + window.scrollY;
-          if (scrollPosition >= sectionTop) {
-            currentSection = key;
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const distance = Math.abs(entry.boundingClientRect.top); // Distance from the top of the viewport
+            if (distance < minDistance) {
+              minDistance = distance;
+              closestSection = entry.target.id; // Update the closest section
+            }
           }
+        });
+
+        if (closestSection) {
+          setActiveKey(closestSection); // Update the active key
         }
-      });
-
-      setActiveKey(currentSection);
-    };
-
-    // Add scroll event listener
-    const scrollContainer = document.querySelector(
-      ".drawer-scrollable-content"
+      },
+      {
+        root: null, // Default is the viewport
+        threshold: 0, // Trigger as soon as the section starts intersecting
+        rootMargin: `0px 0px ${
+          activeKey === "basicInfo" || activeKey === "digitisationProcess"
+            ? "20%"
+            : "-20%"
+        } 0px`, // Focus on sections near the top of the viewport
+      }
     );
-    if (scrollContainer) {
-      scrollContainer.addEventListener("scroll", handleScroll);
-    }
 
-    // Initial check
-    handleScroll();
+    // Observe all sections
+    Object.values(sectionsRef.current).forEach((section) => {
+      if (section) observer.observe(section);
+    });
 
     return () => {
-      if (scrollContainer) {
-        scrollContainer.removeEventListener("scroll", handleScroll);
-      }
+      // Cleanup observer
+      Object.values(sectionsRef.current).forEach((section) => {
+        if (section) observer.unobserve(section);
+      });
     };
   }, []);
 
@@ -112,18 +109,15 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
     <div className="drawer-container">
       {/* Modal Header */}
       <div className="drawer-header">
-        <div className="drawer-header-content justify-content-between border-bottom">
-          <div className="d-flex align-items-center">
-            <Button
-              type="text"
-              className="close-drawer-btn"
-              onClick={handleDDxKnowMore}
-            >
-              <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
-            </Button>
-            <div className="drawer-title">AI-Powered Differential Diagnosis</div>
-          </div>
-          <FreeTrialButton title={S_DDX} showHideSubModal={showHideSubModal} />
+        <div className="drawer-header-content border-bottom">
+          <Button
+            type="text"
+            className="close-drawer-btn"
+            onClick={handleDDxKnowMore}
+          >
+            <i className="icon-Cross" style={{ fontSize: "30px" }}></i>
+          </Button>
+          <div className="drawer-title">AI-Powered Differential Diagnosis</div>
         </div>
 
         {/* Tabs */}
@@ -133,7 +127,6 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
             <TabPane tab="Trust Indicators" key="trust" />
             <TabPane tab="Diagnostic Process" key="digitisationProcess" />
             <TabPane tab="Tips" key="tips" />
-            <TabPane tab="Contact Support" key="contactSupport" />
           </Tabs>
         </div>
       </div>
@@ -231,7 +224,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
               style={{
                 background: `url(${videoLink.thumbnail})`,
                 width: 447,
-                height: 252,
+                height: 272,
                 borderRadius: 24,
                 cursor: "pointer",
                 backgroundSize: "cover",
@@ -240,7 +233,7 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
               }}
               onClick={() => setShowVideo(true)}
             >
-              <img width={55} height={55} src={playIcons} alt="play-icon" />
+              <img width={55} height={55} src={playIcons} />
             </div>
           </div>
         </div>
@@ -262,34 +255,16 @@ const DDxKnowMore = ({ handleDDxKnowMore }) => {
             (such as symptoms, examinations, history, and medications), the
             better the accuracy of the differential diagnosis results.
           </div>
-        </div>
-
-        <div
-          id="contactSupport"
-          ref={(el) => (sectionsRef.current.contactSupport = el)}
-          className="section"
-        >
-          <ContactSupport
-            id="contactSupport"
-            ref={(el) => (sectionsRef.current.contactSupport = el)}
-          />
-        </div>
-        <div
-          style={{ padding: "20px 0 60px 0", textAlign: "center" }}
-          className="disclaimer-txt"
-        >
-          <b>Disclaimer</b>: These results are generated by AI and should be
-          used as a guide, not the final source for patient treatment decisions.
+          <div
+            style={{ padding: "40px 0 80px 0", textAlign: "center" }}
+            className="disclaimer-txt"
+          >
+            <b>Disclaimer</b>: These results are generated by AI and should be
+            used as a guide, not the final source for patient treatment
+            decisions.
+          </div>
         </div>
       </div>
-
-      <ExpiredText title={S_DDX} />
-
-      <ExpiredSubModal
-        title={S_DDX}
-        isSubModalOpen={isSubModalOpen}
-        showHideSubModal={showHideSubModal} />
-
       {shouldShowVideo && (
         <VideoModal
           videoLink={videoLink}
