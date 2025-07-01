@@ -71,7 +71,10 @@ const PharmacyKnowMore = ({ handlePharmacyKnowMore, onRedirect }) => {
           <span className="fs-12-1 fw-medium text-primary">How it works</span>
           <div className="fw-semibold fs-20 text-black mb-2">How Does Pharmacy Management Work?</div>
           <div className="fs-12-1 mb-2">Please watch this video to know how Pharmacy Management works👇</div>
-          <div
+          <div className="rounded-4 p-4" style={{ background: '#A461D81A' }}>
+            <div className="fw-semibold fs-16 text-black">Video Comming Soon</div>
+          </div>
+          {/* <div
             className="d-flex align-items-center justify-content-center"
             style={{
               background: `url(${video_link?.thumbnail})`,
@@ -88,7 +91,7 @@ const PharmacyKnowMore = ({ handlePharmacyKnowMore, onRedirect }) => {
             }}
           >
             <img width={55} height={55} src={playIcons} />
-          </div>
+          </div> */}
         </div>
 
         <ContactSupport />
