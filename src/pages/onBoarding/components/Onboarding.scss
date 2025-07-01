@@ -289,7 +289,8 @@
     padding: 0 !important;
 
     .signup-form-container {
-      min-height: 35rem !important;
+      // min-height: 35rem !important;
+      min-height: 40rem !important;
 
       .form-container {
 
@@ -368,7 +369,8 @@
     background: white;
     border-radius: 2.625rem;
     padding: 0.4rem 2rem 0rem 2rem;
-    min-height: 32rem !important;
+    // min-height: 32rem !important;
+    min-height: 38rem !important;
 
     h2 {
       margin: 1rem 0px 1rem !important;
@@ -763,7 +765,7 @@
     }
 
     .mobile-input {
-      margin-bottom: 24px;
+      margin-bottom: 1rem;
 
       .ant-input-group-addon {
         padding: 0 !important;

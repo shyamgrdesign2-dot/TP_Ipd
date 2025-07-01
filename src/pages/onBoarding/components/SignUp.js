@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Input, Button, Form, Spin } from "antd";
+import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import "./Onboarding.scss";
 import abdmLogo from "../../../assets/images/abdm-logo.svg";
 import nhaLogo from "../../../assets/images/nha-logo.svg";
@@ -22,9 +23,169 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   const [scriptLoaded, setScriptLoaded] = useState(false);
   // const [initialLoading, setInitialLoading] = useState(true);
   const [captchaVisible, setCaptchaVisible] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [errors, setErrors] = useState({
+    password: "",
+    confirmPassword: ""
+  });
+  const [passwordStrength, setPasswordStrength] = useState({
+    length: false,
+    capital: false,
+    small: false,
+    special: false,
+    number: false,
+    space: true
+  });
+  const isPasswordValid = () => {
+    return Object.values(passwordStrength).every(value => value === true);
+  };
+
+  const checkPasswordStrength = (password) => {
+    if (password) {
+      const newPasswordStrength = {
+        length: password.length >= 6,
+        capital: /[A-Z]/.test(password),
+        small: /[a-z]/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+        number: /[0-9]/.test(password),
+        space: !/\s/.test(password)
+      };
+      setPasswordStrength(newPasswordStrength);
+      setShowTooltip(password.length > 0 && !Object.values(newPasswordStrength).every(value => value === true));
+    } else {
+      setShowTooltip(false);
+      setPasswordStrength({
+        length: false,
+        capital: false,
+        small: false,
+        special: false,
+        number: false,
+        space: true
+      });
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    checkPasswordStrength(newPassword);
+    setErrors({ ...errors, password: "" });
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    const newConfirmPassword = e.target.value;
+    setConfirmPassword(newConfirmPassword);
+    setErrors({ ...errors, confirmPassword: "" });
+  };
+
+  const handleContinue = () => {
+
+    // Reset errors
+    setErrors({ password: "", confirmPassword: "" });
+    setError(null);
+
+    if (!isCaptchaVerified()) {
+      setError("Please complete the captcha verification to proceed.");
+      setErrorType("captcha");
+      return;
+    }
+
+    // Validate password
+    if (!password) {
+      setErrors(prev => ({ ...prev, password: "Please input your password!" }));
+      return;
+    }
+
+    if (!isPasswordValid()) {
+      setErrors(prev => ({ ...prev, password: "Password does not meet all requirements" }));
+      return;
+    }
+
+    // Validate confirm password
+    if (!confirmPassword) {
+      setErrors(prev => ({ ...prev, confirmPassword: "Please confirm your password!" }));
+      return;
+    }
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      setErrors(prev => ({ ...prev, confirmPassword: "Passwords don't match. Please re-enter." }));
+      return;
+    }
+
+    // If all validations pass, proceed with OTP
+    if (window.sendOtp) {
+      // moengage event for set password
+      window.Moengage.track_event('TP_NewLoginFlow_Password_Setup', {
+        mobile: "91" + mobileNumber,
+        operating_system: detectOperatingSystem(),
+        utm_campaign: utm.utm_campaign ?? 'NA',
+        utm_source: utm.utm_source ?? 'NA',
+        utm_medium: utm.utm_medium ?? 'NA',
+        utm_content: utm.utm_content ?? 'NA',
+        utm_term: utm.utm_term ?? 'NA',
+        is_marketing: Object.values(utm).some(value => value && value.length > 0),
+      })
+
+      const formattedNumber = `91${mobileNumber}`.replace('+', '');
+      window.sendOtp(
+        formattedNumber,
+        (successData) => {
+          console.log("OTP sent successfully:", successData);
+          if (successData && successData.message) {
+            const reqId = successData.message;
+            window.Moengage.track_event('TP_NewLoginFlow_Password_Setup_Otp_Success', {
+              mobile: "91" + mobileNumber,
+              operating_system: detectOperatingSystem(),
+              utm_campaign: utm.utm_campaign ?? 'NA',
+              utm_source: utm.utm_source ?? 'NA',
+              utm_medium: utm.utm_medium ?? 'NA',
+              utm_content: utm.utm_content ?? 'NA',
+              utm_term: utm.utm_term ?? 'NA',
+              is_marketing: Object.values(utm).some(value => value && value.length > 0),
+            })
+            localStorage.removeItem("isCaptchaVerified");
+            onViewChange("verifyOTP", mobileNumber, true, true, password, reqId);
+          } else {
+            console.error("No requestId in response:", successData);
+          }
+        },
+        (error) => {
+          console.error("Error sending OTP:", error);
+        }
+      );
+    }
+  };
+
+  const tooltipContent = (
+    <div className="password-requirements">
+      <div className={`requirement ${passwordStrength.length ? 'valid' : 'invalid'}`}>
+        6 Character
+      </div>
+      <div className={`requirement ${passwordStrength.capital ? 'valid' : 'invalid'}`}>
+        At least One Capital Letter
+      </div>
+      <div className={`requirement ${passwordStrength.small ? 'valid' : 'invalid'}`}>
+        At least One Small Letter
+      </div>
+      <div className={`requirement ${passwordStrength.special ? 'valid' : 'invalid'}`}>
+        At least One Special Character
+      </div>
+      <div className={`requirement ${passwordStrength.number ? 'valid' : 'invalid'}`}>
+        At least One number
+      </div>
+      <div className={`requirement ${passwordStrength.space ? 'valid' : 'invalid'}`}>
+        No Space
+      </div>
+    </div>
+  );
+  
   // Get UTM params
   const utm = getUtmParams();
   const inputRef = useRef(null);
+  const captchaVerifivation = localStorage.getItem("isCaptchaVerified") || null;
 
   const focusInput = () => {
     inputRef.current?.focus();
@@ -435,8 +596,14 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           // If password is set, go to verify password page
           onViewChange("verifyPassword", mobileNumber, true);
         } else {
-          // If password is not set, go to set password page
-          // setError("Please set up your password first");
+          // If password is not set, check captcha verification first
+          if (!isCaptchaVerified()) {
+            setError("Please complete the captcha verification to proceed");
+            setErrorType("captcha");
+            return;
+          }
+          
+          // If captcha is verified, go to set password page
           setTimeout(() => {
             onViewChange("setPassword", mobileNumber, true);
           }, 2000);
@@ -517,7 +684,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   return (
     <div className="signup-form-wrapper">
       <div className="signup-form-container">
-        <h2 style={{ margin: "1rem 0 3rem 0" }}>
+        <h2 style={{ margin: captchaVerifivation === "false" ? "1rem 0 1rem 0" : "1rem 0 3rem 0" }}>
           {isLoginFlow ? (
             "Welcome Doctor!"
           ) : (
@@ -552,7 +719,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
             {error && errorType === "inputFiled" && <div className="error-message" style={{marginTop: "0.5rem"}}>{error}</div>}
           </Form.Item>
 
-          <div className="captcha-wrapper" style={{margin: "1.5rem 0 1rem 0"}}>
+          <div className="captcha-wrapper" style={{margin: "1rem 0 1rem 0"}}>
             <div id="captch-id" className="captcha-container">
               {!captchaVisible && (
                 <div style={{ 
@@ -573,51 +740,104 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
 
           {error && errorType === "captcha" && <div className="error-message">{error}</div>}
 
-          <Button
-            type="primary"
-            loading={primaryBtnLoading}
-            onClick={handleGetStarted}
-            className="get-started-btn"
-            disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}
-          >
-            {isLoginFlow ? "Login via OTP" : "Get Started"}
-          </Button>
-
-          {isLoginFlow ? <div className="divider">or</div> : <div style={{height: "2rem"}}></div>}
-
-          {isLoginFlow && (
+         { captchaVerifivation !== "false" ? (
+          <>
             <Button
               type="primary"
-              loading={secondaryBtnLoading}
-              onClick={handleLoginPassword}
-              className="get-started-btn-secondary"
+              loading={primaryBtnLoading}
+              onClick={handleGetStarted}
+              className="get-started-btn"
               disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}
             >
-              Login via Password
+              {isLoginFlow ? "Login via OTP" : "Get Started"}
             </Button>
-          )}
 
-          <div className="login-link">
-            {isLoginFlow ? (
-              <>
-                Not an existing user?{" "}
-                <span onClick={() => {
-                  onViewChange("signup");
-                  focusInput();
-                }}>
-                  <>Signup {isFromCampaign && <>for free</>}</>
-                </span>
-              </>
-            ) : (
-              <>
-                Already have an Account?{" "}
-                <span onClick={() => {
-                  onViewChange("loginOTP");
-                  focusInput();
-                }}>Sign In</span>
-              </>
+            {isLoginFlow ? <div className="divider">or</div> : <div style={{height: "2rem"}}></div>}
+
+            {isLoginFlow && (
+              <Button
+                type="primary"
+                loading={secondaryBtnLoading}
+                onClick={ () => captchaVerifivation === "false" ? onViewChange("setPassword", mobileNumber, true): handleLoginPassword()}
+                className="get-started-btn-secondary"
+                disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}
+              >
+                {captchaVerifivation === "false" ? "Set Password" : "Login via Password"}
+              </Button>
             )}
-          </div>
+
+            <div className="login-link">
+              {isLoginFlow ? (
+                <>
+                  Not an existing user?{" "}
+                  <span onClick={() => {
+                    onViewChange("signup");
+                    focusInput();
+                  }}>
+                    <>Signup {isFromCampaign && <>for free</>}</>
+                  </span>
+                </>
+              ) : (
+                <>
+                  Already have an Account?{" "}
+                  <span onClick={() => {
+                    onViewChange("loginOTP");
+                    focusInput();
+                  }}>Sign In</span>
+                </>
+              )}
+            </div>
+          </>
+          ) : (
+            <>
+              <div className="set-password-form" style={{padding: "0"}}>
+                <div className="phone-form-item">
+                  <label className="onboard-fields-label">
+                    Create a Password
+                  </label>
+                  <Input.Password
+                    value={password}
+                    placeholder="Enter password"
+                    iconRender={(visible) =>
+                      visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                    }
+                    className="password-input"
+                    onChange={handlePasswordChange}
+                    bordered={false}
+                  />
+                  {errors.password && <div className="error-message">{errors.password}</div>}
+                  {showTooltip && tooltipContent}
+                </div>
+
+                <div className="phone-form-item">
+                  <label className="onboard-fields-label">
+                    Re-enter Password
+                  </label>
+                  <Input.Password
+                    value={confirmPassword}
+                    placeholder="Confirm password"
+                    className="password-input"
+                    onChange={handleConfirmPasswordChange}
+                    bordered={false}
+                    visibilityToggle={false}
+                  />
+                  {errors.confirmPassword && <div className="error-message">{errors.confirmPassword}</div>}
+                </div>
+
+                <Button
+                  type="primary"
+                  className="get-started-btn"
+                  onClick={handleContinue}
+                >
+                  Continue
+                </Button>
+
+                {/* <div className="go-back" style={{marginTop: "20px"}} onClick={() => onViewChange("loginPassword")}>
+                  Go back
+                </div> */}
+              </div>
+            </>
+          )}
         </Form>
       </div>
       <div className="partners-section">

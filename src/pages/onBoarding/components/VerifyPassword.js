@@ -78,15 +78,27 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
     }
   };
 
-  const handleGoBack = () => {
+  const handleGoBack = (isCaptchaVerified) => {
     // Store current state in localStorage
     localStorage.setItem("currentView", "loginOTP");
     localStorage.setItem("isLoginFlow", "true");
     localStorage.setItem("mobileNumber", mobileNumber);
+    if (isCaptchaVerified){
+      localStorage.setItem("isCaptchaVerified", isCaptchaVerified);
+    }
     
     // Refresh the page
     window.location.reload();
   };
+
+  const handleForgotPassword = () => {
+    // console.log(!(window.isCaptchaVerified && window.isCaptchaVerified()),"!(window.isCaptchaVerified && window.isCaptchaVerified())")
+    if (!(window.isCaptchaVerified && window.isCaptchaVerified())){
+      handleGoBack("false");
+    } else {
+      onViewChange("setPassword", mobileNumber, true)
+    }
+  } 
 
   return (
     <div className="signup-form-wrapper">
@@ -146,7 +158,7 @@ const VerifyPassword = ({ onViewChange, mobileNumber }) => {
           <div className="error-message">{error}</div>
 
           <div className="forgot-password">
-            <span onClick={() => onViewChange("setPassword", mobileNumber, true)}>
+            <span onClick={handleForgotPassword}>
               Forget password
             </span>
           </div>
