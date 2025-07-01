@@ -11,6 +11,7 @@ import InfoTooltip from "./InfoToolTip/InfoTooltip";
 import { isMobile } from "react-device-detect";
 import { throttle } from "lodash";
 import { useSelector, useDispatch } from "react-redux";
+import moment from "moment";
 
 const BillTable = ({
   data,
@@ -47,8 +48,12 @@ const BillTable = ({
   };
 
   const checkBillingPurchased = async () => {
-    if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
-      showHideSubModal()
+    if (moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') > 0) {
+      if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
+        showHideSubModal()
+      } else {
+        return true;
+      }
     } else {
       return true;
     }
@@ -158,22 +163,22 @@ const BillTable = ({
     },
     !isPatientScreen
       ? {
-          title: "PATIENT DETAILS",
-          dataIndex: "patient_details",
-          key: "patient_details",
-          ellipsis: true,
-          width: "21%",
-          render: (text, record) => (
-            <div>
-              <div className="dashboard-table-font-style patient-name-cell">
-                {record?.patient?.name}
-              </div>
-              <div className="fs-14 fw-normal text-truncate-twolines">
-                {record?.patient?.phone}
-              </div>
+        title: "PATIENT DETAILS",
+        dataIndex: "patient_details",
+        key: "patient_details",
+        ellipsis: true,
+        width: "21%",
+        render: (text, record) => (
+          <div>
+            <div className="dashboard-table-font-style patient-name-cell">
+              {record?.patient?.name}
             </div>
-          ),
-        }
+            <div className="fs-14 fw-normal text-truncate-twolines">
+              {record?.patient?.phone}
+            </div>
+          </div>
+        ),
+      }
       : undefined,
     {
       title: "TOTAL AMOUNT",
@@ -250,17 +255,17 @@ const BillTable = ({
             <div className={className}>{displayText}</div>
             {("CarriedForward" === record.paymentStatus ||
               ("Refunded" === record.paymentStatus && record.notes)) && (
-              <InfoTooltip
-                type={record.paymentStatus}
-                amount={
-                  record.paymentStatus === "Refunded"
-                    ? record.paidAmount
-                    : record.dueAmount
-                }
-                notes={record.notes}
-                billNo={record.nextBillNumber}
-              />
-            )}
+                <InfoTooltip
+                  type={record.paymentStatus}
+                  amount={
+                    record.paymentStatus === "Refunded"
+                      ? record.paidAmount
+                      : record.dueAmount
+                  }
+                  notes={record.notes}
+                  billNo={record.nextBillNumber}
+                />
+              )}
           </div>
         );
       },
@@ -339,7 +344,7 @@ const BillTable = ({
     const { target } = e;
     if (
       Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) <=
-        5 &&
+      5 &&
       hasMore
     ) {
       loadData(false);
