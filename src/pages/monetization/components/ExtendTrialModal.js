@@ -158,7 +158,7 @@ function ExtendTrialModal() {
                             {/* Hide Below code when red color background required */}
                             <div className="extend-free-trial px-5 py-2 mt-4">
                                 <div className="fs-18 py-2 fw-bold text-yellow-light"> 🎁 Wait! Just for You...</div>
-                                <div className="fs-12-1 fw-medium text-yellow-light">Need more time? Extend your trial plan by <span className="fw-bold text-yellow-light">7 days</span> — limited-time only!</div>
+                                <div className="fs-12-1 fw-medium text-yellow-light">Need more time? Extend your trial plan — limited-time only!</div>
                                 <hr style={{ borderStyle: "dashed" }} />
                                 <Button className="btn btn-proceed fs-16 fw-semi-bold" style={{ background: '#3D8C40' }} onClick={onExtendFreeTrialClick}>
                                     Extend Your Trial Plan
