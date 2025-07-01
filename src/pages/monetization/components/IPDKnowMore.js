@@ -26,8 +26,8 @@ const IPDKnowMore = ({ handleIPDKnowMore, onRedirect }) => {
   };
 
   const video_link = {
-    link: "https://www.youtube.com/embed//UgeyXlHItXI",
-    thumbnail: "https://i.ytimg.com/vi/UgeyXlHItXI/maxresdefault.jpg",
+    link: "https://www.youtube.com/embed/videoseries?list=PL_GFkMPa2dgUYEABb8iZpBYTCCevObOiQ",
+    thumbnail: "https://i.ytimg.com/vi/FVRldSjzQTQ/maxresdefault.jpg",
   };
 
   return (

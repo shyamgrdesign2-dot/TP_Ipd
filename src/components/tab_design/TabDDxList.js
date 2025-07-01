@@ -174,13 +174,13 @@ const TabDDxList = ({
               <Card
                 extra={
                   <>
-                    <img className="expiredInfographic" src={expiredInfographic2} alt="Your free trial has Expired" />
-                    <img className="expiredInfographic" style={{ opacity: 0.5 }} src={expiredInfographic2} alt="Your free trial has Expired" />
+                    <img className="expiredInfographic" src={expiredInfographic2} alt="Your trial plan has Expired" />
+                    <img className="expiredInfographic" style={{ opacity: 0.5 }} src={expiredInfographic2} alt="Your trial plan has Expired" />
                   </>
                 }>
 
                 <div className="text-white">
-                  Your<span className="text-white fw-semibold"> {DDX_planDetails?.service_display_name} free trial  </span>  has expired. <br />
+                  Your<span className="text-white fw-semibold"> {DDX_planDetails?.service_display_name} trial plan  </span>  has expired. <br />
                   Upgrade now to continue a hassle free experience!
                 </div>
 
