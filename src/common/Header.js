@@ -292,29 +292,29 @@ function Header({ locationPath }) {
         isModalOpen={isLogoModalOpen}
         onCancel={showHideLogoModal}
         modalWidth={500}
-        title={"Tatvacare"}
+        title={"Welcome to TatvaPedia"}
         modalBody={
           <>
             <div className="mb-4 fontroboto lh-base">
-              Tatvacare is your all-in-one platform to simplify clinical practice, patient management, and medical learning.</div>
+              You can explore exclusive bit-sized medical content, expert-curated content, boost your proficiency & learning, and showcase your clinical competencies by submitting content based on your experiences.
+            </div>
             <div className="alert-warning rounded-10px p-2 patient-details mb-4">
               <div className="d-flex align-items-center">
                 <img className='me-3' src={alertIcon} alt="Warning" />
                 <span>
                   Are you sure you want to switch? <br />
-                  You will be redirect to Tatvacare platform.
+                  You will be redirect to TatvaPedia platform.
                 </span>
               </div>
             </div>
             <div>
               <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div onClick={handleRedirectToOffering}
+                <div onClick={tatvaRedirectClick}
                   className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes, Switch
                 </div>
                 <Button
                   onClick={() => {
-
                     window.Moengage.track_event("TP_Tatvapedia_Switch_cancelled");
                     showHideLogoModal()
                   }}

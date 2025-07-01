@@ -53,7 +53,6 @@ import GetUnlimitedAccess from "./pages/monetization/GetUnlimitedAccess";
 import UpgradeServicesModal from "./pages/monetization/components/UpgradeServicesModal";
 import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
-import OurOffering from "./pages/ourOffering/OurOffering";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -124,11 +123,6 @@ function App() {
       window.isLoggingOut = false;
     }
   };
-  useEffect(() => {
-    if (medecoToken) {
-      setMedecoToken(medecoToken);
-    }
-  }, []);
   useEffect(() => {
     const checkUserStatus = async () => {
       const token = getToken();
@@ -215,15 +209,13 @@ function App() {
       if (!isReceptionist) {
         params.delete("authToken");
         // Navigate to appointment list
-        // add condition for user comming from Medeco to practice offering page
-        if (location.pathname !== "/our-offerings")
-          navigate(
-            {
-              pathname: "/",
-              search: params.toString(),
-            },
-            { replace: true }
-          );
+        navigate(
+          {
+            pathname: "/",
+            search: params.toString(),
+          },
+          { replace: true }
+        );
       }
     }
   }, [authToken, setToken, navigate]);
@@ -352,7 +344,6 @@ function App() {
               {/* Public route */}
               {/* <Route path="/login" element={<AuthContainer />} /> */}
               <Route path="/login" element={<Onboarding />} />
-              <Route path="/our-offerings" element={<OurOffering />} />
               <Route path="/final-setup" element={<FinalSetup />} />
 
               {/* Protected routes */}
