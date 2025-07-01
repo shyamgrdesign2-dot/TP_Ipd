@@ -1094,4 +1094,12 @@ body {
         background: #FCEDED80;
         border: 0.69px solid #FCEDED
     }
+    .expired-text {
+        background: linear-gradient(101.91deg, #F15223 9.72%, #FF887E 47.18%, #F15223 100%);
+        border-radius: 10px;
+    }
+    .purchased-text {
+        background: linear-gradient(101.91deg, #3D8C40 9.72%, #2DC433 47.18%, #37843A 100%);
+        border-radius: 10px;
+    }
 }

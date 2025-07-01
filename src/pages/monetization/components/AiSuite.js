@@ -9,8 +9,6 @@ import axios from "axios";
 import { isChrome, isSafari } from "react-device-detect";
 
 import Vitals from "../../../assets/images/Vitals.svg";
-import purchased from "../../../assets/images/purchased.png";
-import expired from "../../../assets/images/expired.png";
 import RxVoice from "../../../assets/images/microphone-voice-rx.png";
 import AskTatvaIcon from "../../../assets/images/icon-ask-tatva.png";
 import DDXIcon from "../../../assets/images/DDX-icon.png";
@@ -247,7 +245,7 @@ function AiSuite({ aiModal, handleAiSuite }) {
                                         <div className="d-flex align-items-center mb-3">
                                             <img style={{ background: '#EDDFF780', padding: 6 }} className="rounded-10px me-2" src={getIcon(item?.service_name)} alt="item.type" />
                                             <div className="fs-18 fw-semibold text-1F2933">{item?.service_display_name}</div>
-                                            {item?.credit_balance <= 0 && (<img src={expired} className="ms-2" />)}
+                                            {item?.credit_balance <= 0 && (<span className="expired-text fs-12-1 fw-semibold mx-2 px-2 text-white">Free Trial Expired</span>)}
                                         </div>
                                         <p>
                                             {item?.service_description}
@@ -272,7 +270,7 @@ function AiSuite({ aiModal, handleAiSuite }) {
                                                 <div className="d-flex align-items-center mb-2">
                                                     <img style={{ background: '#E6C3FF80' }} className="p-1 rounded-10px me-2" src={getIcon(item?.service_name)} alt="item.type" />
                                                     <div className="fs-18 fw-semibold text-1F2933">{item?.service_display_name}</div>
-                                                    <img src={purchased} className="ms-2" />
+                                                    <span className="purchased-text fs-12-1 fw-semibold mx-2 px-2 text-white">Purchased</span>
                                                 </div>
                                                 <p className="mb-0">
                                                     {item?.service_description}&nbsp;
