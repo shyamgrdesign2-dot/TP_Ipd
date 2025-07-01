@@ -46,7 +46,7 @@ import alertIcon from "./../../assets/images/alertIcon.svg";
 import { debounce } from "lodash";
 import * as XLSX from "xlsx";
 import { handleInAppClick } from "../opdBilling/utils/helper";
-import { errorMessage, getClinicName, sendMessageToParent, trackEvent } from "../../utils/utils";
+import { errorMessage, getClinicName, trackEvent } from "../../utils/utils";
 import successIcon from "../../assets/images/end-visit.svg";
 import closeIcon from "../../assets/images/close-visit.svg";
 import CreateCertificate from "../../components/medical_certificate/CreateCertificate";
@@ -59,7 +59,6 @@ import { resetVaccineState } from "../../redux/vaccineSlice";
 import { resetGrowthChartState } from "../../redux/growthChartSlice";
 import { resetObstetricState } from "../../redux/obstetricSlice";
 import { resetDDxState } from "../../redux/ddxSlice";
-import { EVENTS } from "../../utils/events";
 const { RangePicker } = DatePicker;
 
 const dateFormat = "YYYY-MM-DD";
@@ -817,12 +816,10 @@ const AllPatients = () => {
         formData.append(file?.name, file);
         const res = await uploadDocsToAzure(formData);
         if (res?.length > 0) {
-          const printUrl = res?.[0]?.url;
-          sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
           handleInAppClick(
             userId,
             "download",
-            printUrl,
+            res?.[0]?.url,
             setStartLoader(true)
           );
         }

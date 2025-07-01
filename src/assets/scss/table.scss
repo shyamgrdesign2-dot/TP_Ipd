@@ -169,55 +169,6 @@ body {
             }
         }
     }
-
-    .table-billing {
-        .ant-table {
-            thead {
-                th {
-                    font-size: 13px;
-                    padding: 14px 12px;
-                    color: #1F2933 !important;
-                    &:first-child {
-                        border-bottom-left-radius: 0px;
-                    }
-                    &:last-child {
-                        border-bottom-right-radius: 0px;
-                    }
-                }
-            }
-            tbody.ant-table-tbody {
-                tr {
-                    td {
-                        border-bottom: 0.5px solid rgba($bordercolor, (50%)) !important;
-                        font-size: 13.5px;
-                        font-weight: 400;
-                        color: $welcomecolor !important;
-                        button {
-                            font-weight: 500;
-                            font-size: 13px;
-                        }
-                        &:last-child {
-                            div {
-                                border-radius: 20px;
-                                padding: 2px 6px;
-                                font-size: 12.5px;
-                                text-align: center;
-                                font-weight: 500;
-                                &.active {
-                                    background: #EDF7ED;
-                                    color: #3D8C40 !important;
-                                }  
-                                &.expired {
-                                    background: #FCEDED;
-                                    color: #FC5A5A !important;
-                                } 
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 .custom-table-scroll .ant-table-body {

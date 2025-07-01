@@ -1,11 +1,11 @@
 // Profile Dropdown
 .prfile-dropdown {
     .ant-dropdown-menu {
-        padding: 12px 0 4px;
+        padding: 24px;
         border-radius: 16px;
         .ant-dropdown-menu-item {
             padding: 10px 12px;
-            margin: 5px 0px;
+            margin: 5px 0;
             span a {
                 display: flex;
                 align-items: center;
@@ -13,7 +13,7 @@
             }
             &:first-child {
                 padding: 0;
-                margin-bottom: 10px;
+                margin-bottom: 20px;
                 cursor: context-menu;
                 span {
                     display: flex;
@@ -38,16 +38,6 @@
             //         background-color: $white;
             //     }
             // }
-            &.freeTrialMenu {
-                background: linear-gradient(180deg, #F15223 0%, #BE431E 117.41%);
-                cursor: context-menu;
-                span {
-                    color: $white !important;
-                }
-            }
-        }
-        .ant-dropdown-menu-item-divider {
-            background-color: rgba($grayColor, (40%))
         }
     }
 }

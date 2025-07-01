@@ -8,15 +8,12 @@ import { useSelector } from "react-redux";
 import {
   IS_DDX_DIAGNOSIS_OPEN,
   IS_DDX_LAB_INVESTIGATION_OPEN,
-  S_DDX,
 } from "../utils/constants";
-import { useState, useCallback, useContext } from "react";
+import { useState } from "react";
 import { useAccess } from "../pages/vaccination/useAccess";
 import { useLocation } from "react-router-dom";
 import { WarningColor, WarningRank } from "./DifferentialDiagnosisDrawer";
-import { getClinicName, getDeviceSdkData, getTokenData } from "../utils/utils";
-import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
-import CashManagerContext from "../context/CashManagerContext";
+import { getClinicName } from "../utils/utils";
 
 const DifferentialDiagnosis = ({
   handleDDxDrawer,
@@ -31,8 +28,6 @@ const DifferentialDiagnosis = ({
 }) => {
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
   const { profile } = useSelector((state) => state.doctors);
-  const { planDetails } = useSelector((state) => state.subscription);
-  const { showHideSubModal } = useContext(CashManagerContext);
 
   const { state } = useLocation();
   const { patient_data } = state;
@@ -44,10 +39,10 @@ const DifferentialDiagnosis = ({
       isDiagnosis ? IS_DDX_DIAGNOSIS_OPEN : IS_DDX_LAB_INVESTIGATION_OPEN
     )
       ? JSON.parse(
-        localStorage.getItem(
-          isDiagnosis ? IS_DDX_DIAGNOSIS_OPEN : IS_DDX_LAB_INVESTIGATION_OPEN
+          localStorage.getItem(
+            isDiagnosis ? IS_DDX_DIAGNOSIS_OPEN : IS_DDX_LAB_INVESTIGATION_OPEN
+          )
         )
-      )
       : true
   );
 
@@ -59,8 +54,8 @@ const DifferentialDiagnosis = ({
           {isDiagnosis
             ? "Differential Diagnosis"
             : isSymptoms
-              ? "Associated Symptoms"
-              : "Suggested Tests"}
+            ? "Associated Symptoms"
+            : "Suggested Tests"}
         </div>
       ),
       children:
@@ -70,8 +65,8 @@ const DifferentialDiagnosis = ({
               {isDiagnosis
                 ? "Tap diagnosis to add to Rx"
                 : isSymptoms
-                  ? "These are symptoms associated with added diagnosis. Tap to add to Rx"
-                  : "Test suggestions are based on added diagnosis. Tap to add to Rx"}
+                ? "These are symptoms associated with added diagnosis. Tap to add to Rx"
+                : "Test suggestions are based on added diagnosis. Tap to add to Rx"}
             </span>
             <div
               className="d-flex align-items-center"
@@ -123,8 +118,9 @@ const DifferentialDiagnosis = ({
                           style={{
                             width: 13,
                             height: 4,
-                            border: `2px solid ${WarningColor[item?.likelihood]
-                              }`,
+                            border: `2px solid ${
+                              WarningColor[item?.likelihood]
+                            }`,
                             borderRadius: 2,
                           }}
                         />
@@ -198,43 +194,26 @@ const DifferentialDiagnosis = ({
                   <img src={arrow} alt="arrow" />
                 </div>
               )}
-              <div className="ms-auto">
-                <FreeTrialButton title={S_DDX} showHideSubModal={() => {
-                showHideSubModal({ service_name: S_DDX })
-                  const clinic_name = getClinicName(profile?.hospital_data);
-                  const tokenData = getTokenData(); 
-                  const deviceSdkData = getDeviceSdkData();
-                  window.Moengage.track_event("TP_Monetization_FreeTrailButton", {
-                    doctor_name: profile?.um_name,
-                    doctor_number: profile?.um_contact,
-                    doctor_unique_id: profile?.doctor_unique_id,
-                    doctor_specialty: profile?.dp_name,
-                    um_id: tokenData?.user_id,
-                    clinic_id: tokenData?.clinic_id,
-                    clinic_Name: clinic_name,
-                    payment_Status: planDetails?.currentPlanStatus,
-                    ...deviceSdkData
-                  });
-                }} />
-              </div>
             </div>
           </>
         ) : (
           <>
             <div
-              className={`${isDDxGenerated && ddxOptionsList?.length === 0
-                ? "text-danger-custom"
-                : ""
-                }`}
+              className={`${
+                isDDxGenerated && ddxOptionsList?.length === 0
+                  ? "text-danger-custom"
+                  : ""
+              }`}
             >
               {isDDxGenerated && ddxOptionsList?.length === 0
                 ? `No results found! We couldn't generate any diagnosis due to incomplete or inaccurate information provided. Please review and update the details, then try again.`
                 : `Enter key symptoms or examinations to get possible diagnoses and recommended tests.
-            Adding additional details like medical history${isGynaecHistoryAccessable &&
-                  patient_data?.pm_gender?.toLowerCase() === "female"
-                  ? ", gynecological and obstetric history"
-                  : ""
-                } and lab results can help improve accuracy.`}
+            Adding additional details like medical history${
+              isGynaecHistoryAccessable &&
+              patient_data?.pm_gender?.toLowerCase() === "female"
+                ? ", gynecological and obstetric history"
+                : ""
+            } and lab results can help improve accuracy.`}
             </div>
             <div
               className="d-flex align-items-center"
@@ -286,25 +265,6 @@ const DifferentialDiagnosis = ({
                 </div>
                 <img src={arrow} alt="arrow" />
               </div>
-              <div className="ms-auto">
-                <FreeTrialButton title={S_DDX} showHideSubModal={() => {
-                  showHideSubModal({ service_name: S_DDX })
-                  const clinic_name = getClinicName(profile?.hospital_data);
-                  const tokenData = getTokenData(); 
-                  const deviceSdkData = getDeviceSdkData();
-                  window.Moengage.track_event("TP_Monetization_FreeTrailButton", {
-                    doctor_name: profile?.um_name,
-                    doctor_number: profile?.um_contact,
-                    doctor_unique_id: profile?.doctor_unique_id,
-                    doctor_specialty: profile?.dp_name,
-                    um_id: tokenData?.user_id,
-                    clinic_id: tokenData?.clinic_id,
-                    clinic_Name: clinic_name,
-                    payment_Status: planDetails?.currentPlanStatus,
-                    ...deviceSdkData
-                  });
-                  }} />
-              </div>
             </div>
           </>
         ),
@@ -320,51 +280,49 @@ const DifferentialDiagnosis = ({
   };
 
   return (
-    <>
-      <div className="d-flex" style={{ padding: "20px 0" }}>
-        <div>
-          <img
-            style={{ backgroundColor: "#22003C", borderRadius: "10px 10px 0px" }}
-            className="me-3"
-            src={apexAI}
-            alt="apex-AI"
+    <div className="d-flex" style={{ padding: "20px 0" }}>
+      <div>
+        <img
+          style={{ backgroundColor: "#22003C", borderRadius: "10px 10px 0px" }}
+          className="me-3"
+          src={apexAI}
+          alt="apex-AI"
+        />
+      </div>
+      {isDDxLoading ? (
+        <div
+          className="d-flex flex-column align-items-center justify-content-center"
+          style={{
+            background: `url(${ddxBg})`,
+            width: "100%",
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            borderRadius: 12,
+            padding: "17px 20px",
+            width: "100%",
+          }}
+        >
+          <img width={105} height={105} src={loading} alt="loading" />
+          <span className="title-common">Generating AI powered diagnosis</span>
+        </div>
+      ) : (
+        <div
+          className="d-flex flex-column"
+          style={{
+            width: "100%",
+          }}
+        >
+          <Collapse
+            items={accordionItems}
+            defaultActiveKey={isCollapseActive ? ["1"] : null}
+            onChange={handlePanelChange}
+            className="prescriptiontab-accordian ddx-collapse"
+            expandIconPosition={"end"}
           />
         </div>
-        {isDDxLoading ? (
-          <div
-            className="d-flex flex-column align-items-center justify-content-center"
-            style={{
-              background: `url(${ddxBg})`,
-              width: "100%",
-              backgroundSize: "cover",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
-              borderRadius: 12,
-              padding: "17px 20px",
-              width: "100%",
-            }}
-          >
-            <img width={105} height={105} src={loading} alt="loading" />
-            <span className="title-common">Generating AI powered diagnosis</span>
-          </div>
-        ) : (
-          <div
-            className="d-flex flex-column"
-            style={{
-              width: "100%",
-            }}
-          >
-            <Collapse
-              items={accordionItems}
-              defaultActiveKey={isCollapseActive ? ["1"] : null}
-              onChange={handlePanelChange}
-              className="prescriptiontab-accordian ddx-collapse"
-              expandIconPosition={"end"}
-            />
-          </div>
-        )}
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 

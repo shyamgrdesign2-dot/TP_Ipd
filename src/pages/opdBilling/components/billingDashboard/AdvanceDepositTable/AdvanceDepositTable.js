@@ -43,7 +43,6 @@ import { throttle } from "lodash";
 import { setLoadingStatus } from "../../../../../redux/uploadDocSlice.js";
 import { useDispatch } from "react-redux";
 import html2pdf from "html2pdf.js";
-import { TRIAL, S_BILLING, S_TATVA_PRACTICE } from "../../../../../utils/constants.js";
 const { RangePicker } = DatePicker;
 
 const cardsStaticData = [
@@ -76,13 +75,8 @@ const cardsStaticData = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateRange, totalAdvanceBalance, dateStatus, setDateStatus, showHideSubModal }, ref) => {
-  const { planDetails } = useSelector((state) => state.subscription);
-  const { service_mappings } = planDetails || {};
-  const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
-  const BILLING_planDetails = service_mappings?.find(e => e.service_name === S_BILLING)
+const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateRange, totalAdvanceBalance, dateStatus, setDateStatus }, ref) => {
   const dispatch = useDispatch();
-
   const { billPrintSettings, advancedSettings } = useSelector(
     (state) => state.billing
   );
@@ -224,37 +218,27 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
     }
   };
 
-  const checkBillingPurchased = async () => {
-    if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
-      showHideSubModal()
-    } else {
-      return true;
-    }
-  }
-
   const onBillingDetailsClick = async (status, record) => {
-    const isPurchased = await checkBillingPurchased()
-    if (isPurchased) {
-      if (patientData && Object.keys(patientData)?.length > 0) {
-        setBillData(record);
-      } else {
-        setBillData({
-          ...record,
-          patient: {
-            ...record?.patient,
-          },
-        });
-      }
-      if (status === 1) {
-        handleDrawerPreviewBill();
-      } else if (status === 2) {
-        const blob = await pdf(
-          <ViewBillPdf
-            printSettings={billPrintSettings}
-            patientData={
-              patientData && Object.keys(patientData)?.length > 0
-                ? patientData
-                : {
+    if (patientData && Object.keys(patientData)?.length > 0) {
+      setBillData(record);
+    } else {
+      setBillData({
+        ...record,
+        patient: {
+          ...record?.patient,
+        },
+      });
+    }
+    if (status === 1) {
+      handleDrawerPreviewBill();
+    } else if (status === 2) {
+      const blob = await pdf(
+        <ViewBillPdf
+          printSettings={billPrintSettings}
+          patientData={
+            patientData && Object.keys(patientData)?.length > 0
+              ? patientData
+              : {
                   pm_pid: record?.patient?.id,
                   pm_fullname: record?.patient?.name,
                   pm_gender: record?.patient?.gender,
@@ -266,20 +250,19 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
                   pm_salutation: record?.patient?.salutation,
                   address: record?.patient?.address,
                 }
-            }
-            profile={profile}
-            billData={record}
-            isDepositReceipt={true}
-            totalAdvanceBalance={
-              patientData ? totalAdvanceBalance : patientWalletBalance
-            }
-            gstIn={advancedSettings?.GSTIN}
-            showCreatedBy={advancedSettings?.enableCreatedByInRx}
-          />
-        ).toBlob();
-        printContent(blob, record?.patientId, setStartLoader);
-      } else {
-      }
+          }
+          profile={profile}
+          billData={record}
+          isDepositReceipt={true}
+          totalAdvanceBalance={
+            patientData ? totalAdvanceBalance : patientWalletBalance
+          }
+          gstIn={advancedSettings?.GSTIN}
+          showCreatedBy={advancedSettings?.enableCreatedByInRx}
+        />
+      ).toBlob();
+      printContent(blob, record?.patientId, setStartLoader);
+    } else {
     }
   };
 

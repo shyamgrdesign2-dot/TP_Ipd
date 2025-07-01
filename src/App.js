@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Routes,
   Route,
@@ -29,7 +29,7 @@ import DoctorWebsiteSetting from "./pages/DoctorWebsiteSetting";
 import MessageCreateCampaign from "./pages/MessageCreateCampaign";
 
 import { store, persistor } from "./redux/store";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_MEDECO_TOKEN } from "./utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
 import { useLocalStorage } from "./utils/localStorage";
 
 import { ErrorBoundary } from "react-error-boundary";
@@ -49,8 +49,6 @@ import AllPatients from "./pages/allPatients.js/AllPatients";
 import AddAppointment from "./pages/addAppointment/AddAppointment";
 import { checkAccountStatus } from "./pages/auth/authService";
 import PrivateRoute from "./pages/auth/components/PrivateRoute";
-import GetUnlimitedAccess from "./pages/monetization/GetUnlimitedAccess";
-import UpgradeServicesModal from "./pages/monetization/components/UpgradeServicesModal";
 import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
 
@@ -64,15 +62,11 @@ function App() {
   const [searchParams] = useSearchParams();
   const authToken = searchParams.get("authToken");
   const redirectTo = searchParams.get("redirectTo");
-  const medecoToken = searchParams.get("medecoToken");
   const location = useLocation();
   const navigate = useNavigate();
-  const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-
-  const [getMedecoToken, setMedecoToken] = useLocalStorage(
-    PERSISTANT_STORAGE_KEY_MEDECO_TOKEN
+  const [getToken, setToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
-
 
   const isLoginPage = location.pathname === "/login";
   const isRootPath = location.pathname === "/";
@@ -95,11 +89,7 @@ function App() {
   };
 
   const handleLogout = async () => {
-
-    const urlsToOpen = [
-      config.pedia_logout_url,
-      config.tatvaAi_logout_url,
-    ];
+    const urlsToOpen = [config.pedia_logout_url, config.tatvaAi_logout_url];
 
     try {
       if (window.isLoggingOut) return;
@@ -108,7 +98,9 @@ function App() {
       const statuses = await openUrlsSilently(urlsToOpen);
       console.log("URL statuses:", statuses);
 
-      const allSuccessful = statuses.every(({ status }) => status === "success");
+      const allSuccessful = statuses.every(
+        ({ status }) => status === "success"
+      );
       if (!allSuccessful) {
         console.warn("Some logout URLs failed:", statuses);
       }
@@ -123,6 +115,7 @@ function App() {
       window.isLoggingOut = false;
     }
   };
+
   useEffect(() => {
     const checkUserStatus = async () => {
       const token = getToken();
@@ -133,7 +126,10 @@ function App() {
           const doctorUniqueId = decoded?.result?.doctor_unique_id;
 
           if (phoneNumber && doctorUniqueId) {
-            const response = await checkAccountStatus(phoneNumber, doctorUniqueId);
+            const response = await checkAccountStatus(
+              phoneNumber,
+              doctorUniqueId
+            );
             if (response?.account_status === false) {
               handleLogout();
             }
@@ -208,6 +204,7 @@ function App() {
       const params = new URLSearchParams(location.search);
       if (!isReceptionist) {
         params.delete("authToken");
+
         // Navigate to appointment list
         navigate(
           {
@@ -231,7 +228,7 @@ function App() {
 
       // Update URL without the redirectTo parameter
       navigate({
-        pathname: location.pathname,
+          pathname: location.pathname,
         search: params.toString()
       }, { replace: true });
     }
@@ -270,7 +267,7 @@ function App() {
 
     if (isChrome || isSafari) {
       // Determine and execute redirection
-      const redirectPath = localRedirectTo === "profile" ? "/doctor_profile" : "/";
+    const redirectPath = localRedirectTo === "profile" ? "/doctor_profile" : "/";
 
       // Clean up localStorage if redirecting to profile
       if (localRedirectTo === "profile") {
@@ -281,27 +278,6 @@ function App() {
     }
   }, [isRootPath, token, authToken, navigate, redirectTo]);
 
-
-
-  //Upgraded Services Modal
-  const upgrade_services = searchParams.get("upgrade_services");
-  const service_list = searchParams.get("service_list");
-  const [isUpgradeModal, setIsUpgradeModal] = useState(false);
-  const [upgradeList, setUpgradeList] = useState(null);
-
-  useEffect(() => {
-    if (upgrade_services) {
-      setIsUpgradeModal(true)
-      setUpgradeList(service_list.split(",").map(s => s.trim()))
-      searchParams.delete('upgrade_services');
-      searchParams.delete("service_list");
-      navigate('/', { replace: true })
-    }
-  }, [upgrade_services]);
-
-  const handleUpgradeModal = () => {
-    setIsUpgradeModal(false);
-  };
 
   return (
     <GrowthBookProvider growthbook={growthbook}>
@@ -336,9 +312,6 @@ function App() {
                 <ExpiredPlanCard />
                 <DoctorModal />
               </div>
-            )}
-            {isUpgradeModal && (
-              <UpgradeServicesModal isUpgradeModal={isUpgradeModal} upgradeList={upgradeList} handleUpgradeModal={handleUpgradeModal} />
             )}
             <Routes>
               {/* Public route */}
@@ -397,7 +370,6 @@ function App() {
                 <Route path="all_patients" element={<AllPatients />} />
                 <Route path="billing-settings" element={<BillingSettings />} />
                 <Route path="add-appointment" element={<AddAppointment />} />
-                <Route path="get-unlimited-access" element={<GetUnlimitedAccess />} />
               </Route>
             </Routes>
           </PersistGate>

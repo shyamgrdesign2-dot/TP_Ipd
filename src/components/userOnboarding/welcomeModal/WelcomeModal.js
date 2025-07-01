@@ -2,13 +2,12 @@ import React, { useState } from "react";
 import { Modal, useMediaQuery } from "antd";
 import welcomdoc from "../../../assets/images/welcom-doc.svg";
 import suporticon from "../../../assets/images/suport-icon.svg";
-import { isMobileOnly, isMobile, isTablet } from "react-device-detect";
+import { isMobile, isTablet } from "react-device-detect";
 import "./WelcomeModal.scss";
 import copyIcon from "../../../assets/images/onboard-page-icons/copy.svg";
 import shareIcon from "../../../assets/images/onboard-page-icons/Share.svg";
 import desktopIcon from "../../../assets/images/onboard-page-icons/monitor-mobile.svg";
 import { CloseOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
 
 const VideoCarousel = () => {
   const [currentVideo, setCurrentVideo] = useState(0);
@@ -38,7 +37,7 @@ const VideoCarousel = () => {
     <div className="video-section">
       <iframe
         width="500"
-        height={isMobileOnly ? "200" : "350"}
+        height={isMobile ? "200" : isTablet ? "300" : "350"}
         src={videos[currentVideo].url}
         title="YouTube video player"
         frameBorder="0"
@@ -69,47 +68,47 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
         footer={null}
         centered
         className="modal-onboarding"
-        closeIcon={!isMobileOnly && <CloseOutlined />}
-        maskClosable={!isMobileOnly}
+        closeIcon={!isMobile && <CloseOutlined />}
+        maskClosable={!isMobile}
       >
-        <div style={{ padding: '0rem 2rem' }}>
-          <img src={welcomdoc} alt="Welcome" className="welcome-icon" />
-          <div className="modal-content-container">
-            <div className="left-section">
-              <h2 className="doctor-name">
-                Dr. {profile?.um_name?.split(/\s+/)
-                  .filter(word => !["Dr", "Dr."].includes(word.toLowerCase()))
-                  .join(" ")},
-              </h2>
-              <h1 className="welcome-title">Welcome to TatvaPractice</h1>
+        <img src={welcomdoc} alt="Welcome" className="welcome-icon" />
+        <div className="modal-content-container">
+          <div className="left-section">
+            <h2 className="doctor-name">
+              Dr. {profile?.um_name?.split(/\s+/)
+                .filter(word => !["Dr", "Dr."].includes(word.toLowerCase()))
+                .join(" ")},
+            </h2>
+            <h1 className="welcome-title">Welcome to TatvaPractice</h1>
 
-              <div className="support-box">
-                <img src={suporticon} alt="Support" className="support-icon" />
-                <h3>We will connect with you soon</h3>
-                <p>
-                  We will contact you within 24 hours to assist you in setting up your digital clinic and provide a walkthrough for writing prescription digitally.
-                </p>
-              </div>
+            <div className="support-box">
+              <img src={suporticon} alt="Support" className="support-icon" />
+              <h3>We will connect with you soon</h3>
+              <p>
+                We will contact you within 24 hours to assist you in setting up your digital clinic and provide a walkthrough for writing prescription digitally.
+              </p>
             </div>
+          </div>
 
-            <div className="right-section">
-              <VideoCarousel />
-            </div>
+          <div className="right-section">
+            <VideoCarousel />
           </div>
         </div>
         {/* this Will be added later along with the monetization feature */}
-        <div className="trial-period-footer">
-          <div className="trial-text">
-            <span>🎉</span>
-            <span className="fw-bold">You're on a trial plan</span>
+        {/* {!isMobile && (
+          <div className="trial-period-footer">
+            <div className="trial-text">
+              <span>🎉</span>
+            <span>Enjoy your <b>7 days</b> trial period</span>
           </div>
           <div className="upgrade-link-container">
-            <span>Upgrade your plan to continue hassle-free access!</span>
-            <Link to="/get-unlimited-access" className="upgrade-link">upgrade now →</Link>
+            <span>This version is free for only 7 days. If you want to use advance features, Please</span>
+            <a href="#" className="upgrade-link">upgrade your plan →</a>
+            </div>
           </div>
-        </div>
+        )} */}
       </Modal>
-      {isMobileOnly && (
+      {isMobile && (
         <div
           className="device-warning-content"
           style={{
@@ -127,17 +126,17 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
           }}
         >
           <div style={{ display: "flex", gap: "12px" }}>
-            <img
-              src={desktopIcon}
-              alt="Desktop"
+            <img 
+              src={desktopIcon} 
+              alt="Desktop" 
               className="desktop-icon"
               style={{
                 width: "40px",
                 height: "40px",
-              }}
+              }} 
             />
 
-            <h2
+            <h2 
               className="warning-title"
               style={{
                 fontSize: "17px",
@@ -152,7 +151,7 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
             </h2>
           </div>
 
-          <div
+          <div 
             className="link-wrapper"
             style={{
               width: "100%",
@@ -180,13 +179,13 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
               https://tatvapractice.tatvacare.in/
             </a>
 
-            <div
+            <div 
               className="action-buttons"
               style={{
                 display: "flex",
               }}
             >
-              <button
+              <button 
                 className="action-btn"
                 style={{
                   border: "none",
@@ -205,7 +204,7 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
               >
                 <img src={copyIcon} alt="Copy" style={{ width: "30px", height: "30px" }} />
               </button>
-              <button
+              <button 
                 className="action-btn"
                 style={{
                   border: "none",
@@ -219,9 +218,9 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
                       text: 'Check out TatvaPractice',
                       url: 'https://tatvapractice.tatvacare.in/',
                     })
-                      .catch(err => {
-                        console.error('Share failed:', err);
-                      });
+                    .catch(err => {
+                      console.error('Share failed:', err);
+                    });
                   } else {
                     // Fallback for browsers that don't support Web Share API
                     navigator.clipboard.writeText("https://tatvapractice.tatvacare.in/")

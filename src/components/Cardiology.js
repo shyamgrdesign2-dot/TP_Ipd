@@ -25,9 +25,8 @@ import vaccinationIcon from "../assets/images/Vaccination.svg";
 import customModuleIcon from "../assets/images/custom-module.svg";
 
 import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, GB_SMARTSYNC_CVT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
-import { EVENTS } from "../utils/events";
 
-import { capitalize, isNumeric, medicine_freq_format, isValidMongoId, medicine_freq_dosage_format, sendMessageToParent } from "../utils/utils";
+import { capitalize, isNumeric, medicine_freq_format, isValidMongoId, medicine_freq_dosage_format } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import CvtKnowMore from "../pages/smartSync/components/CvtKnowMore";
@@ -223,12 +222,11 @@ function Cardiology(props) {
   );
 
   async function printRxInAppContent() {
-    sendMessageToParent(EVENTS.PRINT, { url: viewCaseManagerData?.print_rx_url });
-    // navigate(
-    //   `/patient_details/?url=${viewCaseManagerData?.print_rx_url}&key=print`,
-    //   { replace: true, state: { patient_data: patient_data } }
-    // );
-    // navigate(0, { replace: true });
+      navigate(
+        `/patient_details/?url=${viewCaseManagerData?.print_rx_url}&key=print`,
+        { replace: true, state: { patient_data: patient_data } }
+      );
+      navigate(0, { replace: true });
   }
   async function printRxContent() {
     await window.open(viewCaseManagerData?.print_rx_url);
@@ -433,8 +431,11 @@ function Cardiology(props) {
       urlObj.searchParams.set("voiceRxDigitize", "true");
       voiceRxUrl = urlObj.toString();
     }
-    const printUrl = showDigitalGenRx && voiceRxUrl ? voiceRxUrl : viewCaseManagerData?.print_url;
-    sendMessageToParent(EVENTS.PRINT, { url: printUrl });
+    navigate(
+      `/patient_details/?url=${showDigitalGenRx && voiceRxUrl ? voiceRxUrl : viewCaseManagerData?.print_url}&key=print`,
+      { replace: true, state: { patient_data: patient_data } }
+    );
+    navigate(0, { replace: true });
   };
 
   const handleEditRxClick = () => {

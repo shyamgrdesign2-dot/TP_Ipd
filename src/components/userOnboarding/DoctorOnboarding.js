@@ -699,7 +699,7 @@ const DoctorOnboarding = ({
                 { label: "Upload ID" },
               ]}
               currentStep={currentStep}
-            // onStepClick={handleStepClick}
+              // onStepClick={handleStepClick}
             />
           </div>
         </div>
@@ -835,9 +835,9 @@ const DoctorOnboarding = ({
       style={
         isMobile
           ? {
-            borderTopLeftRadius: "1rem",
-            borderTopRightRadius: "1rem",
-          }
+              borderTopLeftRadius: "1rem",
+              borderTopRightRadius: "1rem",
+            }
           : {}
       }
     >

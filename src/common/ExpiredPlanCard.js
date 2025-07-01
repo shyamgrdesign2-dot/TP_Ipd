@@ -20,9 +20,9 @@ const ExpiredPlanCard = () => {
                 {currentPlanStatus === "EXPIRED" &&
                   lastPlanStatus === "TRIAL" && (
                     <>
-                      <h2>Your Trial Plan has Expired!</h2>
+                      <h2>Your Free Trial has Expired!</h2>
                       <p>
-                        Your <strong>trial plan</strong> has expired{" "}
+                        Your <strong>free trial</strong> has expired{" "}
                         <strong>{Math.abs(expiresIn)} days</strong> ago. Upgrade
                         now to continue a hassle-free access!
                       </p>
