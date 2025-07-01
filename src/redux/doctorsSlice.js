@@ -5,6 +5,8 @@ import ApiMedication from "../api/services/ApiMedication";
 import ApiPrintSettings from "../api/services/ApiPrintSettings";
 import ApiVideoLibrary from "../api/services/ApiVideoLibrary";
 import ApiMedicalCertificate from "../api/services/ApiMedicalCertificate";
+import ApiMonetization from "../api/services/ApiMonetization";
+import { S_ASK_TATVA, S_BILLING, S_DDX, S_IPD, S_PHARMACY, S_RECEPTIONIST_AGENT, S_RX_DIGITIZATION, S_SMARTSYNC, S_TATVA_PRACTICE, S_VOICE_RX } from "../utils/constants";
 
 const initialState = {
   sort_order: 'ascend',
@@ -31,6 +33,10 @@ const initialState = {
   siteId: null,
   empNo: [],
   storeCode: null,
+  servicesLoading: false,
+  servicesList: [],
+  campaignsData: null,
+  // plansList: [],
   hasLocation: null,
 };
 
@@ -45,6 +51,7 @@ export const getProfile = createAsyncThunk(
       } else {
         throw Error(result.error);
       }
+      
     } catch (error) {
       console.log("error: ", error);
       throw Error(error);
@@ -333,6 +340,42 @@ export const upsertDoctorSettingFlag = createAsyncThunk(
   }
 );
 
+export const campaigns = createAsyncThunk(
+  "monetization/campaigns",
+  async (_, { rejectWithValue }) => {
+    try {
+      const result = await ApiMonetization.campaigns();
+      return result;
+    } catch (error) {
+      return rejectWithValue({ visible: false, message: error.response.data.message });
+    }
+  }
+);
+
+export const services = createAsyncThunk(
+  "monetization/services",
+  async (b2c_id, { rejectWithValue }) => {
+    try {
+      const result = await ApiMonetization.services(b2c_id);
+      return result;
+    } catch (error) {
+      return rejectWithValue({ visible: false, message: error.response.data.message });
+    }
+  }
+);
+
+// export const plans = createAsyncThunk(
+//   "monetization/plans",
+//   async (b2c_id, { rejectWithValue }) => {
+//     try {
+//       const result = await ApiMonetization.plans(b2c_id);
+//       return result;
+//     } catch (error) {
+//       return rejectWithValue({ visible: false, message: error.response.data.message });
+//     }
+//   }
+// );
+
 const doctorsSlice = createSlice({
   name: "doctors",
   initialState,
@@ -591,7 +634,31 @@ const doctorsSlice = createSlice({
         state.siteId = null;
         state.empNo = [];
         state.storeCode = null;
-      });
+      })
+      .addCase(services.pending, (state) => {
+        state.servicesLoading = true
+      })
+      .addCase(services.fulfilled, (state, action) => {
+        state.servicesLoading = false
+        const serviceOrder = [S_TATVA_PRACTICE, S_RECEPTIONIST_AGENT, S_VOICE_RX, S_SMARTSYNC, S_RX_DIGITIZATION, S_ASK_TATVA, S_DDX, S_BILLING, S_PHARMACY, S_IPD];
+        const sortedData = action.payload.sort((a, b) => serviceOrder.indexOf(a.service_name) - serviceOrder.indexOf(b.service_name));
+        state.servicesList = sortedData
+      })
+      .addCase(services.rejected, (state) => {
+        state.servicesLoading = false
+        state.servicesList = [];
+      })
+      .addCase(campaigns.fulfilled, (state, action) => {
+        const data = action?.payload?.hasOwnProperty('campaign_value')
+        const cleanedCampaign = data ? { ...action?.payload, campaign_value: action?.payload?.campaign_value.replace('%', '') } : null;
+        state.campaignsData = cleanedCampaign
+      })
+      .addCase(campaigns.rejected, (state) => {
+        state.campaignsData = null;
+      })
+    // .addCase(plans.fulfilled, (state, action) => {
+    //   state.plansList = action.payload?.services
+    // });
   },
 });
 

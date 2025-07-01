@@ -2063,6 +2063,9 @@ body {
     color: #fff !important;
     height: 60px; /* Fixed height for both tablet and desktop */
     gap: 10px; /* Space between elements */
+    &.banner-yellow {
+        background-color: #ED8A00;
+    }
 }
 
   .plan-expiry-banner {

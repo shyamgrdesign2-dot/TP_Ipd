@@ -21,10 +21,10 @@ import {
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 
-import { errorMessage, getClinic, trackEvent } from "../utils/utils";
+import { errorMessage, getClinic, sendMessageToParent, trackEvent } from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
 
-import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE, PENDING_DIGITISATION_RX, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FETCH_SMART_RX, UNFINISHED_RX_CASE, GB_SMARTSYNC_CVT, TAB_ZYDUS_ENCOUNTER, TAB_ZYDUS_APPOINTMENT, GB_ZYDUS_USER } from "../utils/constants";
+import { TAB_QUEUE, TAB_FINISHED, TAB_CANCELLED, GB_ISCRIBE, PENDING_DIGITISATION_RX, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FETCH_SMART_RX, UNFINISHED_RX_CASE, GB_SMARTSYNC_CVT, TAB_ZYDUS_ENCOUNTER, TAB_ZYDUS_APPOINTMENT, GB_ZYDUS_USER, S_BILLING, S_TATVA_PRACTICE, TRIAL } from "../utils/constants";
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
 import noData from "../assets/images/nodata-found.svg";
@@ -81,6 +81,8 @@ import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 import { setAdvancedSettings, setBillPrintSettings, setShouldShowOpdBilling } from "../redux/billingSlice";
 import WelcomeModal from "./userOnboarding/welcomeModal/WelcomeModal";
 import { checkSymptomsCollectorTour } from "../api/services/ApiGenRx";
+import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
+import { EVENTS } from "../utils/events";
 
 const { TextArea } = Input;
 
@@ -137,13 +139,32 @@ function AppointmentData({ locationPath }) {
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const [patientData, setPatientData] = useState(null);
     const fileInputRef = useRef(null);
+
     const { planDetails } = useSelector(state => state.subscription);
+    const { service_mappings } = planDetails || {};
+    const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
+    const BILLING_planDetails = service_mappings?.find(e => e.service_name === S_BILLING)
+
     const urlParams = new URLSearchParams(window.location.search);
     const isReceptionist = urlParams.has("receptionist");
     const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
       useState(null);
     const [tourRef, setTourRef] = useState(null);
 
+    const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+
+    const showHideSubModal = () => {
+        setIsSubModalOpen(!isSubModalOpen);
+    }
+
+    const checkBillingPurchased = async () => {
+        if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
+            showHideSubModal()
+        } else {
+            return true;
+        }
+    }
+    
      // Add the tour handler
     const onTourHandle = () => {
         setIsSymptomsCollectorTour(false);
@@ -868,33 +889,39 @@ function AppointmentData({ locationPath }) {
             },
             isOpdBillingAccessable ? {
                 label: <div
-                    onClick={() => {
-                        setAppointmentSelectedFromMenu(record);
-                        if (patientBills?.length === 0) {
-                            const clinic = getClinic();
-                            trackEvent("TP_Billing_CreateBill", {
-                                patientName: record.pm_fullname,
-                                patientId: record?.patient_unique_id,
-                                doctorSpeciality: profile?.dp_name,
-                                doctorId: profile?.doctor_unique_id,
-                                doctorContact: profile?.um_contact,
-                                source: selectedTab === TAB_QUEUE ? "appointment_queue" : selectedTab === TAB_FINISHED ? "appointment_finished" : "",
-                                city: clinic?.hm_city,
-                                pincode: clinic?.hm_pincode,
-                                subscriptionStatus: planDetails?.currentPlanStatus
-                            })
-                            handleCreateBillDrawer()
-                        } else {
-                            handleRecentBillDrawer();
+                    onClick={async () => {
+                        const isPurchased = await checkBillingPurchased()
+                        if (isPurchased) {
+                            setAppointmentSelectedFromMenu(record);
+                            if (patientBills?.length === 0) {
+                                const clinic = getClinic();
+                                trackEvent("TP_Billing_CreateBill", {
+                                    patientName: record.pm_fullname,
+                                    patientId: record?.patient_unique_id,
+                                    doctorSpeciality: profile?.dp_name,
+                                    doctorId: profile?.doctor_unique_id,
+                                    doctorContact: profile?.um_contact,
+                                    source: selectedTab === TAB_QUEUE ? "appointment_queue" : selectedTab === TAB_FINISHED ? "appointment_finished" : "",
+                                    city: clinic?.hm_city,
+                                    pincode: clinic?.hm_pincode,
+                                    subscriptionStatus: planDetails?.currentPlanStatus
+                                })
+                                handleCreateBillDrawer()
+                            } else {
+                                handleRecentBillDrawer();
+                            }
                         }
                     }}>{patientBills?.length === 0 ? "Create Bill" : "View/Create Bill"}</div>,
                 key: "createbill",
             } : undefined,
             isOpdBillingAccessable ? {
                 label: <div
-                    onClick={() => {
-                        setAppointmentSelectedFromMenu(record);
-                        handleAddAdvanceDrawer();
+                    onClick={async () => {
+                        const isPurchased = await checkBillingPurchased()
+                        if (isPurchased) {
+                            setAppointmentSelectedFromMenu(record);
+                            handleAddAdvanceDrawer();
+                        }
                     }}>Advance Deposit</div>,
                 key: "advancebill",
             } : undefined,
@@ -1237,8 +1264,7 @@ function AppointmentData({ locationPath }) {
     const onPrintRxUrlClick = async (record) => {
         if (record.print_rx_url) {
             if (!isChrome && !isSafari) {
-                navigate(`/?url=${record.print_rx_url}&key=print`, { replace: true })
-                navigate(0, { replace: true });
+                sendMessageToParent(EVENTS.PRINT, { url: record.print_rx_url });
             } else {
                 await window.open(record.print_rx_url);
             }
@@ -2263,6 +2289,11 @@ function AppointmentData({ locationPath }) {
                     <AddAdvance handleAddAdvanceDrawer={handleAddAdvanceDrawer} patientData={appointmentSelectedFromMenu} />
                 </Drawer>
             }
+
+            <ExpiredSubModal
+                title={S_BILLING}
+                isSubModalOpen={isSubModalOpen}
+                showHideSubModal={showHideSubModal} />
         </>
     );
 }
