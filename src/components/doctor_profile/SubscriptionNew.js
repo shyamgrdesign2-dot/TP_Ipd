@@ -47,17 +47,17 @@ function SubscriptionNew() {
       errorMessage(action.payload.message)
     }
     const clinic_name = getClinicName(profile?.hospital_data);
-    const tokenData = getTokenData(); 
-    const deviceSdkData = getDeviceSdkData(); 
+    const tokenData = getTokenData();
+    const deviceSdkData = getDeviceSdkData();
     window.Moengage.track_event("TP_Monetization_InvoiceExplore", {
-        doctor_name: profile?.um_name,
-        doctor_number: profile?.um_contact,
-        doctor_unique_id: profile?.doctor_unique_id,
-        doctor_specialty: profile?.dp_name,
-        clinic_id: tokenData?.clinic_id,
-        um_id: tokenData?.user_id,
-        clinic_Name: clinic_name,
-        ...deviceSdkData,
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      um_id: tokenData?.user_id,
+      clinic_Name: clinic_name,
+      ...deviceSdkData,
     });
   }
 
@@ -115,17 +115,17 @@ function SubscriptionNew() {
               onClick={() => {
                 setShowBillingHistory(true);
                 const clinic_name = getClinicName(profile?.hospital_data);
-                const tokenData = getTokenData(); 
-                const deviceSdkData = getDeviceSdkData(); 
+                const tokenData = getTokenData();
+                const deviceSdkData = getDeviceSdkData();
                 window.Moengage.track_event("TP_Monetization_BillingHistory", {
-                    doctor_name: profile?.um_name,
-                    doctor_number: profile?.um_contact,
-                    doctor_unique_id: profile?.doctor_unique_id,
-                    doctor_specialty: profile?.dp_name,
-                    clinic_id: tokenData?.clinic_id,
-                    um_id: tokenData?.user_id,
-                    clinic_Name: clinic_name,
-                    ...deviceSdkData
+                  doctor_name: profile?.um_name,
+                  doctor_number: profile?.um_contact,
+                  doctor_unique_id: profile?.doctor_unique_id,
+                  doctor_specialty: profile?.dp_name,
+                  clinic_id: tokenData?.clinic_id,
+                  um_id: tokenData?.user_id,
+                  clinic_Name: clinic_name,
+                  ...deviceSdkData
                 });
               }}>
               <img loading="lazy" src={billingsIcon}
@@ -147,6 +147,12 @@ function SubscriptionNew() {
               show={showBillingHistory}
               setShow={setShowBillingHistory}
               billingHistoryList={billingHistoryList} />
+            <div className="text-center p-4">
+              <Button className="btn btn-proceed btn-primary3 w-25 mx-auto align-items-center justify-content-center d-flex" onClick={() => navigate('/get-unlimited-access')}>
+                <img className="me-2" src={crown} alt="Crown" />
+                Buy more
+              </Button>
+            </div>
           </>
         ) : (
           <div className="text-center p-4">
