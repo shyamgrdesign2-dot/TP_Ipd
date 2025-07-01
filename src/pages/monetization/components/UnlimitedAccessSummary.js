@@ -304,7 +304,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 const actionPurchaseDetails = await dispatch(purchaseDetails(sendData));
                 if (actionPurchaseDetails.meta.requestStatus === "fulfilled") {
                     if (actionPurchaseDetails?.payload?.hasOwnProperty("b2c_id")) {
-                        dispatch(fetchSubscriptionDetails())
+                        // dispatch(fetchSubscriptionDetails())
                         dispatch(services(profile?.b2c));
                         navigate(`/?upgrade_services=true&service_list=${selectedServices.map(item => item.service_name)}`, { replace: true })
                         setLoading(false)
