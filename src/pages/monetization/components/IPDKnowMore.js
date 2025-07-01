@@ -7,6 +7,7 @@ import ExpiredText from "./ExpiredText";
 import { S_IPD } from "../../../utils/constants";
 import FreeTrialButton from "./FreeTrialButton";
 import ExpiredSubModal from "./ExpiredSubModal";
+import ipd_thumbnail from '../../../assets/images/ipd_thumbnail.jpg';
 
 const { TabPane } = Tabs;
 
@@ -27,7 +28,7 @@ const IPDKnowMore = ({ handleIPDKnowMore, onRedirect }) => {
 
   const video_link = {
     link: "https://www.youtube.com/embed/videoseries?list=PL_GFkMPa2dgUYEABb8iZpBYTCCevObOiQ",
-    thumbnail: "https://i.ytimg.com/vi/FVRldSjzQTQ/maxresdefault.jpg",
+    thumbnail: ipd_thumbnail,
   };
 
   return (
