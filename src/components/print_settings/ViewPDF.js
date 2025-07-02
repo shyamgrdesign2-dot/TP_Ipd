@@ -65,11 +65,11 @@ Font.register({
 });
 
 Font.register({
-    family: 'NotoSansDevanagari',
+    family: 'AnekDevanagari',
     fonts: [
-        { src: require('../../assets/fonts/print-fonts/NotoSansDevanagari-Regular.ttf'), fontWeight: 400 }, // Regular
-        { src: require('../../assets/fonts/print-fonts/NotoSansDevanagari-Medium.ttf'), fontWeight: 500 }, // Medium
-        { src: require('../../assets/fonts/print-fonts/NotoSansDevanagari-Bold.ttf'), fontWeight: 700 }, // Bold
+        { src: require('../../assets/fonts/print-fonts/AnekDevanagari-Regular.ttf'), fontWeight: 400 }, // Regular
+        { src: require('../../assets/fonts/print-fonts/AnekDevanagari-Medium.ttf'), fontWeight: 500 }, // Medium
+        { src: require('../../assets/fonts/print-fonts/AnekDevanagari-Bold.ttf'), fontWeight: 700 }, // Bold
     ],
 });
 
