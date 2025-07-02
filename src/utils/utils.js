@@ -720,7 +720,7 @@ export const getIndianLanguageFont = (text, defaultFont = 'Roboto') => {
 
   // Devanagari (Hindi, Marathi, Sanskrit, Nepali, etc.)
   if (/[\u0900-\u097F]/.test(text)) {
-    return 'NotoSansDevanagari';
+    return 'AnekDevanagari';
   }
 
   // Bengali/Assamese
