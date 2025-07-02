@@ -131,7 +131,7 @@ function SidebarDoctor() {
   };
 
   const clickOldModule = async (moduleName) => {
-    if (moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') > 0) {
+    if (moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') >= 0) {
       if (tp_monetization_enable && (moduleName === S_PHARMACY || moduleName === S_IPD)) {
         setSubModalData({ service_name: moduleName })
         if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier === TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) {
@@ -488,7 +488,7 @@ function SidebarDoctor() {
                       />
                       <div className="mt-1 px-2">{item.title}</div>
                     </NavLink>
-                    {moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') > 0 &&
+                    {moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') >= 0 &&
                       tp_monetization_enable && (
                         item.type === S_PHARMACY ? (
                           <div className="trial-sidebar">
