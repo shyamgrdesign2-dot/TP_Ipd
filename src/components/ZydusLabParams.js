@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Button, Tooltip } from "antd";
+import { Button, Tooltip, Spin } from "antd";
 import axios from "axios";
 import { env } from "../EnvironmentConfig";
 import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import CommonModal from "../common/CommonModal";
 import alertIcon from "../assets/images/alertIcon.svg";
 import moment from "moment";
-import { DatePicker } from "antd";
-import { EllipsisOutlined, DeleteOutlined } from "@ant-design/icons";
 
 const ZydusLabParams = ({
     handleZydusTestReportDrawer,
@@ -31,6 +29,7 @@ const ZydusLabParams = ({
         dates: [],
         tests: {}
     });
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const storedToken = localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN);
@@ -102,7 +101,8 @@ const ZydusLabParams = ({
 
     const fetchLabResults = async (authToken) => {
         try {
-                const response = await axios.get(`${env.zydus_ict_lab_result_api_url}/ictApiProxy/emr/lab/result/list`, {
+            setLoading(true);
+            const response = await axios.get(`${env.zydus_ict_lab_result_api_url}/ictApiProxy/emr/lab/result/list`, {
                 params: {
                     mrno: mrno,
                     noOfDays: 6000
@@ -114,6 +114,8 @@ const ZydusLabParams = ({
             setLabResults(response.data.data);
         } catch (error) {
             console.error('Error fetching lab results:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -395,12 +397,50 @@ const ZydusLabParams = ({
 
     const renderValue = (value, referenceRange) => {
         if (!value) return "-";
+        const isValueInRange = (value, refRange) => {
+            if (!refRange || refRange === "-") return true;
+            if (typeof refRange === 'string') {
+                const rangeMatch = refRange.match(/(\d+\.?\d*)\s*-\s*(\d+\.?\d*)/);
+                if (rangeMatch) {
+                    const min = parseFloat(rangeMatch[1]);
+                    const max = parseFloat(rangeMatch[2]);
+                    const numValue = parseFloat(value);
+                    return !isNaN(numValue) && numValue >= min && numValue <= max;
+                }
+            }
+            if (refRange?.ranges?.length > 0) {
+                const allRange = refRange.ranges.find(range => range.gender?.toLowerCase() === "all");
+                const maleRange = refRange.ranges.find(range => range.gender?.toLowerCase() === "male");
+                const femaleRange = refRange.ranges.find(range => range.gender?.toLowerCase() === "female");
+                
+                let rangeToUse = allRange;
+                if (patientGender?.toLowerCase() === "male" && maleRange) {
+                    rangeToUse = maleRange;
+                } else if (patientGender?.toLowerCase() === "female" && femaleRange) {
+                    rangeToUse = femaleRange;
+                }
+                
+                if (rangeToUse) {
+                    const min = parseFloat(rangeToUse.min);
+                    const max = parseFloat(rangeToUse.max);
+                    const numValue = parseFloat(value);
+                    return !isNaN(numValue) && numValue >= min && numValue <= max;
+                }
+            }
+            return true;
+        };
         
         // If value is an object with resultValue
         if (typeof value === 'object' && value.resultValue !== undefined) {
+            const isInRange = isValueInRange(value.resultValue, referenceRange);
             return (
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <span style={{fontSize:"14px"}}>{value.resultValue}</span>
+                    <span 
+                        className={isInRange ? "lab-value-normal" : "lab-value-abnormal"}
+                        style={{ fontSize: "14px" }}
+                    >
+                        {value.resultValue}
+                    </span>
                     {referenceRange && referenceRange !== "-" && (
                         <span style={{ color: "#666", fontSize: "12px" }}>
                             ({referenceRange})
@@ -412,9 +452,15 @@ const ZydusLabParams = ({
         
         // If value is a string or number
         if (typeof value === 'string' || typeof value === 'number') {
+            const isInRange = isValueInRange(value, referenceRange);
             return (
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <span style={{fontSize:"14px"}}>{value}</span>
+                    <span 
+                        className={isInRange ? "lab-value-normal" : "lab-value-abnormal"}
+                        style={{ fontSize: "14px" }}
+                    >
+                        {value}
+                    </span>
                     {referenceRange && referenceRange !== "-" && (
                         <span style={{ color: "#666", fontSize: "12px" }}>
                             ({referenceRange})
@@ -787,7 +833,19 @@ const ZydusLabParams = ({
         handleAutoSelection();
     }, [organizedData.dates.length]); // Only trigger when data length changes (stable)
     return (
-        <div style={{ backgroundColor: "#fff" }}>
+        <div className="zydus-lab-params" style={{ backgroundColor: "#fff" }}>
+            <style>
+                {`
+                    .zydus-lab-params .lab-value-abnormal {
+                        color: #ff4d4f !important;
+                        font-weight: bold !important;
+                    }
+                    .zydus-lab-params .lab-value-normal {
+                        color: #000000 !important;
+                        font-weight: normal !important;
+                    }
+                `}
+            </style>
             <div className='modalCard-header h-60 align-items-center justify-content-between d-flex' style={{ position: "sticky", top: "0", zIndex: "999" }}>
                 <div className='align-items-center d-flex'>
                     <Button
@@ -841,112 +899,250 @@ const ZydusLabParams = ({
             </div>
 
             <div style={{ overflowX: "auto", margin: "8px" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <thead style={{ backgroundColor: "#F1F1F5" }}>
-                        <tr style={{ position: "sticky", left: 0 }}>
-                            <th style={{
-                                position: "sticky",
-                                left: 0,
-                                background: "#F1F1F5",
-                                width: "23rem",
-                                padding: "10px",
-                                borderTopLeftRadius: "10px",
-                                borderBottomLeftRadius: "10px",
-                                fontWeight: "600",
-                                zIndex: 3
-                            }}>
-                                <span>Lab Service/Parameter</span>
-                            </th>
-                            {organizedData?.dates?.map((date, index) => (
-                                <th key={date} style={{ 
+                {loading ? (
+                    <div style={{ 
+                        display: "flex", 
+                        justifyContent: "center", 
+                        alignItems: "center", 
+                        height: "700px",
+                        flexDirection: "column",
+                        gap: "16px"
+                    }}>
+                        <Spin size="large" />
+                        <div style={{ color: "#666", fontSize: "14px" }}>
+                            Loading lab results...
+                        </div>
+                    </div>
+                ) : (
+                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                        <thead style={{ backgroundColor: "#F1F1F5" }}>
+                            <tr style={{ position: "sticky", left: 0 }}>
+                                <th style={{
+                                    position: "sticky",
+                                    left: 0,
+                                    background: "#F1F1F5",
+                                    width: "23rem",
                                     padding: "10px",
-                                    minWidth: "120px",
-                                    borderTopRightRadius: index === organizedData.dates.length - 1 ? "10px" : "0",
-                                    borderBottomRightRadius: index === organizedData.dates.length - 1 ? "10px" : "0",
+                                    borderTopLeftRadius: "10px",
+                                    borderBottomLeftRadius: "10px",
                                     fontWeight: "600",
-                                    fontSize: "14px"
+                                    zIndex: 3
                                 }}>
-                                    <div className="date-values" style={{ textWrap: "nowrap" }}>
-                                        <span>{date}</span>
-                                    </div>
+                                    <span>Lab Service/Parameter</span>
                                 </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colSpan={organizedData.dates.length + 1} style={{ height: "15px", background: "#fff" }}></td>
-                        </tr>
-                        {/* Service rows */}
-                        {Object.entries(organizedData.tests).map(([serviceName, testData], index) => (
-                            <React.Fragment key={serviceName}>
-                                {/* Service Row */}
-                                <tr
-                                    style={{
-                                        cursor: "pointer",
-                                        width: "100%",
-                                        backgroundColor: "#FAFAFB",
-                                    }}
-                                    onClick={() => toggleSection(serviceName)}
-                                >
-                                    <td
-                                        style={{
-                                            position: "sticky",
-                                            left: 0,
-                                            zIndex: 2,
-                                            backgroundColor: "#FAFAFB",
-                                            padding: "10px",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            width: "23rem",
-                                            borderTopLeftRadius: "10px",
-                                            borderBottomLeftRadius: "10px",
-                                        }}
-                                    >
-                                        <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "0 10px" }}>
-                                            {renderServiceCheckbox(serviceName)}
-                                            <span style={{ fontSize: "14px", fontWeight: "500" }}>{serviceName}</span>
+                                {organizedData?.dates?.map((date, index) => (
+                                    <th key={date} style={{ 
+                                        padding: "10px",
+                                        minWidth: "120px",
+                                        borderTopRightRadius: index === organizedData.dates.length - 1 ? "10px" : "0",
+                                        borderBottomRightRadius: index === organizedData.dates.length - 1 ? "10px" : "0",
+                                        fontWeight: "600",
+                                        fontSize: "14px"
+                                    }}>
+                                        <div className="date-values" style={{ textWrap: "nowrap" }}>
+                                            <span>{date}</span>
                                         </div>
-                                        {expandedSections[serviceName] ? (
-                                            <button
-                                                className="btn p-0 ms-2 iconrotate180"
-                                                style={{ position: "absolute", left: "816px" }}
-                                            >
-                                                <i className="icon-right fs-5" />
-                                            </button>
-                                        ) : (
-                                            <button
-                                                className="btn p-0 ms-2 iconrotate270"
-                                                style={{ position: "absolute", left: "816px" }}
-                                            >
-                                                <i className="icon-right fs-5" />
-                                            </button>
-                                        )}
-                                    </td>
-                                    {organizedData?.dates?.map((date, index) => {
-                                        const isLastCell = index === organizedData.dates.length - 1;
-                                        return (
-                                            <td
-                                                key={date}
-                                                style={{
-                                                    width: "160px",
-                                                    padding: "10px",
-                                                    textAlign: "right",
-                                                    borderTopRightRadius: isLastCell ? "10px" : "0",
-                                                    borderBottomRightRadius: isLastCell ? "10px" : "0",
-                                                }}
-                                            ></td>
-                                        );
-                                    })}
-                                </tr>
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colSpan={organizedData.dates.length + 1} style={{ height: "15px", background: "#fff" }}></td>
+                            </tr>
+                            {Object.entries(organizedData.tests).map(([serviceName, testData], index) => (
+                                <React.Fragment key={serviceName}>
+                                    <tr
+                                        style={{
+                                            cursor: "pointer",
+                                            width: "100%",
+                                            backgroundColor: "#FAFAFB",
+                                        }}
+                                        onClick={() => toggleSection(serviceName)}
+                                    >
+                                        <td
+                                            style={{
+                                                position: "sticky",
+                                                left: 0,
+                                                zIndex: 2,
+                                                backgroundColor: "#FAFAFB",
+                                                padding: "10px",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                width: "23rem",
+                                                borderTopLeftRadius: "10px",
+                                                borderBottomLeftRadius: "10px",
+                                            }}
+                                        >
+                                            <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "0 10px" }}>
+                                                {renderServiceCheckbox(serviceName)}
+                                                <span style={{ fontSize: "14px", fontWeight: "500" }}>{serviceName}</span>
+                                            </div>
+                                            {expandedSections[serviceName] ? (
+                                                <button
+                                                    className="btn p-0 ms-2 iconrotate180"
+                                                    style={{ position: "absolute", left: "816px" }}
+                                                >
+                                                    <i className="icon-right fs-5" />
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    className="btn p-0 ms-2 iconrotate270"
+                                                    style={{ position: "absolute", left: "816px" }}
+                                                >
+                                                    <i className="icon-right fs-5" />
+                                                </button>
+                                            )}
+                                        </td>
+                                        {organizedData?.dates?.map((date, index) => {
+                                            const isLastCell = index === organizedData.dates.length - 1;
+                                            return (
+                                                <td
+                                                    key={date}
+                                                    style={{
+                                                        width: "160px",
+                                                        padding: "10px",
+                                                        textAlign: "right",
+                                                        borderTopRightRadius: isLastCell ? "10px" : "0",
+                                                        borderBottomRightRadius: isLastCell ? "10px" : "0",
+                                                    }}
+                                                ></td>
+                                            );
+                                        })}
+                                    </tr>
 
-                                {/* Parameters or Direct Result */}
-                                {expandedSections[serviceName] && (
-                                    <>
-                                        {Object.keys(testData.parameters).length > 0 ? (
-                                            // Case 1: Has parameters - show all parameters
-                                            Object.entries(testData.parameters).map(([paramName, paramData]) => (
-                                                <tr key={`${serviceName}-${paramName}`} style={{ background: "#fff" }}>
+                                    {expandedSections[serviceName] && (
+                                        <>
+                                            {Object.keys(testData.parameters).length > 0 ? (
+                                                Object.entries(testData.parameters).map(([paramName, paramData]) => (
+                                                    <tr key={`${serviceName}-${paramName}`} style={{ background: "#fff" }}>
+                                                        <td style={{
+                                                            position: "sticky",
+                                                            left: 0,
+                                                            background: "#fff",
+                                                            padding: "10px",
+                                                            width: "23rem",
+                                                        }}>
+                                                            <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "0 10px" }}>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={!!selectedItems[`${serviceName}_${paramName}`]}
+                                                                    onChange={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleParameterCheckboxChange(serviceName, paramName, e.target.checked);
+                                                                    }}
+                                                                    style={{
+                                                                        width: "16px",
+                                                                        height: "16px",
+                                                                        margin: "0",
+                                                                        cursor: "pointer"
+                                                                    }}
+                                                                />
+                                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                                                    <span style={{ fontSize: "14px" }}>{paramName}</span>
+                                                                    {paramData.referenceRange && (
+                                                                        <Tooltip
+                                                                            placement="bottom"
+                                                                            title={
+                                                                                <div className="ref-range-tooltip">
+                                                                                    <div>
+                                                                                        <strong>Reference Range:</strong>
+                                                                                        {(() => {
+                                                                                            const refRange = paramData.referenceRange;
+                                                                                            if (typeof refRange === 'string' && refRange !== '-') {
+                                                                                                return <div>{refRange}</div>;
+                                                                                            }
+                                                                                            if (refRange?.ranges?.length > 0) {
+                                                                                                const maleRange = refRange.ranges.find(
+                                                                                                    (range) => range.gender?.toLowerCase() === "male"
+                                                                                                );
+                                                                                                const femaleRange = refRange.ranges.find(
+                                                                                                    (range) => range.gender?.toLowerCase() === "female"
+                                                                                                );
+                                                                                                const allRange = refRange.ranges.find(
+                                                                                                    (range) => range.gender?.toLowerCase() === "all"
+                                                                                                );
+
+                                                                                                if (maleRange && femaleRange) {
+                                                                                                    return (
+                                                                                                        <div>
+                                                                                                            Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
+                                                                                                            Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                                                                        </div>
+                                                                                                    );
+                                                                                                } else if (maleRange) {
+                                                                                                    return (
+                                                                                                        <div>
+                                                                                                            Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
+                                                                                                        </div>
+                                                                                                    );
+                                                                                                } else if (femaleRange) {
+                                                                                                    return (
+                                                                                                        <div>
+                                                                                                            Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
+                                                                                                        </div>
+                                                                                                    );
+                                                                                                } else if (allRange) {
+                                                                                                    return (
+                                                                                                        <div>
+                                                                                                            All: {`${allRange.min} - ${allRange.max} ${allRange.unit}`}
+                                                                                                        </div>
+                                                                                                    );
+                                                                                                }
+                                                                                            }
+                                                                                            if (refRange && refRange !== '-') {
+                                                                                                return <div>{refRange}</div>;
+                                                                                            }
+                                                                                            return <div>No reference range available</div>;
+                                                                                        })()}
+                                                                                    </div>
+                                                                                    <div className="disclaimer-text">
+                                                                                        <span style={{ fontWeight: "600" }}>Disclaimer:</span>{" "}
+                                                                                        {`This range is only for reference and may vary between patients based on different conditions.`}
+                                                                                    </div>
+                                                                                </div>
+                                                                            }
+                                                                            overlayClassName="lab-params-tooltip"
+                                                                            overlayInnerStyle={{
+                                                                                padding: "12px",
+                                                                                width: "250px",
+                                                                                background: "white",
+                                                                                color: "black",
+                                                                            }}
+                                                                        >
+                                                                            <i
+                                                                                className="icon-info ms-1"
+                                                                                style={{
+                                                                                    cursor: "pointer",
+                                                                                    color: "#d3d3d3",
+                                                                                    fontSize: "18px",
+                                                                                    marginBottom: "10px",
+                                                                                }}
+                                                                            ></i>
+                                                                        </Tooltip>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        {organizedData?.dates?.map(date => {
+                                                            const paramDateData = paramData.dates[date];
+                                                            const value = renderValue(paramDateData, paramData.referenceRange);
+                                                            return (
+                                                                <td 
+                                                                    key={`${serviceName}-${paramName}-${date}`}
+                                                                    style={{ 
+                                                                        padding: "10px",
+                                                                        background: "transparent"
+                                                                    }}
+                                                                >
+                                                                    {value}
+                                                                </td>
+                                                            );
+                                                        })}
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr style={{ background: "#fff" }}>
                                                     <td style={{
                                                         position: "sticky",
                                                         left: 0,
@@ -955,23 +1151,10 @@ const ZydusLabParams = ({
                                                         width: "23rem",
                                                     }}>
                                                         <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "0 10px" }}>
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={!!selectedItems[`${serviceName}_${paramName}`]}
-                                                                onChange={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleParameterCheckboxChange(serviceName, paramName, e.target.checked);
-                                                                }}
-                                                                style={{
-                                                                    width: "16px",
-                                                                    height: "16px",
-                                                                    margin: "0",
-                                                                    cursor: "pointer"
-                                                                }}
-                                                            />
+                                                            {renderServiceCheckbox(serviceName)}
                                                             <div style={{ display: "flex", alignItems: "center" }}>
-                                                                <span style={{ fontSize: "14px" }}>{paramName}</span>
-                                                                {paramData.referenceRange && (
+                                                                <span style={{ fontSize: "14px" }}>{serviceName}</span>
+                                                                {Object.values(testData.dates)[0]?.referenceRange && (
                                                                     <Tooltip
                                                                         placement="bottom"
                                                                         title={
@@ -979,12 +1162,10 @@ const ZydusLabParams = ({
                                                                                 <div>
                                                                                     <strong>Reference Range:</strong>
                                                                                     {(() => {
-                                                                                        const refRange = paramData.referenceRange;
-                                                                                        // Check if refRange is a string (direct value)
+                                                                                        const refRange = Object.values(testData.dates)[0]?.referenceRange;
                                                                                         if (typeof refRange === 'string' && refRange !== '-') {
                                                                                             return <div>{refRange}</div>;
                                                                                         }
-                                                                                        // Check if refRange is an object with ranges
                                                                                         if (refRange?.ranges?.length > 0) {
                                                                                             const maleRange = refRange.ranges.find(
                                                                                                 (range) => range.gender?.toLowerCase() === "male"
@@ -1023,7 +1204,6 @@ const ZydusLabParams = ({
                                                                                                 );
                                                                                             }
                                                                                         }
-                                                                                        // If refRange is a simple string value
                                                                                         if (refRange && refRange !== '-') {
                                                                                             return <div>{refRange}</div>;
                                                                                         }
@@ -1058,144 +1238,26 @@ const ZydusLabParams = ({
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    {organizedData?.dates?.map(date => {
-                                                        const paramDateData = paramData.dates[date];
-                                                        const value = renderValue(paramDateData, paramData.referenceRange);
-                                                        return (
-                                                            <td 
-                                                                key={`${serviceName}-${paramName}-${date}`}
-                                                                style={{ 
-                                                                    padding: "10px",
-                                                                    background: "transparent"
-                                                                }}
-                                                            >
-                                                                {value}
-                                                            </td>
-                                                        );
-                                                    })}
+                                                    {organizedData?.dates?.map(date => (
+                                                        <td key={date} style={{ padding: "10px" }}>
+                                                            {renderValue(testData.dates[date]?.resultvalue, testData.dates[date]?.referenceRange)}
+                                                        </td>
+                                                    ))}
                                                 </tr>
-                                            ))
-                                        ) : (
-                                            // Case 2: No parameters - show service result directly
-                                            <tr style={{ background: "#fff" }}>
-                                                <td style={{
-                                                    position: "sticky",
-                                                    left: 0,
-                                                    background: "#fff",
-                                                    padding: "10px",
-                                                    width: "23rem",
-                                                }}>
-                                                    <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "0 10px" }}>
-                                                        {renderServiceCheckbox(serviceName)}
-                                                        <div style={{ display: "flex", alignItems: "center" }}>
-                                                            <span style={{ fontSize: "14px" }}>{serviceName}</span>
-                                                            {Object.values(testData.dates)[0]?.referenceRange && (
-                                                                <Tooltip
-                                                                    placement="bottom"
-                                                                    title={
-                                                                        <div className="ref-range-tooltip">
-                                                                            <div>
-                                                                                <strong>Reference Range:</strong>
-                                                                                {(() => {
-                                                                                    const refRange = Object.values(testData.dates)[0]?.referenceRange;
-                                                                                    // Check if refRange is a string (direct value)
-                                                                                    if (typeof refRange === 'string' && refRange !== '-') {
-                                                                                        return <div>{refRange}</div>;
-                                                                                    }
-                                                                                    // Check if refRange is an object with ranges
-                                                                                    if (refRange?.ranges?.length > 0) {
-                                                                                        const maleRange = refRange.ranges.find(
-                                                                                            (range) => range.gender?.toLowerCase() === "male"
-                                                                                        );
-                                                                                        const femaleRange = refRange.ranges.find(
-                                                                                            (range) => range.gender?.toLowerCase() === "female"
-                                                                                        );
-                                                                                        const allRange = refRange.ranges.find(
-                                                                                            (range) => range.gender?.toLowerCase() === "all"
-                                                                                        );
-
-                                                                                        if (maleRange && femaleRange) {
-                                                                                            return (
-                                                                                                <div>
-                                                                                                    Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`} <br />
-                                                                                                    Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
-                                                                                                </div>
-                                                                                            );
-                                                                                        } else if (maleRange) {
-                                                                                            return (
-                                                                                                <div>
-                                                                                                    Male: {`${maleRange.min} - ${maleRange.max} ${maleRange.unit}`}
-                                                                                                </div>
-                                                                                            );
-                                                                                        } else if (femaleRange) {
-                                                                                            return (
-                                                                                                <div>
-                                                                                                    Female: {`${femaleRange.min} - ${femaleRange.max} ${femaleRange.unit}`}
-                                                                                                </div>
-                                                                                            );
-                                                                                        } else if (allRange) {
-                                                                                            return (
-                                                                                                <div>
-                                                                                                    All: {`${allRange.min} - ${allRange.max} ${allRange.unit}`}
-                                                                                                </div>
-                                                                                            );
-                                                                                        }
-                                                                                    }
-                                                                                    // If refRange is a simple string value
-                                                                                    if (refRange && refRange !== '-') {
-                                                                                        return <div>{refRange}</div>;
-                                                                                    }
-                                                                                    return <div>No reference range available</div>;
-                                                                                })()}
-                                                                            </div>
-                                                                            <div className="disclaimer-text">
-                                                                                <span style={{ fontWeight: "600" }}>Disclaimer:</span>{" "}
-                                                                                {`This range is only for reference and may vary between patients based on different conditions.`}
-                                                                            </div>
-                                                                        </div>
-                                                                    }
-                                                                    overlayClassName="lab-params-tooltip"
-                                                                    overlayInnerStyle={{
-                                                                        padding: "12px",
-                                                                        width: "250px",
-                                                                        background: "white",
-                                                                        color: "black",
-                                                                    }}
-                                                                >
-                                                                    <i
-                                                                        className="icon-info ms-1"
-                                                                        style={{
-                                                                            cursor: "pointer",
-                                                                            color: "#d3d3d3",
-                                                                            fontSize: "18px",
-                                                                            marginBottom: "10px",
-                                                                        }}
-                                                                    ></i>
-                                                                </Tooltip>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                {organizedData?.dates?.map(date => (
-                                                    <td key={date} style={{ padding: "10px" }}>
-                                                        {renderValue(testData.dates[date]?.resultvalue, testData.dates[date]?.referenceRange)}
-                                                    </td>
-                                                ))}
-                                            </tr>
-                                        )}
-                                    </>
-                                )}
-                                
-                                {/* Add spacer after each test section except the last one */}
-                                {index < Object.keys(organizedData.tests).length - 1 && (
-                                    <tr>
-                                        <td colSpan={organizedData.dates.length + 1} style={{ height: "10px", background: "#fff" }}></td>
-                                    </tr>
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </tbody>
-                </table>
+                                            )}
+                                        </>
+                                    )}
+                                    
+                                    {index < Object.keys(organizedData.tests).length - 1 && (
+                                        <tr>
+                                            <td colSpan={organizedData.dates.length + 1} style={{ height: "10px", background: "#fff" }}></td>
+                                        </tr>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
     );
