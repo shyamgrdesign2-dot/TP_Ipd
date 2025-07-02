@@ -124,6 +124,9 @@ function AppointmentData({ locationPath }) {
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
     );
+    const isSnapRxAccessable = useFeatureIsOn(
+        GB_ISCRIBE
+    );
     const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
     const [zydusSearchQuery, setZydusSearchQuery] = useState('');
     const [matchedAppointment, setMatchedAppointment] = useState([]);
@@ -1376,7 +1379,44 @@ function AppointmentData({ locationPath }) {
             render: (_, record, index) => (
                 selectedTab != TAB_ZYDUS_APPOINTMENT ?
                     <div size="middle" style={{ display: "flex", justifyContent: "space-between" }}>
-                        {isSmartSyncAccessableFromGB && !isMobile && selectedTab != TAB_ZYDUS_ENCOUNTER ? (
+                        {isSnapRxAccessable && !isMobile && selectedTab != TAB_ZYDUS_ENCOUNTER ? (
+                            isDigitisationTab ?
+                                <>
+                                    <button className="btn btn-outline-primary" style={{ fontSize: "13px !important" }} onClick={() => handleDigitiseRx(record, index)}>
+                                        {"Digitise Rx"}
+                                    </button>
+                                </> :
+                                <div className="d-flex">
+                                    {selectedTab !== TAB_CANCELLED && (
+                                        <button
+                                            // className="btn btn-outline-primary btn-smart-rx" 
+                                            className={`btn btn-outline-primary ${selectedTab === TAB_FINISHED ? 'btn-print-rx' : 'btn-smart-rx'}`}
+                                            onClick={() => selectedTab === TAB_QUEUE ? handleSnapRxClick(record) : onPrintRxUrlClick(record)}
+                                        >
+                                            {selectedTab === TAB_FINISHED ? "Print Rx" : "Snap Rx"}
+                                        </button>
+                                    )}
+                                    {selectedTab === TAB_QUEUE && (
+                                        <button
+                                            className="btn btn-outline-primary btn-down-arrow"
+                                            onClick={() => setOpenRowIndex(openRowIndex === index ? null : index)}
+                                        >
+                                            <span role="img" aria-label="down" class="anticon anticon-down ant-select-suffix">
+                                                <i
+                                                    className="icon-right"
+                                                    style={{ display: "block", transform: `rotate(270deg)` }}
+                                                />
+                                            </span>
+                                        </button>
+                                    )}
+                                    {openRowIndex === index &&
+                                        <button ref={consultButtonRef} className="btn-consult" onClick={() => onConsultClick(record)}>
+                                            Consult
+                                        </button>
+                                    }
+                                </div>
+                        ) : 
+                        isSmartSyncAccessableFromGB && !isMobile && selectedTab != TAB_ZYDUS_ENCOUNTER ? (
                             isDigitisationTab ?
                                 <>
                                     <button className="btn btn-outline-primary" style={{ fontSize: "13px !important" }} onClick={() => handleDigitiseRx(record, index)}>
@@ -1864,6 +1904,10 @@ function AppointmentData({ locationPath }) {
     //         }
     //     };
     // }, [loading, setOnLoad]);
+
+    const handleSnapRxClick = async (record) => {
+        navigate("/snap-rx", { state: { patient_data: record } })
+    }
 
     return (
         <>
