@@ -1243,7 +1243,7 @@ function Prescription() {
               <span>View All</span>
             </button>
           </div>
-          <ZydusLabParametersList labParamsData={zydusSelectedLabParams} patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} />
+          <ZydusLabParametersList labParamsData={zydusSelectedLabParams} patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} patientGender={patient_data?.pm_gender} />
         </div>
       );
     }

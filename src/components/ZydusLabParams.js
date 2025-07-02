@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button, Tooltip, Spin } from "antd";
+import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { env } from "../EnvironmentConfig";
 import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
@@ -395,6 +396,42 @@ const ZydusLabParams = ({
         }
     };
 
+    const calculateArrowDirection = (value, refRange) => {
+        if (!value || value === "-" || value === "--") return "";
+        const numericValue = parseFloat(value);
+        if (isNaN(numericValue)) return "";
+
+        if (typeof refRange === 'string' && refRange !== "-") {
+            const rangeMatch = refRange.match(/(\d+(?:\.\d+)?)\s*[-–]\s*(\d+(?:\.\d+)?)/);
+            if (rangeMatch) {
+                const min = parseFloat(rangeMatch[1]);
+                const max = parseFloat(rangeMatch[2]);
+                if (!isNaN(min) && !isNaN(max)) {
+                    if (numericValue > max) return "up";
+                    if (numericValue < min) return "down";
+                }
+            }
+        }
+        if (refRange?.ranges?.length > 0) {
+            const genderLower = patientGender?.toLowerCase() || "";
+            const selectedRange = refRange.ranges.find(range => 
+                range.gender?.toLowerCase() === genderLower
+            ) || refRange.ranges.find(range => 
+                range.gender?.toLowerCase() === "all"
+            ) || refRange.ranges[0];
+            
+            if (selectedRange?.min !== undefined && selectedRange?.max !== undefined) {
+                const min = parseFloat(selectedRange.min);
+                const max = parseFloat(selectedRange.max);
+                if (!isNaN(min) && !isNaN(max)) {
+                    if (numericValue > max) return "up";
+                    if (numericValue < min) return "down";
+                }
+            }
+        }
+        return "";
+    };
+
     const renderValue = (value, referenceRange) => {
         if (!value) return "-";
         const isValueInRange = (value, refRange) => {
@@ -433,14 +470,29 @@ const ZydusLabParams = ({
         // If value is an object with resultValue
         if (typeof value === 'object' && value.resultValue !== undefined) {
             const isInRange = isValueInRange(value.resultValue, referenceRange);
+            const arrowDirection = calculateArrowDirection(value.resultValue, referenceRange);
             return (
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <span 
-                        className={isInRange ? "lab-value-normal" : "lab-value-abnormal"}
-                        style={{ fontSize: "14px" }}
-                    >
-                        {value.resultValue}
-                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <span 
+                            className={isInRange ? "lab-value-normal" : "lab-value-abnormal"}
+                            style={{ fontSize: "14px" }}
+                        >
+                            {value.resultValue}
+                        </span>
+                        {arrowDirection === "up" && (
+                            <ArrowUpOutlined
+                                className="lab-params-warning"
+                                style={{ paddingLeft: 5 }}
+                            />
+                        )}
+                        {arrowDirection === "down" && (
+                            <ArrowDownOutlined
+                                className="lab-params-warning"
+                                style={{ paddingLeft: 5 }}
+                            />
+                        )}
+                    </div>
                     {referenceRange && referenceRange !== "-" && (
                         <span style={{ color: "#666", fontSize: "12px" }}>
                             ({referenceRange})
@@ -453,14 +505,29 @@ const ZydusLabParams = ({
         // If value is a string or number
         if (typeof value === 'string' || typeof value === 'number') {
             const isInRange = isValueInRange(value, referenceRange);
+            const arrowDirection = calculateArrowDirection(value, referenceRange);
             return (
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <span 
-                        className={isInRange ? "lab-value-normal" : "lab-value-abnormal"}
-                        style={{ fontSize: "14px" }}
-                    >
-                        {value}
-                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <span 
+                            className={isInRange ? "lab-value-normal" : "lab-value-abnormal"}
+                            style={{ fontSize: "14px" }}
+                        >
+                            {value}
+                        </span>
+                        {arrowDirection === "up" && (
+                            <ArrowUpOutlined
+                                className="lab-params-warning"
+                                style={{ paddingLeft: 5 }}
+                            />
+                        )}
+                        {arrowDirection === "down" && (
+                            <ArrowDownOutlined
+                                className="lab-params-warning"
+                                style={{ paddingLeft: 5 }}
+                            />
+                        )}
+                    </div>
                     {referenceRange && referenceRange !== "-" && (
                         <span style={{ color: "#666", fontSize: "12px" }}>
                             ({referenceRange})
@@ -838,11 +905,14 @@ const ZydusLabParams = ({
                 {`
                     .zydus-lab-params .lab-value-abnormal {
                         color: #ff4d4f !important;
-                        font-weight: bold !important;
+                        font-weight: 500 !important;
                     }
                     .zydus-lab-params .lab-value-normal {
                         color: #000000 !important;
                         font-weight: normal !important;
+                    }
+                    .zydus-lab-params .lab-params-warning {
+                        color: #E54848 !important;
                     }
                 `}
             </style>
