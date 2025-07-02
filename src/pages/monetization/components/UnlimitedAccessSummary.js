@@ -89,7 +89,11 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
             //     )
             // );
             setSelectedServices(prev =>
-                prev.map(e => ({ ...e, validity: newValidity }))
+                prev.map(e =>
+                    e.service_name !== S_SMARTSYNC ?
+                        { ...e, validity: newValidity }
+                        : e
+                )
             );
         } else {
             const EMR_validity = selectedServices.find(e => e.service_name === S_TATVA_PRACTICE)?.validity
@@ -756,7 +760,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     <Link className="text-decoration-underline fw-medium text-primary" onClick={clickReferralCode}>Have a sales referral code?</Link>
                 </div>
 
-                <div style={{backgroundColor: '#fef4e6'}} className="fs-14 mt-3 p-3 rounded-3">
+                <div style={{ backgroundColor: '#fef4e6' }} className="fs-14 mt-3 p-3 rounded-3">
                     <span className="fw-semibold">Note: </span>The pricing mentioned above applies to a single doctor's seat.
                 </div>
             </div>
