@@ -225,7 +225,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
   };
 
   const checkBillingPurchased = async () => {
-    if (moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') > 0) {
+    if (moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') >= 0) {
       if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
         showHideSubModal()
       } else {
