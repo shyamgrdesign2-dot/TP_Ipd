@@ -1,10 +1,11 @@
 import React, { useState, useRef, useContext } from "react";
-import { Button, message } from "antd";
+import { message } from "antd";
 import CashManagerContext from "../../../context/CashManagerContext";
 import QRCodeGenerator from "./QRCodeGenerator";
 import PreviewDrawer from "./PreviewDrawer";
 import rxPadImage from "../../../assets/images/rx-pad.png";
 import "./UploadWrittenRx.scss";
+import { CloudUploadOutlined } from "@ant-design/icons";
 
 const UploadWrittenRx = ({ onFileUpload, isLoading }) => {
   const fileInputRef = useRef(null);
@@ -73,7 +74,6 @@ const UploadWrittenRx = ({ onFileUpload, isLoading }) => {
       setSelectedFiles((prev) => [...prev, ...newFiles]);
       setUploadedFiles((prev) => [...prev, ...newFiles]);
       setIsPreviewOpen(true);
-      message.success(`${newFiles.length} file(s) selected successfully`);
     }
   };
 
@@ -181,185 +181,53 @@ const UploadWrittenRx = ({ onFileUpload, isLoading }) => {
           </div>
 
           {/* Rx Pad Image */}
-          <div className="rx-image-container">
+          <div className="rx-image">
             <img
               src={rxPadImage}
               alt="Prescription Pad"
               className="rx-pad-image"
             />
           </div>
-
-          {/* QR Code Section */}
-          <div className="qr-section">
-            <div className="qr-container">
-              <QRCodeGenerator data={generateQRData()} size={120} />
-            </div>
-            <p className="qr-description">
-              Scan this QR to upload written prescription (Rx) directly
-              <br />
-              from your mobile device
-            </p>
-          </div>
-
-          {/* Upload Section */}
-          <div
-            className={`upload-section ${dragActive ? "drag-active" : ""}`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
-            <div className="upload-content">
-              <div className="upload-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-                    stroke="#6B7FFF"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <polyline
-                    points="14,2 14,8 20,8"
-                    stroke="#6B7FFF"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <line
-                    x1="16"
-                    y1="13"
-                    x2="8"
-                    y2="13"
-                    stroke="#6B7FFF"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <line
-                    x1="16"
-                    y1="17"
-                    x2="8"
-                    y2="17"
-                    stroke="#6B7FFF"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <polyline
-                    points="10,9 9,9 8,9"
-                    stroke="#6B7FFF"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+          <div style={{ padding: "0rem 3.9375rem 2.375rem 3.9375rem" }}>
+            {/* QR Code Section */}
+            <div className="qr-section">
+              <div className="qr-container">
+                <QRCodeGenerator data={generateQRData()} size={120} />
               </div>
-              <div className="upload-text">
-                <span className="upload-link" onClick={handleUploadClick}>
-                  Click to Upload
-                </span>
-                <span className="upload-separator"> or drag and drop</span>
-              </div>
+              <p className="qr-description">
+                Scan this QR to upload written prescription (Rx) directly
+                <br />
+                from your mobile device
+              </p>
             </div>
-            <p className="upload-description">
-              Upload the written prescription (Rx) in PDF, PNG, or JPG format
-            </p>
-          </div>
 
-          {/* Selected Files Display */}
-          {selectedFiles.length > 0 && !isPreviewOpen && (
-            <div className="selected-files">
-              <h4>Selected Files ({selectedFiles.length}):</h4>
-              {selectedFiles.map((file, index) => (
-                <div key={index} className="file-item">
-                  <div className="file-info">
-                    <div className="file-icon">
-                      {file.type.includes("pdf") ? (
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="#ff6b6b"
-                        >
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                          <polyline points="14,2 14,8 20,8" />
-                          <text
-                            x="12"
-                            y="17"
-                            fontSize="8"
-                            fill="white"
-                            textAnchor="middle"
-                          >
-                            PDF
-                          </text>
-                        </svg>
-                      ) : (
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="#4ecdc4"
-                        >
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                          <polyline points="14,2 14,8 20,8" />
-                          <text
-                            x="12"
-                            y="17"
-                            fontSize="8"
-                            fill="white"
-                            textAnchor="middle"
-                          >
-                            IMG
-                          </text>
-                        </svg>
-                      )}
-                    </div>
-                    <div className="file-details">
-                      <span className="file-name">{file.name}</span>
-                      <span className="file-size">
-                        ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                      </span>
-                    </div>
-                  </div>
-                  <div className="file-actions">
-                    <Button
-                      type="text"
-                      size="small"
-                      onClick={() => handleRemoveFile(index)}
-                      className="remove-btn"
-                      icon={
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="#ff4d4f"
-                        >
-                          <line x1="18" y1="6" x2="6" y2="18"></line>
-                          <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                      }
-                    />
-                  </div>
+            {/* OR Separator */}
+            <div className="or-separator">
+              <span>or</span>
+            </div>
+
+            {/* Upload Section */}
+            <div
+              className={`upload-section ${dragActive ? "drag-active" : ""}`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            >
+              <div className="upload-content">
+                <CloudUploadOutlined className="upload-icon" />
+                <div className="upload-text">
+                  <span className="upload-link" onClick={handleUploadClick}>
+                    Click to Upload
+                  </span>
+                  <span className="upload-separator"> or drag and drop</span>
                 </div>
-              ))}
+              </div>
+              <p className="upload-description">
+                Upload the written prescription (Rx) in PDF, PNG, or JPG format
+              </p>
             </div>
-          )}
-
-          {/* Submit Button */}
-          {selectedFiles.length > 0 && !isPreviewOpen && (
-            <div className="submit-section">
-              <Button
-                type="primary"
-                size="large"
-                loading={isLoading}
-                onClick={() => setIsPreviewOpen(true)}
-                className="submit-button"
-              >
-                Preview & Upload
-              </Button>
-            </div>
-          )}
+          </div>
 
           {/* Hidden File Input */}
           <input

@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Skeleton, message } from "antd";
+import { Button, Skeleton, message } from "antd";
+import {
+  ReloadOutlined,
+  DeleteOutlined,
+  UndoOutlined,
+  MinusOutlined,
+  PlusOutlined,
+  CloudUploadOutlined,
+} from "@ant-design/icons";
+import ReactCrop from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
 import "./PreviewDrawer.scss";
 
 const PreviewDrawer = ({
@@ -16,18 +26,17 @@ const PreviewDrawer = ({
   const [zoom, setZoom] = useState(1);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [cropArea, setCropArea] = useState({
-    x: 0.1,
-    y: 0.1,
-    width: 0.8,
-    height: 0.8,
+  const [crop, setCrop] = useState({
+    unit: "%",
+    x: 10,
+    y: 10,
+    width: 80,
+    height: 80,
   });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragHandle, setDragHandle] = useState(null);
-  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  const [completedCrop, setCompletedCrop] = useState(null);
 
   const imageRef = useRef(null);
-  const containerRef = useRef(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     if (isOpen && uploadedFiles.length > 0) {
@@ -45,18 +54,14 @@ const PreviewDrawer = ({
   const currentFile = uploadedFiles[selectedFileIndex];
   const imageUrl = currentFile?.url || currentFile?.preview;
 
-  // Check if image loads properly
   useEffect(() => {
     if (imageUrl && !loading) {
-      console.log("Loading image:", imageUrl);
       const img = new Image();
       img.onload = () => {
-        console.log("Image loaded successfully:", imageUrl);
         setImageLoaded(true);
         setImageError(false);
       };
       img.onerror = () => {
-        console.error("Failed to load image:", imageUrl);
         setImageError(true);
         setImageLoaded(false);
       };
@@ -64,114 +69,48 @@ const PreviewDrawer = ({
     }
   }, [imageUrl, loading]);
 
-  const handleImageLoad = useCallback(() => {
-    if (imageRef.current) {
-      setImageSize({
-        width: imageRef.current.offsetWidth,
-        height: imageRef.current.offsetHeight,
-      });
-    }
+  const onImageLoad = useCallback((e) => {
+    const { width, height } = e.currentTarget;
+
+    // Set default crop to center 80% of the image
+    const cropWidth = width * 0.8;
+    const cropHeight = height * 0.8;
+    const cropX = (width - cropWidth) / 2;
+    const cropY = (height - cropHeight) / 2;
+
+    const crop = {
+      unit: "px",
+      x: cropX,
+      y: cropY,
+      width: cropWidth,
+      height: cropHeight,
+    };
+
+    setCrop(crop);
+    setCompletedCrop(crop);
   }, []);
 
-  const handleMouseDown = useCallback((e, handle) => {
-    e.preventDefault();
-    setIsDragging(true);
-    setDragHandle(handle);
-  }, []);
+  const getCroppedImg = useCallback((image, crop) => {
+    const canvas = canvasRef.current;
+    if (!canvas || !crop) return null;
 
-  const handleMouseMove = useCallback(
-    (e) => {
-      if (!isDragging || !imageRef.current) return;
-
-      const rect = imageRef.current.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;
-      const y = (e.clientY - rect.top) / rect.height;
-
-      let newCropArea = { ...cropArea };
-
-      switch (dragHandle) {
-        case "tl":
-          newCropArea.width = cropArea.width + (cropArea.x - x);
-          newCropArea.height = cropArea.height + (cropArea.y - y);
-          newCropArea.x = x;
-          newCropArea.y = y;
-          break;
-        case "tr":
-          newCropArea.width = x - cropArea.x;
-          newCropArea.height = cropArea.height + (cropArea.y - y);
-          newCropArea.y = y;
-          break;
-        case "bl":
-          newCropArea.width = cropArea.width + (cropArea.x - x);
-          newCropArea.height = y - cropArea.y;
-          newCropArea.x = x;
-          break;
-        case "br":
-          newCropArea.width = x - cropArea.x;
-          newCropArea.height = y - cropArea.y;
-          break;
-      }
-
-      // Constrain to bounds
-      newCropArea.x = Math.max(0, Math.min(0.9, newCropArea.x));
-      newCropArea.y = Math.max(0, Math.min(0.9, newCropArea.y));
-      newCropArea.width = Math.max(
-        0.1,
-        Math.min(1 - newCropArea.x, newCropArea.width)
-      );
-      newCropArea.height = Math.max(
-        0.1,
-        Math.min(1 - newCropArea.y, newCropArea.height)
-      );
-
-      setCropArea(newCropArea);
-    },
-    [isDragging, dragHandle, cropArea]
-  );
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-    setDragHandle(null);
-  }, []);
-
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-      return () => {
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-      };
-    }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
-
-  const createImage = (url) =>
-    new Promise((resolve, reject) => {
-      const image = new Image();
-      image.addEventListener("load", () => resolve(image));
-      image.addEventListener("error", (error) => reject(error));
-      image.setAttribute("crossOrigin", "anonymous");
-      image.src = url;
-    });
-
-  const getCroppedImg = async (imageSrc, cropPixels) => {
-    const image = await createImage(imageSrc);
-    const canvas = document.createElement("canvas");
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
     const ctx = canvas.getContext("2d");
 
-    canvas.width = cropPixels.width;
-    canvas.height = cropPixels.height;
+    canvas.width = crop.width * scaleX;
+    canvas.height = crop.height * scaleY;
 
     ctx.drawImage(
       image,
-      cropPixels.x,
-      cropPixels.y,
-      cropPixels.width,
-      cropPixels.height,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
       0,
       0,
-      cropPixels.width,
-      cropPixels.height
+      crop.width * scaleX,
+      crop.height * scaleY
     );
 
     return new Promise((resolve) => {
@@ -183,37 +122,33 @@ const PreviewDrawer = ({
         0.9
       );
     });
-  };
+  }, []);
 
   const handleSave = async () => {
-    if (currentFile && imageRef.current) {
+    if (currentFile && imageRef.current && completedCrop) {
       try {
-        const rect = imageRef.current.getBoundingClientRect();
-        const cropPixels = {
-          x: cropArea.x * imageRef.current.naturalWidth,
-          y: cropArea.y * imageRef.current.naturalHeight,
-          width: cropArea.width * imageRef.current.naturalWidth,
-          height: cropArea.height * imageRef.current.naturalHeight,
-        };
+        const croppedBlob = await getCroppedImg(
+          imageRef.current,
+          completedCrop
+        );
 
-        const croppedBlob = await getCroppedImg(imageUrl, cropPixels);
+        if (croppedBlob) {
+          const croppedFile = new File([croppedBlob], currentFile.name, {
+            type: "image/jpeg",
+          });
+          const croppedUrl = URL.createObjectURL(croppedBlob);
 
-        const croppedFile = new File([croppedBlob], currentFile.name, {
-          type: "image/jpeg",
-        });
-        const croppedUrl = URL.createObjectURL(croppedBlob);
+          const updatedFiles = [...uploadedFiles];
+          updatedFiles[selectedFileIndex] = {
+            ...currentFile,
+            file: croppedFile,
+            url: croppedUrl,
+            preview: croppedUrl,
+          };
 
-        // Update the file in uploadedFiles array
-        const updatedFiles = [...uploadedFiles];
-        updatedFiles[selectedFileIndex] = {
-          ...currentFile,
-          file: croppedFile,
-          url: croppedUrl,
-          preview: croppedUrl,
-        };
-
-        if (onSave) {
-          onSave(updatedFiles);
+          if (onSave) {
+            onSave(updatedFiles);
+          }
         }
       } catch (error) {
         console.error("Error cropping image:", error);
@@ -243,260 +178,132 @@ const PreviewDrawer = ({
   return (
     <div className="preview-drawer-overlay">
       <div className="preview-drawer">
+        {/* Header */}
         <div className="drawer-header">
           <div className="header-left">
-            <button className="back-button" onClick={onClose}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M19 12H5"
-                  stroke="#6B7280"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M12 19l-7-7 7-7"
-                  stroke="#6B7280"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
+            <div
+              onClick={onClose}
+              className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer border-end"
+            >
+              <i className="icon-right"></i>
+            </div>
+
             <h1 className="drawer-title">Rx Preview</h1>
           </div>
-          <button className="save-button" onClick={handleSave}>
+          <Button
+            type="button"
+            className="btn align-items-center d-flex btn-41 btn-primary3 me-20 px-4"
+            onClick={handleSave}
+          >
             Save
-          </button>
+          </Button>
         </div>
 
+        {/* Content */}
         <div className="drawer-content">
-          <div className="preview-area">
-            {loading ? (
-              <div className="loading-container">
-                <Skeleton.Image
-                  style={{ width: "400px", height: "500px" }}
-                  active
-                />
-              </div>
-            ) : imageError ? (
-              <div className="error-container">
-                <div className="error-content">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="#ef4444"
-                      strokeWidth="2"
-                    />
-                    <line
-                      x1="15"
-                      y1="9"
-                      x2="9"
-                      y2="15"
-                      stroke="#ef4444"
-                      strokeWidth="2"
-                    />
-                    <line
-                      x1="9"
-                      y1="9"
-                      x2="15"
-                      y2="15"
-                      stroke="#ef4444"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                  <p>Failed to load image</p>
-                  <button onClick={onReupload} className="retry-btn">
-                    Try Again
-                  </button>
-                </div>
-              </div>
-            ) : !imageLoaded ? (
-              <div className="loading-container">
-                <div className="loading-content">
-                  <div className="spinner"></div>
-                  <p>Loading image...</p>
-                </div>
-              </div>
-            ) : (
-              <div className="image-container" ref={containerRef}>
-                <div className="image-wrapper">
-                  <img
-                    ref={imageRef}
-                    src={imageUrl}
-                    alt="Prescription"
-                    className="prescription-image"
-                    onLoad={handleImageLoad}
+          {/* Main Preview Area */}
+          <div className="preview-container">
+            <div className="preview-area">
+              {loading ? (
+                <div className="skeleton-container">
+                  <Skeleton.Image
                     style={{
-                      transform: `scale(${zoom})`,
-                      transformOrigin: "center center",
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: "20px",
                     }}
-                  />
-
-                  {/* Crop overlay */}
-                  <div
-                    className="crop-overlay"
-                    style={{
-                      left: `${cropArea.x * 100}%`,
-                      top: `${cropArea.y * 100}%`,
-                      width: `${cropArea.width * 100}%`,
-                      height: `${cropArea.height * 100}%`,
-                    }}
-                  />
-
-                  {/* Crop handles */}
-                  <div
-                    className="crop-handle corner-tl"
-                    style={{
-                      left: `${cropArea.x * 100}%`,
-                      top: `${cropArea.y * 100}%`,
-                    }}
-                    onMouseDown={(e) => handleMouseDown(e, "tl")}
-                  />
-                  <div
-                    className="crop-handle corner-tr"
-                    style={{
-                      left: `${(cropArea.x + cropArea.width) * 100}%`,
-                      top: `${cropArea.y * 100}%`,
-                    }}
-                    onMouseDown={(e) => handleMouseDown(e, "tr")}
-                  />
-                  <div
-                    className="crop-handle corner-bl"
-                    style={{
-                      left: `${cropArea.x * 100}%`,
-                      top: `${(cropArea.y + cropArea.height) * 100}%`,
-                    }}
-                    onMouseDown={(e) => handleMouseDown(e, "bl")}
-                  />
-                  <div
-                    className="crop-handle corner-br"
-                    style={{
-                      left: `${(cropArea.x + cropArea.width) * 100}%`,
-                      top: `${(cropArea.y + cropArea.height) * 100}%`,
-                    }}
-                    onMouseDown={(e) => handleMouseDown(e, "br")}
+                    active
                   />
                 </div>
-              </div>
-            )}
-          </div>
+              ) : imageError ? (
+                <div className="error-container">
+                  <div className="error-content">
+                    <div className="error-icon">⚠️</div>
+                    <p>Failed to load image</p>
+                    <button onClick={onReupload} className="retry-btn">
+                      Try Again
+                    </button>
+                  </div>
+                </div>
+              ) : !imageLoaded ? (
+                <div className="loading-container">
+                  <div className="loading-content">
+                    <div className="spinner"></div>
+                    <p>Loading image...</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="crop-container">
+                  <ReactCrop
+                    crop={crop}
+                    onChange={(newCrop) => setCrop(newCrop)}
+                    onComplete={(completedCrop) =>
+                      setCompletedCrop(completedCrop)
+                    }
+                    aspect={undefined}
+                    className="react-crop-wrapper"
+                  >
+                    <img
+                      ref={imageRef}
+                      src={imageUrl}
+                      alt="Prescription"
+                      className="prescription-image"
+                      onLoad={onImageLoad}
+                      style={{
+                        transform: `scale(${zoom})`,
+                        transformOrigin: "center center",
+                        maxWidth: "100%",
+                        maxHeight: "100%",
+                      }}
+                    />
+                  </ReactCrop>
+                  {/* Action Bar */}
+                  <div className="action-bar">
+                    <div className="action-buttons">
+                      <button
+                        className="action-btn reupload-btn"
+                        onClick={onReupload}
+                      >
+                        <ReloadOutlined />
+                        <span>Reupload</span>
+                      </button>
 
-          <div className="action-bar">
-            <div className="action-buttons">
-              <button className="action-btn reupload" onClick={onReupload}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <polyline
-                    points="7,10 12,15 17,10"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <line
-                    x1="12"
-                    y1="15"
-                    x2="12"
-                    y2="3"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Reupload
-              </button>
+                      <button
+                        className="action-btn remove-btn"
+                        onClick={() => onRemove(selectedFileIndex)}
+                      >
+                        <DeleteOutlined />
+                        <span>Remove</span>
+                      </button>
+                    </div>
 
-              <button
-                className="action-btn remove"
-                onClick={() => onRemove(selectedFileIndex)}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <polyline
-                    points="3,6 5,6 21,6"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2 2h4a2 2 0 0 1 2 2v2"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Remove
-              </button>
-            </div>
-
-            <div className="zoom-controls">
-              <button className="zoom-btn" onClick={handleZoomReset}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="3"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  />
-                </svg>
-              </button>
-              <button className="zoom-btn" onClick={handleZoomOut}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <line
-                    x1="5"
-                    y1="12"
-                    x2="19"
-                    y2="12"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </button>
-              <button className="zoom-btn" onClick={handleZoomIn}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <line
-                    x1="12"
-                    y1="5"
-                    x2="12"
-                    y2="19"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  <line
-                    x1="5"
-                    y1="12"
-                    x2="19"
-                    y2="12"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </button>
+                    <div className="zoom-controls">
+                      <button
+                        className="zoom-btn reset-btn"
+                        onClick={handleZoomReset}
+                      >
+                        <UndoOutlined />
+                      </button>
+                      <button
+                        className="zoom-btn minus-btn"
+                        onClick={handleZoomOut}
+                      >
+                        <MinusOutlined />
+                      </button>
+                      <button
+                        className="zoom-btn plus-btn"
+                        onClick={handleZoomIn}
+                      >
+                        <PlusOutlined />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
+          {/* Thumbnails Section */}
           <div className="thumbnails-section">
             {uploadedFiles.map((file, index) => (
               <div
@@ -516,32 +323,16 @@ const PreviewDrawer = ({
 
             <div className="add-more-item" onClick={onAddMore}>
               <div className="add-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <line
-                    x1="12"
-                    y1="5"
-                    x2="12"
-                    y2="19"
-                    stroke="#6366F1"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  <line
-                    x1="5"
-                    y1="12"
-                    x2="19"
-                    y2="12"
-                    stroke="#6366F1"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <CloudUploadOutlined className="upload-icon" />
               </div>
               <span className="add-text">Add More</span>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Hidden canvas for cropping */}
+      <canvas ref={canvasRef} style={{ display: "none" }} />
     </div>
   );
 };
