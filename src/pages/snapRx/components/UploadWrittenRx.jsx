@@ -124,7 +124,7 @@ const UploadWrittenRx = ({ onFileUpload, isLoading }) => {
   const generateQRData = () => {
     return JSON.stringify({
       type: "snap_rx_upload",
-      patientId: patient_data?.patient_unique_id || "demo_patient",
+      patientId: patient_data?.patient_unique_id,
       tcmId: tcmId || 0,
       pamId: pamId || 0,
       timestamp: new Date().toISOString(),
