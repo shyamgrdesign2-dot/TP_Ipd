@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import { Button, Modal, Card } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import moment from "moment";
 
 import CampaignDiscount from "./CampaignDiscount";
 import expiredInfographic2 from '../../../assets/images/expired-infographic-2.svg'
@@ -10,7 +9,7 @@ import coinLg from "../../../assets/images/coin-lg.png";
 import crown from '../../../assets/images/crown.svg'
 import planExpiredSandClock from '../../../assets/images/plan-expired-sand-clock.png'
 import { interest } from "../../../redux/monetizationSlice";
-import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData, shouldMonetizationDisabled } from "../../../utils/utils";
 import { openModal } from "../../../redux/doctorModalSlice";
 import { S_IPD, S_PHARMACY, S_TATVA_PRACTICE, TRIAL } from "../../../utils/constants";
 
@@ -18,6 +17,8 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    const tp_monetization_enable = !shouldMonetizationDisabled();
 
     const { profile, servicesList } = useSelector((state) => state.doctors);
     const AI_planDetails = servicesList?.find(e => e.service_name === title)
@@ -82,10 +83,6 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
         }
     }
 
-    const remaingDays = useMemo(() => {
-        return EMR_planDetails?.plan_tier === TRIAL ? moment(planDetails?.plan_expiry_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
-    }, [title, planDetails]);
-
     return (
         <Modal
             open={isSubModalOpen}
@@ -117,11 +114,11 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                         You can generate up to <span className="fw-bold text-white">{AI_planDetails?.credit_balance} RX</span> using {AI_planDetails?.service_type == 'ai' && 'AI'} {AI_planDetails?.service_display_name} for absolutely free!
                     </div>
                 ) : (
-                    (isPurchased() || remaingDays < 0) ? (
+                    (isPurchased() || AI_planDetails?.credit_balance === 0) ? (
                         <>
                             <img src={planExpiredSandClock} className="plan-expired-clock" alt="Expired Clock" />
                             <div className="text-white">
-                                Your<span className="text-white fw-semibold"> {NonAI_planDetails?.service_display_name} trial plan  </span>  has expired. <br />
+                                Your<span className="text-white fw-semibold"> {AI_planDetails?.service_type == 'ai' ? AI_planDetails?.service_display_name: NonAI_planDetails?.service_display_name} trial plan  </span>  has expired. <br />
                                 Upgrade now to continue a hassle free experience!
                             </div>
                         </>
@@ -148,7 +145,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                             Request a call back
                         </Button>
                     </div>
-                    {![S_PHARMACY, S_IPD].includes(title) &&
+                    {![S_PHARMACY, S_IPD].includes(title) && tp_monetization_enable &&
                         <div>
                             <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(title)}>
                                 <img className="me-2" src={crown} alt="Crown" />

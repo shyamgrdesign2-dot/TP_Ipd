@@ -7,7 +7,7 @@ import supportwhite from "../assets/images/support.png";
 import SMS from "../assets/images/sms.svg";
 import { openModal } from "../redux/doctorModalSlice";
 import { fetchSubscriptionDetails } from "../redux/subscriptionSlice";
-import { getClinicName, getDeviceSdkData, getTokenData } from "../utils/utils";
+import { getClinicName, getDeviceSdkData, getTokenData, shouldMonetizationDisabled } from "../utils/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 import { deviceType, osName } from "react-device-detect";
 import { APPROVED, PAID, PENDING, REJECTED, S_TATVA_PRACTICE, TRIAL } from "../utils/constants";
@@ -15,6 +15,7 @@ import { Card, Modal } from "antd";
 
 const DemoExpirationBanner = () => {
   const navigate = useNavigate();
+  const tp_monetization_enable = !shouldMonetizationDisabled();
   const { pathname } = useLocation();
   const { planDetails } = useSelector((state) => state.subscription);
   const { profile } = useSelector((state) => state.doctors);
@@ -117,12 +118,14 @@ const DemoExpirationBanner = () => {
           <p className="expirationMessage text-white">
             {`${remaingDays > 0 ? `You're on a trial plan` : `${remaingDays < 0 ? `Your trial plan expired` : `Your trial plan will expire today`}`}. Upgrade your plan to continue hassle-free access!`}
           </p>
-          <button className="buyPlanButton" onClick={handleClick}>
-            <img loading="lazy" src={crownIcon} className="buttonIcon" alt="" />
-            <span className="buttonText text-white">
-              Get Unlimited Access
-            </span>
-          </button>
+          {tp_monetization_enable && (
+            <button className="buyPlanButton" onClick={handleClick}>
+              <img loading="lazy" src={crownIcon} className="buttonIcon" alt="" />
+              <span className="buttonText text-white">
+                Get Unlimited Access
+              </span>
+            </button>
+          )}
         </header>
       ) : c_plan_status == PAID && c_last_plan_status == PAID && EMR_planDetails?.status == REJECTED ? (
         <header className={`banner`}>

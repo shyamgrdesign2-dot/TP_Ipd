@@ -8,7 +8,7 @@ import arrowRight from '../../../assets/images/arrow-right.svg'
 import crown from '../../../assets/images/crown.svg'
 import { FREE, S_ASK_TATVA, S_IPD, S_PHARMACY, S_TATVA_PRACTICE, TRIAL } from "../../../utils/constants";
 import { interest } from "../../../redux/monetizationSlice";
-import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData, shouldMonetizationDisabled } from "../../../utils/utils";
 import { openModal } from "../../../redux/doctorModalSlice";
 
 function ExpiredText({ title, onRedirect }) {
@@ -16,6 +16,8 @@ function ExpiredText({ title, onRedirect }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { pathname } = useLocation();
+
+    const tp_monetization_enable = !shouldMonetizationDisabled();
 
     const { profile, servicesList } = useSelector((state) => state.doctors);
     const AI_planDetails = servicesList?.find(e => e.service_name === title)
@@ -112,18 +114,20 @@ function ExpiredText({ title, onRedirect }) {
                         Upgrade now to continue a hassle free experience!
                     </div>
                     <Row className="mt-2">
-                        <Col lg={6}>
+                        <Col lg={tp_monetization_enable ? 6 : 12}>
                             <Button type='button' className='w-100 btn ant-btn align-items-center justify-content-center d-flex btn-41 btn-primary1 btn-input' style={{ height: 52 }} onClick={() => clickRequestCallback(title)}>
                                 <i className='icon-phone me-2'></i>
                                 Request a call back
                             </Button>
                         </Col>
-                        <Col lg={6}>
-                            <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(title)}>
-                                <img className="me-2" src={crown} alt="Crown" />
-                                Get Unlimited Access
-                            </Button>
-                        </Col>
+                        {tp_monetization_enable && (
+                            <Col lg={6}>
+                                <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(title)}>
+                                    <img className="me-2" src={crown} alt="Crown" />
+                                    Get Unlimited Access
+                                </Button>
+                            </Col>
+                        )}
                     </Row>
                 </div>
                 :

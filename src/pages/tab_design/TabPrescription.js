@@ -90,7 +90,7 @@ import DDxKnowMore from "../../components/DDxKnowMore";
 import { getDDxDetails } from "../../api/services/ApiDDx";
 import { getDecodedToken } from "../../utils/localStorage";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { errorMessage, getClinicName, trackEvent, getDeviceSdkData, getTokenData, shouldMonetizationDisabled } from "../../utils/utils";
+import { errorMessage, getClinicName, trackEvent, getDeviceSdkData, getTokenData } from "../../utils/utils";
 import TabSurgicalBox from "../../components/tab_design/TabSurgicalBox";
 import TabAddCustomModule from "../../components/tab_design/TabAddCustomModule";
 import TabCustomModule from "../../components/tab_design/TabCustomModule";
@@ -117,7 +117,7 @@ function TabPrescription() {
     userId,
   } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
-  const tp_monetization_enable = !shouldMonetizationDisabled();
+  const tp_monetization_enable = true;
   const isApexAIAccessable = useFeatureIsOn("cdss");
   const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);

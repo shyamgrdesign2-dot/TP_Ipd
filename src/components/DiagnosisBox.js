@@ -24,7 +24,7 @@ import { v4 as uuidv4 } from "uuid";
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from "../context/CashManagerContext";
-import { errorMessage, isNumeric, onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence, shouldMonetizationDisabled } from "../utils/utils";
+import { errorMessage, isNumeric, onlyNumberFormat, removeBeforeWhiteSpace, capitalizeAfterSentence } from "../utils/utils";
 import Diagnosisicon from "../assets/images/Diagnosis.svg";
 import { MenuOutlined } from '@ant-design/icons';
 import {
@@ -55,7 +55,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
   const { patient_data, diagnosisData, setDiagnosisData, tcmId } = useContext(CashManagerContext);
   // const [diagnosisData, setDiagnosisData] = useState([]);
 
-  const tp_monetization_enable = !shouldMonetizationDisabled();
+  const tp_monetization_enable = true;
   const isApexAIAccessable = useFeatureIsOn("cdss");
 
   const ddxOptionsList = generatedDDx?.map((item) => {

@@ -64,7 +64,7 @@ const dev = {
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
-  tp_monetization_disabled_hospital: [754811713438773, 912841712741834],
+  tp_monetization_disabled_hospital: [396741719906700, 754811713438773, 912841712741834, 7591750931025038],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in"
 };
 
@@ -138,7 +138,7 @@ const qa_tp = {
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
-  tp_monetization_disabled_hospital: [754811713438773, 912841712741834],
+  tp_monetization_disabled_hospital: [396741719906700, 754811713438773, 912841712741834, 7591750931025038],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in"
 };
 
@@ -208,7 +208,7 @@ const qa = {
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
-  tp_monetization_disabled_hospital: [754811713438773, 912841712741834],
+  tp_monetization_disabled_hospital: [396741719906700, 754811713438773, 912841712741834, 7591750931025038],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in"
 };
 
@@ -283,7 +283,7 @@ const uat = {
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
   monetization_url: "https://pm-tp-monetization-uat.tatvacare.in",
-  tp_monetization_disabled_hospital: [754811713438773, 912841712741834],
+  tp_monetization_disabled_hospital: [396741719906700, 754811713438773, 912841712741834, 7591750931025038],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in"
 };
 

@@ -33,11 +33,11 @@ function ExtendTrialModal() {
     const tp_monetization_enable = !shouldMonetizationDisabled();
 
     useEffect(() => {
-        profile?.b2c !== null && profile?.b2c !== undefined && tp_monetization_enable && dispatch(services(profile?.b2c));
+        profile?.b2c !== null && profile?.b2c !== undefined && dispatch(services(profile?.b2c));
     }, [profile?.b2c]);
 
     useEffect(() => {
-        service_mappings?.length > 0 && tp_monetization_enable && checkBillingPurchased()
+        service_mappings?.length > 0 && checkBillingPurchased()
     }, [service_mappings]);
 
     const checkBillingPurchased = async () => {
@@ -56,7 +56,7 @@ function ExtendTrialModal() {
             dispatch(fetchSubscriptionDetails())
         }
         const clinic_name = getClinicName(profile?.hospital_data);
-        const tokenData = getTokenData(); 
+        const tokenData = getTokenData();
         const deviceSdkData = getDeviceSdkData();
         window.Moengage.track_event("TP_Monetization_FreeTrailExtension", {
             doctor_name: profile?.um_name,
@@ -74,7 +74,7 @@ function ExtendTrialModal() {
         setIsExpiredModalOpen(false)
         navigate('/get-unlimited-access')
         const clinic_name = getClinicName(profile?.hospital_data);
-        const tokenData = getTokenData(); 
+        const tokenData = getTokenData();
         const deviceSdkData = getDeviceSdkData();
         window.Moengage.track_event("TP_Monetization_VoiceRx_GetUnlimitedRx", {
             doctor_name: profile?.um_name,
@@ -100,9 +100,9 @@ function ExtendTrialModal() {
         // if (action.meta.requestStatus === "fulfilled") {
         //     errorMessage(action.payload.message)
         // }
-        
+
         const clinic_name = getClinicName(profile?.hospital_data);
-        const tokenData = getTokenData(); 
+        const tokenData = getTokenData();
         const deviceSdkData = getDeviceSdkData();
         window.Moengage.track_event("TP_Monetization_RequestACallback", {
             doctor_name: profile?.um_name,
@@ -119,7 +119,7 @@ function ExtendTrialModal() {
 
     const contactNumberandEmail = () => {
         const clinic_name = getClinicName(profile?.hospital_data);
-        const tokenData = getTokenData(); 
+        const tokenData = getTokenData();
         const deviceSdkData = getDeviceSdkData();
         window.Moengage.track_event("TP_Monetization_VoiceRx_Contact_Support", {
             doctor_name: profile?.um_name,
@@ -191,18 +191,20 @@ function ExtendTrialModal() {
                                     <div class="my-4 flat-20 py-2 fs-16">🔥Unlock Unlimited Access&nbsp;<span>- Flat {EMR_planDetails?.discount}% OFF!</span></div>
                                 )}
                                 <Row>
-                                    <Col lg={6}>
+                                    <Col lg={tp_monetization_enable ? 6 : 12}>
                                         <Button type='button' className='w-100 btn align-items-center justify-content-center d-flex btn-41 btn-outline-primary' style={{ height: 52 }} onClick={clickRequestCallback}>
                                             <i className='icon-phone me-2'></i>
                                             Request a call back
                                         </Button>
                                     </Col>
-                                    <Col lg={6}>
-                                        <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={clickBuyNow}>
-                                            <img className="me-2" src={crown} alt="Crown" />
-                                            Get Unlimited Access
-                                        </Button>
-                                    </Col>
+                                    {tp_monetization_enable && (
+                                        <Col lg={6}>
+                                            <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={clickBuyNow}>
+                                                <img className="me-2" src={crown} alt="Crown" />
+                                                Get Unlimited Access
+                                            </Button>
+                                        </Col>
+                                    )}
                                 </Row>
                             </div>
                             <div className="d-flex align-items-center pt-3">

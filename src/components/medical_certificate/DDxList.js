@@ -14,7 +14,7 @@ import { useContext, useState } from "react";
 import CashManagerContext from "../../context/CashManagerContext";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../utils/utils";
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData, shouldMonetizationDisabled } from "../../utils/utils";
 import { FREE, S_DDX } from "../../utils/constants";
 import CampaignDiscount from "../../pages/monetization/components/CampaignDiscount";
 import crown from '../../assets/images/crown.svg'
@@ -39,6 +39,8 @@ const DDxList = ({
   const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
   const { profile } = useSelector((state) => state.doctors);
+
+  const tp_monetization_enable = !shouldMonetizationDisabled();
 
   const { state } = useLocation();
   const { patient_data } = state;
@@ -192,12 +194,14 @@ const DDxList = ({
                       Request a call back
                     </Button>
                   </div>
-                  <div>
-                    <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(DDX_planDetails?.service_name)}>
-                      <img className="me-2" src={crown} alt="Crown" />
-                      Get Unlimited Access
-                    </Button>
-                  </div>
+                  {tp_monetization_enable &&
+                    <div>
+                      <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(DDX_planDetails?.service_name)}>
+                        <img className="me-2" src={crown} alt="Crown" />
+                        Get Unlimited Access
+                      </Button>
+                    </div>
+                  }
                 </div>
               </Card>
             </div>
