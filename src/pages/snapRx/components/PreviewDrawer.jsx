@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Button, Skeleton, message } from "antd";
+import { Button, Carousel, Skeleton, message } from "antd";
 import {
   ReloadOutlined,
   DeleteOutlined,
@@ -7,19 +7,26 @@ import {
   MinusOutlined,
   PlusOutlined,
   CloudUploadOutlined,
+  CheckOutlined,
 } from "@ant-design/icons";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import "./PreviewDrawer.scss";
+import retakeIcon from "../../../assets/images/retake.png";
+import rotateIcon from "../../../assets/images/rotate.png";
+import deleteIcon from "../../../assets/images/delete.png";
 
 const PreviewDrawer = ({
   isOpen,
   onClose,
   uploadedFiles,
   onReupload,
+  onRotate,
   onRemove,
   onAddMore,
   onSave,
+  isMobile,
+  handleUploadClick,
 }) => {
   const [loading, setLoading] = useState(true);
   const [selectedFileIndex, setSelectedFileIndex] = useState(0);
@@ -175,6 +182,151 @@ const PreviewDrawer = ({
 
   if (!isOpen) return null;
 
+  if (isMobile) {
+    return (
+      <div className="preview-drawer-overlay">
+        <div className="preview-drawer-mobile">
+          <div className="drawer-header">
+            <div className="header-left">
+              <div
+                onClick={onClose}
+                className="ff-icomoon btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
+              >
+                <i className="icon-Cross"></i>
+              </div>
+              <h1 className="drawer-title">Scan Rx</h1>
+            </div>
+          </div>
+          <div className="preview-area">
+            {loading ? (
+              <div className="skeleton-container">
+                <Skeleton.Image
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: "20px",
+                  }}
+                  active
+                />
+              </div>
+            ) : imageError ? (
+              <div className="error-container">
+                <div className="error-content">
+                  <div className="error-icon">⚠️</div>
+                  <p>Failed to load image</p>
+                  <button onClick={onReupload} className="retry-btn">
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            ) : !imageLoaded ? (
+              <div className="loading-container">
+                <div className="loading-content">
+                  <div className="spinner"></div>
+                  <p>Loading image...</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="carousel-container">
+                  <Carousel>
+                    {uploadedFiles.map((file, fileIndex) => {
+                      const imageUrl = file.url || file.preview;
+                      return (
+                        <div key={fileIndex} className="crop-container">
+                          {fileIndex === selectedFileIndex && (
+                            <ReactCrop
+                              crop={crop}
+                              onChange={(newCrop) => setCrop(newCrop)}
+                              onComplete={(completedCrop) =>
+                                setCompletedCrop(completedCrop)
+                              }
+                              aspect={undefined}
+                              className="react-crop-wrapper"
+                            >
+                              <img
+                                ref={imageRef[fileIndex]}
+                                src={imageUrl}
+                                alt="Prescription"
+                                className="prescription-image"
+                                onLoad={onImageLoad}
+                                style={{
+                                  transform: `scale(${zoom})`,
+                                  transformOrigin: "center center",
+                                  maxWidth: "100%",
+                                  maxHeight: "100%",
+                                }}
+                              />
+                            </ReactCrop>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </Carousel>
+                </div>
+              </>
+            )}
+          </div>
+          <div className="action-bar">
+            <div className="action-buttons">
+              <button
+                className="action-btn reupload-btn"
+                onClick={() => onReupload(selectedFileIndex)}
+              >
+                <img
+                  src={retakeIcon}
+                  alt="retake"
+                  className="action-icon retake-icon"
+                />
+                <div>Retake</div>
+              </button>
+
+              <button
+                className="action-btn remove-btn"
+                onClick={() => onRotate(selectedFileIndex)}
+              >
+                <img
+                  src={rotateIcon}
+                  alt="rotate"
+                  className="action-icon rotate-icon"
+                />
+                <div>Rotate</div>
+              </button>
+
+              <button
+                className="action-btn remove-btn"
+                onClick={() => onRemove(selectedFileIndex)}
+              >
+                <img
+                  src={deleteIcon}
+                  alt="delete"
+                  className="action-icon delete-icon"
+                />
+                <div>Delete</div>
+              </button>
+            </div>
+            <div className="footer-actions">
+              <Button
+                className="footer-cta"
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => handleUploadClick()}
+              >
+                Scan more
+              </Button>
+              <Button
+                className="footer-cta"
+                type="primary"
+                icon={<CheckOutlined />}
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="preview-drawer-overlay">
       <div className="preview-drawer">
@@ -183,7 +335,7 @@ const PreviewDrawer = ({
           <div className="header-left">
             <div
               onClick={onClose}
-              className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer border-end"
+              className="ff-icomoon btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer border-end"
             >
               <i className="icon-right"></i>
             </div>

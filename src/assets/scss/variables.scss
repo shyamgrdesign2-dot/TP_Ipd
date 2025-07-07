@@ -19,7 +19,11 @@ $bordercolor: #E2E2EA;
 $descpadcolor: #EDDFF7;
 $historytext: #475467;
 $colorFitness: #F6F0FC;
+$grayLight: #F1F1FC;
+$themeShade2: #6C6BDD;
 
 :export {
     grayColor: $grayColor;
+    themeShade2: $themeShade2;
+    grayLight: $grayLight;
 }

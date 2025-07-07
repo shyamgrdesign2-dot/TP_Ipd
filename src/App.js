@@ -52,6 +52,7 @@ import PrivateRoute from "./pages/auth/components/PrivateRoute";
 import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
 import SnapRx from "./pages/snapRx/SnapRx";
+import UploadRx from "./pages/uploadRx";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -372,6 +373,7 @@ function App() {
                 <Route path="billing-settings" element={<BillingSettings />} />
                 <Route path="add-appointment" element={<AddAppointment />} />
                 <Route path="snap-rx" element={<SnapRx />} />
+                <Route path="snap-rx/mobile-upload" element={<UploadRx />} />
               </Route>
             </Routes>
           </PersistGate>
