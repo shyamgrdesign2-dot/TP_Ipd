@@ -345,7 +345,7 @@ function SidebarDoctor() {
     setSubModalData({ service_name: S_ASK_TATVA })
     if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
       showHideSubModal()
-    }else if (ASK_TATVA_planDetails?.plan_tier === FAILED_VERIFICATION) {
+    } else if (ASK_TATVA_planDetails?.plan_tier === FAILED_VERIFICATION) {
       showHideSubModal()
     } else {
       let sendData = {
@@ -359,6 +359,8 @@ function SidebarDoctor() {
             if (action?.payload?.credit_balance != ASK_TATVA_planDetails?.credit_balance) {
               await dispatch(services(sendData?.b2c_id))
             }
+            showHideSubModal()
+          } else if (action?.payload?.plan_tier === FAILED_VERIFICATION) {
             showHideSubModal()
           } else {
             handleTatvaAi();

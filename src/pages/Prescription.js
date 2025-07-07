@@ -871,6 +871,8 @@ function Prescription() {
               await dispatch(services(sendData?.b2c_id))
             }
             showHideSubModal({ service_name: S_DDX })
+          } else if (action?.payload?.plan_tier === FAILED_VERIFICATION) {
+            showHideSubModal()
           } else {
             setIsDDxLoading(true);
             setIsDDxGenerated(true);

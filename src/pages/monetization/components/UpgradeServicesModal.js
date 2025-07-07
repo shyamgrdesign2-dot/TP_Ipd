@@ -219,6 +219,8 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
                             await dispatch(services(sendData?.b2c_id))
                         }
                         showHideSubModal()
+                    } else if (action?.payload?.plan_tier === FAILED_VERIFICATION) {
+                        showHideSubModal()
                     } else {
                         handleTatvaAi();
                     }
