@@ -6,7 +6,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import arrowRight from '../../../assets/images/arrow-right.svg'
 import crown from '../../../assets/images/crown.svg'
-import { FREE, S_ASK_TATVA, S_IPD, S_PHARMACY, S_TATVA_PRACTICE, TRIAL } from "../../../utils/constants";
+import support from '../../../assets/images/support.png'
+import { FAILED_VERIFICATION, FREE, S_ASK_TATVA, S_IPD, S_PHARMACY, S_TATVA_PRACTICE, TRIAL } from "../../../utils/constants";
 import { interest } from "../../../redux/monetizationSlice";
 import { errorMessage, getClinicName, getDeviceSdkData, getTokenData, shouldMonetizationDisabled } from "../../../utils/utils";
 import { openModal } from "../../../redux/doctorModalSlice";
@@ -95,7 +96,21 @@ function ExpiredText({ title, onRedirect }) {
 
     return (
         pathname !== '/get-unlimited-access' &&
-        (
+            (AI_planDetails?.plan_tier === FAILED_VERIFICATION && AI_planDetails?.service_type === 'ai') ? (
+            <div className="position-sticky bottom-0 bg-white w-100 px-4 py-3">
+                <div className="fontroboto fs-16 text-center text-danger-custom">
+                    Your payment for the <span className="fw-bold text-danger-custom">{AI_planDetails?.service_display_name}</span> Add-on has failed. Please contact Support for further assistance.
+                </div>
+                <Row className="mt-2">
+                    <Col lg={12}>
+                        <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickRequestCallback(title)}>
+                            <img className="me-2" src={support} alt="support" />
+                            Contact Support
+                        </Button>
+                    </Col>
+                </Row>
+            </div>
+        ) : (
             (
                 (
                     AI_planDetails?.service_type === 'ai' &&

@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS, FREE, GB_GYNEC_HISTORY, GB_ZYDUS_USER, GYNAECOLOGY, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_DDX } from "../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, FAILED_VERIFICATION, FREE, GB_GYNEC_HISTORY, GB_ZYDUS_USER, GYNAECOLOGY, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_DDX } from "../utils/constants";
 
 import { getPatientBirthWeight, getVitals } from "../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../redux/medicalhistorySlice";
@@ -855,6 +855,8 @@ function Prescription() {
   const getGenerateDDx = async (field) => {
     const DDX_planDetails = servicesList?.find(e => e.service_name === S_DDX)
     if (DDX_planDetails?.plan_tier === FREE && DDX_planDetails?.credit_balance <= 0) {
+      showHideSubModal({ service_name: S_DDX })
+    } else if (DDX_planDetails?.plan_tier === FAILED_VERIFICATION) {
       showHideSubModal({ service_name: S_DDX })
     } else {
       let sendData = {
