@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Typography } from "antd";
 import ProfileIcon from "../../../common/ProfileIcon";
-import "../styles.scss";
+import "./styles.scss";
 import theme from "../../../assets/scss/variables.scss";
 
 const { Text } = Typography;
@@ -16,7 +16,7 @@ const PatientInfoCard = ({
 }) => (
   <Card
     bordered={true}
-    className={`auto-digitize-toggle-card p-12 ${className}`}
+    className={`patient-info-card p-12 ${className}`}
     {...rest}
   >
     <div className="d-flex align-items-center justify-content-start">
