@@ -65,6 +65,7 @@ export const PENDING = "PENDING";
 export const APPROVED = "APPROVED";
 export const REJECTED = "REJECTED";
 export const FAILED_VERIFICATION = "FAILED-VERIFICATION";
+export const PENDING_VERIFICATION = "PENDING-VERIFICATION";
 export const S_TATVA_PRACTICE = "tatva_practice";
 export const S_VOICE_RX = "voice_rx";
 export const S_SMARTSYNC = "smartsync";

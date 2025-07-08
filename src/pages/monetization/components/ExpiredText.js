@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Button } from "antd";
 import { Col, Row } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
@@ -11,6 +11,7 @@ import { FAILED_VERIFICATION, FREE, S_ASK_TATVA, S_IPD, S_PHARMACY, S_TATVA_PRAC
 import { interest } from "../../../redux/monetizationSlice";
 import { errorMessage, getClinicName, getDeviceSdkData, getTokenData, shouldMonetizationDisabled } from "../../../utils/utils";
 import { openModal } from "../../../redux/doctorModalSlice";
+import ContactSupportModal from "../../../common/ContactSupportModal";
 
 function ExpiredText({ title, onRedirect }) {
 
@@ -27,6 +28,12 @@ function ExpiredText({ title, onRedirect }) {
     const { service_mappings } = planDetails || {};
     const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
     const NonAI_planDetails = service_mappings?.find(e => e.service_name === title)
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    const clickContactSupport = useCallback(() => {
+    setIsModalOpen(!isModalOpen);
+    }, [isModalOpen]);
 
     const clickBuyNow = (service_name) => {
         navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })
@@ -103,12 +110,13 @@ function ExpiredText({ title, onRedirect }) {
                 </div>
                 <Row className="mt-2">
                     <Col lg={12}>
-                        <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickRequestCallback(title)}>
+                        <Button className="btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={clickContactSupport}>
                             <img className="me-2" src={support} alt="support" />
                             Contact Support
                         </Button>
                     </Col>
                 </Row>
+                <ContactSupportModal isModalOpen={isModalOpen} clickContactSupport={clickContactSupport}/>
             </div>
         ) : (
             (
@@ -152,6 +160,7 @@ function ExpiredText({ title, onRedirect }) {
                         <img className="ms-2" src={arrowRight} alt="Crown" />
                     </Button>
                 </div>
+
         )
     )
 }

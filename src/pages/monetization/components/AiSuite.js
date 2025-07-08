@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { isChrome, isSafari } from "react-device-detect";
 
-import Vitals from "../../../assets/images/Vitals.svg";
 import RxVoice from "../../../assets/images/microphone-voice-rx.png";
 import AskTatvaIcon from "../../../assets/images/icon-ask-tatva.png";
 import DDXIcon from "../../../assets/images/DDX-icon.png";
@@ -16,14 +15,13 @@ import supportwhite from "../../../assets/images/support.png";
 import RECEPTIONISTIcon from "../../../assets/images/RECEPTIONIST-icon.png";
 import smartSyncIcon from "../../../assets/images/smart-sync-icon.png";
 
-import { FREE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_ASK_TATVA, S_RX_DIGITIZATION, S_RECEPTIONIST_AGENT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FAILED_VERIFICATION } from "../../../utils/constants";
+import { FREE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_ASK_TATVA, S_RX_DIGITIZATION, S_RECEPTIONIST_AGENT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FAILED_VERIFICATION, PENDING_VERIFICATION } from "../../../utils/constants";
 import GenRxKnowMore from "../../../components/GenRxKnowMore";
 import DDxKnowMore from "../../../components/DDxKnowMore";
 import SmartSyncKnowMore from "../components/SmartSyncKnowMore";
 import CvtKnowMore from "../../smartSync/components/CvtKnowMore";
 import AskTatvaKnowMore from "./AskTatvaKnowMore";
 import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
-import { deviceType, osName } from "react-device-detect";
 
 import { services } from "../../../redux/doctorsSlice";
 import { checkCredits } from "../../../redux/monetizationSlice";
@@ -31,7 +29,7 @@ import FullPageLoader from "../../vaccination/components/Loader";
 import config from "../../../config";
 import { useLocalStorage } from "../../../utils/localStorage";
 import ExpiredSubModal from "./ExpiredSubModal";
-import { openModal } from "../../../redux/doctorModalSlice";
+import ContactSupportModal from "../../../common/ContactSupportModal";
 
 function AiSuite({ aiModal, handleAiSuite }) {
 
@@ -57,6 +55,11 @@ function AiSuite({ aiModal, handleAiSuite }) {
     const [cvtDrawer, setCvtDrawer] = useState(false);
     const [askTatvaKnowMoreDrawer, setAskTatvaKnowMoreDrawer] = useState(false);
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const clickContactSupport = useCallback(() => {
+        setIsModalOpen(!isModalOpen);
+    }, [isModalOpen]);
 
     useEffect(() => {
         if (servicesList?.length) {
@@ -223,33 +226,6 @@ function AiSuite({ aiModal, handleAiSuite }) {
         }
     }
 
-    const clickRequestCallback = async (service_name) => {
-        dispatch(openModal(service_name))
-        // let sendData = {
-        //     mbl_no: profile?.um_contact,
-        //     is_pm_renew_requested: true,
-        //     service_name: service_name
-        // }
-        // const action = await dispatch(interest(sendData));
-        // if (action.meta.requestStatus === "fulfilled") {
-        //     errorMessage(action.payload.message)
-        // }
-        const clinic_name = getClinicName(profile?.hospital_data);
-        const tokenData = getTokenData();
-        const deviceSdkData = getDeviceSdkData();
-        window.Moengage.track_event("TP_Monetization_RequestACallback", {
-            doctor_name: profile?.um_name,
-            doctor_number: profile?.um_contact,
-            doctor_unique_id: profile?.doctor_unique_id,
-            doctor_specialty: profile?.dp_name,
-            clinic_id: tokenData?.clinic_id,
-            um_id: tokenData?.user_id,
-            clinic_Name: clinic_name,
-            former_page: service_name,
-            ...deviceSdkData,
-        });
-    }
-
     return (
         <>
             <Drawer
@@ -273,7 +249,7 @@ function AiSuite({ aiModal, handleAiSuite }) {
                     {aiServicesData?.map((item, index) => {
                         return (
                             <div key={index}>
-                                {item?.plan_tier === undefined || item?.plan_tier === FREE ? (
+                                {item?.plan_tier === undefined || item?.plan_tier === FREE || item?.plan_tier === PENDING_VERIFICATION ? (
                                     <div className={`ai-suite my-4 ${item?.credit_balance <= 0 && 'ai-expired'}`}>
                                         <div className="d-flex align-items-center mb-3">
                                             <img style={{ background: '#EDDFF780', padding: 6 }} className="rounded-10px me-2" src={getIcon(item?.service_name)} alt="item.type" />
@@ -284,16 +260,18 @@ function AiSuite({ aiModal, handleAiSuite }) {
                                             {item?.service_description}
                                         </p>
                                         <Row className="mt-4">
-                                            <Col lg={6}>
+                                            <Col lg={item?.plan_tier !== PENDING_VERIFICATION ? 6 : 12}>
                                                 <Button className='w-100 btn ant-btn btn-41 btn-primary1 btn-outline-primary' onClick={() => clickKnowMore(item?.service_name)}>
                                                     Know More
                                                 </Button>
                                             </Col>
-                                            <Col lg={6}>
-                                                <Button className="btn btn-primary3 btn-41 w-100" onClick={() => clickBuyNow(item?.service_name)}>
-                                                    Buy Now
-                                                </Button>
-                                            </Col>
+                                            {item?.plan_tier !== PENDING_VERIFICATION && (
+                                                <Col lg={6}>
+                                                    <Button className="btn btn-primary3 btn-41 w-100" onClick={() => clickBuyNow(item?.service_name)}>
+                                                        Buy Now
+                                                    </Button>
+                                                </Col>
+                                            )}
                                         </Row>
                                     </div>
                                 ) : item?.plan_tier === undefined || item?.plan_tier === FAILED_VERIFICATION ? (
@@ -316,9 +294,10 @@ function AiSuite({ aiModal, handleAiSuite }) {
                                                 </Button>
                                             </Col>
                                             <Col lg={6}>
-                                                <Button className="btn btn-primary3 btn-41 w-100 d-flex align-items-center justify-content-center" onClick={() => clickRequestCallback(item?.service_name)}>
+                                                <Button className="btn btn-primary3 btn-41 w-100 d-flex align-items-center justify-content-center" onClick={clickContactSupport}>
                                                     <img loading="lazy" src={supportwhite} className="buttonIcon me-1" alt="Contact Support" /> Contact Support
                                                 </Button>
+                                                <ContactSupportModal isModalOpen={isModalOpen} clickContactSupport={clickContactSupport} />
                                             </Col>
                                         </Row>
                                     </div>
