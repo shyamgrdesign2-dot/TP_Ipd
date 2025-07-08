@@ -79,7 +79,7 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
               file,
               name: `${file.name} - page ${i}`,
               size: file.size,
-              type: file.type,
+              type: "image/png",
               preview,
               url: preview,
               id:

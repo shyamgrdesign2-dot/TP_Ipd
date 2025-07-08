@@ -26,7 +26,7 @@ const UploadSuccess = ({ goBack, uploadedFiles }) => {
       <div className="success-content">
         <div className="success-icon">
           <img
-            src={require("../../../assets/images/success-animation.gif")}
+            src={require("../../../assets/images/success-animation.webp")}
             alt="SUCCESS GIF"
           />
         </div>
@@ -49,7 +49,7 @@ const UploadSuccess = ({ goBack, uploadedFiles }) => {
             className="patient-info-card-success"
           />
         </div>
-        {/* <div className="thumbnails-section">
+        <div className="thumbnails-section">
           {uploadedFiles.map((file, index) => (
             <div key={index} className={`thumbnail-item`}>
               <img
@@ -59,7 +59,7 @@ const UploadSuccess = ({ goBack, uploadedFiles }) => {
               />
             </div>
           ))}
-        </div> */}
+        </div>
         {/* TODO: INTEL - only for testing. remove the thumbnails here */}
         <Button
           type="primary"
