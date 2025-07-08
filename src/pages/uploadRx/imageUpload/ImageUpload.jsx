@@ -80,11 +80,19 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
           for (let i = 1; i <= pdfDoc.numPages; i++) {
             const page = await pdfDoc.getPage(i);
             const viewport = page.getViewport({ scale: 1 });
+            const maxSize = Math.max(viewport.width, viewport.height);
 
             const canvas = document.createElement("canvas");
             const context = canvas.getContext("2d");
-            canvas.width = Math.max(viewport.height, viewport.width);
-            canvas.height = Math.max(viewport.height, viewport.width);
+            canvas.width = maxSize;
+            canvas.height = maxSize;
+            context.fillStyle = "#fff";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            const offsetX = (canvas.width - viewport.width) / 2;
+            const offsetY = (canvas.height - viewport.height) / 2;
+
+            context.setTransform(1, 0, 0, 1, offsetX, offsetY);
 
             await page.render({ canvasContext: context, viewport }).promise;
 
