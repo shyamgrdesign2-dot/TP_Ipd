@@ -80,63 +80,54 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
     setErrors({ ...errors, confirmPassword: "" });
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    try {
+      // Reset errors
+      setErrors({ password: "", confirmPassword: "" });
+      setError(null);
+      setPrimaryBtnLoading(true);
 
-    // Reset errors
-    setErrors({ password: "", confirmPassword: "" });
-    setError(null);
+      // First validate inputs
+      if (!isCaptchaVerified()) {
+        setError("Please complete the captcha verification to proceed.");
+        setErrorType("captcha");
+        return;
+      }
 
-    if (!isCaptchaVerified()) {
-      setError("Please complete the captcha verification to proceed.");
-      setErrorType("captcha");
-      return;
-    }
+      // Validate password
+      if (!password) {
+        setErrors(prev => ({ ...prev, password: "Please input your password!" }));
+        return;
+      }
 
-    // Validate password
-    if (!password) {
-      setErrors(prev => ({ ...prev, password: "Please input your password!" }));
-      return;
-    }
+      if (!isPasswordValid()) {
+        setErrors(prev => ({ ...prev, password: "Password does not meet all requirements" }));
+        return;
+      }
 
-    if (!isPasswordValid()) {
-      setErrors(prev => ({ ...prev, password: "Password does not meet all requirements" }));
-      return;
-    }
+      // Validate confirm password
+      if (!confirmPassword) {
+        setErrors(prev => ({ ...prev, confirmPassword: "Please confirm your password!" }));
+        return;
+      }
 
-    // Validate confirm password
-    if (!confirmPassword) {
-      setErrors(prev => ({ ...prev, confirmPassword: "Please confirm your password!" }));
-      return;
-    }
+      // Check if passwords match
+      if (password !== confirmPassword) {
+        setErrors(prev => ({ ...prev, confirmPassword: "Passwords don't match. Please re-enter." }));
+        return;
+      }
 
-    // Check if passwords match
-    if (password !== confirmPassword) {
-      setErrors(prev => ({ ...prev, confirmPassword: "Passwords don't match. Please re-enter." }));
-      return;
-    }
+      // Now check if user exists
+      const response = await validateUser(mobileNumber);
+      const { message } = response;
 
-    // If all validations pass, proceed with OTP
-    if (window.sendOtp) {
-      // moengage event for set password
-      window.Moengage.track_event('TP_NewLoginFlow_Password_Setup', {
-        mobile: "91" + mobileNumber,
-        operating_system: detectOperatingSystem(),
-        utm_campaign: utm.utm_campaign ?? 'NA',
-        utm_source: utm.utm_source ?? 'NA',
-        utm_medium: utm.utm_medium ?? 'NA',
-        utm_content: utm.utm_content ?? 'NA',
-        utm_term: utm.utm_term ?? 'NA',
-        is_marketing: Object.values(utm).some(value => value && value.length > 0),
-      })
-
-      const formattedNumber = `91${mobileNumber}`.replace('+', '');
-      window.sendOtp(
-        formattedNumber,
-        (successData) => {
-          console.log("OTP sent successfully:", successData);
-          if (successData && successData.message) {
-            const reqId = successData.message;
-            window.Moengage.track_event('TP_NewLoginFlow_Password_Setup_Otp_Success', {
+      switch (message) {
+        case "Doctor exists!":
+        case "User exists":
+          // User exists, proceed with OTP
+          if (window.sendOtp) {
+            // moengage event for set password
+            window.Moengage.track_event('TP_NewLoginFlow_Password_Setup', {
               mobile: "91" + mobileNumber,
               operating_system: detectOperatingSystem(),
               utm_campaign: utm.utm_campaign ?? 'NA',
@@ -146,16 +137,77 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               utm_term: utm.utm_term ?? 'NA',
               is_marketing: Object.values(utm).some(value => value && value.length > 0),
             })
-            localStorage.removeItem("isCaptchaVerified");
-            onViewChange("verifyOTP", mobileNumber, true, true, password, reqId);
-          } else {
-            console.error("No requestId in response:", successData);
+
+            const formattedNumber = `91${mobileNumber}`.replace('+', '');
+            window.sendOtp(
+              formattedNumber,
+              (successData) => {
+                console.log("OTP sent successfully:", successData);
+                if (successData && successData.message) {
+                  const reqId = successData.message;
+                  window.Moengage.track_event('TP_NewLoginFlow_Password_Setup_Otp_Success', {
+                    mobile: "91" + mobileNumber,
+                    operating_system: detectOperatingSystem(),
+                    utm_campaign: utm.utm_campaign ?? 'NA',
+                    utm_source: utm.utm_source ?? 'NA',
+                    utm_medium: utm.utm_medium ?? 'NA',
+                    utm_content: utm.utm_content ?? 'NA',
+                    utm_term: utm.utm_term ?? 'NA',
+                    is_marketing: Object.values(utm).some(value => value && value.length > 0),
+                  })
+                  localStorage.removeItem("isCaptchaVerified");
+                  onViewChange("verifyOTP", mobileNumber, true, true, password, reqId);
+                } else {
+                  console.error("No requestId in response:", successData);
+                }
+              },
+              (error) => {
+                console.error("Error sending OTP:", error);
+              }
+            );
           }
-        },
-        (error) => {
-          console.error("Error sending OTP:", error);
-        }
-      );
+          break;
+
+        case "Doctor does not exists!":
+        case "Doctor not onboarded":
+        case "User does not exists":
+          setError(
+            <>
+              User does not exist. Please{' '}
+              <span 
+                onClick={() => {
+                  onViewChange("signup", mobileNumber, false);
+                  focusInput();
+                  setError(null);
+                  setErrorType(null);
+                }}
+                className="login-link"
+              >
+                sign up
+              </span>
+              {' '}first.
+            </>
+          );
+          setErrorType("inputFiled");
+          break;
+
+        case "Doctor is inactive":
+          setError(
+            "Your account has been locked by Admin. Please contact support@tatvacare.in/9974042363"
+          );
+          setErrorType("inputFiled");
+          break;
+
+        default:
+          setError("Unexpected response from server.");
+          setErrorType("inputFiled");
+      }
+    } catch (error) {
+      console.error("Error in handleContinue:", error);
+      setError("Something went wrong. Please try again.");
+      setErrorType("inputFiled");
+    } finally {
+      setPrimaryBtnLoading(false);
     }
   };
 
@@ -373,14 +425,6 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
     const campaign = searchParams.get("utm_campaign");
     setIsFromCampaign(!!campaign);
   }, []);
-
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setInitialLoading(false);
-  //   }, 1500);
-
-  //   return () => clearTimeout(timer);
-  // }, []);
 
   const handleGetStarted = async () => {
     if (!scriptLoaded) {
@@ -828,6 +872,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
                   type="primary"
                   className="get-started-btn"
                   onClick={handleContinue}
+                  loading={primaryBtnLoading}
                 >
                   Continue
                 </Button>

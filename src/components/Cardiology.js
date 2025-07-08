@@ -1324,25 +1324,51 @@ function Cardiology(props) {
                   alt="No vital & body composition saved for the patient!"
                 />
                 <p className="mt-4 fontroboto">
-                  No any visit found for this patient yet
+                  No visit found for this patient yet
                 </p>
-                <Button
-                  className="btn btn-primary3 btn-text-white px-5 btn-41"
-                  onClick={() => {
-                    window.Moengage.track_event("start_new_visit_click", {
-                      doctor_id: profile?.doctor_unique_id,
-                      patient_id:
-                        patient_data !== undefined
-                          ? patient_data.patient_unique_id
-                          : 0,
-                    });
-                    navigate("/prescription", {
-                      state: { patient_data: patient_data, send_path: "patient_details" },
-                    });
-                  }}
-                >
-                  {"Start New Visit"}
-                </Button>
+                <div className="d-flex flex-column align-items-center justify-content-center g-4">
+                  <Button
+                    className="btn btn-primary3 btn-text-white px-5 m-2 btn-41"
+                    onClick={() => {
+                      window.Moengage.track_event("start_new_visit_click", {
+                        doctor_id: profile?.doctor_unique_id,
+                        patient_id:
+                          patient_data !== undefined
+                            ? patient_data.patient_unique_id
+                            : 0,
+                      });
+                      navigate("/prescription", {
+                        state: { patient_data: patient_data, send_path: "patient_details" },
+                      });
+                    }}
+                  >
+                    {"Start New Concult"}
+                  </Button>
+                  
+                  <div className="d-flex align-items-center justify-content-center my-2" style={{ width: "60%" }}>
+                    <div style={{ flex: 1, height: "1px", backgroundColor: "#d9d9d9" }}></div>
+                    <span style={{ margin: "0 16px", color: "#454551", fontSize: "14px", fontWeight: "400" }}>or</span>
+                    <div style={{ flex: 1, height: "1px", backgroundColor: "#d9d9d9" }}></div>
+                  </div>
+                  
+                  { isSmartSyncAccessableFromGB && !isMobile &&
+                    <Button
+                      className="btn btn-primary3 btn-text-white px-5 m-2 btn-41"
+                      onClick={() => {
+                        window.Moengage.track_event("start_new_SmartRx_click", {
+                          doctor_id: profile?.doctor_unique_id,
+                          patient_id:
+                            patient_data !== undefined
+                              ? patient_data.patient_unique_id
+                              : 0,
+                        });
+                        navigate("/smart-prescription", { state: { patient_data: patient_data } });
+                      }}
+                    >
+                      {"Start New SmartRx"}
+                    </Button>
+                  }
+                </div>
               </div>
             )}
           </div>
