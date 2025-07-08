@@ -35,6 +35,7 @@ const PreviewDrawerMobile = ({
   onSave,
   isMobile,
   handleUpdatedFiles,
+  isAddMoreClicked,
 }) => {
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -78,6 +79,14 @@ const PreviewDrawerMobile = ({
       setSelectedFileIndex(0);
     }
   }, [uploadedFiles, selectedFileId]);
+
+  useEffect(() => {
+    if (isAddMoreClicked) {
+      setSelectedFileId(uploadedFiles?.[uploadedFiles.length - 1]?.id);
+      setSelectedFileIndex(uploadedFiles.length - 1);
+      carouselRef.current?.goToSlide(uploadedFiles.length - 1);
+    }
+  }, [isAddMoreClicked, uploadedFiles.length]);
 
   const currentFile = uploadedFiles[selectedFileIndex];
   const imageUrl = currentFile?.url || currentFile?.preview;

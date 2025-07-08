@@ -3,6 +3,7 @@
 import React, {
   useState,
   useRef,
+  useEffect,
   useContext,
   forwardRef,
   useImperativeHandle,
@@ -29,17 +30,16 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
   ];
   const maxFileSize = 10 * 1024 * 1024; // 10MB
   const [storedFileIdToReplace, setStoredFileIdToReplace] = useState(null);
-  const validateFile = (file) => {
-    if (!acceptedTypes.includes(file.type)) {
-      message.error("Please upload only PDF, PNG, or JPG files");
-      return false;
-    }
-    if (file.size > maxFileSize) {
-      message.error("File size should not exceed 10MB");
-      return false;
-    }
-    return true;
-  };
+  const [isAddMoreClicked, setIsAddMoreClicked] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      setIsAddMoreClicked(false);
+      setStoredFileIdToReplace(null);
+      setUploadedFiles([]);
+      setIsPreviewOpen(false);
+    };
+  }, []);
 
   const handleFiles = async (files) => {
     if (!files || files.length === 0) return;
@@ -47,16 +47,31 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
     const fileArray = Array.from(files);
     const newFiles = [];
     let isStoredFileUsed = false;
+    const totalFilesForValidation = [...fileArray, ...uploadedFiles];
+    if (totalFilesForValidation.length > 5) {
+      message.error("You can only upload upto 5 files.");
+      return;
+    }
+    const totalFilesSize = totalFilesForValidation.reduce(
+      (acc, file) => acc + file.size,
+      0
+    );
+    if (totalFilesSize > maxFileSize) {
+      message.error(
+        `Total file size should not exceed 10MB. Current size: ${(
+          totalFilesSize /
+          1024 /
+          1024
+        ).toFixed(2)} MB`
+      );
+      return;
+    }
     for (const file of fileArray) {
       if (!file.type.match(/^(image|application\/pdf)/)) {
         message.error(`${file.name} is not a valid file type`);
         continue;
       }
 
-      if (file.size > 10 * 1024 * 1024) {
-        message.error(`${file.name} is too large (max 10MB)`);
-        continue;
-      }
       if (file.type === "application/pdf") {
         try {
           const arrayBuffer = await file.arrayBuffer();
@@ -193,7 +208,13 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
   };
 
   const handleAddMore = () => {
+    if (uploadedFiles.length >= 5) {
+      message.error("You can only upload upto 5 files.");
+      return;
+    }
     fileInputRef.current?.click();
+    setStoredFileIdToReplace(null);
+    setIsAddMoreClicked(true);
   };
 
   const handleSave = () => {
@@ -266,6 +287,7 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
         onSave={handleSave}
         onRotate={handleRotateClick}
         handleUpdatedFiles={handleUpdatedFiles}
+        isAddMoreClicked={isAddMoreClicked}
       />
     </>
   );
