@@ -13,7 +13,7 @@ const UPLOAD_RX_TEXT = {
   patientPhone: "+91-9711365448",
 };
 
-const UploadSuccess = ({ goBack }) => {
+const UploadSuccess = ({ goBack, uploadedFiles }) => {
   useEffect(() => {
     return () => {
       goBack();
@@ -49,6 +49,18 @@ const UploadSuccess = ({ goBack }) => {
             className="patient-info-card-success"
           />
         </div>
+        {/* <div className="thumbnails-section">
+          {uploadedFiles.map((file, index) => (
+            <div key={index} className={`thumbnail-item`}>
+              <img
+                src={file.url || file.preview}
+                alt={`Page ${index + 1}`}
+                className="thumbnail-img"
+              />
+            </div>
+          ))}
+        </div> */}
+        {/* TODO: INTEL - only for testing. remove the thumbnails here */}
         <Button
           type="primary"
           className="book-appointment-btn fs-14 fw-semibold"

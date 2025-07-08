@@ -28,7 +28,7 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
     "image/jpg",
   ];
   const maxFileSize = 10 * 1024 * 1024; // 10MB
-  const [storeFileId, setStoreFileId] = useState(null);
+  const [storedFileIdToReplace, setStoredFileIdToReplace] = useState(null);
   const validateFile = (file) => {
     if (!acceptedTypes.includes(file.type)) {
       message.error("Please upload only PDF, PNG, or JPG files");
@@ -46,7 +46,7 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
 
     const fileArray = Array.from(files);
     const newFiles = [];
-
+    let isStoredFileUsed = false;
     for (const file of fileArray) {
       if (!file.type.match(/^(image|application\/pdf)/)) {
         message.error(`${file.name} is not a valid file type`);
@@ -57,7 +57,6 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
         message.error(`${file.name} is too large (max 10MB)`);
         continue;
       }
-      let isStoredFileUsed = false;
       if (file.type === "application/pdf") {
         try {
           const arrayBuffer = await file.arrayBuffer();
@@ -84,8 +83,8 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
               preview,
               url: preview,
               id:
-                storeFileId && !isStoredFileUsed
-                  ? storeFileId
+                storedFileIdToReplace && !isStoredFileUsed
+                  ? storedFileIdToReplace
                   : Date.now() + Math.random(),
               rotation: 0,
               crop: {
@@ -97,7 +96,7 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
               },
             };
 
-            if (storeFileId) {
+            if (storedFileIdToReplace) {
               isStoredFileUsed = true;
             }
 
@@ -117,8 +116,8 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
           preview,
           url: preview,
           id:
-            storeFileId && !isStoredFileUsed
-              ? storeFileId
+            storedFileIdToReplace && !isStoredFileUsed
+              ? storedFileIdToReplace
               : Date.now() + Math.random(),
           rotation: 0,
           crop: {
@@ -129,7 +128,7 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
             height: 80,
           },
         };
-        if (storeFileId) {
+        if (storedFileIdToReplace) {
           isStoredFileUsed = true;
         }
         newFiles.push(fileObj);
@@ -137,22 +136,24 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
     }
 
     if (newFiles.length > 0) {
-      if (!storeFileId) {
+      if (!storedFileIdToReplace) {
         setUploadedFiles((prev) => [...prev, ...newFiles]);
       } else {
         const finalFiles = uploadedFiles.map((file) => {
-          if (file.id === storeFileId) {
-            return newFiles.find((newFile) => newFile.id === storeFileId);
+          if (file.id === storedFileIdToReplace) {
+            return newFiles.find(
+              (newFile) => newFile.id === storedFileIdToReplace
+            );
           }
           return file;
         });
         finalFiles.push(
-          ...newFiles.filter((newFile) => newFile.id !== storeFileId)
+          ...newFiles.filter((newFile) => newFile.id !== storedFileIdToReplace)
         );
         setUploadedFiles(finalFiles);
       }
-      if (storeFileId) {
-        setStoreFileId(null);
+      if (storedFileIdToReplace) {
+        setStoredFileIdToReplace(null);
       }
       setIsPreviewOpen(true);
     }
@@ -187,7 +188,7 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
   const handleReupload = (fileId) => {
     fileInputRef.current?.click();
     if (fileId) {
-      setStoreFileId(fileId);
+      setStoredFileIdToReplace(fileId);
     }
   };
 

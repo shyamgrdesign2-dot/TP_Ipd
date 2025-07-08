@@ -26,6 +26,30 @@
     justify-content: center;
     height: 100%;
     width: 100%;
+    // TODO: INTEL - only for testing. remove the thumbnails here
+    .thumbnails-section {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      overflow-x: auto;
+
+      .thumbnail-item {
+        flex-shrink: 0;
+        width: 4.48981rem !important;
+        height: 5rem !important;
+        border-radius: 0.5rem;
+        border: 1.429px solid #4b4ad5;
+        background: #fdfdfd;
+        overflow: hidden;
+        .thumbnail-img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+        }
+      }
+    }
     .success-icon {
       width: 100%;
       height: auto;

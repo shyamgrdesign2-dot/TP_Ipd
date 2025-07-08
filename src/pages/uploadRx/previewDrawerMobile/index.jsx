@@ -53,7 +53,7 @@ const PreviewDrawerMobile = ({
   useEffect(() => {
     const newImageRefs = new Map();
     uploadedFiles.forEach((file) => {
-      if (imageRefs.current.has(file.id)) {
+      if (imageRefs.current?.has(file.id)) {
         newImageRefs.set(file.id, imageRefs.current.get(file.id));
       } else {
         newImageRefs.set(file.id, React.createRef());
@@ -63,7 +63,7 @@ const PreviewDrawerMobile = ({
 
     const newCanvasRefs = new Map();
     uploadedFiles.forEach((file) => {
-      if (canvasRefs.current.has(file.id)) {
+      if (canvasRefs.current?.has(file.id)) {
         newCanvasRefs.set(file.id, canvasRefs.current.get(file.id));
       } else {
         newCanvasRefs.set(file.id, React.createRef());
@@ -153,6 +153,7 @@ const PreviewDrawerMobile = ({
     const scaleY = image.naturalHeight / image.height;
     const ctx = canvas.getContext("2d");
 
+    // TODO: INTEL - when rotated, the cropped image is not matching. fix it.
     canvas.width = crop.width * scaleX;
     canvas.height = crop.height * scaleY;
 
@@ -203,7 +204,7 @@ const PreviewDrawerMobile = ({
         const updatedCroppedFiles = await Promise.all(
           uploadedFiles.map(async (updatedFile) => {
             const croppedBlob = await getCroppedImg(
-              imageRefs.current[updatedFile.id]?.current,
+              imageRefs.current?.get(updatedFile.id)?.current,
               updatedFile.crop,
               updatedFile.id
             );
@@ -229,7 +230,7 @@ const PreviewDrawerMobile = ({
             // temp. will remove after api integration
             setIsSubmitting(false);
             setShowSuccess(true);
-          }, 2000);
+          }, 500);
           // onSave(updatedCroppedFiles);
         }
       } catch (error) {
@@ -394,31 +395,42 @@ const PreviewDrawerMobile = ({
                       const imageUrl = `${file.url || file.preview}`;
                       return (
                         <div key={file.id} className="crop-container">
-                          <ReactCrop
-                            crop={cropOfFile}
-                            keepSelection
-                            onChange={(newCrop) =>
-                              handleCropChange(newCrop, file.id)
-                            }
-                            onComplete={(completedCrop) =>
-                              handleCropChange(completedCrop, file.id)
-                            }
-                            aspect={undefined}
-                            className="react-crop-wrapper"
-                          >
+                          {!isSubmitting ? (
+                            <ReactCrop
+                              crop={cropOfFile}
+                              keepSelection
+                              onChange={(newCrop) =>
+                                handleCropChange(newCrop, file.id)
+                              }
+                              onComplete={(completedCrop) =>
+                                handleCropChange(completedCrop, file.id)
+                              }
+                              aspect={undefined}
+                              className="react-crop-wrapper"
+                            >
+                              <img
+                                ref={imageRefs.current?.get(file.id)}
+                                src={imageUrl}
+                                alt="Prescription"
+                                className="prescription-image"
+                                onLoad={(e) => onImageLoad(e, file.id)}
+                                style={{
+                                  transform: `rotate(${file.rotation}deg)`,
+                                }}
+                              />
+                            </ReactCrop>
+                          ) : (
                             <img
-                              ref={imageRefs.current[file.id]}
                               src={imageUrl}
                               alt="Prescription"
                               className="prescription-image"
-                              onLoad={(e) => onImageLoad(e, file.id)}
                               style={{
                                 transform: `rotate(${file.rotation}deg)`,
                               }}
                             />
-                          </ReactCrop>
+                          )}
                           <canvas
-                            ref={canvasRefs.current[file.id]}
+                            ref={canvasRefs.current?.get(file.id)}
                             style={{ display: "none" }}
                           />
                         </div>
@@ -509,7 +521,9 @@ const PreviewDrawerMobile = ({
   }
 
   if (showSuccess) {
-    return <UploadSuccess goBack={handleGoBack} />;
+    return (
+      <UploadSuccess goBack={handleGoBack} uploadedFiles={uploadedFiles} />
+    );
   }
   return <></>;
 };
