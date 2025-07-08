@@ -22,16 +22,7 @@ import "./styles.scss";
 import retakeIcon from "../../../assets/images/retake.png";
 import rotateIcon from "../../../assets/images/rotate.png";
 import deleteIcon from "../../../assets/images/delete.png";
-import PatientInfoCard from "../../uploadRx/patientInfoCard/PatientInfoCard";
-
-const UPLOAD_RX_TEXT = {
-  patientName: "Shyam Sundhar",
-  patientDetails: {
-    gender: "Male",
-    age: "24 yrs",
-  },
-  patientPhone: "+91-9711365448",
-};
+import UploadSuccess from "../uploadSuccess";
 
 const PreviewDrawerMobile = ({
   isOpen,
@@ -51,7 +42,6 @@ const PreviewDrawerMobile = ({
   const [selectedFileId, setSelectedFileId] = useState(
     uploadedFiles?.[0]?.id || null
   );
-  const [zoom, setZoom] = useState(1);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -107,6 +97,21 @@ const PreviewDrawerMobile = ({
       img.src = imageUrl;
     }
   }, [imageUrl, loading, imageRotation]);
+
+  useEffect(() => {
+    return () => {
+      imageRefs.current = null;
+      canvasRefs.current = null;
+      carouselRef.current = null;
+      setSelectedFileIndex(0);
+      setSelectedFileId(null);
+      setImageLoaded(false);
+      setImageError(false);
+      setIsSubmitting(false);
+      setShowSuccess(false);
+      handleUpdatedFiles([]);
+    };
+  }, []);
 
   const onImageLoad = useCallback(
     (e, fileId) => {
@@ -221,6 +226,7 @@ const PreviewDrawerMobile = ({
         handleUpdatedFiles(updatedCroppedFiles);
         if (onSave) {
           setTimeout(() => {
+            // temp. will remove after api integration
             setIsSubmitting(false);
             setShowSuccess(true);
           }, 2000);
@@ -300,6 +306,19 @@ const PreviewDrawerMobile = ({
       setSelectedFileId(uploadedFiles?.[1]?.id);
       onRemove(selectedFileId);
     }
+  };
+
+  const handleGoBack = () => {
+    setShowSuccess(false);
+    onClose();
+    imageRefs.current = null;
+    canvasRefs.current = null;
+    carouselRef.current = null;
+    setSelectedFileIndex(0);
+    setSelectedFileId(null);
+    setImageLoaded(false);
+    setImageError(false);
+    setIsSubmitting(false);
   };
 
   const responsive = useMemo(
@@ -394,7 +413,7 @@ const PreviewDrawerMobile = ({
                               className="prescription-image"
                               onLoad={(e) => onImageLoad(e, file.id)}
                               style={{
-                                transform: `scale(${zoom}) rotate(${file.rotation}deg)`,
+                                transform: `rotate(${file.rotation}deg)`,
                               }}
                             />
                           </ReactCrop>
@@ -490,46 +509,7 @@ const PreviewDrawerMobile = ({
   }
 
   if (showSuccess) {
-    return (
-      <div className="success-rx-upload-container">
-        <div className="success-content">
-          <div className="success-icon">
-            <img
-              src={require("../../../assets/images/success-animation.gif")}
-              alt="SUCCESS GIF"
-            />
-          </div>
-          <div className="success-text">
-            <div className="success-title">
-              {" "}
-              Rx has been uploaded successfully.
-            </div>
-            <div className="success-description">
-              You can view it in the TatvaCare EMR on the Patients Consultation
-              page.
-            </div>
-          </div>
-          <div className="patient-info-card-container">
-            <PatientInfoCard
-              name={UPLOAD_RX_TEXT.patientName}
-              gender={UPLOAD_RX_TEXT.patientDetails.gender}
-              age={UPLOAD_RX_TEXT.patientDetails.age}
-              phone={UPLOAD_RX_TEXT.patientPhone}
-              className="patient-info-card-success"
-            />
-          </div>
-          <Button
-            type="primary"
-            className="book-appointment-btn fs-14 fw-semibold"
-            onClick={() => {
-              onClose();
-            }}
-          >
-            Go to Appointment
-          </Button>
-        </div>
-      </div>
-    );
+    return <UploadSuccess goBack={handleGoBack} />;
   }
   return <></>;
 };

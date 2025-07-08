@@ -11,14 +11,12 @@ import { message } from "antd";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 import CashManagerContext from "../../../context/CashManagerContext";
-// import "../styles.scss";
-import PreviewDrawerMobile from "../previewDrawerMobile/PreviewDrawerMobile";
+import PreviewDrawerMobile from "../previewDrawerMobile";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
   const fileInputRef = useRef(null);
-  const [dragActive, setDragActive] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { patient_data, tcmId, pamId } = useContext(CashManagerContext);
@@ -183,6 +181,7 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
 
   const handlePreviewClose = () => {
     setIsPreviewOpen(false);
+    setUploadedFiles([]);
   };
 
   const handleReupload = (fileId) => {

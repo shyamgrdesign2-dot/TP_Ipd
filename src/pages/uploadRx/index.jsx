@@ -8,7 +8,7 @@ import scanUploadRx from "../../assets/images/scan-upload-rx.png";
 import sunIcon from "../../assets/images/sun.png";
 import BottomSheetWrapper from "../../common/BottomSheetWrapper";
 import closeIcon from "../../assets/images/close-black-bg.svg";
-import PatientInfoCard from "./patientInfoCard/PatientInfoCard";
+import PatientInfoCard from "./patientInfoCard";
 import ImageUpload from "./imageUpload/ImageUpload";
 import cameraIcon from "../../assets/images/camera.png";
 import scanIcon from "../../assets/images/scanner.png";
