@@ -9,6 +9,7 @@ const initialState = {
   templates: [],
   loading: false,
   error: null,
+  errorObj: { visible: false, message: '' },
 };
 
 export const addTemplate = createAsyncThunk(
@@ -63,26 +64,24 @@ export const getAdviceTemplates = createAsyncThunk(
 
 export const getFrequentlySearchedAdvice = createAsyncThunk(
   "advice/getFrequentlySearchedAdvice",
-  async () => {
-    let result = {};
-    result = await ApiAdvice.getFrequentlySearchedAdvice();
-    if (result.status) {
-      return result.data;
-    } else {
-      throw Error(result.error);
+  async (_, { rejectWithValue }) => {
+    try {
+      const result = await ApiAdvice.getFrequentlySearchedAdvice();
+      return result;
+    } catch (error) {
+      return rejectWithValue({ visible: false, message: error.response.data.message });
     }
   }
 );
 
 export const searchAdvice = createAsyncThunk(
   "advice/searchAdvice",
-  async (data) => {
-    let result = {};
-    result = await ApiAdvice.searchAdvice(data.searchQuery);
-    if (result.status) {
-      return result.data;
-    } else {
-      throw Error(result.error);
+  async (data, { rejectWithValue }) => {
+    try {
+      const result = await ApiAdvice.searchAdvice(data.searchQuery);
+      return result;
+    } catch (error) {
+      return rejectWithValue({ visible: false, message: error.response.data.message });
     }
   }
 );

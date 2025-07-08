@@ -2,6 +2,7 @@ import api from "./axiosService";
 import config from '../../config';
 
 const baseUrl = { customBaseUrl: config.advice_api_url }
+const baseSearchEngineUrl = { customBaseUrl: config.searchengine_url };
 
 const ApiAdvice = {};
 
@@ -22,7 +23,7 @@ ApiAdvice.getAdviceTemplates = function (query) {
 };
 
 ApiAdvice.getFrequentlySearchedAdvice = function () {
-  return api.get(`/api/v1/advice/frequentlyAdvice`, baseUrl);
+  return api.get(`/api/v1/advice/frequentlyAdvice`, baseSearchEngineUrl);
 };
 
 // ApiAdvice.getFrequentlySearchedAdvice = function () {
@@ -34,7 +35,7 @@ ApiAdvice.getFrequentlySearchedAdvice = function () {
 ApiAdvice.searchAdvice = function (query) {
   return api.post(`/api/v1/advice/searchAdvice`, {
     search: query
-  }, baseUrl);
+  }, baseSearchEngineUrl);
 };
 
 export default ApiAdvice;

@@ -56,6 +56,7 @@ function TabAdviceSearch({ passIndex, onClose }) {
                     key: JSON.stringify({
                         unique_id: uuidv4(),
                         change: 1,
+                        pms_default: 0,
                         advice_name: searchChildQuery
                     }),
                     value: searchChildQuery
@@ -146,7 +147,7 @@ function TabAdviceSearch({ passIndex, onClose }) {
                                                 </Col>
                                                 <Col lg={23} md={23} sm={23} xs={23} className='px-2 d-flex justify-content-between align-items-center'>
                                                     <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
-                                                    <Button className="btn btn-delete-prescription p-0" onClick={() => childDrawerData && childDrawerData.index == index ? setChildDrawerData(null) : setChildDrawerData({ ...item, index: index })}><i className={`${childDrawerData && childDrawerData.index == index ? "icon-Cross" : "icon-Edit"} text-main fs-21`}></i></Button>
+                                                    {item?.pms_default === 0 && <Button className="btn btn-delete-prescription p-0" onClick={() => childDrawerData && childDrawerData.index == index ? setChildDrawerData(null) : setChildDrawerData({ ...item, index: index })}><i className={`${childDrawerData && childDrawerData.index == index ? "icon-Cross" : "icon-Edit"} text-main fs-21`}></i></Button>}
                                                 </Col>
                                             </Row>
                                         )}
