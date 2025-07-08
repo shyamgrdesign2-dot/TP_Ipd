@@ -1,0 +1,537 @@
+// will separate the mobile logic from this file and will leave this file untouched for desktop
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
+import { Button, Skeleton, message } from "antd";
+import MultiCarousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
+import {
+  PlusOutlined,
+  CheckOutlined,
+  LeftOutlined,
+  RightOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
+import ReactCrop from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
+import "./styles.scss";
+import retakeIcon from "../../../assets/images/retake.png";
+import rotateIcon from "../../../assets/images/rotate.png";
+import deleteIcon from "../../../assets/images/delete.png";
+import PatientInfoCard from "../../uploadRx/patientInfoCard/PatientInfoCard";
+
+const UPLOAD_RX_TEXT = {
+  patientName: "Shyam Sundhar",
+  patientDetails: {
+    gender: "Male",
+    age: "24 yrs",
+  },
+  patientPhone: "+91-9711365448",
+};
+
+const PreviewDrawerMobile = ({
+  isOpen,
+  onClose,
+  uploadedFiles,
+  onReupload,
+  onRotate,
+  onRemove,
+  onAddMore,
+  onSave,
+  isMobile,
+  handleUpdatedFiles,
+}) => {
+  const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [selectedFileIndex, setSelectedFileIndex] = useState(0);
+  const [selectedFileId, setSelectedFileId] = useState(
+    uploadedFiles?.[0]?.id || null
+  );
+  const [zoom, setZoom] = useState(1);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const timerRef = useRef(null);
+  const imageRefs = useRef(new Map());
+  const carouselRef = useRef(null);
+  const canvasRefs = useRef(new Map());
+
+  useEffect(() => {
+    const newImageRefs = new Map();
+    uploadedFiles.forEach((file) => {
+      if (imageRefs.current.has(file.id)) {
+        newImageRefs.set(file.id, imageRefs.current.get(file.id));
+      } else {
+        newImageRefs.set(file.id, React.createRef());
+      }
+    });
+    imageRefs.current = newImageRefs;
+
+    const newCanvasRefs = new Map();
+    uploadedFiles.forEach((file) => {
+      if (canvasRefs.current.has(file.id)) {
+        newCanvasRefs.set(file.id, canvasRefs.current.get(file.id));
+      } else {
+        newCanvasRefs.set(file.id, React.createRef());
+      }
+    });
+    canvasRefs.current = newCanvasRefs;
+  }, [uploadedFiles]);
+
+  useEffect(() => {
+    if (uploadedFiles.length > 0 && selectedFileId === null) {
+      setSelectedFileId(uploadedFiles?.[0]?.id);
+      setSelectedFileIndex(0);
+    }
+  }, [uploadedFiles, selectedFileId]);
+
+  const currentFile = uploadedFiles[selectedFileIndex];
+  const imageUrl = currentFile?.url || currentFile?.preview;
+  const imageRotation = currentFile?.rotation || 0;
+
+  useEffect(() => {
+    if (imageUrl && !loading) {
+      const img = new Image();
+      img.onload = () => {
+        setImageLoaded(true);
+        setImageError(false);
+      };
+      img.onerror = () => {
+        setImageError(true);
+        setImageLoaded(false);
+      };
+      img.src = imageUrl;
+    }
+  }, [imageUrl, loading, imageRotation]);
+
+  const onImageLoad = useCallback(
+    (e, fileId) => {
+      const { width, height } = e.currentTarget;
+      const cropWidth = width * 0.8;
+      const cropHeight = height * 0.8;
+      const cropX = (width - cropWidth) / 2;
+      const cropY = (height - cropHeight) / 2;
+
+      const crop = {
+        unit: "px",
+        x: cropX,
+        y: cropY,
+        width: cropWidth,
+        height: cropHeight,
+      };
+
+      const updatedCropFiles = uploadedFiles?.map((file, _) => {
+        if (fileId === file.id) {
+          if (file.crop) {
+            return file;
+          }
+          return { ...file, crop };
+        }
+        return file;
+      });
+      setTimeout(() => {
+        handleUpdatedFiles(updatedCropFiles);
+      }, 100);
+    },
+    [uploadedFiles]
+  );
+
+  const getCroppedImg = useCallback((image, crop, fileId) => {
+    const canvas = canvasRefs.current.get(fileId)?.current;
+    if (!canvas || !crop) return null;
+
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = crop.width * scaleX;
+    canvas.height = crop.height * scaleY;
+
+    ctx.drawImage(
+      image,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
+      0,
+      0,
+      crop.width * scaleX,
+      crop.height * scaleY
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob(
+        (blob) => {
+          resolve(blob);
+        },
+        "image/jpeg",
+        0.9
+      );
+    });
+  }, []);
+
+  const handleLeftArrowClick = () => {
+    if (selectedFileIndex > 0) {
+      carouselRef.current?.goToSlide(selectedFileIndex - 1);
+      setSelectedFileIndex(selectedFileIndex - 1);
+      setSelectedFileId(uploadedFiles?.[selectedFileIndex - 1]?.id);
+    }
+  };
+
+  const handleRightArrowClick = () => {
+    if (selectedFileIndex < uploadedFiles.length - 1) {
+      carouselRef.current?.goToSlide(selectedFileIndex + 1);
+      setSelectedFileIndex(selectedFileIndex + 1);
+      setSelectedFileId(uploadedFiles?.[selectedFileIndex + 1]?.id);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    if (imageRefs.current?.size) {
+      try {
+        const updatedCroppedFiles = await Promise.all(
+          uploadedFiles.map(async (updatedFile) => {
+            const croppedBlob = await getCroppedImg(
+              imageRefs.current[updatedFile.id]?.current,
+              updatedFile.crop,
+              updatedFile.id
+            );
+            if (croppedBlob) {
+              const croppedFile = new File([croppedBlob], updatedFile.name, {
+                type: "image/jpeg",
+              });
+              const croppedUrl = URL.createObjectURL(croppedBlob);
+
+              return {
+                ...updatedFile,
+                file: croppedFile,
+                url: croppedUrl,
+                preview: croppedUrl,
+              };
+            }
+            return updatedFile;
+          })
+        );
+        handleUpdatedFiles(updatedCroppedFiles);
+        if (onSave) {
+          setTimeout(() => {
+            setIsSubmitting(false);
+            setShowSuccess(true);
+          }, 2000);
+          // onSave(updatedCroppedFiles);
+        }
+      } catch (error) {
+        console.error("Error cropping image:", error);
+        message.error("Failed to process image");
+      }
+    } else {
+      if (onSave) {
+        onSave(uploadedFiles);
+      }
+    }
+  };
+
+  // temp design. final design to be shared by shyam
+  const arrowButtonBase = {
+    position: "absolute",
+    top: "50%",
+    transform: "translateY(-50%)",
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+    zIndex: 10,
+    padding: "8px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "opacity 0.3s ease",
+  };
+
+  const leftArrowStyle = {
+    ...arrowButtonBase,
+    left: "5px",
+  };
+
+  const rightArrowStyle = {
+    ...arrowButtonBase,
+    right: "5px",
+  };
+
+  const cropOfFile = useMemo(() => {
+    return uploadedFiles.find((file) => file.id === selectedFileId)?.crop;
+  }, [uploadedFiles, selectedFileId]);
+
+  const handleCropChange = (newCrop, fileId) => {
+    const updatedCropFiles = uploadedFiles?.map((file, _) => {
+      if (fileId === file.id) {
+        return { ...file, crop: newCrop };
+      }
+      return file;
+    });
+    handleUpdatedFiles(updatedCropFiles);
+  };
+
+  const handleRotateClick = () => {
+    if (selectedFileId) {
+      onRotate(selectedFileId);
+    }
+  };
+
+  const handleReuploadClick = () => {
+    if (selectedFileId) {
+      onReupload(selectedFileId);
+    }
+  };
+
+  const handleRemoveClick = () => {
+    if (selectedFileIndex > 0) {
+      carouselRef.current?.goToSlide(selectedFileIndex - 1);
+      setSelectedFileIndex(selectedFileIndex - 1);
+      setSelectedFileId(uploadedFiles?.[selectedFileIndex - 1]?.id);
+      onRemove(selectedFileId);
+    } else {
+      setSelectedFileIndex(1);
+      setSelectedFileId(uploadedFiles?.[1]?.id);
+      onRemove(selectedFileId);
+    }
+  };
+
+  const responsive = useMemo(
+    () => ({
+      tablet: {
+        breakpoint: { max: 1024, min: 464 },
+        items: 1,
+        partialVisibilityGutter: 0,
+      },
+      mobile: {
+        breakpoint: { max: 464, min: 0 },
+        items: 1,
+        partialVisibilityGutter: 0,
+      },
+    }),
+    []
+  );
+
+  if (!isOpen || uploadedFiles.length === 0) return null;
+
+  if (isMobile && !showSuccess) {
+    return (
+      <div className="preview-drawer-overlay">
+        <div className="preview-drawer-mobile">
+          <div className="drawer-header">
+            <div className="header-left">
+              <div
+                onClick={onClose}
+                className="ff-icomoon btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
+              >
+                <i className="icon-Cross"></i>
+              </div>
+              <h1 className="drawer-title">Scan Rx</h1>
+            </div>
+          </div>
+          <div className="preview-area">
+            {loading ? (
+              <div className="skeleton-container">
+                <Skeleton.Image className="skeleton-image" active />
+              </div>
+            ) : imageError ? (
+              <div className="error-container">
+                <div className="error-content">
+                  <div className="error-icon">⚠️</div>
+                  <p>Failed to load image</p>
+                  <button onClick={onReupload} className="retry-btn">
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            ) : !imageLoaded ? (
+              <div className="loading-container">
+                <div className="loading-content">
+                  <div className="spinner"></div>
+                  <p>Loading image...</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="carousel-container">
+                  <MultiCarousel
+                    ref={carouselRef}
+                    responsive={responsive}
+                    autoPlay={false}
+                    infinite={false}
+                    showDots={false}
+                    draggable={false}
+                    swipeable={false}
+                    partialVisible={false}
+                    arrows={false}
+                  >
+                    {uploadedFiles.map((file, _) => {
+                      const imageUrl = `${file.url || file.preview}`;
+                      return (
+                        <div key={file.id} className="crop-container">
+                          <ReactCrop
+                            crop={cropOfFile}
+                            keepSelection
+                            onChange={(newCrop) =>
+                              handleCropChange(newCrop, file.id)
+                            }
+                            onComplete={(completedCrop) =>
+                              handleCropChange(completedCrop, file.id)
+                            }
+                            aspect={undefined}
+                            className="react-crop-wrapper"
+                          >
+                            <img
+                              ref={imageRefs.current[file.id]}
+                              src={imageUrl}
+                              alt="Prescription"
+                              className="prescription-image"
+                              onLoad={(e) => onImageLoad(e, file.id)}
+                              style={{
+                                transform: `scale(${zoom}) rotate(${file.rotation}deg)`,
+                              }}
+                            />
+                          </ReactCrop>
+                          <canvas
+                            ref={canvasRefs.current[file.id]}
+                            style={{ display: "none" }}
+                          />
+                        </div>
+                      );
+                    })}
+                  </MultiCarousel>
+                </div>
+              </>
+            )}
+          </div>
+          <div className="action-bar">
+            <div className="action-buttons">
+              <button
+                className="action-btn reupload-btn"
+                onClick={handleReuploadClick}
+              >
+                <img
+                  src={retakeIcon}
+                  alt="retake"
+                  className="action-icon retake-icon"
+                />
+                <div>Retake</div>
+              </button>
+
+              <button
+                className="action-btn remove-btn"
+                onClick={handleRotateClick}
+              >
+                <img
+                  src={rotateIcon}
+                  alt="rotate"
+                  className="action-icon rotate-icon"
+                />
+                <div>Rotate</div>
+              </button>
+
+              <button
+                className="action-btn remove-btn"
+                onClick={handleRemoveClick}
+              >
+                <img
+                  src={deleteIcon}
+                  alt="delete"
+                  className="action-icon delete-icon"
+                />
+                <div>Delete</div>
+              </button>
+            </div>
+            <div className="footer-actions">
+              <Button
+                className="footer-cta"
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => onAddMore()}
+              >
+                Scan more
+              </Button>
+              <Button
+                className="footer-cta"
+                type="primary"
+                disabled={isSubmitting}
+                icon={isSubmitting ? <LoadingOutlined /> : <CheckOutlined />}
+                onClick={handleSubmit}
+              >
+                {isSubmitting ? "Submitting..." : "Submit"}
+              </Button>
+            </div>
+          </div>
+        </div>
+        {uploadedFiles.length > 1 && (
+          <div className="thumbnails-section-container">
+            <div className="thumbnails-section">
+              <button style={leftArrowStyle} onClick={handleLeftArrowClick}>
+                <LeftOutlined />
+              </button>
+              {selectedFileIndex + 1 > uploadedFiles.length
+                ? 1
+                : selectedFileIndex + 1}{" "}
+              of {uploadedFiles.length}
+              <button style={rightArrowStyle} onClick={handleRightArrowClick}>
+                <RightOutlined />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (showSuccess) {
+    return (
+      <div className="success-rx-upload-container">
+        <div className="success-content">
+          <div className="success-icon">
+            <img
+              src={require("../../../assets/images/success-animation.gif")}
+              alt="SUCCESS GIF"
+            />
+          </div>
+          <div className="success-text">
+            <div className="success-title">
+              {" "}
+              Rx has been uploaded successfully.
+            </div>
+            <div className="success-description">
+              You can view it in the TatvaCare EMR on the Patients Consultation
+              page.
+            </div>
+          </div>
+          <div className="patient-info-card-container">
+            <PatientInfoCard
+              name={UPLOAD_RX_TEXT.patientName}
+              gender={UPLOAD_RX_TEXT.patientDetails.gender}
+              age={UPLOAD_RX_TEXT.patientDetails.age}
+              phone={UPLOAD_RX_TEXT.patientPhone}
+              className="patient-info-card-success"
+            />
+          </div>
+          <Button
+            type="primary"
+            className="book-appointment-btn fs-14 fw-semibold"
+            onClick={() => {
+              onClose();
+            }}
+          >
+            Go to Appointment
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  return <></>;
+};
+
+export default PreviewDrawerMobile;

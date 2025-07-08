@@ -11,8 +11,8 @@ import { message } from "antd";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 import CashManagerContext from "../../../context/CashManagerContext";
-import "../styles.scss";
-import PreviewDrawer from "../../snapRx/components/PreviewDrawer";
+// import "../styles.scss";
+import PreviewDrawerMobile from "../previewDrawerMobile/PreviewDrawerMobile";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
@@ -255,7 +255,7 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
         onChange={handleFileSelect}
         style={{ display: "none" }}
       />
-      <PreviewDrawer
+      <PreviewDrawerMobile
         isOpen={isPreviewOpen}
         isMobile={true}
         onClose={handlePreviewClose}
