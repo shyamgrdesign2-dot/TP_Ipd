@@ -53,6 +53,7 @@ import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
 import SnapRx from "./pages/snapRx/SnapRx";
 import UploadRx from "./pages/uploadRx";
+import BottomSheetManager from "./components/bottomSheetManager";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -313,6 +314,7 @@ function App() {
                 <PlanExpirationBanner />
                 <ExpiredPlanCard />
                 <DoctorModal />
+                <BottomSheetManager />
               </div>
             )}
             <Routes>

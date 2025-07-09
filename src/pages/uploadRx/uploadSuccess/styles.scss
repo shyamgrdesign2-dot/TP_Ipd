@@ -30,11 +30,14 @@
     .thumbnails-section {
       display: flex;
       gap: 16px;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
-      padding: 0;
-      overflow-x: auto;
-
+      overflow-x: scroll;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
       .thumbnail-item {
         flex-shrink: 0;
         width: 4.48981rem !important;

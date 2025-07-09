@@ -13,6 +13,8 @@ import * as pdfjsLib from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 import CashManagerContext from "../../../context/CashManagerContext";
 import PreviewDrawerMobile from "../previewDrawerMobile";
+import { openBottomSheet } from "../../../components/bottomSheetManager";
+import alertIcon from "../../../assets/images/alertIcon.svg";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
@@ -21,14 +23,15 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const { patient_data, tcmId, pamId } = useContext(CashManagerContext);
-  // Accepted file types
   const acceptedTypes = [
     "application/pdf",
     "image/png",
     "image/jpeg",
     "image/jpg",
   ];
-  const maxFileSize = 10 * 1024 * 1024; // 10MB
+  const maxFileLimit = 5;
+  const maxFileSizeInMB = 8;
+  const maxFileSize = maxFileSizeInMB * 1024 * 1024; // 8MB
   const [storedFileIdToReplace, setStoredFileIdToReplace] = useState(null);
   const [isAddMoreClicked, setIsAddMoreClicked] = useState(false);
 
@@ -41,6 +44,47 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
     };
   }, []);
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleExceededFileLimit = () => {
+    openBottomSheet({
+      title: "Exceeded File Limit",
+      description: (
+        <>
+          You can only upload upto <strong>{maxFileLimit} files</strong>. Please
+          remove some files and try again.
+        </>
+      ),
+      icon: <img src={alertIcon} alt="!" />,
+      ctaText: "Retry",
+      componentRef: ref,
+      ctaClick: () => {
+        handleUploadClick();
+      },
+    });
+  };
+
+  const handleFileSizeExceeded = (totalFilesSize) => {
+    const fileSize = (totalFilesSize / 1024 / 1024).toFixed(2);
+    openBottomSheet({
+      title: "File Size Exceeded",
+      description: (
+        <>
+          Total file size should not exceed <strong>{maxFileSizeInMB}MB</strong>
+          . Current size: {fileSize} MB.
+        </>
+      ),
+      icon: <img src={alertIcon} alt="!" />,
+      ctaText: "Retry",
+      componentRef: ref,
+      ctaClick: () => {
+        handleUploadClick();
+      },
+    });
+  };
+
   const handleFiles = async (files) => {
     if (!files || files.length === 0) return;
 
@@ -48,8 +92,11 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
     const newFiles = [];
     let isStoredFileUsed = false;
     const totalFilesForValidation = [...fileArray, ...uploadedFiles];
-    if (totalFilesForValidation.length > 5) {
-      message.error("You can only upload upto 5 files.");
+    if (
+      totalFilesForValidation.length > maxFileLimit &&
+      !storedFileIdToReplace
+    ) {
+      handleExceededFileLimit();
       return;
     }
     const totalFilesSize = totalFilesForValidation.reduce(
@@ -57,13 +104,7 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
       0
     );
     if (totalFilesSize > maxFileSize) {
-      message.error(
-        `Total file size should not exceed 10MB. Current size: ${(
-          totalFilesSize /
-          1024 /
-          1024
-        ).toFixed(2)} MB`
-      );
+      handleFileSizeExceeded(totalFilesSize);
       return;
     }
     for (const file of fileArray) {
@@ -160,7 +201,12 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
 
     if (newFiles.length > 0) {
       if (!storedFileIdToReplace) {
-        setUploadedFiles((prev) => [...prev, ...newFiles]);
+        const totalFiles = [...uploadedFiles, ...newFiles];
+        if (totalFiles.length > maxFileLimit) {
+          handleExceededFileLimit();
+          return;
+        }
+        setUploadedFiles(totalFiles);
       } else {
         const finalFiles = uploadedFiles.map((file) => {
           if (file.id === storedFileIdToReplace) {
@@ -173,6 +219,10 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
         finalFiles.push(
           ...newFiles.filter((newFile) => newFile.id !== storedFileIdToReplace)
         );
+        if (finalFiles.length > maxFileLimit) {
+          handleExceededFileLimit();
+          return;
+        }
         setUploadedFiles(finalFiles);
       }
       if (storedFileIdToReplace) {
@@ -216,8 +266,8 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
   };
 
   const handleAddMore = () => {
-    if (uploadedFiles.length >= 5) {
-      message.error("You can only upload upto 5 files.");
+    if (uploadedFiles.length >= maxFileLimit) {
+      handleExceededFileLimit();
       return;
     }
     fileInputRef.current?.click();
@@ -231,7 +281,6 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
       return;
     }
 
-    // Call the parent onFileUpload function if provided
     if (onFileUpload) {
       const filesToUpload = uploadedFiles.map((f) => f.file);
       onFileUpload(filesToUpload);
@@ -241,7 +290,6 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
     message.success("Files saved successfully");
   };
 
-  // Cleanup URLs on unmount
   React.useEffect(() => {
     return () => {
       uploadedFiles.forEach((file) => {

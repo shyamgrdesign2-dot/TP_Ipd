@@ -3,7 +3,13 @@ import { AnimatePresence, motion } from "framer-motion";
 import "./BottomSheetWrapper.scss";
 
 const BottomSheetWrapper = forwardRef((props, ref) => {
-  const { children, className, overlayClassName, onOverlayClick } = props;
+  const {
+    children,
+    className,
+    overlayClassName,
+    onOverlayClick,
+    isGlobalVisible,
+  } = props;
   const [isVisible, setIsVisible] = useState(false);
 
   useImperativeHandle(ref, () => ({
@@ -13,10 +19,8 @@ const BottomSheetWrapper = forwardRef((props, ref) => {
 
   return (
     <AnimatePresence>
-      {isVisible && (
-        <div
-          className="bottomSheetWrapper"
-        >
+      {(isVisible || isGlobalVisible) && (
+        <div className="bottomSheetWrapper">
           <div
             className={overlayClassName || "overlay"}
             onClick={onOverlayClick || (() => setIsVisible(false))}

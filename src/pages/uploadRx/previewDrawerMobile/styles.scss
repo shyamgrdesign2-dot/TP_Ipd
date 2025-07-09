@@ -178,9 +178,29 @@
           height: 100%;
           .react-multi-carousel-list {
             height: 100%;
+            overflow: unset !important;
             .react-multi-carousel-track {
               height: inherit;
               width: inherit;
+            }
+            .react-multi-carousel-dot-list {
+              bottom: -23px !important;
+              background-color: transparent !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              gap: 4px !important;
+              .react-multi-carousel-dot button {
+                background-color: #ffffff80 !important;
+                width: 4px !important;
+                height: 4px !important;
+                border-radius: 50% !important;
+              }
+              .react-multi-carousel-dot--active button {
+                background-color: #ffffff !important;
+                width: 23px !important;
+                height: 4px !important;
+                border-radius: 6px !important;
+              }
             }
           }
           .crop-container {
@@ -248,17 +268,53 @@
       left: 0;
       right: 0;
       padding: 10px;
+      padding-top: 32px;
+      background-color: #181a20;
       .thumbnails-section {
         display: flex;
         gap: 10px;
         justify-content: center;
         align-items: center;
+        color: white;
+        .page-number-container {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          background-color: #ffffff33;
+          padding: 2px 13px;
+          border-radius: 13px;
+          .page-number {
+            font-size: 12px;
+            line-height: 24px;
+            font-weight: 500;
+            color: white !important;
+          }
+        }
+        .arrow-btn {
+          border: none;
+          outline: none;
+          background-color: transparent;
+          color: white !important;
+          .arrow-icon {
+            width: 24px;
+            height: 24px;
+            &.rotate-180 {
+              transform: rotate(180deg);
+            }
+          }
+        }
       }
     }
   }
 }
+@media (max-width: 768px) {
+  .preview-drawer-overlay:has(.thumbnails-section-container) {
+    .preview-area {
+      height: calc(100dvh - 300px) !important;
+    }
+  }
+}
 
-// React Image Crop Customization
 .ReactCrop {
   position: relative;
   display: inline-block;

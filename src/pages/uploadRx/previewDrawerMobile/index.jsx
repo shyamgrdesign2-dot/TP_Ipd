@@ -12,8 +12,6 @@ import "react-multi-carousel/lib/styles.css";
 import {
   PlusOutlined,
   CheckOutlined,
-  LeftOutlined,
-  RightOutlined,
   LoadingOutlined,
 } from "@ant-design/icons";
 import ReactCrop from "react-image-crop";
@@ -22,6 +20,7 @@ import "./styles.scss";
 import retakeIcon from "../../../assets/images/retake.png";
 import rotateIcon from "../../../assets/images/rotate.png";
 import deleteIcon from "../../../assets/images/delete.png";
+import arrowIcon from "../../../assets/images/arrow-circle.png";
 import UploadSuccess from "../uploadSuccess";
 
 const PreviewDrawerMobile = ({
@@ -305,32 +304,6 @@ const PreviewDrawerMobile = ({
     }
   };
 
-  // temp design. final design to be shared by shyam
-  const arrowButtonBase = {
-    position: "absolute",
-    top: "50%",
-    transform: "translateY(-50%)",
-    background: "transparent",
-    border: "none",
-    cursor: "pointer",
-    zIndex: 10,
-    padding: "8px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "opacity 0.3s ease",
-  };
-
-  const leftArrowStyle = {
-    ...arrowButtonBase,
-    left: "5px",
-  };
-
-  const rightArrowStyle = {
-    ...arrowButtonBase,
-    right: "5px",
-  };
-
   const cropOfFile = useMemo(() => {
     return uploadedFiles.find((file) => file.id === selectedFileId)?.crop;
   }, [uploadedFiles, selectedFileId]);
@@ -447,7 +420,7 @@ const PreviewDrawerMobile = ({
                     responsive={responsive}
                     autoPlay={false}
                     infinite={false}
-                    showDots={false}
+                    showDots={uploadedFiles.length > 1}
                     draggable={false}
                     swipeable={false}
                     partialVisible={false}
@@ -495,6 +468,9 @@ const PreviewDrawerMobile = ({
                             <img
                               className="prescription-image"
                               src={file.url}
+                              style={{
+                                transform: `rotate(${file.rotation}deg)`,
+                              }}
                               alt="Prescription"
                             />
                           </div>
@@ -567,15 +543,31 @@ const PreviewDrawerMobile = ({
         {uploadedFiles.length > 1 && (
           <div className="thumbnails-section-container">
             <div className="thumbnails-section">
-              <button style={leftArrowStyle} onClick={handleLeftArrowClick}>
-                <LeftOutlined />
+              <button
+                onClick={handleLeftArrowClick}
+                className="arrow-btn left-arrow"
+              >
+                <img src={arrowIcon} alt="left" className="arrow-icon " />
               </button>
-              {selectedFileIndex + 1 > uploadedFiles.length
-                ? 1
-                : selectedFileIndex + 1}{" "}
-              of {uploadedFiles.length}
-              <button style={rightArrowStyle} onClick={handleRightArrowClick}>
-                <RightOutlined />
+
+              <div className="page-number-container">
+                <div className="page-number">Page</div>
+                <div className="page-number">
+                  {selectedFileIndex + 1 > uploadedFiles.length
+                    ? 1
+                    : selectedFileIndex + 1}{" "}
+                  / {uploadedFiles.length}
+                </div>
+              </div>
+              <button
+                onClick={handleRightArrowClick}
+                className="arrow-btn right-arrow"
+              >
+                <img
+                  src={arrowIcon}
+                  alt="right"
+                  className="arrow-icon rotate-180"
+                />
               </button>
             </div>
           </div>
