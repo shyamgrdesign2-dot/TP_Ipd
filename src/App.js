@@ -53,7 +53,7 @@ import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
 import SnapRx from "./pages/snapRx/SnapRx";
 import UploadRx from "./pages/uploadRx";
-import BottomSheetManager from "./components/bottomSheetManager";
+import BottomSheetManager from "./components/BottomSheetManager";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",

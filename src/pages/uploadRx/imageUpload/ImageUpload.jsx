@@ -13,7 +13,7 @@ import * as pdfjsLib from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 import CashManagerContext from "../../../context/CashManagerContext";
 import PreviewDrawerMobile from "../previewDrawerMobile";
-import { openBottomSheet } from "../../../components/bottomSheetManager";
+import { openBottomSheet } from "../../../components/BottomSheetManager";
 import alertIcon from "../../../assets/images/alertIcon.svg";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
