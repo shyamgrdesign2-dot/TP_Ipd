@@ -99,18 +99,15 @@ const ImageUpload = forwardRef(({ onFileUpload, isLoading }, ref) => {
       handleExceededFileLimit();
       return;
     }
-    const totalFilesSize = totalFilesForValidation.reduce(
-      (acc, file) => acc + file.size,
-      0
-    );
-    if (totalFilesSize > maxFileSize) {
-      handleFileSizeExceeded(totalFilesSize);
-      return;
-    }
     for (const file of fileArray) {
       if (!file.type.match(/^(image|application\/pdf)/)) {
         message.error(`${file.name} is not a valid file type`);
         continue;
+      }
+
+      if (file.size > maxFileSize) {
+        handleFileSizeExceeded(file.size);
+        return;
       }
 
       if (file.type === "application/pdf") {
