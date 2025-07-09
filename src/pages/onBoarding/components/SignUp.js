@@ -185,7 +185,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               >
                 sign up
               </span>
-              {' '}first.
+              {' '}.
             </>
           );
           setErrorType("inputFiled");
@@ -760,10 +760,10 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               autoComplete="tel-national"
               id="phone"
             />
-            {error && errorType === "inputFiled" && <div className="error-message" style={{marginTop: "0.5rem"}}>{error}</div>}
+            {error && errorType === "inputFiled" && <div className="error-message">{error}</div>}
           </Form.Item>
 
-          <div className="captcha-wrapper" style={{margin: "1rem 0 1rem 0"}}>
+          <div className="captcha-wrapper" style={{margin: "0.5rem 0 0.5rem 0"}}>
             <div id="captch-id" className="captcha-container">
               {!captchaVisible && (
                 <div style={{ 
