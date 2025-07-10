@@ -9,7 +9,7 @@ import { env } from "../../EnvironmentConfig";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS, FREE, GB_ZYDUS_USER, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_DDX } from "../../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, FAILED_VERIFICATION, FREE, GB_ZYDUS_USER, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_DDX } from "../../utils/constants";
 
 import { getPatientBirthWeight, getVitals } from "../../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../../redux/medicalhistorySlice";
@@ -90,7 +90,7 @@ import DDxKnowMore from "../../components/DDxKnowMore";
 import { getDDxDetails } from "../../api/services/ApiDDx";
 import { getDecodedToken } from "../../utils/localStorage";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { errorMessage, getClinicName, trackEvent, getDeviceSdkData, getTokenData, shouldMonetizationDisabled } from "../../utils/utils";
+import { errorMessage, getClinicName, shouldMonetizationDisabled, trackEvent, getDeviceSdkData, getTokenData } from "../../utils/utils";
 import TabSurgicalBox from "../../components/tab_design/TabSurgicalBox";
 import TabAddCustomModule from "../../components/tab_design/TabAddCustomModule";
 import TabCustomModule from "../../components/tab_design/TabCustomModule";
@@ -862,6 +862,8 @@ function TabPrescription() {
     const DDX_planDetails = servicesList?.find(e => e.service_name === S_DDX)
     if (DDX_planDetails?.plan_tier === FREE && DDX_planDetails?.credit_balance <= 0) {
       showHideSubModal({ service_name: S_DDX })
+    } if (DDX_planDetails?.plan_tier === FAILED_VERIFICATION) {
+      showHideSubModal({ service_name: S_DDX })
     } else {
       let sendData = {
         b2c_id: profile?.b2c,
@@ -875,6 +877,8 @@ function TabPrescription() {
               await dispatch(services(sendData?.b2c_id))
             }
             showHideSubModal({ service_name: S_DDX })
+          } else if (action?.payload?.plan_tier === FAILED_VERIFICATION) {
+            showHideSubModal()
           } else {
             setIsDDxLoading(true);
             setIsDDxGenerated(true);

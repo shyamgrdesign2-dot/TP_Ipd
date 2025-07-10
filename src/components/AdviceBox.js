@@ -139,6 +139,7 @@ function AdviceBox() {
         key: JSON.stringify({
           unique_id: uuidv4(),
           change: 1,
+          pms_default: 0,
           advice_name: searchQuery
         }),
         value: searchQuery,
@@ -424,7 +425,7 @@ function AdviceBox() {
                         </Col>
                         <Col lg={23} md={23} sm={23} xs={23} className='px-2 d-flex justify-content-between align-items-center'>
                           <Checkbox checked onClick={() => onRemoveRow(index)}><div className="text-truncate-twolines">{item.advice_name}</div></Checkbox>
-                          <Button className="btn btn-delete-prescription p-0" onClick={() => handleDrawerChild({ ...item, index: index })}><i className="icon-Edit text-main"></i></Button>
+                          {item?.pms_default === 0 && <Button className="btn btn-delete-prescription p-0" onClick={() => handleDrawerChild({ ...item, index: index })}><i className="icon-Edit text-main"></i></Button>}
                         </Col>
                       </Row>
                     )}

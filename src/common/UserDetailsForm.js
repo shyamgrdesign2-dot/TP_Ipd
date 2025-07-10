@@ -5,7 +5,7 @@ import config from "../config";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSubscriptionDetails } from "../redux/subscriptionSlice";
 import { closeModal } from "../redux/doctorModalSlice";
-import { getClinicName } from "../utils/utils";
+import { getClinicName, getTokenData } from "../utils/utils";
 import { interest } from "../redux/monetizationSlice";
 
 const UserDetailsForm = () => {
@@ -14,6 +14,7 @@ const UserDetailsForm = () => {
   const { service_name } = useSelector((state) => state.doctorModal);
   const dispatch = useDispatch();
   const { planDetails } = useSelector((state) => state.subscription);
+  const tokenData = getTokenData();
 
   // Initial state for prefilling form fields
   const [formData, setFormData] = useState({
@@ -21,11 +22,12 @@ const UserDetailsForm = () => {
     mbl_no: profile?.um_contact,
     alternate_mbl_no: "",
     speciality: profile?.dp_name,
-    clinic_name: profile?.hospital_data?.[0]?.hm_name,
-    clinic_address: profile?.hospital_data?.[0]?.hm_address,
-    pincode: profile?.hospital_data?.[0]?.hm_pincode,
-    city: profile?.hospital_data?.[0]?.hm_city,
-    state: profile?.hospital_data?.[0]?.hm_state,
+    clinic_id: tokenData?.clinic_id,
+    clinic_name: profile?.hospital_data?.find((e) => e.hm_id == tokenData?.clinic_id)?.hm_name,
+    clinic_address: profile?.hospital_data?.find((e) => e.hm_id == tokenData?.clinic_id)?.hm_address,
+    pincode: profile?.hospital_data?.find((e) => e.hm_id == tokenData?.clinic_id)?.hm_pincode,
+    city: profile?.hospital_data?.find((e) => e.hm_id == tokenData?.clinic_id)?.hm_city,
+    state: profile?.hospital_data?.find((e) => e.hm_id == tokenData?.clinic_id)?.hm_state,
     is_pm_renew_requested: true,
     country: "India",
     service_name: service_name

@@ -42,7 +42,7 @@ import VoiceWaveVisualizer from "./WaveVisualizer";
 import GenRXLoaders from "./GenRxLoaders";
 import genRxSendCta from "../assets/images/genRxSendCta.svg";
 import tatvaAiChakra from "../assets/lotties/tatvaAiChakra.lottie";
-import { FREE, MESSAGE_KEY, S_DDX, S_VOICE_RX } from "../utils/constants";
+import { FAILED_VERIFICATION, FREE, MESSAGE_KEY, S_DDX, S_VOICE_RX } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import { checkCredits, updateCredits } from "../redux/monetizationSlice";
@@ -113,20 +113,20 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
 
   const showHideSubModal = useCallback(() => {
     setIsSubModalOpen(!isSubModalOpen);
-    
+
     const clinic_name = getClinicName(profile?.hospital_data);
     const tokenData = getTokenData();
-    const deviceSdkData = getDeviceSdkData(); 
+    const deviceSdkData = getDeviceSdkData();
     window.Moengage.track_event("TP_voiceRx_FreeTrailInfo", {
-        doctor_name: profile?.um_name,
-        doctor_number: profile?.um_contact,
-        doctor_unique_id: profile?.doctor_unique_id,
-        doctor_specialty: profile?.dp_name,
-        clinic_id: tokenData?.clinic_id,
-        um_id: tokenData?.user_id,
-        clinic_Name: clinic_name,
-        ...deviceSdkData,
-        
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      um_id: tokenData?.user_id,
+      clinic_Name: clinic_name,
+      ...deviceSdkData,
+
     });
   }, [isSubModalOpen]);
 
@@ -303,6 +303,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
   const handleSend = async () => {
     if (VOICE_RX_planDetails?.plan_tier === FREE && VOICE_RX_planDetails?.credit_balance <= 0) {
       showHideSubModal()
+    } else if (VOICE_RX_planDetails?.plan_tier === FAILED_VERIFICATION) {
+      showHideSubModal()
     } else {
       let sendData = {
         b2c_id: profile?.b2c,
@@ -315,6 +317,8 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
             if (action?.payload?.credit_balance != VOICE_RX_planDetails?.credit_balance) {
               await dispatch(services(sendData?.b2c_id))
             }
+            showHideSubModal()
+          } else if (action?.payload?.plan_tier === FAILED_VERIFICATION) {
             showHideSubModal()
           } else {
             if (!isRecording && !(inputText || editableQuery)) return;
@@ -444,11 +448,11 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
               getFormattedSymptomsCollectorData(selectedSymptomsCollector);
             const mergedData =
               formattedSymptomsCollectorData &&
-              Object.keys(formattedSymptomsCollectorData)?.length > 0
+                Object.keys(formattedSymptomsCollectorData)?.length > 0
                 ? mergeData(
-                    response.data.digitize,
-                    formattedSymptomsCollectorData
-                  )
+                  response.data.digitize,
+                  formattedSymptomsCollectorData
+                )
                 : response.data.digitize;
 
             return {
@@ -460,9 +464,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
           setQueries(
             isEditing
               ? [
-                  ...queries.slice(0, queries.length - 1),
-                  response.data.transcription,
-                ]
+                ...queries.slice(0, queries.length - 1),
+                response.data.transcription,
+              ]
               : [...queries, response.data.transcription]
           );
         }

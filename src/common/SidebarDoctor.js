@@ -8,7 +8,7 @@ import axios from "axios";
 
 import config from "../config";
 import { useLocalStorage } from "../utils/localStorage";
-import { FREE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_ASK_TATVA, S_IPD, S_PHARMACY, S_OPD_BILLING, S_BILLING, TRIAL, S_TATVA_PRACTICE, PERSISTANT_STORAGE_KEY_EXTRA } from "../utils/constants";
+import { FREE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_ASK_TATVA, S_IPD, S_PHARMACY, S_OPD_BILLING, S_BILLING, TRIAL, S_TATVA_PRACTICE, PERSISTANT_STORAGE_KEY_EXTRA, FAILED_VERIFICATION } from "../utils/constants";
 import newGif from "../assets/images/new-gif.gif";
 import ipdIcon from "../assets/images/ipd.svg";
 import patientsIcon from "../assets/images/all-patients.svg";
@@ -345,6 +345,8 @@ function SidebarDoctor() {
     setSubModalData({ service_name: S_ASK_TATVA })
     if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
       showHideSubModal()
+    } else if (ASK_TATVA_planDetails?.plan_tier === FAILED_VERIFICATION) {
+      showHideSubModal()
     } else {
       let sendData = {
         b2c_id: profile?.b2c,
@@ -357,6 +359,8 @@ function SidebarDoctor() {
             if (action?.payload?.credit_balance != ASK_TATVA_planDetails?.credit_balance) {
               await dispatch(services(sendData?.b2c_id))
             }
+            showHideSubModal()
+          } else if (action?.payload?.plan_tier === FAILED_VERIFICATION) {
             showHideSubModal()
           } else {
             handleTatvaAi();
@@ -374,16 +378,20 @@ function SidebarDoctor() {
   }
 
   const tatvaAiRedirectOrDrawer = () => {
-    if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance > 0) {
-      if (isFirstClickOfDay(S_ASK_TATVA)) {
-        handleAskTatvaKnowMore();
-      } else {
+    if (tp_monetization_enable) {
+      if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance > 0) {
+        if (isFirstClickOfDay(S_ASK_TATVA)) {
+          handleAskTatvaKnowMore();
+        } else {
+          checkTatvaAiPurchased();
+        }
+      } else if (ASK_TATVA_planDetails?.plan_tier !== FREE) {
         checkTatvaAiPurchased();
+      } else if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
+        handleAskTatvaKnowMore();
       }
-    } else if (ASK_TATVA_planDetails?.plan_tier !== FREE) {
-      checkTatvaAiPurchased();
-    } else if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
-      handleAskTatvaKnowMore();
+    } else {
+      handleTatvaAi();
     }
   }
 

@@ -14,10 +14,11 @@ import { useContext, useState } from "react";
 import CashManagerContext from "../../context/CashManagerContext";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../utils/utils";
-import { FREE, S_DDX } from "../../utils/constants";
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData, shouldMonetizationDisabled } from "../../utils/utils";
+import { FAILED_VERIFICATION, FREE, S_DDX } from "../../utils/constants";
 import CampaignDiscount from "../../pages/monetization/components/CampaignDiscount";
 import crown from '../../assets/images/crown.svg'
+import SMS2 from "../../assets/images/sms-2.png";
 import expiredInfographic2 from '../../assets/images/expired-infographic-2.svg'
 import { interest } from "../../redux/monetizationSlice";
 import { openModal } from "../../redux/doctorModalSlice";
@@ -39,6 +40,8 @@ const DDxList = ({
   const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
   const { isDDxReadyToGenerate } = useSelector((state) => state.ddx);
   const { profile } = useSelector((state) => state.doctors);
+
+  const tp_monetization_enable = !shouldMonetizationDisabled();
 
   const { state } = useLocation();
   const { patient_data } = state;
@@ -192,11 +195,43 @@ const DDxList = ({
                       Request a call back
                     </Button>
                   </div>
-                  <div>
-                    <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(DDX_planDetails?.service_name)}>
-                      <img className="me-2" src={crown} alt="Crown" />
-                      Get Unlimited Access
-                    </Button>
+                  {tp_monetization_enable &&
+                    <div>
+                      <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(DDX_planDetails?.service_name)}>
+                        <img className="me-2" src={crown} alt="Crown" />
+                        Get Unlimited Access
+                      </Button>
+                    </div>
+                  }
+                </div>
+              </Card>
+            </div>
+          ): DDX_planDetails?.plan_tier === FAILED_VERIFICATION ? (
+            <div className="voicerx-modal ddx-side text-center m-2">
+              <Card
+                extra={
+                  <>
+                    <img className="expiredInfographic" src={expiredInfographic2} alt="Your trial plan has Expired" />
+                    <img className="expiredInfographic" style={{ opacity: 0.5 }} src={expiredInfographic2} alt="Your trial plan has Expired" />
+                  </>
+                }>
+
+                <div className="text-white">
+                  Your payment for the <span className="text-white fw-semibold">{DDX_planDetails?.service_display_name}</span> Add-on has failed. Please contact Support for further assistance.!
+                </div>
+
+                <div className="bg-white p-4 rounded-5 mt-4 text-start">
+                  <div className="align-items-center my-3">
+                    <i className="icon-phone fs-16 border p-1 rounded-2 me-1 text-secondary-custom"></i>
+                    <a className="text-main fw-medium fs-16 text-welcome" href="tel:+91-9974042363"> +91 93444 14944</a>
+                  </div>
+                  <div className="align-items-center my-3">
+                    <span className="me-2 border p-1 rounded-2" style={{ padding: '2px 4px' }}>
+                      <img width={16} height={16} src={SMS2} />
+                    </span>
+                    <a className="text-main fw-medium fs-16 text-welcome" href="mailto:support@tatvacare.in" >
+                      Support@tatvacare.in
+                    </a>
                   </div>
                 </div>
               </Card>

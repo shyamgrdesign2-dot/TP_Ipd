@@ -18,7 +18,7 @@ import successIcon from '../assets/images/success-icon.svg';
 import cvtInfoIcon from '../assets/images/cvt-info.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
-import { FETCH_SMART_RX, FREE, GB_SMARTSYNC_CVT, MESSAGE_KEY, RX_DIGITIZATION, S_RX_DIGITIZATION, WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
+import { FAILED_VERIFICATION, FETCH_SMART_RX, FREE, GB_SMARTSYNC_CVT, MESSAGE_KEY, RX_DIGITIZATION, S_RX_DIGITIZATION, WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import config from "../../src/config";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
@@ -303,6 +303,8 @@ function SmartRxPreview() {
     const handleDigitiseRx = async () => {
         if (RX_DIGITIZATION_planDetails?.plan_tier === FREE && RX_DIGITIZATION_planDetails?.credit_balance <= 0) {
             showHideSubModal()
+        } else if (RX_DIGITIZATION_planDetails?.plan_tier === FAILED_VERIFICATION) {
+            showHideSubModal()
         } else {
             let sendData = {
                 b2c_id: profile?.b2c,
@@ -315,6 +317,8 @@ function SmartRxPreview() {
                         if (action?.payload?.credit_balance != RX_DIGITIZATION_planDetails?.credit_balance) {
                             await dispatch(services(sendData?.b2c_id))
                         }
+                        showHideSubModal()
+                    } else if (action?.payload?.plan_tier === FAILED_VERIFICATION) {
                         showHideSubModal()
                     } else {
                         try {

@@ -2,22 +2,24 @@ import React, { useMemo } from "react";
 import { Button, Modal, Card } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import moment from "moment";
 
 import CampaignDiscount from "./CampaignDiscount";
 import expiredInfographic2 from '../../../assets/images/expired-infographic-2.svg'
 import coinLg from "../../../assets/images/coin-lg.png";
 import crown from '../../../assets/images/crown.svg'
+import SMS2 from "../../../assets/images/sms-2.png";
 import planExpiredSandClock from '../../../assets/images/plan-expired-sand-clock.png'
 import { interest } from "../../../redux/monetizationSlice";
-import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData, shouldMonetizationDisabled } from "../../../utils/utils";
 import { openModal } from "../../../redux/doctorModalSlice";
-import { S_IPD, S_PHARMACY, S_TATVA_PRACTICE, TRIAL } from "../../../utils/constants";
+import { FAILED_VERIFICATION, FREE, S_IPD, S_PHARMACY, S_TATVA_PRACTICE, TRIAL } from "../../../utils/constants";
 
 function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    const tp_monetization_enable = !shouldMonetizationDisabled();
 
     const { profile, servicesList } = useSelector((state) => state.doctors);
     const AI_planDetails = servicesList?.find(e => e.service_name === title)
@@ -82,10 +84,6 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
         }
     }
 
-    const remaingDays = useMemo(() => {
-        return EMR_planDetails?.plan_tier === TRIAL ? moment(planDetails?.plan_expiry_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
-    }, [title, planDetails]);
-
     return (
         <Modal
             open={isSubModalOpen}
@@ -99,7 +97,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
             <Card
                 extra={
                     <>
-                        {AI_planDetails?.service_type === 'ai' && AI_planDetails?.credit_balance > 0 && (
+                        {(AI_planDetails?.plan_tier === FREE && AI_planDetails?.service_type === 'ai' && AI_planDetails?.credit_balance > 0) && (
                             <img className="coinLg" src={coinLg} alt="Tatva Coin" />
                         )}
                         <button className="position-relative z-1 btn p-1 lh-1 btnclose closeButton" onClick={showHideSubModal}>
@@ -110,18 +108,25 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                     </>
                 }>
 
-                {AI_planDetails?.service_type === 'ai' && AI_planDetails?.credit_balance > 0 ? (
+                {(AI_planDetails?.plan_tier === FREE && AI_planDetails?.service_type === 'ai' && AI_planDetails?.credit_balance > 0) ? (
                     <div className="text-white fs-16">
                         <span className="fw-bold fs-2 text-white">{AI_planDetails?.credit_balance}</span>
                         <span className="text-white fw-semibold">/05</span> free Trial Left! <br />
                         You can generate up to <span className="fw-bold text-white">{AI_planDetails?.credit_balance} RX</span> using {AI_planDetails?.service_type == 'ai' && 'AI'} {AI_planDetails?.service_display_name} for absolutely free!
                     </div>
+                ) : (AI_planDetails?.plan_tier === FAILED_VERIFICATION && AI_planDetails?.service_type === 'ai') ? (
+                    <>
+                        <img src={planExpiredSandClock} className="plan-expired-clock" alt="Expired Clock" />
+                        <div className="text-white fs-16">
+                            Your payment for the <span className="text-white fw-semibold">{AI_planDetails?.service_display_name}</span> Add-on has failed. Please contact Support for further assistance!
+                        </div>
+                    </>
                 ) : (
-                    (isPurchased() || remaingDays < 0) ? (
+                    (isPurchased() || AI_planDetails?.credit_balance === 0) ? (
                         <>
                             <img src={planExpiredSandClock} className="plan-expired-clock" alt="Expired Clock" />
                             <div className="text-white">
-                                Your<span className="text-white fw-semibold"> {NonAI_planDetails?.service_display_name} trial plan  </span>  has expired. <br />
+                                Your<span className="text-white fw-semibold"> {AI_planDetails?.service_type == 'ai' ? AI_planDetails?.service_display_name : NonAI_planDetails?.service_display_name} trial plan  </span>  has expired. <br />
                                 Upgrade now to continue a hassle free experience!
                             </div>
                         </>
@@ -134,29 +139,49 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                     )
                 )}
 
-                <div className="bg-white p-4 rounded-5 mt-4">
-                    <div className="fs-4 fw-bold text-price">Upgrade Now 🚀</div>
-                    <div className="mt-3 text-price">Unlock unlimited <span className="fw-bold text-price">{AI_planDetails?.service_type == 'ai' ? `AI ${AI_planDetails?.service_display_name}` : `${NonAI_planDetails?.service_display_name}`}</span>, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
+                {(AI_planDetails?.plan_tier === FAILED_VERIFICATION && AI_planDetails?.service_type === 'ai') ? (
+                    <div className="bg-white p-4 rounded-5 mt-4 text-start">
+                        <div className="align-items-center my-3">
+                            <i className="icon-phone fs-16 border p-1 rounded-2 me-1 text-secondary-custom"></i>
+                            <a className="text-main fw-medium fs-16 text-welcome" href="tel:+91-9974042363">
+                                +91-9974042363
+                            </a>
+                        </div>
+                        <div className="align-items-center my-3">
+                            <span className="me-2 border p-1 rounded-2" style={{ padding: '2px 4px'}}>
+                                <img width={16} height={16} src={SMS2} />
+                            </span>
+                            <a className="text-main fw-medium fs-16 text-welcome" href="mailto:support@tatvacare.in" >
+                                Support@tatvacare.in
+                            </a>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="bg-white p-4 rounded-5 mt-4">
+                        <div className="fs-4 fw-bold text-price">Upgrade Now 🚀</div>
+                        <div className="mt-3 text-price">Unlock unlimited <span className="fw-bold text-price">{AI_planDetails?.service_type == 'ai' ? `AI ${AI_planDetails?.service_display_name}` : `${NonAI_planDetails?.service_display_name}`}</span>, a trusted feature used by <span className="fw-bold text-price">5,000+ doctors</span> across clinics.</div>
 
-                    {/* {AI_planDetails?.discount && (
+                        {/* {AI_planDetails?.discount && (
                         <CampaignDiscount flag={2} title={AI_planDetails?.service_name}/>
                     )} */}
 
-                    <div>
-                        <Button type='button' className='mt-3 btn align-items-center mx-auto d-flex btn-41 btn-text btn-save' style={{ height: 52 }} onClick={() => clickRequestCallback(title)}>
-                            <i className='icon-phone text-primary me-2'></i>
-                            Request a call back
-                        </Button>
-                    </div>
-                    {![S_PHARMACY, S_IPD].includes(title) &&
                         <div>
-                            <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(title)}>
-                                <img className="me-2" src={crown} alt="Crown" />
-                                Get Unlimited Access
+                            <Button type='button' className='mt-3 btn align-items-center mx-auto d-flex btn-41 btn-text btn-save' style={{ height: 52 }} onClick={() => clickRequestCallback(title)}>
+                                <i className='icon-phone text-primary me-2'></i>
+                                Request a call back
                             </Button>
                         </div>
-                    }
-                </div>
+                        {![S_PHARMACY, S_IPD].includes(title) && tp_monetization_enable &&
+                            <div>
+                                <Button className="mt-3 btn btn-proceed btn-primary3 w-100 align-items-center justify-content-center d-flex" onClick={() => clickBuyNow(title)}>
+                                    <img className="me-2" src={crown} alt="Crown" />
+                                    Get Unlimited Access
+                                </Button>
+                            </div>
+                        }
+                    </div>
+                )}
+
             </Card>
         </Modal>
     )

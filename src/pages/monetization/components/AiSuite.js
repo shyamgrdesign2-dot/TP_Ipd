@@ -8,21 +8,20 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { isChrome, isSafari } from "react-device-detect";
 
-import Vitals from "../../../assets/images/Vitals.svg";
 import RxVoice from "../../../assets/images/microphone-voice-rx.png";
 import AskTatvaIcon from "../../../assets/images/icon-ask-tatva.png";
 import DDXIcon from "../../../assets/images/DDX-icon.png";
+import supportwhite from "../../../assets/images/support.png";
 import RECEPTIONISTIcon from "../../../assets/images/RECEPTIONIST-icon.png";
 import smartSyncIcon from "../../../assets/images/smart-sync-icon.png";
 
-import { FREE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_ASK_TATVA, S_RX_DIGITIZATION, S_RECEPTIONIST_AGENT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
+import { FREE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_ASK_TATVA, S_RX_DIGITIZATION, S_RECEPTIONIST_AGENT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FAILED_VERIFICATION, PENDING_VERIFICATION } from "../../../utils/constants";
 import GenRxKnowMore from "../../../components/GenRxKnowMore";
 import DDxKnowMore from "../../../components/DDxKnowMore";
 import SmartSyncKnowMore from "../components/SmartSyncKnowMore";
 import CvtKnowMore from "../../smartSync/components/CvtKnowMore";
 import AskTatvaKnowMore from "./AskTatvaKnowMore";
 import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
-import { deviceType, osName } from "react-device-detect";
 
 import { services } from "../../../redux/doctorsSlice";
 import { checkCredits } from "../../../redux/monetizationSlice";
@@ -30,6 +29,7 @@ import FullPageLoader from "../../vaccination/components/Loader";
 import config from "../../../config";
 import { useLocalStorage } from "../../../utils/localStorage";
 import ExpiredSubModal from "./ExpiredSubModal";
+import ContactSupportModal from "../../../common/ContactSupportModal";
 
 function AiSuite({ aiModal, handleAiSuite }) {
 
@@ -55,10 +55,15 @@ function AiSuite({ aiModal, handleAiSuite }) {
     const [cvtDrawer, setCvtDrawer] = useState(false);
     const [askTatvaKnowMoreDrawer, setAskTatvaKnowMoreDrawer] = useState(false);
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const clickContactSupport = useCallback(() => {
+        setIsModalOpen(!isModalOpen);
+    }, [isModalOpen]);
 
     useEffect(() => {
         if (servicesList?.length) {
-            const jsonArray = servicesList?.filter(({ service_type }) => service_type == 'ai')
+            const jsonArray = servicesList?.filter(({ service_type }) => service_type === 'ai')
             setAiServicesData(jsonArray.sort((a, b) => {
                 return (a.purchased === b.purchased) ? 0 : a.purchased === "true" ? -1 : 1;
             }))
@@ -166,6 +171,8 @@ function AiSuite({ aiModal, handleAiSuite }) {
     const checkTatvaAiPurchased = async () => {
         if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
             showHideSubModal()
+        } else if (ASK_TATVA_planDetails?.plan_tier === FAILED_VERIFICATION) {
+            showHideSubModal()
         } else {
             let sendData = {
                 b2c_id: profile?.b2c,
@@ -178,6 +185,8 @@ function AiSuite({ aiModal, handleAiSuite }) {
                         if (action?.payload?.credit_balance != ASK_TATVA_planDetails?.credit_balance) {
                             await dispatch(services(sendData?.b2c_id))
                         }
+                        showHideSubModal()
+                    } else if (action?.payload?.plan_tier === FAILED_VERIFICATION) {
                         showHideSubModal()
                     } else {
                         handleTatvaAi();
@@ -240,7 +249,7 @@ function AiSuite({ aiModal, handleAiSuite }) {
                     {aiServicesData?.map((item, index) => {
                         return (
                             <div key={index}>
-                                {item?.plan_tier === undefined || item?.plan_tier === FREE ? (
+                                {item?.plan_tier === undefined || item?.plan_tier === FREE || item?.plan_tier === PENDING_VERIFICATION ? (
                                     <div className={`ai-suite my-4 ${item?.credit_balance <= 0 && 'ai-expired'}`}>
                                         <div className="d-flex align-items-center mb-3">
                                             <img style={{ background: '#EDDFF780', padding: 6 }} className="rounded-10px me-2" src={getIcon(item?.service_name)} alt="item.type" />
@@ -251,15 +260,44 @@ function AiSuite({ aiModal, handleAiSuite }) {
                                             {item?.service_description}
                                         </p>
                                         <Row className="mt-4">
+                                            <Col lg={item?.plan_tier !== PENDING_VERIFICATION ? 6 : 12}>
+                                                <Button className='w-100 btn ant-btn btn-41 btn-primary1 btn-outline-primary' onClick={() => clickKnowMore(item?.service_name)}>
+                                                    Know More
+                                                </Button>
+                                            </Col>
+                                            {item?.plan_tier !== PENDING_VERIFICATION && (
+                                                <Col lg={6}>
+                                                    <Button className="btn btn-primary3 btn-41 w-100" onClick={() => clickBuyNow(item?.service_name)}>
+                                                        Buy Now
+                                                    </Button>
+                                                </Col>
+                                            )}
+                                        </Row>
+                                    </div>
+                                ) : item?.plan_tier === undefined || item?.plan_tier === FAILED_VERIFICATION ? (
+                                    <div className={`ai-suite my-4 ai-expired`}>
+                                        <div className="d-flex align-items-center mb-3">
+                                            <img style={{ background: '#EDDFF780', padding: 6 }} className="rounded-10px me-2" src={getIcon(item?.service_name)} alt="item.type" />
+                                            <div className="fs-18 fw-semibold text-1F2933">{item?.service_display_name}</div>
+                                            <span className="expired-text fs-12-1 fw-semibold mx-2 px-2 text-white">Payment Failed</span>
+                                        </div>
+                                        <p>
+                                            {item?.service_description}
+                                        </p>
+                                        <div className="text-danger-custom fs-16">
+                                            Your payment for the <span className="text-red fw-semibold text-danger-custom">{item?.service_display_name}</span> Add-on has failed. Please contact Support for further assistance.!
+                                        </div>
+                                        <Row className="mt-4">
                                             <Col lg={6}>
                                                 <Button className='w-100 btn ant-btn btn-41 btn-primary1 btn-outline-primary' onClick={() => clickKnowMore(item?.service_name)}>
                                                     Know More
                                                 </Button>
                                             </Col>
                                             <Col lg={6}>
-                                                <Button className="btn btn-primary3 btn-41 w-100" onClick={() => clickBuyNow(item?.service_name)}>
-                                                    Buy Now
+                                                <Button className="btn btn-primary3 btn-41 w-100 d-flex align-items-center justify-content-center" onClick={clickContactSupport}>
+                                                    <img loading="lazy" src={supportwhite} className="buttonIcon me-1" alt="Contact Support" /> Contact Support
                                                 </Button>
+                                                <ContactSupportModal isModalOpen={isModalOpen} clickContactSupport={clickContactSupport} />
                                             </Col>
                                         </Row>
                                     </div>

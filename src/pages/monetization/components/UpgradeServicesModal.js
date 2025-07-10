@@ -14,7 +14,7 @@ import listIcon from '../../../assets/images/list-icon.svg'
 import aiPowered from '../../../assets/images/ai-powered.svg'
 import vaccinationImg from "../../../assets/images/Vaccination.svg";
 import iconEdit from "../../../assets/images/edit.svg";
-import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_RX_DIGITIZATION, S_IPD, S_ASK_TATVA, S_PHARMACY, S_BILLING, S_RECEPTIONIST_AGENT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FREE } from "../../../utils/constants";
+import { S_TATVA_PRACTICE, S_SMARTSYNC, S_VOICE_RX, S_DDX, S_RX_DIGITIZATION, S_IPD, S_ASK_TATVA, S_PHARMACY, S_BILLING, S_RECEPTIONIST_AGENT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, FREE, FAILED_VERIFICATION } from "../../../utils/constants";
 import { QRCodeSVG } from "qrcode.react";
 import GenRxKnowMore from "../../../components/GenRxKnowMore";
 import SmartSyncKnowMore from "./../components/SmartSyncKnowMore";
@@ -204,6 +204,8 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
     const checkTatvaAiPurchased = async () => {
         if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
             showHideSubModal()
+        } else if (ASK_TATVA_planDetails?.plan_tier === FAILED_VERIFICATION) {
+            showHideSubModal()
         } else {
             let sendData = {
                 b2c_id: profile?.b2c,
@@ -216,6 +218,8 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
                         if (action?.payload?.credit_balance != ASK_TATVA_planDetails?.credit_balance) {
                             await dispatch(services(sendData?.b2c_id))
                         }
+                        showHideSubModal()
+                    } else if (action?.payload?.plan_tier === FAILED_VERIFICATION) {
                         showHideSubModal()
                     } else {
                         handleTatvaAi();
