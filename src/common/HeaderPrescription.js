@@ -20,7 +20,7 @@ import playIcons from '../assets/images/tube-icon.svg';
 import fullicon from '../assets/images/full-icon.svg';
 import VideoModal from './VideoModal';
 
-import { errorMessage, getClinicName, removeBeforeWhiteSpace } from "../utils/utils";
+import { errorMessage, getClinicName, shouldMonetizationDisabled, removeBeforeWhiteSpace } from "../utils/utils";
 
 import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, GB_ZYDUS_USER, MESSAGE_KEY, S_DDX, S_VOICE_RX } from "../utils/constants";
 
@@ -102,7 +102,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
     //PopOverVideo function
     const [popOverVideo, setPopOverVideo] = useState(false);
     const [videoLink, setVideoLink] = useState(null);
-    const tp_monetization_enable = true;
+    const tp_monetization_enable = !shouldMonetizationDisabled();
     const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
 
     const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);

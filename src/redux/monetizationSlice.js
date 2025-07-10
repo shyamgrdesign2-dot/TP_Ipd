@@ -164,7 +164,7 @@ const monetizationSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(billingHistory.fulfilled, (state, action) => {
-                const mainData = action.payload.billingHistory;
+                const mainData = action.payload.billingHistory?.filter(e => e.invoice_id);
                 const tableData = [];
                 mainData.forEach((entry, groupIndex) => {
                     const rowSpan = entry.plans.length;

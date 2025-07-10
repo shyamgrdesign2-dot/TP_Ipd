@@ -378,16 +378,20 @@ function SidebarDoctor() {
   }
 
   const tatvaAiRedirectOrDrawer = () => {
-    if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance > 0) {
-      if (isFirstClickOfDay(S_ASK_TATVA)) {
-        handleAskTatvaKnowMore();
-      } else {
+    if (tp_monetization_enable) {
+      if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance > 0) {
+        if (isFirstClickOfDay(S_ASK_TATVA)) {
+          handleAskTatvaKnowMore();
+        } else {
+          checkTatvaAiPurchased();
+        }
+      } else if (ASK_TATVA_planDetails?.plan_tier !== FREE) {
         checkTatvaAiPurchased();
+      } else if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
+        handleAskTatvaKnowMore();
       }
-    } else if (ASK_TATVA_planDetails?.plan_tier !== FREE) {
-      checkTatvaAiPurchased();
-    } else if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
-      handleAskTatvaKnowMore();
+    } else {
+      handleTatvaAi();
     }
   }
 
