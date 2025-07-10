@@ -595,10 +595,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 style={[paddingStyles, {
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'space-between',
+                    // justifyContent: 'space-between',
                 }]}
                 wrap={!smartRxData}>
-                <View style={{flex: 1}}>    
+                {/* <View style={{flex: 1}}>     */}
                 <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed>
                     {mode == NORMAL ? (
                         printSettings?.letterhead_format === 0 ? (
@@ -831,17 +831,21 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                      </>
                  )}
 
-                <View style={{ 
+                {/* <View style={{ 
                     marginTop: (printSettings?.header_footer?.show_patient_info === 'first' || 
                                !printSettings?.header_footer?.show_patient_info) ? PX_TO_PT * 15 : 0 
-                }}>
+                }}> */}
                     {printSettings?.prescription?.case_option?.map((option, index) => {
                         let customModule = caseManagerData?.moduleContents?.find(e => e.module_id === option?.id);
                         if(customModule) {
-                            customModule = {...customModule, name: getCustomModuleName(option?.id)};
+                            customModule = { ...customModule, name: getCustomModuleName(option?.id) };
                         }
                         return (
-                            option?.id === 1 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                            <View style={{
+                                marginTop: index === 0 ? (printSettings?.header_footer?.show_patient_info === 'first' ||
+                                    !printSettings?.header_footer?.show_patient_info) ? PX_TO_PT * 15 : 0 : 0
+                            }} break={option?.id == "68624471353771e0a587fed6" ? true : false}>
+                            {option?.id === 1 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
                                     {caseManagerData.symptoms.length > 0 && (
                                         option?.format === 'inline' ? (
@@ -5166,10 +5170,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         {`Available Advance Balance ₹${patientWalletBalance}`}
                                     </Text>)}
                                 </Text>
-                            )
+                            )}
+                            </View>
                         )
+                      
                     })}
-                </View>
+                {/* </View> */}
 
                 <View style={{ marginTop: PX_TO_PT * 29 }} wrap={false}>
                     {printSettings?.signature_enable === 'Y' && fileSignature && fileSignature?.imageShow && (
@@ -5287,7 +5293,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     )}
                 </View>
 
-                </View>
+                {/* </View> */}
                 <View style={{
                     position: 'absolute',
                     bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),
