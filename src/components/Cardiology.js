@@ -1327,47 +1327,31 @@ function Cardiology(props) {
                   No visit found for this patient yet
                 </p>
                 <div className="d-flex flex-column align-items-center justify-content-center g-4">
-                  <Button
-                    className="btn btn-primary3 btn-text-white px-5 m-2 btn-41"
-                    onClick={() => {
-                      window.Moengage.track_event("start_new_visit_click", {
-                        doctor_id: profile?.doctor_unique_id,
-                        patient_id:
-                          patient_data !== undefined
-                            ? patient_data.patient_unique_id
-                            : 0,
-                      });
-                      navigate("/prescription", {
-                        state: { patient_data: patient_data, send_path: "patient_details" },
-                      });
-                    }}
-                  >
-                    {"Start New Concult"}
-                  </Button>
-                  
-                  <div className="d-flex align-items-center justify-content-center my-2" style={{ width: "60%" }}>
-                    <div style={{ flex: 1, height: "1px", backgroundColor: "#d9d9d9" }}></div>
-                    <span style={{ margin: "0 16px", color: "#454551", fontSize: "14px", fontWeight: "400" }}>or</span>
-                    <div style={{ flex: 1, height: "1px", backgroundColor: "#d9d9d9" }}></div>
-                  </div>
-                  
-                  { isSmartSyncAccessableFromGB && !isMobile &&
+                  {isSmartSyncAccessableFromGB && !isMobile ? (
+                    <SmartDropdownButtons
+                      profile={profile}
+                      patient_data={patient_data}
+                      navigate={navigate}
+                    />
+                  ) : (
                     <Button
                       className="btn btn-primary3 btn-text-white px-5 m-2 btn-41"
                       onClick={() => {
-                        window.Moengage.track_event("start_new_SmartRx_click", {
+                        window.Moengage.track_event("start_new_visit_click", {
                           doctor_id: profile?.doctor_unique_id,
                           patient_id:
                             patient_data !== undefined
                               ? patient_data.patient_unique_id
                               : 0,
                         });
-                        navigate("/smart-prescription", { state: { patient_data: patient_data } });
+                        navigate("/prescription", {
+                          state: { patient_data: patient_data, send_path: "patient_details" },
+                        });
                       }}
                     >
-                      {"Start New SmartRx"}
+                      {"Start New Concult"}
                     </Button>
-                  }
+                  )}
                 </div>
               </div>
             )}
@@ -1376,6 +1360,93 @@ function Cardiology(props) {
         }
       </Card >
     </div >
+  );
+}
+
+function SmartDropdownButtons({ profile, patient_data, navigate }) {
+  const [open, setOpen] = React.useState(false);
+  const arrowRef = React.useRef(null);
+  const containerRef = React.useRef(null);
+
+  React.useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target)
+      ) {
+        setOpen(false);
+      }
+    }
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
+
+  return (
+    <div ref={containerRef} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <div>
+        <Button
+          className="btn btn-primary3 btn-text-white px-5 m-2 btn-41"
+          onClick={() => {
+            window.Moengage.track_event("start_new_visit_click", {
+              doctor_id: profile?.doctor_unique_id,
+              patient_id:
+                patient_data !== undefined
+                  ? patient_data.patient_unique_id
+                  : 0,
+            });
+            navigate("/prescription", {
+              state: { patient_data: patient_data, send_path: "patient_details" },
+            });
+          }}
+        >
+          <span className="px-4" style={{ flex: 1, textAlign: "center" }}>Start New Concult</span>
+          <span
+            ref={arrowRef}
+            style={{
+              position: "absolute",
+              right: 24,
+              top: "50%",
+              transform: "translateY(-50%)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+            }}
+            onClick={e => {
+              e.stopPropagation();
+              setOpen(o => !o);
+            }}
+          >
+            <i class="icon-right" style={{display: "block", transform: open ? "rotate(270deg)" : "rotate(180deg)" , color: "white"}}></i>
+          </span>
+        </Button>
+      </div>
+      {open && (
+        <div>
+          <Button
+            className="btn btn-primary3 btn-text-white m-2 btn-41"
+            onClick={() => {
+              setOpen(false);
+              window.Moengage.track_event("start_new_SmartRx_click", {
+                doctor_id: profile?.doctor_unique_id,
+                patient_id:
+                  patient_data !== undefined
+                    ? patient_data.patient_unique_id
+                    : 0,
+              });
+              navigate("/smart-prescription", { state: { patient_data: patient_data } });
+            }}
+          >
+            <span style={{padding:"0 3.4rem"}}>Start New SmartRx</span>
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
 export default React.memo(Cardiology);

@@ -155,7 +155,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
                     utm_term: utm.utm_term ?? 'NA',
                     is_marketing: Object.values(utm).some(value => value && value.length > 0),
                   })
-                  localStorage.removeItem("isCaptchaVerified");
+                  // localStorage.removeItem("isCaptchaVerified");
                   onViewChange("verifyOTP", mobileNumber, true, true, password, reqId);
                 } else {
                   console.error("No requestId in response:", successData);
