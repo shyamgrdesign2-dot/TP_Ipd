@@ -118,7 +118,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                     <>
                         <img src={planExpiredSandClock} className="plan-expired-clock" alt="Expired Clock" />
                         <div className="text-white fs-16">
-                            Your payment for the <span className="text-white fw-semibold">{AI_planDetails?.service_display_name}</span> Add-on has failed. Please contact Support for further assistance.!
+                            Your payment for the <span className="text-white fw-semibold">{AI_planDetails?.service_display_name}</span> Add-on has failed. Please contact Support for further assistance!
                         </div>
                     </>
                 ) : (
