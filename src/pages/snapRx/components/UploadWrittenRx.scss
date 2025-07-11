@@ -37,6 +37,35 @@
       margin-bottom: 20px;
       padding: 1.5rem 1rem 1.5rem 0.75rem;
       border-bottom: 1px solid #E2E2EA;
+      position: relative;
+
+      .back-button {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: #A855F7;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-family: Poppins;
+
+        &:hover {
+          background: #F3E8FF;
+          color: #7C3AED;
+        }
+
+        &:focus {
+          outline: none;
+          background: #F3E8FF;
+          color: #7C3AED;
+        }
+      }
 
       .upload-title {
         color: rgba(0, 0, 0, 0.80);
@@ -55,11 +84,8 @@
       margin-bottom: 24px;
 
       .rx-pad-image {
-        width: 176.8998565673828px;
-        height: 200px;
-
-        // width: 280px;
-        // height: auto;
+        width: 231.46258544921875px;
+        height: 261.6878356933594px;
         object-fit: contain;
       }
     }
@@ -80,6 +106,29 @@
         display: flex;
         justify-content: center;
         margin-bottom: 12px;
+      }
+
+      .refresh-text {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+
+        .refresh-link {
+          color: #4B4AD5 !important;
+          font-size: 1rem;
+          font-style: normal;
+          font-weight: 500;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+  
+        .refresh-separator {
+          color: #A2A2A8 !important;
+          font-size: 1rem;
+          font-style: normal;
+          font-weight: 500;
+        }
       }
 
       .qr-description {
@@ -198,6 +247,12 @@
 
       .upload-header {
         margin-bottom: 16px;
+        
+        .back-button {
+          left: 0.5rem;
+          font-size: 13px;
+          padding: 6px 8px;
+        }
         
         .upload-title {
           font-size: 24px;

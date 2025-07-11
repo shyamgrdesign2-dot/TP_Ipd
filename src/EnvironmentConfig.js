@@ -63,6 +63,7 @@ const dev = {
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
+  digitization_api_url: "https://pm-digitization-uat.tatvacare.in/api/v1/digitization/snap-rx",
 };
 
 const qa_tp = {
@@ -134,6 +135,7 @@ const qa_tp = {
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
+  digitization_api_url: "https://pm-digitization-qa.tatvacare.in",
 };
 
 const qa = {
@@ -201,6 +203,7 @@ const qa = {
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
+  digitization_api_url: "https://pm-digitization-uat.tatvacare.in",
 };
 
 const uat = {
@@ -273,6 +276,7 @@ const uat = {
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
+  digitization_api_url: "https://pm-digitization-uat.tatvacare.in",
 };
 
 const prod = {
@@ -345,6 +349,7 @@ const prod = {
     549821734513388, 628451726551928, 684191731931706, 879361730721433,
     538421739782028, 136841742984591,
   ],
+  digitization_api_url: "https://pm-digitization-uat.tatvacare.in",
 };
 
 const getEnv = () => {

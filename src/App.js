@@ -52,6 +52,8 @@ import PrivateRoute from "./pages/auth/components/PrivateRoute";
 import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
 import SnapRx from "./pages/snapRx/SnapRx";
+import SnapRxPreview from "./pages/snapRx/SnapRxPreview";
+import SnapRxDigitise from "./pages/snapRx/SnapRxDigitise";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -372,6 +374,8 @@ function App() {
                 <Route path="billing-settings" element={<BillingSettings />} />
                 <Route path="add-appointment" element={<AddAppointment />} />
                 <Route path="snap-rx" element={<SnapRx />} />
+                <Route path="snap-rx/preview" element={<SnapRxPreview />} />
+                <Route path="snap-rx/digitise" element={<SnapRxDigitise />} />
               </Route>
             </Routes>
           </PersistGate>

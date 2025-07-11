@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import React, { useState, useCallback, useContext } from "react";
 import { Container, Navbar, Row, Col } from "react-bootstrap";
 import { Button, Popover } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -9,18 +9,21 @@ import CommonModal from "../../../common/CommonModal";
 import alertIcon from "../../../assets/images/alertIcon.svg";
 import tutorial from "../../../assets/images/tutorial.svg";
 import playIcons from "../../../assets/images/tube-icon.svg";
-
-import { errorMessage } from "../../../utils/utils";
+import "./Header.scss";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import {
-  addCaseManager,
-  editCaseManager,
-} from "../../../redux/caseManagerSlice";
 import VideoModal from "../../../common/VideoModal";
 
-function Header({ prescription, onClear, onSubmit, smartRxData, loader }) {
+function Header({
+  prescription,
+  onClear,
+  onSubmit,
+  smartRxData,
+  loader,
+  onUploadMore,
+  showUploadMoreButton,
+}) {
   const { loading } = useSelector((state) => state.caseManager);
   const { videoList } = useSelector((state) => state.doctors);
   const [videoLink, setVideoLink] = useState(null);
@@ -29,7 +32,6 @@ function Header({ prescription, onClear, onSubmit, smartRxData, loader }) {
 
   const navigate = useNavigate();
   const { patient_data, tcmId, pamId } = useContext(CashManagerContext);
-  console.log(patient_data, tcmId, pamId);
 
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
@@ -118,52 +120,6 @@ function Header({ prescription, onClear, onSubmit, smartRxData, loader }) {
       </>
     );
   }, [popOverVideo]);
-
-  // Effect to handle updated data from parent
-  useEffect(() => {
-    if (smartRxData && smartRxData?.length) {
-      onEndVisitClick();
-      setClicked(true);
-    }
-  }, [smartRxData]);
-
-  // Handle the data upate and end the visit
-  async function onEndVisitClick() {
-    const smartRxFiles = smartRxData?.map((file) => file.name);
-    const files = smartRxData?.map((file) => file);
-    const sendData = {
-      action: tcmId == 0 ? "add" : "edit",
-      tcm_id: tcmId,
-      patient_unique_id:
-        patient_data !== undefined ? patient_data.patient_unique_id : 0,
-      pam_id:
-        patient_data !== undefined
-          ? patient_data.hasOwnProperty("pam_id")
-            ? patient_data.pam_id
-            : pamId
-          : 0,
-      smart_prescription_filename: smartRxFiles || [],
-    };
-
-    const action =
-      tcmId == 0
-        ? await dispatch(addCaseManager(sendData))
-        : await dispatch(editCaseManager(sendData));
-
-    if (action.meta.requestStatus === "fulfilled") {
-      navigate("/print-smart-rx", {
-        replace: true,
-        state: {
-          ...action.payload,
-          patient_data: patient_data,
-          smartRxFile: smartRxFiles,
-          page: "prescription",
-        },
-      });
-    } else {
-      errorMessage(action.error);
-    }
-  }
 
   return (
     <Navbar className="justify-content-between headerprescription p-0">
@@ -276,12 +232,20 @@ function Header({ prescription, onClear, onSubmit, smartRxData, loader }) {
                   </>
                 }
               />
+              {showUploadMoreButton && <Button
+                type="button"
+                className="me-20 upload-more-btn"
+                onClick={onUploadMore}
+              >
+                <i className="icon-upload" style={{ color: "#4B4AD5" }}></i>
+                <span>Upload more</span>
+              </Button>}
               <Button
                 type="button"
                 className="btn align-items-center d-flex btn-41 btn-primary3 me-20"
                 onClick={handleSubmitClick}
-                loading={loading || loader}
-                disabled={(!prescription && clicked) || loader}
+                loading={loading}
+                disabled={!prescription && clicked}
               >
                 Submit
               </Button>
