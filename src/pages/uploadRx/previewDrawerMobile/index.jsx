@@ -21,7 +21,8 @@ import retakeIcon from "../../../assets/images/retake.png";
 import rotateIcon from "../../../assets/images/rotate.png";
 import deleteIcon from "../../../assets/images/delete.png";
 import arrowIcon from "../../../assets/images/arrow-circle.png";
-import UploadSuccess from "../uploadSuccess";
+import { uploadFiles } from "../../../redux/snapRxDigitizationSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const PreviewDrawerMobile = ({
   isOpen,
@@ -35,9 +36,14 @@ const PreviewDrawerMobile = ({
   isMobile,
   handleUpdatedFiles,
   isAddMoreClicked,
+  patientUniqueId,
+  sessionId,
 }) => {
+  const dispatch = useDispatch();
+  const { uploadedFiles: uploadedFilesFromRedux } = useSelector(
+    (state) => state.snapRx
+  );
   const [loading, setLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [selectedFileIndex, setSelectedFileIndex] = useState(0);
   const [selectedFileId, setSelectedFileId] = useState(
     uploadedFiles?.[0]?.id || null
@@ -50,6 +56,7 @@ const PreviewDrawerMobile = ({
   const carouselRef = useRef(null);
   const canvasRefs = useRef(new Map());
   const [actualFiles, setActualFiles] = useState([]);
+  console.log("INTEL ==> selectedFileId outside 1", uploadedFiles?.[0]?.id);
   useEffect(() => {
     const newImageRefs = new Map();
     uploadedFiles.forEach((file) => {
@@ -88,7 +95,7 @@ const PreviewDrawerMobile = ({
   }, [isAddMoreClicked, uploadedFiles.length]);
 
   const currentFile = uploadedFiles[selectedFileIndex];
-  const imageUrl = currentFile?.url || currentFile?.preview;
+  const imageUrl = currentFile?.fileUrl || currentFile?.preview;
   const imageRotation = currentFile?.rotation || 0;
 
   useEffect(() => {
@@ -116,11 +123,22 @@ const PreviewDrawerMobile = ({
       setImageLoaded(false);
       setImageError(false);
       setIsSubmitting(false);
-      setShowSuccess(false);
       handleUpdatedFiles([]);
       setActualFiles([]);
     };
   }, []);
+
+  useEffect(() => {
+    if (uploadedFilesFromRedux?.length > 0 && isSubmitting) {
+      onClose();
+      setIsSubmitting(false);
+    }
+  }, [uploadedFilesFromRedux]);
+  console.log(
+    "INTEL ==> uploadedFiles in preview drawer",
+    uploadedFiles,
+    selectedFileId
+  );
 
   const onImageLoad = useCallback(
     (e, fileId) => {
@@ -129,6 +147,15 @@ const PreviewDrawerMobile = ({
       const cropHeight = height * 0.8;
       const cropX = (width - cropWidth) / 2;
       const cropY = (height - cropHeight) / 2;
+      console.log(
+        "INTEL ==> e",
+        e,
+        cropX,
+        cropY,
+        cropWidth,
+        cropHeight,
+        fileId
+      );
 
       const crop = {
         unit: "px",
@@ -198,7 +225,7 @@ const PreviewDrawerMobile = ({
       );
 
       return new Promise((resolve) => {
-        finalCanvas.toBlob(
+        finalCanvas?.toBlob(
           (blob) => {
             resolve(blob);
           },
@@ -285,14 +312,13 @@ const PreviewDrawerMobile = ({
         const actualFiles = [...uploadedFiles];
         setActualFiles(actualFiles);
         handleUpdatedFiles(updatedCroppedFiles);
-        if (onSave) {
-          setTimeout(() => {
-            // temp. will remove after api integration
-            setIsSubmitting(false);
-            setShowSuccess(true);
-          }, 500);
-          // onSave(updatedCroppedFiles);
-        }
+        dispatch(
+          uploadFiles({
+            file: updatedCroppedFiles,
+            patient_unique_id: patientUniqueId,
+            session_id: sessionId,
+          })
+        );
       } catch (error) {
         console.error("Error cropping image:", error);
         message.error("Failed to process image");
@@ -343,20 +369,6 @@ const PreviewDrawerMobile = ({
     }
   };
 
-  const handleGoBack = () => {
-    setShowSuccess(false);
-    onClose();
-    imageRefs.current = null;
-    canvasRefs.current = null;
-    carouselRef.current = null;
-    setSelectedFileIndex(0);
-    setSelectedFileId(null);
-    setImageLoaded(false);
-    setImageError(false);
-    setIsSubmitting(false);
-    setActualFiles([]);
-  };
-
   const responsive = useMemo(
     () => ({
       tablet: {
@@ -375,7 +387,7 @@ const PreviewDrawerMobile = ({
 
   if (!isOpen || uploadedFiles.length === 0) return null;
 
-  if (isMobile && !showSuccess) {
+  if (isMobile) {
     return (
       <div className="preview-drawer-overlay">
         <div className="preview-drawer-mobile">
@@ -430,7 +442,10 @@ const PreviewDrawerMobile = ({
                       uploadedFiles.map((file, _) => {
                         const imageUrl = `${file.url || file.preview}`;
                         return (
-                          <div key={file.id} className="crop-container">
+                          <div
+                            key={file.id || imageUrl}
+                            className="crop-container"
+                          >
                             <ReactCrop
                               crop={cropOfFile}
                               keepSelection
@@ -576,11 +591,6 @@ const PreviewDrawerMobile = ({
     );
   }
 
-  if (showSuccess) {
-    return (
-      <UploadSuccess goBack={handleGoBack} uploadedFiles={uploadedFiles} />
-    );
-  }
   return <></>;
 };
 

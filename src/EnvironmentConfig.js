@@ -60,6 +60,7 @@ const dev = {
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in",
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
+  snap_rx_api_url: "https://pm-digitization-uat.tatvacare.in",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
@@ -131,6 +132,7 @@ const qa_tp = {
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
+  snap_rx_api_url: "https://pm-digitization-qa.tatvacare.in",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
@@ -198,6 +200,7 @@ const qa = {
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-qa.tatvacare.in",
+  snap_rx_api_url: "https://pm-digitization-uat.tatvacare.in",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
@@ -271,6 +274,7 @@ const uat = {
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
+  snap_rx_api_url: "https://pm-digitization-uat.tatvacare.in",
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
 };
@@ -337,6 +341,7 @@ const prod = {
   tatvaPedia_api_url: "https://diginext-authserver-prod.tatvacare.in",
   tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in",
   symptoms_collector_api_url: "https://pm-tatva-agents-prod.tatvacare.in",
+  snap_rx_api_url: "https://pm-digitization-prod.tatvacare.in",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
   ZYDUS_BUSINESS_ID: 368451724046474,
   APOLLO_BUSINESS_IDS: [

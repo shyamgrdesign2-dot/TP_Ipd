@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import Header from "./components/Header";
 import UploadWrittenRx from "./components/UploadWrittenRx";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { message } from "antd";
 import CashManagerContext from "../../context/CashManagerContext";
 
@@ -14,7 +14,7 @@ export default function SnapRx() {
   const [smartRxData, setSmartRxData] = useState([]);
 
   console.log(state);
-  const { patient_data, send_path, caseManagerData, pam_id } = state;
+  const { patient_data, send_path, caseManagerData, pam_id } = state || {};
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const pamId = pam_id
     ? pam_id
@@ -167,6 +167,9 @@ export default function SnapRx() {
     // You can add additional processing logic here
   }, [uploadedFiles]);
 
+  if (!patient_data) {
+    return <Navigate to="/login" />;
+  }
   return (
     <CashManagerContext.Provider value={contextApi}>
       <div>

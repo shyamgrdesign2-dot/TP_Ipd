@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Routes,
   Route,
@@ -62,6 +62,7 @@ const growthbook = new GrowthBook({
 });
 
 function App() {
+  const [redirectReady, setRedirectReady] = useState(false);
   const [searchParams] = useSearchParams();
   const authToken = searchParams.get("authToken");
   const redirectTo = searchParams.get("redirectTo");
@@ -190,7 +191,7 @@ function App() {
         growthbook?.setAttributes({
           doctorId: decodedToken?.result?.doctor_unique_id,
           id: `${decodedToken?.result?.user_id}`,
-          hos_business_id: `${decodedToken?.result?.hospital_business_id}`
+          hos_business_id: `${decodedToken?.result?.hospital_business_id}`,
         });
       } catch (e) {
         console.log(e);
@@ -223,17 +224,23 @@ function App() {
   // Add effect to handle redirectTo parameter
   useEffect(() => {
     if (redirectTo) {
-      localStorage.setItem('redirectTo', redirectTo);
+      localStorage.setItem("redirectTo", redirectTo);
+      localStorage.setItem("searchParams", searchParams.toString());
 
       // Clean up URL but preserve other params
       const params = new URLSearchParams(location.search);
       params.delete("redirectTo");
-
+      setRedirectReady(true);
       // Update URL without the redirectTo parameter
-      navigate({
+      navigate(
+        {
           pathname: location.pathname,
-        search: params.toString()
-      }, { replace: true });
+          search: params.toString(),
+        },
+        { replace: true }
+      );
+    } else {
+      setRedirectReady(false);
     }
   }, []);
 
@@ -254,7 +261,13 @@ function App() {
 
       // Only collect UTM params that have values
       const utmParams = new URLSearchParams();
-      ['utm_source', 'utm_campaign', 'utm_medium', 'utm_content', 'utm_term'].forEach(param => {
+      [
+        "utm_source",
+        "utm_campaign",
+        "utm_medium",
+        "utm_content",
+        "utm_term",
+      ].forEach((param) => {
         const value = urlParams.get(param);
         if (value) {
           utmParams.append(param, value);
@@ -262,7 +275,8 @@ function App() {
       });
 
       // Construct login URL with UTM parameters
-      const loginUrl = "/login" + (utmParams.toString() ? "?" + utmParams.toString() : "");
+      const loginUrl =
+        "/login" + (utmParams.toString() ? "?" + utmParams.toString() : "");
 
       navigate(loginUrl);
       return;
@@ -270,17 +284,22 @@ function App() {
 
     if (isChrome || isSafari) {
       // Determine and execute redirection
-    const redirectPath = localRedirectTo === "profile" ? "/doctor_profile" : "/";
+      const redirectPath =
+        localRedirectTo === "profile"
+          ? "/doctor_profile"
+          : redirectReady
+          ? localRedirectTo
+          : "/";
 
       // Clean up localStorage if redirecting to profile
-      if (localRedirectTo === "profile") {
+      if (localRedirectTo === "profile" || redirectReady) {
         localStorage.removeItem("redirectTo");
+        setRedirectReady(false);
       }
 
       navigate(redirectPath);
     }
-  }, [isRootPath, token, authToken, navigate, redirectTo]);
-
+  }, [isRootPath, token, authToken, navigate, redirectTo, redirectReady]);
 
   return (
     <GrowthBookProvider growthbook={growthbook}>

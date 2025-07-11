@@ -7,6 +7,7 @@ const baseUrl = { customBaseUrl: config.appointment_api_url };
 const baseZydusUrl = { customBaseUrl: config.zydus_api_url };
 const baseZydusProxyUrl = { customBaseUrl: config.zydus_proxy_url };
 const baseVisitUrl = { customBaseUrl: config.visit_api_url };
+const baseSnapRxUrl = { customBaseUrl: config.snap_rx_api_url };
 
 const ApiAppointments = {};
 
@@ -141,6 +142,10 @@ ApiAppointments.placeIctOrder = function (data) {
 
 ApiAppointments.listCategories = function () {
   return api.get(`/api/v1/patient/listCategories`, baseVisitUrl);
+};
+
+ApiAppointments.uploadSnapRxFiles = function (data) {
+  return api.post(`/api/v1/digitization/snap-rx/upload-files`, data, baseSnapRxUrl);
 };
 
 export default ApiAppointments;

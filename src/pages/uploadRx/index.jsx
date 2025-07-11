@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Card, Typography, Switch, Carousel, Button } from "antd";
 import "./styles.scss";
 import websiteLogo from "../../assets/images/website-images/logo.png";
@@ -12,6 +12,11 @@ import PatientInfoCard from "./patientInfoCard";
 import ImageUpload from "./imageUpload/ImageUpload";
 import cameraIcon from "../../assets/images/camera.png";
 import scanIcon from "../../assets/images/scanner.png";
+import { viewPatient } from "../../redux/appointmentsSlice";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { getFiles } from "../../redux/snapRxDigitizationSlice";
+import UploadSuccess from "./uploadSuccess";
 
 const UPLOAD_RX_TEXT = {
   aiPoweredHeader: "AI-Powered Rx Digitisation",
@@ -20,12 +25,6 @@ const UPLOAD_RX_TEXT = {
   knowMore: "Know more",
   scanUploadHeader: "Scan & Upload Rx",
   autoDigitise: "Auto-Digitise Uploaded Rx with Smart AI.",
-  patientName: "Shyam Sundhar",
-  patientDetails: {
-    gender: "Male",
-    age: "24 yrs",
-  },
-  patientPhone: "+91-9711365448",
   carousel1:
     "Ensure the prescription is placed on a flat, well-lit, plain surface",
   carousel2: "Avoid any shadows or glare on the document",
@@ -43,19 +42,103 @@ const { Text } = Typography;
 
 const UploadRx = () => {
   const [isAutoDigitizeEnabled, setIsAutoDigitizeEnabled] = useState(true);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const { patients_details } = useSelector((state) => state.records) || {};
+  const { uploadedFiles: uploadedFilesFromStore } = useSelector(
+    (state) => state.snapRx
+  );
   const bottomSheetRef = useRef(null);
   const imageUploadRef = useRef(null);
+  const [data, setData] = useState({});
+  const [patientData, setPatientData] = useState({});
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const searchParams = localStorage.getItem("searchParams");
+    if (searchParams) {
+      const params = new URLSearchParams(searchParams);
+      const patientId = params.get("patient_unique_id");
+      const tcmId = params.get("tcm_id");
+      const pamId = params.get("pam_id");
+      const timestamp = params.get("timestamp");
+      const sessionId = params.get("session_id");
+      const type = params.get("type");
+      setData({ patientId, tcmId, pamId, timestamp, type, sessionId });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!patients_details && data?.patientId) {
+      const sendData = {
+        patient_unique_id: data?.patientId,
+      };
+      dispatch(viewPatient(sendData));
+    }
+  }, [data, patients_details]);
+
+  useEffect(() => {
+    if (patients_details) {
+      setPatientData((prev) => ({
+        ...prev,
+        patientName: patients_details?.pm_fullname,
+        patientGender: patients_details?.pm_gender,
+        patientAge: patients_details?.ageYears,
+        patientPhone: patients_details?.pm_contact_no,
+      }));
+    }
+  }, [patients_details]);
+
+  useEffect(() => {
+    if (
+      data?.patientId &&
+      data?.sessionId &&
+      uploadedFilesFromStore?.length === 0
+    ) {
+      setLoading(true);
+      dispatch(
+        getFiles({
+          patient_unique_id: data.patientId,
+          tcm_id: data?.tcmId,
+          session_id: data?.sessionId,
+        })
+      ).then(() => {
+        setLoading(false);
+      });
+    }
+  }, [data, uploadedFilesFromStore?.length]);
+
+  useEffect(() => {
+    if (uploadedFilesFromStore?.length > 0) {
+      setLoading(false);
+      setShowSuccess(true);
+    }
+  }, [uploadedFilesFromStore]);
 
   const handleDigitizeRxToggle = (isToggled) => {
-    setIsAutoDigitizeEnabled(isToggled);
+    setIsAutoDigitizeEnabled(isToggled); // TODO: INTEL - SEND THIS DATA AS WELL
   };
 
   const handleUploadClick = () => {
     imageUploadRef.current?.handleUploadClick();
   };
 
+  const handleAddEditClick = () => {
+    setShowSuccess(false);
+    imageUploadRef.current?.handleAddEditClick();
+  };
+
+  console.log(
+    "INTEL ==> uploadedFilesFromStore in uploadRx",
+    uploadedFilesFromStore
+  );
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="upload-rx-container">
+      {showSuccess && <UploadSuccess onAddEditClick={handleAddEditClick} />}
       <BottomSheetWrapper ref={bottomSheetRef}>
         <div className="p-20">
           <div className="pb-24 fw-semibold fs-16 text-black">
@@ -70,7 +153,12 @@ const UploadRx = () => {
           </div>
         </div>
       </BottomSheetWrapper>
-      <ImageUpload ref={imageUploadRef} />
+      <ImageUpload
+        ref={imageUploadRef}
+        patientUniqueId={data?.patientId}
+        sessionId={data?.sessionId || "test-session"}
+        uploadedFilesFromStore={uploadedFilesFromStore}
+      />
       <div className="upload-rx-content">
         <img className="website-logo" src={websiteLogo} alt="logo" />
         <div className="main-content">
@@ -106,10 +194,10 @@ const UploadRx = () => {
               </div>
             </Card>
             <PatientInfoCard
-              name={UPLOAD_RX_TEXT.patientName}
-              gender={UPLOAD_RX_TEXT.patientDetails.gender}
-              age={UPLOAD_RX_TEXT.patientDetails.age}
-              phone={UPLOAD_RX_TEXT.patientPhone}
+              name={patientData?.patientName}
+              gender={patientData?.patientGender}
+              age={patientData?.patientAge}
+              phone={patientData?.patientPhone}
             />
             <Card
               bordered={true}

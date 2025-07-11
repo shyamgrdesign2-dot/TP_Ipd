@@ -1,6 +1,7 @@
 import { env } from "./EnvironmentConfig";
 export default {
   appointment_api_url: env.appointment_api_url,
+  snap_rx_api_url: env.snap_rx_api_url,
   symptoms_api_url: env.symptoms_api_url,
   examination_api_url: env.examination_api_url,
   diagnosis_api_url: env.diagnosis_api_url,

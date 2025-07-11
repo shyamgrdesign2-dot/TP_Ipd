@@ -13,7 +13,7 @@ const UploadWrittenRx = ({ onFileUpload, isLoading }) => {
   const [dragActive, setDragActive] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const { patient_data, tcmId, pamId } = useContext(CashManagerContext);
+  const { patient_data, tcmId, pamId } = useContext(CashManagerContext) || {};
 
   // Accepted file types
   const acceptedTypes = [
@@ -128,7 +128,7 @@ const UploadWrittenRx = ({ onFileUpload, isLoading }) => {
       tcmId: tcmId || 0,
       pamId: pamId || 0,
       timestamp: new Date().toISOString(),
-      uploadUrl: `${window.location.origin}/snap-rx/mobile-upload`,
+      uploadUrl: `https://tatva-url-shortner-new.grayisland-b2cef66c.centralindia.azurecontainerapps.io/r/9ZXpaG`,
     });
   };
 

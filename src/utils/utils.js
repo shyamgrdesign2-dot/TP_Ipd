@@ -642,11 +642,11 @@ export const getTokenData = () => {
   return result;
 }
 
-export const compressedFile = async (file) => {
-  if (file.size > 2101546) {                       // If file size is greater than 2MB
+export const compressedFile = async (file, maxSizeMB = 2) => {
+  if (file.size > maxSizeMB * 1024 * 1024) {                       // If file size is greater than 2MB
     try {
       const options = {
-        maxSizeMB: 2,                        // Target size: 2MB, the limit you want to enforce
+        maxSizeMB,                        // Target size: 2MB, the limit you want to enforce
         maxWidthOrHeight: 1920,              // Max dimension, but we aim to maintain original dimensions - 1280, 2560
         useWebWorker: true,                  // Use a web worker for performance
         alwaysKeepResolution: true           // Ensure original height and width are maintained

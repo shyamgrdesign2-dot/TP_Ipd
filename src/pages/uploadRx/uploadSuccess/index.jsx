@@ -1,25 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Button } from "antd";
 import PatientInfoCard from "../patientInfoCard";
 import "./styles.scss";
 import websiteLogo from "../../../assets/images/website-images/logo.png";
+import editIconWhite from "../../../assets/images/edit-white.png";
+import { useSelector } from "react-redux";
 
-const UPLOAD_RX_TEXT = {
-  patientName: "Shyam Sundhar",
-  patientDetails: {
-    gender: "Male",
-    age: "24 yrs",
-  },
-  patientPhone: "+91-9711365448",
-};
-
-const UploadSuccess = ({ goBack, uploadedFiles }) => {
-  useEffect(() => {
-    return () => {
-      goBack();
-    };
-  }, []);
-
+const UploadSuccess = ({ onAddEditClick = () => {} }) => {
+  const { patients_details } = useSelector((state) => state.records) || {};
   return (
     <div className="success-rx-upload-container">
       <img className="website-logo" src={websiteLogo} alt="logo" />
@@ -36,37 +24,28 @@ const UploadSuccess = ({ goBack, uploadedFiles }) => {
             Rx has been uploaded successfully.
           </div>
           <div className="success-description">
-            You can view it in the TatvaCare EMR on the Patients Consultation
-            page.
+            These documents will be visible on the TatvaPractice EMR post page
+            refresh.
           </div>
         </div>
         <div className="patient-info-card-container">
           <PatientInfoCard
-            name={UPLOAD_RX_TEXT.patientName}
-            gender={UPLOAD_RX_TEXT.patientDetails.gender}
-            age={UPLOAD_RX_TEXT.patientDetails.age}
-            phone={UPLOAD_RX_TEXT.patientPhone}
+            name={patients_details?.pm_fullname}
+            gender={patients_details?.pm_gender}
+            age={patients_details?.ageYears}
+            phone={patients_details?.pm_contact_no}
             className="patient-info-card-success"
           />
         </div>
-        <div className="thumbnails-section">
-          {uploadedFiles.map((file, index) => (
-            <div key={index} className={`thumbnail-item`}>
-              <img
-                src={file.url || file.preview}
-                alt={`Page ${index + 1}`}
-                className="thumbnail-img"
-              />
-            </div>
-          ))}
-        </div>
-        {/* TODO: INTEL - only for testing. remove the thumbnails here */}
         <Button
           type="primary"
-          className="book-appointment-btn fs-14 fw-semibold"
-          onClick={goBack}
+          className="book-appointment-btn fs-14 fw-medium"
+          onClick={onAddEditClick}
+          icon={
+            <img src={editIconWhite} alt="add-edit" className="add-edit-icon" />
+          }
         >
-          Go to Appointment
+          <span className="add-edit-text">Add/Edit</span>
         </Button>
       </div>
     </div>
