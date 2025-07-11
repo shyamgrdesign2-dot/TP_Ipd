@@ -270,9 +270,26 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     }
 
     const verifyRazorPayPayment = async (r_response, data) => {
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData();
+        const deviceSdkData = getDeviceSdkData();
+
         const action = await dispatch(verifyPayment(r_response));
         if (action.meta.requestStatus === "fulfilled") {
             if (action?.payload?.hasOwnProperty("id") && action?.payload?.status === 'captured') {
+                window.Moengage.track_event("TP_Monetization_Payment_Success", {
+                    doctor_name: profile?.um_name,
+                    doctor_number: profile?.um_contact,
+                    doctor_unique_id: profile?.doctor_unique_id,
+                    doctor_specialty: profile?.dp_name,
+                    clinic_id: tokenData?.clinic_id,
+                    um_id: tokenData?.user_id,
+                    clinic_Name: clinic_name,
+                    payment_id: action?.payload?.id,
+                    order_id: r_response?.razorpay_order_id,
+                    payment_status: action?.payload?.status,
+                    ...deviceSdkData,
+                });
                 const summaryData = selectedServices.map(({ service_name, service_type, service_cost, max_applicable_discount, validity }) => ({
                     service_name,
                     service_type,
@@ -290,6 +307,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     purchase_status: "completed",
                     discount_applied: true,
                     payment_id: action?.payload?.id,
+                    order_id: r_response?.razorpay_order_id,
                     campaign_applied: null,
                     campaign_id: null,
                     gst_applied: taxInvoice,
@@ -321,6 +339,19 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     errorMessage(actionPurchaseDetails.payload.message)
                 }
             } else {
+                window.Moengage.track_event("TP_Monetization_Payment_Failed", {
+                    doctor_name: profile?.um_name,
+                    doctor_number: profile?.um_contact,
+                    doctor_unique_id: profile?.doctor_unique_id,
+                    doctor_specialty: profile?.dp_name,
+                    clinic_id: tokenData?.clinic_id,
+                    um_id: tokenData?.user_id,
+                    clinic_Name: clinic_name,
+                    payment_id: action?.payload?.id,
+                    order_id: r_response?.razorpay_order_id,
+                    payment_status: action?.payload?.status || "failed",
+                    ...deviceSdkData,
+                });
                 setLoading(false)
                 typeof action?.payload?.data?.error === 'object' ?
                     errorMessage(action?.payload?.data?.error?.description)
