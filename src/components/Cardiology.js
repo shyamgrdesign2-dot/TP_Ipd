@@ -1349,7 +1349,7 @@ function Cardiology(props) {
                         });
                       }}
                     >
-                      {"Start New Concult"}
+                      {"Start New Consult"}
                     </Button>
                   )}
                 </div>
