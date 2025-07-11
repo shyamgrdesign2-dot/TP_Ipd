@@ -54,6 +54,8 @@ import FinalSetup from "./pages/FinalSetup";
 import SnapRx from "./pages/snapRx/SnapRx";
 import UploadRx from "./pages/uploadRx";
 import BottomSheetManager from "./components/BottomSheetManager";
+import SnapRxPreview from "./pages/snapRx/SnapRxPreview";
+import SnapRxDigitise from "./pages/snapRx/SnapRxDigitise";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -395,6 +397,8 @@ function App() {
                 <Route path="add-appointment" element={<AddAppointment />} />
                 <Route path="snap-rx" element={<SnapRx />} />
                 <Route path="snap-rx/mobile-upload" element={<UploadRx />} />
+                <Route path="snap-rx/preview" element={<SnapRxPreview />} />
+                <Route path="snap-rx/digitise" element={<SnapRxDigitise />} />
               </Route>
             </Routes>
           </PersistGate>

@@ -7,13 +7,21 @@ import rxPadImage from "../../../assets/images/rx-pad.png";
 import "./UploadWrittenRx.scss";
 import { CloudUploadOutlined } from "@ant-design/icons";
 
-const UploadWrittenRx = ({ onFileUpload, isLoading }) => {
+const UploadWrittenRx = ({
+  onFileUpload,
+  isLoading,
+  showBackButton,
+  onBack,
+  isUploadMoreDrawer = false,
+  fetchUploadedFiles,
+}) => {
   const fileInputRef = useRef(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const { patient_data, tcmId, pamId } = useContext(CashManagerContext) || {};
+  const { patient_data, tcmId, pamId } = useContext(CashManagerContext);
+  const token = localStorage.getItem("authToken");
 
   // Accepted file types
   const acceptedTypes = [
@@ -36,7 +44,11 @@ const UploadWrittenRx = ({ onFileUpload, isLoading }) => {
     return true;
   };
 
-  const handleFiles = async (files) => {
+  const handleFiles = async (
+    files,
+    isReupload = false,
+    reuploadIndex = null
+  ) => {
     if (!files || files.length === 0) return;
 
     const fileArray = Array.from(files);
@@ -71,8 +83,17 @@ const UploadWrittenRx = ({ onFileUpload, isLoading }) => {
     }
 
     if (newFiles.length > 0) {
-      setSelectedFiles((prev) => [...prev, ...newFiles]);
-      setUploadedFiles((prev) => [...prev, ...newFiles]);
+      if (isReupload && reuploadIndex !== null) {
+        // For reupload, replace the file at the specified index
+        const updatedFiles = [...uploadedFiles];
+        updatedFiles[reuploadIndex] = newFiles[0];
+        setSelectedFiles(updatedFiles);
+        setUploadedFiles(updatedFiles);
+      } else {
+        // For add more or initial upload, append to existing files
+        setSelectedFiles((prev) => [...prev, ...newFiles]);
+        setUploadedFiles((prev) => [...prev, ...newFiles]);
+      }
       setIsPreviewOpen(true);
     }
   };
@@ -93,11 +114,11 @@ const UploadWrittenRx = ({ onFileUpload, isLoading }) => {
     setDragActive(false);
 
     const files = e.dataTransfer.files;
-    handleFiles(files);
+    handleFiles(files, false);
   };
 
   const handleFileSelect = (e) => {
-    handleFiles(e.target.files);
+    handleFiles(e.target.files, false);
   };
 
   const handleUploadClick = () => {
@@ -128,7 +149,8 @@ const UploadWrittenRx = ({ onFileUpload, isLoading }) => {
       tcmId: tcmId || 0,
       pamId: pamId || 0,
       timestamp: new Date().toISOString(),
-      uploadUrl: `https://tatva-url-shortner-new.grayisland-b2cef66c.centralindia.azurecontainerapps.io/r/9ZXpaG`,
+      authToken: token,
+      uploadUrl: `${window.location.origin}/snap-rx/mobile-upload`,
     });
   };
 
@@ -136,28 +158,29 @@ const UploadWrittenRx = ({ onFileUpload, isLoading }) => {
     setIsPreviewOpen(false);
   };
 
-  const handleReupload = () => {
-    fileInputRef.current?.click();
+  const handleReupload = (index) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".pdf,.png,.jpg,.jpeg";
+
+    input.onchange = (e) => {
+      handleFiles(e.target.files, true, index);
+    };
+
+    input.click();
   };
 
   const handleAddMore = () => {
+    // Always use the fileInputRef for adding more files
     fileInputRef.current?.click();
   };
 
   const handleSave = () => {
-    if (uploadedFiles.length === 0) {
-      message.warning("No files to save");
-      return;
-    }
-
-    // Call the parent onFileUpload function if provided
     if (onFileUpload) {
-      const filesToUpload = uploadedFiles.map((f) => f.file);
-      onFileUpload(filesToUpload);
+      onFileUpload();
     }
 
     setIsPreviewOpen(false);
-    message.success("Files saved successfully");
   };
 
   // Cleanup URLs on unmount
@@ -173,15 +196,30 @@ const UploadWrittenRx = ({ onFileUpload, isLoading }) => {
 
   return (
     <>
-      <div className="upload-written-rx-container">
-        <div className="upload-modal-content">
+      <div
+        className={`upload-written-rx-container ${
+          isUploadMoreDrawer ? "p-0" : ""
+        }`}
+      >
+        <div
+          className={`upload-modal-content ${
+            isUploadMoreDrawer ? "border-0" : ""
+          }`}
+        >
           {/* Header */}
-          <div className="upload-header">
-            <h2 className="upload-title">Upload Written Rx</h2>
-          </div>
+          {!isUploadMoreDrawer && (
+            <div className="upload-header">
+              {showBackButton && (
+                <button className="back-button" onClick={onBack} type="button">
+                  ← Back to Files
+                </button>
+              )}
+              <h2 className="upload-title">Upload Written Rx</h2>
+            </div>
+          )}
 
           {/* Rx Pad Image */}
-          <div className="rx-image">
+          <div className={`rx-image ${isUploadMoreDrawer ? "mt-5" : ""}`}>
             <img
               src={rxPadImage}
               alt="Prescription Pad"
@@ -191,14 +229,20 @@ const UploadWrittenRx = ({ onFileUpload, isLoading }) => {
           <div style={{ padding: "0rem 3.9375rem 2.375rem 3.9375rem" }}>
             {/* QR Code Section */}
             <div className="qr-section">
-              <div className="qr-container">
-                <QRCodeGenerator data={generateQRData()} size={120} />
-              </div>
               <p className="qr-description">
                 Scan this QR to upload written prescription (Rx) directly
                 <br />
                 from your mobile device
               </p>
+              <div className="qr-container">
+                <QRCodeGenerator data={generateQRData()} size={120} />
+              </div>
+              <div className="refresh-text">
+                <span className="refresh-link" onClick={fetchUploadedFiles}>
+                  Click on refresh
+                </span>
+                <span className="refresh-separator"> to view the document</span>
+              </div>
             </div>
 
             {/* OR Separator */}
