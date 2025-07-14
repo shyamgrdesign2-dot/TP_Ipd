@@ -20,6 +20,7 @@ import {
 import "./SnapRx.scss";
 import UploadMoreDrawer from "./components/UploadMoreDrawer";
 import FileUploadErrorModal from "../../components/common/FileUploadErrorModal";
+import { useSelector } from "react-redux";
 
 function SnapRxContent() {
   const { state } = useLocation();
@@ -54,6 +55,8 @@ function SnapRxContent() {
     tcmId,
     pamId,
   };
+
+  const { fileUploadToken } = useSelector((state) => state.snapRx);
 
   // Fetch uploaded files from API
   const fetchUploadedFiles = useCallback(async () => {
@@ -122,13 +125,9 @@ function SnapRxContent() {
         throw new Error("Invalid response from server");
       }
 
-      // Update the state with the new files from the response
-      // setApiUploadedFiles(response.uploaded_files);
-
-      // Close the drawer and show success message
-      setIsEditDrawerOpen(false);
       fetchUploadedFiles();
-      // message.success("Files updated successfully");
+
+      setIsEditDrawerOpen(false);
     } catch (error) {
       console.error("Error in handleEditSave:", error);
       message.error("Failed to update files. Please try again.");
@@ -219,7 +218,7 @@ function SnapRxContent() {
         // message.success("Prescription created successfully!");
         // Navigate to digitization or next step if needed
         navigate("/snap-rx/preview", {
-          state: { ...state, ...response?.data },
+          state: { ...state, ...response?.data, files: apiUploadedFiles },
         });
       } else {
         throw new Error(response.message || "Failed to create prescription");
@@ -629,7 +628,8 @@ function SnapRxContent() {
             const response = await uploadSnapRxFiles(
               allFiles,
               patient_data?.patient_unique_id,
-              sessionId
+              sessionId,
+              fileUploadToken
             );
 
             if (response && response.uploaded_files) {

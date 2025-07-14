@@ -24,6 +24,7 @@ import "./PreviewDrawer.scss";
 import CommonModal from "../../../common/CommonModal";
 import alertIcon from "../../../assets/images/alertIcon.svg";
 import FileUploadErrorModal from "../../../components/common/FileUploadErrorModal";
+import { useSelector } from "react-redux";
 
 const PreviewDrawer = ({
   isOpen,
@@ -63,6 +64,7 @@ const PreviewDrawer = ({
   const [isFileSizeError, setIsFileSizeError] = useState(false);
   const [isFileLimitError, setIsFileLimitError] = useState(false);
   const [isFileTypeError, setIsFileTypeError] = useState(false);
+  const { fileUploadToken } = useSelector((state) => state.snapRx);
 
   const showHideModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -648,7 +650,8 @@ const PreviewDrawer = ({
         const response = await uploadSnapRxFiles(
           filesToUpload,
           patient_data?.patient_unique_id,
-          sessionId
+          sessionId,
+          fileUploadToken
         );
 
         if (!response || !response.uploaded_files) {

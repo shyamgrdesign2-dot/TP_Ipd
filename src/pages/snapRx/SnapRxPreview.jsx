@@ -51,7 +51,6 @@ function SnapRxPreview() {
 
   const { state } = useLocation();
   const { patient_data, isDigitiseRxSubmit, files } = state;
-console.log({files});
 
   const [printUrl, setPrintUrl] = useState(
     state !== undefined ? `${state.print_rx_url || state.print_url}` : null
@@ -248,7 +247,7 @@ console.log({files});
             smartRxFilesData: smartRxFile,
             tcm_id: state.tcm_id,
             pam_id: state?.pam_id,
-            print_url: state.print_rx_url,
+            print_url: state.print_rx_url || state.print_url,
             type: "new",
           },
         });
@@ -352,7 +351,7 @@ console.log({files});
                 patient_data: patient_data,
                 smartRxFilesData: smartRxFile,
                 tcm_id: state.tcm_id,
-                print_url: state.print_rx_url,
+                print_url: state.print_rx_url || state.print_url,
                 digitisedData: response?.digitization,
                 pam_id: state?.pam_id,
                 type: "edit",
@@ -384,7 +383,7 @@ console.log({files});
         smartRxFilesData: smartRxFile,
         tcm_id: state.tcm_id,
         pam_id: state?.pam_id,
-        print_url: state.print_rx_url,
+        print_url: state.print_rx_url || state.print_url,
         digitisedData: rxDigitiseApiResponse,
         type: "new",
       },
@@ -459,8 +458,8 @@ console.log({files});
                 >
                   <span className="fw-semibold">
                     {showDigitalRx
-                      ? "Download Digital Rx"
-                      : "Download Written Rx"}
+                      ? "Download Digital Prescription"
+                      : "Download Written Prescription"}
                   </span>
                   <i className="icon-right iconrotate180 ms-auto"></i>
                 </Button>
@@ -472,7 +471,7 @@ console.log({files});
                   loading={loading}
                 >
                   <span className="fw-semibold">
-                    {showDigitalRx ? "Edit Digital Rx" : "Edit Written Rx"}
+                    {showDigitalRx ? "Edit Digital Prescription" : "Edit Written Prescription"}
                   </span>
                   <i className="icon-right iconrotate180 ms-auto"></i>
                 </Button>
@@ -595,7 +594,7 @@ console.log({files});
                 <div className="titleprint">Preview</div>
                 {viewCaseManagerData?.isRxDigitize &&
                   isSmartSyncCVTAccessableFromGB &&
-                  state?.page !== "prescription" && (
+                  state?.page === "digitise" && (
                     <div>
                       <button
                         className={`digital-btn ${

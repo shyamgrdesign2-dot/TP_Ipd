@@ -51,6 +51,10 @@ function SnapRxDigitise() {
       setData(digitisedData?.editedData);
       setIsLoading(false);
     }
+    else if (state.type === "review" && digitisedData) {
+        setData(digitisedData?.refinedData);
+        setIsLoading(false);
+    }
   }, [token, smartRxFile, digitisedData]);
 
   useEffect(() => {
@@ -91,17 +95,17 @@ function SnapRxDigitise() {
       );
       // Handle navigation based on the API response
       if (response.status === 200) {
-        if (
-          state?.page === "patient-summary" ||
-          state?.page === "pending-digitization"
-        ) {
-          navigate(-1); // Go back to the previous page
-        } else {
+        // if (
+        //   state?.page === "patient-summary" ||
+        //   state?.page === "pending-digitization"
+        // ) {
+        //   navigate(-1); // Go back to the previous page
+        // } else {
           navigate("/snap-rx/preview", {
             replace: true,
             state: {
               patient_data,
-              smartRxData: smartRxFilesData,
+              files: smartRxFilesData,
               tcm_id,
               pam_id: pam_id || patient_data?.pam_id,
               print_url,
@@ -110,7 +114,7 @@ function SnapRxDigitise() {
             },
           });
         }
-      }
+    //   }
     } catch (error) {
       console.error("Error saving data:", error);
     }

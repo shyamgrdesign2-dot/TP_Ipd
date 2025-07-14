@@ -35,6 +35,7 @@ import dayjs from "dayjs";
 
 import { errorMessage, getClinic, trackEvent } from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
+import { getSnapRxDigitization, getSnapRxFiles } from "../pages/snapRx/services/snapRxService";
 
 import {
   TAB_QUEUE,
@@ -48,6 +49,7 @@ import {
   TAB_ZYDUS_ENCOUNTER,
   TAB_ZYDUS_APPOINTMENT,
   GB_ZYDUS_USER,
+  GB_SNAP_RX,
 } from "../utils/constants";
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
@@ -169,7 +171,7 @@ function AppointmentData({ locationPath }) {
   const [pendingDigitisation, setPendingDigitisation] = useState(null);
   const consultButtonRef = useRef(null);
   const isSmartSyncAccessableFromGB = useFeatureIsOn(GB_ISCRIBE);
-  const isSnapRxAccessable = useFeatureIsOn(GB_ISCRIBE);
+  const isSnapRxAccessable = useFeatureIsOn(GB_SNAP_RX);
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
   const [zydusSearchQuery, setZydusSearchQuery] = useState("");
   const [matchedAppointment, setMatchedAppointment] = useState([]);
@@ -775,7 +777,7 @@ function AppointmentData({ locationPath }) {
   }, [isSmartSyncAccessableFromGB]);
 
   useEffect(() => {
-    if (true || isSnapRxAccessable) {
+    if (isSnapRxAccessable) {
       // TODO: INTEL - remove true after testing
       dispatch(getSnapRxUnDigitisedIds());
     }
@@ -1451,8 +1453,45 @@ function AppointmentData({ locationPath }) {
     }
   };
 
-  const handleReviewAndSaveRx = async (record, index) => {
-    console.log("record: ", record);
+  const handleSnapRxDigitiseAndReview = async (record, isReview) => {
+    const formattedDate = formatDate(record.apDate);
+
+    const payload = {
+      pam_id: record.pam_id,
+      tcm_created_date: formattedDate,
+    };
+    try {
+      // API call for Rx Digitisation case id
+      const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+      const cleanedToken = token.replace(/['"]+/g, "");
+      const response = await axios.post(
+        `${baseUrl}${UNFINISHED_RX_CASE}`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${cleanedToken}`,
+          },
+        }
+      );
+      const tcm_id = response.data[0]?.tcm_id;
+      const smartRxData = await getSnapRxFiles(record.patient_unique_id, tcm_id);
+      const snapRxDigitisedData = await getSnapRxDigitization(record.patient_unique_id, tcm_id);
+
+      navigate("/snap-rx/digitise", {
+        state: {
+          patient_data: record,
+          smartRxFilesData: smartRxData?.uploaded_files,
+          tcm_id: tcm_id,
+          pam_id: record.pam_id,
+          print_url: record.print_rx_url,
+          page: "pending-digitization",
+          type: isReview ? "review" : "new",
+          digitisedData: snapRxDigitisedData?.digitization,
+        },
+      });
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   const isUnreviewedRx = useCallback(
@@ -1662,7 +1701,7 @@ function AppointmentData({ locationPath }) {
                   <button
                     className="btn btn-outline-primary"
                     style={{ fontSize: "13px !important" }}
-                    onClick={() => handleReviewAndSaveRx(record, index)}
+                    onClick={() => handleSnapRxDigitiseAndReview(record, true)}
                   >
                     {"Review & Save Rx"}
                   </button>
@@ -1671,7 +1710,7 @@ function AppointmentData({ locationPath }) {
                     <button
                       className="btn btn-outline-primary"
                       style={{ fontSize: "13px !important" }}
-                      onClick={() => handleDigitiseRx(record, index)}
+                      onClick={() => handleSnapRxDigitiseAndReview(record, false)}
                     >
                       {"Digitise Rx"}
                     </button>

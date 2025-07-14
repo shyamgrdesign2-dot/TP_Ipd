@@ -67,6 +67,7 @@ export const GB_APOLLO_DISABLE_FEATURE = "apollo-disable-feature";
 
 export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
+export const GB_SNAP_RX = "snap-rx";
 
 export const EXTRA_OPTIONS = [
   {
