@@ -2,12 +2,18 @@ import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 // import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
 import { Button, Row, Col, Spin, message } from "antd";
-import { isMobile, isChrome, isSafari } from "react-device-detect";
+import {
+  isMobile,
+  isChrome,
+  isSafari,
+  osName,
+  browserName,
+} from "react-device-detect";
 import axios from "axios";
 import { saveAs } from "file-saver";
 import { jwtDecode } from "jwt-decode";
 
-import { errorMessage } from "../../utils/utils";
+import { errorMessage, trackEvent } from "../../utils/utils";
 import api from "../../api/services/axiosService";
 
 import visitEnd from "../../assets/images/end-visit.svg";
@@ -19,7 +25,6 @@ import successIcon from "../../assets/images/success-icon.svg";
 import HeaderPrescriptionPrint from "../../common/HeaderPrescriptionPrint";
 
 import {
-  FETCH_SMART_RX,
   GB_SMARTSYNC_CVT,
   MESSAGE_KEY,
   WHATS_APP_API,
@@ -36,6 +41,8 @@ import { viewCaseManager } from "../../redux/caseManagerSlice";
 import { pdfjs, Document, Page } from "react-pdf";
 
 import { env } from "../../EnvironmentConfig";
+
+import { EVENTS } from "../../utils/events";
 import { getDecodedToken } from "../../utils/localStorage";
 const worker = require("pdfjs-dist/build/pdf.worker.min.js");
 pdfjs.GlobalWorkerOptions.workerSrc = worker;
@@ -240,6 +247,10 @@ function SnapRxPreview() {
     try {
       // After both API calls are completed, check their responses
       if (smartRxFile?.length > 0 && token) {
+        trackEvent(EVENTS.SNAP_RX.convertButtonClicked, {
+          consultation_source: "EMR",
+          doctor_id: getDecodedToken()?.user_id,
+        });
         // Proceed with the file upload
         navigate("/snap-rx/digitise", {
           state: {
@@ -317,6 +328,11 @@ function SnapRxPreview() {
     try {
       const response = await api.post(WHATS_APP_API, body, baseUrl);
       if (response.message) {
+        trackEvent(EVENTS.SNAP_RX.digitalRxWhatsappSent, {
+          consultation_id: state?.tcm_id,
+          phone_number: state?.patient_data?.pm_contact_no,
+          status: "success",
+        });
         setButtonText("Successfully Sent");
 
         // After 2-3 seconds, reset the button text back to "Send to WhatsApp again"
@@ -324,6 +340,11 @@ function SnapRxPreview() {
           setButtonText("Send to WhatsApp again");
         }, 3000);
       } else {
+        trackEvent(EVENTS.SNAP_RX.digitalRxWhatsappSent, {
+          consultation_id: state?.tcm_id,
+          phone_number: state?.patient_data?.pm_contact_no,
+          status: "fail",
+        });
         setButtonText("Send to WhatsApp");
       }
     } catch (error) {
@@ -390,6 +411,55 @@ function SnapRxPreview() {
     });
   };
 
+  const printInAppContent = async () => {
+    navigate(`/snap-rx/preview/?url=${printUrl}&key=print`, {
+      replace: true,
+      state: state,
+    });
+    navigate(0, { replace: true });
+  };
+
+  const printContent = async () => {
+    if (isMobile || osName == "Linux") {
+      try {
+        const blobURL = URL.createObjectURL(printBlob);
+        const printWindow = window.open(blobURL, "_blank");
+
+        if (!printWindow) {
+          console.error("Unable to open new window for printing");
+          return;
+        }
+
+        printWindow.onload = () => {
+          setTimeout(() => {
+            printWindow.print();
+            URL.revokeObjectURL(blobURL);
+          }, 1000);
+        };
+      } catch (error) {
+        console.error("Error occurred while printing:", error);
+      }
+    } else {
+      var blobURL = URL.createObjectURL(printBlob);
+      // Remove all existing iframes
+      document.querySelectorAll("iframe").forEach(function (iframe) {
+        iframe.parentNode.removeChild(iframe);
+      });
+      var iframe = document.createElement("iframe"); //load content in an iframe to print later
+      document.body.appendChild(iframe);
+      iframe.style.display = "none";
+      iframe.src = blobURL;
+      iframe.onload = function () {
+        setTimeout(function () {
+          iframe.focus();
+          iframe.contentWindow.print();
+          // Revoke the Blob URL to avoid memory leaks
+          URL.revokeObjectURL(blobURL);
+        }, 1);
+      };
+    }
+  };
+
   return (
     <>
       <HeaderPrescriptionPrint
@@ -450,6 +520,28 @@ function SnapRxPreview() {
                   type="text"
                   className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                   icon={<i className="icon-download"></i>}
+                  onClick={() => {
+                    trackEvent(EVENTS.SNAP_RX.digitalRxPrinted, {
+                      consultation_id: state?.tcm_id,
+                      doctor_id: getDecodedToken()?.user_id,
+                      status: "success",
+                    });
+                    browserName == "Chrome WebView" || browserName == "WebKit"
+                      ? printInAppContent()
+                      : printContent();
+                  }}
+                >
+                  <span className="fw-semibold">
+                    {showDigitalRx
+                      ? "Print Digital Prescription"
+                      : "Print Written Prescription"}
+                  </span>
+                  <i className="icon-right iconrotate180 ms-auto"></i>
+                </Button>
+                <Button
+                  type="text"
+                  className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
+                  icon={<i className="icon-download"></i>}
                   onClick={() =>
                     !isChrome && !isSafari
                       ? handleInAppDownload()
@@ -471,7 +563,9 @@ function SnapRxPreview() {
                   loading={loading}
                 >
                   <span className="fw-semibold">
-                    {showDigitalRx ? "Edit Digital Prescription" : "Edit Written Prescription"}
+                    {showDigitalRx
+                      ? "Edit Digital Prescription"
+                      : "Edit Written Prescription"}
                   </span>
                   <i className="icon-right iconrotate180 ms-auto"></i>
                 </Button>

@@ -25,6 +25,9 @@ import CommonModal from "../../../common/CommonModal";
 import alertIcon from "../../../assets/images/alertIcon.svg";
 import FileUploadErrorModal from "../../../components/common/FileUploadErrorModal";
 import { useSelector } from "react-redux";
+import { getDecodedToken } from "../../../utils/localStorage";
+import { trackEvent } from "../../../utils/utils";
+import { EVENTS } from "../../../utils/events";
 
 const PreviewDrawer = ({
   isOpen,
@@ -657,6 +660,11 @@ const PreviewDrawer = ({
         if (!response || !response.uploaded_files) {
           throw new Error("Invalid response from server");
         }
+        trackEvent(EVENTS.SNAP_RX.uploadSuccess, {
+          patient_unique_id: patient_data?.patient_unique_id,
+          doctor_id: getDecodedToken()?.user_id,
+          upload_source: "EMR",
+        });
 
         setUploading(false);
         onSave(response);
@@ -697,6 +705,11 @@ const PreviewDrawer = ({
   };
 
   const handleReupload = async () => {
+    isEditMode &&
+      trackEvent(EVENTS.SNAP_RX.reuploadRxClicked, {
+        // consultation_id: tcmId,
+        reupload_count: 1,
+      });
     try {
       // Just call the parent's onReupload function
       if (onReupload) {

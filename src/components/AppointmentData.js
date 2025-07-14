@@ -122,6 +122,7 @@ import {
 } from "../redux/billingSlice";
 import WelcomeModal from "./userOnboarding/welcomeModal/WelcomeModal";
 import { checkSymptomsCollectorTour } from "../api/services/ApiGenRx";
+import { EVENTS } from "../utils/events";
 
 const { TextArea } = Input;
 
@@ -2303,6 +2304,11 @@ function AppointmentData({ locationPath }) {
   // }, [loading, setOnLoad]);
 
   const handleSnapRxClick = async (record) => {
+    trackEvent(EVENTS.SNAP_RX.uploadClicked, {
+        patient_unique_id: record?.patient_unique_id,
+        doctor_id: getDecodedToken()?.user_id,
+        upload_source: "EMR",
+      });
     navigate("/snap-rx", { state: { patient_data: record } });
   };
 
