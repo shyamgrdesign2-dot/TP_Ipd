@@ -837,9 +837,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 }}> */}
                     {printSettings?.prescription?.case_option?.map((option, index) => {
                         let customModule = caseManagerData?.moduleContents?.find(e => e.module_id === option?.id);
-                        console.log(customModule)
-                        console.log(customModules)
-                        console.log(caseManagerData)
                         if(customModule) {
                             customModule = { ...customModule, name: getCustomModuleName(option?.id) };
                         }
