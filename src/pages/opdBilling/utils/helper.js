@@ -27,7 +27,7 @@ export const handleDownload = async (
     const res = await uploadDocsToAzure(formData);
     const printUrl = res?.[0]?.url;
     if (res?.length > 0) {
-      sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
+      // sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
       handleInAppClick(
         patientUniqueId,
         "download",
@@ -85,7 +85,7 @@ export const printContent = async (
     const res = await uploadDocsToAzure(formData);
     if (res?.length > 0) {
       const printUrl = res?.[0]?.url;
-      sendMessageToParent(EVENTS.PRINT, { url: printUrl });
+      // sendMessageToParent(EVENTS.PRINT, { url: printUrl });
       handleInAppClick(patientUniqueId, "print", printUrl, setStartLoader);
     }
   } else {

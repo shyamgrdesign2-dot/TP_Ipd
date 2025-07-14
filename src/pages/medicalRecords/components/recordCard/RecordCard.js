@@ -149,7 +149,7 @@ const RecordCard = ({
   };
 
   const handleInAppDownload = async () => {
-    sendMessageToParent(EVENTS.DOWNLOAD, { url });
+    // sendMessageToParent(EVENTS.DOWNLOAD, { url });
     const deviceUid = localStorage.getItem("app_device_unique_id");
     if (deviceUid) {
       const docRef = doc(db, "fileDownload", deviceUid);
