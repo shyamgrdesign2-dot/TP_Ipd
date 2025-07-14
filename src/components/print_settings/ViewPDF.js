@@ -4960,15 +4960,21 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 </Text>
                                                 {/* Zydus Cross-Tab Table Structure */}
                                                 {(() => {
-                                                    // Process data for cross-tabulation with service grouping
-                                                    const dates = [...new Set(caseManagerData.zydusSelectedLabParams.map(entry => entry.date))]
-                                                        .sort((a, b) => new Date(b.split('-').reverse().join('-')) - new Date(a.split('-').reverse().join('-'))); // Most recent first
+                                                    const allDates = [...new Set(caseManagerData.zydusSelectedLabParams.map(entry => entry.date))]
+                                                        .sort((a, b) => new Date(b.split('-').reverse().join('-')) - new Date(a.split('-').reverse().join('-')));
+                                                        const dates = allDates.slice(0, 5);
+                                                        const dateColumnCount = dates.length;
+                                                        const investigationFlex = dateColumnCount >= 4 ? 0.8 : 1;
+                                                        const subParamsFlex = dateColumnCount >= 4 ? 0.8 : 1;
+                                                        const dateColumnFlex = dateColumnCount >= 4 ? 0.6 : 1;
                                                     
                                                     const serviceGroups = [];
                                                     const serviceMap = new Map();
                                                     
-                                                    // Collect all unique services in order they appear
-                                                    caseManagerData.zydusSelectedLabParams.forEach(dateEntry => {
+                                                    {/* Group services by date */}
+                                                    caseManagerData.zydusSelectedLabParams
+                                                        .filter(dateEntry => dates.includes(dateEntry.date))
+                                                        .forEach(dateEntry => {
                                                         dateEntry.inputs.forEach(test => {
                                                             if (!serviceMap.has(test.serviceName)) {
                                                                 serviceMap.set(test.serviceName, {
@@ -4984,12 +4990,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     serviceGroups.forEach(serviceGroup => {
                                                         const serviceName = serviceGroup.serviceName;
                                                         
-                                                        // Check if service has direct results
                                                         let hasDirectResults = false;
                                                         const directResults = {};
                                                         let directReferenceRange = '';
                                                         
-                                                        caseManagerData.zydusSelectedLabParams.forEach(dateEntry => {
+                                                        caseManagerData.zydusSelectedLabParams
+                                                            .filter(dateEntry => dates.includes(dateEntry.date))
+                                                            .forEach(dateEntry => {
                                                             const test = dateEntry.inputs.find(t => t.serviceName === serviceName);
                                                             if (test && test.resultvalue !== '-') {
                                                                 hasDirectResults = true;
@@ -5000,19 +5007,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             }
                                                         });
                                                         
-                                                        // Add direct result row if exists
-                                                        if (hasDirectResults) {
-                                                            serviceGroup.rows.push({
-                                                                name: serviceName,
-                                                                referenceRange: directReferenceRange,
-                                                                results: directResults
-                                                            });
-                                                        }
-                                                        
                                                         // Collect all parameters for this service
                                                         const parameterMap = new Map();
                                                         
-                                                        caseManagerData.zydusSelectedLabParams.forEach(dateEntry => {
+                                                        caseManagerData.zydusSelectedLabParams
+                                                            .filter(dateEntry => dates.includes(dateEntry.date))
+                                                            .forEach(dateEntry => {
                                                             const test = dateEntry.inputs.find(t => t.serviceName === serviceName);
                                                             if (test && test.labResultParameters) {
                                                                 test.labResultParameters.forEach(param => {
@@ -5020,7 +5020,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         parameterMap.set(param.parameterName, {
                                                                             name: param.parameterName,
                                                                             referenceRange: param.referenceRange || '',
-                                                                            results: {}
+                                                                            results: {},
+                                                                            type: 'parameter'
                                                                         });
                                                                     }
                                                                     parameterMap.get(param.parameterName).results[dateEntry.date] = param.resultValue;
@@ -5028,76 +5029,316 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             }
                                                         });
                                                         
-                                                        // Add parameter rows
-                                                        serviceGroup.rows.push(...Array.from(parameterMap.values()));
+                                                        const parameters = Array.from(parameterMap.values());
+                                                        const splitLongContent = (param) => {
+                                                            const getCharLimit = () => {
+                                                                if (dateColumnCount >= 5) return 200;
+                                                                if (dateColumnCount >= 3) return 300;
+                                                                return 400;
+                                                            };
+                                                            const maxCharsPerRow = getCharLimit();
+                                                            const resultEntries = Object.entries(param.results);
+                                                            const hasLongContent = resultEntries.some(([date, value]) => 
+                                                                value && value.length > maxCharsPerRow
+                                                            );
+                                                            if (!hasLongContent) {
+                                                                return [param];
+                                                            }
+                                                            const smartSplit = (text, maxLength) => {
+                                                                if (text.length <= maxLength) return [text];
+                                                                const chunks = [];
+                                                                let remaining = text;
+                                                                while (remaining.length > maxLength) {
+                                                                    let splitPoint = maxLength;
+                                                                    const breakPoints = [
+                                                                        remaining.lastIndexOf('\n\n', maxLength),
+                                                                        remaining.lastIndexOf('\n', maxLength),
+                                                                        remaining.lastIndexOf('. ', maxLength),
+                                                                        remaining.lastIndexOf(', ', maxLength),
+                                                                        remaining.lastIndexOf(' ', maxLength)
+                                                                    ];
+                                                                    for (const breakPoint of breakPoints) {
+                                                                        if (breakPoint > maxLength * 0.7) {
+                                                                            splitPoint = breakPoint + (breakPoint === breakPoints[2] ? 2 : 1);
+                                                                            break;
+                                                                        }
+                                                                    }
+                                                                    chunks.push(remaining.substring(0, splitPoint).trim());
+                                                                    remaining = remaining.substring(splitPoint).trim();
+                                                                }
+                                                                if (remaining.length > 0) {
+                                                                    chunks.push(remaining);
+                                                                }
+                                                                return chunks;
+                                                            };
+                                                            const rows = [];
+                                                            resultEntries.forEach(([date, value]) => {
+                                                                if (value && value.length > maxCharsPerRow) {
+                                                                    const chunks = smartSplit(value, maxCharsPerRow);
+                                                                    chunks.forEach((chunk, index) => {
+                                                                        if (!rows[index]) {
+                                                                            rows[index] = {
+                                                                                name: index === 0 ? param.name : `${param.name} (cont.)`,
+                                                                                referenceRange: index === 0 ? param.referenceRange : '',
+                                                                                results: {},
+                                                                                type: param.type
+                                                                            };
+                                                                        }
+                                                                        rows[index].results[date] = chunk;
+                                                                    });
+                                                                } else {
+                                                                    if (!rows[0]) {
+                                                                        rows[0] = {
+                                                                            name: param.name,
+                                                                            referenceRange: param.referenceRange,
+                                                                            results: {},
+                                                                            type: param.type
+                                                                        };
+                                                                    }
+                                                                    rows[0].results[date] = value || '';
+                                                                }
+                                                            });
+                                                            
+                                                            return rows.length > 0 ? rows : [param];
+                                                        };
+                                                        const splitParameters = [];
+                                                        parameters.forEach(param => {
+                                                            const splitRows = splitLongContent(param);
+                                                            splitParameters.push(...splitRows);
+                                                        })
+                                                        if (splitParameters.length > 0) {
+                                                            serviceGroup.rows.push(...splitParameters);
+                                                            serviceGroup.hasParameters = true;
+                                                        } else if (hasDirectResults) {
+                                                            const directServiceRow = {
+                                                                name: serviceName,
+                                                                referenceRange: directReferenceRange,
+                                                                results: directResults,
+                                                                type: 'service'
+                                                            };
+                                                            const splitDirectRows = splitLongContent(directServiceRow);
+                                                            serviceGroup.rows.push(...splitDirectRows);
+                                                            serviceGroup.hasParameters = false;
+                                                        }
                                                     });
                                                     
                                                     return (
-                                                        <View style={styles.table}>
-                                                            {/* Header Row */}
-                                                            <View style={[styles.headerRow, { borderTop: '1px solid #171725', backgroundColor: '#cccccc' }]} fixed>
-                                                                <Text style={[styles.headerCell, { flex: 3, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: "#000" }]}>
-                                                                    Test Name
+                                                        <View style={[styles.table, { break: "avoid" }]}>
+                                                            <View style={[styles.headerRow, { borderTop: '1px solid #171725', backgroundColor: '#cccccc' }]} fixed wrap={false}>
+                                                                <View style={[styles.headerCell, { 
+                                                                    flex: investigationFlex, 
+                                                                    minHeight: PX_TO_PT * 30, 
+                                                                    justifyContent: 'center',
+                                                                borderRight: '1px solid #171725',
+                                                                    padding: PX_TO_PT * 6
+                                                                }]}>
+                                                                <Text style={{
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                        fontWeight: 600, 
+                                                                    color: "#000",
+                                                                        textAlign: 'center',
+                                                                        lineHeight: 1.3
+                                                                    }} wrap>
+                                                                    Investigation
                                                                 </Text>
-                                                                {dates.map((date, index) => (
-                                                                    <Text key={index} style={[styles.headerCell, { flex: 1.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: "#000" }]}>
-                                                                        {moment(date, "DD-MM-YYYY").format("DD MMM YY")}
-                                                                    </Text>
-                                                                ))}
                                                             </View>
-                                                            
-                                                            {/* Service Groups */}
-                                                            {serviceGroups.map((serviceGroup, groupIndex) => (
-                                                                <React.Fragment key={groupIndex}>
-                                                                    {/* Service Header Row */}
-                                                                    {/* <View style={[styles.row]} wrap={false}>
-                                                                        <Text style={[styles.cell, { 
-                                                                            flex: 3, 
-                                                                            color: "#171725", 
-                                                                            fontFamily: getIndianLanguageFont(serviceGroup.serviceName, printSettings?.page_format?.font_family), 
+                                                                <View style={[styles.headerCell, { 
+                                                                    flex: subParamsFlex, 
+                                                                    minHeight: PX_TO_PT * 30, 
+                                                                    justifyContent: 'center',
+                                                                borderRight: '1px solid #171725',
+                                                                    padding: PX_TO_PT * 6
+                                                                }]}>
+                                                                <Text style={{
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                        fontWeight: 600, 
+                                                                    color: "#000",
+                                                                        textAlign: 'center',
+                                                                        lineHeight: 1.3
+                                                                    }} wrap>
+                                                                    Sub Params
+                                                                </Text>
+                                                            </View>
+                                                                {dates.map((date, index) => (
+                                                                    <View key={index} style={[styles.headerCell, { 
+                                                                        flex: dateColumnFlex, 
+                                                                        minHeight: PX_TO_PT * 30, 
+                                                                        justifyContent: 'center',
+                                                                        padding: PX_TO_PT * 6
+                                                                    }]}>
+                                                                        <Text style={{
+                                                                            fontFamily: printSettings?.page_format?.font_family,
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                            fontWeight: 600,
-                                                                            backgroundColor: "#f8f9fa"
-                                                                        }]}>
-                                                                            {serviceGroup.serviceName}
+                                                                            fontWeight: 600, 
+                                                                            color: "#000",
+                                                                            textAlign: 'center',
+                                                                            lineHeight: 1.3
+                                                                        }} wrap>
+                                                                            {moment(date, "DD-MM-YYYY").format("DD MMM YY")}
                                                                         </Text>
-                                                                        {dates.map((date, dateIndex) => (
-                                                                            <Text key={dateIndex} style={[styles.cell, { 
-                                                                                flex: 1.5, 
-                                                                                backgroundColor: "#f8f9fa"
-                                                                            }]}>
-                                                                            </Text>
-                                                                        ))}
                                                                     </View>
-                                                                     */}
-                                                                    {/* Service Rows */}
-                                                                    {serviceGroup.rows.map((row, rowIndex) => (
-                                                                        <View key={rowIndex} style={[styles.row]} wrap={false}>
-                                                                            <Text style={[styles.cell, { 
-                                                                                flex: 3, 
-                                                                                color: "#171725", 
-                                                                                fontFamily: getIndianLanguageFont(row.name, printSettings?.page_format?.font_family), 
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                                fontWeight: 600
-                                                                            }]}>
-                                                                                {row.name}{row.referenceRange ? ` (${row.referenceRange})` : ''}
-                                                                            </Text>
-                                                                            {dates.map((date, dateIndex) => (
-                                                                                <Text key={dateIndex} style={[styles.cell, { 
-                                                                                    flex: 1.5, 
+                                                                ))}
+                                                        </View>
+                                                            {serviceGroups.map((serviceGroup, groupIndex) => {
+                                                                const totalRows = serviceGroup.rows.length;
+                                                                const hasParameters = serviceGroup.hasParameters;
+                                                                if (totalRows === 0) {
+                                                                    return (
+                                                                        <View key={groupIndex} style={{ flexDirection: 'row' }} wrap={false}>
+                                                                    <View style={{
+                                                                                flex: investigationFlex, 
+                                                                                minHeight: PX_TO_PT * 30, 
+                                                                                justifyContent: 'flex-start',
+                                                                        padding: PX_TO_PT * 6,
+                                                                                borderTop: '0px solid transparent',
+                                                                                borderBottom: '1px solid #171725',
+                                                                                borderLeft: '1px solid #171725',
+                                                                                borderRight: '1px solid #171725'
+                                                                    }}>
+                                                                        <Text style={{
                                                                                     color: "#171725", 
-                                                                                    fontFamily: printSettings?.page_format?.font_family, 
+                                                                                    fontFamily: getIndianLanguageFont(serviceGroup.serviceName, printSettings?.page_format?.font_family), 
                                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
                                                                                     fontWeight: 400,
-                                                                                    textAlign: 'left'
-                                                                                }]}>
-                                                                                    {row.results[date] || '-'}
+                                                                                    textAlign: 'left',
+                                                                                    lineHeight: 1.3
+                                                                                }} wrap>
+                                                                                    {serviceGroup.serviceName}
                                                                                 </Text>
+                                                                            </View>
+                                                                            <View style={{ 
+                                                                                flex: subParamsFlex, 
+                                                                                minHeight: PX_TO_PT * 30, 
+                                                                                justifyContent: 'flex-start',
+                                                                                padding: PX_TO_PT * 6,
+                                                                                borderTop: '0px solid transparent',
+                                                                                borderBottom: '1px solid #171725',
+                                                                                borderRight: '1px solid #171725',
+                                                                                borderLeft: '0px solid transparent'
+                                                                            }}>
+                                                                                <Text style={{ 
+                                                                                    color: "#171725", 
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textAlign: 'left',
+                                                                                    lineHeight: 1.3
+                                                                                }} wrap>
+                                                                                    -
+                                                                                </Text>
+                                                                            </View>
+                                                                            {dates.map((date, dateIndex) => (
+                                                                                <View key={dateIndex} style={{ 
+                                                                                    flex: dateColumnFlex, 
+                                                                                    minHeight: PX_TO_PT * 30, 
+                                                                                    justifyContent: 'center',
+                                                                                    padding: PX_TO_PT * 6,
+                                                                                    borderTop: '0px solid transparent',
+                                                                                    borderBottom: '1px solid #171725',
+                                                                                    borderRight: '1px solid #171725',
+                                                                                    borderLeft: '0px solid transparent'
+                                                                                }}>
+                                                                                    <Text style={{ 
+                                                                                        color: "#171725", 
+                                                                                        fontFamily: printSettings?.page_format?.font_family, 
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                        fontWeight: 400,
+                                                                                        textAlign: 'center',
+                                                                                        lineHeight: 1.3
+                                                                                    }} wrap>
+                                                                                        -
+                                                                        </Text>
+                                                                    </View>
                                                                             ))}
-                                                                        </View>
-                                                                    ))}
-                                                                </React.Fragment>
-                                                            ))}
+                                                                </View>
+                                                                    );
+                                                                }
+                                                                return (
+                                                                    <React.Fragment key={groupIndex}>
+                                                                        {serviceGroup.rows.map((row, rowIndex) => {
+                                                                            const isFirstRow = rowIndex === 0;
+                                                                            const isLastRow = rowIndex === totalRows - 1;
+                                                                            const isMiddleRow = !isFirstRow && !isLastRow;
+                                                                    
+                                                                    return (
+                                                                                <View key={rowIndex} style={{ flexDirection: 'row' }} wrap={false}>
+                                                                                <View style={{
+                                                                                        flex: investigationFlex,
+                                                                                        minHeight: PX_TO_PT * 30,
+                                                                                        justifyContent: 'flex-start',
+                                                                                        padding: PX_TO_PT * 6,
+                                                                                        backgroundColor: "transparent",
+                                                                                        borderLeft: '1px solid #171725',
+                                                                                        borderTop: '0px solid transparent',
+                                                                                        borderBottom: isLastRow ? '1px solid #171725' : (hasParameters && totalRows > 1 ? '0px solid transparent' : '1px solid #171725'),
+                                                                                        borderRight: '1px solid #171725'
+                                                                                }}>
+                                                                                    <Text style={{
+                                                                                            color: "#171725", 
+                                                                                            fontFamily: getIndianLanguageFont(serviceGroup.serviceName, printSettings?.page_format?.font_family), 
+                                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                        fontWeight: 400,
+                                                                                            textAlign: 'left',
+                                                                                            lineHeight: 1.3
+                                                                                        }} wrap>
+
+                                                                                            {(hasParameters && isFirstRow) || (!hasParameters) ? serviceGroup.serviceName : ""}
+                                                                                    </Text>
+                                                                                </View>
+                                                                                <View style={{
+                                                                                        flex: subParamsFlex,
+                                                                                        minHeight: PX_TO_PT * 30,
+                                                                                        justifyContent: 'flex-start',
+                                                                                        padding: PX_TO_PT * 6,
+                                                                                        backgroundColor: "transparent",
+                                                                                        borderTop: '0px solid transparent',
+                                                                                        borderBottom: '1px solid #171725',
+                                                                                    borderRight: '1px solid #171725',
+                                                                                        borderLeft: '0px solid transparent'
+                                                                                }}>
+                                                                                    <Text style={{
+                                                                                            color: "#171725", 
+                                                                                            fontFamily: getIndianLanguageFont(row.name, printSettings?.page_format?.font_family), 
+                                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                        fontWeight: 400,
+                                                                                            textAlign: 'left',
+                                                                                            lineHeight: 1.3
+                                                                                        }} wrap>
+                                                                                        {hasParameters ? row.name : '-'}{hasParameters && row.referenceRange ? ` (${row.referenceRange})` : ''}
+                                                                                    </Text>
+                                                                                </View>
+                                                                                    {dates.map((date, dateIndex) => (
+                                                                                        <View key={dateIndex} style={{ 
+                                                                                            flex: dateColumnFlex,
+                                                                                            minHeight: PX_TO_PT * 30,
+                                                                                            justifyContent: 'center',
+                                                                                            padding: PX_TO_PT * 6,
+                                                                                            backgroundColor: "white",
+                                                                                            borderTop: '0px solid transparent',
+                                                                                            borderBottom: '1px solid #171725',
+                                                                                            borderRight: '1px solid #171725',
+                                                                                            borderLeft: '0px solid transparent'
+                                                                                        }}>
+                                                                                            <Text style={{
+                                                                                                color: "#171725", 
+                                                                                                fontFamily: printSettings?.page_format?.font_family, 
+                                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                                fontWeight: 400,
+                                                                                                textAlign: 'center',
+                                                                                                lineHeight: 1.3
+                                                                                            }} wrap>
+                                                                                                {row.results[date] || '-'}
+                                                                                            </Text>
+                                                                                        </View>
+                                                                                    ))}
+                                                                                        </View>
+                                                                            );
+                                                                        })}
+                                                                    </React.Fragment>
+                                                                    );
+                                                            })}
                                                         </View>
                                                     );
                                                 })()}
