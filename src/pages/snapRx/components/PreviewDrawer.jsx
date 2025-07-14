@@ -23,6 +23,7 @@ import { useSnapRxSession } from "../context/SnapRxSessionContext";
 import "./PreviewDrawer.scss";
 import CommonModal from "../../../common/CommonModal";
 import alertIcon from "../../../assets/images/alertIcon.svg";
+import FileUploadErrorModal from "../../../components/common/FileUploadErrorModal";
 
 const PreviewDrawer = ({
   isOpen,
@@ -34,26 +35,51 @@ const PreviewDrawer = ({
   onRemove,
   onAddMore,
   onSave,
+  isUploadMoreDrawer = false,
 }) => {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [selectedFileIndex, setSelectedFileIndex] = useState(0);
-  const [zoom, setZoom] = useState(1);
-  const [rotation, setRotation] = useState(0);
+  // Remove individual zoom and rotation states
+  // const [zoom, setZoom] = useState(1);
+  // const [rotation, setRotation] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [crop, setCrop] = useState({
     unit: "%",
-    x: 10,
-    y: 10,
-    width: 80,
-    height: 80,
+    x: 15,
+    y: 15,
+    width: 70,
+    height: 70,
   });
+  const [filesCrops, setFilesCrops] = useState({});
+  // Add states to store zoom and rotation for each file
+  const [filesZoom, setFilesZoom] = useState({});
+  const [filesRotation, setFilesRotation] = useState({});
   const [completedCrop, setCompletedCrop] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isFileSizeError, setIsFileSizeError] = useState(false);
+  const [isFileLimitError, setIsFileLimitError] = useState(false);
+  const [isFileTypeError, setIsFileTypeError] = useState(false);
 
   const showHideModal = () => {
     setIsModalOpen(!isModalOpen);
+  };
+
+  const showHideBackModal = () => {
+    setIsBackModalOpen(!isBackModalOpen);
+  };
+
+  const showHideDeleteModal = () => {
+    setIsDeleteModalOpen(!isDeleteModalOpen);
+  };
+
+  const handleRetryBtn = () => {
+    setIsFileSizeError(false);
+    setIsFileLimitError(false);
+    setIsFileTypeError(false);
   };
 
   // Get patient data from context
@@ -64,26 +90,26 @@ const PreviewDrawer = ({
   const canvasRef = useRef(null);
 
   // Define onImageLoad first before it's used in useEffect
-  const onImageLoad = useCallback((e) => {
-    const { naturalWidth, naturalHeight } = e.currentTarget;
+  const onImageLoad = useCallback(
+    (e) => {
+      const { naturalWidth, naturalHeight } = e.currentTarget;
 
-    // Set default crop to center 80% of the image
-    const cropWidth = naturalWidth * 0.7;
-    const cropHeight = naturalHeight * 0.7;
-    const cropX = (naturalWidth - cropWidth) / 2;
-    const cropY = (naturalHeight - cropHeight) / 2;
+      // Set default crop to center 70% of the image using percentage units
+      const newCrop = filesCrops[selectedFileIndex] || {
+        unit: "%",
+        x: 15,
+        y: 15,
+        width: 70,
+        height: 70,
+      };
 
-    const newCrop = {
-      unit: "px",
-      x: cropX,
-      y: cropY,
-      width: cropWidth,
-      height: cropHeight,
-    };
-
-    setCrop(newCrop);
-    setCompletedCrop(newCrop);
-  }, []);
+      setCrop(newCrop);
+      setCompletedCrop(newCrop);
+      setImageLoaded(true);
+      setImageError(false);
+    },
+    [selectedFileIndex, filesCrops]
+  );
 
   // Determine the files to work with
   const filesToDisplay = useMemo(() => {
@@ -219,23 +245,36 @@ const PreviewDrawer = ({
     };
   }, [imageUrl, onImageLoad]);
 
+  // Helper function to get current file's zoom
+  const getCurrentZoom = () => filesZoom[selectedFileIndex] || 1;
+
+  // Helper function to get current file's rotation
+  const getCurrentRotation = () => filesRotation[selectedFileIndex] || 0;
+
   // Reset states when switching files
   useEffect(() => {
     if (currentFile) {
       setImageLoaded(false);
       setImageError(false);
-      setZoom(1);
-      setRotation(0);
-      setCrop({
-        unit: "%",
-        x: 10,
-        y: 10,
-        width: 80,
-        height: 80,
-      });
-      setCompletedCrop(null);
+
+      // Load saved crop for this file if it exists
+      const savedCrop = filesCrops[selectedFileIndex];
+      if (savedCrop) {
+        setCrop(savedCrop);
+        setCompletedCrop(savedCrop);
+      } else {
+        const defaultCrop = {
+          unit: "%",
+          x: 15,
+          y: 15,
+          width: 70,
+          height: 70,
+        };
+        setCrop(defaultCrop);
+        setCompletedCrop(defaultCrop);
+      }
     }
-  }, [currentFile]);
+  }, [currentFile, selectedFileIndex, filesCrops]);
 
   const processImage = async (imageElement, file) => {
     const canvas = document.createElement("canvas");
@@ -294,14 +333,17 @@ const PreviewDrawer = ({
       let filesToUpload = [];
 
       if (isEditMode) {
-        // Get the current image element
-        const img = imageRef.current;
-        if (!img) {
-          throw new Error("No image loaded for processing");
-        }
-
         // Process each file in the filesToDisplay array
-        for (const fileObj of filesToDisplay) {
+        for (
+          let fileIndex = 0;
+          fileIndex < filesToDisplay.length;
+          fileIndex++
+        ) {
+          const fileObj = filesToDisplay[fileIndex];
+          const fileCrop = filesCrops[fileIndex];
+          const fileZoom = filesZoom[fileIndex] || 1;
+          const fileRotation = filesRotation[fileIndex] || 0;
+
           // Load the image for processing
           const imgToProcess = new Image();
           imgToProcess.crossOrigin = "anonymous";
@@ -315,22 +357,110 @@ const PreviewDrawer = ({
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
 
-          // Set canvas dimensions based on crop or full image
-          if (completedCrop && fileObj === currentFile) {
-            // Apply crop only to the current file being edited
-            canvas.width = completedCrop.width;
-            canvas.height = completedCrop.height;
+          // Apply rotation if needed
+          if (fileRotation !== 0) {
+            // Adjust canvas size for rotation
+            if (fileRotation % 180 !== 0) {
+              canvas.width = imgToProcess.naturalHeight;
+              canvas.height = imgToProcess.naturalWidth;
+            } else {
+              canvas.width = imgToProcess.naturalWidth;
+              canvas.height = imgToProcess.naturalHeight;
+            }
 
+            // Move to center, rotate, and move back
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate((fileRotation * Math.PI) / 180);
+            ctx.translate(-canvas.width / 2, -canvas.height / 2);
+          } else {
+            canvas.width = imgToProcess.naturalWidth;
+            canvas.height = imgToProcess.naturalHeight;
+          }
+
+          // Apply zoom
+          if (fileZoom !== 1) {
+            ctx.scale(fileZoom, fileZoom);
+          }
+
+          // Apply crop if it exists for this file
+          if (fileCrop && fileCrop.width > 0 && fileCrop.height > 0) {
+            // Convert crop coordinates to pixel coordinates based on the crop unit
+            let cropX, cropY, cropWidth, cropHeight;
+
+            if (fileCrop.unit === "%") {
+              cropX = (fileCrop.x / 100) * imgToProcess.naturalWidth;
+              cropY = (fileCrop.y / 100) * imgToProcess.naturalHeight;
+              cropWidth = (fileCrop.width / 100) * imgToProcess.naturalWidth;
+              cropHeight = (fileCrop.height / 100) * imgToProcess.naturalHeight;
+            } else {
+              // ReactCrop provides pixel coordinates relative to the displayed image
+              // We need to scale them to the natural image size
+              const displayedImage = imageRef.current;
+              if (displayedImage) {
+                const scaleX = imgToProcess.naturalWidth / displayedImage.width;
+                const scaleY =
+                  imgToProcess.naturalHeight / displayedImage.height;
+
+                cropX = fileCrop.x * scaleX;
+                cropY = fileCrop.y * scaleY;
+                cropWidth = fileCrop.width * scaleX;
+                cropHeight = fileCrop.height * scaleY;
+              } else {
+                // Fallback to direct pixel values
+                cropX = fileCrop.x;
+                cropY = fileCrop.y;
+                cropWidth = fileCrop.width;
+                cropHeight = fileCrop.height;
+              }
+            }
+
+            // Ensure crop coordinates are within bounds
+            cropX = Math.max(0, Math.min(cropX, imgToProcess.naturalWidth));
+            cropY = Math.max(0, Math.min(cropY, imgToProcess.naturalHeight));
+            cropWidth = Math.max(
+              1,
+              Math.min(cropWidth, imgToProcess.naturalWidth - cropX)
+            );
+            cropHeight = Math.max(
+              1,
+              Math.min(cropHeight, imgToProcess.naturalHeight - cropY)
+            );
+
+            console.log("Edit Mode - Crop Info:", {
+              originalCrop: fileCrop,
+              naturalDimensions: {
+                width: imgToProcess.naturalWidth,
+                height: imgToProcess.naturalHeight,
+              },
+              displayedDimensions: imageRef.current
+                ? {
+                    width: imageRef.current.width,
+                    height: imageRef.current.height,
+                  }
+                : null,
+              finalCrop: {
+                x: cropX,
+                y: cropY,
+                width: cropWidth,
+                height: cropHeight,
+              },
+            });
+
+            // Set canvas dimensions to cropped size
+            canvas.width = cropWidth;
+            canvas.height = cropHeight;
+
+            // Draw the cropped portion
             ctx.drawImage(
               imgToProcess,
-              completedCrop.x,
-              completedCrop.y,
-              completedCrop.width,
-              completedCrop.height,
+              cropX,
+              cropY,
+              cropWidth,
+              cropHeight,
               0,
               0,
-              completedCrop.width,
-              completedCrop.height
+              cropWidth,
+              cropHeight
             );
           } else {
             // Use full image for other files
@@ -358,58 +488,147 @@ const PreviewDrawer = ({
         }
       } else {
         // Handle upload mode - process each file
-        for (const fileObj of uploadedFiles) {
+        for (let fileIndex = 0; fileIndex < uploadedFiles.length; fileIndex++) {
+          const fileObj = uploadedFiles[fileIndex];
+          const fileCrop = filesCrops[fileIndex];
+          const fileZoom = filesZoom[fileIndex] || 1;
+          const fileRotation = filesRotation[fileIndex] || 0;
           if (!fileObj || (!fileObj.file && !fileObj.preview)) continue;
 
-          if (fileObj.preview) {
-            // Load the preview image
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            await new Promise((resolve, reject) => {
-              img.onload = resolve;
-              img.onerror = reject;
-              img.src = fileObj.preview;
-            });
+          // Always process through canvas to ensure cropping is applied
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = fileObj.preview || URL.createObjectURL(fileObj.file);
+          });
 
-            // Create a canvas for processing
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
+          // Create a canvas for processing
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
 
-            if (completedCrop) {
-              canvas.width = completedCrop.width;
-              canvas.height = completedCrop.height;
-
-              ctx.drawImage(
-                img,
-                completedCrop.x,
-                completedCrop.y,
-                completedCrop.width,
-                completedCrop.height,
-                0,
-                0,
-                completedCrop.width,
-                completedCrop.height
-              );
+          // Apply rotation if needed
+          if (fileRotation !== 0) {
+            // Adjust canvas size for rotation
+            if (fileRotation % 180 !== 0) {
+              canvas.width = img.naturalHeight;
+              canvas.height = img.naturalWidth;
             } else {
               canvas.width = img.naturalWidth;
               canvas.height = img.naturalHeight;
-              ctx.drawImage(img, 0, 0);
             }
 
-            const blob = await new Promise((resolve) =>
-              canvas.toBlob(resolve, "image/jpeg", 0.95)
+            // Move to center, rotate, and move back
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate((fileRotation * Math.PI) / 180);
+            ctx.translate(-canvas.width / 2, -canvas.height / 2);
+          } else {
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+          }
+
+          // Apply zoom
+          if (fileZoom !== 1) {
+            ctx.scale(fileZoom, fileZoom);
+          }
+
+          // Apply crop if it exists for this file
+          if (fileCrop && fileCrop.width > 0 && fileCrop.height > 0) {
+            // Convert crop coordinates to pixel coordinates based on the crop unit
+            let cropX, cropY, cropWidth, cropHeight;
+
+            if (fileCrop.unit === "%") {
+              cropX = (fileCrop.x / 100) * img.naturalWidth;
+              cropY = (fileCrop.y / 100) * img.naturalHeight;
+              cropWidth = (fileCrop.width / 100) * img.naturalWidth;
+              cropHeight = (fileCrop.height / 100) * img.naturalHeight;
+            } else {
+              // ReactCrop provides pixel coordinates relative to the displayed image
+              // We need to scale them to the natural image size
+              const displayedImage = imageRef.current;
+              if (displayedImage) {
+                const scaleX = img.naturalWidth / displayedImage.width;
+                const scaleY = img.naturalHeight / displayedImage.height;
+
+                cropX = fileCrop.x * scaleX;
+                cropY = fileCrop.y * scaleY;
+                cropWidth = fileCrop.width * scaleX;
+                cropHeight = fileCrop.height * scaleY;
+              } else {
+                // Fallback to direct pixel values
+                cropX = fileCrop.x;
+                cropY = fileCrop.y;
+                cropWidth = fileCrop.width;
+                cropHeight = fileCrop.height;
+              }
+            }
+
+            // Ensure crop coordinates are within bounds
+            cropX = Math.max(0, Math.min(cropX, img.naturalWidth));
+            cropY = Math.max(0, Math.min(cropY, img.naturalHeight));
+            cropWidth = Math.max(
+              1,
+              Math.min(cropWidth, img.naturalWidth - cropX)
+            );
+            cropHeight = Math.max(
+              1,
+              Math.min(cropHeight, img.naturalHeight - cropY)
             );
 
-            if (blob) {
-              const processedFile = new File(
-                [blob],
-                fileObj.name || "processed_image.jpg",
-                { type: "image/jpeg" }
-              );
-              filesToUpload.push(processedFile);
-            }
-          } else if (fileObj.file) {
-            filesToUpload.push(fileObj.file);
+            console.log("Upload Mode - Crop Info:", {
+              originalCrop: fileCrop,
+              naturalDimensions: {
+                width: img.naturalWidth,
+                height: img.naturalHeight,
+              },
+              displayedDimensions: imageRef.current
+                ? {
+                    width: imageRef.current.width,
+                    height: imageRef.current.height,
+                  }
+                : null,
+              finalCrop: {
+                x: cropX,
+                y: cropY,
+                width: cropWidth,
+                height: cropHeight,
+              },
+            });
+
+            canvas.width = cropWidth;
+            canvas.height = cropHeight;
+
+            ctx.drawImage(
+              img,
+              cropX,
+              cropY,
+              cropWidth,
+              cropHeight,
+              0,
+              0,
+              cropWidth,
+              cropHeight
+            );
+          } else {
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ctx.drawImage(img, 0, 0);
+          }
+
+          const blob = await new Promise((resolve) =>
+            canvas.toBlob(resolve, "image/jpeg", 0.95)
+          );
+
+          if (blob) {
+            const processedFile = new File(
+              [blob],
+              fileObj.name || "processed_image.jpg",
+              { type: "image/jpeg" }
+            );
+            filesToUpload.push(processedFile);
+          } else {
+            throw new Error(`Failed to process file: ${fileObj.name}`);
           }
         }
       }
@@ -419,20 +638,27 @@ const PreviewDrawer = ({
         throw new Error("No valid files to upload");
       }
 
-      // Upload files to the server
-      const response = await uploadSnapRxFiles(
-        filesToUpload,
-        patient_data?.patient_unique_id,
-        sessionId
-      );
+      if (isUploadMoreDrawer) {
+        // For upload more drawer, pass the processed files to the parent component
+        setUploading(false);
+        onSave(filesToUpload);
+        onClose();
+      } else {
+        // For regular upload, upload files to the server
+        const response = await uploadSnapRxFiles(
+          filesToUpload,
+          patient_data?.patient_unique_id,
+          sessionId
+        );
 
-      if (!response || !response.uploaded_files) {
-        throw new Error("Invalid response from server");
+        if (!response || !response.uploaded_files) {
+          throw new Error("Invalid response from server");
+        }
+
+        setUploading(false);
+        onSave(response);
+        onClose();
       }
-
-      setUploading(false);
-      onSave(response);
-      onClose();
     } catch (error) {
       setUploading(false);
       console.error("Error uploading files:", error);
@@ -441,67 +667,38 @@ const PreviewDrawer = ({
   };
 
   const handleZoomIn = () => {
-    setZoom((prev) => Math.min(prev + 0.1, 3));
+    const currentZoom = getCurrentZoom();
+    const newZoom = Math.min(currentZoom + 0.1, 3);
+    setFilesZoom((prev) => ({
+      ...prev,
+      [selectedFileIndex]: newZoom,
+    }));
   };
 
   const handleZoomOut = () => {
-    setZoom((prev) => Math.max(prev - 0.1, 1));
-  };
-
-  const handleZoomReset = () => {
-    setZoom(1);
+    const currentZoom = getCurrentZoom();
+    const newZoom = Math.max(currentZoom - 0.1, 1);
+    setFilesZoom((prev) => ({
+      ...prev,
+      [selectedFileIndex]: newZoom,
+    }));
   };
 
   const handleRotateLeft = () => {
-    setRotation((prev) => (prev - 90) % 360);
-  };
-
-  const handleRotateRight = () => {
-    setRotation((prev) => (prev + 90) % 360);
+    const currentRotation = getCurrentRotation();
+    const newRotation = (currentRotation - 90) % 360;
+    setFilesRotation((prev) => ({
+      ...prev,
+      [selectedFileIndex]: newRotation,
+    }));
   };
 
   const handleReupload = async () => {
     try {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "image/*";
-
-      input.onchange = async (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const preview = URL.createObjectURL(file);
-
-          if (isEditMode) {
-            // In edit mode, update the current file with the new one
-            const updatedFile = {
-              ...currentFile,
-              file: file,
-              preview: preview,
-              fileUrl: preview, // For edit mode preview
-              name: file.name,
-              type: file.type,
-            };
-
-            // Reset states for the new image
-            setRotation(0);
-            setZoom(1);
-            setImageLoaded(false);
-            setImageError(false);
-
-            // Update parent component
-            if (onReupload) {
-              await onReupload(selectedFileIndex, [updatedFile]);
-            }
-          } else {
-            // In upload mode, just pass the index to parent
-            if (onReupload) {
-              await onReupload(selectedFileIndex);
-            }
-          }
-        }
-      };
-
-      input.click();
+      // Just call the parent's onReupload function
+      if (onReupload) {
+        await onReupload(selectedFileIndex);
+      }
     } catch (error) {
       console.error("Error handling reupload:", error);
       message.error("Failed to reupload file. Please try again.");
@@ -509,33 +706,118 @@ const PreviewDrawer = ({
   };
 
   const handleRemoveFile = () => {
-    if (isEditMode) {
-      // In edit mode, just close the drawer
-      if (onRemove) {
-        onRemove(selectedFileIndex);
+    // Call the parent's onRemove function
+    if (onRemove) {
+      onRemove(selectedFileIndex);
+    }
+
+    // Update local states after removal
+    // Remove the crop, zoom, and rotation data for this file
+    setFilesCrops((prev) => {
+      const newCrops = { ...prev };
+      delete newCrops[selectedFileIndex];
+      // Shift remaining indices down
+      Object.keys(newCrops).forEach((key) => {
+        const index = parseInt(key);
+        if (index > selectedFileIndex) {
+          newCrops[index - 1] = newCrops[index];
+          delete newCrops[index];
+        }
+      });
+      return newCrops;
+    });
+
+    setFilesZoom((prev) => {
+      const newZoom = { ...prev };
+      delete newZoom[selectedFileIndex];
+      // Shift remaining indices down
+      Object.keys(newZoom).forEach((key) => {
+        const index = parseInt(key);
+        if (index > selectedFileIndex) {
+          newZoom[index - 1] = newZoom[index];
+          delete newZoom[index];
+        }
+      });
+      return newZoom;
+    });
+
+    setFilesRotation((prev) => {
+      const newRotation = { ...prev };
+      delete newRotation[selectedFileIndex];
+      // Shift remaining indices down
+      Object.keys(newRotation).forEach((key) => {
+        const index = parseInt(key);
+        if (index > selectedFileIndex) {
+          newRotation[index - 1] = newRotation[index];
+          delete newRotation[index];
+        }
+      });
+      return newRotation;
+    });
+
+    // Update selected index if necessary
+    if (filesToDisplay.length > 1) {
+      // If we're removing the last file, select the previous one
+      if (selectedFileIndex === filesToDisplay.length - 1) {
+        setSelectedFileIndex(selectedFileIndex - 1);
       }
-    } else {
-      // In upload mode, show confirmation modal
-      showHideModal();
+      // If we're removing a file in the middle or start, keep the same index
+      // as it will now point to the next file
     }
   };
 
   const handleAddMoreFiles = () => {
+    // Check if we've reached the file limit before allowing more uploads
+    if (filesToDisplay && filesToDisplay.length >= 5) {
+      setIsFileLimitError(true);
+      return;
+    }
+
     // In upload mode, trigger add more
     if (onAddMore) {
       onAddMore();
     }
   };
 
-  const handleDrawerScroll = (e) => {
-    e.stopPropagation();
+  const handleBackAndCleanup = () => {
+    // Clean up all preview URLs
+    filesToDisplay.forEach((file) => {
+      if (file.preview) {
+        URL.revokeObjectURL(file.preview);
+      }
+    });
+
+    // Reset all states
+    setFilesCrops({});
+    setFilesZoom({});
+    setFilesRotation({});
+    setSelectedFileIndex(0);
+    setImageLoaded(false);
+    setImageError(false);
+    setCrop({
+      unit: "%",
+      x: 15,
+      y: 15,
+      width: 70,
+      height: 70,
+    });
+    setCompletedCrop(null);
+
+    // Notify parent to clear files
+    if (onSave) {
+      onSave([]);
+    }
+
+    // Close modals
+    showHideBackModal();
+    onClose();
   };
 
-  const DELETE_MODAL = useMemo(() => {
+  const BACK_MODAL = useMemo(() => {
     return (
       <CommonModal
-        isModalOpen={isModalOpen}
-        onCancel={() => showHideModal()}
+        isModalOpen={isBackModalOpen}
+        onCancel={showHideBackModal}
         modalWidth={500}
         title={"Are you sure you want to go back?"}
         modalBody={
@@ -552,13 +834,13 @@ const PreviewDrawer = ({
             <div className="mt-4">
               <div className="d-flex align-items-center mt-2 justify-content-end">
                 <div
-                  onClick={() => onRemove(selectedFileIndex)}
+                  onClick={handleBackAndCleanup}
                   className="me-4 text-decoration-underline btn p-0 text-main"
                 >
                   Yes, Go Back
                 </div>
                 <Button
-                  onClick={() => showHideModal()}
+                  onClick={showHideBackModal}
                   type="primary"
                   className="lh-lg btn btn-primary3 btn-41 px-4"
                 >
@@ -570,7 +852,47 @@ const PreviewDrawer = ({
         }
       />
     );
-  }, [isModalOpen]);
+  }, [isBackModalOpen]);
+
+  const DELETE_MODAL = useMemo(() => {
+    return (
+      <CommonModal
+        isModalOpen={isDeleteModalOpen}
+        onCancel={showHideDeleteModal}
+        modalWidth={500}
+        title={"You may lose your data"}
+        modalBody={
+          <>
+            <div className="alert-warning rounded-10px p-2 patient-details">
+              <div className="d-flex align-items-center">
+                <img className="me-3" src={alertIcon} alt="Warning" />
+                <span>Are you sure you want to delete this template?</span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="d-flex align-items-center mt-2 justify-content-end">
+                <div
+                  onClick={() => {
+                    onRemove(selectedFileIndex);
+                    showHideModal();
+                  }}
+                  className="me-4 text-decoration-underline btn p-0 text-main"
+                >
+                  Yes Delete
+                </div>
+                <Button
+                  onClick={showHideModal}
+                  className="lh-lg btn btn-primary3 btn-41 px-4"
+                >
+                  <span>No</span>
+                </Button>
+              </div>
+            </div>
+          </>
+        }
+      />
+    );
+  }, [isDeleteModalOpen]);
 
   // Don't render if not open
   if (!isOpen) {
@@ -584,7 +906,7 @@ const PreviewDrawer = ({
           <Button
             type="text"
             icon={<LeftOutlined />}
-            onClick={onClose}
+            onClick={showHideBackModal}
             style={{ padding: "4px 8px" }}
           />
           <span>{isEditMode ? "Edit Rx" : "Rx Preview"}</span>
@@ -648,10 +970,17 @@ const PreviewDrawer = ({
                   <div className="crop-container">
                     <ReactCrop
                       crop={crop}
-                      onChange={(newCrop) => setCrop(newCrop)}
-                      onComplete={(completedCrop) =>
-                        setCompletedCrop(completedCrop)
-                      }
+                      onChange={(newCrop) => {
+                        setCrop(newCrop);
+                      }}
+                      onComplete={(completedCrop) => {
+                        setCompletedCrop(completedCrop);
+                        // Store the crop for this file
+                        setFilesCrops((prev) => ({
+                          ...prev,
+                          [selectedFileIndex]: completedCrop,
+                        }));
+                      }}
                       aspect={undefined}
                       className="react-crop-wrapper"
                     >
@@ -663,7 +992,7 @@ const PreviewDrawer = ({
                         onLoad={onImageLoad}
                         crossOrigin="anonymous"
                         style={{
-                          transform: `scale(${zoom}) rotate(${rotation}deg)`,
+                          transform: `scale(${getCurrentZoom()}) rotate(${getCurrentRotation()}deg)`,
                           transformOrigin: "center center",
                           maxWidth: "100%",
                           maxHeight: "100%",
@@ -751,13 +1080,14 @@ const PreviewDrawer = ({
                     // Reset states for new image
                     setCrop({
                       unit: "%",
-                      x: 10,
-                      y: 10,
-                      width: 80,
-                      height: 80,
+                      x: 15,
+                      y: 15,
+                      width: 70,
+                      height: 70,
                     });
                     setCompletedCrop(null);
-                    setZoom(1);
+                    // setZoom(1); // Removed
+                    // setRotation(0); // Removed
                     setImageLoaded(false);
                     setImageError(false);
                   }}
@@ -797,6 +1127,13 @@ const PreviewDrawer = ({
       {/* Hidden canvas for cropping */}
       <canvas ref={canvasRef} style={{ display: "none" }} />
       {DELETE_MODAL}
+      {BACK_MODAL}
+      <FileUploadErrorModal
+        isFileSizeError={isFileSizeError}
+        isFileLimitError={isFileLimitError}
+        isFileTypeError={isFileTypeError}
+        onRetry={handleRetryBtn}
+      />
     </Drawer>
   );
 };
