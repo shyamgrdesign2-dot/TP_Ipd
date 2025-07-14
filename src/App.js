@@ -227,12 +227,12 @@ function App() {
   useEffect(() => {
     if (uploadParams) {
       localStorage.setItem("uploadParams", uploadParams);
-      navigate(
-        {
-          pathname: location.pathname,
-        },
-        { replace: true }
-      );
+      // navigate(
+      //   {
+      //     pathname: location.pathname,
+      //   },
+      //   { replace: true }
+      // );
     }
   }, [uploadParams]);
 

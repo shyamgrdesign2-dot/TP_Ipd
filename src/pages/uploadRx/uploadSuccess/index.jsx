@@ -4,8 +4,20 @@ import PatientInfoCard from "../patientInfoCard";
 import "./styles.scss";
 import websiteLogo from "../../../assets/images/website-images/logo.png";
 import editIconWhite from "../../../assets/images/edit-white.png";
+import { trackEvent } from "../../../utils/utils";
+import { EVENTS } from "../../../utils/events";
+
+const UPLOAD_SUCCESS_TEXT = {
+  title: "Rx has been uploaded successfully.",
+  description:
+    "These documents will be visible on the TatvaPractice EMR post page refresh.",
+};
 
 const UploadSuccess = ({ onAddEditClick = () => {}, patientData }) => {
+  const handleAddEditClick = () => {
+    trackEvent(EVENTS.SNAP_RX.reuploadRxClicked);
+    onAddEditClick();
+  };
   return (
     <div className="success-rx-upload-container">
       <img className="website-logo" src={websiteLogo} alt="logo" />
@@ -17,13 +29,9 @@ const UploadSuccess = ({ onAddEditClick = () => {}, patientData }) => {
           />
         </div>
         <div className="success-text">
-          <div className="success-title">
-            {" "}
-            Rx has been uploaded successfully.
-          </div>
+          <div className="success-title"> {UPLOAD_SUCCESS_TEXT.title}</div>
           <div className="success-description">
-            These documents will be visible on the TatvaPractice EMR post page
-            refresh.
+            {UPLOAD_SUCCESS_TEXT.description}
           </div>
         </div>
         <div className="patient-info-card-container">
@@ -38,7 +46,7 @@ const UploadSuccess = ({ onAddEditClick = () => {}, patientData }) => {
         <Button
           type="primary"
           className="book-appointment-btn fs-14 fw-medium"
-          onClick={onAddEditClick}
+          onClick={handleAddEditClick}
           icon={
             <img src={editIconWhite} alt="add-edit" className="add-edit-icon" />
           }

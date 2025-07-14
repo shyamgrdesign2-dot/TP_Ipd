@@ -32,8 +32,8 @@ const ImageUpload = forwardRef(
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState([]);
     const maxFileLimit = 5;
-    const maxFileSizeInMB = 8;
-    const maxFileSize = maxFileSizeInMB * 1024 * 1024; // 8MB
+    const maxFileSizeInMB = 15;
+    const maxFileSize = maxFileSizeInMB * 1024 * 1024; // 15MB
     const [storedFileIdToReplace, setStoredFileIdToReplace] = useState(null);
     const [isAddMoreClicked, setIsAddMoreClicked] = useState(false);
 
@@ -258,9 +258,11 @@ const ImageUpload = forwardRef(
       }
     };
 
-    const handlePreviewClose = () => {
+    const handlePreviewClose = (onlyToggle = false) => {
       setIsPreviewOpen(false);
-      setUploadedFiles([]);
+      if (!onlyToggle) {
+        setUploadedFiles([]);
+      }
     };
 
     const handleReupload = (fileId) => {
@@ -353,9 +355,9 @@ const ImageUpload = forwardRef(
     }, [uploadedFilesFromStore]);
 
     const handleRotateClick = (fileId) => {
-      const fileToRotate = uploadedFiles.find((file) => file.id === fileId);
+      const fileToRotate = uploadedFiles?.find((file) => file.id === fileId);
       const newRotation = (fileToRotate.rotation + 90) % 360;
-      const newFiles = uploadedFiles.map((file) => {
+      const newFiles = uploadedFiles?.map((file) => {
         if (file.id === fileId) {
           return { ...file, rotation: newRotation };
         }

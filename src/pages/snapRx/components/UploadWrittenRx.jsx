@@ -200,6 +200,7 @@ const UploadWrittenRx = ({
     if (!shortLink) {
       return "";
     }
+    console.log("INTEL ==> shortLink", shortLink); // TODO: remove this
     return JSON.stringify({
       uploadUrl: shortLink,
     });
