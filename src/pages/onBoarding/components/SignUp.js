@@ -725,6 +725,12 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
     return window.isCaptchaVerified ? window.isCaptchaVerified() : false;
   };
 
+  const handleBack = () => {
+    // Refresh the page
+    localStorage.removeItem("isCaptchaVerified");
+    window.location.reload();
+  };
+
   return (
     <div className="signup-form-wrapper">
       <div className="signup-form-container">
@@ -877,9 +883,9 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
                   Continue
                 </Button>
 
-                {/* <div className="go-back" style={{marginTop: "20px"}} onClick={() => onViewChange("loginPassword")}>
+                <div className="go-back" onClick={handleBack}>
                   Go back
-                </div> */}
+                </div>
               </div>
             </>
           )}
