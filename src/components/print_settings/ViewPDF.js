@@ -238,6 +238,9 @@ const styles = StyleSheet.create({
     },
 });
 
+const module_id = process.env.REACT_APP_ENV !== "prod" ? '6874956bc1abf17f6932cb32' : '68624471353771e0a587fed6';
+const um_id = process.env.REACT_APP_ENV !== "prod" ? '493' : '12028';
+
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData, customModules, patientBills, advanceReceipts, patientWalletBalance } = props
@@ -844,7 +847,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             <View style={{
                                 marginTop: index === 0 ? (printSettings?.header_footer?.show_patient_info === 'first' ||
                                     !printSettings?.header_footer?.show_patient_info) ? PX_TO_PT * 15 : 0 : 0
-                            }} break={option?.id == "6874956bc1abf17f6932cb32" && caseManagerData?.doctor_data?.um_id == 493 ? true : false}>
+                            }} break={option?.id == module_id && caseManagerData?.doctor_data?.um_id == um_id ? true : false}>
                             {option?.id === 1 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
                                     {caseManagerData.symptoms.length > 0 && (
