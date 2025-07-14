@@ -53,7 +53,7 @@ import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
 import SnapRx from "./pages/snapRx/SnapRx";
 import UploadRx from "./pages/uploadRx";
-import BottomSheetManager from "./components/BottomSheetManager";
+import BottomSheetManager from "./components/bottomSheetManager";
 import SnapRxPreview from "./pages/snapRx/SnapRxPreview";
 import SnapRxDigitise from "./pages/snapRx/SnapRxDigitise";
 
@@ -68,6 +68,7 @@ function App() {
   const [searchParams] = useSearchParams();
   const authToken = searchParams.get("authToken");
   const redirectTo = searchParams.get("redirectTo");
+  const uploadParams = searchParams.get("uploadParams");
   const location = useLocation();
   const navigate = useNavigate();
   const [getToken, setToken] = useLocalStorage(
@@ -223,11 +224,22 @@ function App() {
     }
   }, [authToken, setToken, navigate]);
 
+  useEffect(() => {
+    if (uploadParams) {
+      localStorage.setItem("uploadParams", uploadParams);
+      navigate(
+        {
+          pathname: location.pathname,
+        },
+        { replace: true }
+      );
+    }
+  }, [uploadParams]);
+
   // Add effect to handle redirectTo parameter
   useEffect(() => {
     if (redirectTo) {
       localStorage.setItem("redirectTo", redirectTo);
-      localStorage.setItem("searchParams", searchParams.toString());
 
       // Clean up URL but preserve other params
       const params = new URLSearchParams(location.search);
@@ -345,6 +357,8 @@ function App() {
               <Route path="/final-setup" element={<FinalSetup />} />
 
               {/* Protected routes */}
+              <Route path="snap-rx/mobile-upload" element={<UploadRx />} />
+
               <Route element={<PrivateRoute />}>
                 <Route path="/*" element={<AppointmentList />} />
                 <Route
@@ -396,7 +410,6 @@ function App() {
                 <Route path="billing-settings" element={<BillingSettings />} />
                 <Route path="add-appointment" element={<AddAppointment />} />
                 <Route path="snap-rx" element={<SnapRx />} />
-                <Route path="snap-rx/mobile-upload" element={<UploadRx />} />
                 <Route path="snap-rx/preview" element={<SnapRxPreview />} />
                 <Route path="snap-rx/digitise" element={<SnapRxDigitise />} />
               </Route>

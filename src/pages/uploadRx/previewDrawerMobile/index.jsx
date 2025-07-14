@@ -1,4 +1,3 @@
-// will separate the mobile logic from this file and will leave this file untouched for desktop
 import React, {
   useState,
   useEffect,
@@ -38,6 +37,7 @@ const PreviewDrawerMobile = ({
   isAddMoreClicked,
   patientUniqueId,
   sessionId,
+  autoDigitizeRx,
 }) => {
   const dispatch = useDispatch();
   const { uploadedFiles: uploadedFilesFromRedux } = useSelector(
@@ -56,7 +56,6 @@ const PreviewDrawerMobile = ({
   const carouselRef = useRef(null);
   const canvasRefs = useRef(new Map());
   const [actualFiles, setActualFiles] = useState([]);
-  console.log("INTEL ==> selectedFileId outside 1", uploadedFiles?.[0]?.id);
   useEffect(() => {
     const newImageRefs = new Map();
     uploadedFiles.forEach((file) => {
@@ -125,6 +124,8 @@ const PreviewDrawerMobile = ({
       setIsSubmitting(false);
       handleUpdatedFiles([]);
       setActualFiles([]);
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
     };
   }, []);
 
@@ -134,11 +135,6 @@ const PreviewDrawerMobile = ({
       setIsSubmitting(false);
     }
   }, [uploadedFilesFromRedux]);
-  console.log(
-    "INTEL ==> uploadedFiles in preview drawer",
-    uploadedFiles,
-    selectedFileId
-  );
 
   const onImageLoad = useCallback(
     (e, fileId) => {
@@ -147,15 +143,6 @@ const PreviewDrawerMobile = ({
       const cropHeight = height * 0.8;
       const cropX = (width - cropWidth) / 2;
       const cropY = (height - cropHeight) / 2;
-      console.log(
-        "INTEL ==> e",
-        e,
-        cropX,
-        cropY,
-        cropWidth,
-        cropHeight,
-        fileId
-      );
 
       const crop = {
         unit: "px",
@@ -174,7 +161,8 @@ const PreviewDrawerMobile = ({
         }
         return file;
       });
-      setTimeout(() => {
+      clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
         handleUpdatedFiles(updatedCropFiles);
       }, 100);
     },
@@ -312,13 +300,13 @@ const PreviewDrawerMobile = ({
         const actualFiles = [...uploadedFiles];
         setActualFiles(actualFiles);
         handleUpdatedFiles(updatedCroppedFiles);
-        dispatch(
-          uploadFiles({
-            file: updatedCroppedFiles,
-            patient_unique_id: patientUniqueId,
-            session_id: sessionId,
-          })
-        );
+        const sendData = {
+          file: updatedCroppedFiles,
+          patient_unique_id: patientUniqueId,
+          session_id: sessionId,
+          ...(autoDigitizeRx !== null && { auto_digitize_rx: autoDigitizeRx }),
+        };
+        dispatch(uploadFiles(sendData));
       } catch (error) {
         console.error("Error cropping image:", error);
         message.error("Failed to process image");
@@ -331,7 +319,9 @@ const PreviewDrawerMobile = ({
   };
 
   const cropOfFile = useMemo(() => {
-    return uploadedFiles.find((file) => file.id === selectedFileId)?.crop;
+    return (
+      uploadedFiles?.find((file) => file.id === selectedFileId)?.crop || {}
+    );
   }, [uploadedFiles, selectedFileId]);
 
   const handleCropChange = (newCrop, fileId) => {

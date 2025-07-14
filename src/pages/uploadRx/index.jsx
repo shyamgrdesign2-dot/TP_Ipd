@@ -43,59 +43,61 @@ const CAROUSEL_ITEMS = [
 const { Text } = Typography;
 
 const UploadRx = () => {
-  const [isAutoDigitizeEnabled, setIsAutoDigitizeEnabled] = useState(true);
+  const [isAutoDigitizeEnabled, setIsAutoDigitizeEnabled] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { patients_details } = useSelector((state) => state.records) || {};
   const { uploadedFiles: uploadedFilesFromStore } = useSelector(
     (state) => state.snapRx
   );
   const bottomSheetRef = useRef(null);
   const imageUploadRef = useRef(null);
   const [data, setData] = useState({});
-  const [patientData, setPatientData] = useState({});
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
   const dispatch = useDispatch();
   useEffect(() => {
-    const searchParams = localStorage.getItem("searchParams");
+    const searchParams = localStorage.getItem("uploadParams");
     if (searchParams) {
-      const params = new URLSearchParams(searchParams);
-      const patientId = params.get("patient_unique_id");
-      const tcmId = params.get("tcm_id");
-      const pamId = params.get("pam_id");
-      const timestamp = params.get("timestamp");
-      const sessionId = params.get("session_id");
-      const type = params.get("type");
-      const authToken = params.get("authToken");
+      const data = JSON.parse(decodeURIComponent(searchParams));
+      const {
+        patientId,
+        tcmId,
+        pamId,
+        timestamp,
+        type,
+        sessionId,
+        authToken,
+        patientName,
+        patientGender,
+        patientAge,
+        patientPhone,
+        autoDigitizeRx,
+      } = data;
       if (authToken) {
         setToken(authToken);
       }
-      setData({ patientId, tcmId, pamId, timestamp, type, sessionId });
+      setData({
+        patientId,
+        tcmId,
+        pamId,
+        timestamp,
+        type,
+        sessionId,
+        patientName,
+        patientGender,
+        patientAge,
+        patientPhone,
+        autoDigitizeRx,
+      });
     }
   }, []);
 
   useEffect(() => {
-    if (!patients_details && data?.patientId) {
-      const sendData = {
-        patient_unique_id: data?.patientId,
-      };
-      dispatch(viewPatient(sendData));
+    if (data?.autoDigitizeRx) {
+      setIsAutoDigitizeEnabled(!!data?.autoDigitizeRx);
     }
-  }, [data, patients_details]);
-
-  useEffect(() => {
-    if (patients_details) {
-      setPatientData((prev) => ({
-        ...prev,
-        patientName: patients_details?.pm_fullname,
-        patientGender: patients_details?.pm_gender,
-        patientAge: patients_details?.ageYears,
-        patientPhone: patients_details?.pm_contact_no,
-      }));
-    }
-  }, [patients_details]);
+  }, [data?.autoDigitizeRx]);
 
   useEffect(() => {
     if (
@@ -136,18 +138,15 @@ const UploadRx = () => {
     imageUploadRef.current?.handleAddEditClick();
   };
 
-  console.log(
-    "INTEL ==> uploadedFilesFromStore in uploadRx",
-    uploadedFilesFromStore
-  );
-
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="upload-rx-container">
-      {showSuccess && <UploadSuccess onAddEditClick={handleAddEditClick} />}
+      {showSuccess && (
+        <UploadSuccess onAddEditClick={handleAddEditClick} patientData={data} />
+      )}
       <BottomSheetWrapper ref={bottomSheetRef}>
         <div className="p-20">
           <div className="pb-24 fw-semibold fs-16 text-black">
@@ -167,6 +166,11 @@ const UploadRx = () => {
         patientUniqueId={data?.patientId}
         sessionId={data?.sessionId || "test-session"}
         uploadedFilesFromStore={uploadedFilesFromStore}
+        autoDigitizeRx={
+          isAutoDigitizeEnabled !== !!data?.autoDigitizeRx
+            ? isAutoDigitizeEnabled
+            : null
+        }
       />
       <div className="upload-rx-content">
         <img className="website-logo" src={websiteLogo} alt="logo" />
@@ -203,10 +207,10 @@ const UploadRx = () => {
               </div>
             </Card>
             <PatientInfoCard
-              name={patientData?.patientName}
-              gender={patientData?.patientGender}
-              age={patientData?.patientAge}
-              phone={patientData?.patientPhone}
+              name={data?.patientName}
+              gender={data?.patientGender}
+              age={data?.patientAge}
+              phone={data?.patientPhone}
             />
             <Card
               bordered={true}

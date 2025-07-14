@@ -32,49 +32,31 @@ const KnowMore = ({ handleKnowMore, data }) => {
         let minDistance = Number.MAX_VALUE;
 
         entries.forEach((entry) => {
-          console.log("INTEL ==> each entry", entry);
           if (entry.isIntersecting) {
-            const distance = Math.abs(entry.boundingClientRect.top); // Distance from the top of the viewport
-            console.log(
-              "INTEL ==> ",
-              entry,
-              minDistance,
-              distance,
-              entry.boundingClientRect.top,
-              entry.target.id
-            );
-            // console.log(distance, entry.target.id);
+            const distance = Math.abs(entry.boundingClientRect.top);
             if (distance < minDistance) {
               minDistance = distance;
-              closestSection = entry.target.id; // Update the closest section
+              closestSection = entry.target.id;
             }
           }
         });
-        console.log(closestSection);
 
         if (closestSection) {
-          setActiveKey(closestSection); // Update the active key
+          setActiveKey(closestSection);
         }
       },
       {
-        root: null, // Default is the viewport
-        threshold: 0, // Trigger as soon as the section starts intersecting
-        rootMargin: `0px 0px ${
-          activeKey === "basicInfo"
-            ? //  || activeKey === "howItWorks"
-              "20%"
-            : "-20%"
-        } 0px`, // Focus on sections near the top of the viewport
+        root: null,
+        threshold: 0,
+        rootMargin: `0px 0px ${activeKey === "basicInfo" ? "20%" : "-20%"} 0px`,
       }
     );
 
-    // Observe all sections
     Object.values(sectionsRef.current).forEach((section) => {
       if (section) observer.observe(section);
     });
 
     return () => {
-      // Cleanup observer
       Object.values(sectionsRef.current).forEach((section) => {
         if (section) observer.unobserve(section);
       });
@@ -83,7 +65,6 @@ const KnowMore = ({ handleKnowMore, data }) => {
 
   return (
     <div className="know-more-drawer-container">
-      {/* Modal Header */}
       <div className="drawer-header">
         <div className="drawer-header-content border-bottom">
           <Button
@@ -96,7 +77,6 @@ const KnowMore = ({ handleKnowMore, data }) => {
           <div className="drawer-title">{data?.mainHeader}</div>
         </div>
 
-        {/* Tabs */}
         <div className="drawer-tabs">
           <Tabs activeKey={activeKey} onChange={scrollToSection}>
             {data?.tabs?.map((tab) => (
@@ -106,7 +86,6 @@ const KnowMore = ({ handleKnowMore, data }) => {
         </div>
       </div>
 
-      {/* Scrollable Content */}
       <div className="drawer-scrollable-content">
         {data?.basicInfo && (
           <div className="section">
@@ -181,10 +160,7 @@ const KnowMore = ({ handleKnowMore, data }) => {
         )}
 
         {data?.howItWorks && (
-          <div
-            className="video-section"
-            // style={{ padding: "40px 0 980px 0", textAlign: "center" }}
-          >
+          <div className="video-section">
             <span
               id="howItWorks"
               ref={(el) => (sectionsRef.current.howItWorks = el)}

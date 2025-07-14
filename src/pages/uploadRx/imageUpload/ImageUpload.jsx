@@ -1,5 +1,3 @@
-// TODO: Make this a common component for both mobile and desktop
-
 import React, {
   useState,
   useRef,
@@ -13,7 +11,7 @@ import * as pdfjsLib from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 import CashManagerContext from "../../../context/CashManagerContext";
 import PreviewDrawerMobile from "../previewDrawerMobile";
-import { openBottomSheet } from "../../../components/BottomSheetManager";
+import { openBottomSheet } from "../../../components/bottomSheetManager";
 import alertIcon from "../../../assets/images/alertIcon.svg";
 import { compressedFile as compressFile } from "../../../utils/utils";
 
@@ -21,7 +19,13 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const ImageUpload = forwardRef(
   (
-    { onFileUpload, patientUniqueId, sessionId, uploadedFilesFromStore = [] },
+    {
+      onFileUpload,
+      patientUniqueId,
+      sessionId,
+      uploadedFilesFromStore = [],
+      autoDigitizeRx,
+    },
     ref
   ) => {
     const fileInputRef = useRef(null);
@@ -238,11 +242,11 @@ const ImageUpload = forwardRef(
     };
 
     const handleRemoveFile = (fileId, showMessage = true) => {
-      const fileToRemove = uploadedFiles.find((file) => file.id === fileId);
+      const fileToRemove = uploadedFiles?.find((file) => file.id === fileId);
       if (fileToRemove?.preview) {
         URL.revokeObjectURL(fileToRemove.preview);
       }
-      const newFiles = uploadedFiles.filter((file) => file.id !== fileId);
+      const newFiles = uploadedFiles?.filter((file) => file.id !== fileId);
       setUploadedFiles(newFiles);
 
       if (newFiles.length === 0) {
@@ -343,7 +347,6 @@ const ImageUpload = forwardRef(
             };
           })
         );
-        console.log("INTEL ==> normalizedFiles", normalizedFiles);
         setUploadedFiles(normalizedFiles);
       };
       fetchImages();
@@ -370,16 +373,9 @@ const ImageUpload = forwardRef(
         fileInputRef.current?.click();
       },
       handleAddEditClick: () => {
-        console.log("INTEL ==> handleAddEditClick in image upload");
         setIsPreviewOpen(true);
       },
     }));
-
-    console.log(
-      "INTEL ==> uploadedFiles in image upload",
-      uploadedFiles,
-      uploadedFilesFromStore
-    );
 
     return (
       <>
@@ -405,6 +401,7 @@ const ImageUpload = forwardRef(
           isAddMoreClicked={isAddMoreClicked}
           patientUniqueId={patientUniqueId}
           sessionId={sessionId}
+          autoDigitizeRx={autoDigitizeRx}
         />
       </>
     );

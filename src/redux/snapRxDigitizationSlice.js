@@ -33,7 +33,11 @@ export const generateFileUploadToken = createAsyncThunk(
     try {
       let result = {};
       result = await SnapRxDigitization.generateFileUploadToken(data);
-      return result;
+      if (result?.token) {
+        return result?.token;
+      } else {
+        throw Error(result.error);
+      }
     } catch (error) {
       console.log("error: ", error);
       throw Error(error);
@@ -45,7 +49,7 @@ export const getFiles = createAsyncThunk("snapRx/getFiles", async (data) => {
   try {
     let result = {};
     result = await SnapRxDigitization.getFiles(data);
-    if (result?.uploaded_files?.length > 0) {
+    if (result?.uploaded_files) {
       return result.uploaded_files;
     } else {
       throw Error(result.error);
@@ -62,7 +66,11 @@ export const getFilesOnMobile = createAsyncThunk(
     try {
       let result = {};
       result = await SnapRxDigitization.getFilesOnMobile(data);
-      return result;
+      if (result?.uploaded_files) {
+        return result.uploaded_files;
+      } else {
+        throw Error(result.error);
+      }
     } catch (error) {
       console.log("error: ", error);
       throw Error(error);

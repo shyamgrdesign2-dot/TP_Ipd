@@ -28,6 +28,7 @@ import bulkMessagesSlice from "./bulkMessagesSlice";
 import customModuleReducer from "./customModuleSlice";
 import snapRxDigitizationSlice from "./snapRxDigitizationSlice";
 import billingSlice from "./billingSlice";
+import shortLinkSlice from "./shortLinkSlice";
 
 const persistConfig = {
   key: "root",
@@ -61,6 +62,7 @@ const rootReducer = combineReducers({
   customModules: customModuleReducer,
   billing: billingSlice,
   snapRx: snapRxDigitizationSlice,
+  shortLink: shortLinkSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

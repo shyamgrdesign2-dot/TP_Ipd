@@ -5,10 +5,19 @@ const baseUrl = { customBaseUrl: config.snap_rx_api_url };
 
 const SnapRxDigitization = {};
 
+SnapRxDigitization.generateFileUploadToken = function (data) {
+  return api.post(
+    `/api/v1/digitization/snap-rx/generate-file-upload-token`,
+    data,
+    baseUrl
+  );
+};
+
 SnapRxDigitization.uploadSnapRxFiles = function ({
   file: fileObjects,
   patient_unique_id: patientId,
   session_id: sessionId,
+  auto_digitize_rx: autoDigitizeRx,
 }) {
   const formData = new FormData();
 
@@ -17,6 +26,9 @@ SnapRxDigitization.uploadSnapRxFiles = function ({
   });
   formData.append("patient_unique_id", patientId);
   formData.append("session_id", sessionId);
+  if (autoDigitizeRx) {
+    formData.append("auto_digitize_rx", autoDigitizeRx);
+  }
 
   return api.post(
     `/api/v1/digitization/snap-rx/upload-files`,
@@ -37,6 +49,7 @@ SnapRxDigitization.getFiles = function ({
     baseUrl
   );
 };
+
 SnapRxDigitization.getFilesOnMobile = function ({
   patient_unique_id: patientId,
   tcm_id: tcmId,

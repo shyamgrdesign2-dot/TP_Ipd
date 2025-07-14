@@ -164,20 +164,4 @@ ApiAppointments.getSnapRxUnDigitisedIds = function () {
   return api.get(`/api/v1/digitization/undigitizedAppointments`, baseSnapRxUrl);
 };
 
-ApiAppointments.uploadSnapRxFiles = function (data) {
-  return api.post(
-    `/api/v1/digitization/snap-rx/upload-files`,
-    data,
-    baseSnapRxUrl
-  );
-};
-
-ApiAppointments.generateFileUploadToken = function (data) {
-  return api.post(
-    `/api/v1/digitization/snap-rx/generate-file-upload-token`,
-    data,
-    baseSnapRxUrl
-  );
-};
-
 export default ApiAppointments;

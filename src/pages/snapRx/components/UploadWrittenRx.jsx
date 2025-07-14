@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useContext,
+  useCallback,
+} from "react";
 import { message } from "antd";
 import CashManagerContext from "../../../context/CashManagerContext";
 import QRCodeGenerator from "./QRCodeGenerator";
@@ -9,8 +15,8 @@ import { CloudUploadOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import { generateFileUploadToken } from "../../../redux/snapRxDigitizationSlice";
 import { useDispatch } from "react-redux";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
-import { useLocalStorage } from "../../../utils/localStorage";
+import { useSnapRxSession } from "../context/SnapRxSessionContext";
+import { getShortLink } from "../../../redux/shortLinkSlice";
 
 const UploadWrittenRx = ({
   onFileUpload,
@@ -25,11 +31,12 @@ const UploadWrittenRx = ({
   const [dragActive, setDragActive] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const { profile } = useSelector((state) => state.doctors);
+  const { userId, profile } = useSelector((state) => state.doctors);
   const { fileUploadToken } = useSelector((state) => state.snapRx);
+  const { shortLink } = useSelector((state) => state.shortLink);
   const { patient_data, tcmId, pamId } = useContext(CashManagerContext);
+  const { sessionId } = useSnapRxSession();
   const dispatch = useDispatch();
-  const [getToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
 
   // Accepted file types
   const acceptedTypes = [
@@ -53,14 +60,14 @@ const UploadWrittenRx = ({
   };
 
   useEffect(() => {
-    if (!fileUploadToken && profile?.doctor_unique_id) {
+    if (!fileUploadToken && userId) {
       dispatch(
         generateFileUploadToken({
-          doctor_id: profile?.doctor_unique_id,
+          doctor_id: userId,
         })
       );
     }
-  }, [profile?.doctor_unique_id]);
+  }, [userId]);
 
   const handleFiles = async (
     files,
@@ -160,23 +167,43 @@ const UploadWrittenRx = ({
     message.info("File removed");
   };
 
-  const generateQRData = () => {
+  useEffect(() => {
+    if (!fileUploadToken || !patient_data || !userId || !sessionId) {
+      return;
+    }
     const qrData = {
       type: "snap_rx_upload",
       patientId: patient_data?.patient_unique_id,
+      doctorId: userId,
       tcmId: tcmId || 0,
       pamId: pamId || 0,
       timestamp: new Date().toISOString(),
-      authToken: getToken() || "",
+      authToken: fileUploadToken || "",
+      patientName: patient_data?.pm_fullname,
+      patientGender: patient_data?.pm_gender,
+      patientAge: patient_data?.ageYears,
+      patientPhone: patient_data?.pm_contact_no,
+      sessionId,
+      autoDigitizeRx: profile?.userSettingFlag?.find(
+        (flag) => flag.type === "auto_digitize_rx"
+      )?.status,
     };
+    const encodedData = encodeURIComponent(JSON.stringify(qrData));
+    dispatch(
+      getShortLink(
+        `${window.location.origin}/snap-rx/mobile-upload/?uploadParams=${encodedData}`
+      )
+    );
+  }, [fileUploadToken, patient_data, userId, tcmId, pamId, sessionId, profile]);
 
-    // TODO: INTEL - REMOVE AFTER TESTING
-    const encodedData = btoa(encodeURIComponent(JSON.stringify(qrData)));
-    console.log("encodedData: ", encodedData);
+  const generateQRData = useCallback(() => {
+    if (!shortLink) {
+      return "";
+    }
     return JSON.stringify({
-      uploadUrl: `${window.location.origin}/snap-rx/mobile-upload/?params=${encodedData}`,
+      uploadUrl: shortLink,
     });
-  };
+  }, [shortLink]);
 
   const handlePreviewClose = () => {
     setIsPreviewOpen(false);
