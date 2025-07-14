@@ -37,5 +37,17 @@ SnapRxDigitization.getFiles = function ({
     baseUrl
   );
 };
+SnapRxDigitization.getFilesOnMobile = function ({
+  patient_unique_id: patientId,
+  tcm_id: tcmId,
+  session_id: sessionId,
+}) {
+  return api.get(
+    `/api/v1/digitization/snap-rx/get-session-files?patient_unique_id=${patientId}${
+      tcmId ? `&tcm_id=${tcmId}` : ""
+    }${sessionId ? `&session_id=${sessionId}` : ""}`,
+    baseUrl
+  );
+};
 
 export default SnapRxDigitization;

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import { message } from "antd";
 import CashManagerContext from "../../../context/CashManagerContext";
 import QRCodeGenerator from "./QRCodeGenerator";
@@ -6,6 +6,11 @@ import PreviewDrawer from "./PreviewDrawer";
 import rxPadImage from "../../../assets/images/rx-pad.png";
 import "./UploadWrittenRx.scss";
 import { CloudUploadOutlined } from "@ant-design/icons";
+import { useSelector } from "react-redux";
+import { generateFileUploadToken } from "../../../redux/snapRxDigitizationSlice";
+import { useDispatch } from "react-redux";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
+import { useLocalStorage } from "../../../utils/localStorage";
 
 const UploadWrittenRx = ({
   onFileUpload,
@@ -20,8 +25,11 @@ const UploadWrittenRx = ({
   const [dragActive, setDragActive] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const { profile } = useSelector((state) => state.doctors);
+  const { fileUploadToken } = useSelector((state) => state.snapRx);
   const { patient_data, tcmId, pamId } = useContext(CashManagerContext);
-  const token = localStorage.getItem("authToken");
+  const dispatch = useDispatch();
+  const [getToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
 
   // Accepted file types
   const acceptedTypes = [
@@ -43,6 +51,16 @@ const UploadWrittenRx = ({
     }
     return true;
   };
+
+  useEffect(() => {
+    if (!fileUploadToken && profile?.doctor_unique_id) {
+      dispatch(
+        generateFileUploadToken({
+          doctor_id: profile?.doctor_unique_id,
+        })
+      );
+    }
+  }, [profile?.doctor_unique_id]);
 
   const handleFiles = async (
     files,
@@ -143,14 +161,20 @@ const UploadWrittenRx = ({
   };
 
   const generateQRData = () => {
-    return JSON.stringify({
+    const qrData = {
       type: "snap_rx_upload",
       patientId: patient_data?.patient_unique_id,
       tcmId: tcmId || 0,
       pamId: pamId || 0,
       timestamp: new Date().toISOString(),
-      authToken: token,
-      uploadUrl: `${window.location.origin}/snap-rx/mobile-upload`,
+      authToken: getToken() || "",
+    };
+
+    // TODO: INTEL - REMOVE AFTER TESTING
+    const encodedData = btoa(encodeURIComponent(JSON.stringify(qrData)));
+    console.log("encodedData: ", encodedData);
+    return JSON.stringify({
+      uploadUrl: `${window.location.origin}/snap-rx/mobile-upload/?params=${encodedData}`,
     });
   };
 

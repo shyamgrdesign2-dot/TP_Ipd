@@ -6,6 +6,7 @@ const initialState = {
   loading: false,
   error: null,
   uploadedFiles: [],
+  fileUploadToken: null,
 };
 
 export const uploadFiles = createAsyncThunk(
@@ -19,6 +20,20 @@ export const uploadFiles = createAsyncThunk(
       } else {
         throw Error(result.error);
       }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
+export const generateFileUploadToken = createAsyncThunk(
+  "snapRx/generateFileUploadToken",
+  async (data) => {
+    try {
+      let result = {};
+      result = await SnapRxDigitization.generateFileUploadToken(data);
+      return result;
     } catch (error) {
       console.log("error: ", error);
       throw Error(error);
@@ -40,6 +55,20 @@ export const getFiles = createAsyncThunk("snapRx/getFiles", async (data) => {
     throw Error(error);
   }
 });
+
+export const getFilesOnMobile = createAsyncThunk(
+  "snapRx/getFilesOnMobile",
+  async (data) => {
+    try {
+      let result = {};
+      result = await SnapRxDigitization.getFilesOnMobile(data);
+      return result;
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
 
 const snapRxDigitizationSlice = createSlice({
   name: "snapRx",
@@ -65,6 +94,28 @@ const snapRxDigitizationSlice = createSlice({
         state.uploadedFiles = action.payload;
       })
       .addCase(getFiles.rejected, (state, action) => {
+        state.uploadedFiles = [];
+        state.loading = false;
+      })
+      .addCase(generateFileUploadToken.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(generateFileUploadToken.fulfilled, (state, action) => {
+        state.loading = false;
+        state.fileUploadToken = action.payload;
+      })
+      .addCase(generateFileUploadToken.rejected, (state, action) => {
+        state.loading = false;
+        state.fileUploadToken = null;
+      })
+      .addCase(getFilesOnMobile.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getFilesOnMobile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.uploadedFiles = action.payload;
+      })
+      .addCase(getFilesOnMobile.rejected, (state, action) => {
         state.uploadedFiles = [];
         state.loading = false;
       });

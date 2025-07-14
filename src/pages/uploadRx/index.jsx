@@ -15,8 +15,10 @@ import scanIcon from "../../assets/images/scanner.png";
 import { viewPatient } from "../../redux/appointmentsSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { getFiles } from "../../redux/snapRxDigitizationSlice";
+import { getFilesOnMobile } from "../../redux/snapRxDigitizationSlice";
 import UploadSuccess from "./uploadSuccess";
+import { useLocalStorage } from "../../utils/localStorage";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 
 const UPLOAD_RX_TEXT = {
   aiPoweredHeader: "AI-Powered Rx Digitisation",
@@ -52,6 +54,9 @@ const UploadRx = () => {
   const imageUploadRef = useRef(null);
   const [data, setData] = useState({});
   const [patientData, setPatientData] = useState({});
+  const [getToken, setToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_AUTH_TOKEN
+  );
   const dispatch = useDispatch();
   useEffect(() => {
     const searchParams = localStorage.getItem("searchParams");
@@ -63,6 +68,10 @@ const UploadRx = () => {
       const timestamp = params.get("timestamp");
       const sessionId = params.get("session_id");
       const type = params.get("type");
+      const authToken = params.get("authToken");
+      if (authToken) {
+        setToken(authToken);
+      }
       setData({ patientId, tcmId, pamId, timestamp, type, sessionId });
     }
   }, []);
@@ -96,7 +105,7 @@ const UploadRx = () => {
     ) {
       setLoading(true);
       dispatch(
-        getFiles({
+        getFilesOnMobile({
           patient_unique_id: data.patientId,
           tcm_id: data?.tcmId,
           session_id: data?.sessionId,

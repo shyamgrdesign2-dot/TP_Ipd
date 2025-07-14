@@ -631,12 +631,12 @@ function AppointmentData({ locationPath }) {
         ) {
           const undigitisedIds = pendingDigitisation?.data?.split(",");
           const snapRxUnDigitisedUnReviewedIds = [
-            ...snapRxUnDigitisedIds?.unDigitizedAppointmentIds,
-            ...snapRxUnDigitisedIds?.unReviewedAppointmentIds,
+            ...(snapRxUnDigitisedIds?.unDigitizedAppointmentIds || []),
+            ...(snapRxUnDigitisedIds?.unReviewedAppointmentIds || []),
           ];
           const allUnDigitisedIds = [
-            ...undigitisedIds,
-            ...snapRxUnDigitisedUnReviewedIds,
+            ...(undigitisedIds || []),
+            ...(snapRxUnDigitisedUnReviewedIds || []),
           ];
           var sendData = {
             startDate: date.startDate,

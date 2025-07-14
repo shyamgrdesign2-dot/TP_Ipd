@@ -8,6 +8,7 @@ import { useSelector, useDispatch } from "react-redux";
 
 import {
   ADD,
+  DDX_KNOW_MORE_DATA,
   EDIT,
   EXTRA_OPTIONS,
   GB_GYNEC_HISTORY,
@@ -15,6 +16,7 @@ import {
   GYNAECOLOGY,
   PAEDIATRICS,
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+  SNAP_RX_KNOW_MORE_DATA,
 } from "../utils/constants";
 
 import { getPatientBirthWeight, getVitals } from "../redux/vitalsSlice";
@@ -118,6 +120,7 @@ import genRxBg from "../assets/images/gen-rx-bg.gif";
 import LabResultsTable from "../components/LabParams";
 import ZydusLabParams from "../components/ZydusLabParams";
 import ZydusLabParametersList from "../components/ZydusLabParametersList";
+import KnowMore from "../components/KnowMore";
 
 function Prescription() {
   const {
@@ -1713,7 +1716,11 @@ function Prescription() {
             className=".modalWidth-800"
             width={825}
           >
-            <DDxKnowMore handleDDxKnowMore={handleDDxKnowMore} />
+            <KnowMore
+              handleDDxKnowMore={handleDDxKnowMore}
+              data={SNAP_RX_KNOW_MORE_DATA}
+            />
+            {/* <DDxKnowMore handleKnowMore={handleDDxKnowMore} /> */}
           </Drawer>
         )}
         {ddxDrawer && (
