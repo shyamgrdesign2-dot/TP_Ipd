@@ -1,11 +1,22 @@
-import React, { useState, useRef, useContext, useMemo } from "react";
-import { Button, message } from "antd";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useContext,
+  useCallback,
+} from "react";
+import { message } from "antd";
 import CashManagerContext from "../../../context/CashManagerContext";
 import QRCodeGenerator from "./QRCodeGenerator";
 import PreviewDrawer from "./PreviewDrawer";
 import rxPadImage from "../../../assets/images/rx-pad.png";
 import "./UploadWrittenRx.scss";
 import { CloudUploadOutlined } from "@ant-design/icons";
+import { useSelector } from "react-redux";
+import { generateFileUploadToken } from "../../../redux/snapRxDigitizationSlice";
+import { useDispatch } from "react-redux";
+import { useSnapRxSession } from "../context/SnapRxSessionContext";
+import { getShortLink } from "../../../redux/shortLinkSlice";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 import FileUploadErrorModal from "../../../components/common/FileUploadErrorModal";
@@ -25,10 +36,24 @@ const UploadWrittenRx = ({
   const [dragActive, setDragActive] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const { userId, profile } = useSelector((state) => state.doctors);
+  const { fileUploadToken } = useSelector((state) => state.snapRx);
+  const { shortLink } = useSelector((state) => state.shortLink);
   const { patient_data, tcmId, pamId } = useContext(CashManagerContext);
-  const token = localStorage.getItem("authToken");
+  const { sessionId } = useSnapRxSession();
+  const dispatch = useDispatch();
 
   const maxFileSize = 15 * 1024 * 1024; // 8MB
+
+  useEffect(() => {
+    if (!fileUploadToken && userId) {
+      dispatch(
+        generateFileUploadToken({
+          doctor_id: userId,
+        })
+      );
+    }
+  }, [userId]);
 
   const handleFiles = async (
     files,
@@ -201,17 +226,43 @@ const UploadWrittenRx = ({
     message.info("File removed");
   };
 
-  const generateQRData = () => {
-    return JSON.stringify({
+  useEffect(() => {
+    if (!fileUploadToken || !patient_data || !userId || !sessionId) {
+      return;
+    }
+    const qrData = {
       type: "snap_rx_upload",
       patientId: patient_data?.patient_unique_id,
+      doctorId: userId,
       tcmId: tcmId || 0,
       pamId: pamId || 0,
       timestamp: new Date().toISOString(),
-      authToken: token,
-      uploadUrl: `${window.location.origin}/snap-rx/mobile-upload`,
+      authToken: fileUploadToken || "",
+      patientName: patient_data?.pm_fullname,
+      patientGender: patient_data?.pm_gender,
+      patientAge: patient_data?.ageYears,
+      patientPhone: patient_data?.pm_contact_no,
+      sessionId,
+      autoDigitizeRx: profile?.userSettingFlag?.find(
+        (flag) => flag.type === "auto_digitize_rx"
+      )?.status,
+    };
+    const encodedData = encodeURIComponent(JSON.stringify(qrData));
+    dispatch(
+      getShortLink(
+        `${window.location.origin}/snap-rx/mobile-upload/?uploadParams=${encodedData}`
+      )
+    );
+  }, [fileUploadToken, patient_data, userId, tcmId, pamId, sessionId, profile]);
+
+  const generateQRData = useCallback(() => {
+    if (!shortLink) {
+      return "";
+    }
+    return JSON.stringify({
+      uploadUrl: shortLink,
     });
-  };
+  }, [shortLink]);
 
   const handlePreviewClose = () => {
     setIsPreviewOpen(false);

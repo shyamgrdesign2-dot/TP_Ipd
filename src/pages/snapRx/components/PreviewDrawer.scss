@@ -38,7 +38,7 @@
       .ant-skeleton-image {
         width: 100% !important;
         height: 100% !important;
-        
+
         .ant-skeleton-image-svg {
           width: 100%;
           height: 100%;
@@ -105,7 +105,7 @@
 
         .retry-btn {
           padding: 8px 16px;
-          background: #EF4444;
+          background: #ef4444;
           color: white;
           border: none;
           border-radius: 6px;
@@ -115,7 +115,7 @@
           transition: all 0.2s ease;
 
           &:hover {
-            background: #DC2626;
+            background: #dc2626;
           }
         }
       }
@@ -133,7 +133,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        
+
         .prescription-image {
           // border-radius: 12px;
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -164,7 +164,7 @@
       left: 0;
       transform: translate3d(0, 0, 0);
       box-sizing: border-box;
-      border: 3px solid #3B82F6 !important;
+      border: 3px solid #3b82f6 !important;
       background: rgba(59, 130, 246, 0.1) !important;
       cursor: move;
     }
@@ -173,14 +173,14 @@
       position: absolute;
       width: 16px !important;
       height: 16px !important;
-      background: #3B82F6 !important;
+      background: #3b82f6 !important;
       border: 3px solid white !important;
       border-radius: 50% !important;
       cursor: grab;
       transition: all 0.2s ease;
 
       &:hover {
-        background: #2563EB !important;
+        background: #2563eb !important;
         transform: scale(1.2);
         box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
       }
@@ -266,15 +266,15 @@
         transition: all 0.2s ease;
 
         &.reupload-btn {
-          background: #EEF2FF;
-          color: #6366F1;
+          background: #eef2ff;
+          color: #6366f1;
 
           &:hover {
-            background: #E0E7FF;
+            background: #e0e7ff;
           }
 
           span {
-            color: #4B4AD5 !important;
+            color: #4b4ad5 !important;
             font-size: 0.875rem;
             font-weight: 500;
             line-height: normal;
@@ -282,15 +282,15 @@
         }
 
         &.remove-btn {
-          background: #FEF2F2;
-          color: #EF4444;
+          background: #fef2f2;
+          color: #ef4444;
 
           &:hover {
-            background: #FEE2E2;
+            background: #fee2e2;
           }
 
           span {
-            color: #FC5A5A !important;
+            color: #fc5a5a !important;
             font-family: Poppins;
             font-size: 0.875rem;
             font-style: normal;
@@ -334,15 +334,15 @@
         width: 40px;
         height: 40px;
         border: none;
-        background: #F9FAFB;
+        background: #f9fafb;
         border-radius: 8px;
-        color: #6B7280;
+        color: #6b7280;
         cursor: pointer;
         transition: all 0.2s ease;
         font-size: 16px;
 
         &:hover {
-          background: #F3F4F6;
+          background: #f3f4f6;
           color: #374151;
         }
       }
@@ -350,7 +350,7 @@
       .zoom-btn-combined {
         display: flex;
         align-items: center;
-        background: #F9FAFB;
+        background: #f9fafb;
         border-radius: 8px;
         overflow: hidden;
 
@@ -362,7 +362,7 @@
           height: 40px;
           border: none;
           background: transparent;
-          color: #6B7280;
+          color: #6b7280;
           cursor: pointer;
           transition: all 0.2s ease;
           font-size: 16px;
@@ -376,11 +376,11 @@
         .zoom-divider {
           width: 1px;
           height: 24px;
-          background: #D1D5DB;
+          background: #d1d5db;
         }
 
         &:hover {
-          background: #F3F4F6;
+          background: #f3f4f6;
         }
       }
     }
@@ -397,28 +397,28 @@
     overflow-y: visible;
     flex-shrink: 0;
     min-height: 100px;
-    background: #F8F9FA;
+    background: #f8f9fa;
 
     .thumbnail-item {
       flex-shrink: 0;
       width: 4.48981rem !important;
       height: 5rem !important;
       border-radius: 0.5rem;
-      border: 1.429px solid #4B4AD5;
-      background: #FDFDFD;
+      border: 1.429px solid #4b4ad5;
+      background: #fdfdfd;
       overflow: hidden;
       cursor: pointer;
       transition: all 0.2s ease;
       position: relative;
 
       &.selected {
-        border-color: #4B4AD5;
+        border-color: #4b4ad5;
         box-shadow: 0px 0px 0px 2px rgba(75, 74, 213, 0.3);
         transform: scale(1.05);
       }
 
       &:hover:not(.selected) {
-        border-color: #A855F7;
+        border-color: #a855f7;
         transform: scale(1.02);
       }
 
@@ -435,7 +435,7 @@
         right: 0;
         background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
         padding: 2px 4px;
-        
+
         .page-number {
           color: white;
           font-size: 0.6rem;
@@ -465,19 +465,19 @@
       align-items: center;
       gap: 0.14519rem;
       border-radius: 0.5rem;
-      border: 0.4px dashed #4B4AD5;
+      border: 0.4px dashed #4b4ad5;
       background: rgba(75, 74, 213, 0.04);
       width: 4.48981rem !important;
       height: 5rem !important;
       cursor: pointer;
 
       .upload-icon {
-          font-size: 20px;
-          color: #6366f1 !important;
+        font-size: 20px;
+        color: #6366f1 !important;
       }
 
       .add-text {
-        color: #4B4AD5 !important;
+        color: #4b4ad5 !important;
         text-align: center;
         font-size: 0.625rem;
         font-style: normal;
@@ -497,11 +497,11 @@
 }
 
 @keyframes spin {
-  0% { 
-    transform: rotate(0deg); 
+  0% {
+    transform: rotate(0deg);
   }
-  100% { 
-    transform: rotate(360deg); 
+  100% {
+    transform: rotate(360deg);
   }
 }
 
@@ -540,4 +540,4 @@
       }
     }
   }
-} 
+}
