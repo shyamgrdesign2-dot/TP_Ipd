@@ -26,7 +26,7 @@ SnapRxDigitization.uploadSnapRxFiles = function ({
   });
   formData.append("patient_unique_id", patientId);
   formData.append("session_id", sessionId);
-  if (autoDigitizeRx) {
+  if (autoDigitizeRx !== null && autoDigitizeRx !== undefined) {
     formData.append("auto_digitize_rx", autoDigitizeRx);
   }
 

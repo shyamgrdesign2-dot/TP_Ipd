@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import { Card, Typography, Switch, Carousel, Button } from "antd";
 import "./styles.scss";
 import websiteLogo from "../../assets/images/website-images/logo.png";
@@ -12,13 +12,14 @@ import PatientInfoCard from "./patientInfoCard";
 import ImageUpload from "./imageUpload/ImageUpload";
 import cameraIcon from "../../assets/images/camera.png";
 import scanIcon from "../../assets/images/scanner.png";
-import { viewPatient } from "../../redux/appointmentsSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { getFilesOnMobile } from "../../redux/snapRxDigitizationSlice";
 import UploadSuccess from "./uploadSuccess";
 import { useLocalStorage } from "../../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
+import { trackEvent } from "../../utils/utils";
+import { EVENTS } from "../../utils/events";
 
 const UPLOAD_RX_TEXT = {
   aiPoweredHeader: "AI-Powered Rx Digitisation",
@@ -34,6 +35,8 @@ const UPLOAD_RX_TEXT = {
   uploadRxBtn: "Upload Rx",
 };
 
+const maxRxUploadTime = 24 * 60 * 60 * 1000; // 24 hours
+
 const CAROUSEL_ITEMS = [
   { text: UPLOAD_RX_TEXT.carousel1, icon: sunIcon },
   { text: UPLOAD_RX_TEXT.carousel2, icon: scanIcon },
@@ -45,10 +48,10 @@ const { Text } = Typography;
 const UploadRx = () => {
   const [isAutoDigitizeEnabled, setIsAutoDigitizeEnabled] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showFailure, setShowFailure] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { uploadedFiles: uploadedFilesFromStore } = useSelector(
-    (state) => state.snapRx
-  );
+  const { uploadedFiles: uploadedFilesFromStore, error: snapRxError } =
+    useSelector((state) => state.snapRx);
   const bottomSheetRef = useRef(null);
   const imageUploadRef = useRef(null);
   const [data, setData] = useState({});
@@ -56,6 +59,7 @@ const UploadRx = () => {
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
   );
   const dispatch = useDispatch();
+
   useEffect(() => {
     const searchParams = localStorage.getItem("uploadParams");
     if (searchParams) {
@@ -76,6 +80,29 @@ const UploadRx = () => {
       } = data;
       if (authToken) {
         setToken(authToken);
+        if (timestamp && patientId) {
+          const uploadRxTimestamps = JSON.parse(
+            localStorage.getItem("uploadRxTimestamps") || "{}"
+          );
+          if (uploadRxTimestamps[patientId] !== timestamp) {
+            uploadRxTimestamps[patientId] = timestamp;
+            localStorage.setItem(
+              "uploadRxTimestamps",
+              JSON.stringify(uploadRxTimestamps)
+            );
+          }
+        }
+
+        const storedPatientId = JSON.parse(
+          localStorage.getItem("uploadRxTimestamps")
+        );
+        if (storedPatientId && storedPatientId[patientId]) {
+          const now = Date.now();
+          const diff = now - Number(storedPatientId[patientId]);
+          if (diff > maxRxUploadTime) {
+            setShowFailure(true);
+          }
+        }
       }
       setData({
         patientId,
@@ -94,10 +121,10 @@ const UploadRx = () => {
   }, []);
 
   useEffect(() => {
-    if (data?.autoDigitizeRx) {
+    if (data.hasOwnProperty("autoDigitizeRx")) {
       setIsAutoDigitizeEnabled(!!data?.autoDigitizeRx);
     }
-  }, [data?.autoDigitizeRx]);
+  }, [data]);
 
   useEffect(() => {
     if (
@@ -126,10 +153,51 @@ const UploadRx = () => {
   }, [uploadedFilesFromStore]);
 
   const handleDigitizeRxToggle = (isToggled) => {
-    setIsAutoDigitizeEnabled(isToggled); // TODO: INTEL - SEND THIS DATA AS WELL
+    setIsAutoDigitizeEnabled(isToggled);
   };
 
+  const autoDigitizeRxValue = useMemo(() => {
+    return isAutoDigitizeEnabled !== !!data?.autoDigitizeRx
+      ? isAutoDigitizeEnabled
+      : null;
+  }, [isAutoDigitizeEnabled, data?.autoDigitizeRx]);
+
+  useEffect(() => {
+    if (autoDigitizeRxValue !== null) {
+      if (data?.patientId) {
+        localStorage.setItem(
+          `autoDigitizeRx_${data.patientId}`,
+          JSON.stringify(autoDigitizeRxValue)
+        );
+      }
+    }
+  }, [autoDigitizeRxValue, data]);
+
+  useEffect(() => {
+    if (data?.patientId) {
+      const storedValue = localStorage.getItem(
+        `autoDigitizeRx_${data.patientId}`
+      );
+      if (storedValue !== null) {
+        try {
+          const parsedValue = JSON.parse(storedValue);
+          if (data.patientId && isAutoDigitizeEnabled !== parsedValue) {
+            setIsAutoDigitizeEnabled(parsedValue);
+          }
+        } catch (e) {
+          console.log("error in autoDigitizeRxValue", e);
+        }
+      }
+    }
+    // eslint-disable-next-line
+  }, [data?.patientId]);
+
   const handleUploadClick = () => {
+    trackEvent(EVENTS.SNAP_RX.uploadClicked, {
+      patient_unique_id: data?.patientId,
+      doctor_id: data?.doctorId,
+      upload_source: "EMR",
+    });
     imageUploadRef.current?.handleUploadClick();
   };
 
@@ -140,6 +208,9 @@ const UploadRx = () => {
 
   if (loading) {
     return <div>Loading...</div>;
+  }
+  if (showFailure || snapRxError) {
+    return <div>Failed to load account {snapRxError}</div>;
   }
 
   return (
@@ -166,11 +237,7 @@ const UploadRx = () => {
         patientUniqueId={data?.patientId}
         sessionId={data?.sessionId || "test-session"}
         uploadedFilesFromStore={uploadedFilesFromStore}
-        autoDigitizeRx={
-          isAutoDigitizeEnabled !== !!data?.autoDigitizeRx
-            ? isAutoDigitizeEnabled
-            : null
-        }
+        autoDigitizeRx={autoDigitizeRxValue}
       />
       <div className="upload-rx-content">
         <img className="website-logo" src={websiteLogo} alt="logo" />

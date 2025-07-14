@@ -22,6 +22,8 @@ import deleteIcon from "../../../assets/images/delete.png";
 import arrowIcon from "../../../assets/images/arrow-circle.png";
 import { uploadFiles } from "../../../redux/snapRxDigitizationSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { trackEvent } from "../../../utils/utils";
+import { EVENTS } from "../../../utils/events";
 
 const PreviewDrawerMobile = ({
   isOpen,
@@ -304,9 +306,26 @@ const PreviewDrawerMobile = ({
           file: updatedCroppedFiles,
           patient_unique_id: patientUniqueId,
           session_id: sessionId,
-          ...(autoDigitizeRx !== null && { auto_digitize_rx: autoDigitizeRx }),
         };
-        dispatch(uploadFiles(sendData));
+        if (autoDigitizeRx !== null) {
+          sendData.auto_digitize_rx = autoDigitizeRx;
+        }
+        const apiStartTime = Date.now();
+        dispatch(uploadFiles(sendData)).then((res) => {
+          if (res?.meta?.requestStatus === "fulfilled") {
+            trackEvent(EVENTS.SNAP_RX.uploadSuccess, {
+              file_type: "img",
+              file_size: updatedCroppedFiles?.reduce(
+                (acc, file) => acc + file.size,
+                0
+              ),
+              upload_time: (Date.now() - apiStartTime) / 1000,
+              upload_source: "EMR",
+            });
+          } else {
+            trackEvent(EVENTS.SNAP_RX.uploadFailed);
+          }
+        });
       } catch (error) {
         console.error("Error cropping image:", error);
         message.error("Failed to process image");
@@ -359,6 +378,10 @@ const PreviewDrawerMobile = ({
     }
   };
 
+  const handleCloseClick = () => {
+    onClose(true);
+  };
+
   const responsive = useMemo(
     () => ({
       tablet: {
@@ -384,7 +407,7 @@ const PreviewDrawerMobile = ({
           <div className="drawer-header">
             <div className="header-left">
               <div
-                onClick={onClose}
+                onClick={handleCloseClick}
                 className="ff-icomoon btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
               >
                 <i className="icon-Cross"></i>
