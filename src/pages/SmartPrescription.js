@@ -111,6 +111,20 @@ import SCBanner from "../components/SCBanner";
 import SCPopup from "../components/SCPopup";
 import { getDecodedToken } from "../utils/localStorage";
 
+// 1. Import the dummy Rx image at the top
+import orthoRxImg from "../assets/images/rx.jpg"; // Place the image here
+import orthoRxImg1 from "../assets/images/rx1.png"; // Place the image here
+
+// 2. Add the Rxs array
+const Rxs = [
+  {
+    name: "orthoRx",
+    Images: [orthoRxImg1, orthoRxImg, orthoRxImg], // Use the same image for all pages for now
+  },
+  // Future: add more Rx types here
+];
+
+
 function SmartPrescription() {
   const {
     userId,
@@ -1238,12 +1252,13 @@ function SmartPrescription() {
   }, []);
 
   useEffect(() => {
-    if (pages.length === 0 || smartRxFilesData?.length === 0) {
-      handleAddPage();
-    }
-    if (smartRxFilesData?.length > 0) {
-      setLoading(true);
-      setSmartRxFiles(smartRxFilesData);
+    // if (pages.length === 0 || Rxs[0].Images.length === 0) {
+    //   handleAddPage();
+    // }
+
+    if (Rxs[0].Images.length > 0) {
+      setLoading(false);
+      imageLoad();
     }
   }, []);
 
@@ -1261,7 +1276,7 @@ function SmartPrescription() {
         selectedPage === index ? "canvas-active" : ""
       }`}
       ref={(el) => {
-        if (el && smartRxFiles) {
+        if (el && imageLoaded[id]) {
           canvasRefs.current[id] = el;
           const ctx = el.getContext("2d");
           ctx.fillStyle = "white";
@@ -1298,7 +1313,7 @@ function SmartPrescription() {
 
   useEffect(() => {
     drawRef.current =
-      smartRxFiles?.length >= selectedPage + 1 ? editDraw : draw;
+      imageLoaded[pages[selectedPage]] ? editDraw : draw;
   }, [selectedPage]);
 
   // Handles Websocket Connection
@@ -1352,9 +1367,9 @@ function SmartPrescription() {
   };
 
   const handleDeletePage = (index) => {
-    if (smartRxFiles) {
-      setSmartRxFiles(
-        smartRxFiles.filter((_, fileIndex) => fileIndex !== index)
+    if (Rxs[0].Images) {
+      setPages(
+        pages.filter((_, pageIndex) => pageIndex !== index)
       );
     }
     const newPages = pages.filter((_, pageIndex) => pageIndex !== index);
@@ -1378,7 +1393,7 @@ function SmartPrescription() {
     setSelectedPage(updatedIndex);
     setRefreshTrigger(!refreshTrigger);
 
-    if (smartRxFiles?.length >= selectedPage + 1) {
+    if (pages.length >= selectedPage + 1) {
       setDrawFunction(true);
     }
 
@@ -1474,8 +1489,8 @@ function SmartPrescription() {
         if (!canvas) continue;
         const blob = await convertCanvasToJPEG(canvas);
         const name =
-          smartRxFiles && smartRxFiles[i]
-            ? smartRxFiles[i].smart_prescription_filename
+          Rxs[0].Images[i]
+            ? Rxs[0].Images[i].name
             : `${uuidv4()}.jpeg`;
         // Create the File object
         const file = new File([blob], name, { type: "image/jpeg" });
@@ -1532,7 +1547,7 @@ function SmartPrescription() {
     // this is to remove the click from the right container.
     handleWrite();
 
-    if (smartRxFilesData?.length > 0) {
+    if (Rxs[0].Images.length > 0) {
       imageLoad();
     }
 
@@ -1592,22 +1607,22 @@ function SmartPrescription() {
   // Load images for the edit flow
   const imageLoad = () => {
     const loadedImages = {};
-    const totalImages = smartRxFilesData.length;
+    const totalImages = Rxs[0].Images.length;
     let loadedCount = 0;
 
-    const newPageIds = smartRxFilesData.map(() => uuidv4());
+    // Generate unique IDs for each Rx image page
+    const newPageIds = Rxs[0].Images.map(() => uuidv4());
     setPages(newPageIds);
-    setDataPresentInCanvas(Array(smartRxFilesData.length).fill(true));
-    smartRxFilesData.forEach((imageObj, index) => {
-      const { smart_prescription_file: imageUrl } = imageObj;
-      const img = new Image();
-      img.src = imageUrl;
-      img.crossOrigin = "anonymous";
-      img.onload = () => {
-        loadedImages[newPageIds[index]] = img;
+    setDataPresentInCanvas(Array(Rxs[0].Images.length).fill(true));
+    Rxs[0].Images.forEach((img, index) => {
+      const imageObj = img; // img is the Rx image path
+      const image = new window.Image();
+      image.src = imageObj;
+      image.onload = () => {
+        loadedImages[newPageIds[index]] = image;
         setImageRefs((prevState) => ({
           ...prevState,
-          [newPageIds[index]]: img,
+          [newPageIds[index]]: image,
         }));
         setImageLoaded((prevState) => ({
           ...prevState,
@@ -1628,7 +1643,7 @@ function SmartPrescription() {
     pages.forEach((pageId) => {
       if (imageLoaded[pageId] && canvasRefs.current[pageId]) {
         const ctx = canvasRefs.current[pageId].getContext("2d");
-        ctx.drawImage(imageRefs[pageId], 0, 0);
+        ctx.drawImage(imageRefs[pageId], 0, 0, 720, 980);
         ctxGlobalRefs.current[pageId] = ctx;
       }
     });
