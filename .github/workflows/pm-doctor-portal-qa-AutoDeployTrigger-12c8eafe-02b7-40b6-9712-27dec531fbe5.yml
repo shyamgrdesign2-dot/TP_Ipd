@@ -4,7 +4,7 @@ name: Trigger auto deployment for pm-doctor-portal-qa
 on:
   # Automatically trigger it when detected changes in repo
   push:
-    branches: [feature/snap-rx]
+    branches: [qa]
     paths:
       - "**"
       - ".github/workflows/pm-doctor-portal-qa-AutoDeployTrigger-12c8eafe-02b7-40b6-9712-27dec531fbe5.yml"
