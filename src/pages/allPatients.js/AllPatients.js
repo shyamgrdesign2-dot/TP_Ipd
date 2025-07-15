@@ -818,7 +818,7 @@ const AllPatients = () => {
         const res = await uploadDocsToAzure(formData);
         if (res?.length > 0) {
           const printUrl = res?.[0]?.url;
-          sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
+          // sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
           handleInAppClick(
             userId,
             "download",
