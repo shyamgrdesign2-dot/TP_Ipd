@@ -115,7 +115,6 @@ function SnapRxDigitise() {
           },
         });
       }
-      //   }
     } catch (error) {
       console.error("Error saving data:", error);
     }

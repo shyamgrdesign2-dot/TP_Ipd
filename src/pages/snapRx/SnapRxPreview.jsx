@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-// import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
 import { Button, Row, Col, Spin, message } from "antd";
 import {
   isMobile,
@@ -25,14 +24,11 @@ import successIcon from "../../assets/images/success-icon.svg";
 import HeaderPrescriptionPrint from "../../common/HeaderPrescriptionPrint";
 
 import {
-  GB_SMARTSYNC_CVT,
   MESSAGE_KEY,
   WHATS_APP_API,
   WTSAP_ERR_MESSAGE,
 } from "../../utils/constants";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
-
-import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -57,7 +53,7 @@ function SnapRxPreview() {
   const navigate = useNavigate();
 
   const { state } = useLocation();
-  const { patient_data, isDigitiseRxSubmit, files } = state;
+  const { patient_data, files } = state;
 
   const [printUrl, setPrintUrl] = useState(
     state !== undefined ? `${state.print_rx_url || state.print_url}` : null
@@ -75,15 +71,12 @@ function SnapRxPreview() {
 
   const { profile } = useSelector((state) => state.doctors);
 
-  const [isRxDigitiseComplete, setRxDigitiseComplete] = useState(false);
-  const [rxDigitiseApiResponse, setRxDigitiseApiResponse] = useState(null);
   const [showProgressbar, setShowProgressbar] = useState(false);
   const [showDigitalRx, setShowDigitalRx] = useState(false);
   const progressRef = useRef(null);
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
   const baseUrlDigitization = env.digitization_api_url;
-  const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(GB_SMARTSYNC_CVT);
 
   const containerStyle = {
     width: "100%",
@@ -114,7 +107,7 @@ function SnapRxPreview() {
       className: "message-appointment",
       content: (
         <div className="d-flex align-items-center">
-          <img src={visitEnd} className="me-3" />
+          <img src={visitEnd} className="me-3" alt="end-visit" />
           <div>
             <div className="title-common-digitised text-start fontroboto">{`${patient_data?.pm_first_name}’s visit ended successfully.`}</div>
             <div className="fontroboto text-start fw-normal mt-1">
@@ -125,6 +118,7 @@ function SnapRxPreview() {
             src={imgCloseVisit}
             className="ms-3"
             onClick={() => message.destroy()}
+            alt="close-visit"
           />
         </div>
       ),
@@ -405,7 +399,7 @@ function SnapRxPreview() {
         tcm_id: state.tcm_id,
         pam_id: state?.pam_id,
         print_url: state.print_rx_url || state.print_url,
-        digitisedData: rxDigitiseApiResponse,
+        // digitisedData: rxDigitiseApiResponse,
         type: "new",
       },
     });
@@ -475,20 +469,20 @@ function SnapRxPreview() {
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
           <Col md={7} lg={7} xl={7}>
-            {isMobile ? (
-              ""
-            ) : (
-              <div
-                className="d-flex align-items-center justify-content-end h-38"
-                onClick={configurePrintUrl}
-              >
-                <i className="icon-setting me-2"></i>
-                <span className="text-decoration-underline fw-medium cursor-pointer">
-                  {" "}
-                  Configure Print Setting{" "}
-                </span>
-              </div>
-            )}
+            {!isMobile &&
+              viewCaseManagerData?.isRxDigitize &&
+              state?.page === "digitise" && (
+                <div
+                  className="d-flex align-items-center justify-content-end h-38"
+                  onClick={configurePrintUrl}
+                >
+                  <i className="icon-setting me-2"></i>
+                  <span className="text-decoration-underline fw-medium cursor-pointer">
+                    {" "}
+                    Configure Print Setting{" "}
+                  </span>
+                </div>
+              )}
             <div
               className={`${
                 !isMobile
@@ -502,20 +496,20 @@ function SnapRxPreview() {
               }}
             >
               <div>
-                {!isMobile ? (
-                  ""
-                ) : (
-                  <div
-                    className="d-flex align-items-center mb-14 h-38"
-                    onClick={configurePrintUrl}
-                  >
-                    <i className="icon-setting me-2"></i>
-                    <span className="text-decoration-underline fw-medium cursor-pointer">
-                      {" "}
-                      Configure Print Setting{" "}
-                    </span>
-                  </div>
-                )}
+                {isMobile &&
+                  viewCaseManagerData?.isRxDigitize &&
+                  state?.page === "digitise" && (
+                    <div
+                      className="d-flex align-items-center mb-14 h-38"
+                      onClick={configurePrintUrl}
+                    >
+                      <i className="icon-setting me-2"></i>
+                      <span className="text-decoration-underline fw-medium cursor-pointer">
+                        {" "}
+                        Configure Print Setting{" "}
+                      </span>
+                    </div>
+                  )}
                 <Button
                   type="text"
                   className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
@@ -602,84 +596,47 @@ function SnapRxPreview() {
                   buttonText
                 )}
               </button>
-              {isSmartSyncCVTAccessableFromGB && (
-                <>
-                  {showProgressbar && !isRxDigitiseComplete && (
-                    <div className="digitise-container d-flex p-3 rounded-10px">
-                      <div style={containerStyle}>
-                        <div ref={progressRef} style={progressStyle}></div>
-                      </div>
-                      <p
-                        className="digitise-header"
-                        style={{ padding: "16px 0" }}
-                      >
-                        {`${patient_data?.pm_fullname}'s Rx is getting Digitised!`}
-                      </p>
-                      <p className="digitise-info">
-                        Our AI engine is converting handwritten Rx into digital
-                        Rx. This may take up to 30 sec
-                      </p>
-                    </div>
-                  )}
-                  {!rxDigitiseApiResponse &&
-                    !showProgressbar &&
-                    smartRxFile?.length > 0 &&
-                    state?.page !== "digitise" && (
-                      <div className="digitise-container p-3 rounded-10px">
-                        <div className="digitise-box-top">
-                          <img
-                            src={successIcon}
-                            alt="success"
-                            width="40px"
-                            height="40px"
-                          />
-                          <div>
-                            <p className="digitise-header">
-                              {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
-                            </p>
-                            <p className="digitise-info">
-                              Digitise Rx to enhance patient care, streamline
-                              workflow, and unlock new revenue.
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={handleDigitiseRx}
-                          className="digitise-btn"
-                        >
-                          Digitise Rx Now <span>&#8594;</span>
-                        </button>
-                      </div>
-                    )}
-                  {isRxDigitiseComplete && (
-                    <div className="digitise-container p-3 rounded-10px">
-                      <div className="digitise-box-top">
-                        <img
-                          src={successIcon}
-                          alt="success"
-                          width="40px"
-                          height="40px"
-                        />
-                        <div>
-                          <p className="digitise-header">
-                            {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
-                          </p>
-                          <p className="digitise-info">
-                            Digitise Rx to enhance patient care, streamline
-                            workflow, and unlock new revenue.
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={handleViewDigitiseRx}
-                        className="digitise-btn"
-                      >
-                        View Digitised Rx <span>&#8594;</span>
-                      </button>
-                    </div>
-                  )}
-                </>
+
+              {showProgressbar && (
+                <div className="digitise-container d-flex p-3 rounded-10px">
+                  <div style={containerStyle}>
+                    <div ref={progressRef} style={progressStyle}></div>
+                  </div>
+                  <p className="digitise-header" style={{ padding: "16px 0" }}>
+                    {`${patient_data?.pm_fullname}'s Rx is getting Digitised!`}
+                  </p>
+                  <p className="digitise-info">
+                    Our AI engine is converting handwritten Rx into digital Rx.
+                    This may take up to 30 sec
+                  </p>
+                </div>
               )}
+              {!showProgressbar &&
+                smartRxFile?.length > 0 &&
+                state?.page !== "digitise" && (
+                  <div className="digitise-container p-3 rounded-10px">
+                    <div className="digitise-box-top">
+                      <img
+                        src={successIcon}
+                        alt="success"
+                        width="40px"
+                        height="40px"
+                      />
+                      <div>
+                        <p className="digitise-header">
+                          {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
+                        </p>
+                        <p className="digitise-info">
+                          Digitise Rx to enhance patient care, streamline
+                          workflow, and unlock new revenue.
+                        </p>
+                      </div>
+                    </div>
+                    <button onClick={handleDigitiseRx} className="digitise-btn">
+                      Digitise Rx Now <span>&#8594;</span>
+                    </button>
+                  </div>
+                )}
             </div>
           </Col>
           <Col md={17} lg={17} xl={12}>
@@ -687,7 +644,6 @@ function SnapRxPreview() {
               <div className="d-flex align-itms-center justify-content-between">
                 <div className="titleprint">Preview</div>
                 {viewCaseManagerData?.isRxDigitize &&
-                  isSmartSyncCVTAccessableFromGB &&
                   state?.page === "digitise" && (
                     <div>
                       <button
