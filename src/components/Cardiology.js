@@ -1405,7 +1405,7 @@ function SmartDropdownButtons({ profile, patient_data, navigate }) {
             });
           }}
         >
-          <span className="px-4" style={{ flex: 1, textAlign: "center" }}>Start New Concult</span>
+          <span className="px-4" style={{ flex: 1, textAlign: "center" }}>Start New Consult</span>
           <span
             ref={arrowRef}
             style={{
