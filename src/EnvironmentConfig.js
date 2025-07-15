@@ -139,6 +139,8 @@ const qa_tp = {
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
   digitization_api_url: "https://pm-digitization-qa.tatvacare.in",
+  short_links_api_url: "https://u.tatvacare.in",
+  SHORT_LINKS_API_KEY: "7pP-Ynz1BFQk9IkcGFqrmNxmKKMVZEAniwSsFEAI",
 };
 
 const qa = {
