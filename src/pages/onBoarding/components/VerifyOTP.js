@@ -137,6 +137,7 @@ const VerifyOTP = ({
                   localStorage.removeItem("isLoginFlow");
                   localStorage.removeItem("isUserExists");
                   localStorage.removeItem("mobileNumber");
+                  localStorage.removeItem("isCaptchaVerified");
                   const deviceType = isMobile ? "mobile" : "desktop";
                   window.location.href = `${loginResponse.ssoUrl}&device_type=${deviceType}`;
                 } else {
@@ -164,6 +165,7 @@ const VerifyOTP = ({
                     localStorage.removeItem("isLoginFlow");
                     localStorage.removeItem("isUserExists");
                     localStorage.removeItem("mobileNumber");
+                    localStorage.removeItem("isCaptchaVerified");
                     const deviceType = isMobile ? "mobile" : "desktop";
                     window.location.href = `${ssoUrl}&device_type=${deviceType}`;
                   }
@@ -175,7 +177,7 @@ const VerifyOTP = ({
                 localStorage.removeItem("currentView");
                 localStorage.removeItem("isLoginFlow");
                 localStorage.removeItem("isUserExists");
-                
+                localStorage.removeItem("isCaptchaVerified");
                 window.Moengage.track_event('TP_NewLoginFlow_Signup_OTP_Submit', {
                   mobile: "91" + mobileNumber,
                   utm_campaign: utm.utm_campaign ?? 'NA',
