@@ -206,6 +206,10 @@ const UploadRx = () => {
     imageUploadRef.current?.handleAddEditClick();
   };
 
+  const handlePreviewClose = () => {
+    setShowSuccess(uploadedFilesFromStore?.length);
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -236,6 +240,7 @@ const UploadRx = () => {
         ref={imageUploadRef}
         patientUniqueId={data?.patientId}
         sessionId={data?.sessionId || "test-session"}
+        onPreviewClose={handlePreviewClose}
         uploadedFilesFromStore={uploadedFilesFromStore}
         autoDigitizeRx={autoDigitizeRxValue}
       />

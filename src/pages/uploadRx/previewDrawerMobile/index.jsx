@@ -243,7 +243,8 @@ const PreviewDrawerMobile = ({
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.stopPropagation();
     if (isSubmitting) return;
     setIsSubmitting(true);
     if (imageRefs.current?.size) {

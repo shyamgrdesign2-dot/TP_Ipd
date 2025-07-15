@@ -1,14 +1,25 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import crownIcon from "../assets/images/crown.svg";
 import { openModal } from "../redux/doctorModalSlice";
 import { fetchSubscriptionDetails } from "../redux/subscriptionSlice";
 import { getClinicName } from "../utils/utils";
+import { useLocation } from "react-router-dom";
+import { HIDE_ROUTES } from "../utils/constants";
 
 const DemoExpirationBanner = () => {
   const { planDetails } = useSelector((state) => state.subscription);
   const { profile } = useSelector((state) => state.doctors);
+
+  const location = useLocation();
+
+  const shouldHideBanner = useMemo(() => {
+    return HIDE_ROUTES.BANNER.some(
+      (route) =>
+        location.pathname === route || location.pathname.startsWith(route + "/")
+    );
+  }, [location.pathname]);
 
   const {
     currentPlanStatus,
@@ -34,6 +45,10 @@ const DemoExpirationBanner = () => {
     });
     dispatch(openModal());
   };
+
+  if (shouldHideBanner) {
+    return null;
+  }
 
   return (
     ["TRIAL", "EXPIRED"].includes(currentPlanStatus) && (

@@ -25,6 +25,7 @@ const ImageUpload = forwardRef(
       sessionId,
       uploadedFilesFromStore = [],
       autoDigitizeRx,
+      onPreviewClose,
     },
     ref
   ) => {
@@ -33,6 +34,8 @@ const ImageUpload = forwardRef(
     const [uploadedFiles, setUploadedFiles] = useState([]);
     const maxFileLimit = 5;
     const maxFileSizeInMB = 15;
+    const compressionPercentage = 90;
+    const minSizeToCompress = 4 * 1024 * 1024; // 4MB
     const maxFileSize = maxFileSizeInMB * 1024 * 1024; // 15MB
     const [storedFileIdToReplace, setStoredFileIdToReplace] = useState(null);
     const [isAddMoreClicked, setIsAddMoreClicked] = useState(false);
@@ -108,8 +111,14 @@ const ImageUpload = forwardRef(
           continue;
         }
 
-        if (compressedFile.size > maxFileSize) {
-          compressedFile = await compressFile(file, 7);
+        console.log("before compressedFile", compressedFile);
+        if (compressedFile.size > minSizeToCompress) {
+          compressedFile = await compressFile(
+            file,
+            maxFileSizeInMB,
+            compressionPercentage
+          );
+          console.log("after compressedFile", compressedFile);
           if (compressedFile.size > maxFileSize) {
             handleFileSizeExceeded(compressedFile.size);
             return;
@@ -259,6 +268,8 @@ const ImageUpload = forwardRef(
     };
 
     const handlePreviewClose = (onlyToggle = false) => {
+      console.log("handlePreviewClose", onlyToggle);
+      onPreviewClose();
       setIsPreviewOpen(false);
       if (!onlyToggle) {
         setUploadedFiles([]);

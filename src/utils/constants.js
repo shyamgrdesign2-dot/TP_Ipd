@@ -303,3 +303,8 @@ export const SNAP_RX_KNOW_MORE_DATA = {
     ],
   },
 };
+
+export const HIDE_ROUTES = {
+  BANNER: ["/snap-rx/mobile-upload"],
+  TALKATIVE: ["/snap-rx/mobile-upload"],
+};
