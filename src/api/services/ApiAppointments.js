@@ -7,6 +7,7 @@ const baseUrl = { customBaseUrl: config.appointment_api_url };
 const baseZydusUrl = { customBaseUrl: config.zydus_api_url };
 const baseZydusProxyUrl = { customBaseUrl: config.zydus_proxy_url };
 const baseVisitUrl = { customBaseUrl: config.visit_api_url };
+const baseSnapRxUrl = { customBaseUrl: config.snap_rx_api_url };
 
 const ApiAppointments = {};
 
@@ -51,7 +52,7 @@ ApiAppointments.endVisit = function (data) {
 };
 
 ApiAppointments.searchPatients = function (query, company) {
-  if (company === 'zydus') {
+  if (company === "zydus") {
     return api.get(
       `/zyduspatientsearch?wt=json&rows=10&q=${query}`,
       baseZydusUrl
@@ -112,27 +113,43 @@ ApiAppointments.zydusRefIds = function () {
 };
 
 ApiAppointments.ictAuthToken = function () {
-  return api.post(`/ictAuthProxy`,{},baseZydusProxyUrl);
+  return api.post(`/ictAuthProxy`, {}, baseZydusProxyUrl);
 };
 
 ApiAppointments.consultations = function (siteId, empNo, date) {
-  return api.get(`/ictApiProxy/emr/op/consultations/list?siteId=${siteId}&empNo=${empNo}&date=${date}`, baseZydusProxyUrl);
+  return api.get(
+    `/ictApiProxy/emr/op/consultations/list?siteId=${siteId}&empNo=${empNo}&date=${date}`,
+    baseZydusProxyUrl
+  );
 };
 
 ApiAppointments.appointments = function (siteId, empNo, date) {
-  return api.get(`/ictApiProxy/emr/op/appointments/list?siteId=${siteId}&empNo=${empNo}&date=${date}`, baseZydusProxyUrl);
+  return api.get(
+    `/ictApiProxy/emr/op/appointments/list?siteId=${siteId}&empNo=${empNo}&date=${date}`,
+    baseZydusProxyUrl
+  );
 };
 
 ApiAppointments.syncZydusPatientAndAppointment = function (body) {
-  return api.post(`/appointment/syncZydusPatientAndAppointment`, body, baseZydusUrl);
+  return api.post(
+    `/appointment/syncZydusPatientAndAppointment`,
+    body,
+    baseZydusUrl
+  );
 };
 
 ApiAppointments.zydusDocsList = function (mrno) {
-  return api.get(`/ictApiProxy/emr/lab/result/list?mrno=${mrno}&noOfDays=6000`, baseZydusProxyUrl);
+  return api.get(
+    `/ictApiProxy/emr/lab/result/list?mrno=${mrno}&noOfDays=6000`,
+    baseZydusProxyUrl
+  );
 };
 
 ApiAppointments.zydusRadioList = function (mrno) {
-  return api.get(`/ictApiProxy/emr/serviceorder/radiology/orders?mrno=${mrno}`, baseZydusProxyUrl);
+  return api.get(
+    `/ictApiProxy/emr/serviceorder/radiology/orders?mrno=${mrno}`,
+    baseZydusProxyUrl
+  );
 };
 
 ApiAppointments.placeIctOrder = function (data) {
@@ -141,6 +158,10 @@ ApiAppointments.placeIctOrder = function (data) {
 
 ApiAppointments.listCategories = function () {
   return api.get(`/api/v1/patient/listCategories`, baseVisitUrl);
+};
+
+ApiAppointments.getSnapRxUnDigitisedIds = function () {
+  return api.get(`/api/v1/digitization/undigitizedAppointments`, baseSnapRxUrl);
 };
 
 export default ApiAppointments;

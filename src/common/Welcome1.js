@@ -11,10 +11,12 @@ import ProfilePopover from './ProfilePopover';
 import VideoModal from './VideoModal';
 import CreateCertificate from '../components/medical_certificate/CreateCertificate';
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { GB_ISCRIBE } from '../utils/constants';
-import { getClinicName } from '../utils/utils';
+import { GB_ISCRIBE, GB_SNAP_RX } from '../utils/constants';
+import { getClinicName, trackEvent } from '../utils/utils';
 import { isAndroid, isBrowser } from 'react-device-detect';
 import { generateUniqueFileName, getCorrectedFileName } from '../pages/medicalRecords/utils/helper';
+import { EVENTS } from '../utils/events';
+import { getDecodedToken } from '../utils/localStorage';
 
 function Welcome1(props) {
 
@@ -24,6 +26,9 @@ function Welcome1(props) {
     const fileInputRef = useRef(null);
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
+    );
+    const isSnapRxAccessableFromGB = useFeatureIsOn(
+        GB_SNAP_RX
     );
 
     const navigate = useNavigate();
@@ -59,6 +64,15 @@ function Welcome1(props) {
 
     const onSmartRxClick = async (patient) => {
         navigate("/smart-prescription", { state: { patient_data: patient } });
+    };
+
+    const onSnapRxClick = async (patient) => {
+        trackEvent(EVENTS.SNAP_RX.uploadClicked, {
+            patient_unique_id: patient?.patient_unique_id,
+            doctor_id: getDecodedToken()?.user_id,
+            upload_source: "EMR",
+          });
+        navigate("/snap-rx", { state: { patient_data: patient } });
     };
 
     const onConsultClick = async (patient) => {
@@ -214,7 +228,57 @@ function Welcome1(props) {
                                             navigate("/prescription", { state: { patient_data: patient_data, send_path: "patient_details", caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
                                         }}> <i className={'icon-reload me-2'}></i>Repeat {modifyFormat && modifyFormat.first}<sup>{modifyFormat && modifyFormat.second}</sup>&nbsp;{modifyFormat && modifyFormat.third} Rx</Button>
                                     }
-                                    {isSmartSyncAccessableFromGB && !isMobile ? (
+                                    {isSnapRxAccessableFromGB && !isMobile ? (
+                                        <>
+                                            <div
+                                                style={{
+                                                    background: "#4B4AD5",
+                                                    borderRadius: "10px",
+                                                    color: "white",
+                                                    marginLeft: "1rem",
+                                                    position: "relative",
+                                                }}
+                                            >
+                                                <button
+                                                    // className="btn btn-outline-primary btn-smart-rx"
+                                                    className="btn btn-outline-primary btn-smart-rx"
+                                                    onClick={() => onSnapRxClick(patient_data)}
+                                                    style={{ padding: "9px 2rem 9px 10px" }}
+                                                >
+                                                    <span className="btn-span-smartRx">Snap Rx</span>
+                                                </button>
+                                                <button
+                                                    className="btn btn-outline-primary btn-down-arrow"
+                                                    onClick={handleClickDownArrow}
+                                                    style={{ padding: "9.5px 5px" }}
+                                                >
+                                                    <span
+                                                        role="img"
+                                                        aria-label="down"
+                                                        className="anticon anticon-down ant-select-suffix"
+                                                    >
+                                                        <i
+                                                            className="icon-right"
+                                                            style={{
+                                                                display: "block",
+                                                                transform: `rotate(270deg)`,
+                                                                color: "white",
+                                                            }}
+                                                        />
+                                                    </span>
+                                                </button>
+                                                {clickedDownArrow && (
+                                                    <button
+                                                        className="btn-consult-patient-details"
+                                                        onClick={() => onConsultClick(patient_data)}
+                                                    >
+                                                        Consult
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </>
+                                    ) :
+                                    isSmartSyncAccessableFromGB && !isMobile ? (
                                         <>
                                             <div
                                                 style={{

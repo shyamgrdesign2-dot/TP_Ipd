@@ -8,7 +8,12 @@ const SNAP_RX_BASE_URL = `${env.digitization_api_url}/api/v1/digitization/snap-r
  * @param {File[]} files - Array of files to upload
  * @returns {Promise} - API response promise
  */
-export const uploadSnapRxFiles = async (files, patientUniqueId, sessionId) => {
+export const uploadSnapRxFiles = async (
+  files,
+  patientUniqueId,
+  sessionId,
+  fileUploadToken
+) => {
   try {
     const formData = new FormData();
 
@@ -24,7 +29,9 @@ export const uploadSnapRxFiles = async (files, patientUniqueId, sessionId) => {
       customBaseUrl: SNAP_RX_BASE_URL,
       headers: {
         "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${fileUploadToken}`,
       },
+      snapRxFileUpload: true,
     };
 
     const response = await axiosService.post("/upload-files", formData, config);
@@ -42,14 +49,13 @@ export const uploadSnapRxFiles = async (files, patientUniqueId, sessionId) => {
  * @param {string} sessionId - Session ID
  * @returns {Promise} - API response promise
  */
-export const getSnapRxFiles = async (patientUniqueId, tcmId, sessionId) => {
+export const getSnapRxFiles = async (patient_unique_id, tcm_id, session_id) => {
   try {
     const config = {
       customBaseUrl: SNAP_RX_BASE_URL,
       params: {
-        patient_unique_id: patientUniqueId,
-        tcm_id: tcmId,
-        session_id: sessionId,
+        patient_unique_id,
+        ...(session_id ? { session_id } : { tcm_id }),
       },
     };
 
@@ -225,14 +231,4 @@ export const verifyDigitizedSnapRx = async (
     console.error("Error verifying digitized snap rx:", error);
     throw error;
   }
-};
-
-export default {
-  uploadSnapRxFiles,
-  getSnapRxFiles,
-  createSnapRx,
-  getSnapRxDigitization,
-  editSnapRx,
-  digitizeSnapRx,
-  verifyDigitizedSnapRx,
 };

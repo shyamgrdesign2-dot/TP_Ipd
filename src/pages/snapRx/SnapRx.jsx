@@ -5,12 +5,13 @@ import UploadedFilesPreview from "./components/UploadedFilesPreview";
 import PreviewDrawer from "./components/PreviewDrawer";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { useLocation, useNavigate } from "react-router-dom";
-import { message } from "antd";
+import { Button, message } from "antd";
 import CashManagerContext from "../../context/CashManagerContext";
 import {
   getSnapRxFiles,
   createSnapRx,
   editSnapRx,
+  uploadSnapRxFiles,
 } from "./services/snapRxService";
 import {
   SnapRxSessionProvider,
@@ -18,6 +19,8 @@ import {
 } from "./context/SnapRxSessionContext";
 import "./SnapRx.scss";
 import UploadMoreDrawer from "./components/UploadMoreDrawer";
+import FileUploadErrorModal from "../../components/common/FileUploadErrorModal";
+import { useSelector } from "react-redux";
 
 function SnapRxContent() {
   const { state } = useLocation();
@@ -52,6 +55,8 @@ function SnapRxContent() {
     tcmId,
     pamId,
   };
+
+  const { fileUploadToken } = useSelector((state) => state.snapRx);
 
   // Fetch uploaded files from API
   const fetchUploadedFiles = useCallback(async () => {
@@ -120,13 +125,9 @@ function SnapRxContent() {
         throw new Error("Invalid response from server");
       }
 
-      // Update the state with the new files from the response
-      // setApiUploadedFiles(response.uploaded_files);
-
-      // Close the drawer and show success message
-      setIsEditDrawerOpen(false);
       fetchUploadedFiles();
-      // message.success("Files updated successfully");
+
+      setIsEditDrawerOpen(false);
     } catch (error) {
       console.error("Error in handleEditSave:", error);
       message.error("Failed to update files. Please try again.");
@@ -217,7 +218,7 @@ function SnapRxContent() {
         // message.success("Prescription created successfully!");
         // Navigate to digitization or next step if needed
         navigate("/snap-rx/preview", {
-          state: { ...state, ...response?.data },
+          state: { ...state, ...response?.data, files: apiUploadedFiles },
         });
       } else {
         throw new Error(response.message || "Failed to create prescription");
@@ -276,6 +277,16 @@ function SnapRxContent() {
       setIsUploading(false);
     }
   }, [apiUploadedFiles, patient_data, navigate, state]);
+
+  const [isFileSizeError, setIsFileSizeError] = useState(false);
+  const [isFileLimitError, setIsFileLimitError] = useState(false);
+  const [isFileTypeError, setIsFileTypeError] = useState(false);
+  const handleRetryBtn = () => {
+    // setFilesData([]);
+    setIsFileSizeError(false);
+    setIsFileLimitError(false);
+    setIsFileTypeError(false);
+  };
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -352,34 +363,50 @@ function SnapRxContent() {
         }))}
         editingFile={editingFile}
         isEditMode={true}
-        onReupload={(fileIndex, updatedFiles) => {
-          // If we received updated files, use them directly
-          if (updatedFiles && updatedFiles.length > 0) {
-            const uploadedFile = updatedFiles[0];
-            const newFile = {
-              file: uploadedFile.file, // Access the actual File object
-              fileUrl: URL.createObjectURL(uploadedFile.file), // Create URL from File object
-              preview: URL.createObjectURL(uploadedFile.file), // Create URL from File object
-              filename: uploadedFile.name,
-              name: uploadedFile.name,
-              type: uploadedFile.type,
-            };
+        onReupload={(fileIndex) => {
+          // Create a file input element
+          const input = document.createElement("input");
+          input.type = "file";
+          input.accept = "image/*,.pdf";
 
-            // Replace the file at the specified index
-            const updatedApiFiles = [...apiUploadedFiles];
-            updatedApiFiles[fileIndex] = newFile;
+          input.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+              // Validate the new file
+              const maxFileSize = 15 * 1024 * 1024; // 8MB
 
-            // Update state
-            setApiUploadedFiles(updatedApiFiles);
-            setEditingFile({
-              ...newFile,
-              file: {
-                ...newFile,
-                fileUrl: newFile.fileUrl,
-                preview: newFile.fileUrl,
-              },
-            });
-          }
+              // Validate file type
+              if (!file.type.match(/^(image|application\/pdf)/)) {
+                const fileExtension = file.name.split(".").pop()?.toLowerCase();
+                setIsFileTypeError(`.${fileExtension}`);
+                return;
+              }
+
+              // Validate file size
+              if (file.size > maxFileSize) {
+                setIsFileSizeError(true);
+                return;
+              }
+
+              // Create a preview URL for the new file
+              const preview = URL.createObjectURL(file);
+
+              // Create updated file object with preview
+              const updatedFile = {
+                file,
+                preview,
+                name: file.name,
+                type: file.type,
+              };
+
+              // Update the file at the specified index
+              const newFiles = [...uploadedFiles];
+              newFiles[fileIndex] = updatedFile;
+              setUploadedFiles(newFiles);
+            }
+          };
+
+          input.click();
         }}
         onRemove={(fileIndex) => {
           // Remove file from apiUploadedFiles
@@ -409,47 +436,86 @@ function SnapRxContent() {
         }}
         onSave={handleEditSave}
         onAddMore={() => {
+          // Check if we've reached the file limit before allowing more uploads
+          if (apiUploadedFiles.length >= 5) {
+            setIsFileLimitError(true);
+            return;
+          }
+
           const input = document.createElement("input");
           input.type = "file";
-          input.accept = "image/*";
+          input.accept = "image/*,.pdf";
           input.multiple = true;
 
           input.onchange = async (e) => {
             const files = Array.from(e.target.files);
             if (files.length > 0) {
-              const newFiles = files.map((file) => {
-                const fileUrl = URL.createObjectURL(file);
-                return {
-                  file: file,
-                  fileUrl: fileUrl,
-                  preview: fileUrl,
-                  filename: file.name,
-                  name: file.name,
-                  type: file.type,
-                  // Add any other required properties here
-                };
-              });
+              // Validate file count limit
+              const totalFileCount = apiUploadedFiles.length + files.length;
+              if (totalFileCount > 5) {
+                setIsFileLimitError(true);
+                return;
+              }
 
-              const updatedFiles = [...apiUploadedFiles, ...newFiles];
+              // Validate each file
+              const validFiles = [];
+              const maxFileSize = 15 * 1024 * 1024; // 8MB
 
-              // Update the state with new files
-              setApiUploadedFiles(updatedFiles);
+              for (const file of files) {
+                // Validate file type
+                if (!file.type.match(/^(image|application\/pdf)/)) {
+                  const fileExtension = file.name
+                    .split(".")
+                    .pop()
+                    ?.toLowerCase();
+                  setIsFileTypeError(`.${fileExtension}`);
+                  continue;
+                }
 
-              // Update the editing file to show the first new file
-              const formattedNewFile = {
-                ...newFiles[0],
-                file: {
+                // Validate file size
+                if (file.size > maxFileSize) {
+                  setIsFileSizeError(true);
+                  continue;
+                }
+
+                validFiles.push(file);
+              }
+
+              if (validFiles.length > 0) {
+                const newFiles = validFiles.map((file) => {
+                  const fileUrl = URL.createObjectURL(file);
+                  return {
+                    file: file,
+                    fileUrl: fileUrl,
+                    preview: fileUrl,
+                    filename: file.name,
+                    name: file.name,
+                    type: file.type,
+                    // Add any other required properties here
+                  };
+                });
+
+                const updatedFiles = [...apiUploadedFiles, ...newFiles];
+
+                // Update the state with new files
+                setApiUploadedFiles(updatedFiles);
+
+                // Update the editing file to show the first new file
+                const formattedNewFile = {
                   ...newFiles[0],
+                  file: {
+                    ...newFiles[0],
+                    fileUrl: newFiles[0].fileUrl,
+                    preview: newFiles[0].fileUrl,
+                  },
                   fileUrl: newFiles[0].fileUrl,
                   preview: newFiles[0].fileUrl,
-                },
-                fileUrl: newFiles[0].fileUrl,
-                preview: newFiles[0].fileUrl,
-                name: newFiles[0].filename,
-                type: newFiles[0].type,
-              };
+                  name: newFiles[0].filename,
+                  type: newFiles[0].type,
+                };
 
-              setEditingFile(formattedNewFile);
+                setEditingFile(formattedNewFile);
+              }
             }
           };
 
@@ -467,11 +533,27 @@ function SnapRxContent() {
           // Create a file input element
           const input = document.createElement("input");
           input.type = "file";
-          input.accept = "image/*";
+          input.accept = "image/*,.pdf";
 
           input.onchange = async (e) => {
             const file = e.target.files[0];
             if (file) {
+              // Validate the new file
+              const maxFileSize = 15 * 1024 * 1024; // 8MB
+
+              // Validate file type
+              if (!file.type.match(/^(image|application\/pdf)/)) {
+                const fileExtension = file.name.split(".").pop()?.toLowerCase();
+                setIsFileTypeError(`.${fileExtension}`);
+                return;
+              }
+
+              // Validate file size
+              if (file.size > maxFileSize) {
+                setIsFileSizeError(true);
+                return;
+              }
+
               // Create a preview URL for the new file
               const preview = URL.createObjectURL(file);
 
@@ -504,6 +586,11 @@ function SnapRxContent() {
           }
         }}
         onAddMore={() => {
+          // Check if we've reached the file limit before allowing more uploads
+          if (uploadedFiles.length >= 5) {
+            setIsFileLimitError(true);
+            return;
+          }
           // Handle add more files - set flag and close drawer to upload more
           setIsAddingMore(true);
           setIsPreviewDrawerOpen(false);
@@ -514,7 +601,56 @@ function SnapRxContent() {
       <UploadMoreDrawer
         isOpen={isUploadMoreDrawerOpen}
         onClose={handleUploadMoreDrawerClose}
-        // onFileUpload={handleFileUpload}
+        onFileUpload={async (newFiles) => {
+          // When uploading more files, we need to combine existing API files with new files
+          try {
+            // Get existing files as File objects for upload
+            const existingFiles = [];
+
+            // Convert existing API files to File objects
+            for (const apiFile of apiUploadedFiles) {
+              try {
+                const response = await fetch(apiFile.fileUrl);
+                const blob = await response.blob();
+                const file = new File([blob], apiFile.filename, {
+                  type: "image/jpeg",
+                });
+                existingFiles.push(file);
+              } catch (error) {
+                console.error("Error converting existing file:", error);
+              }
+            }
+
+            // Combine existing files with new files
+            const allFiles = [...existingFiles, ...newFiles];
+
+            // Upload all files together
+            const response = await uploadSnapRxFiles(
+              allFiles,
+              patient_data?.patient_unique_id,
+              sessionId,
+              fileUploadToken
+            );
+
+            if (response && response.uploaded_files) {
+              // Update the API uploaded files with the response
+              fetchUploadedFiles();
+              setIsUploadMoreDrawerOpen(false);
+            } else {
+              throw new Error("Invalid response from server");
+            }
+          } catch (error) {
+            console.error("Error uploading files:", error);
+            message.error("Failed to upload files. Please try again.");
+          }
+        }}
+      />
+
+      <FileUploadErrorModal
+        isFileSizeError={isFileSizeError}
+        isFileLimitError={isFileLimitError}
+        isFileTypeError={isFileTypeError}
+        onRetry={handleRetryBtn}
       />
     </CashManagerContext.Provider>
   );

@@ -4,7 +4,23 @@ import { LeftOutlined } from "@ant-design/icons";
 import "./UploadMoreDrawer.scss";
 
 export default function UploadMoreDrawer({ isOpen, onClose, onFileUpload }) {
-  const handleFileUpload = async (files) => {
+  const handleFileUpload = async (uploadedFiles) => {
+    // Check if uploadedFiles exists and is an array
+    if (!uploadedFiles || !Array.isArray(uploadedFiles)) {
+      console.error("uploadedFiles is not a valid array:", uploadedFiles);
+      return;
+    }
+
+    // Check if uploadedFiles are already processed File objects or file wrapper objects
+    const files = uploadedFiles.map((fileObj) => {
+      // If it's already a File object (from PreviewDrawer processing), use it directly
+      if (fileObj instanceof File) {
+        return fileObj;
+      }
+      // Otherwise, extract the File object from the wrapper
+      return fileObj.file;
+    });
+
     if (onFileUpload) {
       await onFileUpload(files);
     }

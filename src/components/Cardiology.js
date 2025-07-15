@@ -24,7 +24,7 @@ import medicalHistoryIcon from '../assets/images/Medical-History.svg';
 import vaccinationIcon from "../assets/images/Vaccination.svg";
 import customModuleIcon from "../assets/images/custom-module.svg";
 
-import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, GB_SMARTSYNC_CVT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, GB_SMARTSYNC_CVT, GB_SNAP_RX, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
 import { capitalize, isNumeric, medicine_freq_format, isValidMongoId, medicine_freq_dosage_format } from "../utils/utils";
 import { env } from "../EnvironmentConfig";
@@ -34,6 +34,7 @@ import moment from "moment";
 import { getModules } from "../redux/customModuleSlice";
 import { getGenRx } from "../api/services/ApiGenRx";
 import ApiCustomModule from "../api/services/ApiCustomModule";
+import { getSnapRxDigitization, getSnapRxFiles } from "../pages/snapRx/services/snapRxService";
 
 function Cardiology(props) {
   const navigate = useNavigate();
@@ -57,9 +58,14 @@ function Cardiology(props) {
   const [setSortedInfo] = useState({});
   const [smartRxFile, setSmartRxFile] = useState([]);
   const [isSmartRxFile, setIsSmartRxFile] = useState(false);
+  const [isSnapRx, setIsSnapRx] = useState(false);
+  const [snapRxFile, setSnapRxFile] = useState([]);
+  const [isSnapRxdigitised, setIsSnapRxdigitised] = useState(null);
+  const [showDigitalSnapRx, setShowDigitalSnapRx] = useState(null);
   const [showDigitalRx, setShowDigitalRx] = useState(null);
   const [showDigitalGenRx, setShowDigitalGenRx] = useState(true);
   const [rxDigitisedData, setRxDigitisedData] = useState(null);
+  const [snapRxDigitisedData, setSnapRxDigitisedData] = useState(null);
   const [isRxdigitised, setIsRxdigitised] = useState(null);
   const [cvtDrawer, setCvtDrawer] = useState(false);
   const [printUrl, setPrintUrl] = useState(null);
@@ -76,6 +82,10 @@ function Cardiology(props) {
     GB_SMARTSYNC_CVT
   );
 
+  const isSnapRxAccessableFromGB = useFeatureIsOn(
+    GB_SNAP_RX
+  );
+
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
   const baseUrlRxDigitise = env.rx_digitization;
 
@@ -85,6 +95,15 @@ function Cardiology(props) {
     if (viewCaseManagerData?.tcm_id) {
       fetchCustomModules();
       fetchData();
+    }
+    if (
+      isSnapRxAccessableFromGB &&
+      viewCaseManagerData?.tcm_id &&
+      viewCaseManagerData?.smart_prescription_filename?.includes("snap_rx")
+    ) {
+      setIsSnapRx(true);
+      fetchSnapRxFile();
+      fetchSnapRxDigitisedData(viewCaseManagerData?.tcm_id);
     }
     if (
       isSmartSyncAccessableFromGB &&
@@ -185,6 +204,11 @@ function Cardiology(props) {
     } catch (error) {
       console.error("Error:", error);
     }
+  };
+
+  const fetchSnapRxFile = async () => {
+    const response = await getSnapRxFiles(patient_data.patient_unique_id, viewCaseManagerData?.tcm_id);
+    setSnapRxFile(response?.uploaded_files || []);
   };
 
   const getGenRxDetails = async () => {
@@ -445,6 +469,14 @@ function Cardiology(props) {
       rx_date: viewCaseManagerData?.consultation_date,
     });
 
+    if (isSnapRx && isSnapRxAccessableFromGB) {
+      return navigate("/snap-rx", {
+        state: {
+          patient_data: patient_data,
+          caseManagerData: viewCaseManagerData,
+        },
+      });
+    }
     if (isSmartRxFile) {
       navigate("/smart-prescription", {
         state: {
@@ -493,6 +525,28 @@ function Cardiology(props) {
     }
   };
 
+  const fetchSnapRxDigitisedData = async (tcmId) => {
+    try {
+      const response = await getSnapRxDigitization(
+        patient_data.patient_unique_id,
+        tcmId
+      );
+
+      if (response?.digitization) {
+        setSnapRxDigitisedData(response?.digitization?.editedData || response?.digitization?.refinedData);
+        setIsSnapRxdigitised(response?.digitization?.isDigitize);
+      } else{
+        setSnapRxDigitisedData(null);
+        setIsSnapRxdigitised(false);
+      }
+
+      return response.digitization; // return the data after it's fetched
+    } catch (error) {
+      console.error('Error digitizing the prescription:', error);
+      return null;
+    }
+  };
+
   const handleDigitiseRx = async (record) => {
     navigate("/smart-rx-digitise", {
       state: {
@@ -502,6 +556,21 @@ function Cardiology(props) {
         print_url: viewCaseManagerData?.print_rx_url,
         pam_id: patient_data?.pam_id,
         digitisedData: rxDigitisedData,
+        page:"patient-summary",
+        type:"new"
+      },
+    })
+  };
+
+  const handleDigitiseSnapRx = async (record) => {
+    navigate("/snap-rx/digitise", {
+      state: {
+        patient_data: patient_data,
+        smartRxFilesData: snapRxFile,
+        tcm_id: viewCaseManagerData?.tcm_id,
+        print_url: viewCaseManagerData?.print_rx_url,
+        pam_id: patient_data?.pam_id,
+        digitisedData: snapRxDigitisedData,
         page:"patient-summary",
         type:"new"
       },
@@ -749,7 +818,7 @@ function Cardiology(props) {
               </div>
             </Card.Header>
 
-            { isSmartSyncCVTAccessableFromGB && isSmartRxFile && viewCaseManagerData?.smart_prescription_filename?.length > 0 && rxDigitisedData && (
+            { isSmartSyncCVTAccessableFromGB && isSmartRxFile && viewCaseManagerData?.smart_prescription_filename?.length > 0 && rxDigitisedData && !isSnapRx && (
               isRxdigitised ? (
                 <div className="p-2 mb-2">
                   <button
@@ -788,6 +857,52 @@ function Cardiology(props) {
                       </button>
                     </p>
                     <button className="digitise-info-btn-cardiology" onClick={handleDigitiseRx}>
+                      Digitise Rx Now
+                    </button>
+                  </div>
+                )
+              )
+            )}
+
+          {isSnapRxAccessableFromGB && isSnapRx && snapRxDigitisedData && (
+              isSnapRxdigitised ? (
+                <div className="p-2 mb-2">
+                  <button
+                    className={`digital-btn ${!showDigitalSnapRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`}
+                    onClick={() => setShowDigitalSnapRx(true)}
+                  >
+                    Digital Rx
+                  </button>
+                  <button
+                    className={`written-btn ${showDigitalSnapRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`}
+                    onClick={() => setShowDigitalSnapRx(false)}
+                  >
+                    Written Rx
+                  </button>
+                </div>
+              ) : (
+                snapRxDigitisedData?.ocrData && (
+                  <div className="digitise-info-cardiology">
+                    <img src={successIcon} alt="success" width="40px" height="40px" />
+                    <p>
+                      <span className="digitise-info-header-cardiology">
+                        {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
+                      </span>
+                      Digitise Rx to enhance patient care, workflow efficiency, and revenue.
+                      <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>
+                        <span
+                          style={{
+                            fontSize: "14px",
+                            paddingLeft: "4px",
+                            textDecoration: "underline",
+                            textDecorationColor: "#454551",
+                          }}
+                        >
+                          Know More
+                        </span>
+                      </button>
+                    </p>
+                    <button className="digitise-info-btn-cardiology" onClick={handleDigitiseSnapRx}>
                       Digitise Rx Now
                     </button>
                   </div>
@@ -946,7 +1061,7 @@ function Cardiology(props) {
                     )
                     }
                   </div > :
-                isSmartRxFile ? (
+                isSmartRxFile && !isSnapRx ? (
                   <div>
                     {isRxdigitised && showDigitalRx ? (
                       <div className="m-4">
@@ -1081,7 +1196,131 @@ function Cardiology(props) {
                       )}
                     </div>
                   </div >
-                ) : (
+                ) :
+                isSnapRx && isSnapRxAccessableFromGB ? (
+                  <div>
+                    {isSnapRxdigitised && showDigitalSnapRx ? (
+                      <div className="m-4">
+                        {snapRxDigitisedData?.vitals && 
+                         Object.values(snapRxDigitisedData?.vitals).some(value => value?.trim?.().length > 0) && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img className="me-2" src={vitalsIcon} alt="Vitals" />
+                              <div className="title-digitise-section mb-1">Vitals and Body compositions</div>
+                            </div>
+                            {renderItems('vitals')}
+                          </>
+                        )}
+
+                        {snapRxDigitisedData?.medicalHistory && 
+                         hasValidContent(snapRxDigitisedData, 'medicalHistory') && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img className="me-2" src={medicalHistoryIcon} alt="MedicalHistory" />
+                              <div className="title-digitise-section mb-1">Medical History</div>
+                            </div>
+                            {renderItems('medicalHistory')}
+                          </>
+                        )}
+
+                        {snapRxDigitisedData?.symptoms && 
+                         hasValidContent(snapRxDigitisedData, 'symptoms') && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img className="me-2" src={Symptomsicon} alt="Symptoms" />
+                              <div className="title-digitise-section mb-1">Symptoms</div>
+                            </div>
+                            {renderItems('symptoms')}
+                          </>
+                        )}
+
+                        {snapRxDigitisedData?.examination && 
+                         hasValidContent(snapRxDigitisedData, 'examination') && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img className="me-2" src={Examinationsicon} alt="Examination" />
+                              <div className="title-digitise-section mb-1">Examinations</div>
+                            </div>
+                            {renderItems('examination')}
+                          </>
+                        )}
+
+                        {snapRxDigitisedData?.diagnosis && 
+                         hasValidContent(snapRxDigitisedData, 'diagnosis') && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img className="me-2" src={Diagnosisicon} alt="Diagnosis" />
+                              <div className="title-digitise-section mb-1">Diagnosis</div>
+                            </div>
+                            {renderItems('diagnosis')}
+                          </>
+                        )}
+
+                        {snapRxDigitisedData?.medications && 
+                         hasValidContent(snapRxDigitisedData, 'medications') && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img className="me-2" src={Medicationicon} alt="Medications" />
+                              <div className="title-digitise-section mb-1">Medication</div>
+                            </div>
+                            {renderItems('medications')}
+                          </>
+                        )}
+
+                        {snapRxDigitisedData?.tests && 
+                         hasValidContent(snapRxDigitisedData, 'tests') && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img className="me-2" src={Investigationicon} alt="Tests" />
+                              <div className="title-digitise-section mb-1">Lab Investigation</div>
+                            </div>
+                            {renderItems('tests')}
+                          </>
+                        )}
+
+                        {snapRxDigitisedData?.advice && 
+                         hasValidContent(snapRxDigitisedData, 'advice') && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img className="me-2" src={Frameicon} alt="Advice" />
+                              <div className="title-digitise-section mb-1">Advices</div>
+                            </div>
+                            {renderItems('advice')}
+                          </>
+                        )}
+                        
+                        {snapRxDigitisedData?.vaccinations && 
+                         hasValidContent(snapRxDigitisedData, 'vaccinations') && (
+                          <>
+                            <div className="d-flex align-items-start">
+                              <img className="me-2" src={vaccinationIcon} alt="vaccinations" />
+                              <div className="title-digitise-section mb-1">Vaccinations</div>
+                            </div>
+                            {renderItems('vaccinations')}
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        {!!snapRxFile?.length &&
+                          snapRxFile?.map(({ fileUrl }) => (
+                            <div style={{ padding: "5px" }}>
+                              {fileUrl && (
+                                <img
+                                  src={fileUrl}
+                                  alt="Snap Rx"
+                                  width="100%"
+                                  height="660px"
+                                />
+                              )}
+                            </div>
+                          ))}
+                      </>
+                    )
+                    }
+                  </div >
+                )
+                : (
                   <Card.Body className="p-0 cardbody-data">
                     <div>
                       <div className="p-3 pb-0">

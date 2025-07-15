@@ -162,7 +162,6 @@ const UploadedFilesPreview = ({
                   type="text"
                   className="delete-btn"
                   onClick={() => showHideModal(file.filename)}
-                  loading={deletingFile === file.filename}
                   title="Delete"
                 />
               </div>

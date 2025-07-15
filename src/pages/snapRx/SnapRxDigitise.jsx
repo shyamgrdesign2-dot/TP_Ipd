@@ -14,6 +14,9 @@ import { env } from "../../EnvironmentConfig";
 import HeaderSmartRxDigitise from "../../common/HeaderSmartRxDigitise";
 import DigitisedPrescription from "../../components/DigitisedPrescription";
 import axios from "axios";
+import { trackEvent } from "../../utils/utils";
+import { EVENTS } from "../../utils/events";
+import { getDecodedToken } from "../../utils/localStorage";
 
 function SnapRxDigitise() {
   const divRef = useRef(null);
@@ -49,6 +52,9 @@ function SnapRxDigitise() {
       digitizeRx();
     } else if (state.type === "edit" && digitisedData) {
       setData(digitisedData?.editedData);
+      setIsLoading(false);
+    } else if (state.type === "review" && digitisedData) {
+      setData(digitisedData?.refinedData);
       setIsLoading(false);
     }
   }, [token, smartRxFile, digitisedData]);
@@ -91,26 +97,25 @@ function SnapRxDigitise() {
       );
       // Handle navigation based on the API response
       if (response.status === 200) {
-        if (
-          state?.page === "patient-summary" ||
-          state?.page === "pending-digitization"
-        ) {
-          navigate(-1); // Go back to the previous page
-        } else {
-          navigate("/snap-rx/preview", {
-            replace: true,
-            state: {
-              patient_data,
-              smartRxData: smartRxFilesData,
-              tcm_id,
-              pam_id: pam_id || patient_data?.pam_id,
-              print_url,
-              showProgressbar: false,
-              page: "digitise",
-            },
+        state.type === "edit" &&
+          trackEvent(EVENTS.SNAP_RX.editedByDoctor, {
+            consultation_id: state?.tcm_id,
+            doctor_id: getDecodedToken()?.user_id,
           });
-        }
+        navigate("/snap-rx/preview", {
+          replace: true,
+          state: {
+            patient_data,
+            files: smartRxFilesData,
+            tcm_id,
+            pam_id: pam_id || patient_data?.pam_id,
+            print_url,
+            showProgressbar: false,
+            page: "digitise",
+          },
+        });
       }
+      //   }
     } catch (error) {
       console.error("Error saving data:", error);
     }
@@ -191,11 +196,7 @@ function SnapRxDigitise() {
                       smartRxFile?.map(({ fileUrl }) => (
                         <div style={{ padding: "5px" }}>
                           {fileUrl && (
-                            <img
-                              src={fileUrl}
-                              alt="Smart Rx"
-                              width="100%"
-                            />
+                            <img src={fileUrl} alt="Smart Rx" width="100%" />
                           )}
                         </div>
                       ))
