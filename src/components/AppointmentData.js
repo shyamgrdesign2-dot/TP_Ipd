@@ -35,7 +35,10 @@ import dayjs from "dayjs";
 
 import { errorMessage, getClinic, trackEvent } from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
-import { getSnapRxDigitization, getSnapRxFiles } from "../pages/snapRx/services/snapRxService";
+import {
+  getSnapRxDigitization,
+  getSnapRxFiles,
+} from "../pages/snapRx/services/snapRxService";
 
 import {
   TAB_QUEUE,
@@ -1475,8 +1478,14 @@ function AppointmentData({ locationPath }) {
         }
       );
       const tcm_id = response.data[0]?.tcm_id;
-      const smartRxData = await getSnapRxFiles(record.patient_unique_id, tcm_id);
-      const snapRxDigitisedData = await getSnapRxDigitization(record.patient_unique_id, tcm_id);
+      const smartRxData = await getSnapRxFiles(
+        record.patient_unique_id,
+        tcm_id
+      );
+      const snapRxDigitisedData = await getSnapRxDigitization(
+        record.patient_unique_id,
+        tcm_id
+      );
 
       navigate("/snap-rx/digitise", {
         state: {
@@ -1711,7 +1720,9 @@ function AppointmentData({ locationPath }) {
                     <button
                       className="btn btn-outline-primary"
                       style={{ fontSize: "13px !important" }}
-                      onClick={() => handleSnapRxDigitiseAndReview(record, false)}
+                      onClick={() =>
+                        handleSnapRxDigitiseAndReview(record, false)
+                      }
                     >
                       {"Digitise Rx"}
                     </button>
@@ -2305,10 +2316,10 @@ function AppointmentData({ locationPath }) {
 
   const handleSnapRxClick = async (record) => {
     trackEvent(EVENTS.SNAP_RX.uploadClicked, {
-        patient_unique_id: record?.patient_unique_id,
-        doctor_id: getDecodedToken()?.user_id,
-        upload_source: "EMR",
-      });
+      patient_unique_id: record?.patient_unique_id,
+      doctor_id: getDecodedToken()?.user_id,
+      upload_source: "EMR",
+    });
     navigate("/snap-rx", { state: { patient_data: record } });
   };
 
