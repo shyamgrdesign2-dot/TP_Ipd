@@ -13,13 +13,21 @@ const QRCodeGenerator = ({ data, size = 120 }) => {
         <div className="qr-corner qr-corner-br"></div>
 
         {/* QR Code */}
-        <QRCodeSVG
+        {data ? (
+          <QRCodeSVG
           value={data || ""}
           size={size}
           bgColor="#ffffff"
           fgColor="#000000"
           level="M"
-        />
+          />
+        ) : (
+          <div className="qr-code-placeholder ">
+            <div className="shimmer-content">
+              <div className="shimmer"></div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
