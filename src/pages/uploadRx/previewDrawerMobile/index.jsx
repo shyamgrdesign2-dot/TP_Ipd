@@ -58,6 +58,7 @@ const PreviewDrawerMobile = ({
   const carouselRef = useRef(null);
   const canvasRefs = useRef(new Map());
   const [actualFiles, setActualFiles] = useState([]);
+  const uploadSuccessRef = useRef(false);
   useEffect(() => {
     const newImageRefs = new Map();
     uploadedFiles.forEach((file) => {
@@ -128,15 +129,17 @@ const PreviewDrawerMobile = ({
       setActualFiles([]);
       clearTimeout(timerRef.current);
       timerRef.current = null;
+      uploadSuccessRef.current = false;
     };
   }, []);
 
   useEffect(() => {
-    if (uploadedFilesFromRedux?.length > 0 && isSubmitting) {
+    if (uploadedFilesFromRedux?.length > 0 && isSubmitting && uploadSuccessRef.current) {
       onClose();
       setIsSubmitting(false);
+      uploadSuccessRef.current = false;
     }
-  }, [uploadedFilesFromRedux]);
+  }, [uploadedFilesFromRedux, isSubmitting]);
 
   const onImageLoad = useCallback(
     (e, fileId) => {
@@ -245,6 +248,7 @@ const PreviewDrawerMobile = ({
 
   const handleSubmit = async (e) => {
     e.stopPropagation();
+    e.preventDefault();
     if (isSubmitting) return;
     setIsSubmitting(true);
     if (imageRefs.current?.size) {
@@ -314,6 +318,7 @@ const PreviewDrawerMobile = ({
         const apiStartTime = Date.now();
         dispatch(uploadFiles(sendData)).then((res) => {
           if (res?.meta?.requestStatus === "fulfilled") {
+            uploadSuccessRef.current = true;
             trackEvent(EVENTS.SNAP_RX.uploadSuccess, {
               file_type: "img",
               file_size: updatedCroppedFiles?.reduce(
@@ -325,11 +330,16 @@ const PreviewDrawerMobile = ({
             });
           } else {
             trackEvent(EVENTS.SNAP_RX.uploadFailed);
+            setIsSubmitting(false);
           }
+        }).catch((error) => {
+          console.error("Upload failed:", error);
+          setIsSubmitting(false);
         });
       } catch (error) {
         console.error("Error cropping image:", error);
         message.error("Failed to process image");
+        setIsSubmitting(false);
       }
     } else {
       if (onSave) {
@@ -380,6 +390,7 @@ const PreviewDrawerMobile = ({
   };
 
   const handleCloseClick = () => {
+    uploadSuccessRef.current = false;
     onClose(true);
   };
 
