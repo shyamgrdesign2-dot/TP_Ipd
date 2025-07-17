@@ -7,33 +7,37 @@ import moment from "moment";
 import { useNavigate } from "react-router-dom";
 
 import yearlyPlan from '../../../assets/images/year-plan-corner.svg'
+
+import logoSm from '../../../assets/images/logo-sm.svg';
+import iconEdit from "../../../assets/images/edit.svg";
 import visitEnd from '../../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../../assets/images/close-visit.svg';
-import logoSm from '../../../assets/images/logo-sm.svg';
 import { currencyFormat, errorMessage, formatAmount, getClinic, getClinicName, getDeviceSdkData, getTokenData, isNumeric, isValidGST, onlyDecimalFormat, onlyNumberFormat, removeBeforeWhiteSpace } from "../../../utils/utils";
-import { discountCode, discountCodeValidate, paymentOrder, purchaseDetails, verifyPayment } from "../../../redux/monetizationSlice";
+import { kamList, otpSend, otpVerify, paymentOrder, purchaseDetails, verifyPayment } from "../../../redux/monetizationSlice";
+import { fetchSubscriptionDetails } from "../../../redux/subscriptionSlice";
 import { searchPincode } from "../../../redux/appointmentsSlice";
 import { services } from "../../../redux/doctorsSlice";
 import { S_SMARTSYNC, S_TATVA_PRACTICE, MESSAGE_KEY } from "../../../utils/constants";
 import config from "../../../config";
 
 import "../GetUnlimitedAccess.scss";
+import { deviceType, osName } from "react-device-detect";
 
 function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const { profile } = useSelector((state) => state.doctors);
     const { pincodeInfo } = useSelector((state) => state.records);
     const { planDetails } = useSelector((state) => state.subscription);
-    const { b2c } = planDetails || {};
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-
+    const [seconds, setSeconds] = useState(15);
+    const [canResend, setCanResend] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [flag, setFlag] = useState(1);
     const [kamDetails, setKamDetails] = useState(null);
-    const [salesDetails, setSalesDetails] = useState(null);
-    const [salesCode, setSalesCode] = useState('');
+    const [mobileNo, setMobileNo] = useState('');
+    const [otp, setOTP] = useState('');
     const [salesDiscount, setSalesDiscount] = useState('');
 
     const [taxInvoice, setTaxInvoice] = useState(false);
@@ -140,6 +144,13 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     const subTotal = useMemo(() => {
         return selectedServices.reduce(
             (sum, item) => sum + (parseFloat(item.strike_off_cost) * (item.validity / 12)),
+            0
+        );
+    }, [selectedServices]);
+
+    const salesDiscountAmount = useMemo(() => {
+        return selectedServices.reduce(
+            (sum, item) => sum + parseFloat(item.max_applicable_discount),
             0
         );
     }, [selectedServices]);
@@ -306,11 +317,9 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     summary: summaryData,
                     discount_details: [
                         {
-                            "kam_id": '',
+                            "kam_id": kamDetails ? kamDetails : '',
                             "discount_id": generateDiscountId(),
-                            "discount_given": salesDiscount ? formatAmount(parseFloat(salesDiscount)) : 0,
-                            "discountCode": salesCode,
-                            "requestId": salesDetails ? salesDetails?.requestId : '',
+                            "discount_given": salesDiscount ? formatAmount(parseFloat(salesDiscount)) : 0
                         }
                     ]
                 }
@@ -446,57 +455,191 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     }
 
     const handleDrawer = useCallback(() => {
-        setSalesDetails(null);
-        setSalesDiscount('');
+        setSalesDiscount('')
         setDrawerOpen(!drawerOpen);
     }, [drawerOpen]);
 
-    const clickReferralCode = async () => {
+    const clickReferralCode = () => {
         if (selectedServices?.length > 0) {
-            const summaryData = selectedServices.map(({ service_name, validity }) => ({
-                serviceName: service_name,
-                noOfYears: validity / 12
-            }));
-            let sendData = {
-                b2c: b2c,
-                services: summaryData
-            }
-            const action = await dispatch(discountCode(sendData));
-            if (action?.payload?.status === 200) {
-                setSalesDetails(action?.payload?.body);
-                setSalesCode('');
-                setFlag(1);
-                setDrawerOpen(true);
-            } else {
-                errorMessage(action?.payload?.data?.errorMessage || action?.payload?.message);
-            }
-
+            setMobileNo('');
+            setOTP('');
+            setFlag(1);
+            setDrawerOpen(true);
         } else {
             errorMessage('Please add any service')
         }
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData();
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_RefferalCode", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            ...deviceSdkData
+        });
     }
 
-    const onSalesCodeChange = useCallback((e) => {
-        const updateQuery = removeBeforeWhiteSpace(e.target.value);
-        setSalesCode(updateQuery);
-    }, [salesCode]);
+    const onMobileNoChange = useCallback((e) => {
+        const updateQuery = removeBeforeWhiteSpace(onlyNumberFormat(e.target.value))
+        setMobileNo(updateQuery);
+    }, [mobileNo]);
 
-    const validateCode = async () => {
-        let sendData = {
-            code: salesCode,
-            id: salesDetails?.requestId
-        }
-        const action = await dispatch(discountCodeValidate(sendData));
-        console.log(action)
-        if (action?.payload?.status === 200) {
-            setSalesDiscount(action?.payload?.body?.discountAmount);
-            setFlag(2);
+    const kamValidation = async () => {
+        if (mobileNo?.length < 10) {
+            errorMessage('Enter valid mobile number')
         } else {
-            errorMessage(action?.payload?.data?.errorMessage || action?.payload?.message);
+            const clinic_name = getClinicName(profile?.hospital_data);
+            const tokenData = getTokenData();
+            const deviceSdkData = getDeviceSdkData();
+            window.Moengage.track_event("TP_Monetization_ContinueSalesRefferalStep1", {
+                doctor_name: profile?.um_name,
+                doctor_number: profile?.um_contact,
+                doctor_unique_id: profile?.doctor_unique_id,
+                doctor_specialty: profile?.dp_name,
+                clinic_id: tokenData?.clinic_id,
+                um_id: tokenData?.user_id,
+                clinic_Name: clinic_name,
+                KAM_Mobile_Number: mobileNo,
+                ...deviceSdkData
+            });
+            let sendData = {
+                page: 0,
+                size: 1,
+                search: mobileNo
+            }
+            const action = await dispatch(kamList(sendData));
+            if (action.meta.requestStatus === "fulfilled") {
+                if (action?.payload?.body?.content?.length > 0 && action?.payload?.body?.content[0]?.active) {
+                    setKamDetails(action?.payload?.body?.content[0]?.id)
+                    startTimer();
+                    sendOTP()
+                } else {
+                    errorMessage('Please provide valid BDM mobile number')
+                }
+            } else {
+                errorMessage(action.payload.message)
+            }
         }
     }
+
+    const handleResendOtp = () => {
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData();
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_OTPResent", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            KAM_Mobile_Number: mobileNo,
+            ...deviceSdkData
+        });
+        if (canResend) {
+            startTimer();
+            sendOTP()
+        }
+    };
+
+    const startTimer = () => {
+        setSeconds(15);
+        setCanResend(false);
+
+        const timerId = setInterval(() => {
+            setSeconds(prevSeconds => {
+                if (prevSeconds === 1) {
+                    clearInterval(timerId);
+                    setCanResend(true);
+                    return 0;
+                }
+                return prevSeconds - 1;
+            });
+        }, 1000);
+    };
+
+    const sendOTP = async () => {
+        let sendData = {
+            mobileNumber: `91${mobileNo}`,
+        }
+        const action = await dispatch(otpSend(sendData));
+        if (action.meta.requestStatus === "fulfilled") {
+            if (action?.payload?.type === 'success') {
+                setFlag(2)
+                const clinic_name = getClinicName(profile?.hospital_data);
+                const tokenData = getTokenData();
+                const deviceSdkData = getDeviceSdkData();
+                window.Moengage.track_event("TP_Monetization_SaleRefOTPtrigger", {
+                    doctor_name: profile?.um_name,
+                    doctor_number: profile?.um_contact,
+                    doctor_unique_id: profile?.doctor_unique_id,
+                    doctor_specialty: profile?.dp_name,
+                    clinic_id: tokenData?.clinic_id,
+                    um_id: tokenData?.user_id,
+                    clinic_Name: clinic_name,
+                    KAM_Mobile_Number: mobileNo,
+                    ...deviceSdkData
+                });
+            } else {
+                errorMessage('Something went wrong! please try again later')
+            }
+        } else {
+            errorMessage(action.payload.message)
+        }
+    }
+
+    const onOTPChange = useCallback((value) => {
+        const updateQuery = removeBeforeWhiteSpace(onlyNumberFormat(value))
+        setOTP(updateQuery);
+    }, [otp]);
+
+    const verifyOTP = async () => {
+        if (otp?.length != 6) {
+            errorMessage('Enter valid otp')
+        } else {
+            let sendData = {
+                mobileNumber: `91${mobileNo}`,
+                otp: otp
+            }
+            const action = await dispatch(otpVerify(sendData));
+            if (action.meta.requestStatus === "fulfilled") {
+                if (action?.payload?.type === 'success') {
+                    setFlag(3)
+                } else {
+                    errorMessage(action.payload.message)
+                }
+            } else {
+                errorMessage(action.payload.message)
+            }
+            const clinic_name = getClinicName(profile?.hospital_data);
+            const tokenData = getTokenData();
+            const deviceSdkData = getDeviceSdkData();
+            window.Moengage.track_event("TP_Monetization_OTPVerification", {
+                doctor_name: profile?.um_name,
+                doctor_number: profile?.um_contact,
+                doctor_unique_id: profile?.doctor_unique_id,
+                doctor_specialty: profile?.dp_name,
+                clinic_id: tokenData?.clinic_id,
+                um_id: tokenData?.user_id,
+                clinic_Name: clinic_name,
+                KAM_Mobile_Number: mobileNo,
+                ...deviceSdkData
+            });
+        }
+    }
+
+    const onSalesDiscountChange = useCallback((e) => {
+        const updateQuery = removeBeforeWhiteSpace(onlyDecimalFormat(e.target.value))
+        setSalesDiscount(updateQuery);
+    }, [salesDiscount]);
 
     const clickSalesDiscount = () => {
+
         message.open({
             key: MESSAGE_KEY,
             type: '',
@@ -510,7 +653,22 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
             ),
             duration: 5,
         });
+
         setDrawerOpen(false);
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData();
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_SalesDiscountGiven", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            KAM_Mobile_Number: mobileNo,
+            ...deviceSdkData
+        });
     }
 
     const handeYearDD = (e) => {
@@ -658,15 +816,30 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                     <div className="p-4">
                         {flag === 1 ? (
                             <>
-                                <div className="fontroboto mb-2">Enter Sales Discount Code <sup className="text-danger-custom fs-14">*</sup></div>
-                                <Input className="inputheight45 rounded-10px" value={salesCode} onChange={onSalesCodeChange} />
-                                <Button className="btn btn-proceed btn-primary3 fs-18 my-4" onClick={validateCode}>
+                                <div className="fontroboto mb-2">Enter Sales Mobile Number <sup className="text-danger-custom fs-14">*</sup></div>
+                                <Input className="inputheight45 rounded-10px" value={mobileNo} maxLength={10} onChange={onMobileNoChange} />
+                                <Button className="btn btn-proceed btn-primary3 fs-18 my-4" onClick={kamValidation}>
+                                    Continue
+                                </Button>
+                            </>
+                        ) : flag === 2 ? (
+                            <>
+                                <div className="fontroboto mb-2 text-1F2933">Enter OTP sent to <span className="fw-bold text-decoration-underline text-1F2933">{mobileNo}</span> <img className="ms-2 cursor-pointer" height={16} src={iconEdit} onClick={() => setFlag(1)} /></div>
+                                <Input.OTP className="input-otp-size45" length={6} value={String(otp)} formatter={str => onlyNumberFormat(str)} onChange={onOTPChange} />
+                                <div className="fontroboto mt-3">Didn’t receive OTP? <Link className="text-decoration-underline fw-semibold text-primary" disabled={!canResend} onClick={handleResendOtp}>{canResend ? 'Resend OTP' : `Resend OTP in ${seconds}s`}</Link></div>
+                                <Button className="btn btn-proceed btn-primary3 my-4 fs-18" onClick={verifyOTP}>
                                     Continue
                                 </Button>
                             </>
                         ) : (
                             <>
-                                <div className="discount-amount-box p-4">
+                                <div className="fontroboto mb-2">Enter Sales Discount Amount <sup className="text-danger-custom fs-14">*</sup></div>
+                                <Input className="inputheight45 rounded-10px fw-medium" placeholder="0" prefix="₹" value={salesDiscount} onChange={onSalesDiscountChange} />
+                                {parseFloat(salesDiscount) > parseFloat(salesDiscountAmount) && (
+                                    <div className="text-danger-custom fs-12">The discount amount entered is too high. Please try a valid amount within the allowed range.</div>
+                                )}
+                                <div className="discount-amount-box p-4 mt-4">
+
                                     {selectedServices?.map((item, index) => {
                                         return (
                                             <div key={index} className="d-flex align-items-center justify-content-between py-2">
@@ -694,7 +867,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                                     </div>
                                 </div>
 
-                                <Button className="btn btn-proceed btn-primary3 fs-18 my-4" onClick={clickSalesDiscount}>
+                                <Button disabled={(parseFloat(salesDiscount) > parseFloat(salesDiscountAmount)) || !salesDiscount ? true : false} className="btn btn-proceed btn-primary3 fs-18 my-4" onClick={clickSalesDiscount}>
                                     Confirm
                                 </Button>
                             </>

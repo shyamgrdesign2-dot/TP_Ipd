@@ -158,6 +158,30 @@ export const invoiceGenerate = createAsyncThunk(
     }
 );
 
+export const discountCode = createAsyncThunk(
+    "monetization/discountCode",
+    async (data, { rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.discountCode(data);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
+export const discountCodeValidate = createAsyncThunk(
+    "monetization/discountCodeValidate",
+    async (data, { rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.discountCodeValidate(data);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
 const monetizationSlice = createSlice({
     name: "monetization",
     initialState,
