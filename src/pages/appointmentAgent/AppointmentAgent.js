@@ -137,8 +137,7 @@ function AppointmentAgent() {
   // Validation functions for each step
   const validateReceptionistStep = useCallback(() => {
     const isValid =
-      setupData.receptionistName &&
-      setupData.receptionistName.trim().length > 0 &&
+      setupData.receptionistName?.trim().length > 0 &&
       setupData.avatar;
     setStepValidation((prev) => ({ ...prev, receptionist: isValid }));
     return isValid;
@@ -146,12 +145,9 @@ function AppointmentAgent() {
 
   const validateClinicStep = useCallback(() => {
     const isValid =
-      setupData.contact &&
-      setupData.contact.trim().length > 0 &&
-      setupData.contact.trim().length === 10 &&
+      setupData.contact?.trim().length === 10 &&
       setupData.fullgoogleLocation &&
-      setupData.doctors &&
-      setupData.doctors.length > 0;
+      setupData.doctors?.length > 0;
     setStepValidation((prev) => ({ ...prev, clinic: isValid }));
     return isValid;
   }, [setupData.contact, setupData.fullgoogleLocation, setupData.doctors]);
