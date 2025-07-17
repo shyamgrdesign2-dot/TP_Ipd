@@ -36,6 +36,7 @@ function TabFollowUpBox() {
     const { followUpDate, setFollowUpDate, additionalNote, setAdditionalNote } = useContext(CashManagerContext);
     const [followUpInput, setFollowUpInput] = useState('');
     const [saveButton, setSaveButton] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null); // New state for DatePicker value
     const { isAutofillSelected, selectedSymptomsCollector } = useSelector(
       (state) => state.ddx
     );
@@ -94,6 +95,7 @@ function TabFollowUpBox() {
             const updateQuery = onlyNumberFormat(e.target.value);
             setFollowUpInput(updateQuery)
             setFollowUpDate(null)
+            setSelectedDate(null) // Clear selected date when input is cleared
             if (updateQuery.length > 0) {
                 const options = [
                     { value: `${updateQuery}`, unit: 'day', label: `${updateQuery} ${updateQuery <= 1 ? 'Day' : 'Days'}` },
@@ -143,6 +145,7 @@ function TabFollowUpBox() {
                 setFollowUpInput(`${days} ${days <= 1 ? 'Day' : 'Days'}`)
             }
             setFollowUpDate(getFormattedDate(moment(moment().format(dateFormat)).add(days, 'day').format(dateFormat)))
+            setSelectedDate(date) // Set the selected date for DatePicker
             setDateOptions([]);
         }
     };
@@ -153,7 +156,9 @@ function TabFollowUpBox() {
         });
         setDateOptions([]);
         setFollowUpInput(e.label)
-        setFollowUpDate(getFormattedDate(moment(moment().format(dateFormat)).add(parseInt(e.value), e.unit).format(dateFormat)))
+        const calculatedDate = moment(moment().format(dateFormat)).add(parseInt(e.value), e.unit);
+        setFollowUpDate(getFormattedDate(calculatedDate.format(dateFormat)))
+        setSelectedDate(calculatedDate.toDate()) // Set the selected date for DatePicker
     };
 
     const onChangeNote = useCallback(
@@ -606,7 +611,12 @@ function TabFollowUpBox() {
                             </div>
                             <div className="d-flex calender-merge-input mt-3">
                                 <Input className="w-100 calnder-input1" placeholder="e.g. 3 Days" value={followUpInput} inputMode="numeric" onChange={onChangeFollowUp} allowClear />
-                                <DatePicker inputReadOnly disabledDate={disabledDate} onChange={onDateChanged} />
+                                <DatePicker 
+                                    inputReadOnly 
+                                    disabledDate={disabledDate} 
+                                    onChange={onDateChanged} 
+                                    value={selectedDate ? dayjs(selectedDate) : null}
+                                />
                             </div>
                             {followUpDate && (
                                 <div className="title fontroboto mt-2">

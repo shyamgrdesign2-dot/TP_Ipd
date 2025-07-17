@@ -9,7 +9,42 @@ import { env } from "../EnvironmentConfig";
 // Add custom parse format plugin
 dayjs.extend(customParseFormat);
 
-const ZydusLabParametersList = ({ labParamsData }) => {
+const ZydusLabParametersList = ({ labParamsData, patientGender }) => {
+  const calculateArrowDirection = (value, refRange) => {
+    if (!value || value === "-" || value === "--") return "";
+    const numericValue = parseFloat(value);
+    if (isNaN(numericValue)) return "";
+    if (typeof refRange === 'string' && refRange !== "-") {
+      const rangeMatch = refRange.match(/(\d+(?:\.\d+)?)\s*[-–]\s*(\d+(?:\.\d+)?)/);
+      if (rangeMatch) {
+        const min = parseFloat(rangeMatch[1]);
+        const max = parseFloat(rangeMatch[2]);
+        if (!isNaN(min) && !isNaN(max)) {
+          if (numericValue > max) return "up";
+          if (numericValue < min) return "down";
+        }
+      }
+    }
+    if (refRange?.ranges?.length > 0) {
+      const genderLower = patientGender?.toLowerCase() || "";
+      const selectedRange = refRange.ranges.find(range => 
+        range.gender?.toLowerCase() === genderLower
+      ) || refRange.ranges.find(range => 
+        range.gender?.toLowerCase() === "all"
+      ) || refRange.ranges[0];
+      
+      if (selectedRange?.min !== undefined && selectedRange?.max !== undefined) {
+        const min = parseFloat(selectedRange.min);
+        const max = parseFloat(selectedRange.max);
+        if (!isNaN(min) && !isNaN(max)) {
+          if (numericValue > max) return "up";
+          if (numericValue < min) return "down";
+        }
+      }
+    }
+    return "";
+  };
+
   const transformData = (data) => {
     const result = {};
 
@@ -32,6 +67,7 @@ const ZydusLabParametersList = ({ labParamsData }) => {
               date: entry.date,
               value: param.resultValue,
               referenceRange: param.referenceRange,
+              arrowDirection: calculateArrowDirection(param.resultValue, param.referenceRange),
               sampleId: input.sampleId,
               certifiedDate: input.certifiedDate,
               labResultId: input.labResultId,
@@ -50,6 +86,7 @@ const ZydusLabParametersList = ({ labParamsData }) => {
             date: entry.date,
             value: input.resultvalue,
             referenceRange: input.referenceRange,
+            arrowDirection: calculateArrowDirection(input.resultvalue, input.referenceRange),
             sampleId: input.sampleId,
             certifiedDate: input.certifiedDate,
             labResultId: input.labResultId
@@ -152,7 +189,6 @@ const ZydusLabParametersList = ({ labParamsData }) => {
                     key={dataIndex}
                     style={{ 
                       width: "25%", 
-                      color: "#454551 !important",
                       wordBreak: "break-word",
                       whiteSpace: "normal",
                       padding: "24px 8px",
@@ -160,9 +196,36 @@ const ZydusLabParametersList = ({ labParamsData }) => {
                       height: "60px",
                       verticalAlign: "middle"
                     }}
-                    className="labParamsTcell"
+                    className={`labParamsTcell ${
+                      dataForDate?.arrowDirection !== ""
+                        ? "lab-params-warning"
+                        : ""
+                    }`}
                   >
-                    {dataForDate ? dataForDate.value || "--" : "--"}
+                    {dataForDate ? (
+                      <>
+                        <span className={dataForDate?.arrowDirection ? "lab-params-warning" : ""}
+                          style={{
+                            fontWeight: dataForDate?.arrowDirection ? "500" : "normal"
+                          }}>
+                          {dataForDate.value || "--"}
+                        </span>
+                        {dataForDate?.arrowDirection === "up" && (
+                          <ArrowUpOutlined
+                            className="lab-params-warning"
+                            style={{ paddingLeft: 5 }}
+                          />
+                        )}
+                        {dataForDate?.arrowDirection === "down" && (
+                          <ArrowDownOutlined
+                            className="lab-params-warning"
+                            style={{ paddingLeft: 5 }}
+                          />
+                        )}
+                      </>
+                    ) : (
+                      <span>{"--"}</span>
+                    )}
                   </td>
                 );
               })}
@@ -175,6 +238,19 @@ const ZydusLabParametersList = ({ labParamsData }) => {
 
   return (
     <div>
+      <style>
+        {`
+          .labParamsTcell {
+            color: #454551;
+          }
+          .lab-params-warning {
+            color: #E54848 !important;
+          }
+          .labParamsTcell.lab-params-warning {
+            color: #E54848 !important;
+          }
+        `}
+      </style>
       {labParamsData?.length > 0 && (
         <>
           <div style={{ overflow: "hidden", marginRight: "5px" }}>
