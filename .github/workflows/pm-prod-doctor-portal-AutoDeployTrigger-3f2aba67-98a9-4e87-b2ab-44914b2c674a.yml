@@ -1,30 +1,30 @@
-name: Trigger auto deployment for pm-prod-doctor-portal
+name: Blue-Green Deploy for pm-prod-doctor-portal
 
-# When this action will be executed
 on:
-  # Automatically trigger it when detected changes in repo
   push:
-    branches: 
-      [ prod ]
+    branches: [ prod ]
     paths:
-    - '**'
-    - '.github/workflows/pm-prod-doctor-portal-AutoDeployTrigger-3f2aba67-98a9-4e87-b2ab-44914b2c674a.yml'
-
-  # Allow manual trigger 
-  workflow_dispatch:      
+      - '**'
+      - '.github/workflows/pm-prod-doctor-portal-blue-green.yml'
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  blue-green-deploy:
     runs-on: ubuntu-latest
     env:
       REACT_APP_ENV: prod
-    permissions: 
-      id-token: write #This is required for requesting the OIDC JWT Token
-      contents: read #Required when GH token is used to authenticate with private repo
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
-      - name: Checkout to the branch
+      - name: Checkout Code
         uses: actions/checkout@v2
+
+      - name: Install latest Azure CLI and containerapp extension
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          az extension add --name containerapp --yes || az extension update --name containerapp
 
       - name: Azure Login
         uses: azure/login@v1
@@ -33,17 +33,56 @@ jobs:
           tenant-id: ${{ secrets.PMPRODDOCTORPORTAL_AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.PMPRODDOCTORPORTAL_AZURE_SUBSCRIPTION_ID }}
 
-      - name: Build and push container image to registry
-        uses: azure/container-apps-deploy-action@v2
-        with:
-          appSourcePath: ${{ github.workspace }} 
-          registryUrl: acinacr.azurecr.io
-          registryUsername: ${{ secrets.PMPRODDOCTORPORTAL_REGISTRY_USERNAME }}
-          registryPassword: ${{ secrets.PMPRODDOCTORPORTAL_REGISTRY_PASSWORD }}
-          containerAppName: pm-prod-doctor-portal
-          resourceGroup: tatva-prod
-          imageToBuild: acinacr.azurecr.io/pm-prod-doctor-portal:${{ github.sha }}
-          buildArguments: |
-            "REACT_APP_ENV=prod"
+      - name: Get current active (blue) revision
+        id: get_blue
+        run: |
+          BLUE=$(az containerapp revision list \
+            --name pm-prod-doctor-portal \
+            --resource-group tatva-prod \
+            --query "[?properties.trafficWeight > \`0\`].name" -o tsv)
+          echo "BLUE_REVISION=$BLUE" >> $GITHUB_OUTPUT
 
+      - name: Build and push image to registry
+        run: |
+          docker build -t acinacr.azurecr.io/pm-prod-doctor-portal:${{ github.sha }} \
+            --build-arg REACT_APP_ENV=prod .
+          echo "${{ secrets.PMPRODDOCTORPORTAL_REGISTRY_PASSWORD }}" | docker login acinacr.azurecr.io -u ${{ secrets.PMPRODDOCTORPORTAL_REGISTRY_USERNAME }} --password-stdin
+          docker push acinacr.azurecr.io/pm-prod-doctor-portal:${{ github.sha }}
 
+      - name: Deploy new revision with 0% traffic
+        run: |
+          az containerapp update \
+            --name pm-prod-doctor-portal \
+            --resource-group tatva-prod \
+            --image acinacr.azurecr.io/pm-prod-doctor-portal:${{ github.sha }}
+
+      - name: Wait for deployment propagation
+        run: sleep 20
+
+      - name: Get new revision name by latest creation time
+        id: get_green
+        run: |
+          GREEN=$(az containerapp revision list \
+            --name pm-prod-doctor-portal \
+            --resource-group tatva-prod \
+            --query "sort_by([], &properties.createdTime)[-1].name" -o tsv)
+          echo "GREEN_REVISION=$GREEN" >> $GITHUB_OUTPUT
+
+      - name: Label new revision as green
+        run: |
+          az containerapp revision label add \
+            --name pm-prod-doctor-portal \
+            --resource-group tatva-prod \
+            --revision ${{ steps.get_green.outputs.GREEN_REVISION }} \
+            --label green
+
+      - name: Re-label previous active revision as blue
+        run: |
+          az containerapp revision label add \
+            --name pm-prod-doctor-portal \
+            --resource-group tatva-prod \
+            --revision ${{ steps.get_blue.outputs.BLUE_REVISION }} \
+            --label blue
+
+      - name: ✅ Done
+        run: echo "Deployment complete. New green revision is deployed at 0% traffic. Ready for testing."
