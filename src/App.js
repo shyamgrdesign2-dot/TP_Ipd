@@ -53,6 +53,8 @@ import GetUnlimitedAccess from "./pages/monetization/GetUnlimitedAccess";
 import UpgradeServicesModal from "./pages/monetization/components/UpgradeServicesModal";
 import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
+import AppointmentAgent from "./pages/appointmentAgent/AppointmentAgent";
+import AppointmentSuccess from "./pages/appointmentAgent/components/AppointmentSuccess/AppointmentSuccess";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -398,6 +400,14 @@ function App() {
                 <Route path="billing-settings" element={<BillingSettings />} />
                 <Route path="add-appointment" element={<AddAppointment />} />
                 <Route path="get-unlimited-access" element={<GetUnlimitedAccess />} />
+                <Route
+                  path="appointment-agent"
+                  element={<AppointmentAgent />}
+                />
+                <Route
+                  path="appointment-agent/success"
+                  element={<AppointmentSuccess />}
+                />
               </Route>
             </Routes>
           </PersistGate>

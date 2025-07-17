@@ -29,6 +29,7 @@ import FullPageLoader from "../../vaccination/components/Loader";
 import config from "../../../config";
 import { useLocalStorage } from "../../../utils/localStorage";
 import ExpiredSubModal from "./ExpiredSubModal";
+import ReceptionistKnowMore from "../../appointmentAgent/components/knowMore/ReceptionistKnowMore";
 import ContactSupportModal from "../../../common/ContactSupportModal";
 
 function AiSuite({ aiModal, handleAiSuite }) {
@@ -56,6 +57,8 @@ function AiSuite({ aiModal, handleAiSuite }) {
     const [askTatvaKnowMoreDrawer, setAskTatvaKnowMoreDrawer] = useState(false);
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAIReceptionistKnowMoreDrawer, setIsAIReceptionistKnowMoreDrawer] = useState(false);
+
 
     const clickContactSupport = useCallback(() => {
         setIsModalOpen(!isModalOpen);
@@ -81,6 +84,9 @@ function AiSuite({ aiModal, handleAiSuite }) {
             handleDDxKnowMore()
         } else if (service_name === S_ASK_TATVA) {
             handleAskTatvaKnowMore()
+        }
+        else if( service_name === S_RECEPTIONIST_AGENT){
+            handleAIReceptionistKnowMore()
         }
         const clinic_name = getClinicName(profile?.hospital_data);
         const deviceSdkData = getDeviceSdkData();
@@ -121,6 +127,10 @@ function AiSuite({ aiModal, handleAiSuite }) {
     const showHideSubModal = useCallback(() => {
         setIsSubModalOpen(!isSubModalOpen);
     }, [isSubModalOpen]);
+
+    const handleAIReceptionistKnowMore = () => {
+        setIsAIReceptionistKnowMoreDrawer((prev) => !prev);
+    };
 
     const handleTatvaAi = async () => {
         try {
@@ -399,7 +409,21 @@ function AiSuite({ aiModal, handleAiSuite }) {
             <ExpiredSubModal
                 title={S_ASK_TATVA}
                 isSubModalOpen={isSubModalOpen}
-                showHideSubModal={showHideSubModal} />
+                showHideSubModal={showHideSubModal} 
+            />
+
+            {isAIReceptionistKnowMoreDrawer && (
+                <Drawer
+                    closeIcon={false}
+                    placement="right"
+                    open={isAIReceptionistKnowMoreDrawer}
+                    onClose={handleAIReceptionistKnowMore}
+                    className=".modalWidth-800"
+                    width={680}
+                >
+                    <ReceptionistKnowMore handleDDxKnowMore={handleAIReceptionistKnowMore} />
+                </Drawer>
+            )}
         </>
 
     );

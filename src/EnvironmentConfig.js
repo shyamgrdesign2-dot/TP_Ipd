@@ -65,7 +65,8 @@ const dev = {
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
   tp_monetization_disabled_hospital: [4851751290017377, 754811713438773, 912841712741834, 7591750931025038],
-  medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in"
+  medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
+  REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
 };
 
 const qa_tp = {
@@ -139,7 +140,8 @@ const qa_tp = {
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
   tp_monetization_disabled_hospital: [4851751290017377, 754811713438773, 912841712741834, 7591750931025038],
-  medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in"
+  medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
+  REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
 };
 
 const qa = {
@@ -209,7 +211,8 @@ const qa = {
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
   tp_monetization_disabled_hospital: [4851751290017377, 754811713438773, 912841712741834, 7591750931025038],
-  medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in"
+  medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
+  REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
 };
 
 const uat = {
@@ -284,7 +287,8 @@ const uat = {
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
   monetization_url: "https://pm-tp-monetization-uat.tatvacare.in",
   tp_monetization_disabled_hospital: [4851751290017377, 754811713438773, 912841712741834, 7591750931025038],
-  medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in"
+  medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
+  REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
 };
 
 const prod = {
@@ -359,7 +363,8 @@ const prod = {
   ],
   monetization_url: "https://pm-tp-monetization-prod.tatvacare.in",
   tp_monetization_disabled_hospital: [368451724046474, 345711722419722, 189641711087501, 635211726058248, 817391726308284, 389721726761413, 625141727277272, 137621731053002, 268741731506046, 549821734513388, 628451726551928, 684191731931706, 879361730721433, 538421739782028, 136841742984591],
-  medeco_webview_url: ''
+  medeco_webview_url: '',
+  REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
 };
 
 const getEnv = () => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Button, Drawer, Popover, Steps, Radio, DatePicker, TimePicker, Select, Checkbox, Input, Spin, message } from 'antd';
+import { Button, Drawer, Popover, Steps, Radio, DatePicker, TimePicker, Select, Checkbox, Input, Spin, message, Tooltip } from 'antd';
 import { Col, Container, Row } from "react-bootstrap";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -28,6 +28,9 @@ import AvailableCredits from "../components/bulk_messages/AvailableCredits";
 import CommonModal from "../common/CommonModal";
 
 import "../components/bulk_messages/messages.scss";
+import { InfoCircleOutlined } from '@ant-design/icons';
+import { fetchAgents } from "../pages/appointmentAgent/service";
+import { getDecodedToken } from "../utils/localStorage";
 
 const { RangePicker } = DatePicker;
 const dateFormat = 'YYYY-MM-DD'
@@ -62,7 +65,7 @@ function MessageCreateCampaign() {
 
     const navigate = useNavigate();
     const { state } = useLocation();
-    const { campaign_data, reuse_campaign_data } = state != null && state
+    const { campaign_data, reuse_campaign_data, setupData } = state != null && state
 
     const [popOverVideo, setPopOverVideo] = useState(false);
     const [videoLink, setVideoLink] = useState(null);
@@ -76,6 +79,9 @@ function MessageCreateCampaign() {
     const [template, setTemplate] = useState(null);
 
     const [clinic_name, setclinic_name] = useState('');
+    const [agent_name, setagent_name] = useState(state.setupData?.name || "");
+    const [agent_link, setagent_link] = useState(state.setupData?.appointmentLinkShared || "");
+    const [regards_as_hospital, setregards_as_hospital] = useState('');
     const [clinic_address, setclinic_address] = useState('');
     const [festival_name, setfestival_name] = useState('');
     const [doctor_name, setdoctor_name] = useState('');
@@ -163,6 +169,15 @@ function MessageCreateCampaign() {
 
             if (campaign_data?.msg_rowData?.hasOwnProperty('clinic_name')) {
                 setclinic_name(campaign_data?.msg_rowData?.clinic_name)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('agent_name')) {
+                setagent_name(campaign_data?.msg_rowData?.agent_name)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('agent_link')) {
+                setagent_link(campaign_data?.msg_rowData?.agent_link)
+            }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('regards_as_hospital')) {
+                setregards_as_hospital(campaign_data?.msg_rowData?.regards_as_hospital)
             }
             if (campaign_data?.msg_rowData?.hasOwnProperty('clinic_address')) {
                 setclinic_address(campaign_data?.msg_rowData?.clinic_address)
@@ -280,6 +295,15 @@ function MessageCreateCampaign() {
 
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('clinic_name')) {
                 setclinic_name(reuse_campaign_data?.msg_rowData?.clinic_name)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('agent_name')) {
+                setagent_name(reuse_campaign_data?.msg_rowData?.agent_name)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('agent_link')) {
+                setagent_link(reuse_campaign_data?.msg_rowData?.agent_link)
+            }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('regards_as_hospital')) {
+                setregards_as_hospital(reuse_campaign_data?.msg_rowData?.regards_as_hospital)
             }
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('clinic_address')) {
                 setclinic_address(reuse_campaign_data?.msg_rowData?.clinic_address)
@@ -420,6 +444,37 @@ function MessageCreateCampaign() {
             clearTimeout(timeOutId);
         };
     }, [pickerModal, change, sender_type, dateRange, gender, min_age, max_age, age_unit, filter_doc]);
+
+    // Automatically set selectedCategory to 6 if state.category === 'ai-receptionist'
+    useEffect(() => {
+        if (state?.category === 'ai-receptionist') {
+            setSelectedCategory(6);
+        }
+    }, [state?.category]);
+
+    // Automatically set WhatsApp as selected if category is ai-receptionist or 6
+    useEffect(() => {
+        if (selectedCategory === 6 || state?.category === 'ai-receptionist') {
+            setSendOn(2);
+        }
+    }, [selectedCategory, state?.category]);
+
+    useEffect(() => {
+        async function fetchAgentData() {
+            const decodedToken = getDecodedToken();
+            const clinicId = decodedToken?.result?.clinic_id;
+            if (clinicId) {
+                const res = await fetchAgents(clinicId);
+                if (res && res.length > 0) {
+                    setagent_name(res[res.length - 1]?.name || "");
+                    setagent_link(res[res.length - 1]?.appointmentLinkShared || "");
+                }
+            }
+        }
+        if (selectedCategory === 6 || state?.category === 'ai-receptionist') {
+            fetchAgentData();
+        }
+    }, [selectedCategory, state?.category]);
 
     //Message Details
     const handleAvailableCredit = useCallback(
@@ -763,6 +818,66 @@ function MessageCreateCampaign() {
                         />
                     );
                 }
+                else if (part === 'agent_name') {
+                    const charWidth = 12;
+                    const maxChars = 12;
+                    const displayLength = agent_name ? Math.min(agent_name.length, maxChars) : 0;
+                    const inputWidth = displayLength > 0 ? displayLength * charWidth : charWidth * maxChars;
+                    return (
+                        <Input
+                            readOnly
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: inputWidth,
+                                maxWidth: charWidth * maxChars,
+                                border: "none",
+                            }}
+                            maxLength={30}
+                            value={ agent_name || state.setupData?.receptionistName}
+                            placeholder="Enter agent name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'agent_link') {
+                    return (
+                        <Input
+                            readOnly
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: agent_link ? parseInt(agent_link?.length * 7.55) >= 150 ? agent_link?.length * 7.55 : 150 : 150,
+                                maxWidth: 250,
+                                border: "none",
+                            }}
+                            classNames="text-greycolor"
+                            value={ agent_link || state.setupData?.appointmentLinkShared}
+                            placeholder="Enter appointment name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'regards_as_hospital') {
+                    return (
+                        <Input
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: regards_as_hospital ? parseInt(regards_as_hospital?.length * 7.55) >= 150 ? regards_as_hospital?.length * 7.55 : 150 : 150,
+                                maxWidth: 300
+                            }}
+                            maxLength={30}
+                            value={ regards_as_hospital || clinic_name}
+                            onChange={(e) => {
+                                setregards_as_hospital(e.target.value);
+                                // setclinic_name(e.target.value);
+                            }}
+                            placeholder="Enter clinic name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
                 else if (part === 'clinic_address') {
                     return (
                         <Input
@@ -1069,6 +1184,9 @@ function MessageCreateCampaign() {
     }, [
         template,
         clinic_name,
+        agent_name,
+        agent_link,
+        regards_as_hospital,
         clinic_address,
         festival_name,
         doctor_name,
@@ -1093,6 +1211,9 @@ function MessageCreateCampaign() {
     const TEMPLATE_TEXT = useMemo(() => {
         return template && template?.text
             .replace(/{clinic_name}/g, clinic_name ? clinic_name : '{clinic_name}')
+            .replace(/{agent_name}/g, agent_name ? agent_name : '{agent_name}')
+            .replace(/{agent_link}/g, agent_link ? agent_link : '{agent_link}')
+            .replace(/{regards_as_hospital}/g, regards_as_hospital ? regards_as_hospital : '{regards_as_hospital}')
             .replace(/{clinic_address}/g, clinic_address ? clinic_address : '{clinic_address}')
             .replace(/{festival_name}/g, festival_name ? festival_name : '{festival_name}')
             .replace(/{doctor_name}/g, doctor_name ? doctor_name : '{doctor_name}')
@@ -1115,6 +1236,9 @@ function MessageCreateCampaign() {
     }, [
         template,
         clinic_name,
+        agent_link,
+        regards_as_hospital,
+        agent_name,
         clinic_address,
         festival_name,
         doctor_name,
@@ -1144,6 +1268,15 @@ function MessageCreateCampaign() {
             if (index % 2 !== 0) {
                 if (part === 'clinic_name') {
                     msg_rowData['clinic_name'] = clinic_name;
+                }
+                else if (part === 'agent_name') {
+                    msg_rowData['agent_name'] = agent_name;
+                }
+                else if (part === 'agent_link') {
+                    msg_rowData['agent_link'] = agent_link;
+                }
+                else if (part === 'regards_as_hospital') {
+                    msg_rowData['regards_as_hospital'] = regards_as_hospital;
                 }
                 else if (part === 'clinic_address') {
                     msg_rowData['clinic_address'] = clinic_address;
@@ -1440,7 +1573,12 @@ function MessageCreateCampaign() {
                                     style={{ width: 250 }}
                                     value={selectedCategory}
                                     onSelect={onSelectCategory}
-                                    options={[{ id: -1, category: 'All Template' }, ...categoryList].map((e) => {
+                                    options={[
+                                        { id: -1, category: 'All Template' }, 
+                                        ...categoryList.filter(category => 
+                                            category.category !== 'AI Receptionist' || agent_name
+                                        )
+                                    ].map((e) => {
                                         return {
                                             value: e.id,
                                             label: e.category,
@@ -1464,6 +1602,9 @@ function MessageCreateCampaign() {
                                                         dangerouslySetInnerHTML={{
                                                             __html: e?.text
                                                                 .replace(/{clinic_name}/g, `<label class="text-greycolor">{clinic_name}</label>`)
+                                                                .replace(/{agent_name}/g, `<label class="text-greycolor">{agent_name}</label>`)
+                                                                .replace(/{agent_link}/g, `<label class="text-greycolor">{agent_link}</label>`)
+                                                                .replace(/{regards_as_hospital}/g, `<label class="text-greycolor">{regards_as_hospital}</label>`)
                                                                 .replace(/{clinic_address}/g, `<label class="text-greycolor">{clinic_address}</label>`)
                                                                 .replace(/{festival_name}/g, `<label class="text-greycolor">{festival_name}</label>`)
                                                                 .replace(/{doctor_name}/g, `<label class="text-greycolor">{doctor_name}</label>`)
@@ -1503,10 +1644,32 @@ function MessageCreateCampaign() {
                                     <div className="configure-template">
                                         <h5 className="fs-16 mb-0 fw-semibold">Send on</h5>
                                         <div className="mt-3">
-                                            <Radio.Group className="d-flex" onChange={handleSendOn} value={send_on}>
-                                                <Radio className="col me-30" value={1}>SMS</Radio>
-                                                <Radio className="col me-0" value={2}>WhatsApp</Radio>
-                                            </Radio.Group>
+                                            <div className="radio-group-with-info" style={{ position: 'relative' }}>
+                                                <Radio.Group className="d-flex" onChange={handleSendOn} value={send_on}>
+                                                    {selectedCategory === 6 || state?.category === 'ai-receptionist' ? (
+                                                        <>
+                                                            <Radio className="col me-30" value={2}>WhatsApp</Radio>
+                                                            <Radio
+                                                                className="col me-0 radio-disabled"
+                                                                value={1}
+                                                                disabled={selectedCategory === 6 || state?.category === 'ai-receptionist'}
+                                                            >
+                                                                SMS
+                                                            </Radio>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Radio className="col me-30" value={1}>SMS</Radio>
+                                                            <Radio className="col me-0" value={2}>WhatsApp</Radio>
+                                                        </>
+                                                    )}
+                                                </Radio.Group>
+                                                {(selectedCategory === 6 || state?.category === 'ai-receptionist') && (
+                                                    <Tooltip title="SMS is not available for AI Receptionist campaigns.">
+                                                        <InfoCircleOutlined className="radio-group-info-icon" />
+                                                    </Tooltip>
+                                                )}
+                                            </div>
                                         </div>
                                         <hr className="mb-28 mt-4" />
                                         <div className="my-2 d-flex align-items-center justify-content-between">
