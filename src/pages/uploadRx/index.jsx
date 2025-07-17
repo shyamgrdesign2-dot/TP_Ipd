@@ -77,15 +77,16 @@ const UploadRx = () => {
         patientAge,
         patientPhone,
         autoDigitizeRx,
+        doctorId,
       } = data;
       if (authToken) {
         setToken(authToken);
-        if (timestamp && patientId) {
+        if (timestamp && sessionId) {
           const uploadRxTimestamps = JSON.parse(
             localStorage.getItem("uploadRxTimestamps") || "{}"
           );
-          if (uploadRxTimestamps[patientId] !== timestamp) {
-            uploadRxTimestamps[patientId] = timestamp;
+          if (uploadRxTimestamps[sessionId] !== timestamp) {
+            uploadRxTimestamps[sessionId] = timestamp;
             localStorage.setItem(
               "uploadRxTimestamps",
               JSON.stringify(uploadRxTimestamps)
@@ -93,12 +94,12 @@ const UploadRx = () => {
           }
         }
 
-        const storedPatientId = JSON.parse(
+        const storedSessionId = JSON.parse(
           localStorage.getItem("uploadRxTimestamps")
         );
-        if (storedPatientId && storedPatientId[patientId]) {
+        if (sessionId && storedSessionId?.[sessionId]) {
           const now = Date.now();
-          const diff = now - Number(storedPatientId[patientId]);
+          const diff = now - Number(storedSessionId[sessionId]);
           if (diff > maxRxUploadTime) {
             setShowFailure(true);
           }
@@ -116,6 +117,7 @@ const UploadRx = () => {
         patientAge,
         patientPhone,
         autoDigitizeRx,
+        doctorId,
       });
     }
   }, []);
@@ -206,6 +208,10 @@ const UploadRx = () => {
     imageUploadRef.current?.handleAddEditClick();
   };
 
+  const handlePreviewClose = () => {
+    setShowSuccess(uploadedFilesFromStore?.length);
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -236,6 +242,7 @@ const UploadRx = () => {
         ref={imageUploadRef}
         patientUniqueId={data?.patientId}
         sessionId={data?.sessionId || "test-session"}
+        onPreviewClose={handlePreviewClose}
         uploadedFilesFromStore={uploadedFilesFromStore}
         autoDigitizeRx={autoDigitizeRxValue}
       />
