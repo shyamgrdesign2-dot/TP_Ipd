@@ -83,13 +83,15 @@ import WelcomeModal from "./userOnboarding/welcomeModal/WelcomeModal";
 import { checkSymptomsCollectorTour } from "../api/services/ApiGenRx";
 import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 import { EVENTS } from "../utils/events";
+import AiReceptionistButton from "./AiReceptionist";
+
 
 const { TextArea } = Input;
 
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD-MM-YYYY'
 
-function AppointmentData({ locationPath }) {
+function AppointmentData({ locationPath, appointmentAgentsData }) {
 
     const navigate = useNavigate();
 
@@ -127,6 +129,7 @@ function AppointmentData({ locationPath }) {
         GB_ISCRIBE
     );
     const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+    const isAppointmentAgentAccessableFromGB = useFeatureIsOn("appointment-agent");
     const [zydusSearchQuery, setZydusSearchQuery] = useState('');
     const [matchedAppointment, setMatchedAppointment] = useState([]);
 
@@ -152,6 +155,8 @@ function AppointmentData({ locationPath }) {
     const [tourRef, setTourRef] = useState(null);
 
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+    const [agentsData, setAgentsData] = useState(null);
+    const [isAgentsLoading, setIsAgentsLoading] = useState(false);
 
     const showHideSubModal = () => {
         setIsSubModalOpen(!isSubModalOpen);
@@ -202,7 +207,7 @@ function AppointmentData({ locationPath }) {
                         width: "305px",
                     }}
                 >
-                    This icon means the AI Agent Mira has collected the patient's{" "}
+                    This icon means the AI Agent <strong>{appointmentAgentsData?.name}</strong> has collected the patient's{" "}
                     <strong style={{ fontWeight: 600 }}>symptoms</strong> &{" "}
                     <strong style={{ fontWeight: 600 }}>medical history</strong>. You
                     can now <strong style={{ fontWeight: 600 }}>preview</strong> and{" "}
@@ -558,6 +563,8 @@ function AppointmentData({ locationPath }) {
         }
     }, [appointmentsData, matchedAppointment, selectedTab]);
 
+    const decodedToken = getDecodedToken();
+
     const showHideBackModal = () => {
         setIsBackModalOpen(!isBackModalOpen);
     };
@@ -579,6 +586,12 @@ function AppointmentData({ locationPath }) {
             getSymptomCollectorTourCheck();
         }
     }, []);
+
+    useEffect(() => {
+        if (appointmentAgentsData) {
+          setAgentsData(appointmentAgentsData);
+        }
+    }, [appointmentAgentsData]);
 
     useEffect(() => {
         if (!createBillDrawer && !isReceptionist) {
@@ -1169,6 +1182,51 @@ function AppointmentData({ locationPath }) {
         });
         navigate("/smart-prescription", { state: { patient_data: record } })
     }
+
+    const onAppointmentAgentClick = async () => {
+        // window.Moengage.track_event("patient_search_consult", {
+        //     "doctor_id": profile?.doctor_unique_id,
+        //     "patient_id": record?.patient_unique_id
+        // });
+        if (agentsData) {
+          // If agentsData exists, navigate to success page
+          navigate("/appointment-agent/success", {
+            state: {
+              agentsData,
+              setupData: {
+                clinicId: agentsData.clinicId || profile?.clinicId || 390,
+                doctors:
+                  agentsData.doctors?.map((doctor) => ({
+                    id: doctor.um_id || doctor.id,
+                    name: doctor.um_name || doctor.name,
+                    speciality: doctor.speciality || "MBBS",
+                    availability:
+                      doctor.availability || doctor.slotsAvailable || true,
+                  })) || [],
+                clinicData: getClinic(profile?.hospital_data),
+                useUploadLogo: agentsData.logo ? true : false,
+                logo: agentsData.logo || null,
+                clinicName: agentsData.clinicName || null,
+                avatar: agentsData.avatarDetails || null,
+                avatarId: agentsData.avatarId || null,
+                googleLocation:
+                  agentsData.googleLocation?.address?.formatted || null,
+                fullgoogleLocation: agentsData.googleLocation || null,
+                receptionistName: agentsData.name || "",
+                contact: agentsData.contact || "",
+                email: agentsData.email || "",
+                receptionId: agentsData.receptionId || null,
+                appointmentLinkShared: agentsData.appointmentLinkShared || null,
+                hospitalBusinessId: decodedToken?.result?.hospital_business_id,
+              },
+              appointment_booking_link: agentsData.appointmentLinkShared,
+            },
+          });
+        } else {
+          // If no agentsData, navigate to normal flow
+          navigate("/appointment-agent", { state: { agentsData } });
+        }
+      };
 
     const fetchData = async (tcm_id) => {
         const payload = {
@@ -1900,12 +1958,42 @@ function AppointmentData({ locationPath }) {
     return (
         <>
             {!isReceptionist && (<div className="border rounded-4 appointment-wrap dateborder">
-                <Tabs
-                    defaultActiveKey={TAB_QUEUE}
-                    items={items}
-                    onChange={onChange}
-                    activeKey={selectedTab}
-                />
+                <div style={{ position: "relative" }}>
+                    <Tabs
+                        defaultActiveKey={TAB_QUEUE}
+                        items={items}
+                        onChange={onChange}
+                        activeKey={selectedTab}
+                    />
+                    { isAppointmentAgentAccessableFromGB && 
+                        <div
+                            className="receptionist-setup-button"
+                            onClick={onAppointmentAgentClick}
+                        >
+                            {isAgentsLoading ? (
+                                <div
+                                    className="d-flex align-items-center justify-content-center"
+                                    style={{ height: "41px", minWidth: "200px" }}
+                                >
+                                    <Spin size="small" />
+                                </div>
+                                ) : (
+                                <AiReceptionistButton
+                                    agentsData={agentsData}
+                                    customText={
+                                    agentsData
+                                        ? isMobile
+                                        ? "AI Receptionist"
+                                        : "Your AI Receptionist"
+                                        : isMobile
+                                        ? "Setup AI Receptionist"
+                                        : "Setup Your AI Receptionist"
+                                    }
+                                />
+                            )}
+                        </div>
+                    }
+                </div>
                 <div className="appointment-data">
                     <Row className="justify-content-between align-items-center my-3 px-4">
                         <Col xl={4} sm={4}>

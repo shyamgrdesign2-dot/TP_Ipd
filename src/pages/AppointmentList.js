@@ -20,7 +20,8 @@ import ExtendTrialModal from "./monetization/components/ExtendTrialModal";
 import { getClinicName, getTokenData } from "../utils/utils";
 import DocumentVerificationPopup from "../components/common/DocumentVerificationPopup";
 import config from "../config";
-
+import { getDecodedToken } from "../utils/localStorage";
+import { fetchAgents } from "./appointmentAgent/service";
 
 function AppointmentList() {
   const dispatch = useDispatch();
@@ -32,8 +33,8 @@ function AppointmentList() {
   const {hospital_business_id} = getTokenData() || {};
   const isZydus = hospital_business_id === config.ZYDUS_BUSINESS_ID;
   const isApollo = config.APOLLO_BUSINESS_IDS.includes(hospital_business_id);
+  const [agentsData, setAgentsData] = useState(null);
   
-
   useEffect(() => {
     setLocationPath(location.pathname);
   }, [location]);
@@ -54,6 +55,28 @@ function AppointmentList() {
     }
   }, []);
 
+  const fetchAgentsData = async () => {
+    if (!isReceptionist) {
+      // setIsAgentsLoading(true);
+      try {
+        const decodedToken = getDecodedToken();
+        const clinicId = String(decodedToken?.result?.clinic_id);
+        const response = await fetchAgents(clinicId);
+        if (response) {
+          setAgentsData(response.length > 0 && response[response.length - 1]);
+        }
+      } catch (error) {
+        console.error("Error fetching agents:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (!isReceptionist) {
+      fetchAgentsData();
+    }
+  }, []);
+
   return (
     <>
       {(!isMobile || locationPath == "/" || locationPath == "/bulk_messages") && !isReceptionist && <Header locationPath={locationPath} />}
@@ -63,11 +86,12 @@ function AppointmentList() {
           {(!isMobile || locationPath == "/" || locationPath == "/bulk_messages") && !isReceptionist && (
             <Welcome
               locationPath={locationPath}
+              appointmentAgentsData={agentsData}
               backVisible={locationPath == "/" || locationPath == "/bulk_messages" ? false : true}
             />
           )}
           <Routes>
-            <Route path="/" element={<Appointment locationPath={locationPath} />} />
+            <Route path="/" element={<Appointment locationPath={locationPath} appointmentAgentsData={agentsData} />} />
             <Route path="walk_in_consultation" element={<WalkInConsultation />} />
             <Route path="walk_in_consultation_zydus" element={<WalkInConsultationZydus />} />
             <Route path="add_patient" element={<AddNewPatient />} />

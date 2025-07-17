@@ -7,6 +7,11 @@
 .text-scheduled {
     color: #ED8A00 !important;
 }
+.radio-disabled {
+    color: #bfbfbf !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
 .text-faild {
     color: $alerText !important;
 }
@@ -176,6 +181,16 @@
         padding: 12px 20px;
         border: 1px solid $bordercolor;
         border-radius: 10px;
+
+        &.ant-radio-wrapper-disabled {
+            opacity: 0.5;
+            cursor:not-allowed !important;
+            .ant-radio-wrapper-disabled {
+                opacity: 0.5;
+                cursor:not-allowed !important;
+            }
+        }
+
         &.ant-radio-wrapper-checked {
             border-color: $theme;
             background-color: rgba(75, 74, 213, 0.1);
@@ -388,9 +403,7 @@
         display: none;
     }
 }
-.modal-redeem {
-    
-}
+
 .reedem-bg {
     background-image: url(../../assets/images/redeem-bg.png);
     background-repeat: no-repeat;
@@ -404,4 +417,39 @@
             font-weight: 600;
         }
     }
+}
+
+.sms-radio-label-with-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding-right: 20px;
+}
+  
+.sms-radio-info-icon {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #bfbfbf;
+    font-size: 16px;
+    margin-left: 4px;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.radio-group-with-info {
+  position: relative;
+}
+
+.radio-group-info-icon {
+  position: absolute;
+  right: 16px; // adjust as needed to fit inside the border
+  top: 50%;
+  transform: translateY(-50%);
+  color: #bfbfbf;
+  font-size: 18px;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 1;
 }
