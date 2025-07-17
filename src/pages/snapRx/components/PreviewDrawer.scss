@@ -15,16 +15,15 @@
 
   // Preview Area (Gray rounded container)
   .preview-area {
-    background: lightgray;
+    background: rgba(180, 180, 180, 1);
     backdrop-filter: blur(5.09337854385376px);
     border-radius: 20px;
-    padding: 40px;
+    padding: 30px 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     width: 37.5625rem;
-    // height: 37.5rem;
     margin: auto;
     max-width: 100%;
 
@@ -135,17 +134,35 @@
         justify-content: center;
 
         .prescription-image {
-          // border-radius: 12px;
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
           object-fit: cover;
           display: block;
           width: auto;
           height: auto;
-          // min-width: 400px;
-          // min-height: 300px;
-          // max-width: 90%;
-          // max-height: 90%;
         }
+      }
+
+      .react-crop-wrapper .ReactCrop__crop-selection {
+        box-shadow: none !important;
+      }
+      
+      .react-crop-wrapper .ReactCrop__crop-selection::before {
+        box-shadow: none !important;
+      }
+      
+      /* Remove the dark overlay/mask */
+      .react-crop-wrapper .ReactCrop__crop-selection {
+        background: transparent !important;
+      }
+      
+      /* If there's still a mask, target the crop container */
+      .ReactCrop {
+        position: relative;
+      }
+      
+      .ReactCrop::before,
+      .ReactCrop::after {
+        display: none !important;
       }
     }
   }
@@ -245,7 +262,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 0;
     margin-top: 30px;
     width: 100%;
 
@@ -266,32 +282,38 @@
         transition: all 0.2s ease;
 
         &.reupload-btn {
-          background: #eef2ff;
-          color: #6366f1;
-
-          &:hover {
-            background: #e0e7ff;
-          }
+          display: flex;
+          height: 1.85806rem;
+          padding: 0.25469rem 0.50931rem;
+          justify-content: center;
+          align-items: center;
+          gap: 0.382rem;
+          border-radius: 0.39813rem;
+          background: linear-gradient(103deg, rgba(255, 255, 255, 0.60) 5.1%, rgba(255, 255, 255, 0.60) 51.64%, rgba(255, 255, 255, 0.60) 98.18%);
+          backdrop-filter: blur(3px);
 
           span {
-            color: #4b4ad5 !important;
+            color: #4B4AD5 !important;
             font-size: 0.875rem;
+            font-style: normal;
             font-weight: 500;
             line-height: normal;
           }
         }
 
         &.remove-btn {
-          background: #fef2f2;
-          color: #ef4444;
-
-          &:hover {
-            background: #fee2e2;
-          }
+          display: flex;
+          height: 1.85806rem;
+          padding: 0.25469rem 0.50931rem;
+          justify-content: center;
+          align-items: center;
+          gap: 0.382rem;
+          border-radius: 0.39813rem;
+          background: linear-gradient(103deg, rgba(255, 255, 255, 0.60) 5.1%, rgba(255, 255, 255, 0.60) 51.64%, rgba(255, 255, 255, 0.60) 98.18%);
+          backdrop-filter: blur(3px);
 
           span {
-            color: #fc5a5a !important;
-            font-family: Poppins;
+            color: #FC5A5A !important;
             font-size: 0.875rem;
             font-style: normal;
             font-weight: 500;
@@ -307,24 +329,17 @@
       gap: 8px;
 
       .rotate-btn {
-        background: #fff;
-        border: 1px solid #d9d9d9;
-        border-radius: 4px;
-        padding: 4px 8px;
-        cursor: pointer;
         display: flex;
-        align-items: center;
+        width: 1.85806rem;
+        height: 1.85806rem;
+        padding: 0.25rem;
         justify-content: center;
-        transition: all 0.3s;
-
-        &:hover {
-          border-color: #1890ff;
-          color: #1890ff;
-        }
-
-        &:active {
-          background: #e6f7ff;
-        }
+        align-items: center;
+        gap: 1.32719rem;
+        border: none;
+        border-radius: 0.39813rem;
+        background: linear-gradient(103deg, rgba(255, 255, 255, 0.60) 5.1%, rgba(255, 255, 255, 0.60) 51.64%, rgba(255, 255, 255, 0.60) 98.18%);
+        backdrop-filter: blur(3px);
       }
 
       .zoom-btn {
@@ -349,38 +364,25 @@
 
       .zoom-btn-combined {
         display: flex;
+        padding: 0.25rem 0.5rem;
         align-items: center;
-        background: #f9fafb;
-        border-radius: 8px;
-        overflow: hidden;
-
-        .zoom-btn-part {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 40px;
-          height: 40px;
-          border: none;
-          background: transparent;
-          color: #6b7280;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          font-size: 16px;
-
-          &:hover {
-            background: rgba(243, 244, 246, 0.5);
-            color: #374151;
-          }
-        }
+        gap: 0.5rem;
+        align-self: stretch;
+        border-radius: 0.39813rem;
+        background: linear-gradient(103deg, rgba(255, 255, 255, 0.60) 5.1%, rgba(255, 255, 255, 0.60) 51.64%, rgba(255, 255, 255, 0.60) 98.18%);
+        backdrop-filter: blur(3px);
 
         .zoom-divider {
-          width: 1px;
-          height: 24px;
-          background: #d1d5db;
-        }
-
-        &:hover {
-          background: #f3f4f6;
+          display: flex;
+          width: 0.33181rem;
+          height: 1.01069rem;
+          flex-direction: column;
+          justify-content: center;
+          color: #A2A2A8 !important;
+          font-size: 0.929rem;
+          font-style: normal;
+          font-weight: 500;
+          line-height: normal;
         }
       }
     }
@@ -403,23 +405,19 @@
       flex-shrink: 0;
       width: 4.48981rem !important;
       height: 5rem !important;
-      border-radius: 0.5rem;
-      border: 1.429px solid #4b4ad5;
+      border-radius: 0.5rem !important;
+      border: 0.5px solid #E2E2EA;
       background: #fdfdfd;
       overflow: hidden;
       cursor: pointer;
       transition: all 0.2s ease;
       position: relative;
+      box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.06);
 
       &.selected {
-        border-color: #4b4ad5;
-        box-shadow: 0px 0px 0px 2px rgba(75, 74, 213, 0.3);
-        transform: scale(1.05);
-      }
-
-      &:hover:not(.selected) {
-        border-color: #a855f7;
-        transform: scale(1.02);
+        border: 1.8px solid #4B4AD5;
+        background: #FDFDFD;
+        box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.18);
       }
 
       .thumbnail-img {
@@ -540,4 +538,25 @@
       }
     }
   }
+}
+
+.save-btn {
+  display: flex;
+  width: 7.8125rem;
+  padding: 0.625rem 1rem !important;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: stretch;
+  border-radius: 0.625rem !important;
+  background: #4B4AD5 !important;
+}
+
+.snaprx-drawer-title {
+  color: #454551;
+  font-family: Poppins;
+  font-size: 1.125rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.625rem; /* 144.444% */
 }

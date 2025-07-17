@@ -145,6 +145,9 @@ function SnapRxPreview() {
     const fetchData = async () => {
       if (state.tcm_id && patient_data?.patient_unique_id) {
         const viewCaseManagerData = await getCaseManagerData();
+        setShowDigitalRx(
+          viewCaseManagerData?.isRxDigitize && state?.page === "digitise"
+        );
         setViewCaseManagerData(viewCaseManagerData);
       }
     };
@@ -203,7 +206,7 @@ function SnapRxPreview() {
       const response = await axios({
         url: printUrl,
         method: "GET",
-        responseType: "blob", // Important for binary data
+        responseType: "blob",
       });
       const blob = new Blob([response.data], {
         type: response.headers["content-type"],
@@ -211,7 +214,6 @@ function SnapRxPreview() {
       saveAs(blob, `${Date.now()}.pdf`);
     } catch (error) {
       console.error("Error downloading file:", error);
-      // Handle errors gracefully, e.g., display an error message to the user
     }
   };
 
@@ -239,13 +241,11 @@ function SnapRxPreview() {
 
   const handleDigitiseRx = async () => {
     try {
-      // After both API calls are completed, check their responses
       if (smartRxFile?.length > 0 && token) {
         trackEvent(EVENTS.SNAP_RX.convertButtonClicked, {
           consultation_source: "EMR",
           doctor_id: getDecodedToken()?.user_id,
         });
-        // Proceed with the file upload
         navigate("/snap-rx/digitise", {
           state: {
             patient_data: patient_data,
@@ -262,7 +262,6 @@ function SnapRxPreview() {
     }
   };
 
-  // Function to update rxDigitize parameter in the URL
   const updateRxDigitizeInUrl = (url, showDigitalRx) => {
     const urlObj = new URL(url);
 
@@ -270,41 +269,21 @@ function SnapRxPreview() {
       urlObj.searchParams.set("rxDigitize", "true");
       setButtonText("Send Digital Rx to WhatsApp");
     } else {
-      // Remove rxDigitize parameter if showDigitalRx is false/null to keep the URL unchanged
       urlObj.searchParams.delete("rxDigitize");
       setButtonText("Send Written Rx to WhatsApp");
     }
 
-    // setPrintUrl(urlObj.toString());
     return urlObj.toString();
   };
 
   // Effect to update printUrl when showDigitalRx changes
   useEffect(() => {
     if (printUrl) {
-      // Only modify the URL if showDigitalRx is true, else keep printUrl unchanged
       const updatedUrl = updateRxDigitizeInUrl(printUrl, showDigitalRx);
       setPreviewUrl(updatedUrl);
       setPrintUrl(updatedUrl);
     }
   }, [showDigitalRx]);
-
-  const configurePrintUrl = async () => {
-    var sendData = {
-      patient_unique_id:
-        patient_data !== undefined ? patient_data.patient_unique_id : 0,
-      tcm_id: state.tcm_id,
-      configurePrintSetting: true,
-    };
-    const action = await dispatch(viewCaseManager(sendData));
-    if (action.meta.requestStatus === "fulfilled") {
-      navigate("/configure_print_setting", {
-        state: { caseManagerData: action.payload, smartRxFile },
-      });
-    } else {
-      errorMessage(action.error);
-    }
-  };
 
   const handleSendToWhatsapp = async () => {
     const body = {
@@ -329,7 +308,6 @@ function SnapRxPreview() {
         });
         setButtonText("Successfully Sent");
 
-        // After 2-3 seconds, reset the button text back to "Send to WhatsApp again"
         setTimeout(() => {
           setButtonText("Send to WhatsApp again");
         }, 3000);
@@ -391,20 +369,6 @@ function SnapRxPreview() {
     }
   };
 
-  const handleViewDigitiseRx = async () => {
-    navigate("/snap-rx/digitise", {
-      state: {
-        patient_data: patient_data,
-        smartRxFilesData: smartRxFile,
-        tcm_id: state.tcm_id,
-        pam_id: state?.pam_id,
-        print_url: state.print_rx_url || state.print_url,
-        // digitisedData: rxDigitiseApiResponse,
-        type: "new",
-      },
-    });
-  };
-
   const printInAppContent = async () => {
     navigate(`/snap-rx/preview/?url=${printUrl}&key=print`, {
       replace: true,
@@ -435,11 +399,10 @@ function SnapRxPreview() {
       }
     } else {
       var blobURL = URL.createObjectURL(printBlob);
-      // Remove all existing iframes
       document.querySelectorAll("iframe").forEach(function (iframe) {
         iframe.parentNode.removeChild(iframe);
       });
-      var iframe = document.createElement("iframe"); //load content in an iframe to print later
+      var iframe = document.createElement("iframe");
       document.body.appendChild(iframe);
       iframe.style.display = "none";
       iframe.src = blobURL;
@@ -447,7 +410,6 @@ function SnapRxPreview() {
         setTimeout(function () {
           iframe.focus();
           iframe.contentWindow.print();
-          // Revoke the Blob URL to avoid memory leaks
           URL.revokeObjectURL(blobURL);
         }, 1);
       };
@@ -469,20 +431,6 @@ function SnapRxPreview() {
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
           <Col md={7} lg={7} xl={7}>
-            {!isMobile &&
-              viewCaseManagerData?.isRxDigitize &&
-              state?.page === "digitise" && (
-                <div
-                  className="d-flex align-items-center justify-content-end h-38"
-                  onClick={configurePrintUrl}
-                >
-                  <i className="icon-setting me-2"></i>
-                  <span className="text-decoration-underline fw-medium cursor-pointer">
-                    {" "}
-                    Configure Print Setting{" "}
-                  </span>
-                </div>
-              )}
             <div
               className={`${
                 !isMobile
@@ -496,20 +444,6 @@ function SnapRxPreview() {
               }}
             >
               <div>
-                {isMobile &&
-                  viewCaseManagerData?.isRxDigitize &&
-                  state?.page === "digitise" && (
-                    <div
-                      className="d-flex align-items-center mb-14 h-38"
-                      onClick={configurePrintUrl}
-                    >
-                      <i className="icon-setting me-2"></i>
-                      <span className="text-decoration-underline fw-medium cursor-pointer">
-                        {" "}
-                        Configure Print Setting{" "}
-                      </span>
-                    </div>
-                  )}
                 <Button
                   type="text"
                   className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"

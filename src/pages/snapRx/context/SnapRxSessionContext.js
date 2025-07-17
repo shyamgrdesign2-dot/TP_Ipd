@@ -5,6 +5,7 @@ const SnapRxSessionContext = createContext();
 
 export const SnapRxSessionProvider = ({ children }) => {
   const [sessionId, setSessionId] = useState(null);
+  const [hasUploadedFiles, setHasUploadedFiles] = useState(false);
 
   useEffect(() => {
     // Generate or get existing session ID when context mounts
@@ -23,6 +24,8 @@ export const SnapRxSessionProvider = ({ children }) => {
   const value = {
     sessionId,
     refreshSessionId,
+    hasUploadedFiles,
+    setHasUploadedFiles,
   };
 
   return (

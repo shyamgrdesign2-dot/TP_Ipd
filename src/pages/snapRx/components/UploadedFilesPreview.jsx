@@ -1,17 +1,11 @@
 import React, { useState, useMemo } from "react";
-import { Button, message, Modal } from "antd";
+import { Button, message } from "antd";
 
 import "./UploadedFilesPreview.scss";
 import CommonModal from "../../../common/CommonModal";
 import alertIcon from "../../../assets/images/alertIcon.svg";
 
-const UploadedFilesPreview = ({
-  uploadedFiles,
-  onEdit,
-  onRefresh,
-  loading,
-  onDelete,
-}) => {
+const UploadedFilesPreview = ({ uploadedFiles, onEdit, loading, onDelete }) => {
   const [deletingFile, setDeletingFile] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 

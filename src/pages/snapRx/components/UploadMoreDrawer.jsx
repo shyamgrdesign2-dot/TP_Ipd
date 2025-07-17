@@ -28,17 +28,6 @@ export default function UploadMoreDrawer({ isOpen, onClose, onFileUpload }) {
 
   return (
     <Drawer
-      title={
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <Button
-            type="text"
-            icon={<LeftOutlined />}
-            onClick={onClose}
-            style={{ padding: "4px 8px" }}
-          />
-          <span>Upload Written Rx</span>
-        </div>
-      }
       width="45.625rem"
       maxWidth="45.625rem"
       placement="right"
@@ -48,18 +37,28 @@ export default function UploadMoreDrawer({ isOpen, onClose, onFileUpload }) {
       maskClosable={false}
       closable={false}
       push={false}
-      styles={{
-        body: {
-          padding: "24px",
-        },
-      }}
     >
-      <UploadWrittenRx
-        onFileUpload={handleFileUpload}
-        showBackButton={false}
-        onBack={onClose}
-        isUploadMoreDrawer={true}
-      />
+      <div className="modalCard-header h-60 align-items-center justify-content-between d-flex position-sticky top-0 z-2">
+        <div className="align-items-center d-flex h-100">
+          <div className="border-end h-100 text-center me-3">
+            <div
+              onClick={onClose}
+              className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
+            >
+              <i className="icon-right"></i>
+            </div>
+          </div>
+          <div className="snaprx-drawer-title">Upload Written Rx</div>
+        </div>
+      </div>
+      <div style={{ padding: "24px 0" }}>
+        <UploadWrittenRx
+          onFileUpload={handleFileUpload}
+          showBackButton={false}
+          onBack={onClose}
+          isUploadMoreDrawer={true}
+        />
+      </div>
     </Drawer>
   );
 }

@@ -101,8 +101,6 @@
     }
 
     .file-content {
-      // padding: 16px;
-
       .prescription-preview {
         position: relative;
         width: 100%;
@@ -111,16 +109,12 @@
         align-items: center;
         justify-content: center;
         background: #F9FAFB;
-        border-radius: 8px;
         overflow: hidden;
-        // padding: 12px;
 
         .prescription-image {
           width: 100%;
           height: auto;
-          // max-height: 500px;
           object-fit: cover;
-          // border-radius: 6px;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 

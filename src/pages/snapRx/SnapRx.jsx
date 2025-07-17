@@ -5,7 +5,7 @@ import UploadedFilesPreview from "./components/UploadedFilesPreview";
 import PreviewDrawer from "./components/PreviewDrawer";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Button, message } from "antd";
+import { Drawer, message } from "antd";
 import CashManagerContext from "../../context/CashManagerContext";
 import {
   getSnapRxFiles,
@@ -21,11 +21,14 @@ import "./SnapRx.scss";
 import UploadMoreDrawer from "./components/UploadMoreDrawer";
 import FileUploadErrorModal from "../../components/common/FileUploadErrorModal";
 import { useSelector } from "react-redux";
+import KnowMore from "../../components/KnowMore";
+import { SNAP_RX_KNOW_MORE_DATA } from "../../utils/constants";
 
 function SnapRxContent() {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { sessionId } = useSnapRxSession();
+  const { sessionId, setHasUploadedFiles, hasUploadedFiles } =
+    useSnapRxSession();
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [smartRxData, setSmartRxData] = useState([]);
@@ -40,9 +43,13 @@ function SnapRxContent() {
   // State for new upload preview drawer
   const [isPreviewDrawerOpen, setIsPreviewDrawerOpen] = useState(false);
   const [isAddingMore, setIsAddingMore] = useState(false);
+  const [showKnowMore, setShowKnowMore] = useState(false);
+  const [isFileSizeError, setIsFileSizeError] = useState(false);
+  const [isFileLimitError, setIsFileLimitError] = useState(false);
+  const [isFileTypeError, setIsFileTypeError] = useState(false);
 
   const { patient_data, send_path, caseManagerData, pam_id } = state;
-  const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
+  const tcmId = caseManagerData ? caseManagerData.tcm_id : 0;
   const pamId = pam_id
     ? pam_id
     : caseManagerData !== undefined
@@ -59,32 +66,41 @@ function SnapRxContent() {
   const { fileUploadToken } = useSelector((state) => state.snapRx);
 
   // Fetch uploaded files from API
-  const fetchUploadedFiles = useCallback(async () => {
-    if (!patient_data?.patient_unique_id || (!tcmId && !sessionId)) {
-      return;
-    }
+  const fetchUploadedFiles = useCallback(
+    async (fetchByTcmId = false) => {
+      if (
+        !patient_data?.patient_unique_id ||
+        (!tcmId && !sessionId) ||
+        (fetchByTcmId && hasUploadedFiles)
+      ) {
+        message.error("Patient information is missing. Please try again.");
+        return;
+      }
 
-    setLoadingApiFiles(true);
-    try {
-      const response = await getSnapRxFiles(
-        patient_data.patient_unique_id,
-        tcmId,
-        sessionId
-      );
-      setApiUploadedFiles(response.uploaded_files || []);
-    } catch (error) {
-      console.error("Error fetching uploaded files:", error);
-      // Don't show error message as files might not exist yet
-      setApiUploadedFiles([]);
-    } finally {
-      setLoadingApiFiles(false);
-    }
-  }, [patient_data?.patient_unique_id, tcmId, sessionId]);
+      setLoadingApiFiles(true);
+      try {
+        const response = await getSnapRxFiles(
+          patient_data.patient_unique_id,
+          fetchByTcmId ? tcmId : null,
+          sessionId || sessionStorage.getItem("snaprx_session_id")
+        );
+        setApiUploadedFiles(response.uploaded_files || []);
+      } catch (error) {
+        console.error("Error fetching uploaded files:", error);
+        setApiUploadedFiles([]);
+      } finally {
+        setLoadingApiFiles(false);
+      }
+    },
+    [patient_data?.patient_unique_id, tcmId, sessionId, hasUploadedFiles]
+  );
 
   // Load uploaded files on component mount
   useEffect(() => {
-    fetchUploadedFiles();
-  }, [fetchUploadedFiles]);
+    if (tcmId) {
+      fetchUploadedFiles(true);
+    }
+  }, [tcmId]);
 
   // Handle edit file
   const handleEditFile = useCallback(
@@ -125,12 +141,12 @@ function SnapRxContent() {
         throw new Error("Invalid response from server");
       }
 
+      setHasUploadedFiles(true);
       fetchUploadedFiles();
 
       setIsEditDrawerOpen(false);
     } catch (error) {
       console.error("Error in handleEditSave:", error);
-      message.error("Failed to update files. Please try again.");
     }
   }, []);
 
@@ -148,28 +164,10 @@ function SnapRxContent() {
     setShowUploadInterface(false);
   }, []);
 
-  // Handle file upload completion
-  const handleUploadComplete = useCallback(() => {
-    setShowUploadInterface(false);
-    fetchUploadedFiles();
-  }, [fetchUploadedFiles]);
-
   const handleClearFiles = useCallback(() => {
     setUploadedFiles([]);
     setSmartRxData([]);
-    // message.info("Files cleared");
   }, []);
-
-  const handleSubmitFiles = useCallback(() => {
-    if (uploadedFiles.length === 0) {
-      message.warning("Please upload at least one file before submitting");
-      return;
-    }
-
-    // Process the uploaded files for prescription generation
-    message.success("Processing prescription files...");
-    // You can add additional processing logic here
-  }, [uploadedFiles]);
 
   // Handle preview drawer close
   const handlePreviewDrawerClose = useCallback(() => {
@@ -182,6 +180,7 @@ function SnapRxContent() {
     setUploadedFiles([]); // Clear uploaded files
     setIsPreviewDrawerOpen(false);
     setIsAddingMore(false); // Reset adding more flag
+    setHasUploadedFiles(true);
     fetchUploadedFiles(); // Just refresh the API files without reopening drawer
   }, [fetchUploadedFiles]);
 
@@ -215,7 +214,6 @@ function SnapRxContent() {
         sessionId
       );
       if (response && response.status) {
-        // message.success("Prescription created successfully!");
         // Navigate to digitization or next step if needed
         navigate("/snap-rx/preview", {
           state: { ...state, ...response?.data, files: apiUploadedFiles },
@@ -260,7 +258,6 @@ function SnapRxContent() {
       );
 
       if (response && response.status) {
-        // message.success("Prescription created successfully!");
         // Navigate to digitization or next step if needed
         navigate("/snap-rx/preview", {
           state: { ...state, ...response?.data, files: apiUploadedFiles },
@@ -278,27 +275,27 @@ function SnapRxContent() {
     }
   }, [apiUploadedFiles, patient_data, navigate, state]);
 
-  const [isFileSizeError, setIsFileSizeError] = useState(false);
-  const [isFileLimitError, setIsFileLimitError] = useState(false);
-  const [isFileTypeError, setIsFileTypeError] = useState(false);
   const handleRetryBtn = () => {
-    // setFilesData([]);
     setIsFileSizeError(false);
     setIsFileLimitError(false);
     setIsFileTypeError(false);
+  };
+
+  const handleKnowMore = () => {
+    setShowKnowMore(!showKnowMore);
   };
 
   return (
     <CashManagerContext.Provider value={contextApi}>
       <div className="snap-rx-container">
         <Header
-          caseManagerData={caseManagerData}
           smartRxData={smartRxData}
           loader={isUploading}
           onClear={handleClearFiles}
           onSubmit={handleCreateSnapRx}
           onUploadMore={handleUploadMore}
           showUploadMoreButton={apiUploadedFiles && apiUploadedFiles.length > 0}
+          handleTutorial={handleKnowMore}
         />
         <div className="snap-rx-content">
           <ErrorBoundary>
@@ -310,7 +307,7 @@ function SnapRxContent() {
               <UploadedFilesPreview
                 uploadedFiles={apiUploadedFiles}
                 onEdit={handleEditFile}
-                onRefresh={fetchUploadedFiles}
+                onRefresh={() => fetchUploadedFiles()}
                 loading={loadingApiFiles}
                 onDelete={(filename) => {
                   // Filter out the deleted file
@@ -338,7 +335,7 @@ function SnapRxContent() {
                     handleBackToFiles();
                   }
                 }}
-                fetchUploadedFiles={fetchUploadedFiles}
+                fetchUploadedFiles={() => fetchUploadedFiles()}
               />
             )}
           </ErrorBoundary>
@@ -634,6 +631,7 @@ function SnapRxContent() {
 
             if (response && response.uploaded_files) {
               // Update the API uploaded files with the response
+              setHasUploadedFiles(true);
               fetchUploadedFiles();
               setIsUploadMoreDrawerOpen(false);
             } else {
@@ -652,6 +650,23 @@ function SnapRxContent() {
         isFileTypeError={isFileTypeError}
         onRetry={handleRetryBtn}
       />
+
+      {showKnowMore && (
+        <Drawer
+          open={showKnowMore}
+          onClose={handleKnowMore}
+          width={"51.625rem"}
+          placement="right"
+          headerStyle={{
+            display: "none",
+          }}
+        >
+          <KnowMore
+            handleKnowMore={handleKnowMore}
+            data={SNAP_RX_KNOW_MORE_DATA}
+          />
+        </Drawer>
+      )}
     </CashManagerContext.Provider>
   );
 }

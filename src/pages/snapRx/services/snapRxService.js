@@ -55,7 +55,8 @@ export const getSnapRxFiles = async (patient_unique_id, tcm_id, session_id) => {
       customBaseUrl: SNAP_RX_BASE_URL,
       params: {
         patient_unique_id,
-        ...(session_id ? { session_id } : { tcm_id }),
+        session_id,
+        tcm_id,
       },
     };
 
