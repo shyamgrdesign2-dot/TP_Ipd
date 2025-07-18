@@ -358,7 +358,7 @@ const PreviewDrawer = ({
   // Reset selectedFileIndex to 0 when not in edit mode and drawer opens
   useEffect(() => {
     if (!isEditMode && isOpen && selectedFileIndex !== 0) {
-      setSelectedFileIndex(0);
+      // setSelectedFileIndex(0);
       setImageLoaded(false);
       setImageError(false);
     }
