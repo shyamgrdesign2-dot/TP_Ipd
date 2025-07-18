@@ -267,11 +267,11 @@ const ImageUpload = forwardRef(
       }
     };
 
-    const handlePreviewClose = (onlyToggle = false) => {
-      console.log("handlePreviewClose", onlyToggle);
+    const handlePreviewClose = ({fromPreview = false} = {}) => {
+      console.log("handlePreviewClose", fromPreview);
       onPreviewClose();
       setIsPreviewOpen(false);
-      if (!onlyToggle) {
+      if (!fromPreview) {
         setUploadedFiles([]);
       }
     };
