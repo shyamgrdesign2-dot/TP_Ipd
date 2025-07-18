@@ -41,6 +41,7 @@ const PreviewDrawerMobile = ({
   sessionId,
   autoDigitizeRx,
 }) => {
+  console.log("INTEL ==> inside PreviewDrawerMobile", isOpen, uploadedFiles);
   const dispatch = useDispatch();
   const { uploadedFiles: uploadedFilesFromRedux } = useSelector(
     (state) => state.snapRx
@@ -116,6 +117,7 @@ const PreviewDrawerMobile = ({
 
   useEffect(() => {
     return () => {
+      console.log("INTEL ==> inside useEffect return in PreviewDrawerMobile");
       imageRefs.current = null;
       canvasRefs.current = null;
       carouselRef.current = null;
@@ -131,12 +133,12 @@ const PreviewDrawerMobile = ({
     };
   }, []);
 
-  useEffect(() => {
-    if (uploadedFilesFromRedux?.length > 0 && isSubmitting) {
-      onClose();
-      setIsSubmitting(false);
-    }
-  }, [uploadedFilesFromRedux]);
+  // useEffect(() => {
+  //   if (uploadedFilesFromRedux?.length > 0 && isSubmitting) {
+  //     onClose();
+  //     setIsSubmitting(false);
+  //   }
+  // }, [uploadedFilesFromRedux, isSubmitting]);
 
   const onImageLoad = useCallback(
     (e, fileId) => {
@@ -245,6 +247,7 @@ const PreviewDrawerMobile = ({
 
   const handleSubmit = async (e) => {
     e.stopPropagation();
+    e.preventDefault();
     if (isSubmitting) return;
     setIsSubmitting(true);
     if (imageRefs.current?.size) {
@@ -274,8 +277,8 @@ const PreviewDrawerMobile = ({
                 unit: "px",
                 x: cropX,
                 y: cropY,
-                width: cropWidth,
-                height: cropHeight,
+                width: cropWidth + 24,
+                height: cropHeight + 24,
               };
             }
             const croppedBlob = await getCroppedImg(
@@ -314,6 +317,10 @@ const PreviewDrawerMobile = ({
         const apiStartTime = Date.now();
         dispatch(uploadFiles(sendData)).then((res) => {
           if (res?.meta?.requestStatus === "fulfilled") {
+            setTimeout(() => {
+              setIsSubmitting(false);
+              onClose();
+            }, 500);
             trackEvent(EVENTS.SNAP_RX.uploadSuccess, {
               file_type: "img",
               file_size: updatedCroppedFiles?.reduce(
@@ -325,11 +332,18 @@ const PreviewDrawerMobile = ({
             });
           } else {
             trackEvent(EVENTS.SNAP_RX.uploadFailed);
+            message.warning("Failed to upload file(s)");
+            setIsSubmitting(false);
           }
+        }).catch((error) => {
+          console.error("Upload failed:", error);
+          message.warning("Failed to upload file(s)");
+          setIsSubmitting(false);
         });
       } catch (error) {
         console.error("Error cropping image:", error);
-        message.error("Failed to process image");
+        message.warning("Failed to upload file(s)");
+        setIsSubmitting(false);
       }
     } else {
       if (onSave) {

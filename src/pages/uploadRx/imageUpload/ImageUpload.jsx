@@ -378,17 +378,32 @@ const ImageUpload = forwardRef(
     };
 
     const handleUpdatedFiles = (updatedFiles) => {
+      console.log("INTEL ==> handleUpdatedFiles", updatedFiles);
       setUploadedFiles(updatedFiles);
     };
+
+    useEffect(() => {
+      console.log(
+        "INTEL ==> uploadedFiles in image uploadddd updateeee>>>>>>>",
+        uploadedFiles
+      );
+    }, [uploadedFiles]);
 
     useImperativeHandle(ref, () => ({
       handleUploadClick: () => {
         fileInputRef.current?.click();
       },
       handleAddEditClick: () => {
+        console.log("INTEL ==> handleAddEditClick wowow 3");
         setIsPreviewOpen(true);
       },
     }));
+
+    console.log(
+      "INTEL ==> isPreviewOpen in image uploadddd",
+      { isPreviewOpen },
+      uploadedFiles
+    );
 
     return (
       <>
@@ -400,22 +415,24 @@ const ImageUpload = forwardRef(
           onChange={handleFileSelect}
           style={{ display: "none" }}
         />
-        <PreviewDrawerMobile
-          isOpen={isPreviewOpen}
-          isMobile={true}
-          onClose={handlePreviewClose}
-          uploadedFiles={uploadedFiles}
-          onReupload={handleReupload}
-          onRemove={handleRemoveFile}
-          onAddMore={handleAddMore}
-          onSave={handleSave}
-          onRotate={handleRotateClick}
-          handleUpdatedFiles={handleUpdatedFiles}
-          isAddMoreClicked={isAddMoreClicked}
-          patientUniqueId={patientUniqueId}
-          sessionId={sessionId}
-          autoDigitizeRx={autoDigitizeRx}
-        />
+        {isPreviewOpen ? (
+          <PreviewDrawerMobile
+            isOpen={isPreviewOpen}
+            isMobile={true}
+            onClose={handlePreviewClose}
+            uploadedFiles={uploadedFiles}
+            onReupload={handleReupload}
+            onRemove={handleRemoveFile}
+            onAddMore={handleAddMore}
+            onSave={handleSave}
+            onRotate={handleRotateClick}
+            handleUpdatedFiles={handleUpdatedFiles}
+            isAddMoreClicked={isAddMoreClicked}
+            patientUniqueId={patientUniqueId}
+            sessionId={sessionId}
+            autoDigitizeRx={autoDigitizeRx}
+          />
+        ) : null}
       </>
     );
   }
