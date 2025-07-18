@@ -214,7 +214,15 @@ const UploadRx = () => {
   };
 
   const handlePreviewClose = () => {
-    setShowSuccess(uploadedFilesFromStore?.length);
+    setLoading(true);
+    dispatch(getFilesOnMobile({
+      patient_unique_id: data?.patientId,
+      tcm_id: data?.tcmId,
+      session_id: data?.sessionId,
+    })).then((res) => {
+      setLoading(false);
+      setShowSuccess(res?.payload?.length);
+    });
   };
 
   if (loading) {

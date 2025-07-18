@@ -319,7 +319,7 @@ const PreviewDrawerMobile = ({
           if (res?.meta?.requestStatus === "fulfilled") {
             setTimeout(() => {
               setIsSubmitting(false);
-              onClose();
+              onClose({fromPreview: true});
             }, 500);
             trackEvent(EVENTS.SNAP_RX.uploadSuccess, {
               file_type: "img",
@@ -394,7 +394,7 @@ const PreviewDrawerMobile = ({
   };
 
   const handleCloseClick = () => {
-    onClose(true);
+    onClose({fromPreview: true});
   };
 
   const responsive = useMemo(
