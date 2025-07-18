@@ -20,6 +20,7 @@ import { useLocalStorage } from "../../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import { trackEvent } from "../../utils/utils";
 import { EVENTS } from "../../utils/events";
+import FullPageLoader from "../vaccination/components/Loader";
 
 const UPLOAD_RX_TEXT = {
   aiPoweredHeader: "AI-Powered Rx Digitisation",
@@ -204,8 +205,12 @@ const UploadRx = () => {
   };
 
   const handleAddEditClick = () => {
+    console.log("INTEL ==> handleAddEditClick");
     setShowSuccess(false);
-    imageUploadRef.current?.handleAddEditClick();
+    setTimeout(() => {
+      console.log("INTEL ==> handleAddEditClick 2", imageUploadRef.current);
+      imageUploadRef.current?.handleAddEditClick();
+    }, 100);
   };
 
   const handlePreviewClose = () => {
@@ -213,7 +218,7 @@ const UploadRx = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <FullPageLoader />;
   }
   if (showFailure || snapRxError) {
     return <div>Failed to load account {snapRxError}</div>;
