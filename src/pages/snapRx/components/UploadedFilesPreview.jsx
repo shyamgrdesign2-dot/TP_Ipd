@@ -21,7 +21,6 @@ const UploadedFilesPreview = ({ uploadedFiles, onEdit, loading, onDelete }) => {
       onDelete(filename);
       // Close the modal
       setIsModalOpen(false);
-      message.success("File removed successfully");
     } catch (error) {
       console.error("Error removing file:", error);
       message.error("Failed to remove file");

@@ -5,7 +5,7 @@
   gap: 1.5rem;
 
   // Preview Container
-  .preview-container {
+  .snaprx-preview-container {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -414,10 +414,20 @@
       position: relative;
       box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.06);
 
+      &:hover {
+        border: 1px solid #4B4AD5;
+        box-shadow: 0px 2px 8px 0px rgba(75, 74, 213, 0.2);
+        transform: translateY(-1px);
+      }
+
       &.selected {
         border: 1.8px solid #4B4AD5;
         background: #FDFDFD;
         box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.18);
+        
+        &:hover {
+          transform: none; // Don't lift selected items on hover
+        }
       }
 
       .thumbnail-img {
@@ -539,6 +549,18 @@
     }
   }
 }
+
+// Page indicator styling
+.snaprx-drawer-title {
+  .page-indicator {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #6B7280;
+    margin-left: 0.5rem;
+  }
+}
+
+// Thumbnails Section
 
 .save-btn {
   display: flex;

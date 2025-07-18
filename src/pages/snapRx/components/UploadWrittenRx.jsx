@@ -222,8 +222,6 @@ const UploadWrittenRx = ({
     if (newFiles.length === 0) {
       setIsPreviewOpen(false);
     }
-
-    message.info("File removed");
   };
 
   useEffect(() => {
@@ -410,6 +408,21 @@ const UploadWrittenRx = ({
     }
   };
 
+  // Function to clear files when drawer is closed without saving
+  const handleClearFiles = () => {
+    // Clean up preview URLs
+    uploadedFiles.forEach((file) => {
+      if (file.preview) {
+        URL.revokeObjectURL(file.preview);
+      }
+    });
+
+    // Clear all files
+    setSelectedFiles([]);
+    setUploadedFiles([]);
+    setIsPreviewOpen(false);
+  };
+
   // Cleanup URLs on unmount
   React.useEffect(() => {
     return () => {
@@ -531,6 +544,7 @@ const UploadWrittenRx = ({
         onRemove={handleRemoveFile}
         onAddMore={handleAddMore}
         onSave={handleSave}
+        onClearFiles={handleClearFiles} // Pass the new function
         isUploadMoreDrawer={isUploadMoreDrawer}
       />
 

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import Header from "./components/Header";
 import UploadWrittenRx from "./components/UploadWrittenRx";
 import UploadedFilesPreview from "./components/UploadedFilesPreview";
@@ -65,12 +65,20 @@ function SnapRxContent() {
 
   const { fileUploadToken } = useSelector((state) => state.snapRx);
 
+  // Use ref to access current uploadedFiles without dependency issues
+  const uploadedFilesRef = useRef(uploadedFiles);
+  useEffect(() => {
+    uploadedFilesRef.current = uploadedFiles;
+  }, [uploadedFiles]);
+
   // Fetch uploaded files from API
   const fetchUploadedFiles = useCallback(
     async (fetchByTcmId = false) => {
       if (
         !patient_data?.patient_unique_id ||
-        (!tcmId && !sessionId) ||
+        (!tcmId &&
+          !sessionId &&
+          !sessionStorage.getItem("snaprx_session_id")) ||
         (fetchByTcmId && hasUploadedFiles)
       ) {
         message.error("Patient information is missing. Please try again.");
@@ -101,6 +109,12 @@ function SnapRxContent() {
       fetchUploadedFiles(true);
     }
   }, [tcmId]);
+
+  useEffect(() => {
+    if (sessionId && hasUploadedFiles) {
+      fetchUploadedFiles();
+    }
+  }, [sessionId]);
 
   // Handle edit file
   const handleEditFile = useCallback(
@@ -183,6 +197,20 @@ function SnapRxContent() {
     setHasUploadedFiles(true);
     fetchUploadedFiles(); // Just refresh the API files without reopening drawer
   }, [fetchUploadedFiles]);
+
+  // Function to clear files when preview drawer is closed without saving
+  const handleClearUploadedFiles = useCallback(() => {
+    // Clean up preview URLs
+    uploadedFilesRef.current.forEach((file) => {
+      if (file.preview) {
+        URL.revokeObjectURL(file.preview);
+      }
+    });
+
+    // Clear uploaded files
+    setUploadedFiles([]);
+    setIsAddingMore(false);
+  }, []); // Remove uploadedFiles from dependencies
 
   const handleCreateSnapRx = useCallback(async () => {
     if (tcmId) {
@@ -518,6 +546,7 @@ function SnapRxContent() {
 
           input.click();
         }}
+        onClearFiles={handleClearUploadedFiles}
       />
 
       {/* Preview drawer for new uploads - positioned outside container for proper overlay */}
@@ -593,6 +622,7 @@ function SnapRxContent() {
           setIsPreviewDrawerOpen(false);
         }}
         onSave={handlePreviewSave}
+        onClearFiles={handleClearUploadedFiles}
       />
 
       <UploadMoreDrawer
