@@ -1,6 +1,8 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useMemo } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import crownIcon from "../assets/images/crown.svg";
+import { useLocation } from "react-router-dom";
+import { HIDE_ROUTES } from "../constants/constants";
 import { openModal } from "../redux/doctorModalSlice";
 
 const PlanExpirationBanner = () => {
@@ -11,16 +13,29 @@ const PlanExpirationBanner = () => {
     expiresIn,
     is_pm_renew_requested,
   } = planDetails || {};
-
+  
+  const location = useLocation();
   const dispatch = useDispatch();
+  const shouldHideBanner = useMemo(() => {
+    return HIDE_ROUTES.BANNER.some(
+      (route) =>
+        location.pathname === route || location.pathname.startsWith(route + "/")
+    );
+  }, [location.pathname]);
+
   const handleClick = () => {
     dispatch(openModal());
   };
 
+  if (shouldHideBanner) {
+    return null;
+  }
+
   return (
     !is_pm_renew_requested &&
     currentPlanStatus === "PAID" &&
-    expiresIn <= expiry_reminder_days && (
+    expiresIn <= expiry_reminder_days &&
+    (
       <header className="plan-expiry-banner">
         <div className="demoModeWrapper">
           <div className="demoModeIndicator" />
