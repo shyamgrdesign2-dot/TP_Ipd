@@ -58,6 +58,7 @@ import sparkleGif from "../assets/images/aiSparkleLoader.gif";
 import FullPageLoader from "./vaccination/components/Loader";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import CvtKnowMore from "./smartSync/components/CvtKnowMore";
+import RxTemplateUploadDrawer from "./smartSync/components/RxTemplateUploadDrawer";
 import { Content } from "antd/es/layout/layout";
 import vaccinationImg from "../assets/images/Vaccination.svg";
 import growthChartImg from "../assets/images/growth-chart-dark.svg";
@@ -261,6 +262,7 @@ function SmartPrescription() {
   const [isEditDocument, setIsEditDocument] = useState(false);
   const fileInputRef = useRef(null);
   const [cvtDrawer, setCvtDrawer] = useState(false);
+  const [uploadCanvasDrawer, setUploadCanvasDrawer] = useState(false);
   const [showSCBanner, setShowSCBanner] = useState(false);
   const [showAllSymptoms, setShowAllSymptoms] = useState(false);
 
@@ -545,6 +547,142 @@ function SmartPrescription() {
   // Drawer Obstetric
   const handleDrawerObstetric = () => {
     setObstetricDrawer(!obstetricDrawer);
+  };
+
+  // Drawer Upload Canvas
+  const handleDrawerUploadCanvas = () => {
+    setUploadCanvasDrawer(!uploadCanvasDrawer);
+  };
+
+  // ✅ Utility function to check storage quota
+  const checkStorageQuota = (dataSize) => {
+    try {
+      // Estimate storage usage
+      const currentUsage = JSON.stringify(localStorage.getItem('rxTemplates') || '[]').length;
+      const estimatedNewUsage = currentUsage + dataSize;
+      const maxQuota = 5 * 1024 * 1024; // 5MB limit
+      
+      return estimatedNewUsage < maxQuota;
+    } catch (error) {
+      return true; // Assume it's okay if we can't check
+    }
+  };
+
+  // ✅ Utility function to clean up old templates
+  const cleanupOldTemplates = () => {
+    try {
+      const templates = JSON.parse(localStorage.getItem('rxTemplates') || '[]');
+      const maxTemplates = 5; // Reduce to 5 templates
+      
+      if (templates.length > maxTemplates) {
+        // Remove oldest templates
+        const cleanedTemplates = templates.slice(-maxTemplates);
+        localStorage.setItem('rxTemplates', JSON.stringify(cleanedTemplates));
+      }
+    } catch (error) {
+      console.error('Error cleaning up templates:', error);
+    }
+  };
+
+  // ✅ Utility function to get full template data (including images)
+  const getFullTemplateData = (templateId) => {
+    try {
+      // Try to get full data from sessionStorage first
+      const sessionData = sessionStorage.getItem(`template_${templateId}`);
+      if (sessionData) {
+        return JSON.parse(sessionData);
+      }
+      
+      // Fallback to localStorage (optimized data only)
+      const templates = JSON.parse(localStorage.getItem('rxTemplates') || '[]');
+      return templates.find(template => template.id === templateId);
+    } catch (error) {
+      return null;
+    }
+  };
+
+  // Handle Canvas Upload
+  const handleCanvasUploaded = (templateData) => {
+    try {
+      // ✅ Optimize template data for storage
+      const optimizedTemplate = {
+        id: `template_${Date.now()}`,
+        name: templateData.name,
+        totalPages: templateData.totalPages,
+        dimensions: templateData.dimensions,
+        createdAt: new Date().toISOString(),
+        // ✅ Store only essential page data, not full images
+        pages: templateData.pages.map((page, index) => ({
+          pageNumber: page.pageNumber,
+          isCropped: page.isCropped,
+          hasBeenEdited: page.hasBeenEdited,
+          dimensions: page.dimensions,
+          cropBoxData: page.cropBoxData,
+          // ✅ Store only cropped images, not original full images
+          croppedImage: page.isCropped ? page.croppedImage : null,
+          // ✅ Don't store original full images in localStorage
+          uploadFile: null, // Will be handled separately
+        }))
+      };
+      
+      // ✅ Clean up old templates first
+      cleanupOldTemplates();
+      
+      // ✅ Check storage quota before saving
+      const templates = JSON.parse(localStorage.getItem('rxTemplates') || '[]');
+      const optimizedDataSize = JSON.stringify(optimizedTemplate).length;
+      
+      if (!checkStorageQuota(optimizedDataSize)) {
+        message.warning('Storage is getting full. Some old templates will be removed.');
+        // Force cleanup
+        localStorage.removeItem('rxTemplates');
+        localStorage.removeItem('activeRxTemplate');
+      }
+      
+      templates.push(optimizedTemplate);
+      
+      try {
+        localStorage.setItem('rxTemplates', JSON.stringify(templates));
+        localStorage.setItem('activeRxTemplate', JSON.stringify(optimizedTemplate));
+        
+        message.success(`RX Template "${templateData.name}" uploaded and activated successfully!`);
+      } catch (storageError) {
+        try {
+          localStorage.removeItem('rxTemplates');
+          localStorage.removeItem('activeRxTemplate');
+          localStorage.setItem('rxTemplates', JSON.stringify([optimizedTemplate]));
+          localStorage.setItem('activeRxTemplate', JSON.stringify(optimizedTemplate));
+          
+          message.warning('Storage was full. Old templates were cleared to make space.');
+        } catch (fallbackError) {
+          message.error('Failed to save template due to storage limitations. Please try with a smaller file or clear browser data.');
+          return;
+        }
+      }
+      
+      if (templateData.pages && templateData.pages.length > 0) {
+        try {
+          const sessionData = {
+            templateId: optimizedTemplate.id,
+            fullPages: templateData.pages.map(page => ({
+              pageNumber: page.pageNumber,
+              croppedImage: page.croppedImage,
+              uploadFile: page.uploadFile,
+              showFile: page.croppedImage || page.showFile
+            }))
+          };
+          sessionStorage.setItem(`template_${optimizedTemplate.id}`, JSON.stringify(sessionData));
+        } catch (sessionError) {
+          // Ignore session storage errors in production
+        }
+      }
+      
+    } catch (error) {
+      message.error('Failed to save template. Please try again.');
+      return;
+    }
+    
+    setUploadCanvasDrawer(false);
   };
 
   useEffect(() => {
@@ -1141,6 +1279,8 @@ function SmartPrescription() {
           canvasRefs.current[id] = el;
           const ctx = el.getContext("2d");
           ctx.fillStyle = "white";
+          ctx.fillRect(0, 0, el.width, el.height);
+          ctx.beginPath();
           ctxGlobalRefs.current[id] = ctx;
         } else {
           canvasRefs.current[id] = el;
@@ -1757,6 +1897,72 @@ function SmartPrescription() {
               }}
             >
               <div>
+                {/* Custom Canvas Section */}
+                <div className="prescription-box-sm p-14 mb-14" style={{ width: "720px" }}>
+                  <div className="d-flex align-items-center justify-content-between">
+                    <div className="d-flex align-items-center">
+                      <i className="icon-template me-2" style={{ 
+                        fontSize: "16px", 
+                        color: "#6c757d" 
+                      }}></i>
+                      <span className="me-2" style={{ 
+                        color: "#374151",
+                        fontWeight: "400",
+                        fontSize: "14px"
+                      }}>
+                        Add custom Rx Canvas
+                      </span>
+                      <button 
+                        className="btn-link text-primary me-2 p-0"
+                        style={{ 
+                          fontSize: "16px",
+                          fontWeight: "600",
+                          textDecoration: "underline",
+                          border: "none",
+                          background: "none"
+                        }}
+                      >
+                        Know more
+                      </button>
+                      <span 
+                        className="text-white"
+                        style={{ 
+                          fontSize: "12px", 
+                          fontWeight: "600",
+                          width: "40px",
+                          height: "16px",
+                          borderRadius: "4px",
+                          background: "linear-gradient(101.91deg, #A461D8 9.72%, #B85DFF 47.18%, #7700D4 100%)",
+                          paddingTop: "4px",
+                          paddingRight: "6px",
+                          paddingBottom: "4px",
+                          paddingLeft: "6px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          lineHeight: "1"
+                        }}
+                      >
+                        New
+                      </span>
+                    </div>
+                    <button 
+                      className="btn d-flex align-items-center"
+                      style={{
+                        background: "white",
+                        border: "1px solid var(--P-CTA-100, #4B4AD5)",
+                        fontSize: "14px",
+                        gap: "4px",
+                        color: "#4B4AD5"
+                      }}
+                      onClick={handleDrawerUploadCanvas}
+                    >
+                      <i className="icon-Add"></i>
+                      Add Rx Canvas
+                    </button>
+                  </div>
+                </div>
+
                 <div
                   id="pdf"
                   style={{ border: prescription ? "none" : "lightgrey" }}
@@ -1864,6 +2070,13 @@ function SmartPrescription() {
             handleCollapsed={(flag) => handleCollapsed(flag)}
           />
         </Drawer>
+        
+        {/* Upload RX Template Drawer */}
+        <RxTemplateUploadDrawer
+          visible={uploadCanvasDrawer}
+          onClose={handleDrawerUploadCanvas}
+          onSave={handleCanvasUploaded}
+        />
         {vitalDrawer && (
           <Drawer
             closeIcon={false}
