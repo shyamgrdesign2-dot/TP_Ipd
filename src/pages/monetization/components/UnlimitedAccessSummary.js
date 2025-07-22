@@ -24,7 +24,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     const { profile } = useSelector((state) => state.doctors);
     const { pincodeInfo } = useSelector((state) => state.records);
     const { planDetails } = useSelector((state) => state.subscription);
-    const { b2c } = planDetails || {};
+    const { clinic_b2c } = planDetails || {};
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -169,51 +169,55 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
         // } else if (taxInvoice && !clinicState) {
         //     errorMessage('Enter Valid clinic pincode')
         // }
-        if (
-            (!taxInvoice) ||
-            (
-                taxInvoice &&
-                clinicName &&
-                gstNo &&
-                isValidGST(gstNo) &&
-                doctorName &&
-                clinicPincode &&
-                clinicCity &&
-                clinicState
-            )
-        ) {
-            const clinic_name = getClinicName(profile?.hospital_data);
-            const tokenData = getTokenData();
-            const deviceSdkData = getDeviceSdkData();
-            window.Moengage.track_event("TP_Monetization_ProceedtoPay", {
-                doctor_name: profile?.um_name,
-                doctor_number: profile?.um_contact,
-                doctor_unique_id: profile?.doctor_unique_id,
-                doctor_specialty: profile?.dp_name,
-                clinic_id: tokenData?.clinic_id,
-                um_id: tokenData?.user_id,
-                clinic_Name: clinic_name,
-                ...deviceSdkData
-            });
-            setLoading(true)
-            let sendData = {
-                amount: totalAmount,
-            }
-            const action = await dispatch(paymentOrder(sendData));
-            if (action.meta.requestStatus === "fulfilled") {
-                if (action?.payload?.hasOwnProperty("id")) {
-                    initRazorPayPayment(action?.payload);
+        if (profile?.b2c) {
+            if (
+                (!taxInvoice) ||
+                (
+                    taxInvoice &&
+                    clinicName &&
+                    gstNo &&
+                    isValidGST(gstNo) &&
+                    doctorName &&
+                    clinicPincode &&
+                    clinicCity &&
+                    clinicState
+                )
+            ) {
+                const clinic_name = getClinicName(profile?.hospital_data);
+                const tokenData = getTokenData();
+                const deviceSdkData = getDeviceSdkData();
+                window.Moengage.track_event("TP_Monetization_ProceedtoPay", {
+                    doctor_name: profile?.um_name,
+                    doctor_number: profile?.um_contact,
+                    doctor_unique_id: profile?.doctor_unique_id,
+                    doctor_specialty: profile?.dp_name,
+                    clinic_id: tokenData?.clinic_id,
+                    um_id: tokenData?.user_id,
+                    clinic_Name: clinic_name,
+                    ...deviceSdkData
+                });
+                setLoading(true)
+                let sendData = {
+                    amount: totalAmount,
+                }
+                const action = await dispatch(paymentOrder(sendData));
+                if (action.meta.requestStatus === "fulfilled") {
+                    if (action?.payload?.hasOwnProperty("id")) {
+                        initRazorPayPayment(action?.payload);
+                    } else {
+                        setLoading(false)
+                        typeof action?.payload?.data?.error === 'object' ?
+                            errorMessage(action?.payload?.data?.error?.description)
+                            :
+                            errorMessage(action?.payload?.data?.message)
+                    }
                 } else {
                     setLoading(false)
-                    typeof action?.payload?.data?.error === 'object' ?
-                        errorMessage(action?.payload?.data?.error?.description)
-                        :
-                        errorMessage(action?.payload?.data?.message)
+                    errorMessage(action.payload.message)
                 }
-            } else {
-                setLoading(false)
-                errorMessage(action.payload.message)
             }
+        } else {
+            errorMessage('Your account is not linked with B2C');
         }
     }
 
@@ -453,12 +457,26 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
 
     const clickReferralCode = async () => {
         if (selectedServices?.length > 0) {
+            const clinic_name = getClinicName(profile?.hospital_data);
+            const tokenData = getTokenData();
+            const deviceSdkData = getDeviceSdkData();
+            window.Moengage.track_event("TP_Monetization_RefferalCode", {
+                doctor_name: profile?.um_name,
+                doctor_number: profile?.um_contact,
+                doctor_unique_id: profile?.doctor_unique_id,
+                doctor_specialty: profile?.dp_name,
+                clinic_id: tokenData?.clinic_id,
+                um_id: tokenData?.user_id,
+                clinic_Name: clinic_name,
+                ...deviceSdkData
+            });
+
             const summaryData = selectedServices.map(({ service_name, validity }) => ({
                 serviceName: service_name,
                 noOfYears: validity / 12
             }));
             let sendData = {
-                b2c: b2c,
+                b2c: clinic_b2c,
                 services: summaryData
             }
             const action = await dispatch(discountCode(sendData));
@@ -486,8 +504,22 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
             code: salesCode,
             id: salesDetails?.requestId
         }
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData();
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_ContinueSalesRefferalStep1", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            ...sendData,
+            ...deviceSdkData
+        });
+
         const action = await dispatch(discountCodeValidate(sendData));
-        console.log(action)
         if (action?.payload?.status === 200) {
             setSalesDiscount(action?.payload?.body?.discountAmount);
             setFlag(2);
@@ -511,6 +543,21 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
             duration: 5,
         });
         setDrawerOpen(false);
+        const clinic_name = getClinicName(profile?.hospital_data);
+        const tokenData = getTokenData();
+        const deviceSdkData = getDeviceSdkData();
+        window.Moengage.track_event("TP_Monetization_SalesDiscountGiven", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            clinic_id: tokenData?.clinic_id,
+            um_id: tokenData?.user_id,
+            clinic_Name: clinic_name,
+            code: salesCode,
+            id: salesDetails?.requestId,
+            ...deviceSdkData
+        });
     }
 
     const handeYearDD = (e) => {
