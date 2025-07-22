@@ -17,8 +17,10 @@ import { db } from "../../firebase";
 import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { deleteDocsUploadedFromAndroid } from "../medicalRecords/service";
 import RefundBill from "./components/billingDashboard/RefundBill/RefundBill";
-import { getClinic, trackEvent } from "../../utils/utils";
+import { errorMessage, getClinic, trackEvent } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
+import wtsp from "./../../assets/images/wtsp.svg";
+import loadingImg from "./../../assets/images/loading.png";
 
 const PreviewBill = ({
   handleCreateBillDrawer,
@@ -66,6 +68,8 @@ const PreviewBill = ({
   const isReceptionist = urlParams.has("receptionist");
   const receptionistId = urlParams.get("receptionistId");
   const receptionistName = urlParams.get("receptionistName");
+  const [buttonText, setButtonText] = useState("Send to WhatsApp");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -168,6 +172,34 @@ const PreviewBill = ({
       receptionistName: receptionistName,
     });
     setRefundBillDrawer(!refundBillDrawer);
+  };
+
+  const handleSendToWhatsapp = async () => {
+    if (printBlob) {
+      // 1. Convert the blob to a File object (if needed)
+      const pdfBlob = printBlob;
+      const formData = new FormData();
+      formData.append("file", pdfBlob, "report.pdf");
+
+      // 2. Upload to file.io
+      const res = await fetch("https://file.io/?expires=14d", {
+        method: "POST",
+        body: formData,
+      });
+
+      const { link, expiry } = await res.json();
+
+      if (link) {
+        // 3. Open the public link in a new tab
+        window.open(link, "_blank");
+        // Optionally, you can also copy the link to clipboard or use it in WhatsApp
+        // navigator.clipboard.writeText(link);
+        // Optionally, show a message to the user
+        // alert(`PDF link copied! You can now share it via WhatsApp. Link expires at: ${expiry}`);
+      } else {
+        errorMessage("Failed to upload PDF. Please try again.");
+      }
+    }
   };
 
   const handleRefundSuccess = async () => {
@@ -325,7 +357,7 @@ const PreviewBill = ({
                   billDetails?.paymentStatus !== "Refunded" && (
                     <Button
                       type="text"
-                      className={`btn btnicon20 align-items-center d-flex btn-41 w-100 ${
+                      className={`btn btnicon20 align-items-center d-flex btn-41 w-100 mb-3 ${
                         isReceptionist ? "receptionist-white-btn" : "btn-input"
                       }`}
                       icon={<i className="icon-Edit" />}
@@ -335,6 +367,39 @@ const PreviewBill = ({
                       <i className="icon-right iconrotate180 ms-auto"></i>
                     </Button>
                   )}
+
+                <div className="bg-body d-flex flex-column p-3 rounded-10px border">
+                  <div className="d-flex">
+                    <img
+                      src={wtsp}
+                      alt="Whatsapp Icon"
+                      className="align-self-baseline me-3"
+                    />
+                    <div className="fontroboto title-common">
+                      <div className="fw-normal fontroboto mb-2">
+                        {"Send this bill to Patient's WhatsApp"}
+                      </div>
+                      {patientData !== undefined
+                        ? ` +91 ${patientData.pm_contact_no}`
+                        : "-"}
+                    </div>
+                  </div>
+                  <button
+                    className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-1 mt-3 btn-41 w-100"
+                    onClick={handleSendToWhatsapp}
+                  >
+                    {isLoading ? (
+                      <img
+                        src={loadingImg}
+                        alt="Loading..."
+                        width="25px"
+                        height="25px"
+                      />
+                    ) : (
+                      buttonText
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </Col>
