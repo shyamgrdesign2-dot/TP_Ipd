@@ -151,7 +151,7 @@ function SnapRxDigitise() {
 
   return (
     <>
-      <HeaderSmartRxDigitise onSave={handleSave} patient_data={patient_data} />
+      <HeaderSmartRxDigitise onSave={handleSave} patient_data={patient_data} isSnapRx={true} />
       <div className="cvt-info">
         <img src={cvtInfoIcon} alt="cvt-info-icon" className="me-2" />
         <span className="cvt-info-text">
@@ -164,7 +164,7 @@ function SnapRxDigitise() {
       <div
         className={`${
           isMobile ? "p-0" : ""
-        } w-100 bg-body wrapper2 prescription-wrapper`}
+        } w-100 bg-body prescription-wrapper`}
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
           <Col md={17} lg={17} xl={12}>
@@ -183,7 +183,7 @@ function SnapRxDigitise() {
                       </div>
                     </div>
                   </Card.Header>
-                  <Card.Body className="p-0 cardbody-data scrollable-body">
+                  <Card.Body className="p-0 cardbody-data ">
                     {loading ? (
                       <div className="d-flex flex-column justify-content-center">
                         <div className="align-items-center text-center">
@@ -195,7 +195,7 @@ function SnapRxDigitise() {
                       smartRxFile?.map(({ fileUrl }) => (
                         <div style={{ padding: "5px" }}>
                           {fileUrl && (
-                            <img src={fileUrl} alt="Smart Rx" width="100%" />
+                            <img src={fileUrl} alt="Smart Rx" className="snap-rx-img" width="100%" />
                           )}
                         </div>
                       ))
@@ -221,7 +221,7 @@ function SnapRxDigitise() {
                       </div>
                     </div>
                   </Card.Header>
-                  <Card.Body className="p-0 cardbody-data scrollable-body">
+                  <Card.Body className="p-0 cardbody-data">
                     <div style={{ padding: "5px" }}>
                       <DigitisedPrescription
                         data={data}

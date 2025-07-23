@@ -51,7 +51,7 @@ function Header({
     onSubmit();
   };
   return (
-    <Navbar className="justify-content-between headerprescription p-0">
+    <Navbar className="justify-content-between headerprescription p-0 snap-rx-header">
       <Container fluid className="h-100 gx-0 w-100">
         <Row className="h-100 align-items-center w-100 justify-content-between">
           <Col lg="auto" className="h-100">

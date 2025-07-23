@@ -17,7 +17,7 @@ const DemoExpirationBanner = () => {
   const shouldHideBanner = useMemo(() => {
     return HIDE_ROUTES.BANNER.some(
       (route) =>
-        location.pathname === route || location.pathname.startsWith(route + "/")
+        location.pathname.includes(route)
     );
   }, [location.pathname]);
 

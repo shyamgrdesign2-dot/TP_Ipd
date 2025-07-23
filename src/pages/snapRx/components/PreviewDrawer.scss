@@ -1,31 +1,35 @@
 // Antd Drawer content styling
+
+@mixin position-relative-full-size {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+}
+
 .preview-drawer-content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  padding: 16px;
+  // gap: 24px;
 
   // Preview Container
   .snaprx-preview-container {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    min-height: 0;
   }
 
-  // Preview Area (Gray rounded container)
   .preview-area {
     background: rgba(180, 180, 180, 1);
     backdrop-filter: blur(5.09337854385376px);
     border-radius: 20px;
-    padding: 30px 40px;
+    padding: 24px 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     width: 37.5625rem;
     margin: auto;
-    max-width: 100%;
+    width: 580px;
+    height: 560px;
 
     .skeleton-container {
       width: 100%;
@@ -121,12 +125,14 @@
     }
 
     .crop-container {
-      width: 100%;
-      height: 100%;
+      position: relative;
+      max-width: 485px;
+      // height: auto;
+      margin: auto;
+      aspect-ratio: 1 / 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
 
       .react-crop-wrapper {
         display: flex;
@@ -135,31 +141,33 @@
 
         .prescription-image {
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-          object-fit: cover;
+          position: relative;
+          object-fit: contain;
           display: block;
-          width: auto;
           height: auto;
+          width: 100%;
+          aspect-ratio: 1 / 1;
         }
       }
 
       .react-crop-wrapper .ReactCrop__crop-selection {
         box-shadow: none !important;
       }
-      
+
       .react-crop-wrapper .ReactCrop__crop-selection::before {
         box-shadow: none !important;
       }
-      
+
       /* Remove the dark overlay/mask */
       .react-crop-wrapper .ReactCrop__crop-selection {
         background: transparent !important;
       }
-      
+
       /* If there's still a mask, target the crop container */
       .ReactCrop {
         position: relative;
       }
-      
+
       .ReactCrop::before,
       .ReactCrop::after {
         display: none !important;
@@ -262,7 +270,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 30px;
+    margin-top: 20px;
     width: 100%;
 
     .action-buttons {
@@ -289,11 +297,16 @@
           align-items: center;
           gap: 0.382rem;
           border-radius: 0.39813rem;
-          background: linear-gradient(103deg, rgba(255, 255, 255, 0.60) 5.1%, rgba(255, 255, 255, 0.60) 51.64%, rgba(255, 255, 255, 0.60) 98.18%);
+          background: linear-gradient(
+            103deg,
+            rgba(255, 255, 255, 0.6) 5.1%,
+            rgba(255, 255, 255, 0.6) 51.64%,
+            rgba(255, 255, 255, 0.6) 98.18%
+          );
           backdrop-filter: blur(3px);
 
           span {
-            color: #4B4AD5 !important;
+            color: #4b4ad5 !important;
             font-size: 0.875rem;
             font-style: normal;
             font-weight: 500;
@@ -309,11 +322,16 @@
           align-items: center;
           gap: 0.382rem;
           border-radius: 0.39813rem;
-          background: linear-gradient(103deg, rgba(255, 255, 255, 0.60) 5.1%, rgba(255, 255, 255, 0.60) 51.64%, rgba(255, 255, 255, 0.60) 98.18%);
+          background: linear-gradient(
+            103deg,
+            rgba(255, 255, 255, 0.6) 5.1%,
+            rgba(255, 255, 255, 0.6) 51.64%,
+            rgba(255, 255, 255, 0.6) 98.18%
+          );
           backdrop-filter: blur(3px);
 
           span {
-            color: #FC5A5A !important;
+            color: #fc5a5a !important;
             font-size: 0.875rem;
             font-style: normal;
             font-weight: 500;
@@ -338,7 +356,12 @@
         gap: 1.32719rem;
         border: none;
         border-radius: 0.39813rem;
-        background: linear-gradient(103deg, rgba(255, 255, 255, 0.60) 5.1%, rgba(255, 255, 255, 0.60) 51.64%, rgba(255, 255, 255, 0.60) 98.18%);
+        background: linear-gradient(
+          103deg,
+          rgba(255, 255, 255, 0.6) 5.1%,
+          rgba(255, 255, 255, 0.6) 51.64%,
+          rgba(255, 255, 255, 0.6) 98.18%
+        );
         backdrop-filter: blur(3px);
       }
 
@@ -369,7 +392,12 @@
         gap: 0.5rem;
         align-self: stretch;
         border-radius: 0.39813rem;
-        background: linear-gradient(103deg, rgba(255, 255, 255, 0.60) 5.1%, rgba(255, 255, 255, 0.60) 51.64%, rgba(255, 255, 255, 0.60) 98.18%);
+        background: linear-gradient(
+          103deg,
+          rgba(255, 255, 255, 0.6) 5.1%,
+          rgba(255, 255, 255, 0.6) 51.64%,
+          rgba(255, 255, 255, 0.6) 98.18%
+        );
         backdrop-filter: blur(3px);
 
         .zoom-divider {
@@ -378,7 +406,7 @@
           height: 1.01069rem;
           flex-direction: column;
           justify-content: center;
-          color: #A2A2A8 !important;
+          color: #a2a2a8 !important;
           font-size: 0.929rem;
           font-style: normal;
           font-weight: 500;
@@ -394,7 +422,7 @@
     gap: 16px;
     justify-content: center;
     align-items: center;
-    padding: 16px;
+    // padding: 16px;
     overflow-x: auto;
     overflow-y: visible;
     flex-shrink: 0;
@@ -406,7 +434,7 @@
       width: 4.48981rem !important;
       height: 5rem !important;
       border-radius: 0.5rem !important;
-      border: 0.5px solid #E2E2EA;
+      border: 0.5px solid #e2e2ea;
       background: #fdfdfd;
       overflow: hidden;
       cursor: pointer;
@@ -415,16 +443,16 @@
       box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.06);
 
       &:hover {
-        border: 1px solid #4B4AD5;
+        border: 1px solid #4b4ad5;
         box-shadow: 0px 2px 8px 0px rgba(75, 74, 213, 0.2);
         transform: translateY(-1px);
       }
 
       &.selected {
-        border: 1.8px solid #4B4AD5;
-        background: #FDFDFD;
+        border: 1.8px solid #4b4ad5;
+        background: #fdfdfd;
         box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.18);
-        
+
         &:hover {
           transform: none; // Don't lift selected items on hover
         }
@@ -555,7 +583,7 @@
   .page-indicator {
     font-size: 0.875rem;
     font-weight: 400;
-    color: #6B7280;
+    color: #6b7280;
     margin-left: 0.5rem;
   }
 }
@@ -571,7 +599,7 @@
   gap: 0.5rem;
   align-self: stretch;
   border-radius: 0.625rem !important;
-  background: #4B4AD5 !important;
+  background: #4b4ad5 !important;
 }
 
 .snaprx-drawer-title {

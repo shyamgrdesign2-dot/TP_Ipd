@@ -23,6 +23,7 @@ import FileUploadErrorModal from "../../components/common/FileUploadErrorModal";
 import { useSelector } from "react-redux";
 import KnowMore from "../../components/KnowMore";
 import { SNAP_RX_KNOW_MORE_DATA } from "../../utils/constants";
+import FullPageLoader from "../vaccination/components/Loader";
 
 function SnapRxContent() {
   const { state } = useLocation();
@@ -32,6 +33,7 @@ function SnapRxContent() {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [smartRxData, setSmartRxData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // New state for API uploaded files
   const [apiUploadedFiles, setApiUploadedFiles] = useState([]);
@@ -50,6 +52,7 @@ function SnapRxContent() {
 
   const { patient_data, send_path, caseManagerData, pam_id } = state;
   const tcmId = caseManagerData ? caseManagerData.tcm_id : 0;
+  console.log('INTEL ===> tcmId ',caseManagerData, tcmId);
   const pamId = pam_id
     ? pam_id
     : caseManagerData !== undefined
@@ -67,6 +70,11 @@ function SnapRxContent() {
 
   // Use ref to access current uploadedFiles without dependency issues
   const uploadedFilesRef = useRef(uploadedFiles);
+
+  useEffect(() => {
+    fetchUploadedFiles();
+  }, []);
+
   useEffect(() => {
     uploadedFilesRef.current = uploadedFiles;
   }, [uploadedFiles]);
@@ -98,6 +106,7 @@ function SnapRxContent() {
         setApiUploadedFiles([]);
       } finally {
         setLoadingApiFiles(false);
+        setIsLoading(false);
       }
     },
     [patient_data?.patient_unique_id, tcmId, sessionId, hasUploadedFiles]
@@ -313,6 +322,197 @@ function SnapRxContent() {
     setShowKnowMore(!showKnowMore);
   };
 
+  const handleAddMore = () => {
+    // Check if we've reached the file limit before allowing more uploads
+    if (apiUploadedFiles.length >= 5) {
+      setIsFileLimitError(true);
+      return;
+    }
+
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*,.pdf";
+    input.multiple = true;
+
+    input.onchange = async (e) => {
+      const files = Array.from(e.target.files);
+      if (files.length > 0) {
+        // Validate file count limit
+        const totalFileCount = apiUploadedFiles.length + files.length;
+        if (totalFileCount > 5) {
+          setIsFileLimitError(true);
+          return;
+        }
+
+        // Validate each file
+        const validFiles = [];
+        const maxFileSize = 15 * 1024 * 1024; // 8MB
+
+        for (const file of files) {
+          // Validate file type
+          if (!file.type.match(/^(image|application\/pdf)/)) {
+            const fileExtension = file.name.split(".").pop()?.toLowerCase();
+            setIsFileTypeError(`.${fileExtension}`);
+            continue;
+          }
+
+          // Validate file size
+          if (file.size > maxFileSize) {
+            setIsFileSizeError(true);
+            continue;
+          }
+
+          validFiles.push(file);
+        }
+
+        if (validFiles.length > 0) {
+          const newFiles = validFiles.map((file) => {
+            const fileUrl = URL.createObjectURL(file);
+            return {
+              file: file,
+              fileUrl: fileUrl,
+              preview: fileUrl,
+              filename: file.name,
+              name: file.name,
+              type: file.type,
+              // Add any other required properties here
+            };
+          });
+
+          const updatedFiles = [...apiUploadedFiles, ...newFiles];
+
+          // Update the state with new files
+          setApiUploadedFiles(updatedFiles);
+
+          // Update the editing file to show the first new file
+          const formattedNewFile = {
+            ...newFiles[0],
+            file: {
+              ...newFiles[0],
+              fileUrl: newFiles[0].fileUrl,
+              preview: newFiles[0].fileUrl,
+            },
+            fileUrl: newFiles[0].fileUrl,
+            preview: newFiles[0].fileUrl,
+            name: newFiles[0].filename,
+            type: newFiles[0].type,
+          };
+
+          setEditingFile(formattedNewFile);
+        }
+      }
+    };
+
+    input.click();
+  };
+
+  const handleReupload = (fileIndex) => {
+    // Create a file input element
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*,.pdf";
+
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        // Validate the new file
+        const maxFileSize = 15 * 1024 * 1024; // 8MB
+
+        // Validate file type
+        if (!file.type.match(/^(image|application\/pdf)/)) {
+          const fileExtension = file.name.split(".").pop()?.toLowerCase();
+          setIsFileTypeError(`.${fileExtension}`);
+          return;
+        }
+
+        // Validate file size
+        if (file.size > maxFileSize) {
+          setIsFileSizeError(true);
+          return;
+        }
+
+        // Create a preview URL for the new file
+        const preview = URL.createObjectURL(file);
+
+        // Create updated file object with preview
+        const updatedFile = {
+          file,
+          preview,
+          name: file.name,
+          type: file.type,
+        };
+
+        // Update the file at the specified index
+        const newFiles = [...uploadedFiles];
+        newFiles[fileIndex] = updatedFile;
+        setUploadedFiles(newFiles);
+      }
+    };
+
+    input.click();
+  };
+
+  const handleGoBack = () => {
+    if (isAddingMore) {
+      // If adding more, go back to preview drawer
+      setIsAddingMore(false);
+      setIsPreviewDrawerOpen(true);
+    } else {
+      // Otherwise, go back to files list
+      handleBackToFiles();
+    }
+  };
+
+  const handleReuploadOnPreviewDrawer = (fileIndex) => {
+    // Create a file input element
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*,.pdf";
+
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        // Validate the new file
+        const maxFileSize = 15 * 1024 * 1024; // 8MB
+
+        // Validate file type
+        if (!file.type.match(/^(image|application\/pdf)/)) {
+          const fileExtension = file.name.split(".").pop()?.toLowerCase();
+          setIsFileTypeError(`.${fileExtension}`);
+          return;
+        }
+
+        // Validate file size
+        if (file.size > maxFileSize) {
+          setIsFileSizeError(true);
+          return;
+        }
+
+        // Create a preview URL for the new file
+        const preview = URL.createObjectURL(file);
+
+        // Create updated file object with preview
+        const updatedFile = {
+          file,
+          preview,
+          name: file.name,
+          type: file.type,
+        };
+
+        // Update the file at the specified index
+        const newFiles = [...uploadedFiles];
+        newFiles[fileIndex] = updatedFile;
+        setUploadedFiles(newFiles);
+      }
+    };
+
+    input.click();
+  };
+
+  if (isLoading) {
+    return <FullPageLoader />;
+  }
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <div className="snap-rx-container">
@@ -353,17 +553,8 @@ function SnapRxContent() {
                   (apiUploadedFiles && apiUploadedFiles.length > 0) ||
                   (isAddingMore && uploadedFiles.length > 0)
                 }
-                onBack={() => {
-                  if (isAddingMore) {
-                    // If adding more, go back to preview drawer
-                    setIsAddingMore(false);
-                    setIsPreviewDrawerOpen(true);
-                  } else {
-                    // Otherwise, go back to files list
-                    handleBackToFiles();
-                  }
-                }}
-                fetchUploadedFiles={() => fetchUploadedFiles()}
+                onBack={handleGoBack}
+                fetchUploadedFiles={fetchUploadedFiles}
               />
             )}
           </ErrorBoundary>
@@ -388,51 +579,7 @@ function SnapRxContent() {
         }))}
         editingFile={editingFile}
         isEditMode={true}
-        onReupload={(fileIndex) => {
-          // Create a file input element
-          const input = document.createElement("input");
-          input.type = "file";
-          input.accept = "image/*,.pdf";
-
-          input.onchange = async (e) => {
-            const file = e.target.files[0];
-            if (file) {
-              // Validate the new file
-              const maxFileSize = 15 * 1024 * 1024; // 8MB
-
-              // Validate file type
-              if (!file.type.match(/^(image|application\/pdf)/)) {
-                const fileExtension = file.name.split(".").pop()?.toLowerCase();
-                setIsFileTypeError(`.${fileExtension}`);
-                return;
-              }
-
-              // Validate file size
-              if (file.size > maxFileSize) {
-                setIsFileSizeError(true);
-                return;
-              }
-
-              // Create a preview URL for the new file
-              const preview = URL.createObjectURL(file);
-
-              // Create updated file object with preview
-              const updatedFile = {
-                file,
-                preview,
-                name: file.name,
-                type: file.type,
-              };
-
-              // Update the file at the specified index
-              const newFiles = [...uploadedFiles];
-              newFiles[fileIndex] = updatedFile;
-              setUploadedFiles(newFiles);
-            }
-          };
-
-          input.click();
-        }}
+        onReupload={handleReupload}
         onRemove={(fileIndex) => {
           // Remove file from apiUploadedFiles
           const updatedFiles = apiUploadedFiles.filter(
@@ -460,92 +607,7 @@ function SnapRxContent() {
           }
         }}
         onSave={handleEditSave}
-        onAddMore={() => {
-          // Check if we've reached the file limit before allowing more uploads
-          if (apiUploadedFiles.length >= 5) {
-            setIsFileLimitError(true);
-            return;
-          }
-
-          const input = document.createElement("input");
-          input.type = "file";
-          input.accept = "image/*,.pdf";
-          input.multiple = true;
-
-          input.onchange = async (e) => {
-            const files = Array.from(e.target.files);
-            if (files.length > 0) {
-              // Validate file count limit
-              const totalFileCount = apiUploadedFiles.length + files.length;
-              if (totalFileCount > 5) {
-                setIsFileLimitError(true);
-                return;
-              }
-
-              // Validate each file
-              const validFiles = [];
-              const maxFileSize = 15 * 1024 * 1024; // 8MB
-
-              for (const file of files) {
-                // Validate file type
-                if (!file.type.match(/^(image|application\/pdf)/)) {
-                  const fileExtension = file.name
-                    .split(".")
-                    .pop()
-                    ?.toLowerCase();
-                  setIsFileTypeError(`.${fileExtension}`);
-                  continue;
-                }
-
-                // Validate file size
-                if (file.size > maxFileSize) {
-                  setIsFileSizeError(true);
-                  continue;
-                }
-
-                validFiles.push(file);
-              }
-
-              if (validFiles.length > 0) {
-                const newFiles = validFiles.map((file) => {
-                  const fileUrl = URL.createObjectURL(file);
-                  return {
-                    file: file,
-                    fileUrl: fileUrl,
-                    preview: fileUrl,
-                    filename: file.name,
-                    name: file.name,
-                    type: file.type,
-                    // Add any other required properties here
-                  };
-                });
-
-                const updatedFiles = [...apiUploadedFiles, ...newFiles];
-
-                // Update the state with new files
-                setApiUploadedFiles(updatedFiles);
-
-                // Update the editing file to show the first new file
-                const formattedNewFile = {
-                  ...newFiles[0],
-                  file: {
-                    ...newFiles[0],
-                    fileUrl: newFiles[0].fileUrl,
-                    preview: newFiles[0].fileUrl,
-                  },
-                  fileUrl: newFiles[0].fileUrl,
-                  preview: newFiles[0].fileUrl,
-                  name: newFiles[0].filename,
-                  type: newFiles[0].type,
-                };
-
-                setEditingFile(formattedNewFile);
-              }
-            }
-          };
-
-          input.click();
-        }}
+        onAddMore={handleAddMore}
         onClearFiles={handleClearUploadedFiles}
       />
 
@@ -555,51 +617,7 @@ function SnapRxContent() {
         onClose={handlePreviewDrawerClose}
         uploadedFiles={uploadedFiles}
         isEditMode={false}
-        onReupload={(fileIndex) => {
-          // Create a file input element
-          const input = document.createElement("input");
-          input.type = "file";
-          input.accept = "image/*,.pdf";
-
-          input.onchange = async (e) => {
-            const file = e.target.files[0];
-            if (file) {
-              // Validate the new file
-              const maxFileSize = 15 * 1024 * 1024; // 8MB
-
-              // Validate file type
-              if (!file.type.match(/^(image|application\/pdf)/)) {
-                const fileExtension = file.name.split(".").pop()?.toLowerCase();
-                setIsFileTypeError(`.${fileExtension}`);
-                return;
-              }
-
-              // Validate file size
-              if (file.size > maxFileSize) {
-                setIsFileSizeError(true);
-                return;
-              }
-
-              // Create a preview URL for the new file
-              const preview = URL.createObjectURL(file);
-
-              // Create updated file object with preview
-              const updatedFile = {
-                file,
-                preview,
-                name: file.name,
-                type: file.type,
-              };
-
-              // Update the file at the specified index
-              const newFiles = [...uploadedFiles];
-              newFiles[fileIndex] = updatedFile;
-              setUploadedFiles(newFiles);
-            }
-          };
-
-          input.click();
-        }}
+        onReupload={handleReuploadOnPreviewDrawer}
         onRemove={(fileIndex) => {
           // Handle remove specific file from uploads
           const newFiles = uploadedFiles.filter(

@@ -2,8 +2,8 @@ import React, { useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import crownIcon from "../assets/images/crown.svg";
 import { useLocation } from "react-router-dom";
-import { HIDE_ROUTES } from "../constants/constants";
 import { openModal } from "../redux/doctorModalSlice";
+import { HIDE_ROUTES } from "../utils/constants";
 
 const PlanExpirationBanner = () => {
   const { planDetails } = useSelector((state) => state.subscription);
@@ -19,10 +19,9 @@ const PlanExpirationBanner = () => {
   const shouldHideBanner = useMemo(() => {
     return HIDE_ROUTES.BANNER.some(
       (route) =>
-        location.pathname === route || location.pathname.startsWith(route + "/")
+        location.pathname.includes(route)
     );
   }, [location.pathname]);
-
   const handleClick = () => {
     dispatch(openModal());
   };

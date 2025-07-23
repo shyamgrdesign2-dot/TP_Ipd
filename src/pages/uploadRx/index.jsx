@@ -205,10 +205,8 @@ const UploadRx = () => {
   };
 
   const handleAddEditClick = () => {
-    console.log("INTEL ==> handleAddEditClick");
     setShowSuccess(false);
     setTimeout(() => {
-      console.log("INTEL ==> handleAddEditClick 2", imageUploadRef.current);
       imageUploadRef.current?.handleAddEditClick();
     }, 100);
   };
@@ -260,9 +258,9 @@ const UploadRx = () => {
         autoDigitizeRx={autoDigitizeRxValue}
       />
       <div className="upload-rx-content">
-        <img className="website-logo" src={websiteLogo} alt="logo" />
+      <img className="website-logo" src={websiteLogo} alt="logo" />
         <div className="main-content">
-          <div className="ff-manrope main-content-header">
+          <div className="main-content-header">
             {UPLOAD_RX_TEXT.scanUploadHeader}
           </div>
           <ScanAnimationWrapper width={172} height={228}>
@@ -272,7 +270,7 @@ const UploadRx = () => {
               alt="scan-rx"
             />
           </ScanAnimationWrapper>
-          <div className="px-2">
+          <div className="px-2 body-content">
             <Card bordered={true} className="auto-digitize-toggle-card">
               <div className="align-items-center d-flex justify-content-between">
                 <div className="d-flex align-items-center justify-content-start">

@@ -14,14 +14,7 @@
   -moz-user-select: none;
   -ms-user-select: none;
 
-  .preview-drawer-mobile {
-    display: none;
-  }
-
   @media (max-width: 768px) {
-    .preview-drawer {
-      display: none;
-    }
 
     .preview-drawer-mobile {
       width: 100%;
@@ -213,6 +206,11 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            // TODO: INTEL - testing
+            max-width: 500px;
+            aspect-ratio: 1 / 1;
+            position: relative;
+            margin: auto;
             .prescription-image {
               border-radius: 12px;
               box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);

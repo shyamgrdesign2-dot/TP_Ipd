@@ -45,7 +45,7 @@ import ReconnectingWebSocket from "reconnectingwebsocket";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_SMARTSYNC_CONNECT } from '../utils/constants';
 
-function HeaderSmartRxDigitise({onSave, patient_data}) {
+function HeaderSmartRxDigitise({onSave, patient_data, isSnapRx = false}) {
 
   const { templates, loading } = useSelector((state) => state.caseManager);
   const { videoList} = useSelector((state) => state.doctors);
@@ -104,10 +104,10 @@ function HeaderSmartRxDigitise({onSave, patient_data}) {
   }, [popOverVideo]);
 
   return (
-    <Navbar className="justify-content-between headerprescription p-0">
-      <Container fluid className="h-100 gx-0 w-100">
-        <Row className="h-100 align-items-center w-100 justify-content-between">
-          <Col lg="auto" className="h-100">
+    <Navbar className={`justify-content-between headerprescription p-0 ${isSnapRx ? "header-snap-rx-nav" : ""}`}>
+      <Container fluid className={`gx-0 w-100 ${!isSnapRx ? "h-100" : ""}`}>
+        <Row className={`align-items-center w-100 justify-content-between ${isSnapRx ? "header-snap-rx" : "h-100"}`}>
+          <Col lg="auto" className="h-100 p-0">
             <div className="align-items-center d-flex h-100">
               <div className="border-end h-100 text-center">
                 <div
@@ -152,7 +152,7 @@ function HeaderSmartRxDigitise({onSave, patient_data}) {
                   }
                 />
               </div>
-              <div className="p-4">{`Review & Save ${patient_data?.pm_fullname}'s Digital Rx`}</div>
+              <div className="p-4 fw-semibold fs-18">{`Review & Save ${patient_data?.pm_fullname}'s Digital Rx`}</div>
             </div>
           </Col>
           <Col lg="auto">

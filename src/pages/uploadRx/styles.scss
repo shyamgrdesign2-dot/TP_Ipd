@@ -20,6 +20,9 @@
   .upload-rx-content {
     width: 100%;
     height: 100%;
+    margin: auto;
+    max-width: 500px;
+    position: relative;
     .website-logo {
       width: 120px;
       height: auto;
@@ -31,6 +34,12 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      position: relative;
+      width: 100%;
+      .body-content {
+        position: relative;
+        width: 100%;
+      }
       .main-content-header {
         font-size: 18px;
         line-height: 24px;
@@ -71,8 +80,9 @@
         }
       }
       .upload-rx-btn {
-        margin: 0px 12px;
+        margin: auto;
         width: calc(100% - 24px);
+        max-width: 500px;
         height: 56px;
         border-radius: 12px;
         background-color: #4b4ad5;
@@ -89,7 +99,8 @@
         padding-bottom: 25px;
       }
       .ant-carousel {
-        width: calc(100vw - 56px);
+        width: 100%;
+        position: relative;
       }
       .ant-carousel .slick-slide {
         pointer-events: none;

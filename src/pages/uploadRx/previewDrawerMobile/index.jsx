@@ -41,7 +41,6 @@ const PreviewDrawerMobile = ({
   sessionId,
   autoDigitizeRx,
 }) => {
-  console.log("INTEL ==> inside PreviewDrawerMobile", isOpen, uploadedFiles);
   const dispatch = useDispatch();
   const { uploadedFiles: uploadedFilesFromRedux } = useSelector(
     (state) => state.snapRx
@@ -117,7 +116,6 @@ const PreviewDrawerMobile = ({
 
   useEffect(() => {
     return () => {
-      console.log("INTEL ==> inside useEffect return in PreviewDrawerMobile");
       imageRefs.current = null;
       canvasRefs.current = null;
       carouselRef.current = null;

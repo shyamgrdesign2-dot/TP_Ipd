@@ -165,10 +165,10 @@ const ImageUpload = forwardRef(
                 rotation: 0,
                 crop: {
                   unit: "%",
-                  x: 10,
-                  y: 10,
-                  width: 80,
-                  height: 80,
+                  x: 5,
+                  y: 5,
+                  width: 90,
+                  height: 90,
                 },
               };
 
@@ -198,10 +198,10 @@ const ImageUpload = forwardRef(
             rotation: 0,
             crop: {
               unit: "%",
-              x: 10,
-              y: 10,
-              width: 80,
-              height: 80,
+              x: 5,
+              y: 5,
+              width: 90,
+              height: 90,
             },
           };
           if (storedFileIdToReplace) {
@@ -352,10 +352,10 @@ const ImageUpload = forwardRef(
               rotation: 0,
               crop: file?.crop || {
                 unit: "%",
-                x: 10,
-                y: 10,
-                width: 80,
-                height: 80,
+                x: 5,
+                y: 5,
+                width: 90,
+                height: 90,
               },
             };
           })
@@ -378,32 +378,17 @@ const ImageUpload = forwardRef(
     };
 
     const handleUpdatedFiles = (updatedFiles) => {
-      console.log("INTEL ==> handleUpdatedFiles", updatedFiles);
       setUploadedFiles(updatedFiles);
     };
-
-    useEffect(() => {
-      console.log(
-        "INTEL ==> uploadedFiles in image uploadddd updateeee>>>>>>>",
-        uploadedFiles
-      );
-    }, [uploadedFiles]);
 
     useImperativeHandle(ref, () => ({
       handleUploadClick: () => {
         fileInputRef.current?.click();
       },
       handleAddEditClick: () => {
-        console.log("INTEL ==> handleAddEditClick wowow 3");
         setIsPreviewOpen(true);
       },
     }));
-
-    console.log(
-      "INTEL ==> isPreviewOpen in image uploadddd",
-      { isPreviewOpen },
-      uploadedFiles
-    );
 
     return (
       <>

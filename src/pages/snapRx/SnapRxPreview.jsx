@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Row, Col, Spin, message } from "antd";
+import "./SnapRxPreview.scss";
 import {
   isMobile,
   isChrome,
@@ -267,10 +268,10 @@ function SnapRxPreview() {
 
     if (showDigitalRx) {
       urlObj.searchParams.set("rxDigitize", "true");
-      setButtonText("Send Digital Rx to WhatsApp");
+      setButtonText("Send to WhatsApp");
     } else {
       urlObj.searchParams.delete("rxDigitize");
-      setButtonText("Send Written Rx to WhatsApp");
+      setButtonText("Send to WhatsApp");
     }
 
     return urlObj.toString();
@@ -369,6 +370,23 @@ function SnapRxPreview() {
     }
   };
 
+  const configurePrintUrl = async () => {
+    var sendData = {
+      patient_unique_id:
+        patient_data !== undefined ? patient_data.patient_unique_id : 0,
+      tcm_id: state.tcm_id,
+      configurePrintSetting: true,
+    };
+    const action = await dispatch(viewCaseManager(sendData));
+    if (action.meta.requestStatus === "fulfilled") {
+      navigate("/configure_print_setting", {
+        state: { caseManagerData: action.payload, smartRxFile },
+      });
+    } else {
+      errorMessage(action.error);
+    }
+  };
+
   const printInAppContent = async () => {
     navigate(`/snap-rx/preview/?url=${printUrl}&key=print`, {
       replace: true,
@@ -431,6 +449,20 @@ function SnapRxPreview() {
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
           <Col md={7} lg={7} xl={7}>
+            {isMobile ? (
+              ""
+            ) : (
+              <div
+                className="d-flex align-items-center justify-content-end h-38"
+                onClick={configurePrintUrl}
+              >
+                <i className="icon-setting me-2"></i>
+                <span className="text-decoration-underline fw-medium cursor-pointer">
+                  {" "}
+                  Configure Print Setting{" "}
+                </span>
+              </div>
+            )}
             <div
               className={`${
                 !isMobile
@@ -498,38 +530,40 @@ function SnapRxPreview() {
                   <i className="icon-right iconrotate180 ms-auto"></i>
                 </Button>
               </div>
-              <div className="bg-body d-flex p-3 rounded-10px border">
-                <img
-                  src={wtsp}
-                  alt="Whatsapp Icon"
-                  className="align-self-baseline me-3"
-                />
-                <div className="fontroboto title-common">
-                  <div className="fw-normal fontroboto mb-2">
-                    {showDigitalRx
-                      ? "Send this Digital Rx to"
-                      : "Send this Written Rx to "}
+              {patient_data?.pm_contact_no ? (
+                <div className="bg-body p-3 rounded-10px border mb-3">
+                  <div className="d-flex align-items-center mb-2">
+                    <img
+                      src={wtsp}
+                      alt="Whatsapp Icon"
+                      className="align-self-baseline me-3"
+                    />
+                    <div className="fontroboto title-common">
+                      <div className="fw-normal fontroboto mb-2">
+                        {showDigitalRx
+                          ? "Send this Digital Rx to"
+                          : "Send this Written Rx to "}
+                      </div>
+                      Patient's WhatsApp +91 {patient_data.pm_contact_no}
+                    </div>
                   </div>
-                  {patient_data !== undefined
-                    ? `WhatsApp +91 ${patient_data.pm_contact_no}`
-                    : "-"}
+                  <button
+                    className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex btn-41 w-100"
+                    onClick={handleSendToWhatsapp}
+                  >
+                    {isLoading ? (
+                      <img
+                        src={loadingImg}
+                        alt="Loading..."
+                        width="25px"
+                        height="25px"
+                      />
+                    ) : (
+                      buttonText
+                    )}
+                  </button>
                 </div>
-              </div>
-              <button
-                className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
-                onClick={handleSendToWhatsapp}
-              >
-                {isLoading ? (
-                  <img
-                    src={loadingImg}
-                    alt="Loading..."
-                    width="25px"
-                    height="25px"
-                  />
-                ) : (
-                  buttonText
-                )}
-              </button>
+              ) : null}
 
               {showProgressbar && (
                 <div className="digitise-container d-flex p-3 rounded-10px">
@@ -548,27 +582,32 @@ function SnapRxPreview() {
               {!showProgressbar &&
                 smartRxFile?.length > 0 &&
                 state?.page !== "digitise" && (
-                  <div className="digitise-container p-3 rounded-10px">
-                    <div className="digitise-box-top">
-                      <img
-                        src={successIcon}
-                        alt="success"
-                        width="40px"
-                        height="40px"
-                      />
-                      <div>
-                        <p className="digitise-header">
-                          {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
-                        </p>
-                        <p className="digitise-info">
-                          Digitise Rx to enhance patient care, streamline
-                          workflow, and unlock new revenue.
-                        </p>
+                  <div className="digitise-cta-container">
+                    <div className="content-box">
+                      <div className="d-flex">
+                        <img
+                          src={successIcon}
+                          alt="success"
+                          width="40px"
+                          height="40px"
+                        />
+                        <div className="digitise-right-content">
+                          <div className="cta-header">
+                            {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
+                          </div>
+                          <div className="digitise-info">
+                            Digitise Rx to enhance patient care, streamline
+                            workflow, and unlock new revenue.
+                          </div>
+                        </div>
                       </div>
+                      <button
+                        onClick={handleDigitiseRx}
+                        className="digitise-btn fw-semibold"
+                      >
+                        Digitise Rx Now <span>&#8594;</span>
+                      </button>
                     </div>
-                    <button onClick={handleDigitiseRx} className="digitise-btn">
-                      Digitise Rx Now <span>&#8594;</span>
-                    </button>
                   </div>
                 )}
             </div>

@@ -355,10 +355,11 @@ function App() {
               {/* <Route path="/login" element={<AuthContainer />} /> */}
               <Route path="/login" element={<Onboarding />} />
               <Route path="/final-setup" element={<FinalSetup />} />
-
-              {/* Protected routes */}
+              
+              {/* Restricted route - authorized only to get/upload snapRx files */}
               <Route path="snap-rx/mobile-upload" element={<UploadRx />} />
 
+              {/* Protected routes */}
               <Route element={<PrivateRoute />}>
                 <Route path="/*" element={<AppointmentList />} />
                 <Route

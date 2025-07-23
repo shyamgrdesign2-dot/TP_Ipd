@@ -467,16 +467,7 @@ const UploadWrittenRx = ({
               <h2 className="upload-title">Upload Written Rx</h2>
             </div>
           )}
-
-          {/* Rx Pad Image */}
-          <div className={`rx-image ${isUploadMoreDrawer ? "mt-5" : ""}`}>
-            <img
-              src={rxPadImage}
-              alt="Prescription Pad"
-              className="rx-pad-image"
-            />
-          </div>
-          <div style={{ padding: "0rem 3.9375rem 2.375rem 3.9375rem" }}>
+          <div style={{ padding: "1.4rem 2rem" }}>
             {/* QR Code Section */}
             <div className="qr-section">
               <p className="qr-description">

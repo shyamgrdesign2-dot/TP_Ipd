@@ -12,7 +12,7 @@ const TalkativeWidget = ({
   const shouldHideWidget = useMemo(() => {
     return HIDE_ROUTES.TALKATIVE.some(
       (route) =>
-        location.pathname === route || location.pathname.startsWith(route + "/")
+        location.pathname.includes(route)
     );
   }, [location.pathname]);
 
