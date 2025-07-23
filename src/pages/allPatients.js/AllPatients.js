@@ -1141,8 +1141,8 @@ const AllPatients = () => {
                     {isFileSizeError ? (
                       <>
                         The file size exceeded{" "}
-                        <span style={{ fontWeight: 700 }}>8MB.</span> Please
-                        upload a file smaller than 8MB
+                        <span style={{ fontWeight: 700 }}>15MB.</span> Please
+                        upload a file smaller than 15MB
                       </>
                     ) : isFileLimitError ? (
                       <>
