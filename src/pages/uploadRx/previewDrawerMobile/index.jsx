@@ -131,13 +131,6 @@ const PreviewDrawerMobile = ({
     };
   }, []);
 
-  // useEffect(() => {
-  //   if (uploadedFilesFromRedux?.length > 0 && isSubmitting) {
-  //     onClose();
-  //     setIsSubmitting(false);
-  //   }
-  // }, [uploadedFilesFromRedux, isSubmitting]);
-
   const onImageLoad = useCallback(
     (e, fileId) => {
       const { width, height } = e.currentTarget;

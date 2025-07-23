@@ -78,7 +78,8 @@ export const getSnapRxFiles = async (patient_unique_id, tcm_id, session_id) => {
 export const createSnapRx = async (
   patientUniqueId,
   uploadedFiles,
-  sessionId
+  sessionId,
+  pamId
 ) => {
   try {
     const config = {
@@ -92,6 +93,7 @@ export const createSnapRx = async (
       patient_unique_id: patientUniqueId,
       files: uploadedFiles,
       session_id: sessionId,
+      pam_id: pamId || 0,
     };
 
     const response = await axiosService.post("/create-rx", requestData, config);
@@ -136,10 +138,11 @@ export const getSnapRxDigitization = async (
  * Edit snap rx with uploaded files
  * @param {string} patientUniqueId - Patient unique ID
  * @param {string[]} uploadedFiles - Array of uploaded file names
+ * @param {number} tcm_id - TCM ID
  * @param {string} sessionId - Session ID
  * @returns {Promise} - API response promise
  */
-export const editSnapRx = async (patientUniqueId, uploadedFiles, tcm_id) => {
+export const editSnapRx = async (patientUniqueId, uploadedFiles, tcm_id, sessionId) => {
   try {
     const config = {
       customBaseUrl: SNAP_RX_BASE_URL,
@@ -152,6 +155,7 @@ export const editSnapRx = async (patientUniqueId, uploadedFiles, tcm_id) => {
       patient_unique_id: patientUniqueId,
       files: uploadedFiles,
       tcm_id: tcm_id,
+      session_id: sessionId,
     };
 
     const response = await axiosService.put("/edit-rx", requestData, config);

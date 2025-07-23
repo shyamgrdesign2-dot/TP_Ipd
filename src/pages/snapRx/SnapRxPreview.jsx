@@ -145,6 +145,7 @@ function SnapRxPreview() {
   useEffect(() => {
     const fetchData = async () => {
       if (state.tcm_id && patient_data?.patient_unique_id) {
+        localStorage.setItem("tcm_id", state.tcm_id);
         const viewCaseManagerData = await getCaseManagerData();
         setShowDigitalRx(
           viewCaseManagerData?.isRxDigitize && state?.page === "digitise"

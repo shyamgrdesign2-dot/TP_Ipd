@@ -81,6 +81,11 @@ export const getFilesOnMobile = createAsyncThunk(
 const snapRxDigitizationSlice = createSlice({
   name: "snapRx",
   initialState,
+  reducers: {
+    resetFileUploadToken: (state) => {
+      state.fileUploadToken = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(uploadFiles.pending, (state) => {
@@ -130,4 +135,5 @@ const snapRxDigitizationSlice = createSlice({
   },
 });
 
+export const { resetFileUploadToken } = snapRxDigitizationSlice.actions;
 export default snapRxDigitizationSlice.reducer;

@@ -716,9 +716,10 @@ const PreviewDrawer = ({
           if (blob) {
             const processedFile = new File(
               [blob],
-              fileObj.name || "processed_image.jpg",
+              `${fileObj.name?.split(".")[0]} - page ${fileIndex}.jpeg` || "processed_image.jpg",
               { type: "image/jpeg" }
             );
+            console.log("INTEL ===> processedFile ", processedFile);
             filesToUpload.push(processedFile);
           } else {
             throw new Error(`Failed to process file: ${fileObj.name}`);
@@ -731,6 +732,11 @@ const PreviewDrawer = ({
         throw new Error("No valid files to upload");
       }
 
+      // filesToUpload = filesToUpload.map((file) => ({
+      //   ...file,
+      //   name: file.name.replace(".pdf", ""),
+      // }));
+
       if (isUploadMoreDrawer) {
         // For upload more drawer, pass the processed files to the parent component
         setUploading(false);
@@ -739,6 +745,7 @@ const PreviewDrawer = ({
         onClose();
       } else {
         // For regular upload, upload files to the server
+        console.log("INTEL ===> filesToUpload ", filesToUpload);
         const response = await uploadSnapRxFiles(
           filesToUpload,
           patient_data?.patient_unique_id,

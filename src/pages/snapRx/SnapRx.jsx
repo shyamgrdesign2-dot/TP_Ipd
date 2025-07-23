@@ -34,7 +34,6 @@ function SnapRxContent() {
   const [isUploading, setIsUploading] = useState(false);
   const [smartRxData, setSmartRxData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
   // New state for API uploaded files
   const [apiUploadedFiles, setApiUploadedFiles] = useState([]);
   const [loadingApiFiles, setLoadingApiFiles] = useState(false);
@@ -52,7 +51,6 @@ function SnapRxContent() {
 
   const { patient_data, send_path, caseManagerData, pam_id } = state;
   const tcmId = caseManagerData ? caseManagerData.tcm_id : 0;
-  console.log('INTEL ===> tcmId ',caseManagerData, tcmId);
   const pamId = pam_id
     ? pam_id
     : caseManagerData !== undefined
@@ -95,9 +93,10 @@ function SnapRxContent() {
 
       setLoadingApiFiles(true);
       try {
+        const tcmIdFromLS = localStorage.getItem("tcm_id");
         const response = await getSnapRxFiles(
           patient_data.patient_unique_id,
-          fetchByTcmId ? tcmId : null,
+          fetchByTcmId ? tcmId : tcmIdFromLS || null,
           sessionId || sessionStorage.getItem("snaprx_session_id")
         );
         setApiUploadedFiles(response.uploaded_files || []);
@@ -124,6 +123,12 @@ function SnapRxContent() {
       fetchUploadedFiles();
     }
   }, [sessionId]);
+
+  useEffect(() => {
+    return () => {
+      localStorage.removeItem("tcm_id");
+    }
+  }, [])
 
   // Handle edit file
   const handleEditFile = useCallback(
@@ -248,7 +253,8 @@ function SnapRxContent() {
       const response = await createSnapRx(
         patient_data.patient_unique_id,
         fileNames,
-        sessionId
+        sessionId,
+        patient_data?.pam_id
       );
       if (response && response.status) {
         // Navigate to digitization or next step if needed
@@ -291,7 +297,8 @@ function SnapRxContent() {
       const response = await editSnapRx(
         patient_data.patient_unique_id,
         fileNames,
-        tcmId
+        tcmId,
+        sessionId
       );
 
       if (response && response.status) {

@@ -13,7 +13,7 @@ import rxPadImage from "../../../assets/images/rx-pad.png";
 import "./UploadWrittenRx.scss";
 import { CloudUploadOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
-import { generateFileUploadToken } from "../../../redux/snapRxDigitizationSlice";
+import { generateFileUploadToken, resetFileUploadToken } from "../../../redux/snapRxDigitizationSlice";
 import { useDispatch } from "react-redux";
 import { useSnapRxSession } from "../context/SnapRxSessionContext";
 import { getShortLink } from "../../../redux/shortLinkSlice";
@@ -46,14 +46,22 @@ const UploadWrittenRx = ({
   const maxFileSize = 15 * 1024 * 1024; // 8MB
 
   useEffect(() => {
-    if (!fileUploadToken && userId) {
+    if (!fileUploadToken && userId && patient_data?.patient_unique_id && sessionId) {
       dispatch(
         generateFileUploadToken({
           doctor_id: userId,
+          patient_unique_id: patient_data?.patient_unique_id,
+          session_id: sessionId,
         })
       );
     }
-  }, [userId]);
+  }, [userId, patient_data?.patient_unique_id, sessionId]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetFileUploadToken());
+    }
+  }, []);
 
   const handleFiles = async (
     files,
