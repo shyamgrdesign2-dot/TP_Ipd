@@ -1698,7 +1698,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 hasDetails = true;
                                                                             }
                                                                             if (tag.note) {
-                                                                                details += hasDetails ? ` | Note: ${tag.note}` : ` (Note: ${tag.note}`;
+                                                                                details += hasDetails ? ` | ${tag.note}` : ` (${tag.note}`;
                                                                                 hasDetails = true;
                                                                             }
                                                                             if (hasDetails) {
@@ -1773,7 +1773,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                                                 status: status && `Status : ${status}`,
                                                                                                                 medication: medication && `Medication : ${medication}`,
                                                                                                                 relationship: relationship && `Relative : ${relationship}`,
-                                                                                                                note: note && `Note : ${note}`,
+                                                                                                                note: note && `${note}`,
                                                                                                             })
                                                                                                         )(item1)).filter(([_, v]) => v))).join(' | ')})`}
                                                                                                     </Text>
