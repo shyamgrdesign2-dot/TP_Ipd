@@ -111,19 +111,9 @@ import SCBanner from "../components/SCBanner";
 import SCPopup from "../components/SCPopup";
 import { getDecodedToken } from "../utils/localStorage";
 
-// 1. Import the dummy Rx image at the top
-import orthoRxImg from "../assets/images/rx.jpg"; // Place the image here
-import orthoRxImg1 from "../assets/images/rx1.png"; // Place the image here
-
-// 2. Add the Rxs array
-const Rxs = [
-  {
-    name: "orthoRx",
-    Images: [orthoRxImg1, orthoRxImg, orthoRxImg], // Use the same image for all pages for now
-  },
-  // Future: add more Rx types here
-];
-
+// Import custom RX images
+import rx3Jpeg from "../assets/images/RX3.jpeg";
+import rx1Png from "../assets/images/rx1.png";
 
 function SmartPrescription() {
   const {
@@ -224,6 +214,13 @@ function SmartPrescription() {
   const [customModuleContents, setCustomModuleContents] = useState([]);
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
   const [pillupSwitch, setPillupSwitch] = useState(true);
+  // Add state for custom RX management
+  const [selectedRxType, setSelectedRxType] = useState("none"); // "none", "orthoRx", etc.
+  const [isCustomSSRX, setIsCustomSSRX] = useState(false);
+  const [customRxImages, setCustomRxImages] = useState([]);
+  // Add state for page addition dropdown
+  const [showPageDropdown, setShowPageDropdown] = useState({});
+  const [pageDropdownPosition, setPageDropdownPosition] = useState({});
 
   const contextApi = {
     patient_data,
@@ -259,7 +256,9 @@ function SmartPrescription() {
     setCustomModuleContents,
     startTime,
     pillupSwitch, 
-    setPillupSwitch
+    setPillupSwitch,
+    isCustomSSRX,
+    setIsCustomSSRX
   };
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
@@ -947,6 +946,165 @@ function SmartPrescription() {
     }
   };
 
+  // Function to load RX images based on selected RX type
+  const loadRxImages = () => {
+    if (!smartRxFilesData?.length) return;
+    
+    const loadedImages = {};
+    const totalImages = smartRxFilesData.length;
+    let loadedCount = 0;
+
+    // Generate unique IDs for each Rx image page
+    const newPageIds = smartRxFilesData.map(() => uuidv4());
+    setPages(newPageIds);
+    setDataPresentInCanvas(Array(smartRxFilesData.length).fill(true));
+
+    console.log("this is getitng called")
+    
+    smartRxFilesData.forEach((imageObj, index) => {
+      const { smart_prescription_file: imageUrl } = imageObj;
+      const img = new Image();
+      img.src = imageUrl;
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        loadedImages[newPageIds[index]] = img;
+        setImageRefs((prevState) => ({
+          ...prevState,
+          [newPageIds[index]]: img,
+        }));
+        setImageLoaded((prevState) => ({
+          ...prevState,
+          [newPageIds[index]]: true,
+        }));
+        loadedCount++;
+
+        console.log(loadedCount === totalImages,"loadedCount === totalImages")
+        // Hide loader when all images are loaded
+        if (loadedCount === totalImages) {
+          setLoading(false);
+        }
+      };
+    });
+  };
+
+  // // Function to handle RX type selection
+  // const handleRxTypeSelection = (rxType) => {
+  //   setSelectedRxType(rxType);
+    
+  //   if (rxType === "none") {
+  //     // Clear RX images and create blank pages
+  //     setSmartRxFiles([]);
+  //     setCustomRxImages([]);
+  //     setImageLoaded({});
+  //     setImageRefs({});
+      
+  //     // Create a blank page if none exists
+  //     if (pages.length === 0) {
+  //       handleAddPage();
+  //     }
+  //   } else {
+  //     // Load RX images for the selected type
+  //     if (smartRxFilesData?.length > 0) {
+  //       setLoading(true);
+  //       setSmartRxFiles(smartRxFilesData);
+  //       loadRxImages();
+  //     }
+  //   }
+  // };
+
+  // Function to get scale factor based on RX type
+  const getScaleFactor = (rxType) => {
+    const scaleFactors = {
+      none: 1.5,        // For blank pages
+      orthoRx: 1.5,     // For ortho RX images
+      // Add more RX types with their specific scale factors
+    };
+    
+    return scaleFactors[rxType] || 1.5; // Default to 1.5 if not found
+  };
+
+  // Function to handle custom RX type selection
+  const handleCustomRxSelection = (rxType) => {
+    setSelectedRxType(rxType);
+    
+    if (rxType === "none") {
+      // Clear custom RX images and reset to blank canvas
+      setCustomRxImages([]);
+      setImageLoaded({});
+      setImageRefs({});
+      
+      // Replace all pages with a single blank page
+      const newPageId = uuidv4();
+      setPages([newPageId]);
+      setDataPresentInCanvas([false]);
+      setSelectedPage(0);
+    } else {
+      // Load custom RX images for the selected type
+      loadCustomRxImages(rxType);
+      setIsCustomSSRX(true)
+    }
+  };
+
+  // Function to load custom RX images
+  const loadCustomRxImages = (rxType) => {
+    // Define custom RX images based on type
+    const customRxData = getCustomRxData(rxType);
+    
+    if (!customRxData || customRxData.length === 0) return;
+    
+    const loadedImages = {};
+    const totalImages = customRxData.length;
+    let loadedCount = 0;
+
+    // Generate unique IDs for each custom Rx image page
+    const newPageIds = customRxData.map(() => uuidv4());
+    setPages(newPageIds);
+    setDataPresentInCanvas(Array(customRxData.length).fill(true));
+    setCustomRxImages(customRxData);
+    
+    customRxData.forEach((imageUrl, index) => {
+      const img = new Image();
+      img.src = imageUrl;
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        loadedImages[newPageIds[index]] = img;
+        setImageRefs((prevState) => ({
+          ...prevState,
+          [newPageIds[index]]: img,
+        }));
+        setImageLoaded((prevState) => ({
+          ...prevState,
+          [newPageIds[index]]: true,
+        }));
+        loadedCount++;
+
+        // Hide loader when all images are loaded
+        if (loadedCount === totalImages) {
+          setLoading(false);
+        }
+      };
+    });
+  };
+
+  // Function to get custom RX data based on type
+  const getCustomRxData = (rxType) => {
+    const customRxTypes = {
+      orthoRx: [
+        rx3Jpeg,  // RX3.jpeg image
+        rx3Jpeg,  // Multiple pages with same image
+        rx3Jpeg,
+      ],
+      generalRx: [
+        rx1Png,   // rx1.png image
+        rx1Png,   // Multiple pages with same image
+        rx1Png,
+      ],
+      // Add more RX types as needed
+    };
+    
+    return customRxTypes[rxType] || [];
+  };
+
   const CUSTOMIZED_PAD_LEFT_LIST = () => {
     return customizedPadLeftList?.map((e, i) => {
       return e.tmdpm_id === 1 && e.tmdpm_status === 0 ? (
@@ -1252,13 +1410,12 @@ function SmartPrescription() {
   }, []);
 
   useEffect(() => {
-    // if (pages.length === 0 || Rxs[0].Images.length === 0) {
-    //   handleAddPage();
-    // }
-
-    if (Rxs[0].Images.length > 0) {
-      setLoading(false);
-      imageLoad();
+    if (pages.length === 0 || smartRxFilesData?.length === 0) {
+      handleAddPage();
+    }
+    if (smartRxFilesData?.length > 0) {
+      setLoading(true);
+      setSmartRxFiles(smartRxFilesData);
     }
   }, []);
 
@@ -1276,7 +1433,7 @@ function SmartPrescription() {
         selectedPage === index ? "canvas-active" : ""
       }`}
       ref={(el) => {
-        if (el && imageLoaded[id]) {
+        if (el && (smartRxFiles || customRxImages)) {
           canvasRefs.current[id] = el;
           const ctx = el.getContext("2d");
           ctx.fillStyle = "white";
@@ -1312,9 +1469,13 @@ function SmartPrescription() {
   };
 
   useEffect(() => {
-    drawRef.current =
-      imageLoaded[pages[selectedPage]] ? editDraw : draw;
-  }, [selectedPage]);
+    // Determine which draw function to use based on scenario
+    const hasSmartRxImages = smartRxFiles?.length >= selectedPage + 1;
+    const hasCustomRxImages = customRxImages?.length >= selectedPage + 1;
+    
+    // Use editDraw if either smart RX or custom RX images are loaded
+    drawRef.current = (hasSmartRxImages || hasCustomRxImages) ? editDraw : draw;
+  }, [selectedPage, smartRxFiles, customRxImages]);
 
   // Handles Websocket Connection
   const connectWebSocket = () => {
@@ -1367,9 +1528,14 @@ function SmartPrescription() {
   };
 
   const handleDeletePage = (index) => {
-    if (Rxs[0].Images) {
-      setPages(
-        pages.filter((_, pageIndex) => pageIndex !== index)
+    if (smartRxFiles) {
+      setSmartRxFiles(
+        smartRxFiles.filter((_, fileIndex) => fileIndex !== index)
+      );
+    }
+    if (customRxImages) {
+      setCustomRxImages(
+        customRxImages.filter((_, fileIndex) => fileIndex !== index)
       );
     }
     const newPages = pages.filter((_, pageIndex) => pageIndex !== index);
@@ -1393,7 +1559,7 @@ function SmartPrescription() {
     setSelectedPage(updatedIndex);
     setRefreshTrigger(!refreshTrigger);
 
-    if (pages.length >= selectedPage + 1) {
+    if ((smartRxFiles?.length >= selectedPage + 1) || (customRxImages?.length >= selectedPage + 1)) {
       setDrawFunction(true);
     }
 
@@ -1428,7 +1594,9 @@ function SmartPrescription() {
     ctx.fillStyle = "#fff";
     /// set white fill style
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const scaleFactor = 1.5;
+    
+    // Use scale factor based on RX type
+    const scaleFactor = getScaleFactor(selectedRxType);
 
     // Set consistent styles
     ctx.strokeStyle = "#000"; // Example color for regular drawing
@@ -1447,7 +1615,10 @@ function SmartPrescription() {
   function editDraw(t, n, a, c, pageIndex) {
     const canvas = canvasRefs.current[pageIndex];
     if (!canvas) return;
-    const scaleFactor = 1.5;
+    
+    // Use scale factor based on RX type
+    const scaleFactor = getScaleFactor(selectedRxType);
+    
     ctxGlobalRefs.current[pageIndex].strokeStyle = "#000";
     ctxGlobalRefs.current[pageIndex].beginPath();
     ctxGlobalRefs.current[pageIndex].moveTo(t * scaleFactor, n * scaleFactor);
@@ -1489,8 +1660,8 @@ function SmartPrescription() {
         if (!canvas) continue;
         const blob = await convertCanvasToJPEG(canvas);
         const name =
-          Rxs[0].Images[i]
-            ? Rxs[0].Images[i].name
+          smartRxFiles && smartRxFiles[i]
+            ? smartRxFiles[i].smart_prescription_filename
             : `${uuidv4()}.jpeg`;
         // Create the File object
         const file = new File([blob], name, { type: "image/jpeg" });
@@ -1547,7 +1718,7 @@ function SmartPrescription() {
     // this is to remove the click from the right container.
     handleWrite();
 
-    if (Rxs[0].Images.length > 0) {
+    if (smartRxFilesData?.length > 0) {
       imageLoad();
     }
 
@@ -1604,38 +1775,10 @@ function SmartPrescription() {
     }, interval);
   };
 
-  // Load images for the edit flow
+  // Load images for the edit flow - now handled by loadRxImages
   const imageLoad = () => {
-    const loadedImages = {};
-    const totalImages = Rxs[0].Images.length;
-    let loadedCount = 0;
-
-    // Generate unique IDs for each Rx image page
-    const newPageIds = Rxs[0].Images.map(() => uuidv4());
-    setPages(newPageIds);
-    setDataPresentInCanvas(Array(Rxs[0].Images.length).fill(true));
-    Rxs[0].Images.forEach((img, index) => {
-      const imageObj = img; // img is the Rx image path
-      const image = new window.Image();
-      image.src = imageObj;
-      image.onload = () => {
-        loadedImages[newPageIds[index]] = image;
-        setImageRefs((prevState) => ({
-          ...prevState,
-          [newPageIds[index]]: image,
-        }));
-        setImageLoaded((prevState) => ({
-          ...prevState,
-          [newPageIds[index]]: true,
-        }));
-        loadedCount++;
-
-        // Hide loader when all images are loaded
-        if (loadedCount === totalImages) {
-          setLoading(false);
-        }
-      };
-    });
+    // This function is now deprecated, use loadRxImages instead
+    loadRxImages();
   };
 
   useEffect(() => {
@@ -1649,6 +1792,126 @@ function SmartPrescription() {
     });
   }, [imageLoaded]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (Object.values(showPageDropdown).some(show => show)) {
+        setShowPageDropdown({});
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showPageDropdown]);
+
+  // Function to handle page addition dropdown
+  const handlePageDropdownToggle = (pageIndex, event) => {
+    event.stopPropagation();
+    const rect = event.currentTarget.getBoundingClientRect();
+    setPageDropdownPosition({
+      x: rect.left,
+      y: rect.bottom + 5
+    });
+    setShowPageDropdown(prev => ({
+      ...prev,
+      [pageIndex]: !prev[pageIndex]
+    }));
+  };
+
+  // Function to add same canvas page (with current RX type)
+  const handleAddSameCanvasPage = (pageIndex) => {
+    const newPageId = uuidv4();
+    const newPages = [...pages];
+    newPages.splice(pageIndex + 1, 0, newPageId);
+    setPages(newPages);
+    
+    // Add data present flag for new page
+    const newDataPresentInCanvas = [...dataPresentInCanvas];
+    newDataPresentInCanvas.splice(pageIndex + 1, 0, true); // Set to true since it will have RX image
+    setDataPresentInCanvas(newDataPresentInCanvas);
+    
+    // Load the same RX image for the new page
+    if (selectedRxType !== "none") {
+      // For custom RX types
+      const customRxData = getCustomRxData(selectedRxType);
+      if (customRxData && customRxData.length > 0) {
+        // Use the first image from the custom RX data (or cycle through if multiple)
+        const imageToUse = customRxData[0]; // Use first image for consistency
+        
+        const img = new Image();
+        img.src = imageToUse;
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          setImageRefs((prevState) => ({
+            ...prevState,
+            [newPageId]: img,
+          }));
+          setImageLoaded((prevState) => ({
+            ...prevState,
+            [newPageId]: true,
+          }));
+        };
+      }
+    } else if (smartRxFiles && smartRxFiles.length > 0) {
+      // For smart RX files
+      const imageToUse = smartRxFiles[0]?.smart_prescription_file; // Use first image
+      
+      if (imageToUse) {
+        const img = new Image();
+        img.src = imageToUse;
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          setImageRefs((prevState) => ({
+            ...prevState,
+            [newPageId]: img,
+          }));
+          setImageLoaded((prevState) => ({
+            ...prevState,
+            [newPageId]: true,
+          }));
+        };
+      }
+    }
+    
+    // Select the new page
+    setSelectedPage(pageIndex + 1);
+    
+    // Close dropdown
+    setShowPageDropdown(prev => ({
+      ...prev,
+      [pageIndex]: false
+    }));
+  };
+
+  // Function to add blank page
+  const handleAddBlankPage = (pageIndex) => {
+    const newPageId = uuidv4();
+    const newPages = [...pages];
+    newPages.splice(pageIndex + 1, 0, newPageId);
+    setPages(newPages);
+    
+    // Add data present flag for new page
+    const newDataPresentInCanvas = [...dataPresentInCanvas];
+    newDataPresentInCanvas.splice(pageIndex + 1, 0, false);
+    setDataPresentInCanvas(newDataPresentInCanvas);
+    
+    // Select the new page
+    setSelectedPage(pageIndex + 1);
+    
+    // Close dropdown
+    setShowPageDropdown(prev => ({
+      ...prev,
+      [pageIndex]: false
+    }));
+  };
+
+  // Function to check if we should show the + button on all pages
+  const shouldShowAddButtonOnAllPages = () => {
+    return selectedRxType !== "none" || (smartRxFiles && smartRxFiles.length > 0);
+  };
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -1661,7 +1924,47 @@ function SmartPrescription() {
           smartRxData={smartRxDetails}
           loader={loader}
           caseManagerData={caseManagerData}
+          isCustomSSrX={isCustomSSRX}
         />
+        
+        {/* Custom RX Selection Dropdown */}
+        <div className="custom-rx-selector" style={{ 
+          padding: "10px 20px", 
+          backgroundColor: "#f8f9fa", 
+          borderBottom: "1px solid #dee2e6",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px"
+        }}>
+          <label style={{ fontWeight: "bold", marginRight: "10px" }}>
+            Custom RX Type:
+          </label>
+          <select 
+            value={selectedRxType} 
+            onChange={(e) => handleCustomRxSelection(e.target.value)}
+            style={{
+              padding: "8px 12px",
+              border: "1px solid #ced4da",
+              borderRadius: "4px",
+              fontSize: "14px",
+              minWidth: "150px"
+            }}
+          >
+            <option value="none">None (Blank Canvas)</option>
+            <option value="orthoRx">Ortho RX (RX3.jpeg)</option>
+            <option value="generalRx">General RX (rx1.png)</option>
+          </select>
+          {selectedRxType !== "none" && (
+            <span style={{ 
+              fontSize: "12px", 
+              color: "#6c757d",
+              marginLeft: "10px"
+            }}>
+              Custom RX loaded: {selectedRxType}
+            </span>
+          )}
+        </div>
+        
         {loading && <FullPageLoader />}
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <div className="row">
@@ -1968,16 +2271,57 @@ function SmartPrescription() {
                           selectedPage === index ? "active-page" : ""
                         }`}
                       >
-                        {index === pages.length - 1 && (
-                          <button
-                            className="btn d-flex align-items-center justify-content-center btn-text new-page-btn"
-                            onMouseEnter={() => setNewPageText("New Page")}
-                            onMouseLeave={() => setNewPageText("")}
-                            onClick={handleAddPage}
-                          >
-                            <i className="icon-Add fs-5" />
-                            {newPageText}
-                          </button>
+                        {/* Show + button based on RX type */}
+                        {(index === pages.length - 1 || shouldShowAddButtonOnAllPages()) && (
+                          <div style={{ position: "relative" }}>
+                            <button
+                              className="btn d-flex align-items-center justify-content-center btn-text new-page-btn"
+                              onMouseEnter={() => setNewPageText("New Page")}
+                              onMouseLeave={() => setNewPageText("")}
+                              onClick={(e) => {
+                                if (shouldShowAddButtonOnAllPages()) {
+                                  handlePageDropdownToggle(index, e);
+                                } else {
+                                  handleAddPage();
+                                }
+                              }}
+                            >
+                              <i className="icon-Add fs-5" />
+                              {newPageText}
+                            </button>
+                            
+                            {/* Dropdown for RX pages */}
+                            {shouldShowAddButtonOnAllPages() && showPageDropdown[index] && (
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  top: "100%",
+                                  right: "0",
+                                  backgroundColor: "white",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "4px",
+                                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                  zIndex: 1000,
+                                  minWidth: "150px"
+                                }}
+                              >
+                                <button
+                                  className="btn w-100 text-start p-2 border-0"
+                                  style={{ fontSize: "14px" }}
+                                  onClick={() => handleAddSameCanvasPage(index)}
+                                >
+                                  Add Same Canvas Page
+                                </button>
+                                <button
+                                  className="btn w-100 text-start p-2 border-0"
+                                  style={{ fontSize: "14px" }}
+                                  onClick={() => handleAddBlankPage(index)}
+                                >
+                                  Add Blank Page
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
