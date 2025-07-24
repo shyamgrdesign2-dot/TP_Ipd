@@ -292,8 +292,8 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 }));
                 let sendData = {
                     b2c_id: profile?.b2c,
-                    purchase_city: "Ahmedabad",
-                    purchase_state: "Gujarat",
+                    purchase_city: profile?.hospital_data?.find((e) => e.hm_id == tokenData?.clinic_id)?.hm_city,
+                    purchase_state: profile?.hospital_data?.find((e) => e.hm_id == tokenData?.clinic_id)?.hm_state,
                     purchase_date: moment().toISOString(),
                     purchase_amount: totalAmount,
                     purchase_type: "subscription",
