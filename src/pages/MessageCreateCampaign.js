@@ -819,7 +819,7 @@ function MessageCreateCampaign() {
                     );
                 }
                 else if (part === 'agent_name') {
-                    const charWidth = 12;
+                    const charWidth = 9;
                     const maxChars = 12;
                     const displayLength = agent_name ? Math.min(agent_name.length, maxChars) : 0;
                     const inputWidth = displayLength > 0 ? displayLength * charWidth : charWidth * maxChars;
@@ -829,11 +829,11 @@ function MessageCreateCampaign() {
                             key={index}
                             style={{
                                 height: '30px',
-                                width: inputWidth,
+                                minWidth: inputWidth,
                                 maxWidth: charWidth * maxChars,
                                 border: "none",
                             }}
-                            maxLength={30}
+                            maxLength={12}
                             value={ agent_name || state.setupData?.receptionistName}
                             placeholder="Enter agent name"
                             className="me-1 my-1 fw-medium"

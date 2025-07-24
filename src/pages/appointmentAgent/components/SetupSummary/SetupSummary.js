@@ -186,8 +186,15 @@ const SetupSummary = ({ setupData, showSummaryOnly = false, enableEditMode = fal
               <div className="address">
                 <p>{setupData?.clinicData?.hm_name}</p>
                 <p>
-                  {setupData?.clinicData?.address}, {setupData?.clinicData?.city}, {setupData?.clinicData?.state}{" "}
-                  {setupData?.clinicData?.pincode}
+                  {[
+                    setupData?.clinicData?.hm_address,
+                    setupData?.clinicData?.hm_address1,
+                    setupData?.clinicData?.hm_address2,
+                    setupData?.clinicData?.hm_state,
+                    setupData?.clinicData?.hm_pincode
+                  ]
+                    .filter(field => field && field.trim() !== '')
+                    .join(', ')}
                 </p>
                 {setupData?.googleLocation && (
                   <a

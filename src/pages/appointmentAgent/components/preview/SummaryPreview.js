@@ -158,8 +158,8 @@ const SummaryPreview = ({ setupData }) => {
                           color: "#4B4AD5",
                           borderRadius: "50%",
                           textAlign: "center",
-                          width: "1.8rem",
-                          height: "1.8rem",
+                          width: "2rem",
+                          height: "2rem",
                           display:"flex",
                           alignItems:"center",
                           justifyContent:"center"
@@ -176,7 +176,7 @@ const SummaryPreview = ({ setupData }) => {
                         </span>
                       </div>
                     </div>
-                    <Radio />
+                    <div className="radio-icon" />
                   </div>
                 ))}
               </div>
