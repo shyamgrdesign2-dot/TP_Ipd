@@ -106,7 +106,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
 
   useEffect(() => {
-    if (VOICE_RX_planDetails !== undefined && VOICE_RX_planDetails?.plan_tier === FREE) {
+    if (VOICE_RX_planDetails !== undefined && (VOICE_RX_planDetails?.plan_tier === FREE || VOICE_RX_planDetails?.plan_tier === FAILED_VERIFICATION)) {
       setTimeout(() => {
         setIsSubModalOpen(true)
       }, 500);
