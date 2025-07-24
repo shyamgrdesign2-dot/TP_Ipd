@@ -163,7 +163,6 @@ function ConfigurePrintSetting() {
         );
         setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
     };
-    console.log('INTEL ===> casemanagerdata ',caseManagerData, customModules);
     return (
         <PrintSettingsContext.Provider value={contextApi}>
             <>

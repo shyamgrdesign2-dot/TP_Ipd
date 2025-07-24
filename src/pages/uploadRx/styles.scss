@@ -5,6 +5,11 @@
   background: linear-gradient(360deg, #b6b5f2 0%, #e2e2f4 100%);
   padding: 12px;
   box-sizing: border-box;
+  .warning-icon {
+    width: 186px;
+    height: auto;
+    object-fit: contain;
+  }
   .p-20 {
     padding: 20px;
   }

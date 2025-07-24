@@ -149,7 +149,7 @@ function Header({
                   </>
                 }
               />
-              {showUploadMoreButton && (
+              {showUploadMoreButton ? (
                 <Button
                   type="button"
                   className="me-20 upload-more-btn"
@@ -158,7 +158,7 @@ function Header({
                   <i className="icon-upload" style={{ color: "#4B4AD5" }}></i>
                   <span>Upload more</span>
                 </Button>
-              )}
+              ) : null}
               <Button
                 type="button"
                 className="btn align-items-center d-flex btn-41 btn-primary3 me-20"

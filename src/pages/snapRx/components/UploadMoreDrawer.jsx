@@ -2,8 +2,18 @@ import { Button, Drawer } from "antd";
 import UploadWrittenRx from "./UploadWrittenRx";
 import { LeftOutlined } from "@ant-design/icons";
 import "./UploadMoreDrawer.scss";
+import { forwardRef } from "react";
 
-export default function UploadMoreDrawer({ isOpen, onClose, onFileUpload }) {
+const UploadMoreDrawer = ({
+  isOpen,
+  onClose,
+  onFileUpload,
+  uploadedFiles,
+  setUploadedFiles,
+  setIsAddMoreClicked,
+  fetchUploadedFiles,
+  setIsPreviewOpen,
+}) => {
   const handleFileUpload = async (uploadedFiles) => {
     // Check if uploadedFiles exists and is an array
     if (!uploadedFiles || !Array.isArray(uploadedFiles)) {
@@ -25,6 +35,10 @@ export default function UploadMoreDrawer({ isOpen, onClose, onFileUpload }) {
       await onFileUpload(files);
     }
   };
+
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <Drawer
@@ -53,12 +67,20 @@ export default function UploadMoreDrawer({ isOpen, onClose, onFileUpload }) {
       </div>
       <div style={{ padding: "24px 0" }}>
         <UploadWrittenRx
+          isOpen={isOpen}
           onFileUpload={handleFileUpload}
           showBackButton={false}
           onBack={onClose}
+          fetchUploadedFiles={fetchUploadedFiles}
           isUploadMoreDrawer={true}
+          handleUpdatedFiles={setUploadedFiles}
+          uploadedFiles={uploadedFiles}
+          setIsAddMoreClicked={setIsAddMoreClicked}
+          handlePreviewOpen={setIsPreviewOpen}
         />
       </div>
     </Drawer>
   );
-}
+};
+
+export default UploadMoreDrawer;

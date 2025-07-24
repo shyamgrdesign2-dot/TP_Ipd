@@ -1,56 +1,60 @@
+// TODO: INTEL - ZOOM functionality pending
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import Header from "./components/Header";
-import UploadWrittenRx from "./components/UploadWrittenRx";
-import UploadedFilesPreview from "./components/UploadedFilesPreview";
-import PreviewDrawer from "./components/PreviewDrawer";
-import ErrorBoundary from "./components/ErrorBoundary";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Drawer, message } from "antd";
 import CashManagerContext from "../../context/CashManagerContext";
-import {
-  getSnapRxFiles,
-  createSnapRx,
-  editSnapRx,
-  uploadSnapRxFiles,
-} from "./services/snapRxService";
+import { useLocation, useNavigate } from "react-router-dom";
+import Header from "./components/Header";
+import FullPageLoader from "../vaccination/components/Loader";
+import ErrorBoundary from "./components/ErrorBoundary";
+import UploadedFilesPreview from "./components/UploadedFilesPreview";
+import { Drawer } from "antd";
+import KnowMore from "../../components/KnowMore";
+import { SNAP_RX_KNOW_MORE_DATA } from "../../utils/constants";
+import FileUploadErrorModal from "../../components/common/FileUploadErrorModal";
 import {
   SnapRxSessionProvider,
   useSnapRxSession,
 } from "./context/SnapRxSessionContext";
-import "./SnapRx.scss";
 import UploadMoreDrawer from "./components/UploadMoreDrawer";
-import FileUploadErrorModal from "../../components/common/FileUploadErrorModal";
+import UploadWrittenRx from "./components/UploadWrittenRx";
+import { message } from "antd";
+import {
+  createSnapRx,
+  editSnapRx,
+  uploadSnapRxFiles,
+} from "./services/snapRxService";
+import "./SnapRx.scss";
 import { useSelector } from "react-redux";
-import KnowMore from "../../components/KnowMore";
-import { SNAP_RX_KNOW_MORE_DATA } from "../../utils/constants";
-import FullPageLoader from "../vaccination/components/Loader";
+import {
+  generateFileUploadToken,
+  getFiles,
+  setUploadedFilesFromStore,
+} from "../../redux/snapRxDigitizationSlice";
+import { useDispatch } from "react-redux";
+import PreviewDrawer from "./components/PreviewDrawer";
+import { clearExpiredTokensFromStorage } from "../../utils/utils";
+const UPLOADED_FILES_DOMAIN = "iscribe.blob.core.windows.net";
 
 function SnapRxContent() {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { sessionId, setHasUploadedFiles, hasUploadedFiles } =
-    useSnapRxSession();
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [smartRxData, setSmartRxData] = useState([]);
+  const dispatch = useDispatch();
+  const { uploadedFiles: uploadedFilesFromStore, fileUploadToken } =
+    useSelector((state) => state.snapRx);
+  const { userId } = useSelector((state) => state.doctors);
+  const { sessionId, refreshSessionId } = useSnapRxSession();
+  const uploadWrittenRxRef = useRef(null);
+  const timerForLoadingRef = useRef(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  // New state for API uploaded files
-  const [apiUploadedFiles, setApiUploadedFiles] = useState([]);
-  const [loadingApiFiles, setLoadingApiFiles] = useState(false);
-  const [editingFile, setEditingFile] = useState(null);
-  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
-  const [showUploadInterface, setShowUploadInterface] = useState(false);
-  const [isUploadMoreDrawerOpen, setIsUploadMoreDrawerOpen] = useState(false);
-  // State for new upload preview drawer
-  const [isPreviewDrawerOpen, setIsPreviewDrawerOpen] = useState(false);
-  const [isAddingMore, setIsAddingMore] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [showKnowMore, setShowKnowMore] = useState(false);
-  const [isFileSizeError, setIsFileSizeError] = useState(false);
-  const [isFileLimitError, setIsFileLimitError] = useState(false);
-  const [isFileTypeError, setIsFileTypeError] = useState(false);
-
-  const { patient_data, send_path, caseManagerData, pam_id } = state;
-  const tcmId = caseManagerData ? caseManagerData.tcm_id : 0;
+  const [isUploadMoreDrawerOpen, setIsUploadMoreDrawerOpen] = useState(false);
+  const [isAddMoreClicked, setIsAddMoreClicked] = useState(false); // TODO: INTEL - CHECK
+  const previewDrawerRef = useRef(null);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [isWaitingForFiles, setIsWaitingForFiles] = useState(false);
+  const { patient_data, send_path, caseManagerData, pam_id } = state || {};
+  const tcmId = caseManagerData?.tcm_id || 0;
   const pamId = pam_id
     ? pam_id
     : caseManagerData !== undefined
@@ -64,175 +68,242 @@ function SnapRxContent() {
     pamId,
   };
 
-  const { fileUploadToken } = useSelector((state) => state.snapRx);
-
-  // Use ref to access current uploadedFiles without dependency issues
-  const uploadedFilesRef = useRef(uploadedFiles);
-
   useEffect(() => {
-    fetchUploadedFiles();
+    clearExpiredTokensFromStorage();
   }, []);
 
-  useEffect(() => {
-    uploadedFilesRef.current = uploadedFiles;
-  }, [uploadedFiles]);
-
-  // Fetch uploaded files from API
-  const fetchUploadedFiles = useCallback(
-    async (fetchByTcmId = false) => {
-      if (
-        !patient_data?.patient_unique_id ||
-        (!tcmId &&
-          !sessionId &&
-          !sessionStorage.getItem("snaprx_session_id")) ||
-        (fetchByTcmId && hasUploadedFiles)
-      ) {
-        message.error("Patient information is missing. Please try again.");
-        return;
+  const fetchUploadedFiles = async (
+    fetchByTcmId = false,
+    createEditSnapRx = false
+  ) => {
+    if (
+      !patient_data?.patient_unique_id ||
+      (!tcmId && !sessionStorage.getItem("snaprx_session_id")) ||
+      (fetchByTcmId && !tcmId)
+    ) {
+      message.error("Please try again after uploading the files.");
+      return;
+    }
+    try {
+      const reqData = {
+        patient_unique_id: patient_data?.patient_unique_id,
+      };
+      let sessionIdToGenerateToken =
+        sessionId || sessionStorage.getItem("snaprx_session_id");
+      if (fetchByTcmId && !localStorage.getItem("usedTcmId")) {
+        reqData.tcm_id = tcmId;
+        sessionIdToGenerateToken = refreshSessionId();
+        localStorage.setItem("usedTcmId", true);
+      } else {
+        reqData.session_id =
+          sessionId || sessionStorage.getItem("snaprx_session_id");
       }
-
-      setLoadingApiFiles(true);
-      try {
-        const tcmIdFromLS = localStorage.getItem("tcm_id");
-        const response = await getSnapRxFiles(
-          patient_data.patient_unique_id,
-          fetchByTcmId ? tcmId : tcmIdFromLS || null,
-          sessionId || sessionStorage.getItem("snaprx_session_id")
-        );
-        setApiUploadedFiles(response.uploaded_files || []);
-      } catch (error) {
-        console.error("Error fetching uploaded files:", error);
-        setApiUploadedFiles([]);
-      } finally {
-        setLoadingApiFiles(false);
+      dispatch(
+        getFiles({
+          ...reqData,
+        })
+      ).then(() => {
+        if (createEditSnapRx) {
+          setIsWaitingForFiles(true);
+          handleCreateSnapRx();
+        }
+        if (fetchByTcmId && localStorage.getItem("usedTcmId")) {
+          dispatch(
+            generateFileUploadToken({
+              doctor_id: userId,
+              patient_unique_id: patient_data?.patient_unique_id,
+              session_id: sessionIdToGenerateToken,
+            })
+          );
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching uploaded files:", error);
+    } finally {
+      timerForLoadingRef.current = setTimeout(() => {
         setIsLoading(false);
-      }
-    },
-    [patient_data?.patient_unique_id, tcmId, sessionId, hasUploadedFiles]
-  );
-
-  // Load uploaded files on component mount
-  useEffect(() => {
-    if (tcmId) {
-      fetchUploadedFiles(true);
+      }, 1000);
     }
-  }, [tcmId]);
+  };
 
   useEffect(() => {
-    if (sessionId && hasUploadedFiles) {
-      fetchUploadedFiles();
-    }
-  }, [sessionId]);
+    fetchUploadedFiles(!!tcmId);
+  }, [patient_data, tcmId]);
 
   useEffect(() => {
     return () => {
-      localStorage.removeItem("tcm_id");
-    }
-  }, [])
+      localStorage.removeItem("usedTcmId");
+      clearTimeout(timerForLoadingRef.current);
+    };
+  }, []);
 
-  // Handle edit file
-  const handleEditFile = useCallback(
-    (file) => {
-      // Find the index of the clicked file in the uploaded files array
-      const fileIndex = apiUploadedFiles.findIndex(
-        (f) => f.filename === file.filename
+  const fetchImageAsFile = async (url, filename = "image.jpg") => {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const file = new File([blob], filename, { type: blob.type });
+    return file;
+  };
+  const fetchImages = async (toDeleteFile = null) => {
+    if (uploadedFilesFromStore?.length === 0) {
+      setUploadedFiles([]);
+      setIsLoading(false);
+      return;
+    }
+    if (
+      !uploadedFilesFromStore?.[0]?.fileUrl?.includes(UPLOADED_FILES_DOMAIN)
+    ) {
+      setUploadedFiles(uploadedFilesFromStore);
+      setIsLoading(false);
+      return;
+    }
+
+    const normalizedFiles = await Promise.all(
+      uploadedFilesFromStore.map(async (file, index) => {
+        const fileBlob = await fetchImageAsFile(file.fileUrl);
+        const objectUrl = URL.createObjectURL(fileBlob);
+        return {
+          id: Date.now() + index,
+          name: file.filename,
+          file: fileBlob,
+          fileUrl: objectUrl,
+          url: objectUrl,
+          preview: objectUrl,
+          rotation: 0,
+          crop: file?.crop || {
+            unit: "%",
+            x: 2,
+            y: 2,
+            width: 96,
+            height: 96,
+          },
+        };
+      })
+    );
+    setUploadedFiles(normalizedFiles);
+    if (toDeleteFile) {
+      try {
+        const newUploadedFiles = normalizedFiles?.filter(
+          (file) => file.name !== toDeleteFile
+        );
+        const convertedFiles = normalizedFiles
+          .map((file) => {
+            return new File([file.file], file.name, {
+              type: file.file.type || "image/jpeg",
+            });
+          })
+          .filter((file) => file.name !== toDeleteFile);
+        if (convertedFiles?.length) {
+          setUploadedFiles(newUploadedFiles);
+          const response = await uploadSnapRxFiles(
+            convertedFiles,
+            patient_data?.patient_unique_id,
+            sessionId,
+            fileUploadToken
+          );
+          if (response?.uploaded_files?.length > 0) {
+            fetchUploadedFiles();
+          }
+        } else {
+          message.warning(
+            "You cannot delete the only file. Please reupload the file."
+          );
+        }
+      } catch (err) {
+        console.log("INTEL ===> err", err);
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (
+      !isLoading &&
+      tcmId &&
+      !uploadedFilesFromStore?.length &&
+      !uploadedFiles?.length &&
+      localStorage.getItem("usedTcmId")
+    ) {
+      navigate(-1, { replace: true });
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchImages();
+  }, [uploadedFilesFromStore?.length]);
+
+  useEffect(() => {
+    if (isWaitingForFiles && uploadedFilesFromStore?.length > 0) {
+      handleCreateSnapRx();
+      setIsWaitingForFiles(false);
+    }
+  }, [isWaitingForFiles, uploadedFilesFromStore]);
+
+  const handleEditSnapRx = useCallback(async () => {
+    if (uploadedFiles?.length === 0 && uploadedFilesFromStore?.length === 0) {
+      message.warning("Please upload prescription images before submitting");
+      return;
+    }
+
+    if (!patient_data?.patient_unique_id) {
+      message.error("Patient information is missing. Please try again.");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const fileNames =
+        uploadedFilesFromStore?.length > 0
+          ? uploadedFilesFromStore.map((file) => file.filename || file.name)
+          : uploadedFiles.map((file) => file?.filename || file.name);
+
+      const response = await editSnapRx(
+        patient_data.patient_unique_id,
+        fileNames,
+        tcmId,
+        sessionId
       );
 
-      // Map all API files to the format PreviewDrawer expects
-      const editFiles = apiUploadedFiles.map((apiFile) => ({
-        ...apiFile,
-        file: {
-          ...apiFile,
-          fileUrl: apiFile.fileUrl,
-        },
-        fileUrl: apiFile.fileUrl,
-        name: apiFile.filename,
-        type: "image/jpeg",
-      }));
-
-      setEditingFile(editFiles[fileIndex]); // Set the current file for initial display
-      setIsEditDrawerOpen(true);
-    },
-    [apiUploadedFiles]
-  );
-
-  // Handle edit drawer close
-  const handleEditDrawerClose = useCallback(() => {
-    setIsEditDrawerOpen(false);
-    setEditingFile(null);
-  }, []);
-
-  // Handle edit save
-  const handleEditSave = useCallback(async (response) => {
-    try {
-      if (!response || !response.uploaded_files) {
-        throw new Error("Invalid response from server");
+      if (response && response.status) {
+        navigate("/snap-rx/preview", {
+          state: {
+            ...state,
+            ...response?.data,
+            files:
+              uploadedFilesFromStore?.length > 0
+                ? uploadedFilesFromStore
+                : uploadedFiles,
+          },
+          replace: true,
+        });
+      } else {
+        throw new Error(response.message || "Failed to create prescription");
       }
-
-      setHasUploadedFiles(true);
-      fetchUploadedFiles();
-
-      setIsEditDrawerOpen(false);
     } catch (error) {
-      console.error("Error in handleEditSave:", error);
+      console.error("Error creating snap rx:", error);
+      message.error(
+        error.message || "Failed to create prescription. Please try again."
+      );
+    } finally {
+      setIsUploading(false);
     }
-  }, []);
-
-  // Handle upload more
-  const handleUploadMore = useCallback(() => {
-    setIsUploadMoreDrawerOpen(true);
-  }, []);
-
-  const handleUploadMoreDrawerClose = useCallback(() => {
-    setIsUploadMoreDrawerOpen(false);
-  }, []);
-
-  // Handle back to files
-  const handleBackToFiles = useCallback(() => {
-    setShowUploadInterface(false);
-  }, []);
-
-  const handleClearFiles = useCallback(() => {
-    setUploadedFiles([]);
-    setSmartRxData([]);
-  }, []);
-
-  // Handle preview drawer close
-  const handlePreviewDrawerClose = useCallback(() => {
-    setIsPreviewDrawerOpen(false);
-    setIsAddingMore(false); // Reset adding more flag when drawer is closed
-  }, []);
-
-  // Handle preview save
-  const handlePreviewSave = useCallback(() => {
-    setUploadedFiles([]); // Clear uploaded files
-    setIsPreviewDrawerOpen(false);
-    setIsAddingMore(false); // Reset adding more flag
-    setHasUploadedFiles(true);
-    fetchUploadedFiles(); // Just refresh the API files without reopening drawer
-  }, [fetchUploadedFiles]);
-
-  // Function to clear files when preview drawer is closed without saving
-  const handleClearUploadedFiles = useCallback(() => {
-    // Clean up preview URLs
-    uploadedFilesRef.current.forEach((file) => {
-      if (file.preview) {
-        URL.revokeObjectURL(file.preview);
-      }
-    });
-
-    // Clear uploaded files
-    setUploadedFiles([]);
-    setIsAddingMore(false);
-  }, []); // Remove uploadedFiles from dependencies
+  }, [uploadedFiles, patient_data, navigate, state, uploadedFilesFromStore]);
 
   const handleCreateSnapRx = useCallback(async () => {
+    if (!uploadedFilesFromStore?.length) {
+      fetchUploadedFiles(false, true);
+      return;
+    }
     if (tcmId) {
+      localStorage.removeItem("usedTcmId");
       handleEditSnapRx();
       return;
     }
     // Check if there are uploaded files to process
-    if (!apiUploadedFiles || apiUploadedFiles.length === 0) {
+    if (!uploadedFilesFromStore?.length) {
       message.warning("Please upload prescription images before submitting");
       return;
     }
@@ -247,7 +318,7 @@ function SnapRxContent() {
 
     try {
       // Extract file names from uploaded files
-      const fileNames = apiUploadedFiles.map((file) => file.filename);
+      const fileNames = uploadedFilesFromStore.map((file) => file.filename);
 
       // Call create snap rx API
       const response = await createSnapRx(
@@ -259,7 +330,8 @@ function SnapRxContent() {
       if (response && response.status) {
         // Navigate to digitization or next step if needed
         navigate("/snap-rx/preview", {
-          state: { ...state, ...response?.data, files: apiUploadedFiles },
+          replace: true,
+          state: { ...state, ...response?.data, files: uploadedFilesFromStore },
         });
       } else {
         throw new Error(response.message || "Failed to create prescription");
@@ -272,57 +344,27 @@ function SnapRxContent() {
     } finally {
       setIsUploading(false);
     }
-  }, [apiUploadedFiles, patient_data, navigate, state]);
+  }, [uploadedFilesFromStore, patient_data, navigate, tcmId, sessionId]);
 
-  const handleEditSnapRx = useCallback(async () => {
-    // Check if there are uploaded files to process
-    if (!apiUploadedFiles || apiUploadedFiles.length === 0) {
-      message.warning("Please upload prescription images before submitting");
-      return;
+  const handleClearFiles = () => {
+    // clear all files
+  };
+
+  const handleUploadMore = useCallback(() => {
+    setIsUploadMoreDrawerOpen(true);
+  }, []);
+
+  const handleUploadMoreDrawerClose = () => {
+    setIsUploadMoreDrawerOpen(false);
+    setIsPreviewOpen(false);
+    setIsAddMoreClicked(false);
+  };
+
+  const fetchUploadedFilesOnUploadMoreDrawer = () => {
+    if (isUploadMoreDrawerOpen) {
+      setIsUploadMoreDrawerOpen(false);
     }
-
-    // Validate patient data exists
-    if (!patient_data?.patient_unique_id) {
-      message.error("Patient information is missing. Please try again.");
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      // Extract file names from uploaded files
-      const fileNames = apiUploadedFiles.map((file) => file.filename);
-
-      // Call create snap rx API
-      const response = await editSnapRx(
-        patient_data.patient_unique_id,
-        fileNames,
-        tcmId,
-        sessionId
-      );
-
-      if (response && response.status) {
-        // Navigate to digitization or next step if needed
-        navigate("/snap-rx/preview", {
-          state: { ...state, ...response?.data, files: apiUploadedFiles },
-        });
-      } else {
-        throw new Error(response.message || "Failed to create prescription");
-      }
-    } catch (error) {
-      console.error("Error creating snap rx:", error);
-      message.error(
-        error.message || "Failed to create prescription. Please try again."
-      );
-    } finally {
-      setIsUploading(false);
-    }
-  }, [apiUploadedFiles, patient_data, navigate, state]);
-
-  const handleRetryBtn = () => {
-    setIsFileSizeError(false);
-    setIsFileLimitError(false);
-    setIsFileTypeError(false);
+    fetchUploadedFiles();
   };
 
   const handleKnowMore = () => {
@@ -330,190 +372,41 @@ function SnapRxContent() {
   };
 
   const handleAddMore = () => {
-    // Check if we've reached the file limit before allowing more uploads
-    if (apiUploadedFiles.length >= 5) {
-      setIsFileLimitError(true);
-      return;
-    }
-
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*,.pdf";
-    input.multiple = true;
-
-    input.onchange = async (e) => {
-      const files = Array.from(e.target.files);
-      if (files.length > 0) {
-        // Validate file count limit
-        const totalFileCount = apiUploadedFiles.length + files.length;
-        if (totalFileCount > 5) {
-          setIsFileLimitError(true);
-          return;
-        }
-
-        // Validate each file
-        const validFiles = [];
-        const maxFileSize = 15 * 1024 * 1024; // 8MB
-
-        for (const file of files) {
-          // Validate file type
-          if (!file.type.match(/^(image|application\/pdf)/)) {
-            const fileExtension = file.name.split(".").pop()?.toLowerCase();
-            setIsFileTypeError(`.${fileExtension}`);
-            continue;
-          }
-
-          // Validate file size
-          if (file.size > maxFileSize) {
-            setIsFileSizeError(true);
-            continue;
-          }
-
-          validFiles.push(file);
-        }
-
-        if (validFiles.length > 0) {
-          const newFiles = validFiles.map((file) => {
-            const fileUrl = URL.createObjectURL(file);
-            return {
-              file: file,
-              fileUrl: fileUrl,
-              preview: fileUrl,
-              filename: file.name,
-              name: file.name,
-              type: file.type,
-              // Add any other required properties here
-            };
-          });
-
-          const updatedFiles = [...apiUploadedFiles, ...newFiles];
-
-          // Update the state with new files
-          setApiUploadedFiles(updatedFiles);
-
-          // Update the editing file to show the first new file
-          const formattedNewFile = {
-            ...newFiles[0],
-            file: {
-              ...newFiles[0],
-              fileUrl: newFiles[0].fileUrl,
-              preview: newFiles[0].fileUrl,
-            },
-            fileUrl: newFiles[0].fileUrl,
-            preview: newFiles[0].fileUrl,
-            name: newFiles[0].filename,
-            type: newFiles[0].type,
-          };
-
-          setEditingFile(formattedNewFile);
-        }
-      }
-    };
-
-    input.click();
+    uploadWrittenRxRef?.current?.handleAddMore();
   };
 
-  const handleReupload = (fileIndex) => {
-    // Create a file input element
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*,.pdf";
-
-    input.onchange = async (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        // Validate the new file
-        const maxFileSize = 15 * 1024 * 1024; // 8MB
-
-        // Validate file type
-        if (!file.type.match(/^(image|application\/pdf)/)) {
-          const fileExtension = file.name.split(".").pop()?.toLowerCase();
-          setIsFileTypeError(`.${fileExtension}`);
-          return;
-        }
-
-        // Validate file size
-        if (file.size > maxFileSize) {
-          setIsFileSizeError(true);
-          return;
-        }
-
-        // Create a preview URL for the new file
-        const preview = URL.createObjectURL(file);
-
-        // Create updated file object with preview
-        const updatedFile = {
-          file,
-          preview,
-          name: file.name,
-          type: file.type,
-        };
-
-        // Update the file at the specified index
-        const newFiles = [...uploadedFiles];
-        newFiles[fileIndex] = updatedFile;
-        setUploadedFiles(newFiles);
-      }
-    };
-
-    input.click();
+  const handleReupload = (fileId) => {
+    uploadWrittenRxRef?.current?.handleReupload(fileId);
   };
 
-  const handleGoBack = () => {
-    if (isAddingMore) {
-      // If adding more, go back to preview drawer
-      setIsAddingMore(false);
-      setIsPreviewDrawerOpen(true);
-    } else {
-      // Otherwise, go back to files list
-      handleBackToFiles();
-    }
+  const handleRemoveFile = (fileId) => {
+    uploadWrittenRxRef?.current?.handleRemoveFile(fileId);
   };
 
-  const handleReuploadOnPreviewDrawer = (fileIndex) => {
-    // Create a file input element
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*,.pdf";
+  const handleRotateClick = (fileId) => {
+    uploadWrittenRxRef?.current?.handleRotateClick(fileId);
+  };
 
-    input.onchange = async (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        // Validate the new file
-        const maxFileSize = 15 * 1024 * 1024; // 8MB
+  const handleGoBackToMainFiles = () => {
+    clearTimeout(timerForLoadingRef.current);
+    setIsLoading(true);
+    dispatch(setUploadedFilesFromStore([]));
+    fetchUploadedFiles(!!tcmId);
+  };
 
-        // Validate file type
-        if (!file.type.match(/^(image|application\/pdf)/)) {
-          const fileExtension = file.name.split(".").pop()?.toLowerCase();
-          setIsFileTypeError(`.${fileExtension}`);
-          return;
-        }
+  const handlePreviewClose = () => {
+    setIsPreviewOpen(false);
+    setIsAddMoreClicked(false);
+  };
 
-        // Validate file size
-        if (file.size > maxFileSize) {
-          setIsFileSizeError(true);
-          return;
-        }
+  const handleFileEdit = (file) => {
+    uploadWrittenRxRef?.current?.handleFileEdit(file);
+    previewDrawerRef?.current?.handleFileEdit(file);
+  };
 
-        // Create a preview URL for the new file
-        const preview = URL.createObjectURL(file);
-
-        // Create updated file object with preview
-        const updatedFile = {
-          file,
-          preview,
-          name: file.name,
-          type: file.type,
-        };
-
-        // Update the file at the specified index
-        const newFiles = [...uploadedFiles];
-        newFiles[fileIndex] = updatedFile;
-        setUploadedFiles(newFiles);
-      }
-    };
-
-    input.click();
+  const handlePreviewDelete = (filename) => {
+    setIsLoading(true);
+    fetchImages(filename);
   };
 
   if (isLoading) {
@@ -524,186 +417,74 @@ function SnapRxContent() {
     <CashManagerContext.Provider value={contextApi}>
       <div className="snap-rx-container">
         <Header
-          smartRxData={smartRxData}
           loader={isUploading}
           onClear={handleClearFiles}
           onSubmit={handleCreateSnapRx}
           onUploadMore={handleUploadMore}
-          showUploadMoreButton={apiUploadedFiles && apiUploadedFiles.length > 0}
+          showUploadMoreButton={uploadedFilesFromStore?.length}
           handleTutorial={handleKnowMore}
         />
         <div className="snap-rx-content">
           <ErrorBoundary>
-            {/* Conditionally show either uploaded files preview or upload interface */}
-            {apiUploadedFiles &&
-            apiUploadedFiles.length > 0 &&
-            !showUploadInterface &&
-            !isAddingMore ? (
+            {uploadedFilesFromStore?.length ? (
               <UploadedFilesPreview
-                uploadedFiles={apiUploadedFiles}
-                onEdit={handleEditFile}
-                onRefresh={() => fetchUploadedFiles()}
-                loading={loadingApiFiles}
-                onDelete={(filename) => {
-                  // Filter out the deleted file
-                  const updatedFiles = apiUploadedFiles.filter(
-                    (file) => file.filename !== filename
-                  );
-                  setApiUploadedFiles(updatedFiles);
-                }}
+                uploadedFiles={uploadedFilesFromStore}
+                onEdit={handleFileEdit}
+                loading={false} // TODO: INTEL - CHANGE
+                onDelete={handlePreviewDelete} // TODO: INTEL - CHANGE
               />
-            ) : (
-              <UploadWrittenRx
-                onFileUpload={handlePreviewSave}
-                isLoading={isUploading}
-                showBackButton={
-                  (apiUploadedFiles && apiUploadedFiles.length > 0) ||
-                  (isAddingMore && uploadedFiles.length > 0)
-                }
-                onBack={handleGoBack}
-                fetchUploadedFiles={fetchUploadedFiles}
-              />
-            )}
+            ) : null}
+            <UploadWrittenRx
+              isOpen={!uploadedFilesFromStore?.length}
+              ref={uploadWrittenRxRef}
+              showBackButton={false} // TODO: INTEL - CHANGE
+              onBack={() => {}} // TODO: INTEL - CHANGE
+              fetchUploadedFiles={() => fetchUploadedFiles()} // TODO: INTEL - CHANGE
+              handlePreviewOpen={setIsPreviewOpen}
+              handleUpdatedFiles={setUploadedFiles}
+              uploadedFiles={uploadedFiles}
+              setIsAddMoreClicked={setIsAddMoreClicked}
+            />
+            {/* Preview Drawer */}
+            <PreviewDrawer
+              isOpen={isPreviewOpen}
+              onClose={handlePreviewClose}
+              tcmId={tcmId}
+              ref={previewDrawerRef}
+              sessionId={sessionId}
+              uploadedFilesFromStore={uploadedFilesFromStore}
+              onCloseDrawer={handleUploadMoreDrawerClose}
+              uploadedFiles={uploadedFiles}
+              onReupload={handleReupload}
+              handleUpdatedFiles={setUploadedFiles}
+              onRemove={handleRemoveFile}
+              onRotate={handleRotateClick}
+              handleGoBackToMainFiles={handleGoBackToMainFiles}
+              onAddMore={handleAddMore}
+              isUploadMoreDrawer={false} // TODO: INTEL - CHANGE
+            />
           </ErrorBoundary>
         </div>
       </div>
 
-      {/* Preview drawer for editing existing files */}
-      <PreviewDrawer
-        isOpen={isEditDrawerOpen}
-        onClose={handleEditDrawerClose}
-        uploadedFiles={apiUploadedFiles.map((file) => ({
-          ...file,
-          file: {
-            ...file,
-            fileUrl: file.fileUrl,
-            preview: file.fileUrl,
-          },
-          fileUrl: file.fileUrl,
-          preview: file.fileUrl,
-          name: file.filename,
-          type: "image/jpeg",
-        }))}
-        editingFile={editingFile}
-        isEditMode={true}
-        onReupload={handleReupload}
-        onRemove={(fileIndex) => {
-          // Remove file from apiUploadedFiles
-          const updatedFiles = apiUploadedFiles.filter(
-            (_, index) => index !== fileIndex
-          );
-          setApiUploadedFiles(updatedFiles);
-
-          // If there are remaining files, set the editing file to the next available one
-          if (updatedFiles.length > 0) {
-            const newIndex =
-              fileIndex >= updatedFiles.length
-                ? updatedFiles.length - 1
-                : fileIndex;
-            setEditingFile({
-              ...updatedFiles[newIndex],
-              file: {
-                ...updatedFiles[newIndex],
-                fileUrl: updatedFiles[newIndex].fileUrl,
-                preview: updatedFiles[newIndex].fileUrl,
-              },
-            });
-          } else {
-            // If no files left, close the drawer
-            handleEditDrawerClose();
-          }
-        }}
-        onSave={handleEditSave}
-        onAddMore={handleAddMore}
-        onClearFiles={handleClearUploadedFiles}
-      />
-
-      {/* Preview drawer for new uploads - positioned outside container for proper overlay */}
-      <PreviewDrawer
-        isOpen={isPreviewDrawerOpen}
-        onClose={handlePreviewDrawerClose}
-        uploadedFiles={uploadedFiles}
-        isEditMode={false}
-        onReupload={handleReuploadOnPreviewDrawer}
-        onRemove={(fileIndex) => {
-          // Handle remove specific file from uploads
-          const newFiles = uploadedFiles.filter(
-            (_, index) => index !== fileIndex
-          );
-          setUploadedFiles(newFiles);
-          // Close drawer if no files left
-          if (newFiles.length === 0) {
-            setIsPreviewDrawerOpen(false);
-          }
-        }}
-        onAddMore={() => {
-          // Check if we've reached the file limit before allowing more uploads
-          if (uploadedFiles.length >= 5) {
-            setIsFileLimitError(true);
-            return;
-          }
-          // Handle add more files - set flag and close drawer to upload more
-          setIsAddingMore(true);
-          setIsPreviewDrawerOpen(false);
-        }}
-        onSave={handlePreviewSave}
-        onClearFiles={handleClearUploadedFiles}
-      />
-
       <UploadMoreDrawer
         isOpen={isUploadMoreDrawerOpen}
+        uploadedFiles={uploadedFiles}
+        setUploadedFiles={setUploadedFiles}
+        setIsAddMoreClicked={setIsAddMoreClicked}
         onClose={handleUploadMoreDrawerClose}
-        onFileUpload={async (newFiles) => {
-          // When uploading more files, we need to combine existing API files with new files
-          try {
-            // Get existing files as File objects for upload
-            const existingFiles = [];
-
-            // Convert existing API files to File objects
-            for (const apiFile of apiUploadedFiles) {
-              try {
-                const response = await fetch(apiFile.fileUrl);
-                const blob = await response.blob();
-                const file = new File([blob], apiFile.filename, {
-                  type: "image/jpeg",
-                });
-                existingFiles.push(file);
-              } catch (error) {
-                console.error("Error converting existing file:", error);
-              }
-            }
-
-            // Combine existing files with new files
-            const allFiles = [...existingFiles, ...newFiles];
-
-            // Upload all files together
-            const response = await uploadSnapRxFiles(
-              allFiles,
-              patient_data?.patient_unique_id,
-              sessionId,
-              fileUploadToken
-            );
-
-            if (response && response.uploaded_files) {
-              // Update the API uploaded files with the response
-              setHasUploadedFiles(true);
-              fetchUploadedFiles();
-              setIsUploadMoreDrawerOpen(false);
-            } else {
-              throw new Error("Invalid response from server");
-            }
-          } catch (error) {
-            console.error("Error uploading files:", error);
-            message.error("Failed to upload files. Please try again.");
-          }
-        }}
+        setIsPreviewOpen={setIsPreviewOpen}
+        fetchUploadedFiles={fetchUploadedFilesOnUploadMoreDrawer}
+        tcmId={tcmId}
+        sessionId={sessionId}
+        onFileUpload={() => {}} // TODO: INTEL - CHANGE
       />
 
       <FileUploadErrorModal
-        isFileSizeError={isFileSizeError}
-        isFileLimitError={isFileLimitError}
-        isFileTypeError={isFileTypeError}
-        onRetry={handleRetryBtn}
+        isFileSizeError={false}
+        isFileLimitError={false}
+        isFileTypeError={false}
+        onRetry={() => {}} // TODO: INTEL - CHANGE
       />
 
       {showKnowMore && (
@@ -712,8 +493,10 @@ function SnapRxContent() {
           onClose={handleKnowMore}
           width={"51.625rem"}
           placement="right"
-          headerStyle={{
-            display: "none",
+          styles={{
+            header: {
+              display: "none",
+            },
           }}
         >
           <KnowMore

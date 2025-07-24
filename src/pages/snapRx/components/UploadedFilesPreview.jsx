@@ -18,9 +18,7 @@ const UploadedFilesPreview = ({ uploadedFiles, onEdit, loading, onDelete }) => {
   const handleDelete = async (filename) => {
     try {
       setDeletingFile(filename);
-      // Remove file from parent's state
       onDelete(filename);
-      // Close the modal
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error removing file:", error);
@@ -106,19 +104,21 @@ const UploadedFilesPreview = ({ uploadedFiles, onEdit, loading, onDelete }) => {
                   onClick={() => handleEdit(file)}
                   title="Edit"
                 />
-                <Button
-                  icon={
-                    <i
-                      className="icon-delete fs-21"
-                      style={{ color: "#FC5A5A" }}
-                    ></i>
-                  }
-                  size="small"
-                  type="text"
-                  className="delete-btn"
-                  onClick={() => showHideModal(file.filename)}
-                  title="Delete"
-                />
+                {uploadedFiles?.length > 1 ? (
+                  <Button
+                    icon={
+                      <i
+                        className="icon-delete fs-21"
+                        style={{ color: "#FC5A5A" }}
+                      ></i>
+                    }
+                    size="small"
+                    type="text"
+                    className="delete-btn"
+                    onClick={() => showHideModal(file.filename)}
+                    title="Delete"
+                  />
+                ) : null}
               </div>
             </div>
 

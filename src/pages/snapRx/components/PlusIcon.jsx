@@ -1,3 +1,4 @@
+// move all these icons to common components
 import React from "react";
 
 const PlusIcon = () => {

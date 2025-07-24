@@ -54,10 +54,10 @@ function SnapRxPreview() {
   const navigate = useNavigate();
 
   const { state } = useLocation();
-  const { patient_data, files } = state;
+  const { patient_data, files } = state || {};
 
   const [printUrl, setPrintUrl] = useState(
-    state !== undefined ? `${state.print_rx_url || state.print_url}` : null
+    state !== undefined ? `${state?.print_rx_url || state?.print_url}` : null
   );
   const [previewUrl, setPreviewUrl] = useState(null);
   const [viewCaseManagerData, setViewCaseManagerData] = useState(null);
@@ -131,7 +131,7 @@ function SnapRxPreview() {
     try {
       const sendData = {
         patient_unique_id: patient_data?.patient_unique_id || 0,
-        tcm_id: state.tcm_id,
+        tcm_id: state?.tcm_id,
       };
       const action = await dispatch(viewCaseManager(sendData));
       setViewCaseManagerData(action.payload);
@@ -144,8 +144,7 @@ function SnapRxPreview() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (state.tcm_id && patient_data?.patient_unique_id) {
-        localStorage.setItem("tcm_id", state.tcm_id);
+      if (state?.tcm_id && patient_data?.patient_unique_id) {
         const viewCaseManagerData = await getCaseManagerData();
         setShowDigitalRx(
           viewCaseManagerData?.isRxDigitize && state?.page === "digitise"
@@ -154,7 +153,7 @@ function SnapRxPreview() {
       }
     };
     fetchData();
-  }, [state.tcm_id, patient_data?.patient_unique_id]);
+  }, [state?.tcm_id, patient_data?.patient_unique_id]);
 
   const fetchRxDigitisedData = async () => {
     try {
@@ -166,7 +165,7 @@ function SnapRxPreview() {
         `${baseUrlDigitization}/api/v1/digitization/snap-rx/get-digitization`,
         {
           params: {
-            tcm_id: state.tcm_id,
+            tcm_id: state?.tcm_id,
             patient_unique_id: patient_data?.patient_unique_id,
           },
           headers: {
@@ -252,7 +251,7 @@ function SnapRxPreview() {
           state: {
             patient_data: patient_data,
             smartRxFilesData: smartRxFile,
-            tcm_id: state.tcm_id,
+            tcm_id: state?.tcm_id,
             pam_id: state?.pam_id,
             print_url: state.print_rx_url || state.print_url,
             type: "new",
@@ -304,7 +303,7 @@ function SnapRxPreview() {
       const response = await api.post(WHATS_APP_API, body, baseUrl);
       if (response.message) {
         trackEvent(EVENTS.SNAP_RX.digitalRxWhatsappSent, {
-          consultation_id: state?.tcm_id,
+          consultation_id: state?.tcm_id || 0,
           phone_number: state?.patient_data?.pm_contact_no,
           status: "success",
         });
@@ -315,7 +314,7 @@ function SnapRxPreview() {
         }, 3000);
       } else {
         trackEvent(EVENTS.SNAP_RX.digitalRxWhatsappSent, {
-          consultation_id: state?.tcm_id,
+          consultation_id: state?.tcm_id || 0,
           phone_number: state?.patient_data?.pm_contact_no,
           status: "fail",
         });
@@ -332,7 +331,7 @@ function SnapRxPreview() {
     var sendData = {
       patient_unique_id:
         patient_data !== undefined ? patient_data.patient_unique_id : 0,
-      tcm_id: state.tcm_id,
+      tcm_id: state?.tcm_id || 0,
     };
     try {
       const action = await dispatch(viewCaseManager(sendData));
@@ -345,8 +344,8 @@ function SnapRxPreview() {
               state: {
                 patient_data: patient_data,
                 smartRxFilesData: smartRxFile,
-                tcm_id: state.tcm_id,
-                print_url: state.print_rx_url || state.print_url,
+                tcm_id: state?.tcm_id || 0,
+                print_url: state?.print_rx_url || state?.print_url,
                 digitisedData: response?.digitization,
                 pam_id: state?.pam_id,
                 type: "edit",
@@ -361,6 +360,7 @@ function SnapRxPreview() {
               smartRxFilesData: smartRxFile,
               pam_id: state?.pam_id,
             },
+            replace: true,
           });
         }
       } else {
@@ -368,23 +368,6 @@ function SnapRxPreview() {
       }
     } catch (error) {
       errorMessage(error);
-    }
-  };
-
-  const configurePrintUrl = async () => {
-    var sendData = {
-      patient_unique_id:
-        patient_data !== undefined ? patient_data.patient_unique_id : 0,
-      tcm_id: state.tcm_id,
-      configurePrintSetting: true,
-    };
-    const action = await dispatch(viewCaseManager(sendData));
-    if (action.meta.requestStatus === "fulfilled") {
-      navigate("/configure_print_setting", {
-        state: { caseManagerData: action.payload, smartRxFile },
-      });
-    } else {
-      errorMessage(action.error);
     }
   };
 
@@ -435,6 +418,23 @@ function SnapRxPreview() {
     }
   };
 
+  const configurePrintUrl = async () => {
+    var sendData = {
+      patient_unique_id:
+        patient_data !== undefined ? patient_data.patient_unique_id : 0,
+      tcm_id: state.tcm_id,
+      configurePrintSetting: true,
+    };
+    const action = await dispatch(viewCaseManager(sendData));
+    if (action.meta.requestStatus === "fulfilled") {
+      navigate("/configure_print_setting", {
+        state: { caseManagerData: action.payload, smartRxFile },
+      });
+    } else {
+      errorMessage(action.error);
+    }
+  };
+
   return (
     <>
       <HeaderPrescriptionPrint
@@ -450,9 +450,7 @@ function SnapRxPreview() {
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
           <Col md={7} lg={7} xl={7}>
-            {isMobile ? (
-              ""
-            ) : (
+            {!isMobile && showDigitalRx ? (
               <div
                 className="d-flex align-items-center justify-content-end h-38"
                 onClick={configurePrintUrl}
@@ -463,7 +461,7 @@ function SnapRxPreview() {
                   Configure Print Setting{" "}
                 </span>
               </div>
-            )}
+            ) : null}
             <div
               className={`${
                 !isMobile
@@ -483,7 +481,7 @@ function SnapRxPreview() {
                   icon={<i className="icon-download"></i>}
                   onClick={() => {
                     trackEvent(EVENTS.SNAP_RX.digitalRxPrinted, {
-                      consultation_id: state?.tcm_id,
+                      consultation_id: state?.tcm_id || 0,
                       doctor_id: getDecodedToken()?.user_id,
                       status: "success",
                     });

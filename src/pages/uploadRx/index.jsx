@@ -21,6 +21,7 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import { trackEvent } from "../../utils/utils";
 import { EVENTS } from "../../utils/events";
 import FullPageLoader from "../vaccination/components/Loader";
+import warningIcon from "../../assets/images/warningIcon.png";
 
 const UPLOAD_RX_TEXT = {
   aiPoweredHeader: "AI-Powered Rx Digitisation",
@@ -34,6 +35,7 @@ const UPLOAD_RX_TEXT = {
   carousel2: "Avoid any shadows or glare on the document",
   carousel3: "Avoid any shadows or glare on the document",
   uploadRxBtn: "Upload Rx",
+  unauthorized: "You can’t edit this SnapRx because the editing window has closed",
 };
 
 const maxRxUploadTime = 24 * 60 * 60 * 1000; // 24 hours
@@ -213,21 +215,39 @@ const UploadRx = () => {
 
   const handlePreviewClose = () => {
     setLoading(true);
-    dispatch(getFilesOnMobile({
-      patient_unique_id: data?.patientId,
-      tcm_id: data?.tcmId,
-      session_id: data?.sessionId,
-    })).then((res) => {
-      setLoading(false);
-      setShowSuccess(res?.payload?.length);
-    });
+    dispatch(
+      getFilesOnMobile({
+        patient_unique_id: data?.patientId,
+        tcm_id: data?.tcmId,
+        session_id: data?.sessionId,
+      })
+    )
+      .then((res) => {
+        console.log("INTEL ===> res", res);
+        setLoading(false);
+        setShowSuccess(res?.payload?.length);
+      })
+      .catch((err) => {
+        setLoading(false);
+        setShowFailure(true);
+      });
   };
 
   if (loading) {
     return <FullPageLoader />;
   }
+
   if (showFailure || snapRxError) {
-    return <div>Failed to load account {snapRxError}</div>;
+    return (
+    <div className="upload-rx-container">
+      <div className="d-flex flex-column align-items-center justify-content-center w-100">
+        <img className="warning-icon" src={warningIcon} alt="logo" />
+        <div className="text-center fs-16 fw-normal mt-20">
+          {UPLOAD_RX_TEXT.unauthorized}
+        </div>
+      </div>
+    </div>
+    );
   }
 
   return (
@@ -258,7 +278,7 @@ const UploadRx = () => {
         autoDigitizeRx={autoDigitizeRxValue}
       />
       <div className="upload-rx-content">
-      <img className="website-logo" src={websiteLogo} alt="logo" />
+        <img className="website-logo" src={websiteLogo} alt="logo" />
         <div className="main-content">
           <div className="main-content-header">
             {UPLOAD_RX_TEXT.scanUploadHeader}

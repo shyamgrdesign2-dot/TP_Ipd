@@ -5,9 +5,11 @@ import React, {
   useRef,
   useContext,
   useMemo,
+  useImperativeHandle,
+  forwardRef,
 } from "react";
 import { Button, message, Drawer } from "antd";
-import { CloudUploadOutlined } from "@ant-design/icons";
+import { CloudUploadOutlined, LoadingOutlined } from "@ant-design/icons";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { uploadSnapRxFiles } from "../services/snapRxService";
@@ -16,1288 +18,816 @@ import { useSnapRxSession } from "../context/SnapRxSessionContext";
 import "./PreviewDrawer.scss";
 import CommonModal from "../../../common/CommonModal";
 import alertIcon from "../../../assets/images/alertIcon.svg";
-import FileUploadErrorModal from "../../../components/common/FileUploadErrorModal";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getDecodedToken } from "../../../utils/localStorage";
 import { trackEvent } from "../../../utils/utils";
 import { EVENTS } from "../../../utils/events";
 import SkeletonComponent from "./Skeleton";
 import PlusIcon from "./PlusIcon";
 import MinusIcon from "./MinusIcon";
+import {
+  getFiles,
+  setUploadedFilesFromStore,
+  uploadFiles,
+} from "../../../redux/snapRxDigitizationSlice";
+import RotateLeftIcon from "./RotateLeftIcon";
 
-const PreviewDrawer = ({
-  isOpen,
-  onClose,
-  uploadedFiles,
-  editingFile,
-  isEditMode = false,
-  onReupload,
-  onRemove,
-  onAddMore,
-  onSave,
-  isUploadMoreDrawer = false,
-  onClearFiles, // New prop to clear files when closing without saving
-}) => {
-  const [uploading, setUploading] = useState(false);
-  const [selectedFileIndex, setSelectedFileIndex] = useState(0);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  const [crop, setCrop] = useState({
-    unit: "%",
-    x: 5,
-    y: 5,
-    width: 90,
-    height: 90,
-  });
-  const [filesCrops, setFilesCrops] = useState({});
-  // Add states to store zoom and rotation for each file
-  const [filesZoom, setFilesZoom] = useState({});
-  const [filesRotation, setFilesRotation] = useState({});
-  const [completedCrop, setCompletedCrop] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isFileSizeError, setIsFileSizeError] = useState(false);
-  const [isFileLimitError, setIsFileLimitError] = useState(false);
-  const [isFileTypeError, setIsFileTypeError] = useState(false);
-  // Add state to track previous file count for detecting new uploads
-  const [previousFileCount, setPreviousFileCount] = useState(0);
-  // Add state to track if saving operation was successful
-  const [saveCompleted, setSaveCompleted] = useState(false);
-  // Add state to track if initial file selection has been made
-  const [initialSelectionMade, setInitialSelectionMade] = useState(false);
-  const { fileUploadToken } = useSelector((state) => state.snapRx);
-
-  // Use refs to store latest values without causing re-renders
-  const isEditModeRef = useRef(isEditMode);
-  const saveCompletedRef = useRef(saveCompleted);
-  const onClearFilesRef = useRef(onClearFiles);
-
-  // Update refs when values change
-  useEffect(() => {
-    isEditModeRef.current = isEditMode;
-  }, [isEditMode]);
-
-  useEffect(() => {
-    saveCompletedRef.current = saveCompleted;
-  }, [saveCompleted]);
-
-  useEffect(() => {
-    onClearFilesRef.current = onClearFiles;
-  }, [onClearFiles]);
-
-  const showHideModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
-
-  const showHideBackModal = () => {
-    setIsBackModalOpen(!isBackModalOpen);
-  };
-
-  const showHideDeleteModal = () => {
-    setIsDeleteModalOpen(!isDeleteModalOpen);
-  };
-
-  const handleRetryBtn = () => {
-    setIsFileSizeError(false);
-    setIsFileLimitError(false);
-    setIsFileTypeError(false);
-  };
-
-  // Get patient data from context
-  const { patient_data } = useContext(CashManagerContext);
-  const { sessionId } = useSnapRxSession();
-
-  const imageRef = useRef(null);
-  const canvasRef = useRef(null);
-
-  // Define onImageLoad first before it's used in useEffect
-  const onImageLoad = useCallback(
-    (e) => {
-      const { naturalWidth, naturalHeight } = e.currentTarget;
-
-      // Set default crop to center 70% of the image using percentage units
-      const newCrop = filesCrops[selectedFileIndex] || {
-        unit: "%",
-        x: 5,
-        y: 5,
-        width: 90,
-        height: 90,
-      };
-
-      setCrop(newCrop);
-      setCompletedCrop(newCrop);
-      setImageLoaded(true);
-      setImageError(false);
+const PreviewDrawer = forwardRef(
+  (
+    {
+      isOpen,
+      onClose,
+      uploadedFiles,
+      onCloseDrawer,
+      editingFile,
+      isEditMode = false,
+      onReupload,
+      tcmId,
+      onRotate,
+      onRemove,
+      onAddMore,
+      isUploadMoreDrawer = false,
+      handleUpdatedFiles,
+      isAddMoreClicked,
+      uploadedFilesFromStore,
+      handleGoBackToMainFiles,
     },
-    [selectedFileIndex, filesCrops]
-  );
+    ref
+  ) => {
+    const dispatch = useDispatch();
+    const [selectedFileIndex, setSelectedFileIndex] = useState(0);
+    const [selectedFileId, setSelectedFileId] = useState(
+      uploadedFiles?.[0]?.id || null
+    );
+    const [imageLoaded, setImageLoaded] = useState(false);
+    const [imageError, setImageError] = useState(false);
+    const [filesZoom, setFilesZoom] = useState({});
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { fileUploadToken } = useSelector((state) => state.snapRx);
+    const imageRefs = useRef(new Map());
+    const canvasRefs = useRef(new Map());
+    const timerRef = useRef(null);
 
-  // Determine the files to work with
-  const filesToDisplay = useMemo(() => {
-    if (!uploadedFiles || uploadedFiles.length === 0) {
-      return [];
-    }
+    useEffect(() => {
+      const newImageRefs = new Map();
+      uploadedFiles?.forEach((file) => {
+        if (imageRefs.current?.has(file.id)) {
+          newImageRefs.set(file.id, imageRefs.current.get(file.id));
+        } else {
+          newImageRefs.set(file.id, React.createRef());
+        }
+      });
+      imageRefs.current = newImageRefs;
 
-    if (isEditMode) {
-      // In edit mode, ensure we have the correct file structure
-      return uploadedFiles
-        .map((file) => {
-          if (!file) return null;
+      const newCanvasRefs = new Map();
+      uploadedFiles?.forEach((file) => {
+        if (canvasRefs.current?.has(file.id)) {
+          newCanvasRefs.set(file.id, canvasRefs.current.get(file.id));
+        } else {
+          newCanvasRefs.set(file.id, React.createRef());
+        }
+      });
+      canvasRefs.current = newCanvasRefs;
+    }, [uploadedFiles]);
 
-          // Extract the URL from the file object
-          const fileUrl =
-            file.fileUrl || file.url || (file.file && file.file.fileUrl);
-
-          // Create a properly structured file object
-          const processedFile = {
-            ...file,
-            fileUrl: fileUrl,
-            preview: fileUrl, // Use fileUrl as preview as well
-            name: file.filename || file.name,
-            type: file.type || "image/jpeg",
-            // Keep original file data
-            originalFile: file,
-          };
-
-          return processedFile;
-        })
-        .filter(Boolean);
-    }
-
-    // For upload mode
-    return uploadedFiles
-      .map((file) => {
-        if (!file) return null;
-        const preview = file.preview || file.url || file.fileUrl;
-        return {
-          ...file,
-          preview: preview,
-          fileUrl: preview,
-          name: file.name,
-          type: file.type || "image/jpeg",
-        };
-      })
-      .filter(Boolean);
-  }, [isEditMode, uploadedFiles]);
-
-  const currentFile = useMemo(() => {
-    if (!filesToDisplay || filesToDisplay.length === 0) {
-      return null;
-    }
-
-    // Ensure index is within bounds
-    const validIndex = Math.min(selectedFileIndex, filesToDisplay.length - 1);
-    const file = filesToDisplay[validIndex];
-
-    return file;
-  }, [filesToDisplay, selectedFileIndex]);
-
-  // Get image URL with error handling
-  const getImageUrl = useCallback(
-    (file) => {
-      if (!file) {
-        return null;
+    useEffect(() => {
+      if (uploadedFiles?.length > 0 && selectedFileId === null) {
+        setSelectedFileId(uploadedFiles?.[0]?.id);
+        setSelectedFileIndex(0);
       }
+    }, [uploadedFiles, selectedFileId]);
 
-      // For edit mode
-      if (isEditMode) {
-        // Use preview URL which we set in filesToDisplay
-        const url = file.preview || file.fileUrl || file.url;
-        return url;
-      }
-
-      // For upload mode
-      if (file instanceof File) {
-        const url = URL.createObjectURL(file);
-        return url;
-      }
-
-      const url = file.preview || file.url || file.fileUrl;
-      return url;
-    },
-    [isEditMode]
-  );
-
-  const imageUrl = useMemo(() => {
-    if (!currentFile) {
-      return null;
-    }
-
-    const url = getImageUrl(currentFile);
-    return url;
-  }, [currentFile, getImageUrl]);
-
-  // Load image and manage loading states
-  useEffect(() => {
-    if (!imageUrl) {
-      setImageLoaded(false);
-      setImageError(true);
-      return;
-    }
-
-    setImageLoaded(false);
-    setImageError(false);
-
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-
-    img.onload = () => {
-      setImageLoaded(true);
-      setImageError(false);
-      onImageLoad({ currentTarget: img });
+    const handleFileEdit = (file) => {
+      const selectedFile = uploadedFiles?.find((f) => f.name === file.filename);
+      setSelectedFileId(selectedFile?.id);
+      setSelectedFileIndex(
+        uploadedFiles?.findIndex((file) => file.id === selectedFile?.id)
+      );
     };
 
-    img.onerror = (error) => {
-      setImageError(true);
-      setImageLoaded(false);
-    };
+    useImperativeHandle(ref, () => ({
+      handleFileEdit,
+      handleSave,
+    }));
 
-    // Set src after all handlers are attached
-    setTimeout(() => {
-      img.src = imageUrl;
-    }, 0);
+    const cropOfFile = useMemo(
+      () =>
+        uploadedFiles?.find((file) => file.id === selectedFileId)?.crop || {},
+      [uploadedFiles, selectedFileId]
+    );
 
-    return () => {
-      img.onload = null;
-      img.onerror = null;
-      if (img.src) {
-        img.src = "";
+    useEffect(() => {
+      if (isAddMoreClicked) {
+        setSelectedFileId(uploadedFiles?.[uploadedFiles.length - 1]?.id);
+        setSelectedFileIndex(uploadedFiles.length - 1);
       }
-    };
-  }, [imageUrl, onImageLoad]);
+    }, [isAddMoreClicked, uploadedFiles?.length]);
 
-  // Helper function to get current file's zoom
-  const getCurrentZoom = () => filesZoom[selectedFileIndex] || 1;
-
-  // Helper function to get current file's rotation
-  const getCurrentRotation = () => filesRotation[selectedFileIndex] || 0;
-
-  // Track file count changes and auto-select first new file when files are added
-  useEffect(() => {
-    if (!filesToDisplay) return;
-
-    const currentFileCount = filesToDisplay.length;
-
-    // If files were added (current count > previous count and previous count > 0)
-    if (currentFileCount > previousFileCount && previousFileCount > 0) {
-      // Select the first new file (which is at index equal to previous count)
-      const firstNewFileIndex = previousFileCount;
-      if (firstNewFileIndex < currentFileCount) {
-        setSelectedFileIndex(firstNewFileIndex);
-
-        // Reset states for the new selected file
-        setImageLoaded(false);
-        setImageError(false);
-        setCrop({
-          unit: "%",
-          x: 5,
-          y: 5,
-          width: 90,
-          height: 90,
-        });
-        setCompletedCrop(null);
-      }
-    }
-
-    // Update the previous file count
-    setPreviousFileCount(currentFileCount);
-  }, [filesToDisplay]); // Remove previousFileCount from dependencies
-
-  // Initialize previousFileCount when drawer opens with files
-  useEffect(() => {
-    if (
-      isOpen &&
-      filesToDisplay &&
-      filesToDisplay.length > 0 &&
-      previousFileCount === 0
-    ) {
-      setPreviousFileCount(filesToDisplay.length);
-    }
-  }, [isOpen, filesToDisplay]);
-
-  // Set initial selected file index based on editingFile in edit mode
-  useEffect(() => {
-    if (
-      isEditMode &&
-      editingFile &&
-      filesToDisplay &&
-      filesToDisplay.length > 0 &&
-      !initialSelectionMade // Only set initial selection if it hasn't been made yet
-    ) {
-      // Find the index of the editing file in the files to display
-      const editingIndex = filesToDisplay.findIndex(
-        (file) =>
-          file.filename === editingFile.filename ||
-          file.name === editingFile.name ||
-          file.fileUrl === editingFile.fileUrl
-      );
-
-      if (editingIndex !== -1 && editingIndex !== selectedFileIndex) {
-        setSelectedFileIndex(editingIndex);
-        setImageLoaded(false);
-        setImageError(false);
-        // Reset crop and other states for the new file
-        setCrop({
-          unit: "%",
-          x: 5,
-          y: 5,
-          width: 90,
-          height: 90,
-        });
-        setCompletedCrop(null);
-        setInitialSelectionMade(true); // Mark initial selection as made
-      }
-    }
-  }, [
-    isEditMode,
-    editingFile,
-    filesToDisplay,
-    selectedFileIndex,
-    initialSelectionMade,
-  ]);
-
-  // Reset selectedFileIndex to 0 when not in edit mode and drawer opens
-  useEffect(() => {
-    if (!isEditMode && isOpen && selectedFileIndex !== 0) {
-      // setSelectedFileIndex(0);
-      setImageLoaded(false);
-      setImageError(false);
-    }
-  }, [isEditMode, isOpen, selectedFileIndex]);
-
-  // Reset previousFileCount when drawer is closed
-  useEffect(() => {
-    if (!isOpen) {
-      setPreviousFileCount(0);
-      // Clear files in parent component if closing without saving (upload mode only)
-      if (
-        !isEditModeRef.current &&
-        !saveCompletedRef.current &&
-        onClearFilesRef.current
-      ) {
-        onClearFilesRef.current();
-      }
-      // Reset save completed flag for next time
-      setSaveCompleted(false);
-      setInitialSelectionMade(false); // Reset initial selection flag
-    }
-  }, [isOpen]); // Remove other dependencies that can cause loops
-
-  // Reset states when switching files
-  useEffect(() => {
-    if (currentFile) {
-      setImageLoaded(false);
-      setImageError(false);
-
-      // Load saved crop for this file if it exists
-      const savedCrop = filesCrops[selectedFileIndex];
-      if (savedCrop) {
-        setCrop(savedCrop);
-        setCompletedCrop(savedCrop);
-      } else {
-        const defaultCrop = {
-          unit: "%",
-          x: 5,
-          y: 5,
-          width: 90,
-          height: 90,
-        };
-        setCrop(defaultCrop);
-        setCompletedCrop(defaultCrop);
-      }
-    }
-  }, [currentFile, selectedFileIndex, filesCrops]);
-
-  const processImage = async (imageElement, file) => {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    // Set canvas dimensions based on crop or full image
-    if (completedCrop) {
-      canvas.width = completedCrop.width;
-      canvas.height = completedCrop.height;
-
-      // Apply crop
-      ctx.drawImage(
-        imageElement,
-        completedCrop.x,
-        completedCrop.y,
-        completedCrop.width,
-        completedCrop.height,
-        0,
-        0,
-        completedCrop.width,
-        completedCrop.height
-      );
-    } else {
-      // Use full image
-      canvas.width = imageElement.naturalWidth;
-      canvas.height = imageElement.naturalHeight;
-      ctx.drawImage(imageElement, 0, 0);
-    }
-
-    // Convert to blob
-    return new Promise((resolve) => {
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) {
-            console.error("Failed to create blob");
-            return resolve(null);
-          }
-
-          // Create a new File object
-          const processedFile = new File(
-            [blob],
-            file.filename || file.name || "processed_image.jpg",
-            { type: "image/jpeg" }
-          );
-          resolve(processedFile);
-        },
-        "image/jpeg",
-        0.95
-      );
-    });
-  };
-
-  const handleSave = async () => {
-    try {
-      setUploading(true);
-      let filesToUpload = [];
-
-      if (isEditMode) {
-        // Process each file in the filesToDisplay array
-        for (
-          let fileIndex = 0;
-          fileIndex < filesToDisplay.length;
-          fileIndex++
-        ) {
-          const fileObj = filesToDisplay[fileIndex];
-          const fileCrop = filesCrops[fileIndex];
-          const fileZoom = filesZoom[fileIndex] || 1;
-          const fileRotation = filesRotation[fileIndex] || 0;
-
-          // Load the image for processing
-          const imgToProcess = new Image();
-          imgToProcess.crossOrigin = "anonymous";
-          await new Promise((resolve, reject) => {
-            imgToProcess.onload = resolve;
-            imgToProcess.onerror = reject;
-            imgToProcess.src = fileObj.fileUrl || fileObj.preview;
-          });
-
-          // Create a canvas for processing
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-
-          // Apply rotation if needed
-          if (fileRotation !== 0) {
-            // Adjust canvas size for rotation
-            if (fileRotation % 180 !== 0) {
-              canvas.width = imgToProcess.naturalHeight;
-              canvas.height = imgToProcess.naturalWidth;
-            } else {
-              canvas.width = imgToProcess.naturalWidth;
-              canvas.height = imgToProcess.naturalHeight;
-            }
-
-            // Move to center, rotate, and move back
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-            ctx.rotate((fileRotation * Math.PI) / 180);
-            ctx.translate(-canvas.width / 2, -canvas.height / 2);
-          } else {
-            canvas.width = imgToProcess.naturalWidth;
-            canvas.height = imgToProcess.naturalHeight;
-          }
-
-          // Apply zoom
-          if (fileZoom !== 1) {
-            ctx.scale(fileZoom, fileZoom);
-          }
-
-          // Apply crop if it exists for this file
-          if (fileCrop && fileCrop.width > 0 && fileCrop.height > 0) {
-            // Convert crop coordinates to pixel coordinates based on the crop unit
-            let cropX, cropY, cropWidth, cropHeight;
-
-            if (fileCrop.unit === "%") {
-              cropX = (fileCrop.x / 100) * imgToProcess.naturalWidth;
-              cropY = (fileCrop.y / 100) * imgToProcess.naturalHeight;
-              cropWidth = (fileCrop.width / 100) * imgToProcess.naturalWidth;
-              cropHeight = (fileCrop.height / 100) * imgToProcess.naturalHeight;
-            } else {
-              // ReactCrop provides pixel coordinates relative to the displayed image
-              // We need to scale them to the natural image size
-              const displayedImage = imageRef.current;
-              if (displayedImage) {
-                const scaleX = imgToProcess.naturalWidth / displayedImage.width;
-                const scaleY =
-                  imgToProcess.naturalHeight / displayedImage.height;
-
-                cropX = fileCrop.x * scaleX;
-                cropY = fileCrop.y * scaleY;
-                cropWidth = fileCrop.width * scaleX;
-                cropHeight = fileCrop.height * scaleY;
-              } else {
-                // Fallback to direct pixel values
-                cropX = fileCrop.x;
-                cropY = fileCrop.y;
-                cropWidth = fileCrop.width;
-                cropHeight = fileCrop.height;
-              }
-            }
-
-            // Ensure crop coordinates are within bounds
-            cropX = Math.max(0, Math.min(cropX, imgToProcess.naturalWidth));
-            cropY = Math.max(0, Math.min(cropY, imgToProcess.naturalHeight));
-            cropWidth = Math.max(
-              1,
-              Math.min(cropWidth, imgToProcess.naturalWidth - cropX)
-            );
-            cropHeight = Math.max(
-              1,
-              Math.min(cropHeight, imgToProcess.naturalHeight - cropY)
-            );
-
-            // Set canvas dimensions to cropped size
-            canvas.width = cropWidth;
-            canvas.height = cropHeight;
-
-            // Draw the cropped portion
-            ctx.drawImage(
-              imgToProcess,
-              cropX,
-              cropY,
-              cropWidth,
-              cropHeight,
-              0,
-              0,
-              cropWidth,
-              cropHeight
-            );
-          } else {
-            // Use full image for other files
-            canvas.width = imgToProcess.naturalWidth;
-            canvas.height = imgToProcess.naturalHeight;
-            ctx.drawImage(imgToProcess, 0, 0);
-          }
-
-          // Convert to blob
-          const blob = await new Promise((resolve) =>
-            canvas.toBlob(resolve, "image/jpeg", 0.95)
-          );
-
-          if (!blob) {
-            throw new Error("Failed to process image");
-          }
-
-          // Create a new File object
-          const processedFile = new File(
-            [blob],
-            fileObj.filename || fileObj.name || "processed_image.jpg",
-            { type: "image/jpeg" }
-          );
-          filesToUpload.push(processedFile);
+    useEffect(() => {
+      if (uploadedFiles?.length > 0) {
+        if (selectedFileIndex >= uploadedFiles.length) {
+          const newIndex = uploadedFiles.length - 1;
+          setSelectedFileIndex(newIndex);
+          setSelectedFileId(uploadedFiles[newIndex]?.id);
+        } else if (!uploadedFiles?.find((file) => file.id === selectedFileId)) {
+          setSelectedFileIndex(0);
+          setSelectedFileId(uploadedFiles[0]?.id);
         }
       } else {
-        // Handle upload mode - process each file
-        for (let fileIndex = 0; fileIndex < uploadedFiles.length; fileIndex++) {
-          const fileObj = uploadedFiles[fileIndex];
-          const fileCrop = filesCrops[fileIndex];
-          const fileZoom = filesZoom[fileIndex] || 1;
-          const fileRotation = filesRotation[fileIndex] || 0;
-          if (!fileObj || (!fileObj.file && !fileObj.preview)) continue;
-
-          // Always process through canvas to ensure cropping is applied
-          const img = new Image();
-          img.crossOrigin = "anonymous";
-          await new Promise((resolve, reject) => {
-            img.onload = resolve;
-            img.onerror = reject;
-            img.src = fileObj.preview || URL.createObjectURL(fileObj.file);
-          });
-
-          // Create a canvas for processing
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-
-          // Apply rotation if needed
-          if (fileRotation !== 0) {
-            // Adjust canvas size for rotation
-            if (fileRotation % 180 !== 0) {
-              canvas.width = img.naturalHeight;
-              canvas.height = img.naturalWidth;
-            } else {
-              canvas.width = img.naturalWidth;
-              canvas.height = img.naturalHeight;
-            }
-
-            // Move to center, rotate, and move back
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-            ctx.rotate((fileRotation * Math.PI) / 180);
-            ctx.translate(-canvas.width / 2, -canvas.height / 2);
-          } else {
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-          }
-
-          // Apply zoom
-          if (fileZoom !== 1) {
-            ctx.scale(fileZoom, fileZoom);
-          }
-
-          // Apply crop if it exists for this file
-          if (fileCrop && fileCrop.width > 0 && fileCrop.height > 0) {
-            // Convert crop coordinates to pixel coordinates based on the crop unit
-            let cropX, cropY, cropWidth, cropHeight;
-
-            if (fileCrop.unit === "%") {
-              cropX = (fileCrop.x / 100) * img.naturalWidth;
-              cropY = (fileCrop.y / 100) * img.naturalHeight;
-              cropWidth = (fileCrop.width / 100) * img.naturalWidth;
-              cropHeight = (fileCrop.height / 100) * img.naturalHeight;
-            } else {
-              // ReactCrop provides pixel coordinates relative to the displayed image
-              // We need to scale them to the natural image size
-              const displayedImage = imageRef.current;
-              if (displayedImage) {
-                const scaleX = img.naturalWidth / displayedImage.width;
-                const scaleY = img.naturalHeight / displayedImage.height;
-
-                cropX = fileCrop.x * scaleX;
-                cropY = fileCrop.y * scaleY;
-                cropWidth = fileCrop.width * scaleX;
-                cropHeight = fileCrop.height * scaleY;
-              } else {
-                // Fallback to direct pixel values
-                cropX = fileCrop.x;
-                cropY = fileCrop.y;
-                cropWidth = fileCrop.width;
-                cropHeight = fileCrop.height;
-              }
-            }
-
-            // Ensure crop coordinates are within bounds
-            cropX = Math.max(0, Math.min(cropX, img.naturalWidth));
-            cropY = Math.max(0, Math.min(cropY, img.naturalHeight));
-            cropWidth = Math.max(
-              1,
-              Math.min(cropWidth, img.naturalWidth - cropX)
-            );
-            cropHeight = Math.max(
-              1,
-              Math.min(cropHeight, img.naturalHeight - cropY)
-            );
-
-            canvas.width = cropWidth;
-            canvas.height = cropHeight;
-
-            ctx.drawImage(
-              img,
-              cropX,
-              cropY,
-              cropWidth,
-              cropHeight,
-              0,
-              0,
-              cropWidth,
-              cropHeight
-            );
-          } else {
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-            ctx.drawImage(img, 0, 0);
-          }
-
-          const blob = await new Promise((resolve) =>
-            canvas.toBlob(resolve, "image/jpeg", 0.95)
-          );
-
-          if (blob) {
-            const processedFile = new File(
-              [blob],
-              `${fileObj.name?.split(".")[0]} - page ${fileIndex}.jpeg` || "processed_image.jpg",
-              { type: "image/jpeg" }
-            );
-            console.log("INTEL ===> processedFile ", processedFile);
-            filesToUpload.push(processedFile);
-          } else {
-            throw new Error(`Failed to process file: ${fileObj.name}`);
-          }
-        }
+        setSelectedFileIndex(0);
+        setSelectedFileId(null);
       }
+    }, [uploadedFiles?.length, selectedFileIndex, selectedFileId]);
 
-      // Validate we have files to upload
-      if (!filesToUpload || filesToUpload.length === 0) {
-        throw new Error("No valid files to upload");
+    const currentFile = uploadedFiles?.[selectedFileIndex];
+    const imageUrl = currentFile?.fileUrl || currentFile?.preview;
+    const imageRotation = currentFile?.rotation || 0;
+    useEffect(() => {
+      if (imageUrl) {
+        const img = new Image();
+        img.onload = () => {
+          setImageLoaded(true);
+          setImageError(false);
+        };
+        img.onerror = () => {
+          setImageError(true);
+          setImageLoaded(false);
+        };
+        img.src = imageUrl;
       }
+    }, [imageUrl, imageRotation, uploadedFiles?.length]);
 
-      // filesToUpload = filesToUpload.map((file) => ({
-      //   ...file,
-      //   name: file.name.replace(".pdf", ""),
-      // }));
+    const onImageLoad = useCallback(
+      (e, fileId) => {
+        const { width, height } = e.currentTarget;
+        const cropWidth = width * 0.8;
+        const cropHeight = height * 0.8;
+        const cropX = (width - cropWidth) / 2;
+        const cropY = (height - cropHeight) / 2;
 
-      if (isUploadMoreDrawer) {
-        // For upload more drawer, pass the processed files to the parent component
-        setUploading(false);
-        setSaveCompleted(true); // Mark save as completed
-        onSave(filesToUpload);
-        onClose();
-      } else {
-        // For regular upload, upload files to the server
-        console.log("INTEL ===> filesToUpload ", filesToUpload);
-        const response = await uploadSnapRxFiles(
-          filesToUpload,
-          patient_data?.patient_unique_id,
-          sessionId,
-          fileUploadToken
+        const crop = {
+          unit: "px",
+          x: cropX,
+          y: cropY,
+          width: cropWidth,
+          height: cropHeight,
+        };
+
+        const updatedCropFiles = uploadedFiles?.map((file, _) => {
+          if (fileId === file.id) {
+            if (file.crop) {
+              return file;
+            }
+            return { ...file, crop };
+          }
+          return file;
+        });
+        clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => {
+          handleUpdatedFiles(updatedCropFiles);
+        }, 100);
+      },
+      [uploadedFiles]
+    );
+
+    const getCroppedImg = async (image, crop, fileId, rotation = 0) => {
+      const canvas = canvasRefs.current.get(fileId)?.current;
+      if (!canvas || !crop) return null;
+
+      const naturalWidth = image.naturalWidth || image.width;
+      const naturalHeight = image.naturalHeight || image.height;
+
+      const scaleX = naturalWidth / image.width;
+      const scaleY = naturalHeight / image.height;
+
+      const rotatedCanvas = document.createElement("canvas");
+      const rotatedCtx = rotatedCanvas.getContext("2d");
+
+      rotatedCanvas.width = image.naturalWidth;
+      rotatedCanvas.height = image.naturalHeight;
+
+      rotatedCtx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
+      rotatedCtx.rotate((rotation * Math.PI) / 180);
+      rotatedCtx.drawImage(
+        image,
+        -image.naturalWidth / 2,
+        -image.naturalHeight / 2
+      );
+
+      const finalCanvas = canvas;
+      const finalCtx = finalCanvas.getContext("2d");
+
+      finalCanvas.width = crop.width * scaleX;
+      finalCanvas.height = crop.height * scaleY;
+
+      finalCtx.drawImage(
+        rotatedCanvas,
+        crop.x * scaleX,
+        crop.y * scaleY,
+        finalCanvas.width,
+        finalCanvas.height,
+        0,
+        0,
+        finalCanvas.width,
+        finalCanvas.height
+      );
+
+      return new Promise((resolve) => {
+        finalCanvas?.toBlob(
+          (blob) => {
+            resolve(blob);
+          },
+          "image/jpeg",
+          0.9
         );
+      });
+    };
+    const showHideModal = () => {
+      setIsModalOpen(!isModalOpen);
+    };
 
-        if (!response || !response.uploaded_files) {
-          throw new Error("Invalid response from server");
+    const showHideBackModal = () => {
+      setIsBackModalOpen(!isBackModalOpen);
+    };
+
+    const showHideDeleteModal = () => {
+      setIsDeleteModalOpen(!isDeleteModalOpen);
+    };
+
+    const { patient_data } = useContext(CashManagerContext);
+    const { sessionId, setHasUploadedFiles } = useSnapRxSession();
+
+    const canvasRef = useRef(null);
+
+    const getCurrentZoom = () => filesZoom[selectedFileIndex] || 1;
+
+    const handleSave = async (e) => {
+      e?.stopPropagation();
+      e?.preventDefault();
+      if (isSubmitting) return;
+      setIsSubmitting(true);
+
+      const allUpdatedFiles = await Promise.all(
+        uploadedFiles.map(async (file) => {
+          const imageRef = imageRefs.current?.get(file.id);
+          if (imageRef?.current) {
+            if (!file.crop || Object.keys(file.crop)?.length === 0) {
+              const defaultCrop = {
+                unit: "%",
+                x: 2,
+                y: 2,
+                width: 96,
+                height: 96,
+              };
+              return { ...file, crop: defaultCrop };
+            }
+          } else {
+            return new Promise((resolve) => {
+              const img = new Image();
+              img.crossOrigin = "anonymous";
+              img.onload = () => {
+                const hiddenImg = document.createElement("img");
+                hiddenImg.src = file.fileUrl || file.preview;
+                hiddenImg.crossOrigin = "anonymous";
+                hiddenImg.style.position = "absolute";
+                hiddenImg.style.transform = "translate(-9999px, -9999px)";
+                hiddenImg.style.pointerEvents = "none";
+                hiddenImg.style.zIndex = "-1";
+                document.body.appendChild(hiddenImg);
+
+                if (!imageRefs.current.get(file.id)?.current) {
+                  imageRefs.current.set(file.id, { current: hiddenImg });
+                }
+                if (!file.crop || Object.keys(file.crop)?.length === 0) {
+                  const defaultCrop = {
+                    unit: "%",
+                    x: 2,
+                    y: 2,
+                    width: 96,
+                    height: 96,
+                  };
+                  return { ...file, crop: defaultCrop };
+                }
+                resolve(file);
+                return file;
+              };
+              img.onerror = () => {
+                console.error(`Failed to load image for file ${file.id}`);
+                resolve();
+              };
+              img.src = file.fileUrl || file.preview;
+            });
+          }
+          return file;
+        })
+      );
+
+      if (imageRefs.current?.size) {
+        try {
+          const updatedCroppedFiles = await Promise.all(
+            allUpdatedFiles.map(async (updatedFile) => {
+              if (updatedFile?.crop?.unit === "%") {
+                const cropWidth =
+                  (updatedFile?.crop?.width *
+                    imageRefs.current?.get(updatedFile.id)?.current?.width) /
+                  100;
+                const cropHeight =
+                  (updatedFile?.crop?.height *
+                    imageRefs.current?.get(updatedFile.id)?.current?.height) /
+                  100;
+                const cropX =
+                  (imageRefs.current?.get(updatedFile.id)?.current?.width -
+                    cropWidth) /
+                  2;
+                const cropY =
+                  (imageRefs.current?.get(updatedFile.id)?.current?.height -
+                    cropHeight) /
+                  2;
+
+                updatedFile = {
+                  ...updatedFile,
+                  crop: {
+                    unit: "px",
+                    x: cropX,
+                    y: cropY,
+                    width: cropWidth + 24,
+                    height: cropHeight + 24,
+                  },
+                };
+              }
+              const croppedBlob = await getCroppedImg(
+                imageRefs.current?.get(updatedFile.id)?.current,
+                updatedFile.crop,
+                updatedFile.id,
+                updatedFile.rotation || 0
+              );
+              if (croppedBlob) {
+                let fileName = updatedFile.name;
+                if (fileName?.toLowerCase()?.endsWith(".pdf")) {
+                  fileName = fileName.slice(0, -4);
+                }
+                if (!fileName?.toLowerCase()?.match(/\.(jpeg|jpg|png)$/)) {
+                  fileName += ".jpeg";
+                }
+
+                const croppedFile = new File([croppedBlob], fileName, {
+                  type: "image/jpeg",
+                });
+                const croppedUrl = URL.createObjectURL(croppedBlob);
+                return {
+                  ...updatedFile,
+                  name: fileName,
+                  file: croppedFile,
+                  url: croppedUrl,
+                  preview: croppedUrl,
+                };
+              }
+
+              let fileName = updatedFile.name;
+              if (fileName.toLowerCase().endsWith(".pdf")) {
+                fileName = fileName.slice(0, -4);
+              }
+              if (!fileName.toLowerCase().match(/\.(jpeg|jpg|png)$/)) {
+                fileName += ".jpeg";
+              }
+
+              const correctedFile = new File([updatedFile.file], fileName, {
+                type: updatedFile.file.type,
+              });
+
+              return {
+                ...updatedFile,
+                name: fileName,
+                file: correctedFile,
+              };
+            })
+          );
+
+          const apiStartTime = Date.now();
+          const response = await uploadSnapRxFiles(
+            updatedCroppedFiles.map((file) => file.file),
+            patient_data?.patient_unique_id,
+            sessionId,
+            fileUploadToken
+          );
+          if (response) {
+            if (response?.uploaded_files?.length > 0) {
+              setTimeout(() => {
+                setIsSubmitting(false);
+                onCloseDrawer();
+                handleGoBackToMainFiles();
+                setHasUploadedFiles(true);
+              }, 500);
+              trackEvent(EVENTS.SNAP_RX.uploadSuccess, {
+                file_type: "img",
+                file_size: updatedCroppedFiles?.reduce(
+                  (acc, file) => acc + file.size,
+                  0
+                ),
+                upload_time: (Date.now() - apiStartTime) / 1000,
+                upload_source: "EMR",
+              });
+            } else {
+              trackEvent(EVENTS.SNAP_RX.uploadFailed);
+              message.warning("Failed to upload file(s)");
+              setIsSubmitting(false);
+            }
+          } else {
+            console.log("Upload failed:", response);
+            message.warning("Failed to upload file(s)");
+            setIsSubmitting(false);
+          }
+        } catch (error) {
+          console.log("Error cropping image:", error);
+          message.warning("Failed to upload file(s)");
+          setIsSubmitting(false);
         }
-        trackEvent(EVENTS.SNAP_RX.uploadSuccess, {
-          patient_unique_id: patient_data?.patient_unique_id,
-          doctor_id: getDecodedToken()?.user_id,
-          upload_source: "EMR",
-        });
-
-        setUploading(false);
-        setSaveCompleted(true); // Mark save as completed
-        onSave(response);
-        handleBackAndCleanup();
-        onClose();
       }
-    } catch (error) {
-      setUploading(false);
-      setSaveCompleted(false); // Reset on error
-      console.error("Error uploading files:", error);
-      message.error(error.message || "Failed to upload files");
-    }
-  };
+    };
 
-  const handleZoomIn = () => {
-    const currentZoom = getCurrentZoom();
-    const newZoom = Math.min(currentZoom + 0.1, 3);
-    setFilesZoom((prev) => ({
-      ...prev,
-      [selectedFileIndex]: newZoom,
-    }));
-  };
-
-  const handleZoomOut = () => {
-    const currentZoom = getCurrentZoom();
-    const newZoom = Math.max(currentZoom - 0.1, 1);
-    setFilesZoom((prev) => ({
-      ...prev,
-      [selectedFileIndex]: newZoom,
-    }));
-  };
-
-  const handleRotateLeft = () => {
-    const currentRotation = getCurrentRotation();
-    const newRotation = (currentRotation - 90) % 360;
-    setFilesRotation((prev) => ({
-      ...prev,
-      [selectedFileIndex]: newRotation,
-    }));
-  };
-
-  const handleReupload = async () => {
-    isEditMode &&
-      trackEvent(EVENTS.SNAP_RX.reuploadRxClicked, {
-        // consultation_id: tcmId,
-        reupload_count: 1,
+    const handleCropChange = (newCrop, fileId) => {
+      const updatedCropFiles = uploadedFiles?.map((file, _) => {
+        if (fileId === file.id) {
+          return { ...file, crop: newCrop };
+        }
+        return file;
       });
-    try {
-      // Just call the parent's onReupload function
-      if (onReupload) {
-        await onReupload(selectedFileIndex);
+      handleUpdatedFiles(updatedCropFiles);
+    };
+
+    const handleZoomIn = () => {
+      // handle zoom in
+    };
+
+    const handleZoomOut = () => {
+      // handle zoom out
+    };
+
+    const handleRotateLeft = () => {
+      onRotate(selectedFileId);
+    };
+
+    const handleReupload = async () => {
+      onReupload(selectedFileId);
+    };
+
+    const handleRemoveFile = () => {
+      if (uploadedFiles?.length === 1 && uploadedFilesFromStore?.length > 0) {
+        message.warning(
+          "You cannot delete the only file. Please reupload the file."
+        );
+        return;
       }
-    } catch (error) {
-      console.error("Error handling reupload:", error);
-      message.error("Failed to reupload file. Please try again.");
-    }
-  };
-
-  const handleRemoveFile = () => {
-    // Call the parent's onRemove function
-    if (onRemove) {
-      onRemove(selectedFileIndex);
-    }
-
-    // Update local states after removal
-    // Remove the crop, zoom, and rotation data for this file
-    setFilesCrops((prev) => {
-      const newCrops = { ...prev };
-      delete newCrops[selectedFileIndex];
-      // Shift remaining indices down
-      Object.keys(newCrops).forEach((key) => {
-        const index = parseInt(key);
-        if (index > selectedFileIndex) {
-          newCrops[index - 1] = newCrops[index];
-          delete newCrops[index];
-        }
-      });
-      return newCrops;
-    });
-
-    setFilesZoom((prev) => {
-      const newZoom = { ...prev };
-      delete newZoom[selectedFileIndex];
-      // Shift remaining indices down
-      Object.keys(newZoom).forEach((key) => {
-        const index = parseInt(key);
-        if (index > selectedFileIndex) {
-          newZoom[index - 1] = newZoom[index];
-          delete newZoom[index];
-        }
-      });
-      return newZoom;
-    });
-
-    setFilesRotation((prev) => {
-      const newRotation = { ...prev };
-      delete newRotation[selectedFileIndex];
-      // Shift remaining indices down
-      Object.keys(newRotation).forEach((key) => {
-        const index = parseInt(key);
-        if (index > selectedFileIndex) {
-          newRotation[index - 1] = newRotation[index];
-          delete newRotation[index];
-        }
-      });
-      return newRotation;
-    });
-
-    // Update selected index if necessary
-    if (filesToDisplay.length > 1) {
-      // If we're removing the last file, select the previous one
-      if (selectedFileIndex === filesToDisplay.length - 1) {
+      if (selectedFileIndex > 0) {
         setSelectedFileIndex(selectedFileIndex - 1);
+        setSelectedFileId(uploadedFiles?.[selectedFileIndex - 1]?.id);
+        onRemove(selectedFileId);
+      } else {
+        setSelectedFileIndex(1);
+        setSelectedFileId(uploadedFiles?.[1]?.id);
+        onRemove(selectedFileId);
       }
-      // If we're removing a file in the middle or start, keep the same index
-      // as it will now point to the next file
-    }
-  };
+    };
 
-  const handleAddMoreFiles = () => {
-    // Check if we've reached the file limit before allowing more uploads
-    if (filesToDisplay && filesToDisplay.length >= 5) {
-      setIsFileLimitError(true);
-      return;
-    }
-
-    // In upload mode, trigger add more
-    if (onAddMore) {
+    const handleAddMoreFiles = () => {
       onAddMore();
-    }
-  };
+    };
 
-  const handleBackAndCleanup = (isBack = false) => {
-    // Clean up all preview URLs
-    filesToDisplay.forEach((file) => {
-      if (file.preview) {
-        URL.revokeObjectURL(file.preview);
-      }
-    });
-
-    // Reset all states
-    setFilesCrops({});
-    setFilesZoom({});
-    setFilesRotation({});
-    setSelectedFileIndex(0);
-    setImageLoaded(false);
-    setImageError(false);
-    setCrop({
-      unit: "%",
-      x: 5,
-      y: 5,
-      width: 90,
-      height: 90,
-    });
-    setCompletedCrop(null);
-    // Reset previous file count when cleaning up
-    setPreviousFileCount(0);
-
-    // Clear files in parent component if closing without saving (upload mode only)
-    if (
-      !isEditModeRef.current &&
-      !saveCompletedRef.current &&
-      onClearFilesRef.current
-    ) {
-      onClearFilesRef.current();
-    }
-
-    // Reset save completed flag
-    setSaveCompleted(false);
-    setInitialSelectionMade(false); // Reset initial selection flag
-
-    // Close modals
-    if (isBack) {
-      showHideBackModal();
+    const handleBackAndCleanup = () => {
+      handleGoBackToMainFiles();
+      dispatch(setUploadedFilesFromStore([]));
+      setIsDeleteModalOpen(false);
+      setIsBackModalOpen(false);
       onClose();
-    }
-  };
+    };
 
-  const BACK_MODAL = useMemo(() => {
-    return (
-      <CommonModal
-        isModalOpen={isBackModalOpen}
-        onCancel={showHideBackModal}
-        modalWidth={500}
-        title={"Are you sure you want to go back?"}
-        modalBody={
-          <>
-            <div className="alert-warning rounded-10px p-2 patient-details">
-              <div className="d-flex align-items-center">
-                <img className="me-3" src={alertIcon} alt="Warning" />
-                <span>
-                  You have unsaved uploads. If you go back now, your uploaded
-                  data will not be saved.
-                </span>
-              </div>
-            </div>
-            <div className="mt-4">
-              <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div
-                  onClick={() => handleBackAndCleanup(true)}
-                  className="me-4 text-decoration-underline btn p-0 text-main"
-                >
-                  Yes, Go Back
+    const BACK_MODAL = useMemo(() => {
+      return (
+        <CommonModal
+          isModalOpen={isBackModalOpen}
+          onCancel={showHideBackModal}
+          modalWidth={500}
+          title={"Are you sure you want to go back?"}
+          modalBody={
+            <>
+              <div className="alert-warning rounded-10px p-2 patient-details">
+                <div className="d-flex align-items-center">
+                  <img className="me-3" src={alertIcon} alt="Warning" />
+                  <span>
+                    You have unsaved uploads. If you go back now, your uploaded
+                    data will not be saved.
+                  </span>
                 </div>
-                <Button
-                  onClick={showHideBackModal}
-                  type="primary"
-                  className="lh-lg btn btn-primary3 btn-41 px-4"
-                >
-                  <span>No, Stay</span>
-                </Button>
               </div>
-            </div>
-          </>
-        }
-      />
-    );
-  }, [isBackModalOpen]);
-
-  const DELETE_MODAL = useMemo(() => {
-    return (
-      <CommonModal
-        isModalOpen={isDeleteModalOpen}
-        onCancel={showHideDeleteModal}
-        modalWidth={500}
-        title={"You may lose your data"}
-        modalBody={
-          <>
-            <div className="alert-warning rounded-10px p-2 patient-details">
-              <div className="d-flex align-items-center">
-                <img className="me-3" src={alertIcon} alt="Warning" />
-                <span>Are you sure you want to delete this template?</span>
-              </div>
-            </div>
-            <div className="mt-4">
-              <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div
-                  onClick={() => {
-                    onRemove(selectedFileIndex);
-                    showHideModal();
-                  }}
-                  className="me-4 text-decoration-underline btn p-0 text-main"
-                >
-                  Yes Delete
+              <div className="mt-4">
+                <div className="d-flex align-items-center mt-2 justify-content-end">
+                  <div
+                    onClick={handleBackAndCleanup}
+                    className="me-4 text-decoration-underline btn p-0 text-main"
+                  >
+                    Yes, Go Back
+                  </div>
+                  <Button
+                    onClick={showHideBackModal}
+                    type="primary"
+                    className="lh-lg btn btn-primary3 btn-41 px-4"
+                  >
+                    <span>No, Stay</span>
+                  </Button>
                 </div>
-                <Button
-                  onClick={showHideModal}
-                  className="lh-lg btn btn-primary3 btn-41 px-4"
-                >
-                  <span>No</span>
-                </Button>
+              </div>
+            </>
+          }
+        />
+      );
+    }, [isBackModalOpen]);
+
+    const DELETE_MODAL = useMemo(() => {
+      return (
+        <CommonModal
+          isModalOpen={isDeleteModalOpen}
+          onCancel={showHideDeleteModal}
+          modalWidth={500}
+          title={"You may lose your data"}
+          modalBody={
+            <>
+              <div className="alert-warning rounded-10px p-2 patient-details">
+                <div className="d-flex align-items-center">
+                  <img className="me-3" src={alertIcon} alt="Warning" />
+                  <span>Are you sure you want to delete this template?</span>
+                </div>
+              </div>
+              <div className="mt-4">
+                <div className="d-flex align-items-center mt-2 justify-content-end">
+                  <div
+                    onClick={() => {
+                      onRemove(selectedFileIndex);
+                      showHideModal();
+                    }}
+                    className="me-4 text-decoration-underline btn p-0 text-main"
+                  >
+                    Yes Delete
+                  </div>
+                  <Button
+                    onClick={showHideModal}
+                    className="lh-lg btn btn-primary3 btn-41 px-4"
+                  >
+                    <span>No</span>
+                  </Button>
+                </div>
+              </div>
+            </>
+          }
+        />
+      );
+    }, [isDeleteModalOpen]);
+
+    // Handle drawer close with cleanup
+    const handleDrawerClose = () => {
+      onClose();
+    };
+
+    // Don't render if not open
+    if (!isOpen) {
+      return null;
+    }
+
+    return (
+      <Drawer
+        width="45.625rem"
+        maxWidth="45.625rem"
+        placement="right"
+        onClose={handleDrawerClose}
+        open={isOpen}
+        styles={{
+          header: {
+            display: "none",
+          },
+        }}
+        maskClosable={false}
+      >
+        <div className="modalCard-header h-60 align-items-center justify-content-between d-flex position-sticky top-0 z-2">
+          <div className="align-items-center d-flex h-100">
+            <div className="border-end h-100 text-center me-3">
+              <div
+                onClick={showHideBackModal}
+                className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
+              >
+                <i className="icon-right"></i>
               </div>
             </div>
-          </>
-        }
-      />
-    );
-  }, [isDeleteModalOpen]);
-
-  // Handle drawer close with cleanup
-  const handleDrawerClose = () => {
-    // Only cleanup if not in edit mode and not uploading and save wasn't completed
-    if (
-      !isEditModeRef.current &&
-      !uploading &&
-      !saveCompletedRef.current &&
-      onClearFilesRef.current
-    ) {
-      onClearFilesRef.current();
-    }
-    onClose();
-  };
-
-  // Don't render if not open
-  if (!isOpen) {
-    return null;
-  }
-
-  return (
-    <Drawer
-      width="45.625rem"
-      maxWidth="45.625rem"
-      placement="right"
-      onClose={handleDrawerClose}
-      open={isOpen}
-      styles={{
-        header: {
-          display: "none",
-        },
-      }}
-      maskClosable={false}
-    >
-      <div className="modalCard-header h-60 align-items-center justify-content-between d-flex position-sticky top-0 z-2">
-        <div className="align-items-center d-flex h-100">
-          <div className="border-end h-100 text-center me-3">
-            <div
-              onClick={showHideBackModal}
-              className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
+            <div className="snaprx-drawer-title">
+              {isEditMode ? "Edit Rx" : "Rx Preview"}
+            </div>
+          </div>
+          <div className="d-flex align-items-center gap-2">
+            <Button
+              type="primary"
+              onClick={handleSave}
+              icon={isSubmitting ? <LoadingOutlined /> : null}
+              loading={isSubmitting}
+              disabled={isSubmitting || uploadedFiles?.length === 0}
+              className="btn align-items-center d-flex btn-41 btn-primary3 me-20 save-btn"
             >
-              <i className="icon-right"></i>
-            </div>
-          </div>
-          <div className="snaprx-drawer-title">
-            {isEditMode ? "Edit Rx" : "Rx Preview"}
+              Save
+            </Button>
           </div>
         </div>
-        <div className="d-flex align-items-center gap-2">
-          <Button
-            type="button"
-            onClick={handleSave}
-            loading={uploading}
-            disabled={uploading || filesToDisplay.length === 0}
-            className="btn align-items-center d-flex btn-41 btn-primary3 me-20 save-btn"
-          >
-            Save
-          </Button>
-        </div>
-      </div>
-      <div className="preview-drawer-content">
-        {/* Main Preview Area */}
-        <div className="snaprx-preview-container">
-          {/* {!imageLoaded ? (
+        <div className="preview-drawer-content">
+          {/* Main Preview Area */}
+          <div className="snaprx-preview-container">
+            {/* {!imageLoaded ? (
             <SkeletonComponent />
           ) : ( */}
-          <div className="preview-area">
-            {imageError ? (
-              <div className="error-container">
-                <div className="error-content">
-                  <div className="error-icon">⚠️</div>
-                  <p>Failed to load image</p>
-                  <button onClick={handleReupload} className="retry-btn">
-                    Try Again
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="snaprx-preview-container">
-                <div className="crop-container">
-                  <ReactCrop
-                    crop={crop}
-                    onChange={(newCrop) => {
-                      setCrop(newCrop);
-                    }}
-                    onComplete={(completedCrop) => {
-                      setCompletedCrop(completedCrop);
-                      // Store the crop for this file
-                      setFilesCrops((prev) => ({
-                        ...prev,
-                        [selectedFileIndex]: completedCrop,
-                      }));
-                    }}
-                    className="react-crop-wrapper"
-                  >
-                    <img
-                      ref={imageRef}
-                      src={imageUrl}
-                      alt="Prescription"
-                      className="prescription-image"
-                      onLoad={onImageLoad}
-                      crossOrigin="anonymous"
-                      style={{
-                        transform: `scale(${getCurrentZoom()}) rotate(${getCurrentRotation()}deg)`,
-                        transformOrigin: "center center",
-                      }}
-                      onError={(e) => {
-                        console.error(
-                          "Failed to load preview image:",
-                          imageUrl
-                        );
-                        setImageError(true);
-                        setImageLoaded(false);
-                      }}
-                    />
-                  </ReactCrop>
-                </div>
-                {/* Action Bar - moved outside preview area */}
-                <div className="action-bar">
-                  <div className="action-buttons">
-                    <button
-                      className="action-btn reupload-btn"
-                      onClick={handleReupload}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="17"
-                        height="17"
-                        viewBox="0 0 17 17"
-                        fill="none"
-                      >
-                        <g clipPath="url(#clip0_252_25491)">
-                          <path
-                            d="M3.42366 8.62034C3.78835 8.56966 4.12493 8.82401 4.17561 9.1887C4.31855 10.217 4.79633 11.1701 5.53401 11.9006C6.27168 12.631 7.22908 13.0988 8.25862 13.2317C9.28827 13.3645 10.3333 13.1553 11.2323 12.636C11.8237 12.2943 12.3303 11.8305 12.7215 11.2805H11.5155C11.1474 11.2804 10.8494 10.9816 10.8494 10.6135C10.8495 10.2454 11.1474 9.94664 11.5155 9.94651H14.1825C14.5506 9.94656 14.8494 10.2454 14.8494 10.6135V13.2805C14.8493 13.6486 14.5505 13.9465 14.1825 13.9465C13.8143 13.9465 13.5156 13.6486 13.5155 13.2805V12.4319C13.0631 12.972 12.5174 13.4331 11.8992 13.7903C10.747 14.4559 9.40748 14.7242 8.08772 14.5539C6.7681 14.3836 5.541 13.7841 4.59554 12.8479C3.65007 11.9116 3.03851 10.6902 2.8553 9.37229C2.80464 9.00771 3.05914 8.67117 3.42366 8.62034ZM5.79866 3.43772C6.95086 2.77208 8.29047 2.50281 9.61019 2.67307C10.9299 2.84337 12.1568 3.44377 13.1024 4.38011C14.0478 5.31643 14.6594 6.5377 14.8426 7.85569C14.893 8.22022 14.6388 8.55698 14.2742 8.60765C13.9096 8.6583 13.573 8.40298 13.5223 8.03831C13.3793 7.0103 12.9023 6.05777 12.1649 5.32737C11.4272 4.59682 10.469 4.12918 9.43929 3.99632C8.40968 3.86352 7.36457 4.0727 6.46565 4.59202C5.87433 4.93372 5.36751 5.39757 4.9764 5.94749H6.18245C6.55058 5.94749 6.84935 6.2454 6.84944 6.6135C6.84944 6.98169 6.55064 7.2805 6.18245 7.2805H3.51546C3.14743 7.28031 2.84944 6.98158 2.84944 6.6135V3.94749C2.84944 3.57942 3.14743 3.28069 3.51546 3.2805C3.88365 3.2805 4.18245 3.5793 4.18245 3.94749V4.79515C4.63465 4.25516 5.18074 3.79479 5.79866 3.43772Z"
-                            fill="#4B4AD5"
-                          />
-                        </g>
-                        <defs>
-                          <clipPath id="clip0_252_25491">
-                            <rect
-                              width="16"
-                              height="16"
-                              fill="white"
-                              transform="translate(0.849121 0.61377)"
-                            />
-                          </clipPath>
-                        </defs>
-                      </svg>
-                      <span>Reupload</span>
-                    </button>
-
-                    <button
-                      className="action-btn remove-btn"
-                      onClick={handleRemoveFile}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="17"
-                        height="17"
-                        viewBox="0 0 17 17"
-                        fill="none"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M5.59317 3.74727L6.04122 2.40311C6.13196 2.13089 6.38672 1.94727 6.67367 1.94727H10.2737C10.5606 1.94727 10.8154 2.13089 10.9061 2.40311L11.3542 3.74727H14.4736C14.8418 3.74727 15.1403 4.04574 15.1403 4.41393C15.1403 4.78212 14.8418 5.0806 14.4736 5.0806H13.9023L13.413 13.398C13.3508 14.4552 12.4754 15.2806 11.4165 15.2806H5.53088C4.47193 15.2806 3.59652 14.4552 3.53433 13.398L3.04507 5.0806H2.48429C2.1161 5.0806 1.81763 4.78212 1.81763 4.41393C1.81763 4.04574 2.1161 3.74727 2.48429 3.74727H5.59317ZM6.99862 3.74727H9.94872L9.79317 3.2806H7.15418L6.99862 3.74727ZM12.5666 5.0806H4.38071L4.86536 13.3197C4.88609 13.6721 5.1779 13.9473 5.53088 13.9473H11.4165C11.7695 13.9473 12.0613 13.6721 12.082 13.3197L12.5666 5.0806ZM9.6083 6.77235C9.63127 6.40487 9.94779 6.1256 10.3153 6.14856C10.6827 6.17153 10.962 6.48804 10.939 6.85552L10.639 11.6555C10.6161 12.023 10.2996 12.3023 9.93209 12.2793C9.56461 12.2563 9.28534 11.9398 9.3083 11.5723L9.6083 6.77235ZM7.63904 11.5723C7.66201 11.9398 7.38273 12.2563 7.01526 12.2793C6.64779 12.3023 6.33127 12.023 6.3083 11.6555L6.0083 6.85552C5.98534 6.48804 6.26461 6.17153 6.63209 6.14856C6.99956 6.1256 7.31607 6.40487 7.33904 6.77235L7.63904 11.5723Z"
-                          fill="#FC5A5A"
-                        />
-                      </svg>
-                      <span>Remove</span>
+            <div className="preview-area">
+              {imageError ? (
+                <div className="error-container">
+                  <div className="error-content">
+                    <div className="error-icon">⚠️</div>
+                    <p>Failed to load image</p>
+                    <button onClick={handleReupload} className="retry-btn">
+                      Try Again
                     </button>
                   </div>
-
-                  <div className="zoom-controls">
-                    <button className="rotate-btn" onClick={handleRotateLeft}>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="17"
-                        height="17"
-                        viewBox="0 0 17 17"
-                        fill="none"
+                </div>
+              ) : (
+                <div className="snaprx-preview-container">
+                  <div className="crop-container">
+                    <ReactCrop
+                      crop={cropOfFile}
+                      keepSelection
+                      onChange={(newCrop) =>
+                        handleCropChange(newCrop, selectedFileId)
+                      }
+                      onComplete={(completedCrop) =>
+                        handleCropChange(completedCrop, selectedFileId)
+                      }
+                      className="react-crop-wrapper"
+                    >
+                      <img
+                        ref={imageRefs.current.get(selectedFileId)}
+                        src={imageUrl}
+                        alt="Prescription"
+                        className="prescription-image"
+                        onLoad={onImageLoad}
+                        crossOrigin="anonymous"
+                        style={{
+                          transform: `scale(${getCurrentZoom()}) rotate(${
+                            currentFile?.rotation || 0
+                          }deg)`,
+                          transformOrigin: "center center",
+                        }}
+                        onError={(e) => {
+                          console.error(
+                            "Failed to load preview image:",
+                            imageUrl
+                          );
+                          setImageError(true);
+                          setImageLoaded(false);
+                        }}
+                      />
+                    </ReactCrop>
+                  </div>
+                  {/* Action Bar - moved outside preview area */}
+                  <div className="preview-drawer-action-bar">
+                    <div className="action-buttons">
+                      <button
+                        className="action-btn reupload-btn"
+                        onClick={handleReupload}
                       >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M2.96899 3.19441C2.96899 2.87373 3.2263 2.61377 3.54369 2.61377C3.86109 2.61377 4.1184 2.87373 4.1184 3.19441V4.4174C5.88049 2.59529 8.6385 2.07498 10.9664 3.2221C13.9136 4.67442 15.1376 8.26566 13.7001 11.2434C12.2626 14.2211 8.7081 15.4576 5.76085 14.0053C4.58378 13.4253 3.64147 12.4818 3.05832 11.3076C2.91598 11.021 3.03056 10.672 3.31426 10.5282C3.59795 10.3844 3.94331 10.5002 4.08566 10.7868C4.556 11.7339 5.31466 12.4934 6.26472 12.9616C8.64141 14.1327 11.5078 13.1355 12.667 10.7343C13.8262 8.33304 12.8392 5.43702 10.4625 4.26585C8.37852 3.23891 5.89086 3.87539 4.53259 5.71051H6.60877C6.92616 5.71051 7.18347 5.97047 7.18347 6.29115C7.18347 6.61183 6.92616 6.87179 6.60877 6.87179H3.54369C3.2263 6.87179 2.96899 6.61183 2.96899 6.29115V6.24754C2.96887 6.23824 2.96899 3.19441 2.96899 3.19441Z"
-                          fill="#454551"
-                        />
-                      </svg>
-                    </button>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="17"
+                          height="17"
+                          viewBox="0 0 17 17"
+                          fill="none"
+                        >
+                          <g clipPath="url(#clip0_252_25491)">
+                            <path
+                              d="M3.42366 8.62034C3.78835 8.56966 4.12493 8.82401 4.17561 9.1887C4.31855 10.217 4.79633 11.1701 5.53401 11.9006C6.27168 12.631 7.22908 13.0988 8.25862 13.2317C9.28827 13.3645 10.3333 13.1553 11.2323 12.636C11.8237 12.2943 12.3303 11.8305 12.7215 11.2805H11.5155C11.1474 11.2804 10.8494 10.9816 10.8494 10.6135C10.8495 10.2454 11.1474 9.94664 11.5155 9.94651H14.1825C14.5506 9.94656 14.8494 10.2454 14.8494 10.6135V13.2805C14.8493 13.6486 14.5505 13.9465 14.1825 13.9465C13.8143 13.9465 13.5156 13.6486 13.5155 13.2805V12.4319C13.0631 12.972 12.5174 13.4331 11.8992 13.7903C10.747 14.4559 9.40748 14.7242 8.08772 14.5539C6.7681 14.3836 5.541 13.7841 4.59554 12.8479C3.65007 11.9116 3.03851 10.6902 2.8553 9.37229C2.80464 9.00771 3.05914 8.67117 3.42366 8.62034ZM5.79866 3.43772C6.95086 2.77208 8.29047 2.50281 9.61019 2.67307C10.9299 2.84337 12.1568 3.44377 13.1024 4.38011C14.0478 5.31643 14.6594 6.5377 14.8426 7.85569C14.893 8.22022 14.6388 8.55698 14.2742 8.60765C13.9096 8.6583 13.573 8.40298 13.5223 8.03831C13.3793 7.0103 12.9023 6.05777 12.1649 5.32737C11.4272 4.59682 10.469 4.12918 9.43929 3.99632C8.40968 3.86352 7.36457 4.0727 6.46565 4.59202C5.87433 4.93372 5.36751 5.39757 4.9764 5.94749H6.18245C6.55058 5.94749 6.84935 6.2454 6.84944 6.6135C6.84944 6.98169 6.55064 7.2805 6.18245 7.2805H3.51546C3.14743 7.28031 2.84944 6.98158 2.84944 6.6135V3.94749C2.84944 3.57942 3.14743 3.28069 3.51546 3.2805C3.88365 3.2805 4.18245 3.5793 4.18245 3.94749V4.79515C4.63465 4.25516 5.18074 3.79479 5.79866 3.43772Z"
+                              fill="#4B4AD5"
+                            />
+                          </g>
+                          <defs>
+                            <clipPath id="clip0_252_25491">
+                              <rect
+                                width="16"
+                                height="16"
+                                fill="white"
+                                transform="translate(0.849121 0.61377)"
+                              />
+                            </clipPath>
+                          </defs>
+                        </svg>
+                        <span>Reupload</span>
+                      </button>
 
-                    <div className="zoom-btn-combined">
-                      <div className="cursor-pointer" onClick={handleZoomOut}>
-                        <MinusIcon />
-                      </div>
-                      <div className="zoom-divider"></div>
-                      <div className="cursor-pointer" onClick={handleZoomIn}>
-                        <PlusIcon />
+                      <button
+                        className="action-btn remove-btn"
+                        onClick={handleRemoveFile}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="17"
+                          height="17"
+                          viewBox="0 0 17 17"
+                          fill="none"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M5.59317 3.74727L6.04122 2.40311C6.13196 2.13089 6.38672 1.94727 6.67367 1.94727H10.2737C10.5606 1.94727 10.8154 2.13089 10.9061 2.40311L11.3542 3.74727H14.4736C14.8418 3.74727 15.1403 4.04574 15.1403 4.41393C15.1403 4.78212 14.8418 5.0806 14.4736 5.0806H13.9023L13.413 13.398C13.3508 14.4552 12.4754 15.2806 11.4165 15.2806H5.53088C4.47193 15.2806 3.59652 14.4552 3.53433 13.398L3.04507 5.0806H2.48429C2.1161 5.0806 1.81763 4.78212 1.81763 4.41393C1.81763 4.04574 2.1161 3.74727 2.48429 3.74727H5.59317ZM6.99862 3.74727H9.94872L9.79317 3.2806H7.15418L6.99862 3.74727ZM12.5666 5.0806H4.38071L4.86536 13.3197C4.88609 13.6721 5.1779 13.9473 5.53088 13.9473H11.4165C11.7695 13.9473 12.0613 13.6721 12.082 13.3197L12.5666 5.0806ZM9.6083 6.77235C9.63127 6.40487 9.94779 6.1256 10.3153 6.14856C10.6827 6.17153 10.962 6.48804 10.939 6.85552L10.639 11.6555C10.6161 12.023 10.2996 12.3023 9.93209 12.2793C9.56461 12.2563 9.28534 11.9398 9.3083 11.5723L9.6083 6.77235ZM7.63904 11.5723C7.66201 11.9398 7.38273 12.2563 7.01526 12.2793C6.64779 12.3023 6.33127 12.023 6.3083 11.6555L6.0083 6.85552C5.98534 6.48804 6.26461 6.17153 6.63209 6.14856C6.99956 6.1256 7.31607 6.40487 7.33904 6.77235L7.63904 11.5723Z"
+                            fill="#FC5A5A"
+                          />
+                        </svg>
+                        <span>Remove</span>
+                      </button>
+                    </div>
+
+                    <div className="zoom-controls">
+                      <button className="rotate-btn" onClick={handleRotateLeft}>
+                        <RotateLeftIcon />
+                      </button>
+
+                      <div className="zoom-btn-combined">
+                        <div className="cursor-pointer" onClick={handleZoomOut}>
+                          <MinusIcon />
+                        </div>
+                        <div className="zoom-divider"></div>
+                        <div className="cursor-pointer" onClick={handleZoomIn}>
+                          <PlusIcon />
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              )}
+            </div>
+            {/* )} */}
+          </div>
+
+          {/* Thumbnails Section */}
+          <div className="thumbnails-section">
+            {uploadedFiles && uploadedFiles?.length > 0 ? (
+              uploadedFiles.map((file, index) => {
+                const thumbUrl = file.url || file.preview;
+                return (
+                  <div
+                    key={index}
+                    className={`thumbnail-item ${
+                      index === selectedFileIndex ? "selected" : ""
+                    }`}
+                    onClick={() => {
+                      setSelectedFileId(file.id);
+                      setSelectedFileIndex(index);
+                    }}
+                  >
+                    <img
+                      src={thumbUrl}
+                      alt={`Page ${index + 1}`}
+                      className="thumbnail-img"
+                      crossOrigin="anonymous"
+                      onError={(e) => {
+                        console.error("Failed to load thumbnail:", thumbUrl);
+                        e.target.style.display = "none";
+                        const errorDiv = document.createElement("div");
+                        errorDiv.className = "thumbnail-error";
+                        errorDiv.innerHTML = "⚠️";
+                        e.target.parentNode.appendChild(errorDiv);
+                      }}
+                    />
+                    <canvas
+                      ref={canvasRefs.current?.get(file.id)}
+                      style={{ display: "none" }}
+                    />
+                  </div>
+                );
+              })
+            ) : (
+              <div className="no-files-message">No files to display</div>
+            )}
+
+            {uploadedFiles && uploadedFiles?.length > 0 && (
+              <div className="add-more-item" onClick={handleAddMoreFiles}>
+                <div className="add-icon">
+                  <CloudUploadOutlined className="upload-icon" />
+                </div>
+                <span className="add-text">Add More</span>
               </div>
             )}
           </div>
-          {/* )} */}
         </div>
 
-        {/* Thumbnails Section */}
-        <div className="thumbnails-section">
-          {filesToDisplay && filesToDisplay.length > 0 ? (
-            filesToDisplay.map((file, index) => {
-              const thumbUrl = getImageUrl(file);
-              return (
-                <div
-                  key={index}
-                  className={`thumbnail-item ${
-                    index === selectedFileIndex ? "selected" : ""
-                  }`}
-                  onClick={() => {
-                    setSelectedFileIndex(index);
-                    // Reset states for new image
-                    setCrop({
-                      unit: "%",
-                      x: 5,
-                      y: 5,
-                      width: 90,
-                      height: 90,
-                    });
-                    setCompletedCrop(null);
-                    setImageLoaded(false);
-                    setImageError(false);
-                  }}
-                >
-                  <img
-                    src={thumbUrl}
-                    alt={`Page ${index + 1}`}
-                    className="thumbnail-img"
-                    crossOrigin="anonymous"
-                    onError={(e) => {
-                      console.error("Failed to load thumbnail:", thumbUrl);
-                      e.target.style.display = "none";
-                      const errorDiv = document.createElement("div");
-                      errorDiv.className = "thumbnail-error";
-                      errorDiv.innerHTML = "⚠️";
-                      e.target.parentNode.appendChild(errorDiv);
-                    }}
-                  />
-                </div>
-              );
-            })
-          ) : (
-            <div className="no-files-message">No files to display</div>
-          )}
-
-          {filesToDisplay && filesToDisplay.length > 0 && (
-            <div className="add-more-item" onClick={handleAddMoreFiles}>
-              <div className="add-icon">
-                <CloudUploadOutlined className="upload-icon" />
-              </div>
-              <span className="add-text">Add More</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Hidden canvas for cropping */}
-      <canvas ref={canvasRef} style={{ display: "none" }} />
-      {DELETE_MODAL}
-      {BACK_MODAL}
-      <FileUploadErrorModal
-        isFileSizeError={isFileSizeError}
-        isFileLimitError={isFileLimitError}
-        isFileTypeError={isFileTypeError}
-        onRetry={handleRetryBtn}
-      />
-    </Drawer>
-  );
-};
+        {/* Hidden canvas for cropping */}
+        <canvas ref={canvasRef} style={{ display: "none" }} />
+        {DELETE_MODAL}
+        {BACK_MODAL}
+      </Drawer>
+    );
+  }
+);
 
 export default PreviewDrawer;

@@ -2,13 +2,16 @@ import moment from "moment";
 
 import config from "../config";
 import { message } from "antd";
-import { MESSAGE_KEY } from "../utils/constants";
-import { browserName, isBrowser } from "react-device-detect";
+import { MESSAGE_KEY, SNAP_RX_TOKENS_STORAGE_KEY } from "../utils/constants";
+import { browserName, deviceDetect, isBrowser } from "react-device-detect";
 import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../src/firebase.js";
 import { getDecodedToken } from "./localStorage.js";
 import imageCompression from "browser-image-compression";
+import numeral from "numeral";
+import packageJson from "../../package.json";
+import { EVENTS } from "./events.js";
 
 // export const validateEmail = (email) => {
 //   return String(email)
@@ -240,6 +243,14 @@ export const calculateDose = (dosage, weight, concentration) => {
   const dose =
     (parseFloat(dosage) * parseFloat(weight)) / parseFloat(concentration);
   return !isNaN(dose) ? dose.toFixed(1).replace(/\.0$/, "") : "";
+};
+
+export const formatAmount = (amount) => {
+  return amount.toFixed(2).replace(/\.00$/, "");
+};
+
+export const currencyFormat = (amount) => {
+  return numeral(amount).format("0,0.00").replace(/\.00$/, "");
 };
 
 export const dataUrlToFile = (url, fileName) => {
@@ -625,6 +636,17 @@ export function randomInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+export const convertBase64ToBlobURL = (base64string = "") => {
+  const byteCharacters = atob(base64string);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: "application/pdf" });
+  return URL.createObjectURL(blob);
+};
+
 export const handlePrintClick = (
   element,
   setTabLoader,
@@ -718,6 +740,10 @@ export const getTokenData = () => {
   return result;
 };
 
+export const getDeviceSdkData = () => {
+  return { device_info: deviceDetect(), sdk_version: packageJson?.version };
+};
+
 export const compressedFile = async (
   file,
   maxSizeMB = 2,
@@ -792,7 +818,7 @@ export const trackEvent = (eventName, attributes) => {
 export const getIndianLanguageFont = (text, defaultFont = "Roboto") => {
   // Devanagari (Hindi, Marathi, Sanskrit, Nepali, etc.)
   if (/[\u0900-\u097F]/.test(text)) {
-    return "NotoSansDevanagari";
+    return "AnekDevanagari";
   }
 
   // Bengali/Assamese
@@ -844,6 +870,36 @@ export const getIndianLanguageFont = (text, defaultFont = "Roboto") => {
   return defaultFont;
 };
 
+export const isValidGST = (gstNumber) => {
+  // GST Regex Pattern
+  const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+
+  if (!gstRegex.test(gstNumber)) {
+    return false; // Invalid format
+  }
+
+  // Validate State Code (first two digits: 01-35)
+  const stateCode = parseInt(gstNumber.substring(0, 2), 10);
+  if (stateCode < 1 || stateCode > 35) {
+    return false; // Invalid state code
+  }
+
+  return true; // GST is valid
+};
+
+export const shouldMonetizationDisabled = () => {
+  const monetizationDisabled = config?.tp_monetization_disabled_hospital;
+  const monetizationDisabledArray = monetizationDisabled.map(Number);
+  const { hospital_business_id = null } = getTokenData();
+  // console.log(monetizationDisabled,hospital_business_id)
+  const currentHospital = Number(hospital_business_id);
+
+  if (currentHospital && monetizationDisabledArray.includes(currentHospital)) {
+    return true;
+  }
+
+  return false;
+};
 export const detectOperatingSystem = () => {
   const userAgent = window.navigator.userAgent;
   const platform = window.navigator.platform;
@@ -857,4 +913,42 @@ export const detectOperatingSystem = () => {
   };
 
   return Object.keys(os).find((key) => os[key]) || "Unknown";
+};
+
+export const sendMessageToParent = (eventName, data = {}) => {
+  try {
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({ action: eventName, data })
+      );
+    } else {
+      console.warn("ReactNativeWebView is not available on the window object.");
+    }
+  } catch (error) {
+    console.log("sendMessageToParent ERROR", error);
+  }
+};
+
+export const clearExpiredTokensFromStorage = () => {
+  try {
+    const tokensObject = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
+    if (tokensObject) {
+      const parsedTokens = JSON.parse(tokensObject);
+      const currentTime = Date.now();
+      const validTokens = {};
+
+      Object.keys(parsedTokens).forEach((key) => {
+        if (parsedTokens[key].expiresIn > currentTime) {
+          validTokens[key] = parsedTokens[key];
+        }
+      });
+
+      localStorage.setItem(
+        SNAP_RX_TOKENS_STORAGE_KEY,
+        JSON.stringify(validTokens)
+      );
+    }
+  } catch (error) {
+    console.error("Error cleaning up expired tokens:", error);
+  }
 };

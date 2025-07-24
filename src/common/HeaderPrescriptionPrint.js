@@ -26,7 +26,6 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToApp
     const isReceptionist = urlParams.has("receptionist");
 
     const onEndVisitClick = async () => {
-        localStorage.removeItem("tcm_id");
         if (handleGoToAppointment) {
             handleGoToAppointment();
         } else {

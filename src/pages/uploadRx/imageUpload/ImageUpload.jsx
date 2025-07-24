@@ -2,14 +2,12 @@ import React, {
   useState,
   useRef,
   useEffect,
-  useContext,
   forwardRef,
   useImperativeHandle,
 } from "react";
 import { message } from "antd";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
-import CashManagerContext from "../../../context/CashManagerContext";
 import PreviewDrawerMobile from "../previewDrawerMobile";
 import { openBottomSheet } from "../../../components/bottomSheetManager";
 import alertIcon from "../../../assets/images/alertIcon.svg";

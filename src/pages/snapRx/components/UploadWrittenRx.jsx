@@ -1,560 +1,550 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {
   useEffect,
   useState,
   useRef,
   useContext,
   useCallback,
+  useImperativeHandle,
+  forwardRef,
 } from "react";
 import { message } from "antd";
 import CashManagerContext from "../../../context/CashManagerContext";
 import QRCodeGenerator from "./QRCodeGenerator";
-import PreviewDrawer from "./PreviewDrawer";
-import rxPadImage from "../../../assets/images/rx-pad.png";
 import "./UploadWrittenRx.scss";
 import { CloudUploadOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
-import { generateFileUploadToken, resetFileUploadToken } from "../../../redux/snapRxDigitizationSlice";
+import {
+  generateFileUploadToken,
+  setFileUploadToken,
+} from "../../../redux/snapRxDigitizationSlice";
 import { useDispatch } from "react-redux";
 import { useSnapRxSession } from "../context/SnapRxSessionContext";
 import { getShortLink } from "../../../redux/shortLinkSlice";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 import FileUploadErrorModal from "../../../components/common/FileUploadErrorModal";
+import { compressedFile as compressFile } from "../../../utils/utils";
+import { SNAP_RX_TOKENS_STORAGE_KEY } from "../../../utils/constants";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
-const UploadWrittenRx = ({
-  onFileUpload,
-  isLoading,
-  showBackButton,
-  onBack,
-  isUploadMoreDrawer = false,
-  fetchUploadedFiles,
-}) => {
-  const fileInputRef = useRef(null);
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [dragActive, setDragActive] = useState(false);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const { userId, profile } = useSelector((state) => state.doctors);
-  const { fileUploadToken } = useSelector((state) => state.snapRx);
-  const { shortLink } = useSelector((state) => state.shortLink);
-  const { patient_data, tcmId, pamId } = useContext(CashManagerContext);
-  const { sessionId } = useSnapRxSession();
-  const dispatch = useDispatch();
-
-  const maxFileSize = 15 * 1024 * 1024; // 8MB
-
-  useEffect(() => {
-    if (!fileUploadToken && userId && patient_data?.patient_unique_id && sessionId) {
-      dispatch(
-        generateFileUploadToken({
-          doctor_id: userId,
-          patient_unique_id: patient_data?.patient_unique_id,
-          session_id: sessionId,
-        })
-      );
-    }
-  }, [userId, patient_data?.patient_unique_id, sessionId]);
-
-  useEffect(() => {
-    return () => {
-      dispatch(resetFileUploadToken());
-    }
-  }, []);
-
-  const handleFiles = async (
-    files,
-    isReupload = false,
-    reuploadIndex = null
+const UploadWrittenRx = forwardRef(
+  (
+    {
+      isOpen,
+      showBackButton,
+      onBack,
+      isUploadMoreDrawer = false,
+      fetchUploadedFiles,
+      handlePreviewOpen,
+      handleUpdatedFiles,
+      uploadedFiles,
+      setIsAddMoreClicked,
+    },
+    ref
   ) => {
-    if (!files || files.length === 0) return;
+    const fileInputRef = useRef(null);
+    const [dragActive, setDragActive] = useState(false);
+    const { userId, profile } = useSelector((state) => state.doctors);
+    const { fileUploadToken } = useSelector((state) => state.snapRx);
+    const { shortLink } = useSelector((state) => state.shortLink);
+    const { patient_data, tcmId, pamId } = useContext(CashManagerContext);
+    const [storedFileIdToReplace, setStoredFileIdToReplace] = useState(null);
+    const { sessionId } = useSnapRxSession();
+    const dispatch = useDispatch();
+    const [isFileLimitError, setIsFileLimitError] = useState(false);
+    const [isFileSizeError, setIsFileSizeError] = useState(false);
+    const [isFileTypeError, setIsFileTypeError] = useState(false);
+    const maxFileSize = 15 * 1024 * 1024; // 15MB
+    const maxFileLimit = 5;
+    const maxFileSizeInMB = 15;
+    const compressionPercentage = 90;
+    const minSizeToCompress = 4 * 1024 * 1024; // 4MB
+    useEffect(() => {
+      const tokenKey = `fileUploadToken_${sessionId}_${patient_data?.patient_unique_id}_${userId}`;
+      try {
+        const tokensObject = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
+        if (tokensObject) {
+          const parsedTokens = JSON.parse(tokensObject);
+          const storedToken = parsedTokens[tokenKey];
 
-    const fileArray = Array.from(files);
-
-    // Check file upload limit (5 files maximum)
-    const currentFileCount = isReupload
-      ? uploadedFiles.length
-      : uploadedFiles.length;
-    const newFileCount = isReupload ? 1 : fileArray.length;
-    const totalFileCount = isReupload
-      ? currentFileCount
-      : currentFileCount + newFileCount;
-
-    if (totalFileCount > 5) {
-      setIsFileLimitError(true);
-      return;
-    }
-
-    const newFiles = [];
-
-    for (const file of fileArray) {
-      // Validate file type
-      if (!file.type.match(/^(image|application\/pdf)/)) {
-        // Extract file extension from file name for better error message
-        const fileExtension = file.name.split(".").pop()?.toLowerCase();
-        setIsFileTypeError(`.${fileExtension}`);
-        continue;
-      }
-
-      // Validate file size (8MB limit)
-      if (file.size > maxFileSize) {
-        setIsFileSizeError(true);
-        continue;
-      }
-
-      if (file.type === "application/pdf") {
-        try {
-          const arrayBuffer = await file.arrayBuffer();
-          const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer })
-            .promise;
-          for (let i = 1; i <= pdfDoc.numPages; i++) {
-            const page = await pdfDoc.getPage(i);
-            const viewport = page.getViewport({ scale: 1.5 });
-
-            const canvas = document.createElement("canvas");
-            const context = canvas.getContext("2d");
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-
-            await page.render({ canvasContext: context, viewport }).promise;
-
-            const preview = canvas.toDataURL("image/png");
-
-            const fileObj = {
-              file,
-              name: `${file.name} - page ${i}`,
-              size: file.size,
-              type: file.type,
-              preview,
-              url: preview,
-              id: Date.now() + Math.random(),
-              rotation: 0,
-              crop: {
-                unit: "%",
-                x: 10,
-                y: 10,
-                width: 80,
-                height: 80,
-              },
-            };
-
-            newFiles.push(fileObj);
+          if (storedToken) {
+            if (storedToken.expiresIn > Date.now()) {
+              dispatch(setFileUploadToken(storedToken.value));
+            } else {
+              delete parsedTokens[tokenKey];
+              localStorage.setItem(
+                SNAP_RX_TOKENS_STORAGE_KEY,
+                JSON.stringify(parsedTokens)
+              );
+            }
+            return;
           }
-        } catch (err) {
-          console.error("Error rendering PDF:", err);
         }
-      } else {
-        const preview = URL.createObjectURL(file);
-
-        const fileObj = {
-          file,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          preview,
-          url: preview,
-          id: Date.now() + Math.random(),
-          rotation: 0,
-          crop: {
-            unit: "%",
-            x: 10,
-            y: 10,
-            width: 80,
-            height: 80,
-          },
-        };
-
-        newFiles.push(fileObj);
+      } catch (error) {
+        console.error("Error retrieving token from localStorage:", error);
       }
-    }
-
-    if (newFiles.length > 0) {
-      if (isReupload && reuploadIndex !== null) {
-        // For reupload, replace the file at the specified index
-        const updatedFiles = [...uploadedFiles];
-        updatedFiles[reuploadIndex] = newFiles[0];
-        setSelectedFiles(updatedFiles);
-        setUploadedFiles(updatedFiles);
-      } else {
-        // For add more or initial upload, append to existing files
-        setSelectedFiles((prev) => [...prev, ...newFiles]);
-        setUploadedFiles((prev) => [...prev, ...newFiles]);
+      if (
+        !fileUploadToken &&
+        userId &&
+        patient_data?.patient_unique_id &&
+        sessionId
+      ) {
+        dispatch(
+          generateFileUploadToken({
+            doctor_id: userId,
+            patient_unique_id: patient_data?.patient_unique_id,
+            session_id: sessionId,
+          })
+        );
       }
-      setIsPreviewOpen(true);
-    }
-  };
+    }, [userId, patient_data?.patient_unique_id, sessionId]);
 
-  const handleDrag = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    const files = e.dataTransfer.files;
-    handleFiles(files, false);
-  };
-
-  const handleFileSelect = (e) => {
-    handleFiles(e.target.files, false);
-  };
-
-  const handleUploadClick = () => {
-    // Check if we've reached the file limit before allowing uploads
-    if (uploadedFiles.length >= 5) {
+    const handleExceededFileLimit = () => {
       setIsFileLimitError(true);
-      return;
-    }
-    fileInputRef.current?.click();
-  };
-
-  const handleRemoveFile = (index) => {
-    const fileToRemove = selectedFiles[index];
-    if (fileToRemove?.preview) {
-      URL.revokeObjectURL(fileToRemove.preview);
-    }
-
-    const newFiles = selectedFiles.filter((_, i) => i !== index);
-    setSelectedFiles(newFiles);
-    setUploadedFiles(newFiles);
-
-    if (newFiles.length === 0) {
-      setIsPreviewOpen(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!fileUploadToken || !patient_data || !userId || !sessionId) {
-      return;
-    }
-    const qrData = {
-      type: "snap_rx_upload",
-      patientId: patient_data?.patient_unique_id,
-      doctorId: userId,
-      tcmId: tcmId || 0,
-      pamId: pamId || 0,
-      timestamp: new Date().toISOString(),
-      authToken: fileUploadToken || "",
-      patientName: patient_data?.pm_fullname,
-      patientGender: patient_data?.pm_gender,
-      patientAge: patient_data?.ageYears,
-      patientPhone: patient_data?.pm_contact_no,
-      sessionId,
-      autoDigitizeRx: profile?.userSettingFlag?.find(
-        (flag) => flag.type === "auto_digitize_rx"
-      )?.status,
     };
-    const encodedData = encodeURIComponent(JSON.stringify(qrData));
-    dispatch(
-      getShortLink(
-        `${window.location.origin}/snap-rx/mobile-upload/?uploadParams=${encodedData}`
-      )
-    );
-  }, [fileUploadToken, patient_data, userId, tcmId, pamId, sessionId, profile]);
 
-  const generateQRData = useCallback(() => {
-    if (!shortLink) {
-      return "";
-    }
-    console.log("INTEL ==> shortLink", shortLink); // TODO: remove this
-    return JSON.stringify({
-      uploadUrl: shortLink,
-    });
-  }, [shortLink]);
+    const handleFileSizeExceeded = () => {
+      setIsFileSizeError(true);
+    };
 
-  const handlePreviewClose = () => {
-    setIsPreviewOpen(false);
-  };
-
-  const handleReupload = (index) => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".pdf,.png,.jpg,.jpeg";
-
-    input.onchange = async (e) => {
-      const files = e.target.files;
+    const handleFiles = async (
+      files,
+      isReupload = false,
+      reuploadIndex = null
+    ) => {
+      // handle files
       if (!files || files.length === 0) return;
 
-      const file = files[0]; // Take only the first file for reupload
-
-      // Validate file type
-      if (!file.type.match(/^(image|application\/pdf)/)) {
-        const fileExtension = file.name.split(".").pop()?.toLowerCase();
-        setIsFileTypeError(`.${fileExtension}`);
+      const fileArray = Array.from(files);
+      const newFiles = [];
+      let isStoredFileUsed = false;
+      const totalFilesForValidation = [...fileArray, ...uploadedFiles];
+      if (
+        totalFilesForValidation.length > maxFileLimit &&
+        !storedFileIdToReplace
+      ) {
+        handleExceededFileLimit();
         return;
       }
-
-      // Validate file size
-      if (file.size > maxFileSize) {
-        setIsFileSizeError(true);
-        return;
-      }
-
-      try {
-        let newFiles = [];
-
-        if (file.type === "application/pdf") {
-          const arrayBuffer = await file.arrayBuffer();
-          const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer })
-            .promise;
-
-          // For reupload, we only take the first page of PDF
-          const page = await pdfDoc.getPage(1);
-          const viewport = page.getViewport({ scale: 1.5 });
-
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d");
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-
-          await page.render({ canvasContext: context, viewport }).promise;
-
-          const preview = canvas.toDataURL("image/png");
-
-          const fileObj = {
+      for (const file of fileArray) {
+        let compressedFile = file;
+        if (!file.type.match(/^(image|application\/pdf)/)) {
+          message.error(`${file.name} is not a valid file type`);
+          setIsFileTypeError(true);
+          continue;
+        }
+        if (compressedFile.size > minSizeToCompress) {
+          compressedFile = await compressFile(
             file,
-            name: `${file.name} - page 1`,
-            size: file.size,
-            type: file.type,
-            preview,
-            url: preview,
-            id: Date.now() + Math.random(),
-            rotation: 0,
-            crop: {
-              unit: "%",
-              x: 10,
-              y: 10,
-              width: 80,
-              height: 80,
-            },
-          };
+            maxFileSizeInMB,
+            compressionPercentage
+          );
+          if (compressedFile.size > maxFileSize) {
+            handleFileSizeExceeded();
+            return;
+          }
+        }
 
-          newFiles.push(fileObj);
+        if (compressedFile.type === "application/pdf") {
+          try {
+            const arrayBuffer = await compressedFile.arrayBuffer();
+            const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer })
+              .promise;
+            for (let i = 1; i <= pdfDoc.numPages; i++) {
+              const page = await pdfDoc.getPage(i);
+              const viewport = page.getViewport({ scale: 1 });
+              const maxSize = Math.max(viewport.width, viewport.height);
+
+              const canvas = document.createElement("canvas");
+              const context = canvas.getContext("2d");
+              canvas.width = maxSize;
+              canvas.height = maxSize;
+              context.fillStyle = "#fff";
+              context.fillRect(0, 0, canvas.width, canvas.height);
+
+              const offsetX = (canvas.width - viewport.width) / 2;
+              const offsetY = (canvas.height - viewport.height) / 2;
+
+              context.setTransform(1, 0, 0, 1, offsetX, offsetY);
+
+              await page.render({ canvasContext: context, viewport }).promise;
+
+              const preview = canvas.toDataURL("image/jpeg");
+
+              const fileObj = {
+                file: compressedFile,
+                name: `${file.name?.split(".")[0]} - page ${i}.jpeg`,
+                size: file.size,
+                type: "image/jpeg",
+                preview,
+                url: preview,
+                id:
+                  storedFileIdToReplace && !isStoredFileUsed
+                    ? storedFileIdToReplace
+                    : Date.now() + Math.random(),
+                rotation: 0,
+                crop: {
+                  unit: "%",
+                  x: 2,
+                  y: 2,
+                  width: 96,
+                  height: 96,
+                },
+              };
+
+              if (storedFileIdToReplace) {
+                isStoredFileUsed = true;
+              }
+
+              newFiles.push(fileObj);
+            }
+          } catch (err) {
+            console.error("Error rendering PDF:", err);
+          }
         } else {
-          const preview = URL.createObjectURL(file);
+          const preview = URL.createObjectURL(compressedFile);
 
           const fileObj = {
-            file,
+            file: compressedFile,
             name: file.name,
             size: file.size,
             type: file.type,
             preview,
             url: preview,
-            id: Date.now() + Math.random(),
+            id:
+              storedFileIdToReplace && !isStoredFileUsed
+                ? storedFileIdToReplace
+                : Date.now() + Math.random(),
             rotation: 0,
             crop: {
               unit: "%",
-              x: 10,
-              y: 10,
-              width: 80,
-              height: 80,
+              x: 2,
+              y: 2,
+              width: 96,
+              height: 96,
             },
           };
-
+          if (storedFileIdToReplace) {
+            isStoredFileUsed = true;
+          }
           newFiles.push(fileObj);
         }
-
-        // Update the files array with the new file at the specified index
-        const updatedFiles = [...uploadedFiles];
-        // Clean up old preview URL if it exists
-        if (updatedFiles[index]?.preview) {
-          URL.revokeObjectURL(updatedFiles[index].preview);
-        }
-        updatedFiles[index] = newFiles[0];
-
-        setSelectedFiles(updatedFiles);
-        setUploadedFiles(updatedFiles);
-      } catch (error) {
-        console.error("Error processing file:", error);
-        message.error("Failed to process file. Please try again.");
       }
-    };
 
-    input.click();
-  };
-
-  const handleAddMore = () => {
-    // Check if we've reached the file limit before allowing more uploads
-    if (uploadedFiles.length >= 5) {
-      setIsFileLimitError(true);
-      return;
-    }
-    // Always use the fileInputRef for adding more files
-    fileInputRef.current?.click();
-  };
-
-  const handleSave = (processedFiles) => {
-    if (onFileUpload) {
-      if (isUploadMoreDrawer) {
-        // For upload more drawer, pass the processed files to the parent component
-        onFileUpload(processedFiles || uploadedFiles);
-        setIsPreviewOpen(false);
-      } else {
-        // For regular upload, handle empty files case
-        if (Array.isArray(processedFiles) && processedFiles.length === 0) {
-          // Clear all files
-          setSelectedFiles([]);
-          setUploadedFiles([]);
-          setIsPreviewOpen(false);
+      if (newFiles.length > 0) {
+        if (!storedFileIdToReplace) {
+          const totalFiles = [...uploadedFiles, ...newFiles];
+          if (totalFiles.length > maxFileLimit) {
+            handleExceededFileLimit();
+            return;
+          }
+          handleUpdatedFiles(totalFiles);
         } else {
-          // Normal save operation
-          onFileUpload();
-          setIsPreviewOpen(false);
+          const finalFiles = uploadedFiles.map((file) => {
+            if (file.id === storedFileIdToReplace) {
+              return newFiles.find(
+                (newFile) => newFile.id === storedFileIdToReplace
+              );
+            }
+            return file;
+          });
+          finalFiles.push(
+            ...newFiles.filter(
+              (newFile) => newFile.id !== storedFileIdToReplace
+            )
+          );
+          if (finalFiles.length > maxFileLimit) {
+            handleExceededFileLimit();
+            return;
+          }
+          handleUpdatedFiles(finalFiles);
         }
-      }
-    } else {
-      setIsPreviewOpen(false);
-    }
-  };
-
-  // Function to clear files when drawer is closed without saving
-  const handleClearFiles = () => {
-    // Clean up preview URLs
-    uploadedFiles.forEach((file) => {
-      if (file.preview) {
-        URL.revokeObjectURL(file.preview);
-      }
-    });
-
-    // Clear all files
-    setSelectedFiles([]);
-    setUploadedFiles([]);
-    setIsPreviewOpen(false);
-  };
-
-  // Cleanup URLs on unmount
-  React.useEffect(() => {
-    return () => {
-      selectedFiles.forEach((file) => {
-        if (file.preview) {
-          URL.revokeObjectURL(file.preview);
+        if (storedFileIdToReplace) {
+          setStoredFileIdToReplace(null);
         }
-      });
+        handlePreviewOpen(true);
+      }
     };
-  }, []);
 
-  const [isFileSizeError, setIsFileSizeError] = useState(false);
-  const [isFileLimitError, setIsFileLimitError] = useState(false);
-  const [isFileTypeError, setIsFileTypeError] = useState(false);
-  const handleRetryBtn = () => {
-    // setFilesData([]);
-    setIsFileSizeError(false);
-    setIsFileLimitError(false);
-    setIsFileTypeError(false);
-  };
+    const handleDrag = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.type === "dragenter" || e.type === "dragover") {
+        setDragActive(true);
+      } else if (e.type === "dragleave") {
+        setDragActive(false);
+      }
+    };
 
-  return (
-    <>
-      <div
-        className={`upload-written-rx-container ${
-          isUploadMoreDrawer ? "p-0" : ""
-        }`}
-      >
+    const handleDrop = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(false);
+
+      const files = e.dataTransfer.files;
+      handleFiles(files, false);
+    };
+
+    const handleFileSelect = (e) => {
+      handleFiles(e.target.files, false);
+    };
+
+    const handleUploadClick = (file) => {
+      if (!isUploadMoreDrawer) {
+        handleUpdatedFiles([]);
+      }
+      fileInputRef.current?.click();
+    };
+
+    const handleFileEdit = (file) => {
+      handlePreviewOpen(true);
+    };
+
+    useImperativeHandle(ref, () => ({
+      handleUploadClick: (file) => {
+        handlePreviewOpen(true);
+      },
+      handleAddMore,
+      handleReupload,
+      handleRemoveFile,
+      handleRotateClick,
+      handleFileEdit,
+    }));
+
+    useEffect(() => {
+      if (!fileUploadToken || !patient_data || !userId || !sessionId) {
+        return;
+      }
+      const qrData = {
+        type: "snap_rx_upload",
+        patientId: patient_data?.patient_unique_id,
+        doctorId: userId,
+        tcmId: tcmId || 0,
+        pamId: pamId || 0,
+        timestamp: new Date().toISOString(),
+        authToken: fileUploadToken || "",
+        patientName: patient_data?.pm_fullname,
+        patientGender: patient_data?.pm_gender,
+        patientAge: patient_data?.ageYears,
+        patientPhone: patient_data?.pm_contact_no,
+        sessionId,
+        autoDigitizeRx: profile?.userSettingFlag?.find(
+          (flag) => flag.type === "auto_digitize_rx"
+        )?.status,
+      };
+      const encodedData = encodeURIComponent(JSON.stringify(qrData));
+      dispatch(
+        getShortLink(
+          `${window.location.origin}/snap-rx/mobile-upload/?uploadParams=${encodedData}`
+        )
+      );
+    }, [
+      fileUploadToken,
+      patient_data,
+      userId,
+      tcmId,
+      pamId,
+      sessionId,
+      profile,
+    ]);
+
+    const generateQRData = useCallback(() => {
+      if (!shortLink) {
+        return "";
+      }
+      return JSON.stringify({
+        uploadUrl: shortLink,
+      });
+    }, [shortLink]);
+
+    const handlePreviewClose = () => {
+      handlePreviewOpen(false);
+    };
+
+    const handleAddMore = () => {
+      if (uploadedFiles.length >= maxFileLimit) {
+        handleExceededFileLimit();
+        return;
+      }
+      setTimeout(() => {
+        fileInputRef.current?.click();
+      }, 100);
+      setStoredFileIdToReplace(null);
+      setIsAddMoreClicked(true);
+    };
+
+    const handleReupload = (fileId) => {
+      setTimeout(() => {
+        fileInputRef.current?.click();
+      }, 100);
+      if (fileId) {
+        setStoredFileIdToReplace(fileId);
+      }
+    };
+
+    const handleRemoveFile = async (
+      fileId,
+      showMessage = true,
+      isFileName = false
+    ) => {
+      const fileToRemove = isFileName
+        ? uploadedFiles?.find((file) => file.name === fileId)
+        : uploadedFiles?.find((file) => file.id === fileId);
+      if (fileToRemove?.preview) {
+        URL.revokeObjectURL(fileToRemove.preview);
+      }
+      const newFiles = uploadedFiles?.filter((file) =>
+        isFileName ? file.name !== fileId : file.id !== fileId
+      );
+      handleUpdatedFiles(newFiles);
+      if (newFiles.length === 0) {
+        handlePreviewOpen(false);
+      }
+
+      if (showMessage) {
+        message.info("File removed");
+      }
+    };
+
+    const handleRotateClick = (fileId) => {
+      const fileToRotate = uploadedFiles?.find((file) => file.id === fileId);
+      const newRotation = (fileToRotate.rotation + 90) % 360;
+      const newFiles = uploadedFiles?.map((file) => {
+        if (file.id === fileId) {
+          return { ...file, rotation: newRotation };
+        }
+        return file;
+      });
+      handleUpdatedFiles(newFiles);
+    };
+
+    const handleSave = (processedFiles) => {
+      // handle save
+    };
+
+    // Function to clear files when drawer is closed without saving
+    const handleClearFiles = () => {
+      // handle clear files
+    };
+
+    // Cleanup URLs on unmount
+    React.useEffect(() => {
+      return () => {
+        uploadedFiles.forEach((file) => {
+          if (file.preview) {
+            URL.revokeObjectURL(file.preview);
+          }
+        });
+      };
+    }, []);
+
+    const handleRetryBtn = () => {
+      setIsFileSizeError(false);
+      setIsFileLimitError(false);
+      setIsFileTypeError(false);
+    };
+
+    return (
+      <>
         <div
-          className={`upload-modal-content ${
-            isUploadMoreDrawer ? "border-0" : ""
+          className={`upload-written-rx-container ${isUploadMoreDrawer ? "p-0" : ""} ${
+            !isOpen ? "upload-written-rx-container-pos-abs" : ""
           }`}
         >
-          {/* Header */}
-          {!isUploadMoreDrawer && (
-            <div className="upload-header">
-              {showBackButton && (
-                <button className="back-button" onClick={onBack} type="button">
-                  ← Back to Files
-                </button>
-              )}
-              <h2 className="upload-title">Upload Written Rx</h2>
-            </div>
-          )}
-          <div style={{ padding: "1.4rem 2rem" }}>
-            {/* QR Code Section */}
-            <div className="qr-section">
-              <p className="qr-description">
-                Scan this QR to upload written prescription (Rx) directly
-                <br />
-                from your mobile device
-              </p>
-              <div className="qr-container">
-                <QRCodeGenerator data={generateQRData()} size={120} />
+          <div
+            className={`upload-modal-content ${
+              isUploadMoreDrawer ? "border-0" : ""
+            }`}
+          >
+            {/* Header */}
+            {!isUploadMoreDrawer && (
+              <div className="upload-header">
+                {showBackButton && (
+                  <button
+                    className="back-button"
+                    onClick={onBack}
+                    type="button"
+                  >
+                    ← Back to Files
+                  </button>
+                )}
+                <h2 className="upload-title">Upload Written Rx</h2>
               </div>
-              <div className="refresh-text">
-                <span className="refresh-link" onClick={fetchUploadedFiles}>
-                  Click on refresh
-                </span>
-                <span className="refresh-separator"> to view the document</span>
-              </div>
-            </div>
-
-            {/* OR Separator */}
-            <div className="or-separator">
-              <span>or</span>
-            </div>
-
-            {/* Upload Section */}
-            <div
-              className={`upload-section ${dragActive ? "drag-active" : ""}`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              <div className="upload-content">
-                <CloudUploadOutlined className="upload-icon" />
-                <div className="upload-text">
-                  <span className="upload-link" onClick={handleUploadClick}>
-                    Click to Upload
+            )}
+            <div style={{ padding: "1.4rem 2rem" }}>
+              {/* QR Code Section */}
+              <div className="qr-section">
+                <p className="qr-description">
+                  Scan this QR to upload written prescription (Rx) directly
+                  <br />
+                  from your mobile device
+                </p>
+                <div className="qr-container">
+                  <QRCodeGenerator data={generateQRData()} size={120} />
+                </div>
+                <div className="refresh-text">
+                  <span className="refresh-link" onClick={fetchUploadedFiles}>
+                    Click on refresh
                   </span>
-                  <span className="upload-separator"> or drag and drop</span>
+                  <span className="refresh-separator">
+                    {" "}
+                    to view the document
+                  </span>
                 </div>
               </div>
-              <p className="upload-description">
-                Upload the written prescription (Rx) in PDF, PNG, or JPG format
-              </p>
+
+              {/* OR Separator */}
+              <div className="or-separator">
+                <span>or</span>
+              </div>
+
+              {/* Upload Section */}
+              <div
+                className={`upload-section ${dragActive ? "drag-active" : ""}`}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+              >
+                <div className="upload-content">
+                  <CloudUploadOutlined className="upload-icon" />
+                  <div className="upload-text">
+                    <span className="upload-link" onClick={handleUploadClick}>
+                      Click to Upload
+                    </span>
+                    <span className="upload-separator"> or drag and drop</span>
+                  </div>
+                </div>
+                <p className="upload-description">
+                  Upload the written prescription (Rx) in PDF, PNG, or JPG
+                  format
+                </p>
+              </div>
             </div>
+
+            {/* Hidden File Input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept=".pdf,.png,.jpg,.jpeg"
+              onChange={handleFileSelect}
+              style={{ display: "none" }}
+            />
           </div>
-
-          {/* Hidden File Input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept=".pdf,.png,.jpg,.jpeg"
-            onChange={handleFileSelect}
-            style={{ display: "none" }}
-          />
         </div>
-      </div>
 
-      {/* Preview Drawer */}
-      <PreviewDrawer
-        isOpen={isPreviewOpen}
-        onClose={handlePreviewClose}
-        uploadedFiles={uploadedFiles}
-        onReupload={handleReupload}
-        onRemove={handleRemoveFile}
-        onAddMore={handleAddMore}
-        onSave={handleSave}
-        onClearFiles={handleClearFiles} // Pass the new function
-        isUploadMoreDrawer={isUploadMoreDrawer}
-      />
-
-      <FileUploadErrorModal
-        isFileSizeError={isFileSizeError}
-        isFileLimitError={isFileLimitError}
-        isFileTypeError={isFileTypeError}
-        onRetry={handleRetryBtn}
-      />
-    </>
-  );
-};
+        <FileUploadErrorModal
+          isFileSizeError={isFileSizeError}
+          isFileLimitError={isFileLimitError}
+          isFileTypeError={isFileTypeError}
+          onRetry={handleRetryBtn}
+        />
+      </>
+    );
+  }
+);
 
 export default UploadWrittenRx;

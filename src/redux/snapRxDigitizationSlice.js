@@ -1,6 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import SnapRxDigitization from "../api/services/SnapRxDigitization";
+import { SNAP_RX_TOKENS_STORAGE_KEY } from "../utils/constants";
+
+const TOKEN_EXPIRY_DURATION = 60 * 60 * 1000; // 1 hour
 
 const initialState = {
   loading: false,
@@ -73,7 +76,12 @@ export const getFilesOnMobile = createAsyncThunk(
       }
     } catch (error) {
       console.log("error: ", error);
-      throw Error(error);
+      const statusCode = error.response?.status;
+      if (statusCode === 401) {
+        throw Error(error.response?.data?.error || error.message);
+      } else {
+        throw Error(error.message);
+      }
     }
   }
 );
@@ -84,6 +92,12 @@ const snapRxDigitizationSlice = createSlice({
   reducers: {
     resetFileUploadToken: (state) => {
       state.fileUploadToken = null;
+    },
+    setUploadedFilesFromStore: (state, action) => {
+      state.uploadedFiles = action.payload;
+    },
+    setFileUploadToken: (state, action) => {
+      state.fileUploadToken = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -116,6 +130,28 @@ const snapRxDigitizationSlice = createSlice({
       .addCase(generateFileUploadToken.fulfilled, (state, action) => {
         state.loading = false;
         state.fileUploadToken = action.payload;
+        const { session_id, patient_unique_id, doctor_id } = action.meta.arg;
+        
+        const tokenKey = `fileUploadToken_${session_id}_${patient_unique_id}_${doctor_id}`;
+        const tokenData = {
+          value: action.payload,
+          timestamp: Date.now(),
+          expiresIn: Date.now() + TOKEN_EXPIRY_DURATION
+        };
+        
+        let tokensObject = {};
+        try {
+          const existingTokens = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
+          if (existingTokens) {
+            tokensObject = JSON.parse(existingTokens);
+          }
+        } catch (error) {
+          console.error('Error parsing existing tokens:', error);
+          tokensObject = {};
+        }
+        
+        tokensObject[tokenKey] = tokenData;
+        localStorage.setItem(SNAP_RX_TOKENS_STORAGE_KEY, JSON.stringify(tokensObject));
       })
       .addCase(generateFileUploadToken.rejected, (state, action) => {
         state.loading = false;
@@ -131,9 +167,10 @@ const snapRxDigitizationSlice = createSlice({
       .addCase(getFilesOnMobile.rejected, (state, action) => {
         state.uploadedFiles = [];
         state.loading = false;
+        state.error = action.error.message;
       });
   },
 });
 
-export const { resetFileUploadToken } = snapRxDigitizationSlice.actions;
+export const { resetFileUploadToken, setUploadedFilesFromStore, setFileUploadToken } = snapRxDigitizationSlice.actions;
 export default snapRxDigitizationSlice.reducer;
