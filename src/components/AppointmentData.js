@@ -530,7 +530,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
 
     // Conditionally add the Pending Digitisation tab
     if (
-      isSmartSyncCVTAccessableFromGB &&
+      (isSmartSyncCVTAccessableFromGB || isSnapRxAccessable) &&
       pendingDigitisation?.data?.length > 0
     ) {
       updatedItems.push({
@@ -583,6 +583,8 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     cancelledCount,
     appointmentsData,
     isZydusUserAccessableFromGB,
+    isSmartSyncCVTAccessableFromGB,
+    isSnapRxAccessable,
   ]);
 
   const [selectedTab, setSelectedTab] = useState(TAB_QUEUE);
