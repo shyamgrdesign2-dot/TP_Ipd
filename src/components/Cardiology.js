@@ -18,16 +18,29 @@ import notesicon from "../assets/images/notes.svg";
 import calenderBlank from "../assets/images/calenderBlank.svg";
 import followUp from "../assets/images/followup.svg";
 import smartPadGrey from "../assets/images/smartPadGrey.svg";
-import successIcon from '../assets/images/success-icon.svg';
-import vitalsIcon from '../assets/images/Vitals.svg';
-import medicalHistoryIcon from '../assets/images/Medical-History.svg';
+import successIcon from "../assets/images/success-icon.svg";
+import vitalsIcon from "../assets/images/Vitals.svg";
+import medicalHistoryIcon from "../assets/images/Medical-History.svg";
 import vaccinationIcon from "../assets/images/Vaccination.svg";
 import customModuleIcon from "../assets/images/custom-module.svg";
 
-import { EXTRA_OPTIONS, FETCH_SMART_RX, GB_ISCRIBE, GB_SMARTSYNC_CVT, PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import {
+  EXTRA_OPTIONS,
+  FETCH_SMART_RX,
+  GB_ISCRIBE,
+  GB_SMARTSYNC_CVT,
+  PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+} from "../utils/constants";
 import { EVENTS } from "../utils/events";
 
-import { capitalize, isNumeric, medicine_freq_format, isValidMongoId, medicine_freq_dosage_format, sendMessageToParent } from "../utils/utils";
+import {
+  capitalize,
+  isNumeric,
+  medicine_freq_format,
+  isValidMongoId,
+  medicine_freq_dosage_format,
+  sendMessageToParent,
+} from "../utils/utils";
 import { env } from "../EnvironmentConfig";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import CvtKnowMore from "../pages/smartSync/components/CvtKnowMore";
@@ -70,19 +83,15 @@ function Cardiology(props) {
   const [genRxData, setGenRxData] = useState(null);
   const [genRxQueries, setGenRxQueries] = useState(null);
 
-  const isSmartSyncAccessableFromGB = useFeatureIsOn(
-    GB_ISCRIBE
-  );
-  const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(
-    GB_SMARTSYNC_CVT
-  );
+  const isSmartSyncAccessableFromGB = useFeatureIsOn(GB_ISCRIBE);
+  const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(GB_SMARTSYNC_CVT);
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
   const baseUrlRxDigitise = env.rx_digitization;
 
   useEffect(() => {
     setSmartRxFile([]);
-    setShowDigitalRx(false)
+    setShowDigitalRx(false);
     if (viewCaseManagerData?.tcm_id) {
       fetchCustomModules();
       fetchData();
@@ -107,7 +116,7 @@ function Cardiology(props) {
     } else {
       setIsSmartRxFile(false);
     }
-    if(viewCaseManagerData?.moduleContents?.length) {
+    if (viewCaseManagerData?.moduleContents?.length) {
       dispatch(getModules(userId));
     }
     if (isValidMongoId(viewCaseManagerData?.smart_prescription_filename)) {
@@ -120,9 +129,9 @@ function Cardiology(props) {
     const urlObj = new URL(url);
 
     if (showDigitalRx) {
-        urlObj.searchParams.set('rxDigitize', 'true');
+      urlObj.searchParams.set("rxDigitize", "true");
     } else {
-        urlObj.searchParams.delete('rxDigitize');
+      urlObj.searchParams.delete("rxDigitize");
     }
 
     // setPrintUrl(urlObj.toString());
@@ -131,40 +140,48 @@ function Cardiology(props) {
 
   useEffect(() => {
     if (viewCaseManagerData?.print_url) {
-        setPrintUrl(viewCaseManagerData?.print_url)
-        // Only modify the URL if showDigitalRx is true, else keep printUrl unchanged
-        const updatedUrl = updateRxDigitizeInUrl(viewCaseManagerData?.print_url, showDigitalRx);
-        // setPreviewUrl(updatedUrl);
-        setPrintUrl(updatedUrl);
+      setPrintUrl(viewCaseManagerData?.print_url);
+      // Only modify the URL if showDigitalRx is true, else keep printUrl unchanged
+      const updatedUrl = updateRxDigitizeInUrl(
+        viewCaseManagerData?.print_url,
+        showDigitalRx
+      );
+      // setPreviewUrl(updatedUrl);
+      setPrintUrl(updatedUrl);
     }
   }, [showDigitalRx]);
 
   const fetchCustomModules = async () => {
     try {
-      if (!viewCaseManagerData?.doctor_data?.um_id || !viewCaseManagerData?.moduleContents?.length) {
+      if (
+        !viewCaseManagerData?.doctor_data?.um_id ||
+        !viewCaseManagerData?.moduleContents?.length
+      ) {
         setCustomModulesRxData([]);
         return;
       }
 
-      const response = await ApiCustomModule.getModules(viewCaseManagerData.doctor_data.um_id);
-      
-      const customModulesMap = new Map(
-        response?.modules?.map(module => [module.module_id, module.name])
+      const response = await ApiCustomModule.getModules(
+        viewCaseManagerData.doctor_data.um_id
       );
-      
+
+      const customModulesMap = new Map(
+        response?.modules?.map((module) => [module.module_id, module.name])
+      );
+
       const processedModules = viewCaseManagerData.moduleContents
-        .filter(module => module.content && module.content.length > 0)
-        .map(content => ({
+        .filter((module) => module.content && module.content.length > 0)
+        .map((content) => ({
           ...content,
-          module_name: customModulesMap.get(content.module_id)
+          module_name: customModulesMap.get(content.module_id),
         }));
-        
+
       setCustomModulesRxData(processedModules);
     } catch (error) {
       console.error("Error fetching custom modules:", error);
       setCustomModulesRxData([]);
     }
-  }
+  };
 
   const fetchData = async () => {
     const payload = {
@@ -172,11 +189,7 @@ function Cardiology(props) {
     };
     try {
       if (viewCaseManagerData?.smart_prescription_filename?.includes(".jpeg")) {
-        const response = await api.post(
-          FETCH_SMART_RX,
-          payload,
-          baseUrl
-        );
+        const response = await api.post(FETCH_SMART_RX, payload, baseUrl);
         if (response?.data?.length) {
           setSmartRxFile(response?.data);
         } else {
@@ -196,7 +209,9 @@ function Cardiology(props) {
 
       if (response.success) {
         setGenRxData(response.data?.editedData || response.data?.digitizeData);
-        setGenRxQueries(response.data?.history?.map(({ transcription }) => transcription))
+        setGenRxQueries(
+          response.data?.history?.map(({ transcription }) => transcription)
+        );
       } else {
         throw new Error(response.error || "Failed to get Rx");
       }
@@ -232,7 +247,7 @@ function Cardiology(props) {
   }
   async function printRxContent() {
     await window.open(viewCaseManagerData?.print_rx_url);
-  };
+  }
 
   const handleChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
@@ -241,8 +256,16 @@ function Cardiology(props) {
 
   const items = [
     {
-      label: <div onClick={() => !isChrome && !isSafari ? printRxInAppContent() : printRxContent()}>Print Medicines Only</div>,
-      key: 'printrx',
+      label: (
+        <div
+          onClick={() =>
+            !isChrome && !isSafari ? printRxInAppContent() : printRxContent()
+          }
+        >
+          Print Medicines Only
+        </div>
+      ),
+      key: "printrx",
     },
     // {
     //     label: 'Saved as a Template',
@@ -250,30 +273,34 @@ function Cardiology(props) {
     // }
   ];
 
-  const medicationData = viewCaseManagerData ? JSON.parse(JSON.stringify(viewCaseManagerData.medicine)) : []
+  const medicationData = viewCaseManagerData
+    ? JSON.parse(JSON.stringify(viewCaseManagerData.medicine))
+    : [];
 
   const innerMedication = (index) => {
-    const mainArray = []
+    const mainArray = [];
     for (var i = index; i < medicationData.length; i++) {
       if (medicationData[i].tmm_id == medicationData[index].tmm_id) {
-        mainArray.push(medicationData[i])
+        mainArray.push(medicationData[i]);
       } else {
         break;
       }
     }
-    return mainArray
-  }
-  var sNO = 1
+    return mainArray;
+  };
+  var sNO = 1;
   const columns = [
     {
       title: "S.NO",
       dataIndex: "rx",
       key: "rx",
       width: "40px",
-      className: 'rowspan-border-0',
+      className: "rowspan-border-0",
       render: (text, record, index) => (
         <div>
-          <span>{record?.tmm_id != medicationData[index - 1]?.tmm_id && sNO++}</span>
+          <span>
+            {record?.tmm_id != medicationData[index - 1]?.tmm_id && sNO++}
+          </span>
         </div>
       ),
       onCell: (record, index) => {
@@ -293,7 +320,7 @@ function Cardiology(props) {
       title: "MEDICINE",
       dataIndex: "name",
       key: "name",
-      className: 'rowspan-border-0',
+      className: "rowspan-border-0",
       render: (text, record) => (
         <div className="lh-base">
           <div className="fw-medium">{record.tmm_medicine_name}</div>
@@ -320,7 +347,29 @@ function Cardiology(props) {
       width: "110px",
       render: (text, record, index) => (
         <>
-          <div>{`${record.tmm_dosage && record.tmm_unit ? `${medicine_freq_dosage_format(record.tmm_dosage)} ${record?.medicineUnit && record?.medicineUnit.find((x) => x.tmu_id == record.tmm_unit) !== undefined ? record?.medicineUnit.find((x) => x.tmu_id == record.tmm_unit).tmu_title : ""}` : `${record?.medicineUnit && record?.medicineUnit.find((x) => x.tmu_id == record.default_tmm_unit) !== undefined ? record?.medicineUnit.find((x) => x.tmu_id == record.default_tmm_unit).tmu_title : ""}`}`}</div>
+          <div>{`${
+            record.tmm_dosage && record.tmm_unit
+              ? `${medicine_freq_dosage_format(record.tmm_dosage)} ${
+                  record?.medicineUnit &&
+                  record?.medicineUnit.find(
+                    (x) => x.tmu_id == record.tmm_unit
+                  ) !== undefined
+                    ? record?.medicineUnit.find(
+                        (x) => x.tmu_id == record.tmm_unit
+                      ).tmu_title
+                    : ""
+                }`
+              : `${
+                  record?.medicineUnit &&
+                  record?.medicineUnit.find(
+                    (x) => x.tmu_id == record.default_tmm_unit
+                  ) !== undefined
+                    ? record?.medicineUnit.find(
+                        (x) => x.tmu_id == record.default_tmm_unit
+                      ).tmu_title
+                    : ""
+                }`
+          }`}</div>
 
           {record?.tmm_id == medicationData[index - 1]?.tmm_id && (
             <div className="badge-then">Then</div>
@@ -335,31 +384,44 @@ function Cardiology(props) {
       render: (text, record) => (
         <div className="lh-base">
           {record.tmf_block == 0 || record.tmf_block == ""
-            ? `${record.tcm_tmm_freq_morning ||
-              record.tcm_tmm_freq_afternoon ||
-              record.tcm_tmm_freq_evening ||
-              record.tcm_tmm_freq_night
-              ? `${record.tcm_tmm_freq_morning
-                ? medicine_freq_dosage_format(record.tcm_tmm_freq_morning)
-                : 0
-              }-${record.tcm_tmm_freq_afternoon
-                ? medicine_freq_dosage_format(record.tcm_tmm_freq_afternoon)
-                : 0
-              }${record.tcm_tmm_freq_evening
-                ? "-" + medicine_freq_dosage_format(record.tcm_tmm_freq_evening)
-                : ""
-              }-${record.tcm_tmm_freq_night ?
-                medicine_freq_dosage_format(record.tcm_tmm_freq_night)
-                : 0
+            ? `${
+                record.tcm_tmm_freq_morning ||
+                record.tcm_tmm_freq_afternoon ||
+                record.tcm_tmm_freq_evening ||
+                record.tcm_tmm_freq_night
+                  ? `${
+                      record.tcm_tmm_freq_morning
+                        ? medicine_freq_dosage_format(
+                            record.tcm_tmm_freq_morning
+                          )
+                        : 0
+                    }-${
+                      record.tcm_tmm_freq_afternoon
+                        ? medicine_freq_dosage_format(
+                            record.tcm_tmm_freq_afternoon
+                          )
+                        : 0
+                    }${
+                      record.tcm_tmm_freq_evening
+                        ? "-" +
+                          medicine_freq_dosage_format(
+                            record.tcm_tmm_freq_evening
+                          )
+                        : ""
+                    }-${
+                      record.tcm_tmm_freq_night
+                        ? medicine_freq_dosage_format(record.tcm_tmm_freq_night)
+                        : 0
+                    }`
+                  : `-`
               }`
-              : `-`
-            }`
-            : `(${frequencyList.find((x) => x.tmf_id == record.tmm_freq_type) !==
-              undefined
-              ? frequencyList.find((x) => x.tmf_id == record.tmm_freq_type)
-                .tmf_title
-              : ""
-            })`}
+            : `(${
+                frequencyList.find((x) => x.tmf_id == record.tmm_freq_type) !==
+                undefined
+                  ? frequencyList.find((x) => x.tmf_id == record.tmm_freq_type)
+                      .tmf_title
+                  : ""
+              })`}
           <div>
             {timingList.find((x) => x.tmt_id == record.tmm_time) !== undefined
               ? timingList.find((x) => x.tmt_id == record.tmm_time).tmt_title
@@ -375,10 +437,11 @@ function Cardiology(props) {
       width: "82px",
       render: (text, record) => (
         <div>
-          {EXTRA_OPTIONS.some((x) => x.value == record.tmm_duration_type) ? capitalize(record.tmm_duration_type, true) :
-            isNumeric(record.tmm_days) ?
-              `${record.tmm_days} ${record.tmm_duration_type}`
-              : '-'}
+          {EXTRA_OPTIONS.some((x) => x.value == record.tmm_duration_type)
+            ? capitalize(record.tmm_duration_type, true)
+            : isNumeric(record.tmm_days)
+            ? `${record.tmm_days} ${record.tmm_duration_type}`
+            : "-"}
         </div>
       ),
     },
@@ -402,28 +465,26 @@ function Cardiology(props) {
   ];
 
   const printContent = async () => {
-    if (showDigitalRx){
+    if (showDigitalRx) {
       window.Moengage.track_event("TP_Digitised_Prescription_Print", {
         Doctor_Name: profile?.um_name,
         Doctor_Number: profile?.um_contact,
         Doctor_Unique_Id: profile?.doctor_unique_id,
       });
-      await window.open(printUrl)
-    }
-    else if(showDigitalGenRx && !isSmartRxFile) {
+      await window.open(printUrl);
+    } else if (showDigitalGenRx && !isSmartRxFile) {
       const urlObj = new URL(viewCaseManagerData?.print_url);
       urlObj.searchParams.set("voiceRxDigitize", "true");
       const updatedUrl = urlObj.toString();
       await window.open(updatedUrl);
-    }
-    else{
+    } else {
       await window.open(viewCaseManagerData?.print_rx_url);
     }
   };
 
   const printInAppContent = async () => {
     let voiceRxUrl;
-    if(showDigitalGenRx) {
+    if (showDigitalGenRx) {
       window.Moengage.track_event("TP_Digitised_Prescription_Print", {
         Doctor_Name: profile?.um_name,
         Doctor_Number: profile?.um_contact,
@@ -433,19 +494,23 @@ function Cardiology(props) {
       urlObj.searchParams.set("voiceRxDigitize", "true");
       voiceRxUrl = urlObj.toString();
     }
-    const printUrl = showDigitalGenRx && voiceRxUrl ? voiceRxUrl : viewCaseManagerData?.print_url;
+    const printUrl =
+      showDigitalGenRx && voiceRxUrl
+        ? voiceRxUrl
+        : viewCaseManagerData?.print_url;
     // sendMessageToParent(EVENTS.PRINT, { url: printUrl });
-    navigate(
-      `/patient_details/?url=${printUrl}&key=print`,
-      { replace: true, state: { patient_data: patient_data } }
-    );
+    navigate(`/patient_details/?url=${printUrl}&key=print`, {
+      replace: true,
+      state: { patient_data: patient_data },
+    });
     navigate(0, { replace: true });
   };
 
   const handleEditRxClick = () => {
     window.Moengage.track_event("edit_rx_click", {
       doctor_id: profile?.doctor_unique_id,
-      patient_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
+      patient_id:
+        patient_data !== undefined ? patient_data.patient_unique_id : 0,
       rx_date: viewCaseManagerData?.consultation_date,
     });
 
@@ -471,14 +536,17 @@ function Cardiology(props) {
   const fetchRxDigitisedData = async (caseId) => {
     try {
       const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-      const cleanedToken = token.replace(/['"]+/g, '');
+      const cleanedToken = token.replace(/['"]+/g, "");
 
       // API call for Rx Digitisation
-      const response = await axios.get(`${baseUrlRxDigitise}/api/v1/rxdigitize/rx/${caseId}`, {
-        headers: {
-          'Authorization': `Bearer ${cleanedToken}`,
-        },
-      });
+      const response = await axios.get(
+        `${baseUrlRxDigitise}/api/v1/rxdigitize/rx/${caseId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${cleanedToken}`,
+          },
+        }
+      );
       if (response?.data?.data) {
         setRxDigitisedData(response?.data?.data);
         if (response?.data?.data?.isDigitize) {
@@ -486,13 +554,13 @@ function Cardiology(props) {
         } else {
           setIsRxdigitised(false);
         }
-      } else{
+      } else {
         setRxDigitisedData(null);
       }
 
       return response.data; // return the data after it's fetched
     } catch (error) {
-      console.error('Error digitizing the prescription:', error);
+      console.error("Error digitizing the prescription:", error);
       return null;
     }
   };
@@ -506,10 +574,10 @@ function Cardiology(props) {
         print_url: viewCaseManagerData?.print_rx_url,
         pam_id: patient_data?.pam_id,
         digitisedData: rxDigitisedData,
-        page:"patient-summary",
-        type:"new"
+        page: "patient-summary",
+        type: "new",
       },
-    })
+    });
   };
 
   // Render items for each type (medications, tests, etc.)
@@ -533,7 +601,7 @@ function Cardiology(props) {
                 </div>
               </li>
             ))}
-  
+
         {/* Handle other types (assume they are arrays) */}
         {type !== "vitals" &&
           Array.isArray(rxDigitisedData?.editedData?.[type]) &&
@@ -542,27 +610,26 @@ function Cardiology(props) {
               <div className="medicine-item">
                 <span>
                   {/* Render dynamically based on type */}
-                  {
-                    type === "advice"
-                      ? item
-                      : (type === "symptoms" && item?.name?.length > 0)
-                      ? item.name[0]?.toUpperCase() + item.name?.slice(1)
-                      : (type === "medications" || type === "tests")
-                      ? item?.refinedName
-                      : item?.name
-                  }
+                  {type === "advice"
+                    ? item
+                    : type === "symptoms" && item?.name?.length > 0
+                    ? item.name[0]?.toUpperCase() + item.name?.slice(1)
+                    : type === "medications" || type === "tests"
+                    ? item?.refinedName
+                    : item?.name}
                 </span>
-  
+
                 {/* Optional rendering for lineItem */}
-                {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "tests" || type === "symptoms") && item.lineItem && (
-                  <span>{` (${item.lineItem})`}</span>
-                )}
-  
+                {(type === "medications" ||
+                  type === "vaccinations" ||
+                  type === "medicalHistory" ||
+                  type === "tests" ||
+                  type === "symptoms") &&
+                  item.lineItem && <span>{` (${item.lineItem})`}</span>}
+
                 {/* Optional rendering for notes */}
                 {(type === "examination" || type === "diagnosis") &&
-                  item.notes && (
-                    <span>{` (${item.notes})`}</span>
-                  )}
+                  item.notes && <span>{` (${item.notes})`}</span>}
               </div>
             </li>
           ))}
@@ -573,13 +640,11 @@ function Cardiology(props) {
   const renderGenRxItems = (type) => (
     <div className="digitised-data-section" style={{ marginLeft: 0 }}>
       <ol>
-        {type === "followUp" && genRxData?.followUp &&
+        {type === "followUp" && genRxData?.followUp && (
           <div className="medicine-item">
-            <span>
-              {genRxData?.followUp}
-            </span>
+            <span>{genRxData?.followUp}</span>
           </div>
-        }
+        )}
         {/* Handle vitals type separately */}
         {type === "vitalsAndBodyComposition" &&
           Object.entries(genRxData?.vitalsAndBodyComposition || {})
@@ -597,21 +662,24 @@ function Cardiology(props) {
                 </div>
               </li>
             ))}
-  
+
         {/* Handle other types (assume they are arrays) */}
         {type !== "vitalsAndBodyComposition" &&
           Array.isArray(genRxData?.[type]) &&
           genRxData?.[type].map((item, index) => (
             <li key={index}>
               <div className="medicine-item">
-                {["advice", "others"].includes(type) && (
-                  <span>{item}</span>
-                )}
-  
+                {["advice", "others"].includes(type) && <span>{item}</span>}
+
                 {/* Optional rendering for lineItem */}
-                {(type === "medications" || type === "vaccinations" || type === "medicalHistory" || type === "labInvestigation" || type === "symptoms" || type === "examinations" || type === "diagnosis") && item.lineItem && (
-                  <span>{item.lineItem}</span>
-                )}
+                {(type === "medications" ||
+                  type === "vaccinations" ||
+                  type === "medicalHistory" ||
+                  type === "labInvestigation" ||
+                  type === "symptoms" ||
+                  type === "examinations" ||
+                  type === "diagnosis") &&
+                  item.lineItem && <span>{item.lineItem}</span>}
               </div>
             </li>
           ))}
@@ -619,54 +687,55 @@ function Cardiology(props) {
     </div>
   );
 
-  const renderGenRxCustomModules = () => (
-     Object.entries(genRxData?.dynamicFields || {}).map(
-      ([module, data]) => {
-        return Array.isArray(data) && data?.every((item) => typeof item === "string") && (
-            <>
-              <div className="d-flex align-items-start">
-                  <div className="title-digitise-section mb-1">{module
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())}</div>
+  const renderGenRxCustomModules = () =>
+    Object.entries(genRxData?.dynamicFields || {}).map(([module, data]) => {
+      return (
+        Array.isArray(data) &&
+        data?.every((item) => typeof item === "string") && (
+          <>
+            <div className="d-flex align-items-start">
+              <div className="title-digitise-section mb-1">
+                {module
+                  .replace(/([A-Z])/g, " $1")
+                  .replace(/^./, (str) => str.toUpperCase())}
               </div>
-              <div className="digitised-data-section" style={{ marginLeft: 0 }}>
-                <ol>
-                  {
-                    data.map((value,index) => (
-                        <li key={index}>
-                          <div className="medicine-item">
-                            <span>
-                              {value}
-                            </span>
-                          </div>
-                        </li>
-                      ))}
-                </ol>
-              </div>
-            </>
+            </div>
+            <div className="digitised-data-section" style={{ marginLeft: 0 }}>
+              <ol>
+                {data.map((value, index) => (
+                  <li key={index}>
+                    <div className="medicine-item">
+                      <span>{value}</span>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </>
         )
-}));
+      );
+    });
 
   // Add this helper function at the top of the component
   const hasValidContent = (data, type) => {
     if (!data?.[type] || !Array.isArray(data[type])) return false;
-    
-    return data[type].some(item => {
-      if (typeof item === 'string') return item.trim().length > 0;
-      
+
+    return data[type].some((item) => {
+      if (typeof item === "string") return item.trim().length > 0;
+
       // For object types, check if any relevant fields have content
       const relevantFields = {
-        medications: ['refinedName', 'lineItem'],
-        symptoms: ['name', 'lineItem'],
-        examination: ['name', 'notes'],
-        diagnosis: ['name', 'notes'],
-        medicalHistory: ['name', 'lineItem'],
-        vaccinations: ['name', 'lineItem'],
-        tests: ['refinedName', 'lineItem']
+        medications: ["refinedName", "lineItem"],
+        symptoms: ["name", "lineItem"],
+        examination: ["name", "notes"],
+        diagnosis: ["name", "notes"],
+        medicalHistory: ["name", "lineItem"],
+        vaccinations: ["name", "lineItem"],
+        tests: ["refinedName", "lineItem"],
       };
 
-      const fieldsToCheck = relevantFields[type] || ['name'];
-      return fieldsToCheck.some(field => item[field]?.trim?.().length > 0);
+      const fieldsToCheck = relevantFields[type] || ["name"];
+      return fieldsToCheck.some((field) => item[field]?.trim?.().length > 0);
     });
   };
 
@@ -689,8 +758,8 @@ function Cardiology(props) {
                     onClick={nextPress}
                     disabled={
                       !loading &&
-                        tcmData.page > 1 &&
-                        viewCaseManagerData?.next_tcm_id
+                      tcmData.page > 1 &&
+                      viewCaseManagerData?.next_tcm_id
                         ? false
                         : true
                     }
@@ -703,8 +772,8 @@ function Cardiology(props) {
                     onClick={prevPress}
                     disabled={
                       !loading &&
-                        tcmData.page < viewCaseManagerData?.total_consultation &&
-                        viewCaseManagerData?.prev_tcm_id
+                      tcmData.page < viewCaseManagerData?.total_consultation &&
+                      viewCaseManagerData?.prev_tcm_id
                         ? false
                         : true
                     }
@@ -719,7 +788,11 @@ function Cardiology(props) {
                   <button
                     className="btn p-0 ms-3"
                     style={{
-                      visibility: viewCaseManagerData?.doctor_data?.editCase && !(isSmartRxFile && isMobile) ? "visible" : "hidden",
+                      visibility:
+                        viewCaseManagerData?.doctor_data?.editCase &&
+                        !(isSmartRxFile && isMobile)
+                          ? "visible"
+                          : "hidden",
                     }}
                     onClick={handleEditRxClick}
                   >
@@ -733,37 +806,57 @@ function Cardiology(props) {
                         : printContent()
                     }
                     style={{
-                      visibility: !showDigitalGenRx && isValidMongoId(viewCaseManagerData?.smart_prescription_filename) ? "hidden" : "visible",
+                      visibility:
+                        !showDigitalGenRx &&
+                        isValidMongoId(
+                          viewCaseManagerData?.smart_prescription_filename
+                        )
+                          ? "hidden"
+                          : "visible",
                     }}
                   >
                     <i className="icon-Print"></i>
                   </button>
-                  {!isSmartRxFile && !isValidMongoId(viewCaseManagerData?.smart_prescription_filename) &&
-                    <Dropdown
-                      className="btn btn-outline btn-more ms-1"
-                      menu={{ items }}
-                      trigger={["click"]}
-                    >
-                      <a onClick={(e) => e.preventDefault()}>
-                        <i className="icon-More"></i>
-                      </a>
-                    </Dropdown>
-                  }
+                  {!isSmartRxFile &&
+                    !isValidMongoId(
+                      viewCaseManagerData?.smart_prescription_filename
+                    ) && (
+                      <Dropdown
+                        className="btn btn-outline btn-more ms-1"
+                        menu={{ items }}
+                        trigger={["click"]}
+                      >
+                        <a onClick={(e) => e.preventDefault()}>
+                          <i className="icon-More"></i>
+                        </a>
+                      </Dropdown>
+                    )}
                 </div>
               </div>
             </Card.Header>
 
-            { isSmartSyncCVTAccessableFromGB && isSmartRxFile && viewCaseManagerData?.smart_prescription_filename?.length > 0 && rxDigitisedData && (
-              isRxdigitised ? (
+            {isSmartSyncCVTAccessableFromGB &&
+              isSmartRxFile &&
+              viewCaseManagerData?.smart_prescription_filename?.length > 0 &&
+              rxDigitisedData &&
+              (isRxdigitised ? (
                 <div className="p-2 mb-2">
                   <button
-                    className={`digital-btn ${!showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`}
+                    className={`digital-btn ${
+                      !showDigitalRx
+                        ? "digitise-toggle-btn"
+                        : "active-digitise-toggle-btn"
+                    }`}
                     onClick={() => setShowDigitalRx(true)}
                   >
                     Digital Rx
                   </button>
                   <button
-                    className={`written-btn ${showDigitalRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`}
+                    className={`written-btn ${
+                      showDigitalRx
+                        ? "digitise-toggle-btn"
+                        : "active-digitise-toggle-btn"
+                    }`}
                     onClick={() => setShowDigitalRx(false)}
                   >
                     Written Rx
@@ -772,13 +865,22 @@ function Cardiology(props) {
               ) : (
                 rxDigitisedData?.ocrData && (
                   <div className="digitise-info-cardiology">
-                    <img src={successIcon} alt="success" width="40px" height="40px" />
+                    <img
+                      src={successIcon}
+                      alt="success"
+                      width="40px"
+                      height="40px"
+                    />
                     <p>
                       <span className="digitise-info-header-cardiology">
                         {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
                       </span>
-                      Digitise Rx to enhance patient care, workflow efficiency, and revenue.
-                      <button className="know-more-btn" onClick={handleDrawerCvtKnowMore}>
+                      Digitise Rx to enhance patient care, workflow efficiency,
+                      and revenue.
+                      <button
+                        className="know-more-btn"
+                        onClick={handleDrawerCvtKnowMore}
+                      >
                         <span
                           style={{
                             fontSize: "14px",
@@ -791,30 +893,45 @@ function Cardiology(props) {
                         </span>
                       </button>
                     </p>
-                    <button className="digitise-info-btn-cardiology" onClick={handleDigitiseRx}>
+                    <button
+                      className="digitise-info-btn-cardiology"
+                      onClick={handleDigitiseRx}
+                    >
                       Digitise Rx Now
                     </button>
                   </div>
                 )
-              )
-            )}
+              ))}
 
-            {genRxData && isValidMongoId(viewCaseManagerData?.smart_prescription_filename) && !isSmartRxFile && !loading && (
+            {genRxData &&
+              isValidMongoId(
+                viewCaseManagerData?.smart_prescription_filename
+              ) &&
+              !isSmartRxFile &&
+              !loading && (
                 <div className="p-2 m-2">
                   <button
-                    className={`digital-btn ${!showDigitalGenRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`}
+                    className={`digital-btn ${
+                      !showDigitalGenRx
+                        ? "digitise-toggle-btn"
+                        : "active-digitise-toggle-btn"
+                    }`}
                     onClick={() => setShowDigitalGenRx(true)}
                   >
                     Digital Rx
                   </button>
                   <button
-                    className={`written-btn ${showDigitalGenRx ? "digitise-toggle-btn" : "active-digitise-toggle-btn"}`}
+                    className={`written-btn ${
+                      showDigitalGenRx
+                        ? "digitise-toggle-btn"
+                        : "active-digitise-toggle-btn"
+                    }`}
                     onClick={() => setShowDigitalGenRx(false)}
                   >
                     Transcript
                   </button>
                 </div>
-            )}
+              )}
             <Drawer
               closeIcon={false}
               // placement="right"
@@ -828,487 +945,629 @@ function Cardiology(props) {
                 handleCollapsed={(flag) => handleCollapsed(flag)}
               />
             </Drawer>
-            {
-              loading ? (
-                <div
-                  className="d-flex flex-column justify-content-center"
-                  style={{ height: "calc(100vh - 218px)" }}
-                >
-                  <div className="align-items-center text-center">
-                    <Spin />
-                  </div>
+            {loading ? (
+              <div
+                className="d-flex flex-column justify-content-center"
+                style={{ height: "calc(100vh - 218px)" }}
+              >
+                <div className="align-items-center text-center">
+                  <Spin />
                 </div>
-              ) :
-              genRxData && isValidMongoId(viewCaseManagerData?.smart_prescription_filename) && !isSmartRxFile ? 
+              </div>
+            ) : genRxData &&
+              isValidMongoId(
+                viewCaseManagerData?.smart_prescription_filename
+              ) &&
+              !isSmartRxFile ? (
               <div>
-                    {showDigitalGenRx ? (
-                      <div className="m-4">
-                        {genRxData?.vitalsAndBodyComposition && Object.values(genRxData?.vitalsAndBodyComposition).some((value) => value) && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <div className="title-digitise-section mb-1">Vitals and Body compositions</div>
-                            </div>
-                            {renderGenRxItems('vitalsAndBodyComposition')}
-                          </>
-                        )}
-
-                        {genRxData?.medicalHistory && genRxData?.medicalHistory.length > 0 && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <div className="title-digitise-section mb-1">Medical History</div>
-                            </div>
-                            {renderGenRxItems('medicalHistory')}
-                          </>
-                        )}
-
-                        {genRxData?.symptoms && genRxData?.symptoms.length > 0 && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <div className="title-digitise-section mb-1">Symptoms</div>
-                            </div>
-                            {renderGenRxItems('symptoms')}
-                          </>
-                        )}
-
-                        {genRxData?.examinations && genRxData?.examinations.length > 0 && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <div className="title-digitise-section mb-1">Examinations</div>
-                            </div>
-                            {renderGenRxItems('examinations')}
-                          </>
-                        )}
-
-                        {genRxData?.diagnosis && genRxData?.diagnosis.length > 0 && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <div className="title-digitise-section mb-1">Diagnosis</div>
-                            </div>
-                            {renderGenRxItems('diagnosis')}
-                          </>
-                        )}
-
-                        {genRxData?.medications && genRxData?.medications.length > 0 && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <div className="title-digitise-section mb-1">Medication</div>
-                            </div>
-                            {renderGenRxItems('medications')}
-                          </>
-                        )}
-
-                        {genRxData?.labInvestigation && genRxData?.labInvestigation.length > 0 && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <div className="title-digitise-section mb-1">Lab Investigation</div>
-                            </div>
-                            {renderGenRxItems('labInvestigation')}
-                          </>
-                        )}
-
-                        {genRxData?.advice && genRxData?.advice.length > 0 && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <div className="title-digitise-section mb-1">Advices</div>
-                            </div>
-                            {renderGenRxItems('advice')}
-                          </>
-                        )}
-                        
-                        {genRxData?.vaccinations && genRxData?.vaccinations.length > 0 && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <div className="title-digitise-section mb-1">Vaccination</div>
-                            </div>
-                            {renderGenRxItems('vaccinations')}
-                          </>
-                        )}
-                        {genRxData?.others && genRxData.others.length > 0 && (
-                          <>
-                            <div className="d-flex align-items-start">
-                                <div className="title-digitise-section mb-1">Others</div>
-                            </div>
-                            {renderGenRxItems("others")}
-                          </>
-                        )}
-                        {genRxData.dynamicFields && renderGenRxCustomModules()}
-                        {genRxData?.followUp && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <div className="title-digitise-section mb-1">Follow Up</div>
-                            </div>
-                            {renderGenRxItems('followUp')}
-                          </>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="m-4">
-                        {genRxQueries?.map((query,index) => <div key={index} className="gen-rx-transcript">
-                          {query}
-                        </div>)}
-                      </div>
-                    )
-                    }
-                  </div > :
-                isSmartRxFile ? (
-                  <div>
-                    {isRxdigitised && showDigitalRx ? (
-                      <div className="m-4">
-                        {rxDigitisedData?.editedData?.vitals && 
-                         Object.values(rxDigitisedData?.editedData?.vitals).some(value => value?.trim?.().length > 0) && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <img className="me-2" src={vitalsIcon} alt="Vitals" />
-                              <div className="title-digitise-section mb-1">Vitals and Body compositions</div>
-                            </div>
-                            {renderItems('vitals')}
-                          </>
-                        )}
-
-                        {rxDigitisedData?.editedData?.medicalHistory && 
-                         hasValidContent(rxDigitisedData.editedData, 'medicalHistory') && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <img className="me-2" src={medicalHistoryIcon} alt="MedicalHistory" />
-                              <div className="title-digitise-section mb-1">Medical History</div>
-                            </div>
-                            {renderItems('medicalHistory')}
-                          </>
-                        )}
-
-                        {rxDigitisedData?.editedData?.symptoms && 
-                         hasValidContent(rxDigitisedData.editedData, 'symptoms') && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <img className="me-2" src={Symptomsicon} alt="Symptoms" />
-                              <div className="title-digitise-section mb-1">Symptoms</div>
-                            </div>
-                            {renderItems('symptoms')}
-                          </>
-                        )}
-
-                        {rxDigitisedData?.editedData?.examination && 
-                         hasValidContent(rxDigitisedData.editedData, 'examination') && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <img className="me-2" src={Examinationsicon} alt="Examination" />
-                              <div className="title-digitise-section mb-1">Examinations</div>
-                            </div>
-                            {renderItems('examination')}
-                          </>
-                        )}
-
-                        {rxDigitisedData?.editedData?.diagnosis && 
-                         hasValidContent(rxDigitisedData.editedData, 'diagnosis') && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <img className="me-2" src={Diagnosisicon} alt="Diagnosis" />
-                              <div className="title-digitise-section mb-1">Diagnosis</div>
-                            </div>
-                            {renderItems('diagnosis')}
-                          </>
-                        )}
-
-                        {rxDigitisedData?.editedData?.medications && 
-                         hasValidContent(rxDigitisedData.editedData, 'medications') && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <img className="me-2" src={Medicationicon} alt="Medications" />
-                              <div className="title-digitise-section mb-1">Medication</div>
-                            </div>
-                            {renderItems('medications')}
-                          </>
-                        )}
-
-                        {rxDigitisedData?.editedData?.tests && 
-                         hasValidContent(rxDigitisedData.editedData, 'tests') && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <img className="me-2" src={Investigationicon} alt="Tests" />
-                              <div className="title-digitise-section mb-1">Lab Investigation</div>
-                            </div>
-                            {renderItems('tests')}
-                          </>
-                        )}
-
-                        {rxDigitisedData?.editedData?.advice && 
-                         hasValidContent(rxDigitisedData.editedData, 'advice') && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <img className="me-2" src={Frameicon} alt="Advice" />
-                              <div className="title-digitise-section mb-1">Advices</div>
-                            </div>
-                            {renderItems('advice')}
-                          </>
-                        )}
-                        
-                        {rxDigitisedData?.editedData?.vaccinations && 
-                         hasValidContent(rxDigitisedData.editedData, 'vaccinations') && (
-                          <>
-                            <div className="d-flex align-items-start">
-                              <img className="me-2" src={vaccinationIcon} alt="vaccinations" />
-                              <div className="title-digitise-section mb-1">Vaccinations</div>
-                            </div>
-                            {renderItems('vaccinations')}
-                          </>
-                        )}
-                      </div>
-                    ) : (
-                      <>
-                        {smartRxFile?.length > 0 &&
-                          smartRxFile?.map(({ smart_prescription_file }) => (
-                            <div style={{ padding: "5px" }}>
-                              {smart_prescription_file && (
-                                <img
-                                  src={smart_prescription_file}
-                                  alt="Smart Rx"
-                                  width="100%"
-                                  height="660px"
-                                />
-                              )}
-                            </div>
-                          ))}
-                      </>
-                    )
-                    }
-                    <div className={`d-flex align-items-center mb-14 ${viewCaseManagerData?.follow_up_date ? "follow-up-detailsPage" : ""}`}>
-                      {viewCaseManagerData?.follow_up_date && (
+                {showDigitalGenRx ? (
+                  <div className="m-4">
+                    {genRxData?.vitalsAndBodyComposition &&
+                      Object.values(genRxData?.vitalsAndBodyComposition).some(
+                        (value) => value
+                      ) && (
                         <>
-                          <img className="me-3" src={followUp} alt="Symptoms" />
-                          <div className="title-common">Follow-up:</div>
-                          <div className="follow-up-date-text">
-                            {viewCaseManagerData?.follow_up_date
-                              ? moment(viewCaseManagerData.follow_up_date).format("DD/MM/YYYY")
-                              : ""}
+                          <div className="d-flex align-items-start">
+                            <div className="title-digitise-section mb-1">
+                              Vitals and Body compositions
+                            </div>
                           </div>
+                          {renderGenRxItems("vitalsAndBodyComposition")}
                         </>
                       )}
-                    </div>
-                  </div >
+
+                    {genRxData?.medicalHistory &&
+                      genRxData?.medicalHistory.length > 0 && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <div className="title-digitise-section mb-1">
+                              Medical History
+                            </div>
+                          </div>
+                          {renderGenRxItems("medicalHistory")}
+                        </>
+                      )}
+
+                    {genRxData?.symptoms && genRxData?.symptoms.length > 0 && (
+                      <>
+                        <div className="d-flex align-items-start">
+                          <div className="title-digitise-section mb-1">
+                            Symptoms
+                          </div>
+                        </div>
+                        {renderGenRxItems("symptoms")}
+                      </>
+                    )}
+
+                    {genRxData?.examinations &&
+                      genRxData?.examinations.length > 0 && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <div className="title-digitise-section mb-1">
+                              Examinations
+                            </div>
+                          </div>
+                          {renderGenRxItems("examinations")}
+                        </>
+                      )}
+
+                    {genRxData?.diagnosis &&
+                      genRxData?.diagnosis.length > 0 && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <div className="title-digitise-section mb-1">
+                              Diagnosis
+                            </div>
+                          </div>
+                          {renderGenRxItems("diagnosis")}
+                        </>
+                      )}
+
+                    {genRxData?.medications &&
+                      genRxData?.medications.length > 0 && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <div className="title-digitise-section mb-1">
+                              Medication
+                            </div>
+                          </div>
+                          {renderGenRxItems("medications")}
+                        </>
+                      )}
+
+                    {genRxData?.labInvestigation &&
+                      genRxData?.labInvestigation.length > 0 && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <div className="title-digitise-section mb-1">
+                              Lab Investigation
+                            </div>
+                          </div>
+                          {renderGenRxItems("labInvestigation")}
+                        </>
+                      )}
+
+                    {genRxData?.advice && genRxData?.advice.length > 0 && (
+                      <>
+                        <div className="d-flex align-items-start">
+                          <div className="title-digitise-section mb-1">
+                            Advices
+                          </div>
+                        </div>
+                        {renderGenRxItems("advice")}
+                      </>
+                    )}
+
+                    {genRxData?.vaccinations &&
+                      genRxData?.vaccinations.length > 0 && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <div className="title-digitise-section mb-1">
+                              Vaccination
+                            </div>
+                          </div>
+                          {renderGenRxItems("vaccinations")}
+                        </>
+                      )}
+                    {genRxData?.others && genRxData.others.length > 0 && (
+                      <>
+                        <div className="d-flex align-items-start">
+                          <div className="title-digitise-section mb-1">
+                            Others
+                          </div>
+                        </div>
+                        {renderGenRxItems("others")}
+                      </>
+                    )}
+                    {genRxData.dynamicFields && renderGenRxCustomModules()}
+                    {genRxData?.followUp && (
+                      <>
+                        <div className="d-flex align-items-start">
+                          <div className="title-digitise-section mb-1">
+                            Follow Up
+                          </div>
+                        </div>
+                        {renderGenRxItems("followUp")}
+                      </>
+                    )}
+                  </div>
                 ) : (
-                  <Card.Body className="p-0 cardbody-data">
-                    <div>
-                      <div className="p-3 pb-0">
-                        {viewCaseManagerData.symptoms.length > 0 && (
-                          <div className="d-flex align-items-start mb-4">
+                  <div className="m-4">
+                    {genRxQueries?.map((query, index) => (
+                      <div key={index} className="gen-rx-transcript">
+                        {query}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : isSmartRxFile ? (
+              <div>
+                {isRxdigitised && showDigitalRx ? (
+                  <div className="m-4">
+                    {rxDigitisedData?.editedData?.vitals &&
+                      Object.values(rxDigitisedData?.editedData?.vitals).some(
+                        (value) => value?.trim?.().length > 0
+                      ) && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={vitalsIcon}
+                              alt="Vitals"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Vitals and Body compositions
+                            </div>
+                          </div>
+                          {renderItems("vitals")}
+                        </>
+                      )}
+
+                    {rxDigitisedData?.editedData?.medicalHistory &&
+                      hasValidContent(
+                        rxDigitisedData.editedData,
+                        "medicalHistory"
+                      ) && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={medicalHistoryIcon}
+                              alt="MedicalHistory"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Medical History
+                            </div>
+                          </div>
+                          {renderItems("medicalHistory")}
+                        </>
+                      )}
+
+                    {rxDigitisedData?.editedData?.symptoms &&
+                      hasValidContent(
+                        rxDigitisedData.editedData,
+                        "symptoms"
+                      ) && (
+                        <>
+                          <div className="d-flex align-items-start">
                             <img
                               className="me-2"
                               src={Symptomsicon}
                               alt="Symptoms"
                             />
-                            <div>
-                              <div className="title">Symptoms</div>
-                              {viewCaseManagerData.symptoms.map((item, i) => {
-                                return (
-                                  <span key={i}>
-                                    <span>{item.symptom_name}</span> :{" "}
-                                    <label>{`${item.since &&
-                                      `since ${item.since}${item.severity && ","}`
-                                      } ${item.severity &&
-                                      `severity ${item.severity}${item.note && ","
-                                      } `
-                                      } ${item.note && `${item.note}`}`}</label>
-                                    {viewCaseManagerData.symptoms.length - 1 != i &&
-                                      " | "}
-                                  </span>
-                                );
-                              })}
+                            <div className="title-digitise-section mb-1">
+                              Symptoms
                             </div>
                           </div>
-                        )}
-                        {viewCaseManagerData.examination.length > 0 && (
-                          <div className="d-flex align-items-start mb-4">
+                          {renderItems("symptoms")}
+                        </>
+                      )}
+
+                    {rxDigitisedData?.editedData?.examination &&
+                      hasValidContent(
+                        rxDigitisedData.editedData,
+                        "examination"
+                      ) && (
+                        <>
+                          <div className="d-flex align-items-start">
                             <img
                               className="me-2"
                               src={Examinationsicon}
-                              alt="Examinations"
+                              alt="Examination"
                             />
-                            <div>
-                              <div className="title">Examinations</div>
-                              {viewCaseManagerData.examination.map((item, i) => {
-                                return (
-                                  <span key={i}>
-                                    <span>{item.examination_name}</span> :{" "}
-                                    <label>{item.note}</label>
-                                    {viewCaseManagerData.examination.length - 1 !=
-                                      i && " | "}
-                                  </span>
-                                );
-                              })}
+                            <div className="title-digitise-section mb-1">
+                              Examinations
                             </div>
                           </div>
-                        )}
-                        {viewCaseManagerData.surgeries.length > 0 && (
-                          <div className="d-flex align-items-start mb-4">
-                            <img
-                              className="me-2"
-                              src={Examinationsicon}
-                              alt="surgeries"
-                            />
-                            <div>
-                              <div className="title">Surgeries/Procedures</div>
-                              {viewCaseManagerData.surgeries.map((item, i) => {
-                                return (
-                                  <span key={i}>
-                                    <span>{item.name}</span> :{" "}
-                                    <label>{item.notes}</label>
-                                    {viewCaseManagerData.surgeries.length - 1 !=
-                                      i && " | "}
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-                        {viewCaseManagerData.diagnosis.length > 0 && (
-                          <div className="d-flex align-items-start mb-4">
+                          {renderItems("examination")}
+                        </>
+                      )}
+
+                    {rxDigitisedData?.editedData?.diagnosis &&
+                      hasValidContent(
+                        rxDigitisedData.editedData,
+                        "diagnosis"
+                      ) && (
+                        <>
+                          <div className="d-flex align-items-start">
                             <img
                               className="me-2"
                               src={Diagnosisicon}
                               alt="Diagnosis"
                             />
-                            <div>
-                              <div className="title">Diagnosis</div>
-                              {viewCaseManagerData.diagnosis.map((item, i) => {
-                                return (
-                                  <span key={i}>
-                                    <span>{item.tds_name}</span> :{" "}
-                                    <label>{`${item.since &&
-                                      `since ${item.since}${item.status && ","}`
-                                      } ${item.status &&
-                                      `status ${item.status}${item.note && ","} `
-                                      } ${item.note && `${item.note}`}`}</label>
-                                    {viewCaseManagerData.diagnosis.length - 1 !=
-                                      i && " | "}
-                                  </span>
-                                );
-                              })}
+                            <div className="title-digitise-section mb-1">
+                              Diagnosis
                             </div>
                           </div>
-                        )}
-                        {medicationData.length > 0 && (
-                          <div className="d-flex align-items-center">
+                          {renderItems("diagnosis")}
+                        </>
+                      )}
+
+                    {rxDigitisedData?.editedData?.medications &&
+                      hasValidContent(
+                        rxDigitisedData.editedData,
+                        "medications"
+                      ) && (
+                        <>
+                          <div className="d-flex align-items-start">
                             <img
                               className="me-2"
                               src={Medicationicon}
-                              alt="Medication"
+                              alt="Medications"
                             />
-                            <div>
-                              <div className="title">Medication (Rx)</div>
+                            <div className="title-digitise-section mb-1">
+                              Medication
                             </div>
                           </div>
-                        )}
-                      </div>
-                      {medicationData.length > 0 && (
-                        <div>
-                          <div className="border-top border-bottom mt-2">
-                            <Table
-                              className="table-border patient-medication"
-                              columns={columns}
-                              dataSource={medicationData}
-                              onChange={handleChange}
-                              pagination={false}
-                            />
-                          </div>
-                        </div>
+                          {renderItems("medications")}
+                        </>
                       )}
-                      <div className="p-3">
-                        {viewCaseManagerData.advice.length > 0 && (
-                          <div className="d-flex align-items-start mb-4">
-                            <img className="me-2" src={Frameicon} alt="Advice" />
-                            <div>
-                              <div className="title">Advice</div>
 
-                              {viewCaseManagerData.advice.map((item, i) => {
-                                return (
-                                  <label key={i}>{`${i != 0 ? ", " : ""}${item.advice_name
-                                    }`}</label>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-                        {viewCaseManagerData.investigation.length > 0 && (
-                          <div className="d-flex align-items-start mb-4">
+                    {rxDigitisedData?.editedData?.tests &&
+                      hasValidContent(rxDigitisedData.editedData, "tests") && (
+                        <>
+                          <div className="d-flex align-items-start">
                             <img
                               className="me-2"
                               src={Investigationicon}
+                              alt="Tests"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Lab Investigation
+                            </div>
+                          </div>
+                          {renderItems("tests")}
+                        </>
+                      )}
+
+                    {rxDigitisedData?.editedData?.advice &&
+                      hasValidContent(rxDigitisedData.editedData, "advice") && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={Frameicon}
                               alt="Advice"
                             />
-                            <div>
-                              <div className="title">Lab Investigation</div>
-                              {viewCaseManagerData.investigation.map((item, i) => {
-                                return (
-                                  <span key={i}>
-                                    <span key={i}>{item.investigation_name}</span> :{" "}
-                                    <label>{item.note}</label>
-                                    {viewCaseManagerData.investigation.length - 1 !=
-                                      i && " | "}
-                                  </span>
-                                );
-                              })}
+                            <div className="title-digitise-section mb-1">
+                              Advices
                             </div>
                           </div>
-                        )}
-                        {viewCaseManagerData.visit_advice && (
-                          <div className="d-flex align-items-start mb-4">
+                          {renderItems("advice")}
+                        </>
+                      )}
+
+                    {rxDigitisedData?.editedData?.vaccinations &&
+                      hasValidContent(
+                        rxDigitisedData.editedData,
+                        "vaccinations"
+                      ) && (
+                        <>
+                          <div className="d-flex align-items-start">
                             <img
                               className="me-2"
-                              src={notesicon}
-                              alt="Doctor Note"
+                              src={vaccinationIcon}
+                              alt="vaccinations"
                             />
-                            <div>
-                              <div className="title">Doctor Note</div>
-                              <label>{viewCaseManagerData.visit_advice}</label>
+                            <div className="title-digitise-section mb-1">
+                              Vaccinations
                             </div>
                           </div>
-                        )}
-                        {viewCaseManagerData.treatment && (
-                          <div className="d-flex align-items-start mb-4">
+                          {renderItems("vaccinations")}
+                        </>
+                      )}
+                  </div>
+                ) : (
+                  <>
+                    {smartRxFile?.length > 0 &&
+                      smartRxFile?.map(({ smart_prescription_file }) => (
+                        <div style={{ padding: "5px" }}>
+                          {smart_prescription_file && (
                             <img
-                              className="me-2"
-                              src={notesicon}
-                              alt="Doctor Note1"
+                              src={smart_prescription_file}
+                              alt="Smart Rx"
+                              width="100%"
+                              height="660px"
                             />
-                            <div>
-                              <div className="title">Treatment</div>
-                              <label className="whitespace-pre-wrap">{viewCaseManagerData.treatment}</label>
-                            </div>
-                          </div>
-                        )}
-                        {customModulesRxData.length > 0 && customModulesRxData?.map((item) => item.module_name &&(
-                          <div className="d-flex align-items-start mb-4">
-                          <img
-                            className="me-2"
-                            src={customModuleIcon}
-                            alt={item.module_name}
-                          />
-                          <div>
-                            <div className="title">{item.module_name}</div>
-                            {item.content.map((c, i) => {
-                              return (
-                                <span key={i}>
-                                  {c.title && <><span>{c.title}</span>{c.notes?.trim() ? <br/> : ""}</>}
-                                  {c.notes?.trim() && <div>
-                                    {c.notes?.trim()?.replace(/\n+/g, "\n").split('\n').map((line, index) => (
-                                      <React.Fragment key={index}>
-                                        {line}
-                                        {index !== c.notes?.trim()?.replace(/\n+/g, "\n").split('\n').length - 1 && <br />}
-                                      </React.Fragment>
-                                    ))}
-                                  </div>}
-                                  {item.content.length - 1 !==i && <br/>}
-                                </span>
-                              );
-                            })}
-                          </div>
+                          )}
                         </div>
-                        ))}
+                      ))}
+                  </>
+                )}
+                <div
+                  className={`d-flex align-items-center mb-14 ${
+                    viewCaseManagerData?.follow_up_date
+                      ? "follow-up-detailsPage"
+                      : ""
+                  }`}
+                >
+                  {viewCaseManagerData?.follow_up_date && (
+                    <>
+                      <img className="me-3" src={followUp} alt="Symptoms" />
+                      <div className="title-common">Follow-up:</div>
+                      <div className="follow-up-date-text">
+                        {viewCaseManagerData?.follow_up_date
+                          ? moment(viewCaseManagerData.follow_up_date).format(
+                              "DD/MM/YYYY"
+                            )
+                          : ""}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <Card.Body className="p-0 cardbody-data">
+                <div>
+                  <div className="p-3 pb-0">
+                    {viewCaseManagerData.symptoms.length > 0 && (
+                      <div className="d-flex align-items-start mb-4">
+                        <img
+                          className="me-2"
+                          src={Symptomsicon}
+                          alt="Symptoms"
+                        />
+                        <div>
+                          <div className="title">Symptoms</div>
+                          {viewCaseManagerData.symptoms.map((item, i) => {
+                            return (
+                              <span key={i}>
+                                <span>{item.symptom_name}</span> :{" "}
+                                <label>{`${
+                                  item.since &&
+                                  `since ${item.since}${item.severity && ","}`
+                                } ${
+                                  item.severity &&
+                                  `severity ${item.severity}${
+                                    item.note && ","
+                                  } `
+                                } ${item.note && `${item.note}`}`}</label>
+                                {viewCaseManagerData.symptoms.length - 1 != i &&
+                                  " | "}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {viewCaseManagerData.examination.length > 0 && (
+                      <div className="d-flex align-items-start mb-4">
+                        <img
+                          className="me-2"
+                          src={Examinationsicon}
+                          alt="Examinations"
+                        />
+                        <div>
+                          <div className="title">Examinations</div>
+                          {viewCaseManagerData.examination.map((item, i) => {
+                            return (
+                              <span key={i}>
+                                <span>{item.examination_name}</span> :{" "}
+                                <label>{item.note}</label>
+                                {viewCaseManagerData.examination.length - 1 !=
+                                  i && " | "}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {viewCaseManagerData.surgeries.length > 0 && (
+                      <div className="d-flex align-items-start mb-4">
+                        <img
+                          className="me-2"
+                          src={Examinationsicon}
+                          alt="surgeries"
+                        />
+                        <div>
+                          <div className="title">Surgeries/Procedures</div>
+                          {viewCaseManagerData.surgeries.map((item, i) => {
+                            return (
+                              <span key={i}>
+                                <span>{item.name}</span> :{" "}
+                                <label>{item.notes}</label>
+                                {viewCaseManagerData.surgeries.length - 1 !=
+                                  i && " | "}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {viewCaseManagerData.diagnosis.length > 0 && (
+                      <div className="d-flex align-items-start mb-4">
+                        <img
+                          className="me-2"
+                          src={Diagnosisicon}
+                          alt="Diagnosis"
+                        />
+                        <div>
+                          <div className="title">Diagnosis</div>
+                          {viewCaseManagerData.diagnosis.map((item, i) => {
+                            return (
+                              <span key={i}>
+                                <span>{item.tds_name}</span> :{" "}
+                                <label>{`${
+                                  item.since &&
+                                  `since ${item.since}${item.status && ","}`
+                                } ${
+                                  item.status &&
+                                  `status ${item.status}${item.note && ","} `
+                                } ${item.note && `${item.note}`}`}</label>
+                                {viewCaseManagerData.diagnosis.length - 1 !=
+                                  i && " | "}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {medicationData.length > 0 && (
+                      <div className="d-flex align-items-center">
+                        <img
+                          className="me-2"
+                          src={Medicationicon}
+                          alt="Medication"
+                        />
+                        <div>
+                          <div className="title">Medication (Rx)</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {medicationData.length > 0 && (
+                    <div>
+                      <div className="border-top border-bottom mt-2">
+                        <Table
+                          className="table-border patient-medication"
+                          columns={columns}
+                          dataSource={medicationData}
+                          onChange={handleChange}
+                          pagination={false}
+                        />
                       </div>
                     </div>
-                  </Card.Body>
-                )
-            }
+                  )}
+                  <div className="p-3">
+                    {viewCaseManagerData.advice.length > 0 && (
+                      <div className="d-flex align-items-start mb-4">
+                        <img className="me-2" src={Frameicon} alt="Advice" />
+                        <div>
+                          <div className="title">Advice</div>
+
+                          {viewCaseManagerData.advice.map((item, i) => {
+                            return (
+                              <label key={i}>{`${i != 0 ? ", " : ""}${
+                                item.advice_name
+                              }`}</label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {viewCaseManagerData.investigation.length > 0 && (
+                      <div className="d-flex align-items-start mb-4">
+                        <img
+                          className="me-2"
+                          src={Investigationicon}
+                          alt="Advice"
+                        />
+                        <div>
+                          <div className="title">Lab Investigation</div>
+                          {viewCaseManagerData.investigation.map((item, i) => {
+                            return (
+                              <span key={i}>
+                                <span key={i}>{item.investigation_name}</span> :{" "}
+                                <label>{item.note}</label>
+                                {viewCaseManagerData.investigation.length - 1 !=
+                                  i && " | "}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {viewCaseManagerData.visit_advice && (
+                      <div className="d-flex align-items-start mb-4">
+                        <img
+                          className="me-2"
+                          src={notesicon}
+                          alt="Doctor Note"
+                        />
+                        <div>
+                          <div className="title">Doctor Note</div>
+                          <label>{viewCaseManagerData.visit_advice}</label>
+                        </div>
+                      </div>
+                    )}
+                    {viewCaseManagerData.treatment && (
+                      <div className="d-flex align-items-start mb-4">
+                        <img
+                          className="me-2"
+                          src={notesicon}
+                          alt="Doctor Note1"
+                        />
+                        <div>
+                          <div className="title">Treatment</div>
+                          <label className="whitespace-pre-wrap">
+                            {viewCaseManagerData.treatment}
+                          </label>
+                        </div>
+                      </div>
+                    )}
+                    {customModulesRxData.length > 0 &&
+                      customModulesRxData?.map(
+                        (item) =>
+                          item.module_name && (
+                            <div className="d-flex align-items-start mb-4">
+                              <img
+                                className="me-2"
+                                src={customModuleIcon}
+                                alt={item.module_name}
+                              />
+                              <div>
+                                <div className="title">{item.module_name}</div>
+                                {item.content.map((c, i) => {
+                                  return (
+                                    <span key={i}>
+                                      {c.title && (
+                                        <>
+                                          <span>{c.title}</span>
+                                          {c.notes?.trim() ? <br /> : ""}
+                                        </>
+                                      )}
+                                      {c.notes?.trim() && (
+                                        <div>
+                                          {c.notes
+                                            ?.trim()
+                                            ?.replace(/\n+/g, "\n")
+                                            .split("\n")
+                                            .map((line, index) => (
+                                              <React.Fragment key={index}>
+                                                {line}
+                                                {index !==
+                                                  c.notes
+                                                    ?.trim()
+                                                    ?.replace(/\n+/g, "\n")
+                                                    .split("\n").length -
+                                                    1 && <br />}
+                                              </React.Fragment>
+                                            ))}
+                                        </div>
+                                      )}
+                                      {item.content.length - 1 !== i && <br />}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )
+                      )}
+                  </div>
+                </div>
+              </Card.Body>
+            )}
           </>
         ) : (
           <div
@@ -1349,7 +1608,10 @@ function Cardiology(props) {
                               : 0,
                         });
                         navigate("/prescription", {
-                          state: { patient_data: patient_data, send_path: "patient_details" },
+                          state: {
+                            patient_data: patient_data,
+                            send_path: "patient_details",
+                          },
                         });
                       }}
                     >
@@ -1360,10 +1622,9 @@ function Cardiology(props) {
               </div>
             )}
           </div>
-        )
-        }
-      </Card >
-    </div >
+        )}
+      </Card>
+    </div>
   );
 }
 
@@ -1392,7 +1653,10 @@ function SmartDropdownButtons({ profile, patient_data, navigate }) {
   }, [open]);
 
   return (
-    <div ref={containerRef} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div
+      ref={containerRef}
+      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+    >
       <div>
         <Button
           className="btn btn-primary3 btn-text-white px-5 m-2 btn-41"
@@ -1400,16 +1664,19 @@ function SmartDropdownButtons({ profile, patient_data, navigate }) {
             window.Moengage.track_event("start_new_visit_click", {
               doctor_id: profile?.doctor_unique_id,
               patient_id:
-                patient_data !== undefined
-                  ? patient_data.patient_unique_id
-                  : 0,
+                patient_data !== undefined ? patient_data.patient_unique_id : 0,
             });
             navigate("/prescription", {
-              state: { patient_data: patient_data, send_path: "patient_details" },
+              state: {
+                patient_data: patient_data,
+                send_path: "patient_details",
+              },
             });
           }}
         >
-          <span className="px-4" style={{ flex: 1, textAlign: "center" }}>Start New Consult</span>
+          <span className="px-4" style={{ flex: 1, textAlign: "center" }}>
+            Start New Consult
+          </span>
           <span
             ref={arrowRef}
             style={{
@@ -1421,12 +1688,19 @@ function SmartDropdownButtons({ profile, patient_data, navigate }) {
               display: "flex",
               alignItems: "center",
             }}
-            onClick={e => {
+            onClick={(e) => {
               e.stopPropagation();
-              setOpen(o => !o);
+              setOpen((o) => !o);
             }}
           >
-            <i class="icon-right" style={{display: "block", transform: open ? "rotate(270deg)" : "rotate(180deg)" , color: "white"}}></i>
+            <i
+              class="icon-right"
+              style={{
+                display: "block",
+                transform: open ? "rotate(270deg)" : "rotate(180deg)",
+                color: "white",
+              }}
+            ></i>
           </span>
         </Button>
       </div>
@@ -1443,10 +1717,12 @@ function SmartDropdownButtons({ profile, patient_data, navigate }) {
                     ? patient_data.patient_unique_id
                     : 0,
               });
-              navigate("/smart-prescription", { state: { patient_data: patient_data } });
+              navigate("/smart-prescription", {
+                state: { patient_data: patient_data },
+              });
             }}
           >
-            <span style={{padding:"0 3.4rem"}}>Start New SmartRx</span>
+            <span style={{ padding: "0 3.4rem" }}>Start New SmartRx</span>
           </Button>
         </div>
       )}
