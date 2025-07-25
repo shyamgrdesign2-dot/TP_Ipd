@@ -47,12 +47,10 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
     })
   );
 
-  // Initialize edit data when template changes
   useEffect(() => {
     if (template && visible) {
-      console.log('🔧 Initializing edit data for template:', template.title);
       
-      // Convert template data to file format (exactly like upload drawer)
+
       const editPages = template.uploaded_files.map((file, index) => ({
         id: `edit-page-${file.id}-${index}`,
         image: file.file_url,
@@ -110,7 +108,7 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
     }
   }, [visible]);
 
-  // Reset cropper when page changes (same as upload drawer)
+
   useEffect(() => {
     if (file?.pages && file.pages[selectedPageIndex]) {
       // Reset zoom when page changes
@@ -168,7 +166,7 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
     }
   };
 
-  // Handle drag end for reordering (same as upload drawer)
+
   const handleDragEnd = (event) => {
     const { active, over } = event;
 
@@ -197,7 +195,7 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
     }
   };
 
-  // Sortable thumbnail component (exactly like upload drawer)
+
   const SortableThumbnail = ({ page, index }) => {
     const {
       attributes,
@@ -241,7 +239,7 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
     );
   };
 
-  // Zoom handler (same as upload drawer)
+
   const handleZoom = (delta) => {
     const newZoom = zoom + delta;
     if (newZoom >= 0.5 && newZoom <= 3) {
@@ -252,14 +250,14 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
     }
   };
 
-  // Rotate handler (same as upload drawer)
+
   const handleRotate = () => {
     if (cropperRef.current?.cropper) {
       cropperRef.current.cropper.rotate(90);
     }
   };
 
-  // Reset page handler (same as upload drawer)
+
   const handleResetPage = () => {
     if (cropperRef.current?.cropper) {
       cropperRef.current.cropper.reset();
@@ -304,7 +302,7 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
     input.click();
   };
 
-  // Remove handler (same as upload drawer)
+
   const handleRemove = () => {
     // If single page or no pages, cannot remove
     if (!file?.pages || file.pages.length <= 1) {
@@ -369,29 +367,21 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
     try {
       message.loading('Updating template...', 0);
       
-      console.log('🔧 Preparing template data for update...');
-      
-      // Create proper file objects for each page (same as upload drawer)
       const filesForUpload = await Promise.all(
         file.pages.map(async (page, index) => {
           let fileToUpload = page.uploadFile;
           
-          // If no uploadFile exists, create one from the image data
           if (!fileToUpload) {
             if (page.showFile || page.image) {
               try {
-                // Use showFile (which could be cropped image) or fallback to original image
                 const imageData = page.showFile || page.image;
-                console.log(`🖼️ Creating File object for page ${index + 1}`);
-                
-                // Convert image to File object
                 fileToUpload = await dataUrlToFileUsingFetch(
                   imageData,
                   `rx-template-page-${index + 1}.png`,
                   'image/png'
                 );
               } catch (error) {
-                console.error(`❌ Failed to create File object for page ${index + 1}:`, error);
+                console.error(`Failed to create File object for page ${index + 1}:`, error);
                 throw new Error(`Failed to prepare file for page ${index + 1}: ${error.message}`);
               }
             } else {
@@ -416,8 +406,6 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
         files: filesForUpload
       };
 
-      console.log(`✅ Template data prepared: "${templateData.title}" with ${templateData.files.length} files`);
-
       const result = await updateCustomSyncPadTemplate(
         file.id,
         templateData,
@@ -430,35 +418,25 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
       message.destroy();
       
       if (result.success) {
-        console.log('✅ Update successful, calling onSave and closing...');
         message.success('Template updated successfully!');
         
-        // Call the onSave callback with the response data
         if (onSave) {
-          console.log('📞 Calling onSave callback...');
           onSave(result.data);
         }
         
-        console.log('🚪 Closing drawer...');
         onClose();
         
-        // Reset state
-        console.log('🧹 Resetting state...');
         setFile(null);
         setZoom(1);
         setSelectedPageIndex(0);
         setIsProcessing(false);
-        
-        console.log('✅ Update process completed successfully');
       } else {
-        console.log('❌ Update failed with error:', result.error);
         message.error(result.error || 'Failed to update template');
         setIsProcessing(false);
       }
     } catch (error) {
       message.destroy();
-      console.error('💥 Exception in handleSave:', error);
-      console.error('Error stack:', error.stack);
+      console.error('Exception in handleSave:', error);
       message.error('Failed to update template. Please try again.');
       setIsProcessing(false);
     }
@@ -547,7 +525,7 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
                     message.error('Failed to load image for cropping. Please try again.');
                   }}
                   ready={() => {
-                    // console.log('Cropper ready for page:', selectedPageIndex + 1);
+  
                   }}
                   cropend={() => {
                     // Auto-save when user finishes cropping

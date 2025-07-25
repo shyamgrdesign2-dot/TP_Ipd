@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from "uuid";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
+import { saveAs } from "file-saver";
+import jsPDF from "jspdf";
 
 import {
   ADD,
@@ -293,6 +295,7 @@ function SmartPrescription() {
   const [editTemplateModal, setEditTemplateModal] = useState(false);
   const [templateToEdit, setTemplateToEdit] = useState(null);
   const [showAllSymptoms, setShowAllSymptoms] = useState(false);
+  const [downloadingTemplateId, setDownloadingTemplateId] = useState(null);
 
   const { showSCPopup, isAutofillSelected, selectedSymptomsCollector, symptomCollector } =
     useSelector((state) => state.ddx);
@@ -355,24 +358,19 @@ function SmartPrescription() {
 
   // Function to load templates from API
   const loadCustomTemplates = async () => {
-    console.log('📋 Loading custom templates on SmartPrescription page...');
     try {
       const result = await getCustomSyncPadTemplates();
       if (result.success && result.data && result.data.length > 0) {
-        console.log('✅ Templates loaded successfully:', result.data.length, 'templates');
         setTemplates(result.data);
-        // Auto-select the first template if none is selected
         if (!selectedTemplateId) {
-          console.log('🎯 Auto-selecting first template:', result.data[0].title);
           setSelectedTemplateId(result.data[0].id);
         }
       } else {
-        console.log('⚠️ No templates found or failed to load');
         setTemplates([]);
         setSelectedTemplateId(null);
       }
     } catch (error) {
-      console.error('❌ Error loading templates:', error);
+      console.error('Error loading templates:', error);
       setTemplates([]);
     }
   };
@@ -668,11 +666,219 @@ function SmartPrescription() {
     // This handler is for future use if needed
   };
 
-  // Handle template download
-  const handleDownloadTemplate = (templateId) => {
-    console.log('📥 Download template:', templateId);
-    // TODO: Implement download functionality
-    message.info('Download functionality will be implemented next');
+  const handleDownloadTemplate = async (templateId) => {
+    setDownloadingTemplateId(templateId);
+    
+    try {
+      const template = templates.find(t => t.id === templateId);
+      if (!template) {
+        message.error('Template not found');
+        return;
+      }
+
+      if (!template.uploaded_files || template.uploaded_files.length === 0) {
+        message.error('Template has no files to download');
+        return;
+      }
+
+      const fileName = `${template.title.replace(/[^a-z0-9]/gi, '_')}_template.pdf`;
+      
+      try {
+        // message.info(`Converting ${template.uploaded_files.length} image(s) to PDF...`, 2);
+        const pdfBlob = await convertImagesToPDF(template.uploaded_files, template.title);
+        saveAs(pdfBlob, fileName);
+        message.success(`Downloaded PDF: ${fileName}`, 3);
+        
+      } catch (conversionError) {
+        message.error(`Failed to convert template to PDF: ${conversionError.message}`, 6);
+        
+        try {
+          const totalFiles = template.uploaded_files.length;
+          message.info(`Downloading ${totalFiles} image(s) individually...`, 2);
+          
+          let successCount = 0;
+          let failureCount = 0;
+          
+          for (let i = 0; i < totalFiles; i++) {
+            const file = template.uploaded_files[i];
+            const imageFileName = `${template.title.replace(/[^a-z0-9]/gi, '_')}_page_${i + 1}.jpg`;
+            
+            try {
+              await downloadSingleFile(file.file_url, imageFileName);
+              successCount++;
+              
+              if (i < totalFiles - 1) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+              }
+            } catch (error) {
+              failureCount++;
+            }
+          }
+          
+          if (successCount === totalFiles) {
+            message.success(`All ${totalFiles} images downloaded successfully`, 3);
+          } else if (successCount > 0) {
+            message.warning(`Downloaded ${successCount}/${totalFiles} images. ${failureCount} failed`, 4);
+          } else {
+            message.error('Failed to download images. Please try again', 4);
+          }
+        } catch (fallbackError) {
+          message.error('Failed to download template images. Please try again', 4);
+        }
+      }
+      
+    } catch (error) {
+      message.error(`Failed to download template: ${error.message}. Please try again`);
+    } finally {
+      setDownloadingTemplateId(null);
+    }
+  };
+
+  const convertImagesToPDF = async (files, templateTitle) => {
+    try {
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pageWidth = 210;
+      const pageHeight = 297;
+      const margin = 10;
+      const imageWidth = pageWidth - (margin * 2);
+      const imageHeight = pageHeight - (margin * 2);
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        try {
+          const response = await axios({
+            url: file.file_url,
+            method: 'GET',
+            responseType: 'blob'
+          });
+
+          const blob = response.data;
+          const reader = new FileReader();
+          
+          const imageData = await new Promise((resolve, reject) => {
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+
+          if (i > 0) {
+            pdf.addPage();
+          }
+
+          pdf.addImage(
+            imageData, 
+            'JPEG', 
+            margin, 
+            margin, 
+            imageWidth, 
+            imageHeight,
+            undefined,
+            'FAST'
+          );
+          
+        } catch (imageError) {
+          // Continue with other images
+        }
+      }
+
+      const pdfBlob = pdf.output('blob');
+      return pdfBlob;
+      
+    } catch (error) {
+      throw new Error(`Failed to convert images to PDF: ${error.message}`);
+    }
+  };
+
+  // Helper function to download a single file
+  const downloadSingleFile = async (fileUrl, fileName) => {
+    console.log('📥 Downloading file:', { fileUrl, fileName });
+    
+    try {
+      // Method 1: Try axios download with authentication
+      const payload = {
+        url: fileUrl,
+        method: "GET",
+        responseType: "blob",
+      };
+
+      // Add authorization header if needed (following medical records pattern)
+      const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+      if (token) {
+        payload.headers = {
+          Authorization: `Bearer ${JSON.parse(token)}`,
+        };
+      }
+
+      console.log('🔐 Making authenticated request...');
+      const response = await axios(payload);
+
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"] || "application/pdf",
+      });
+      
+      console.log('✅ File downloaded successfully:', { 
+        blobSize: blob.size, 
+        contentType: blob.type 
+      });
+      
+      saveAs(blob, fileName);
+      
+    } catch (error) {
+      console.error('❌ Axios download failed:', error);
+      
+      // Method 2: Fallback to window.open for CORS issues
+      if (error.message?.includes('Network Error') || error.code === 'ERR_NETWORK') {
+        console.log('🔄 Trying fallback method (window.open)...');
+        try {
+          // Create a temporary link with download attribute
+          const link = document.createElement('a');
+          link.href = fileUrl;
+          link.download = fileName;
+          link.target = '_blank';
+          
+          // Add to DOM temporarily
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          console.log('✅ Fallback download initiated');
+          message.info(`Download started: ${fileName}`);
+          return;
+        } catch (fallbackError) {
+          console.error('❌ Fallback also failed:', fallbackError);
+        }
+      }
+      
+      // Method 3: Last resort - try direct fetch
+      try {
+        console.log('🔄 Trying fetch method...');
+        const response = await fetch(fileUrl, {
+          headers: token ? {
+            'Authorization': `Bearer ${JSON.parse(token)}`
+          } : {}
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const blob = await response.blob();
+        console.log('✅ Fetch download successful:', { blobSize: blob.size });
+        saveAs(blob, fileName);
+        return;
+      } catch (fetchError) {
+        console.error('❌ Fetch also failed:', fetchError);
+      }
+      
+      // If all methods fail, throw the original error
+      throw error;
+    }
   };
 
   // Handle edit template save
@@ -2222,6 +2428,7 @@ function SmartPrescription() {
                   selectedTemplateId={selectedTemplateId}
                   onTemplateSelect={handleTemplateSelect}
                   onAddEditCanvas={handleAddEditCanvas}
+                  onUploadNew={handleUploadNewTemplate}
                 />
 
                 <div
@@ -2490,7 +2697,7 @@ function SmartPrescription() {
           placement="right"
           onClose={() => setTemplateManagerDrawer(false)}
           open={templateManagerDrawer}
-          width="75%"
+          width="50%"
         >
           <RxTemplateManager
             onClose={() => setTemplateManagerDrawer(false)}
@@ -2500,6 +2707,7 @@ function SmartPrescription() {
             onDelete={handleDeleteTemplate}
             onDownload={handleDownloadTemplate}
             onRefresh={loadCustomTemplates}
+            downloadingTemplateId={downloadingTemplateId}
           />
         </Drawer>
 
