@@ -19,6 +19,9 @@ import {
   updateVaccinationRemarks,
 } from "./service";
 import { getDecodedToken } from "../../utils/localStorage";
+import { isChrome, isSafari } from "react-device-detect";
+import { sendMessageToParent } from "../../utils/utils";
+import { EVENTS } from "../../utils/events";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -342,14 +345,14 @@ const VaccinationAnalytics = ({ doctors }) => {
       ...dataToDownload.flatMap((patient) =>
         patient.vaccines.map((vaccine) =>
           [
-            "Apollo Hospital", // Hospital Name
+            patient.hm_name,
             patient.name,
             patient.dob,
             patient.age,
             patient.patientId,
             patient.referenceId,
-            patient.mobile || "",
-            patient.doctor || "",
+            patient.mobile,
+            patient.um_name,
             vaccine.dueDate,
             vaccine.name,
             vaccine.status,
@@ -371,6 +374,9 @@ const VaccinationAnalytics = ({ doctors }) => {
     window.URL.revokeObjectURL(url);
     message.success("Download completed successfully!");
     setExcelLoading(false);
+    if (!isChrome && !isSafari) {
+      sendMessageToParent(EVENTS.DOWNLOAD, { url: url });
+    }
   };
 
   // Create custom dropdown for download options
