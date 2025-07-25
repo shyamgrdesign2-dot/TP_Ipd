@@ -1,9 +1,51 @@
-/* RX Template Manager Styles */
+/* RX Template Manager Styles - Following Medical Records Pattern */
 
-.rx-template-manager {
-  padding: 16px;
-  max-width: 800px;
-  margin: 0 auto;
+.template-manager {
+  // Following Medical Records structure - using their existing CSS classes
+  
+  // Template card styles (reusing Medical Records styles)
+  .image-wrapper {
+    position: relative;
+    height: 220px;
+  }
+
+  .image-container {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    border: 1px solid #e2e2ea;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    row-gap: 6px;
+    padding-bottom: 20px;
+    cursor: pointer;
+  }
+
+  .document-details {
+    position: absolute;
+    height: 60px;
+    bottom: 0px;
+    width: 100%;
+    background-color: #e2e2ea;
+    border: 1px solid #e2e2ea;
+    border-radius: 0 0 10px 10px;
+    text-align: center;
+    padding: 8px;
+    display: flex;
+    justify-content: space-between;
+
+    .category {
+      font-weight: 600;
+      text-align: left;
+      white-space: nowrap;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
 }
 
 .manager-header {

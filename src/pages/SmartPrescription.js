@@ -59,6 +59,10 @@ import FullPageLoader from "./vaccination/components/Loader";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import CvtKnowMore from "./smartSync/components/CvtKnowMore";
 import RxTemplateUploadDrawer from "./smartSync/components/RxTemplateUploadDrawer";
+import RxTemplateManager from "./smartSync/components/RxTemplateManager";
+import CustomCanvasSelector from "./smartSync/components/CustomCanvasSelector";
+import EditTemplateModal from "./smartSync/components/EditTemplateModal";
+import { getCustomSyncPadTemplates } from "./smartSync/services/uploadService";
 import { Content } from "antd/es/layout/layout";
 import vaccinationImg from "../assets/images/Vaccination.svg";
 import growthChartImg from "../assets/images/growth-chart-dark.svg";
@@ -264,6 +268,14 @@ function SmartPrescription() {
   const [cvtDrawer, setCvtDrawer] = useState(false);
   const [uploadCanvasDrawer, setUploadCanvasDrawer] = useState(false);
   const [showSCBanner, setShowSCBanner] = useState(false);
+  
+  // Template management state
+  const [templates, setTemplates] = useState([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState(null);
+  const [refreshTemplatesTrigger, setRefreshTemplatesTrigger] = useState(0);
+  const [templateManagerDrawer, setTemplateManagerDrawer] = useState(false);
+  const [editTemplateModal, setEditTemplateModal] = useState(false);
+  const [templateToEdit, setTemplateToEdit] = useState(null);
   const [showAllSymptoms, setShowAllSymptoms] = useState(false);
 
   const { showSCPopup, isAutofillSelected, selectedSymptomsCollector, symptomCollector } =
@@ -319,6 +331,35 @@ function SmartPrescription() {
       getAllPatientDocs();
     }
   }, []);
+
+  // Load templates when component mounts
+  useEffect(() => {
+    loadCustomTemplates();
+  }, []);
+
+  // Function to load templates from API
+  const loadCustomTemplates = async () => {
+    console.log('📋 Loading custom templates on SmartPrescription page...');
+    try {
+      const result = await getCustomSyncPadTemplates();
+      if (result.success && result.data && result.data.length > 0) {
+        console.log('✅ Templates loaded successfully:', result.data.length, 'templates');
+        setTemplates(result.data);
+        // Auto-select the first template if none is selected
+        if (!selectedTemplateId) {
+          console.log('🎯 Auto-selecting first template:', result.data[0].title);
+          setSelectedTemplateId(result.data[0].id);
+        }
+      } else {
+        console.log('⚠️ No templates found or failed to load');
+        setTemplates([]);
+        setSelectedTemplateId(null);
+      }
+    } catch (error) {
+      console.error('❌ Error loading templates:', error);
+      setTemplates([]);
+    }
+  };
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -387,19 +428,19 @@ function SmartPrescription() {
       ) {
         const updatedData = caseManagerData.medicine.map((e) => {
           const unitObj = e?.medicineUnit
-            ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit)
+            ? e?.medicineUnit.find((x) => x.tmu_id === e.tmm_unit)
             : null;
           const frequencyObj = frequencyList.find(
-            (x) => x.tmf_id == e.tmm_freq_type
+            (x) => x.tmf_id === e.tmm_freq_type
           );
-          const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+          const timingObj = timingList.find((x) => x.tmt_id === e.tmm_time);
 
           return {
             ...e,
             tmm_unit_name:
               unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
             tmm_freq_type_name:
-              e.tmf_block == 0
+              e.tmf_block === 0
                 ? `${
                     e.tcm_tmm_freq_morning
                       ? e.tcm_tmm_freq_morning + " - "
@@ -554,135 +595,80 @@ function SmartPrescription() {
     setUploadCanvasDrawer(!uploadCanvasDrawer);
   };
 
-  // ✅ Utility function to check storage quota
-  const checkStorageQuota = (dataSize) => {
-    try {
-      // Estimate storage usage
-      const currentUsage = JSON.stringify(localStorage.getItem('rxTemplates') || '[]').length;
-      const estimatedNewUsage = currentUsage + dataSize;
-      const maxQuota = 5 * 1024 * 1024; // 5MB limit
-      
-      return estimatedNewUsage < maxQuota;
-    } catch (error) {
-      return true; // Assume it's okay if we can't check
-    }
-  };
-
-  // ✅ Utility function to clean up old templates
-  const cleanupOldTemplates = () => {
-    try {
-      const templates = JSON.parse(localStorage.getItem('rxTemplates') || '[]');
-      const maxTemplates = 5; // Reduce to 5 templates
-      
-      if (templates.length > maxTemplates) {
-        // Remove oldest templates
-        const cleanedTemplates = templates.slice(-maxTemplates);
-        localStorage.setItem('rxTemplates', JSON.stringify(cleanedTemplates));
-      }
-    } catch (error) {
-      console.error('Error cleaning up templates:', error);
-    }
-  };
-
-  // ✅ Utility function to get full template data (including images)
-  const getFullTemplateData = (templateId) => {
-    try {
-      // Try to get full data from sessionStorage first
-      const sessionData = sessionStorage.getItem(`template_${templateId}`);
-      if (sessionData) {
-        return JSON.parse(sessionData);
-      }
-      
-      // Fallback to localStorage (optimized data only)
-      const templates = JSON.parse(localStorage.getItem('rxTemplates') || '[]');
-      return templates.find(template => template.id === templateId);
-    } catch (error) {
-      return null;
-    }
-  };
-
-  // Handle Canvas Upload
+  // Handle Canvas Upload - Updated to refresh templates from API
   const handleCanvasUploaded = (templateData) => {
-    try {
-      // ✅ Optimize template data for storage
-      const optimizedTemplate = {
-        id: `template_${Date.now()}`,
-        name: templateData.name,
-        totalPages: templateData.totalPages,
-        dimensions: templateData.dimensions,
-        createdAt: new Date().toISOString(),
-        // ✅ Store only essential page data, not full images
-        pages: templateData.pages.map((page, index) => ({
-          pageNumber: page.pageNumber,
-          isCropped: page.isCropped,
-          hasBeenEdited: page.hasBeenEdited,
-          dimensions: page.dimensions,
-          cropBoxData: page.cropBoxData,
-          // ✅ Store only cropped images, not original full images
-          croppedImage: page.isCropped ? page.croppedImage : null,
-          // ✅ Don't store original full images in localStorage
-          uploadFile: null, // Will be handled separately
-        }))
-      };
-      
-      // ✅ Clean up old templates first
-      cleanupOldTemplates();
-      
-      // ✅ Check storage quota before saving
-      const templates = JSON.parse(localStorage.getItem('rxTemplates') || '[]');
-      const optimizedDataSize = JSON.stringify(optimizedTemplate).length;
-      
-      if (!checkStorageQuota(optimizedDataSize)) {
-        message.warning('Storage is getting full. Some old templates will be removed.');
-        // Force cleanup
-        localStorage.removeItem('rxTemplates');
-        localStorage.removeItem('activeRxTemplate');
-      }
-      
-      templates.push(optimizedTemplate);
-      
-      try {
-        localStorage.setItem('rxTemplates', JSON.stringify(templates));
-        localStorage.setItem('activeRxTemplate', JSON.stringify(optimizedTemplate));
-        
-        message.success(`RX Template "${templateData.name}" uploaded and activated successfully!`);
-      } catch (storageError) {
-        try {
-          localStorage.removeItem('rxTemplates');
-          localStorage.removeItem('activeRxTemplate');
-          localStorage.setItem('rxTemplates', JSON.stringify([optimizedTemplate]));
-          localStorage.setItem('activeRxTemplate', JSON.stringify(optimizedTemplate));
-          
-          message.warning('Storage was full. Old templates were cleared to make space.');
-        } catch (fallbackError) {
-          message.error('Failed to save template due to storage limitations. Please try with a smaller file or clear browser data.');
-          return;
-        }
-      }
-      
-      if (templateData.pages && templateData.pages.length > 0) {
-        try {
-          const sessionData = {
-            templateId: optimizedTemplate.id,
-            fullPages: templateData.pages.map(page => ({
-              pageNumber: page.pageNumber,
-              croppedImage: page.croppedImage,
-              uploadFile: page.uploadFile,
-              showFile: page.croppedImage || page.showFile
-            }))
-          };
-          sessionStorage.setItem(`template_${optimizedTemplate.id}`, JSON.stringify(sessionData));
-        } catch (sessionError) {
-          // Ignore session storage errors in production
-        }
-      }
-      
-    } catch (error) {
-      message.error('Failed to save template. Please try again.');
-      return;
-    }
+    console.log('📤 Template uploaded successfully via API:', templateData);
+    message.success(`Template "${templateData.title}" uploaded successfully!`);
     
+    // Refresh the templates list to show the newly uploaded template
+    loadCustomTemplates();
+    
+    // Close the upload drawer
     setUploadCanvasDrawer(false);
+  };
+
+  // Handle template selection
+  const handleTemplateSelect = (templateId) => {
+    console.log('🎯 Template selected:', templateId);
+    setSelectedTemplateId(templateId);
+    if (templateId && templateId !== 'none') {
+      const selected = templates.find(t => t.id === templateId);
+      if (selected) {
+        message.success(`Template "${selected.title}" activated`);
+      }
+    } else {
+      message.info('Using default prescription layout');
+    }
+  };
+
+  // Handle add/edit canvas action - Updated to open template manager
+  const handleAddEditCanvas = () => {
+    setTemplateManagerDrawer(true);
+  };
+
+  // Handle opening upload drawer from template manager
+  const handleUploadNewTemplate = () => {
+    setTemplateManagerDrawer(false);
+    setUploadCanvasDrawer(true);
+  };
+
+  // Handle template edit
+  const handleEditTemplate = (templateId) => {
+    console.log('🔧 Edit template:', templateId);
+    const template = templates.find(t => t.id === templateId);
+    if (template) {
+      setTemplateToEdit(template);
+      setTemplateManagerDrawer(false); // Close template manager
+      setEditTemplateModal(true); // Open edit modal
+    } else {
+      message.error('Template not found');
+    }
+  };
+
+  // Handle template delete
+  const handleDeleteTemplate = (templateId) => {
+    console.log('🗑️ Delete template:', templateId);
+    // The deletion is handled in TemplateCard component
+    // This handler is for future use if needed
+  };
+
+  // Handle template download
+  const handleDownloadTemplate = (templateId) => {
+    console.log('📥 Download template:', templateId);
+    // TODO: Implement download functionality
+    message.info('Download functionality will be implemented next');
+  };
+
+  // Handle edit template save
+  const handleEditSave = (updatedTemplateData) => {
+    console.log('💾 Template updated:', updatedTemplateData);
+    // Refresh templates to show updated data
+    loadCustomTemplates();
+    // Reset edit state
+    setEditTemplateModal(false);
+    setTemplateToEdit(null);
+    // Reopen template manager to show updated list
+    setTemplateManagerDrawer(true);
   };
 
   useEffect(() => {
@@ -702,7 +688,7 @@ function SmartPrescription() {
 
   useEffect(() => {
     const clinic_name = getClinicName(profile?.hospital_data);
-    tcmId == 0 ?
+    tcmId === 0 ?
       window.Moengage.track_event("TP_Consultation_Started", {
         clinic_name,
         patient_number: patient_data?.pm_contact_no,
@@ -1898,70 +1884,12 @@ function SmartPrescription() {
             >
               <div>
                 {/* Custom Canvas Section */}
-                <div className="prescription-box-sm p-14 mb-14" style={{ width: "720px" }}>
-                  <div className="d-flex align-items-center justify-content-between">
-                    <div className="d-flex align-items-center">
-                      <i className="icon-template me-2" style={{ 
-                        fontSize: "16px", 
-                        color: "#6c757d" 
-                      }}></i>
-                      <span className="me-2" style={{ 
-                        color: "#374151",
-                        fontWeight: "400",
-                        fontSize: "14px"
-                      }}>
-                        Add custom Rx Canvas
-                      </span>
-                      <button 
-                        className="btn-link text-primary me-2 p-0"
-                        style={{ 
-                          fontSize: "16px",
-                          fontWeight: "600",
-                          textDecoration: "underline",
-                          border: "none",
-                          background: "none"
-                        }}
-                      >
-                        Know more
-                      </button>
-                      <span 
-                        className="text-white"
-                        style={{ 
-                          fontSize: "12px", 
-                          fontWeight: "600",
-                          width: "40px",
-                          height: "16px",
-                          borderRadius: "4px",
-                          background: "linear-gradient(101.91deg, #A461D8 9.72%, #B85DFF 47.18%, #7700D4 100%)",
-                          paddingTop: "4px",
-                          paddingRight: "6px",
-                          paddingBottom: "4px",
-                          paddingLeft: "6px",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          lineHeight: "1"
-                        }}
-                      >
-                        New
-                      </span>
-                    </div>
-                    <button 
-                      className="btn d-flex align-items-center"
-                      style={{
-                        background: "white",
-                        border: "1px solid var(--P-CTA-100, #4B4AD5)",
-                        fontSize: "14px",
-                        gap: "4px",
-                        color: "#4B4AD5"
-                      }}
-                      onClick={handleDrawerUploadCanvas}
-                    >
-                      <i className="icon-Add"></i>
-                      Add Rx Canvas
-                    </button>
-                  </div>
-                </div>
+                <CustomCanvasSelector
+                  templates={templates}
+                  selectedTemplateId={selectedTemplateId}
+                  onTemplateSelect={handleTemplateSelect}
+                  onAddEditCanvas={handleAddEditCanvas}
+                />
 
                 <div
                   id="pdf"
@@ -2076,6 +2004,37 @@ function SmartPrescription() {
           visible={uploadCanvasDrawer}
           onClose={handleDrawerUploadCanvas}
           onSave={handleCanvasUploaded}
+        />
+
+        {/* Template Manager Drawer */}
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={() => setTemplateManagerDrawer(false)}
+          open={templateManagerDrawer}
+          width="75%"
+        >
+          <RxTemplateManager
+            onClose={() => setTemplateManagerDrawer(false)}
+            templates={templates}
+            onUploadNew={handleUploadNewTemplate}
+            onEdit={handleEditTemplate}
+            onDelete={handleDeleteTemplate}
+            onDownload={handleDownloadTemplate}
+            onRefresh={loadCustomTemplates}
+          />
+        </Drawer>
+
+        {/* Edit Template Modal */}
+        <EditTemplateModal
+          visible={editTemplateModal}
+          onClose={() => {
+            setEditTemplateModal(false);
+            setTemplateToEdit(null);
+            setTemplateManagerDrawer(true); // Reopen template manager
+          }}
+          template={templateToEdit}
+          onSave={handleEditSave}
         />
         {vitalDrawer && (
           <Drawer

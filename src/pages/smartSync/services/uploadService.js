@@ -1,103 +1,218 @@
 import api from '../../../api/services/axiosService';
 import config from '../../../config';
 
-export const uploadCustomCanvas = async (file, userId, onProgress) => {
+// Base URL for custom smart sync API calls - using the URL from your working cURL
+const baseUrl = { customBaseUrl: 'https://pm-digitization-qa.tatvacare.in' };
+
+// Get all custom smart sync pad templates
+export const getCustomSyncPadTemplates = async () => {
+  console.log('🔍 Fetching custom sync pad templates...');
   try {
+    const response = await api.get('/api/v1/custom-smart-sync-pad/get-files', baseUrl);
+    console.log('✅ Templates fetched successfully:', { hasData: !!response, dataLength: response?.length });
+    return {
+      success: true,
+      data: response.data || response // Handle different response structures
+    };
+  } catch (error) {
+    console.error('❌ Failed to fetch templates:', error.message);
+    return {
+      success: false,
+      error: 'Unable to fetch templates. Please try again.'
+    };
+  }
+};
+
+// Upload new custom smart sync pad template
+export const uploadCustomSyncPadTemplate = async (templateData, onProgress) => {
+  try {
+    console.log('🚀 Starting upload for template:', templateData.title);
+    
+    // Validate templateData structure
+    if (!templateData) {
+      throw new Error('Template data is undefined');
+    }
+    
+    if (!templateData.title) {
+      throw new Error('Template title is missing');
+    }
+    
+    if (!templateData.files || !Array.isArray(templateData.files)) {
+      throw new Error('Template files array is missing or invalid');
+    }
+    
+    if (templateData.files.length === 0) {
+      throw new Error('No files provided for upload');
+    }
+
     const formData = new FormData();
-    formData.append('canvas_file', file);
-    formData.append('user_id', userId);
-    formData.append('canvas_type', 'custom_rx');
-    formData.append('upload_timestamp', new Date().toISOString());
-    const config = {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    formData.append('title', templateData.title);
+    
+    console.log(`📎 Processing ${templateData.files.length} files for upload...`);
+    templateData.files.forEach((file, index) => {
+      if (!file) {
+        throw new Error(`File at index ${index} is undefined`);
+      }
+      
+      if (!file.uploadFile) {
+        throw new Error(`uploadFile property missing at index ${index}`);
+      }
+      
+      if (!(file.uploadFile instanceof File) && !(file.uploadFile instanceof Blob)) {
+        throw new Error(`uploadFile at index ${index} is not a File or Blob object, got: ${typeof file.uploadFile}`);
+      }
+      
+      formData.append('uploaded_files', file.uploadFile);
+    });
+    
+    const metadata = templateData.files.map((file, index) => {
+      if (!file?.uploadFile) {
+        throw new Error(`Cannot create metadata: uploadFile missing at index ${index}`);
+      }
+      
+      if (!file.uploadFile.name) {
+        throw new Error(`Cannot create metadata: uploadFile.name missing at index ${index}`);
+      }
+      
+      return {
+        fileName: file.uploadFile.name,
+        order: file.order || index + 1
+      };
+    });
+    
+    formData.append('metadata', JSON.stringify(metadata));
+    
+    const requestConfig = {
+      headers: { 'Content-Type': 'multipart/form-data' },
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.lengthComputable) {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          );
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           onProgress(percentCompleted);
         }
       },
+      ...baseUrl
     };
-    const response = await api.post('/canvas/upload', formData, config);
-    return {
-      success: true,
-      data: response.data
-    };
-  } catch (error) {
-    let errorMessage = 'Failed to upload canvas. Please try again.';
-    if (error.response?.data?.message) {
-      errorMessage = error.response.data.message;
-    } else if (error.message) {
-      errorMessage = error.message;
+    
+    console.log('🌐 Making API request to upload files...');
+    
+    try {
+      const responseData = await api.post('/api/v1/custom-smart-sync-pad/upload-files', formData, requestConfig);
+      
+      console.log('✅ API Response received (data only due to interceptor):', responseData);
+      
+      // Check if we have valid response data - the API returns an object with id, uploaded_files, and title
+      if (responseData && responseData.id && responseData.uploaded_files && responseData.title) {
+        console.log('✅ Upload successful! Template created with:', {
+          id: responseData.id,
+          title: responseData.title,
+          filesCount: responseData.uploaded_files.length,
+          files: responseData.uploaded_files.map(file => ({
+            id: file.id,
+            order: file.order,
+            unique_id: file.unique_id,
+            hasFileUrl: !!file.file_url
+          }))
+        });
+        
+        return {
+          success: true,
+          data: responseData
+        };
+      } else if (responseData) {
+        // We got some response but it doesn't match expected structure
+        console.log('⚠️ API returned unexpected response structure:', responseData);
+        return {
+          success: true, // Still consider it successful since we got a response
+          data: responseData
+        };
+      } else {
+        console.log('⚠️ API returned empty response');
+        return {
+          success: false,
+          error: 'API returned empty response'
+        };
+      }
+    } catch (apiError) {
+      console.error('🚨 API Call failed:', apiError.message);
+      // Re-throw the error to be caught by outer catch block
+      throw apiError;
     }
-    return {
-      success: false,
-      error: errorMessage
-    };
-  }
-};
-
-export const getUserCanvasTemplates = async (userId) => {
-  try {
-    const response = await api.get(`/canvas/user/${userId}`);
-    return {
-      success: true,
-      data: response.data
-    };
   } catch (error) {
-    return {
-      success: false,
-      error: 'Failed to fetch canvas templates'
-    };
+    console.error('❌ Upload failed:', error.message);
+    
+    let errorMessage = 'Upload failed. Please try again.';
+    if (error.response?.data?.message) errorMessage = error.response.data.message;
+    else if (error.message) errorMessage = error.message;
+    return { success: false, error: errorMessage };
   }
 };
 
-export const setActiveCanvas = async (userId, canvasId) => {
+// Update existing custom smart sync pad template
+export const updateCustomSyncPadTemplate = async (templateId, templateData, onProgress) => {
   try {
-    const response = await api.post('/canvas/set-active', {
-      user_id: userId,
-      canvas_id: canvasId
+    console.log('🔄 Starting template update for ID:', templateId, 'with title:', templateData.title);
+    
+    const formData = new FormData();
+    formData.append('title', templateData.title);
+    
+    console.log(`📎 Processing ${templateData.files.length} files for update...`);
+    templateData.files.forEach((file, index) => {
+      formData.append('uploaded_files', file.uploadFile);
+      console.log(`📄 File ${index + 1}: ${file.uploadFile.name} (${file.uploadFile.size} bytes)`);
     });
+    
+    const metadata = templateData.files.map((file, index) => ({
+      fileName: file.uploadFile.name,
+      order: file.order || index + 1
+    }));
+    formData.append('metadata', JSON.stringify(metadata));
+    
+    // Debug: Log FormData entries
+    console.log('📦 FormData entries:');
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`  ${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
+      } else {
+        console.log(`  ${key}: ${value}`);
+      }
+    }
+    
+    const requestConfig = {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: (progressEvent) => {
+        if (onProgress && progressEvent.lengthComputable) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress(percentCompleted);
+        }
+      }
+    };
+    
+    console.log('🌐 Making API request to update template...');
+    const responseData = await api.put(`/api/v1/custom-smart-sync-pad/update-files/${templateId}`, formData, { ...requestConfig, ...baseUrl });
+    
+    console.log('✅ Template updated successfully:', responseData);
     return {
       success: true,
-      data: response.data
+      data: responseData
     };
   } catch (error) {
-    return {
-      success: false,
-      error: 'Failed to set active canvas'
-    };
+    console.error('❌ Template update failed:', error);
+    let errorMessage = 'Update failed. Please try again.';
+    if (error.response?.data?.message) errorMessage = error.response.data.message;
+    else if (error.message) errorMessage = error.message;
+    return { success: false, error: errorMessage };
   }
 };
 
-export const deleteCanvas = async (canvasId) => {
+// Delete custom smart sync pad template
+export const deleteCustomSyncPadTemplate = async (templateId) => {
   try {
-    await api.delete(`/canvas/${canvasId}`);
-    return {
-      success: true
-    };
+    await api.delete(`/api/v1/custom-smart-sync-pad/delete-files/${templateId}`, baseUrl);
+    return { success: true };
   } catch (error) {
     return {
       success: false,
-      error: 'Failed to delete canvas'
-    };
-  }
-};
-
-export const getCanvasFileUrl = async (canvasId) => {
-  try {
-    const response = await api.get(`/canvas/${canvasId}/file`);
-    return {
-      success: true,
-      url: response.data.file_url
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: 'Failed to get canvas file'
+      error: 'Unable to delete template. Please try again.'
     };
   }
 }; 

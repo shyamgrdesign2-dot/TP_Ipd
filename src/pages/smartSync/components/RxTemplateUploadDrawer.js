@@ -29,6 +29,12 @@ import ArrowLeft from '../../../assets/images/Arrow-left.svg';
 import reuploadIcon from "../../../assets/images/reupload.svg";
 import { dataUrlToFileUsingFetch } from '../../../utils/utils';
 import { validateCanvasFile } from '../services/fileUtils';
+import { 
+  uploadCustomSyncPadTemplate, 
+  updateCustomSyncPadTemplate,
+  getCustomSyncPadTemplates,
+  deleteCustomSyncPadTemplate 
+} from '../services/uploadService';
 import CommonModal from "../../../common/CommonModal";
 import './RxTemplateUploadDrawer.scss';
 import tutorialIcon from '../../../assets/images/tutorial.svg';
@@ -103,32 +109,6 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
   useEffect(() => {
     currentPageIndexRef.current = selectedPageIndex;
   }, [selectedPageIndex]);
-
-  // Ensure cropper is properly initialized when page changes
-  useEffect(() => {
-    if (file?.pages && file.pages[selectedPageIndex]) {
-      // Small delay to ensure the cropper component has mounted
-      setTimeout(() => {
-        if (cropperRef.current?.cropper) {
-          const cropper = cropperRef.current.cropper;
-          const currentPage = file.pages[selectedPageIndex];
-          
-          // Restore page state if it exists
-          if (currentPage.zoom && currentPage.zoom !== 1) {
-            cropper.zoomTo(currentPage.zoom);
-          }
-          
-          if (currentPage.rotation && currentPage.rotation !== 0) {
-            cropper.rotate(currentPage.rotation);
-          }
-          
-          if (currentPage.cropBoxData) {
-            cropper.setCropBoxData(currentPage.cropBoxData);
-          }
-        }
-      }, 100);
-    }
-  }, [selectedPageIndex, file?.pages]);
 
   // Helper: check if all pages are ready for submission
   const allPagesReady = file?.pages?.every(page => {
@@ -514,12 +494,7 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
           }
           
           setSelectedPageIndex(index);
-          const selectedPage = file.pages[index];
-          const pageZoom = selectedPage.zoom || 1;
-          setZoom(pageZoom);
-          
-          // Restore auto-saved state for the selected page
-          restorePageState(index);
+          setZoom(1); // Reset zoom when changing pages
         }}
         {...attributes}
         {...listeners}
@@ -530,7 +505,7 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
     );
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Validate canvas name
     if (!file?.name?.trim()) {
       message.error('Please enter a canvas name before submitting.');
@@ -573,31 +548,115 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       return;
     }
     
-    // Prepare template data
+    // Prepare template data for API
+    console.log('🔧 Preparing template data for upload...');
+    
+    // Create proper file objects for each page
+    const filesForUpload = await Promise.all(
+      file.pages.map(async (page, index) => {
+        let fileToUpload = page.uploadFile;
+        
+        // If no uploadFile exists, create one from the image data
+        if (!fileToUpload) {
+          if (page.showFile || page.image) {
+            try {
+              // Use showFile (which could be cropped image) or fallback to original image
+              const imageData = page.showFile || page.image;
+              console.log(`🖼️ Creating File object for page ${index + 1}`);
+              
+              // Convert image to File object
+              fileToUpload = await dataUrlToFileUsingFetch(
+                imageData,
+                `rx-template-page-${index + 1}.png`,
+                'image/png'
+              );
+            } catch (error) {
+              console.error(`❌ Failed to create File object for page ${index + 1}:`, error);
+              throw new Error(`Failed to prepare file for page ${index + 1}: ${error.message}`);
+            }
+          } else {
+            throw new Error(`Page ${index + 1} has no image data to upload`);
+          }
+        }
+        
+        return {
+          uploadFile: fileToUpload,
+          order: page.order || index + 1,
+          pageNumber: index + 1,
+          croppedImage: page.croppedImage || page.showFile,
+          cropBoxData: page.cropBoxData,
+          dimensions: page.dimensions,
+          isCropped: !!page.croppedImage,
+          hasBeenEdited: page.hasBeenEdited
+        };
+      })
+    );
+    
     const templateData = {
-      pages: file.pages.map((page, index) => ({
-        pageNumber: index + 1,
-        croppedImage: page.croppedImage || page.showFile, // Use original if not cropped
-        uploadFile: page.uploadFile || page.image,        // Use original if not cropped
-        cropBoxData: page.cropBoxData,
-        dimensions: page.dimensions,
-        isCropped: !!page.croppedImage,                   // Flag to indicate if cropped
-        hasBeenEdited: page.hasBeenEdited
-      })),
-      originalFile: file.originalFile,
-      dimensions: file.dimensions,
-      name: file.name.trim(),
-      totalPages: file.pages.length,
-      createdAt: new Date().toISOString()
+      title: file.name.trim(),
+      files: filesForUpload
     };
     
-    onSave(templateData);
-    onClose();
+    console.log(`✅ Template data prepared: "${templateData.title}" with ${templateData.files.length} files`);
     
-    // Reset state
-    setFile(null);
-    setZoom(1);
-    setSelectedPageIndex(0);
+    // Upload template via API
+    handleApiUpload(templateData);
+  };
+
+  // Handle API upload with progress tracking
+  const handleApiUpload = async (templateData) => {
+    setIsProcessing(true);
+    
+    try {
+      message.loading('Uploading template...', 0);
+      
+      console.log('📤 Starting API upload...');
+      const result = await uploadCustomSyncPadTemplate(
+        templateData,
+        (progress) => {
+          // Update progress
+          message.destroy();
+          message.loading(`Uploading... ${progress}%`, 0);
+        }
+      );
+      
+      message.destroy();
+      console.log('📋 Upload result received:', { success: result.success, hasData: !!result.data, error: result.error });
+      
+      if (result.success) {
+        console.log('✅ Upload successful, calling onSave and closing...');
+        message.success('Template uploaded successfully!');
+        
+        // Call the onSave callback with the response data
+        if (onSave) {
+          console.log('📞 Calling onSave callback...');
+          onSave(result.data);
+        }
+        
+        console.log('🚪 Closing drawer...');
+        onClose();
+        
+        // Reset state
+        console.log('🧹 Resetting state...');
+        setFile(null);
+        setZoom(1);
+        setSelectedPageIndex(0);
+        setIsProcessing(false);
+        
+        console.log('✅ Upload process completed successfully');
+      } else {
+        console.log('❌ Upload failed with error:', result.error);
+        message.error(result.error || 'Failed to upload template');
+        setIsProcessing(false);
+      }
+      
+    } catch (error) {
+      message.destroy();
+      console.error('💥 Exception in handleApiUpload:', error);
+      console.error('Error stack:', error.stack);
+      message.error('Failed to save template. Please try again.');
+      setIsProcessing(false);
+    }
   };
 
   const handleReupload = () => {
@@ -727,130 +786,44 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
   };
 
   const handleZoom = (delta) => {
-    // Validate page existence before accessing properties
-    if (!file?.pages || !file.pages[selectedPageIndex]) {
-      return;
-    }
-    
-    const currentPage = file.pages[selectedPageIndex];
-    const currentZoom = currentPage.zoom || 1;
-    const newZoom = currentZoom + delta;
-    
+    const newZoom = zoom + delta;
     if (newZoom >= 0.5 && newZoom <= 3) {
+      setZoom(newZoom);
       if (cropperRef.current?.cropper) {
         cropperRef.current.cropper.zoomTo(newZoom);
-        
-        // Update page zoom and mark as edited
-        setFile(prev => ({
-          ...prev,
-          pages: prev.pages.map((page, idx) =>
-            idx === selectedPageIndex
-              ? { 
-                  ...page, 
-                  zoom: newZoom,
-                  hasBeenEdited: true 
-                }
-              : page
-          )
-        }));
-        
-        // Auto-save zoom changes with debouncing
-        if (autoSaveTimeoutRef.current) {
-          clearTimeout(autoSaveTimeoutRef.current);
-        }
-        autoSaveTimeoutRef.current = setTimeout(() => {
-          autoSavePageState(false);
-        }, 500);
       }
     }
   };
 
   const handleRotate = () => {
-    // Validate page existence before accessing properties
-    if (!file?.pages || !file.pages[selectedPageIndex]) {
-      return;
-    }
-    
     if (cropperRef.current?.cropper) {
       cropperRef.current.cropper.rotate(90);
-      
-      // Update rotation in page state
-      const currentPage = file.pages[selectedPageIndex];
-      const currentRotation = currentPage.rotation || 0;
-      const newRotation = (currentRotation + 90) % 360;
-      
-      // Mark page as edited when user interacts
-      setFile(prev => ({
-        ...prev,
-        pages: prev.pages.map((page, idx) =>
-          idx === selectedPageIndex
-            ? { 
-                ...page, 
-                rotation: newRotation,
-                hasBeenEdited: true 
-              }
-            : page
-        )
-      }));
-      
-      // Auto-save rotation changes with debouncing
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-      autoSaveTimeoutRef.current = setTimeout(() => {
-        autoSavePageState(false);
-      }, 500);
     }
   };
 
-  // Add reset page functionality
-  const handleResetPage = () => {
-    if (!file?.pages || !file.pages[selectedPageIndex]) {
-      return;
-    }
-    
-    try {
-      const currentPage = file.pages[selectedPageIndex];
-      
-      // Reset cropper to original state
-      if (cropperRef.current?.cropper) {
-        cropperRef.current.cropper.reset();
-        cropperRef.current.cropper.zoomTo(1);
-        cropperRef.current.cropper.rotate(0);
-      }
-      
-      // Reset page state to original
-      setFile(prev => ({
-        ...prev,
-        pages: prev.pages.map((page, idx) =>
-          idx === selectedPageIndex
-            ? {
-                ...page,
-                hasBeenEdited: false,
-                zoom: 1,
-                rotation: 0,
-                croppedImage: null,
-                cropBoxData: null,
-                uploadFile: null,
-                showFile: page.originalState.image, // Reset to original image
-                // Reset auto-saved state to original
-                autoSavedState: {
-                  zoom: 1,
-                  rotation: 0,
-                  cropBoxData: null,
-                  croppedImage: null,
-                  hasBeenEdited: false
-                }
-              }
-            : page
-        )
-      }));
-      
+  // Reset cropper when page changes
+  useEffect(() => {
+    if (file?.pages && file.pages[selectedPageIndex]) {
+      // Reset zoom when page changes
       setZoom(1);
-    } catch (error) {
-      console.error('Error resetting page:', error);
-      message.error('Failed to reset page. Please try again.');
+      
+      // Small delay to ensure the cropper component has mounted
+      setTimeout(() => {
+        if (cropperRef.current?.cropper) {
+          const cropper = cropperRef.current.cropper;
+          // Reset cropper to default state
+          cropper.reset();
+        }
+      }, 100);
     }
+  }, [selectedPageIndex, file?.pages]);
+
+  // Reset functionality - simple like LogoUploadDrawer
+  const handleResetPage = () => {
+    if (cropperRef.current?.cropper) {
+      cropperRef.current.cropper.reset();
+    }
+    setZoom(1);
   };
 
   const handleClose = () => {
@@ -1170,7 +1143,7 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
                       message.error('Failed to load image for cropping. Please try again.');
                     }}
                     ready={() => {
-                      console.log('Cropper ready for page:', selectedPageIndex + 1);
+                      // console.log('Cropper ready for page:', selectedPageIndex + 1);
                     }}
                     cropend={() => {
                       // Auto-save when user finishes cropping
@@ -1206,12 +1179,10 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
                     <div className={`cropper-action-btn ${isProcessing ? 'disabled' : ''}`} onClick={isProcessing ? null : handleRotate}><RedoOutlined /></div>
                     <div className={`cropper-action-btn ${isProcessing ? 'disabled' : ''}`} onClick={isProcessing ? null : () => handleZoom(-0.1)}><MinusOutlined /></div>
                     <div className={`cropper-action-btn ${isProcessing ? 'disabled' : ''}`} onClick={isProcessing ? null : () => handleZoom(0.1)}><PlusOutlined /></div>
-                    {/* Reset button - always show when page has been edited */}
-                    {file?.pages?.[selectedPageIndex]?.hasBeenEdited && (
-                      <div className={`cropper-action-btn reset-btn ${isProcessing ? 'disabled' : ''}`} onClick={isProcessing ? null : handleResetPage}>
-                        <span style={{ fontSize: '12px', color: 'white' }}>Reset</span>
-                      </div>
-                    )}
+                    {/* Reset button - always visible */}
+                    <div className={`cropper-action-btn reset-btn ${isProcessing ? 'disabled' : ''}`} onClick={isProcessing ? null : handleResetPage}>
+                      <span style={{ fontSize: '12px', color: 'white' }}>Reset</span>
+                    </div>
                   </div>
                 </div>
               </div>
