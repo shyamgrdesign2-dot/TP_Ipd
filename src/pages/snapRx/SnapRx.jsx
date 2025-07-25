@@ -170,7 +170,7 @@ function SnapRxContent() {
           url: objectUrl,
           preview: objectUrl,
           rotation: 0,
-          zoom: 1.1,
+          zoom: 1,
           crop: file?.crop || {
             unit: "%",
             x: 2,

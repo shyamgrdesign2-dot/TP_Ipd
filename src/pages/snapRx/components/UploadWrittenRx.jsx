@@ -186,7 +186,7 @@ const UploadWrittenRx = forwardRef(
                     ? storedFileIdToReplace
                     : Date.now() + Math.random(),
                 rotation: 0,
-                zoom: 1.1,
+                zoom: 1,
                 crop: {
                   unit: "%",
                   x: 2,
@@ -220,7 +220,7 @@ const UploadWrittenRx = forwardRef(
                 ? storedFileIdToReplace
                 : Date.now() + Math.random(),
             rotation: 0,
-            zoom: 1.1,
+            zoom: 1,
             crop: {
               unit: "%",
               x: 2,
