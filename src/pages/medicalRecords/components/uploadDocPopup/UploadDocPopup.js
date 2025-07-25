@@ -94,7 +94,7 @@ const UploadDocPopup = ({
               async (docSnapshotOfCapturedImage) => {
                 const res = docSnapshotOfCapturedImage?.data();
                 if (res?.clicked === "no") {
-                  if (res?.fileValidations === "above8mb") {
+                  if (res?.fileValidations === "above15mb") {
                     setIsFileSizeError(true);
                   } else if (res?.fileValidations === "above5files") {
                     setIsFileLimitError(true);
