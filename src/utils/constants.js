@@ -74,6 +74,26 @@ export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
 export const GB_SNAP_RX = "snap-rx";
 
+export const FREE = "FREE";
+export const TRIAL = "TRIAL";
+export const PAID = "PAID";
+export const PENDING = "PENDING";
+export const APPROVED = "APPROVED";
+export const REJECTED = "REJECTED";
+export const FAILED_VERIFICATION = "FAILED-VERIFICATION";
+export const PENDING_VERIFICATION = "PENDING-VERIFICATION";
+export const S_TATVA_PRACTICE = "tatva_practice";
+export const S_VOICE_RX = "voice_rx";
+export const S_SMARTSYNC = "smartsync";
+export const S_RX_DIGITIZATION = "rx_digitization";
+export const S_DDX = "ddx";
+export const S_ASK_TATVA = "ask_tatva";
+export const S_BILLING = "billing";
+export const S_PHARMACY = "pharmacy";
+export const S_IPD = "ipd";
+export const S_OPD_BILLING = "opd_billing";
+export const S_RECEPTIONIST_AGENT = "receptionist_agent";
+
 export const EXTRA_OPTIONS = [
   {
     key: JSON.stringify({

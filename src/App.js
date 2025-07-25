@@ -29,7 +29,10 @@ import DoctorWebsiteSetting from "./pages/DoctorWebsiteSetting";
 import MessageCreateCampaign from "./pages/MessageCreateCampaign";
 
 import { store, persistor } from "./redux/store";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "./utils/constants";
+import {
+  PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+  PERSISTANT_STORAGE_KEY_MEDECO_TOKEN,
+} from "./utils/constants";
 import { useLocalStorage } from "./utils/localStorage";
 
 import { ErrorBoundary } from "react-error-boundary";
@@ -49,6 +52,8 @@ import AllPatients from "./pages/allPatients.js/AllPatients";
 import AddAppointment from "./pages/addAppointment/AddAppointment";
 import { checkAccountStatus } from "./pages/auth/authService";
 import PrivateRoute from "./pages/auth/components/PrivateRoute";
+import GetUnlimitedAccess from "./pages/monetization/GetUnlimitedAccess";
+import UpgradeServicesModal from "./pages/monetization/components/UpgradeServicesModal";
 import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
 import SnapRx from "./pages/snapRx/SnapRx";
@@ -56,6 +61,8 @@ import UploadRx from "./pages/uploadRx";
 import BottomSheetManager from "./components/bottomSheetManager";
 import SnapRxPreview from "./pages/snapRx/SnapRxPreview";
 import SnapRxDigitise from "./pages/snapRx/SnapRxDigitise";
+import AppointmentAgent from "./pages/appointmentAgent/AppointmentAgent";
+import AppointmentSuccess from "./pages/appointmentAgent/components/AppointmentSuccess/AppointmentSuccess";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -69,10 +76,15 @@ function App() {
   const authToken = searchParams.get("authToken");
   const redirectTo = searchParams.get("redirectTo");
   const uploadParams = searchParams.get("uploadParams");
+  const medecoToken = searchParams.get("medecoToken");
   const location = useLocation();
   const navigate = useNavigate();
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
+  );
+
+  const [getMedecoToken, setMedecoToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_MEDECO_TOKEN
   );
 
   const isLoginPage = location.pathname === "/login";
@@ -122,7 +134,6 @@ function App() {
       window.isLoggingOut = false;
     }
   };
-
   useEffect(() => {
     const checkUserStatus = async () => {
       const token = getToken();
@@ -211,7 +222,6 @@ function App() {
       const params = new URLSearchParams(location.search);
       if (!isReceptionist) {
         params.delete("authToken");
-
         // Navigate to appointment list
         navigate(
           {
@@ -315,6 +325,26 @@ function App() {
     }
   }, [isRootPath, token, authToken, navigate, redirectTo, redirectReady]);
 
+  //Upgraded Services Modal
+  const upgrade_services = searchParams.get("upgrade_services");
+  const service_list = searchParams.get("service_list");
+  const [isUpgradeModal, setIsUpgradeModal] = useState(false);
+  const [upgradeList, setUpgradeList] = useState(null);
+
+  useEffect(() => {
+    if (upgrade_services) {
+      setIsUpgradeModal(true);
+      setUpgradeList(service_list.split(",").map((s) => s.trim()));
+      searchParams.delete("upgrade_services");
+      searchParams.delete("service_list");
+      navigate("/", { replace: true });
+    }
+  }, [upgrade_services]);
+
+  const handleUpgradeModal = () => {
+    setIsUpgradeModal(false);
+  };
+
   return (
     <GrowthBookProvider growthbook={growthbook}>
       <ErrorBoundary
@@ -350,12 +380,19 @@ function App() {
                 <BottomSheetManager />
               </div>
             )}
+            {isUpgradeModal && (
+              <UpgradeServicesModal
+                isUpgradeModal={isUpgradeModal}
+                upgradeList={upgradeList}
+                handleUpgradeModal={handleUpgradeModal}
+              />
+            )}
             <Routes>
               {/* Public route */}
               {/* <Route path="/login" element={<AuthContainer />} /> */}
               <Route path="/login" element={<Onboarding />} />
               <Route path="/final-setup" element={<FinalSetup />} />
-              
+
               {/* Restricted route - authorized only to get/upload snapRx files */}
               <Route path="snap-rx/mobile-upload" element={<UploadRx />} />
 
@@ -413,6 +450,18 @@ function App() {
                 <Route path="snap-rx" element={<SnapRx />} />
                 <Route path="snap-rx/preview" element={<SnapRxPreview />} />
                 <Route path="snap-rx/digitise" element={<SnapRxDigitise />} />
+                <Route
+                  path="get-unlimited-access"
+                  element={<GetUnlimitedAccess />}
+                />
+                <Route
+                  path="appointment-agent"
+                  element={<AppointmentAgent />}
+                />
+                <Route
+                  path="appointment-agent/success"
+                  element={<AppointmentSuccess />}
+                />
               </Route>
             </Routes>
           </PersistGate>

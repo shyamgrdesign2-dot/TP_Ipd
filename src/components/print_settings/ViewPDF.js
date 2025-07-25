@@ -65,11 +65,11 @@ Font.register({
 });
 
 Font.register({
-    family: 'NotoSansDevanagari',
+    family: 'AnekDevanagari',
     fonts: [
-        { src: require('../../assets/fonts/print-fonts/NotoSansDevanagari-Regular.ttf'), fontWeight: 400 }, // Regular
-        { src: require('../../assets/fonts/print-fonts/NotoSansDevanagari-Medium.ttf'), fontWeight: 500 }, // Medium
-        { src: require('../../assets/fonts/print-fonts/NotoSansDevanagari-Bold.ttf'), fontWeight: 700 }, // Bold
+        { src: require('../../assets/fonts/print-fonts/AnekDevanagari-Regular.ttf'), fontWeight: 400 }, // Regular
+        { src: require('../../assets/fonts/print-fonts/AnekDevanagari-Medium.ttf'), fontWeight: 500 }, // Medium
+        { src: require('../../assets/fonts/print-fonts/AnekDevanagari-Bold.ttf'), fontWeight: 700 }, // Bold
     ],
 });
 
@@ -237,6 +237,9 @@ const styles = StyleSheet.create({
         color: '#454551',
     },
 });
+
+const module_id = process.env.REACT_APP_ENV !== "prod" ? '6874956bc1abf17f6932cb32' : '68624471353771e0a587fed6';
+const um_id = process.env.REACT_APP_ENV !== "prod" ? '493' : '12028';
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
@@ -595,10 +598,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 style={[paddingStyles, {
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'space-between',
+                    // justifyContent: 'space-between',
                 }]}
                 wrap={!smartRxData}>
-                <View style={{flex: 1}}>    
+                {/* <View style={{flex: 1}}>     */}
                 <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed>
                     {mode == NORMAL ? (
                         printSettings?.letterhead_format === 0 ? (
@@ -766,45 +769,86 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     )
                 )}
 
-                <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />
+                <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} 
+                      fixed={printSettings?.header_footer?.show_patient_info === 'all'} />
+                {printSettings?.header_footer?.show_patient_info === 'all' ? (
+                    <>
+                        <View style={{ flexDirection: 'row', marginVertical: PX_TO_PT * 15 }} fixed>
+                            <View style={{ flex: 0.7 }}>
+                                {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
+                                    return (
+                                        i % 2 === 0 && (
+                                            <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
+                                                <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
+                                                <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
+                                            </View>
+                                        )
+                                    )
+                                })}
+                            </View>
+                            <View style={{ flex: 0.4 }}>
+                                {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
+                                    return (
+                                        i % 2 === 1 && (
+                                            <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
+                                                <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
+                                                <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
+                                            </View>
+                                        )
+                                    )
+                                })}
+                            </View>
+                        </View>
+                        <View style={{ marginBottom: PX_TO_PT * 15, backgroundColor: '#171725', height: PX_TO_PT * 1, width: '100%' }} fixed />
+                    </>
+                                 ) : (
+                     <>
+                         <View style={{ flexDirection: 'row', marginVertical: PX_TO_PT * 15 }}>
+                             <View style={{ flex: 0.7 }}>
+                                 {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
+                                     return (
+                                         i % 2 === 0 && (
+                                             <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
+                                                 <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
+                                                 <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
+                                             </View>
+                                         )
+                                     )
+                                 })}
+                             </View>
+                             <View style={{ flex: 0.4 }}>
+                                 {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
+                                     return (
+                                         i % 2 === 1 && (
+                                             <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
+                                                 <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
+                                                 <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
+                                             </View>
+                                         )
+                                     )
+                                 })}
+                             </View>
+                         </View>
+                                                
+                         <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 1, width: '100%' }} />
+                     </>
+                 )}
 
-                <View style={{ flexDirection: 'row', marginVertical: PX_TO_PT * 15 }}>
-                    <View style={{ flex: 0.7 }}>
-                        {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
-                            return (
-                                i % 2 === 0 && (
-                                    <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
-                                        <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
-                                        <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
-                                    </View>
-                                )
-                            )
-                        })}
-                    </View>
-                    <View style={{ flex: 0.4 }}>
-                        {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
-                            return (
-                                i % 2 === 1 && (
-                                    <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
-                                        <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
-                                        <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
-                                    </View>
-                                )
-                            )
-                        })}
-                    </View>
-                </View>
-
-                <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 1, width: '100%' }} />
-
-                <View>
+                {/* <View style={{ 
+                    marginTop: (printSettings?.header_footer?.show_patient_info === 'first' || 
+                               !printSettings?.header_footer?.show_patient_info) ? PX_TO_PT * 15 : 0 
+                }}> */}
                     {printSettings?.prescription?.case_option?.map((option, index) => {
                         let customModule = caseManagerData?.moduleContents?.find(e => e.module_id === option?.id);
                         if(customModule) {
-                            customModule = {...customModule, name: getCustomModuleName(option?.id)};
+                            customModule = { ...customModule, name: getCustomModuleName(option?.id) };
                         }
                         return (
-                            option?.id === 1 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                            <View style={{
+                                marginTop: index === 0 ? (printSettings?.header_footer?.show_patient_info === 'first' ||
+                                    !printSettings?.header_footer?.show_patient_info) ? PX_TO_PT * 15 : 0 : 0
+                            }} break={option?.id == module_id && caseManagerData?.doctor_data?.um_id == um_id ? true : false}>
+                            {option?.id === 1 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
                                     {caseManagerData.symptoms.length > 0 && (
                                         option?.format === 'inline' ? (
@@ -1240,12 +1284,22 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     <View style={styles.headerRow} fixed>
                                                         <Text style={[styles.headerCell, { flex: 0.18, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>S.NO</Text>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>MEDICINE</Text>
-                                                        <View style={{ flex: 2.4 }}>
+                                                        <View style={{ flex: 
+                                                            option?.medicine_option?.length === 0 ?
+                                                                0.25
+                                                                : option?.medicine_option?.length === 1 ?
+                                                                    0.8
+                                                                    : option?.medicine_option?.length === 2 ?
+                                                                        1.2
+                                                                        : option?.medicine_option?.length === 3 ?
+                                                                            1.4
+                                                                            : 2.4
+                                                         }}>
                                                             <View style={{ flexGrow: 1, flexDirection: 'row' }}>
                                                                 {option?.medicine_option?.includes('dose') && (
-                                                                    <Text style={[styles.headerCell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DOSE</Text>
+                                                                    <Text style={[styles.headerCell, { flex: 0.45, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DOSE</Text>
                                                                 )}
-                                                                <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>FREQUENCY</Text>
+                                                                <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>FREQUENCY</Text>
                                                                 {option?.medicine_option?.includes('duration') && (
                                                                     <Text style={[styles.headerCell, { flex: 0.53, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DURATION</Text>
                                                                 )}
@@ -1267,14 +1321,24 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: (PX_TO_PT * printSettings?.page_format?.font_size) - 2, fontWeight: 400 }]}>{pItem.tmm_generic}</Text>
                                                                 )}
                                                             </View>
-                                                            <View style={{ flex: 2.4 }}>
+                                                            <View style={{ flex: 
+                                                                option?.medicine_option?.length === 0 ?
+                                                                    0.25
+                                                                    : option?.medicine_option?.length === 1 ?
+                                                                        0.8
+                                                                        : option?.medicine_option?.length === 2 ?
+                                                                            1.2
+                                                                            : option?.medicine_option?.length === 3 ?
+                                                                                1.4
+                                                                                : 2.4
+                                                            }}>
                                                                 {innerMedication(pItem.index).map((item, ii) => {
                                                                     return (
                                                                         <View style={{ flexGrow: 1, flexDirection: 'row', borderBottom: ii != innerMedication(pItem.index)?.length - 1 ? '1px solid #171725' : '0px' }} key={ii}>
                                                                             {option?.medicine_option?.includes('dose') && (
-                                                                                <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`${item.tmm_dosage && item.tmm_unit ? `${formatUnitPerDose(item.tmm_dosage)} ${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit).tmu_title : ""}` : `${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit).tmu_title : ""}`}`}</Text>
+                                                                                <Text style={[styles.cell, { flex: 0.45, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`${item.tmm_dosage && item.tmm_unit ? `${formatUnitPerDose(item.tmm_dosage)} ${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit).tmu_title : ""}` : `${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit).tmu_title : ""}`}`}</Text>
                                                                             )}
-                                                                            <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                                 {item.tmf_block === 0 || item.tmf_block === "" ? `${(item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night) ? (option?.numeric_frequency) ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${item.tcm_tmm_freq_evening ? ' - ' + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ''} - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}` : formatFrequency(item.tcm_tmm_freq_morning, item.tcm_tmm_freq_afternoon,item.tcm_tmm_freq_evening,item.tcm_tmm_freq_night) : `-`}` : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}
                                                                             </Text>
                                                                             {option?.medicine_option?.includes('duration') && (
@@ -1417,7 +1481,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontFamily: printSettings?.page_format?.font_family,
                                                                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                 fontWeight: 500
-                                                            }}>Patient’s birth weight:&nbsp;
+                                                            }}>Patient's birth weight:&nbsp;
                                                         </Text>
                                                         <Text
                                                             style={{
@@ -1485,7 +1549,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     fontFamily: printSettings?.page_format?.font_family,
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                     fontWeight: 500
-                                                                }}>Patient’s birth weight:&nbsp;
+                                                                }}>Patient's birth weight:&nbsp;
                                                             </Text>
                                                             <Text
                                                                 style={{
@@ -1555,7 +1619,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     fontFamily: printSettings?.page_format?.font_family,
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                     fontWeight: 500
-                                                                }}>Patient’s birth weight:&nbsp;
+                                                                }}>Patient's birth weight:&nbsp;
                                                             </Text>
                                                             <Text
                                                                 style={{
@@ -1602,99 +1666,77 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {caseManagerData.medical_history.length > 0 && (
                                         option?.format === 'inline' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
-                                                {caseManagerData.medical_history.map((item, i) => {
-                                                    return (
-                                                        option?.medical_history_option?.includes(item.tmmhs_id) && item?.tags?.length > 0 && (
-                                                            <Text key={i} style={{ marginTop: (item?.no_know_history || item?.tags?.length > 0) ? PX_TO_PT * 6 : 0, lineHeight: 1.4 }}>
-                                                                {!item?.no_know_history ? (
-                                                                    item?.tags?.length > 0 && (
-                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;
-                                                                            {item.tags.map((item1, i1) => {
-                                                                                return (
-                                                                                    <>
-                                                                                        {`(`}
-                                                                                        {item1.enable == 'Y' ? (
-                                                                                            <>
-                                                                                                <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                                    {medical_history_title(item?.tmmhs_id)}
-                                                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                        {item1?.title}
-                                                                                                    </Text>
-                                                                                                </Text>
-
-                                                                                                {item1?.since && (
-                                                                                                    <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                                        {` | Since : `}
-                                                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                            {item1?.since}
-                                                                                                        </Text>
-                                                                                                    </Text>
-                                                                                                )}
-
-                                                                                                {item?.tmmhs_id != 3 && (
-                                                                                                    <>
-                                                                                                        {item1?.status && (
-                                                                                                            <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                                                {` | Status : `}
-                                                                                                                <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                                    {item1?.status}
-                                                                                                                </Text>
-                                                                                                            </Text>
-                                                                                                        )}
-                                                                                                        {item1?.medication && (
-                                                                                                            <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                                                {` | Medication : `}
-                                                                                                                <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                                    {item1?.medication}
-                                                                                                                </Text>
-                                                                                                            </Text>
-                                                                                                        )}
-                                                                                                    </>
-                                                                                                )}
-                                                                                                {item?.tmmhs_id == 3 && item1?.relationship && (
-                                                                                                    <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                                        {` | Relative : `}
-                                                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                            {item1?.relationship}
-                                                                                                        </Text>
-                                                                                                    </Text>
-                                                                                                )}
-
-                                                                                                {item1?.note && (
-                                                                                                    <Text key={i1} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                                                        {` | Note : `}
-                                                                                                        <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(item1?.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                            {item1?.note}
-                                                                                                        </Text>
-                                                                                                    </Text>
-                                                                                                )}
-                                                                                            </>
-                                                                                        ) : (
-                                                                                            <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                {`No ${item1.title}`}
-                                                                                            </Text>
-                                                                                        )}
-                                                                                        {`)`}{item.tags.length - 1 != i1 ? ',' : ''}&nbsp;
-                                                                                    </>
-                                                                                )
-                                                                            })}
-                                                                            {'\n'}</Text>
-                                                                    )
-                                                                ) : (
-                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;
-                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(No known history)`}</Text>
+                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:</Text>
+                                                {(() => {
+                                                    const grouped = {};
+                                                    if (caseManagerData?.medical_history && Array.isArray(caseManagerData.medical_history)) {
+                                                        caseManagerData.medical_history.forEach(item => {
+                                                            if (item && option?.medical_history_option?.includes(item.tmmhs_id)) {
+                                                                if (!grouped[item.title]) {
+                                                                    grouped[item.title] = [];
+                                                                }
+                                                                if (item?.tags?.length > 0 && !item?.no_know_history) {
+                                                                    item.tags.forEach(tag => {
+                                                                        if (tag && tag.enable === 'Y') {
+                                                                            let conditionName = tag.title || '';
+                                                                            let details = '';
+                                                                            let hasDetails = false;
+                                                                            if (tag.since) {
+                                                                                details += ` (Since: ${tag.since}`;
+                                                                                hasDetails = true;
+                                                                            }
+                                                                            if (item.tmmhs_id !== 3 && tag.status) {
+                                                                                details += hasDetails ? ` | Status: ${tag.status}` : ` (Status: ${tag.status}`;
+                                                                                hasDetails = true;
+                                                                            }
+                                                                            if (item.tmmhs_id !== 3 && tag.medication) {
+                                                                                details += hasDetails ? ` | Medication: ${tag.medication}` : ` (Medication: ${tag.medication}`;
+                                                                                hasDetails = true;
+                                                                            }
+                                                                            if (item.tmmhs_id === 3 && tag.relationship) {
+                                                                                details += hasDetails ? ` | Relative: ${tag.relationship}` : ` (Relative: ${tag.relationship}`;
+                                                                                hasDetails = true;
+                                                                            }
+                                                                            if (tag.note) {
+                                                                                details += hasDetails ? ` | Note: ${tag.note}` : ` (Note: ${tag.note}`;
+                                                                                hasDetails = true;
+                                                                            }
+                                                                            if (hasDetails) {
+                                                                                details += `)`;
+                                                                            }
+                                                                            grouped[item.title].push({ conditionName, details, hasDetails });
+                                                                        }
+                                                                    });
+                                                                } else if (item?.no_know_history) {
+                                                                    grouped[item.title].push({ conditionName: 'No known history', details: '', hasDetails: false });
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                    return Object.keys(grouped).map(category => 
+                                                        grouped[category]?.length > 0 ? (
+                                                            <Text key={category} style={{ marginTop: PX_TO_PT * 8, lineHeight: 1.4 }}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                    {category}:
+                                                                </Text>
+                                                                {grouped[category].map((item, index) => (
+                                                                    <Text key={index} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                        {index > 0 ? ', ' : ' '}
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                            {item.conditionName}
+                                                                        </Text>
+                                                                        {item.details}
                                                                     </Text>
-                                                                )}
+                                                                ))}
                                                             </Text>
-                                                        )
-                                                    )
-                                                })}
+                                                        ) : null
+                                                    );
+                                                })()}
                                                 {caseManagerData?.medical_history?.[0]?.medical_history_remarks && (
-                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{'\n'}{`Additional History`}&nbsp;</Text>
+                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, marginTop: PX_TO_PT * 8 }}>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{'\n'}Additional History: </Text>
                                                         <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                            {`(`}{caseManagerData?.medical_history?.[0]?.medical_history_remarks}{`)`}
+                                                            ({caseManagerData?.medical_history?.[0]?.medical_history_remarks})
                                                         </Text>
                                                     </Text>
                                                 )}
@@ -4918,15 +4960,21 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 </Text>
                                                 {/* Zydus Cross-Tab Table Structure */}
                                                 {(() => {
-                                                    // Process data for cross-tabulation with service grouping
-                                                    const dates = [...new Set(caseManagerData.zydusSelectedLabParams.map(entry => entry.date))]
-                                                        .sort((a, b) => new Date(b.split('-').reverse().join('-')) - new Date(a.split('-').reverse().join('-'))); // Most recent first
+                                                    const allDates = [...new Set(caseManagerData.zydusSelectedLabParams.map(entry => entry.date))]
+                                                        .sort((a, b) => new Date(b.split('-').reverse().join('-')) - new Date(a.split('-').reverse().join('-')));
+                                                        const dates = allDates.slice(0, 5);
+                                                        const dateColumnCount = dates.length;
+                                                        const investigationFlex = dateColumnCount >= 4 ? 0.8 : 1;
+                                                        const subParamsFlex = dateColumnCount >= 4 ? 0.8 : 1;
+                                                        const dateColumnFlex = dateColumnCount >= 4 ? 0.6 : 1;
                                                     
                                                     const serviceGroups = [];
                                                     const serviceMap = new Map();
                                                     
-                                                    // Collect all unique services in order they appear
-                                                    caseManagerData.zydusSelectedLabParams.forEach(dateEntry => {
+                                                    {/* Group services by date */}
+                                                    caseManagerData.zydusSelectedLabParams
+                                                        .filter(dateEntry => dates.includes(dateEntry.date))
+                                                        .forEach(dateEntry => {
                                                         dateEntry.inputs.forEach(test => {
                                                             if (!serviceMap.has(test.serviceName)) {
                                                                 serviceMap.set(test.serviceName, {
@@ -4942,12 +4990,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     serviceGroups.forEach(serviceGroup => {
                                                         const serviceName = serviceGroup.serviceName;
                                                         
-                                                        // Check if service has direct results
                                                         let hasDirectResults = false;
                                                         const directResults = {};
                                                         let directReferenceRange = '';
                                                         
-                                                        caseManagerData.zydusSelectedLabParams.forEach(dateEntry => {
+                                                        caseManagerData.zydusSelectedLabParams
+                                                            .filter(dateEntry => dates.includes(dateEntry.date))
+                                                            .forEach(dateEntry => {
                                                             const test = dateEntry.inputs.find(t => t.serviceName === serviceName);
                                                             if (test && test.resultvalue !== '-') {
                                                                 hasDirectResults = true;
@@ -4958,19 +5007,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             }
                                                         });
                                                         
-                                                        // Add direct result row if exists
-                                                        if (hasDirectResults) {
-                                                            serviceGroup.rows.push({
-                                                                name: serviceName,
-                                                                referenceRange: directReferenceRange,
-                                                                results: directResults
-                                                            });
-                                                        }
-                                                        
                                                         // Collect all parameters for this service
                                                         const parameterMap = new Map();
                                                         
-                                                        caseManagerData.zydusSelectedLabParams.forEach(dateEntry => {
+                                                        caseManagerData.zydusSelectedLabParams
+                                                            .filter(dateEntry => dates.includes(dateEntry.date))
+                                                            .forEach(dateEntry => {
                                                             const test = dateEntry.inputs.find(t => t.serviceName === serviceName);
                                                             if (test && test.labResultParameters) {
                                                                 test.labResultParameters.forEach(param => {
@@ -4978,7 +5020,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         parameterMap.set(param.parameterName, {
                                                                             name: param.parameterName,
                                                                             referenceRange: param.referenceRange || '',
-                                                                            results: {}
+                                                                            results: {},
+                                                                            type: 'parameter'
                                                                         });
                                                                     }
                                                                     parameterMap.get(param.parameterName).results[dateEntry.date] = param.resultValue;
@@ -4986,76 +5029,316 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             }
                                                         });
                                                         
-                                                        // Add parameter rows
-                                                        serviceGroup.rows.push(...Array.from(parameterMap.values()));
+                                                        const parameters = Array.from(parameterMap.values());
+                                                        const splitLongContent = (param) => {
+                                                            const getCharLimit = () => {
+                                                                if (dateColumnCount >= 5) return 200;
+                                                                if (dateColumnCount >= 3) return 300;
+                                                                return 400;
+                                                            };
+                                                            const maxCharsPerRow = getCharLimit();
+                                                            const resultEntries = Object.entries(param.results);
+                                                            const hasLongContent = resultEntries.some(([date, value]) => 
+                                                                value && value.length > maxCharsPerRow
+                                                            );
+                                                            if (!hasLongContent) {
+                                                                return [param];
+                                                            }
+                                                            const smartSplit = (text, maxLength) => {
+                                                                if (text.length <= maxLength) return [text];
+                                                                const chunks = [];
+                                                                let remaining = text;
+                                                                while (remaining.length > maxLength) {
+                                                                    let splitPoint = maxLength;
+                                                                    const breakPoints = [
+                                                                        remaining.lastIndexOf('\n\n', maxLength),
+                                                                        remaining.lastIndexOf('\n', maxLength),
+                                                                        remaining.lastIndexOf('. ', maxLength),
+                                                                        remaining.lastIndexOf(', ', maxLength),
+                                                                        remaining.lastIndexOf(' ', maxLength)
+                                                                    ];
+                                                                    for (const breakPoint of breakPoints) {
+                                                                        if (breakPoint > maxLength * 0.7) {
+                                                                            splitPoint = breakPoint + (breakPoint === breakPoints[2] ? 2 : 1);
+                                                                            break;
+                                                                        }
+                                                                    }
+                                                                    chunks.push(remaining.substring(0, splitPoint).trim());
+                                                                    remaining = remaining.substring(splitPoint).trim();
+                                                                }
+                                                                if (remaining.length > 0) {
+                                                                    chunks.push(remaining);
+                                                                }
+                                                                return chunks;
+                                                            };
+                                                            const rows = [];
+                                                            resultEntries.forEach(([date, value]) => {
+                                                                if (value && value.length > maxCharsPerRow) {
+                                                                    const chunks = smartSplit(value, maxCharsPerRow);
+                                                                    chunks.forEach((chunk, index) => {
+                                                                        if (!rows[index]) {
+                                                                            rows[index] = {
+                                                                                name: index === 0 ? param.name : `${param.name} (cont.)`,
+                                                                                referenceRange: index === 0 ? param.referenceRange : '',
+                                                                                results: {},
+                                                                                type: param.type
+                                                                            };
+                                                                        }
+                                                                        rows[index].results[date] = chunk;
+                                                                    });
+                                                                } else {
+                                                                    if (!rows[0]) {
+                                                                        rows[0] = {
+                                                                            name: param.name,
+                                                                            referenceRange: param.referenceRange,
+                                                                            results: {},
+                                                                            type: param.type
+                                                                        };
+                                                                    }
+                                                                    rows[0].results[date] = value || '';
+                                                                }
+                                                            });
+                                                            
+                                                            return rows.length > 0 ? rows : [param];
+                                                        };
+                                                        const splitParameters = [];
+                                                        parameters.forEach(param => {
+                                                            const splitRows = splitLongContent(param);
+                                                            splitParameters.push(...splitRows);
+                                                        })
+                                                        if (splitParameters.length > 0) {
+                                                            serviceGroup.rows.push(...splitParameters);
+                                                            serviceGroup.hasParameters = true;
+                                                        } else if (hasDirectResults) {
+                                                            const directServiceRow = {
+                                                                name: serviceName,
+                                                                referenceRange: directReferenceRange,
+                                                                results: directResults,
+                                                                type: 'service'
+                                                            };
+                                                            const splitDirectRows = splitLongContent(directServiceRow);
+                                                            serviceGroup.rows.push(...splitDirectRows);
+                                                            serviceGroup.hasParameters = false;
+                                                        }
                                                     });
                                                     
                                                     return (
-                                                        <View style={styles.table}>
-                                                            {/* Header Row */}
-                                                            <View style={[styles.headerRow, { borderTop: '1px solid #171725', backgroundColor: '#cccccc' }]} fixed>
-                                                                <Text style={[styles.headerCell, { flex: 3, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: "#000" }]}>
-                                                                    Test Name
+                                                        <View style={[styles.table, { break: "avoid" }]}>
+                                                            <View style={[styles.headerRow, { borderTop: '1px solid #171725', backgroundColor: '#cccccc' }]} fixed wrap={false}>
+                                                                <View style={[styles.headerCell, { 
+                                                                    flex: investigationFlex, 
+                                                                    minHeight: PX_TO_PT * 30, 
+                                                                    justifyContent: 'center',
+                                                                borderRight: '1px solid #171725',
+                                                                    padding: PX_TO_PT * 6
+                                                                }]}>
+                                                                <Text style={{
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                        fontWeight: 600, 
+                                                                    color: "#000",
+                                                                        textAlign: 'center',
+                                                                        lineHeight: 1.3
+                                                                    }} wrap>
+                                                                    Investigation
                                                                 </Text>
-                                                                {dates.map((date, index) => (
-                                                                    <Text key={index} style={[styles.headerCell, { flex: 1.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: "#000" }]}>
-                                                                        {moment(date, "DD-MM-YYYY").format("DD MMM YY")}
-                                                                    </Text>
-                                                                ))}
                                                             </View>
-                                                            
-                                                            {/* Service Groups */}
-                                                            {serviceGroups.map((serviceGroup, groupIndex) => (
-                                                                <React.Fragment key={groupIndex}>
-                                                                    {/* Service Header Row */}
-                                                                    {/* <View style={[styles.row]} wrap={false}>
-                                                                        <Text style={[styles.cell, { 
-                                                                            flex: 3, 
-                                                                            color: "#171725", 
-                                                                            fontFamily: getIndianLanguageFont(serviceGroup.serviceName, printSettings?.page_format?.font_family), 
+                                                                <View style={[styles.headerCell, { 
+                                                                    flex: subParamsFlex, 
+                                                                    minHeight: PX_TO_PT * 30, 
+                                                                    justifyContent: 'center',
+                                                                borderRight: '1px solid #171725',
+                                                                    padding: PX_TO_PT * 6
+                                                                }]}>
+                                                                <Text style={{
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                        fontWeight: 600, 
+                                                                    color: "#000",
+                                                                        textAlign: 'center',
+                                                                        lineHeight: 1.3
+                                                                    }} wrap>
+                                                                    Sub Params
+                                                                </Text>
+                                                            </View>
+                                                                {dates.map((date, index) => (
+                                                                    <View key={index} style={[styles.headerCell, { 
+                                                                        flex: dateColumnFlex, 
+                                                                        minHeight: PX_TO_PT * 30, 
+                                                                        justifyContent: 'center',
+                                                                        padding: PX_TO_PT * 6
+                                                                    }]}>
+                                                                        <Text style={{
+                                                                            fontFamily: printSettings?.page_format?.font_family,
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                            fontWeight: 600,
-                                                                            backgroundColor: "#f8f9fa"
-                                                                        }]}>
-                                                                            {serviceGroup.serviceName}
+                                                                            fontWeight: 600, 
+                                                                            color: "#000",
+                                                                            textAlign: 'center',
+                                                                            lineHeight: 1.3
+                                                                        }} wrap>
+                                                                            {moment(date, "DD-MM-YYYY").format("DD MMM YY")}
                                                                         </Text>
-                                                                        {dates.map((date, dateIndex) => (
-                                                                            <Text key={dateIndex} style={[styles.cell, { 
-                                                                                flex: 1.5, 
-                                                                                backgroundColor: "#f8f9fa"
-                                                                            }]}>
-                                                                            </Text>
-                                                                        ))}
                                                                     </View>
-                                                                     */}
-                                                                    {/* Service Rows */}
-                                                                    {serviceGroup.rows.map((row, rowIndex) => (
-                                                                        <View key={rowIndex} style={[styles.row]} wrap={false}>
-                                                                            <Text style={[styles.cell, { 
-                                                                                flex: 3, 
-                                                                                color: "#171725", 
-                                                                                fontFamily: getIndianLanguageFont(row.name, printSettings?.page_format?.font_family), 
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                                fontWeight: 600
-                                                                            }]}>
-                                                                                {row.name}{row.referenceRange ? ` (${row.referenceRange})` : ''}
-                                                                            </Text>
-                                                                            {dates.map((date, dateIndex) => (
-                                                                                <Text key={dateIndex} style={[styles.cell, { 
-                                                                                    flex: 1.5, 
+                                                                ))}
+                                                        </View>
+                                                            {serviceGroups.map((serviceGroup, groupIndex) => {
+                                                                const totalRows = serviceGroup.rows.length;
+                                                                const hasParameters = serviceGroup.hasParameters;
+                                                                if (totalRows === 0) {
+                                                                    return (
+                                                                        <View key={groupIndex} style={{ flexDirection: 'row' }} wrap={false}>
+                                                                    <View style={{
+                                                                                flex: investigationFlex, 
+                                                                                minHeight: PX_TO_PT * 30, 
+                                                                                justifyContent: 'flex-start',
+                                                                        padding: PX_TO_PT * 6,
+                                                                                borderTop: '0px solid transparent',
+                                                                                borderBottom: '1px solid #171725',
+                                                                                borderLeft: '1px solid #171725',
+                                                                                borderRight: '1px solid #171725'
+                                                                    }}>
+                                                                        <Text style={{
                                                                                     color: "#171725", 
-                                                                                    fontFamily: printSettings?.page_format?.font_family, 
+                                                                                    fontFamily: getIndianLanguageFont(serviceGroup.serviceName, printSettings?.page_format?.font_family), 
                                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
                                                                                     fontWeight: 400,
-                                                                                    textAlign: 'left'
-                                                                                }]}>
-                                                                                    {row.results[date] || '-'}
+                                                                                    textAlign: 'left',
+                                                                                    lineHeight: 1.3
+                                                                                }} wrap>
+                                                                                    {serviceGroup.serviceName}
                                                                                 </Text>
+                                                                            </View>
+                                                                            <View style={{ 
+                                                                                flex: subParamsFlex, 
+                                                                                minHeight: PX_TO_PT * 30, 
+                                                                                justifyContent: 'flex-start',
+                                                                                padding: PX_TO_PT * 6,
+                                                                                borderTop: '0px solid transparent',
+                                                                                borderBottom: '1px solid #171725',
+                                                                                borderRight: '1px solid #171725',
+                                                                                borderLeft: '0px solid transparent'
+                                                                            }}>
+                                                                                <Text style={{ 
+                                                                                    color: "#171725", 
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textAlign: 'left',
+                                                                                    lineHeight: 1.3
+                                                                                }} wrap>
+                                                                                    -
+                                                                                </Text>
+                                                                            </View>
+                                                                            {dates.map((date, dateIndex) => (
+                                                                                <View key={dateIndex} style={{ 
+                                                                                    flex: dateColumnFlex, 
+                                                                                    minHeight: PX_TO_PT * 30, 
+                                                                                    justifyContent: 'center',
+                                                                                    padding: PX_TO_PT * 6,
+                                                                                    borderTop: '0px solid transparent',
+                                                                                    borderBottom: '1px solid #171725',
+                                                                                    borderRight: '1px solid #171725',
+                                                                                    borderLeft: '0px solid transparent'
+                                                                                }}>
+                                                                                    <Text style={{ 
+                                                                                        color: "#171725", 
+                                                                                        fontFamily: printSettings?.page_format?.font_family, 
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                        fontWeight: 400,
+                                                                                        textAlign: 'center',
+                                                                                        lineHeight: 1.3
+                                                                                    }} wrap>
+                                                                                        -
+                                                                        </Text>
+                                                                    </View>
                                                                             ))}
-                                                                        </View>
-                                                                    ))}
-                                                                </React.Fragment>
-                                                            ))}
+                                                                </View>
+                                                                    );
+                                                                }
+                                                                return (
+                                                                    <React.Fragment key={groupIndex}>
+                                                                        {serviceGroup.rows.map((row, rowIndex) => {
+                                                                            const isFirstRow = rowIndex === 0;
+                                                                            const isLastRow = rowIndex === totalRows - 1;
+                                                                            const isMiddleRow = !isFirstRow && !isLastRow;
+                                                                    
+                                                                    return (
+                                                                                <View key={rowIndex} style={{ flexDirection: 'row' }} wrap={false}>
+                                                                                <View style={{
+                                                                                        flex: investigationFlex,
+                                                                                        minHeight: PX_TO_PT * 30,
+                                                                                        justifyContent: 'flex-start',
+                                                                                        padding: PX_TO_PT * 6,
+                                                                                        backgroundColor: "transparent",
+                                                                                        borderLeft: '1px solid #171725',
+                                                                                        borderTop: '0px solid transparent',
+                                                                                        borderBottom: isLastRow ? '1px solid #171725' : (hasParameters && totalRows > 1 ? '0px solid transparent' : '1px solid #171725'),
+                                                                                        borderRight: '1px solid #171725'
+                                                                                }}>
+                                                                                    <Text style={{
+                                                                                            color: "#171725", 
+                                                                                            fontFamily: getIndianLanguageFont(serviceGroup.serviceName, printSettings?.page_format?.font_family), 
+                                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                        fontWeight: 400,
+                                                                                            textAlign: 'left',
+                                                                                            lineHeight: 1.3
+                                                                                        }} wrap>
+
+                                                                                            {(hasParameters && isFirstRow) || (!hasParameters) ? serviceGroup.serviceName : ""}
+                                                                                    </Text>
+                                                                                </View>
+                                                                                <View style={{
+                                                                                        flex: subParamsFlex,
+                                                                                        minHeight: PX_TO_PT * 30,
+                                                                                        justifyContent: 'flex-start',
+                                                                                        padding: PX_TO_PT * 6,
+                                                                                        backgroundColor: "transparent",
+                                                                                        borderTop: '0px solid transparent',
+                                                                                        borderBottom: '1px solid #171725',
+                                                                                    borderRight: '1px solid #171725',
+                                                                                        borderLeft: '0px solid transparent'
+                                                                                }}>
+                                                                                    <Text style={{
+                                                                                            color: "#171725", 
+                                                                                            fontFamily: getIndianLanguageFont(row.name, printSettings?.page_format?.font_family), 
+                                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                        fontWeight: 400,
+                                                                                            textAlign: 'left',
+                                                                                            lineHeight: 1.3
+                                                                                        }} wrap>
+                                                                                        {hasParameters ? row.name : '-'}{hasParameters && row.referenceRange ? ` (${row.referenceRange})` : ''}
+                                                                                    </Text>
+                                                                                </View>
+                                                                                    {dates.map((date, dateIndex) => (
+                                                                                        <View key={dateIndex} style={{ 
+                                                                                            flex: dateColumnFlex,
+                                                                                            minHeight: PX_TO_PT * 30,
+                                                                                            justifyContent: 'center',
+                                                                                            padding: PX_TO_PT * 6,
+                                                                                            backgroundColor: "white",
+                                                                                            borderTop: '0px solid transparent',
+                                                                                            borderBottom: '1px solid #171725',
+                                                                                            borderRight: '1px solid #171725',
+                                                                                            borderLeft: '0px solid transparent'
+                                                                                        }}>
+                                                                                            <Text style={{
+                                                                                                color: "#171725", 
+                                                                                                fontFamily: printSettings?.page_format?.font_family, 
+                                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                                fontWeight: 400,
+                                                                                                textAlign: 'center',
+                                                                                                lineHeight: 1.3
+                                                                                            }} wrap>
+                                                                                                {row.results[date] || '-'}
+                                                                                            </Text>
+                                                                                        </View>
+                                                                                    ))}
+                                                                                        </View>
+                                                                            );
+                                                                        })}
+                                                                    </React.Fragment>
+                                                                    );
+                                                            })}
                                                         </View>
                                                     );
                                                 })()}
@@ -5151,10 +5434,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         {`Available Advance Balance ₹${patientWalletBalance}`}
                                     </Text>)}
                                 </Text>
-                            )
+                            )}
+                            </View>
                         )
+                      
                     })}
-                </View>
+                {/* </View> */}
 
                 <View style={{ marginTop: PX_TO_PT * 29 }} wrap={false}>
                     {printSettings?.signature_enable === 'Y' && fileSignature && fileSignature?.imageShow && (
@@ -5272,7 +5557,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     )}
                 </View>
 
-                </View>
+                {/* </View> */}
                 <View style={{
                     position: 'absolute',
                     bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),

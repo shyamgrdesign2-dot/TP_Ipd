@@ -43,6 +43,7 @@ import { throttle } from "lodash";
 import { setLoadingStatus } from "../../../../../redux/uploadDocSlice.js";
 import { useDispatch } from "react-redux";
 import html2pdf from "html2pdf.js";
+import { TRIAL, S_BILLING, S_TATVA_PRACTICE } from "../../../../../utils/constants.js";
 const { RangePicker } = DatePicker;
 
 const cardsStaticData = [
@@ -75,8 +76,13 @@ const cardsStaticData = [
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM YYYY";
 
-const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateRange, totalAdvanceBalance, dateStatus, setDateStatus }, ref) => {
+const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateRange, totalAdvanceBalance, dateStatus, setDateStatus, showHideSubModal }, ref) => {
+  const { planDetails } = useSelector((state) => state.subscription);
+  const { service_mappings } = planDetails || {};
+  const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
+  const BILLING_planDetails = service_mappings?.find(e => e.service_name === S_BILLING)
   const dispatch = useDispatch();
+
   const { billPrintSettings, advancedSettings } = useSelector(
     (state) => state.billing
   );
@@ -169,23 +175,23 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
     if (dates) {
       if (
         dayjs().format(dateFormat) ==
-          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
+        moment(dateStrings[0], showDateFormat).format(dateFormat) &&
         dayjs().format(dateFormat) ==
-          moment(dateStrings[1], showDateFormat).format(dateFormat)
+        moment(dateStrings[1], showDateFormat).format(dateFormat)
       ) {
         setDateStatus(1);
       } else if (
         dayjs().add(-7, "d").format(dateFormat) ==
-          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
+        moment(dateStrings[0], showDateFormat).format(dateFormat) &&
         dayjs().format(dateFormat) ==
-          moment(dateStrings[1], showDateFormat).format(dateFormat)
+        moment(dateStrings[1], showDateFormat).format(dateFormat)
       ) {
         setDateStatus(2);
       } else if (
         dayjs().add(-1, "M").format(dateFormat) ==
-          moment(dateStrings[0], showDateFormat).format(dateFormat) &&
+        moment(dateStrings[0], showDateFormat).format(dateFormat) &&
         dayjs().format(dateFormat) ==
-          moment(dateStrings[1], showDateFormat).format(dateFormat)
+        moment(dateStrings[1], showDateFormat).format(dateFormat)
       ) {
         setDateStatus(3);
       } else {
@@ -218,27 +224,41 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
     }
   };
 
+  const checkBillingPurchased = async () => {
+    // if (moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') > 0) {
+      if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
+        showHideSubModal()
+      } else {
+        return true;
+      }
+    // } else {
+    //   return true;
+    // }
+  }
+
   const onBillingDetailsClick = async (status, record) => {
-    if (patientData && Object.keys(patientData)?.length > 0) {
-      setBillData(record);
-    } else {
-      setBillData({
-        ...record,
-        patient: {
-          ...record?.patient,
-        },
-      });
-    }
-    if (status === 1) {
-      handleDrawerPreviewBill();
-    } else if (status === 2) {
-      const blob = await pdf(
-        <ViewBillPdf
-          printSettings={billPrintSettings}
-          patientData={
-            patientData && Object.keys(patientData)?.length > 0
-              ? patientData
-              : {
+    const isPurchased = await checkBillingPurchased()
+    if (isPurchased) {
+      if (patientData && Object.keys(patientData)?.length > 0) {
+        setBillData(record);
+      } else {
+        setBillData({
+          ...record,
+          patient: {
+            ...record?.patient,
+          },
+        });
+      }
+      if (status === 1) {
+        handleDrawerPreviewBill();
+      } else if (status === 2) {
+        const blob = await pdf(
+          <ViewBillPdf
+            printSettings={billPrintSettings}
+            patientData={
+              patientData && Object.keys(patientData)?.length > 0
+                ? patientData
+                : {
                   pm_pid: record?.patient?.id,
                   pm_fullname: record?.patient?.name,
                   pm_gender: record?.patient?.gender,
@@ -250,19 +270,20 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
                   pm_salutation: record?.patient?.salutation,
                   address: record?.patient?.address,
                 }
-          }
-          profile={profile}
-          billData={record}
-          isDepositReceipt={true}
-          totalAdvanceBalance={
-            patientData ? totalAdvanceBalance : patientWalletBalance
-          }
-          gstIn={advancedSettings?.GSTIN}
-          showCreatedBy={advancedSettings?.enableCreatedByInRx}
-        />
-      ).toBlob();
-      printContent(blob, record?.patientId, setStartLoader);
-    } else {
+            }
+            profile={profile}
+            billData={record}
+            isDepositReceipt={true}
+            totalAdvanceBalance={
+              patientData ? totalAdvanceBalance : patientWalletBalance
+            }
+            gstIn={advancedSettings?.GSTIN}
+            showCreatedBy={advancedSettings?.enableCreatedByInRx}
+          />
+        ).toBlob();
+        printContent(blob, record?.patientId, setStartLoader);
+      } else {
+      }
     }
   };
 
@@ -543,7 +564,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
 
   const handleCheckboxChange = async (checkedValues) => {
 
-    console.log(checkedValues,"checkedValues")
+    console.log(checkedValues, "checkedValues")
     setSelectedOptions(checkedValues);
     if (checkedValues.length > 0) {
       try {
@@ -580,17 +601,17 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
 
         const response = patientData
           ? await listAdvancedDepositByPatient({
-              ...params,
-              patientId: patientData?.patient_unique_id,
-            })
+            ...params,
+            patientId: patientData?.patient_unique_id,
+          })
           : await fetchAdvancedDepositDashboard(params);
 
         if (response?.receipts?.length > 0) {
           const updatedReceipts = patientData
             ? response.receipts.map((item) => ({
-                ...item,
-                patient: response.patient,
-              }))
+              ...item,
+              patient: response.patient,
+            }))
             : response.receipts;
 
           allReceipts = [...allReceipts, ...updatedReceipts];
@@ -717,7 +738,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
           onClick={handleDownloadData}
         >
           Download
-          <i class="icon-download fs-18" style={{padding: "10px 6px"}}/>
+          <i class="icon-download fs-18" style={{ padding: "10px 6px" }} />
         </Button>
       </div>
     </div>
@@ -730,8 +751,8 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
         selectedCard === 1
           ? "Deposit"
           : selectedCard === 2
-          ? "Refund"
-          : "Debit",
+            ? "Refund"
+            : "Debit",
       sortBy: sortConfig?.field || "date",
       sortOrder: sortConfig?.order || "desc",
       page: resetData ? 1 : page,
@@ -748,9 +769,9 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
         resetData
           ? response
           : {
-              ...response,
-              receipts: [...(prev?.receipts || []), ...response.receipts],
-            }
+            ...response,
+            receipts: [...(prev?.receipts || []), ...response.receipts],
+          }
       );
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -773,8 +794,8 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
         selectedCard === 1
           ? "Deposit"
           : selectedCard === 2
-          ? "Refund"
-          : "Debit",
+            ? "Refund"
+            : "Debit",
       sortBy: sortConfig?.field || "date",
       sortOrder: sortConfig?.order || "desc",
       page: resetData ? 1 : page,
@@ -800,9 +821,9 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
         resetData
           ? { ...response, receipts: updatedReceipts }
           : {
-              ...response,
-              receipts: [...(prev?.receipts || []), ...updatedReceipts],
-            }
+            ...response,
+            receipts: [...(prev?.receipts || []), ...updatedReceipts],
+          }
       );
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -848,7 +869,7 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
     const { target } = e;
     if (
       Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) <=
-        5 &&
+      5 &&
       hasMore
     ) {
       loadData(false);
@@ -950,19 +971,19 @@ const AdvanceDepositTable = React.forwardRef(({ patientData, dateRange, setDateR
                       </div>
                     </div>
                   )}
-                  onOpenChange={() => {}}
+                  onOpenChange={() => { }}
                   value={[
                     dateRange.startDate != dateRange.endDate
                       ? dayjs(
-                          moment(dateRange.startDate).format(showDateFormat),
-                          showDateFormat
-                        )
+                        moment(dateRange.startDate).format(showDateFormat),
+                        showDateFormat
+                      )
                       : "",
                     dateRange.startDate != dateRange.endDate
                       ? dayjs(
-                          moment(dateRange.endDate).format(showDateFormat),
-                          showDateFormat
-                        )
+                        moment(dateRange.endDate).format(showDateFormat),
+                        showDateFormat
+                      )
                       : "",
                   ]}
                 />

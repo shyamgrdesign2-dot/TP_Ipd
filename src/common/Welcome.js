@@ -17,7 +17,7 @@ import { env } from "../EnvironmentConfig";
 
 function Welcome(props) {
 
-  const { locationPath, backVisible } = props;
+  const { locationPath, backVisible, appointmentAgentsData } = props;
 
   const { userCreditObj } = useSelector((state) => state.bulkMessages);
   const { profile } = useSelector((state) => state.doctors);
@@ -54,7 +54,7 @@ function Welcome(props) {
   );
 
   const handleNewTemplate = () => {
-    navigate('/create-campaign');
+    navigate('/create-campaign', { state: { setupData:appointmentAgentsData } });
     const clinic_city = getClinicCity(profile?.hospital_data);
     window.Moengage.track_event("TP_Choose_New_Template", {
       "Doctor_specialty": profile?.dp_name,

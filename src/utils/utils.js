@@ -737,7 +737,7 @@ export const getClinic = (hospitalData) => {
 export const getTokenData = () => {
   const decodedToken = getDecodedToken();
   const result = decodedToken?.result;
-  return result;
+  return result || {};
 };
 
 export const getDeviceSdkData = () => {

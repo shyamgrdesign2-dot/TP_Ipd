@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Input, Button, Form, Spin } from "antd";
+import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import "./Onboarding.scss";
 import abdmLogo from "../../../assets/images/abdm-logo.svg";
 import nhaLogo from "../../../assets/images/nha-logo.svg";
@@ -20,13 +21,298 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   const [isLogin, setIsLogin] = useState(true);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [scriptLoaded, setScriptLoaded] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
+  // const [initialLoading, setInitialLoading] = useState(true);
+  const [captchaVisible, setCaptchaVisible] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [errors, setErrors] = useState({
+    password: "",
+    confirmPassword: ""
+  });
+  const [passwordStrength, setPasswordStrength] = useState({
+    length: false,
+    capital: false,
+    small: false,
+    special: false,
+    number: false,
+    space: true
+  });
+  const isPasswordValid = () => {
+    return Object.values(passwordStrength).every(value => value === true);
+  };
+
+  const checkPasswordStrength = (password) => {
+    if (password) {
+      const newPasswordStrength = {
+        length: password.length >= 6,
+        capital: /[A-Z]/.test(password),
+        small: /[a-z]/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+        number: /[0-9]/.test(password),
+        space: !/\s/.test(password)
+      };
+      setPasswordStrength(newPasswordStrength);
+      setShowTooltip(password.length > 0 && !Object.values(newPasswordStrength).every(value => value === true));
+    } else {
+      setShowTooltip(false);
+      setPasswordStrength({
+        length: false,
+        capital: false,
+        small: false,
+        special: false,
+        number: false,
+        space: true
+      });
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    checkPasswordStrength(newPassword);
+    setErrors({ ...errors, password: "" });
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    const newConfirmPassword = e.target.value;
+    setConfirmPassword(newConfirmPassword);
+    setErrors({ ...errors, confirmPassword: "" });
+  };
+
+  const handleContinue = async () => {
+    try {
+      // Reset errors
+      setErrors({ password: "", confirmPassword: "" });
+      setError(null);
+      setPrimaryBtnLoading(true);
+
+      // First validate inputs
+      if (!isCaptchaVerified()) {
+        setError("Please complete the captcha verification to proceed.");
+        setErrorType("captcha");
+        return;
+      }
+
+      // Validate password
+      if (!password) {
+        setErrors(prev => ({ ...prev, password: "Please input your password!" }));
+        return;
+      }
+
+      if (!isPasswordValid()) {
+        setErrors(prev => ({ ...prev, password: "Password does not meet all requirements" }));
+        return;
+      }
+
+      // Validate confirm password
+      if (!confirmPassword) {
+        setErrors(prev => ({ ...prev, confirmPassword: "Please confirm your password!" }));
+        return;
+      }
+
+      // Check if passwords match
+      if (password !== confirmPassword) {
+        setErrors(prev => ({ ...prev, confirmPassword: "Passwords don't match. Please re-enter." }));
+        return;
+      }
+
+      // Now check if user exists
+      const response = await validateUser(mobileNumber);
+      const { message } = response;
+
+      switch (message) {
+        case "Doctor exists!":
+        case "User exists":
+          // User exists, proceed with OTP
+          if (window.sendOtp) {
+            // moengage event for set password
+            window.Moengage.track_event('TP_NewLoginFlow_Password_Setup', {
+              mobile: "91" + mobileNumber,
+              operating_system: detectOperatingSystem(),
+              utm_campaign: utm.utm_campaign ?? 'NA',
+              utm_source: utm.utm_source ?? 'NA',
+              utm_medium: utm.utm_medium ?? 'NA',
+              utm_content: utm.utm_content ?? 'NA',
+              utm_term: utm.utm_term ?? 'NA',
+              is_marketing: Object.values(utm).some(value => value && value.length > 0),
+            })
+
+            const formattedNumber = `91${mobileNumber}`.replace('+', '');
+            window.sendOtp(
+              formattedNumber,
+              (successData) => {
+                console.log("OTP sent successfully:", successData);
+                if (successData && successData.message) {
+                  const reqId = successData.message;
+                  window.Moengage.track_event('TP_NewLoginFlow_Password_Setup_Otp_Success', {
+                    mobile: "91" + mobileNumber,
+                    operating_system: detectOperatingSystem(),
+                    utm_campaign: utm.utm_campaign ?? 'NA',
+                    utm_source: utm.utm_source ?? 'NA',
+                    utm_medium: utm.utm_medium ?? 'NA',
+                    utm_content: utm.utm_content ?? 'NA',
+                    utm_term: utm.utm_term ?? 'NA',
+                    is_marketing: Object.values(utm).some(value => value && value.length > 0),
+                  })
+                  // localStorage.removeItem("isCaptchaVerified");
+                  onViewChange("verifyOTP", mobileNumber, true, true, password, reqId);
+                } else {
+                  console.error("No requestId in response:", successData);
+                }
+              },
+              (error) => {
+                console.error("Error sending OTP:", error);
+              }
+            );
+          }
+          break;
+
+        case "Doctor does not exists!":
+        case "Doctor not onboarded":
+        case "User does not exists":
+          setError(
+            <>
+              User does not exist. Please{' '}
+              <span 
+                onClick={() => {
+                  onViewChange("signup", mobileNumber, false);
+                  focusInput();
+                  setError(null);
+                  setErrorType(null);
+                }}
+                className="login-link"
+              >
+                sign up
+              </span>
+              {' '}.
+            </>
+          );
+          setErrorType("inputFiled");
+          break;
+
+        case "Doctor is inactive":
+          setError(
+            "Your account has been locked by Admin. Please contact support@tatvacare.in/9974042363"
+          );
+          setErrorType("inputFiled");
+          break;
+
+        default:
+          setError("Unexpected response from server.");
+          setErrorType("inputFiled");
+      }
+    } catch (error) {
+      console.error("Error in handleContinue:", error);
+      setError("Something went wrong. Please try again.");
+      setErrorType("inputFiled");
+    } finally {
+      setPrimaryBtnLoading(false);
+    }
+  };
+
+  const tooltipContent = (
+    <div className="password-requirements">
+      <div className={`requirement ${passwordStrength.length ? 'valid' : 'invalid'}`}>
+        6 Character
+      </div>
+      <div className={`requirement ${passwordStrength.capital ? 'valid' : 'invalid'}`}>
+        At least One Capital Letter
+      </div>
+      <div className={`requirement ${passwordStrength.small ? 'valid' : 'invalid'}`}>
+        At least One Small Letter
+      </div>
+      <div className={`requirement ${passwordStrength.special ? 'valid' : 'invalid'}`}>
+        At least One Special Character
+      </div>
+      <div className={`requirement ${passwordStrength.number ? 'valid' : 'invalid'}`}>
+        At least One number
+      </div>
+      <div className={`requirement ${passwordStrength.space ? 'valid' : 'invalid'}`}>
+        No Space
+      </div>
+    </div>
+  );
+  
   // Get UTM params
   const utm = getUtmParams();
   const inputRef = useRef(null);
+  const captchaVerifivation = localStorage.getItem("isCaptchaVerified") || null;
 
   const focusInput = () => {
     inputRef.current?.focus();
+  };
+
+  // Function to check if captcha is actually visible
+  const checkCaptchaVisibility = () => {
+    const captchaElement = document.getElementById('captch-id');
+    if (!captchaElement) return false;
+
+    // Check if captcha element has children
+    if (captchaElement.children.length === 0) return false;
+
+    // Check for hCaptcha iframe specifically
+    const hCaptchaIframe = captchaElement.querySelector('iframe[src*="hcaptcha.com"]');
+    if (hCaptchaIframe) {
+      // Check if iframe is visible and has proper dimensions
+      const rect = hCaptchaIframe.getBoundingClientRect();
+      const isVisible = rect.width > 0 && rect.height > 0 && 
+                       rect.top >= 0 && rect.left >= 0 &&
+                       rect.bottom <= window.innerHeight && 
+                       rect.right <= window.innerWidth;
+      
+      // Also check if iframe is not hidden by CSS
+      const computedStyle = window.getComputedStyle(hCaptchaIframe);
+      const isNotHidden = computedStyle.display !== 'none' && 
+                         computedStyle.visibility !== 'hidden' &&
+                         computedStyle.opacity !== '0';
+      
+      return isVisible && isNotHidden;
+    }
+
+    // Check for MSG91 captcha elements
+    const msg91Elements = captchaElement.querySelector('msg91-otp-provider') || 
+                         captchaElement.querySelector('[data-msg91]') ||
+                         captchaElement.querySelector('.msg91-captcha');
+    
+    if (msg91Elements) {
+      const rect = msg91Elements.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    }
+
+    // Fallback: check if any child element is visible
+    for (let child of captchaElement.children) {
+      const rect = child.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  // Function to wait for captcha visibility with polling
+  const waitForCaptchaVisibility = () => {
+    let attempts = 0;
+    const maxAttempts = 30; // 15 seconds with 500ms intervals
+    const interval = 500;
+
+    const checkInterval = setInterval(() => {
+      attempts++;
+      
+      if (checkCaptchaVisibility()) {
+        clearInterval(checkInterval);
+        setCaptchaVisible(true);
+        console.log('Captcha is now visible');
+      } else if (attempts >= maxAttempts) {
+        clearInterval(checkInterval);
+        // Fallback: set as visible even if not detected
+        setCaptchaVisible(true);
+        console.log('Captcha visibility timeout - proceeding anyway');
+      }
+    }, interval);
+
+    return checkInterval;
   };
 
   useEffect(() => {
@@ -52,6 +338,12 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
         try {
           window.initSendOTP(configuration);
           setScriptLoaded(true);
+          
+          // Start checking for captcha visibility after initialization
+          setTimeout(() => {
+            waitForCaptchaVisibility();
+          }, 400); // Wait 1 second after initialization before checking visibility
+          
         } catch (error) {
           console.error("Error initializing captcha:", error);
         }
@@ -79,7 +371,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
             setTimeout(() => {
               initializeCaptcha();
               resolve();
-            }, 1000);
+            },0);
           };
           script.onerror = () => reject(new Error("Script load failed"));
         });
@@ -132,14 +424,6 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
     const searchParams = new URLSearchParams(window.location.search);
     const campaign = searchParams.get("utm_campaign");
     setIsFromCampaign(!!campaign);
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setInitialLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
   }, []);
 
   const handleGetStarted = async () => {
@@ -214,7 +498,6 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
             window.sendOtp(
               `91${mobileNumber}`,
               (data) => {
-                // console.log(data,"data")
                 if (data.type === "success"){
                   // moengage event for OTP sent
                   window.Moengage.track_event('TP_NewLoginFlow_Login_with_OTP_Success', {
@@ -357,8 +640,14 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
           // If password is set, go to verify password page
           onViewChange("verifyPassword", mobileNumber, true);
         } else {
-          // If password is not set, go to set password page
-          // setError("Please set up your password first");
+          // If password is not set, check captcha verification first
+          if (!isCaptchaVerified()) {
+            setError("Please complete the captcha verification to proceed");
+            setErrorType("captcha");
+            return;
+          }
+          
+          // If captcha is verified, go to set password page
           setTimeout(() => {
             onViewChange("setPassword", mobileNumber, true);
           }, 2000);
@@ -436,33 +725,16 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
     return window.isCaptchaVerified ? window.isCaptchaVerified() : false;
   };
 
-  if (initialLoading) {
-    return (
-      <div className="signup-form-wrapper">
-        <div 
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgb(194 194 194 / 70%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-          }}
-        >
-          <Spin size="large" />
-        </div>
-      </div>
-    );
-  }
+  const handleBack = () => {
+    // Refresh the page
+    localStorage.removeItem("isCaptchaVerified");
+    window.location.reload();
+  };
 
   return (
     <div className="signup-form-wrapper">
       <div className="signup-form-container">
-        <h2 style={{ margin: "1rem 0 3rem 0" }}>
+        <h2 style={{ margin: captchaVerifivation === "false" ? "1rem 0 1rem 0" : "1rem 0 3rem 0" }}>
           {isLoginFlow ? (
             "Welcome Doctor!"
           ) : (
@@ -494,60 +766,129 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               autoComplete="tel-national"
               id="phone"
             />
-            {error && errorType === "inputFiled" && <div className="error-message" style={{marginTop: "0.5rem"}}>{error}</div>}
+            {error && errorType === "inputFiled" && <div className="error-message">{error}</div>}
           </Form.Item>
 
-          <div className="captcha-wrapper" style={{margin: "1.5rem 0 1rem 0"}}>
-            <div id="captch-id" className="captcha-container" />
+          <div className="captcha-wrapper" style={{margin: "0.5rem 0 0.5rem 0"}}>
+            <div id="captch-id" className="captcha-container">
+              {!captchaVisible && (
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center', 
+                  minHeight: '80px',
+                  padding: '1rem'
+                }}>
+                  <Spin size="medium" />
+                  <span style={{ marginLeft: '8px', color: '#666' }}>
+                    Loading captcha...
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
           {error && errorType === "captcha" && <div className="error-message">{error}</div>}
 
-          <Button
-            type="primary"
-            loading={primaryBtnLoading}
-            onClick={handleGetStarted}
-            className="get-started-btn"
-            disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}
-          >
-            {isLoginFlow ? "Login via OTP" : "Get Started"}
-          </Button>
-
-          {isLoginFlow ? <div className="divider">or</div> : <div style={{height: "2rem"}}></div>}
-
-          {isLoginFlow && (
+         { captchaVerifivation !== "false" ? (
+          <>
             <Button
               type="primary"
-              loading={secondaryBtnLoading}
-              onClick={handleLoginPassword}
-              className="get-started-btn-secondary"
+              loading={primaryBtnLoading}
+              onClick={handleGetStarted}
+              className="get-started-btn"
               disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}
             >
-              Login via Password
+              {isLoginFlow ? "Login via OTP" : "Get Started"}
             </Button>
-          )}
 
-          <div className="login-link">
-            {isLoginFlow ? (
-              <>
-                Not an existing user?{" "}
-                <span onClick={() => {
-                  onViewChange("signup");
-                  focusInput();
-                }}>
-                  <>Signup {isFromCampaign && <>for free</>}</>
-                </span>
-              </>
-            ) : (
-              <>
-                Already have an Account?{" "}
-                <span onClick={() => {
-                  onViewChange("loginOTP");
-                  focusInput();
-                }}>Sign In</span>
-              </>
+            {isLoginFlow ? <div className="divider">or</div> : <div style={{height: "2rem"}}></div>}
+
+            {isLoginFlow && (
+              <Button
+                type="primary"
+                loading={secondaryBtnLoading}
+                onClick={ () => captchaVerifivation === "false" ? onViewChange("setPassword", mobileNumber, true): handleLoginPassword()}
+                className="get-started-btn-secondary"
+                disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}
+              >
+                {captchaVerifivation === "false" ? "Set Password" : "Login via Password"}
+              </Button>
             )}
-          </div>
+
+            <div className="login-link">
+              {isLoginFlow ? (
+                <>
+                  Not an existing user?{" "}
+                  <span onClick={() => {
+                    onViewChange("signup");
+                    focusInput();
+                  }}>
+                    <>Signup {isFromCampaign && <>for free</>}</>
+                  </span>
+                </>
+              ) : (
+                <>
+                  Already have an Account?{" "}
+                  <span onClick={() => {
+                    onViewChange("loginOTP");
+                    focusInput();
+                  }}>Sign In</span>
+                </>
+              )}
+            </div>
+          </>
+          ) : (
+            <>
+              <div className="set-password-form" style={{padding: "0"}}>
+                <div className="phone-form-item">
+                  <label className="onboard-fields-label">
+                    Create a Password
+                  </label>
+                  <Input.Password
+                    value={password}
+                    placeholder="Enter password"
+                    iconRender={(visible) =>
+                      visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                    }
+                    className="password-input"
+                    onChange={handlePasswordChange}
+                    bordered={false}
+                  />
+                  {errors.password && <div className="error-message">{errors.password}</div>}
+                  {showTooltip && tooltipContent}
+                </div>
+
+                <div className="phone-form-item">
+                  <label className="onboard-fields-label">
+                    Re-enter Password
+                  </label>
+                  <Input.Password
+                    value={confirmPassword}
+                    placeholder="Confirm password"
+                    className="password-input"
+                    onChange={handleConfirmPasswordChange}
+                    bordered={false}
+                    visibilityToggle={false}
+                  />
+                  {errors.confirmPassword && <div className="error-message">{errors.confirmPassword}</div>}
+                </div>
+
+                <Button
+                  type="primary"
+                  className="get-started-btn"
+                  onClick={handleContinue}
+                  loading={primaryBtnLoading}
+                >
+                  Continue
+                </Button>
+
+                <div className="go-back" onClick={handleBack}>
+                  Go back
+                </div>
+              </div>
+            </>
+          )}
         </Form>
       </div>
       <div className="partners-section">

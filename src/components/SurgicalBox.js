@@ -133,29 +133,41 @@ function SurgicalBox() {
         label: <div>{e.name}</div>,
       });
     });
-    searchParentQuery && !isApolloHosBusinessIdAccessableFromGB &&
-      data.push({
-        key: JSON.stringify({
-          change: 1,
-          name: searchParentQuery,
-          isCustom: true,
-        }),
-        value: searchParentQuery,
-        label: (
-          <>
-            <div>
-              {searchParentQuery}
-              <i className="icon-Add mx-1 text-primary fs-6"></i>{" "}
-              <a className="fw-medium text-decoration-underline text-primary">
-                {" "}
-                Add Custom
-              </a>
-            </div>
-          </>
-        ),
-      });
+
+    if (searchParentQuery && !isApolloHosBusinessIdAccessableFromGB) {
+      const trimmedQuery = searchParentQuery.trim();
+      
+      if (trimmedQuery) {
+        const isItemExists = parentOptionsList.some(
+          item => item.name.toLowerCase() === trimmedQuery.toLowerCase()
+        );
+
+        if (!isItemExists) {
+          data.push({
+            key: JSON.stringify({
+              change: 1,
+              name: trimmedQuery,
+              isCustom: true,
+            }),
+            value: trimmedQuery,
+            label: (
+              <>
+                <div>
+                  {trimmedQuery}
+                  <i className="icon-Add mx-1 text-primary fs-6"></i>{" "}
+                  <a className="fw-medium text-decoration-underline text-primary">
+                    {" "}
+                    Add Custom
+                  </a>
+                </div>
+              </>
+            ),
+          });
+        }
+      }
+    }
     setParentSearchOptions(data);
-  }, [parentOptionsList]);
+  }, [parentOptionsList, searchParentQuery]);
 
   const onSearchParent = useCallback(
     (query) => {
@@ -221,23 +233,41 @@ function SurgicalBox() {
         label: <div>{e.name}</div>,
       });
     });
+
     if (searchChildQuery?.query) {
-      data.push({
-        key: JSON.stringify({
-          ...surgeriesData[searchChildQuery.index],
-          change: 1,
-          name: searchChildQuery.query,
-        }),
-        value: searchChildQuery.query,
-        label: (
-          <>
-            <div>{searchChildQuery.query}</div>
-          </>
-        ),
-      });
+      const trimmedQuery = searchChildQuery.query.trim();
+      
+      if (trimmedQuery) {
+        const isItemExists = childOptionsList.some(
+          item => item.name.toLowerCase() === trimmedQuery.toLowerCase()
+        );
+
+        if (!isItemExists) {
+          data.push({
+            key: JSON.stringify({
+              change: 1,
+              name: trimmedQuery,
+              isCustom: true,
+            }),
+            value: trimmedQuery,
+            label: (
+              <>
+                <div>
+                  {trimmedQuery}
+                  <i className="icon-Add mx-1 text-primary fs-6"></i>{" "}
+                  <a className="fw-medium text-decoration-underline text-primary">
+                    {" "}
+                    Add Custom
+                  </a>
+                </div>
+              </>
+            ),
+          });
+        }
+      }
     }
     setChildSearchOptions(data);
-  }, [childOptionsList]);
+  }, [childOptionsList, searchChildQuery]);
 
   const onFocusChid = (i) => {
     setSearchChildQuery({
@@ -267,11 +297,30 @@ function SurgicalBox() {
   );
 
   const onSelectChild = useCallback(
-    (data, e, i) => {
-      surgeriesData[i] = { ...surgeriesData[i], ...JSON.parse(e.key) };
+    async (data, e, i) => {
+      let surgeriesUpdatedData = { ...JSON.parse(e.key) };
+      
+      if (surgeriesUpdatedData?.isCustom) {
+        const masterId = await createCustomSurgery(surgeriesUpdatedData.name);
+        surgeriesUpdatedData = {
+          ...surgeriesUpdatedData,
+          masterId: masterId,
+        };
+        window.Moengage.track_event("TP_Surgery_added", {
+          clinic_name: getClinicName(profile?.hospital_data),
+          doctor_id: profile?.doctor_unique_id,
+          patient_number: patient_data?.pm_contact_no,
+          patient_id: patient_data?.patient_unique_id,
+        });
+      }
+
+      surgeriesData[i] = {
+        ...surgeriesUpdatedData,
+        notes: surgeriesData[i].notes || "",
+      };
       setSurgeriesData((prev) => [...prev]);
       setSearchChildQuery({
-        query: JSON.parse(e.key).name,
+        query: surgeriesUpdatedData.name,
         index: i,
       });
     },

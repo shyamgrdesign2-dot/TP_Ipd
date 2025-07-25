@@ -5,11 +5,13 @@ import RefundBill from "../RefundBill/RefundBill";
 import { addBillsToForm3C, fetchPatientWalletBalance } from "../../../service";
 import imgCloseVisit from "../../../../../assets/images/close-visit.svg";
 import visitEnd from "../../../../../assets/images/end-visit.svg";
-import { MESSAGE_KEY } from "../../../../../utils/constants";
+import { TRIAL, MESSAGE_KEY, S_BILLING, S_TATVA_PRACTICE } from "../../../../../utils/constants";
 import { formatDateWithOrdinal } from "../../../utils/helper";
 import InfoTooltip from "./InfoToolTip/InfoTooltip";
 import { isMobile } from "react-device-detect";
 import { throttle } from "lodash";
+import { useSelector, useDispatch } from "react-redux";
+import moment from "moment";
 
 const BillTable = ({
   data,
@@ -23,7 +25,14 @@ const BillTable = ({
   tableRef,
   patientAdvanceData,
   totalAdvanceBalance,
+  showHideSubModal
 }) => {
+  const { profile, servicesList } = useSelector((state) => state.doctors);
+  const { planDetails } = useSelector((state) => state.subscription);
+  const { service_mappings } = planDetails || {};
+  const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
+  const BILLING_planDetails = service_mappings?.find(e => e.service_name === S_BILLING)
+
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [billData, setBillData] = useState(null);
@@ -38,47 +47,59 @@ const BillTable = ({
     }
   };
 
-  const onBillingDetailsClick = async (status, record) => {
-    setBillData(record);
-    if (status === 1) {
-      handleDrawerPreviewBill();
-    } else if (status === 2) {
-      handleRefundBillDrawer(record);
-    } else if (status === 3) {
-      try {
-        const payload = { billIds: [record.id] }; // Adjust payload as needed
-        const response = await addBillsToForm3C(payload);
-        if (response.status === 204) {
-          if (getPatientBills) {
-            getPatientBills();
-          }
-          message.open({
-            key: MESSAGE_KEY,
-            type: "",
-            className: "message-appointment",
-            content: (
-              <div className="d-flex align-items-center">
-                <img src={visitEnd} className="me-3" />
-                <div>
-                  <div className="title-common text-start fontroboto">{`${record.billNumber} Added to Form 3C`}</div>
-                  {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
-                </div>
-                <img
-                  src={imgCloseVisit}
-                  className="ms-3"
-                  onClick={() => message.destroy()}
-                />
-              </div>
-            ),
-            duration: 5,
-          });
+  const checkBillingPurchased = async () => {
+    // if (moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') > 0) {
+      if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
+        showHideSubModal()
+      } else {
+        return true;
+      }
+    // } else {
+    //   return true;
+    // }
+  }
 
-          handleMessageForm3c();
-        } else {
-          console.error("Failed to add bill to Form 3C");
+  const onBillingDetailsClick = async (status, record) => {
+    const isPurchased = await checkBillingPurchased()
+    if (isPurchased) {
+      setBillData(record);
+      if (status === 1) {
+        handleDrawerPreviewBill();
+      } else if (status === 2) {
+        handleRefundBillDrawer(record);
+      } else if (status === 3) {
+        try {
+          const payload = { billIds: [record.id] }; // Adjust payload as needed
+          const response = await addBillsToForm3C(payload);
+          if (response.status === 204) {
+            message.open({
+              key: MESSAGE_KEY,
+              type: "",
+              className: "message-appointment",
+              content: (
+                <div className="d-flex align-items-center">
+                  <img src={visitEnd} className="me-3" />
+                  <div>
+                    <div className="title-common text-start fontroboto">{`${record.billNumber} Added to Form 3C`}</div>
+                    {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
+                  </div>
+                  <img
+                    src={imgCloseVisit}
+                    className="ms-3"
+                    onClick={() => message.destroy()}
+                  />
+                </div>
+              ),
+              duration: 5,
+            });
+
+            handleMessageForm3c();
+          } else {
+            console.error("Failed to add bill to Form 3C");
+          }
+        } catch (error) {
+          console.error("Error in adding bill to Form 3C:", error);
         }
-      } catch (error) {
-        console.error("Error in adding bill to Form 3C:", error);
       }
     }
   };
@@ -142,22 +163,22 @@ const BillTable = ({
     },
     !isPatientScreen
       ? {
-          title: "PATIENT DETAILS",
-          dataIndex: "patient_details",
-          key: "patient_details",
-          ellipsis: true,
-          width: "21%",
-          render: (text, record) => (
-            <div>
-              <div className="dashboard-table-font-style patient-name-cell">
-                {record?.patient?.name}
-              </div>
-              <div className="fs-14 fw-normal text-truncate-twolines">
-                {record?.patient?.phone}
-              </div>
+        title: "PATIENT DETAILS",
+        dataIndex: "patient_details",
+        key: "patient_details",
+        ellipsis: true,
+        width: "21%",
+        render: (text, record) => (
+          <div>
+            <div className="dashboard-table-font-style patient-name-cell">
+              {record?.patient?.name}
             </div>
-          ),
-        }
+            <div className="fs-14 fw-normal text-truncate-twolines">
+              {record?.patient?.phone}
+            </div>
+          </div>
+        ),
+      }
       : undefined,
     {
       title: "TOTAL AMOUNT",
@@ -234,17 +255,17 @@ const BillTable = ({
             <div className={className}>{displayText}</div>
             {("CarriedForward" === record.paymentStatus ||
               ("Refunded" === record.paymentStatus && record.notes)) && (
-              <InfoTooltip
-                type={record.paymentStatus}
-                amount={
-                  record.paymentStatus === "Refunded"
-                    ? record.paidAmount
-                    : record.dueAmount
-                }
-                notes={record.notes}
-                billNo={record.nextBillNumber}
-              />
-            )}
+                <InfoTooltip
+                  type={record.paymentStatus}
+                  amount={
+                    record.paymentStatus === "Refunded"
+                      ? record.paidAmount
+                      : record.dueAmount
+                  }
+                  notes={record.notes}
+                  billNo={record.nextBillNumber}
+                />
+              )}
           </div>
         );
       },
@@ -323,7 +344,7 @@ const BillTable = ({
     const { target } = e;
     if (
       Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) <=
-        5 &&
+      5 &&
       hasMore
     ) {
       loadData(false);

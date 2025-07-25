@@ -33,7 +33,12 @@ import {
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import dayjs from "dayjs";
 
-import { errorMessage, getClinic, trackEvent } from "../utils/utils";
+import {
+  errorMessage,
+  getClinic,
+  sendMessageToParent,
+  trackEvent,
+} from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
 import {
   getSnapRxDigitization,
@@ -45,6 +50,7 @@ import {
   TAB_FINISHED,
   TAB_CANCELLED,
   GB_ISCRIBE,
+  PENDING_DIGITISATION_RX,
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
   FETCH_SMART_RX,
   UNFINISHED_RX_CASE,
@@ -53,6 +59,9 @@ import {
   TAB_ZYDUS_APPOINTMENT,
   GB_ZYDUS_USER,
   GB_SNAP_RX,
+  S_BILLING,
+  S_TATVA_PRACTICE,
+  TRIAL,
 } from "../utils/constants";
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
@@ -125,14 +134,16 @@ import {
 } from "../redux/billingSlice";
 import WelcomeModal from "./userOnboarding/welcomeModal/WelcomeModal";
 import { checkSymptomsCollectorTour } from "../api/services/ApiGenRx";
+import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 import { EVENTS } from "../utils/events";
+import AiReceptionistButton from "./AiReceptionist";
 
 const { TextArea } = Input;
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD-MM-YYYY";
 
-function AppointmentData({ locationPath }) {
+function AppointmentData({ locationPath, appointmentAgentsData }) {
   const navigate = useNavigate();
 
   const { sort_order, profile, siteId, empNo, userId } = useSelector(
@@ -175,8 +186,10 @@ function AppointmentData({ locationPath }) {
   const [pendingDigitisation, setPendingDigitisation] = useState(null);
   const consultButtonRef = useRef(null);
   const isSmartSyncAccessableFromGB = useFeatureIsOn(GB_ISCRIBE);
-  const isSnapRxAccessable = useFeatureIsOn(GB_SNAP_RX);
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+  const isSnapRxAccessable = useFeatureIsOn(GB_SNAP_RX);
+  const isAppointmentAgentAccessableFromGB =
+    useFeatureIsOn("appointment-agent");
   const [zydusSearchQuery, setZydusSearchQuery] = useState("");
   const [matchedAppointment, setMatchedAppointment] = useState([]);
 
@@ -189,12 +202,44 @@ function AppointmentData({ locationPath }) {
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [patientData, setPatientData] = useState(null);
   const fileInputRef = useRef(null);
+
   const { planDetails } = useSelector((state) => state.subscription);
+  const { service_mappings } = planDetails || {};
+  const EMR_planDetails = service_mappings?.find(
+    (e) => e.service_name === S_TATVA_PRACTICE
+  );
+  const BILLING_planDetails = service_mappings?.find(
+    (e) => e.service_name === S_BILLING
+  );
+
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
   const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
     useState(null);
   const [tourRef, setTourRef] = useState(null);
+
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+  const [agentsData, setAgentsData] = useState(null);
+  const [isAgentsLoading, setIsAgentsLoading] = useState(false);
+
+  const showHideSubModal = () => {
+    setIsSubModalOpen(!isSubModalOpen);
+  };
+
+  const checkBillingPurchased = async () => {
+    // if (moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') > 0) {
+    if (
+      EMR_planDetails?.plan_tier !== TRIAL &&
+      BILLING_planDetails?.plan_tier === TRIAL
+    ) {
+      showHideSubModal();
+    } else {
+      return true;
+    }
+    // } else {
+    //     return true;
+    // }
+  };
 
   // Add the tour handler
   const onTourHandle = () => {
@@ -229,8 +274,9 @@ function AppointmentData({ locationPath }) {
             width: "305px",
           }}
         >
-          This icon means the AI Agent Mira has collected the patient's{" "}
-          <strong style={{ fontWeight: 600 }}>symptoms</strong> &{" "}
+          This icon means the AI Agent{" "}
+          <strong>{appointmentAgentsData?.name}</strong> has collected the
+          patient's <strong style={{ fontWeight: 600 }}>symptoms</strong> &{" "}
           <strong style={{ fontWeight: 600 }}>medical history</strong>. You can
           now <strong style={{ fontWeight: 600 }}>preview</strong> and{" "}
           <strong style={{ fontWeight: 600 }}>autofill</strong> them into the{" "}
@@ -404,19 +450,15 @@ function AppointmentData({ locationPath }) {
 
       const pendingDigitisationRx = response?.data;
 
-      setPendingDigitisation(pendingDigitisationRx);
+      if (pendingDigitisationRx) {
+        setPendingDigitisation(pendingDigitisationRx);
+      }
     } catch (error) {
       console.error(
         "Error fetching the pending Digitisation prescriptions:",
         error
       );
     }
-  };
-
-  const fetchSnapRxPendingDigitisationRx = async () => {
-    const response = await axios.get(
-      `${snapRxDigitizationUrl}/api/v1/digitization/undigitizedAppointments`
-    );
   };
 
   // Initialize items in state
@@ -606,6 +648,8 @@ function AppointmentData({ locationPath }) {
     }
   }, [appointmentsData, matchedAppointment, selectedTab]);
 
+  const decodedToken = getDecodedToken();
+
   const showHideBackModal = () => {
     setIsBackModalOpen(!isBackModalOpen);
   };
@@ -627,6 +671,12 @@ function AppointmentData({ locationPath }) {
       getSymptomCollectorTourCheck();
     }
   }, []);
+
+  useEffect(() => {
+    if (appointmentAgentsData) {
+      setAgentsData(appointmentAgentsData);
+    }
+  }, [appointmentAgentsData]);
 
   useEffect(() => {
     if (!createBillDrawer && !isReceptionist) {
@@ -782,7 +832,6 @@ function AppointmentData({ locationPath }) {
 
   useEffect(() => {
     if (isSnapRxAccessable) {
-      // TODO: INTEL - remove true after testing
       dispatch(getSnapRxUnDigitisedIds());
     }
   }, [isSnapRxAccessable]);
@@ -1004,29 +1053,32 @@ function AppointmentData({ locationPath }) {
         ? {
             label: (
               <div
-                onClick={() => {
-                  setAppointmentSelectedFromMenu(record);
-                  if (patientBills?.length === 0) {
-                    const clinic = getClinic();
-                    trackEvent("TP_Billing_CreateBill", {
-                      patientName: record.pm_fullname,
-                      patientId: record?.patient_unique_id,
-                      doctorSpeciality: profile?.dp_name,
-                      doctorId: profile?.doctor_unique_id,
-                      doctorContact: profile?.um_contact,
-                      source:
-                        selectedTab === TAB_QUEUE
-                          ? "appointment_queue"
-                          : selectedTab === TAB_FINISHED
-                          ? "appointment_finished"
-                          : "",
-                      city: clinic?.hm_city,
-                      pincode: clinic?.hm_pincode,
-                      subscriptionStatus: planDetails?.currentPlanStatus,
-                    });
-                    handleCreateBillDrawer();
-                  } else {
-                    handleRecentBillDrawer();
+                onClick={async () => {
+                  const isPurchased = await checkBillingPurchased();
+                  if (isPurchased) {
+                    setAppointmentSelectedFromMenu(record);
+                    if (patientBills?.length === 0) {
+                      const clinic = getClinic();
+                      trackEvent("TP_Billing_CreateBill", {
+                        patientName: record.pm_fullname,
+                        patientId: record?.patient_unique_id,
+                        doctorSpeciality: profile?.dp_name,
+                        doctorId: profile?.doctor_unique_id,
+                        doctorContact: profile?.um_contact,
+                        source:
+                          selectedTab === TAB_QUEUE
+                            ? "appointment_queue"
+                            : selectedTab === TAB_FINISHED
+                            ? "appointment_finished"
+                            : "",
+                        city: clinic?.hm_city,
+                        pincode: clinic?.hm_pincode,
+                        subscriptionStatus: planDetails?.currentPlanStatus,
+                      });
+                      handleCreateBillDrawer();
+                    } else {
+                      handleRecentBillDrawer();
+                    }
                   }
                 }}
               >
@@ -1042,9 +1094,12 @@ function AppointmentData({ locationPath }) {
         ? {
             label: (
               <div
-                onClick={() => {
-                  setAppointmentSelectedFromMenu(record);
-                  handleAddAdvanceDrawer();
+                onClick={async () => {
+                  const isPurchased = await checkBillingPurchased();
+                  if (isPurchased) {
+                    setAppointmentSelectedFromMenu(record);
+                    handleAddAdvanceDrawer();
+                  }
                 }}
               >
                 Advance Deposit
@@ -1357,6 +1412,51 @@ function AppointmentData({ locationPath }) {
       patient_id: record?.patient_unique_id,
     });
     navigate("/smart-prescription", { state: { patient_data: record } });
+  };
+
+  const onAppointmentAgentClick = async () => {
+    // window.Moengage.track_event("patient_search_consult", {
+    //     "doctor_id": profile?.doctor_unique_id,
+    //     "patient_id": record?.patient_unique_id
+    // });
+    if (agentsData) {
+      // If agentsData exists, navigate to success page
+      navigate("/appointment-agent/success", {
+        state: {
+          agentsData,
+          setupData: {
+            clinicId: agentsData.clinicId || profile?.clinicId || 390,
+            doctors:
+              agentsData.doctors?.map((doctor) => ({
+                id: doctor.um_id || doctor.id,
+                name: doctor.um_name || doctor.name,
+                speciality: doctor.speciality || "MBBS",
+                availability:
+                  doctor.availability || doctor.slotsAvailable || true,
+              })) || [],
+            clinicData: getClinic(profile?.hospital_data),
+            useUploadLogo: agentsData.logo ? true : false,
+            logo: agentsData.logo || null,
+            clinicName: agentsData.clinicName || null,
+            avatar: agentsData.avatarDetails || null,
+            avatarId: agentsData.avatarId || null,
+            googleLocation:
+              agentsData.googleLocation?.address?.formatted || null,
+            fullgoogleLocation: agentsData.googleLocation || null,
+            receptionistName: agentsData.name || "",
+            contact: agentsData.contact || "",
+            email: agentsData.email || "",
+            receptionId: agentsData.receptionId || null,
+            appointmentLinkShared: agentsData.appointmentLinkShared || null,
+            hospitalBusinessId: decodedToken?.result?.hospital_business_id,
+          },
+          appointment_booking_link: agentsData.appointmentLinkShared,
+        },
+      });
+    } else {
+      // If no agentsData, navigate to normal flow
+      navigate("/appointment-agent", { state: { agentsData } });
+    }
   };
 
   const fetchData = async (tcm_id) => {
@@ -2327,12 +2427,42 @@ function AppointmentData({ locationPath }) {
     <>
       {!isReceptionist && (
         <div className="border rounded-4 appointment-wrap dateborder">
-          <Tabs
-            defaultActiveKey={TAB_QUEUE}
-            items={items}
-            onChange={onChange}
-            activeKey={selectedTab}
-          />
+          <div style={{ position: "relative" }}>
+            <Tabs
+              defaultActiveKey={TAB_QUEUE}
+              items={items}
+              onChange={onChange}
+              activeKey={selectedTab}
+            />
+            {isAppointmentAgentAccessableFromGB && (
+              <div
+                className="receptionist-setup-button"
+                onClick={onAppointmentAgentClick}
+              >
+                {isAgentsLoading ? (
+                  <div
+                    className="d-flex align-items-center justify-content-center"
+                    style={{ height: "41px", minWidth: "200px" }}
+                  >
+                    <Spin size="small" />
+                  </div>
+                ) : (
+                  <AiReceptionistButton
+                    agentsData={agentsData}
+                    customText={
+                      agentsData
+                        ? isMobile
+                          ? "AI Receptionist"
+                          : "Your AI Receptionist"
+                        : isMobile
+                        ? "Setup AI Receptionist"
+                        : "Setup Your AI Receptionist"
+                    }
+                  />
+                )}
+              </div>
+            )}
+          </div>
           <div className="appointment-data">
             <Row className="justify-content-between align-items-center my-3 px-4">
               <Col xl={4} sm={4}>
@@ -2799,6 +2929,12 @@ function AppointmentData({ locationPath }) {
           />
         </Drawer>
       )}
+
+      <ExpiredSubModal
+        title={S_BILLING}
+        isSubModalOpen={isSubModalOpen}
+        showHideSubModal={showHideSubModal}
+      />
     </>
   );
 }

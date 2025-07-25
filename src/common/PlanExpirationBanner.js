@@ -4,6 +4,7 @@ import crownIcon from "../assets/images/crown.svg";
 import { useLocation } from "react-router-dom";
 import { openModal } from "../redux/doctorModalSlice";
 import { HIDE_ROUTES } from "../utils/constants";
+import { useNavigate } from "react-router-dom";
 
 const PlanExpirationBanner = () => {
   const { planDetails } = useSelector((state) => state.subscription);
@@ -22,9 +23,15 @@ const PlanExpirationBanner = () => {
         location.pathname.includes(route)
     );
   }, [location.pathname]);
+  const navigate = useNavigate();
+
   const handleClick = () => {
-    dispatch(openModal());
+    // dispatch(openModal());
+    clickBuyNow()
   };
+  const clickBuyNow = () => {
+    navigate('/get-unlimited-access')
+  }
 
   if (shouldHideBanner) {
     return null;

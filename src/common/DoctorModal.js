@@ -15,7 +15,7 @@ const DoctorModal = () => {
   return (
     <Modal
       open={isVisible}
-      title={"Upgrade Plan"}
+      title={"Request a call back"}
       footer={null}
       onCancel={handleClose}
       destroyOnClose

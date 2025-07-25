@@ -18,7 +18,7 @@ import successIcon from '../assets/images/success-icon.svg';
 import cvtInfoIcon from '../assets/images/cvt-info.svg';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
-import { FETCH_SMART_RX, GB_SMARTSYNC_CVT, MESSAGE_KEY, RX_DIGITIZATION, WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
+import { FAILED_VERIFICATION, FETCH_SMART_RX, FREE, GB_SMARTSYNC_CVT, MESSAGE_KEY, RX_DIGITIZATION, S_RX_DIGITIZATION, WHATS_APP_API, WTSAP_ERR_MESSAGE } from "../utils/constants";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import config from "../../src/config";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
@@ -32,6 +32,9 @@ import CommonModal from "../common/CommonModal";
 import { env } from "../EnvironmentConfig";
 import { getDecodedToken } from "../utils/localStorage";
 import CvtKnowMore from "./smartSync/components/CvtKnowMore";
+import { checkCredits } from "../redux/monetizationSlice";
+import { services } from "../redux/doctorsSlice";
+import ExpiredSubModal from "./monetization/components/ExpiredSubModal";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
@@ -40,6 +43,8 @@ function SmartRxPreview() {
     const divRef = useRef(null);
     const printRef = useRef();
 
+    const { servicesList } = useSelector((state) => state.doctors);
+    const RX_DIGITIZATION_planDetails = servicesList?.find(e => e.service_name === S_RX_DIGITIZATION)
     const {
         loading,
     } = useSelector((state) => state.caseManager);
@@ -73,6 +78,8 @@ function SmartRxPreview() {
     const [cvtDrawer, setCvtDrawer] = useState(false);
     const progressRef = useRef(null);
     const progressValue = useRef(0);
+
+    const [isSubModalOpen, setIsSubModalOpen] = useState(false);
 
     const baseUrl = { customBaseUrl: env.casemanager_api_url };
     const baseUrlRxDigitise = env.rx_digitization ;
@@ -289,30 +296,65 @@ function SmartRxPreview() {
         }
     }, [smartRxFile, token, state?.tcm_id]);
 
+    const showHideSubModal = useCallback(() => {
+        setIsSubModalOpen(!isSubModalOpen);
+    }, [isSubModalOpen]);
+
     const handleDigitiseRx = async () => {
-            try {
-
-                // After both API calls are completed, check their responses
-                if (smartRxFile?.length > 0 && token) {
-
-                    // Proceed with the file upload
-                    navigate("/smart-rx-digitise", {
-                        state: {
-                            patient_data: patient_data,
-                            smartRxFilesData: smartRxFile,
-                            tcm_id: state.tcm_id,
-                            pam_id: state?.pam_id,
-                            print_url: state.print_url,
-                            // digitisedData: rxDigitiseApiResponse,
-                            type:"new"
-
-                        },
-                    })
-                }
-            } catch (error) {
-                console.error('Error in handleDigitiseRx:', error);
+        if (RX_DIGITIZATION_planDetails?.plan_tier === FREE && RX_DIGITIZATION_planDetails?.credit_balance <= 0) {
+            showHideSubModal()
+        } else if (RX_DIGITIZATION_planDetails?.plan_tier === FAILED_VERIFICATION) {
+            showHideSubModal()
+        } else {
+            let sendData = {
+                b2c_id: profile?.b2c,
+                service_name: S_RX_DIGITIZATION
             }
-        // }
+            const action = await dispatch(checkCredits(sendData));
+            if (action.meta.requestStatus === "fulfilled") {
+                if (action?.payload?.hasOwnProperty("service_name")) {
+                    if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
+                        if (action?.payload?.credit_balance != RX_DIGITIZATION_planDetails?.credit_balance) {
+                            await dispatch(services(sendData?.b2c_id))
+                        }
+                        showHideSubModal()
+                    } else if (action?.payload?.plan_tier === FAILED_VERIFICATION) {
+                        showHideSubModal()
+                    } else {
+                        try {
+
+                            // After both API calls are completed, check their responses
+                            if (smartRxFile?.length > 0 && token) {
+
+                                // Proceed with the file upload
+                                navigate("/smart-rx-digitise", {
+                                    state: {
+                                        patient_data: patient_data,
+                                        smartRxFilesData: smartRxFile,
+                                        tcm_id: state.tcm_id,
+                                        pam_id: state?.pam_id,
+                                        print_url: state.print_url,
+                                        // digitisedData: rxDigitiseApiResponse,
+                                        type: "new"
+
+                                    },
+                                })
+                            }
+                        } catch (error) {
+                            console.error('Error in handleDigitiseRx:', error);
+                        }
+                        // }
+                    }
+                } else {
+                    typeof action?.payload?.data?.error === 'object' ?
+                        errorMessage(action?.payload?.data?.error?.description)
+                        :
+                        errorMessage(action?.payload?.data?.message)
+                }
+            } else {
+                errorMessage(action.payload.message)
+            }
+        }
     };
     
         // if (smartRxFile?.length > 0 && token && state?.tcm_id && isSmartSyncCVTAccessableFromGB) {
@@ -549,7 +591,7 @@ function SmartRxPreview() {
                                                 Digitise Rx Now <span>&#8594;</span> 
                                             </button>
                                         </div>
-                                    )}
+                                    )} 
                                     {isRxDigitiseComplete && (
                                         <div className="digitise-container p-3 rounded-10px">
                                             <div className="digitise-box-top">
@@ -643,6 +685,12 @@ function SmartRxPreview() {
                     </Col>
                 </Row>
             </div>
+
+            <ExpiredSubModal
+                title={S_RX_DIGITIZATION}
+                isSubModalOpen={isSubModalOpen}
+                showHideSubModal={showHideSubModal} />
+
         </>
     );
 }

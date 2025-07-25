@@ -9,4 +9,7 @@ export const EVENTS = {
     digitalRxPrinted: "CVT_Digital_Rx_Printed",
     digitalRxWhatsappSent: "CVT_Digital_Rx_Whatsapp_Sent",
   },
+  PRINT: "print",
+  DOWNLOAD: "download",
+  SHARE: "share",
 };

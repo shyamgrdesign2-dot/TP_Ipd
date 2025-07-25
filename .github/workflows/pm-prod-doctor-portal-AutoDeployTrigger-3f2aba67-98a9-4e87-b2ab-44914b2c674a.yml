@@ -45,5 +45,3 @@ jobs:
           imageToBuild: acinacr.azurecr.io/pm-prod-doctor-portal:${{ github.sha }}
           buildArguments: |
             "REACT_APP_ENV=prod"
-
-

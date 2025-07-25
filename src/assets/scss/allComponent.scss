@@ -19,6 +19,12 @@
     }
   }
 
+  .receptionist-setup-button {
+    position: absolute;
+    right: 0;
+    top: 10%;
+  }
+
   .ant-picker {
     .ant-picker-input {
       input::placeholder {
@@ -33,6 +39,10 @@
 
   .ant-picker-focused.ant-picker {
     box-shadow: none;
+  }
+
+  :where(.css-dev-only-do-not-override-1okl62o).ant-tabs {
+    line-height: 2.571429;
   }
 }
 .print-tabs {
@@ -2066,6 +2076,9 @@ body {
   color: #fff !important;
   height: 60px; /* Fixed height for both tablet and desktop */
   gap: 10px; /* Space between elements */
+  &.banner-yellow {
+    background-color: #ed8a00;
+  }
 }
 
 .plan-expiry-banner {
