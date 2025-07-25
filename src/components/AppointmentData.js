@@ -583,7 +583,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     cancelledCount,
     appointmentsData,
     isZydusUserAccessableFromGB,
-    // isSmartSyncCVTAccessableFromGB,
+    isSmartSyncCVTAccessableFromGB,
     isSnapRxAccessable,
   ]);
 
