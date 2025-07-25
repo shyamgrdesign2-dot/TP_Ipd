@@ -26,7 +26,9 @@ import doctorModalReducer from "./doctorModalSlice";
 import surgicalSlice from "./surgicalSlice";
 import bulkMessagesSlice from "./bulkMessagesSlice";
 import customModuleReducer from "./customModuleSlice";
+import snapRxDigitizationSlice from "./snapRxDigitizationSlice";
 import billingSlice from "./billingSlice";
+import shortLinkSlice from "./shortLinkSlice";
 import monetizationSlice from "./monetizationSlice";
 
 const persistConfig = {
@@ -60,6 +62,8 @@ const rootReducer = combineReducers({
   bulkMessages: bulkMessagesSlice,
   customModules: customModuleReducer,
   billing: billingSlice,
+  snapRx: snapRxDigitizationSlice,
+  shortLink: shortLinkSlice,
   monetization: monetizationSlice,
 });
 

@@ -1,6 +1,6 @@
 import { Button } from "antd";
-import React, { useState, useEffect, useRef } from "react";
-
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import GenRXLoaders from "./GenRxLoaders";
 const DigitisedPrescription = ({ data, setData, loading }) => {
   const [activeIndex, setActiveIndex] = useState(null);
   const [activeType, setActiveType] = useState(null);
@@ -11,35 +11,38 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
   const inputRef = useRef(null);
 
   // Handle input blur (closing edit mode)
-  const handleInputBlur = (type, index) => {
-    if (activeIndex !== null && activeType !== null) {
-      setData((prevData) => {
-        const updatedData = { ...prevData };
-  
-        if (type === "medications" || type === "tests") {
-          updatedData[type][index].refinedName = editableText.trim();
-        } else if (
-          type === "symptoms" ||
-          type === "examination" ||
-          type === "diagnosis" ||
-          type === "medicalHistory" ||
-          type === "vaccinations"
-        ) {
-          updatedData[type][index].name = editableText.trim();
-        } else if (type === "advice") {
-          updatedData[type][index] = editableText.trim();
-        } else if (type === "vitals") {
-          updatedData.vitals[index] = editableText.trim();
-        }
-        return updatedData; // Persist changes
-      });
-    }
-  
-    setShowSuggestions(false);
-    setActiveIndex(null);
-    setActiveType(null);
-    setEditableText(""); // Clear editable text after blur
-  };  
+  const handleInputBlur = useCallback(
+    (type, index) => {
+      if (activeIndex !== null && activeType !== null) {
+        setData((prevData) => {
+          const updatedData = { ...prevData };
+
+          if (type === "medications" || type === "tests") {
+            updatedData[type][index].refinedName = editableText.trim();
+          } else if (
+            type === "symptoms" ||
+            type === "examination" ||
+            type === "diagnosis" ||
+            type === "medicalHistory" ||
+            type === "vaccinations"
+          ) {
+            updatedData[type][index].name = editableText.trim();
+          } else if (type === "advice") {
+            updatedData[type][index] = editableText.trim();
+          } else if (type === "vitals") {
+            updatedData.vitals[index] = editableText.trim();
+          }
+          return updatedData; // Persist changes
+        });
+      }
+
+      setShowSuggestions(false);
+      setActiveIndex(null);
+      setActiveType(null);
+      setEditableText(""); // Clear editable text after blur
+    },
+    [activeIndex, activeType, editableText, setData]
+  );
 
   // Handle click outside suggestion and input box
   useEffect(() => {
@@ -138,7 +141,13 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
 
   // Handle click on a lineItem (to edit)
   const handleLineItemClick = (type, index) => {
-    if (type === "medications" || type === "tests" || type === "vaccinations" || type === "medicalHistory" || type === "symptoms") {
+    if (
+      type === "medications" ||
+      type === "tests" ||
+      type === "vaccinations" ||
+      type === "medicalHistory" ||
+      type === "symptoms"
+    ) {
       setEditableLineItem(data[type][index]?.lineItem);
     } else {
       setEditableLineItem(data[type][index]?.notes);
@@ -277,20 +286,22 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
                         onClick={() => handleItemClick(type, index)}
                         className="digitised-item"
                       >
-                        {
-                          type === "advice"
-                            ? item
-                            : (type === "symptoms" && item?.name?.length > 0)
-                            ? item.name[0]?.toUpperCase() + item.name?.slice(1)
-                            : (type === "medications" || type === "tests")
-                            ? item?.refinedName
-                            : item?.name
-                        }
+                        {type === "advice"
+                          ? item
+                          : type === "symptoms" && item?.name?.length > 0
+                          ? item.name[0]?.toUpperCase() + item.name?.slice(1)
+                          : type === "medications" || type === "tests"
+                          ? item?.refinedName
+                          : item?.name}
                       </span>
                     )}
 
                     {/* Editable input for lineItem */}
-                    {(type === "medications" || type === "symptoms" || type === "vaccinations" || type === "medicalHistory" || type === "tests") &&
+                    {(type === "medications" ||
+                      type === "symptoms" ||
+                      type === "vaccinations" ||
+                      type === "medicalHistory" ||
+                      type === "tests") &&
                       item?.lineItem &&
                       (activeIndex === index &&
                       activeType === `${type}-lineItem` ? (
@@ -313,8 +324,7 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
                       ))}
 
                     {/* Editable input for notes (lineItem) */}
-                    {(type === "examination" ||
-                      type === "diagnosis" ) &&
+                    {(type === "examination" || type === "diagnosis") &&
                       item?.notes &&
                       (activeIndex === index &&
                       activeType === `${type}-lineItem` ? (
@@ -347,70 +357,43 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
 
   const hasValidContent = (type) => {
     if (!data[type] || !Array.isArray(data[type])) return false;
-    
-    return data[type].some(item => {
-      if (typeof item === 'string') return item.trim().length > 0;
-      
+
+    return data[type].some((item) => {
+      if (typeof item === "string") return item.trim().length > 0;
+
       // For object types, check if any relevant fields have content
       const relevantFields = {
-        medications: ['refinedName', 'lineItem'],
-        symptoms: ['name', 'lineItem'],
-        examination: ['name', 'notes'],
-        diagnosis: ['name', 'notes'],
-        medicalHistory: ['name', 'lineItem'],
-        vaccinations: ['name', 'lineItem'],
-        tests: ['refinedName', 'lineItem']
+        medications: ["refinedName", "lineItem"],
+        symptoms: ["name", "lineItem"],
+        examination: ["name", "notes"],
+        diagnosis: ["name", "notes"],
+        medicalHistory: ["name", "lineItem"],
+        vaccinations: ["name", "lineItem"],
+        tests: ["refinedName", "lineItem"],
       };
 
-      const fieldsToCheck = relevantFields[type] || ['name'];
-      return fieldsToCheck.some(field => item[field]?.trim?.().length > 0);
+      const fieldsToCheck = relevantFields[type] || ["name"];
+      return fieldsToCheck.some((field) => item[field]?.trim?.().length > 0);
     });
   };
 
   return (
     <div className="digitised-container">
       {loading ? (
-        // Updated shimmer layout
-        <>
-          {/* First Section */}
-          <div className="shimmer-container">
-            <div className="shimmer-header">
-              <div className="shimmer"></div>
-            </div>
-            <div className="shimmer-content">
-              <div className="shimmer"></div>
-            </div>
-          </div>
-          
-          {/* Second Section */}
-          <div className="shimmer-container">
-            <div className="shimmer-header">
-              <div className="shimmer"></div>
-            </div>
-            <div className="shimmer-content">
-              <div className="shimmer"></div>
-            </div>
-          </div>
-          
-          {/* Third Section */}
-          <div className="shimmer-container">
-            <div className="shimmer-header">
-              <div className="shimmer"></div>
-            </div>
-            <div className="shimmer-content">
-              <div className="shimmer"></div>
-            </div>
-          </div>
-        </>
+        // TODO:INTEL - PROGRESS BAR TO BE HANDLED 
+        <GenRXLoaders isProcessing={true} />
       ) : (
         // Show actual content when not loading
         <>
-          {data?.vitals && Object.values(data.vitals).some(value => value?.trim?.().length > 0) && (
-            <>
-              <div className="title-digitise-section mb-2">Vitals</div>
-              {renderItems("vitals")}
-            </>
-          )}
+          {data?.vitals &&
+            Object.values(data.vitals).some(
+              (value) => value?.trim?.().length > 0
+            ) && (
+              <>
+                <div className="title-digitise-section mb-2">Vitals</div>
+                {renderItems("vitals")}
+              </>
+            )}
 
           {data?.medicalHistory && hasValidContent("medicalHistory") && (
             <>
@@ -449,7 +432,9 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
 
           {data?.tests && hasValidContent("tests") && (
             <>
-              <div className="title-digitise-section mb-2">Lab Investigation</div>
+              <div className="title-digitise-section mb-2">
+                Lab Investigation
+              </div>
               {renderItems("tests")}
             </>
           )}
@@ -464,7 +449,7 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
           {data?.vaccinations && hasValidContent("vaccinations") && (
             <>
               <div className="title-digitise-section mb-2">Vaccination</div>
-              {renderItems('vaccinations')}
+              {renderItems("vaccinations")}
             </>
           )}
         </>

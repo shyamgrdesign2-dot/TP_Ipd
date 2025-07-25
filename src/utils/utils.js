@@ -2,8 +2,8 @@ import moment from "moment";
 
 import config from "../config";
 import { message } from "antd";
-import { MESSAGE_KEY } from "../utils/constants";
-import { browserName, deviceDetect } from "react-device-detect";
+import { MESSAGE_KEY, SNAP_RX_TOKENS_STORAGE_KEY } from "../utils/constants";
+import { browserName, deviceDetect, isBrowser } from "react-device-detect";
 import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../src/firebase.js";
@@ -11,6 +11,7 @@ import { getDecodedToken } from "./localStorage.js";
 import imageCompression from "browser-image-compression";
 import numeral from "numeral";
 import packageJson from "../../package.json";
+import { EVENTS } from "./events.js";
 
 // export const validateEmail = (email) => {
 //   return String(email)
@@ -635,6 +636,17 @@ export function randomInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+export const convertBase64ToBlobURL = (base64string = "") => {
+  const byteCharacters = atob(base64string);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: "application/pdf" });
+  return URL.createObjectURL(blob);
+};
+
 export const handlePrintClick = (
   element,
   setTabLoader,
@@ -732,17 +744,24 @@ export const getDeviceSdkData = () => {
   return { device_info: deviceDetect(), sdk_version: packageJson?.version };
 };
 
-export const compressedFile = async (file) => {
-  if (file.size > 2101546) {
+export const compressedFile = async (
+  file,
+  maxSizeMB = 2,
+  compressPercent = null
+) => {
+  if (file.size > maxSizeMB * 1024 * 1024) {
     // If file size is greater than 2MB
     try {
       const options = {
-        maxSizeMB: 2, // Target size: 2MB, the limit you want to enforce
+        maxSizeMB, // Target size: 2MB, the limit you want to enforce
         maxWidthOrHeight: 1920, // Max dimension, but we aim to maintain original dimensions - 1280, 2560
         useWebWorker: true, // Use a web worker for performance
         alwaysKeepResolution: true, // Ensure original height and width are maintained
       };
-
+      if (compressPercent) {
+        options.initialQuality = compressPercent / 100;
+        delete options.maxSizeMB;
+      }
       const compress = await imageCompression(file, options);
 
       // Preserve original file extension
@@ -907,5 +926,29 @@ export const sendMessageToParent = (eventName, data = {}) => {
     }
   } catch (error) {
     console.log("sendMessageToParent ERROR", error);
+  }
+};
+
+export const clearExpiredTokensFromStorage = () => {
+  try {
+    const tokensObject = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
+    if (tokensObject) {
+      const parsedTokens = JSON.parse(tokensObject);
+      const currentTime = Date.now();
+      const validTokens = {};
+
+      Object.keys(parsedTokens).forEach((key) => {
+        if (parsedTokens[key].expiresIn > currentTime) {
+          validTokens[key] = parsedTokens[key];
+        }
+      });
+
+      localStorage.setItem(
+        SNAP_RX_TOKENS_STORAGE_KEY,
+        JSON.stringify(validTokens)
+      );
+    }
+  } catch (error) {
+    console.error("Error cleaning up expired tokens:", error);
   }
 };

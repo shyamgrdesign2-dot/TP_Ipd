@@ -2934,3 +2934,21 @@ body {
     --antd-arrow-background-color: #ffffff;
   }
 }
+.header-snap-rx-nav {
+    height: 62px !important;
+    box-shadow: none !important;
+}
+.header-snap-rx {
+  position: fixed;
+  overflow: hidden;
+  background: white;
+  inset: 0;
+  z-index: 2;
+  height: 62px !important;
+  margin: 0 !important;
+  box-shadow: -1px -1px 0px 0px #E2E2EA inset;
+}
+
+.snap-rx-img {
+    border-radius: 16px;
+}

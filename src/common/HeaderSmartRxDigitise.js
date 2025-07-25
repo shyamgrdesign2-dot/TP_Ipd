@@ -4,7 +4,7 @@ import React, {
   useCallback,
   useContext,
   useMemo,
-  useRef
+  useRef,
 } from "react";
 import { Container, Navbar, Row, Col } from "react-bootstrap";
 import {
@@ -30,27 +30,30 @@ import CommonModal from "./CommonModal";
 import alertIcon from "../assets/images/alertIcon.svg";
 import reload from "../assets/images/ic_Reload.svg";
 import tutorial from "../assets/images/tutorial.svg";
-import playIcons from '../assets/images/tube-icon.svg';
+import playIcons from "../assets/images/tube-icon.svg";
 import api from "../api/services/axiosService";
 
 import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import VideoModal from './VideoModal';
+import VideoModal from "./VideoModal";
 import { getDecodedToken } from "../utils/localStorage";
 import { env } from "../EnvironmentConfig";
-import { RX_DIGITIZATION, IS_RX_DIGI_API_CALL, S_RX_DIGITIZATION } from "../utils/constants";
+import {
+  RX_DIGITIZATION,
+  IS_RX_DIGI_API_CALL,
+  S_RX_DIGITIZATION,
+} from "../utils/constants";
 import ReconnectingWebSocket from "reconnectingwebsocket";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { GB_SMARTSYNC_CONNECT } from '../utils/constants';
+import { GB_SMARTSYNC_CONNECT } from "../utils/constants";
 import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
 import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 
-function HeaderSmartRxDigitise({onSave, patient_data}) {
-
+function HeaderSmartRxDigitise({ onSave, patient_data, isSnapRx = false }) {
   const { templates, loading } = useSelector((state) => state.caseManager);
-  const { videoList} = useSelector((state) => state.doctors);
+  const { videoList } = useSelector((state) => state.doctors);
   const [videoLink, setVideoLink] = useState(null);
   const dispatch = useDispatch();
 
@@ -78,31 +81,51 @@ function HeaderSmartRxDigitise({onSave, patient_data}) {
   //Video Componet
   const VIDEO_CONTENT = useCallback(() => {
     return (
-        <>
-            <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
-                <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
-                    <div className="title-common-digitised lh-base">Video Tutorial</div>
-                    <Button className="btn btn-videoClose p-0"
-                        onClick={showHideVideoListPopover}>
-                        <i className="icon-Cross" />
-                    </Button>
+      <>
+        <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
+          <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
+            <div className="title-common-digitised lh-base">Video Tutorial</div>
+            <Button
+              className="btn btn-videoClose p-0"
+              onClick={showHideVideoListPopover}
+            >
+              <i className="icon-Cross" />
+            </Button>
+          </div>
+          {videoList
+            ?.filter((e) => e.category_id === 9)[0]
+            ?.video?.map((item1, i1) => {
+              return (
+                <div
+                  key={i1}
+                  className={`d-flex ${
+                    i1 !==
+                      videoList?.filter((e) => e.category_id === 9)[0]?.video
+                        ?.length -
+                        1 && "pb-3 mb-15 border-bottom"
+                  }`}
+                >
+                  <div className="tutorial-play me-14">
+                    <button type="button" onClick={() => setVideoLink(item1)}>
+                      <img src={playIcons} />
+                    </button>
+                    <span className="tutorial-thumb">
+                      <img src={item1.thumbnail} />
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="title-common-digitised text-welcome">
+                      {item1?.tmv_title}
+                    </h3>
+                    <div className="fs-12 fontroboto fw-normal text-main">
+                      {item1?.tmv_description}
+                    </div>
+                  </div>
                 </div>
-                {videoList?.filter(e => e.category_id === 9)[0]?.video?.map((item1, i1) => {
-                    return (
-                        <div key={i1} className={`d-flex ${i1 !== videoList?.filter(e => e.category_id === 9)[0]?.video?.length - 1  && 'pb-3 mb-15 border-bottom'}`}>
-                            <div className="tutorial-play me-14">
-                                <button type="button" onClick={() => setVideoLink(item1)}><img src={playIcons} /></button>
-                                <span className='tutorial-thumb'><img src={item1.thumbnail} /></span>
-                            </div>
-                            <div>
-                                <h3 className="title-common-digitised text-welcome">{item1?.tmv_title}</h3>
-                                <div className="fs-12 fontroboto fw-normal text-main">{item1?.tmv_description}</div>
-                            </div>
-                        </div>
-                    )
-                })}
-            </div>
-        </>
+              );
+            })}
+        </div>
+      </>
     );
   }, [popOverVideo]);
 
@@ -112,10 +135,18 @@ function HeaderSmartRxDigitise({onSave, patient_data}) {
 
   return (
     <>
-      <Navbar className="justify-content-between headerprescription p-0">
-        <Container fluid className="h-100 gx-0 w-100">
-          <Row className="h-100 align-items-center w-100 justify-content-between">
-            <Col lg="auto" className="h-100">
+      <Navbar
+        className={`justify-content-between headerprescription p-0 ${
+          isSnapRx ? "header-snap-rx-nav" : ""
+        }`}
+      >
+        <Container fluid className={`gx-0 w-100 ${!isSnapRx ? "h-100" : ""}`}>
+          <Row
+            className={`align-items-center w-100 justify-content-between ${
+              isSnapRx ? "header-snap-rx" : "h-100"
+            }`}
+          >
+            <Col lg="auto" className="h-100 p-0">
               <div className="align-items-center d-flex h-100">
                 <div className="border-end h-100 text-center">
                   <div
@@ -133,7 +164,11 @@ function HeaderSmartRxDigitise({onSave, patient_data}) {
                       <>
                         <div className="alert-warning rounded-10px p-2 patient-details">
                           <div className="d-flex align-items-center">
-                            <img className="me-3" src={alertIcon} alt="Warning" />
+                            <img
+                              className="me-3"
+                              src={alertIcon}
+                              alt="Warning"
+                            />
                             <span>
                               Are you sure you want to leave? <br />
                               You will permanently lose your data.
@@ -165,8 +200,10 @@ function HeaderSmartRxDigitise({onSave, patient_data}) {
             </Col>
             <Col lg="auto">
               <div className="align-items-center d-flex h-100">
-
-                <FreeTrialButton title={S_RX_DIGITIZATION} showHideSubModal={showHideSubModal} />
+                <FreeTrialButton
+                  title={S_RX_DIGITIZATION}
+                  showHideSubModal={showHideSubModal}
+                />
 
                 <Popover
                   open={popOverVideo}
@@ -176,16 +213,19 @@ function HeaderSmartRxDigitise({onSave, patient_data}) {
                   overlayClassName="pop-430 pp-0 videoTutorial"
                   placement="bottom"
                 >
-                  <button className='btn d-flex align-items-center btn-text mx-3 tutorial p-0'>
-                    <span className='text-decoration-none rounded-5 pe-3 bg-white shadow2'><img height={42} src={tutorial} />Tutorial</span>
+                  <button className="btn d-flex align-items-center btn-text mx-3 tutorial p-0">
+                    <span className="text-decoration-none rounded-5 pe-3 bg-white shadow2">
+                      <img height={42} src={tutorial} />
+                      Tutorial
+                    </span>
                   </button>
                 </Popover>
-                {videoLink &&
+                {videoLink && (
                   <VideoModal
                     videoLink={videoLink}
                     onCancel={() => setVideoLink(null)}
                   />
-                }
+                )}
                 <Button
                   type="button"
                   className="btn align-items-center d-flex btn-41 btn-primary3 me-20"
@@ -204,8 +244,8 @@ function HeaderSmartRxDigitise({onSave, patient_data}) {
       <ExpiredSubModal
         title={S_RX_DIGITIZATION}
         isSubModalOpen={isSubModalOpen}
-        showHideSubModal={showHideSubModal} />
-        
+        showHideSubModal={showHideSubModal}
+      />
     </>
   );
 }

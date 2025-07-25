@@ -21,7 +21,11 @@ $descpadcolor: #eddff7;
 $historytext: #475467;
 $colorFitness: #f6f0fc;
 $priceColor: #1b223c;
+$grayLight: #f1f1fc;
+$themeShade2: #6c6bdd;
 
 :export {
   grayColor: $grayColor;
+  themeShade2: $themeShade2;
+  grayLight: $grayLight;
 }

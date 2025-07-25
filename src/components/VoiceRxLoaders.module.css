@@ -72,9 +72,10 @@
 }
 
 .genRxLoadingText {
-  font-size: 19.38px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 29.07px;
+  line-height: 1.5;
+  font-weight: 500;
   text-align: left;
   color: #45455199 !important;
   margin: 30px 0px;
