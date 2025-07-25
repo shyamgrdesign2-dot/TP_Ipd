@@ -589,7 +589,7 @@ const VaccinationAnalytics = ({ doctors }) => {
             ))}
           </Select>
 
-          {isAdmin > 0 && (
+          {isAdmin > 0 && doctors?.length > 0 && (
             <Select
               value={selectedDoctor}
               onChange={setSelectedDoctor}
