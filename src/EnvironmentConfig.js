@@ -60,11 +60,16 @@ const dev = {
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in",
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
+  snap_rx_api_url: "https://pm-digitization-uat.tatvacare.in",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
+  digitization_api_url:
+    "https://pm-digitization-uat.tatvacare.in/api/v1/digitization/snap-rx",
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
-  tp_monetization_disabled_hospital: [4851751290017377, 754811713438773, 912841712741834, 7591750931025038],
+  tp_monetization_disabled_hospital: [
+    4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
+  ],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
 };
@@ -135,11 +140,17 @@ const qa_tp = {
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
+  snap_rx_api_url: "https://pm-digitization-qa.tatvacare.in",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
+  digitization_api_url: "https://pm-digitization-qa.tatvacare.in",
+  short_links_api_url: "https://u.tatvacare.in",
+  SHORT_LINKS_API_KEY: "7pP-Ynz1BFQk9IkcGFqrmNxmKKMVZEAniwSsFEAI",
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
-  tp_monetization_disabled_hospital: [4851751290017377, 754811713438773, 912841712741834, 7591750931025038],
+  tp_monetization_disabled_hospital: [
+    4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
+  ],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
 };
@@ -206,11 +217,17 @@ const qa = {
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-qa.tatvacare.in",
+  snap_rx_api_url: "https://pm-digitization-uat.tatvacare.in",
+  short_links_api_url: "https://u.tatvacare.in",
+  SHORT_LINKS_API_KEY: "7pP-Ynz1BFQk9IkcGFqrmNxmKKMVZEAniwSsFEAI",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
+  digitization_api_url: "https://pm-digitization-uat.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
-  tp_monetization_disabled_hospital: [4851751290017377, 754811713438773, 912841712741834, 7591750931025038],
+  tp_monetization_disabled_hospital: [
+    4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
+  ],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
 };
@@ -282,11 +299,17 @@ const uat = {
   tatvaPedia_api_url: "https://diginext-authserver-uat.tatvacare.in", // for the future use
   tatvaPedia_domain_url: "https://diginextdoctor72093uat.azureedge.net",
   symptoms_collector_api_url: "https://pm-tatva-agents-uat.tatvacare.in",
+  short_links_api_url: "https://u.tatvacare.in",
+  SHORT_LINKS_API_KEY: "7pP-Ynz1BFQk9IkcGFqrmNxmKKMVZEAniwSsFEAI",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
+  snap_rx_api_url: "https://pm-digitization-uat.tatvacare.in",
   ZYDUS_BUSINESS_ID: 754811713438773,
   APOLLO_BUSINESS_IDS: [234659817, 657381720513497],
+  digitization_api_url: "https://pm-digitization-uat.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-uat.tatvacare.in",
-  tp_monetization_disabled_hospital: [4851751290017377, 754811713438773, 912841712741834, 7591750931025038],
+  tp_monetization_disabled_hospital: [
+    4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
+  ],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
 };
@@ -353,6 +376,9 @@ const prod = {
   tatvaPedia_api_url: "https://diginext-authserver-prod.tatvacare.in",
   tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in",
   symptoms_collector_api_url: "https://pm-tatva-agents-prod.tatvacare.in",
+  snap_rx_api_url: "https://pm-digitization-prod.tatvacare.in",
+  short_links_api_url: "https://u.tatvacare.in",
+  SHORT_LINKS_API_KEY: "7pP-Ynz1BFQk9IkcGFqrmNxmKKMVZEAniwSsFEAI",
   GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
   ZYDUS_BUSINESS_ID: 368451724046474,
   APOLLO_BUSINESS_IDS: [
@@ -361,9 +387,15 @@ const prod = {
     549821734513388, 628451726551928, 684191731931706, 879361730721433,
     538421739782028, 136841742984591,
   ],
+  digitization_api_url: "https://pm-digitization-prod.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-prod.tatvacare.in",
-  tp_monetization_disabled_hospital: [368451724046474, 345711722419722, 189641711087501, 635211726058248, 817391726308284, 389721726761413, 625141727277272, 137621731053002, 268741731506046, 549821734513388, 628451726551928, 684191731931706, 879361730721433, 538421739782028, 136841742984591],
-  medeco_webview_url: '',
+  tp_monetization_disabled_hospital: [
+    368451724046474, 345711722419722, 189641711087501, 635211726058248,
+    817391726308284, 389721726761413, 625141727277272, 137621731053002,
+    268741731506046, 549821734513388, 628451726551928, 684191731931706,
+    879361730721433, 538421739782028, 136841742984591,
+  ],
+  medeco_webview_url: "",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
 };
 

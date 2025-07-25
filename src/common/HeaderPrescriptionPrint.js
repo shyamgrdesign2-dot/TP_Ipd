@@ -15,7 +15,7 @@ import { updateVisitStatus } from '../api/services/VisitService';
 import { resetUploadDocState } from '../redux/uploadDocSlice';
 import { resetDDxState } from '../redux/ddxSlice';
 
-function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToAppointment, pam_id }) {
+function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToAppointment, pam_id, isSnapRx }) {
     const navigate = useNavigate();
     const { profile } = useSelector((state) => state.doctors);
     const {
@@ -40,6 +40,7 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToApp
               updateVisitStatus(pam_id, {
                 status: 3,
                 prescriptionUrl: printUrl,
+                isSnapRx,
               });
             }
             if (action.meta.requestStatus === "fulfilled") {

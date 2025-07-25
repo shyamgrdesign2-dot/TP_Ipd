@@ -1,10 +1,23 @@
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
+import codeIcon from "../assets/images/code.svg";
+import validateHealthcareIcon from "../assets/images/validate-heathcare.svg";
+import clinicalStudyIcon from "../assets/images/clinical-study.svg";
+import apexAI from "../assets/images/apexAI.svg";
+import scannerIcon from "../assets/images/scanner.png";
+import sunIcon from "../assets/images/sun.png";
+import cameraIcon from "../assets/images/camera.png";
+import cropIcon from "../assets/images/crop.png";
 
-export const PERSISTANT_STORAGE_KEY_AUTH_TOKEN = 'persistant.storage.key.auth-token';
-export const PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN = 'persistant.storage.key.zydus-token';
-export const PERSISTANT_STORAGE_KEY_MEDECO_TOKEN = "persistant.storage.key.medeco-token";
-export const PERSISTANT_STORAGE_KEY_EXTRA = 'persistant.storage.key.extra';
-export const MESSAGE_KEY = 'message_key';
+export const PERSISTANT_STORAGE_KEY_AUTH_TOKEN =
+  "persistant.storage.key.auth-token";
+export const PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN =
+  "persistant.storage.key.zydus-token";
+export const PERSISTANT_STORAGE_KEY_MEDECO_TOKEN =
+  "persistant.storage.key.medeco-token";
+export const PERSISTANT_STORAGE_KEY_EXTRA = "persistant.storage.key.extra";
+export const SNAP_RX_TOKENS_STORAGE_KEY = "snapRxFileUploadTokensV2";
+export const FROM_NATIVE_APP = "from_native_app";
+export const MESSAGE_KEY = "message_key";
 export const IS_DEV = true;
 export const PAGE_SIZE = 10;
 
@@ -22,41 +35,44 @@ export const TAB_PRESCRIPTION = 1;
 export const TAB_HEADER_FOOTER = 2;
 export const TAB_PAGE_FORMAT = 3;
 
-export const TAB_ADDRESS = '1';
-export const TAB_TIMINGS = '2';
-export const TAB_PHOTOS = '3';
+export const TAB_ADDRESS = "1";
+export const TAB_TIMINGS = "2";
+export const TAB_PHOTOS = "3";
 
-export const ADD = 'ADD'
-export const EDIT = 'EDIT'
+export const ADD = "ADD";
+export const EDIT = "EDIT";
 
-export const NORMAL = 'NORMAL'
-export const WHATSAPP = 'WHATSAPP'
+export const NORMAL = "NORMAL";
+export const WHATSAPP = "WHATSAPP";
 
-export const WEBSOCKET_ADDRESS = "ws://localhost:5001/iScribeSocket"
-export const WS_CONTROL_URL = 'ws://localhost:5002/iScribeControlSocket';
-export const WEBSOCKET_ERROR_MESSAGE = "Error connecting the server, Please check device connectivity"
-export const WHATS_APP_API = "/api/v1/casemanager/smart-rx/send"
-export const SMART_RX_UPLOAD = "/api/v1/casemanager/smart-rx/upload"
-export const RX_DIGITIZATION = "/api/v1/rxdigitize/rx"
-export const UNFINISHED_RX_CASE = "//api/v1/casemanager/get-ufinished-case"
+export const WEBSOCKET_ADDRESS = "ws://localhost:5001/iScribeSocket";
+export const WS_CONTROL_URL = "ws://localhost:5002/iScribeControlSocket";
+export const WEBSOCKET_ERROR_MESSAGE =
+  "Error connecting the server, Please check device connectivity";
+export const WHATS_APP_API = "/api/v1/casemanager/smart-rx/send";
+export const SMART_RX_UPLOAD = "/api/v1/casemanager/smart-rx/upload";
+export const RX_DIGITIZATION = "/api/v1/rxdigitize/rx";
+export const UNFINISHED_RX_CASE = "//api/v1/casemanager/get-ufinished-case";
 
-export const LAB_PARAMS_RESULTS = "/api/v1/lab-parameters/results"
-export const IS_RX_DIGI_API_CALL = false
-export const FETCH_SMART_RX = "/api/v1/casemanager/smart-rx"
-export const OPD_API_KEY = "lChjFRJce3bxmoS3TSQk5w=="
-export const WTSAP_ERR_MESSAGE = "Error sending the prescription, Please try again"
+export const LAB_PARAMS_RESULTS = "/api/v1/lab-parameters/results";
+export const IS_RX_DIGI_API_CALL = false;
+export const FETCH_SMART_RX = "/api/v1/casemanager/smart-rx";
+export const OPD_API_KEY = "lChjFRJce3bxmoS3TSQk5w==";
+export const WTSAP_ERR_MESSAGE =
+  "Error sending the prescription, Please try again";
 
-export const GB_ISCRIBE = "iscribe"
-export const GB_SMARTSYNC_CONNECT = "smartsync-connect"
-export const GB_SMARTSYNC_CVT = "smartsync-cvt"
-export const GB_TALKATIVE = "Talkative"
-export const GB_GYNEC_HISTORY = "obs-gynec-history"
-export const GB_ZYDUS_USER = "zydus-hospital-user"
-export const GB_PILLUP_MEDICINE = "pillup-medicine-switch"
-export const GB_APOLLO_DISABLE_FEATURE = "apollo-disable-feature"
+export const GB_ISCRIBE = "iscribe";
+export const GB_SMARTSYNC_CONNECT = "smartsync-connect";
+export const GB_SMARTSYNC_CVT = "smartsync-cvt";
+export const GB_TALKATIVE = "Talkative";
+export const GB_GYNEC_HISTORY = "obs-gynec-history";
+export const GB_ZYDUS_USER = "zydus-hospital-user";
+export const GB_PILLUP_MEDICINE = "pillup-medicine-switch";
+export const GB_APOLLO_DISABLE_FEATURE = "apollo-disable-feature";
 
 export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
+export const GB_SNAP_RX = "snap-rx";
 
 export const FREE = "FREE";
 export const TRIAL = "TRIAL";
@@ -80,21 +96,36 @@ export const S_RECEPTIONIST_AGENT = "receptionist_agent";
 
 export const EXTRA_OPTIONS = [
   {
-    key: JSON.stringify({ value: "STAT", label: "Stat", tmm_days: parseInt(0), unique_id: uuidv4() }),
-    value: 'STAT',
-    label: 'Stat',
+    key: JSON.stringify({
+      value: "STAT",
+      label: "Stat",
+      tmm_days: parseInt(0),
+      unique_id: uuidv4(),
+    }),
+    value: "STAT",
+    label: "Stat",
   },
   {
-    key: JSON.stringify({ value: "to be continued", label: "To Be Continued", tmm_days: parseInt(0), unique_id: uuidv4() }),
-    value: 'to be continued',
-    label: 'To Be Continued',
+    key: JSON.stringify({
+      value: "to be continued",
+      label: "To Be Continued",
+      tmm_days: parseInt(0),
+      unique_id: uuidv4(),
+    }),
+    value: "to be continued",
+    label: "To Be Continued",
   },
   {
-    key: JSON.stringify({ value: "till required", label: "Till Required", tmm_days: parseInt(0), unique_id: uuidv4() }),
-    value: 'till required',
-    label: 'Till Required',
-  }
-]
+    key: JSON.stringify({
+      value: "till required",
+      label: "Till Required",
+      tmm_days: parseInt(0),
+      unique_id: uuidv4(),
+    }),
+    value: "till required",
+    label: "Till Required",
+  },
+];
 
 export const ABORTION = "Abortion";
 export const MISCARRIAGE = "Miscarriage";
@@ -148,3 +179,157 @@ export const FONTS_SIZE_LIST = [
 ];
 
 export const PAEDIATRIC_DP_ID = 9;
+
+export const DDX_KNOW_MORE_DATA = {
+  mainHeader: "AI-Powered Differential Diagnosis",
+  tabs: [
+    {
+      title: "Basic Info",
+      key: "basicInfo",
+    },
+    {
+      title: "Trust Indicators",
+      key: "trust",
+    },
+    {
+      title: "Diagnostic Process",
+      key: "howItWorks",
+    },
+    {
+      title: "Tips",
+      key: "tips",
+    },
+  ],
+  trustDetails: [
+    {
+      title: "Evidence-Based Algorithms",
+      description:
+        "Built on leading clinical guidelines such as ICD-10 and SNOMED CT to ensure reliable and accurate results",
+      icon: codeIcon,
+    },
+    {
+      title: "Validated by Healthcare Experts",
+      description:
+        "Developed and reviewed in collaboration with top physicians to ensure clinical relevance and safety.",
+      icon: validateHealthcareIcon,
+    },
+    // {
+    //   title: "HIPAA & GDPR Compliant",
+    //   description:
+    //     "Fully adheres to global healthcare data privacy standards, ensuring the safety and confidentiality of patient.",
+    //   icon: compliantIcon,
+    // },
+    {
+      title: "Backed by Clinical Studies",
+      description:
+        "Supported by peer-reviewed research to improve diagnostic accuracy and reduce time to treatment.",
+      icon: clinicalStudyIcon,
+    },
+  ],
+  basicInfo: {
+    title: "What is Differential Diagnosis",
+    icon: apexAI,
+    description:
+      "Our AI tool helps you generate possible diagnoses by analyzing patient symptoms, examinations, history, and clinical findings, including past patient data for more accurate results. This feature speeds up diagnosis and assists in better decision-making for patient care.",
+  },
+  trust: {
+    title: "Why Trust Our AI-Powered Differential Diagnosis?",
+    description:
+      "Our AI tool is built on leading clinical guidelines such as ICD-10 and SNOMED CT to ensure reliable and accurate results. It is developed and reviewed in collaboration with top physicians to ensure clinical relevance and safety. It is supported by peer-reviewed research to improve diagnostic accuracy and reduce time to treatment.",
+  },
+  howItWorks: {
+    title: "How Differential Diagnosis Works",
+    description:
+      "Our AI tool helps you generate possible diagnoses by analyzing patient symptoms, examinations, history, and clinical findings, including past patient data for more accurate results. This feature speeds up diagnosis and assists in better decision-making for patient care.",
+  },
+  videoLink: {
+    link: "https://www.youtube.com/embed/mAZ7Sa86PnQ",
+    thumbnail: "https://i.ytimg.com/vi/mAZ7Sa86PnQ/hqdefault.jpg",
+  },
+  tips: {
+    title: "Tips to get the best results",
+    description: (
+      <>
+        <span style={{ fontWeight: "600" }}>Enter detailed Analysis: </span>
+        The more detailed and structured the patient information you provide
+        (such as symptoms, examinations, history, and medications), the better
+        the accuracy of the differential diagnosis results.
+      </>
+    ),
+  },
+  disclaimer: (
+    <>
+      <b>Disclaimer</b>: These results are generated by AI and should be used as
+      a guide, not the final source for patient treatment
+    </>
+  ),
+};
+
+export const SNAP_RX_KNOW_MORE_DATA = {
+  mainHeader: "AI-Powered Snap Rx",
+  tabs: [
+    {
+      title: "Basic Info",
+      key: "basicInfo",
+    },
+    {
+      title: "How it works",
+      key: "howItWorks",
+    },
+    {
+      title: "Tips",
+      key: "tips",
+    },
+  ],
+  basicInfo: {
+    smallTitle: "Basic Info",
+    title: "What is Snap Rx?",
+    icon: apexAI,
+    description:
+      "Our AI engine lets you upload written prescriptions as images or PDFs, which are then converted into structured digital consultations—no special device or pad required. This makes it effortless to digitise consultations using paper-based Rxs while ensuring accurate storage and continuity of care.",
+  },
+  howItWorks: {
+    smallTitle: "How it works",
+    title: "How Snap Rx Digitisation Works?",
+    description: "Please watch this video to know how Snap Rx  Works👇",
+  },
+  videoLink: {
+    link: "https://www.youtube.com/embed/mAZ7Sa86PnQ",
+    thumbnail: "https://i.ytimg.com/vi/mAZ7Sa86PnQ/hqdefault.jpg",
+  },
+  tips: {
+    smallTitle: "Tips",
+    title: "Tips to upload an Rx for better Rx Digitisation",
+    list: [
+      {
+        title: "Place the prescription well-lit surface",
+        description:
+          "Use a plain background with even lighting for best clarity.",
+        icon: scannerIcon,
+      },
+      {
+        title: "Avoid any shadows or glare",
+        description:
+          "Ensure the document is fully visible without reflections or obstructions.",
+        icon: sunIcon,
+      },
+      {
+        title: "Grant camera access if prompted",
+        description:
+          "This is required to capture and upload the prescription smoothly.",
+        icon: cameraIcon,
+      },
+      {
+        title: "No need to include letterhead’s header & footer",
+        description:
+          "We'll automatically add a standard header and footer after submission to keep things consistent.",
+        icon: cropIcon,
+      },
+    ],
+  },
+};
+
+export const HIDE_ROUTES = {
+  BANNER: ["/snap-rx"],
+  TALKATIVE: ["/snap-rx"],
+};

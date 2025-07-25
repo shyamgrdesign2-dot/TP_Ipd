@@ -1,38 +1,40 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { persistStore, persistReducer } from 'redux-persist';
-import { combineReducers } from 'redux';
-import storage from 'redux-persist/lib/storage';
+import { configureStore } from "@reduxjs/toolkit";
+import { persistStore, persistReducer } from "redux-persist";
+import { combineReducers } from "redux";
+import storage from "redux-persist/lib/storage";
 
-import appointmentsSlice from './appointmentsSlice';
-import doctorsSlice from './doctorsSlice';
-import symptomsSlice from './symptomsSlice';
-import examinationSlice from './examinationSlice';
-import diagnosisSlice from './diagnosisSlice';
-import adviceSlice from './adviceSlice';
-import investigationSlice from './investigationSlice';
-import medicationSlice from './medicationSlice';
-import vitalsSlice from './vitalsSlice';
-import medicalhistorySlice from './medicalhistorySlice';
-import caseManagerSlice from './caseManagerSlice';
-import followUpSlice from './followUpSlice';
-import vaccineSlice from './vaccineSlice';
-import growthChartSlice from './growthChartSlice';
-import doctorWebsiteSlice from './doctorWebsiteSlice';
-import obstetricSlice from './obstetricSlice';
-import uploadDocSlice from './uploadDocSlice';
-import ddxSlice from './ddxSlice';
-import subscriptionReducer from './subscriptionSlice';
-import doctorModalReducer from './doctorModalSlice';
-import surgicalSlice from './surgicalSlice';
-import bulkMessagesSlice from './bulkMessagesSlice'
-import customModuleReducer from './customModuleSlice';
-import billingSlice from './billingSlice';
-import monetizationSlice from './monetizationSlice';
+import appointmentsSlice from "./appointmentsSlice";
+import doctorsSlice from "./doctorsSlice";
+import symptomsSlice from "./symptomsSlice";
+import examinationSlice from "./examinationSlice";
+import diagnosisSlice from "./diagnosisSlice";
+import adviceSlice from "./adviceSlice";
+import investigationSlice from "./investigationSlice";
+import medicationSlice from "./medicationSlice";
+import vitalsSlice from "./vitalsSlice";
+import medicalhistorySlice from "./medicalhistorySlice";
+import caseManagerSlice from "./caseManagerSlice";
+import followUpSlice from "./followUpSlice";
+import vaccineSlice from "./vaccineSlice";
+import growthChartSlice from "./growthChartSlice";
+import doctorWebsiteSlice from "./doctorWebsiteSlice";
+import obstetricSlice from "./obstetricSlice";
+import uploadDocSlice from "./uploadDocSlice";
+import ddxSlice from "./ddxSlice";
+import subscriptionReducer from "./subscriptionSlice";
+import doctorModalReducer from "./doctorModalSlice";
+import surgicalSlice from "./surgicalSlice";
+import bulkMessagesSlice from "./bulkMessagesSlice";
+import customModuleReducer from "./customModuleSlice";
+import snapRxDigitizationSlice from "./snapRxDigitizationSlice";
+import billingSlice from "./billingSlice";
+import shortLinkSlice from "./shortLinkSlice";
+import monetizationSlice from "./monetizationSlice";
 
 const persistConfig = {
-  key: 'root',
+  key: "root",
   storage,
-  whitelist: ['doctors']
+  whitelist: ["doctors"],
 };
 
 const rootReducer = combineReducers({
@@ -60,6 +62,8 @@ const rootReducer = combineReducers({
   bulkMessages: bulkMessagesSlice,
   customModules: customModuleReducer,
   billing: billingSlice,
+  snapRx: snapRxDigitizationSlice,
+  shortLink: shortLinkSlice,
   monetization: monetizationSlice,
 });
 
@@ -67,10 +71,11 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const store = configureStore({
   reducer: persistedReducer,
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware({
-    immutableCheck: false,
-    serializableCheck: false,
-  })
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      immutableCheck: false,
+      serializableCheck: false,
+    }),
 });
 
 const persistor = persistStore(store);

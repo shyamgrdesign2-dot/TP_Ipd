@@ -1698,7 +1698,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 hasDetails = true;
                                                                             }
                                                                             if (tag.note) {
-                                                                                details += hasDetails ? ` | Note: ${tag.note}` : ` (Note: ${tag.note}`;
+                                                                                details += hasDetails ? ` | ${tag.note}` : ` (${tag.note}`;
                                                                                 hasDetails = true;
                                                                             }
                                                                             if (hasDetails) {
@@ -1773,7 +1773,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                                                 status: status && `Status : ${status}`,
                                                                                                                 medication: medication && `Medication : ${medication}`,
                                                                                                                 relationship: relationship && `Relative : ${relationship}`,
-                                                                                                                note: note && `Note : ${note}`,
+                                                                                                                note: note && `${note}`,
                                                                                                             })
                                                                                                         )(item1)).filter(([_, v]) => v))).join(' | ')})`}
                                                                                                     </Text>
@@ -5355,7 +5355,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                 <Text key={i}>
                                                     {item.title && <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;</Text>}
                                                     {item.notes &&
-                                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`${item?.title ? '(' : ''}${item.notes?.trim()?.replace(/\n+/g, "\n")}${item?.title ? ')' : ''}`}</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                            {`${item?.title ? '(' : ''}`}
+                                                            {item.notes?.replace(/ /g, '\u00A0')}
+                                                            {`${item?.title ? ')' : ''}`}
+                                                        </Text>
                                                     }
                                                     <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{customModule?.content.length - 1 != i ? ',' : ''}&nbsp;</Text>
                                                 </Text>
@@ -5371,7 +5375,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
                                                     {item.title && <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;</Text>}
                                                     {item.notes &&
-                                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`${item?.title ? '(' : ''}${item.notes?.trim()?.replace(/\n+/g, "\n")}${item?.title ? ')' : ''}`}</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                            {`${item?.title ? '(' : ''}`}
+                                                            {item.notes?.replace(/ /g, '\u00A0')}
+                                                            {`${item?.title ? ')' : ''}`}
+                                                        </Text>
                                                     }
                                                 </Text>
                                             )
@@ -5388,7 +5396,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             {customModule?.content.map((item, i) => (
                                                 <View style={styles.row} key={i} wrap={false}>
                                                     {customModule?.content?.some((item) => item.title) &&<Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.title || '-'}&nbsp;</Text>}
-                                                    {customModule?.content?.some((item) => item.notes) &&<Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes?.trim()?.replace(/\n+/g, "\n") || '-'}&nbsp;</Text>}
+                                                    {customModule?.content?.some((item) => item.notes) &&<Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes?.replace(/ /g, '\u00A0') || '-'}&nbsp;</Text>}
                                                 </View>
                                             ))}
                                         </View>

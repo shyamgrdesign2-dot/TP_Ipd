@@ -2,15 +2,16 @@ import moment from "moment";
 
 import config from "../config";
 import { message } from "antd";
-import { MESSAGE_KEY } from "../utils/constants";
-import { browserName, deviceDetect } from "react-device-detect";
+import { MESSAGE_KEY, SNAP_RX_TOKENS_STORAGE_KEY } from "../utils/constants";
+import { browserName, deviceDetect, isBrowser } from "react-device-detect";
 import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../src/firebase.js";
 import { getDecodedToken } from "./localStorage.js";
-import imageCompression from 'browser-image-compression';
-import numeral from 'numeral'
-import packageJson from '../../package.json';
+import imageCompression from "browser-image-compression";
+import numeral from "numeral";
+import packageJson from "../../package.json";
+import { EVENTS } from "./events.js";
 
 // export const validateEmail = (email) => {
 //   return String(email)
@@ -21,7 +22,8 @@ import packageJson from '../../package.json';
 // };
 
 export const validateEmail = (email) => {
-  let reg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  let reg =
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return reg.test(String(email).toLowerCase());
 };
 
@@ -32,48 +34,56 @@ export const validateEmail = (email) => {
 
 export const isValidWebsite = (url, account) => {
   const patterns = {
-    facebook: /^https?:\/\/(www\.)?facebook\.com\/(profile\.php\?id=\d+|[A-Za-z0-9.]+)\/?$/,
-    instagram: /^https?:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._-]+\/?(?:\?[^\s]*)?$/,
+    facebook:
+      /^https?:\/\/(www\.)?facebook\.com\/(profile\.php\?id=\d+|[A-Za-z0-9.]+)\/?$/,
+    instagram:
+      /^https?:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._-]+\/?(?:\?[^\s]*)?$/,
     linkedin: /^https?:\/\/(www\.)?linkedin\.com\/in\/[A-Za-z0-9-._]+\/?$/,
-    twitter: /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[A-Za-z0-9_]{1,15}(?:\?[^\s]*)?\/?$/,
-    youtube: /^https?:\/\/(www\.)?(youtube\.com\/(channel\/[A-Za-z0-9_-]+|user\/[A-Za-z0-9_-]+|@?[A-Za-z0-9._-]+)|youtu\.be\/[A-Za-z0-9_-]+)(\?[^\s]*)?$/
+    twitter:
+      /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[A-Za-z0-9_]{1,15}(?:\?[^\s]*)?\/?$/,
+    youtube:
+      /^https?:\/\/(www\.)?(youtube\.com\/(channel\/[A-Za-z0-9_-]+|user\/[A-Za-z0-9_-]+|@?[A-Za-z0-9._-]+)|youtu\.be\/[A-Za-z0-9_-]+)(\?[^\s]*)?$/,
   };
   const pattern = patterns[account];
   if (pattern) {
     return pattern.test(url.trim());
   }
   return false;
-}
+};
 
 export const isValidMap = (url) => {
-  const pattern = /^https?:\/\/(www\.)?(google\.[a-z]{2,3}(?:\.[a-z]{2})?|maps\.app\.goo\.gl)\/(maps\/)?[a-zA-Z0-9?=&,.;_-]*$/;
+  const pattern =
+    /^https?:\/\/(www\.)?(google\.[a-z]{2,3}(?:\.[a-z]{2})?|maps\.app\.goo\.gl)\/(maps\/)?[a-zA-Z0-9?=&,.;_-]*$/;
   return pattern.test(url);
-}
+};
 
 export const removeSpecialCharectorWithoutDotSpace = (text) => {
   return text.replace(/[^\w. ]/g, "");
-}
+};
 
 export const replaceCommasAndSemicolons = (text) => {
-  return text.replace(/[;,]/g, '');
-}
+  return text.replace(/[;,]/g, "");
+};
 
 export const blockedEmoji = (text) => {
-  return text.replace(/[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1F980}-\u{1FAFF}]/gu, '');
-}
+  return text.replace(
+    /[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1F980}-\u{1FAFF}]/gu,
+    ""
+  );
+};
 
 export const onlyNumberFormat = (text) => {
   return text.replace(/[^0-9]/g, "");
 };
 export const onlyDecimalFormat = (text) => {
-  return text.match(/([0-9]*[\.]{0,1}[0-9]{0,2})/s)[0]
+  return text.match(/([0-9]*[\.]{0,1}[0-9]{0,2})/s)[0];
 };
 export const removeBeforeWhiteSpace = (text) => {
-  return text.replace(/^[ ]+/g, "")
+  return text.replace(/^[ ]+/g, "");
 };
 
 export const removeWhiteSpace = (text) => {
-  return text.replace(/[ ]+/g, "")
+  return text.replace(/[ ]+/g, "");
 };
 
 export const frequencyFormat = (str) => {
@@ -82,33 +92,36 @@ export const frequencyFormat = (str) => {
 
 export const hasNumber = (str) => {
   return /\d/.test(str);
-}
+};
 
 export const isNumeric = (str) => {
   return /^[0-9]\d*$/.test(str);
-}
+};
 
 export const isAlphabet = (str) => {
   return /^[a-zA-z\s]*$/.test(str);
-}
+};
 
 export const isAlphabetExit = (str) => {
   return /[a-zA-Z]/.test(str);
-}
+};
 
 export const capitalizeAfterSentence = (text) => {
   const regex = /([.?!]\s*|^)([a-z])/g;
   return text.replace(regex, (match, p1, p2) => p1 + p2.toUpperCase());
-}
+};
 
 export const capitalizeFirstLetter = (text) => {
-  if (!text) return ''; // Handle empty string case
+  if (!text) return ""; // Handle empty string case
   return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 };
-export const capitalize = (str, lower = false) => (lower ? str.toLowerCase() : str).replace(/(?:^|\s|["'([{])+\S/g, match => match.toUpperCase());
+export const capitalize = (str, lower = false) =>
+  (lower ? str.toLowerCase() : str).replace(/(?:^|\s|["'([{])+\S/g, (match) =>
+    match.toUpperCase()
+  );
 
 export const makeDefaultLogo = (text) => {
-  var fullName = text !== undefined ? text.trim() : ''
+  var fullName = text !== undefined ? text.trim() : "";
   if (!fullName) {
     return "HG";
   }
@@ -132,15 +145,19 @@ export const makeDefaultLogo = (text) => {
   // }
 };
 
-
 export const frequencyCombination = (text) => {
   // const array = ['0', '1/2', '1/3', '1/4', '3/4', '1', '2']
   // const array = ['0', '0.5', '0.33', '0.25', '0.75', '1', '2']
-  const array = ['0', '1']
+  const array = ["0", "1"];
   const results = text;
-  let makeArray = []
+  let makeArray = [];
 
-  if (results.split("-")[0] && !results.split("-")[1] && !results.split("-")[2] && !results.split("-")[3]) {
+  if (
+    results.split("-")[0] &&
+    !results.split("-")[1] &&
+    !results.split("-")[2] &&
+    !results.split("-")[3]
+  ) {
     for (let i = 0; i < array.length; i++) {
       for (let j = 0; j < array.length; j++) {
         makeArray.push(`${results.split("-")[0]}-${array[i]}-${array[j]}`);
@@ -149,56 +166,92 @@ export const frequencyCombination = (text) => {
     for (let i = 0; i < array.length; i++) {
       for (let j = 0; j < array.length; j++) {
         for (let k = 0; k < array.length; k++) {
-          makeArray.push(`${results.split("-")[0]}-${array[i]}-${array[j]}-${array[k]}`);
+          makeArray.push(
+            `${results.split("-")[0]}-${array[i]}-${array[j]}-${array[k]}`
+          );
         }
       }
     }
-  } else if (results.split("-")[0] && results.split("-")[1] && !results.split("-")[2] && !results.split("-")[3]) {
+  } else if (
+    results.split("-")[0] &&
+    results.split("-")[1] &&
+    !results.split("-")[2] &&
+    !results.split("-")[3]
+  ) {
     for (let i = 0; i < array.length; i++) {
-      makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${array[i]}`);
+      makeArray.push(
+        `${results.split("-")[0]}-${results.split("-")[1]}-${array[i]}`
+      );
     }
     for (let i = 0; i < array.length; i++) {
       for (let j = 0; j < array.length; j++) {
-        makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${array[i]}-${array[j]}`);
+        makeArray.push(
+          `${results.split("-")[0]}-${results.split("-")[1]}-${array[i]}-${
+            array[j]
+          }`
+        );
       }
     }
-  } else if (results.split("-")[0] && results.split("-")[1] && results.split("-")[2] && !results.split("-")[3]) {
-    makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${results.split("-")[2]}`);
+  } else if (
+    results.split("-")[0] &&
+    results.split("-")[1] &&
+    results.split("-")[2] &&
+    !results.split("-")[3]
+  ) {
+    makeArray.push(
+      `${results.split("-")[0]}-${results.split("-")[1]}-${
+        results.split("-")[2]
+      }`
+    );
     for (let i = 0; i < array.length; i++) {
-      makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${results.split("-")[2]}-${array[i]}`);
+      makeArray.push(
+        `${results.split("-")[0]}-${results.split("-")[1]}-${
+          results.split("-")[2]
+        }-${array[i]}`
+      );
     }
-  } else if (results.split("-")[0] && results.split("-")[1] && results.split("-")[2] && results.split("-")[3]) {
-    makeArray.push(`${results.split("-")[0]}-${results.split("-")[1]}-${results.split("-")[2]}-${results.split("-")[3]}`);
+  } else if (
+    results.split("-")[0] &&
+    results.split("-")[1] &&
+    results.split("-")[2] &&
+    results.split("-")[3]
+  ) {
+    makeArray.push(
+      `${results.split("-")[0]}-${results.split("-")[1]}-${
+        results.split("-")[2]
+      }-${results.split("-")[3]}`
+    );
   }
   return makeArray;
-}
+};
 
 export const medicine_freq_dosage_format = (freqDosage) => {
-  var value = ''
-  if (freqDosage == '0.5') {
-    value = `1/2`
-  } else if (freqDosage == '0.25') {
-    value = `1/4`
-  } else if (freqDosage == '0.75') {
-    value = `3/4`
+  var value = "";
+  if (freqDosage == "0.5") {
+    value = `1/2`;
+  } else if (freqDosage == "0.25") {
+    value = `1/4`;
+  } else if (freqDosage == "0.75") {
+    value = `3/4`;
   } else {
-    value = freqDosage
+    value = freqDosage;
   }
-  return value
-}
+  return value;
+};
 
 export const calculateDose = (dosage, weight, concentration) => {
-  const dose = (parseFloat(dosage) * parseFloat(weight)) / parseFloat(concentration);
-  return !isNaN(dose) ? dose.toFixed(1).replace(/\.0$/, '') : "";
-}
+  const dose =
+    (parseFloat(dosage) * parseFloat(weight)) / parseFloat(concentration);
+  return !isNaN(dose) ? dose.toFixed(1).replace(/\.0$/, "") : "";
+};
 
 export const formatAmount = (amount) => {
-  return amount.toFixed(2).replace(/\.00$/, '');
-}
+  return amount.toFixed(2).replace(/\.00$/, "");
+};
 
 export const currencyFormat = (amount) => {
-  return numeral(amount).format('0,0.00').replace(/\.00$/, '');
-}
+  return numeral(amount).format("0,0.00").replace(/\.00$/, "");
+};
 
 export const dataUrlToFile = (url, fileName) => {
   const [mediaType, data] = url.split(",");
@@ -213,7 +266,9 @@ export const dataUrlToFile = (url, fileName) => {
     arr[n] = data.charCodeAt(n);
   }
 
-  return new File([arr], fileName, { type: mime.substring(1, mime.length - 1) });
+  return new File([arr], fileName, {
+    type: mime.substring(1, mime.length - 1),
+  });
 };
 
 export const dataUrlToFileUsingFetch = async (url, fileName, mimeType) => {
@@ -224,16 +279,19 @@ export const dataUrlToFileUsingFetch = async (url, fileName, mimeType) => {
 };
 
 export const errorMessage = async (error) => {
-  if (typeof error === 'object' && error?.name == "TypeError") {
+  if (typeof error === "object" && error?.name == "TypeError") {
     return message.open({
       key: MESSAGE_KEY,
-      type: 'error',
-      className: 'error-red',
+      type: "error",
+      className: "error-red",
       content: (
-        <div className='d-flex align-items-center'>
+        <div className="d-flex align-items-center">
           <div>
-            <div className='title-common text-start fontroboto'>Error</div>
-            <div className='fontroboto text-start fw-normal mt-1'>We're Sorry, Somthing went wronng. Please <span className="text-underline">try again</span></div>
+            <div className="title-common text-start fontroboto">Error</div>
+            <div className="fontroboto text-start fw-normal mt-1">
+              We're Sorry, Somthing went wronng. Please{" "}
+              <span className="text-underline">try again</span>
+            </div>
           </div>
         </div>
       ),
@@ -243,30 +301,30 @@ export const errorMessage = async (error) => {
     return message.open({
       key: MESSAGE_KEY,
       type: "warning",
-      content: typeof error === 'object' ? error.message : error,
+      content: typeof error === "object" ? error.message : error,
       duration: 2,
     });
   }
 };
 
-export const handleCopy = async (url, msg = 'Copied') => {
+export const handleCopy = async (url, msg = "Copied") => {
   try {
     await navigator.clipboard.writeText(url);
-    errorMessage(msg)
+    errorMessage(msg);
   } catch (err) {
-    console.error('Failed to copy:', err);
+    console.error("Failed to copy:", err);
   }
 };
 
 export const inputToLabel = (htmlString) => {
-  const tempDiv = document.createElement('div');
+  const tempDiv = document.createElement("div");
   tempDiv.innerHTML = htmlString;
 
-  const inputs = tempDiv.querySelectorAll('input');
-  inputs.forEach(input => {
-    console.log(input.type)
+  const inputs = tempDiv.querySelectorAll("input");
+  inputs.forEach((input) => {
+    console.log(input.type);
     if (input.type === "date") {
-      const label = document.createElement('label');
+      const label = document.createElement("label");
       label.className = input.className;
       // label.id = input.id;
       label.textContent = input.value;
@@ -275,108 +333,108 @@ export const inputToLabel = (htmlString) => {
   });
 
   return tempDiv.innerHTML;
-}
+};
 
 export const HTMLTransformer = (htmlString) => {
   // Create a temporary container to parse the HTML string
-  let tempContainer = document.createElement('div');
+  let tempContainer = document.createElement("div");
   tempContainer.innerHTML = htmlString;
 
   // Select all label elements
-  let labels = tempContainer.querySelectorAll('label');
+  let labels = tempContainer.querySelectorAll("label");
 
   // Iterate over the labels and replace innerHTML content based on the class
-  labels.forEach(label => {
-    if (label.classList.contains('consulting_doctor')) {
-      replaceContent(label, '{Consulting Doctor}');
-    } else if (label.classList.contains('patient_name')) {
-      replaceContent(label, '{Patient Name}');
-    } else if (label.classList.contains('age')) {
-      replaceContent(label, '{Age}');
-    } else if (label.classList.contains('contact_number')) {
-      replaceContent(label, '{Contact Number}');
-    } else if (label.classList.contains('gender')) {
-      replaceContent(label, '{Gender}');
-    } else if (label.classList.contains('email')) {
-      replaceContent(label, '{Email}');
-    } else if (label.classList.contains('patient_id')) {
-      replaceContent(label, '{Patient ID}');
-    } else if (label.classList.contains('address')) {
-      replaceContent(label, '{Address}');
-    } else if (label.classList.contains('blood_group')) {
-      replaceContent(label, '{Blood Group}');
-    } else if (label.classList.contains('date_of_birth')) {
-      replaceContent(label, '{Date of Birth}');
-    } else if (label.classList.contains('today_date')) {
-      replaceContent(label, '{Today Date}');
-    } else if (label.classList.contains('department')) {
-      replaceContent(label, '{Department}');
-    } else if (label.classList.contains('referred_by')) {
-      replaceContent(label, '{Referred by}');
-    } else if (label.classList.contains('case_type')) {
-      replaceContent(label, '{Case Type}');
-    } else if (label.classList.contains('last_appointment')) {
-      replaceContent(label, '{Last appointment}');
-    } else if (label.classList.contains('inpatient_number')) {
-      replaceContent(label, '{Inpatient Number}');
-    } else if (label.classList.contains('ward')) {
-      replaceContent(label, '{Ward}');
-    } else if (label.classList.contains('room_bed')) {
-      replaceContent(label, '{Room/Bed}');
-    } else if (label.classList.contains('admitting_doctor')) {
-      replaceContent(label, '{Admitting Doctor}');
-    } else if (label.classList.contains('admitting_date')) {
-      replaceContent(label, '{Admitting Date}');
-    } else if (label.classList.contains('admitting_time')) {
-      replaceContent(label, '{Admitting Time}');
-    } else if (label.classList.contains('discharge_date')) {
-      replaceContent(label, '{Discharge Date}');
-    } else if (label.classList.contains('discharge_time')) {
-      replaceContent(label, '{Discharge Time}');
-    } else if (label.classList.contains('admitted_days')) {
-      replaceContent(label, '{Admitted Days}');
-    } else if (label.classList.contains('admission_diagnosis')) {
-      replaceContent(label, '{Admission Diagnosis}');
-    } else if (label.classList.contains('discharge_diagnosis')) {
-      replaceContent(label, '{Discharge Diagnosis}');
-    } else if (label.classList.contains('resident_of')) {
-      replaceContent(label, '{Resident of}');
-    } else if (label.classList.contains('start_date')) {
-      replaceContent(label, '{Start Date}');
-    } else if (label.classList.contains('end_date')) {
-      replaceContent(label, '{End Date}');
-    } else if (label.classList.contains('join_date')) {
-      replaceContent(label, '{Join Date}');
-    } else if (label.classList.contains('custom_date')) {
-      replaceContent(label, '{Custom Date}');
-    } else if (label.classList.contains('diagnosis')) {
-      replaceContent(label, '{Diagnosis}');
-    } else if (label.classList.contains('time')) {
-      replaceContent(label, '{Time}');
-    } else if (label.classList.contains('travel_from')) {
-      replaceContent(label, '{Travel From}');
-    } else if (label.classList.contains('travel_to')) {
-      replaceContent(label, '{Travel To}');
-    } else if (label.classList.contains('photo_id_card_no')) {
-      replaceContent(label, '{Photo ID card No}');
-    } else if (label.classList.contains('nationality')) {
-      replaceContent(label, '{Nationality}');
-    } else if (label.classList.contains('passport_number')) {
-      replaceContent(label, '{Passport Number}');
-    } else if (label.classList.contains('procedure')) {
-      replaceContent(label, '{Procedure}');
-    } else if (label.classList.contains('number_of_months')) {
-      replaceContent(label, '{Number of Months}');
+  labels.forEach((label) => {
+    if (label.classList.contains("consulting_doctor")) {
+      replaceContent(label, "{Consulting Doctor}");
+    } else if (label.classList.contains("patient_name")) {
+      replaceContent(label, "{Patient Name}");
+    } else if (label.classList.contains("age")) {
+      replaceContent(label, "{Age}");
+    } else if (label.classList.contains("contact_number")) {
+      replaceContent(label, "{Contact Number}");
+    } else if (label.classList.contains("gender")) {
+      replaceContent(label, "{Gender}");
+    } else if (label.classList.contains("email")) {
+      replaceContent(label, "{Email}");
+    } else if (label.classList.contains("patient_id")) {
+      replaceContent(label, "{Patient ID}");
+    } else if (label.classList.contains("address")) {
+      replaceContent(label, "{Address}");
+    } else if (label.classList.contains("blood_group")) {
+      replaceContent(label, "{Blood Group}");
+    } else if (label.classList.contains("date_of_birth")) {
+      replaceContent(label, "{Date of Birth}");
+    } else if (label.classList.contains("today_date")) {
+      replaceContent(label, "{Today Date}");
+    } else if (label.classList.contains("department")) {
+      replaceContent(label, "{Department}");
+    } else if (label.classList.contains("referred_by")) {
+      replaceContent(label, "{Referred by}");
+    } else if (label.classList.contains("case_type")) {
+      replaceContent(label, "{Case Type}");
+    } else if (label.classList.contains("last_appointment")) {
+      replaceContent(label, "{Last appointment}");
+    } else if (label.classList.contains("inpatient_number")) {
+      replaceContent(label, "{Inpatient Number}");
+    } else if (label.classList.contains("ward")) {
+      replaceContent(label, "{Ward}");
+    } else if (label.classList.contains("room_bed")) {
+      replaceContent(label, "{Room/Bed}");
+    } else if (label.classList.contains("admitting_doctor")) {
+      replaceContent(label, "{Admitting Doctor}");
+    } else if (label.classList.contains("admitting_date")) {
+      replaceContent(label, "{Admitting Date}");
+    } else if (label.classList.contains("admitting_time")) {
+      replaceContent(label, "{Admitting Time}");
+    } else if (label.classList.contains("discharge_date")) {
+      replaceContent(label, "{Discharge Date}");
+    } else if (label.classList.contains("discharge_time")) {
+      replaceContent(label, "{Discharge Time}");
+    } else if (label.classList.contains("admitted_days")) {
+      replaceContent(label, "{Admitted Days}");
+    } else if (label.classList.contains("admission_diagnosis")) {
+      replaceContent(label, "{Admission Diagnosis}");
+    } else if (label.classList.contains("discharge_diagnosis")) {
+      replaceContent(label, "{Discharge Diagnosis}");
+    } else if (label.classList.contains("resident_of")) {
+      replaceContent(label, "{Resident of}");
+    } else if (label.classList.contains("start_date")) {
+      replaceContent(label, "{Start Date}");
+    } else if (label.classList.contains("end_date")) {
+      replaceContent(label, "{End Date}");
+    } else if (label.classList.contains("join_date")) {
+      replaceContent(label, "{Join Date}");
+    } else if (label.classList.contains("custom_date")) {
+      replaceContent(label, "{Custom Date}");
+    } else if (label.classList.contains("diagnosis")) {
+      replaceContent(label, "{Diagnosis}");
+    } else if (label.classList.contains("time")) {
+      replaceContent(label, "{Time}");
+    } else if (label.classList.contains("travel_from")) {
+      replaceContent(label, "{Travel From}");
+    } else if (label.classList.contains("travel_to")) {
+      replaceContent(label, "{Travel To}");
+    } else if (label.classList.contains("photo_id_card_no")) {
+      replaceContent(label, "{Photo ID card No}");
+    } else if (label.classList.contains("nationality")) {
+      replaceContent(label, "{Nationality}");
+    } else if (label.classList.contains("passport_number")) {
+      replaceContent(label, "{Passport Number}");
+    } else if (label.classList.contains("procedure")) {
+      replaceContent(label, "{Procedure}");
+    } else if (label.classList.contains("number_of_months")) {
+      replaceContent(label, "{Number of Months}");
     }
   });
 
   // Get the modified HTML string
   return tempContainer.innerHTML;
-}
+};
 
 function replaceContent(element, newText) {
   // Traverse through the child nodes and replace the text nodes
-  element.childNodes.forEach(node => {
+  element.childNodes.forEach((node) => {
     if (node.nodeType === Node.TEXT_NODE) {
       node.textContent = newText;
     } else {
@@ -387,13 +445,13 @@ function replaceContent(element, newText) {
 
 export const removeLabelTags = (htmlString) => {
   // Create a temporary container to parse the HTML string
-  let tempContainer = document.createElement('div');
+  let tempContainer = document.createElement("div");
   tempContainer.innerHTML = htmlString;
 
   // Select all label elements
-  let labels = tempContainer.querySelectorAll('label');
+  let labels = tempContainer.querySelectorAll("label");
 
-  labels.forEach(label => {
+  labels.forEach((label) => {
     // Create a document fragment to hold the inner content
     let fragment = document.createDocumentFragment();
 
@@ -403,9 +461,13 @@ export const removeLabelTags = (htmlString) => {
     }
 
     // If the label has a style attribute, apply it to the nearest child element
-    if (label.hasAttribute('style')) {
-      if (fragment.firstChild && fragment.firstChild.nodeType === Node.ELEMENT_NODE && !fragment.firstChild.hasAttribute('style')) {
-        fragment.firstChild.setAttribute('style', label.getAttribute('style'));
+    if (label.hasAttribute("style")) {
+      if (
+        fragment.firstChild &&
+        fragment.firstChild.nodeType === Node.ELEMENT_NODE &&
+        !fragment.firstChild.hasAttribute("style")
+      ) {
+        fragment.firstChild.setAttribute("style", label.getAttribute("style"));
       }
     }
 
@@ -415,7 +477,7 @@ export const removeLabelTags = (htmlString) => {
 
   // Get the modified HTML string
   return tempContainer.innerHTML;
-}
+};
 
 export const trimEllip = (source, length) => {
   if (source == null) {
@@ -479,12 +541,19 @@ export function calculateAge(dateOfBirth) {
   const currentDate = new Date();
 
   const ageInMilliseconds = currentDate - dob;
-  const ageInYears = Math.floor(ageInMilliseconds / (365.25 * 24 * 60 * 60 * 1000));
-  const ageInMonths = Math.floor((ageInMilliseconds % (365.25 * 24 * 60 * 60 * 1000)) / (30.44 * 24 * 60 * 60 * 1000));
-  const ageInDays = Math.floor((ageInMilliseconds % (30.44 * 24 * 60 * 60 * 1000)) / (24 * 60 * 60 * 1000));
+  const ageInYears = Math.floor(
+    ageInMilliseconds / (365.25 * 24 * 60 * 60 * 1000)
+  );
+  const ageInMonths = Math.floor(
+    (ageInMilliseconds % (365.25 * 24 * 60 * 60 * 1000)) /
+      (30.44 * 24 * 60 * 60 * 1000)
+  );
+  const ageInDays = Math.floor(
+    (ageInMilliseconds % (30.44 * 24 * 60 * 60 * 1000)) / (24 * 60 * 60 * 1000)
+  );
 
   return { years: ageInYears, months: ageInMonths, days: ageInDays };
-};
+}
 
 export function calculateBirthdateFromAge(age) {
   // Get the current date
@@ -538,7 +607,10 @@ const NAMES_LAST = ["Ramachandran", "Saraswat", "Gokhale", "Shah"];
 export const getRandomAppointment = () => {
   const randomMonthShort = moment()._locale._monthsShort[randomInteger(0, 11)];
   const apiTime = `${randomInteger(1, 12)}:${randomInteger(10, 59)} PM`;
-  const apiDate = `${randomInteger(1, 31)}th ${randomMonthShort} ${randomInteger(2021, 2025)}`;
+  const apiDate = `${randomInteger(
+    1,
+    31
+  )}th ${randomMonthShort} ${randomInteger(2021, 2025)}`;
   // console.log('randomMonthShort: ', moment());
 
   return {
@@ -549,7 +621,12 @@ export const getRandomAppointment = () => {
     pm_gender: "Male",
     ageYears: randomInteger(18, 99),
     pm_contact_no: `${randomInteger(10, 99)}058${randomInteger(11111, 99999)}`,
-    toct_type: Math.random() < 0.5 ? "Follow-up" : Math.random() < 0.5 ? "New" : "Urgent",
+    toct_type:
+      Math.random() < 0.5
+        ? "Follow-up"
+        : Math.random() < 0.5
+        ? "New"
+        : "Urgent",
     apTime: apiTime,
     apDate: apiDate,
   };
@@ -558,6 +635,17 @@ export const getRandomAppointment = () => {
 export function randomInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+export const convertBase64ToBlobURL = (base64string = "") => {
+  const byteCharacters = atob(base64string);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: "application/pdf" });
+  return URL.createObjectURL(blob);
+};
 
 export const handlePrintClick = (
   element,
@@ -630,63 +718,72 @@ export const getClinicName = (hospitalData) => {
   const clinicId = decodedToken?.result?.clinic_id;
   const clinic = hospitalData?.find((e) => e?.hm_id == clinicId);
   return clinic ? clinic.hm_name : "";
-}
+};
 
 export const getClinicCity = (hospitalData) => {
   const decodedToken = getDecodedToken();
   const clinicId = decodedToken?.result?.clinic_id;
   const clinic = hospitalData?.find((e) => e?.hm_id == clinicId);
   return clinic ? clinic.hm_city : "";
-}
+};
 
 export const getClinic = (hospitalData) => {
   const decodedToken = getDecodedToken();
   const clinicId = decodedToken?.result?.clinic_id;
   const clinic = hospitalData?.find((e) => e?.hm_id == clinicId);
   return clinic || "";
-}
+};
 
 export const getTokenData = () => {
   const decodedToken = getDecodedToken();
   const result = decodedToken?.result;
   return result || {};
-}
+};
 
 export const getDeviceSdkData = () => {
   return { device_info: deviceDetect(), sdk_version: packageJson?.version };
-}
+};
 
-export const compressedFile = async (file) => {
-  if (file.size > 2101546) {                       // If file size is greater than 2MB
+export const compressedFile = async (
+  file,
+  maxSizeMB = 2,
+  compressPercent = null
+) => {
+  if (file.size > maxSizeMB * 1024 * 1024) {
+    // If file size is greater than 2MB
     try {
       const options = {
-        maxSizeMB: 2,                        // Target size: 2MB, the limit you want to enforce
-        maxWidthOrHeight: 1920,              // Max dimension, but we aim to maintain original dimensions - 1280, 2560
-        useWebWorker: true,                  // Use a web worker for performance
-        alwaysKeepResolution: true           // Ensure original height and width are maintained
+        maxSizeMB, // Target size: 2MB, the limit you want to enforce
+        maxWidthOrHeight: 1920, // Max dimension, but we aim to maintain original dimensions - 1280, 2560
+        useWebWorker: true, // Use a web worker for performance
+        alwaysKeepResolution: true, // Ensure original height and width are maintained
       };
-
+      if (compressPercent) {
+        options.initialQuality = compressPercent / 100;
+        delete options.maxSizeMB;
+      }
       const compress = await imageCompression(file, options);
 
       // Preserve original file extension
-      const fileExtension = file.name.split('.').pop(); // Get the original extension
-      const newFileName = `${file.name.split('.')[0]}.${fileExtension}`;
-      const renamedCompress = new File([compress], newFileName, { type: compress.type });
+      const fileExtension = file.name.split(".").pop(); // Get the original extension
+      const newFileName = `${file.name.split(".")[0]}.${fileExtension}`;
+      const renamedCompress = new File([compress], newFileName, {
+        type: compress.type,
+      });
 
       return renamedCompress;
-
     } catch (error) {
       console.error("Error compressing the image:", error);
       return null;
     }
   }
   return file;
-}
+};
 
 export const groupArray = async (array) => {
   const updatedArray = array.reduce((acc, currentItem) => {
     const { tmm_id, tmm_medicine_name } = currentItem;
-    let group = acc.find(item => item.tmm_id == tmm_id);
+    let group = acc.find((item) => item.tmm_id == tmm_id);
     if (!group) {
       group = { tmm_id, tmm_medicine_name, data: [] };
       acc.push(group);
@@ -695,7 +792,7 @@ export const groupArray = async (array) => {
     return acc;
   }, []);
   return updatedArray;
-}
+};
 
 export const fetchDocumentAsFile = async (url, fileName) => {
   try {
@@ -709,63 +806,64 @@ export const fetchDocumentAsFile = async (url, fileName) => {
 };
 
 export const isValidMongoId = (id) => {
-  return typeof id === 'string' && id.length === 24 && /^[a-f\d]{24}$/i.test(id);
-}
+  return (
+    typeof id === "string" && id.length === 24 && /^[a-f\d]{24}$/i.test(id)
+  );
+};
 
 export const trackEvent = (eventName, attributes) => {
   window.Moengage.track_event(eventName, attributes);
-}
+};
 
-export const getIndianLanguageFont = (text, defaultFont = 'Roboto') => {
-
+export const getIndianLanguageFont = (text, defaultFont = "Roboto") => {
   // Devanagari (Hindi, Marathi, Sanskrit, Nepali, etc.)
   if (/[\u0900-\u097F]/.test(text)) {
-    return 'AnekDevanagari';
+    return "AnekDevanagari";
   }
 
   // Bengali/Assamese
   if (/[\u0980-\u09FF]/.test(text)) {
-    return 'NotoSansBengali';
+    return "NotoSansBengali";
   }
 
   // Tamil
   if (/[\u0B80-\u0BFF]/.test(text)) {
-    return 'NotoSansTamil';
+    return "NotoSansTamil";
   }
 
   // Telugu
   if (/[\u0C00-\u0C7F]/.test(text)) {
-    return 'NotoSansTelugu';
+    return "NotoSansTelugu";
   }
 
   // Kannada
   if (/[\u0C80-\u0CFF]/.test(text)) {
-    return 'NotoSansKannada';
+    return "NotoSansKannada";
   }
 
   // Malayalam
   if (/[\u0D00-\u0D7F]/.test(text)) {
-    return 'NotoSansMalayalam';
+    return "NotoSansMalayalam";
   }
 
   // Gujarati
   if (/[\u0A80-\u0AFF]/.test(text)) {
-    return 'NotoSansGujarati';
+    return "NotoSansGujarati";
   }
 
   // Punjabi/Gurmukhi
   if (/[\u0A00-\u0A7F]/.test(text)) {
-    return 'NotoSansGurmukhi';
+    return "NotoSansGurmukhi";
   }
 
   // Oriya/Odia
   if (/[\u0B00-\u0B7F]/.test(text)) {
-    return 'NotoSansOriya';
+    return "NotoSansOriya";
   }
 
   //urdu
   if (/[\u0600-\u06FF\u0750-\u077F]/.test(text)) {
-    return 'Urdu';
+    return "Urdu";
   }
 
   // Default to the regular font if no Indian script is detected
@@ -787,7 +885,7 @@ export const isValidGST = (gstNumber) => {
   }
 
   return true; // GST is valid
-}
+};
 
 export const shouldMonetizationDisabled = () => {
   const monetizationDisabled = config?.tp_monetization_disabled_hospital;
@@ -801,20 +899,20 @@ export const shouldMonetizationDisabled = () => {
   }
 
   return false;
-}
+};
 export const detectOperatingSystem = () => {
   const userAgent = window.navigator.userAgent;
   const platform = window.navigator.platform;
-  
+
   const os = {
     Windows: /Win/.test(platform),
     MacOS: /Mac/.test(platform),
     Linux: /Linux/.test(platform),
     iOS: /iPhone|iPad|iPod/.test(userAgent),
-    Android: /Android/.test(userAgent)
+    Android: /Android/.test(userAgent),
   };
 
-  return Object.keys(os).find(key => os[key]) || 'Unknown';
+  return Object.keys(os).find((key) => os[key]) || "Unknown";
 };
 
 export const sendMessageToParent = (eventName, data = {}) => {
@@ -828,5 +926,29 @@ export const sendMessageToParent = (eventName, data = {}) => {
     }
   } catch (error) {
     console.log("sendMessageToParent ERROR", error);
+  }
+};
+
+export const clearExpiredTokensFromStorage = () => {
+  try {
+    const tokensObject = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
+    if (tokensObject) {
+      const parsedTokens = JSON.parse(tokensObject);
+      const currentTime = Date.now();
+      const validTokens = {};
+
+      Object.keys(parsedTokens).forEach((key) => {
+        if (parsedTokens[key].expiresIn > currentTime) {
+          validTokens[key] = parsedTokens[key];
+        }
+      });
+
+      localStorage.setItem(
+        SNAP_RX_TOKENS_STORAGE_KEY,
+        JSON.stringify(validTokens)
+      );
+    }
+  } catch (error) {
+    console.error("Error cleaning up expired tokens:", error);
   }
 };

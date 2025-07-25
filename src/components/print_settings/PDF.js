@@ -984,7 +984,7 @@ export const PDF = ({ mode = NORMAL, ...props }) => {
                                                                                             status: status && `Status : ${status}`,
                                                                                             medication: medication && `Medication : ${medication}`,
                                                                                             relationship: relationship && `Relative : ${relationship}`,
-                                                                                            note: note && `Note : ${note}`,
+                                                                                            note: note && `${note}`,
                                                                                         })
                                                                                     )(item1)).filter(([_, v]) => v))).join(' | ')})`}
                                                                                 </Text>
