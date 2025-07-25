@@ -29,6 +29,7 @@ import * as XLSX from "xlsx";
 import VaccinationAnalytics from "./VaccinationAnalytics";
 import "./ApolloConsultations.scss";
 import { getDecodedToken } from "../../utils/localStorage";
+import { PAEDIATRIC_DP_ID } from "../../utils/constants";
 
 const { Text } = Typography;
 
@@ -113,6 +114,7 @@ const ConsultationDetailsPage = () => {
       const doctorList = response.map((doc) => ({
         text: doc.doctorName,
         value: doc.um_id,
+        dp_id: doc.dp_id,
       }));
       setDoctors(doctorList);
     } catch (error) {
@@ -790,7 +792,11 @@ const ConsultationDetailsPage = () => {
                 </Tabs.TabPane>
                 <Tabs.TabPane tab="Vaccination Analytics" key="vaccination">
                   <div style={{ textAlign: "center" }}>
-                    <VaccinationAnalytics doctors={doctors} />
+                    <VaccinationAnalytics
+                      doctors={doctors?.filter(
+                        (doc) => doc.dp_id == PAEDIATRIC_DP_ID
+                      )}
+                    />
                   </div>
                 </Tabs.TabPane>
               </Tabs>
