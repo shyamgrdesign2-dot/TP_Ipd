@@ -156,60 +156,6 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
     setActiveType(`${type}-lineItem`);
   };
 
-  useEffect(() => {
-    if (!loading && data) {
-      const sectionsToCheck = [
-        "vitals",
-        "medicalHistory",
-        "symptoms",
-        "examination",
-        "diagnosis",
-        "medications",
-        "tests",
-        "advice",
-        "vaccinations",
-      ];
-
-      for (const section of sectionsToCheck) {
-        if (section === "vitals" && data.vitals) {
-          const vitalEntries = Object.entries(data.vitals).filter(
-            ([key, value]) => value
-          );
-          if (vitalEntries.length > 0) {
-            const firstVitalKey = vitalEntries[0][0];
-            setActiveIndex(firstVitalKey);
-            setActiveType("vitals");
-            setEditableText(vitalEntries[0][1]);
-            break;
-          }
-        } else if (
-          data[section] &&
-          Array.isArray(data[section]) &&
-          data[section].length > 0
-        ) {
-          const firstItem = data[section][0];
-          setActiveIndex(0);
-          setActiveType(section);
-
-          if (section === "medications" || section === "tests") {
-            setEditableText(firstItem.refinedName || "");
-          } else if (
-            section === "symptoms" ||
-            section === "examination" ||
-            section === "diagnosis" ||
-            section === "medicalHistory" ||
-            section === "vaccinations"
-          ) {
-            setEditableText(firstItem.name || "");
-          } else if (section === "advice") {
-            setEditableText(firstItem || "");
-          }
-          break;
-        }
-      }
-    }
-  }, [loading, data]);
-
   const renderItems = (type) => {
     // Check if type is 'vitals' and handle accordingly
     if (type === "vitals") {
