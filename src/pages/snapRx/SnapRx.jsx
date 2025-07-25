@@ -411,6 +411,11 @@ function SnapRxContent() {
     setIsAddMoreClicked(false);
   };
 
+  const handleRefreshForMobileUploadedFiles = () => {
+    setIsLoading(true);
+    fetchUploadedFiles();
+  };
+
   const handleFileEdit = (file) => {
     uploadWrittenRxRef?.current?.handleFileEdit(file);
     previewDrawerRef?.current?.handleFileEdit(file);
@@ -451,7 +456,7 @@ function SnapRxContent() {
               ref={uploadWrittenRxRef}
               showBackButton={false} // TODO: INTEL - CHANGE
               onBack={() => {}} // TODO: INTEL - CHANGE
-              fetchUploadedFiles={() => fetchUploadedFiles()} // TODO: INTEL - CHANGE
+              fetchUploadedFiles={handleRefreshForMobileUploadedFiles} // TODO: INTEL - CHANGE
               handlePreviewOpen={setIsPreviewOpen}
               handleUpdatedFiles={setUploadedFiles}
               uploadedFiles={uploadedFiles}

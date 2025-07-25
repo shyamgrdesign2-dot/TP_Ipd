@@ -8,7 +8,7 @@ const SnapRxDigitization = {};
 SnapRxDigitization.generateFileUploadToken = function (data) {
   return api.post(
     `/api/v1/digitization/snap-rx/generate-file-upload-token`,
-    { ...data, expiry_in_seconds: 30 },
+    { ...data },
     baseUrl
   );
 };

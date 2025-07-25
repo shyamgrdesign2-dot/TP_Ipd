@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import SnapRxDigitization from "../api/services/SnapRxDigitization";
 import { SNAP_RX_TOKENS_STORAGE_KEY } from "../utils/constants";
 
-const TOKEN_EXPIRY_DURATION = 2 * 60 * 1000; // 2 minutes
+const TOKEN_EXPIRY_DURATION = 60 * 60 * 1000;
 
 const initialState = {
   loading: false,

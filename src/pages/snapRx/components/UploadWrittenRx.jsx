@@ -7,6 +7,7 @@ import React, {
   useCallback,
   useImperativeHandle,
   forwardRef,
+  useMemo,
 } from "react";
 import { message } from "antd";
 import CashManagerContext from "../../../context/CashManagerContext";
@@ -354,7 +355,8 @@ const UploadWrittenRx = forwardRef(
       profile,
     ]);
 
-    const generateQRData = useCallback(() => {
+    const generateQRData = useMemo(() => {
+      console.log("INTEL ==> shortLink", shortLink);
       if (!shortLink) {
         return "";
       }
@@ -362,10 +364,6 @@ const UploadWrittenRx = forwardRef(
         uploadUrl: shortLink,
       });
     }, [shortLink]);
-
-    const handlePreviewClose = () => {
-      handlePreviewOpen(false);
-    };
 
     const handleAddMore = () => {
       if (uploadedFiles.length >= maxFileLimit) {
@@ -508,7 +506,7 @@ const UploadWrittenRx = forwardRef(
                   from your mobile device
                 </p>
                 <div className="qr-container">
-                  <QRCodeGenerator data={generateQRData()} size={120} />
+                  <QRCodeGenerator data={generateQRData} size={120} />
                 </div>
                 <div className="refresh-text">
                   <span className="refresh-separator">
