@@ -19,16 +19,13 @@ import "./PreviewDrawer.scss";
 import CommonModal from "../../../common/CommonModal";
 import alertIcon from "../../../assets/images/alertIcon.svg";
 import { useDispatch, useSelector } from "react-redux";
-import { getDecodedToken } from "../../../utils/localStorage";
 import { trackEvent } from "../../../utils/utils";
 import { EVENTS } from "../../../utils/events";
-import SkeletonComponent from "./Skeleton";
 import PlusIcon from "./PlusIcon";
 import MinusIcon from "./MinusIcon";
 import {
-  getFiles,
+  resetFileUploadToken,
   setUploadedFilesFromStore,
-  uploadFiles,
 } from "../../../redux/snapRxDigitizationSlice";
 import RotateLeftIcon from "./RotateLeftIcon";
 
@@ -51,6 +48,8 @@ const PreviewDrawer = forwardRef(
       isAddMoreClicked,
       uploadedFilesFromStore,
       handleGoBackToMainFiles,
+      onZoomIn,
+      onZoomOut,
     },
     ref
   ) => {
@@ -193,7 +192,7 @@ const PreviewDrawer = forwardRef(
       [uploadedFiles]
     );
 
-    const getCroppedImg = async (image, crop, fileId, rotation = 0) => {
+    const getCroppedImg = async (image, crop, fileId, rotation = 0, fileZoom = 1) => {
       const canvas = canvasRefs.current.get(fileId)?.current;
       if (!canvas || !crop) return null;
 
@@ -206,29 +205,36 @@ const PreviewDrawer = forwardRef(
       const rotatedCanvas = document.createElement("canvas");
       const rotatedCtx = rotatedCanvas.getContext("2d");
 
-      rotatedCanvas.width = image.naturalWidth;
-      rotatedCanvas.height = image.naturalHeight;
+      // Set canvas dimensions to natural size for rotation
+      rotatedCanvas.width = naturalWidth;
+      rotatedCanvas.height = naturalHeight;
 
       rotatedCtx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
       rotatedCtx.rotate((rotation * Math.PI) / 180);
+      
       rotatedCtx.drawImage(
         image,
-        -image.naturalWidth / 2,
-        -image.naturalHeight / 2
+        -naturalWidth / 2,
+        -naturalHeight / 2
       );
 
       const finalCanvas = canvas;
       const finalCtx = finalCanvas.getContext("2d");
 
-      finalCanvas.width = crop.width * scaleX;
+      const widthIncrease = (crop.width * scaleX) * 0.15;
+      finalCanvas.width = (crop.width * scaleX) + (widthIncrease * 2);
       finalCanvas.height = crop.height * scaleY;
+      const cropX = (crop.x * scaleX) - widthIncrease;
+      const cropY = crop.y * scaleY;
+      const cropWidth = (crop.width * scaleX) + (widthIncrease * 2);
+      const cropHeight = crop.height * scaleY;
 
       finalCtx.drawImage(
         rotatedCanvas,
-        crop.x * scaleX,
-        crop.y * scaleY,
-        finalCanvas.width,
-        finalCanvas.height,
+        cropX,
+        cropY,
+        cropWidth,
+        cropHeight,
         0,
         0,
         finalCanvas.width,
@@ -245,6 +251,7 @@ const PreviewDrawer = forwardRef(
         );
       });
     };
+    
     const showHideModal = () => {
       setIsModalOpen(!isModalOpen);
     };
@@ -261,8 +268,6 @@ const PreviewDrawer = forwardRef(
     const { sessionId, setHasUploadedFiles } = useSnapRxSession();
 
     const canvasRef = useRef(null);
-
-    const getCurrentZoom = () => filesZoom[selectedFileIndex] || 1;
 
     const handleSave = async (e) => {
       e?.stopPropagation();
@@ -362,7 +367,8 @@ const PreviewDrawer = forwardRef(
                 imageRefs.current?.get(updatedFile.id)?.current,
                 updatedFile.crop,
                 updatedFile.id,
-                updatedFile.rotation || 0
+                updatedFile.rotation || 0,
+                updatedFile.zoom || 1
               );
               if (croppedBlob) {
                 let fileName = updatedFile.name;
@@ -436,13 +442,16 @@ const PreviewDrawer = forwardRef(
               setIsSubmitting(false);
             }
           } else {
-            console.log("Upload failed:", response);
             message.warning("Failed to upload file(s)");
             setIsSubmitting(false);
           }
         } catch (error) {
-          console.log("Error cropping image:", error);
-          message.warning("Failed to upload file(s)");
+          if (error?.response?.status === 401) { // TODO: INTEL - handle better
+            dispatch(resetFileUploadToken());
+            handleGoBackToMainFiles();
+          } else {
+            message.warning("Failed to upload file(s)");
+          }
           setIsSubmitting(false);
         }
       }
@@ -459,11 +468,11 @@ const PreviewDrawer = forwardRef(
     };
 
     const handleZoomIn = () => {
-      // handle zoom in
+      onZoomIn(selectedFileId);
     };
 
     const handleZoomOut = () => {
-      // handle zoom out
+      onZoomOut(selectedFileId);
     };
 
     const handleRotateLeft = () => {
@@ -675,7 +684,7 @@ const PreviewDrawer = forwardRef(
                         onLoad={onImageLoad}
                         crossOrigin="anonymous"
                         style={{
-                          transform: `scale(${getCurrentZoom()}) rotate(${
+                          transform: `scale(${currentFile?.zoom || 1}) rotate(${
                             currentFile?.rotation || 0
                           }deg)`,
                           transformOrigin: "center center",

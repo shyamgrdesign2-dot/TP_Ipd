@@ -167,7 +167,7 @@ function SnapRxDigitise() {
         } w-100 bg-body prescription-wrapper`}
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
-          <Col md={17} lg={17} xl={12}>
+          <Col md={17} lg={17} xl={10}>
             <div className="appointment-wrap PatientDetailswrap m-0">
               <Card className="">
                 <>
@@ -205,7 +205,7 @@ function SnapRxDigitise() {
               </Card>
             </div>
           </Col>
-          <Col md={17} lg={17} xl={12}>
+          <Col md={17} lg={17} xl={10}>
             <div className="appointment-wrap PatientDetailswrap m-0">
               <Card className="">
                 <>

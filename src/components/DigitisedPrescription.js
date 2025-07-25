@@ -160,14 +160,14 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
     if (!loading && data) {
       const sectionsToCheck = [
         "vitals",
+        "medicalHistory",
         "symptoms",
+        "examination",
         "diagnosis",
         "medications",
         "tests",
-        "examination",
-        "medicalHistory",
-        "vaccinations",
         "advice",
+        "vaccinations",
       ];
 
       for (const section of sectionsToCheck) {

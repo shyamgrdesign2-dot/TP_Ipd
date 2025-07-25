@@ -16,6 +16,7 @@ import { CloudUploadOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import {
   generateFileUploadToken,
+  resetFileUploadToken,
   setFileUploadToken,
 } from "../../../redux/snapRxDigitizationSlice";
 import { useDispatch } from "react-redux";
@@ -63,12 +64,12 @@ const UploadWrittenRx = forwardRef(
     const minSizeToCompress = 4 * 1024 * 1024; // 4MB
     useEffect(() => {
       const tokenKey = `fileUploadToken_${sessionId}_${patient_data?.patient_unique_id}_${userId}`;
+      let generateNewToken = false;
       try {
         const tokensObject = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
         if (tokensObject) {
           const parsedTokens = JSON.parse(tokensObject);
           const storedToken = parsedTokens[tokenKey];
-
           if (storedToken) {
             if (storedToken.expiresIn > Date.now()) {
               dispatch(setFileUploadToken(storedToken.value));
@@ -78,26 +79,25 @@ const UploadWrittenRx = forwardRef(
                 SNAP_RX_TOKENS_STORAGE_KEY,
                 JSON.stringify(parsedTokens)
               );
+              generateNewToken = true;
             }
-            return;
+          } else {
+            generateNewToken = true;
           }
+        } else {
+          generateNewToken = true;
+        }
+        if (generateNewToken) {
+          dispatch(
+            generateFileUploadToken({
+              doctor_id: userId,
+              patient_unique_id: patient_data?.patient_unique_id,
+              session_id: sessionId,
+            })
+          );
         }
       } catch (error) {
         console.error("Error retrieving token from localStorage:", error);
-      }
-      if (
-        !fileUploadToken &&
-        userId &&
-        patient_data?.patient_unique_id &&
-        sessionId
-      ) {
-        dispatch(
-          generateFileUploadToken({
-            doctor_id: userId,
-            patient_unique_id: patient_data?.patient_unique_id,
-            session_id: sessionId,
-          })
-        );
       }
     }, [userId, patient_data?.patient_unique_id, sessionId]);
 
@@ -185,6 +185,7 @@ const UploadWrittenRx = forwardRef(
                     ? storedFileIdToReplace
                     : Date.now() + Math.random(),
                 rotation: 0,
+                zoom: 1.1,
                 crop: {
                   unit: "%",
                   x: 2,
@@ -218,6 +219,7 @@ const UploadWrittenRx = forwardRef(
                 ? storedFileIdToReplace
                 : Date.now() + Math.random(),
             rotation: 0,
+            zoom: 1.1,
             crop: {
               unit: "%",
               x: 2,
@@ -311,6 +313,8 @@ const UploadWrittenRx = forwardRef(
       handleRemoveFile,
       handleRotateClick,
       handleFileEdit,
+      handleZoomIn,
+      handleZoomOut,
     }));
 
     useEffect(() => {
@@ -446,12 +450,34 @@ const UploadWrittenRx = forwardRef(
       setIsFileTypeError(false);
     };
 
+    const handleZoomIn = (fileId) => {
+      const newFiles = uploadedFiles?.map((file) => {
+        if (file.id === fileId) {
+          const newZoom = Math.min(file.zoom + 0.1, 3);
+          return { ...file, zoom: newZoom };
+        }
+        return file;
+      });
+      handleUpdatedFiles(newFiles);
+    };
+
+    const handleZoomOut = (fileId) => {
+      const newFiles = uploadedFiles?.map((file) => {
+        if (file.id === fileId) {
+          const newZoom = Math.max(file.zoom - 0.1, 1);
+          return { ...file, zoom: newZoom };
+        }
+        return file;
+      });
+      handleUpdatedFiles(newFiles);
+    };
+
     return (
       <>
         <div
-          className={`upload-written-rx-container ${isUploadMoreDrawer ? "p-0" : ""} ${
-            !isOpen ? "upload-written-rx-container-pos-abs" : ""
-          }`}
+          className={`upload-written-rx-container ${
+            isUploadMoreDrawer ? "p-0" : ""
+          } ${!isOpen ? "upload-written-rx-container-pos-abs" : ""}`}
         >
           <div
             className={`upload-modal-content ${
@@ -485,12 +511,11 @@ const UploadWrittenRx = forwardRef(
                   <QRCodeGenerator data={generateQRData()} size={120} />
                 </div>
                 <div className="refresh-text">
-                  <span className="refresh-link" onClick={fetchUploadedFiles}>
-                    Click on refresh
-                  </span>
                   <span className="refresh-separator">
-                    {" "}
-                    to view the document
+                    After uploading the document, &nbsp;
+                    <span className="refresh-link" onClick={fetchUploadedFiles}>
+                      Click here to refresh
+                    </span>
                   </span>
                 </div>
               </div>

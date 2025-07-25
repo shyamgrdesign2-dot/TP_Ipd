@@ -442,6 +442,7 @@ function SnapRxPreview() {
         tcm_id={state?.tcm_id}
         printUrl={printUrl}
         pam_id={state?.pam_id}
+        isSnapRx={true}
       />
       <div
         className={`${

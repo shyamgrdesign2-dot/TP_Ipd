@@ -223,7 +223,6 @@ const UploadRx = () => {
       })
     )
       .then((res) => {
-        console.log("INTEL ===> res", res);
         setLoading(false);
         setShowSuccess(res?.payload?.length);
       })

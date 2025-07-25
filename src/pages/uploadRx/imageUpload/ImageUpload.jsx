@@ -161,6 +161,7 @@ const ImageUpload = forwardRef(
                     ? storedFileIdToReplace
                     : Date.now() + Math.random(),
                 rotation: 0,
+                zoom: 1.1,
                 crop: {
                   unit: "%",
                   x: 5,
@@ -194,6 +195,7 @@ const ImageUpload = forwardRef(
                 ? storedFileIdToReplace
                 : Date.now() + Math.random(),
             rotation: 0,
+            zoom: 1.1,
             crop: {
               unit: "%",
               x: 5,

@@ -15,7 +15,7 @@ export const PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN =
 export const PERSISTANT_STORAGE_KEY_MEDECO_TOKEN =
   "persistant.storage.key.medeco-token";
 export const PERSISTANT_STORAGE_KEY_EXTRA = "persistant.storage.key.extra";
-export const SNAP_RX_TOKENS_STORAGE_KEY = "snapRxFileUploadTokens";
+export const SNAP_RX_TOKENS_STORAGE_KEY = "snapRxFileUploadTokensV2";
 export const FROM_NATIVE_APP = "from_native_app";
 export const MESSAGE_KEY = "message_key";
 export const IS_DEV = true;

@@ -27,6 +27,7 @@ import { useSelector } from "react-redux";
 import {
   generateFileUploadToken,
   getFiles,
+  setFileUploadToken,
   setUploadedFilesFromStore,
 } from "../../redux/snapRxDigitizationSlice";
 import { useDispatch } from "react-redux";
@@ -169,6 +170,7 @@ function SnapRxContent() {
           url: objectUrl,
           preview: objectUrl,
           rotation: 0,
+          zoom: 1.1,
           crop: file?.crop || {
             unit: "%",
             x: 2,
@@ -268,6 +270,7 @@ function SnapRxContent() {
       );
 
       if (response && response.status) {
+        dispatch(setFileUploadToken(null));
         navigate("/snap-rx/preview", {
           state: {
             ...state,
@@ -328,6 +331,7 @@ function SnapRxContent() {
         patient_data?.pam_id
       );
       if (response && response.status) {
+        dispatch(setFileUploadToken(null));
         // Navigate to digitization or next step if needed
         navigate("/snap-rx/preview", {
           replace: true,
@@ -377,6 +381,14 @@ function SnapRxContent() {
 
   const handleReupload = (fileId) => {
     uploadWrittenRxRef?.current?.handleReupload(fileId);
+  };
+
+  const handleZoomIn = (fileId) => {
+    uploadWrittenRxRef?.current?.handleZoomIn(fileId);
+  };
+  
+  const handleZoomOut = (fileId) => {
+    uploadWrittenRxRef?.current?.handleZoomOut(fileId);
   };
 
   const handleRemoveFile = (fileId) => {
@@ -456,6 +468,8 @@ function SnapRxContent() {
               onCloseDrawer={handleUploadMoreDrawerClose}
               uploadedFiles={uploadedFiles}
               onReupload={handleReupload}
+              onZoomIn={handleZoomIn}
+              onZoomOut={handleZoomOut}
               handleUpdatedFiles={setUploadedFiles}
               onRemove={handleRemoveFile}
               onRotate={handleRotateClick}
