@@ -969,7 +969,7 @@ function Prescription() {
         errorMessage(action.payload.message)
       }
     }
-    dispatch(setIsDDxReadyToGenerate(false));
+    dispatch(setIsDDxReadyToGenerate(false)); // TODO: INTEL - DOUBTFUL MERGE CONFLICT RESOLVEMENT
     setIsDDxLoading(false);
     const clinic_name = getClinicName(profile?.hospital_data);
     const tokenData = getTokenData(); 
