@@ -221,6 +221,9 @@ function SmartPrescription() {
   // Add state for page addition dropdown
   const [showPageDropdown, setShowPageDropdown] = useState({});
   const [pageDropdownPosition, setPageDropdownPosition] = useState({});
+  
+  // Add state for disclaimer visibility
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
 
   const contextApi = {
     patient_data,
@@ -1041,7 +1044,13 @@ function SmartPrescription() {
     } else {
       // Load custom RX images for the selected type
       loadCustomRxImages(rxType);
-      setIsCustomSSRX(true)
+      setIsCustomSSRX(true);
+      
+      // Show disclaimer for custom RX types if not previously dismissed
+      const disclaimerDismissed = localStorage.getItem('customRxDisclaimerDismissed');
+      if (!disclaimerDismissed) {
+        setShowDisclaimer(true);
+      }
     }
   };
 
@@ -1912,6 +1921,12 @@ function SmartPrescription() {
     return selectedRxType !== "none" || (smartRxFiles && smartRxFiles.length > 0);
   };
 
+  // Function to handle disclaimer close
+  const handleDisclaimerClose = () => {
+    setShowDisclaimer(false);
+    localStorage.setItem('customRxDisclaimerDismissed', 'true');
+  };
+
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
@@ -2265,6 +2280,44 @@ function SmartPrescription() {
                           )}
                         </div>
                       </div>
+                      
+                      {/* Disclaimer for first page of custom RX */}
+                      {index === 0 && showDisclaimer && selectedRxType !== "none" && (
+                        <div className="cvt-info" style={{
+                          backgroundColor: "#FEF4E6",
+                          padding: "14px 16px",
+                          margin: "0",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                          borderLeft: "2px solid #BA7DE9",
+                          borderRight: "2px solid #BA7DE9",
+                          borderTop: "1px solid #E2E2EA",
+                          borderRadius: "0",
+                          width: "720px"
+                        }}>
+                          <i className="icon-info" style={{ color: "#FF8C00", fontSize: "18px", flexShrink: "0" }}></i>
+                          <span className="cvt-info-text" style={{ 
+                            fontSize: "14px", 
+                            color: "#333",
+                            flex: "1",
+                            lineHeight: "1.5"
+                          }}>
+                            <span style={{ fontWeight: "bold" }}>Disclaimer:</span> If the digital output doesn't align correctly with the canvas, please ensure the Rx paper is properly placed on the Smart Sync pad.
+                          </span>
+                          <i 
+                            className='icon-Cross' 
+                            style={{
+                              color: "#FF8C00", 
+                              fontSize: "18px",
+                              cursor: "pointer",
+                              padding: "4px",
+                              flexShrink: "0"
+                            }}
+                            onClick={handleDisclaimerClose}
+                          ></i>
+                        </div>
+                      )}
                       {getCanvas(page, index)}
                       <div
                         className={`canvas-footer ${
@@ -2275,9 +2328,31 @@ function SmartPrescription() {
                         {(index === pages.length - 1 || shouldShowAddButtonOnAllPages()) && (
                           <div style={{ position: "relative" }}>
                             <button
-                              className="btn d-flex align-items-center justify-content-center btn-text new-page-btn"
-                              onMouseEnter={() => setNewPageText("New Page")}
-                              onMouseLeave={() => setNewPageText("")}
+                              className="btn d-flex align-items-center justify-content-center"
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "12px",
+                                backgroundColor: "#f0f0ff",
+                                border: "none",
+                                color: "#6b46c1",
+                                fontSize: "18px",
+                                fontWeight: "bold",
+                                boxShadow: "0 2px 4px rgba(107, 70, 193, 0.2)",
+                                transition: "all 0.2s ease",
+                                position: "relative",
+                                zIndex: 1001
+                              }}
+                              onMouseEnter={(e) => {
+                                setNewPageText("New Page");
+                                e.target.style.backgroundColor = "#e6e6ff";
+                                e.target.style.transform = "scale(1.05)";
+                              }}
+                              onMouseLeave={(e) => {
+                                setNewPageText("");
+                                e.target.style.backgroundColor = "#f0f0ff";
+                                e.target.style.transform = "scale(1)";
+                              }}
                               onClick={(e) => {
                                 if (shouldShowAddButtonOnAllPages()) {
                                   handlePageDropdownToggle(index, e);
@@ -2286,8 +2361,24 @@ function SmartPrescription() {
                                 }
                               }}
                             >
-                              <i className="icon-Add fs-5" />
-                              {newPageText}
+                              <i className="icon-Add" style={{ fontSize: "20px" }} />
+                              {newPageText && (
+                                <span style={{
+                                  position: "absolute",
+                                  top: "-30px",
+                                  left: "50%",
+                                  transform: "translateX(-50%)",
+                                  backgroundColor: "#333",
+                                  color: "white",
+                                  padding: "4px 8px",
+                                  borderRadius: "4px",
+                                  fontSize: "12px",
+                                  whiteSpace: "nowrap",
+                                  zIndex: 1002
+                                }}>
+                                  {newPageText}
+                                </span>
+                              )}
                             </button>
                             
                             {/* Dropdown for RX pages */}
@@ -2295,26 +2386,54 @@ function SmartPrescription() {
                               <div
                                 style={{
                                   position: "absolute",
-                                  top: "100%",
+                                  top: "calc(100% + 8px)",
                                   right: "0",
                                   backgroundColor: "white",
-                                  border: "1px solid #ddd",
-                                  borderRadius: "4px",
-                                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                  border: "1px solid #e1e5e9",
+                                  borderRadius: "12px",
+                                  boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
                                   zIndex: 1000,
-                                  minWidth: "150px"
+                                  minWidth: "15rem",
+                                  padding: "8px 0",
+                                  backdropFilter: "blur(10px)"
                                 }}
                               >
                                 <button
-                                  className="btn w-100 text-start p-2 border-0"
-                                  style={{ fontSize: "14px" }}
+                                  className="btn w-100 text-start border-0"
+                                  style={{
+                                    fontSize: "14px",
+                                    padding: "12px 16px",
+                                    color: "#333",
+                                    backgroundColor: "transparent",
+                                    transition: "background-color 0.2s ease",
+                                    fontWeight: "500"
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.target.style.backgroundColor = "#f8f9fa";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.target.style.backgroundColor = "transparent";
+                                  }}
                                   onClick={() => handleAddSameCanvasPage(index)}
                                 >
                                   Add Same Canvas Page
                                 </button>
                                 <button
-                                  className="btn w-100 text-start p-2 border-0"
-                                  style={{ fontSize: "14px" }}
+                                  className="btn w-100 text-start border-0"
+                                  style={{
+                                    fontSize: "14px",
+                                    padding: "12px 16px",
+                                    color: "#333",
+                                    backgroundColor: "transparent",
+                                    transition: "background-color 0.2s ease",
+                                    fontWeight: "500"
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.target.style.backgroundColor = "#f8f9fa";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.target.style.backgroundColor = "transparent";
+                                  }}
                                   onClick={() => handleAddBlankPage(index)}
                                 >
                                   Add Blank Page
