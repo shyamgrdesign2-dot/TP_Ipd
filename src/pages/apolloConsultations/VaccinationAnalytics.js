@@ -552,6 +552,17 @@ const VaccinationAnalytics = ({ doctors }) => {
         borderRadius: "10px",
       }}
     >
+      {isAdmin === 0 && (
+        <div
+          style={{
+            fontSize: "20px",
+            fontWeight: 600,
+            marginBottom: "24px",
+          }}
+        >
+          Vaccination Analytics
+        </div>
+      )}
       <div style={{ maxWidth: "1200px", margin: "0" }}>
         {/* Top Filter Bar */}
         <div
