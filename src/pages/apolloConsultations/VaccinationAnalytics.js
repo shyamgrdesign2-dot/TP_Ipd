@@ -705,6 +705,13 @@ const VaccinationAnalytics = ({ doctors }) => {
               placement="bottomRight"
               open={showDownloadOptions}
               onOpenChange={setShowDownloadOptions}
+              disabled={
+                dateFrom &&
+                dateTo &&
+                dayjs(dateTo).diff(dayjs(dateFrom), "days") <= 7
+                  ? false
+                  : true
+              }
             >
               <div className="d-flex justify-content-between align-items-center billing-download">
                 <Button
