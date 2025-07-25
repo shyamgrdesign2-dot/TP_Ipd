@@ -28,6 +28,7 @@ import { saveAs } from "file-saver";
 import * as XLSX from "xlsx";
 import VaccinationAnalytics from "./VaccinationAnalytics";
 import "./ApolloConsultations.scss";
+import { getDecodedToken } from "../../utils/localStorage";
 
 const { Text } = Typography;
 
@@ -54,6 +55,8 @@ const ConsultationDetailsPage = () => {
   const MAX_REMARKS_LENGTH = 50;
   const [excelLoading, setExcelLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("patient");
+  const decodedToken = getDecodedToken();
+  const isAdmin = decodedToken?.result?.admin;
 
   useEffect(() => {
     if (doctors?.length > 0) {
@@ -694,101 +697,106 @@ const ConsultationDetailsPage = () => {
             className={`w-100 bg-body ${isMobile ? "vh-100" : "wrapper"}`}
             style={{ padding: "20px" }}
           >
-            <Tabs
-              activeKey={activeTab}
-              onChange={handleTabChange}
-              style={{ marginBottom: "20px" }}
-              className="apollo-analytics-tab"
-            >
-              <Tabs.TabPane tab="Patient Analytics" key="patient">
-                <Space
-                  className="position-relative"
-                  direction="vertical"
-                  style={{ gap: "20px" }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
+            {isAdmin ? (
+              <Tabs
+                activeKey={activeTab}
+                onChange={handleTabChange}
+                style={{ marginBottom: "20px" }}
+                className="apollo-analytics-tab"
+              >
+                <Tabs.TabPane tab="Patient Analytics" key="patient">
+                  <Space
+                    className="position-relative"
+                    direction="vertical"
+                    style={{ gap: "20px" }}
                   >
-                    <Space>
-                      <DatePicker
-                        value={
-                          filters.startDate ? dayjs(filters.startDate) : ""
-                        }
-                        onChange={handleStartDateChange}
-                        format="DD-MM-YYYY"
-                        placeholder="Start Date"
-                        disabledDate={
-                          (current) =>
-                            current &&
-                            current > dayjs(filters?.endDate).endOf("day") // Disable dates after the selected end date
-                        }
-                      />
-                      <DatePicker
-                        value={filters.endDate ? dayjs(filters.endDate) : ""}
-                        onChange={handleEndDateChange}
-                        format="DD-MM-YYYY"
-                        placeholder="End Date"
-                        disabledDate={(current) =>
-                          current &&
-                          (current < dayjs(filters?.startDate).startOf("day") ||
-                            current >= moment().add(1, "days").startOf("day"))
-                        }
-                      />
-                      <b>Total Count: {totalRecords}</b>
-                      <Button
-                        onClick={exportToExcel}
-                        loading={excelLoading}
-                        className="btn btn-input rounded-1 px-2 ms-2"
-                        disabled={
-                          filters?.startDate &&
-                          filters?.endDate &&
-                          dayjs(filters?.endDate).diff(
-                            dayjs(filters?.startDate),
-                            "days"
-                          ) <= 7
-                            ? false
-                            : true
-                        }
-                      >
-                        <i className="icon-download"></i>
-                      </Button>
-                    </Space>
-                    <Input
-                      placeholder="Search by Patient Name or Apollo ID"
-                      allowClear
-                      onChange={(e) => {
-                        setSearchText(e.target.value); // Update search state
-                        debouncedSearch(e.target.value); // Trigger debounced API call
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
                       }}
-                      value={searchText}
-                      style={{ width: 300 }}
+                    >
+                      <Space>
+                        <DatePicker
+                          value={
+                            filters.startDate ? dayjs(filters.startDate) : ""
+                          }
+                          onChange={handleStartDateChange}
+                          format="DD-MM-YYYY"
+                          placeholder="Start Date"
+                          disabledDate={
+                            (current) =>
+                              current &&
+                              current > dayjs(filters?.endDate).endOf("day") // Disable dates after the selected end date
+                          }
+                        />
+                        <DatePicker
+                          value={filters.endDate ? dayjs(filters.endDate) : ""}
+                          onChange={handleEndDateChange}
+                          format="DD-MM-YYYY"
+                          placeholder="End Date"
+                          disabledDate={(current) =>
+                            current &&
+                            (current <
+                              dayjs(filters?.startDate).startOf("day") ||
+                              current >= moment().add(1, "days").startOf("day"))
+                          }
+                        />
+                        <b>Total Count: {totalRecords}</b>
+                        <Button
+                          onClick={exportToExcel}
+                          loading={excelLoading}
+                          className="btn btn-input rounded-1 px-2 ms-2"
+                          disabled={
+                            filters?.startDate &&
+                            filters?.endDate &&
+                            dayjs(filters?.endDate).diff(
+                              dayjs(filters?.startDate),
+                              "days"
+                            ) <= 7
+                              ? false
+                              : true
+                          }
+                        >
+                          <i className="icon-download"></i>
+                        </Button>
+                      </Space>
+                      <Input
+                        placeholder="Search by Patient Name or Apollo ID"
+                        allowClear
+                        onChange={(e) => {
+                          setSearchText(e.target.value); // Update search state
+                          debouncedSearch(e.target.value); // Trigger debounced API call
+                        }}
+                        value={searchText}
+                        style={{ width: 300 }}
+                      />
+                    </div>
+                    <Table
+                      columns={columns}
+                      dataSource={consultations}
+                      rowKey="tcm_id"
+                      loading={loading}
+                      pagination={false}
+                      scroll={{ y: 500 }}
+                      onScroll={handleTableScroll}
+                      onChange={handleChange}
+                      bordered
+                      className="customize-table"
+                      tableLayout="fixed"
                     />
+                  </Space>
+                </Tabs.TabPane>
+                <Tabs.TabPane tab="Vaccination Analytics" key="vaccination">
+                  <div style={{ textAlign: "center" }}>
+                    <VaccinationAnalytics doctors={doctors} />
                   </div>
-                  <Table
-                    columns={columns}
-                    dataSource={consultations}
-                    rowKey="tcm_id"
-                    loading={loading}
-                    pagination={false}
-                    scroll={{ y: 500 }}
-                    onScroll={handleTableScroll}
-                    onChange={handleChange}
-                    bordered
-                    className="customize-table"
-                    tableLayout="fixed"
-                  />
-                </Space>
-              </Tabs.TabPane>
-              <Tabs.TabPane tab="Vaccination Analytics" key="vaccination">
-                <div style={{ textAlign: "center" }}>
-                  <VaccinationAnalytics doctors={doctors} />
-                </div>
-              </Tabs.TabPane>
-            </Tabs>
+                </Tabs.TabPane>
+              </Tabs>
+            ) : (
+              <VaccinationAnalytics doctors={doctors} />
+            )}
             <Modal
               title="Edit Remarks"
               open={remarksModalVisible}

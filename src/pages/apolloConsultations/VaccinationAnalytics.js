@@ -18,6 +18,7 @@ import {
   fetchApolloVaccinationRemarks,
   updateVaccinationRemarks,
 } from "./service";
+import { getDecodedToken } from "../../utils/localStorage";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -45,6 +46,9 @@ const VaccinationAnalytics = ({ doctors }) => {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
+
+  const decodedToken = getDecodedToken();
+  const isAdmin = decodedToken?.result?.admin;
 
   useEffect(() => {
     getApolloVaccination(true);
@@ -322,28 +326,36 @@ const VaccinationAnalytics = ({ doctors }) => {
     // Create CSV content
     const csvContent = [
       [
-        "Patient ID",
-        "Ref/MRN Id",
+        "Hosptial Name",
         "Patient Name",
         "DOB",
         "Age",
+        "Patient ID",
+        "Ref/MRN Id",
+        "Mobile",
+        "Doctor",
+        "Due Date",
         "Vaccines",
         "Status",
-        "Due Date",
         "Remarks",
       ].join(","),
-      ...dataToDownload.map((patient) =>
-        [
-          patient.patientId,
-          patient.referenceId,
-          patient.name,
-          patient.dob,
-          patient.age,
-          patient.vaccines.map((v) => `${v.name} (${v.date})`).join("; "),
-          patient.vaccines.map((v) => v.status).join("; "),
-          patient.vaccines.map((v) => v.date).join("; "),
-          patientRemarks[patient.id] || patient.remarks || "",
-        ].join(",")
+      ...dataToDownload.flatMap((patient) =>
+        patient.vaccines.map((vaccine) =>
+          [
+            "Apollo Hospital", // Hospital Name
+            patient.name,
+            patient.dob,
+            patient.age,
+            patient.patientId,
+            patient.referenceId,
+            patient.mobile || "",
+            patient.doctor || "",
+            vaccine.dueDate,
+            vaccine.name,
+            vaccine.status,
+            patientRemarks[patient.id] || patient.remarks || "",
+          ].join(",")
+        )
       ),
     ].join("\n");
 
@@ -501,7 +513,11 @@ const VaccinationAnalytics = ({ doctors }) => {
         >
           <Select
             value={statusFilter}
-            onChange={setStatusFilter}
+            onChange={(e) => {
+              setStatusFilter(e);
+              setDateFrom(dayjs());
+              setDateTo(dayjs());
+            }}
             style={{ width: 120, textAlign: "left" }}
           >
             {StatusFilterOptions.map((option) => (
@@ -511,23 +527,25 @@ const VaccinationAnalytics = ({ doctors }) => {
             ))}
           </Select>
 
-          <Select
-            value={selectedDoctor}
-            onChange={setSelectedDoctor}
-            style={{ width: 200, textAlign: "left" }}
-            placeholder="Select Doctor"
-          >
-            <Option key="all" value="all">
-              All Doctors
-            </Option>
-            {doctors.map((doctor, index) => {
-              return (
-                <Option key={doctor.value || index} value={doctor.value}>
-                  {doctor.text || doctor.value}
-                </Option>
-              );
-            })}
-          </Select>
+          {isAdmin > 0 && (
+            <Select
+              value={selectedDoctor}
+              onChange={setSelectedDoctor}
+              style={{ width: 200, textAlign: "left" }}
+              placeholder="Select Doctor"
+            >
+              <Option key="all" value="all">
+                All Doctors
+              </Option>
+              {doctors.map((doctor, index) => {
+                return (
+                  <Option key={doctor.value || index} value={doctor.value}>
+                    {doctor.text || doctor.value}
+                  </Option>
+                );
+              })}
+            </Select>
+          )}
 
           <DatePicker
             placeholder="Select Date"
@@ -543,11 +561,18 @@ const VaccinationAnalytics = ({ doctors }) => {
               height: "38px",
               width: "130px",
             }}
-            disabledDate={
-              statusFilter === StatusFilterOptions[0].value
-                ? (current) => current && current > dayjs()
-                : (current) => current && current < dayjs()
-            }
+            disabledDate={(current) => {
+              // Disable dates based on status filter
+              const statusDisabled =
+                statusFilter === StatusFilterOptions[0].value
+                  ? current && current > dayjs()
+                  : current && current < dayjs();
+
+              // Disable dates after dateTo
+              const dateRangeDisabled = dateTo && current && current > dateTo;
+
+              return statusDisabled || dateRangeDisabled;
+            }}
           />
 
           <DatePicker
@@ -564,11 +589,19 @@ const VaccinationAnalytics = ({ doctors }) => {
               height: "38px",
               width: "130px",
             }}
-            disabledDate={
-              statusFilter === StatusFilterOptions[0].value
-                ? (current) => current && current > dayjs()
-                : (current) => current && current < dayjs()
-            }
+            disabledDate={(current) => {
+              // Disable dates based on status filter
+              const statusDisabled =
+                statusFilter === StatusFilterOptions[0].value
+                  ? current && current > dayjs()
+                  : current && current < dayjs();
+
+              // Disable dates before dateFrom
+              const dateRangeDisabled =
+                dateFrom && current && current < dateFrom;
+
+              return statusDisabled || dateRangeDisabled;
+            }}
           />
         </div>
 
