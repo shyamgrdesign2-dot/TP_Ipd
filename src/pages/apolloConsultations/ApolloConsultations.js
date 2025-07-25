@@ -8,6 +8,7 @@ import {
   message,
   Modal,
   Button,
+  Tabs,
 } from "antd";
 import {
   fetchApolloConsultations,
@@ -23,8 +24,10 @@ import Header from "../../common/Header";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { throttle, debounce } from "lodash";
 
-import { saveAs } from 'file-saver';
-import * as XLSX from 'xlsx';
+import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
+import VaccinationAnalytics from "./VaccinationAnalytics";
+import "./ApolloConsultations.scss";
 
 const { Text } = Typography;
 
@@ -50,6 +53,7 @@ const ConsultationDetailsPage = () => {
   const [modalContent, setModalContent] = useState({ title: "", list: [] });
   const MAX_REMARKS_LENGTH = 50;
   const [excelLoading, setExcelLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("patient");
 
   useEffect(() => {
     if (doctors?.length > 0) {
@@ -60,6 +64,10 @@ const ConsultationDetailsPage = () => {
   useEffect(() => {
     fetchDoctors();
   }, []);
+
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+  };
 
   // Fetch consultations
   const fetchConsultations = async (resetData = false) => {
@@ -426,9 +434,9 @@ const ConsultationDetailsPage = () => {
             ? filters.selectedDoctors?.join(",")
             : doctors?.map((doc) => doc.value)?.join(","),
         search: filters.search || "",
-        download: true
+        download: true,
       };
-      setExcelLoading(true)
+      setExcelLoading(true);
       const { consultationsList } = await fetchApolloConsultations(params);
       const workSheetColumnNames = [
         "Patient Name",
@@ -444,16 +452,26 @@ const ConsultationDetailsPage = () => {
         "Remaks",
       ];
 
-      const data = []
-      consultationsList.map(e => {
-        let crossConsultList = [], vaccinationPackagesList = [], additionalInvestigationsList = []
-        const crossConsultData = e?.dynamicModules?.find((item) => item?.name === "Cross Consult / Referred to")
+      const data = [];
+      consultationsList.map((e) => {
+        let crossConsultList = [],
+          vaccinationPackagesList = [],
+          additionalInvestigationsList = [];
+        const crossConsultData = e?.dynamicModules?.find(
+          (item) => item?.name === "Cross Consult / Referred to"
+        );
         if (crossConsultData?.content?.length > 0) {
-          crossConsultList = crossConsultData?.content?.map((item) => item.title)
+          crossConsultList = crossConsultData?.content?.map(
+            (item) => item.title
+          );
         }
-        const vaccinationPackageData = e?.dynamicModules?.find((item) => item?.name === "Vaccination Packages");
+        const vaccinationPackageData = e?.dynamicModules?.find(
+          (item) => item?.name === "Vaccination Packages"
+        );
         if (vaccinationPackageData?.content?.length > 0) {
-          vaccinationPackagesList = vaccinationPackageData?.content?.map((item) => item.title)
+          vaccinationPackagesList = vaccinationPackageData?.content?.map(
+            (item) => item.title
+          );
         }
         const additionalInvestigationsData = e?.dynamicModules?.find(
           (item) =>
@@ -461,19 +479,28 @@ const ConsultationDetailsPage = () => {
             "Additional Investigation (Not Found in Standard Master List)"
         );
         if (additionalInvestigationsData?.content?.length > 0) {
-          additionalInvestigationsList = additionalInvestigationsData?.content?.map((item) => item.title)
+          additionalInvestigationsList =
+            additionalInvestigationsData?.content?.map((item) => item.title);
         }
 
         const sizes = [
           { name: "investigation", size: e?.investigations?.length },
-          { name: "additionalInvestigations", size: additionalInvestigationsList?.length },
+          {
+            name: "additionalInvestigations",
+            size: additionalInvestigationsList?.length,
+          },
           { name: "vaccination", size: e?.vaccinations?.length },
           { name: "surgerie", size: e?.surgeries?.length },
           { name: "crossConsult", size: crossConsultList?.length },
-          { name: "vaccinationPackages", size: vaccinationPackagesList?.length }
+          {
+            name: "vaccinationPackages",
+            size: vaccinationPackagesList?.length,
+          },
         ];
 
-        const largest = sizes.reduce((max, current) => current.size > max.size ? current : max);
+        const largest = sizes.reduce((max, current) =>
+          current.size > max.size ? current : max
+        );
 
         if (largest?.size > 0) {
           if (largest?.name === "investigation") {
@@ -487,8 +514,9 @@ const ConsultationDetailsPage = () => {
                 additionalInvestigationsList[index] !== undefined
                   ? additionalInvestigationsList[index]
                   : "",
-                e?.surgeries[index] !== undefined ? e?.surgeries[index] : '',
-                crossConsultList[index] !== undefined ? crossConsultList[index]
+                e?.surgeries[index] !== undefined ? e?.surgeries[index] : "",
+                crossConsultList[index] !== undefined
+                  ? crossConsultList[index]
                   : "",
                 e?.vaccinations[index] !== undefined
                   ? e?.vaccinations[index]
@@ -628,27 +656,29 @@ const ConsultationDetailsPage = () => {
             e?.apolloId,
             moment.utc(e?.consultationDateTime).format("DD/MM/YY hh:mm A"),
             e?.doctorName,
-            e?.investigations.join(', '),
-            e?.vaccinations.join(', '),
-            e?.surgeries.join(', '),
-            crossConsultList.join(', '),
-            vaccinationPackagesList.join(', '),
-            e?.remarks
-          ])
+            e?.investigations.join(", "),
+            e?.vaccinations.join(", "),
+            e?.surgeries.join(", "),
+            crossConsultList.join(", "),
+            vaccinationPackagesList.join(", "),
+            e?.remarks,
+          ]);
         }
-      })
+      });
 
-      const workSheetData = [
-        workSheetColumnNames,
-        ...data
-      ];
+      const workSheetData = [workSheetColumnNames, ...data];
       const worksheet = XLSX.utils.aoa_to_sheet(workSheetData);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-      const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      const blob = new Blob([excelBuffer], {
+        type: "application/octet-stream",
+      });
       saveAs(blob, `Apollo.xlsx`);
-      setExcelLoading(false)
+      setExcelLoading(false);
     } catch (error) {
       message.error("Failed to fetch consultations");
     }
@@ -664,129 +694,159 @@ const ConsultationDetailsPage = () => {
             className={`w-100 bg-body ${isMobile ? "vh-100" : "wrapper"}`}
             style={{ padding: "20px" }}
           >
-            <Space
-              className="position-relative"
-              direction="vertical"
-              style={{ gap: "20px" }}
+            <Tabs
+              activeKey={activeTab}
+              onChange={handleTabChange}
+              style={{ marginBottom: "20px" }}
+              className="apollo-analytics-tab"
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <Space>
-                  <DatePicker
-                    value={filters.startDate ? dayjs(filters.startDate) : ""}
-                    onChange={handleStartDateChange}
-                    format="DD-MM-YYYY"
-                    placeholder="Start Date"
-                    disabledDate={
-                      (current) =>
-                        current &&
-                        current > dayjs(filters?.endDate).endOf("day") // Disable dates after the selected end date
-                    }
-                  />
-                  <DatePicker
-                    value={filters.endDate ? dayjs(filters.endDate) : ""}
-                    onChange={handleEndDateChange}
-                    format="DD-MM-YYYY"
-                    placeholder="End Date"
-                    disabledDate={(current) =>
-                      current &&
-                      (current < dayjs(filters?.startDate).startOf("day") ||
-                        current >= moment().add(1, "days").startOf("day"))
-                    }
-                  />
-                  <b>Total Count: {totalRecords}</b>
-                  <Button onClick={exportToExcel} loading={excelLoading} className="btn btn-input rounded-1 px-2 ms-2" disabled={filters?.startDate && filters?.endDate && dayjs(filters?.endDate).diff(dayjs(filters?.startDate), 'days') <= 7 ? false : true}>
-                    <i className="icon-download"></i>
-                  </Button>
-                </Space>
-                <Input
-                  placeholder="Search by Patient Name or Apollo ID"
-                  allowClear
-                  onChange={(e) => {
-                    setSearchText(e.target.value); // Update search state
-                    debouncedSearch(e.target.value); // Trigger debounced API call
-                  }}
-                  value={searchText}
-                  style={{ width: 300 }}
-                />
-              </div>
-              <Table
-                columns={columns}
-                dataSource={consultations}
-                rowKey="tcm_id"
-                loading={loading}
-                pagination={false}
-                scroll={{ y: 500 }}
-                onScroll={handleTableScroll}
-                onChange={handleChange}
-                bordered
-                className="customize-table"
-                tableLayout="fixed"
-              />
-              <Modal
-                title="Edit Remarks"
-                open={remarksModalVisible}
-                onCancel={() => setRemarksModalVisible(false)}
-                footer={[
-                  <Button
-                    key="cancel"
-                    onClick={() => setRemarksModalVisible(false)}
+              <Tabs.TabPane tab="Patient Analytics" key="patient">
+                <Space
+                  className="position-relative"
+                  direction="vertical"
+                  style={{ gap: "20px" }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
                   >
-                    Cancel
-                  </Button>,
-                  <Button key="save" type="primary" onClick={updateRemarks}>
-                    Save Remarks
-                  </Button>,
-                ]}
-              >
-                {selectedConsultation && (
-                  <Space direction="vertical" style={{ width: "100%" }}>
-                    <Text strong>Doctor:</Text>
-                    <Text>{selectedConsultation.doctorName}</Text>
-                    <Text strong>Patient:</Text>
-                    <Text>{selectedConsultation.patientName}</Text>
-                    <Text strong>Consultation Date:</Text>
-                    <Text>
-                      {moment(selectedConsultation.consultationDateTime).format(
-                        "DD/MM/YY hh:mm A"
-                      )}
-                    </Text>
-                    <Text strong>Remarks:</Text>
-                    <Input.TextArea
-                      value={editedRemarks}
-                      onChange={(e) => setEditedRemarks(e.target.value)}
-                      autoSize={{ minRows: 4, maxRows: 8 }}
-                      placeholder="Enter remarks here"
+                    <Space>
+                      <DatePicker
+                        value={
+                          filters.startDate ? dayjs(filters.startDate) : ""
+                        }
+                        onChange={handleStartDateChange}
+                        format="DD-MM-YYYY"
+                        placeholder="Start Date"
+                        disabledDate={
+                          (current) =>
+                            current &&
+                            current > dayjs(filters?.endDate).endOf("day") // Disable dates after the selected end date
+                        }
+                      />
+                      <DatePicker
+                        value={filters.endDate ? dayjs(filters.endDate) : ""}
+                        onChange={handleEndDateChange}
+                        format="DD-MM-YYYY"
+                        placeholder="End Date"
+                        disabledDate={(current) =>
+                          current &&
+                          (current < dayjs(filters?.startDate).startOf("day") ||
+                            current >= moment().add(1, "days").startOf("day"))
+                        }
+                      />
+                      <b>Total Count: {totalRecords}</b>
+                      <Button
+                        onClick={exportToExcel}
+                        loading={excelLoading}
+                        className="btn btn-input rounded-1 px-2 ms-2"
+                        disabled={
+                          filters?.startDate &&
+                          filters?.endDate &&
+                          dayjs(filters?.endDate).diff(
+                            dayjs(filters?.startDate),
+                            "days"
+                          ) <= 7
+                            ? false
+                            : true
+                        }
+                      >
+                        <i className="icon-download"></i>
+                      </Button>
+                    </Space>
+                    <Input
+                      placeholder="Search by Patient Name or Apollo ID"
+                      allowClear
+                      onChange={(e) => {
+                        setSearchText(e.target.value); // Update search state
+                        debouncedSearch(e.target.value); // Trigger debounced API call
+                      }}
+                      value={searchText}
+                      style={{ width: 300 }}
                     />
-                  </Space>
-                )}
-              </Modal>
-              <Modal
-                title={modalContent.title}
-                open={visibleModal}
-                onCancel={() => setVisibleModal(false)}
-                footer={[
-                  <Button key="close" onClick={() => setVisibleModal(false)}>
-                    Close
-                  </Button>,
-                ]}
-              >
-                {modalContent.list && modalContent.list.length > 0 ? (
-                  <ul>
-                    {modalContent.list.map((item, index) => (
-                      <li key={index}>{item}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <Text>No data available</Text>
-                )}
-              </Modal>
-            </Space>
+                  </div>
+                  <Table
+                    columns={columns}
+                    dataSource={consultations}
+                    rowKey="tcm_id"
+                    loading={loading}
+                    pagination={false}
+                    scroll={{ y: 500 }}
+                    onScroll={handleTableScroll}
+                    onChange={handleChange}
+                    bordered
+                    className="customize-table"
+                    tableLayout="fixed"
+                  />
+                </Space>
+              </Tabs.TabPane>
+              <Tabs.TabPane tab="Vaccination Analytics" key="vaccination">
+                <div style={{ textAlign: "center" }}>
+                  <VaccinationAnalytics doctors={doctors} />
+                </div>
+              </Tabs.TabPane>
+            </Tabs>
+            <Modal
+              title="Edit Remarks"
+              open={remarksModalVisible}
+              onCancel={() => setRemarksModalVisible(false)}
+              footer={[
+                <Button
+                  key="cancel"
+                  onClick={() => setRemarksModalVisible(false)}
+                >
+                  Cancel
+                </Button>,
+                <Button key="save" type="primary" onClick={updateRemarks}>
+                  Save Remarks
+                </Button>,
+              ]}
+            >
+              {selectedConsultation && (
+                <Space direction="vertical" style={{ width: "100%" }}>
+                  <Text strong>Doctor:</Text>
+                  <Text>{selectedConsultation.doctorName}</Text>
+                  <Text strong>Patient:</Text>
+                  <Text>{selectedConsultation.patientName}</Text>
+                  <Text strong>Consultation Date:</Text>
+                  <Text>
+                    {moment(selectedConsultation.consultationDateTime).format(
+                      "DD/MM/YY hh:mm A"
+                    )}
+                  </Text>
+                  <Text strong>Remarks:</Text>
+                  <Input.TextArea
+                    value={editedRemarks}
+                    onChange={(e) => setEditedRemarks(e.target.value)}
+                    autoSize={{ minRows: 4, maxRows: 8 }}
+                    placeholder="Enter remarks here"
+                  />
+                </Space>
+              )}
+            </Modal>
+            <Modal
+              title={modalContent.title}
+              open={visibleModal}
+              onCancel={() => setVisibleModal(false)}
+              footer={[
+                <Button key="close" onClick={() => setVisibleModal(false)}>
+                  Close
+                </Button>,
+              ]}
+            >
+              {modalContent.list && modalContent.list.length > 0 ? (
+                <ul>
+                  {modalContent.list.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              ) : (
+                <Text>No data available</Text>
+              )}
+            </Modal>
           </div>
         </div>
       </>
