@@ -8,18 +8,18 @@ import {
   message,
   DatePicker,
   Dropdown,
-  Menu,
+  Spin,
 } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { throttle } from "lodash";
 import {
   fetchApolloVaccination,
   fetchApolloVaccinationRemarks,
   updateVaccinationRemarks,
 } from "./service";
-import { useSelector } from "react-redux";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 const { Option } = Select;
 
 const StatusFilterOptions = [
@@ -28,13 +28,11 @@ const StatusFilterOptions = [
 ];
 
 const VaccinationAnalytics = ({ doctors }) => {
-  const { userId } = useSelector((state) => state.doctors);
   const [selectedPatients, setSelectedPatients] = useState([]);
   const [expandedRows, setExpandedRows] = useState([]);
   const [statusFilter, setStatusFilter] = useState("OVERDUE");
   const [dateFrom, setDateFrom] = useState(dayjs());
   const [dateTo, setDateTo] = useState(dayjs());
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedDoctor, setSelectedDoctor] = useState("all");
   const [patientRemarks, setPatientRemarks] = useState({});
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
@@ -47,49 +45,36 @@ const VaccinationAnalytics = ({ doctors }) => {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
 
   useEffect(() => {
-    getApolloVaccination();
+    getApolloVaccination(true);
     fetchConsultations();
   }, [dateFrom, dateTo, selectedDoctor]);
 
-  const getApolloVaccination = async () => {
+  const getApolloVaccination = async (resetData = false) => {
+    if (!hasMore && !resetData) return;
     setLoading(true);
-    let allVaccines = [];
-    let currentPage = 1;
-    let hasMoreData = true;
-    let totalCount = 0;
-
     try {
-      while (hasMoreData) {
-        const res = await fetchApolloVaccination(
-          selectedDoctor === "all"
-            ? doctors?.map((item) => item.value).join(",")
-            : selectedDoctor,
-          dateFrom?.format("YYYY-MM-DD"),
-          dateTo?.format("YYYY-MM-DD"),
-          currentPage
-        );
+      const res = await fetchApolloVaccination(
+        selectedDoctor === "all"
+          ? doctors?.map((item) => item.value).join(",")
+          : selectedDoctor,
+        dateFrom?.format("YYYY-MM-DD"),
+        dateTo?.format("YYYY-MM-DD"),
+        resetData ? 1 : page,
+        20
+      );
 
-        if (res?.vaccines && res.vaccines.length > 0) {
-          allVaccines = [...allVaccines, ...res.vaccines];
-          totalCount = res.totalCount || 0;
-
-          // Check if we've fetched all data
-          if (allVaccines.length >= totalCount || res.vaccines.length === 0) {
-            hasMoreData = false;
-          } else {
-            currentPage++;
-          }
-        } else {
-          hasMoreData = false;
-        }
+      if (res?.vaccines) {
+        const formattedData = transformVaccineData(res.vaccines);
+        setVaccinationData((prev) => {
+          return resetData ? [...formattedData] : [...prev, ...formattedData];
+        });
+        setPage(resetData ? 2 : page + 1);
+        setHasMore(res.pagination?.hasNextPage || false);
+      } else {
+        setHasMore(false);
       }
-
-      const formattedData = transformVaccineData(allVaccines);
-      setVaccinationData(formattedData);
-      setTotalRecords(totalCount);
     } catch (error) {
       message.error("Failed to fetch vaccination data");
     } finally {
@@ -223,6 +208,19 @@ const VaccinationAnalytics = ({ doctors }) => {
       [patientId]: false,
     }));
   };
+
+  // Handle infinite scroll
+  const handleScroll = throttle((e) => {
+    const { target } = e;
+    if (
+      Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) <=
+        5 &&
+      hasMore &&
+      !loading
+    ) {
+      getApolloVaccination();
+    }
+  }, 500);
 
   // Transform vaccine data to group by patient
   const transformVaccineData = (vaccineData) => {
@@ -638,8 +636,11 @@ const VaccinationAnalytics = ({ doctors }) => {
         </div>
 
         {/* Patient List */}
-        <div style={{ maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}>
-          {loading ? (
+        <div
+          style={{ maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}
+          onScroll={handleScroll}
+        >
+          {loading && vaccinationData.length === 0 ? (
             <div style={{ textAlign: "center", padding: "32px" }}>
               <Text>Loading vaccination data...</Text>
             </div>
@@ -924,6 +925,13 @@ const VaccinationAnalytics = ({ doctors }) => {
           )}
         </div>
 
+        {/* Loading more indicator */}
+        {loading && vaccinationData.length > 0 && (
+          <div style={{ textAlign: "center", padding: "16px" }}>
+            <Spin size="small" />
+          </div>
+        )}
+
         {/* No patients message */}
         {!loading && vaccinationData?.length === 0 && (
           <div
@@ -932,44 +940,6 @@ const VaccinationAnalytics = ({ doctors }) => {
             <Text>No patients found for the selected filters.</Text>
           </div>
         )}
-
-        {/* Pagination */}
-        {/* <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "32px",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <Button
-              type="text"
-              icon={<i className="icon-right" />}
-              style={{ color: "#d9d9d9" }}
-            />
-            <Button
-              type="primary"
-              style={{
-                backgroundColor: "#4b4ad5",
-                borderColor: "#4b4ad5",
-                width: 32,
-                height: 32,
-                borderRadius: 4,
-                color: "white",
-                fontSize: "14px",
-                fontWeight: 500,
-              }}
-            >
-              1
-            </Button>
-            <Button
-              type="text"
-              icon={<i className="icon-right" />}
-              className="iconrotate180"
-              style={{ color: "#d9d9d9" }}
-            />
-          </div>
-        </div> */}
       </div>
     </div>
   );

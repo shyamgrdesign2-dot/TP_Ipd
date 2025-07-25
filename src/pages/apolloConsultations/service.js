@@ -55,14 +55,14 @@ export const fetchApolloVaccination = async (
   created_by,
   start_date,
   end_date,
-  page,
-  limit
+  page = 1,
+  limit = 20
 ) => {
   let res;
 
   try {
     res = await api.get(
-      `/vaccination/dueandoverdue?created_by=${created_by}&start_date=${start_date}&end_date=${end_date}`,
+      `/vaccination/dueandoverdue?created_by=${created_by}&start_date=${start_date}&end_date=${end_date}&page=${page}&limit=${limit}`,
       vaccinationBaseUrl
     );
   } catch (e) {
