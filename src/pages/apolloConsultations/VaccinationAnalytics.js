@@ -37,6 +37,16 @@ const VaccinationAnalytics = ({ doctors }) => {
   const [statusFilter, setStatusFilter] = useState("OVERDUE");
   const [dateFrom, setDateFrom] = useState(dayjs());
   const [dateTo, setDateTo] = useState(dayjs());
+
+  // Ensure dates are always set
+  useEffect(() => {
+    if (!dateFrom) {
+      setDateFrom(dayjs());
+    }
+    if (!dateTo) {
+      setDateTo(dayjs());
+    }
+  }, [dateFrom, dateTo]);
   const [selectedDoctor, setSelectedDoctor] = useState("all");
   const [patientRemarks, setPatientRemarks] = useState({});
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
@@ -52,6 +62,28 @@ const VaccinationAnalytics = ({ doctors }) => {
 
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
+
+  // Filter vaccination data based on status for display
+  const filteredVaccinationData = vaccinationData
+    .map((patient) => {
+      if (statusFilter === "All") return patient;
+
+      // Filter vaccines based on status
+      const filteredVaccines = patient.vaccines.filter((vaccine) => {
+        if (statusFilter === "DUE") {
+          return vaccine.status === "DUE";
+        } else if (statusFilter === "OVERDUE") {
+          return vaccine.status === "OVERDUE";
+        }
+        return true;
+      });
+
+      return {
+        ...patient,
+        vaccines: filteredVaccines,
+      };
+    })
+    .filter((patient) => patient.vaccines.length > 0);
 
   useEffect(() => {
     getApolloVaccination(true);
@@ -246,8 +278,9 @@ const VaccinationAnalytics = ({ doctors }) => {
           } ${vaccine.pm_last_name || ""}`.trim(),
           age: calculateAge(vaccine.pm_dob),
           dob: dayjs(vaccine.pm_dob).format("DD-MM-YYYY"),
-          mobile: "", // Not available in the data
-          doctor: "Dr. Default", // Not available in the data
+          mobile: vaccine.pm_contact_no,
+          doctor: vaccine.um_name,
+          hospitalName: vaccine.hm_name,
           vaccines: [],
           remarks: vaccine.tvd_remarks || "",
         });
@@ -292,10 +325,10 @@ const VaccinationAnalytics = ({ doctors }) => {
   };
 
   const selectAllPatients = () => {
-    if (selectedPatients.length === vaccinationData.length) {
+    if (selectedPatients.length === filteredVaccinationData.length) {
       setSelectedPatients([]);
     } else {
-      setSelectedPatients(vaccinationData?.map((p) => p.id));
+      setSelectedPatients(filteredVaccinationData?.map((p) => p.id));
     }
   };
 
@@ -313,13 +346,25 @@ const VaccinationAnalytics = ({ doctors }) => {
     if (filter === "all") {
       dataToDownload = vaccinationData;
     } else if (filter === StatusFilterOptions[1].value) {
-      dataToDownload = vaccinationData.filter((patient) =>
-        patient.vaccines.some((v) => v.status === StatusFilterOptions[1].value)
-      );
+      // Filter patients and their vaccines to only include DUE vaccines
+      dataToDownload = vaccinationData
+        .map((patient) => ({
+          ...patient,
+          vaccines: patient.vaccines.filter(
+            (v) => v.status === StatusFilterOptions[1].value
+          ),
+        }))
+        .filter((patient) => patient.vaccines.length > 0);
     } else if (filter === StatusFilterOptions[0].value) {
-      dataToDownload = vaccinationData.filter((patient) =>
-        patient.vaccines.some((v) => v.status === StatusFilterOptions[0].value)
-      );
+      // Filter patients and their vaccines to only include OVERDUE vaccines
+      dataToDownload = vaccinationData
+        .map((patient) => ({
+          ...patient,
+          vaccines: patient.vaccines.filter(
+            (v) => v.status === StatusFilterOptions[0].value
+          ),
+        }))
+        .filter((patient) => patient.vaccines.length > 0);
     } else if (filter === "selected") {
       dataToDownload = vaccinationData.filter((patient) =>
         selectedPatients.includes(patient.id)
@@ -345,14 +390,14 @@ const VaccinationAnalytics = ({ doctors }) => {
       ...dataToDownload.flatMap((patient) =>
         patient.vaccines.map((vaccine) =>
           [
-            patient.hm_name,
+            patient.hospitalName,
             patient.name,
             patient.dob,
             patient.age,
             patient.patientId,
             patient.referenceId,
             patient.mobile,
-            patient.um_name,
+            patient.doctor,
             vaccine.dueDate,
             vaccine.name,
             vaccine.status,
@@ -556,13 +601,16 @@ const VaccinationAnalytics = ({ doctors }) => {
           <DatePicker
             placeholder="Select Date"
             onChange={(_, d) => {
-              setDateFrom(d ? dayjs(d, "DD-MM-YYYY") : null);
+              // Prevent clearing the date
+              if (!d) return;
+              setDateFrom(dayjs(d, "DD-MM-YYYY"));
             }}
             format={{
               format: "DD-MM-YYYY",
               type: "mask",
             }}
             value={dateFrom}
+            allowClear={false}
             style={{
               height: "38px",
               width: "130px",
@@ -584,13 +632,16 @@ const VaccinationAnalytics = ({ doctors }) => {
           <DatePicker
             placeholder="Select Date"
             onChange={(_, d) => {
-              setDateTo(d ? dayjs(d, "DD-MM-YYYY") : null);
+              // Prevent clearing the date
+              if (!d) return;
+              setDateTo(dayjs(d, "DD-MM-YYYY"));
             }}
             format={{
               format: "DD-MM-YYYY",
               type: "mask",
             }}
             value={dateTo}
+            allowClear={false}
             style={{
               height: "38px",
               width: "130px",
@@ -642,7 +693,7 @@ const VaccinationAnalytics = ({ doctors }) => {
               Total Patient Count:{" "}
               {selectedPatients.length > 0
                 ? selectedPatients.length
-                : vaccinationData.length}{" "}
+                : filteredVaccinationData.length}{" "}
             </Text>
           </div>
 
@@ -679,13 +730,13 @@ const VaccinationAnalytics = ({ doctors }) => {
           style={{ maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}
           onScroll={handleScroll}
         >
-          {loading && vaccinationData.length === 0 ? (
+          {loading && filteredVaccinationData.length === 0 ? (
             <div style={{ textAlign: "center", padding: "32px" }}>
               <Text>Loading vaccination data...</Text>
             </div>
           ) : (
-            vaccinationData &&
-            vaccinationData?.map((patient, index) => (
+            filteredVaccinationData &&
+            filteredVaccinationData?.map((patient, index) => (
               <div key={patient.id}>
                 {/* Patient Row */}
                 <div
@@ -965,14 +1016,14 @@ const VaccinationAnalytics = ({ doctors }) => {
         </div>
 
         {/* Loading more indicator */}
-        {loading && vaccinationData.length > 0 && (
+        {loading && filteredVaccinationData.length > 0 && (
           <div style={{ textAlign: "center", padding: "16px" }}>
             <Spin size="small" />
           </div>
         )}
 
         {/* No patients message */}
-        {!loading && vaccinationData?.length === 0 && (
+        {!loading && filteredVaccinationData?.length === 0 && (
           <div
             style={{ textAlign: "center", padding: "32px", color: "#8c8c8c" }}
           >
