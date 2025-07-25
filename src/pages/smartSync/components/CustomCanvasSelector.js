@@ -6,7 +6,16 @@ const { Option } = Select;
 const { Text } = Typography;
 
 const CustomCanvasSelector = ({ templates, selectedTemplateId, onTemplateSelect, onAddEditCanvas, onUploadNew }) => {
+  console.log('🎨 CustomCanvasSelector rendered with:', { 
+    templatesCount: templates?.length, 
+    selectedTemplateId,
+    templates: templates?.map(t => ({ id: t.id, title: t.title }))
+  });
+
+  // SCENARIO 1: NO TEMPLATES - Show simple "Add custom Rx Canvas" UI
   if (!templates || templates.length === 0) {
+    console.log('📋 No templates found - showing simple UI');
+    console.log('📋 Rendering: "Add custom Rx Canvas" with Know more and New badge');
     return (
       <div className="prescription-box-sm p-14 mb-14" style={{ width: "720px" }}>
         <div className="d-flex align-items-center justify-content-between">
@@ -75,11 +84,16 @@ const CustomCanvasSelector = ({ templates, selectedTemplateId, onTemplateSelect,
     );
   }
 
+  // SCENARIO 2: TEMPLATES EXIST - Show advanced dropdown selection UI
+  console.log('🎯 Templates found - showing dropdown UI');
+  
+  // Find selected template to show page info
   const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
   const pageCount = selectedTemplate?.uploaded_files?.length || 0;
 
   return (
     <div className="prescription-box-sm p-14 mb-14" style={{ width: "720px" }}>
+      {/* Header Row */}
       <div className="d-flex align-items-center justify-content-between mb-3">
         <div className="d-flex align-items-center">
           <i className="icon-template me-2" style={{ 
@@ -107,6 +121,7 @@ const CustomCanvasSelector = ({ templates, selectedTemplateId, onTemplateSelect,
           </button>
         </div>
         
+        {/* Template Selection Dropdown on the RIGHT */}
         <div style={{ minWidth: "200px" }}>
           <Select
             value={selectedTemplateId || undefined}
@@ -171,6 +186,7 @@ const CustomCanvasSelector = ({ templates, selectedTemplateId, onTemplateSelect,
                     </div>
                   </Radio.Group>
                   
+                  {/* Separator and Add/Edit button */}
                   <div style={{ 
                     borderTop: "1px solid #f0f0f0",
                     marginTop: "8px",
@@ -199,6 +215,7 @@ const CustomCanvasSelector = ({ templates, selectedTemplateId, onTemplateSelect,
               </div>
             )}
           >
+            {/* Dummy options for display value */}
             <Option value="none">None</Option>
             {templates.map(template => (
               <Option key={template.id} value={template.id}>
@@ -209,6 +226,7 @@ const CustomCanvasSelector = ({ templates, selectedTemplateId, onTemplateSelect,
         </div>
       </div>
 
+      {/* Page Information */}
       {selectedTemplate && selectedTemplateId !== 'none' && (
         <div 
           className="page-info d-flex align-items-center justify-content-between mt-3"

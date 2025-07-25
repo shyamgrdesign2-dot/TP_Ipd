@@ -548,21 +548,30 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       return;
     }
     
+    // Prepare template data for API
+    console.log('🔧 Preparing template data for upload...');
+    
+    // Create proper file objects for each page
     const filesForUpload = await Promise.all(
       file.pages.map(async (page, index) => {
         let fileToUpload = page.uploadFile;
         
+        // If no uploadFile exists, create one from the image data
         if (!fileToUpload) {
           if (page.showFile || page.image) {
             try {
+              // Use showFile (which could be cropped image) or fallback to original image
               const imageData = page.showFile || page.image;
+              console.log(`🖼️ Creating File object for page ${index + 1}`);
+              
+              // Convert image to File object
               fileToUpload = await dataUrlToFileUsingFetch(
                 imageData,
                 `rx-template-page-${index + 1}.png`,
                 'image/png'
               );
             } catch (error) {
-              console.error(`Failed to create File object for page ${index + 1}:`, error);
+              console.error(`❌ Failed to create File object for page ${index + 1}:`, error);
               throw new Error(`Failed to prepare file for page ${index + 1}: ${error.message}`);
             }
           } else {
@@ -588,47 +597,63 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       files: filesForUpload
     };
     
+    console.log(`✅ Template data prepared: "${templateData.title}" with ${templateData.files.length} files`);
+    
     // Upload template via API
     handleApiUpload(templateData);
   };
 
+  // Handle API upload with progress tracking
   const handleApiUpload = async (templateData) => {
     setIsProcessing(true);
     
     try {
       message.loading('Uploading template...', 0);
       
+      console.log('📤 Starting API upload...');
       const result = await uploadCustomSyncPadTemplate(
         templateData,
         (progress) => {
+          // Update progress
           message.destroy();
           message.loading(`Uploading... ${progress}%`, 0);
         }
       );
       
       message.destroy();
+      console.log('📋 Upload result received:', { success: result.success, hasData: !!result.data, error: result.error });
       
       if (result.success) {
+        console.log('✅ Upload successful, calling onSave and closing...');
         message.success('Template uploaded successfully!');
         
+        // Call the onSave callback with the response data
         if (onSave) {
+          console.log('📞 Calling onSave callback...');
           onSave(result.data);
         }
         
+        console.log('🚪 Closing drawer...');
         onClose();
         
+        // Reset state
+        console.log('🧹 Resetting state...');
         setFile(null);
         setZoom(1);
         setSelectedPageIndex(0);
         setIsProcessing(false);
+        
+        console.log('✅ Upload process completed successfully');
       } else {
+        console.log('❌ Upload failed with error:', result.error);
         message.error(result.error || 'Failed to upload template');
         setIsProcessing(false);
       }
       
     } catch (error) {
       message.destroy();
-      console.error('Exception in handleApiUpload:', error);
+      console.error('💥 Exception in handleApiUpload:', error);
+      console.error('Error stack:', error.stack);
       message.error('Failed to save template. Please try again.');
       setIsProcessing(false);
     }
@@ -1118,7 +1143,7 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
                       message.error('Failed to load image for cropping. Please try again.');
                     }}
                     ready={() => {
-              
+                      // console.log('Cropper ready for page:', selectedPageIndex + 1);
                     }}
                     cropend={() => {
                       // Auto-save when user finishes cropping

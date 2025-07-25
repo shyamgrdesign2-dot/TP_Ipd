@@ -358,19 +358,24 @@ function SmartPrescription() {
 
   // Function to load templates from API
   const loadCustomTemplates = async () => {
+    console.log('📋 Loading custom templates on SmartPrescription page...');
     try {
       const result = await getCustomSyncPadTemplates();
       if (result.success && result.data && result.data.length > 0) {
+        console.log('✅ Templates loaded successfully:', result.data.length, 'templates');
         setTemplates(result.data);
+        // Auto-select the first template if none is selected
         if (!selectedTemplateId) {
+          console.log('🎯 Auto-selecting first template:', result.data[0].title);
           setSelectedTemplateId(result.data[0].id);
         }
       } else {
+        console.log('⚠️ No templates found or failed to load');
         setTemplates([]);
         setSelectedTemplateId(null);
       }
     } catch (error) {
-      console.error('Error loading templates:', error);
+      console.error('❌ Error loading templates:', error);
       setTemplates([]);
     }
   };

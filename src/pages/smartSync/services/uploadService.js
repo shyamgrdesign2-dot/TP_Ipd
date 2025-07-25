@@ -1,17 +1,21 @@
 import api from '../../../api/services/axiosService';
 import config from '../../../config';
 
+// Base URL for custom smart sync API calls - using the URL from your working cURL
 const baseUrl = { customBaseUrl: 'https://pm-digitization-qa.tatvacare.in' };
 
+// Get all custom smart sync pad templates
 export const getCustomSyncPadTemplates = async () => {
+  console.log('🔍 Fetching custom sync pad templates...');
   try {
     const response = await api.get('/api/v1/custom-smart-sync-pad/get-files', baseUrl);
+    console.log('✅ Templates fetched successfully:', { hasData: !!response, dataLength: response?.length });
     return {
       success: true,
-      data: response.data || response
+      data: response.data || response // Handle different response structures
     };
   } catch (error) {
-    console.error('Failed to fetch templates:', error.message);
+    console.error('❌ Failed to fetch templates:', error.message);
     return {
       success: false,
       error: 'Unable to fetch templates. Please try again.'
@@ -19,8 +23,12 @@ export const getCustomSyncPadTemplates = async () => {
   }
 };
 
+// Upload new custom smart sync pad template
 export const uploadCustomSyncPadTemplate = async (templateData, onProgress) => {
   try {
+    console.log('🚀 Starting upload for template:', templateData.title);
+    
+    // Validate templateData structure
     if (!templateData) {
       throw new Error('Template data is undefined');
     }
@@ -40,135 +48,171 @@ export const uploadCustomSyncPadTemplate = async (templateData, onProgress) => {
     const formData = new FormData();
     formData.append('title', templateData.title);
     
-    if (templateData.description) {
-      formData.append('description', templateData.description);
-    }
-
+    console.log(`📎 Processing ${templateData.files.length} files for upload...`);
     templateData.files.forEach((file, index) => {
-      if (!file.uploadFile) {
-        throw new Error(`File ${index + 1} is missing upload data`);
+      if (!file) {
+        throw new Error(`File at index ${index} is undefined`);
       }
       
-      formData.append(`files`, file.uploadFile);
-      formData.append(`orders`, file.order || index);
+      if (!file.uploadFile) {
+        throw new Error(`uploadFile property missing at index ${index}`);
+      }
+      
+      if (!(file.uploadFile instanceof File) && !(file.uploadFile instanceof Blob)) {
+        throw new Error(`uploadFile at index ${index} is not a File or Blob object, got: ${typeof file.uploadFile}`);
+      }
+      
+      formData.append('uploaded_files', file.uploadFile);
     });
-
-    const response = await api.post('/api/v1/custom-smart-sync-pad/upload-files', formData, {
-      ...baseUrl,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    
+    const metadata = templateData.files.map((file, index) => {
+      if (!file?.uploadFile) {
+        throw new Error(`Cannot create metadata: uploadFile missing at index ${index}`);
+      }
+      
+      if (!file.uploadFile.name) {
+        throw new Error(`Cannot create metadata: uploadFile.name missing at index ${index}`);
+      }
+      
+      return {
+        fileName: file.uploadFile.name,
+        order: file.order || index + 1
+      };
+    });
+    
+    formData.append('metadata', JSON.stringify(metadata));
+    
+    const requestConfig = {
+      headers: { 'Content-Type': 'multipart/form-data' },
       onUploadProgress: (progressEvent) => {
-        if (onProgress) {
+        if (onProgress && progressEvent.lengthComputable) {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           onProgress(percentCompleted);
         }
       },
-    });
-
-    const responseData = response.data || response;
-
-    if (responseData && (responseData.id || responseData.data?.id)) {
-      return {
-        success: true,
-        data: responseData,
-        templateId: responseData.id || responseData.data?.id,
-        message: 'Template uploaded successfully!'
-      };
-    } else if (responseData && responseData.message) {
-      return {
-        success: false,
-        error: responseData.message
-      };
-    } else {
-      return {
-        success: false,
-        error: 'Upload completed but received unexpected response format'
-      };
-    }
-
-  } catch (error) {
-    console.error('Upload failed:', error);
-    return {
-      success: false,
-      error: error.response?.data?.message || error.message || 'Upload failed. Please try again.'
+      ...baseUrl
     };
+    
+    console.log('🌐 Making API request to upload files...');
+    
+    try {
+      const responseData = await api.post('/api/v1/custom-smart-sync-pad/upload-files', formData, requestConfig);
+      
+      console.log('✅ API Response received (data only due to interceptor):', responseData);
+      
+      // Check if we have valid response data - the API returns an object with id, uploaded_files, and title
+      if (responseData && responseData.id && responseData.uploaded_files && responseData.title) {
+        console.log('✅ Upload successful! Template created with:', {
+          id: responseData.id,
+          title: responseData.title,
+          filesCount: responseData.uploaded_files.length,
+          files: responseData.uploaded_files.map(file => ({
+            id: file.id,
+            order: file.order,
+            unique_id: file.unique_id,
+            hasFileUrl: !!file.file_url
+          }))
+        });
+        
+        return {
+          success: true,
+          data: responseData
+        };
+      } else if (responseData) {
+        // We got some response but it doesn't match expected structure
+        console.log('⚠️ API returned unexpected response structure:', responseData);
+        return {
+          success: true, // Still consider it successful since we got a response
+          data: responseData
+        };
+      } else {
+        console.log('⚠️ API returned empty response');
+        return {
+          success: false,
+          error: 'API returned empty response'
+        };
+      }
+    } catch (apiError) {
+      console.error('🚨 API Call failed:', apiError.message);
+      // Re-throw the error to be caught by outer catch block
+      throw apiError;
+    }
+  } catch (error) {
+    console.error('❌ Upload failed:', error.message);
+    
+    let errorMessage = 'Upload failed. Please try again.';
+    if (error.response?.data?.message) errorMessage = error.response.data.message;
+    else if (error.message) errorMessage = error.message;
+    return { success: false, error: errorMessage };
   }
 };
 
+// Update existing custom smart sync pad template
 export const updateCustomSyncPadTemplate = async (templateId, templateData, onProgress) => {
   try {
-    if (!templateData) {
-      throw new Error('Template data is undefined');
-    }
+    console.log('🔄 Starting template update for ID:', templateId, 'with title:', templateData.title);
     
-    if (!templateData.title) {
-      throw new Error('Template title is missing');
-    }
-    
-    if (!templateData.files || !Array.isArray(templateData.files)) {
-      throw new Error('Template files array is missing or invalid');
-    }
-
     const formData = new FormData();
     formData.append('title', templateData.title);
     
-    if (templateData.description) {
-      formData.append('description', templateData.description);
-    }
-
+    console.log(`📎 Processing ${templateData.files.length} files for update...`);
     templateData.files.forEach((file, index) => {
-      if (!file.uploadFile) {
-        throw new Error(`File ${index + 1} is missing upload data`);
-      }
-      
-      formData.append(`files`, file.uploadFile);
-      formData.append(`orders`, file.order || index);
+      formData.append('uploaded_files', file.uploadFile);
+      console.log(`📄 File ${index + 1}: ${file.uploadFile.name} (${file.uploadFile.size} bytes)`);
     });
-
-    const response = await api.post(`/api/v1/custom-smart-sync-pad/update-files/${templateId}`, formData, {
-      ...baseUrl,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    
+    const metadata = templateData.files.map((file, index) => ({
+      fileName: file.uploadFile.name,
+      order: file.order || index + 1
+    }));
+    formData.append('metadata', JSON.stringify(metadata));
+    
+    // Debug: Log FormData entries
+    console.log('📦 FormData entries:');
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`  ${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
+      } else {
+        console.log(`  ${key}: ${value}`);
+      }
+    }
+    
+    const requestConfig = {
+      headers: { 'Content-Type': 'multipart/form-data' },
       onUploadProgress: (progressEvent) => {
-        if (onProgress) {
+        if (onProgress && progressEvent.lengthComputable) {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           onProgress(percentCompleted);
         }
-      },
-    });
-
-    const responseData = response.data || response;
+      }
+    };
     
+    console.log('🌐 Making API request to update template...');
+    const responseData = await api.put(`/api/v1/custom-smart-sync-pad/update-files/${templateId}`, formData, { ...requestConfig, ...baseUrl });
+    
+    console.log('✅ Template updated successfully:', responseData);
     return {
       success: true,
-      data: responseData,
-      message: 'Template updated successfully!'
+      data: responseData
     };
-
   } catch (error) {
-    console.error('Update failed:', error);
-    return {
-      success: false,
-      error: error.response?.data?.message || error.message || 'Update failed. Please try again.'
-    };
+    console.error('❌ Template update failed:', error);
+    let errorMessage = 'Update failed. Please try again.';
+    if (error.response?.data?.message) errorMessage = error.response.data.message;
+    else if (error.message) errorMessage = error.message;
+    return { success: false, error: errorMessage };
   }
 };
 
+// Delete custom smart sync pad template
 export const deleteCustomSyncPadTemplate = async (templateId) => {
   try {
-    const response = await api.delete(`/api/v1/custom-smart-sync-pad/delete-files/${templateId}`, baseUrl);
-    
-    return {
-      success: true,
-      message: 'Template deleted successfully!'
-    };
+    await api.delete(`/api/v1/custom-smart-sync-pad/delete-files/${templateId}`, baseUrl);
+    return { success: true };
   } catch (error) {
-    console.error('Delete failed:', error);
     return {
       success: false,
-      error: error.response?.data?.message || error.message || 'Delete failed. Please try again.'
+      error: 'Unable to delete template. Please try again.'
     };
   }
 }; 

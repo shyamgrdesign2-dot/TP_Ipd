@@ -22,6 +22,7 @@ const RxTemplateManager = ({
   return (
     <div className="template-manager">
       <Card bordered={false} className="search-modalCard">
+        {/* Header Section */}
         <div
           className="modalCard-header align-items-center justify-content-between d-flex"
           style={{
@@ -47,55 +48,44 @@ const RxTemplateManager = ({
               style={{ display: "flex", alignItems: "center", gap: "5px" }}
               onClick={onUploadNew}
             >
-              <i className="icon-plus" style={{ fontSize: "12px" }}></i>
-              Add New Rx Canvas
+              <i className="icon-Add" />
+              <span>Add New Rx Canvas</span>
             </Button>
           </div>
         </div>
 
         {/* Template Grid */}
         <div className="d-flex justify-content-center flex-column">
-          {templates && templates.length > 0 ? (
-            <Row
-              xs={1}
-              sm={2}
-              md={2}
-              lg={3}
-              className="gy-4 w-100"
-              style={{ padding: "25px" }}
-            >
-              {templates.map((template, index) => (
-                <Col key={template.id || index} className="gx-4">
-                  <TemplateCard
-                    template={template}
-                    onEdit={() => onEdit(template.id)}
-                    onDelete={() => onDelete(template.id)}
-                    onDownload={() => onDownload(template.id)}
-                    onRefresh={onRefresh}
-                    isDownloading={downloadingTemplateId === template.id}
-                    templates={templates}
-                    onClose={onClose}
-                  />
-                </Col>
-              ))}
-            </Row>
-          ) : (
-            <div style={{ 
-              textAlign: "center", 
-              padding: "50px", 
-              color: "#6c757d" 
-            }}>
-              <i className="icon-template" style={{ fontSize: '48px', marginBottom: '16px', display: 'block' }}></i>
-              <div style={{ fontSize: '16px', marginBottom: '8px' }}>No templates found</div>
-              <div style={{ fontSize: '14px' }}>Upload your first custom Rx canvas template</div>
-            </div>
-          )}
+          <Row
+            xs={1}
+            sm={2}
+            md={2}
+            lg={3}
+            className="gy-4 w-100"
+            style={{ padding: "25px" }}
+          >
+            {templates?.map((template, index) => (
+              <Col key={template.id || index} className="gx-4">
+                <TemplateCard
+                  template={template}
+                  onEdit={() => onEdit(template.id)}
+                  onDelete={() => onDelete(template.id)}
+                  onDownload={() => onDownload(template.id)}
+                  onRefresh={onRefresh}
+                  isDownloading={downloadingTemplateId === template.id}
+                  templates={templates}
+                  onClose={onClose}
+                />
+              </Col>
+            ))}
+          </Row>
         </div>
       </Card>
     </div>
   );
 };
 
+// Template Card Component  
 const TemplateCard = ({ template, onEdit, onDelete, onDownload, onRefresh, isDownloading, templates, onClose }) => {
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -119,66 +109,54 @@ const TemplateCard = ({ template, onEdit, onDelete, onDownload, onRefresh, isDow
         message.error(result.error || 'Failed to delete template');
       }
     } catch (error) {
-      console.error('Error deleting template:', error);
       message.error('Failed to delete template. Please try again.');
     } finally {
       setIsDeleting(false);
     }
   };
 
-  // Get thumbnail URL for display
-  const thumbnailUrl = template.uploaded_files && template.uploaded_files.length > 0 
-    ? template.uploaded_files[0].file_url 
-    : null;
+  const toggleDeletePopup = () => {
+    setShowDeletePopup(prev => !prev);
+  };
 
-  const dropdownItems = [
+  const getMenuItems = () => [
     {
-      key: 'edit',
       label: (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <img src={edit} alt="Edit" width="16" height="16" />
+        <div onClick={onDownload} style={{ opacity: isDownloading ? 0.5 : 1, pointerEvents: isDownloading ? 'none' : 'auto' }}>
+          <img src={download} alt="download" className="me-2" />
+          {isDownloading ? 'Downloading...' : 'Download'}
+        </div>
+      ),
+      key: "download",
+      disabled: isDownloading,
+    },
+    {
+      label: (
+        <div onClick={onEdit}>
+          <img src={edit} alt="edit" className="me-2" />
           Edit
         </div>
       ),
-      onClick: () => onEdit(),
+      key: "edit",
     },
     {
-      key: 'download',
       label: (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <img src={download} alt="Download" width="16" height="16" />
-          Download
-        </div>
-      ),
-      onClick: () => onDownload(),
-    },
-    {
-      key: 'delete',
-      label: (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <img src={trash} alt="Delete" width="16" height="16" />
+        <div onClick={toggleDeletePopup}>
+          <img src={trash} alt="delete" className="me-2" />
           Delete
         </div>
       ),
-      onClick: () => setShowDeletePopup(true),
-      danger: true,
+      key: "delete",
     },
   ];
 
+  // Get first uploaded file for thumbnail
+  const thumbnailUrl = template.uploaded_files?.[0]?.file_url;
+  const pageCount = template.uploaded_files?.length || 0;
+
   return (
     <>
-      <Card
-        className="record-card"
-        style={{
-          borderRadius: "8px",
-          overflow: "hidden",
-          cursor: "pointer",
-          height: "300px",
-          position: "relative",
-        }}
-        bodyStyle={{ padding: 0 }}
-        hoverable
-      >
+      <div className="image-wrapper">
         <div
           className="image-container"
           style={{
@@ -188,6 +166,9 @@ const TemplateCard = ({ template, onEdit, onDelete, onDownload, onRefresh, isDow
             backgroundSize: "cover",
             position: "relative",
             cursor: "pointer",
+          }}
+          onClick={() => {
+            // Preview functionality can be added here in the future
           }}
         >
           {isDownloading && (
@@ -210,58 +191,69 @@ const TemplateCard = ({ template, onEdit, onDelete, onDownload, onRefresh, isDow
           )}
         </div>
 
-        <div style={{ padding: "15px" }}>
-          <div className="d-flex justify-content-between align-items-start">
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  color: "#333",
-                  marginBottom: "4px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {template.title || 'Untitled Template'}
-              </div>
-              <div style={{ fontSize: "12px", color: "#6c757d" }}>
-                {template.uploaded_files?.length || 0} files
-              </div>
-            </div>
-            
+        <div className="document-details">
+          <div
+            className="d-flex justify-content-between flex-column align-items-start"
+            style={{ fontSize: "14px", width: "85%" }}
+          >
+            <div className="category">{template.title}</div>
+            <div>{pageCount} page{pageCount !== 1 ? 's' : ''}</div>
+          </div>
+          <div>
             <Dropdown
-              menu={{ items: dropdownItems }}
-              trigger={['click']}
-              placement="bottomRight"
+              className="btn btn-outline btn-more"
+              menu={{
+                items: getMenuItems(),
+              }}
             >
-              <Button 
-                type="text" 
-                size="small"
-                style={{ padding: "4px 8px" }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <i className="icon-more-horizontal"></i>
-              </Button>
+              <div>
+                <i className="icon-More" />
+              </div>
             </Dropdown>
           </div>
         </div>
-      </Card>
+      </div>
 
-      <CommonModal
-        isModalOpen={shouldShowDeletePopup}
-        setIsModalOpen={setShowDeletePopup}
-        centered={true}
-        modalIcon={alertIcon}
-        modalTitle="Delete Template"
-        modalBody="Are you sure you want to delete this template? This action cannot be undone."
-        primaryBtnText={isDeleting ? "Deleting..." : "Delete"}
-        secondaryBtnText="Cancel"
-        primaryBtnHandler={handleDelete}
-        primaryBtnLoading={isDeleting}
-        primaryBtnDanger={true}
-      />
+      {/* Delete Confirmation Modal */}
+      {shouldShowDeletePopup && (
+        <CommonModal
+          isModalOpen={shouldShowDeletePopup}
+          onCancel={toggleDeletePopup}
+          modalWidth={510}
+          title="You may lose your data"
+          modalBody={
+            <>
+              <div className="alert-warning rounded-10px p-2 patient-details">
+                <div className="d-flex align-items-center">
+                  <img className="me-3" src={alertIcon} alt="Warning" />
+                  <span>Are you sure you want to delete this template?</span>
+                </div>
+              </div>
+              <div className="mt-4">
+                <div className="d-flex align-items-center mt-2 justify-content-end">
+                  <div
+                    onClick={handleDelete}
+                    className="me-4 text-decoration-underline btn p-0 text-main"
+                    style={{
+                      pointerEvents: isDeleting ? 'none' : 'auto',
+                      opacity: isDeleting ? 0.6 : 1
+                    }}
+                  >
+                    {isDeleting ? 'Deleting...' : 'Yes, Delete'}
+                  </div>
+                  <Button
+                    onClick={toggleDeletePopup}
+                    className="lh-lg btn btn-primary3 btn-41 px-4"
+                    disabled={isDeleting}
+                  >
+                    <span>No</span>
+                  </Button>
+                </div>
+              </div>
+            </>
+          }
+        />
+      )}
     </>
   );
 };
