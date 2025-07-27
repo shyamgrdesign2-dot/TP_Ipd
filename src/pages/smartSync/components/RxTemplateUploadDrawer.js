@@ -564,10 +564,11 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
               const imageData = page.showFile || page.image;
               console.log(`🖼️ Creating File object for page ${index + 1}`);
               
-              // Convert image to File object
+              // Convert image to File object with unique name
+              const uniqueId = Date.now() + Math.random().toString(36).substr(2, 9);
               fileToUpload = await dataUrlToFileUsingFetch(
                 imageData,
-                `rx-template-page-${index + 1}.png`,
+                `smart-sync-${uniqueId}-page-${index + 1}.png`,
                 'image/png'
               );
             } catch (error) {

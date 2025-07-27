@@ -384,12 +384,13 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
                 const imageData = page.showFile || page.image;
                 console.log(`🖼️ Creating File object for page ${index + 1}`);
                 
-                // Convert image to File object
-                fileToUpload = await dataUrlToFileUsingFetch(
-                  imageData,
-                  `rx-template-page-${index + 1}.png`,
-                  'image/png'
-                );
+                              // Convert image to File object with unique name
+              const uniqueId = Date.now() + Math.random().toString(36).substr(2, 9);
+              fileToUpload = await dataUrlToFileUsingFetch(
+                imageData,
+                `smart-sync-${uniqueId}-page-${index + 1}.png`,
+                'image/png'
+              );
               } catch (error) {
                 console.error(`❌ Failed to create File object for page ${index + 1}:`, error);
                 throw new Error(`Failed to prepare file for page ${index + 1}: ${error.message}`);
