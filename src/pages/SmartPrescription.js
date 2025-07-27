@@ -363,6 +363,13 @@ function SmartPrescription() {
       const result = await getCustomSyncPadTemplates();
       if (result.success && result.data && result.data.length > 0) {
         console.log('✅ Templates loaded successfully:', result.data.length, 'templates');
+        console.log('🔍 Template structure sample:', result.data[0]);
+        console.log('🔍 All template IDs:', result.data.map(t => ({ 
+          id: t.id, 
+          unique_id: t.unique_id, 
+          _id: t._id,
+          title: t.title 
+        })));
         setTemplates(result.data);
         // Auto-select the first template if none is selected
         if (!selectedTemplateId) {

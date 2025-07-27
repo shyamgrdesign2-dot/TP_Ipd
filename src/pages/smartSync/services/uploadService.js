@@ -207,12 +207,31 @@ export const updateCustomSyncPadTemplate = async (templateId, templateData, onPr
 // Delete custom smart sync pad template
 export const deleteCustomSyncPadTemplate = async (templateId) => {
   try {
-    await api.delete(`/api/v1/custom-smart-sync-pad/delete-files/${templateId}`, baseUrl);
-    return { success: true };
+    console.log('🗑️ Starting template deletion for ID:', templateId);
+    console.log('🌐 Making DELETE request to:', `/api/v1/custom-smart-sync-pad/delete-files/${templateId}`);
+    
+    const response = await api.delete(`/api/v1/custom-smart-sync-pad/delete-files/${templateId}`, baseUrl);
+    
+    console.log('✅ Template deleted successfully:', response);
+    return { success: true, data: response.data };
   } catch (error) {
-    return {
-      success: false,
-      error: 'Unable to delete template. Please try again.'
-    };
+    console.error('❌ Delete failed:', error);
+    console.error('❌ Error response:', error.response);
+    console.error('❌ Error status:', error.response?.status);
+    console.error('❌ Error data:', error.response?.data);
+    
+    let errorMessage = 'Unable to delete template. Please try again.';
+    
+    if (error.response?.status === 404) {
+      errorMessage = 'Template not found. It may have already been deleted.';
+    } else if (error.response?.status === 403) {
+      errorMessage = 'You do not have permission to delete this template.';
+    } else if (error.response?.status === 500) {
+      errorMessage = 'Server error occurred while deleting template.';
+    } else if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    }
+    
+    return { success: false, error: errorMessage };
   }
 }; 

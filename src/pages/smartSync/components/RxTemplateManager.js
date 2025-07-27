@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Card, Dropdown, message } from 'antd';
+import { Button, Card, Dropdown, message, Drawer } from 'antd';
 import { Row, Col } from 'react-bootstrap';
 import './RxTemplateManager.scss';
 import download from '../../../assets/images/document-download.svg';
@@ -8,6 +8,7 @@ import trash from '../../../assets/images/trash.svg';
 import alertIcon from '../../../assets/images/alertIcon.svg';
 import CommonModal from '../../../common/CommonModal';
 import { deleteCustomSyncPadTemplate } from '../services/uploadService';
+import TemplatePreviewModal from './TemplatePreviewModal';
 
 const RxTemplateManager = ({
   onClose,
@@ -19,6 +20,29 @@ const RxTemplateManager = ({
   onRefresh,
   downloadingTemplateId
 }) => {
+  const [previewTemplate, setPreviewTemplate] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const handleTemplatePreview = (template) => {
+    setPreviewTemplate(template);
+    setShowPreview(true);
+  };
+
+  const handleClosePreview = () => {
+    setShowPreview(false);
+    setPreviewTemplate(null);
+  };
+
+  const handlePreviewTemplateDelete = async (templateId) => {
+    // Close the preview modal first
+    handleClosePreview();
+    
+    // Trigger refresh of template list
+    if (onRefresh) {
+      await onRefresh();
+    }
+  };
+
   return (
     <div className="template-manager">
       <Card bordered={false} className="search-modalCard">
@@ -71,6 +95,7 @@ const RxTemplateManager = ({
                   onEdit={() => onEdit(template.id)}
                   onDelete={() => onDelete(template.id)}
                   onDownload={() => onDownload(template.id)}
+                  onPreview={() => handleTemplatePreview(template)}
                   onRefresh={onRefresh}
                   isDownloading={downloadingTemplateId === template.id}
                   templates={templates}
@@ -81,12 +106,34 @@ const RxTemplateManager = ({
           </Row>
         </div>
       </Card>
+
+      {/* Template Preview Drawer - Exactly like Medical Records */}
+      {showPreview && previewTemplate && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          bodyStyle={{ backgroundColor: "#222222" }}
+          onClose={handleClosePreview}
+          open={showPreview}
+          width="100%"
+          height={"100%"}
+          push={false}
+        >
+          <TemplatePreviewModal
+            template={previewTemplate}
+            onClose={handleClosePreview}
+            onEdit={onEdit}
+            onDelete={handlePreviewTemplateDelete}
+            onDownload={onDownload}
+          />
+        </Drawer>
+      )}
     </div>
   );
 };
 
 // Template Card Component  
-const TemplateCard = ({ template, onEdit, onDelete, onDownload, onRefresh, isDownloading, templates, onClose }) => {
+const TemplateCard = ({ template, onEdit, onDelete, onDownload, onPreview, onRefresh, isDownloading, templates, onClose }) => {
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -95,23 +142,42 @@ const TemplateCard = ({ template, onEdit, onDelete, onDownload, onRefresh, isDow
     const isLastTemplate = templates && templates.length === 1;
     
     try {
-      const result = await deleteCustomSyncPadTemplate(template.id);
+      console.log('🗑️ Template object for deletion:', template);
+      console.log('🗑️ Template ID fields:', { 
+        id: template.id, 
+        unique_id: template.unique_id,
+        _id: template._id 
+      });
+      
+      // Use the id field as shown in the curl example
+      const templateId = template.id;
+      console.log('🗑️ Using template ID for deletion:', templateId);
+      
+      if (!templateId) {
+        throw new Error('Template ID not found');
+      }
+      
+      const result = await deleteCustomSyncPadTemplate(templateId);
       if (result.success) {
         message.success('Template deleted successfully');
+        
+        // Trigger refresh of template list
+        if (onRefresh) {
+          await onRefresh();
+        }
         
         if (isLastTemplate) {
           onClose();
         }
-        
-        onRefresh();
-        setShowDeletePopup(false);
       } else {
         message.error(result.error || 'Failed to delete template');
       }
     } catch (error) {
-      message.error('Failed to delete template. Please try again.');
+      console.error('❌ Delete error:', error);
+      message.error('Error deleting template. Please try again.');
     } finally {
       setIsDeleting(false);
+      setShowDeletePopup(false);
     }
   };
 
@@ -121,32 +187,32 @@ const TemplateCard = ({ template, onEdit, onDelete, onDownload, onRefresh, isDow
 
   const getMenuItems = () => [
     {
+      key: "download",
       label: (
         <div onClick={onDownload} style={{ opacity: isDownloading ? 0.5 : 1, pointerEvents: isDownloading ? 'none' : 'auto' }}>
           <img src={download} alt="download" className="me-2" />
           {isDownloading ? 'Downloading...' : 'Download'}
         </div>
       ),
-      key: "download",
       disabled: isDownloading,
     },
     {
+      key: "edit",
       label: (
         <div onClick={onEdit}>
           <img src={edit} alt="edit" className="me-2" />
           Edit
         </div>
       ),
-      key: "edit",
     },
     {
+      key: "delete",
       label: (
         <div onClick={toggleDeletePopup}>
           <img src={trash} alt="delete" className="me-2" />
           Delete
         </div>
       ),
-      key: "delete",
     },
   ];
 
@@ -168,7 +234,7 @@ const TemplateCard = ({ template, onEdit, onDelete, onDownload, onRefresh, isDow
             cursor: "pointer",
           }}
           onClick={() => {
-            // Preview functionality can be added here in the future
+            onPreview();
           }}
         >
           {isDownloading && (
@@ -194,7 +260,10 @@ const TemplateCard = ({ template, onEdit, onDelete, onDownload, onRefresh, isDow
         <div className="document-details">
           <div
             className="d-flex justify-content-between flex-column align-items-start"
-            style={{ fontSize: "14px", width: "85%" }}
+            style={{ fontSize: "14px", width: "85%", cursor: "pointer" }}
+            onClick={() => {
+              onPreview();
+            }}
           >
             <div className="category">{template.title}</div>
             <div>{pageCount} page{pageCount !== 1 ? 's' : ''}</div>
