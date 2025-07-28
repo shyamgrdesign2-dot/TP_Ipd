@@ -14,7 +14,7 @@ const BillHeader = ({
   profile,
   gstIn,
 }) => {
-  const { headerFooter, pageFormat } = printSettings;
+  const { headerFooter, pageFormat } = printSettings || {};
   const { header, otherSettings, patientInfo, billInfo } = headerFooter || {};
   const { clinicInfo, doctorInfo, logo } = header || {};
   const { waterMark } = otherSettings || {};

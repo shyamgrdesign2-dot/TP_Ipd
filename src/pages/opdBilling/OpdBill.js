@@ -6,11 +6,12 @@ import {
   fetchPrintSetting,
 } from "./service";
 import { useEffect, useState } from "react";
+import { Spin } from "antd";
 import ViewBillPdf from "./components/viewBillPdf/ViewBillPdf";
 import ApiAppointments from "../../api/services/ApiAppointments";
 
 const OpdBill = () => {
-  const billNumber = "";
+  const billNumber = "INVO_0038";
   const isDepositReceipt = false;
   const isReceptionist = false;
 
@@ -40,35 +41,46 @@ const OpdBill = () => {
   }, []);
 
   useEffect(() => {
-    if (billDetails) {
+    if (billDetails && billPrintSettings) {
       makePDFUrl();
     }
-  }, [billDetails]);
+  }, [billDetails, billPrintSettings]);
 
   const getOpdBillDetails = async () => {
-    const billDetailsRes = await fetchBillDetailsByBillNumber(billNumber);
-    setBillDetails(billDetailsRes);
-    const printSettingsResponse = await fetchPrintSetting(
-      isReceptionist ? billDetailsRes?.doctorId : ""
-    );
-    if (printSettingsResponse) {
-      setBillPrintSettings(printSettingsResponse);
-    }
-    const patientWalletBalanceRes = await fetchPatientWalletBalance(
-      billDetails?.patient?.patient_unique_id
-    );
-    if (patientWalletBalanceRes?.advanceDepositBalance) {
-      setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
-    }
+    try {
+      const billDetailsRes = await fetchBillDetailsByBillNumber(billNumber);
+      setBillDetails(billDetailsRes);
 
-    const advanceSettingsResponse = await fetchAdvanceSetting();
-    if (advanceSettingsResponse) {
-      setAdvancedSettings(advanceSettingsResponse);
-    }
+      const [
+        printSettingsResponse,
+        patientWalletBalanceRes,
+        advanceSettingsResponse,
+        profileRes,
+      ] = await Promise.all([
+        fetchPrintSetting(isReceptionist ? billDetailsRes?.doctorId : ""),
+        fetchPatientWalletBalance(billDetailsRes?.patientId),
+        fetchAdvanceSetting(),
+        ApiAppointments.getProfile(),
+      ]);
 
-    const profileRes = await ApiAppointments.getProfile();
-    if (profileRes?.data?.[0]) {
-      setProfile(profileRes?.data?.[0]);
+      // Set all the responses
+      if (printSettingsResponse) {
+        setBillPrintSettings(printSettingsResponse);
+      }
+
+      if (patientWalletBalanceRes?.advanceDepositBalance) {
+        setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
+      }
+
+      if (advanceSettingsResponse) {
+        setAdvancedSettings(advanceSettingsResponse);
+      }
+
+      if (profileRes?.data?.[0]) {
+        setProfile(profileRes?.data?.[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching bill details:", error);
     }
   };
 
@@ -88,7 +100,35 @@ const OpdBill = () => {
     setPdfUrl(URL.createObjectURL(blob));
   };
 
-  return <div>{pdfUrl}</div>;
+  return (
+    <div style={{ width: "100%", height: "100vh" }}>
+      {pdfUrl ? (
+        <iframe
+          src={pdfUrl}
+          style={{
+            width: "100%",
+            height: "100%",
+            border: "none",
+          }}
+          title="PDF Viewer"
+        />
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+            flexDirection: "column",
+            gap: "16px",
+          }}
+        >
+          <Spin size="large" />
+          <div style={{ fontSize: "16px", color: "#666" }}>Loading PDF...</div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default OpdBill;

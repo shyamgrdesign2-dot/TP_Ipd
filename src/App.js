@@ -400,7 +400,10 @@ function App() {
                 <Route path="all_patients" element={<AllPatients />} />
                 <Route path="billing-settings" element={<BillingSettings />} />
                 <Route path="add-appointment" element={<AddAppointment />} />
-                <Route path="get-unlimited-access" element={<GetUnlimitedAccess />} />
+                <Route
+                  path="get-unlimited-access"
+                  element={<GetUnlimitedAccess />}
+                />
                 <Route
                   path="appointment-agent"
                   element={<AppointmentAgent />}
@@ -409,8 +412,8 @@ function App() {
                   path="appointment-agent/success"
                   element={<AppointmentSuccess />}
                 />
-                <Route path="opd-bill" element={<OpdBill />} />
               </Route>
+              <Route path="opd-bill" element={<OpdBill />} />
             </Routes>
           </PersistGate>
         </Provider>
