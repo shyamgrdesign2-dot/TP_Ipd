@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Select, Typography, Radio } from 'antd';
-import RxPadIcon from "../../../assets/images/rx-pad.png"
+import RxPadIcon from "../../../assets/images/smart-pad.png"
 import "./CustomCanvasSelector.scss"
 
 const { Option } = Select;
