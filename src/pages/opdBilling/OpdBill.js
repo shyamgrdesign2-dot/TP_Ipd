@@ -1,19 +1,17 @@
 import { pdf } from "@react-pdf/renderer";
-import {
-  fetchAdvanceSetting,
-  fetchBillDetailsByBillNumber,
-  fetchPatientWalletBalance,
-  fetchPrintSetting,
-} from "./service";
+import { fetchAdvancedDepositDetails, fetchBillDetails } from "./service";
 import { useEffect, useState } from "react";
 import { Spin } from "antd";
 import ViewBillPdf from "./components/viewBillPdf/ViewBillPdf";
-import ApiAppointments from "../../api/services/ApiAppointments";
 
 const OpdBill = () => {
-  const billNumber = "INVO_0038";
-  const isDepositReceipt = false;
-  const isReceptionist = false;
+  const urlParams = new URLSearchParams(window.location.search);
+  const billNumber = urlParams.get("billNumber") || "";
+  const receiptNumber = urlParams.get("receiptNumber") || "";
+  const patientId = urlParams.get("patientId") || "";
+  const token = urlParams.get("token") || "";
+
+  const isDepositReceipt = !!receiptNumber;
 
   const [pdfUrl, setPdfUrl] = useState(null);
   const [billDetails, setBillDetails] = useState(null);
@@ -37,7 +35,11 @@ const OpdBill = () => {
   };
 
   useEffect(() => {
-    getOpdBillDetails();
+    if (isDepositReceipt) {
+      getAdvancedDepositDetails();
+    } else {
+      getOpdBillDetails();
+    }
   }, []);
 
   useEffect(() => {
@@ -48,39 +50,43 @@ const OpdBill = () => {
 
   const getOpdBillDetails = async () => {
     try {
-      const billDetailsRes = await fetchBillDetailsByBillNumber(billNumber);
-      setBillDetails(billDetailsRes);
+      const billDetailsRes = await fetchBillDetails(
+        billNumber,
+        patientId,
+        token
+      );
 
-      const [
-        printSettingsResponse,
-        patientWalletBalanceRes,
-        advanceSettingsResponse,
-        profileRes,
-      ] = await Promise.all([
-        fetchPrintSetting(isReceptionist ? billDetailsRes?.doctorId : ""),
-        fetchPatientWalletBalance(billDetailsRes?.patientId),
-        fetchAdvanceSetting(),
-        ApiAppointments.getProfile(),
-      ]);
-
-      // Set all the responses
-      if (printSettingsResponse) {
-        setBillPrintSettings(printSettingsResponse);
-      }
-
-      if (patientWalletBalanceRes?.advanceDepositBalance) {
-        setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
-      }
-
-      if (advanceSettingsResponse) {
-        setAdvancedSettings(advanceSettingsResponse);
-      }
-
-      if (profileRes?.data?.[0]) {
-        setProfile(profileRes?.data?.[0]);
+      if (billDetailsRes && Object.keys(billDetailsRes).length > 0) {
+        setBillDetails(billDetailsRes?.bill);
+        setPatientWalletBalance(billDetailsRes?.walletBalance);
+        setAdvancedSettings(billDetailsRes?.advancedSetting);
+        setBillPrintSettings(billDetailsRes?.printSetting);
+        setProfile(billDetailsRes?.doctor);
       }
     } catch (error) {
       console.error("Error fetching bill details:", error);
+    }
+  };
+
+  const getAdvancedDepositDetails = async () => {
+    try {
+      const advancedDepositDetailsRes = await fetchAdvancedDepositDetails(
+        receiptNumber,
+        patientId,
+        token
+      );
+      if (
+        advancedDepositDetailsRes &&
+        Object.keys(advancedDepositDetailsRes).length > 0
+      ) {
+        setBillDetails(advancedDepositDetailsRes?.advancedDeposit);
+        setPatientWalletBalance(advancedDepositDetailsRes?.walletBalance);
+        setAdvancedSettings(advancedDepositDetailsRes?.advancedSetting);
+        setBillPrintSettings(advancedDepositDetailsRes?.printSetting);
+        setProfile(advancedDepositDetailsRes?.doctor);
+      }
+    } catch (error) {
+      console.error("Error fetching advanced deposit details:", error);
     }
   };
 

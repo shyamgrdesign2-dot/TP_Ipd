@@ -185,6 +185,7 @@ function App() {
   }, [location.pathname, navigate, authToken, isReceptionist]);
 
   useEffect(() => {
+    if (isReceptionist) return;
     // Load features asynchronously when the app renders
     growthbook?.init({ streaming: true });
     const token = authToken || getToken();

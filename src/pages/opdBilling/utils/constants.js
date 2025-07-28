@@ -10,3 +10,5 @@ export const PaymentOptions = [
   },
   { value: "Others", label: "Others" },
 ];
+
+export const WhatsAppOpdBillTemplateId = "tp_bill_to_patient2";

@@ -7,7 +7,12 @@ import { Document, Page } from "react-pdf";
 import ViewBillPdf from "./components/viewBillPdf/ViewBillPdf";
 import { pdf } from "@react-pdf/renderer";
 import { useSelector } from "react-redux";
-import { fetchBillDetailsByBillNumber, fetchPrintSetting } from "./service";
+import {
+  fetchBillDetailsByBillNumber,
+  fetchPrintSetting,
+  generateBillToken,
+  sendWhatsAppMessage,
+} from "./service";
 import { setBillPrintSettings } from "../../redux/billingSlice";
 import { useDispatch } from "react-redux";
 import { Container, Navbar } from "react-bootstrap";
@@ -21,6 +26,10 @@ import { errorMessage, getClinic, trackEvent } from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
 import wtsp from "./../../assets/images/wtsp.svg";
 import loadingImg from "./../../assets/images/loading.png";
+import { PERSISTANT_STORAGE_KEY_BILL_TOKEN } from "../../utils/constants";
+import { useLocalStorage } from "../../utils/localStorage";
+import config from "../../config";
+import { WhatsAppOpdBillTemplateId } from "./utils/constants";
 
 const PreviewBill = ({
   handleCreateBillDrawer,
@@ -32,7 +41,9 @@ const PreviewBill = ({
   handleMessageForm3c,
   getPatientBills,
 }) => {
-  const navigate = useNavigate();
+  const [getBillToken, setBillToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_BILL_TOKEN
+  );
   const [billDetails, setBillDetails] = useState(billData);
   const { patient = {} } = billDetails || {};
   const patientData = {
@@ -175,31 +186,29 @@ const PreviewBill = ({
   };
 
   const handleSendToWhatsapp = async () => {
-    if (printBlob) {
-      // 1. Convert the blob to a File object (if needed)
-      const pdfBlob = printBlob;
-      const formData = new FormData();
-      formData.append("file", pdfBlob, "report.pdf");
-
-      // 2. Upload to file.io
-      const res = await fetch("https://file.io/?expires=14d", {
-        method: "POST",
-        body: formData,
-      });
-
-      const { link, expiry } = await res.json();
-
-      if (link) {
-        // 3. Open the public link in a new tab
-        window.open(link, "_blank");
-        // Optionally, you can also copy the link to clipboard or use it in WhatsApp
-        // navigator.clipboard.writeText(link);
-        // Optionally, show a message to the user
-        // alert(`PDF link copied! You can now share it via WhatsApp. Link expires at: ${expiry}`);
-      } else {
-        errorMessage("Failed to upload PDF. Please try again.");
-      }
+    setIsLoading(true);
+    let token = getBillToken();
+    if (!token) {
+      token = await generateBillToken();
+      setBillToken(token);
     }
+    const message = {
+      patient_name: patient?.name,
+      biil_link: `${config.doctor_portal_url}/opd-bill?token=${token}${
+        billDetails?.billNumber ? `&billNumber=${billDetails?.billNumber}` : ""
+      }${
+        isDepositReceipt ? `&receiptNumber=${billDetails?.receiptNumber}` : ""
+      }${
+        billDetails?.patientId ? `&patientId=${billDetails?.patientId}` : ""
+      }&receptionist=${true}`,
+    };
+    const res = await sendWhatsAppMessage({
+      template_id: WhatsAppOpdBillTemplateId,
+      text: JSON.stringify(message),
+      mobile_number: "9742639958",
+    });
+    setButtonText("Successfully Sent");
+    setIsLoading(false);
   };
 
   const handleRefundSuccess = async () => {
@@ -220,12 +229,8 @@ const PreviewBill = ({
       receptionistId: receptionistId,
       receptionistName: receptionistName,
     });
-    printContent(
-      printBlob,
-      billData?.patientId,
-      setStartLoader
-    );
-  }
+    printContent(printBlob, billData?.patientId, setStartLoader);
+  };
 
   const handleDownloadClick = () => {
     const clinic = getClinic();
@@ -241,12 +246,7 @@ const PreviewBill = ({
       receptionistId: receptionistId,
       receptionistName: receptionistName,
     });
-    handleDownload(
-      pdfUrl,
-      printBlob,
-      billDetails?.patientId,
-      setStartLoader
-    );
+    handleDownload(pdfUrl, printBlob, billDetails?.patientId, setStartLoader);
   };
 
   return (

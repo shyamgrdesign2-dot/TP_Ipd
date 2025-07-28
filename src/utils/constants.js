@@ -4,6 +4,7 @@ export const PERSISTANT_STORAGE_KEY_AUTH_TOKEN = 'persistant.storage.key.auth-to
 export const PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN = 'persistant.storage.key.zydus-token';
 export const PERSISTANT_STORAGE_KEY_MEDECO_TOKEN = "persistant.storage.key.medeco-token";
 export const PERSISTANT_STORAGE_KEY_EXTRA = 'persistant.storage.key.extra';
+export const PERSISTANT_STORAGE_KEY_BILL_TOKEN = 'persistant.storage.key.bill-token';
 export const MESSAGE_KEY = 'message_key';
 export const IS_DEV = true;
 export const PAGE_SIZE = 10;
