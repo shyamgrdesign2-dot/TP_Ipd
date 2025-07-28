@@ -1325,7 +1325,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
         last_name: "",
         date_of_birth: record.dob,
         gender: record.gender,
-        contact_number: record.mobileNo,
+        contact_number: record?.hasOwnProperty("mobileNo") ? record.mobileNo : "",
         email_id: "noreply@zydushospitals.com",
         address: record.patient_address,
       },
