@@ -154,10 +154,13 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
         };
       } else {
         // Save current state without cropping
+        const cropBoxData = cropper.getData();
         updatedPages[selectedPageIndex] = {
           ...currentPage,
-          cropBoxData: cropper.getData(),
+          cropBoxData: cropBoxData,
           zoom: cropper.getImageData().ratio,
+          // ✅ FIXED: Get current rotation from cropper, not from stored state
+          rotation: cropBoxData.rotate || 0,
           hasBeenEdited: true
         };
       }
@@ -167,6 +170,50 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
       console.error('Error auto-saving page state:', error);
     }
   };
+
+  // Restore page state when navigating between pages
+  const restorePageState = (pageIndex) => {
+    if (!file?.pages || !file.pages[pageIndex]) {
+      return;
+    }
+    
+    const page = file.pages[pageIndex];
+    
+    // Wait for cropper to be ready
+    setTimeout(() => {
+      if (cropperRef.current?.cropper) {
+        const cropper = cropperRef.current.cropper;
+        
+        // Restore zoom
+        if (page.zoom && page.zoom !== 1) {
+          cropper.zoomTo(page.zoom);
+          setZoom(page.zoom); // Also update the zoom state
+        } else {
+          setZoom(1);
+        }
+        
+        // Restore rotation using setData
+        if (page.rotation && page.rotation !== 0) {
+          cropper.setData({ rotate: page.rotation });
+        }
+        
+        // Restore crop box if it exists
+        if (page.cropBoxData) {
+          cropper.setCropBoxData(page.cropBoxData);
+        }
+      }
+    }, 100);
+  };
+
+  // Restore page state when navigating between pages
+  useEffect(() => {
+    if (file?.pages && file.pages[selectedPageIndex]) {
+      // Small delay to ensure cropper is ready
+      setTimeout(() => {
+        restorePageState(selectedPageIndex);
+      }, 150);
+    }
+  }, [selectedPageIndex, file?.pages]);
 
   // Handle drag end for reordering (same as upload drawer)
   const handleDragEnd = (event) => {
@@ -230,7 +277,7 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
           }
           
           setSelectedPageIndex(index);
-          setZoom(1); // Reset zoom when changing pages
+          // Don't reset zoom - let restorePageState handle it
         }}
         {...attributes}
         {...listeners}
@@ -249,6 +296,21 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
       if (cropperRef.current?.cropper) {
         cropperRef.current.cropper.zoomTo(newZoom);
       }
+      
+      // Save zoom state to page data
+      setFile(prevFile => ({
+        ...prevFile,
+        pages: prevFile.pages.map((page, index) => {
+          if (index === selectedPageIndex) {
+            return {
+              ...page,
+              zoom: newZoom,
+              hasBeenEdited: true
+            };
+          }
+          return page;
+        })
+      }));
     }
   };
 
@@ -256,15 +318,60 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
   const handleRotate = () => {
     if (cropperRef.current?.cropper) {
       cropperRef.current.cropper.rotate(90);
+      
+      // Save rotation state to page data
+      setFile(prevFile => ({
+        ...prevFile,
+        pages: prevFile.pages.map((page, index) => {
+          if (index === selectedPageIndex) {
+            const currentRotation = page.rotation || 0;
+            const newRotation = (currentRotation + 90) % 360;
+            return {
+              ...page,
+              rotation: newRotation,
+              hasBeenEdited: true
+            };
+          }
+          return page;
+        })
+      }));
     }
   };
 
   // Reset page handler (same as upload drawer)
   const handleResetPage = () => {
+    if (!file?.pages || selectedPageIndex >= file.pages.length) {
+      return;
+    }
+
+    // Reset the cropper
     if (cropperRef.current?.cropper) {
       cropperRef.current.cropper.reset();
     }
+    
+    // Reset zoom state
     setZoom(1);
+    
+    // ✅ FIXED: Reset the page state in the file.pages array
+    setFile(prevFile => ({
+      ...prevFile,
+      pages: prevFile.pages.map((page, index) => {
+        if (index === selectedPageIndex) {
+          return {
+            ...page,
+            zoom: 1,
+            rotation: 0,
+            cropBoxData: null,
+            croppedImage: null, // ✅ FIXED: Reset cropped image
+            showFile: page.image, // ✅ FIXED: Restore to original image
+            hasBeenEdited: false
+          };
+        }
+        return page;
+      })
+    }));
+    
+    console.log('✅ Page reset completed for page', selectedPageIndex + 1);
   };
 
   // Reupload handler (adapted for edit)
@@ -371,6 +478,11 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
       
       console.log('🔧 Preparing template data for update...');
       
+      // ✅ FIXED: Auto-save current page state before submitting
+      if (cropperRef.current?.cropper) {
+        await autoSavePageState(false);
+      }
+      
       // Create proper file objects for each page (same as upload drawer)
       const filesForUpload = await Promise.all(
         file.pages.map(async (page, index) => {
@@ -380,17 +492,32 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
           if (!fileToUpload) {
             if (page.showFile || page.image) {
               try {
-                // Use showFile (which could be cropped image) or fallback to original image
-                const imageData = page.showFile || page.image;
+                let imageData = page.showFile || page.image;
+                
+                // ✅ FIXED: Get current state from cropper for the selected page
+                if (index === selectedPageIndex && cropperRef.current?.cropper) {
+                  const cropper = cropperRef.current.cropper;
+                  try {
+                    // Get the current canvas with all transformations applied
+                    const canvas = cropper.getCroppedCanvas() || cropper.getCanvas();
+                    if (canvas) {
+                      imageData = canvas.toDataURL('image/png', 0.9);
+                    }
+                  } catch (error) {
+                    console.warn(`Could not get current cropper state for page ${index + 1}:`, error);
+                    // Fallback to stored image data
+                  }
+                }
+                
                 console.log(`🖼️ Creating File object for page ${index + 1}`);
                 
-                              // Convert image to File object with unique name
-              const uniqueId = Date.now() + Math.random().toString(36).substr(2, 9);
-              fileToUpload = await dataUrlToFileUsingFetch(
-                imageData,
-                `smart-sync-${uniqueId}-page-${index + 1}.png`,
-                'image/png'
-              );
+                // Convert image to File object with unique name
+                const uniqueId = Date.now() + Math.random().toString(36).substr(2, 9);
+                fileToUpload = await dataUrlToFileUsingFetch(
+                  imageData,
+                  `smart-sync-${uniqueId}-page-${index + 1}.png`,
+                  'image/png'
+                );
               } catch (error) {
                 console.error(`❌ Failed to create File object for page ${index + 1}:`, error);
                 throw new Error(`Failed to prepare file for page ${index + 1}: ${error.message}`);
@@ -467,7 +594,14 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
 
   if (!file) return null;
 
-  const allPagesReady = file.pages.every(page => page.isReady);
+  // Helper: check if all pages are ready for submission
+  const allPagesReady = file?.pages?.every(page => {
+    // Page is ready if:
+    // 1. It has been cropped (page.croppedImage exists) - user saved the crop
+    // 2. OR it has been edited with rotation/zoom but not cropped (rotation/zoom are valid edits)
+    // 3. OR it hasn't been edited at all (user never interacted with it)
+    return page.croppedImage || (page.hasBeenEdited && (page.rotation !== 0 || page.zoom !== 1)) || !page.hasBeenEdited;
+  });
 
   return (
     <Drawer

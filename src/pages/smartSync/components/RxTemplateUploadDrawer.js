@@ -114,8 +114,9 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
   const allPagesReady = file?.pages?.every(page => {
     // Page is ready if:
     // 1. It has been cropped (page.croppedImage exists) - user saved the crop
-    // 2. OR it hasn't been edited at all (user never interacted with it)
-    return page.croppedImage || !page.hasBeenEdited;
+    // 2. OR it has been edited with rotation/zoom but not cropped (rotation/zoom are valid edits)
+    // 3. OR it hasn't been edited at all (user never interacted with it)
+    return page.croppedImage || (page.hasBeenEdited && (page.rotation !== 0 || page.zoom !== 1)) || !page.hasBeenEdited;
   });
 
   // Helper: get page status for visual indicators - removed status colors
@@ -340,7 +341,8 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       // Get current cropper data
       const cropBoxData = cropper.getData();
       const currentZoom = currentPage.zoom || 1;
-      const currentRotation = currentPage.rotation || 0;
+      // ✅ FIXED: Get current rotation from cropper, not from stored state
+      const currentRotation = cropBoxData.rotate || 0;
       
       let croppedImage = currentPage.croppedImage;
       let uploadFile = currentPage.uploadFile;
@@ -446,11 +448,14 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
         // Restore zoom
         if (page.zoom && page.zoom !== 1) {
           cropper.zoomTo(page.zoom);
+          setZoom(page.zoom); // Also update the zoom state
+        } else {
+          setZoom(1);
         }
         
-        // Restore rotation
+        // Restore rotation using setData
         if (page.rotation && page.rotation !== 0) {
-          cropper.rotate(page.rotation);
+          cropper.setData({ rotate: page.rotation });
         }
         
         // Restore crop box if it exists
@@ -494,7 +499,7 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
           }
           
           setSelectedPageIndex(index);
-          setZoom(1); // Reset zoom when changing pages
+          // Don't reset zoom - let restorePageState handle it
         }}
         {...attributes}
         {...listeners}
@@ -551,6 +556,11 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
     // Prepare template data for API
     console.log('🔧 Preparing template data for upload...');
     
+    // ✅ FIXED: Auto-save current page state before submitting
+    if (cropperRef.current?.cropper) {
+      await autoSavePageState(false);
+    }
+    
     // Create proper file objects for each page
     const filesForUpload = await Promise.all(
       file.pages.map(async (page, index) => {
@@ -560,8 +570,23 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
         if (!fileToUpload) {
           if (page.showFile || page.image) {
             try {
-              // Use showFile (which could be cropped image) or fallback to original image
-              const imageData = page.showFile || page.image;
+              let imageData = page.showFile || page.image;
+              
+              // ✅ FIXED: Get current state from cropper for the selected page
+              if (index === selectedPageIndex && cropperRef.current?.cropper) {
+                const cropper = cropperRef.current.cropper;
+                try {
+                  // Get the current canvas with all transformations applied
+                  const canvas = cropper.getCroppedCanvas() || cropper.getCanvas();
+                  if (canvas) {
+                    imageData = canvas.toDataURL('image/png', 0.9);
+                  }
+                } catch (error) {
+                  console.warn(`Could not get current cropper state for page ${index + 1}:`, error);
+                  // Fallback to stored image data
+                }
+              }
+              
               console.log(`🖼️ Creating File object for page ${index + 1}`);
               
               // Convert image to File object with unique name
@@ -793,38 +818,91 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       if (cropperRef.current?.cropper) {
         cropperRef.current.cropper.zoomTo(newZoom);
       }
+      
+      // Save zoom state to page data
+      setFile(prevFile => ({
+        ...prevFile,
+        pages: prevFile.pages.map((page, index) => {
+          if (index === selectedPageIndex) {
+            return {
+              ...page,
+              zoom: newZoom,
+              hasBeenEdited: true
+            };
+          }
+          return page;
+        })
+      }));
     }
   };
 
   const handleRotate = () => {
     if (cropperRef.current?.cropper) {
       cropperRef.current.cropper.rotate(90);
+      
+      // Save rotation state to page data
+      setFile(prevFile => ({
+        ...prevFile,
+        pages: prevFile.pages.map((page, index) => {
+          if (index === selectedPageIndex) {
+            const currentRotation = page.rotation || 0;
+            const newRotation = (currentRotation + 90) % 360;
+            return {
+              ...page,
+              rotation: newRotation,
+              hasBeenEdited: true
+            };
+          }
+          return page;
+        })
+      }));
     }
   };
 
-  // Reset cropper when page changes
+  // Restore page state when navigating between pages
   useEffect(() => {
     if (file?.pages && file.pages[selectedPageIndex]) {
-      // Reset zoom when page changes
-      setZoom(1);
-      
-      // Small delay to ensure the cropper component has mounted
+      // Small delay to ensure cropper is ready
       setTimeout(() => {
-        if (cropperRef.current?.cropper) {
-          const cropper = cropperRef.current.cropper;
-          // Reset cropper to default state
-          cropper.reset();
-        }
-      }, 100);
+        restorePageState(selectedPageIndex);
+      }, 150);
     }
   }, [selectedPageIndex, file?.pages]);
 
   // Reset functionality - simple like LogoUploadDrawer
   const handleResetPage = () => {
+    if (!file?.pages || selectedPageIndex >= file.pages.length) {
+      return;
+    }
+
+    // Reset the cropper
     if (cropperRef.current?.cropper) {
       cropperRef.current.cropper.reset();
     }
+    
+    // Reset zoom state
     setZoom(1);
+    
+    // ✅ FIXED: Reset the page state in the file.pages array
+    setFile(prevFile => ({
+      ...prevFile,
+      pages: prevFile.pages.map((page, index) => {
+        if (index === selectedPageIndex) {
+          return {
+            ...page,
+            zoom: 1,
+            rotation: 0,
+            cropBoxData: null,
+            croppedImage: null, // ✅ FIXED: Reset cropped image
+            showFile: page.image, // ✅ FIXED: Restore to original image
+            hasBeenEdited: false
+          };
+        }
+        return page;
+      })
+    }));
+    
+    console.log('✅ Page reset completed for page', selectedPageIndex + 1);
   };
 
   const handleClose = () => {
