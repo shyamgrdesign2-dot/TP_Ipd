@@ -68,6 +68,8 @@ const dev = {
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-uat-doctor-portal.tatvacare.in",
+  short_link_url: "https://u.tatvacare.in/api/v2/links",
+  short_link_api_key: "7pP-Ynz1BFQk9IkcGFqrmNxmKKMVZEAniwSsFEAI",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
 };
 
@@ -145,6 +147,8 @@ const qa_tp = {
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
+  short_link_url: "https://u.tatvacare.in/api/v2/links",
+  short_link_api_key: "7pP-Ynz1BFQk9IkcGFqrmNxmKKMVZEAniwSsFEAI",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
 };
 
@@ -218,6 +222,8 @@ const qa = {
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
+  short_link_url: "https://u.tatvacare.in/api/v2/links",
+  short_link_api_key: "7pP-Ynz1BFQk9IkcGFqrmNxmKKMVZEAniwSsFEAI",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
 };
 
@@ -296,6 +302,8 @@ const uat = {
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-uat-doctor-portal.tatvacare.in",
+  short_link_url: "https://u.tatvacare.in/api/v2/links",
+  short_link_api_key: "7pP-Ynz1BFQk9IkcGFqrmNxmKKMVZEAniwSsFEAI",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
 };
 
@@ -374,6 +382,8 @@ const prod = {
   medeco_webview_url: '',
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://tatvapractice.tatvacare.in",
+  short_link_url: "https://u.tatvacare.in/api/v2/links",
+  short_link_api_key: "7pP-Ynz1BFQk9IkcGFqrmNxmKKMVZEAniwSsFEAI",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
 };
 

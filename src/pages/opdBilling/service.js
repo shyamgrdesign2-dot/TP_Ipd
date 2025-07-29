@@ -534,3 +534,28 @@ export const sendWhatsAppMessage = async function (payload) {
     return null;
   }
 };
+
+export const createShortLink = async function (targetUrl) {
+  try {
+    const response = await fetch(config.short_link_url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-KEY": config.short_link_api_key,
+      },
+      body: JSON.stringify({
+        target: targetUrl,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data?.short_url;
+  } catch (e) {
+    console.error("Error while creating short link: ", e);
+    return null;
+  }
+};

@@ -8,6 +8,7 @@ import ViewBillPdf from "./components/viewBillPdf/ViewBillPdf";
 import { pdf } from "@react-pdf/renderer";
 import { useSelector } from "react-redux";
 import {
+  createShortLink,
   fetchBillDetailsByBillNumber,
   fetchPrintSetting,
   generateBillToken,
@@ -22,8 +23,7 @@ import { db } from "../../firebase";
 import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { deleteDocsUploadedFromAndroid } from "../medicalRecords/service";
 import RefundBill from "./components/billingDashboard/RefundBill/RefundBill";
-import { errorMessage, getClinic, trackEvent } from "../../utils/utils";
-import { useNavigate } from "react-router-dom";
+import { getClinic, trackEvent } from "../../utils/utils";
 import wtsp from "./../../assets/images/wtsp.svg";
 import loadingImg from "./../../assets/images/loading.png";
 import { PERSISTANT_STORAGE_KEY_BILL_TOKEN } from "../../utils/constants";
@@ -81,6 +81,8 @@ const PreviewBill = ({
   const receptionistName = urlParams.get("receptionistName");
   const [buttonText, setButtonText] = useState("Send to WhatsApp");
   const [isLoading, setIsLoading] = useState(false);
+
+  const clinic = getClinic(profile?.hospital_data);
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -172,7 +174,6 @@ const PreviewBill = ({
   }, [db, deviceUid]);
 
   const handleRefundBillDrawer = () => {
-    const clinic = getClinic();
     trackEvent("TP_refundbill_billpreviewpage Settings_save", {
       doctorSpeciality: profile?.dp_name,
       doctorId: profile?.doctor_unique_id,
@@ -192,23 +193,31 @@ const PreviewBill = ({
       token = await generateBillToken();
       setBillToken(token);
     }
-    const message = {
-      patient_name: patient?.name,
-      biil_link: `${config.doctor_portal_url}/opd-bill?token=${token}${
+
+    const shortLink = await createShortLink(
+      `${config.doctor_portal_url}/opd-bill?token=${token}${
         billDetails?.billNumber ? `&billNumber=${billDetails?.billNumber}` : ""
       }${
         isDepositReceipt ? `&receiptNumber=${billDetails?.receiptNumber}` : ""
       }${
         billDetails?.patientId ? `&patientId=${billDetails?.patientId}` : ""
-      }&receptionist=${true}`,
+      }&receptionist=${true}`
+    );
+    const message = {
+      patient_name: patient?.name,
+      clinic_name: clinic?.hm_name,
+      bill_link: shortLink,
+      clinic_name2: clinic?.hm_name,
     };
     const res = await sendWhatsAppMessage({
       template_id: WhatsAppOpdBillTemplateId,
       text: JSON.stringify(message),
-      mobile_number: "9742639958",
+      mobile_number: patient?.phone,
     });
-    setButtonText("Successfully Sent");
-    setIsLoading(false);
+    if (res?.message) {
+      setButtonText("Successfully Sent");
+      setIsLoading(false);
+    }
   };
 
   const handleRefundSuccess = async () => {
@@ -219,7 +228,6 @@ const PreviewBill = ({
   };
 
   const handlePrintClick = () => {
-    const clinic = getClinic();
     trackEvent("TP_printbill_billpreviewpage Settings_save", {
       doctorSpeciality: profile?.dp_name,
       doctorId: profile?.doctor_unique_id,
@@ -233,7 +241,6 @@ const PreviewBill = ({
   };
 
   const handleDownloadClick = () => {
-    const clinic = getClinic();
     trackEvent("TP_Billing_DownloadBill", {
       patientName: patient?.name || "",
       patientId: patient?.id || "",
