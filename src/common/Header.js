@@ -36,7 +36,7 @@ import { viewDoctorWebsite } from "../redux/doctorWebsiteSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage, getDecodedToken } from "../utils/localStorage";
-import { TRIAL, GB_ZYDUS_USER, OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_TATVA_PRACTICE } from "../utils/constants";
+import { TRIAL, GB_ZYDUS_USER, OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_TATVA_PRACTICE, PERSISTANT_STORAGE_KEY_BILL_TOKEN } from "../utils/constants";
 import { errorMessage, getClinicName, makeDefaultLogo, shouldMonetizationDisabled, getTokenData, getDeviceSdkData } from "../utils/utils";
 import { Modal, Card } from "antd";
 import alertIcon from '../assets/images/alertIcon.svg';
@@ -51,6 +51,7 @@ import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 import moment from "moment";
 import AiSuite from "../pages/monetization/components/AiSuite";
 import MedEcoAppKnowMore from "../pages/monetization/components/MedEcoAppKnowMore";
+import { generateBillToken } from "../pages/opdBilling/service";
 
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
@@ -103,6 +104,9 @@ function Header({ locationPath }) {
   const [clinicOptions, setClinicOptions] = useState([]);
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+  const [getBillToken, setBillToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_BILL_TOKEN
+  );
   const [tokenData, setTokenData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [aiModal, setAiModal] = useState(false);
@@ -193,7 +197,9 @@ function Header({ locationPath }) {
             await setToken(action.payload.token);
             try {
               var decoded = jwtDecode(action.payload.token);
-              setTokenData(decoded.result)
+              setTokenData(decoded.result);
+              const billToken = await generateBillToken();
+              setBillToken(billToken);
             } catch (e) {
               console.log(e)
             }
