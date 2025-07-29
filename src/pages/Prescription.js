@@ -156,6 +156,7 @@ function Prescription() {
   const { customModules } = useSelector((state) => state.customModules);
   const dispatch = useDispatch();
   const decodedToken = getDecodedToken();
+  const tokenData = decodedToken?.result;
 
   const { state } = useLocation();
   const { patient_data, send_path, caseManagerData } = state;

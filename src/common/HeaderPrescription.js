@@ -1094,13 +1094,13 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                         service_name: S_DDX
                     }
                     dispatch(updateCredits(sendData))
-                if (isAutofillSelected) {
-                    await setAddToRx({
-                            _id: symptomCollector?._id,
-                            addToRx: true,
-                        }
-                    );
                 }
+
+                if (isAutofillSelected) {
+                  await setAddToRx({
+                    _id: symptomCollector?._id,
+                    addToRx: true,
+                  });
                 }
 
                 window.Moengage.track_event("Z_enter_getInvestigationAndMedicine", {
