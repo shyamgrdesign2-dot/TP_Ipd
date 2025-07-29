@@ -18,6 +18,7 @@ import {
   editGenRxDetails,
   generateRx,
   getGenRx,
+  setAddToRx,
   updateGenRx,
 } from "../api/services/ApiGenRx";
 import tutorialIcon from "../assets/images/tutorial-icon.svg";
@@ -862,6 +863,12 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
         dispatch(updateCredits(sendData))
       }
 
+      if (isAutofillSelected) {
+        await setAddToRx({
+          _id: symptomCollector?._id,
+          addToRx: true,
+        });
+      }
       navigate("/gen-rx-print", {
         replace: true,
         state: {

@@ -758,7 +758,7 @@ function Prescription() {
     if (isSCAccessable) {
       getSymptomsCollectorData();
     }
-  }, []);
+  }, [isSCAccessable]);
 
   const getSymptomsCollectorData = async () => {
     const payload = {
@@ -774,9 +774,14 @@ function Prescription() {
     };
     const response = await fetchSymptomsCollectorData(payload);
     if (response && Object.keys(response)?.length > 0) {
-      dispatch(setSymptomCollector(response?.summary_json_doctor));
+      dispatch(
+        setSymptomCollector({
+          ...response?.summary_json_doctor,
+          _id: response?._id,
+        })
+      );
       setShowSCBanner(true);
-      if (patient_data?.pam_status === "0") {
+      if (patient_data?.pam_status === "0" && caseManagerData === undefined) {
         dispatch(setShowSCPopup(true));
       }
     }

@@ -349,7 +349,7 @@ function TabPrescription() {
     if (isSCAccessable) {
       getSymptomsCollectorData();
     }
-  }, []);
+  }, [isSCAccessable]);
 
   useEffect(() => {
     if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {
@@ -514,7 +514,12 @@ function TabPrescription() {
     };
     const response = await fetchSymptomsCollectorData(payload);
     if (response && Object.keys(response)?.length > 0) {
-      dispatch(setSymptomCollector(response?.summary_json_doctor));
+      dispatch(
+        setSymptomCollector({
+          ...response?.summary_json_doctor,
+          _id: response?._id,
+        })
+      );
       setShowSCBanner(true);
       if (patient_data?.pam_status === "0") {
         dispatch(setShowSCPopup(true));
