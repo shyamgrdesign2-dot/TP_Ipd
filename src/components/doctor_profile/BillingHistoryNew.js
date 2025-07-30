@@ -60,8 +60,11 @@ const BillingHistoryNew = ({ show, setShow, billingHistoryList }) => {
     },
     {
       title: 'Amount Paid',
-      dataIndex: 'plan_amount',
-      key: 'plan_amount',
+      dataIndex: 'total_amount',
+      key: 'total_amount',
+      onCell: (record) => ({
+        rowSpan: record.rowSpan,
+      })
     },
     {
       title: 'Start Date',

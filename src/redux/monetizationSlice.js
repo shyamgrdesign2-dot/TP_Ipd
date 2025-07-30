@@ -193,6 +193,8 @@ const monetizationSlice = createSlice({
                 mainData.forEach((entry, groupIndex) => {
                     const rowSpan = entry.plans.length;
 
+                    let totalAmount = entry.plans.reduce((sum, item) => sum + parseFloat(item.plan_amount), 0);
+
                     entry.plans.forEach((plan, planIndex) => {
                         tableData.push({
                             key: `${groupIndex}-${planIndex}`,
@@ -201,6 +203,7 @@ const monetizationSlice = createSlice({
                             service_name: plan.service_name,
                             plan_validity_months: plan.plan_validity_months,
                             plan_amount: `₹${formatAmount(plan.plan_amount)}`,
+                            total_amount: `₹${formatAmount(totalAmount)}`,
                             plan_start_date: moment(plan.plan_start_date).format('Do MMM, YYYY'),
                             plan_end_date: moment(plan.plan_end_date).add(1, 'days').format('Do MMM, YYYY'),
                             status: plan.status,
