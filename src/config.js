@@ -63,8 +63,6 @@ export default {
   ZYDUS_BUSINESS_ID: env.ZYDUS_BUSINESS_ID,
   APOLLO_BUSINESS_IDS: env.APOLLO_BUSINESS_IDS,
   doctor_portal_url: env.doctor_portal_url,
-  short_link_url: env.short_link_url,
-  short_link_api_key: env.short_link_api_key,
   whatsapp_x_api_key: env.whatsapp_x_api_key,
   short_links_api_url: env.short_links_api_url,
   short_links_api_key: env.SHORT_LINKS_API_KEY,

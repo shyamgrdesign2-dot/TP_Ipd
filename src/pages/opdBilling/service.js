@@ -537,11 +537,11 @@ export const sendWhatsAppMessage = async function (payload) {
 
 export const createShortLink = async function (targetUrl) {
   try {
-    const response = await fetch(config.short_link_url, {
+    const response = await fetch(`${config.short_links_api_url}/api/v2/links`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-API-KEY": config.short_link_api_key,
+        "X-API-KEY": config.short_links_api_key,
       },
       body: JSON.stringify({
         target: targetUrl,
