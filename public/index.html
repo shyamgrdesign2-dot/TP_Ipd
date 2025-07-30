@@ -6,6 +6,7 @@
     <script>
       const urlParams = new URLSearchParams(window.location.search);
       const isReceptionist = urlParams.has("receptionist");
+      const isPatientViewBill = urlParams.has("patientViewBill");
       !isReceptionist && (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
         j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -15,7 +16,7 @@
     <script type="text/javascript">
 
         // Only load Clarity & Moengage if NOT a receptionist
-        if (!isReceptionist) {
+        if (!isPatientViewBill) {
           var moeDataCenter = "dc_3"; // Replace "{DC}" with the actual Data center value from the above table 
           var moeAppID = "DVIY0IUVG5KDW20CQ08VIWWM"; // Replace "{AppID}" available in the settings page of MoEngage Dashboard. 
 

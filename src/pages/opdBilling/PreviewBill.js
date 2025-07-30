@@ -201,7 +201,7 @@ const PreviewBill = ({
         isDepositReceipt ? `&receiptNumber=${billDetails?.receiptNumber}` : ""
       }${
         billDetails?.patientId ? `&patientId=${billDetails?.patientId}` : ""
-      }&receptionist=${true}`
+      }&receptionist=true&patientViewBill=true`
     );
     const message = {
       patient_name: patient?.name,
