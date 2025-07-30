@@ -394,6 +394,7 @@ const PreviewBill = ({
                   <button
                     className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-1 mt-3 btn-41 w-100"
                     onClick={handleSendToWhatsapp}
+                    disabled={buttonText === "Successfully Sent"}
                   >
                     {isLoading ? (
                       <img
