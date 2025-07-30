@@ -29,7 +29,10 @@ import DoctorWebsiteSetting from "./pages/DoctorWebsiteSetting";
 import MessageCreateCampaign from "./pages/MessageCreateCampaign";
 
 import { store, persistor } from "./redux/store";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_MEDECO_TOKEN } from "./utils/constants";
+import {
+  PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+  PERSISTANT_STORAGE_KEY_MEDECO_TOKEN,
+} from "./utils/constants";
 import { useLocalStorage } from "./utils/localStorage";
 
 import { ErrorBoundary } from "react-error-boundary";
@@ -53,6 +56,11 @@ import GetUnlimitedAccess from "./pages/monetization/GetUnlimitedAccess";
 import UpgradeServicesModal from "./pages/monetization/components/UpgradeServicesModal";
 import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
+import SnapRx from "./pages/snapRx/SnapRx";
+import UploadRx from "./pages/uploadRx";
+import BottomSheetManager from "./components/bottomSheetManager";
+import SnapRxPreview from "./pages/snapRx/SnapRxPreview";
+import SnapRxDigitise from "./pages/snapRx/SnapRxDigitise";
 import AppointmentAgent from "./pages/appointmentAgent/AppointmentAgent";
 import AppointmentSuccess from "./pages/appointmentAgent/components/AppointmentSuccess/AppointmentSuccess";
 import OpdBill from "./pages/opdBilling/OpdBill";
@@ -64,18 +72,21 @@ const growthbook = new GrowthBook({
 });
 
 function App() {
+  const [redirectReady, setRedirectReady] = useState(false);
   const [searchParams] = useSearchParams();
   const authToken = searchParams.get("authToken");
   const redirectTo = searchParams.get("redirectTo");
+  const uploadParams = searchParams.get("uploadParams");
   const medecoToken = searchParams.get("medecoToken");
   const location = useLocation();
   const navigate = useNavigate();
-  const [getToken, setToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+  const [getToken, setToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_AUTH_TOKEN
+  );
 
   const [getMedecoToken, setMedecoToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_MEDECO_TOKEN
   );
-
 
   const isLoginPage = location.pathname === "/login";
   const isRootPath = location.pathname === "/";
@@ -98,11 +109,7 @@ function App() {
   };
 
   const handleLogout = async () => {
-
-    const urlsToOpen = [
-      config.pedia_logout_url,
-      config.tatvaAi_logout_url,
-    ];
+    const urlsToOpen = [config.pedia_logout_url, config.tatvaAi_logout_url];
 
     try {
       if (window.isLoggingOut) return;
@@ -111,7 +118,9 @@ function App() {
       const statuses = await openUrlsSilently(urlsToOpen);
       console.log("URL statuses:", statuses);
 
-      const allSuccessful = statuses.every(({ status }) => status === "success");
+      const allSuccessful = statuses.every(
+        ({ status }) => status === "success"
+      );
       if (!allSuccessful) {
         console.warn("Some logout URLs failed:", statuses);
       }
@@ -136,7 +145,10 @@ function App() {
           const doctorUniqueId = decoded?.result?.doctor_unique_id;
 
           if (phoneNumber && doctorUniqueId) {
-            const response = await checkAccountStatus(phoneNumber, doctorUniqueId);
+            const response = await checkAccountStatus(
+              phoneNumber,
+              doctorUniqueId
+            );
             if (response?.account_status === false) {
               handleLogout();
             }
@@ -195,7 +207,7 @@ function App() {
         growthbook?.setAttributes({
           doctorId: decodedToken?.result?.doctor_unique_id,
           id: `${decodedToken?.result?.user_id}`,
-          hos_business_id: `${decodedToken?.result?.hospital_business_id}`
+          hos_business_id: `${decodedToken?.result?.hospital_business_id}`,
         });
       } catch (e) {
         console.log(e);
@@ -224,20 +236,37 @@ function App() {
     }
   }, [authToken, setToken, navigate]);
 
+  useEffect(() => {
+    if (uploadParams) {
+      localStorage.setItem("uploadParams", uploadParams);
+      // navigate(
+      //   {
+      //     pathname: location.pathname,
+      //   },
+      //   { replace: true }
+      // );
+    }
+  }, [uploadParams]);
+
   // Add effect to handle redirectTo parameter
   useEffect(() => {
     if (redirectTo) {
-      localStorage.setItem('redirectTo', redirectTo);
+      localStorage.setItem("redirectTo", redirectTo);
 
       // Clean up URL but preserve other params
       const params = new URLSearchParams(location.search);
       params.delete("redirectTo");
-
+      setRedirectReady(true);
       // Update URL without the redirectTo parameter
-      navigate({
-        pathname: location.pathname,
-        search: params.toString()
-      }, { replace: true });
+      navigate(
+        {
+          pathname: location.pathname,
+          search: params.toString(),
+        },
+        { replace: true }
+      );
+    } else {
+      setRedirectReady(false);
     }
   }, []);
 
@@ -258,7 +287,13 @@ function App() {
 
       // Only collect UTM params that have values
       const utmParams = new URLSearchParams();
-      ['utm_source', 'utm_campaign', 'utm_medium', 'utm_content', 'utm_term'].forEach(param => {
+      [
+        "utm_source",
+        "utm_campaign",
+        "utm_medium",
+        "utm_content",
+        "utm_term",
+      ].forEach((param) => {
         const value = urlParams.get(param);
         if (value) {
           utmParams.append(param, value);
@@ -266,7 +301,8 @@ function App() {
       });
 
       // Construct login URL with UTM parameters
-      const loginUrl = "/login" + (utmParams.toString() ? "?" + utmParams.toString() : "");
+      const loginUrl =
+        "/login" + (utmParams.toString() ? "?" + utmParams.toString() : "");
 
       navigate(loginUrl);
       return;
@@ -274,18 +310,22 @@ function App() {
 
     if (isChrome || isSafari) {
       // Determine and execute redirection
-      const redirectPath = localRedirectTo === "profile" ? "/doctor_profile" : "/";
+      const redirectPath =
+        localRedirectTo === "profile"
+          ? "/doctor_profile"
+          : redirectReady
+          ? localRedirectTo
+          : "/";
 
       // Clean up localStorage if redirecting to profile
-      if (localRedirectTo === "profile") {
+      if (localRedirectTo === "profile" || redirectReady) {
         localStorage.removeItem("redirectTo");
+        setRedirectReady(false);
       }
 
       navigate(redirectPath);
     }
-  }, [isRootPath, token, authToken, navigate, redirectTo]);
-
-
+  }, [isRootPath, token, authToken, navigate, redirectTo, redirectReady]);
 
   //Upgraded Services Modal
   const upgrade_services = searchParams.get("upgrade_services");
@@ -295,11 +335,11 @@ function App() {
 
   useEffect(() => {
     if (upgrade_services) {
-      setIsUpgradeModal(true)
-      setUpgradeList(service_list.split(",").map(s => s.trim()))
-      searchParams.delete('upgrade_services');
+      setIsUpgradeModal(true);
+      setUpgradeList(service_list.split(",").map((s) => s.trim()));
+      searchParams.delete("upgrade_services");
       searchParams.delete("service_list");
-      navigate('/', { replace: true })
+      navigate("/", { replace: true });
     }
   }, [upgrade_services]);
 
@@ -339,16 +379,24 @@ function App() {
                 <PlanExpirationBanner />
                 <ExpiredPlanCard />
                 <DoctorModal />
+                <BottomSheetManager />
               </div>
             )}
             {isUpgradeModal && (
-              <UpgradeServicesModal isUpgradeModal={isUpgradeModal} upgradeList={upgradeList} handleUpgradeModal={handleUpgradeModal} />
+              <UpgradeServicesModal
+                isUpgradeModal={isUpgradeModal}
+                upgradeList={upgradeList}
+                handleUpgradeModal={handleUpgradeModal}
+              />
             )}
             <Routes>
               {/* Public route */}
               {/* <Route path="/login" element={<AuthContainer />} /> */}
               <Route path="/login" element={<Onboarding />} />
               <Route path="/final-setup" element={<FinalSetup />} />
+
+              {/* Restricted route - authorized only to get/upload snapRx files */}
+              <Route path="snap-rx/mobile-upload" element={<UploadRx />} />
 
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>
@@ -401,6 +449,9 @@ function App() {
                 <Route path="all_patients" element={<AllPatients />} />
                 <Route path="billing-settings" element={<BillingSettings />} />
                 <Route path="add-appointment" element={<AddAppointment />} />
+                <Route path="snap-rx" element={<SnapRx />} />
+                <Route path="snap-rx/preview" element={<SnapRxPreview />} />
+                <Route path="snap-rx/digitise" element={<SnapRxDigitise />} />
                 <Route
                   path="get-unlimited-access"
                   element={<GetUnlimitedAccess />}

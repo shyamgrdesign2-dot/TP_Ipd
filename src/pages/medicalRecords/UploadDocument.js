@@ -120,8 +120,8 @@ const UploadDocument = ({
     ];
     if (filesData?.length > 0) {
       filesData.forEach((item) => {
-        // 8388608 = 8 MB (maximum file size to upload)
-        if (item?.size > 8388608) {
+        // 15728640 = 15 MB (maximum file size to upload)
+        if (item?.size > 15728640) {
           setIsFileSizeError(true);
         }
         if (!supportedTypes?.includes(item?.type)) {
@@ -643,8 +643,8 @@ const UploadDocument = ({
                     {isFileSizeError ? (
                       <>
                         The file size exceeded{" "}
-                        <span style={{ fontWeight: 700 }}>8MB.</span> Please
-                        upload a file smaller than 8MB
+                        <span style={{ fontWeight: 700 }}>15MB.</span> Please
+                        upload a file smaller than 15MB
                       </>
                     ) : isFileLimitError ? (
                       <>

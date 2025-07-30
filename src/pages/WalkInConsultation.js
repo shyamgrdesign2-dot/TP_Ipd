@@ -18,7 +18,7 @@ import { isNumeric, isAlphabet, getClinicName } from "../utils/utils";
 import { resetVaccineState } from "../redux/vaccineSlice";
 
 import smartPad from "../assets/images/smartPad.svg";
-import { GB_ISCRIBE } from "../utils/constants";
+import { GB_ISCRIBE, GB_SNAP_RX } from "../utils/constants";
 import { resetGrowthChartState } from "../redux/growthChartSlice";
 import { resetObstetricState } from "../redux/obstetricSlice";
 import { resetUploadDocState } from "../redux/uploadDocSlice";
@@ -42,6 +42,9 @@ function WalkInConsultation() {
   const consultButtonRef = useRef(null);
   const isSmartSyncAccessableFromGB = useFeatureIsOn(
     GB_ISCRIBE
+  );
+  const isSnapRxAccessable = useFeatureIsOn(
+    GB_SNAP_RX
   );
 
   const [keyboardOpen, setKeyboardOpen] = useState(false);
@@ -232,7 +235,44 @@ function WalkInConsultation() {
             >
               Patient Details
             </Button>
-            {isSmartSyncAccessableFromGB && !isMobile ? (
+            {isSnapRxAccessable && !isMobile ? (
+              <div className="d-flex btn btn-smart-rx-walkin">
+                <div style={{ paddingLeft: "6px" }} onClick={() => onSnapRxClick(patient)}>
+                  <img src={smartPad} alt="vitals" />
+                  <button
+                    className="btn btn-smartRx-text"
+                  >
+                    Snap Rx
+                  </button>
+                </div>
+                <div>
+                  <Dropdown
+                    className="btn"
+                    menu={{
+                      items: getMenuItems(patient),
+                    }}
+                    trigger={["click"]}
+                  >
+                    <a
+                      onClick={(e) => {
+                        e.preventDefault();
+                      }}
+                      style={{ padding: "5px" }}
+                    >
+                      <i
+                        className="icon-right"
+                        style={{
+                          display: "block",
+                          transform: `rotate(270deg)`,
+                          color: "white",
+                        }}
+                      />
+                    </a>
+                  </Dropdown>
+                </div>
+              </div>
+            ) :
+            isSmartSyncAccessableFromGB && !isMobile ? (
               <div className="d-flex btn btn-smart-rx-walkin">
                 <div style={{ paddingLeft: "6px" }} onClick={() => onSmartRxClick(patient)}>
                   <img src={smartPad} alt="vitals" />
@@ -533,6 +573,10 @@ function WalkInConsultation() {
     //   //   patient_id: record?.patient_unique_id,
     // });
     navigate("/smart-prescription", { state: { patient_data: patient } });
+  };
+
+  const onSnapRxClick = async (patient) => {
+    navigate("/snap-rx", { state: { patient_data: patient } });
   };
 
   return (
