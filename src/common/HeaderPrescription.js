@@ -47,6 +47,7 @@ import { getDecodedToken } from '../utils/localStorage';
 import { env } from '../EnvironmentConfig';
 import { updateCredits } from '../redux/monetizationSlice';
 import { setAddToRx } from '../api/services/ApiGenRx';
+import { setSelectAutofill } from '../redux/ddxSlice';
 
 var oneClickCosultationTemplateId = 0
 
@@ -1101,6 +1102,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     _id: symptomCollector?._id,
                     addToRx: true,
                   });
+                  dispatch(setSelectAutofill(false));
                 }
 
                 window.Moengage.track_event("Z_enter_getInvestigationAndMedicine", {
