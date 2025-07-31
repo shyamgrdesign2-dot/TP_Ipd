@@ -455,10 +455,15 @@ export const generateBillToken = async function () {
   return res;
 };
 
-export const fetchBillDetails = async function (billNumber, patientId, token) {
+export const fetchBillDetails = async function (
+  billNumber,
+  patientId,
+  doctorId,
+  token
+) {
   try {
     const response = await fetch(
-      `${baseUrl.customBaseUrl}/api/v1/billing/bill-pdf/bill-details?billNumber=${billNumber}&patientId=${patientId}`,
+      `${baseUrl.customBaseUrl}/api/v1/billing/bill-pdf/bill-details?billNumber=${billNumber}&patientId=${patientId}&doctorId=${doctorId}`,
       {
         method: "GET",
         headers: {
@@ -483,11 +488,12 @@ export const fetchBillDetails = async function (billNumber, patientId, token) {
 export const fetchAdvancedDepositDetails = async function (
   receiptNumber,
   patientId,
+  doctorId,
   token
 ) {
   try {
     const response = await fetch(
-      `${baseUrl.customBaseUrl}/api/v1/billing/bill-pdf/advanced-deposit-details?receiptNumber=${receiptNumber}&patientId=${patientId}`,
+      `${baseUrl.customBaseUrl}/api/v1/billing/bill-pdf/advanced-deposit-details?receiptNumber=${receiptNumber}&patientId=${patientId}&doctorId=${doctorId}`,
       {
         method: "GET",
         headers: {

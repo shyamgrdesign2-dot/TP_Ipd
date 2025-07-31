@@ -9,6 +9,7 @@ const OpdBill = () => {
   const billNumber = urlParams.get("billNumber") || "";
   const receiptNumber = urlParams.get("receiptNumber") || "";
   const patientId = urlParams.get("patientId") || "";
+  const doctorId = urlParams.get("doctorId") || "";
   const token = urlParams.get("token") || "";
 
   const isDepositReceipt = !!receiptNumber;
@@ -53,6 +54,7 @@ const OpdBill = () => {
       const billDetailsRes = await fetchBillDetails(
         billNumber,
         patientId,
+        doctorId,
         token
       );
 
@@ -73,6 +75,7 @@ const OpdBill = () => {
       const advancedDepositDetailsRes = await fetchAdvancedDepositDetails(
         receiptNumber,
         patientId,
+        doctorId,
         token
       );
       if (
