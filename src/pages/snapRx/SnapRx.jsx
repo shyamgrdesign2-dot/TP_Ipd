@@ -75,15 +75,21 @@ function SnapRxContent() {
 
   const fetchUploadedFiles = async (
     fetchByTcmId = false,
-    createEditSnapRx = false
+    createEditSnapRx = false,
+    showErrorOnRefreshClick = false
   ) => {
     if (
       !patient_data?.patient_unique_id ||
       (!tcmId && !sessionStorage.getItem("snaprx_session_id")) ||
       (fetchByTcmId && !tcmId)
     ) {
-      message.error("Please try again after uploading the files.");
+      if (showErrorOnRefreshClick) {
+        message.error("Please try again after uploading the files.");
+      }
       return;
+    }
+    if (showErrorOnRefreshClick) {
+      setIsLoading(true);
     }
     try {
       const reqData = {
@@ -332,6 +338,7 @@ function SnapRxContent() {
       );
       if (response && response.status) {
         dispatch(setFileUploadToken(null));
+        refreshSessionId();
         // Navigate to digitization or next step if needed
         navigate("/snap-rx/preview", {
           replace: true,
@@ -386,7 +393,7 @@ function SnapRxContent() {
   const handleZoomIn = (fileId) => {
     uploadWrittenRxRef?.current?.handleZoomIn(fileId);
   };
-  
+
   const handleZoomOut = (fileId) => {
     uploadWrittenRxRef?.current?.handleZoomOut(fileId);
   };
@@ -412,8 +419,7 @@ function SnapRxContent() {
   };
 
   const handleRefreshForMobileUploadedFiles = () => {
-    setIsLoading(true);
-    fetchUploadedFiles();
+    fetchUploadedFiles(false, false, true);
   };
 
   const handleFileEdit = (file) => {

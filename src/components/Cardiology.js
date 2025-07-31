@@ -139,7 +139,7 @@ function Cardiology(props) {
     } else {
       setIsSmartRxFile(false);
     }
-    if (viewCaseManagerData?.moduleContents?.length) {
+        if (viewCaseManagerData?.moduleContents?.length) {
       dispatch(getModules(userId));
     }
     if (isValidMongoId(viewCaseManagerData?.smart_prescription_filename)) {
@@ -611,7 +611,7 @@ function Cardiology(props) {
         patient_data.patient_unique_id,
         tcmId
       );
-
+      
       if (response?.digitization) {
         setSnapRxDigitisedData(
           response?.digitization?.editedData ||
@@ -661,61 +661,64 @@ function Cardiology(props) {
   };
 
   // Render items for each type (medications, tests, etc.)
-  const renderItems = (type) => (
-    <div className="digitised-data-section">
-      <ul>
-        {/* Handle vitals type separately */}
-        {type === "vitals" &&
-          Object.entries(rxDigitisedData?.editedData?.vitals || {})
-            .filter(([key, value]) => value.trim()) // Filter out empty or falsy values
-            .map(([key, value]) => (
-              <li key={key}>
+  const renderItems = (type) => {
+    const data = isSnapRxAccessableFromGB && isSnapRx && showDigitalSnapRx && snapRxDigitisedData ? snapRxDigitisedData : rxDigitisedData?.editedData;
+    return (
+      <div className="digitised-data-section">
+        <ul>
+          {/* Handle vitals type separately */}
+          {type === "vitals" &&
+            Object.entries(data?.vitals || {})
+              .filter(([key, value]) => value.trim()) // Filter out empty or falsy values
+              .map(([key, value]) => (
+                <li key={key}>
+                  <div className="medicine-item">
+                    <span>
+                      {/* Format the key to be human-readable */}
+                      {`${key
+                        .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
+                        .replace(/^./, (str) => str.toUpperCase())}: `}
+                    </span>
+                    <span>{value}</span>
+                  </div>
+                </li>
+              ))}
+
+          {/* Handle other types (assume they are arrays) */}
+          {type !== "vitals" &&
+            Array.isArray(data?.[type]) &&
+            data?.[type].map((item, index) => (
+              <li key={index}>
                 <div className="medicine-item">
                   <span>
-                    {/* Format the key to be human-readable */}
-                    {`${key
-                      .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
-                      .replace(/^./, (str) => str.toUpperCase())}: `}
+                    {/* Render dynamically based on type */}
+                    {type === "advice"
+                      ? item
+                      : type === "symptoms" && item?.name?.length > 0
+                        ? item.name[0]?.toUpperCase() + item.name?.slice(1)
+                        : type === "medications" || type === "tests"
+                          ? item?.refinedName
+                          : item?.name}
                   </span>
-                  <span>{value}</span>
+
+                  {/* Optional rendering for lineItem */}
+                  {(type === "medications" ||
+                    type === "vaccinations" ||
+                    type === "medicalHistory" ||
+                    type === "tests" ||
+                    type === "symptoms") &&
+                    item.lineItem && <span>{` (${item.lineItem})`}</span>}
+
+                  {/* Optional rendering for notes */}
+                  {(type === "examination" || type === "diagnosis") &&
+                    item.notes && <span>{` (${item.notes})`}</span>}
                 </div>
               </li>
             ))}
-
-        {/* Handle other types (assume they are arrays) */}
-        {type !== "vitals" &&
-          Array.isArray(rxDigitisedData?.editedData?.[type]) &&
-          rxDigitisedData.editedData[type].map((item, index) => (
-            <li key={index}>
-              <div className="medicine-item">
-                <span>
-                  {/* Render dynamically based on type */}
-                  {type === "advice"
-                    ? item
-                    : type === "symptoms" && item?.name?.length > 0
-                    ? item.name[0]?.toUpperCase() + item.name?.slice(1)
-                    : type === "medications" || type === "tests"
-                    ? item?.refinedName
-                    : item?.name}
-                </span>
-
-                {/* Optional rendering for lineItem */}
-                {(type === "medications" ||
-                  type === "vaccinations" ||
-                  type === "medicalHistory" ||
-                  type === "tests" ||
-                  type === "symptoms") &&
-                  item.lineItem && <span>{` (${item.lineItem})`}</span>}
-
-                {/* Optional rendering for notes */}
-                {(type === "examination" || type === "diagnosis") &&
-                  item.notes && <span>{` (${item.notes})`}</span>}
-              </div>
-            </li>
-          ))}
-      </ul>
-    </div>
-  );
+        </ul>
+      </div>
+    );
+  };
 
   const renderGenRxItems = (type) => (
     <div className="digitised-data-section" style={{ marginLeft: 0 }}>
