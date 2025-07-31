@@ -202,7 +202,7 @@ const PreviewBill = ({
       }${
         isDepositReceipt ? `&receiptNumber=${billDetails?.receiptNumber}` : ""
       }${billDetails?.patientId ? `&patientId=${billDetails?.patientId}` : ""}${
-        billDetails?.doctorId
+        billDetails?.doctorId || userId
           ? `&doctorId=${billDetails?.doctorId || userId}`
           : ""
       }&receptionist=true&patientViewBill=true`
