@@ -72,6 +72,8 @@ const dev = {
   ],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
+  doctor_portal_url: "https://pm-uat-doctor-portal.tatvacare.in",
+  whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
 };
 
 const qa_tp = {
@@ -153,6 +155,8 @@ const qa_tp = {
   ],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
+  doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
+  whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
 };
 
 const qa = {
@@ -230,6 +234,8 @@ const qa = {
   ],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
+  doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
+  whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
 };
 
 const uat = {
@@ -312,6 +318,8 @@ const uat = {
   ],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
+  doctor_portal_url: "https://pm-uat-doctor-portal.tatvacare.in",
+  whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
 };
 
 const prod = {
@@ -397,6 +405,8 @@ const prod = {
   ],
   medeco_webview_url: "",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
+  doctor_portal_url: "https://tatvapractice.tatvacare.in",
+  whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
 };
 
 const getEnv = () => {

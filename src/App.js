@@ -63,6 +63,7 @@ import SnapRxPreview from "./pages/snapRx/SnapRxPreview";
 import SnapRxDigitise from "./pages/snapRx/SnapRxDigitise";
 import AppointmentAgent from "./pages/appointmentAgent/AppointmentAgent";
 import AppointmentSuccess from "./pages/appointmentAgent/components/AppointmentSuccess/AppointmentSuccess";
+import OpdBill from "./pages/opdBilling/OpdBill";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -196,6 +197,7 @@ function App() {
   }, [location.pathname, navigate, authToken, isReceptionist]);
 
   useEffect(() => {
+    if (isReceptionist) return;
     // Load features asynchronously when the app renders
     growthbook?.init({ streaming: true });
     const token = authToken || getToken();
@@ -463,6 +465,7 @@ function App() {
                   element={<AppointmentSuccess />}
                 />
               </Route>
+              <Route path="opd-bill" element={<OpdBill />} />
             </Routes>
           </PersistGate>
         </Provider>

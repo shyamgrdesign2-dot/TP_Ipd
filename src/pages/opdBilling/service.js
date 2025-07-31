@@ -439,3 +439,129 @@ export const checkToShowOpdBilling = async function () {
   }
   return res?.data;
 };
+
+export const generateBillToken = async function () {
+  let res = {};
+  try {
+    res = await api.post(
+      `/api/v1/billing/bill/generate-bill-token`,
+      {},
+      baseUrl
+    );
+    res = res?.token;
+  } catch (e) {
+    console.error("Error while generating bill token: ", e);
+  }
+  return res;
+};
+
+export const fetchBillDetails = async function (
+  billNumber,
+  patientId,
+  doctorId,
+  token
+) {
+  try {
+    const response = await fetch(
+      `${baseUrl.customBaseUrl}/api/v1/billing/bill-pdf/bill-details?billNumber=${billNumber}&patientId=${patientId}&doctorId=${doctorId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (e) {
+    console.error("Error while fetching bill details: ", e);
+    return null;
+  }
+};
+
+export const fetchAdvancedDepositDetails = async function (
+  receiptNumber,
+  patientId,
+  doctorId,
+  token
+) {
+  try {
+    const response = await fetch(
+      `${baseUrl.customBaseUrl}/api/v1/billing/bill-pdf/advanced-deposit-details?receiptNumber=${receiptNumber}&patientId=${patientId}&doctorId=${doctorId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (e) {
+    console.error("Error while fetching advanced deposit details: ", e);
+    return null;
+  }
+};
+
+export const sendWhatsAppMessage = async function (payload) {
+  try {
+    const response = await fetch(
+      `${config.bulk_messages}/api/v1/communicationInternal/sendWhatsAppMessage`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Api-Key": config.whatsapp_x_api_key,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (e) {
+    console.error("Error while sending WhatsApp message: ", e);
+    return null;
+  }
+};
+
+export const createShortLink = async function (targetUrl) {
+  try {
+    const response = await fetch(`${config.short_links_api_url}/api/v2/links`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-KEY": config.short_links_api_key,
+      },
+      body: JSON.stringify({
+        target: targetUrl,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data?.short_url;
+  } catch (e) {
+    console.error("Error while creating short link: ", e);
+    return null;
+  }
+};

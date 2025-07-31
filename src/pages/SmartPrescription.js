@@ -100,7 +100,7 @@ import {
 import LabParametersList from "../components/LabParametersList";
 import LabParams from "../components/LabParams";
 import ViewLabParam from "../components/ViewLabParams";
-import { setShowSCPopup, setSymptomCollector } from "../redux/ddxSlice";
+import { setSelectAutofill, setShowSCPopup, setSymptomCollector } from "../redux/ddxSlice";
 import { fetchSymptomsCollectorData, setAddToRx } from "../api/services/ApiGenRx";
 import SCBanner from "../components/SCBanner";
 import SCPopup from "../components/SCPopup";
@@ -1389,6 +1389,7 @@ function SmartPrescription() {
           _id: symptomCollector?._id,
           addToRx: true,
         });
+        dispatch(setSelectAutofill(false));
       }
     } catch (error) {
       errorMessage("Error Uploading the prescription, Please try again");

@@ -52,6 +52,7 @@ import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
 import { services } from "../redux/doctorsSlice";
 import { deviceType, osName } from "react-device-detect";
 import SCBanner from "./SCBanner";
+import { setSelectAutofill } from "../redux/ddxSlice";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -884,6 +885,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
           _id: symptomCollector?._id,
           addToRx: true,
         });
+        dispatch(setSelectAutofill(false));
       }
       navigate("/gen-rx-print", {
         replace: true,

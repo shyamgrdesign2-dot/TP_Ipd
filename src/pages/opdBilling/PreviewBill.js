@@ -7,7 +7,13 @@ import { Document, Page } from "react-pdf";
 import ViewBillPdf from "./components/viewBillPdf/ViewBillPdf";
 import { pdf } from "@react-pdf/renderer";
 import { useSelector } from "react-redux";
-import { fetchBillDetailsByBillNumber, fetchPrintSetting } from "./service";
+import {
+  createShortLink,
+  fetchBillDetailsByBillNumber,
+  fetchPrintSetting,
+  generateBillToken,
+  sendWhatsAppMessage,
+} from "./service";
 import { setBillPrintSettings } from "../../redux/billingSlice";
 import { useDispatch } from "react-redux";
 import { Container, Navbar } from "react-bootstrap";
@@ -18,7 +24,12 @@ import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { deleteDocsUploadedFromAndroid } from "../medicalRecords/service";
 import RefundBill from "./components/billingDashboard/RefundBill/RefundBill";
 import { getClinic, trackEvent } from "../../utils/utils";
-import { useNavigate } from "react-router-dom";
+import wtsp from "./../../assets/images/wtsp.svg";
+import loadingImg from "./../../assets/images/loading.png";
+import { PERSISTANT_STORAGE_KEY_BILL_TOKEN } from "../../utils/constants";
+import { useLocalStorage } from "../../utils/localStorage";
+import config from "../../config";
+import { WhatsAppOpdBillTemplateId } from "./utils/constants";
 
 const PreviewBill = ({
   handleCreateBillDrawer,
@@ -30,7 +41,9 @@ const PreviewBill = ({
   handleMessageForm3c,
   getPatientBills,
 }) => {
-  const navigate = useNavigate();
+  const [getBillToken, setBillToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_BILL_TOKEN
+  );
   const [billDetails, setBillDetails] = useState(billData);
   const { patient = {} } = billDetails || {};
   const patientData = {
@@ -66,6 +79,11 @@ const PreviewBill = ({
   const isReceptionist = urlParams.has("receptionist");
   const receptionistId = urlParams.get("receptionistId");
   const receptionistName = urlParams.get("receptionistName");
+  const clinicName = urlParams.get("clinicName");
+  const [buttonText, setButtonText] = useState("Send to WhatsApp");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const clinic = getClinic(profile?.hospital_data);
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -157,7 +175,6 @@ const PreviewBill = ({
   }, [db, deviceUid]);
 
   const handleRefundBillDrawer = () => {
-    const clinic = getClinic();
     trackEvent("TP_refundbill_billpreviewpage Settings_save", {
       doctorSpeciality: profile?.dp_name,
       doctorId: profile?.doctor_unique_id,
@@ -170,6 +187,40 @@ const PreviewBill = ({
     setRefundBillDrawer(!refundBillDrawer);
   };
 
+  const handleSendToWhatsapp = async () => {
+    setIsLoading(true);
+    let token = getBillToken();
+    if (!token) {
+      token = await generateBillToken();
+      setBillToken(token);
+    }
+
+    const shortLink = await createShortLink(
+      `${config.doctor_portal_url}/opd-bill?token=${token}${
+        billDetails?.billNumber ? `&billNumber=${billDetails?.billNumber}` : ""
+      }${
+        isDepositReceipt ? `&receiptNumber=${billDetails?.receiptNumber}` : ""
+      }${billDetails?.patientId ? `&patientId=${billDetails?.patientId}` : ""}${
+        billDetails?.doctorId ? `&doctorId=${billDetails?.doctorId}` : ""
+      }&receptionist=true&patientViewBill=true`
+    );
+    const message = {
+      patient_name: patient?.name,
+      clinic_name: clinic?.hm_name || clinicName,
+      bill_link: shortLink,
+      clinic_name2: clinic?.hm_name || clinicName,
+    };
+    const res = await sendWhatsAppMessage({
+      template_id: WhatsAppOpdBillTemplateId,
+      text: JSON.stringify(message),
+      mobile_number: patient?.phone,
+    });
+    if (res?.message) {
+      setButtonText("Successfully Sent");
+      setIsLoading(false);
+    }
+  };
+
   const handleRefundSuccess = async () => {
     const billDetailsRes = await fetchBillDetailsByBillNumber(
       billDetails?.billNumber
@@ -178,7 +229,6 @@ const PreviewBill = ({
   };
 
   const handlePrintClick = () => {
-    const clinic = getClinic();
     trackEvent("TP_printbill_billpreviewpage Settings_save", {
       doctorSpeciality: profile?.dp_name,
       doctorId: profile?.doctor_unique_id,
@@ -188,15 +238,10 @@ const PreviewBill = ({
       receptionistId: receptionistId,
       receptionistName: receptionistName,
     });
-    printContent(
-      printBlob,
-      billData?.patientId,
-      setStartLoader
-    );
-  }
+    printContent(printBlob, billData?.patientId, setStartLoader);
+  };
 
   const handleDownloadClick = () => {
-    const clinic = getClinic();
     trackEvent("TP_Billing_DownloadBill", {
       patientName: patient?.name || "",
       patientId: patient?.id || "",
@@ -209,12 +254,7 @@ const PreviewBill = ({
       receptionistId: receptionistId,
       receptionistName: receptionistName,
     });
-    handleDownload(
-      pdfUrl,
-      printBlob,
-      billDetails?.patientId,
-      setStartLoader
-    );
+    handleDownload(pdfUrl, printBlob, billDetails?.patientId, setStartLoader);
   };
 
   return (
@@ -325,7 +365,7 @@ const PreviewBill = ({
                   billDetails?.paymentStatus !== "Refunded" && (
                     <Button
                       type="text"
-                      className={`btn btnicon20 align-items-center d-flex btn-41 w-100 ${
+                      className={`btn btnicon20 align-items-center d-flex btn-41 w-100 mb-3 ${
                         isReceptionist ? "receptionist-white-btn" : "btn-input"
                       }`}
                       icon={<i className="icon-Edit" />}
@@ -335,6 +375,40 @@ const PreviewBill = ({
                       <i className="icon-right iconrotate180 ms-auto"></i>
                     </Button>
                   )}
+
+                <div className="bg-body d-flex flex-column p-3 rounded-10px border">
+                  <div className="d-flex">
+                    <img
+                      src={wtsp}
+                      alt="Whatsapp Icon"
+                      className="align-self-baseline me-3"
+                    />
+                    <div className="fontroboto title-common">
+                      <div className="fw-normal fontroboto mb-2">
+                        {"Send this bill to Patient's WhatsApp"}
+                      </div>
+                      {patientData !== undefined
+                        ? ` +91 ${patientData.pm_contact_no}`
+                        : "-"}
+                    </div>
+                  </div>
+                  <button
+                    className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-1 mt-3 btn-41 w-100"
+                    onClick={handleSendToWhatsapp}
+                    disabled={buttonText === "Successfully Sent"}
+                  >
+                    {isLoading ? (
+                      <img
+                        src={loadingImg}
+                        alt="Loading..."
+                        width="25px"
+                        height="25px"
+                      />
+                    ) : (
+                      buttonText
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </Col>
