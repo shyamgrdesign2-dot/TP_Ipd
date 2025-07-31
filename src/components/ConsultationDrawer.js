@@ -848,6 +848,22 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
         duration: 5,
       });
 
+      const clinic_name = getClinicName(profile?.hospital_data);
+      const tokenData = getTokenData();
+      const deviceSdkData = getDeviceSdkData();
+      window.Moengage.track_event("TP_Voice_Submit", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        clinic_id: tokenData?.clinic_id,
+        um_id: tokenData?.user_id,
+        clinic_Name: clinic_name,
+        patient_name: patient_data?.pm_first_name,
+        patient_unique_id: patient_data?.patient_unique_id,
+        ...deviceSdkData,
+      });
+
       if (useVoiceRx) {
         let sendData = {
           b2c_id: profile?.b2c,
