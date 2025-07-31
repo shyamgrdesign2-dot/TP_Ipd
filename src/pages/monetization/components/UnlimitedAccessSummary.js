@@ -24,7 +24,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
     const { profile } = useSelector((state) => state.doctors);
     const { pincodeInfo } = useSelector((state) => state.records);
     const { planDetails } = useSelector((state) => state.subscription);
-    const { clinic_b2c } = planDetails || {};
+    const { clinic_b2c, profile_b2c } = planDetails || {};
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -292,6 +292,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 }));
                 let sendData = {
                     b2c_id: profile?.b2c,
+                    owner_b2c_id: clinic_b2c,
                     purchase_city: profile?.hospital_data?.find((e) => e.hm_id == tokenData?.clinic_id)?.hm_city,
                     purchase_state: profile?.hospital_data?.find((e) => e.hm_id == tokenData?.clinic_id)?.hm_state,
                     purchase_date: moment().toISOString(),
@@ -476,7 +477,7 @@ function UnlimitedAccessSummary({ selectedServices, setSelectedServices }) {
                 noOfYears: validity / 12
             }));
             let sendData = {
-                b2c: clinic_b2c,
+                b2c: profile_b2c,
                 services: summaryData
             }
             const action = await dispatch(discountCode(sendData));
