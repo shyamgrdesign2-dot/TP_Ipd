@@ -63,6 +63,7 @@ const PreviewBill = ({
   const { billPrintSettings, advancedSettings } = useSelector(
     (state) => state.billing
   );
+  const { userId } = useSelector((state) => state.doctors);
   const { profile } = useSelector((state) => state.doctors);
   const divRef = useRef(null);
   const [divWidth, setDivWidth] = useState(0);
@@ -201,7 +202,9 @@ const PreviewBill = ({
       }${
         isDepositReceipt ? `&receiptNumber=${billDetails?.receiptNumber}` : ""
       }${billDetails?.patientId ? `&patientId=${billDetails?.patientId}` : ""}${
-        billDetails?.doctorId ? `&doctorId=${billDetails?.doctorId}` : ""
+        billDetails?.doctorId || userId
+          ? `&doctorId=${billDetails?.doctorId || userId}`
+          : ""
       }&receptionist=true&patientViewBill=true`
     );
     const message = {
@@ -376,39 +379,42 @@ const PreviewBill = ({
                     </Button>
                   )}
 
-                <div className="bg-body d-flex flex-column p-3 rounded-10px border">
-                  <div className="d-flex">
-                    <img
-                      src={wtsp}
-                      alt="Whatsapp Icon"
-                      className="align-self-baseline me-3"
-                    />
-                    <div className="fontroboto title-common">
-                      <div className="fw-normal fontroboto mb-2">
-                        {"Send this bill to Patient's WhatsApp"}
-                      </div>
-                      {patientData !== undefined
-                        ? ` +91 ${patientData.pm_contact_no}`
-                        : "-"}
-                    </div>
-                  </div>
-                  <button
-                    className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-1 mt-3 btn-41 w-100"
-                    onClick={handleSendToWhatsapp}
-                    disabled={buttonText === "Successfully Sent"}
-                  >
-                    {isLoading ? (
+                {isReceptionist && isDepositReceipt ? null : (
+                  <div className="bg-body d-flex flex-column p-3 rounded-10px border">
+                    <div className="d-flex">
                       <img
-                        src={loadingImg}
-                        alt="Loading..."
-                        width="25px"
-                        height="25px"
+                        src={wtsp}
+                        alt="Whatsapp Icon"
+                        className="align-self-baseline me-3"
                       />
-                    ) : (
-                      buttonText
-                    )}
-                  </button>
-                </div>
+                      <div className="fontroboto title-common">
+                        <div className="fw-normal fontroboto mb-2">
+                          {"Send this bill to Patient's WhatsApp"}
+                        </div>
+                        {patientData !== undefined
+                          ? ` +91 ${patientData.pm_contact_no}`
+                          : "-"}
+                      </div>
+                    </div>
+
+                    <button
+                      className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-1 mt-3 btn-41 w-100"
+                      onClick={handleSendToWhatsapp}
+                      disabled={buttonText === "Successfully Sent"}
+                    >
+                      {isLoading ? (
+                        <img
+                          src={loadingImg}
+                          alt="Loading..."
+                          width="25px"
+                          height="25px"
+                        />
+                      ) : (
+                        buttonText
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </Col>
