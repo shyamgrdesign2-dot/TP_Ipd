@@ -79,6 +79,7 @@ const PreviewBill = ({
   const isReceptionist = urlParams.has("receptionist");
   const receptionistId = urlParams.get("receptionistId");
   const receptionistName = urlParams.get("receptionistName");
+  const clinicName = urlParams.get("clinicName");
   const [buttonText, setButtonText] = useState("Send to WhatsApp");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -199,16 +200,16 @@ const PreviewBill = ({
         billDetails?.billNumber ? `&billNumber=${billDetails?.billNumber}` : ""
       }${
         isDepositReceipt ? `&receiptNumber=${billDetails?.receiptNumber}` : ""
-      }${
-        billDetails?.patientId ? `&patientId=${billDetails?.patientId}` : ""
-      }${billDetails?.doctorId ? `&doctorId=${billDetails?.doctorId}` : ""}
+      }${billDetails?.patientId ? `&patientId=${billDetails?.patientId}` : ""}${
+        billDetails?.doctorId ? `&doctorId=${billDetails?.doctorId}` : ""
+      }
       &receptionist=true&patientViewBill=true`
     );
     const message = {
       patient_name: patient?.name,
-      clinic_name: clinic?.hm_name,
+      clinic_name: clinic?.hm_name || clinicName,
       bill_link: shortLink,
-      clinic_name2: clinic?.hm_name,
+      clinic_name2: clinic?.hm_name || clinicName,
     };
     const res = await sendWhatsAppMessage({
       template_id: WhatsAppOpdBillTemplateId,
