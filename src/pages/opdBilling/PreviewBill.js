@@ -66,6 +66,24 @@ const PreviewBill = ({
   const { userId } = useSelector((state) => state.doctors);
   const { profile } = useSelector((state) => state.doctors);
   const divRef = useRef(null);
+
+  // Helper function to determine if doctorId should be passed
+  const getDoctorIdParam = () => {
+    const doctorId = billDetails?.doctorId || userId;
+
+    // Case 1: Not receptionist - pass doctorId in both cases
+    if (!isReceptionist) {
+      return doctorId;
+    }
+
+    // Case 2: Receptionist - pass doctorId only when not isDepositReceipt
+    if (isReceptionist && !isDepositReceipt) {
+      return doctorId;
+    }
+
+    // Case 3: Receptionist with isDepositReceipt - don't pass doctorId
+    return null;
+  };
   const [divWidth, setDivWidth] = useState(0);
   const [showConfigureSettings, setShowConfigureSettings] = useState(false);
   const [numPages, setNumPages] = useState();
@@ -196,15 +214,14 @@ const PreviewBill = ({
       setBillToken(token);
     }
 
+    const doctorId = getDoctorIdParam();
     const shortLink = await createShortLink(
       `${config.doctor_portal_url}/opd-bill?token=${token}${
         billDetails?.billNumber ? `&billNumber=${billDetails?.billNumber}` : ""
       }${
         isDepositReceipt ? `&receiptNumber=${billDetails?.receiptNumber}` : ""
       }${billDetails?.patientId ? `&patientId=${billDetails?.patientId}` : ""}${
-        billDetails?.doctorId || userId
-          ? `&doctorId=${billDetails?.doctorId || userId}`
-          : ""
+        doctorId ? `&doctorId=${doctorId}` : ""
       }&receptionist=true&patientViewBill=true`
     );
     const message = {
@@ -213,12 +230,12 @@ const PreviewBill = ({
       bill_link: shortLink,
       clinic_name2: clinic?.hm_name || clinicName,
     };
-    const res = await sendWhatsAppMessage({
+    const statusRes = await sendWhatsAppMessage({
       template_id: WhatsAppOpdBillTemplateId,
       text: JSON.stringify(message),
       mobile_number: patient?.phone,
     });
-    if (res?.message) {
+    if (statusRes === 200) {
       setButtonText("Successfully Sent");
       setIsLoading(false);
     }
@@ -379,42 +396,40 @@ const PreviewBill = ({
                     </Button>
                   )}
 
-                {isReceptionist && isDepositReceipt ? null : (
-                  <div className="bg-body d-flex flex-column p-3 rounded-10px border">
-                    <div className="d-flex">
-                      <img
-                        src={wtsp}
-                        alt="Whatsapp Icon"
-                        className="align-self-baseline me-3"
-                      />
-                      <div className="fontroboto title-common">
-                        <div className="fw-normal fontroboto mb-2">
-                          {"Send this bill to Patient's WhatsApp"}
-                        </div>
-                        {patientData !== undefined
-                          ? ` +91 ${patientData.pm_contact_no}`
-                          : "-"}
+                <div className="bg-body d-flex flex-column p-3 rounded-10px border">
+                  <div className="d-flex">
+                    <img
+                      src={wtsp}
+                      alt="Whatsapp Icon"
+                      className="align-self-baseline me-3"
+                    />
+                    <div className="fontroboto title-common">
+                      <div className="fw-normal fontroboto mb-2">
+                        {"Send this bill to Patient's WhatsApp"}
                       </div>
+                      {patientData !== undefined
+                        ? ` +91 ${patientData.pm_contact_no}`
+                        : "-"}
                     </div>
-
-                    <button
-                      className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-1 mt-3 btn-41 w-100"
-                      onClick={handleSendToWhatsapp}
-                      disabled={buttonText === "Successfully Sent"}
-                    >
-                      {isLoading ? (
-                        <img
-                          src={loadingImg}
-                          alt="Loading..."
-                          width="25px"
-                          height="25px"
-                        />
-                      ) : (
-                        buttonText
-                      )}
-                    </button>
                   </div>
-                )}
+
+                  <button
+                    className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-1 mt-3 btn-41 w-100"
+                    onClick={handleSendToWhatsapp}
+                    disabled={buttonText === "Successfully Sent"}
+                  >
+                    {isLoading ? (
+                      <img
+                        src={loadingImg}
+                        alt="Loading..."
+                        width="25px"
+                        height="25px"
+                      />
+                    ) : (
+                      buttonText
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </Col>
