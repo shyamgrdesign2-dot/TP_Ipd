@@ -230,12 +230,12 @@ const PreviewBill = ({
       bill_link: shortLink,
       clinic_name2: clinic?.hm_name || clinicName,
     };
-    const res = await sendWhatsAppMessage({
+    const statusRes = await sendWhatsAppMessage({
       template_id: WhatsAppOpdBillTemplateId,
       text: JSON.stringify(message),
       mobile_number: patient?.phone,
     });
-    if (res?.message) {
+    if (statusRes === 200) {
       setButtonText("Successfully Sent");
       setIsLoading(false);
     }
