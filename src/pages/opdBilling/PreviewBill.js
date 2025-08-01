@@ -379,7 +379,6 @@ const PreviewBill = ({
                     </Button>
                   )}
 
-                {isReceptionist && isDepositReceipt ? null : (
                   <div className="bg-body d-flex flex-column p-3 rounded-10px border">
                     <div className="d-flex">
                       <img
@@ -414,7 +413,6 @@ const PreviewBill = ({
                       )}
                     </button>
                   </div>
-                )}
               </div>
             </div>
           </Col>
