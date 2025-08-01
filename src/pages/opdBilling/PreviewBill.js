@@ -66,6 +66,24 @@ const PreviewBill = ({
   const { userId } = useSelector((state) => state.doctors);
   const { profile } = useSelector((state) => state.doctors);
   const divRef = useRef(null);
+
+  // Helper function to determine if doctorId should be passed
+  const getDoctorIdParam = () => {
+    const doctorId = billDetails?.doctorId || userId;
+
+    // Case 1: Not receptionist - pass doctorId in both cases
+    if (!isReceptionist) {
+      return doctorId;
+    }
+
+    // Case 2: Receptionist - pass doctorId only when not isDepositReceipt
+    if (isReceptionist && !isDepositReceipt) {
+      return doctorId;
+    }
+
+    // Case 3: Receptionist with isDepositReceipt - don't pass doctorId
+    return null;
+  };
   const [divWidth, setDivWidth] = useState(0);
   const [showConfigureSettings, setShowConfigureSettings] = useState(false);
   const [numPages, setNumPages] = useState();
@@ -196,15 +214,14 @@ const PreviewBill = ({
       setBillToken(token);
     }
 
+    const doctorId = getDoctorIdParam();
     const shortLink = await createShortLink(
       `${config.doctor_portal_url}/opd-bill?token=${token}${
         billDetails?.billNumber ? `&billNumber=${billDetails?.billNumber}` : ""
       }${
         isDepositReceipt ? `&receiptNumber=${billDetails?.receiptNumber}` : ""
       }${billDetails?.patientId ? `&patientId=${billDetails?.patientId}` : ""}${
-        (billDetails?.doctorId || userId) && !isReceptionist
-          ? `&doctorId=${billDetails?.doctorId || userId}`
-          : ""
+        doctorId ? `&doctorId=${doctorId}` : ""
       }&receptionist=true&patientViewBill=true`
     );
     const message = {
