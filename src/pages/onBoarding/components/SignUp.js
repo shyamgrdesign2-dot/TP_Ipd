@@ -383,7 +383,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
       }
     };
 
-    loadScript();
+    // loadScript();
 
     return () => {
       // Cleanup function
@@ -722,7 +722,8 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
 
   // Add this helper function
   const isCaptchaVerified = () => {
-    return window.isCaptchaVerified ? window.isCaptchaVerified() : false;
+    return true;
+    // return window.isCaptchaVerified ? window.isCaptchaVerified() : false;
   };
 
   const handleBack = () => {
@@ -769,7 +770,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
             {error && errorType === "inputFiled" && <div className="error-message">{error}</div>}
           </Form.Item>
 
-          <div className="captcha-wrapper" style={{margin: "0.5rem 0 0.5rem 0"}}>
+          {/* <div className="captcha-wrapper" style={{margin: "0.5rem 0 0.5rem 0"}}>
             <div id="captch-id" className="captcha-container">
               {!captchaVisible && (
                 <div style={{ 
@@ -786,13 +787,13 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
 
           {error && errorType === "captcha" && <div className="error-message">{error}</div>}
 
          { captchaVerifivation !== "false" ? (
           <>
-            <Button
+            {/* <Button
               type="primary"
               loading={primaryBtnLoading}
               onClick={handleGetStarted}
@@ -800,9 +801,9 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}
             >
               {isLoginFlow ? "Login via OTP" : "Get Started"}
-            </Button>
+            </Button> */}
 
-            {isLoginFlow ? <div className="divider">or</div> : <div style={{height: "2rem"}}></div>}
+            {/* {isLoginFlow ? <div className="divider">or</div> : <div style={{height: "2rem"}}></div>} */}
 
             {isLoginFlow && (
               <Button
