@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { Input, Button, Form, Spin } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import "./Onboarding.scss";
@@ -10,6 +11,7 @@ import rightGroup from "../../../assets/images/onboard-page-icons/Right-Group.sv
 import { validateUser, checkPediaExists } from "../../auth/authService";
 import { getUtmParams } from "../../../components/userOnboarding/services/userDataService";
 import { detectOperatingSystem } from "../../../utils/utils";
+import { GB_DISABLE_MSG91_OTP_FLOW } from "../../../utils/constants";
 
 const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }) => {
   const [mobileNumber, setMobileNumber] = useState(initialMobileNumber || "");
@@ -30,6 +32,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
     password: "",
     confirmPassword: ""
   });
+  const isMsg91Disabled = useFeatureIsOn(GB_DISABLE_MSG91_OTP_FLOW);
   const [passwordStrength, setPasswordStrength] = useState({
     length: false,
     capital: false,
@@ -383,7 +386,9 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
       }
     };
 
-    // loadScript();
+    if (!isMsg91Disabled) {
+      loadScript();
+    }
 
     return () => {
       // Cleanup function
@@ -722,8 +727,8 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
 
   // Add this helper function
   const isCaptchaVerified = () => {
-    return true;
-    // return window.isCaptchaVerified ? window.isCaptchaVerified() : false;
+    if (isMsg91Disabled) return true;
+    return window.isCaptchaVerified ? window.isCaptchaVerified() : false;
   };
 
   const handleBack = () => {
@@ -793,7 +798,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
 
          { captchaVerifivation !== "false" ? (
           <>
-            {/* <Button
+            {!isMsg91Disabled ? <Button
               type="primary"
               loading={primaryBtnLoading}
               onClick={handleGetStarted}
@@ -801,9 +806,14 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
               disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}
             >
               {isLoginFlow ? "Login via OTP" : "Get Started"}
-            </Button> */}
-
-            {/* {isLoginFlow ? <div className="divider">or</div> : <div style={{height: "2rem"}}></div>} */}
+            </Button> : null}
+              {
+                !isMsg91Disabled ? (
+                  <>
+                  {isLoginFlow ? <div className="divider">or</div> : <div style={{height: "2rem"}}></div>}
+                  </>
+                )
+              : null}
 
             {isLoginFlow && (
               <Button
