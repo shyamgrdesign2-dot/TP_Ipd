@@ -319,6 +319,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   };
 
   useEffect(() => {
+    if (isMsg91Disabled) return;
     // MSG91 Integration
     window.isMSG91Active = true;
     const scriptId = "msg91-otp-script";
@@ -386,9 +387,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
       }
     };
 
-    if (!isMsg91Disabled) {
-      loadScript();
-    }
+    loadScript();
 
     return () => {
       // Cleanup function
@@ -775,7 +774,7 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
             {error && errorType === "inputFiled" && <div className="error-message">{error}</div>}
           </Form.Item>
 
-          {/* <div className="captcha-wrapper" style={{margin: "0.5rem 0 0.5rem 0"}}>
+          {!isMsg91Disabled ? <div className="captcha-wrapper" style={{margin: "0.5rem 0 0.5rem 0"}}>
             <div id="captch-id" className="captcha-container">
               {!captchaVisible && (
                 <div style={{ 
@@ -792,28 +791,30 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
                 </div>
               )}
             </div>
-          </div> */}
+          </div> : null}
 
           {error && errorType === "captcha" && <div className="error-message">{error}</div>}
 
          { captchaVerifivation !== "false" ? (
           <>
-            {!isMsg91Disabled ? <Button
-              type="primary"
-              loading={primaryBtnLoading}
-              onClick={handleGetStarted}
-              className="get-started-btn"
-              disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}
-            >
-              {isLoginFlow ? "Login via OTP" : "Get Started"}
-            </Button> : null}
+            {!isMsg91Disabled ? 
+              <Button
+                type="primary"
+                loading={primaryBtnLoading}
+                onClick={handleGetStarted}
+                className="get-started-btn"
+                disabled={(!isValidMobileNumber(mobileNumber) || isButtonDisabled)}
+              >
+                {isLoginFlow ? "Login via OTP" : "Get Started"}
+              </Button>
+             : null}
               {
                 !isMsg91Disabled ? (
                   <>
-                  {isLoginFlow ? <div className="divider">or</div> : <div style={{height: "2rem"}}></div>}
+                {isLoginFlow ? <div className="divider">or</div> : <div style={{height: "2rem"}}></div>}
                   </>
                 )
-              : null}
+                : null}
 
             {isLoginFlow && (
               <Button
