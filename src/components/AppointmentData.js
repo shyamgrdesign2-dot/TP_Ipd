@@ -201,6 +201,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [patientData, setPatientData] = useState(null);
+  const [unDigitizedUnReviewedIds, setAllUnDigitisedIds] = useState([]);
   const fileInputRef = useRef(null);
 
   const { planDetails } = useSelector((state) => state.subscription);
@@ -524,21 +525,19 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
       },
     ];
 
-    // Split the string by commas and get the length
-    const pendingDigitisationArray = pendingDigitisation?.data?.split(",");
-    const pendingDigitisationLength = pendingDigitisationArray?.length;
+    const unDigitizedUnReviewedIdsLength = unDigitizedUnReviewedIds?.length;
 
     // Conditionally add the Pending Digitisation tab
     if (
       (isSmartSyncCVTAccessableFromGB || isSnapRxAccessable) &&
-      pendingDigitisation?.data?.length > 0
+      unDigitizedUnReviewedIdsLength > 0
     ) {
       updatedItems.push({
         key: 2,
         label: (
           <div className="d-flex align-items-center">
             <i className="icon-Report"></i>
-            Pending Digitisation ({pendingDigitisationLength})
+            Pending Digitisation ({unDigitizedUnReviewedIdsLength})
           </div>
         ),
       });
@@ -631,7 +630,6 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   const [patientWalletBalance, setPatientWalletBalance] = useState(0);
   const [isSymptomsCollectorTour, setIsSymptomsCollectorTour] = useState(false);
   const [firstSymptomIndex, setFirstSymptomIndex] = useState(null);
-
   // Add this useEffect to find the first record with symptoms
   useEffect(() => {
     if (
@@ -696,6 +694,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
             ...(undigitisedIds || []),
             ...(snapRxUnDigitisedUnReviewedIds || []),
           ];
+          setAllUnDigitisedIds(allUnDigitisedIds);
           var sendData = {
             startDate: date.startDate,
             endDate: date.endDate,
@@ -747,6 +746,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     createBillDrawer,
     advancedSettings?.billingStatusInAppointmentScreen,
     pendingDigitisation?.data,
+    snapRxUnDigitisedIds,
   ]);
 
   useEffect(() => {
@@ -1325,7 +1325,9 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
         last_name: "",
         date_of_birth: record.dob,
         gender: record.gender,
-        contact_number: record?.hasOwnProperty("mobileNo") ? record.mobileNo : "",
+        contact_number: record?.hasOwnProperty("mobileNo")
+          ? record.mobileNo
+          : "",
         email_id: "noreply@zydushospitals.com",
         address: record.patient_address,
       },
