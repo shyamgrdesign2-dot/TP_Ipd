@@ -81,6 +81,10 @@ ApiMonetization.invoiceGenerate = function (invoice_id) {
     return api.get(`/user/tatva/invoice/${invoice_id}`, baseUserManagementUrl);
 };
 
+ApiMonetization.receiptGenerate = function (receipt_id) {
+    return api.get(`/user/tatva/receipt/${receipt_id}`, baseUserManagementUrl);
+};
+
 ApiMonetization.discountCode = function (data) {
     return api.post(`/user/tatva/discount/add`, data, baseUserManagementUrl);
 };

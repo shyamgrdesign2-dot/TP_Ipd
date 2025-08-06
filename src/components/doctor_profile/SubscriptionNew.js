@@ -9,7 +9,7 @@ import billingsIcon from "../../assets/images/billings.svg";
 import crown from '../../assets/images/crown.svg'
 import BillingHistoryNew from "./BillingHistoryNew";
 import BillingPrint from "./BillingPrint";
-import { billingHistory, invoiceGenerate } from "../../redux/monetizationSlice";
+import { billingHistory, invoiceGenerate, receiptGenerate } from "../../redux/monetizationSlice";
 import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../utils/constants";
 import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../utils/utils";
 import { deviceType, osName } from "react-device-detect";
@@ -61,6 +61,33 @@ function SubscriptionNew() {
     });
   }
 
+  const generateReceipt = async (receipt_id) => {
+    const action = await dispatch(receiptGenerate(receipt_id));
+    if (action.meta.requestStatus === "fulfilled") {
+      if (action?.payload?.status === 200) {
+        setPdfUrl(action?.payload?.body?.url)
+        handlePdfDrawer()
+      } else {
+        errorMessage(action.payload.message)
+      }
+    } else {
+      errorMessage(action.payload.message)
+    }
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const tokenData = getTokenData();
+    const deviceSdkData = getDeviceSdkData();
+    window.Moengage.track_event("TP_Monetization_ReceiptExplore", {
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      um_id: tokenData?.user_id,
+      clinic_Name: clinic_name,
+      ...deviceSdkData,
+    });
+  }
+
 
   const columns = [
     {
@@ -85,7 +112,13 @@ function SubscriptionNew() {
       title: 'Invoice',
       dataIndex: 'invoice_id',
       key: 'invoice_id',
-      render: (text) => <button className="btn btn-link text-primary p-0" onClick={() => generateInvoice(text)}>View Invoice</button> || "N/A",
+      render: (text, record) => (
+        <>
+          {record?.invoice_id && <button className="btn btn-link text-primary p-0" onClick={() => generateInvoice(record?.invoice_id)}>View Invoice</button>}
+          {record?.receipt_id && <br />}
+          {record?.receipt_id && <button className="btn btn-link text-primary p-0" onClick={() => generateReceipt(record?.receipt_id)}>View Receipt</button>}
+        </> || "N/A"
+      ),
       onCell: (record) => ({
         rowSpan: record.rowSpan,
       }),
