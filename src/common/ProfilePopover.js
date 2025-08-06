@@ -90,7 +90,7 @@ function ProfilePopover(props) {
                     <div className="round-box bg-body-secondary"><i className="icon-calendar fs-21"></i></div>
                     <div className="text-truncate">
                         <div className="fontroboto letterspacing">Date of Birth</div>
-                        <div className="fontroboto letterspacing fw-medium">{moment(patientDOB).format("DD MMM YYYY")}</div>
+                        <div className="fontroboto letterspacing fw-medium">{moment(patientDOB, 'DD-MM-YYYY').format("DD MMM YYYY")}</div>
                     </div>
                 </div>
             )}
