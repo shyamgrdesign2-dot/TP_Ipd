@@ -115,7 +115,7 @@ function SubscriptionNew() {
       render: (text, record) => (
         <>
           {record?.invoice_id && <button className="btn btn-link text-primary p-0" onClick={() => generateInvoice(record?.invoice_id)}>View Invoice</button>}
-          {record?.receipt_id && <br />}
+          {record?.invoice_id && <br />}
           {record?.receipt_id && <button className="btn btn-link text-primary p-0" onClick={() => generateReceipt(record?.receipt_id)}>View Receipt</button>}
         </> || "N/A"
       ),
