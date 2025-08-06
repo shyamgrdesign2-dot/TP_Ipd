@@ -78,13 +78,22 @@ function ProfilePopover(props) {
                     </div>
                 </div>
             )}
-            <div className="align-items-center d-flex medicine-templates border-top-0 without-hover p-0">
+            <div className={`align-items-center d-flex medicine-templates border-top-0 without-hover p-0 ${isPaediatric && patientDOB && 'pb-3'}`}>
                 <div className="round-box bg-body-secondary"><i className="icon-phone fs-21"></i></div>
                 <div className="text-truncate">
                     <div className="fontroboto letterspacing">Mobile Number</div>
                     <div className="fontroboto letterspacing fw-medium">{patient_data !== undefined ? patient_data?.pm_contact_no : "000000"}</div>
                 </div>
             </div>
+            {isPaediatric && patientDOB && (
+                <div className="align-items-center d-flex medicine-templates border-top-0 without-hover p-0">
+                    <div className="round-box bg-body-secondary"><i className="icon-calendar fs-21"></i></div>
+                    <div className="text-truncate">
+                        <div className="fontroboto letterspacing">Date of Birth</div>
+                        <div className="fontroboto letterspacing fw-medium">{moment(patientDOB, 'DD-MM-YYYY').format("DD MMM YYYY")}</div>
+                    </div>
+                </div>
+            )}
             <div>
                 {tokenData?.hospital_business_id != config.zydus_business_id && (
                     <Link to="/edit_patient" replace={true} state={{ patient_data: patient_data }}>
@@ -128,7 +137,7 @@ function ProfilePopover(props) {
                 <div className={'align-items-center d-flex h-100'}>
                     <div className='align-items-center d-flex'>
                         <div className='patientName'>{`${getPatientName()},`}</div>
-                        <div className='text-2 fontpoppins fontpoppins1 ms-1'>{patient_data !== undefined ? genderAge(patient_data, profile) : `M, 30y`} {isPaediatric && patientDOB ? `(${patientDOB})` : ''}</div>
+                        <div className='text-2 fontpoppins fontpoppins1 ms-1'>{patient_data !== undefined ? genderAge(patient_data, profile) : `M, 30y`}</div>
                         <i className='icon-right iconrotate270 ms-1'></i>
                     </div>
                 </div>
@@ -137,7 +146,7 @@ function ProfilePopover(props) {
                     <div className={'align-items-center d-flex h-100 ps-3'}>
                         <div className='rounded-pill patientProfile border me-3'>{makeDefaultLogo(patient_data?.pm_fullname)}</div>
                         <div>
-                            <div className='patientName'>{getPatientName()}<div className='text-2'>{patient_data !== undefined ? genderAge(patients_details || patient_data, profile) : `M, 30y`} {isPaediatric && patientDOB ? `(${patientDOB})` : ''}</div></div>
+                            <div className='patientName'>{getPatientName()}<div className='text-2'>{patient_data !== undefined ? genderAge(patients_details || patient_data, profile) : `M, 30y`}</div></div>
                         </div>
                         <div className='iconrotate270 align-self-start ms-2 mt-1'>
                             <i className='icon-right'></i>
