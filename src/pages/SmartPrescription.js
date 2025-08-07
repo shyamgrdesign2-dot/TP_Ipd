@@ -112,8 +112,7 @@ import { fetchSymptomsCollectorData, setAddToRx } from "../api/services/ApiGenRx
 import SCBanner from "../components/SCBanner";
 import SCPopup from "../components/SCPopup";
 import { getDecodedToken } from "../utils/localStorage";
-
-
+import CustomSSknowMore from "./smartSync/components/CustomSSknowMore";
 
 function SmartPrescription() {
   const {
@@ -223,6 +222,10 @@ function SmartPrescription() {
   
   // Add state for disclaimer visibility
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [knowMoreDrawer, setKnowMoreDrawer] = useState(false);
+  const handleKnowMoreDrawer = useCallback(() => {
+    setKnowMoreDrawer((prev) => !prev);
+  }, []);
 
   // Helper function for unified template/RX selection
   const isTemplateSelected = (templateId) => {
@@ -291,7 +294,7 @@ function SmartPrescription() {
   
   // Template management state
   const [templates, setTemplates] = useState([]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState("none");
   const [refreshTemplatesTrigger, setRefreshTemplatesTrigger] = useState(0);
   const [templateManagerDrawer, setTemplateManagerDrawer] = useState(false);
   const [editTemplateModal, setEditTemplateModal] = useState(false);
@@ -301,6 +304,9 @@ function SmartPrescription() {
   
   // Track which template image index each page should use
   const [pageTemplateImageIndex, setPageTemplateImageIndex] = useState({});
+  
+  // Add state to store canvas image data for preserving drawings
+  const [canvasImageData, setCanvasImageData] = useState({});
 
   const { showSCPopup, isAutofillSelected, selectedSymptomsCollector, symptomCollector } =
     useSelector((state) => state.ddx);
@@ -377,7 +383,7 @@ function SmartPrescription() {
         setSelectedTemplateId(null);
       }
     } catch (error) {
-      console.error('❌ Error loading templates:', error);
+      message.error('❌ Error loading templates:', error);
       setTemplates([]);
     }
   };
@@ -631,6 +637,10 @@ function SmartPrescription() {
   const handleTemplateSelect = (templateId) => {
     setSelectedTemplateId(templateId);
     
+    // Clear old canvas refs to prevent accumulation of previous template canvases
+    canvasRefs.current = {};
+    ctxGlobalRefs.current = {};
+    
     if (templateId === 'none') {
       // Clear template images and reset to blank canvas
       setCustomRxImages([]);
@@ -817,7 +827,6 @@ function SmartPrescription() {
 
   // Helper function to download a single file
   const downloadSingleFile = async (fileUrl, fileName) => {
-    // console.log('📥 Downloading file:', { fileUrl, fileName });
     
     try {
       // Method 1: Try axios download with authentication
@@ -844,7 +853,6 @@ function SmartPrescription() {
       saveAs(blob, fileName);
       
     } catch (error) {
-      console.error('❌ Axios download failed:', error);
       
       // Method 2: Fallback to window.open for CORS issues
       if (error.message?.includes('Network Error') || error.code === 'ERR_NETWORK') {
@@ -1236,12 +1244,15 @@ function SmartPrescription() {
   const loadTemplateImages = (template) => {
     
     if (!template.uploaded_files || template.uploaded_files.length === 0) {
-      console.log('⚠️ No uploaded files found in template');
       return;
     }
     
     // Set loading state
     setLoading(true);
+    
+    // Clear old canvas refs before loading new template
+    canvasRefs.current = {};
+    ctxGlobalRefs.current = {};
     
     const totalImages = template.uploaded_files.length;
     let loadedCount = 0;
@@ -1283,7 +1294,7 @@ function SmartPrescription() {
         }
       };
       img.onerror = () => {
-        console.error('❌ Failed to load template image:', file.id, file.file_url);
+        message.error('❌ Failed to load template image:', file.id, file.file_url);
         loadedCount++;
         
         // Still hide loader even if some images fail
@@ -1336,9 +1347,6 @@ function SmartPrescription() {
                   ? `Gynec History`
                   : `Medical History`}
               </div>
-              {/* <Button className="btn border rounded-3 px-1 ms-3 collapseButton" onClick={() => collapsedFlag != 2 ? setCollapsedFlag(2) : setCollapsedFlag(null)}>
-                              <i style={{ transitionDuration: '0.5s' }} className={`icon-right d-block fs-18 ${collapsedFlag != 2 ? 'iconrotate270' : 'iconrotatehistory90'}`}></i>
-                            </Button> */}
             </div>
 
             <button
@@ -1637,7 +1645,7 @@ function SmartPrescription() {
 
   useEffect(() => {
     selectedPageRef.current = pages[selectedPage]; // Update the ref when selectedPage changes
-  }, [selectedPage, refreshTrigger]);
+  }, [selectedPage, refreshTrigger, selectedTemplateId ]);
 
   const wsError = (error) => {
     message.open({
@@ -1659,7 +1667,7 @@ function SmartPrescription() {
     // Determine which draw function to use based on scenario
     const hasSmartRxImages = smartRxFiles?.length >= selectedPage + 1;
     const hasTemplateImages = selectedTemplateId && selectedTemplateId !== 'none';
-    
+
     // Use editDraw if either smart RX or template images are loaded
     drawRef.current = (hasSmartRxImages || hasTemplateImages) ? editDraw : draw;
   }, [selectedPage, smartRxFiles, selectedTemplateId]);
@@ -1701,13 +1709,35 @@ function SmartPrescription() {
     
     // Prevent adding blank page if we have custom RX or templates selected
     if (selectedTemplateId && selectedTemplateId !== 'none') {
-      console.log('⚠️ Skipping handleAddPage - custom RX or template is selected');
       return;
     }
+    
+    // Preserve canvas drawings for all existing pages before adding new page
+    const preservedCanvasData = {};
+    pages.forEach((pageId) => {
+      const canvas = canvasRefs.current[pageId];
+      if (canvas) {
+        try {
+          // Save the current canvas state as image data
+          preservedCanvasData[pageId] = canvas.toDataURL();
+        } catch (error) {
+          console.error('Failed to preserve canvas data for page:', pageId, error);
+        }
+      }
+    });
+    
+    // Store the preserved canvas data
+    setCanvasImageData(preservedCanvasData);
     
     const newPageId = uuidv4();
     setPages([...pages, newPageId]);
     setDataPresentInCanvas([...dataPresentInCanvas, false]);
+    
+    // Restore canvas drawings after the new page is added
+    setTimeout(() => {
+      restoreCanvasDrawings(preservedCanvasData);
+    }, 100);
+    
     if (pages.length === 0) {
       setSelectedPage(0);
     } else {
@@ -1733,6 +1763,25 @@ function SmartPrescription() {
       );
     }
     
+    // Preserve canvas drawings for remaining pages before deleting
+    const preservedCanvasData = {};
+    pages.forEach((pageId, pageIndex) => {
+      if (pageIndex !== index) { // Don't preserve the page being deleted
+        const canvas = canvasRefs.current[pageId];
+        if (canvas) {
+          try {
+            // Save the current canvas state as image data
+            preservedCanvasData[pageId] = canvas.toDataURL();
+          } catch (error) {
+            console.error('Failed to preserve canvas data for page:', pageId, error);
+          }
+        }
+      }
+    });
+    
+    // Store the preserved canvas data
+    setCanvasImageData(preservedCanvasData);
+    
     // Get the page ID that will be deleted
     const deletedPageId = pages[index];
     
@@ -1748,6 +1797,11 @@ function SmartPrescription() {
       delete newState[deletedPageId];
       return newState;
     });
+    
+    // Restore canvas drawings after the page is deleted
+    setTimeout(() => {
+      restoreCanvasDrawings(preservedCanvasData);
+    }, 100);
     
     setRefreshTrigger(!refreshTrigger);
     if (selectedPage >= newPages.length) {
@@ -1781,6 +1835,10 @@ function SmartPrescription() {
   };
 
   const handleClearAllPages = () => {
+    // Clear old canvas refs since we're resetting to a single page
+    canvasRefs.current = {};
+    ctxGlobalRefs.current = {};
+    
     setPages([pages[0]]);
     setDataPresentInCanvas([false]);
     setSelectedPage(0);
@@ -1861,17 +1919,19 @@ function SmartPrescription() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     
-    // Only clear canvas if we don't have smart RX or template images
+    // Check if this is a template page or has smart RX images
     const hasSmartRxImages = smartRxFiles?.length >= pageIndex + 1;
     const hasTemplateImages = selectedTemplateId && selectedTemplateId !== 'none';
+    const isTemplatePage = hasTemplateImages && pageTemplateImageIndex[pages[pageIndex]] !== undefined;
     
-    
-    if (!hasSmartRxImages && !hasTemplateImages) {
+    // Only fill with white if this is NOT a template page and has no smart RX images
+    if (!hasSmartRxImages && !isTemplatePage) {
       ctx.fillStyle = "#fff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-    } else {
-      console.log('🖼️ Preserving canvas background');
-    }
+    } 
+    // else {
+    //   console.log('🖼️ Preserving canvas background (template or smart RX)');
+    // }
     
     // Use scale factor
     const scaleFactor = getScaleFactor();
@@ -1893,7 +1953,6 @@ function SmartPrescription() {
   function editDraw(t, n, a, c, pageIndex) {
     const canvas = canvasRefs.current[pageIndex];
     if (!canvas) return;
-    
     // Use scale factor
     const scaleFactor = getScaleFactor();
     
@@ -1925,16 +1984,18 @@ function SmartPrescription() {
   };
 
   const handleSubmit = async () => {
-    const canvasArray = Object.values(canvasRefs.current).filter(
+    // Only get canvases that correspond to current pages
+    const currentCanvasArray = pages.map(pageId => canvasRefs.current[pageId]).filter(
       (canvas) => canvas !== null
     );
+    
     let blobs = [];
     let files = [];
 
     try {
-      // Convert all canvases to JPEG blobs and files
-      for (let i = 0; i < canvasArray.length; i++) {
-        const canvas = canvasArray[i];
+      // Convert only current page canvases to JPEG blobs and files
+      for (let i = 0; i < currentCanvasArray.length; i++) {
+        const canvas = currentCanvasArray[i];
         if (!canvas) continue;
         const blob = await convertCanvasToJPEG(canvas);
         const name =
@@ -1944,9 +2005,17 @@ function SmartPrescription() {
         // Create the File object
         const file = new File([blob], name, { type: "image/jpeg" });
 
-        if (file.size < 5 * 1000 && vitalsData.length === 0 && !followUpDate) {
-          errorMessage("Please fill your prescription to submit");
-        } else if (file.size > 5 * 1000) {
+        // Check if the file has meaningful content (not just a blank canvas)
+        const hasContent = file.size > 3 * 1000; // 5KB threshold for meaningful content
+        
+        if (!hasContent && vitalsData.length === 0 && !followUpDate) {
+          // Only show error if this is the first page and no other data exists
+          if (i === 0) {
+            errorMessage("Please fill your prescription to submit");
+          }
+          // Skip this page if it's blank and no other data
+          continue;
+        } else if (hasContent) {
           blobs.push(blob);
           files.push(new File([blob], name, { type: "image/jpeg" }));
         }
@@ -2068,6 +2137,15 @@ function SmartPrescription() {
         ctxGlobalRefs.current[pageId] = ctx;
       }
     });
+    
+    // Restore canvas drawings if we have preserved data
+    if (Object.keys(canvasImageData).length > 0) {
+      setTimeout(() => {
+        restoreCanvasDrawings(canvasImageData);
+        // Clear the preserved data after restoration
+        setCanvasImageData({});
+      }, 50);
+    }
   }, [imageLoaded]);
 
   // Close dropdown when clicking outside
@@ -2103,6 +2181,23 @@ function SmartPrescription() {
 
   // Function to add same canvas page (with current template or RX type)
   const handleAddSameCanvasPage = (pageIndex) => {
+    // Preserve canvas drawings for all existing pages before adding new page
+    const preservedCanvasData = {};
+    pages.forEach((pageId) => {
+      const canvas = canvasRefs.current[pageId];
+      if (canvas) {
+        try {
+          // Save the current canvas state as image data
+          preservedCanvasData[pageId] = canvas.toDataURL();
+        } catch (error) {
+          console.error('Failed to preserve canvas data for page:', pageId, error);
+        }
+      }
+    });
+    
+    // Store the preserved canvas data
+    setCanvasImageData(preservedCanvasData);
+    
     const newPageId = uuidv4();
     const newPages = [...pages];
     newPages.splice(pageIndex + 1, 0, newPageId);
@@ -2137,6 +2232,11 @@ function SmartPrescription() {
             ...prevState,
             [newPageId]: true,
           }));
+          
+          // Restore canvas drawings after the new page is loaded
+          setTimeout(() => {
+            restoreCanvasDrawings(preservedCanvasData);
+          }, 100);
         };
         
         // Set the template image index for the new page
@@ -2162,6 +2262,11 @@ function SmartPrescription() {
             ...prevState,
             [newPageId]: true,
           }));
+          
+          // Restore canvas drawings after the new page is loaded
+          setTimeout(() => {
+            restoreCanvasDrawings(preservedCanvasData);
+          }, 100);
         };
       }
     }
@@ -2175,9 +2280,54 @@ function SmartPrescription() {
       [pageIndex]: false
     }));
   };
+  
+  // Function to restore canvas drawings from preserved data
+  const restoreCanvasDrawings = (preservedData) => {
+    Object.keys(preservedData).forEach((pageId) => {
+      const canvas = canvasRefs.current[pageId];
+      if (canvas && preservedData[pageId]) {
+        try {
+          const ctx = canvas.getContext("2d");
+          
+          // Create a new image from the preserved data
+          const img = new Image();
+          img.onload = () => {
+            // Clear the canvas first
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw the preserved image data back to the canvas
+            ctx.drawImage(img, 0, 0);
+            
+            // Update the global context reference
+            ctxGlobalRefs.current[pageId] = ctx;
+          };
+          img.src = preservedData[pageId];
+        } catch (error) {
+          console.error('Failed to restore canvas data for page:', pageId, error);
+        }
+      }
+    });
+  };
 
   // Function to add blank page
   const handleAddBlankPage = (pageIndex) => {
+    // Preserve canvas drawings for all existing pages before adding new page
+    const preservedCanvasData = {};
+    pages.forEach((pageId) => {
+      const canvas = canvasRefs.current[pageId];
+      if (canvas) {
+        try {
+          // Save the current canvas state as image data
+          preservedCanvasData[pageId] = canvas.toDataURL();
+        } catch (error) {
+          console.error('Failed to preserve canvas data for page:', pageId, error);
+        }
+      }
+    });
+    
+    // Store the preserved canvas data
+    setCanvasImageData(preservedCanvasData);
+    
     const newPageId = uuidv4();
     const newPages = [...pages];
     newPages.splice(pageIndex + 1, 0, newPageId);
@@ -2187,6 +2337,20 @@ function SmartPrescription() {
     const newDataPresentInCanvas = [...dataPresentInCanvas];
     newDataPresentInCanvas.splice(pageIndex + 1, 0, false);
     setDataPresentInCanvas(newDataPresentInCanvas);
+    
+    // Initialize the new canvas with white background
+    setTimeout(() => {
+      const newCanvas = canvasRefs.current[newPageId];
+      if (newCanvas) {
+        const ctx = newCanvas.getContext('2d');
+        // Fill with white background
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+      }
+      
+      // Restore canvas drawings after the new page is added
+      restoreCanvasDrawings(preservedCanvasData);
+    }, 100);
     
     // Select the new page
     setSelectedPage(pageIndex + 1);
@@ -2471,13 +2635,16 @@ function SmartPrescription() {
             >
               <div>
                 {/* Custom Canvas Section */}
-                <CustomCanvasSelector
-                  templates={templates}
-                  selectedTemplateId={selectedTemplateId}
-                  onTemplateSelect={handleTemplateSelect}
-                  onAddEditCanvas={handleAddEditCanvas}
-                  onUploadNew={handleUploadNewTemplate}
-                />
+                { !smartRxFilesData || smartRxFilesData.length === 0 &&
+                  <CustomCanvasSelector
+                    templates={templates}
+                    selectedTemplateId={selectedTemplateId}
+                    onTemplateSelect={handleTemplateSelect}
+                    onAddEditCanvas={handleAddEditCanvas}
+                    onUploadNew={handleUploadNewTemplate}
+                    onKnowMore={handleKnowMoreDrawer}
+                  />
+                }
 
                 <div
                   id="pdf"
@@ -2583,31 +2750,7 @@ function SmartPrescription() {
                         {(index === pages.length - 1 || shouldShowAddButtonOnAllPages()) && (
                           <div style={{ position: "relative" }}>
                             <button
-                              className="btn d-flex align-items-center justify-content-center"
-                              style={{
-                                width: "40px",
-                                height: "40px",
-                                borderRadius: "12px",
-                                backgroundColor: "#f0f0ff",
-                                border: "none",
-                                color: "#6b46c1",
-                                fontSize: "18px",
-                                fontWeight: "bold",
-                                boxShadow: "0 2px 4px rgba(107, 70, 193, 0.2)",
-                                transition: "all 0.2s ease",
-                                position: "relative",
-                                zIndex: 1001
-                              }}
-                              onMouseEnter={(e) => {
-                                setNewPageText("New Page");
-                                e.target.style.backgroundColor = "#e6e6ff";
-                                e.target.style.transform = "scale(1.05)";
-                              }}
-                              onMouseLeave={(e) => {
-                                setNewPageText("");
-                                e.target.style.backgroundColor = "#f0f0ff";
-                                e.target.style.transform = "scale(1)";
-                              }}
+                              className="btn d-flex align-items-center justify-content-center newpage-btn"
                               onClick={(e) => {
                                 // Show dropdown if we have custom RX or templates, or if this is a template page
                                 if (selectedTemplateId && selectedTemplateId !== 'none') {
@@ -2978,6 +3121,16 @@ function SmartPrescription() {
         {showSCPopup && (
           <SCPopup handlePopup={() => dispatch(setShowSCPopup(false))} />
         )}
+        <Drawer
+          open={knowMoreDrawer}
+          onClose={handleKnowMoreDrawer}
+          title="Custom Canvas"
+          width={720}
+          className="drawer-container"
+          destroyOnClose
+        >
+          <CustomSSknowMore />
+        </Drawer>
       </>
     </CashManagerContext.Provider>
   );

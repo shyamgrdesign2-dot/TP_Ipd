@@ -615,34 +615,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     return (
         <Document>
-            {isSmartSyncPrescription && caseManagerData?.isCustomSSRX &&
-                <Page
-                    size="A4"
-                    style={[paddingStyles, {
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                    }]}
-                    wrap={true}
-                >
-                    <>
-                        {/* Smart RX Images for Custom SSRX - Show at the beginning */}
-                        {isSmartSyncPrescription && caseManagerData?.isCustomSSRX && (
-                            smartRxData?.map((item, i) => (
-                                <View key={i}>
-                                    <View style={{ width: '100%', height: '100%' }}>
-                                        <Image
-                                            style={{ width: '100%', height: '100%' }}
-                                            src={item.smart_prescription_file}
-                                            objectFit="contain"
-                                        />
-                                    </View>
-                                </View>
-                            ))
-                        )}
-                    </>
-                </Page>
-            }
             <Page
                 size="A4"
                 style={[paddingStyles, {
@@ -5651,6 +5623,34 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 {printSettings?.page_format?.pagination === true && <PageNumberFooter />}
 
             </Page>
+            {isSmartSyncPrescription && caseManagerData?.isCustomSSRX &&
+                <Page
+                    size="A4"
+                    style={[paddingStyles, {
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                    }]}
+                    wrap={true}
+                >
+                    <>
+                        {/* Smart RX Images for Custom SSRX - Show at the beginning */}
+                        {isSmartSyncPrescription && caseManagerData?.isCustomSSRX && (
+                            smartRxData?.map((item, i) => (
+                                <View key={i}>
+                                    <View style={{ width: '100%', height: '100%' }}>
+                                        <Image
+                                            style={{ width: '100%', height: '100%' }}
+                                            src={item.smart_prescription_file}
+                                            objectFit="contain"
+                                        />
+                                    </View>
+                                </View>
+                            ))
+                        )}
+                    </>
+                </Page>
+            }
         </Document>
     )
 }

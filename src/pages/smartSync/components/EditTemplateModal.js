@@ -380,7 +380,7 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
     
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = 'image/*';
+    input.accept = 'application/pdf';
     input.onchange = async (e) => {
       const newFile = e.target.files[0];
       if (newFile) {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Select, Typography, Radio } from 'antd';
 import RxPadIcon from "../../../assets/images/smart-pad.png"
 import "./CustomCanvasSelector.scss"
@@ -6,12 +6,8 @@ import "./CustomCanvasSelector.scss"
 const { Option } = Select;
 const { Text } = Typography;
 
-const CustomCanvasSelector = ({ templates, selectedTemplateId, onTemplateSelect, onAddEditCanvas, onUploadNew }) => {
-  console.log('🎨 CustomCanvasSelector rendered with:', { 
-    templatesCount: templates?.length, 
-    selectedTemplateId,
-    templates: templates?.map(t => ({ id: t.id, title: t.title }))
-  });
+const CustomCanvasSelector = ({ templates, selectedTemplateId, onTemplateSelect, onAddEditCanvas, onUploadNew, onKnowMore }) => {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // SCENARIO 1: NO TEMPLATES - Show simple "Add custom Rx Canvas" UI
   if (!templates || templates.length === 0) {
@@ -24,7 +20,7 @@ const CustomCanvasSelector = ({ templates, selectedTemplateId, onTemplateSelect,
               <span className="title-text">
                 Add custom Rx Canvas
               </span>
-              <button className="know-more-btn">
+              <button className="know-more-btn" onClick={onKnowMore}>
                 Know more
               </button>
               <span className="new-btn">New</span>
@@ -63,7 +59,7 @@ const CustomCanvasSelector = ({ templates, selectedTemplateId, onTemplateSelect,
             <span className="title-text">
               Custom Canvas
             </span>
-            <button className="know-more-btn">
+            <button className="know-more-btn" onClick={onKnowMore}>
               Know more
             </button>
           </div>
@@ -73,7 +69,10 @@ const CustomCanvasSelector = ({ templates, selectedTemplateId, onTemplateSelect,
             <Select
               value={selectedTemplateId || undefined}
               placeholder="Select Custom RX or Template"
+              open={dropdownOpen}
+              onDropdownVisibleChange={setDropdownOpen}
               onChange={(value) => {
+                setDropdownOpen(false);
                 if (value === 'add_edit') {
                   onAddEditCanvas();
                 } else {
@@ -126,6 +125,7 @@ const CustomCanvasSelector = ({ templates, selectedTemplateId, onTemplateSelect,
                             const currentValue = selectedTemplateId || 'none';
                             if (option.value !== currentValue) {
                               onTemplateSelect(option.value);
+                              setDropdownOpen(false);
                             }
                           }}
                         >
@@ -206,7 +206,10 @@ const CustomCanvasSelector = ({ templates, selectedTemplateId, onTemplateSelect,
                       fontSize: "14px",
                       transition: "all 0.2s ease"
                     }}
-                    onClick={onAddEditCanvas}
+                    onClick={() => {
+                      onAddEditCanvas();
+                      setDropdownOpen(false);
+                    }}
                   >
                     <i className="icon-Add" style={{ 
                       fontSize: "14px", 

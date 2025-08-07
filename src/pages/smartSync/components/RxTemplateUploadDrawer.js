@@ -553,9 +553,6 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       return;
     }
     
-    // Prepare template data for API
-    console.log('🔧 Preparing template data for upload...');
-    
     // ✅ FIXED: Auto-save current page state before submitting
     if (cropperRef.current?.cropper) {
       await autoSavePageState(false);
@@ -586,9 +583,7 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
                   // Fallback to stored image data
                 }
               }
-              
-              console.log(`🖼️ Creating File object for page ${index + 1}`);
-              
+                            
               // Convert image to File object with unique name
               const uniqueId = Date.now() + Math.random().toString(36).substr(2, 9);
               fileToUpload = await dataUrlToFileUsingFetch(
@@ -622,9 +617,7 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       title: file.name.trim(),
       files: filesForUpload
     };
-    
-    console.log(`✅ Template data prepared: "${templateData.title}" with ${templateData.files.length} files`);
-    
+        
     // Upload template via API
     handleApiUpload(templateData);
   };
@@ -636,7 +629,6 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
     try {
       message.loading('Uploading template...', 0);
       
-      console.log('📤 Starting API upload...');
       const result = await uploadCustomSyncPadTemplate(
         templateData,
         (progress) => {
@@ -647,31 +639,23 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       );
       
       message.destroy();
-      console.log('📋 Upload result received:', { success: result.success, hasData: !!result.data, error: result.error });
       
       if (result.success) {
-        console.log('✅ Upload successful, calling onSave and closing...');
-        message.success('Template uploaded successfully!');
         
         // Call the onSave callback with the response data
         if (onSave) {
-          console.log('📞 Calling onSave callback...');
           onSave(result.data);
         }
         
-        console.log('🚪 Closing drawer...');
         onClose();
         
         // Reset state
-        console.log('🧹 Resetting state...');
         setFile(null);
         setZoom(1);
         setSelectedPageIndex(0);
         setIsProcessing(false);
         
-        console.log('✅ Upload process completed successfully');
       } else {
-        console.log('❌ Upload failed with error:', result.error);
         message.error(result.error || 'Failed to upload template');
         setIsProcessing(false);
       }
@@ -902,7 +886,6 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       })
     }));
     
-    console.log('✅ Page reset completed for page', selectedPageIndex + 1);
   };
 
   const handleClose = () => {
@@ -1260,7 +1243,7 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
                     <div className={`cropper-action-btn ${isProcessing ? 'disabled' : ''}`} onClick={isProcessing ? null : () => handleZoom(0.1)}><PlusOutlined /></div>
                     {/* Reset button - always visible */}
                     <div className={`cropper-action-btn reset-btn ${isProcessing ? 'disabled' : ''}`} onClick={isProcessing ? null : handleResetPage}>
-                      <span style={{ fontSize: '12px', color: 'white' }}>Reset</span>
+                      <span>Reset</span>
                     </div>
                   </div>
                 </div>
