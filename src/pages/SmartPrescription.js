@@ -2751,6 +2751,21 @@ function SmartPrescription() {
                           <div style={{ position: "relative" }}>
                             <button
                               className="btn d-flex align-items-center justify-content-center newpage-btn"
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "12px",
+                                backgroundColor: "#f0f0ff",
+                                border: "none",
+                                cursor: "pointer",
+                                color: "#6b46c1",
+                                fontSize: "18px",
+                                fontWeight: "bold",
+                                boxShadow: "0 2px 4px rgba(107, 70, 193, 0.2)",
+                                transition: "all 0.2s ease",
+                                position: "relative",
+                                zIndex: 1001
+                              }}
                               onClick={(e) => {
                                 // Show dropdown if we have custom RX or templates, or if this is a template page
                                 if (selectedTemplateId && selectedTemplateId !== 'none') {
