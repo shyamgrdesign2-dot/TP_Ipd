@@ -226,7 +226,7 @@ const CustomCanvasSelector = ({ templates, selectedTemplateId, onTemplateSelect,
               )}
             >
               {/* Dummy options for display value */}
-              <Option value="none">None(Blank Canvas)</Option>
+              <Option value="none">None</Option>
               {templates.map(template => (
                 <Option key={template.id} value={template.id}>
                   {template.title}

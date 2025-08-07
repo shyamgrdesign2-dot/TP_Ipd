@@ -214,7 +214,7 @@ function SmartPrescription() {
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
   const [pillupSwitch, setPillupSwitch] = useState(true);
   // Add state for custom RX management (unified with templates)
-  const [isCustomSSRX, setIsCustomSSRX] = useState(false);
+  const [isCustomSSRX, setIsCustomSSRX] = useState("");
   const [customRxImages, setCustomRxImages] = useState([]);
   // Add state for page addition dropdown
   const [showPageDropdown, setShowPageDropdown] = useState({});
@@ -2635,7 +2635,7 @@ function SmartPrescription() {
             >
               <div>
                 {/* Custom Canvas Section */}
-                { !smartRxFilesData || smartRxFilesData.length === 0 &&
+                { smartRxFilesData?.length === 0 || smartRxFilesData === undefined &&
                   <CustomCanvasSelector
                     templates={templates}
                     selectedTemplateId={selectedTemplateId}
