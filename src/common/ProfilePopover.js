@@ -8,6 +8,7 @@ import moment from 'moment';
 import { getDecodedToken } from '../utils/localStorage';
 import config from '../config';
 import { PAEDIATRIC_DP_ID } from '../utils/constants';
+import { isMobile } from 'react-device-detect';
 
 export const genderAge = (patient_data, profile, shouldShowGender = true) => {
     var value = shouldShowGender
@@ -117,8 +118,8 @@ function ProfilePopover(props) {
 
     const getPatientName = () => {
         if (!patient_data) return "Hello Guest";
-        const isSmallTablet = window.innerWidth <= 1024;
-        if (isPrescriptionPage && isSmallTablet && patient_data?.pm_fullname?.length > 10) {
+        const isTablet = window.innerWidth <= 1024;
+        if (isPrescriptionPage && (isMobile || isTablet) && patient_data?.pm_fullname?.length > 10) {
             return `${patient_data?.pm_fullname?.slice(0,5)}...`;
         }
         return patient_data?.pm_fullname;
