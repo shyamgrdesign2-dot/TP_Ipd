@@ -275,9 +275,8 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
             width: "305px",
           }}
         >
-          This icon means the AI Agent{" "}
-          <strong>{appointmentAgentsData?.name}</strong> has collected the
-          patient's <strong style={{ fontWeight: 600 }}>symptoms</strong> &{" "}
+          This icon means the AI Agent <strong>{appointmentAgentsData?.name || "Mira"}</strong> has collected the patient's{" "}
+          <strong style={{ fontWeight: 600 }}>symptoms</strong> &{" "}
           <strong style={{ fontWeight: 600 }}>medical history</strong>. You can
           now <strong style={{ fontWeight: 600 }}>preview</strong> and{" "}
           <strong style={{ fontWeight: 600 }}>autofill</strong> them into the{" "}
@@ -675,6 +674,8 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   useEffect(() => {
     if (appointmentAgentsData) {
       setAgentsData(appointmentAgentsData);
+      // Store appointment data to local storage
+      localStorage.setItem('appointmentAgentsData', JSON.stringify(appointmentAgentsData));
     }
   }, [appointmentAgentsData]);
 
@@ -713,7 +714,6 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
                 }
               : {}),
           };
-          // console.log(sendData)
           dispatch(getAllAppointment(sendData));
         } else {
           encounterAndFinishDataManage();
@@ -1432,11 +1432,11 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
             clinicId: agentsData.clinicId || profile?.clinicId || 390,
             doctors:
               agentsData.doctors?.map((doctor) => ({
-                id: doctor.um_id || doctor.id,
-                name: doctor.um_name || doctor.name,
+                um_id: doctor.um_id,
+                dp_id: doctor.dp_id,
+                um_name: doctor.um_name,
                 speciality: doctor.speciality || "MBBS",
-                availability:
-                  doctor.availability || doctor.slotsAvailable || true,
+                slotsAvailable: doctor.slotsAvailable,
               })) || [],
             clinicData: getClinic(profile?.hospital_data),
             useUploadLogo: agentsData.logo ? true : false,
@@ -2024,7 +2024,6 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   ];
 
   const handleChange = (pagination, filters, sorter, extra) => {
-    // console.log('params', pagination, filters, sorter, extra);
     setVisitTypeFilters(filters.toct_type ? filters.toct_type.toString() : "");
   };
 
