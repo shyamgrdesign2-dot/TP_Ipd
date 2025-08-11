@@ -172,6 +172,21 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
     (state) => state.ddx
   );
 
+  // Get appointment agent data from localStorage
+  const getAppointmentAgentData = () => {
+    try {
+      const storedData = localStorage.getItem('appointmentAgentsData');
+      if (storedData) {
+        return JSON.parse(storedData);
+      }
+    } catch (error) {
+      console.error('Error parsing appointment agent data:', error);
+    }
+    return null;
+  };
+
+  const appointmentAgentData = getAppointmentAgentData();
+
   const symptomsCollectorData =
     selectedSymptomsCollector?.symptoms?.length > 0 ||
     selectedSymptomsCollector?.medicalHistory?.length > 0
@@ -320,7 +335,7 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
                   className="text-white"
                   style={{ fontSize: 18, fontWeight: 500 }}
                 >
-                  Agent Mira
+                  {appointmentAgentData?.name || "Agent Mira"}
                 </div>
                 <span
                   className="text-white"
