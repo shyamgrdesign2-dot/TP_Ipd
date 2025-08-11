@@ -139,6 +139,7 @@ const ClinicDetailsSetup = ({
           {
             ...doctor, // Keep all original properties
             um_id: doctor.id,
+            dp_id: doctor.dp_id,
             um_name: doctor.name.replace("Dr. ", ""), // Remove Dr. prefix for consistency
             slotsAvailable: doctor.availability,
           },

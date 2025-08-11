@@ -84,6 +84,7 @@ function AppointmentAgent() {
         hospitalBusinessId: hos_business_id,
         doctors: agentsData.doctors?.map(doctor => ({
           id: doctor.um_id || doctor.id,
+          dp_id: doctor.dp_id,
           name: doctor.um_name || doctor.name,
           speciality: doctor.speciality || "MBBS",
           availability: doctor.availability || doctor.slotsAvailable || true
@@ -106,7 +107,7 @@ function AppointmentAgent() {
       setSetupData(mappedSetupData);
     }
   }, [agentsData, hospitalData, profile?.clinicId]);
-
+  console.log(setupData,"setupData");
   useEffect(() => {
     const step = searchParams.get("step");
     if (step) {
