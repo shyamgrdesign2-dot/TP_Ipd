@@ -73,9 +73,9 @@ const ClinicDetailsSetup = ({
           const doctorsData = response?.doctors
             .map((doctor) => ({
               ...doctor, // Keep all original properties
-              id: doctor.um_id,
-              name: `Dr. ${doctor.um_name}`,
-              availability: doctor.slotsAvailable,
+              um_id: doctor.um_id,
+              um_name: `Dr. ${doctor.um_name}`,
+              slotsAvailable: doctor.slotsAvailable,
             }));
           setAllDoctors(doctorsData);
         } else {
@@ -132,23 +132,23 @@ const ClinicDetailsSetup = ({
   }, [triggerValidation, contactNumber, location, selectedDoctors, email]);
 
   const handleDoctorSelect = (doctor) => {
-    const newSelectedDoctors = selectedDoctors.find((d) => d.id === doctor.id)
-      ? selectedDoctors.filter((d) => d.id !== doctor.id)
+    const newSelectedDoctors = selectedDoctors.find((d) => d.um_id === doctor.um_id)
+      ? selectedDoctors.filter((d) => d.um_id !== doctor.um_id)
       : [
           ...selectedDoctors,
           {
             ...doctor, // Keep all original properties
-            um_id: doctor.id,
+            um_id: doctor.um_id,
             dp_id: doctor.dp_id,
-            um_name: doctor.name.replace("Dr. ", ""), // Remove Dr. prefix for consistency
-            slotsAvailable: doctor.availability,
+            um_name: doctor.um_name.replace("Dr. ", ""), // Remove Dr. prefix for consistency
+            slotsAvailable: doctor.slotsAvailable,
           },
         ];
 
     setSelectedDoctors(newSelectedDoctors);
     setSelectAllDoctors(
       newSelectedDoctors.length ===
-        allDoctors.filter((d) => d.availability).length
+        allDoctors.filter((d) => d.slotsAvailable).length
     );
 
     // Clear doctors error when doctors are selected
@@ -162,12 +162,12 @@ const ClinicDetailsSetup = ({
 
   const handleSelectAllDoctors = (checked) => {
     const availableDoctors = allDoctors
-      .filter((d) => d.availability)
+      .filter((d) => d.slotsAvailable)
       .map((doctor) => ({
         ...doctor, // Keep all original properties
-        um_id: doctor.id,
-        um_name: doctor.name.replace("Dr. ", ""), // Remove Dr. prefix for consistency
-        slotsAvailable: doctor.availability,
+        um_id: doctor.um_id,
+        um_name: doctor.um_name.replace("Dr. ", ""), // Remove Dr. prefix for consistency
+        slotsAvailable: doctor.slotsAvailable,
       }));
 
     const newSelectedDoctors = checked ? availableDoctors : [];
@@ -191,7 +191,7 @@ const ClinicDetailsSetup = ({
   const handleRemoveDoctor = (doctor, e) => {
     e.stopPropagation();
     const newSelectedDoctors = selectedDoctors.filter(
-      (d) => d.id !== doctor.id
+      (d) => d.um_id !== doctor.um_id
     );
     setSelectedDoctors(newSelectedDoctors);
     setSelectAllDoctors(false);
@@ -268,21 +268,21 @@ const ClinicDetailsSetup = ({
               ) : allDoctors.length > 0 ? (
                 allDoctors.map((doctor) => (
                   <div
-                    key={doctor.id}
+                    key={doctor.um_id}
                     className={`doctor-option ${
-                      !doctor.availability ? "disabled" : ""
+                      !doctor.slotsAvailable ? "disabled" : ""
                     }`}
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Checkbox
-                      checked={selectedDoctors.some((d) => d.id === doctor.id)}
+                      checked={selectedDoctors.some((d) => d.um_id === doctor.um_id)}
                       onChange={() =>
-                        doctor.availability && handleDoctorSelect(doctor)
+                        doctor.slotsAvailable && handleDoctorSelect(doctor)
                       }
-                      disabled={!doctor.availability}
+                      disabled={!doctor.slotsAvailable}
                     >
-                      {doctor.name}
-                      {!doctor.availability && (
+                      {doctor.um_name}
+                      {!doctor.slotsAvailable && (
                         <span className="availability-note">
                           ( No Availability Set)
                         </span>
@@ -688,8 +688,8 @@ const ClinicDetailsSetup = ({
             {selectedDoctors.length > 0 ? (
               <div className="selected-doctors">
                 {selectedDoctors.map((doctor) => (
-                  <div key={doctor.id} className="doctor-chip">
-                    {doctor.name}
+                  <div key={doctor.um_id} className="doctor-chip">
+                    {doctor.um_name}
                     <CloseOutlined
                       onClick={(e) => handleRemoveDoctor(doctor, e)}
                     />
@@ -698,7 +698,7 @@ const ClinicDetailsSetup = ({
               </div>
             ) : (
               <div>
-                All Doctors ({allDoctors.filter((d) => d.availability).length})
+                All Doctors ({allDoctors.filter((d) => d.slotsAvailable).length})
               </div>
             )}
             <span className="dropdown-arrow">{isDropdownOpen ? "▲" : "▼"}</span>

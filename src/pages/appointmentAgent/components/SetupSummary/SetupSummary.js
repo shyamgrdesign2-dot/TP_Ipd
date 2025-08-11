@@ -110,7 +110,7 @@ const SetupSummary = ({ setupData, showSummaryOnly = false, enableEditMode = fal
           <div className="doctors-list">
             {setupData?.doctors && setupData.doctors.length > 0 ? (
               setupData.doctors.map((doctor) => (
-                <div key={doctor.id} className="doctor-item">
+                <div key={doctor.um_id} className="doctor-item">
                   <div
                     style={{
                       backgroundColor: "#A2A2A8",
@@ -125,11 +125,11 @@ const SetupSummary = ({ setupData, showSummaryOnly = false, enableEditMode = fal
                       justifyContent: "center",
                     }}
                   >
-                    {getInitials(doctor.name)}
+                    {getInitials(doctor.um_name)}
                   </div>
                   <div className="text-content d-flex justify-content-between flex-column">
                     <span style={{ fontWeight: 600, fontSize: "1rem"}}>
-                      {doctor.name}
+                      {doctor.um_name}
                     </span>
                     <span className="fs-10">
                       {doctor.speciality || "MBBS"}

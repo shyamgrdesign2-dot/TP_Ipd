@@ -63,8 +63,7 @@ function AppointmentList() {
         const clinicId = String(decodedToken?.result?.clinic_id);
         const response = await fetchAgents(clinicId);
         if (response) {
-          const decodedData = jwtDecode(response?.token);
-          setAgentsData(decodedData?.user && decodedData?.user);
+          setAgentsData(response.length > 0 && response[response.length - 1]);
         }
       } catch (error) {
         console.error("Error fetching agents:", error);

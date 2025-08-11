@@ -150,7 +150,7 @@ const SummaryPreview = ({ setupData }) => {
             {setupData?.doctors && setupData.doctors.length > 0 ? (
               <div className="d-flex flex-column gap-2 w-100 overflow-y-auto overflow-x-hidden">
                 {setupData.doctors.map((doctor) => (
-                  <div key={doctor.id} className="language-card">
+                  <div key={doctor.um_id} className="language-card">
                     <div className="card-content">
                       <div
                         style={{
@@ -165,11 +165,11 @@ const SummaryPreview = ({ setupData }) => {
                           justifyContent:"center"
                         }}
                       >
-                        {getInitials(doctor.name)}
+                        {getInitials(doctor.um_name)}
                       </div>
                       <div className="text-content d-flex justify-content-between flex-column">
                         <span className="fs-10" style={{ fontWeight: 600 }}>
-                          {doctor.name}
+                          {doctor.um_name}
                         </span>
                         <span className="fs-10">
                           {doctor.specialization || "MBBS"}
