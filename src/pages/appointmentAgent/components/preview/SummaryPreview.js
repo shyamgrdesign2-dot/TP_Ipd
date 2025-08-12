@@ -36,11 +36,14 @@ const SummaryPreview = ({ setupData }) => {
         );
       }
     }
+    const clinicName = setupData?.clinicName || setupData?.clinicData?.hm_name || "Enter Clinic Name";
+    const maxLength = 19; // Maximum characters before adding ellipsis
+    
     return (
       <span>
-        {setupData?.clinicName ||
-          setupData?.clinicData?.hm_name ||
-          "Enter Clinic Name"}
+        {clinicName.length > maxLength
+          ? clinicName.slice(0, maxLength - 3) + "..."
+          : clinicName}
       </span>
     );
   };

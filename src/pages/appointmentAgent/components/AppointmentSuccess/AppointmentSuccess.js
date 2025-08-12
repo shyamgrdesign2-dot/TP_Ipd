@@ -272,7 +272,7 @@ const AppointmentSuccess = () => {
               <div className="sms-header">
                 <img src={MailIcon} className="mail-icon" />
                 <span>
-                  Boost visibility by sharing this link through WhatsApp or SMS.
+                  Boost visibility by sharing this link through WhatsApp.
                 </span>
               </div>
               <button className="sms-button" onClick={handleBulkSmsClick}>

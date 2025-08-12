@@ -511,7 +511,7 @@ const ClinicDetailsSetup = ({
 
         <div className="form-section">
           <label>
-            Clinic Reception Contact number <span className="required">*</span>
+            Enter clinic mobile number <span className="required">*</span>
             <Tooltip 
               title="This number will be shown to patients for appointment-related queries. Make sure it's active and reachable during working hours."
               overlayClassName="clinic-tooltip"
@@ -524,7 +524,7 @@ const ClinicDetailsSetup = ({
             value={contactNumber}
             className={`phone-input ${showContactError ? "error-input" : ""}`}
             onChange={handleContactChange}
-            placeholder="Enter your reception's contact number"
+            placeholder="Enter clinic mobile number"
             id="phone"
             maxLength={10}
             type="tel"
@@ -550,7 +550,7 @@ const ClinicDetailsSetup = ({
 
         <div className="form-section">
           <label>
-            Clinic Reception Email ID
+            Enter clinic email ID
             <Tooltip 
               title="Patients can use this email to send queries or follow-up messages related to their appointments and consultation"
               overlayClassName="clinic-tooltip"
@@ -562,7 +562,7 @@ const ClinicDetailsSetup = ({
             value={email}
             className={`phone-input ${showEmailError ? "error-input" : ""}`}
             onChange={handleEmailChange}
-            placeholder="Enter your reception's email ID"
+            placeholder="Enter clinic email ID"
             prefix={
               <img
                 src={Mail}
@@ -622,6 +622,62 @@ const ClinicDetailsSetup = ({
           )}
         </div>
 
+        <div className="form-section" onClick={() => handleFocus("doctors")}>
+          <label>
+            Select Doctors whom you want to enable this Appointment{" "}
+            <span className="required">*</span>
+            <Tooltip 
+              title="Choose which doctors should be available for booking through your AI Assistant. You can update this later anytime."
+              overlayClassName="clinic-tooltip"
+            >
+              <InfoCircleOutlined className="info-icon" />
+            </Tooltip>
+          </label>
+          <div
+            className={`doctors-select ${
+              showDoctorsError ? "error-select" : ""
+            }`}
+            onClick={toggleDropdown}
+            onBlur={() => {
+              if (!selectedDoctors.length) {
+                setShowDoctorsError(true);
+              }
+            }}
+          >
+            {selectedDoctors.length > 0 ? (
+              <div className="selected-doctors">
+                {selectedDoctors.map((doctor) => (
+                  <div key={doctor.um_id} className="doctor-chip">
+                    {doctor.um_name}
+                    <CloseOutlined
+                      onClick={(e) => handleRemoveDoctor(doctor, e)}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Checkbox
+                  className="mb-0"
+                  checked={selectAllDoctors}
+                  onChange={(e) => handleSelectAllDoctors(e.target.checked)}
+                  disabled={loading}
+                />
+                <span>
+                  All Doctors ({allDoctors.filter((d) => d.slotsAvailable).length})
+                </span>
+              </div>
+            )}
+            <span className="dropdown-arrow">{isDropdownOpen ? "▲" : "▼"}</span>
+          </div>
+          {showDoctorsError && (
+            <div className="error-message">
+              Please select at least one doctor
+            </div>
+          )}
+          {renderDoctorsDropdown()}
+        </div>
+
         <div className="form-section">
           <label>
             Clinic Name
@@ -663,53 +719,6 @@ const ClinicDetailsSetup = ({
           />
         </div>
 
-        <div className="form-section" onClick={() => handleFocus("doctors")}>
-          <label>
-            Select Doctors whom you want to enable this Appointment{" "}
-            <span className="required">*</span>
-            <Tooltip 
-              title="Choose which doctors should be available for booking through your AI Assistant. You can update this later anytime."
-              overlayClassName="clinic-tooltip"
-            >
-              <InfoCircleOutlined className="info-icon" />
-            </Tooltip>
-          </label>
-          <div
-            className={`doctors-select ${
-              showDoctorsError ? "error-select" : ""
-            }`}
-            onClick={toggleDropdown}
-            onBlur={() => {
-              if (!selectedDoctors.length) {
-                setShowDoctorsError(true);
-              }
-            }}
-          >
-            {selectedDoctors.length > 0 ? (
-              <div className="selected-doctors">
-                {selectedDoctors.map((doctor) => (
-                  <div key={doctor.um_id} className="doctor-chip">
-                    {doctor.um_name}
-                    <CloseOutlined
-                      onClick={(e) => handleRemoveDoctor(doctor, e)}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div>
-                All Doctors ({allDoctors.filter((d) => d.slotsAvailable).length})
-              </div>
-            )}
-            <span className="dropdown-arrow">{isDropdownOpen ? "▲" : "▼"}</span>
-          </div>
-          {showDoctorsError && (
-            <div className="error-message">
-              Please select at least one doctor
-            </div>
-          )}
-          {renderDoctorsDropdown()}
-        </div>
       </div>
       {renderPreview()}
     </div>

@@ -96,7 +96,7 @@ const ReceptionistSetup = ({ onDataChange, initialData, clinicName, triggerValid
   };
 
   return (
-    <div className="receptionist-setup-container" style={{overflowY : "hidden", width : isMobile ? "90%" : "70%"}}>
+    <div className="receptionist-setup-container" style={{ width : isMobile ? "90%" : "70%"}}>
       <div className="setup-form">
         <div className="form-section">
           <label>
