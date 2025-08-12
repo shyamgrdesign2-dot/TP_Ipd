@@ -23,7 +23,7 @@ const SetupPreview = ({
         : setupData?.logo && typeof setupData.logo === "string"
         ? setupData.logo
         : null;
-    const maxLength = 34;
+    const maxLength = 19;
     const displayClinicName =
       clinicName || setupData?.clinicName || "Enter Clinic Name";
 
