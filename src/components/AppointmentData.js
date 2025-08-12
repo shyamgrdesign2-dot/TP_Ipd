@@ -871,7 +871,9 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
           startDate: moment(0).format(dateFormat),
           endDate: moment().format(dateFormat),
         });
+        dispatch(changeSortOrder("descend"));
       } else {
+        dispatch(changeSortOrder("ascend"));
         setIsDigitisationTab(false);
         setDate({
           startDate: moment().format(dateFormat),
@@ -1617,13 +1619,32 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     [snapRxUnDigitisedIds?.unReviewedAppointmentIds]
   );
 
+  const updateRxDigitizeInUrl = async ({print_rx_url, patient_unique_id, tcm_id}) => {
+    const urlObj = new URL(print_rx_url);
+
+    const snapRxDigitisedData = await getSnapRxDigitization(
+      patient_unique_id,
+      tcm_id
+    );
+
+    const isSnapRxdigitised = snapRxDigitisedData?.digitization?.isVerified || snapRxDigitisedData?.digitization?.isDigitize;
+    if (isSnapRxdigitised) {
+      urlObj.searchParams.set("rxDigitize", "true");
+    } else {
+      urlObj.searchParams.delete("rxDigitize");
+    }
+
+    return urlObj.toString();
+  };
+
   const onPrintRxUrlClick = async (record) => {
     if (record.print_rx_url) {
+      const printUrl = await updateRxDigitizeInUrl(record);
       if (!isChrome && !isSafari) {
-        navigate(`/?url=${record.print_rx_url}&key=print`, { replace: true });
+        navigate(`/?url=${printUrl}&key=print`, { replace: true });
         navigate(0, { replace: true });
       } else {
-        await window.open(record.print_rx_url);
+        await window.open(printUrl);
       }
     } else {
       setAppointmentSelectedFromMenu(record);
