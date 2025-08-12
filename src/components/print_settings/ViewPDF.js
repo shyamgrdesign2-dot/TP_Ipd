@@ -542,7 +542,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
        }
      };
 
-    const calculatePadding = () => {
+     const calculatePadding = () => {
+        const widthOfA4PageInPts = 595;
         const { letterhead_format, header_footer, whatsapp_letterhead_format } = printSettings || {};
         const footer = header_footer?.footer;
 
@@ -551,7 +552,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 paddingTop: PX_TO_PT * 30,
                 paddingBottom: whatsapp_letterhead_format === 1
                     ? fileFooter?.imageShow
-                        ? footerImageHeight + 5
+                        ? fileFooter?.renderedFooterImageHeight + (PX_TO_PT * 30)
                         : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
                         : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5,
                 paddingLeft: PX_TO_PT * 30,
@@ -561,23 +562,30 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             };
         }
 
+        const paddingTop = [0,1,2].includes(letterhead_format)
+        ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
+        : PX_TO_PT * 30;
+        const paddingLeft = [0,1,2].includes(letterhead_format)
+        ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
+        : PX_TO_PT * 30;
+
+        const paddingRight = [0,1,2].includes(letterhead_format)
+        ? getMarginByFormat(letterhead_format, header_footer, "right", 0.5)
+        : PX_TO_PT * 30;
+
+        const paddingBottom = letterhead_format === 2
+        ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
+        : letterhead_format === 1
+            ? fileFooter?.imageShow
+                ? ((fileFooter?.footerHeight / fileFooter?.footerWidth) * (widthOfA4PageInPts - (paddingLeft + paddingRight))) + paddingTop
+                : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
+                : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5;
+
         return {
-            paddingTop: [0,1,2].includes(letterhead_format)
-                ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
-                : PX_TO_PT * 30,
-            paddingBottom: letterhead_format === 2
-                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
-                : letterhead_format === 1
-                    ? fileFooter?.imageShow
-                        ? footerImageHeight + 5
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5,
-            paddingLeft: [0,1,2].includes(letterhead_format)
-                ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
-                : PX_TO_PT * 30,
-            paddingRight: [0,1,2].includes(letterhead_format)
-                ? getMarginByFormat(letterhead_format, header_footer, "right", 0.5)
-                : PX_TO_PT * 30,
+            paddingTop,
+            paddingBottom,
+            paddingLeft,
+            paddingRight,
         };
     };
 

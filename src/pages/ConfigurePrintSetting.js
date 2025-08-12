@@ -91,6 +91,22 @@ function ConfigurePrintSetting() {
         },
     ];
 
+    const getImageDimensions = (url) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.src = url;
+      
+          img.onload = () => {
+            resolve({
+              width: img.naturalWidth,
+              height: img.naturalHeight
+            });
+          };
+      
+          img.onerror = (err) => reject(err);
+        });
+    }
+
     useEffect(() => {
         const makeData = async () => {
             const copyPrintSettings = JSON.parse(JSON.stringify({
@@ -116,13 +132,30 @@ function ConfigurePrintSetting() {
                     });
                 }
             }
-            
+
             setPrintSettings(copyPrintSettings);
             copyPrintSettings?.logo_enable == 'Y' && copyPrintSettings.logo_image && setFileLogo({ imageShow: true, showFile: copyPrintSettings.logo_image });
-            copyPrintSettings?.header_image && setFileHeader({ imageShow: true, showFile: copyPrintSettings.header_image });
-            copyPrintSettings?.footer_image && setFileFooter({ imageShow: true, showFile: copyPrintSettings.footer_image });
             copyPrintSettings?.water_mark_enable == 'Y' && copyPrintSettings.water_mark_image && setFileWatermark({ imageShow: true, showFile: copyPrintSettings.water_mark_image });
             copyPrintSettings?.signature_enable == 'Y' && copyPrintSettings.signature_image && setFileSignature({ imageShow: true, showFile: copyPrintSettings.signature_image });
+            copyPrintSettings?.header_image && setFileHeader({ imageShow: true, showFile: copyPrintSettings.header_image });
+            if (copyPrintSettings?.footer_image) {
+                getImageDimensions(copyPrintSettings.footer_image)
+                    .then(({height, width}) => {
+                    const widthOfA4PageInPts = 595;
+                    const PX_TO_PT = 0.75;
+                    const pageXPadding = PX_TO_PT * 60;
+                    const footerImgDimensions = {
+                        footerHeight: height || 0,
+                        footerWidth: width || 0,
+                        renderedFooterImageHeight: ((height/ width) * (widthOfA4PageInPts - pageXPadding)) || 0
+                    }
+                    copyPrintSettings?.footer_image && setFileFooter({ imageShow: true, showFile: copyPrintSettings.footer_image, ...footerImgDimensions });
+                })
+                .catch((err) => {
+                    console.error(err);
+                    copyPrintSettings?.footer_image && setFileFooter({ imageShow: true, showFile: copyPrintSettings.footer_image, footerHeight: 0, footerWidth: 0, renderedFooterImageHeight: 0 });
+                });
+            }
         }
         makeData()
     }, [defaultPrintSettings]);
