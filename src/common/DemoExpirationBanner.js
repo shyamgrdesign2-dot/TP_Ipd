@@ -71,7 +71,7 @@ const DemoExpirationBanner = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    !profile?.b2c && profile_b2c && dispatch(setB2C_Profile(profile_b2c));
+    profile && !profile?.b2c && profile_b2c && dispatch(setB2C_Profile(profile_b2c));
   }, [profile?.b2c, profile_b2c]);
 
   const handleClick = () => {
