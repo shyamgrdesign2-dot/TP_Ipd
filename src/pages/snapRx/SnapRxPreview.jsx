@@ -25,6 +25,7 @@ import successIcon from "../../assets/images/success-icon.svg";
 import HeaderPrescriptionPrint from "../../common/HeaderPrescriptionPrint";
 
 import {
+  GB_SNAP_RX_DIGITIZATION,
   MESSAGE_KEY,
   WHATS_APP_API,
   WTSAP_ERR_MESSAGE,
@@ -41,6 +42,7 @@ import { env } from "../../EnvironmentConfig";
 
 import { EVENTS } from "../../utils/events";
 import { getDecodedToken } from "../../utils/localStorage";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 const worker = require("pdfjs-dist/build/pdf.worker.min.js");
 pdfjs.GlobalWorkerOptions.workerSrc = worker;
 
@@ -59,6 +61,7 @@ function SnapRxPreview() {
   const [printUrl, setPrintUrl] = useState(
     state !== undefined ? `${state?.print_rx_url || state?.print_url}` : null
   );
+  const isSnapRxDigitizationAccessable = useFeatureIsOn(GB_SNAP_RX_DIGITIZATION);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [viewCaseManagerData, setViewCaseManagerData] = useState(null);
   const [token, setToken] = useState(null);
@@ -580,6 +583,7 @@ function SnapRxPreview() {
                 </div>
               )}
               {!showProgressbar &&
+                isSnapRxDigitizationAccessable &&
                 smartRxFile?.length > 0 &&
                 state?.page !== "digitise" && (
                   <div className="digitise-cta-container">
