@@ -542,7 +542,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
        }
      };
 
-    const calculatePadding = () => {
+     const calculatePadding = () => {
+        const widthOfA4PageInPts = 595;
         const { letterhead_format, header_footer, whatsapp_letterhead_format } = printSettings || {};
         const footer = header_footer?.footer;
 
@@ -551,7 +552,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 paddingTop: PX_TO_PT * 30,
                 paddingBottom: whatsapp_letterhead_format === 1
                     ? fileFooter?.imageShow
-                        ? footerImageHeight + 5
+                        ? fileFooter?.renderedFooterImageHeight + (PX_TO_PT * 30)
                         : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
                         : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5,
                 paddingLeft: PX_TO_PT * 30,
@@ -561,23 +562,30 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             };
         }
 
+        const paddingTop = [0,1,2].includes(letterhead_format)
+        ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
+        : PX_TO_PT * 30;
+        const paddingLeft = [0,1,2].includes(letterhead_format)
+        ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
+        : PX_TO_PT * 30;
+
+        const paddingRight = [0,1,2].includes(letterhead_format)
+        ? getMarginByFormat(letterhead_format, header_footer, "right", 0.5)
+        : PX_TO_PT * 30;
+
+        const paddingBottom = letterhead_format === 2
+        ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
+        : letterhead_format === 1
+            ? fileFooter?.imageShow
+                ? ((fileFooter?.footerHeight / fileFooter?.footerWidth) * (widthOfA4PageInPts - (paddingLeft + paddingRight))) + paddingTop
+                : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
+                : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5;
+
         return {
-            paddingTop: [0,1,2].includes(letterhead_format)
-                ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
-                : PX_TO_PT * 30,
-            paddingBottom: letterhead_format === 2
-                ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
-                : letterhead_format === 1
-                    ? fileFooter?.imageShow
-                        ? footerImageHeight + 5
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
-                        : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5,
-            paddingLeft: [0,1,2].includes(letterhead_format)
-                ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
-                : PX_TO_PT * 30,
-            paddingRight: [0,1,2].includes(letterhead_format)
-                ? getMarginByFormat(letterhead_format, header_footer, "right", 0.5)
-                : PX_TO_PT * 30,
+            paddingTop,
+            paddingBottom,
+            paddingLeft,
+            paddingRight,
         };
     };
 
@@ -853,7 +861,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {caseManagerData.symptoms.length > 0 && (
                                         option?.format === 'inline' ? (
                                             <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
                                                 {caseManagerData.symptoms.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
@@ -887,7 +895,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </Text>
                                         ) : option?.format === 'listview' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
                                                 {caseManagerData.symptoms.map((item, i) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
@@ -929,7 +937,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
                                                     Symptoms:&nbsp;
                                                 </Text>
                                                 <View style={styles.table}>
@@ -957,7 +965,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {caseManagerData.examination.length > 0 && (
                                         option?.format === 'inline' ? (
                                             <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
                                                 {caseManagerData.examination.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
@@ -973,7 +981,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </Text>
                                         ) : option?.format === 'listview' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
                                                 {caseManagerData.examination.map((item, i) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
@@ -988,7 +996,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Examinations:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Examinations:&nbsp;</Text>
                                                 <View style={styles.table}>
                                                     <View style={styles.headerRow} fixed wrap={false}>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>
@@ -1018,7 +1026,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {caseManagerData.diagnosis.length > 0 && (
                                         option?.format === 'inline' ? (
                                             <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
                                                 {caseManagerData.diagnosis.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
@@ -1046,7 +1054,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </Text>
                                         ) : option?.format === 'listview' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
                                                 {caseManagerData.diagnosis.map((item, i) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
@@ -1070,7 +1078,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Diagnosis:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Diagnosis:&nbsp;</Text>
                                                 <View style={styles.table}>
                                                     <View style={styles.headerRow} fixed>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
@@ -1096,7 +1104,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {caseManagerData.medicine.length > 0 && (
                                         option?.format === 'inline' ? (
                                             <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
                                                 {medicationData?.map((pItem, i) => {
                                                     return (
                                                         <Text key={i}>
@@ -1187,7 +1195,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </Text>
                                         ) : option?.format === 'listview' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
                                                 {medicationData?.map((pItem, i) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
@@ -1279,7 +1287,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Medication (Rx):&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Medication (Rx):&nbsp;</Text>
                                                 <View style={styles.table}>
                                                     <View style={styles.headerRow} fixed>
                                                         <Text style={[styles.headerCell, { flex: 0.18, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>S.NO</Text>
@@ -1375,7 +1383,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {caseManagerData.advice.length > 0 && (
                                         option?.format === 'inline' ? (
                                             <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
                                                 {caseManagerData.advice.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
@@ -1387,7 +1395,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </Text>
                                         ) : option?.format === 'listview' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
                                                 {caseManagerData.advice.map((item, i) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
@@ -1399,7 +1407,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Advices:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Advices:&nbsp;</Text>
                                                 <View style={styles.table}>
                                                     <View style={styles.headerRow} fixed>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
@@ -1419,7 +1427,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {caseManagerData.investigation.length > 0 && (
                                         option?.format === 'inline' ? (
                                             <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
                                                 {caseManagerData.investigation.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
@@ -1435,7 +1443,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </Text>
                                         ) : option?.format === 'listview' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
                                                 {caseManagerData.investigation.map((item, i) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
@@ -1450,7 +1458,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Lab Investigation:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Lab Investigation:&nbsp;</Text>
                                                 <View style={styles.table}>
                                                     <View style={styles.headerRow} fixed>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
@@ -1472,7 +1480,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {(caseManagerData.vitals.length > 0 || patientBirthWeight) &&  (
                                         option?.format === 'inline' ? (
                                             <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
                                                 {patientBirthWeight && (
                                                     <>
                                                         <Text
@@ -1538,7 +1546,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </Text>
                                         ) : option?.format === 'listview' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
                                                     Vitals & Body Composition:&nbsp;
 
                                                     {patientBirthWeight && (
@@ -1608,7 +1616,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
                                                     Vitals & Body Composition:&nbsp;
 
                                                     {patientBirthWeight && (
@@ -1666,7 +1674,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {caseManagerData.medical_history.length > 0 && (
                                         option?.format === 'inline' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:</Text>
                                                 {(() => {
                                                     const grouped = {};
                                                     if (caseManagerData?.medical_history && Array.isArray(caseManagerData.medical_history)) {
@@ -1743,7 +1751,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : option?.format === 'listview' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
                                                 {caseManagerData.medical_history.map((item, i) => {
                                                     let abcd = 97
                                                     return (
@@ -1835,7 +1843,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
                                                 {caseManagerData.medical_history.map((item, i) => {
                                                     return (
                                                         option?.medical_history_option?.includes(item.tmmhs_id) && (
@@ -1917,17 +1925,17 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {caseManagerData.follow_up_date && (
                                         option?.format === 'inline' ? (
                                                 <Text style={{ marginTop: PX_TO_PT * 15 }}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
                                                     <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.follow_up_date, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{option?.followup_dateformat ? moment(caseManagerData.follow_up_date).format('DD/MM/YYYY') : onCalFollowUp(moment(caseManagerData.follow_up_date).format('YYYY-MM-DD'), moment(caseManagerData?.patient_data?.patient_consultaion_date).format('YYYY-MM-DD'))}</Text>
                                                 </Text>
                                         ) : option?.format === 'listview' ? (
                                                 <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
                                                     <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.follow_up_date, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, marginTop: PX_TO_PT * 4 }}>{option?.followup_dateformat ? moment(caseManagerData.follow_up_date).format('DD/MM/YYYY') : onCalFollowUp(moment(caseManagerData.follow_up_date).format('YYYY-MM-DD'), moment(caseManagerData?.patient_data?.patient_consultaion_date).format('YYYY-MM-DD'))}</Text>
                                                 </View>
                                         ) : (
                                                 <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
                                                     <View style={styles.table}>
                                                         <Text style={{border: '1px solid #171725', padding: 6, color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.follow_up_date, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{option?.followup_dateformat ? moment(caseManagerData.follow_up_date).format('DD/MM/YYYY') : onCalFollowUp(moment(caseManagerData.follow_up_date).format('YYYY-MM-DD'), moment(caseManagerData?.patient_data?.patient_consultaion_date).format('YYYY-MM-DD'))}</Text>
                                                     </View>
@@ -1940,17 +1948,17 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {caseManagerData.visit_advice && (
                                         option?.format === 'inline' ? (
                                             <Text style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
                                                 <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.visit_advice, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.visit_advice}</Text>
                                             </Text>
                                         ) : option?.format === 'listview' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
                                                 <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.visit_advice, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, marginTop: PX_TO_PT * 4 }}>{caseManagerData.visit_advice}</Text>
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
                                                 <View style={styles.table}>
                                                     <Text style={{border: '1px solid #171725', padding: 6, color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.visit_advice, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.visit_advice}</Text>
                                                 </View>
@@ -1965,7 +1973,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             option?.format === 'inline' ? (
                                                 <>
                                                     {transformGivenVaccines?.length > 0 && <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;{'\n'}</Text>
+                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;{'\n'}</Text>
                                                         {transformGivenVaccines?.map((item, i) => {
                                                             return (
                                                                 <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
@@ -2001,7 +2009,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         })}
                                                     </Text>}
                                                     {todayVaccines?.due?.length > 0 && <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Due Vaccines :&nbsp;{'\n'}</Text>
+                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Due Vaccines :&nbsp;{'\n'}</Text>
                                                         {todayVaccines?.due?.map((item, i) => {
                                                             return (
                                                                 <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
@@ -2028,7 +2036,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             ) : option?.format === 'listview' ? (
                                                 <>
                                                     {transformGivenVaccines?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;{'\n'}</Text>
+                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;{'\n'}</Text>
                                                         {transformGivenVaccines?.map((item, i) => {
                                                             return (
                                                                 <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
@@ -2064,7 +2072,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         })}
                                                     </View>}
                                                     {todayVaccines?.due?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Due Vaccines :&nbsp;{'\n'}</Text>
+                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Due Vaccines :&nbsp;{'\n'}</Text>
                                                         {todayVaccines?.due?.map((item, i) => {
                                                             return (
                                                                 <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
@@ -2091,7 +2099,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             ) : (
                                                 <>
                                                     {transformGivenVaccines?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Given Vaccines :&nbsp;{'\n'}</Text>
+                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Given Vaccines :&nbsp;{'\n'}</Text>
                                                         <View style={styles.table}>
                                                             <View style={styles.headerRow} fixed>
                                                                 <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
@@ -2122,7 +2130,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         </View>
                                                     </View>}
                                                     {todayVaccines?.due?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Due Vaccines :&nbsp;{'\n'}</Text>
+                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Due Vaccines :&nbsp;{'\n'}</Text>
                                                         <View style={styles.table}>
                                                             <View style={styles.headerRow} fixed>
                                                                 <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
@@ -2171,7 +2179,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         option?.format === 'table' ? (
                                             <>
                                                 <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Growth Chart &nbsp;{'\n'}</Text>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Growth Chart &nbsp;{'\n'}</Text>
                                                     <View style={styles.table}>
                                                         <View style={styles.headerRow} fixed>
                                                             <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Parameters</Text>
@@ -2204,7 +2212,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </>
                                         ) : growthChartImageChunks?.length > 0 &&
                                         <>
-                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginTop: PX_TO_PT * 15 }}>Growth Chart &nbsp;{'\n'}</Text>
+                                            <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginTop: PX_TO_PT * 15 }}>Growth Chart &nbsp;{'\n'}</Text>
                                             <View>
                                                 {growthChartImageChunks?.map((chunk, index) => (
                                                     <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: PX_TO_PT * 15 }} key={index}>
@@ -2227,6 +2235,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                         fontWeight: 700,
                                                     }}
+                                                    fixed
                                                 >
                                                     Menstrual details&nbsp;:&nbsp;
                                                 </Text>
@@ -2979,6 +2988,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                         fontWeight: 700,
                                                     }}
+                                                    fixed
                                                 >
                                                     Menstrual details&nbsp;:&nbsp;
                                                 </Text>
@@ -3755,6 +3765,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         fontWeight: 700,
                                                     }}
                                                     wrap={false}
+                                                    fixed
                                                 >
                                                     Menstrual details&nbsp;:&nbsp;
                                                 </Text>
@@ -4262,9 +4273,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         </Text>
                                                     </View>
                                                 </View>
-</View>
-<View wrap={false} style={{ break: "avoid" }}>
-
+                                            </View>
+                                            <View wrap={false} style={{ break: "avoid" }}>
                                                 <Text
                                                     style={{
                                                         color: "#000",
@@ -4360,8 +4370,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         </Text>
                                                     </View>
                                                 </View>
-</View>
-<View wrap={false} style={{ break: "avoid" }}>
+                                                </View>
+                                                <View wrap={false} style={{ break: "avoid" }}>
                                                 <Text
                                                     style={{
                                                         color: "#000",
@@ -4564,6 +4574,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                 fontWeight: 700,
                                                             }}
+                                                            fixed
                                                         >
                                                             Lab Results:&nbsp;
                                                         </Text>
@@ -4663,7 +4674,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : option?.format === "listview" ? (
                                             <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text style={{
+                                                <Text fixed style={{
                                                     color: "#171725",
                                                     fontFamily: printSettings?.page_format?.font_family,
                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
@@ -4721,6 +4732,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                         fontWeight: 700,
                                                         marginBottom: PX_TO_PT * 6
                                                     }}
+                                                    fixed
                                                 >
                                                     Lab Results:&nbsp;
                                                 </Text>
@@ -4836,7 +4848,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     {caseManagerData.surgeries.length > 0 && (
                                         option?.format === 'inline' ? (
                                             <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Surgeries/Procedures:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Surgeries/Procedures:&nbsp;</Text>
                                                 {caseManagerData.surgeries.map((item, i) => {
                                                     return (
                                                         <Text key={i}>
@@ -4852,7 +4864,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </Text>
                                         ) : option?.format === 'listview' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Surgeries/Procedures:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Surgeries/Procedures:&nbsp;</Text>
                                                 {caseManagerData.surgeries.map((item, i) => {
                                                     return (
                                                         <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
@@ -4867,7 +4879,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Surgeries/Procedures:&nbsp;</Text>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Surgeries/Procedures:&nbsp;</Text>
                                                 <View style={styles.table}>
                                                     <View style={styles.headerRow} fixed>
                                                         <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
@@ -4890,7 +4902,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         option?.format === 'inline' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
                                                 <Text>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
                                                         Zydus Lab Results:&nbsp;
                                                     </Text>
                                                     {caseManagerData.zydusSelectedLabParams.map((dateEntry, dateIndex) => (
@@ -4925,7 +4937,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : option?.format === 'listview' ? (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
                                                     Zydus Lab Results:
                                                 </Text>
                                                 {caseManagerData.zydusSelectedLabParams.map((dateEntry, dateIndex) => (
@@ -4955,7 +4967,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         ) : (
                                             <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
                                                     Zydus Lab Results:
                                                 </Text>
                                                 {/* Zydus Cross-Tab Table Structure */}
@@ -5349,7 +5361,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             ) : option?.is_custom_module === true && option?.enable === 'Y' && option?.custom_status === 'Y' && customModule?.content?.length > 0 ? (
                                 option?.format === 'inline' ? (
                                     <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
+                                        <Text fixed style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
                                         {customModule?.content?.map((item, i) => {
                                             return (
                                                 <Text key={i}>
@@ -5368,7 +5380,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </Text>
                                 ) : option?.format === 'listview' ? (
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
+                                        <Text fixed style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
                                         {customModule?.content.map((item, i) => {
                                             return (
                                                 <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
@@ -5387,7 +5399,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </View>
                                 ) : (customModule?.content?.some((item) => item.title || item.notes) &&
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>{customModule?.name}:&nbsp;</Text>
+                                        <Text fixed style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>{customModule?.name}:&nbsp;</Text>
                                         <View style={styles.table}>
                                             <View style={styles.headerRow} fixed>
                                                 {customModule?.content?.some((item) => item.title) && <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>}
@@ -5404,7 +5416,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 )
                             ) : option?.id === 17 && option?.enable === 'Y' && option?.custom_status === 'Y' && (patientBills?.length > 0 || advanceReceipts?.length > 0) && (
                                 <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Payment:&nbsp;</Text>
+                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Payment:&nbsp;</Text>
                                     {patientBills?.map((patientBill, i) => {
                                         const paymentModes = patientBill?.paymentModes?.map((item) => item?.paymentMode) || [];
                                         const formattedPaymentModes =
