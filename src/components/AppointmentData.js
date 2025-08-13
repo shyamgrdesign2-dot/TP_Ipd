@@ -1685,8 +1685,8 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
       title: "#",
       dataIndex: "srno",
       key: "srno",
-      // ellipsis: true,
-      width: 60,
+      ellipsis: true,
+      width: 80,
       className: "fs-14",
       render: (text, record, index) => (
         <div>
@@ -1735,7 +1735,6 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
       dataIndex: "pm_contact_no",
       key: "pm_contact_no",
       ellipsis: true,
-      width: 180,
       render: (text, record) => (
         <div>
           <span>{record.pm_contact_no} </span> <br />{" "}
@@ -1760,7 +1759,6 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
           ? "toct_type"
           : "appointmentStatus",
       ellipsis: true,
-      width: 250,
       filteredValue: visitTypeFilters.split(",") || "",
       filters:
         selectedTab !== TAB_ZYDUS_APPOINTMENT ? getVisitTypeFilters() : null,
@@ -1789,7 +1787,6 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
       dataIndex: "time",
       key: "time",
       ellipsis: true,
-      width: 200,
       sortDirections: ["descend", "ascend", "descend"],
       defaultSortOrder: sort_order,
       sorter: (a, b, sortOrder) => {
@@ -1828,7 +1825,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     {
       title: selectedTab != TAB_ZYDUS_APPOINTMENT ? "Action" : "",
       key: "action",
-      width: 220,
+      width: 200,
       render: (_, record, index) =>
         selectedTab != TAB_ZYDUS_APPOINTMENT ? (
           <div
