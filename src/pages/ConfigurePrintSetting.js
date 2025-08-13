@@ -139,30 +139,46 @@ function ConfigurePrintSetting() {
             copyPrintSettings?.signature_enable == 'Y' && copyPrintSettings.signature_image && setFileSignature({ imageShow: true, showFile: copyPrintSettings.signature_image });
             copyPrintSettings?.header_image && setFileHeader({ imageShow: true, showFile: copyPrintSettings.header_image });
             if (copyPrintSettings?.footer_image) {
-                getImageDimensions(copyPrintSettings.footer_image)
-                    .then(({height, width}) => {
-                    const widthOfA4PageInPts = 595;
-                    const PX_TO_PT = 0.75;
-                    const pageXPadding = PX_TO_PT * 60;
-                    const footerImgDimensions = {
-                        footerHeight: height || 0,
-                        footerWidth: width || 0,
-                        renderedFooterImageHeight: ((height/ width) * (widthOfA4PageInPts - pageXPadding)) || 0
-                    }
-                    copyPrintSettings?.footer_image && setFileFooter({ imageShow: true, showFile: copyPrintSettings.footer_image, ...footerImgDimensions });
-                })
-                .catch((err) => {
-                    console.error(err);
-                    copyPrintSettings?.footer_image && setFileFooter({ imageShow: true, showFile: copyPrintSettings.footer_image, footerHeight: 0, footerWidth: 0, renderedFooterImageHeight: 0 });
-                });
+                updateFooterImageHeight({showFile: copyPrintSettings?.footer_image}, true);
             }
         }
         makeData()
     }, [defaultPrintSettings]);
 
+    const updateFooterImageHeight = (footerFile, initialUpdate) => {
+        getImageDimensions(footerFile?.showFile)
+            .then(({height, width}) => {
+            const widthOfA4PageInPts = 595;
+            const PX_TO_PT = 0.75;
+            const pageXPadding = PX_TO_PT * 60;
+            const footerImgDimensions = {
+                footerHeight: height || 0,
+                footerWidth: width || 0,
+                renderedFooterImageHeight: ((height/ width) * (widthOfA4PageInPts - pageXPadding)) || 0
+            }
+            if (initialUpdate) {
+                setFileFooter({imageShow: true, showFile: footerFile?.showFile, ...footerImgDimensions});
+            } else {
+                setFileFooter(prev =>  ({ ...prev, ...footerImgDimensions }));
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            if (initialUpdate) {
+                setFileFooter({ imageShow: true, showFile: footerFile?.showFile, footerHeight: 0, footerWidth: 0, renderedFooterImageHeight: 0 });
+            }
+        });
+    }
+
+    useEffect(() => {
+        if (!fileFooter?.showFile) return;
+        updateFooterImageHeight(fileFooter);
+    }, [printSettings, fileFooter?.showFile])
+
     const onTabChange = useCallback(
         (key) => {
             setSelectedTab(key);
+            updateFooterImageHeight();
         },
         [selectedTab]
     );
@@ -207,11 +223,11 @@ function ConfigurePrintSetting() {
                             <div className="bg-white overflow-y-auto" style={{ height: 'calc(100vh - 60px)' }}>
                                 <Tabs defaultActiveKey="1" items={caseManagerData !== undefined ? TabsPrintSetting : TabsPrintSetting.slice(1, 2)} onChange={onTabChange} className="print-tabs" />
                                 {selectedTab === TAB_PRESCRIPTION ? (
-                                    <PrescriptionLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} patientBills={[...patientBills, ...advanceReceipts]} />
+                                    <PrescriptionLayout updateFooterImageHeight={updateFooterImageHeight} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} patientBills={[...patientBills, ...advanceReceipts]} />
                                 ) : selectedTab === TAB_HEADER_FOOTER ? (
-                                    <HeaderFooterLayout todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} patientBills={patientBills} advanceReceipts={advanceReceipts} patientWalletBalance={patientWalletBalance} />
+                                    <HeaderFooterLayout updateFooterImageHeight={updateFooterImageHeight} todayVaccines={todayVaccines} growthChartDetails={growthChartDetails} obstetricDetails={obstetricDetails} patientBills={patientBills} advanceReceipts={advanceReceipts} patientWalletBalance={patientWalletBalance} />
                                 ) : selectedTab === TAB_PAGE_FORMAT && (
-                                    <PageFormatLayout />
+                                    <PageFormatLayout updateFooterImageHeight={updateFooterImageHeight} />
                                 )}
                             </div>
                         </Col>
