@@ -1426,12 +1426,14 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     //     "patient_id": record?.patient_unique_id
     // });
     if (agentsData) {
+      const clinic = getClinic(profile?.hospital_data);
+
       // If agentsData exists, navigate to success page
       navigate("/appointment-agent/success", {
         state: {
           agentsData,
           setupData: {
-            clinicId: agentsData.clinicId || profile?.clinicId || 390,
+            clinicId: agentsData.clinicId || profile?.clinicId,
             doctors:
               agentsData.doctors?.map((doctor) => ({
                 um_id: doctor.um_id,
@@ -1440,10 +1442,10 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
                 speciality: doctor.speciality || "MBBS",
                 slotsAvailable: doctor.slotsAvailable,
               })) || [],
-            clinicData: getClinic(profile?.hospital_data),
+            clinicData: clinic,
             useUploadLogo: agentsData.logo ? true : false,
             logo: agentsData.logo || null,
-            clinicName: agentsData.clinicName || null,
+            clinicName: agentsData.clinicName || clinic?.hm_name,
             avatar: agentsData.avatarDetails || null,
             avatarId: agentsData.avatarId || null,
             googleLocation:
