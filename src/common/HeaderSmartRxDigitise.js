@@ -204,7 +204,7 @@ function HeaderSmartRxDigitise({ onSave, patient_data, isSnapRx = false, isDigit
                   showHideSubModal={showHideSubModal}
                 />
 
-                <Popover
+                {isSnapRx ? <Popover
                   open={popOverVideo}
                   onOpenChange={showHideVideoListPopover}
                   content={VIDEO_CONTENT}
@@ -218,7 +218,7 @@ function HeaderSmartRxDigitise({ onSave, patient_data, isSnapRx = false, isDigit
                       Tutorial
                     </span>
                   </button>
-                </Popover>
+                </Popover> : null}
                 {videoLink && (
                   <VideoModal
                     videoLink={videoLink}
