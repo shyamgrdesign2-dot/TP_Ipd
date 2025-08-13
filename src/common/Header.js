@@ -145,6 +145,7 @@ function Header({ locationPath }) {
 
   useEffect(() => {
     if (profile) {
+      console.log(profile)
       if (profile.moengage_b2c_send === undefined) {
         window.Moengage.add_unique_user_id(profile?.b2c)
         dispatch(updateStatusMoengageB2C());
