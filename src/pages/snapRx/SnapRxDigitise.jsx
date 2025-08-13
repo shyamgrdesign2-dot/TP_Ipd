@@ -151,7 +151,7 @@ function SnapRxDigitise() {
 
   return (
     <>
-      <HeaderSmartRxDigitise onSave={handleSave} patient_data={patient_data} isSnapRx={true} />
+      <HeaderSmartRxDigitise onSave={handleSave} isDigitiseRxLoading={isLoading} patient_data={patient_data} isSnapRx={true} />
       <div className="cvt-info">
         <img src={cvtInfoIcon} alt="cvt-info-icon" className="me-2" />
         <span className="cvt-info-text">
