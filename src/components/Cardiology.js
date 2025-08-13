@@ -29,8 +29,9 @@ import {
   FETCH_SMART_RX,
   GB_ISCRIBE,
   GB_SMARTSYNC_CVT,
-  GB_SNAP_RX,
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+  GB_SNAP_RX,
+  GB_SNAP_RX_DIGITIZATION,
 } from "../utils/constants";
 import { EVENTS } from "../utils/events";
 
@@ -97,6 +98,9 @@ function Cardiology(props) {
   const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(GB_SMARTSYNC_CVT);
 
   const isSnapRxAccessableFromGB = useFeatureIsOn(GB_SNAP_RX);
+  const isSnapRxDigitizationAccessable = useFeatureIsOn(
+    GB_SNAP_RX_DIGITIZATION
+  );
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
   const baseUrlRxDigitise = env.rx_digitization;
@@ -109,7 +113,7 @@ function Cardiology(props) {
       fetchData();
     }
     if (
-      isSnapRxAccessableFromGB &&
+      isSnapRxDigitizationAccessable &&
       viewCaseManagerData?.tcm_id &&
       viewCaseManagerData?.smart_prescription_filename?.includes("snap_rx")
     ) {
@@ -139,13 +143,13 @@ function Cardiology(props) {
     } else {
       setIsSmartRxFile(false);
     }
-        if (viewCaseManagerData?.moduleContents?.length) {
+    if (viewCaseManagerData?.moduleContents?.length) {
       dispatch(getModules(userId));
     }
     if (isValidMongoId(viewCaseManagerData?.smart_prescription_filename)) {
       getGenRxDetails();
     }
-  }, [viewCaseManagerData]);
+  }, [viewCaseManagerData, isSnapRxDigitizationAccessable]);
 
   // Function to update rxDigitize parameter in the URL
   const updateRxDigitizeInUrl = (url, showDigitalRx) => {
@@ -611,7 +615,7 @@ function Cardiology(props) {
         patient_data.patient_unique_id,
         tcmId
       );
-      
+
       if (response?.digitization) {
         setSnapRxDigitisedData(
           response?.digitization?.editedData ||
@@ -662,7 +666,13 @@ function Cardiology(props) {
 
   // Render items for each type (medications, tests, etc.)
   const renderItems = (type) => {
-    const data = isSnapRxAccessableFromGB && isSnapRx && showDigitalSnapRx && snapRxDigitisedData ? snapRxDigitisedData : rxDigitisedData?.editedData;
+    const data =
+      isSnapRxDigitizationAccessable &&
+      isSnapRx &&
+      showDigitalSnapRx &&
+      snapRxDigitisedData
+        ? snapRxDigitisedData
+        : rxDigitisedData?.editedData;
     return (
       <div className="digitised-data-section">
         <ul>
@@ -695,10 +705,10 @@ function Cardiology(props) {
                     {type === "advice"
                       ? item
                       : type === "symptoms" && item?.name?.length > 0
-                        ? item.name[0]?.toUpperCase() + item.name?.slice(1)
-                        : type === "medications" || type === "tests"
-                          ? item?.refinedName
-                          : item?.name}
+                      ? item.name[0]?.toUpperCase() + item.name?.slice(1)
+                      : type === "medications" || type === "tests"
+                      ? item?.refinedName
+                      : item?.name}
                   </span>
 
                   {/* Optional rendering for lineItem */}
@@ -987,9 +997,8 @@ function Cardiology(props) {
                 )
               ))}
 
-            {isSnapRxAccessableFromGB &&
+            {isSnapRxDigitizationAccessable &&
               isSnapRx &&
-              snapRxDigitisedData &&
               (isSnapRxdigitised ? (
                 <div className="p-2 mb-2">
                   <button
@@ -1014,44 +1023,42 @@ function Cardiology(props) {
                   </button>
                 </div>
               ) : (
-                snapRxDigitisedData?.ocrData && (
-                  <div className="digitise-info-cardiology">
-                    <img
-                      src={successIcon}
-                      alt="success"
-                      width="40px"
-                      height="40px"
-                    />
-                    <p>
-                      <span className="digitise-info-header-cardiology">
-                        {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
-                      </span>
-                      Digitise Rx to enhance patient care, workflow efficiency,
-                      and revenue.
-                      <button
-                        className="know-more-btn"
-                        onClick={handleDrawerCvtKnowMore}
-                      >
-                        <span
-                          style={{
-                            fontSize: "14px",
-                            paddingLeft: "4px",
-                            textDecoration: "underline",
-                            textDecorationColor: "#454551",
-                          }}
-                        >
-                          Know More
-                        </span>
-                      </button>
-                    </p>
+                <div className="digitise-info-cardiology">
+                  <img
+                    src={successIcon}
+                    alt="success"
+                    width="40px"
+                    height="40px"
+                  />
+                  <p>
+                    <span className="digitise-info-header-cardiology">
+                      {`${patient_data?.pm_fullname}'s Digital Rx is ready!`}
+                    </span>
+                    Digitise Rx to enhance patient care, workflow efficiency,
+                    and revenue.
                     <button
-                      className="digitise-info-btn-cardiology"
-                      onClick={handleDigitiseSnapRx}
+                      className="know-more-btn"
+                      onClick={handleDrawerCvtKnowMore}
                     >
-                      Digitise Rx Now
+                      <span
+                        style={{
+                          fontSize: "14px",
+                          paddingLeft: "4px",
+                          textDecoration: "underline",
+                          textDecorationColor: "#454551",
+                        }}
+                      >
+                        Know More
+                      </span>
                     </button>
-                  </div>
-                )
+                  </p>
+                  <button
+                    className="digitise-info-btn-cardiology"
+                    onClick={handleDigitiseSnapRx}
+                  >
+                    Digitise Rx Now
+                  </button>
+                </div>
               ))}
 
             {genRxData &&

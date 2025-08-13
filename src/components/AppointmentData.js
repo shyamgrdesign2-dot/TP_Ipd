@@ -62,6 +62,7 @@ import {
   S_BILLING,
   S_TATVA_PRACTICE,
   TRIAL,
+  GB_SNAP_RX_DIGITIZATION,
 } from "../utils/constants";
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
@@ -188,6 +189,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   const isSmartSyncAccessableFromGB = useFeatureIsOn(GB_ISCRIBE);
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
   const isSnapRxAccessable = useFeatureIsOn(GB_SNAP_RX);
+  const isSnapRxDigitizationAccessable = useFeatureIsOn(GB_SNAP_RX_DIGITIZATION);
   const isAppointmentAgentAccessableFromGB =
     useFeatureIsOn("appointment-agent");
   const [zydusSearchQuery, setZydusSearchQuery] = useState("");
@@ -528,7 +530,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
 
     // Conditionally add the Pending Digitisation tab
     if (
-      (isSmartSyncCVTAccessableFromGB || isSnapRxAccessable) &&
+      (isSmartSyncCVTAccessableFromGB || isSnapRxDigitizationAccessable) &&
       unDigitizedUnReviewedIdsLength > 0
     ) {
       updatedItems.push({
@@ -582,7 +584,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     appointmentsData,
     isZydusUserAccessableFromGB,
     isSmartSyncCVTAccessableFromGB,
-    isSnapRxAccessable,
+    isSnapRxDigitizationAccessable,
   ]);
 
   const [selectedTab, setSelectedTab] = useState(TAB_QUEUE);
@@ -833,10 +835,10 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   }, [isSmartSyncAccessableFromGB]);
 
   useEffect(() => {
-    if (isSnapRxAccessable) {
+    if (isSnapRxDigitizationAccessable) {
       dispatch(getSnapRxUnDigitisedIds());
     }
-  }, [isSnapRxAccessable]);
+  }, [isSnapRxDigitizationAccessable]);
 
   useEffect(() => {
     if (date.startDate === date.endDate) {
@@ -1426,12 +1428,14 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     //     "patient_id": record?.patient_unique_id
     // });
     if (agentsData) {
+      const clinic = getClinic(profile?.hospital_data);
+
       // If agentsData exists, navigate to success page
       navigate("/appointment-agent/success", {
         state: {
           agentsData,
           setupData: {
-            clinicId: agentsData.clinicId || profile?.clinicId || 390,
+            clinicId: agentsData.clinicId || profile?.clinicId,
             doctors:
               agentsData.doctors?.map((doctor) => ({
                 um_id: doctor.um_id,
@@ -1440,10 +1444,10 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
                 speciality: doctor.speciality || "MBBS",
                 slotsAvailable: doctor.slotsAvailable,
               })) || [],
-            clinicData: getClinic(profile?.hospital_data),
+            clinicData: clinic,
             useUploadLogo: agentsData.logo ? true : false,
             logo: agentsData.logo || null,
-            clinicName: agentsData.clinicName || null,
+            clinicName: agentsData.clinicName || clinic?.hm_name,
             avatar: agentsData.avatarDetails || null,
             avatarId: agentsData.avatarId || null,
             googleLocation:
@@ -1831,7 +1835,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
             {isSnapRxAccessable &&
             !isMobile &&
             selectedTab != TAB_ZYDUS_ENCOUNTER ? (
-              isDigitisationTab ? (
+              (isDigitisationTab && isSnapRxDigitizationAccessable) ? (
                 isUnreviewedRx(record) ? (
                   <button
                     className="btn btn-outline-primary"
