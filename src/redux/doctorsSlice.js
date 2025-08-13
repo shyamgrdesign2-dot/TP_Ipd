@@ -417,6 +417,9 @@ const doctorsSlice = createSlice({
     },
     updateHasLocation: (state, action) => {
       state.hasLocation = action.payload;
+    },
+    setB2C_Profile: (state, action) => {
+      state.profile = { ...state.profile, b2c: action.payload }
     }
   },
   extraReducers: (builder) => {
@@ -662,5 +665,5 @@ const doctorsSlice = createSlice({
   },
 });
 
-export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish, updateDragDrop, updateHasLocation } = doctorsSlice.actions
+export const { setUserId, updateStatusMoengageB2C, changeLogoStatus, changeSortOrder, updatePatientCertificateList, updateWebsitePublish, updateDragDrop, updateHasLocation, setB2C_Profile } = doctorsSlice.actions
 export default doctorsSlice.reducer;

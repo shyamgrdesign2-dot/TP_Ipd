@@ -25,7 +25,7 @@ function ExtendTrialModal() {
     const { profile } = useSelector((state) => state.doctors);
 
     const { planDetails } = useSelector((state) => state.subscription);
-    const { b2c, plan_expiry_date, service_mappings } = planDetails || {};
+    const { clinic_b2c, plan_expiry_date, service_mappings } = planDetails || {};
     const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
 
     const [isExpiredModalOpen, setIsExpiredModalOpen] = useState(false);
@@ -49,7 +49,7 @@ function ExtendTrialModal() {
     }
 
     const onExtendFreeTrialClick = async () => {
-        const action = await dispatch(extendFreeTrial(b2c));
+        const action = await dispatch(extendFreeTrial(clinic_b2c));
         if (action.meta.requestStatus === "fulfilled") {
             setIsExpiredModalOpen(false)
             errorMessage('Trial plan has been extended successfully')

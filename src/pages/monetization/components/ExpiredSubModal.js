@@ -100,9 +100,11 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                         {(AI_planDetails?.plan_tier === FREE && AI_planDetails?.service_type === 'ai' && AI_planDetails?.credit_balance > 0) && (
                             <img className="coinLg" src={coinLg} alt="Tatva Coin" />
                         )}
-                        <button className="position-relative z-1 btn p-1 lh-1 btnclose closeButton" onClick={showHideSubModal}>
-                            <i className="icon-Cross"></i>
-                        </button>
+                        {AI_planDetails?.plan_tier !== FAILED_VERIFICATION && (
+                            <button className="position-relative z-1 btn p-1 lh-1 btnclose closeButton" onClick={showHideSubModal}>
+                                <i className="icon-Cross"></i>
+                            </button>
+                        )}
                         <img className="expiredInfographic" src={expiredInfographic2} alt="Your trial plan has Expired" />
                         <img className="expiredInfographic" style={{ opacity: 0.5 }} src={expiredInfographic2} alt="Your trial plan has Expired" />
                     </>
@@ -148,7 +150,7 @@ function ExpiredSubModal({ title, styles, isSubModalOpen, showHideSubModal }) {
                             </a>
                         </div>
                         <div className="align-items-center my-3">
-                            <span className="me-2 border p-1 rounded-2" style={{ padding: '2px 4px'}}>
+                            <span className="me-2 border p-1 rounded-2" style={{ padding: '2px 4px' }}>
                                 <img width={16} height={16} src={SMS2} />
                             </span>
                             <a className="text-main fw-medium fs-16 text-welcome" href="mailto:support@tatvacare.in" >
