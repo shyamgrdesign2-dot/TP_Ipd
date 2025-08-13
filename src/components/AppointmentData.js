@@ -1627,7 +1627,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
       tcm_id
     );
 
-    const isSnapRxdigitised = snapRxDigitisedData?.digitization?.isVerified || snapRxDigitisedData?.digitization?.isDigitize;
+    const isSnapRxdigitised = snapRxDigitisedData?.digitization?.isVerified && snapRxDigitisedData?.digitization?.isDigitize;
     if (isSnapRxdigitised) {
       urlObj.searchParams.set("rxDigitize", "true");
     } else {
