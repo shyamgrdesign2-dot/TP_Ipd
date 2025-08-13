@@ -218,6 +218,7 @@ const monetizationSlice = createSlice({
                             plan_validity_months: plan.plan_validity_months,
                             plan_amount: `₹${formatAmount(plan.plan_amount)}`,
                             total_amount: `₹${formatAmount(totalAmount - discount_amount)}`,
+                            payment_status: plan.payment_status,
                             plan_start_date: moment(plan.plan_start_date).format('Do MMM, YYYY'),
                             plan_end_date: moment(plan.plan_end_date).add(1, 'days').format('Do MMM, YYYY'),
                             status: plan.status,

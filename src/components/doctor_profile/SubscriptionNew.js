@@ -113,11 +113,7 @@ function SubscriptionNew() {
       dataIndex: 'invoice_id',
       key: 'invoice_id',
       render: (text, record) => (
-        <>
-          {record?.invoice_id && <button className="btn btn-link text-primary p-0" onClick={() => generateInvoice(record?.invoice_id)}>View Invoice</button>}
-          {record?.invoice_id && <br />}
-          {record?.receipt_id && <button className="btn btn-link text-primary p-0" onClick={() => generateReceipt(record?.receipt_id)}>View Receipt</button>}
-        </> || "N/A"
+        record?.payment_status ? <button className="btn btn-link text-primary p-0" onClick={() => record?.payment_status === 'FULL' ? generateInvoice(record?.invoice_id) : generateReceipt(record?.receipt_id)}>{record?.payment_status === 'FULL' ? 'View Invoice' : 'View Receipt'}</button> : "N/A"
       ),
       // onCell: (record) => ({
       //   rowSpan: record.rowSpan,
