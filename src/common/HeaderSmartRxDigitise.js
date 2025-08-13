@@ -51,7 +51,7 @@ import { GB_SMARTSYNC_CONNECT } from "../utils/constants";
 import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
 import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 
-function HeaderSmartRxDigitise({ onSave, patient_data, isSnapRx = false }) {
+function HeaderSmartRxDigitise({ onSave, patient_data, isSnapRx = false, isDigitiseRxLoading = false }) {
   const { templates, loading } = useSelector((state) => state.caseManager);
   const { videoList } = useSelector((state) => state.doctors);
   const [videoLink, setVideoLink] = useState(null);
@@ -63,7 +63,6 @@ function HeaderSmartRxDigitise({ onSave, patient_data, isSnapRx = false }) {
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
 
   const [popOverVideo, setPopOverVideo] = useState(false);
-  const [clicked, setClicked] = useState(false);
 
   const showHideBackModal = useCallback(() => {
     setIsBackModalOpen(!isBackModalOpen);
@@ -231,7 +230,7 @@ function HeaderSmartRxDigitise({ onSave, patient_data, isSnapRx = false }) {
                   className="btn align-items-center d-flex btn-41 btn-primary3 me-20"
                   onClick={handleSaveDigitiseRx}
                   loading={loading}
-                  disabled={clicked}
+                  disabled={isDigitiseRxLoading}
                 >
                   Save Digitised Rx
                 </Button>
