@@ -163,7 +163,7 @@ function Header({ locationPath }) {
   }, [profile]);
 
   useEffect(() => {
-    if (clinicOptions !== undefined && clinicOptions.length > 0) {
+    if (clinicOptions?.length > 0) {
       const getStorageData = async () => {
         const token = await getToken()
         if (token !== undefined) {
