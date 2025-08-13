@@ -119,9 +119,9 @@ function SubscriptionNew() {
           {record?.receipt_id && <button className="btn btn-link text-primary p-0" onClick={() => generateReceipt(record?.receipt_id)}>View Receipt</button>}
         </> || "N/A"
       ),
-      onCell: (record) => ({
-        rowSpan: record.rowSpan,
-      }),
+      // onCell: (record) => ({
+      //   rowSpan: record.rowSpan,
+      // }),
       // render: (text, row) => ({
       //   children: <button className="btn btn-link text-primary p-0" onClick={() => generateInvoice(text)}>{text}</button> || "N/A",
       //   props: {

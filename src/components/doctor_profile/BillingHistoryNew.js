@@ -114,9 +114,9 @@ const BillingHistoryNew = ({ show, setShow, billingHistoryList }) => {
           {record?.receipt_id && <button className="btn btn-link text-primary p-0" onClick={() => generateReceipt(record?.receipt_id)}>View Receipt</button>}
         </> || "N/A"
       ),
-      onCell: (record) => ({
-        rowSpan: record.rowSpan,
-      }),
+      // onCell: (record) => ({
+      //   rowSpan: record.rowSpan,
+      // }),
     },
     {
       title: 'Status',
