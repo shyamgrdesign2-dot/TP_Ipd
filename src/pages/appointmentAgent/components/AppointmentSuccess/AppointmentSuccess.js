@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Button, Drawer, message, Popover, Tooltip } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -15,6 +15,8 @@ import alertIcon from "../../../../assets/images/alertIcon.svg";
 import tutorial from "../../../../assets/images/tutorial.svg";
 import playIcons from "../../../../assets/images/tube-icon.svg";
 import VideoModal from "../../../../common/VideoModal";
+import { getDecodedToken } from "../../../../utils/localStorage";
+import { fetchAgents } from "../../service";
 
 const AppointmentSuccess = () => {
   const location = useLocation();
@@ -23,6 +25,7 @@ const AppointmentSuccess = () => {
   const [videoLink, setVideoLink] = useState(null);
   const [popOverVideo, setPopOverVideo] = useState(false);
   const { profile, videoList } = useSelector((state) => state.doctors);
+  const [agentsData, setAgentsData] = useState(null);
 
   const setupData = location.state?.setupData;
   const appointment_booking_link = location.state?.appointment_booking_link;
@@ -82,7 +85,7 @@ const AppointmentSuccess = () => {
     // Navigate to SetupSummary with agentsData and enable edit mode
     navigate("/appointment-agent?step=summary", {
       state: {
-        agentsData: location.state?.agentsData,
+        agentsData: agentsData,
         setupData: setupData,
         showSummaryOnly: true,
         enableEditMode: true // New flag to enable edit buttons
@@ -94,61 +97,78 @@ const AppointmentSuccess = () => {
     navigate('/create-campaign', { state: { category: "ai-receptionist", setupData } })
   }
 
-    //PopOverVideo function
-    const showHideVideoListPopover = useCallback(() => {
-      setPopOverVideo(!popOverVideo);
-    }, [popOverVideo]);
-  
-    //Video Componet
-    const VIDEO_CONTENT = useCallback(() => {
-      return (
-        <>
-          <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
-            <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
-              <div className="title-common lh-base">Video Tutorial</div>
-              <Button
-                className="btn btn-videoClose p-0"
-                onClick={showHideVideoListPopover}
-              >
-                <i className="icon-Cross" />
-              </Button>
-            </div>
-            {videoList
-              ?.filter((e) => e.category_id === 9)[0]
-              ?.video?.map((item1, i1) => {
-                return (
-                  <div
-                    key={i1}
-                    className={`d-flex ${
-                      i1 !==
-                        videoList?.filter((e) => e.category_id === 9)[0]?.video
-                          ?.length -
-                          1 && "pb-3 mb-15 border-bottom"
-                    }`}
-                  >
-                    <div className="tutorial-play me-14">
-                      <button type="button" onClick={() => setVideoLink(item1)}>
-                        <img src={playIcons} />
-                      </button>
-                      <span className="tutorial-thumb">
-                        <img src={item1.thumbnail} />
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className="title-common text-welcome">
-                        {item1?.tmv_title}
-                      </h3>
-                      <div className="fs-12 fontroboto fw-normal text-main">
-                        {item1?.tmv_description}
-                      </div>
+  //PopOverVideo function
+  const showHideVideoListPopover = useCallback(() => {
+    setPopOverVideo(!popOverVideo);
+  }, [popOverVideo]);
+
+  //Video Componet
+  const VIDEO_CONTENT = useCallback(() => {
+    return (
+      <>
+        <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
+          <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
+            <div className="title-common lh-base">Video Tutorial</div>
+            <Button
+              className="btn btn-videoClose p-0"
+              onClick={showHideVideoListPopover}
+            >
+              <i className="icon-Cross" />
+            </Button>
+          </div>
+          {videoList
+            ?.filter((e) => e.category_id === 9)[0]
+            ?.video?.map((item1, i1) => {
+              return (
+                <div
+                  key={i1}
+                  className={`d-flex ${
+                    i1 !==
+                      videoList?.filter((e) => e.category_id === 9)[0]?.video
+                        ?.length -
+                        1 && "pb-3 mb-15 border-bottom"
+                  }`}
+                >
+                  <div className="tutorial-play me-14">
+                    <button type="button" onClick={() => setVideoLink(item1)}>
+                      <img src={playIcons} />
+                    </button>
+                    <span className="tutorial-thumb">
+                      <img src={item1.thumbnail} />
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="title-common text-welcome">
+                      {item1?.tmv_title}
+                    </h3>
+                    <div className="fs-12 fontroboto fw-normal text-main">
+                      {item1?.tmv_description}
                     </div>
                   </div>
-                );
-              })}
-          </div>
-        </>
-      );
-    }, [popOverVideo]);
+                </div>
+              );
+            })}
+        </div>
+      </>
+    );
+  }, [popOverVideo]);
+
+  const fetchAgentsData = async () => {
+      try {
+        const decodedToken = getDecodedToken();
+        const clinicId = String(decodedToken?.result?.clinic_id);
+        const response = await fetchAgents(clinicId);
+        if (response) {
+          setAgentsData(response.length > 0 && response[response.length - 1]);
+        }
+      } catch (error) {
+        console.error("Error fetching agents:", error);
+      }
+  };
+
+  useEffect(() => {
+      fetchAgentsData();
+  }, []);
 
   return (
     <>

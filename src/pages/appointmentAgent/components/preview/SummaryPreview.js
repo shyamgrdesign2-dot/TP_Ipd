@@ -37,7 +37,7 @@ const SummaryPreview = ({ setupData }) => {
       }
     }
     const clinicName = setupData?.clinicName || setupData?.clinicData?.hm_name || "Enter Clinic Name";
-    const maxLength = 19; // Maximum characters before adding ellipsis
+    const maxLength = 30; // Maximum characters before adding ellipsis
     
     return (
       <span>
@@ -93,8 +93,8 @@ const SummaryPreview = ({ setupData }) => {
           >
             <div
               style={{
-                fontSize: "0.8rem",
-                padding: "5px 0",
+                fontSize: "0.7rem",
+                padding: "2px 0",
                 width: "80%",
                 fontWeight: "500",
                 display: "flex",
