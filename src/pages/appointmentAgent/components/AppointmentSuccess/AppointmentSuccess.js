@@ -17,6 +17,7 @@ import playIcons from "../../../../assets/images/tube-icon.svg";
 import VideoModal from "../../../../common/VideoModal";
 import { getDecodedToken } from "../../../../utils/localStorage";
 import { fetchAgents } from "../../service";
+import { getClinic } from "../../../../utils/utils";
 
 const AppointmentSuccess = () => {
   const location = useLocation();
@@ -26,6 +27,8 @@ const AppointmentSuccess = () => {
   const [popOverVideo, setPopOverVideo] = useState(false);
   const { profile, videoList } = useSelector((state) => state.doctors);
   const [agentsData, setAgentsData] = useState(null);
+  const decodedToken = getDecodedToken();
+  const clinic = getClinic(profile?.hospital_data);
 
   const setupData = location.state?.setupData;
   const appointment_booking_link = location.state?.appointment_booking_link;
@@ -35,6 +38,16 @@ const AppointmentSuccess = () => {
   };
 
   const handleShare = async () => {
+
+    window.Moengage.track_event("TP_AG_ShareURL", {
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      um_id: decodedToken?.user_id,
+      clinic_name: clinic?.hm_name,
+    });
+
     if (navigator.share && appointment_booking_link) {
       try {
         await navigator.share({
@@ -63,25 +76,47 @@ const AppointmentSuccess = () => {
   };
 
   const handleCopy = async () => {
-    if (appointment_booking_link) {
-      try {
-        await navigator.clipboard.writeText(appointment_booking_link);
-        // You can add a toast notification here if you have a toast system
-        message.success("Link copied to clipboard!");
-      } catch (error) {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = appointment_booking_link;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        message.success("Link copied to clipboard!");
-      }
+
+    if (!appointment_booking_link) {
+      message.warning("No booking link available.");
+      return;
+    }
+
+    window.Moengage.track_event("TP_AG_CopyURL", {
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      um_id: decodedToken?.user_id,
+      clinic_name: clinic?.hm_name,
+    });
+
+    try {
+      await navigator.clipboard.writeText(appointment_booking_link);
+      message.success("Link copied to clipboard!");
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = appointment_booking_link;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      message.success("Link copied to clipboard!");
     }
   };
 
   const handleConfigSettings = () => {
+
+    window.Moengage.track_event("TP_AG_ConfigSet", {
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      um_id: decodedToken?.user_id,
+      clinic_name: clinic?.hm_name,
+    });
+    
     // Navigate to SetupSummary with agentsData and enable edit mode
     navigate("/appointment-agent?step=summary", {
       state: {
@@ -94,6 +129,14 @@ const AppointmentSuccess = () => {
   };
 
   const handleBulkSmsClick = () => {
+    window.Moengage.track_event("TP_AG_AgentBC", {
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      um_id: decodedToken?.user_id,
+      clinic_name: clinic?.hm_name,
+    });
     navigate('/create-campaign', { state: { category: "ai-receptionist", setupData } })
   }
 
@@ -155,7 +198,6 @@ const AppointmentSuccess = () => {
 
   const fetchAgentsData = async () => {
       try {
-        const decodedToken = getDecodedToken();
         const clinicId = String(decodedToken?.result?.clinic_id);
         const response = await fetchAgents(clinicId);
         if (response) {
