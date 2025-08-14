@@ -216,7 +216,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     (e) => e.service_name === S_BILLING
   );
 
-  const isAppointmentAgentEnable = planDetails?.currentPlanStatus && !shouldAppointmentAgentDisabled();
+  const isAppointmentAgentEnable = planDetails?.currentPlanStatus === "PAID" && !shouldAppointmentAgentDisabled();
 
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
