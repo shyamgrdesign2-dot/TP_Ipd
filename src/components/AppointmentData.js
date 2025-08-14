@@ -36,7 +36,10 @@ import dayjs from "dayjs";
 import {
   errorMessage,
   getClinic,
+  getClinicName,
+  getTokenData,
   sendMessageToParent,
+  shouldAppointmentAgentDisabled,
   trackEvent,
 } from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
@@ -213,6 +216,8 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     (e) => e.service_name === S_BILLING
   );
 
+  const isAppointmentAgentEnable = planDetails?.currentPlanStatus && !shouldAppointmentAgentDisabled();
+
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
   const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
@@ -222,6 +227,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
   const [agentsData, setAgentsData] = useState(null);
   const [isAgentsLoading, setIsAgentsLoading] = useState(false);
+
 
   const showHideSubModal = () => {
     setIsSubModalOpen(!isSubModalOpen);
@@ -1423,8 +1429,18 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     //     "doctor_id": profile?.doctor_unique_id,
     //     "patient_id": record?.patient_unique_id
     // });
+    const tokenData = getTokenData();
+    const clinic = getClinic(profile?.hospital_data);
     if (agentsData) {
-      const clinic = getClinic(profile?.hospital_data);
+      window.Moengage.track_event("TP_AG_YourAIReceptionist", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        um_id: tokenData?.user_id,
+        clinic_name: clinic?.hm_name,
+        agent: "true",
+      });
 
       // If agentsData exists, navigate to success page
       navigate("/appointment-agent/success", {
@@ -1460,6 +1476,15 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
         },
       });
     } else {
+      window.Moengage.track_event("TP_AG_YourAIReceptionist", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        um_id: tokenData?.user_id,
+        clinic_name: clinic?.hm_name,
+        agent: "false",
+      });
       // If no agentsData, navigate to normal flow
       navigate("/appointment-agent", { state: { agentsData } });
     }
@@ -2442,7 +2467,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
               onChange={onChange}
               activeKey={selectedTab}
             />
-            {isAppointmentAgentAccessableFromGB && (
+            {isAppointmentAgentEnable && (
               <div
                 className="receptionist-setup-button"
                 onClick={onAppointmentAgentClick}
