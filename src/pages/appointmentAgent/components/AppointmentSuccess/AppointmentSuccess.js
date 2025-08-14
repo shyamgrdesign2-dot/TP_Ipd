@@ -232,7 +232,7 @@ const AppointmentSuccess = () => {
             </div>
             <div className="right-buttons">
               <div className="align-items-center d-flex h-100">
-                <Popover
+                {/* <Popover
                   open={popOverVideo}
                   onOpenChange={showHideVideoListPopover}
                   content={VIDEO_CONTENT}
@@ -241,14 +241,12 @@ const AppointmentSuccess = () => {
                   placement="bottom"
                 >
                   <button className="btn d-flex align-items-center btn-text me-10 tutorial">
-                    {/* onClick={showHideVideoListPopover} */}
                     <span className="text-decoration-none rounded-5 pe-3 bg-white shadow2">
                       <img height={42} src={tutorial} />
                       Tutorial
                     </span>
                   </button>
-                  {/* </button> */}
-                </Popover>
+                </Popover> */}
                 {videoLink && (
                   <VideoModal
                     videoLink={videoLink}
@@ -273,7 +271,7 @@ const AppointmentSuccess = () => {
                     strokeLinejoin="round"
                   />
                 </svg>
-                Config Settings
+                Edit
               </div>
             </div>
           </div>
