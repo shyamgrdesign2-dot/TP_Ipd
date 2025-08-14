@@ -70,6 +70,9 @@ const dev = {
   tp_monetization_disabled_hospital: [
     4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
   ],
+  tp_agent_disabled_hospital: [
+    4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
+  ],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-uat-doctor-portal.tatvacare.in",
@@ -153,6 +156,9 @@ const qa_tp = {
   tp_monetization_disabled_hospital: [
     4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
   ],
+  tp_agent_disabled_hospital: [
+    4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
+  ],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
@@ -230,6 +236,9 @@ const qa = {
   digitization_api_url: "https://pm-digitization-uat.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-qa.tatvacare.in",
   tp_monetization_disabled_hospital: [
+    4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
+  ],
+  tp_agent_disabled_hospital: [
     4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
   ],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
@@ -316,6 +325,9 @@ const uat = {
   tp_monetization_disabled_hospital: [
     4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
   ],
+  tp_agent_disabled_hospital: [
+    4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
+  ],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-uat-doctor-portal.tatvacare.in",
@@ -398,6 +410,12 @@ const prod = {
   digitization_api_url: "https://pm-digitization-prod.tatvacare.in",
   monetization_url: "https://pm-tp-monetization-prod.tatvacare.in",
   tp_monetization_disabled_hospital: [
+    368451724046474, 345711722419722, 189641711087501, 635211726058248,
+    817391726308284, 389721726761413, 625141727277272, 137621731053002,
+    268741731506046, 549821734513388, 628451726551928, 684191731931706,
+    879361730721433, 538421739782028, 136841742984591,
+  ],
+  tp_agent_disabled_hospital: [
     368451724046474, 345711722419722, 189641711087501, 635211726058248,
     817391726308284, 389721726761413, 625141727277272, 137621731053002,
     268741731506046, 549821734513388, 628451726551928, 684191731931706,
