@@ -701,7 +701,7 @@ const ClinicDetailsSetup = ({
             style={{ backgroundColor: "#F1F1F5" }}
             suffix={
               <span className="location" style={{ color: "#666" }}>
-                Bengaluru, KA
+                {/* Bengaluru, KA */}
               </span>
             }
           />
