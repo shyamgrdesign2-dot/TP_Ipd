@@ -1,4 +1,3 @@
-// TODO: INTEL - ZOOM functionality pending
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import CashManagerContext from "../../context/CashManagerContext";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -50,7 +49,7 @@ function SnapRxContent() {
   const [isUploading, setIsUploading] = useState(false);
   const [showKnowMore, setShowKnowMore] = useState(false);
   const [isUploadMoreDrawerOpen, setIsUploadMoreDrawerOpen] = useState(false);
-  const [isAddMoreClicked, setIsAddMoreClicked] = useState(false); // TODO: INTEL - CHECK
+  const [isAddMoreClicked, setIsAddMoreClicked] = useState(false);
   const previewDrawerRef = useRef(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isWaitingForFiles, setIsWaitingForFiles] = useState(false);
@@ -145,10 +144,21 @@ function SnapRxContent() {
   }, []);
 
   const fetchImageAsFile = async (url, filename = "image.jpg") => {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    const file = new File([blob], filename, { type: blob.type });
-    return file;
+    try {
+      const res = await fetch(url, {
+        mode: "cors",
+        credentials: "omit",
+        redirect: "follow",
+        cache: "no-store",
+      });
+      if (!res.ok || res.type === "opaque") throw new Error("CORS/opaque");
+      const blob = await res.blob();
+      const type = blob.type || "image/jpeg";
+      return new File([blob], filename, { type });
+    } catch (err) {
+      console.warn("Falling back to direct URL for", url, err);
+      return null;
+    }
   };
   const fetchImages = async (toDeleteFile = null) => {
     if (uploadedFilesFromStore?.length === 0) {
@@ -166,27 +176,22 @@ function SnapRxContent() {
 
     const normalizedFiles = await Promise.all(
       uploadedFilesFromStore.map(async (file, index) => {
-        const fileBlob = await fetchImageAsFile(file.fileUrl);
-        const objectUrl = URL.createObjectURL(fileBlob);
+        const fileBlob = await fetchImageAsFile(file.fileUrl, file.filename);
+        const objectUrl = fileBlob ? URL.createObjectURL(fileBlob) : file.fileUrl; // fallback
         return {
           id: Date.now() + index,
           name: file.filename,
-          file: fileBlob,
+          file: fileBlob || undefined,       // may be undefined if we fell back
           fileUrl: objectUrl,
           url: objectUrl,
           preview: objectUrl,
           rotation: 0,
           zoom: 1,
-          crop: file?.crop || {
-            unit: "%",
-            x: 2,
-            y: 2,
-            width: 96,
-            height: 96,
-          },
+          crop: file?.crop || { unit: "%", x: 2, y: 2, width: 96, height: 96 },
         };
       })
     );
+    
     setUploadedFiles(normalizedFiles);
     if (toDeleteFile) {
       try {
@@ -217,7 +222,7 @@ function SnapRxContent() {
           );
         }
       } catch (err) {
-        console.log("INTEL ===> err", err);
+        console.log("fetching img ===> err", err);
       } finally {
         setIsLoading(false);
       }
@@ -453,16 +458,16 @@ function SnapRxContent() {
               <UploadedFilesPreview
                 uploadedFiles={uploadedFilesFromStore}
                 onEdit={handleFileEdit}
-                loading={false} // TODO: INTEL - CHANGE
-                onDelete={handlePreviewDelete} // TODO: INTEL - CHANGE
+                loading={false}
+                onDelete={handlePreviewDelete}
               />
             ) : null}
             <UploadWrittenRx
               isOpen={!uploadedFilesFromStore?.length}
               ref={uploadWrittenRxRef}
-              showBackButton={false} // TODO: INTEL - CHANGE
-              onBack={() => {}} // TODO: INTEL - CHANGE
-              fetchUploadedFiles={handleRefreshForMobileUploadedFiles} // TODO: INTEL - CHANGE
+              showBackButton={false}
+              onBack={() => {}}
+              fetchUploadedFiles={handleRefreshForMobileUploadedFiles}
               handlePreviewOpen={setIsPreviewOpen}
               handleUpdatedFiles={setUploadedFiles}
               uploadedFiles={uploadedFiles}
@@ -486,7 +491,7 @@ function SnapRxContent() {
               onRotate={handleRotateClick}
               handleGoBackToMainFiles={handleGoBackToMainFiles}
               onAddMore={handleAddMore}
-              isUploadMoreDrawer={false} // TODO: INTEL - CHANGE
+              isUploadMoreDrawer={false}
             />
           </ErrorBoundary>
         </div>
@@ -502,14 +507,14 @@ function SnapRxContent() {
         fetchUploadedFiles={fetchUploadedFilesOnUploadMoreDrawer}
         tcmId={tcmId}
         sessionId={sessionId}
-        onFileUpload={() => {}} // TODO: INTEL - CHANGE
+        onFileUpload={() => {}}
       />
 
       <FileUploadErrorModal
         isFileSizeError={false}
         isFileLimitError={false}
         isFileTypeError={false}
-        onRetry={() => {}} // TODO: INTEL - CHANGE
+        onRetry={() => {}}
       />
 
       {showKnowMore && (

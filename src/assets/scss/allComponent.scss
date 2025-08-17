@@ -1672,6 +1672,10 @@ body {
   flex: 1 0 0;
 }
 
+.loading-digitised-container {
+  //
+}
+
 .title-digitise-section {
   font-family: Poppins;
   color: black !important;
@@ -2965,4 +2969,24 @@ body {
 
 .snap-rx-img {
     border-radius: 16px;
+}
+
+
+.title-digitise-section-wrapper {
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 8px;
+  transition: border-color 160ms ease;
+}
+
+.highlight-blue {
+  border-color: #3b82f6; /* blue-500 */
+}
+
+.editable-digitised-item {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0 2px;
+  font: inherit;
 }

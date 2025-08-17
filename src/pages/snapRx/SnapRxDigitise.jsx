@@ -12,7 +12,7 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import { useSelector } from "react-redux";
 import { env } from "../../EnvironmentConfig";
 import HeaderSmartRxDigitise from "../../common/HeaderSmartRxDigitise";
-import DigitisedPrescription from "../../components/DigitisedPrescription";
+import DigitisedPrescription, { buildFinalEditedData } from "../../components/DigitisedPrescription";
 import axios from "axios";
 import { trackEvent } from "../../utils/utils";
 import { EVENTS } from "../../utils/events";
@@ -79,9 +79,7 @@ function SnapRxDigitise() {
       const payload = {
         tcm_id: tcm_id,
         patient_unique_id: patient_data?.patient_unique_id,
-        editedData: {
-          ...data,
-        },
+        editedData: {...buildFinalEditedData(data)},
       };
 
       // API call to save the data
@@ -221,8 +219,8 @@ function SnapRxDigitise() {
                       </div>
                     </div>
                   </Card.Header>
-                  <Card.Body className="p-0 cardbody-data">
-                    <div style={{ padding: "5px" }}>
+                  <Card.Body className="p-0 cardbody-data" style={{border: 'none'}}>
+                    <div style={!isLoading ? { padding: "5px" } : null}>
                       <DigitisedPrescription
                         data={data}
                         setData={setData}
