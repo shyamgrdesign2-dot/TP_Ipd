@@ -9,7 +9,7 @@ import genRxFinalizingRx from "../assets/lotties/genRxFinalizingRx.lottie";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const CREEP_START = 60;
-const CREEP_RATE = 2;
+const CREEP_RATE = 1;
 const CREEP_MS = 1000; 
 const CREEP_CAP = 95;  
 

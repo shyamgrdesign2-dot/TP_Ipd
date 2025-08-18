@@ -44,6 +44,10 @@
   :where(.css-dev-only-do-not-override-1okl62o).ant-tabs {
     line-height: 2.571429;
   }
+
+  .border-none {
+    border-color: transparent !important;
+  }
 }
 .print-tabs {
   .ant-tabs-tab {
@@ -1672,10 +1676,6 @@ body {
   flex: 1 0 0;
 }
 
-.loading-digitised-container {
-  //
-}
-
 .title-digitise-section {
   font-family: Poppins;
   color: black !important;
@@ -1686,7 +1686,7 @@ body {
   letter-spacing: 0.1px;
 }
 
-.digitised-section {
+.digitised-section, .digitised-section-rx {
   display: flex;
   padding: 16px;
   align-items: center;
@@ -1694,7 +1694,6 @@ body {
   align-self: stretch;
   border-radius: 10px;
   border: 1px solid var(--T-Text-10, #e2e2ea);
-  background: #fcfcfc;
   margin-bottom: 1.5rem;
 
   .no-bullets {
@@ -1743,6 +1742,13 @@ body {
       background: #f5f5f5;
     }
   }
+}
+.digitised-section {
+  background: #fcfcfc;
+}
+
+.digitised-section-rx {
+  background: #fff;
 }
 
 .digitised-data-section {
@@ -2980,7 +2986,7 @@ body {
 }
 
 .highlight-blue {
-  border-color: #3b82f6; /* blue-500 */
+  border-color: #3b82f6;
 }
 
 .editable-digitised-item {
