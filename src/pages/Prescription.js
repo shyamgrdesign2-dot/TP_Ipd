@@ -298,7 +298,6 @@ function Prescription() {
   const isApexAIAccessable = useFeatureIsOn("cdss");
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
   const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
-  const isSCAccessable = useFeatureIsOn("symptoms-collector");
   const {
     isVaccinationAccessable,
     isGrowthChartAccessable,
@@ -755,10 +754,8 @@ function Prescription() {
   }, []);
 
   useEffect(() => {
-    if (isSCAccessable) {
-      getSymptomsCollectorData();
-    }
-  }, [isSCAccessable]);
+    getSymptomsCollectorData();
+  }, []);
 
   const getSymptomsCollectorData = async () => {
     const payload = {
