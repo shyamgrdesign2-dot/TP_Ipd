@@ -246,7 +246,6 @@ function SmartPrescription() {
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
 
   const isSmartSyncCVTAccessableFromGB = useFeatureIsOn(GB_SMARTSYNC_CVT);
-  const isSCAccessable = useFeatureIsOn("symptoms-collector");
   const [vitalDrawer, setVitalDrawer] = useState(false);
   const [medicalHistoryDrawer, setMedicalHistoryDrawer] = useState(false);
   const [privateNotesDrawer, setPrivateNotesDrawer] = useState(false);
@@ -469,10 +468,8 @@ function SmartPrescription() {
   }, []);
 
   useEffect(() => {
-    if (isSCAccessable) {
-      getSymptomsCollectorData();
-    }
-  }, [isSCAccessable]);
+    getSymptomsCollectorData();
+  }, []);
 
   const getSymptomsCollectorData = async () => {
     const payload = {
