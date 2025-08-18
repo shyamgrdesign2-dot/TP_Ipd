@@ -140,7 +140,6 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
   };
 
   const handleEnterInVitals = (key) => {
-      // Save the current field first
       handleInputBlur("vitals", key);
       setVisibleSection("vitals");
       editingRef.current = true;
@@ -149,11 +148,10 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
       setData((prev) => {
         const vitals = { ...(prev.vitals || {}) };
         newKey = nextVitalsKey(vitals);
-        vitals[newKey] = ""; // blank line inside vitals
+        vitals[newKey] = "";
         return { ...prev, vitals };
       });
-    
-      // focus the new input
+
       setTimeout(() => {
         setActiveType("vitals");
         setActiveIndex(newKey);
@@ -647,7 +645,6 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
             Object.values(data.vitals).some((v) => v?.trim?.()?.length > 0) && (
               <div
                 ref={(el) => (sectionRefs.current["vitals"] = el)}
-                // data-section="vitals"
                 className="title-digitise-section-wrapper"
               >
                 <div className="title-digitise-section mb-2">Vitals</div>
@@ -657,8 +654,6 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
 
           {data?.medicalHistory && hasValidContent("medicalHistory") && (
             <div
-              // ref={(el) => (sectionRefs.current["medicalHistory"] = el)}
-              // data-section="medicalHistory"
               className="title-digitise-section-wrapper"
             >
               <div className="title-digitise-section mb-2">Medical History</div>
@@ -668,8 +663,6 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
 
           {data?.symptoms && hasValidContent("symptoms") && (
             <div
-              // ref={(el) => (sectionRefs.current["symptoms"] = el)}
-              // data-section="symptoms"
               className="title-digitise-section-wrapper"
             >
               <div className="title-digitise-section mb-2">Symptoms</div>
@@ -679,8 +672,6 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
 
           {data?.examination && hasValidContent("examination") && (
             <div
-              // ref={(el) => (sectionRefs.current["examination"] = el)}
-              // data-section="examination"
               className="title-digitise-section-wrapper"
             >
               <div className="title-digitise-section mb-2">Examination</div>
@@ -690,8 +681,6 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
 
           {data?.diagnosis && hasValidContent("diagnosis") && (
             <div
-              // ref={(el) => (sectionRefs.current["diagnosis"] = el)}
-              // data-section="diagnosis"
               className="title-digitise-section-wrapper"
             >
               <div className="title-digitise-section mb-2">Diagnosis</div>
@@ -701,8 +690,6 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
 
           {data?.medications && hasValidContent("medications") && (
             <div
-              // ref={(el) => (sectionRefs.current["medications"] = el)}
-              // data-section="medications"
               className="title-digitise-section-wrapper"
             >
               <div className="title-digitise-section mb-2">Medicine</div>
@@ -712,8 +699,6 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
 
           {data?.tests && hasValidContent("tests") && (
             <div
-              // ref={(el) => (sectionRefs.current["tests"] = el)}
-              // data-section="tests"
               className="title-digitise-section-wrapper"
             >
               <div className="title-digitise-section mb-2">Lab Investigation</div>
@@ -723,8 +708,6 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
 
           {data?.advice && hasValidContent("advice") && (
             <div
-              // ref={(el) => (sectionRefs.current["advice"] = el)}
-              // data-section="advice"
               className="title-digitise-section-wrapper"
             >
               <div className="title-digitise-section mb-2">Advices</div>
@@ -734,8 +717,6 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
 
           {data?.vaccinations && hasValidContent("vaccinations") && (
             <div
-              // ref={(el) => (sectionRefs.current["vaccinations"] = el)}
-              // data-section="vaccinations"
               className="title-digitise-section-wrapper"
             >
               <div className="title-digitise-section mb-2">Vaccination</div>
