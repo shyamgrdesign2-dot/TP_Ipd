@@ -3,8 +3,13 @@ import "./GradientProgressBar.css";
 
 const GradientProgressBar = ({ height = "10px", value = 0 }) => {
   const gradientColors = [
-    "#ff0000", "#ff7f00", "#ffff00", "#00ff00",
-    "#0000ff", "#4b0082", "#9400d3",
+    "#ff0000", // Red
+    "#ff7f00", // Orange
+    "#ffff00", // Yellow
+    "#00ff00", // Green
+    "#0000ff", // Blue
+    "#4b0082", // Indigo
+    "#9400d3", // Violet
   ];
 
   return (

@@ -144,22 +144,12 @@ function SnapRxContent() {
   }, []);
 
   const fetchImageAsFile = async (url, filename = "image.jpg") => {
-    try {
-      const res = await fetch(url, {
-        mode: "cors",
-        credentials: "omit",
-        redirect: "follow",
-        cache: "no-store",
-      });
-      if (!res.ok || res.type === "opaque") throw new Error("CORS/opaque");
-      const blob = await res.blob();
-      const type = blob.type || "image/jpeg";
-      return new File([blob], filename, { type });
-    } catch (err) {
-      console.warn("Falling back to direct URL for", url, err);
-      return null;
-    }
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const file = new File([blob], filename, { type: blob.type });
+    return file;
   };
+
   const fetchImages = async (toDeleteFile = null) => {
     if (uploadedFilesFromStore?.length === 0) {
       setUploadedFiles([]);
@@ -177,11 +167,11 @@ function SnapRxContent() {
     const normalizedFiles = await Promise.all(
       uploadedFilesFromStore.map(async (file, index) => {
         const fileBlob = await fetchImageAsFile(file.fileUrl, file.filename);
-        const objectUrl = fileBlob ? URL.createObjectURL(fileBlob) : file.fileUrl; // fallback
+        const objectUrl = fileBlob ? URL.createObjectURL(fileBlob) : file.fileUrl;
         return {
           id: Date.now() + index,
           name: file.filename,
-          file: fileBlob || undefined,       // may be undefined if we fell back
+          file: fileBlob || undefined,
           fileUrl: objectUrl,
           url: objectUrl,
           preview: objectUrl,
@@ -316,13 +306,11 @@ function SnapRxContent() {
       handleEditSnapRx();
       return;
     }
-    // Check if there are uploaded files to process
     if (!uploadedFilesFromStore?.length) {
       message.warning("Please upload prescription images before submitting");
       return;
     }
 
-    // Validate patient data exists
     if (!patient_data?.patient_unique_id) {
       message.error("Patient information is missing. Please try again.");
       return;
@@ -331,10 +319,8 @@ function SnapRxContent() {
     setIsUploading(true);
 
     try {
-      // Extract file names from uploaded files
       const fileNames = uploadedFilesFromStore.map((file) => file.filename);
 
-      // Call create snap rx API
       const response = await createSnapRx(
         patient_data.patient_unique_id,
         fileNames,
@@ -344,7 +330,6 @@ function SnapRxContent() {
       if (response && response.status) {
         dispatch(setFileUploadToken(null));
         refreshSessionId();
-        // Navigate to digitization or next step if needed
         navigate("/snap-rx/preview", {
           replace: true,
           state: { ...state, ...response?.data, files: uploadedFilesFromStore },
