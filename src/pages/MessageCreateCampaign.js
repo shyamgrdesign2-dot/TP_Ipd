@@ -460,7 +460,6 @@ function MessageCreateCampaign() {
     useEffect(() => {
         if (state?.category === 'ai-receptionist') {
             setSelectedCategory(6);
-            getGoogleLink();
         }
     }, [state?.category]);
 
@@ -472,9 +471,9 @@ function MessageCreateCampaign() {
     }, [selectedCategory, state?.category]);
 
     useEffect(() => {
+        const decodedToken = getDecodedToken();
+        const clinicId = decodedToken?.result?.clinic_id;
         async function fetchAgentData() {
-            const decodedToken = getDecodedToken();
-            const clinicId = decodedToken?.result?.clinic_id;
             if (clinicId) {
                 const res = await fetchAgents(clinicId);
                 if (res && res.length > 0) {
@@ -485,15 +484,16 @@ function MessageCreateCampaign() {
         }
         if (selectedCategory === 6 || state?.category === 'ai-receptionist') {
             fetchAgentData();
+            getGoogleLink(clinicId);
         }
     }, [selectedCategory, state?.category]);
 
-    const getGoogleLink = async () => {
-        const res = await fetchGoogleMapsLink(state.setupData?.clinicId);
-        if (res) {
-            setlocation_link(res);
-        }
-    }
+    const getGoogleLink = async (clinicId) => {
+      const res = await fetchGoogleMapsLink(clinicId);
+      if (res) {
+        setlocation_link(res);
+      }
+    };
 
     //Message Details
     const handleAvailableCredit = useCallback(
