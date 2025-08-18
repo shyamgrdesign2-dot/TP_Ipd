@@ -215,6 +215,11 @@ const styles = StyleSheet.create({
         borderLeft: '1px solid #171725',
         borderTop: '1px solid #171725',
     },
+    headerRowFixed: {
+        flexDirection: 'row',
+        borderBottom: '1px solid #171725',
+        borderLeft: '1px solid #171725',
+    },
     headerCell: {
         flex: 1,
         padding: 6,
@@ -5401,10 +5406,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
                                         <Text fixed style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>{customModule?.name}:&nbsp;</Text>
                                         <View style={styles.table}>
-                                            <View style={styles.headerRow} fixed>
-                                                {customModule?.content?.some((item) => item.title) && <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>}
-                                                {customModule?.content?.some((item) => item.notes) && <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTES</Text>}
-                                            </View>
+                                            <View style={styles.headerRowFixed} fixed/>
                                             {customModule?.content.map((item, i) => (
                                                 <View style={styles.row} key={i} wrap={false}>
                                                     {customModule?.content?.some((item) => item.title) &&<Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.title || '-'}&nbsp;</Text>}
