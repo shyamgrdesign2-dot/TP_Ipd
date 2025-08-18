@@ -96,7 +96,7 @@ function AppointmentList() {
             <Route path="walk_in_consultation_zydus" element={<WalkInConsultationZydus />} />
             <Route path="add_patient" element={<AddNewPatient />} />
             <Route path="edit_patient" element={<EditNewPatient />} />
-            <Route path="bulk_messages" element={<MessagesData />} />
+            <Route path="bulk_messages" element={<MessagesData appointmentAgentsData={agentsData} />} />
           </Routes>
           {(!isZydus && !isApollo) && <DocumentVerificationPopup />}
         </div>

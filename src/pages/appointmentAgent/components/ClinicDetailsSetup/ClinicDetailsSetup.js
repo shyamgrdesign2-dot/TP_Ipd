@@ -593,7 +593,7 @@ const ClinicDetailsSetup = ({
 
         <div className="form-section">
           <label>
-            Add Your Clinic Google Location <span className="required">*</span>
+            Search your clinic location <span className="required">*</span>
             <Tooltip 
               title="Search and select your clinic's location from Google Maps so patients can easily find you online."
               overlayClassName="clinic-tooltip"

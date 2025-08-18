@@ -32,7 +32,9 @@ const { RangePicker } = DatePicker;
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD MMM YYYY'
 
-function MessagesData() {
+function MessagesData(props) {
+
+    const { appointmentAgentsData } = props;
 
     const { tabCountObj, userCampaignList, userPurchaseList, campaignDetails, loading, errorObj } = useSelector((state) => state.bulkMessages);
     const { profile } = useSelector((state) => state.doctors);
@@ -531,7 +533,7 @@ function MessagesData() {
     );
 
     const handleNewTemplate = () => {
-        navigate('/create-campaign');
+        navigate('/create-campaign', { state: { setupData:appointmentAgentsData } });
         const clinic_city = getClinicCity(profile?.hospital_data);
         window.Moengage.track_event("TP_Choose_New_Template", {
             "Doctor_specialty": profile?.dp_name,
