@@ -83,14 +83,14 @@ export const setupReceptionist = async function (payload) {
     formData.append('avatarId', cleanPayload.avatarId);
     formData.append('hmBusinessId', cleanPayload.hmBusinessId);
     // formData.append('receptionId', cleanPayload.receptionistId);
-    
+
     // Add logo or clinicName based on useUploadLogo flag
     if (payload.useUploadLogo && payload.logo) {
       formData.append('logoFiles', payload.logo);
     } else if (!payload.useUploadLogo && payload.clinicName) {
       formData.append('clinicName', payload.clinicName);
     }
-    
+
     // Add googleLocation as JSON string
     const googleLocation = {
       lat: cleanPayload.latitude,
@@ -106,16 +106,32 @@ export const setupReceptionist = async function (payload) {
     };
     formData.append('googleLocation', JSON.stringify(googleLocation));
     formData.append('doctors', JSON.stringify(cleanPayload.doctors));
-    
+
     // Update headers for multipart/form-data
     const headers = {
       'Content-Type': 'multipart/form-data',
       'x-api-key': '4e4cda9d-a277-4f7e-a3ff-14240c4a4974'
     };
-    
+
     res = await api.post(`/api/v1/receptionist/setup`, formData, { ...baseUrl, headers });
   } catch (e) {
     console.error("Error while setting up receptionist: ", e);
   }
   return res;
+};
+
+export const fetchGoogleMapsLink = async function (hm_id) {
+  let res = {};
+  const headers = {
+    "x-api-key": "4e4cda9d-a277-4f7e-a3ff-14240c4a4974",
+  };
+  try {
+    res = await api.get(
+      `/api/v1/receptionist-agent/get-google-maps-link?hm_id=${hm_id}`,
+      { ...baseUrl, headers }
+    );
+  } catch (e) {
+    console.error("Error while fetching google maps link: ", e);
+  }
+  return res?.googleMapsLink;
 };

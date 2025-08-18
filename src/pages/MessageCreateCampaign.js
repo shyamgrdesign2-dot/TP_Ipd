@@ -29,7 +29,7 @@ import CommonModal from "../common/CommonModal";
 
 import "../components/bulk_messages/messages.scss";
 import { InfoCircleOutlined } from '@ant-design/icons';
-import { fetchAgents } from "../pages/appointmentAgent/service";
+import { fetchAgents, fetchGoogleMapsLink } from "../pages/appointmentAgent/service";
 import { getDecodedToken } from "../utils/localStorage";
 
 const { RangePicker } = DatePicker;
@@ -81,6 +81,7 @@ function MessageCreateCampaign() {
     const [clinic_name, setclinic_name] = useState('');
     const [agent_name, setagent_name] = useState(state.setupData?.name || "");
     const [agent_link, setagent_link] = useState(state.setupData?.appointmentLinkShared || "");
+    const [google_link, setgoogle_link] = useState("");
     const [regards_as_hospital, setregards_as_hospital] = useState('');
     const [clinic_address, setclinic_address] = useState('');
     const [festival_name, setfestival_name] = useState('');
@@ -449,6 +450,7 @@ function MessageCreateCampaign() {
     useEffect(() => {
         if (state?.category === 'ai-receptionist') {
             setSelectedCategory(6);
+            getGoogleLink();
         }
     }, [state?.category]);
 
@@ -475,6 +477,13 @@ function MessageCreateCampaign() {
             fetchAgentData();
         }
     }, [selectedCategory, state?.category]);
+
+    const getGoogleLink = async () => {
+        const res = await fetchGoogleMapsLink(state.setupData?.clinicId);
+        if (res) {
+            setgoogle_link(res);
+        }
+    }
 
     //Message Details
     const handleAvailableCredit = useCallback(
@@ -854,6 +863,24 @@ function MessageCreateCampaign() {
                             classNames="text-greycolor"
                             value={ agent_link || state.setupData?.appointmentLinkShared}
                             placeholder="Enter appointment name"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
+                else if (part === 'location_link') {
+                    return (
+                        <Input
+                            readOnly
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: google_link ? parseInt(google_link?.length * 7.55) >= 150 ? google_link?.length * 7.55 : 150 : 150,
+                                maxWidth: 250,
+                                border: "none",
+                            }}
+                            classNames="text-greycolor"
+                            value={google_link}
+                            placeholder="Enter google map link"
                             className="me-1 my-1 fw-medium"
                         />
                     );
