@@ -322,28 +322,25 @@ function SmartRxPreview() {
                         showHideSubModal()
                     } else {
                         try {
-
-                            // After both API calls are completed, check their responses
-                            if (smartRxFile?.length > 0 && token) {
-
-                                // Proceed with the file upload
-                                navigate("/smart-rx-digitise", {
-                                    state: {
-                                        patient_data: patient_data,
-                                        smartRxFilesData: smartRxFile,
-                                        tcm_id: state.tcm_id,
-                                        pam_id: state?.pam_id,
-                                        print_url: state.print_url,
-                                        // digitisedData: rxDigitiseApiResponse,
-                                        type: "new"
-
-                                    },
-                                })
-                            }
+                            // Guard: ensure prerequisites
+                            if (!(smartRxFile?.length > 0 && token)) return;
+                            console.log(smartRxFile?.length,"smartRxFile?.length")
+                            const isCustomSSRX = Boolean(viewCaseManagerData?.isCustomSSRX === "1");
+                            const path = isCustomSSRX ? "/snap-rx/digitise" : "/smart-rx-digitise";
+                            const navState = {
+                                patient_data: patient_data,
+                                smartRxFilesData: smartRxFile,
+                                tcm_id: state.tcm_id,
+                                pam_id: state?.pam_id,
+                                print_url: isCustomSSRX ? (state.print_rx_url || state.print_url) : state.print_url,
+                                // digitisedData: rxDigitiseApiResponse,
+                                type: "new",
+                            };
+            
+                            navigate(path, { state: navState });
                         } catch (error) {
                             console.error('Error in handleDigitiseRx:', error);
                         }
-                        // }
                     }
                 } else {
                     typeof action?.payload?.data?.error === 'object' ?
@@ -356,11 +353,6 @@ function SmartRxPreview() {
             }
         }
     };
-    
-        // if (smartRxFile?.length > 0 && token && state?.tcm_id && isSmartSyncCVTAccessableFromGB) {
-        //     fetchDataAndUpload();
-        // }
-    // }, [smartRxFile, token, state?.tcm_id]);
 
     // Function to update rxDigitize parameter in the URL
     const updateRxDigitizeInUrl = (url, showDigitalRx) => {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, Card, Dropdown, message, Drawer } from 'antd';
 import { Row, Col } from 'react-bootstrap';
 import './RxTemplateManager.scss';
+import './RxTemplateUploadDrawer.scss';
 import download from '../../../assets/images/document-download.svg';
 import edit from '../../../assets/images/document-edit.svg';
 import trash from '../../../assets/images/trash.svg';
@@ -46,65 +47,51 @@ const RxTemplateManager = ({
   return (
     <div className="template-manager">
       <Card bordered={false} className="search-modalCard">
-        {/* Header Section */}
-        <div
-          className="modalCard-header align-items-center justify-content-between d-flex"
-          style={{
-            position: "sticky",
-            top: "0px",
-            zIndex: 2,
-            height: "90px",
-          }}
-        >
-          <div className="align-items-center d-flex">
-            <Button
-              type="text"
-              className="btn btn-delete-prescription px-3 focus-none h-100"
-              onClick={onClose}
-            >
-              <i className="icon-Cross fs-3"></i>
-            </Button>
-            <div className="modal-title">Add/Edit Rx Canvas</div>
+          {/* Header Section */}
+          <div className="rx-upload-header">
+            <div className="rx-upload-header-left" style={{borderRight: "1px solid #e4e4ef"}}>
+              <i className="icon-right rx-upload-back" onClick={onClose}></i>
+            </div>
+            <div className="rx-upload-header-title">Add/Edit Rx Canvas</div>
+            <div>
+              <Button
+                className="btn-41 btn ant-btn-text btn-input"
+                style={{ display: "flex", alignItems: "center", gap: "5px" }}
+                onClick={onUploadNew}
+              >
+                <i className="icon-Add" />
+                <span>Add New Rx Canvas</span>
+              </Button>
+            </div>
           </div>
-          <div style={{ padding: "20px" }}>
-            <Button
-              className="btn-41 btn ant-btn-text btn-input"
-              style={{ display: "flex", alignItems: "center", gap: "5px" }}
-              onClick={onUploadNew}
-            >
-              <i className="icon-Add" />
-              <span>Add New Rx Canvas</span>
-            </Button>
-          </div>
-        </div>
 
-        {/* Template Grid */}
-        <div className="d-flex justify-content-center flex-column">
-          <Row
-            xs={1}
-            sm={2}
-            md={2}
-            lg={3}
-            className="gy-4 w-100"
-            style={{ padding: "25px" }}
-          >
-            {templates?.map((template, index) => (
-              <Col key={template.id || index} className="gx-4">
-                <TemplateCard
-                  template={template}
-                  onEdit={() => onEdit(template.id)}
-                  onDelete={() => onDelete(template.id)}
-                  onDownload={() => onDownload(template.id)}
-                  onPreview={() => handleTemplatePreview(template)}
-                  onRefresh={onRefresh}
-                  isDownloading={downloadingTemplateId === template.id}
-                  templates={templates}
-                  onClose={onClose}
-                />
-              </Col>
-            ))}
-          </Row>
-        </div>
+          {/* Template Grid */}
+          <div className="d-flex justify-content-center flex-column">
+            <Row
+              xs={1}
+              sm={2}
+              md={2}
+              lg={3}
+              className="gy-4 w-100"
+              style={{ padding: "25px" }}
+            >
+              {templates?.map((template, index) => (
+                <Col key={template.id || index} className="gx-4">
+                  <TemplateCard
+                    template={template}
+                    onEdit={() => onEdit(template.id)}
+                    onDelete={() => onDelete(template.id)}
+                    onDownload={() => onDownload(template.id)}
+                    onPreview={() => handleTemplatePreview(template)}
+                    onRefresh={onRefresh}
+                    isDownloading={downloadingTemplateId === template.id}
+                    templates={templates}
+                    onClose={onClose}
+                  />
+                </Col>
+              ))}
+            </Row>
+          </div>
       </Card>
 
       {/* Template Preview Drawer - Exactly like Medical Records */}

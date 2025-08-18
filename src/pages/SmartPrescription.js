@@ -1294,7 +1294,7 @@ function SmartPrescription() {
         }
       };
       img.onerror = () => {
-        message.error('❌ Failed to load template image:', file.id, file.file_url);
+        message.error('Failed to load template image:', file.id, file.file_url);
         loadedCount++;
         
         // Still hide loader even if some images fail

@@ -3,6 +3,7 @@ import { Drawer, Button, message } from 'antd';
 import { Cropper } from 'react-cropper';
 import 'cropperjs/dist/cropper.css';
 import { PlusOutlined, MinusOutlined, RedoOutlined, DeleteOutlined } from '@ant-design/icons';
+import { pdfjs } from "react-pdf";
 import {
   DndContext,
   closestCenter,
@@ -374,6 +375,122 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
     console.log('✅ Page reset completed for page', selectedPageIndex + 1);
   };
 
+  // Convert PDF to image for cropping with timeout and corruption handling
+  const convertPdfToImages = async (pdfFile) => {
+    const fileUrl = URL.createObjectURL(pdfFile);
+    const TIMEOUT_MS = 30000; // 30 seconds timeout
+    
+    try {
+      // ✅ Add timeout for PDF loading
+      const loadingTask = pdfjs.getDocument(fileUrl);
+      const pdf = await Promise.race([
+        loadingTask.promise,
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('PDF loading timeout')), TIMEOUT_MS)
+        )
+      ]);
+      
+      // ✅ Validate PDF structure
+      if (!pdf || typeof pdf.numPages !== 'number' || pdf.numPages <= 0) {
+        throw new Error('Invalid PDF structure: no pages found');
+      }
+      
+      // ✅ Limit number of pages to prevent memory issues
+      const MAX_PAGES = 5;
+      if (pdf.numPages > MAX_PAGES) {
+        throw new Error(`PDF has too many pages (${pdf.numPages}). Maximum allowed is ${MAX_PAGES}.`);
+      }
+      
+      const numPages = pdf.numPages;
+      const images = [];
+      
+      for (let i = 1; i <= numPages; i++) {
+        try {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 2 });
+          
+          // ✅ Validate page dimensions
+          if (viewport.width <= 0 || viewport.height <= 0) {
+            throw new Error(`Invalid page dimensions on page ${i}`);
+          }
+          
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          
+          const renderContext = {
+            canvasContext: context,
+            viewport: viewport,
+            background: 'white',
+          };
+          
+          // ✅ Add timeout for page rendering
+          await Promise.race([
+            page.render(renderContext).promise,
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error(`Page ${i} rendering timeout`)), 10000)
+            )
+          ]);
+          
+          const imageDataUrl = canvas.toDataURL('image/png', 0.9);
+          
+          // ✅ Validate generated image
+          if (!imageDataUrl || imageDataUrl === 'data:,') {
+            throw new Error(`Failed to generate image for page ${i}`);
+          }
+          
+          images.push({
+            image: imageDataUrl,
+            crop: true,
+            showFile: imageDataUrl,
+            croppedImage: null,
+            hasBeenEdited: false,
+            isReady: true,
+            zoom: 1,
+            rotation: 0,
+            dimensions: { width: viewport.width, height: viewport.height },
+            name: '',
+            // Auto-save state tracking for each page
+            autoSavedState: {
+              zoom: 1,
+              rotation: 0,
+              cropBoxData: null,
+              croppedImage: null,
+              hasBeenEdited: false
+            },
+            originalState: {
+              image: imageDataUrl,
+              zoom: 1,
+              rotation: 0
+            }
+          });
+          
+        } catch (pageError) {
+          console.error(`Error processing page ${i}:`, pageError);
+          throw new Error(`Failed to process page ${i}: ${pageError.message}`);
+        }
+      }
+      
+      return images;
+    } catch (error) {
+      console.error('Error converting PDF to images:', error);
+      
+      // ✅ Provide specific error messages
+      if (error.message.includes('timeout')) {
+        throw new Error('PDF processing took too long. Please try with a smaller file.');
+      } else if (error.message.includes('Invalid PDF structure')) {
+        throw new Error('The PDF file appears to be corrupted or invalid.');
+      } else if (error.message.includes('too many pages')) {
+        throw new Error(error.message);
+      } else {
+        throw new Error('Failed to convert PDF to images. Please ensure the file is a valid PDF.');
+      }
+    } finally {
+      URL.revokeObjectURL(fileUrl);
+    }
+  };
+
   // Reupload handler (adapted for edit)
   const handleReupload = () => {
     if (!file?.pages) return;
@@ -385,26 +502,57 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
       const newFile = e.target.files[0];
       if (newFile) {
         try {
-          const reader = new FileReader();
-          reader.onload = (event) => {
+          setIsProcessing(true);
+          message.loading('Processing PDF...', 0);
+          
+          // Convert PDF to image using the same logic as upload drawer
+          const images = await convertPdfToImages(newFile);
+          
+          if (images && images.length > 0) {
+            // Use the first page from the PDF
+            const newPageImage = images[0];
+            
             const updatedPages = [...file.pages];
             updatedPages[selectedPageIndex] = {
               ...updatedPages[selectedPageIndex],
-              image: event.target.result,
-              showFile: event.target.result,
+              image: newPageImage.image,
+              showFile: newPageImage.image,
               croppedImage: null,
               uploadFile: null,
               hasBeenEdited: true,
-              cropBoxData: null
+              cropBoxData: null,
+              zoom: 1,
+              rotation: 0,
+              dimensions: newPageImage.dimensions,
+              // Reset auto-save state for the new page
+              autoSavedState: {
+                zoom: 1,
+                rotation: 0,
+                cropBoxData: null,
+                croppedImage: null,
+                hasBeenEdited: false
+              },
+              originalState: {
+                image: newPageImage.image,
+                zoom: 1,
+                rotation: 0
+              }
             };
+            
             setFile({ ...file, pages: updatedPages });
             setZoom(1);
+            
+            message.destroy();
             message.success(`Page ${selectedPageIndex + 1} replaced successfully`);
-          };
-          reader.readAsDataURL(newFile);
+          } else {
+            throw new Error('Failed to convert PDF to image');
+          }
         } catch (error) {
+          message.destroy();
           console.error('Error reuploading page:', error);
-          message.error('Failed to replace page. Please try again.');
+          message.error('Failed to process PDF file. Please try again.');
+        } finally {
+          setIsProcessing(false);
         }
       }
     };
@@ -659,44 +807,26 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
               </div>
             </div>
             
-            {/* Cropper Preview Row - exactly like upload drawer */}
-            <div className="cropper-preview-row">
-              {/* Page Label - exactly like upload drawer */}
-              <div className="page-label">Page {file?.pages && file.pages[selectedPageIndex] ? selectedPageIndex + 1 : 0}</div>
-              {/* Cropper Container - exactly like upload drawer */}
-              <div className="cropper-container">
-                <Cropper
-                  key={`cropper-${selectedPageIndex}-${file.pages[selectedPageIndex]?.id || 'default'}`}
-                  ref={cropperRef}
-                  style={{ height: 400 }}
-                  src={file.pages[selectedPageIndex]?.showFile || ''}
-                  viewMode={2}
-                  background={false}
-                  zoomable={true}
-                  guides={true}
-                  autoCropArea={1}
-                  dragMode="move"
-                  zoom={file.pages[selectedPageIndex]?.zoom || 1}
-                  onError={(error) => {
-                    console.error('Cropper error:', error);
-                    message.error('Failed to load image for cropping. Please try again.');
-                  }}
-                  ready={() => {
-                    // console.log('Cropper ready for page:', selectedPageIndex + 1);
-                  }}
-                  cropend={() => {
-                    // Auto-save when user finishes cropping
-                    if (autoSaveTimeoutRef.current) {
-                      clearTimeout(autoSaveTimeoutRef.current);
-                    }
-                    autoSaveTimeoutRef.current = setTimeout(() => {
-                      autoSavePageState(true);
-                    }, 300);
-                  }}
-                />
+              <div className="image-preview-row">
+                {/* Page Label */}
+                <div className="page-label">Page {file?.pages && file.pages[selectedPageIndex] ? selectedPageIndex + 1 : 0}</div>
+                {/* Image Preview Container */}
+                <div className="image-preview-container">
+                  <img 
+                    src={file.pages[selectedPageIndex]?.showFile || ''} 
+                    alt={`Page ${selectedPageIndex + 1}`}
+                    className="preview-image"
+                    style={{ 
+                      maxWidth: '100%', 
+                      maxHeight: '400px', 
+                      objectFit: 'contain',
+                      border: '1px solid #e8e8e8',
+                      borderRadius: '8px'
+                    }}
+                  />
               </div>
               {/* Cropper Actions Row - exactly like upload drawer */}
-              <div className="cropper-actions-row">
+              <div className="cropper-actions-row d-flex align-items-center justify-content-center">
                 <div className="cropper-actions-left">
                   <Button 
                     icon={<img src={reuploadIcon}/>} 
@@ -714,15 +844,14 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
                     Remove
                   </Button>
                 </div>
-                <div className="cropper-actions-right">
+                {/* <div className="cropper-actions-right">
                   <div className={`cropper-action-btn ${isProcessing ? 'disabled' : ''}`} onClick={isProcessing ? null : handleRotate}><RedoOutlined /></div>
                   <div className={`cropper-action-btn ${isProcessing ? 'disabled' : ''}`} onClick={isProcessing ? null : () => handleZoom(-0.1)}><MinusOutlined /></div>
                   <div className={`cropper-action-btn ${isProcessing ? 'disabled' : ''}`} onClick={isProcessing ? null : () => handleZoom(0.1)}><PlusOutlined /></div>
-                  {/* Reset button - always visible */}
                   <div className={`cropper-action-btn reset-btn ${isProcessing ? 'disabled' : ''}`} onClick={isProcessing ? null : handleResetPage}>
                     <span style={{ fontSize: '12px', color: 'white' }}>Reset</span>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
             
