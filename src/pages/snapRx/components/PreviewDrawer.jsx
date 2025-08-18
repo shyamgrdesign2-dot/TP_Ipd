@@ -332,7 +332,7 @@ const PreviewDrawer = forwardRef(
 
       if (imageRefs.current?.size) {
         try {
-          const updatedCroppedFiles = await Promise.all(
+          let updatedCroppedFiles = await Promise.all(
             allUpdatedFiles.map(async (updatedFile) => {
               if (updatedFile?.crop?.unit === "%") {
                 const cropWidth =
@@ -413,8 +413,13 @@ const PreviewDrawer = forwardRef(
           );
 
           const apiStartTime = Date.now();
+          updatedCroppedFiles = updatedCroppedFiles.map((file) => {
+            const newFileName = file?.file?.name.toLowerCase();
+            file.file = new File([file.file], newFileName, { type: file.file.type });
+            return file.file;
+          })
           const response = await uploadSnapRxFiles(
-            updatedCroppedFiles.map((file) => file.file),
+            updatedCroppedFiles,
             patient_data?.patient_unique_id,
             sessionId,
             fileUploadToken

@@ -12,7 +12,7 @@ import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
 import { useSelector } from "react-redux";
 import { env } from "../../EnvironmentConfig";
 import HeaderSmartRxDigitise from "../../common/HeaderSmartRxDigitise";
-import DigitisedPrescription, { buildFinalEditedData } from "../../components/DigitisedPrescription";
+import DigitisedPrescription from "../../components/DigitisedPrescription";
 import axios from "axios";
 import { trackEvent } from "../../utils/utils";
 import { EVENTS } from "../../utils/events";
@@ -79,7 +79,7 @@ function SnapRxDigitise() {
       const payload = {
         tcm_id: tcm_id,
         patient_unique_id: patient_data?.patient_unique_id,
-        editedData: {...buildFinalEditedData(data)},
+        editedData: {...data},
       };
 
       // API call to save the data
@@ -191,7 +191,7 @@ function SnapRxDigitise() {
                     ) : (
                       smartRxFile?.length > 0 &&
                       smartRxFile?.map(({ fileUrl }) => (
-                        <div style={{ padding: "5px" }}>
+                        <div key={fileUrl} style={{ padding: "5px" }}>
                           {fileUrl && (
                             <img src={fileUrl} alt="Smart Rx" className="snap-rx-img" width="100%" />
                           )}
@@ -205,9 +205,9 @@ function SnapRxDigitise() {
           </Col>
           <Col md={17} lg={17} xl={10}>
             <div className="appointment-wrap PatientDetailswrap m-0">
-              <Card className="">
+              <Card className={isLoading ? 'border-none' : null}>
                 <>
-                  <Card.Header className="bg-white py-3">
+                  <Card.Header className={`bg-white py-3 ${isLoading ? 'border-none' : null}`}>
                     <div className="d-flex align-items-center justify-content-between">
                       <div className="title-digitise-card">
                         <img

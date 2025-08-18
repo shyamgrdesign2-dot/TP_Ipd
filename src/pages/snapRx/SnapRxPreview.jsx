@@ -518,20 +518,20 @@ function SnapRxPreview() {
                   </span>
                   <i className="icon-right iconrotate180 ms-auto"></i>
                 </Button>
-                <Button
-                  type="text"
-                  className="btn btn-input btnicon20 align-items-center d-flex mb-3  btn-41 w-100"
-                  icon={<i className="icon-Edit"></i>}
-                  onClick={handleEditRxClick}
-                  loading={loading}
-                >
-                  <span className="fw-semibold">
-                    {showDigitalRx
-                      ? "Edit Digital Prescription"
-                      : "Edit Written Prescription"}
-                  </span>
-                  <i className="icon-right iconrotate180 ms-auto"></i>
-                </Button>
+                {!showDigitalRx ? (
+                    <Button
+                    type="text"
+                    className="btn btn-input btnicon20 align-items-center d-flex mb-3  btn-41 w-100"
+                    icon={<i className="icon-Edit"></i>}
+                    onClick={handleEditRxClick}
+                    loading={loading}
+                  >
+                    <span className="fw-semibold">
+                      Edit Written Prescription
+                    </span>
+                    <i className="icon-right iconrotate180 ms-auto"></i>
+                  </Button>
+                ) : null}
               </div>
               {patient_data?.pm_contact_no ? (
                 <div className="bg-body p-3 rounded-10px border mb-3">
