@@ -261,7 +261,7 @@ function MedicalHistoryBox(props) {
     });
 
     const [popOver, setPopOver] = useState(false);
-    const RELATIONSHIP_LIST = ['Father', 'Mother', 'Grandparents', 'Uncle', 'Aunty', 'Sibling', 'Relatives']
+    const RELATIONSHIP_LIST = ['Father', 'Mother', 'Maternity Grandfather', 'Maternity Grandmother', 'Paternity Grandfather', 'Paternity Grandmother', 'Uncle', 'Aunty', 'Sibling', 'Relatives'];
     const [selectedRelationship, setSelectedRelationship] = useState([]);
     const [activeTab, setActiveTab] = useState('gynec');
     const [tokenData, setTokenData] = useState(null);
