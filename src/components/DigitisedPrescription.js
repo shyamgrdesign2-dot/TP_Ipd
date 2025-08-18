@@ -638,7 +638,7 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
 
   
   return (
-    <div className={loading ? "loading-digitised-container" : "digitised-container"} ref={containerRef}>
+    <div className="digitised-container" ref={containerRef}>
       {loading ? (
         <GenRXLoaders isProcessing={true} isSnapRx={true} />
       ) : (
