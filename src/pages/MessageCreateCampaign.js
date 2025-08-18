@@ -484,8 +484,8 @@ function MessageCreateCampaign() {
         }
         if (selectedCategory === 6 || state?.category === 'ai-receptionist') {
             fetchAgentData();
-            getGoogleLink(clinicId);
         }
+        getGoogleLink(clinicId);
     }, [selectedCategory, state?.category]);
 
     const getGoogleLink = async (clinicId) => {
