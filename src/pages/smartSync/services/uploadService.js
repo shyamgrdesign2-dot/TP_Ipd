@@ -1,12 +1,19 @@
 import api from '../../../api/services/axiosService';
 import config from '../../../config';
+import { env } from "../../../EnvironmentConfig";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from '../../../utils/constants';
+import { getDecodedToken } from '../../../utils/localStorage';
 
 // Base URL for custom smart sync API calls - using the URL from your working cURL
-const baseUrl = { customBaseUrl: 'https://pm-digitization-qa.tatvacare.in' };
+const baseUrl = { customBaseUrl: env.digitization_api_url };
+
+const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+const cleanedToken = token?.replace(/['"]+/g, "");
+const decodedToken = getDecodedToken();
+const doctorId = decodedToken?.result?.user_id;
 
 // Get all custom smart sync pad templates
 export const getCustomSyncPadTemplates = async () => {
-  console.log('🔍 Fetching custom sync pad templates...');
   try {
     const response = await api.get('/api/v1/custom-smart-sync-pad/get-files', baseUrl);
     return {
@@ -80,7 +87,7 @@ export const uploadCustomSyncPadTemplate = async (templateData, onProgress) => {
     formData.append('metadata', JSON.stringify(metadata));
     
     const requestConfig = {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${cleanedToken}`},
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.lengthComputable) {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -95,17 +102,6 @@ export const uploadCustomSyncPadTemplate = async (templateData, onProgress) => {
             
       // Check if we have valid response data - the API returns an object with id, uploaded_files, and title
       if (responseData && responseData.id && responseData.uploaded_files && responseData.title) {
-        console.log('✅ Upload successful! Template created with:', {
-          id: responseData.id,
-          title: responseData.title,
-          filesCount: responseData.uploaded_files.length,
-          files: responseData.uploaded_files.map(file => ({
-            id: file.id,
-            order: file.order,
-            unique_id: file.unique_id,
-            hasFileUrl: !!file.file_url
-          }))
-        });
         
         return {
           success: true,
@@ -124,12 +120,12 @@ export const uploadCustomSyncPadTemplate = async (templateData, onProgress) => {
         };
       }
     } catch (apiError) {
-      console.error('🚨 API Call failed:', apiError.message);
+      console.error('API Call failed:', apiError.message);
       // Re-throw the error to be caught by outer catch block
       throw apiError;
     }
   } catch (error) {
-    console.error('❌ Upload failed:', error.message);
+    console.error('Upload failed:', error.message);
     
     let errorMessage = 'Upload failed. Please try again.';
     if (error.response?.data?.message) errorMessage = error.response.data.message;
@@ -155,18 +151,8 @@ export const updateCustomSyncPadTemplate = async (templateId, templateData, onPr
     }));
     formData.append('metadata', JSON.stringify(metadata));
     
-    // // Debug: Log FormData entries
-    // console.log('📦 FormData entries:');
-    // for (let [key, value] of formData.entries()) {
-    //   if (value instanceof File) {
-    //     console.log(`  ${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
-    //   } else {
-    //     console.log(`  ${key}: ${value}`);
-    //   }
-    // }
-    
     const requestConfig = {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${cleanedToken}`},
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.lengthComputable) {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -198,7 +184,7 @@ export const deleteCustomSyncPadTemplate = async (templateId) => {
     
     return { success: true, data: response.data };
   } catch (error) {
-    console.error('❌ Delete failed:', error);
+    console.error('Delete failed:', error);
     
     let errorMessage = 'Unable to delete template. Please try again.';
     

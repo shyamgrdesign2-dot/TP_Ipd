@@ -1941,6 +1941,7 @@ function SmartPrescription() {
 
   // Function to clear current page and reload template image
   const handleClearCurrentPage = () => {
+
     const currentPageId = pages[selectedPage];
     const canvas = canvasRefs.current[currentPageId];
     
@@ -1950,12 +1951,13 @@ function SmartPrescription() {
       // Clear the canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // If this is a template page, reload the template image
-      if (isTemplateSelected(selectedTemplateId)) {
+      // Check if this page is actually a template page by looking at pageTemplateImageIndex
+      const templateImageIndex = pageTemplateImageIndex[currentPageId];
+      const isTemplatePage = templateImageIndex !== undefined && templateImageIndex >= 0;
+            
+      // Only reload template image if this page is actually a template page
+      if (isTemplatePage && isTemplateSelected(selectedTemplateId)) {
         const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
-        
-        // Get the template image index for this specific page
-        const templateImageIndex = pageTemplateImageIndex[currentPageId] || 0;
         
         if (selectedTemplate && selectedTemplate.uploaded_files && selectedTemplate.uploaded_files.length > templateImageIndex) {
           // Get the template image for this specific template image index
@@ -1966,6 +1968,7 @@ function SmartPrescription() {
             img.src = templateImage.file_url;
             img.crossOrigin = "anonymous";
             img.onload = () => {
+              console.log('Template image loaded for page:', currentPageId, 'template index:', templateImageIndex);
               // Draw the template image
               ctx.drawImage(img, 0, 0, 720, 980);
               
@@ -1986,7 +1989,10 @@ function SmartPrescription() {
           console.error('⚠️ No template or uploaded files found');
         }
       } else {
-        console.error('ℹ️ Not a template page, just cleared canvas');
+        console.log('ℹ️ Not a template page, cleared to blank canvas for page:', currentPageId);
+        // For blank pages, just clear and leave as white background
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
       
       // Reset the drawing context
@@ -2756,6 +2762,7 @@ function SmartPrescription() {
                             onClick={() => {
                               toggleDeletePopup();
                               setIsClearPopup(true);
+                              handlePageChange(index)
                               setDeletePopupMsg(
                                 `Are you sure you want to clear page ${
                                   index + 1
@@ -3194,7 +3201,7 @@ function SmartPrescription() {
                   <div
                     onClick={() => {
                       if (isClearPopup) {
-                        handleRefresh(updatedIndex);
+                        handleClearCurrentPage(updatedIndex);
                       } else {
                         handleDeletePage(updatedIndex);
                       }
