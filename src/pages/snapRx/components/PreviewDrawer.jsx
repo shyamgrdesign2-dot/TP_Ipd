@@ -221,7 +221,7 @@ const PreviewDrawer = forwardRef(
       const finalCanvas = canvas;
       const finalCtx = finalCanvas.getContext("2d");
 
-      const widthIncrease = (crop.width * scaleX) * 0.15;
+      const widthIncrease = (crop.width * scaleX) * 0.2;
       finalCanvas.width = (crop.width * scaleX) + (widthIncrease * 2);
       finalCanvas.height = crop.height * scaleY;
       const cropX = (crop.x * scaleX) - widthIncrease;

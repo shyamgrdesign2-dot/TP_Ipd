@@ -164,61 +164,65 @@ const PreviewDrawerMobile = ({
     [uploadedFiles]
   );
 
-  const getCroppedImg = useCallback(
-    async (image, crop, fileId, rotation = 0) => {
-      const canvas = canvasRefs.current.get(fileId)?.current;
-      if (!canvas || !crop) return null;
+  const getCroppedImg = async (image, crop, fileId, rotation = 0, fileZoom = 1) => {
+    const canvas = canvasRefs.current.get(fileId)?.current;
+    if (!canvas || !crop) return null;
 
-      const naturalWidth = image.naturalWidth || image.width;
-      const naturalHeight = image.naturalHeight || image.height;
+    const naturalWidth = image.naturalWidth || image.width;
+    const naturalHeight = image.naturalHeight || image.height;
 
-      const scaleX = naturalWidth / image.width;
-      const scaleY = naturalHeight / image.height;
+    const scaleX = naturalWidth / image.width;
+    const scaleY = naturalHeight / image.height;
 
-      const rotatedCanvas = document.createElement("canvas");
-      const rotatedCtx = rotatedCanvas.getContext("2d");
+    const rotatedCanvas = document.createElement("canvas");
+    const rotatedCtx = rotatedCanvas.getContext("2d");
 
-      rotatedCanvas.width = image.naturalWidth;
-      rotatedCanvas.height = image.naturalHeight;
+    // Set canvas dimensions to natural size for rotation
+    rotatedCanvas.width = naturalWidth;
+    rotatedCanvas.height = naturalHeight;
 
-      rotatedCtx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
-      rotatedCtx.rotate((rotation * Math.PI) / 180);
-      rotatedCtx.drawImage(
-        image,
-        -image.naturalWidth / 2,
-        -image.naturalHeight / 2
+    rotatedCtx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
+    rotatedCtx.rotate((rotation * Math.PI) / 180);
+    
+    rotatedCtx.drawImage(
+      image,
+      -naturalWidth / 2,
+      -naturalHeight / 2
+    );
+
+    const finalCanvas = canvas;
+    const finalCtx = finalCanvas.getContext("2d");
+
+    const widthIncrease = (crop.width * scaleX) * 0.2;
+    finalCanvas.width = (crop.width * scaleX) + (widthIncrease * 2);
+    finalCanvas.height = crop.height * scaleY;
+    const cropX = (crop.x * scaleX) - widthIncrease;
+    const cropY = crop.y * scaleY;
+    const cropWidth = (crop.width * scaleX) + (widthIncrease * 2);
+    const cropHeight = crop.height * scaleY;
+
+    finalCtx.drawImage(
+      rotatedCanvas,
+      cropX,
+      cropY,
+      cropWidth,
+      cropHeight,
+      0,
+      0,
+      finalCanvas.width,
+      finalCanvas.height
+    );
+
+    return new Promise((resolve) => {
+      finalCanvas?.toBlob(
+        (blob) => {
+          resolve(blob);
+        },
+        "image/jpeg",
+        0.9
       );
-
-      const finalCanvas = canvas;
-      const finalCtx = finalCanvas.getContext("2d");
-
-      finalCanvas.width = crop.width * scaleX;
-      finalCanvas.height = crop.height * scaleY;
-
-      finalCtx.drawImage(
-        rotatedCanvas,
-        crop.x * scaleX,
-        crop.y * scaleY,
-        finalCanvas.width,
-        finalCanvas.height,
-        0,
-        0,
-        finalCanvas.width,
-        finalCanvas.height
-      );
-
-      return new Promise((resolve) => {
-        finalCanvas?.toBlob(
-          (blob) => {
-            resolve(blob);
-          },
-          "image/jpeg",
-          0.9
-        );
-      });
-    },
-    []
-  );
+    });
+  };
 
   const handleLeftArrowClick = () => {
     if (selectedFileIndex > 0) {
