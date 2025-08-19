@@ -51,6 +51,7 @@ export const WS_CONTROL_URL = "ws://localhost:5002/iScribeControlSocket";
 export const WEBSOCKET_ERROR_MESSAGE =
   "Error connecting the server, Please check device connectivity";
 export const WHATS_APP_API = "/api/v1/casemanager/smart-rx/send";
+export const ZYDUS_WHATS_APP_API = "/api/v1/casemanager/sendZydusRxWhatsapp";
 export const SMART_RX_UPLOAD = "/api/v1/casemanager/smart-rx/upload";
 export const RX_DIGITIZATION = "/api/v1/rxdigitize/rx";
 export const UNFINISHED_RX_CASE = "//api/v1/casemanager/get-ufinished-case";

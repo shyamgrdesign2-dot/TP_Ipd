@@ -12,6 +12,8 @@ import { useReactToPrint } from 'react-to-print';
 import { errorMessage, getClinic, trackEvent } from "../utils/utils";
 
 import messageSent from '../assets/images/message-sent.svg';
+import wtsp from '../assets/images/wtsp.svg';
+import loadingImg from '../assets/images/loading.png';
 import HeaderPrescriptionPrint from "../common/HeaderPrescriptionPrint";
 
 import { useSelector, useDispatch } from "react-redux";
@@ -21,7 +23,7 @@ import { viewCaseManager } from "../redux/caseManagerSlice";
 
 import { pdfjs, Document, Page } from "react-pdf";
 import { getGynecDetails } from "../api/services/ApiGynec";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, WHATS_APP_API, WTSAP_ERR_MESSAGE, ZYDUS_WHATS_APP_API } from "../utils/constants";
 import { env } from "../EnvironmentConfig";
 import { setCurrentSessionRx } from "../redux/obstetricSlice";
 import CreateBill from "./opdBilling/components/createBill/CreateBill";
@@ -31,6 +33,8 @@ import moment from "moment";
 import { useOpdBilling } from "./opdBilling/useOpdBilling";
 import { setShouldShowOpdBilling } from "../redux/billingSlice";
 import { printBlobInNewTab } from "./opdBilling/utils/helper";
+import { getDecodedToken } from '../utils/localStorage';
+import api from '../api/services/axiosService';
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -131,6 +135,9 @@ function PrescriptionPrintView() {
     const [patientWalletBalance, setPatientWalletBalance] = useState(0);
     const {isGynaecHistoryAccessable} = useAccess();
     const {planDetails} = useSelector(state => state.subscription);
+
+    const [isWhatsAppLoading, setIsWhatsAppLoading] = useState(false);
+    const [whatsAppButtonText, setWhatsAppButtonText] = useState("Send to WhatsApp");
 
     const baseUrl = env.lab_params_api_url;
 
@@ -339,6 +346,100 @@ function PrescriptionPrintView() {
         }
     };
 
+    const handleZydusSendToWhatsapp = async () => {
+        const decodedToken = getDecodedToken();
+        const tokenData = decodedToken?.result;
+        if (tokenData?.hospital_business_id !== env.zydus_business_id) {
+            return;
+        }
+        if (!patient_data?.patient_unique_id) {
+            errorMessage("Patient unique ID is required");
+            return;
+        }
+        const pm_pid = patient_data?.pm_pid;
+        if (!pm_pid) {
+            errorMessage("Patient ID (pm_pid/mrno/pm_id) is required");
+            return;
+        }
+        if (!state?.tcm_id) {
+            errorMessage("TCM ID is required");
+            return;
+        }
+        const body = {
+            patient_unique_id: parseInt(patient_data.patient_unique_id),
+            pm_pid: String(pm_pid),
+            tcm_id: parseInt(state.tcm_id)
+        };
+        setIsWhatsAppLoading(true);
+        setWhatsAppButtonText("Sending...");
+        try {
+            const zydusToken = localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN);
+            const parsedZydusToken = zydusToken ? JSON.parse(zydusToken) : null;
+            const response = await api.post(ZYDUS_WHATS_APP_API, body, { 
+                customBaseUrl: env.casemanager_api_url,
+                headers: {
+                    'Authorization': `Bearer ${parsedZydusToken}`
+                }
+            });
+            if (response.status === true && response.data) {
+                setWhatsAppButtonText("Successfully Sent");
+                setTimeout(() => {
+                    setWhatsAppButtonText("Send to WhatsApp again");
+                }, 3000);
+            } else if (response.status === true && response.data === "invalid data") {
+                console.error("API returned invalid data error:", response);
+                errorMessage("Invalid data format. Please check patient information.");
+                setWhatsAppButtonText("Send to WhatsApp");
+            } else {
+                setWhatsAppButtonText("Send to WhatsApp");
+            }
+        } catch (error) {
+            console.error("WhatsApp API error:", error);
+            // Handle 401 error by fetching new Zydus token
+            if (error.response?.status === 401) {
+                try {
+                    // Import the ictAuthToken function
+                    const { ictAuthToken } = await import('../redux/appointmentsSlice');
+                    const action = await dispatch(ictAuthToken());
+                    if (action.meta.requestStatus === "fulfilled") {
+                        await localStorage.setItem(
+                            PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN,
+                            JSON.stringify(action.payload.tokenNo)
+                        );
+                        // Retry the WhatsApp call
+                        const retryResponse = await api.post(ZYDUS_WHATS_APP_API, body, { 
+                            customBaseUrl: env.casemanager_api_url,
+                            headers: {
+                                'Authorization': `Bearer ${action.payload.tokenNo}`
+                            }
+                        });
+                        if (retryResponse.status === true && retryResponse.data) {
+                            setWhatsAppButtonText("Successfully Sent");
+                            setTimeout(() => {
+                                setWhatsAppButtonText("Send to WhatsApp again");
+                            }, 3000);
+                        } else {
+                            errorMessage("Failed to send WhatsApp message");
+                            setWhatsAppButtonText("Send to WhatsApp");
+                        }
+                    } else {
+                        errorMessage("Failed to authenticate with Zydus");
+                        setWhatsAppButtonText("Send to WhatsApp");
+                    }
+                } catch (tokenError) {
+                    console.error("Token refresh error:", tokenError);
+                    errorMessage("Authentication failed");
+                    setWhatsAppButtonText("Send to WhatsApp");
+                }
+            } else {
+                errorMessage(WTSAP_ERR_MESSAGE);
+                setWhatsAppButtonText("Send to WhatsApp");
+            }
+        } finally {
+            setIsWhatsAppLoading(false);
+        }
+    };
+
     // function onDocumentLoadSuccess({ numPages }) {
     //     setNumPages(numPages);
     // }
@@ -420,7 +521,7 @@ function PrescriptionPrintView() {
                                 </Button>
                                 <Button
                                     type="text"
-                                    className="btn btn-input btnicon20 align-items-center d-flex btn-41 w-100"
+                                    className="btn btn-input btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
                                     icon={<i className="icon-Edit"></i>}
                                     onClick={onEditPrescriptionClick}
                                     loading={loading}
@@ -428,6 +529,31 @@ function PrescriptionPrintView() {
                                     <span className="fw-semibold">Edit Prescription</span>
                                     <i className="icon-right iconrotate180 ms-auto"></i>
                                 </Button>
+                                {(() => {
+                                    const decodedToken = getDecodedToken();
+                                    const tokenData = decodedToken?.result;
+                                    return tokenData?.hospital_business_id === env.zydus_business_id ? (
+                                        <>
+                                            <div className="bg-body d-flex p-3 rounded-10px border">
+                                                <img src={wtsp} alt="Whatsapp Icon" className='align-self-baseline me-3' />
+                                                <div className="fontroboto title-common">
+                                                    <div className="fw-normal fontroboto mb-2">Send this Written Rx to</div>
+                                                    {patient_data !== undefined ? `WhatsApp +91 ${patient_data.pm_contact_no}` : '-'}
+                                                </div>
+                                            </div>
+                                            <button
+                                                className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
+                                                onClick={handleZydusSendToWhatsapp}
+                                            >
+                                                {isWhatsAppLoading ? (
+                                                    <img src={loadingImg} alt="Loading..." width="25px" height="25px" />
+                                                ) : (
+                                                    whatsAppButtonText
+                                                )}
+                                            </button>
+                                        </>
+                                    ) : null;
+                                })()}
                             </div>
                             {/* <div className="bg-body d-flex p-3 rounded-10px border">
                                 <img src={messageSent} alt="whatsapp Message" className='align-self-baseline me-3' />
