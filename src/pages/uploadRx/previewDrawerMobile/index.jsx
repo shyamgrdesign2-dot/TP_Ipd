@@ -58,6 +58,8 @@ const PreviewDrawerMobile = ({
   const carouselRef = useRef(null);
   const canvasRefs = useRef(new Map());
   const [actualFiles, setActualFiles] = useState([]);
+  const pendingRevokeRef = useRef(null);
+
   useEffect(() => {
     const newImageRefs = new Map();
     uploadedFiles.forEach((file) => {
@@ -131,38 +133,28 @@ const PreviewDrawerMobile = ({
     };
   }, []);
 
-  const onImageLoad = useCallback(
-    (e, fileId) => {
-      const { width, height } = e.currentTarget;
-      const cropWidth = width * 0.8;
-      const cropHeight = height * 0.8;
-      const cropX = (width - cropWidth) / 2;
-      const cropY = (height - cropHeight) / 2;
+  const onImageLoad = useCallback((e, fileId) => {
+  const { width, height } = e.currentTarget;
+  const cw = Math.round(width * 0.8);
+  const ch = Math.round(height * 0.8);
+  const crop = { unit: 'px', x: Math.round((width - cw)/2), y: Math.round((height - ch)/2), width: cw, height: ch };
 
-      const crop = {
-        unit: "px",
-        x: cropX,
-        y: cropY,
-        width: cropWidth,
-        height: cropHeight,
-      };
-
-      const updatedCropFiles = uploadedFiles?.map((file, _) => {
-        if (fileId === file.id) {
-          if (file.crop) {
-            return file;
-          }
-          return { ...file, crop };
-        }
-        return file;
-      });
-      clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        handleUpdatedFiles(updatedCropFiles);
-      }, 100);
-    },
-    [uploadedFiles]
+  const updated = uploadedFiles.map(f =>
+    f.id === fileId && !f.crop ? { ...f, crop } : f
   );
+
+  clearTimeout(timerRef.current);
+  timerRef.current = setTimeout(() => handleUpdatedFiles(updated), 100);
+}, [uploadedFiles, handleUpdatedFiles]);
+
+  const imageLoadHandler = (e, file) => {
+    onImageLoad(e, file.id);
+    if (pendingRevokeRef.current &&
+        pendingRevokeRef.current !== (file.preview || file.fileUrl || file.url)) {
+      try { URL.revokeObjectURL(pendingRevokeRef.current); } catch {}
+      pendingRevokeRef.current = null;
+    }
+  }
 
   const getCroppedImg = async (image, crop, fileId, rotation = 0, fileZoom = 1) => {
     const canvas = canvasRefs.current.get(fileId)?.current;
@@ -193,7 +185,7 @@ const PreviewDrawerMobile = ({
     const finalCanvas = canvas;
     const finalCtx = finalCanvas.getContext("2d");
 
-    const widthIncrease = (crop.width * scaleX) * 0.2;
+    const widthIncrease = (crop.width * scaleX) * 0.01;
     finalCanvas.width = (crop.width * scaleX) + (widthIncrease * 2);
     finalCanvas.height = crop.height * scaleY;
     const cropX = (crop.x * scaleX) - widthIncrease;
@@ -247,7 +239,7 @@ const PreviewDrawerMobile = ({
     setIsSubmitting(true);
     if (imageRefs.current?.size) {
       try {
-        const updatedCroppedFiles = await Promise.all(
+        let updatedCroppedFiles = await Promise.all(
           uploadedFiles.map(async (updatedFile) => {
             if (updatedFile?.crop?.unit === "%") {
               // when the image is not cropped. crop the image to default crop selection of 80%
@@ -298,11 +290,16 @@ const PreviewDrawerMobile = ({
             return updatedFile;
           })
         );
+        updatedCroppedFiles = updatedCroppedFiles.map((file) => {
+          const newFileName = file?.file?.name.toLowerCase();
+          file.file = new File([file.file], newFileName, { type: file.file.type });
+          return file;
+        })
         const actualFiles = [...uploadedFiles];
         setActualFiles(actualFiles);
         handleUpdatedFiles(updatedCroppedFiles);
         const sendData = {
-          file: updatedCroppedFiles,
+          files: updatedCroppedFiles,
           patient_unique_id: patientUniqueId,
           session_id: sessionId,
         };
@@ -363,12 +360,78 @@ const PreviewDrawerMobile = ({
     handleUpdatedFiles(updatedCropFiles);
   };
 
-  const handleRotateClick = () => {
-    if (selectedFileId) {
-      onRotate(selectedFileId);
+    const rotateImage90 = async (imgEl, direction = 'left') => {
+      const src = imgEl.currentSrc || imgEl.src;
+
+      const safeImg = await new Promise((resolve, reject) => {
+        const i = new Image();
+        if (!src.startsWith('blob:')) i.crossOrigin = 'anonymous';
+        i.onload = () => resolve(i);
+        i.onerror = reject;
+        i.src = src;
+      });
+
+      const w = safeImg.naturalWidth || safeImg.width;
+      const h = safeImg.naturalHeight || safeImg.height;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = h;
+      canvas.height = w;
+
+      const ctx = canvas.getContext('2d');
+      ctx.translate(h / 2, w / 2);
+      ctx.rotate(direction === 'left' ? -Math.PI/2 : Math.PI/2);
+      ctx.drawImage(safeImg, -w / 2, -h / 2);
+
+      return new Promise((resolve, reject) => canvas.toBlob(b => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/jpeg', 0.92));
+    };
+
+
+  const asJpegName = (name = 'image') =>
+    `${name.replace(/\.(pdf|png|webp|bmp|gif|jpg|jpeg)$/i, '')}.jpeg`;
+
+
+
+  const handleRotateClick = async () => {
+    const file = uploadedFiles?.[selectedFileIndex];
+    if (!file) return;
+
+    const imgEl = imageRefs.current.get(file.id)?.current;
+    if (!imgEl) return;
+
+    try {
+      const blob = await rotateImage90(imgEl, 'left');
+      const newUrl = URL.createObjectURL(blob);
+
+      const newName = asJpegName(file.name);
+      const rotatedFile = new File([blob], newName, { type: 'image/jpeg' });
+
+      const prevUrl = file.preview || file.url || file.fileUrl || null;
+
+      const updated = uploadedFiles.map(f =>
+        f.id === file.id
+          ? {
+              ...f,
+              name: newName,
+              file: rotatedFile,
+              preview: newUrl,
+              fileUrl: newUrl,
+              rotation: 0,
+              version: (f.version || 0) + 1,
+              crop: { unit: '%', x: 2, y: 2, width: 96, height: 96 },
+            }
+          : f
+      );
+
+      pendingRevokeRef.current = prevUrl;
+      handleUpdatedFiles(updated);
+    } catch (err) {
+      console.log('Rotate failed:', err);
+      message.warning('Failed to rotate image');
     }
   };
 
+  
   const handleReuploadClick = () => {
     if (selectedFileId) {
       onReupload(selectedFileId);
@@ -464,32 +527,28 @@ const PreviewDrawerMobile = ({
                     {!isSubmitting &&
                       uploadedFiles.map((file, _) => {
                         const imageUrl = `${file.url || file.preview}`;
+                        const imgKey = `${file.id}-${(file.preview||file.fileUrl||file.url)||''}-${file.version||0}`;
                         return (
                           <div
                             key={file.id || imageUrl}
                             className="crop-container"
                           >
                             <ReactCrop
-                              crop={cropOfFile}
+                              key={`rc-${file.id}-${(file.preview||file.fileUrl||file.url)||''}-${file.version||0}`}
+                              crop={file.crop || {}}
                               keepSelection
-                              onChange={(newCrop) =>
-                                handleCropChange(newCrop, file.id)
-                              }
-                              onComplete={(completedCrop) =>
-                                handleCropChange(completedCrop, file.id)
-                              }
-                              aspect={undefined}
+                              onChange={(c) => handleCropChange(c, file.id)}
+                              onComplete={(c) => handleCropChange(c, file.id)}
                               className="react-crop-wrapper"
                             >
                               <img
+                                key={imgKey}
                                 ref={imageRefs.current?.get(file.id)}
-                                src={imageUrl}
+                                src={file.preview || file.fileUrl || file.url}
                                 alt="Prescription"
                                 className="prescription-image"
-                                onLoad={(e) => onImageLoad(e, file.id)}
-                                style={{
-                                  transform: `rotate(${file.rotation}deg)`,
-                                }}
+                                onLoad={(e) => imageLoadHandler(e, file)}
+                                style={{ transform: `rotate(${file.rotation || 0}deg)` }}
                               />
                             </ReactCrop>
                             <canvas
@@ -504,8 +563,8 @@ const PreviewDrawerMobile = ({
                         return (
                           <div key={file.id} className="crop-container">
                             <img
-                              className="prescription-image"
-                              src={file.url}
+                              className="prescription-image-main"
+                              src={file.preview}
                               style={{
                                 transform: `rotate(${file.rotation}deg)`,
                               }}
