@@ -85,6 +85,17 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
         const timeouts = window.timeouts || [];
         timeouts.forEach(timeout => clearTimeout(timeout));
         window.timeouts = [];
+        
+        // Clear all file inputs
+        if (inputFileRef.current) {
+          inputFileRef.current.value = null;
+        }
+        if (reuploadFileRef.current) {
+          reuploadFileRef.current.value = null;
+        }
+        if (addMoreFileRef.current) {
+          addMoreFileRef.current.value = null;
+        }
       } catch (error) {
         console.error('Error during component cleanup:', error);
       }
@@ -109,6 +120,39 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
   useEffect(() => {
     currentPageIndexRef.current = selectedPageIndex;
   }, [selectedPageIndex]);
+
+  // Reset state when drawer is closed
+  useEffect(() => {
+    if (!visible) {
+      // Reset all state when drawer becomes invisible
+      setFile(null);
+      setZoom(1);
+      setSelectedPageIndex(0);
+      setIsValidating(false);
+      setIsAddingMore(false);
+      setIsFileFormatModalOpen(false);
+      setIsFileSizeExceeded(false);
+      setIsA4ValidationError(false);
+      setValidationError('');
+      setIsProcessing(false);
+      
+      // Clear all file inputs
+      if (inputFileRef.current) {
+        inputFileRef.current.value = null;
+      }
+      if (reuploadFileRef.current) {
+        reuploadFileRef.current.value = null;
+      }
+      if (addMoreFileRef.current) {
+        addMoreFileRef.current.value = null;
+      }
+      
+      // Clear any pending timeouts
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    }
+  }, [visible]);
 
   // Helper: check if all pages are ready for submission
   const allPagesReady = file?.pages?.every(page => {
@@ -889,6 +933,12 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
 
   const handleClose = () => {
     try {
+      // Prevent closing while processing
+      if (isProcessing || isValidating || isAddingMore) {
+        message.warning('Please wait for the current operation to complete before closing.');
+        return;
+      }
+      
       // Clean up any existing cropper instance
       // if (cropperRef.current?.cropper) {
       //   cropperRef.current.cropper.destroy();
@@ -904,10 +954,17 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       setIsFileSizeExceeded(false);
       setIsA4ValidationError(false);
       setValidationError('');
+      setIsProcessing(false);
       
-      // Clear file input
+      // Clear all file inputs
       if (inputFileRef.current) {
         inputFileRef.current.value = null;
+      }
+      if (reuploadFileRef.current) {
+        reuploadFileRef.current.value = null;
+      }
+      if (addMoreFileRef.current) {
+        addMoreFileRef.current.value = null;
       }
       
       onClose();
@@ -927,9 +984,15 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
     setIsValidating(false);
     setIsAddingMore(false);
     
-    // Clear file input
+    // Clear all file inputs
     if (inputFileRef.current) {
       inputFileRef.current.value = null;
+    }
+    if (reuploadFileRef.current) {
+      reuploadFileRef.current.value = null;
+    }
+    if (addMoreFileRef.current) {
+      addMoreFileRef.current.value = null;
     }
   };
 
@@ -1099,7 +1162,7 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       <div className="rx-upload-modal-bg">
         <div className="rx-upload-header">
           <div className="rx-upload-header-left">
-            <i className="icon-right rx-upload-back" onClick={onClose}></i>
+            <i className="icon-right rx-upload-back" onClick={handleClose}></i>
           </div>
           <div className="rx-upload-header-title">
             {!file ? 'Upload Custom Rx Canvas' : 'Custom Rx Canvas Preview'}
@@ -1147,10 +1210,15 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
                 />
               </div>
               <div className="rx-upload-warning">
-                <img src={alertIcon} alt="Warning" className="rx-upload-warning-icon" />
-                <span>
-                  Please ensure that the uploaded Rx canvas is in <b>A4 size</b>, <b>PDF format</b>, under <b>8MB</b> file size & maximum <b>5 pages</b>
-                </span>
+                <div className='d-flex'>
+                  <img src={alertIcon} alt="Warning" className="rx-upload-warning-icon" />
+                  <span>
+                    Please ensure that the uploaded Rx canvas is in <b>A4 size</b>, <b>PDF format</b>, under <b>8MB</b> file size & maximum <b>5 pages</b>
+                  </span>
+                </div>
+                <div className='upload-note'>
+                  Note: Kindly upload a scanned copy of the A4 sheets (not a photo or screenshot) to ensure clarity and proper formatting.
+                </div>
               </div>
               {/* <div className="rx-upload-warning" style={{ marginTop: '8px', background: '#fff7e6', border: '1px solid #ffd591' }}>
                 <img src={alertIcon} alt="Storage Warning" className="rx-upload-warning-icon" />

@@ -113,6 +113,8 @@ import SCBanner from "../components/SCBanner";
 import SCPopup from "../components/SCPopup";
 import { getDecodedToken } from "../utils/localStorage";
 import CustomSSknowMore from "./smartSync/components/CustomSSknowMore";
+import visitEnd from '../assets/images/end-visit.svg';
+import imgCloseVisit from '../assets/images/close-visit.svg';
 
 function SmartPrescription() {
   const {
@@ -368,14 +370,14 @@ function SmartPrescription() {
   }, []);
 
   // Function to load templates from API
-  const loadCustomTemplates = async () => {
+  const loadCustomTemplates = async (preserveSelection = false) => {
     try {
       const result = await getCustomSyncPadTemplates();
       if (result.success && result.data && result.data.length > 0) {
 
         setTemplates(result.data);
-        // Auto-select the first template if none is selected
-        if (!selectedTemplateId) {
+        // Auto-select the first template if none is selected and we're not preserving selection
+        if (!selectedTemplateId && !preserveSelection) {
           setSelectedTemplateId(result.data[0].id);
         }
       } else {
@@ -383,7 +385,7 @@ function SmartPrescription() {
         setSelectedTemplateId(null);
       }
     } catch (error) {
-      message.error('❌ Error loading templates:', error);
+      message.error('Error loading templates:', error);
       setTemplates([]);
     }
   };
@@ -622,12 +624,40 @@ function SmartPrescription() {
     setUploadCanvasDrawer(!uploadCanvasDrawer);
   };
 
-  // Handle Canvas Upload - Updated to refresh templates from API
-  const handleCanvasUploaded = (templateData) => {
-    message.success(`Template "${templateData.title}" uploaded successfully!`);
+  // Handle Canvas Upload - Updated to refresh templates from API and auto-select new template
+  const handleCanvasUploaded = async (templateData) => {
+    message.open({
+      key: MESSAGE_KEY,
+      type: '',
+      className: 'message-appointment',
+      content: (
+          <div className='d-flex align-items-center'>
+              <img src={visitEnd} className='me-3' />
+              <div>
+                  <div className='title-common text-start fontroboto'>{`Template "${templateData.title}" uploaded successfully!`}</div>
+              </div>
+              <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+          </div>
+      ),
+      duration: 5,
+  });
+    
+    // Check if user had unsaved changes on current canvas
+    // const hasUnsavedChanges = checkForUnsavedChanges();
+    // if (hasUnsavedChanges) {
+    //   message.warning('Previous canvas changes were cleared when loading the new template.');
+    // }
     
     // Refresh the templates list to show the newly uploaded template
-    loadCustomTemplates();
+    // Preserve selection so we can manually set the new template
+    await loadCustomTemplates(true);
+    
+    // Auto-select the newly created template
+    if (templateData && templateData.id) {
+      setSelectedTemplateId(templateData.id);
+      // Load the template images immediately
+      loadTemplateImages(templateData);
+    }
     
     // Close the upload drawer
     setUploadCanvasDrawer(false);
@@ -691,9 +721,26 @@ function SmartPrescription() {
   };
 
   // Handle template delete
-  const handleDeleteTemplate = (templateId) => {
-    // The deletion is handled in TemplateCard component
-    // This handler is for future use if needed
+  const handleDeleteTemplate = async (templateId) => {
+    // Check if the deleted template was the currently selected one
+    if (selectedTemplateId === templateId) {
+      // Clear the selection and template images
+      setSelectedTemplateId(null);
+      setCustomRxImages([]);
+      setImageLoaded({});
+      setImageRefs({});
+      
+      // Replace all pages with a single blank page
+      const newPageId = uuidv4();
+      setPages([newPageId]);
+      setDataPresentInCanvas([false]);
+      setSelectedPage(0);
+      
+      message.info('Selected template was deleted. Switched to blank canvas.');
+    }
+    
+    // Refresh the templates list
+    await loadCustomTemplates(true);
   };
 
   const handleDownloadTemplate = async (templateId) => {
@@ -871,7 +918,7 @@ function SmartPrescription() {
           message.info(`Download started: ${fileName}`);
           return;
         } catch (fallbackError) {
-          console.error('❌ Fallback also failed:', fallbackError);
+          console.error('Fallback also failed:', fallbackError);
         }
       }
       
@@ -891,7 +938,7 @@ function SmartPrescription() {
         saveAs(blob, fileName);
         return;
       } catch (fetchError) {
-        console.error('❌ Fetch also failed:', fetchError);
+        console.error('Fetch also failed:', fetchError);
       }
       
       // If all methods fail, throw the original error
@@ -900,9 +947,24 @@ function SmartPrescription() {
   };
 
   // Handle edit template save
-  const handleEditSave = (updatedTemplateData) => {
+  const handleEditSave = async (updatedTemplateData) => {
+    // Check if user had unsaved changes on current canvas
+    // const hasUnsavedChanges = checkForUnsavedChanges();
+    // if (hasUnsavedChanges) {
+    //   message.warning('Previous canvas changes were cleared when loading the updated template.');
+    // }
+    
     // Refresh templates to show updated data
-    loadCustomTemplates();
+    // Preserve selection so we can manually set the updated template
+    await loadCustomTemplates(true);
+    
+          // Auto-select the updated template
+      if (updatedTemplateData && updatedTemplateData.id) {
+        setSelectedTemplateId(updatedTemplateData.id);
+        // Load the updated template images immediately
+        loadTemplateImages(updatedTemplateData);
+      }
+    
     // Reset edit state
     setEditTemplateModal(false);
     setTemplateToEdit(null);
@@ -1240,6 +1302,28 @@ function SmartPrescription() {
     return 1.5; // Default scale factor for all templates
   };
 
+  // Function to check if there are unsaved changes on the current canvas
+  const checkForUnsavedChanges = () => {
+    // Check if there are any custom RX images loaded (indicating user has been working on canvas)
+    if (customRxImages && customRxImages.length > 0) {
+      return true;
+    }
+    
+    // Check if there are any canvas refs with data (indicating user has drawn/written something)
+    if (canvasRefs.current && Object.keys(canvasRefs.current).length > 0) {
+      // Check if any canvas has actual content (not just empty)
+      for (const canvasId in canvasRefs.current) {
+        const canvas = canvasRefs.current[canvasId];
+        if (canvas && canvas.width > 0 && canvas.height > 0) {
+          // This is a basic check - in a real implementation you might want to check actual pixel data
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  };
+
   // Function to load template images
   const loadTemplateImages = (template) => {
     
@@ -1294,7 +1378,6 @@ function SmartPrescription() {
         }
       };
       img.onerror = () => {
-        message.error('Failed to load template image:', file.id, file.file_url);
         loadedCount++;
         
         // Still hide loader even if some images fail
@@ -2918,7 +3001,7 @@ function SmartPrescription() {
             onEdit={handleEditTemplate}
             onDelete={handleDeleteTemplate}
             onDownload={handleDownloadTemplate}
-            onRefresh={loadCustomTemplates}
+            onRefresh={() => loadCustomTemplates(true)}
             downloadingTemplateId={downloadingTemplateId}
           />
         </Drawer>

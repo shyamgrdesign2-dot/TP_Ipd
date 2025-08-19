@@ -33,8 +33,10 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
   const [zoom, setZoom] = useState(1);
   const [selectedPageIndex, setSelectedPageIndex] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isAddingMore, setIsAddingMore] = useState(false);
   const cropperRef = useRef(null);
   const autoSaveTimeoutRef = useRef(null);
+  const addMoreFileRef = useRef(null); // Separate ref for add more functionality
 
   // Drag and drop sensors
   const sensors = useSensors(
@@ -104,6 +106,7 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
       setFile(null);
       setSelectedPageIndex(0);
       setZoom(1);
+      setIsAddingMore(false);
       // Clear auto-save timeout
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
@@ -505,26 +508,26 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
           setIsProcessing(true);
           message.loading('Processing PDF...', 0);
           
-          // Convert PDF to image using the same logic as upload drawer
+          // Convert PDF to images using the same logic as upload drawer
           const images = await convertPdfToImages(newFile);
           
           if (images && images.length > 0) {
-            // Use the first page from the PDF
-            const newPageImage = images[0];
-            
-            const updatedPages = [...file.pages];
-            updatedPages[selectedPageIndex] = {
-              ...updatedPages[selectedPageIndex],
-              image: newPageImage.image,
-              showFile: newPageImage.image,
+            // Completely replace all pages with the new PDF pages
+            const newPages = images.map((pageImage, index) => ({
+              id: `edit-page-${Date.now()}-${index}`,
+              image: pageImage.image,
+              showFile: pageImage.image,
               croppedImage: null,
               uploadFile: null,
               hasBeenEdited: true,
-              cropBoxData: null,
+              isReady: true,
               zoom: 1,
               rotation: 0,
-              dimensions: newPageImage.dimensions,
-              // Reset auto-save state for the new page
+              cropBoxData: null,
+              order: index + 1,
+              pageNumber: index + 1,
+              dimensions: pageImage.dimensions,
+              // Reset auto-save state for the new pages
               autoSavedState: {
                 zoom: 1,
                 rotation: 0,
@@ -533,17 +536,22 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
                 hasBeenEdited: false
               },
               originalState: {
-                image: newPageImage.image,
+                image: pageImage.image,
                 zoom: 1,
                 rotation: 0
               }
-            };
+            }));
             
-            setFile({ ...file, pages: updatedPages });
+            // Replace all pages with the new ones
+            setFile({ ...file, pages: newPages });
+            
+            // Reset to first page since we're starting fresh
+            setSelectedPageIndex(0);
             setZoom(1);
             
             message.destroy();
-            message.success(`Page ${selectedPageIndex + 1} replaced successfully`);
+            message.success(`Template replaced with new pdf successfully`);
+
           } else {
             throw new Error('Failed to convert PDF to image');
           }
@@ -590,6 +598,118 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
     setZoom(pageZoom);
     
     message.success(`Page ${selectedPageIndex + 1} removed successfully`);
+  };
+
+  // Add More functionality
+  const handleAddMore = () => {
+    try {
+      // Prevent multiple clicks during loading
+      if (isAddingMore || isProcessing) {
+        message.warning('Please wait for the current operation to complete.');
+        return;
+      }
+      
+      // Validate file exists before allowing add more
+      if (!file?.pages || file.pages.length === 0) {
+        message.error('Please upload a file first before adding more pages.');
+        return;
+      }
+      
+      // Validate total page limit
+      const MAX_TOTAL_PAGES = 5;
+      if (file.pages.length >= MAX_TOTAL_PAGES) {
+        message.error(`Maximum ${MAX_TOTAL_PAGES} pages allowed. Please remove some pages before adding more.`);
+        return;
+      }
+      
+      // Open file picker for additional PDF using separate ref
+      if (addMoreFileRef.current) {
+        addMoreFileRef.current.value = null;
+        addMoreFileRef.current.click();
+      }
+    } catch (error) {
+      console.error('Error in add more:', error);
+      message.error('Failed to open file picker. Please try again.');
+    }
+  };
+
+  // Separate handler for Add More file changes
+  const handleAddMoreFileChange = async (e) => {
+    // Prevent multiple simultaneous uploads
+    if (isProcessing || isAddingMore) {
+      message.warning('Please wait for the current operation to complete.');
+      return;
+    }
+    
+    if (e.target.files?.length > 0) {
+      const fileUrl = e.target.files[0];
+      
+      setIsAddingMore(true);
+      
+      try {
+        // Convert PDF to images
+        const newImages = await convertPdfToImages(fileUrl);
+        
+        // Validate that adding new pages won't exceed the 5-page limit
+        const MAX_TOTAL_PAGES = 5;
+        if (file.pages.length + newImages.length > MAX_TOTAL_PAGES) {
+          message.error(`Cannot add ${newImages.length} page(s). Maximum ${MAX_TOTAL_PAGES} pages allowed. Current: ${file.pages.length}, Adding: ${newImages.length}`);
+          setIsAddingMore(false);
+          return;
+        }
+        
+        const newPages = newImages.map((img, index) => ({ 
+          ...img, 
+          hasBeenEdited: false,
+          isReady: true,
+          zoom: 1,
+          rotation: 0,
+          croppedImage: null,
+          cropBoxData: null,
+          uploadFile: null,
+          showFile: img.image, // Use the original image as showFile
+          id: `edit-page-${Date.now()}-${file.pages.length + index}`, // Add unique ID for drag and drop
+          order: file.pages.length + index + 1,
+          pageNumber: file.pages.length + index + 1,
+          // Auto-save state tracking for new pages
+          autoSavedState: {
+            zoom: 1,
+            rotation: 0,
+            cropBoxData: null,
+            croppedImage: null,
+            hasBeenEdited: false
+          },
+          originalState: {
+            image: img.image,
+            zoom: 1,
+            rotation: 0
+          }
+        }));
+        
+        setFile(prev => {
+          const updatedFile = {
+            ...prev,
+            pages: [...prev.pages, ...newPages]
+          };
+          return updatedFile;
+        });
+        
+        setZoom(1);
+        
+        message.success(`${newPages.length} page(s) added successfully`);
+        
+      } catch (error) {
+        console.error('Error processing PDF for add more:', error);
+        message.error('Failed to process the PDF. Please try again.');
+      } finally {
+        setIsAddingMore(false);
+        
+        // Clear file input
+        if (addMoreFileRef.current) {
+          addMoreFileRef.current.value = null;
+        }
+      }
+    }
   };
 
   // Save all changes (adapted from upload drawer)
@@ -744,11 +864,10 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
 
   // Helper: check if all pages are ready for submission
   const allPagesReady = file?.pages?.every(page => {
-    // Page is ready if:
-    // 1. It has been cropped (page.croppedImage exists) - user saved the crop
-    // 2. OR it has been edited with rotation/zoom but not cropped (rotation/zoom are valid edits)
-    // 3. OR it hasn't been edited at all (user never interacted with it)
-    return page.croppedImage || (page.hasBeenEdited && (page.rotation !== 0 || page.zoom !== 1)) || !page.hasBeenEdited;
+    // Page is ready if it has a valid image to display
+    // Since this is an edit modal for an existing template, we just need to ensure
+    // each page has either the original image, a cropped image, or a reuploaded image
+    return page.showFile && page.showFile.trim() !== '';
   });
 
   return (
@@ -870,8 +989,32 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
                     <SortableThumbnail key={page.id || index} page={page} index={index} />
                   ))}
                 </SortableContext>
+                <div className={`page-thumbnail add-more ${isAddingMore ? 'loading' : ''}`} onClick={isAddingMore ? undefined : handleAddMore} tabIndex={0} role="button">
+                  {isAddingMore ? (
+                    <span className="add-more-text">Adding...</span>
+                  ) : (
+                    <>
+                      <span className="add-more-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M16 6V26" stroke="#4B4AD5" stroke-width="2.2" stroke-linecap="round"/>
+                          <path d="M6 16H26" stroke="#4B4AD5" stroke-width="2.2" stroke-linecap="round"/>
+                        </svg>
+                      </span>
+                      <span className="add-more-text">Add More</span>
+                    </>
+                  )}
+                </div>
               </div>
             </DndContext>
+
+            {/* Hidden file input for Add More functionality */}
+            <input
+              ref={addMoreFileRef}
+              type="file"
+              accept="application/pdf"
+              onChange={handleAddMoreFileChange}
+              style={{ display: 'none' }}
+            />
 
           </div>
         </div>

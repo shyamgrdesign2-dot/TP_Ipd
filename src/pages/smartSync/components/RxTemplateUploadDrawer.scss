@@ -328,7 +328,7 @@
 
 .rx-upload-area {
   width: 100%;
-  max-width: 400px;
+  // max-width: 400px;
   min-height: 160px;
   border: 2px dashed #bfc6e0;
   border-radius: 16px;
@@ -343,6 +343,12 @@
   &:hover {
     border: 2px dashed #4b4ad5;
   }
+}
+
+.upload-note {
+  font-size: 12px;
+  color: #454551;
+  margin-top: 1rem !important;
 }
 
 .rx-upload-cloud {
@@ -370,8 +376,8 @@
 }
 
 .rx-upload-warning {
-  display: flex;
-  align-items: flex-start;
+  // display: flex;
+  // align-items: flex-start;
   background: #fff7e6;
   border-radius: 12px;
   padding: 12px 16px;
@@ -379,7 +385,7 @@
   font-size: 0.95rem;
   color: #a97a1a;
   width: 100%;
-  max-width: 400px;
+  // max-width: 400px;
 }
 
 .rx-upload-warning-icon {
@@ -732,7 +738,7 @@
 
 .rx-upload-area {
   width: 100%;
-  max-width: 400px;
+  // max-width: 400px;
   min-height: 160px;
   border: 2px dashed #bfc6e0;
   border-radius: 16px;
