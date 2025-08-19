@@ -222,7 +222,7 @@ function SnapRxContent() {
             );
           }
         } catch (err) {
-          console.log("INTEL ===> err", err);
+          console.error("Error: fetching images in snapRx", err);
         } finally {
           setIsLoading(false);
         }
@@ -230,7 +230,7 @@ function SnapRxContent() {
         setIsLoading(false);
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
