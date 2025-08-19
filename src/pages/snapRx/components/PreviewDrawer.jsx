@@ -207,12 +207,11 @@ const PreviewDrawer = forwardRef(
       const finalCanvas = canvas;
       const finalCtx = finalCanvas.getContext("2d");
 
-      const widthIncrease = (crop.width * scaleX) * 0.01;
-      finalCanvas.width = (crop.width * scaleX) + (widthIncrease * 2);
+      finalCanvas.width = crop.width * scaleX;
       finalCanvas.height = crop.height * scaleY;
-      const cropX = (crop.x * scaleX) - widthIncrease;
+      const cropX = crop.x * scaleX;
       const cropY = crop.y * scaleY;
-      const cropWidth = (crop.width * scaleX) + (widthIncrease * 2);
+      const cropWidth = crop.width * scaleX;
       const cropHeight = crop.height * scaleY;
 
       finalCtx.drawImage(
@@ -813,7 +812,7 @@ const PreviewDrawer = forwardRef(
                         <RotateLeftIcon />
                       </button>
 
-                      <div className="zoom-btn-combined">
+                      {/* <div className="zoom-btn-combined">
                         <div className="cursor-pointer" onClick={handleZoomOut}>
                           <MinusIcon />
                         </div>
@@ -821,7 +820,7 @@ const PreviewDrawer = forwardRef(
                         <div className="cursor-pointer" onClick={handleZoomIn}>
                           <PlusIcon />
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div>
