@@ -395,8 +395,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         const weeks = dateB.diff(dateC, 'weeks');
         const months = dateB.diff(dateC, 'months');
 
-        if (months > 0) {
-           return `${months} ${months <= 1 ? 'Month' : 'Months'}`;
+        if (weeks >= 48 && weeks % 48 === 0) {
+            const yearsValue = Math.floor(weeks / 48);
+            return `${yearsValue} ${yearsValue <= 1 ? 'Year' : 'Years'}`;
+        } else if (weeks % 4 === 0 && weeks >= 4 && weeks < 48) {
+            const monthsValue = Math.floor(weeks / 4);
+            return `${monthsValue} ${monthsValue <= 1 ? 'Month' : 'Months'}`;
         } else if (weeks > 0) {
             return `${weeks} ${weeks <= 1 ? 'Week' : 'Weeks'}`;
         } else {
