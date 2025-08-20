@@ -209,6 +209,11 @@ const styles = StyleSheet.create({
         borderRight: '1px solid #171725',
         height: "100%"
     },
+    dynamicModuleCell: {
+        padding: 6,
+        borderRight: '1px solid #171725',
+        height: "100%"
+    },
     headerRow: {
         flexDirection: 'row',
         borderBottom: '1px solid #171725',
@@ -5413,8 +5418,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             <View style={styles.headerRowFixed} fixed/>
                                             {customModule?.content.map((item, i) => (
                                                 <View style={styles.row} key={i} wrap={false}>
-                                                    {customModule?.content?.some((item) => item.title) &&<Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.title || '-'}&nbsp;</Text>}
-                                                    {customModule?.content?.some((item) => item.notes) &&<Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes?.replace(/ /g, '\u00A0') || '-'}&nbsp;</Text>}
+                                                    {customModule?.content?.some((item) => item.title) &&<Text style={[styles.dynamicModuleCell, { flex: 0.3, color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.title || '-'}&nbsp;</Text>}
+                                                    {customModule?.content?.some((item) => item.notes) &&<Text style={[styles.dynamicModuleCell, { flex: 0.7, color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes?.replace(/ /g, '\u00A0') || '-'}&nbsp;</Text>}
                                                 </View>
                                             ))}
                                         </View>
