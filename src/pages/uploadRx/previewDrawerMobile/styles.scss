@@ -466,3 +466,35 @@
   height: auto;
   transform: none !important;
 }
+
+.carousel-container {
+  height: 100%;
+}
+
+.crop-container {
+  min-height: calc(100vh - 240px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.react-crop-wrapper {
+  width: 100%;
+  max-width: 100%;
+}
+
+.prescription-image {
+  display: block;
+  max-width: none;
+  width: 100%;
+  height: auto;
+}
+
+.slide-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}

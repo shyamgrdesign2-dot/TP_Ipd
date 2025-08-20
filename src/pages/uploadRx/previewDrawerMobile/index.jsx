@@ -218,6 +218,7 @@ const PreviewDrawerMobile = ({
   const handleLeftArrowClick = () => {
     if (selectedFileIndex > 0) {
       carouselRef.current?.goToSlide(selectedFileIndex - 1);
+      setImageLoaded(false);
       setSelectedFileIndex(selectedFileIndex - 1);
       setSelectedFileId(uploadedFiles?.[selectedFileIndex - 1]?.id);
     }
@@ -226,6 +227,7 @@ const PreviewDrawerMobile = ({
   const handleRightArrowClick = () => {
     if (selectedFileIndex < uploadedFiles.length - 1) {
       carouselRef.current?.goToSlide(selectedFileIndex + 1);
+      setImageLoaded(false);
       setSelectedFileIndex(selectedFileIndex + 1);
       setSelectedFileId(uploadedFiles?.[selectedFileIndex + 1]?.id);
     }
@@ -502,13 +504,6 @@ const PreviewDrawerMobile = ({
                   </button>
                 </div>
               </div>
-            ) : !imageLoaded ? (
-              <div className="loading-container">
-                <div className="loading-content">
-                  <div className="spinner"></div>
-                  <p>Loading image...</p>
-                </div>
-              </div>
             ) : (
               <>
                 <div className="carousel-container">
@@ -522,6 +517,8 @@ const PreviewDrawerMobile = ({
                     swipeable={false}
                     partialVisible={false}
                     arrows={false}
+                    ssr
+                    key={`mc-${uploadedFiles.length}`} 
                   >
                     {!isSubmitting &&
                       uploadedFiles.map((file, _) => {
@@ -532,8 +529,13 @@ const PreviewDrawerMobile = ({
                             key={file.id || imageUrl}
                             className="crop-container"
                           >
+                            {!imageLoaded && selectedFileId === file.id ? (
+                              <div className="slide-loading">
+                                <div className="spinner" />
+                              </div>
+                              ) : null}
                             <ReactCrop
-                              key={`rc-${file.id}-${(file.preview||file.fileUrl||file.url)||''}-${file.version||0}`}
+                              key={`rc-${file.id}-${selectedFileId === file.id ? 'active' : 'inactive'}-${file.version||0}`}
                               crop={file.crop || {}}
                               keepSelection
                               onChange={(c) => handleCropChange(c, file.id)}
@@ -546,7 +548,10 @@ const PreviewDrawerMobile = ({
                                 src={file.preview || file.fileUrl || file.url}
                                 alt="Prescription"
                                 className="prescription-image"
-                                onLoad={(e) => imageLoadHandler(e, file)}
+                                onLoad={(e) => {
+                                  setImageLoaded((prev) => (selectedFileId === file.id ? true : prev));
+                                  imageLoadHandler(e, file);
+                                }}
                                 style={{ transform: `rotate(${file.rotation || 0}deg)` }}
                               />
                             </ReactCrop>
