@@ -62,6 +62,7 @@ import ReconnectingWebSocket from "reconnectingwebsocket";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_SMARTSYNC_CONNECT } from "../utils/constants";
 import { upsertDoctorSettingFlag } from "../redux/doctorsSlice";
+import { setDefaultCustomSyncPadTemplate } from "../pages/smartSync/services/uploadService";
 
 function HeaderPrescription({
   prescription,
@@ -72,7 +73,8 @@ function HeaderPrescription({
   isVaccinationEnabled,
   isGrowthChartEnabled,
   caseManagerData,
-  isCustomSSrX
+  isCustomSSrX,
+  selectedTemplateId
 }) {
   const { templates, loading } = useSelector((state) => state.caseManager);
   const { profile, videoList } = useSelector((state) => state.doctors);
@@ -472,6 +474,11 @@ function HeaderPrescription({
     if (smartRxData?.length || vitalsData.length > 0 || followUpDate) {
       onEndVisitClick();
       setClicked(true);
+      
+      // Call setDefaultCustomSyncPadTemplate if selectedTemplateId is available
+      if (selectedTemplateId) {
+        setDefaultCustomSyncPadTemplate(selectedTemplateId);
+      }
     }
   }, [smartRxData]);
 

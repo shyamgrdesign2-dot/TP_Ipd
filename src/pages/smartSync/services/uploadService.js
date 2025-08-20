@@ -201,3 +201,36 @@ export const deleteCustomSyncPadTemplate = async (templateId) => {
     return { success: false, error: errorMessage };
   }
 }; 
+
+// Set custom smart sync pad template as default
+export const setDefaultCustomSyncPadTemplate = async (templateId) => {
+  try {
+    const requestConfig = {
+      headers: { Authorization: `Bearer ${cleanedToken}` },
+      ...baseUrl
+    };
+    
+    const response = await api.post(`/api/v1/custom-smart-sync-pad/set-default/${templateId}`, {}, requestConfig);
+    
+    return { 
+      success: true, 
+      data: response.data || response,
+      message: 'Template set as default successfully'
+    };
+  } catch (error) {
+    console.error('Set default failed:', error);
+    
+    // let errorMessage = 'Unable to set template as default. Please try again.';
+    
+    // if (error.response?.status === 404) {
+    //   errorMessage = 'Template not found.';
+    // } else if (error.response?.status === 403) {
+    //   errorMessage = 'You do not have permission to modify this template.';
+    // } else if (error.response?.status === 500) {
+    //   errorMessage = 'Server error occurred while setting template as default.';
+    // } else if (error.response?.data?.message) {
+    //   errorMessage = error.response.data.message;
+    // }
+  }
+}; 
+

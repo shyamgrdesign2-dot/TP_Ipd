@@ -2485,6 +2485,7 @@ function SmartPrescription() {
           loader={loader}
           caseManagerData={caseManagerData}
           isCustomSSrX={isCustomSSRX}
+          selectedTemplateId={selectedTemplateId}
         />
         
         {loading && <FullPageLoader />}
