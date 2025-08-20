@@ -137,8 +137,12 @@ function TabFollowUpBox() {
             // const weeks = moment.duration(dateB.diff(dateC)).asWeeks();
             // const months = moment.duration(dateB.diff(dateC)).asMonths();
 
-            if (months > 0) {
-                setFollowUpInput(`${months} ${months <= 1 ? 'Month' : 'Months'}`)
+            if (weeks >= 48 && weeks % 48 === 0) {
+                const yearsValue = Math.floor(weeks / 48);
+                setFollowUpInput(`${yearsValue} ${yearsValue <= 1 ? 'Year' : 'Years'}`)
+            } else if (weeks % 4 === 0 && weeks >= 4 && weeks < 48) {
+                const monthsValue = Math.floor(weeks / 4);
+                setFollowUpInput(`${monthsValue} ${monthsValue <= 1 ? 'Month' : 'Months'}`)
             } else if (weeks > 0) {
                 setFollowUpInput(`${weeks} ${weeks <= 1 ? 'Week' : 'Weeks'}`)
             } else {

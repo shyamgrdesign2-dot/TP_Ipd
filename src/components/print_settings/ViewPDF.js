@@ -209,11 +209,21 @@ const styles = StyleSheet.create({
         borderRight: '1px solid #171725',
         height: "100%"
     },
+    dynamicModuleCell: {
+        padding: 6,
+        borderRight: '1px solid #171725',
+        height: "100%"
+    },
     headerRow: {
         flexDirection: 'row',
         borderBottom: '1px solid #171725',
         borderLeft: '1px solid #171725',
         borderTop: '1px solid #171725',
+    },
+    headerRowFixed: {
+        flexDirection: 'row',
+        borderBottom: '1px solid #171725',
+        borderLeft: '1px solid #171725',
     },
     headerCell: {
         flex: 1,
@@ -390,8 +400,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         const weeks = dateB.diff(dateC, 'weeks');
         const months = dateB.diff(dateC, 'months');
 
-        if (months > 0) {
-           return `${months} ${months <= 1 ? 'Month' : 'Months'}`;
+        if (weeks >= 48 && weeks % 48 === 0) {
+            const yearsValue = Math.floor(weeks / 48);
+            return `${yearsValue} ${yearsValue <= 1 ? 'Year' : 'Years'}`;
+        } else if (weeks % 4 === 0 && weeks >= 4 && weeks < 48) {
+            const monthsValue = Math.floor(weeks / 4);
+            return `${monthsValue} ${monthsValue <= 1 ? 'Month' : 'Months'}`;
         } else if (weeks > 0) {
             return `${weeks} ${weeks <= 1 ? 'Week' : 'Weeks'}`;
         } else {
@@ -5401,14 +5415,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     <View style={{ marginTop: PX_TO_PT * 15 }}>
                                         <Text fixed style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>{customModule?.name}:&nbsp;</Text>
                                         <View style={styles.table}>
-                                            <View style={styles.headerRow} fixed>
-                                                {customModule?.content?.some((item) => item.title) && <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>}
-                                                {customModule?.content?.some((item) => item.notes) && <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTES</Text>}
-                                            </View>
+                                            <View style={styles.headerRowFixed} fixed/>
                                             {customModule?.content.map((item, i) => (
                                                 <View style={styles.row} key={i} wrap={false}>
-                                                    {customModule?.content?.some((item) => item.title) &&<Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.title || '-'}&nbsp;</Text>}
-                                                    {customModule?.content?.some((item) => item.notes) &&<Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes?.replace(/ /g, '\u00A0') || '-'}&nbsp;</Text>}
+                                                    {customModule?.content?.some((item) => item.title) &&<Text style={[styles.dynamicModuleCell, { flex: 0.3, color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.title || '-'}&nbsp;</Text>}
+                                                    {customModule?.content?.some((item) => item.notes) &&<Text style={[styles.dynamicModuleCell, { flex: 0.7, color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes?.replace(/ /g, '\u00A0') || '-'}&nbsp;</Text>}
                                                 </View>
                                             ))}
                                         </View>
