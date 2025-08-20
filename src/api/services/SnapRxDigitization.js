@@ -14,14 +14,14 @@ SnapRxDigitization.generateFileUploadToken = function (data) {
 };
 
 SnapRxDigitization.uploadSnapRxFiles = function ({
-  file: fileObjects,
+  files,
   patient_unique_id: patientId,
   session_id: sessionId,
   auto_digitize_rx: autoDigitizeRx,
 }) {
   const formData = new FormData();
 
-  fileObjects.forEach((f) => {
+  files.forEach((f) => {
     formData.append("file", f.file);
   });
   formData.append("patient_unique_id", patientId);

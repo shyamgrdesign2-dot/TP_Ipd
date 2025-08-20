@@ -60,7 +60,6 @@ const PreviewDrawer = forwardRef(
     );
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageError, setImageError] = useState(false);
-    const [filesZoom, setFilesZoom] = useState({});
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -162,34 +161,21 @@ const PreviewDrawer = forwardRef(
     const onImageLoad = useCallback(
       (e, fileId) => {
         const { width, height } = e.currentTarget;
-        const cropWidth = width * 0.8;
-        const cropHeight = height * 0.8;
-        const cropX = (width - cropWidth) / 2;
-        const cropY = (height - cropHeight) / 2;
 
-        const crop = {
-          unit: "px",
-          x: cropX,
-          y: cropY,
-          width: cropWidth,
-          height: cropHeight,
-        };
-
-        const updatedCropFiles = uploadedFiles?.map((file, _) => {
-          if (fileId === file.id) {
-            if (file.crop) {
-              return file;
-            }
-            return { ...file, crop };
-          }
-          return file;
-        });
+        const cropWidth  = Math.round(width * 1);
+        const cropHeight = Math.round(height * 1);
+        const cropX = Math.round((width  - cropWidth)  / 2);
+        const cropY = Math.round((height - cropHeight) / 2);
+    
+        const crop = { unit: 'px', x: cropX, y: cropY, width: cropWidth, height: cropHeight };
+    
+        const updated = uploadedFiles.map(f =>
+          f.id === fileId && !f.crop ? { ...f, crop } : f
+        );
         clearTimeout(timerRef.current);
-        timerRef.current = setTimeout(() => {
-          handleUpdatedFiles(updatedCropFiles);
-        }, 100);
+        timerRef.current = setTimeout(() => handleUpdatedFiles(updated), 100);
       },
-      [uploadedFiles]
+      [uploadedFiles, handleUpdatedFiles]
     );
 
     const getCroppedImg = async (image, crop, fileId, rotation = 0, fileZoom = 1) => {
@@ -221,12 +207,11 @@ const PreviewDrawer = forwardRef(
       const finalCanvas = canvas;
       const finalCtx = finalCanvas.getContext("2d");
 
-      const widthIncrease = (crop.width * scaleX) * 0.15;
-      finalCanvas.width = (crop.width * scaleX) + (widthIncrease * 2);
+      finalCanvas.width = crop.width * scaleX;
       finalCanvas.height = crop.height * scaleY;
-      const cropX = (crop.x * scaleX) - widthIncrease;
+      const cropX = crop.x * scaleX;
       const cropY = crop.y * scaleY;
-      const cropWidth = (crop.width * scaleX) + (widthIncrease * 2);
+      const cropWidth = crop.width * scaleX;
       const cropHeight = crop.height * scaleY;
 
       finalCtx.drawImage(
@@ -282,10 +267,10 @@ const PreviewDrawer = forwardRef(
             if (!file.crop || Object.keys(file.crop)?.length === 0) {
               const defaultCrop = {
                 unit: "%",
-                x: 2,
-                y: 2,
-                width: 96,
-                height: 96,
+                x: 0,
+                y: 0,
+                width: 100,
+                height: 100,
               };
               return { ...file, crop: defaultCrop };
             }
@@ -309,10 +294,10 @@ const PreviewDrawer = forwardRef(
                 if (!file.crop || Object.keys(file.crop)?.length === 0) {
                   const defaultCrop = {
                     unit: "%",
-                    x: 2,
-                    y: 2,
-                    width: 96,
-                    height: 96,
+                    x: 0,
+                    y: 0,
+                    width: 100,
+                    height: 100,
                   };
                   return { ...file, crop: defaultCrop };
                 }
@@ -332,7 +317,7 @@ const PreviewDrawer = forwardRef(
 
       if (imageRefs.current?.size) {
         try {
-          const updatedCroppedFiles = await Promise.all(
+          let updatedCroppedFiles = await Promise.all(
             allUpdatedFiles.map(async (updatedFile) => {
               if (updatedFile?.crop?.unit === "%") {
                 const cropWidth =
@@ -358,8 +343,8 @@ const PreviewDrawer = forwardRef(
                     unit: "px",
                     x: cropX,
                     y: cropY,
-                    width: cropWidth + 24,
-                    height: cropHeight + 24,
+                    width: cropWidth,
+                    height: cropHeight,
                   },
                 };
               }
@@ -413,8 +398,13 @@ const PreviewDrawer = forwardRef(
           );
 
           const apiStartTime = Date.now();
+          updatedCroppedFiles = updatedCroppedFiles.map((file) => {
+            const newFileName = file?.file?.name.toLowerCase();
+            file.file = new File([file.file], newFileName, { type: file.file.type });
+            return file.file;
+          })
           const response = await uploadSnapRxFiles(
-            updatedCroppedFiles.map((file) => file.file),
+            updatedCroppedFiles,
             patient_data?.patient_unique_id,
             sessionId,
             fileUploadToken
@@ -475,8 +465,72 @@ const PreviewDrawer = forwardRef(
       onZoomOut(selectedFileId);
     };
 
-    const handleRotateLeft = () => {
-      onRotate(selectedFileId);
+    const rotateImage90 = (imgEl, direction = 'left') => {
+      const cw = imgEl.naturalWidth || imgEl.width;
+      const ch = imgEl.naturalHeight || imgEl.height;
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = ch;
+      canvas.height = cw;
+
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      const angle = direction === 'left' ? -Math.PI / 2 : Math.PI / 2;
+      ctx.rotate(angle);
+      ctx.drawImage(imgEl, -cw / 2, -ch / 2);
+
+      return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (!blob) return reject(new Error('Canvas toBlob failed'));
+          resolve(blob);
+        }, 'image/jpeg', 0.92);
+      });
+    };
+
+    const asJpegName = (name = 'image') => {
+      const base = name.replace(/\.(pdf|png|webp|bmp|gif|jpg|jpeg)$/i, '');
+      return `${base}.jpeg`;
+    };
+
+
+    const handleRotateLeft = async () => {
+      const file = uploadedFiles?.[selectedFileIndex];
+      if (!file) return;
+    
+      const imgEl = imageRefs.current.get(file.id)?.current;
+      if (!imgEl) return;
+    
+      try {
+        const blob = await rotateImage90(imgEl, 'left');
+        const url = URL.createObjectURL(blob);
+        console.log("intel ==>", {blob, imgEl})
+    
+        if (file.preview?.startsWith('blob:')) {
+          try { URL.revokeObjectURL(file.preview); } catch {}
+        }
+    
+        const newName = asJpegName(file.name);
+        const rotatedFile = new File([blob], newName, { type: 'image/jpeg' });
+    
+        const updated = uploadedFiles.map((f) =>
+          f.id === file.id
+            ? {
+                ...f,
+                name: newName,
+                file: rotatedFile,
+                fileUrl: url,
+                preview: url,
+                rotation: 0,
+                crop: { unit: '%', x: 2, y: 2, width: 96, height: 96 },
+              }
+            : f
+        );
+        handleUpdatedFiles(updated);
+      } catch (err) {
+        console.error('Rotate failed:', err);
+        message.warning('Failed to rotate image');
+      }
     };
 
     const handleReupload = async () => {
@@ -681,7 +735,7 @@ const PreviewDrawer = forwardRef(
                         src={imageUrl}
                         alt="Prescription"
                         className="prescription-image"
-                        onLoad={onImageLoad}
+                        onLoad={(e) => onImageLoad(e, selectedFileId)}
                         crossOrigin="anonymous"
                         style={{
                           transform: `scale(${currentFile?.zoom || 1}) rotate(${
@@ -690,10 +744,7 @@ const PreviewDrawer = forwardRef(
                           transformOrigin: "center center",
                         }}
                         onError={(e) => {
-                          console.error(
-                            "Failed to load preview image:",
-                            imageUrl
-                          );
+                          console.error("Failed to load preview image:", imageUrl);
                           setImageError(true);
                           setImageLoaded(false);
                         }}
@@ -761,7 +812,7 @@ const PreviewDrawer = forwardRef(
                         <RotateLeftIcon />
                       </button>
 
-                      <div className="zoom-btn-combined">
+                      {/* <div className="zoom-btn-combined">
                         <div className="cursor-pointer" onClick={handleZoomOut}>
                           <MinusIcon />
                         </div>
@@ -769,7 +820,7 @@ const PreviewDrawer = forwardRef(
                         <div className="cursor-pointer" onClick={handleZoomIn}>
                           <PlusIcon />
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div>

@@ -127,7 +127,7 @@
     .crop-container {
       position: relative;
       max-width: 485px;
-      // height: auto;
+      max-height: auto;
       margin: auto;
       aspect-ratio: 1 / 1;
       display: flex;
@@ -139,14 +139,16 @@
         align-items: center;
         justify-content: center;
 
-        .prescription-image {
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-          position: relative;
-          object-fit: contain;
-          display: block;
-          height: auto;
-          width: 100%;
-          aspect-ratio: 1 / 1;
+        .ReactCrop__child-wrapper {
+          max-width: 480px;
+          max-height: 480px;
+          display: inline-grid;
+          place-items: center;
+          .prescription-image {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            display: block;
+          }
         }
       }
 
@@ -172,6 +174,20 @@
       .ReactCrop::after {
         display: none !important;
       }
+    }
+    .preview-area .crop-container {
+      width: 480px;
+      height: 480px;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+    
+    .preview-area .react-crop-wrapper .ReactCrop__child-wrapper {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
     }
   }
 
