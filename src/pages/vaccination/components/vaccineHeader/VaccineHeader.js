@@ -183,7 +183,7 @@ function VaccineHeader({
       }}
     >
       <DemoExpirationBanner />
-      <PlanExpirationBanner />
+      <PlanExpirationBanner/>
       <Navbar className="headerprescription p-0">
         <Container fluid className="h-100 gx-0 w-100">
           <Row className="h-100 align-items-center w-100 justify-content-between">
