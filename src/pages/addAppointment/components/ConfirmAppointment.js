@@ -158,7 +158,7 @@ function ConfirmAppointment({
                 replace: true,
                 state: {
                     patient_data: { pm_fullname: '', pm_contact_no: searchQuery },
-                    from: 'add-appointment',
+                    from: '/add-appointment',
                     selectedDoctor: selectedDoctor,
                     selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
                     selectedTimeSlot: selectedTimeSlot,
@@ -172,7 +172,7 @@ function ConfirmAppointment({
                 replace: true,
                 state: {
                     patient_data: { pm_fullname: searchQuery, pm_contact_no: '' },
-                    from: 'add-appointment',
+                    from: '/add-appointment',
                     selectedDoctor: selectedDoctor,
                     selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
                     selectedTimeSlot: selectedTimeSlot,
