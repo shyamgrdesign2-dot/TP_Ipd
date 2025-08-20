@@ -476,7 +476,7 @@ function HeaderPrescription({
       setClicked(true);
       
       // Call setDefaultCustomSyncPadTemplate if selectedTemplateId is available
-      if (selectedTemplateId) {
+      if (selectedTemplateId && selectedTemplateId !== "none") {
         setDefaultCustomSyncPadTemplate(selectedTemplateId);
       }
     }

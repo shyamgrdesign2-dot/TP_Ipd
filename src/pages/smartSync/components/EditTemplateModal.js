@@ -4,6 +4,8 @@ import { Cropper } from 'react-cropper';
 import 'cropperjs/dist/cropper.css';
 import { PlusOutlined, MinusOutlined, RedoOutlined, DeleteOutlined } from '@ant-design/icons';
 import { pdfjs } from "react-pdf";
+import CommonModal from "../../../common/CommonModal";
+import alertIcon from "../../../assets/images/alertIcon.svg";
 import {
   DndContext,
   closestCenter,
@@ -25,6 +27,7 @@ import { CSS } from '@dnd-kit/utilities';
 import reuploadIcon from "../../../assets/images/reupload.svg";
 import tutorialIcon from '../../../assets/images/tutorial.svg';
 import { dataUrlToFileUsingFetch } from '../../../utils/utils';
+import { validateCanvasFile } from '../services/fileUtils';
 import { updateCustomSyncPadTemplate } from '../services/uploadService';
 import './RxTemplateUploadDrawer.scss';
 
@@ -34,6 +37,10 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
   const [selectedPageIndex, setSelectedPageIndex] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isAddingMore, setIsAddingMore] = useState(false);
+  const [isFileFormatModalOpen, setIsFileFormatModalOpen] = useState(false);
+  const [isFileSizeExceeded, setIsFileSizeExceeded] = useState(false);
+  const [isA4ValidationError, setIsA4ValidationError] = useState(false);
+  const [validationError, setValidationError] = useState('');
   const cropperRef = useRef(null);
   const autoSaveTimeoutRef = useRef(null);
   const addMoreFileRef = useRef(null); // Separate ref for add more functionality
@@ -107,6 +114,10 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
       setSelectedPageIndex(0);
       setZoom(1);
       setIsAddingMore(false);
+      setIsFileFormatModalOpen(false);
+      setIsFileSizeExceeded(false);
+      setIsA4ValidationError(false);
+      setValidationError('');
       // Clear auto-save timeout
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
@@ -508,6 +519,27 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
           setIsProcessing(true);
           message.loading('Processing PDF...', 0);
           
+          // Comprehensive validation using existing utility
+          const validationResult = await validateCanvasFile(newFile);
+          
+          if (!validationResult.isValid) {
+            // Handle different types of validation errors
+            if (validationResult.errors.some(err => err.includes('PDF dimensions'))) {
+              setValidationError(validationResult.errors.find(err => err.includes('PDF dimensions')));
+              setIsA4ValidationError(true);
+            } else if (validationResult.errors.some(err => err.includes('Only PDF format'))) {
+              setIsFileFormatModalOpen(true);
+            } else if (validationResult.errors.some(err => err.includes('8MB'))) {
+              setIsFileSizeExceeded(true);
+            } else {
+              setValidationError(validationResult.errors[0]);
+              setIsA4ValidationError(true);
+            }
+            setIsProcessing(false);
+            message.destroy();
+            return;
+          }
+          
           // Convert PDF to images using the same logic as upload drawer
           const images = await convertPdfToImages(newFile);
           
@@ -598,6 +630,17 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
     setZoom(pageZoom);
     
     message.success(`Page ${selectedPageIndex + 1} removed successfully`);
+  };
+
+  // Retry handler for validation errors
+  const handleRetry = () => {
+    // Comprehensive state reset
+    setIsFileSizeExceeded(false);
+    setIsFileFormatModalOpen(false);
+    setIsA4ValidationError(false);
+    setValidationError('');
+    setIsProcessing(false);
+    setIsAddingMore(false);
   };
 
   // Add More functionality
@@ -1018,6 +1061,109 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
 
           </div>
         </div>
+
+        {/* File Format Error Modal */}
+        <CommonModal
+          isModalOpen={isFileFormatModalOpen}
+          onCancel={() => setIsFileFormatModalOpen(false)}
+          title="File Format Not Supported"
+          modalBody={
+            <div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '20px'
+              }}>
+                <img className="me-3" src={alertIcon} alt="Warning" />
+                <div>
+                  You can't upload this file format. Only <strong>PDF</strong> files are accepted.
+                </div>
+              </div>
+              <Button
+                type="primary"
+                block
+                onClick={handleRetry}
+                style={{
+                  height: '40px',
+                  borderRadius: '8px',
+                  fontWeight: '500'
+                }}
+              >
+                Got it
+              </Button>
+            </div>
+          }
+          modalWidth={465}
+        />
+
+        {/* File Size Exceeded Modal */}
+        <CommonModal
+          isModalOpen={isFileSizeExceeded}
+          onCancel={() => setIsFileSizeExceeded(false)}
+          title="Exceeded File Size"
+          modalBody={
+            <div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '20px'
+              }}>
+                <img className="me-3" src={alertIcon} alt="Warning" />
+                <div>
+                  The file size exceeded <strong>8MB</strong>. Please upload a
+                  file smaller than 8MB
+                </div>
+              </div>
+              <Button
+                type="primary"
+                block
+                onClick={handleRetry}
+                style={{
+                  height: '40px',
+                  borderRadius: '8px',
+                  fontWeight: '500'
+                }}
+              >
+                Retry
+              </Button>
+            </div>
+          }
+          modalWidth={465}
+        />
+
+        {/* A4 Validation Error Modal */}
+        <CommonModal
+          isModalOpen={isA4ValidationError}
+          onCancel={() => setIsA4ValidationError(false)}
+          title="Invalid PDF Dimensions"
+          modalBody={
+            <div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '20px'
+              }}>
+                <img className="me-3" src={alertIcon} alt="Warning" />
+                <div>
+                  {validationError || "The uploaded PDF doesn't meet A4 size requirements. Please upload a PDF with A4 dimensions (210mm x 297mm)."}
+                </div>
+              </div>
+              <Button
+                type="primary"
+                block
+                onClick={handleRetry}
+                style={{
+                  height: '40px',
+                  borderRadius: '8px',
+                  fontWeight: '500'
+                }}
+              >
+                Retry
+              </Button>
+            </div>
+          }
+          modalWidth={465}
+        />
       </div>
     </Drawer>
   );

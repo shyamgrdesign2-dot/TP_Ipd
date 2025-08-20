@@ -369,6 +369,16 @@ function SmartPrescription() {
     loadCustomTemplates();
   }, []);
 
+  // Auto-load template images when selectedTemplateId changes
+  useEffect(() => {
+    if (selectedTemplateId && selectedTemplateId !== 'none' && templates.length > 0) {
+      const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+      if (selectedTemplate) {
+        loadTemplateImages(selectedTemplate);
+      }
+    }
+  }, [selectedTemplateId, templates]);
+
   // Function to load templates from API
   const loadCustomTemplates = async (preserveSelection = false) => {
     try {
@@ -376,8 +386,13 @@ function SmartPrescription() {
       if (result.success && result.data && result.data.length > 0) {
 
         setTemplates(result.data);
-        // Auto-select the first template if none is selected and we're not preserving selection
-        if (!selectedTemplateId && !preserveSelection) {
+        
+        // Find the default template and set it as selected
+        const defaultTemplate = result.data.find(template => template.default === true);
+        if (defaultTemplate) {
+          setSelectedTemplateId(defaultTemplate.id);
+        } else if (!selectedTemplateId && !preserveSelection) {
+          // Fallback to first template if no default template found
           setSelectedTemplateId(result.data[0].id);
         }
       } else {

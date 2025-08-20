@@ -335,6 +335,7 @@ function SmartRxPreview() {
                                 print_url: isCustomSSRX ? (state.print_rx_url || state.print_url) : state.print_url,
                                 // digitisedData: rxDigitiseApiResponse,
                                 type: "new",
+                                isCustomSSRX : isCustomSSRX
                             };
             
                             navigate(path, { state: navState });
