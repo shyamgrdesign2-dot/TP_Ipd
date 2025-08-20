@@ -210,7 +210,7 @@ export const setDefaultCustomSyncPadTemplate = async (templateId) => {
       ...baseUrl
     };
     
-    const response = await api.post(`/api/v1/custom-smart-sync-pad/set-default/${templateId}`, {}, requestConfig);
+    const response = await api.get(`/api/v1/custom-smart-sync-pad/set-default/${templateId}`, requestConfig);
     
     return { 
       success: true, 
