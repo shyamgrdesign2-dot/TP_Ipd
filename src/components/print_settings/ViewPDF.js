@@ -615,7 +615,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     return (
         <Document>
-            {isSmartSyncPrescription && caseManagerData?.isCustomSSRX &&
+            {isSmartSyncPrescription && (caseManagerData?.isCustomSSRX === "1" ) &&
                 <Page
                     size="A4"
                     style={[paddingStyles, {
@@ -627,7 +627,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 >
                     <>
                         {/* Smart RX Images for Custom SSRX - Show at the beginning */}
-                        {isSmartSyncPrescription && caseManagerData?.isCustomSSRX && (
+                        {isSmartSyncPrescription && (caseManagerData?.isCustomSSRX === "1" ) && (
                             smartRxData?.map((item, i) => (
                                 <View key={i}>
                                     <View style={{ width: '100%', height: '100%' }}>
@@ -2201,7 +2201,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 </>
                             ) : option?.id === 11 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                 <>
-                                    {isSmartSyncPrescription && !caseManagerData?.isCustomSSRX && (
+                                    {isSmartSyncPrescription && (caseManagerData?.isCustomSSRX === "0" ) && (
                                         smartRxData?.map((item, i) => (
                                             <View key={i}>
                                                 <View style={{ marginTop: PX_TO_PT * 15, width: '100%', height: '800' }}>

@@ -511,7 +511,7 @@ function HeaderPrescription({
       medical_history: medicalHistoryData,
       smart_prescription_filename: smartRxFiles || [],
       pillup_fulfilment: isPillUpAccessableFromGB && pillupSwitch ? 1 : 0,
-      isCustomSSRX: isCustomSSrX ? "1" : "1",
+      isCustomSSRX: isCustomSSrX ? "1" : "0",
     };
 
     const action =

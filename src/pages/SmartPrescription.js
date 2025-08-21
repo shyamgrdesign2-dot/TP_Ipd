@@ -216,7 +216,7 @@ function SmartPrescription() {
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
   const [pillupSwitch, setPillupSwitch] = useState(true);
   // Add state for custom RX management (unified with templates)
-  const [isCustomSSRX, setIsCustomSSRX] = useState("");
+  const [isCustomSSRX, setIsCustomSSRX] = useState(false);
   const [customRxImages, setCustomRxImages] = useState([]);
   // Add state for page addition dropdown
   const [showPageDropdown, setShowPageDropdown] = useState({});
@@ -1740,6 +1740,12 @@ function SmartPrescription() {
     if (smartRxFilesData?.length > 0) {
       setLoading(true);
       setSmartRxFiles(smartRxFilesData);
+    }
+
+    if(selectedTemplateId === "none"){
+      setIsCustomSSRX(false)
+    } else{
+      setIsCustomSSRX(true)
     }
   }, [selectedTemplateId]);
 
