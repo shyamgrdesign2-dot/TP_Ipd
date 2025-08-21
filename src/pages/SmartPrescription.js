@@ -366,18 +366,31 @@ function SmartPrescription() {
 
   // Load templates when component mounts
   useEffect(() => {
-    loadCustomTemplates();
-  }, []);
+    // Only load templates if there are no smartRxFiles
+    // smartRxFiles should take priority over templates
+    if (!smartRxFilesData || smartRxFilesData.length === 0) {
+      loadCustomTemplates();
+    } else {
+      console.log('📱 SmartRxFiles present on mount, skipping template loading');
+    }
+  }, [smartRxFilesData]);
 
   // Auto-load template images when selectedTemplateId changes
   useEffect(() => {
-    if (selectedTemplateId && selectedTemplateId !== 'none' && templates.length > 0) {
+    console.log("THIS IS GETTING CALLED")
+    // Only load template images if there are no smartRxFiles
+    // smartRxFiles should take priority over templates
+    if (selectedTemplateId && selectedTemplateId !== 'none' && templates.length > 0 && 
+        (!smartRxFiles || smartRxFiles.length === 0)) {
       const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
       if (selectedTemplate) {
+        console.log('Loading template images (no smartRxFiles present)');
         loadTemplateImages(selectedTemplate);
       }
+    } else if (smartRxFiles && smartRxFiles.length > 0) {
+      console.log('SmartRxFiles present, skipping template loading');
     }
-  }, [selectedTemplateId, templates]);
+  }, [selectedTemplateId, smartRxFiles.length]); // Only depend on length, not the array reference
 
   // Function to load templates from API
   const loadCustomTemplates = async (preserveSelection = false) => {
@@ -387,13 +400,23 @@ function SmartPrescription() {
 
         setTemplates(result.data);
         
-        // Find the default template and set it as selected
-        const defaultTemplate = result.data.find(template => template.default === true);
-        if (defaultTemplate) {
-          setSelectedTemplateId(defaultTemplate.id);
-        } else if (!selectedTemplateId && !preserveSelection) {
-          // Fallback to first template if no default template found
-          setSelectedTemplateId(result.data[0].id);
+        // Only auto-select template if there are no smartRxFiles
+        // smartRxFiles should take priority over templates
+        if (!smartRxFiles || smartRxFiles.length === 0) {
+          // Find the default template and set it as selected
+          const defaultTemplate = result.data.find(template => template.default === true);
+          if (defaultTemplate) {
+            setSelectedTemplateId(defaultTemplate.id);
+            console.log('Auto-selected default template:', defaultTemplate.title);
+          } else if (!selectedTemplateId && !preserveSelection) {
+            // Fallback to first template if no default template found
+            setSelectedTemplateId(result.data[0].id);
+            console.log('Auto-selected first template:', result.data[0].title);
+          }
+        } else {
+          console.log('SmartRxFiles present, not auto-selecting template');
+          // Keep template selection as 'none' when smartRxFiles are present
+          setSelectedTemplateId('none');
         }
       } else {
         setTemplates([]);
@@ -1349,9 +1372,12 @@ function SmartPrescription() {
     // Set loading state
     setLoading(true);
     
-    // Clear old canvas refs before loading new template
-    canvasRefs.current = {};
-    ctxGlobalRefs.current = {};
+    // Don't clear existing canvas refs - preserve user drawings
+    // Only clear if we're switching to a completely different template
+    if (selectedTemplateId !== template.id) {
+      canvasRefs.current = {};
+      ctxGlobalRefs.current = {};
+    }
     
     const totalImages = template.uploaded_files.length;
     let loadedCount = 0;
@@ -1742,8 +1768,10 @@ function SmartPrescription() {
   );
 
   useEffect(() => {
-    selectedPageRef.current = pages[selectedPage]; // Update the ref when selectedPage changes
-  }, [selectedPage, refreshTrigger, selectedTemplateId ]);
+    if (pages.length > 0 && selectedPage !== null && selectedPage < pages.length) {
+      selectedPageRef.current = pages[selectedPage]; // Update the ref when selectedPage changes
+    }
+  }, [selectedPage, refreshTrigger, selectedTemplateId, pages]);
 
   const wsError = (error) => {
     message.open({
@@ -1966,48 +1994,75 @@ function SmartPrescription() {
       // Clear the canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
+      // Check if this page has smartRxFiles (priority over templates)
+      const hasSmartRxImages = smartRxFiles?.length >= selectedPage + 1;
+      
       // Check if this page is actually a template page by looking at pageTemplateImageIndex
       const templateImageIndex = pageTemplateImageIndex[currentPageId];
-      const isTemplatePage = templateImageIndex !== undefined && templateImageIndex >= 0;
+
+      
+      if (hasSmartRxImages) {
+        // This is a smartRx page - reload the smartRx image
+        const smartRxImage = smartRxFiles[selectedPage]?.smart_prescription_file;
+        if (smartRxImage) {
+          const img = new Image();
+          img.src = smartRxImage;
+          img.crossOrigin = "anonymous";
+          img.onload = () => {
+            console.log('📱 SmartRx image reloaded for page:', currentPageId);
+            ctx.drawImage(img, 0, 0, 720, 980);
             
-      // Only reload template image if this page is actually a template page
-      if (isTemplatePage && isTemplateSelected(selectedTemplateId)) {
-        const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
-        
-        if (selectedTemplate && selectedTemplate.uploaded_files && selectedTemplate.uploaded_files.length > templateImageIndex) {
-          // Get the template image for this specific template image index
-          const templateImage = selectedTemplate.uploaded_files[templateImageIndex];
-          
-          if (templateImage && templateImage.file_url) {
-            const img = new Image();
-            img.src = templateImage.file_url;
-            img.crossOrigin = "anonymous";
-            img.onload = () => {
-              console.log('Template image loaded for page:', currentPageId, 'template index:', templateImageIndex);
-              // Draw the template image
-              ctx.drawImage(img, 0, 0, 720, 980);
-              
-              // Update the image refs
-              setImageRefs((prevState) => ({
-                ...prevState,
-                [currentPageId]: img,
-              }));
-              setImageLoaded((prevState) => ({
-                ...prevState,
-                [currentPageId]: true,
-              }));
-            };
-          } else {
-            console.error('⚠️ No template image found for template index:', templateImageIndex);
-          }
-        } else {
-          console.error('⚠️ No template or uploaded files found');
+            // Update the image refs
+            setImageRefs((prevState) => ({
+              ...prevState,
+              [currentPageId]: img,
+            }));
+            setImageLoaded((prevState) => ({
+              ...prevState,
+              [currentPageId]: true,
+            }));
+          };
         }
       } else {
-        console.log('ℹ️ Not a template page, cleared to blank canvas for page:', currentPageId);
-        // For blank pages, just clear and leave as white background
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Only reload template image if this page is actually a template page
+        if (isTemplatePage && isTemplateSelected(selectedTemplateId)) {
+          const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+          
+          if (selectedTemplate && selectedTemplate.uploaded_files && selectedTemplate.uploaded_files.length > templateImageIndex) {
+            // Get the template image for this specific template image index
+            const templateImage = selectedTemplate.uploaded_files[templateImageIndex];
+            
+            if (templateImage && templateImage.file_url) {
+              const img = new Image();
+              img.src = templateImage.file_url;
+              img.crossOrigin = "anonymous";
+              img.onload = () => {
+                console.log('Template image reloaded for page:', currentPageId, 'template index:', templateImageIndex);
+                // Draw the template image
+                ctx.drawImage(img, 0, 0, 720, 980);
+                
+                // Update the image refs
+                setImageRefs((prevState) => ({
+                  ...prevState,
+                  [currentPageId]: img,
+                }));
+                setImageLoaded((prevState) => ({
+                  ...prevState,
+                  [currentPageId]: true,
+                }));
+              };
+            } else {
+              console.error('No template image found for template index:', templateImageIndex);
+            }
+          } else {
+            console.error('No template or uploaded files found');
+          }
+        } else {
+          console.log('Not a template page, cleared to blank canvas for page:', currentPageId);
+          // For blank pages, just clear and leave as white background
+          ctx.fillStyle = "#fff";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
       }
       
       // Reset the drawing context
@@ -2233,12 +2288,26 @@ function SmartPrescription() {
   };
 
   useEffect(() => {
+    
     // Draw images on canvases when images are getting loaded
     pages.forEach((pageId) => {
       if (imageLoaded[pageId] && canvasRefs.current[pageId]) {
+        // Only draw template images if they haven't been drawn before
+        // This prevents overwriting user drawings when imageLoaded state changes
         const ctx = canvasRefs.current[pageId].getContext("2d");
-        ctx.drawImage(imageRefs[pageId], 0, 0, 720, 980);
-        ctxGlobalRefs.current[pageId] = ctx;
+        
+        // Check if this canvas already has content (user drawings)
+        const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+        const hasContent = imageData.data.some(pixel => pixel !== 0);
+        
+        if (!hasContent) {
+          // Only draw template image if canvas is empty
+          ctx.drawImage(imageRefs[pageId], 0, 0, 720, 980);
+          ctxGlobalRefs.current[pageId] = ctx;
+          console.log('Template image drawn on page:', pageId);
+        } else {
+          console.log('Preserving user drawings on page:', pageId);
+        }
       }
     });
     
