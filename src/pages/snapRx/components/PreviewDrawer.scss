@@ -9,10 +9,8 @@
 .preview-drawer-content {
   display: flex;
   flex-direction: column;
-  padding: 16px;
-  // gap: 24px;
+  padding: 16px 16px 0 16px;
 
-  // Preview Container
   .snaprx-preview-container {
     flex: 1;
   }
@@ -286,10 +284,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 14px;
     width: 100%;
 
-    .action-buttons {
+    .srxpd-action-buttons {
       display: flex;
       gap: 12px;
 
@@ -357,11 +355,12 @@
       }
     }
 
-    .zoom-controls {
+    .srxpd-zoom-controls {
       display: flex;
       align-items: center;
       gap: 8px;
       background-color: transparent;
+      padding: 0;
 
       .rotate-btn {
         display: flex;
@@ -577,7 +576,7 @@
         justify-content: center;
       }
 
-      .zoom-controls {
+      .srxpd-zoom-controls {
         justify-content: center;
       }
     }

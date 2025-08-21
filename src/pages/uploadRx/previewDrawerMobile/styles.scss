@@ -169,7 +169,7 @@
           }
         }
 
-        .carousel-container {
+        .srxm-carousel-container {
           width: 100%;
           position: relative;
           height: 100%;
@@ -200,7 +200,7 @@
               }
             }
           }
-          .crop-container {
+          .srxm-crop-container {
             display: flex !important;
             align-items: center;
             justify-content: center;
@@ -213,7 +213,7 @@
             overflow: hidden;
             display: grid;
             place-items: center;
-            .react-crop-wrapper {
+            .srxm-react-crop-wrapper {
               display: flex;
               align-items: center;
               justify-content: center;
@@ -224,7 +224,7 @@
                 height: 100%;
                 display: grid;
                 place-items: center;
-                .prescription-image {
+                .srxm-prescription-image {
                   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
                   position: relative;
                   display: block;
@@ -446,7 +446,7 @@
   }
 }
 
-.crop-container {
+.srxm-crop-container {
   width: 100%;
   height: 100%;
   display: flex;
@@ -454,7 +454,7 @@
   justify-content: center;
   overflow: hidden;
 }
-.react-crop-wrapper,
+.srxm-react-crop-wrapper,
 .ReactCrop__child-wrapper {
   max-width: 100%;
   max-height: 100%;
@@ -467,11 +467,11 @@
   transform: none !important;
 }
 
-.carousel-container {
+.srxm-carousel-container {
   height: 100%;
 }
 
-.crop-container {
+.srxm-crop-container {
   min-height: calc(100vh - 240px);
   display: flex;
   align-items: center;
@@ -479,19 +479,19 @@
   overflow: hidden;
 }
 
-.react-crop-wrapper {
+.srxm-react-crop-wrapper {
   width: 100%;
   max-width: 100%;
 }
 
-.prescription-image {
+.srxm-prescription-image {
   display: block;
   max-width: none;
   width: 100%;
   height: auto;
 }
 
-.slide-loading {
+.srxm-slide-loading {
   position: absolute;
   inset: 0;
   display: grid;

@@ -187,7 +187,7 @@ const PreviewDrawer = forwardRef(
 
       const scaleX = naturalWidth / image.width;
       const scaleY = naturalHeight / image.height;
-
+      
       const rotatedCanvas = document.createElement("canvas");
       const rotatedCtx = rotatedCanvas.getContext("2d");
 
@@ -669,6 +669,9 @@ const PreviewDrawer = forwardRef(
           header: {
             display: "none",
           },
+          body: {
+            overflow: 'hidden'
+          }
         }}
         maskClosable={false}
       >
@@ -753,7 +756,7 @@ const PreviewDrawer = forwardRef(
                   </div>
                   {/* Action Bar - moved outside preview area */}
                   <div className="preview-drawer-action-bar">
-                    <div className="action-buttons">
+                    <div className="srxpd-action-buttons">
                       <button
                         className="action-btn reupload-btn"
                         onClick={handleReupload}
@@ -807,7 +810,7 @@ const PreviewDrawer = forwardRef(
                       </button>
                     </div>
 
-                    <div className="zoom-controls">
+                    <div className="srxpd-zoom-controls">
                       <button className="rotate-btn" onClick={handleRotateLeft}>
                         <RotateLeftIcon />
                       </button>
