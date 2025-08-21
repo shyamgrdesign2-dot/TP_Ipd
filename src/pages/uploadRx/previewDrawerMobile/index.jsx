@@ -506,7 +506,7 @@ const PreviewDrawerMobile = ({
               </div>
             ) : (
               <>
-                <div className="carousel-container">
+                <div className="srxm-carousel-container">
                   <MultiCarousel
                     ref={carouselRef}
                     responsive={responsive}
@@ -527,10 +527,10 @@ const PreviewDrawerMobile = ({
                         return (
                           <div
                             key={file.id || imageUrl}
-                            className="crop-container"
+                            className="srxm-crop-container"
                           >
                             {!imageLoaded && selectedFileId === file.id ? (
-                              <div className="slide-loading">
+                              <div className="srxm-slide-loading">
                                 <div className="spinner" />
                               </div>
                               ) : null}
@@ -540,14 +540,14 @@ const PreviewDrawerMobile = ({
                               keepSelection
                               onChange={(c) => handleCropChange(c, file.id)}
                               onComplete={(c) => handleCropChange(c, file.id)}
-                              className="react-crop-wrapper"
+                              className="srxm-react-crop-wrapper"
                             >
                               <img
                                 key={imgKey}
                                 ref={imageRefs.current?.get(file.id)}
                                 src={file.preview || file.fileUrl || file.url}
                                 alt="Prescription"
-                                className="prescription-image"
+                                className="srxm-prescription-image"
                                 onLoad={(e) => {
                                   setImageLoaded((prev) => (selectedFileId === file.id ? true : prev));
                                   imageLoadHandler(e, file);
@@ -565,7 +565,7 @@ const PreviewDrawerMobile = ({
                     {isSubmitting &&
                       actualFiles.map((file, _) => {
                         return (
-                          <div key={file.id} className="crop-container">
+                          <div key={file.id} className="srxm-crop-container">
                             <img
                               className="prescription-image-main"
                               src={file.preview}
