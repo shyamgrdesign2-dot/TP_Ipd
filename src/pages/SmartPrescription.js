@@ -2165,7 +2165,7 @@ function SmartPrescription() {
         const file = new File([blob], name, { type: "image/jpeg" });
 
         // Check if the file has meaningful content (not just a blank canvas)
-        const hasContent = file.size > 3 * 1000; // 5KB threshold for meaningful content
+        const hasContent = file.size > 5 * 1000; // 5KB threshold for meaningful content
         
         if (!hasContent && vitalsData.length === 0 && !followUpDate) {
           // Only show error if this is the first page and no other data exists
@@ -2179,6 +2179,26 @@ function SmartPrescription() {
           files.push(new File([blob], name, { type: "image/jpeg" }));
         }
       }
+
+      // // Convert all canvases to JPEG blobs and files
+      // for (let i = 0; i < canvasArray.length; i++) {
+      //   const canvas = canvasArray[i];
+      //   if (!canvas) continue;
+      //   const blob = await convertCanvasToJPEG(canvas);
+      //   const name =
+      //     smartRxFiles && smartRxFiles[i]
+      //       ? smartRxFiles[i].smart_prescription_filename
+      //       : `${uuidv4()}.jpeg`;
+      //   // Create the File object
+      //   const file = new File([blob], name, { type: "image/jpeg" });
+
+      //   if (file.size < 5 * 1000 && vitalsData.length === 0 && !followUpDate) {
+      //     errorMessage("Please fill your prescription to submit");
+      //   } else if (file.size > 5 * 1000) {
+      //     blobs.push(blob);
+      //     files.push(new File([blob], name, { type: "image/jpeg" }));
+      //   }
+      // }
     } catch (error) {
       console.error("Error converting canvas to JPEG:", error);
       errorMessage("Failed to generate image, Please Submit again");
