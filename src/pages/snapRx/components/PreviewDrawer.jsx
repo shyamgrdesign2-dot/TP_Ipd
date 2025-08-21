@@ -55,6 +55,7 @@ const PreviewDrawer = forwardRef(
   ) => {
     const dispatch = useDispatch();
     const [selectedFileIndex, setSelectedFileIndex] = useState(0);
+    const [croppedImgDimensions, setCroppedImgDimensions] = useState({});
     const [selectedFileId, setSelectedFileId] = useState(
       uploadedFiles?.[0]?.id || null
     );
@@ -178,16 +179,25 @@ const PreviewDrawer = forwardRef(
       [uploadedFiles, handleUpdatedFiles]
     );
 
-    const getCroppedImg = async (image, crop, fileId, rotation = 0, fileZoom = 1) => {
+    const getCroppedImg = async (image, crop, fileId, rotation = 0, fileZoom = 1, totalFile) => {
       const canvas = canvasRefs.current.get(fileId)?.current;
       if (!canvas || !crop) return null;
 
       const naturalWidth = image.naturalWidth || image.width;
       const naturalHeight = image.naturalHeight || image.height;
 
-      const scaleX = naturalWidth / image.width;
-      const scaleY = naturalHeight / image.height;
-      
+      let imgWidth = image.width;
+      let imgHeight = image.height;
+      if (naturalHeight === image.height && totalFile?.manualHeight) {
+        imgHeight = totalFile.manualHeight;
+      }
+      if (naturalWidth === image.width && totalFile?.manualWidth) {
+        imgWidth = totalFile.manualWidth;
+      }
+
+      const scaleX = naturalWidth / imgWidth;
+      const scaleY = naturalHeight / imgHeight;
+
       const rotatedCanvas = document.createElement("canvas");
       const rotatedCtx = rotatedCanvas.getContext("2d");
 
@@ -287,10 +297,13 @@ const PreviewDrawer = forwardRef(
                 hiddenImg.style.pointerEvents = "none";
                 hiddenImg.style.zIndex = "-1";
                 document.body.appendChild(hiddenImg);
-
                 if (!imageRefs.current.get(file.id)?.current) {
                   imageRefs.current.set(file.id, { current: hiddenImg });
                 }
+                const manualDimensions = {
+                  manualWidth: croppedImgDimensions?.[file.id]?.width,
+                  manualHeight: croppedImgDimensions?.[file.id]?.height,
+                };
                 if (!file.crop || Object.keys(file.crop)?.length === 0) {
                   const defaultCrop = {
                     unit: "%",
@@ -299,10 +312,10 @@ const PreviewDrawer = forwardRef(
                     width: 100,
                     height: 100,
                   };
-                  return { ...file, crop: defaultCrop };
+                  return { ...file, crop: defaultCrop, ...manualDimensions };
                 }
-                resolve(file);
-                return file;
+                resolve({ ...file, ...manualDimensions });
+                return { ...file, ...manualDimensions };
               };
               img.onerror = () => {
                 console.error(`Failed to load image for file ${file.id}`);
@@ -353,7 +366,8 @@ const PreviewDrawer = forwardRef(
                 updatedFile.crop,
                 updatedFile.id,
                 updatedFile.rotation || 0,
-                updatedFile.zoom || 1
+                updatedFile.zoom || 1,
+                updatedFile
               );
               if (croppedBlob) {
                 let fileName = updatedFile.name;
@@ -450,6 +464,14 @@ const PreviewDrawer = forwardRef(
     const handleCropChange = (newCrop, fileId) => {
       const updatedCropFiles = uploadedFiles?.map((file, _) => {
         if (fileId === file.id) {
+          setCroppedImgDimensions({
+            ...croppedImgDimensions,
+            [file.id]: {
+              width: imageRefs.current.get(file.id)?.current?.width,
+              height: imageRefs.current.get(file.id)?.current?.height,
+              img: imageRefs.current.get(file.id)?.current,
+            },
+          });
           return { ...file, crop: newCrop };
         }
         return file;
@@ -504,7 +526,6 @@ const PreviewDrawer = forwardRef(
       try {
         const blob = await rotateImage90(imgEl, 'left');
         const url = URL.createObjectURL(blob);
-        console.log("intel ==>", {blob, imgEl})
     
         if (file.preview?.startsWith('blob:')) {
           try { URL.revokeObjectURL(file.preview); } catch {}
