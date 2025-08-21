@@ -145,10 +145,14 @@ function SnapRxContent() {
   }, []);
 
   const fetchImageAsFile = async (url, filename = "image.jpg") => {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    const file = new File([blob], filename, { type: blob.type });
-    return file;
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const file = new File([blob], filename, { type: blob.type });
+      return file;
+    } catch (err) {
+      console.log(err);
+    }
   };
   const fetchImages = async (toDeleteFile = null) => {
     if (uploadedFilesFromStore?.length === 0) {
@@ -164,65 +168,69 @@ function SnapRxContent() {
       return;
     }
 
-    const normalizedFiles = await Promise.all(
-      uploadedFilesFromStore.map(async (file, index) => {
-        const fileBlob = await fetchImageAsFile(file.fileUrl);
-        const objectUrl = URL.createObjectURL(fileBlob);
-        return {
-          id: Date.now() + index,
-          name: file.filename,
-          file: fileBlob,
-          fileUrl: objectUrl,
-          url: objectUrl,
-          preview: objectUrl,
-          rotation: 0,
-          zoom: 1,
-          crop: file?.crop || {
-            unit: "%",
-            x: 2,
-            y: 2,
-            width: 96,
-            height: 96,
-          },
-        };
-      })
-    );
-    setUploadedFiles(normalizedFiles);
-    if (toDeleteFile) {
-      try {
-        const newUploadedFiles = normalizedFiles?.filter(
-          (file) => file.name !== toDeleteFile
-        );
-        const convertedFiles = normalizedFiles
-          .map((file) => {
-            return new File([file.file], file.name, {
-              type: file.file.type || "image/jpeg",
-            });
-          })
-          .filter((file) => file.name !== toDeleteFile);
-        if (convertedFiles?.length) {
-          setUploadedFiles(newUploadedFiles);
-          const response = await uploadSnapRxFiles(
-            convertedFiles,
-            patient_data?.patient_unique_id,
-            sessionId,
-            fileUploadToken
+    try {
+      const normalizedFiles = await Promise.all(
+        uploadedFilesFromStore.map(async (file, index) => {
+          const fileBlob = await fetchImageAsFile(file.fileUrl);
+          const objectUrl = URL.createObjectURL(fileBlob);
+          return {
+            id: Date.now() + index,
+            name: file.filename,
+            file: fileBlob,
+            fileUrl: objectUrl,
+            url: objectUrl,
+            preview: objectUrl,
+            rotation: 0,
+            zoom: 1,
+            crop: file?.crop || {
+              unit: "%",
+              x: 2,
+              y: 2,
+              width: 96,
+              height: 96,
+            },
+          };
+        })
+      );
+      setUploadedFiles(normalizedFiles);
+      if (toDeleteFile) {
+        try {
+          const newUploadedFiles = normalizedFiles?.filter(
+            (file) => file.name !== toDeleteFile
           );
-          if (response?.uploaded_files?.length > 0) {
-            fetchUploadedFiles();
+          const convertedFiles = normalizedFiles
+            .map((file) => {
+              return new File([file.file], file.name, {
+                type: file.file.type || "image/jpeg",
+              });
+            })
+            .filter((file) => file.name !== toDeleteFile);
+          if (convertedFiles?.length) {
+            setUploadedFiles(newUploadedFiles);
+            const response = await uploadSnapRxFiles(
+              convertedFiles,
+              patient_data?.patient_unique_id,
+              sessionId,
+              fileUploadToken
+            );
+            if (response?.uploaded_files?.length > 0) {
+              fetchUploadedFiles();
+            }
+          } else {
+            message.warning(
+              "You cannot delete the only file. Please reupload the file."
+            );
           }
-        } else {
-          message.warning(
-            "You cannot delete the only file. Please reupload the file."
-          );
+        } catch (err) {
+          console.error("Error: fetching images in snapRx", err);
+        } finally {
+          setIsLoading(false);
         }
-      } catch (err) {
-        console.log("INTEL ===> err", err);
-      } finally {
+      } else {
         setIsLoading(false);
       }
-    } else {
-      setIsLoading(false);
+    } catch (err) {
+      console.error(err);
     }
   };
 

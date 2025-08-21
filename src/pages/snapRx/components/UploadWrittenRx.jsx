@@ -356,13 +356,11 @@ const UploadWrittenRx = forwardRef(
     ]);
 
     const generateQRData = useMemo(() => {
-      console.log("INTEL ==> shortLink", shortLink);
       if (!shortLink) {
         return "";
       }
-      return JSON.stringify({
-        uploadUrl: shortLink,
-      });
+      console.log('shortLink ==>', shortLink)
+      return shortLink;
     }, [shortLink]);
 
     const handleAddMore = () => {

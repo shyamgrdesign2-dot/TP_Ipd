@@ -58,6 +58,7 @@ function ObsHistoryListView({
           fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
           fontWeight: 700,
         }}
+        fixed
       >
         Obstetric History&nbsp;:&nbsp;
       </Text>

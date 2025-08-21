@@ -36,11 +36,14 @@ const SummaryPreview = ({ setupData }) => {
         );
       }
     }
+    const clinicName = setupData?.clinicName || setupData?.clinicData?.hm_name || "Enter Clinic Name";
+    const maxLength = 30; // Maximum characters before adding ellipsis
+    
     return (
       <span>
-        {setupData?.clinicName ||
-          setupData?.clinicData?.hm_name ||
-          "Enter Clinic Name"}
+        {clinicName.length > maxLength
+          ? clinicName.slice(0, maxLength - 3) + "..."
+          : clinicName}
       </span>
     );
   };
@@ -90,8 +93,8 @@ const SummaryPreview = ({ setupData }) => {
           >
             <div
               style={{
-                fontSize: "0.8rem",
-                padding: "5px 0",
+                fontSize: "0.7rem",
+                padding: "2px 0",
                 width: "80%",
                 fontWeight: "500",
                 display: "flex",
@@ -150,7 +153,7 @@ const SummaryPreview = ({ setupData }) => {
             {setupData?.doctors && setupData.doctors.length > 0 ? (
               <div className="d-flex flex-column gap-2 w-100 overflow-y-auto overflow-x-hidden">
                 {setupData.doctors.map((doctor) => (
-                  <div key={doctor.id} className="language-card">
+                  <div key={doctor.um_id} className="language-card">
                     <div className="card-content">
                       <div
                         style={{
@@ -158,25 +161,25 @@ const SummaryPreview = ({ setupData }) => {
                           color: "#4B4AD5",
                           borderRadius: "50%",
                           textAlign: "center",
-                          width: "1.8rem",
-                          height: "1.8rem",
+                          width: "2rem",
+                          height: "2rem",
                           display:"flex",
                           alignItems:"center",
                           justifyContent:"center"
                         }}
                       >
-                        {getInitials(doctor.name)}
+                        {getInitials(doctor.um_name)}
                       </div>
                       <div className="text-content d-flex justify-content-between flex-column">
                         <span className="fs-10" style={{ fontWeight: 600 }}>
-                          {doctor.name}
+                          {doctor.um_name}
                         </span>
                         <span className="fs-10">
                           {doctor.specialization || "MBBS"}
                         </span>
                       </div>
                     </div>
-                    <Radio />
+                    <div className="radio-icon" />
                   </div>
                 ))}
               </div>

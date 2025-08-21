@@ -900,6 +900,20 @@ export const shouldMonetizationDisabled = () => {
 
   return false;
 };
+
+export const shouldAppointmentAgentDisabled = () => {
+  const appointmentAgentDisabled = config?.tp_agent_disabled_hospital;
+  const appointmentAgentDisabledArray = appointmentAgentDisabled.map(Number);
+  const { hospital_business_id = null } = getTokenData();
+  const currentHospital = Number(hospital_business_id);
+
+  if (currentHospital && appointmentAgentDisabledArray.includes(currentHospital)) {
+    return true;
+  }
+
+  return false;
+};
+
 export const detectOperatingSystem = () => {
   const userAgent = window.navigator.userAgent;
   const platform = window.navigator.platform;

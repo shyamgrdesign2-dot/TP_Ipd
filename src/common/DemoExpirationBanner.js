@@ -23,6 +23,7 @@ import {
   TRIAL,
 } from "../utils/constants";
 import ContactSupportModal from "./ContactSupportModal";
+import { setB2C_Profile } from "../redux/doctorsSlice";
 
 const DemoExpirationBanner = () => {
   const navigate = useNavigate();
@@ -49,6 +50,7 @@ const DemoExpirationBanner = () => {
     expiry_reminder_days,
     expiresIn,
     is_pm_renew_requested,
+    profile_b2c,
     c_expiry_reminder_days,
     c_last_plan_expiry_date,
     c_last_plan_status,
@@ -67,6 +69,10 @@ const DemoExpirationBanner = () => {
       dispatch(fetchSubscriptionDetails()); // Fetch subscription details on every reload
     }
   }, [dispatch]);
+
+  useEffect(() => {
+    profile && !profile?.b2c && profile_b2c && dispatch(setB2C_Profile(profile_b2c));
+  }, [profile?.b2c, profile_b2c]);
 
   const handleClick = () => {
     const clinic_name = getClinicName(profile?.hospital_data);

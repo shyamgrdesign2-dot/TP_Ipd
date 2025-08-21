@@ -327,7 +327,6 @@ const ImageUpload = forwardRef(
       };
       const fetchImages = async () => {
         if (uploadedFilesFromStore?.length === 0) {
-          setUploadedFiles([]);
           return;
         }
         if (

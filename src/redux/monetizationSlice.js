@@ -158,25 +158,67 @@ export const invoiceGenerate = createAsyncThunk(
     }
 );
 
+export const receiptGenerate = createAsyncThunk(
+    "monetization/receiptGenerate",
+    async (receipt_id, { rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.receiptGenerate(receipt_id);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
+export const discountCode = createAsyncThunk(
+    "monetization/discountCode",
+    async (data, { rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.discountCode(data);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
+export const discountCodeValidate = createAsyncThunk(
+    "monetization/discountCodeValidate",
+    async (data, { rejectWithValue }) => {
+        try {
+            const result = await ApiMonetization.discountCodeValidate(data);
+            return result;
+        } catch (error) {
+            return rejectWithValue({ visible: false, message: error.response.data.message });
+        }
+    }
+);
+
 const monetizationSlice = createSlice({
     name: "monetization",
     initialState,
     extraReducers: (builder) => {
         builder
             .addCase(billingHistory.fulfilled, (state, action) => {
-                const mainData = action.payload.billingHistory?.filter(e => e.invoice_id);
+                const mainData = action.payload.billingHistory?.filter(e => e.invoice_id || e.receipt_id);
                 const tableData = [];
                 mainData.forEach((entry, groupIndex) => {
                     const rowSpan = entry.plans.length;
+
+                    let totalAmount = entry.plans.reduce((sum, item) => sum + parseFloat(item.plan_amount), 0);
+                    let discount_amount = entry.discount_applied !== undefined ? entry.discount_applied : 0;
 
                     entry.plans.forEach((plan, planIndex) => {
                         tableData.push({
                             key: `${groupIndex}-${planIndex}`,
                             invoice_id: entry.invoice_id,
+                            receipt_id: entry.receipt_id,
                             service_display_name: plan.service_display_name,
                             service_name: plan.service_name,
                             plan_validity_months: plan.plan_validity_months,
                             plan_amount: `₹${formatAmount(plan.plan_amount)}`,
+                            total_amount: `₹${formatAmount(totalAmount - discount_amount)}`,
+                            payment_status: plan.payment_status,
                             plan_start_date: moment(plan.plan_start_date).format('Do MMM, YYYY'),
                             plan_end_date: moment(plan.plan_end_date).add(1, 'days').format('Do MMM, YYYY'),
                             status: plan.status,

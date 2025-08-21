@@ -29,7 +29,6 @@ function FreeTrialButton({ title, showHideSubModal }) {
         return EMR_planDetails?.plan_tier === TRIAL ? moment(planDetails?.plan_expiry_date).diff(moment().format('YYYY-MM-DD'), 'days') : 0
     }, [title, planDetails]);
 
-    console.log(AI_planDetails)
     return (
         (AI_planDetails?.plan_tier === FREE && AI_planDetails?.service_type === 'ai') ? (
             <Button className={`btn rounded-pill btn-free-trials me-3 ${AI_planDetails?.credit_balance <= 0 && 'btn-free-0-trials'}`} onClick={showHideSubModal}>

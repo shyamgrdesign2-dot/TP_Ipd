@@ -5,9 +5,10 @@ import VideoModal from "../../../../common/VideoModal";
 import { S_RECEPTIONIST_AGENT, S_TATVA_PRACTICE } from "../../../../utils/constants";
 import { useNavigate } from "react-router-dom";
 import SMS from "../../../../assets/images/sms.svg";
-import { getClinicName, getDeviceSdkData, getTokenData } from "../../../../utils/utils";
+import { getClinic, getClinicName, getDeviceSdkData, getTokenData } from "../../../../utils/utils";
 import { openModal } from "../../../../redux/doctorModalSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { getDecodedToken } from "../../../../utils/localStorage";
 
 const { TabPane } = Tabs;
 
@@ -17,7 +18,8 @@ const ReceptionistKnowMore = ({ handleDDxKnowMore }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { profile } = useSelector((state) => state.doctors);
-
+  const decodedToken = getDecodedToken();
+  const clinic = getClinic(profile?.hospital_data);
 
   const sectionsRef = useRef({
     basicInfo: null,
@@ -272,14 +274,34 @@ const ReceptionistKnowMore = ({ handleDDxKnowMore }) => {
           <Button
             type="button"
             className="btn-41 btn ant-btn-text btn-input addMeasurementBtn w-100"
-            onClick={clickRequestCallback}
+            onClick={() => {
+              window.Moengage.track_event("TP_AG_AIR_ReqCallBack", {
+                doctor_name: profile?.um_name,
+                doctor_number: profile?.um_contact,
+                doctor_unique_id: profile?.doctor_unique_id,
+                doctor_specialty: profile?.dp_name,
+                um_id: decodedToken?.user_id,
+                clinic_name: clinic?.hm_name,
+              });
+              clickRequestCallback();
+            }}
           >
             Request a call back
           </Button>
           <Button
             className="btn btn-primary3 btn-41 px-4 me-20 w-100"
             type="primary"
-            onClick={() => navigate('/get-unlimited-access', { state: { buyServiceName: S_RECEPTIONIST_AGENT } })}
+            onClick={() => {
+              window.Moengage.track_event("TP_AG_GUA", {
+                doctor_name: profile?.um_name,
+                doctor_number: profile?.um_contact,
+                doctor_unique_id: profile?.doctor_unique_id,
+                doctor_specialty: profile?.dp_name,
+                um_id: decodedToken?.user_id,
+                clinic_name: clinic?.hm_name,
+              });
+              navigate('/get-unlimited-access', { state: { buyServiceName: S_RECEPTIONIST_AGENT } });
+            }}
           >
             Get Unlimited Access
           </Button>

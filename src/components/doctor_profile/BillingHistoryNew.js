@@ -4,7 +4,7 @@ import { Navbar } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 
 import { S_SMARTSYNC, S_TATVA_PRACTICE } from "../../utils/constants";
-import { invoiceGenerate } from "../../redux/monetizationSlice";
+import { invoiceGenerate, receiptGenerate } from "../../redux/monetizationSlice";
 import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../utils/utils";
 import BillingPrint from "./BillingPrint";
 import { deviceType, osName } from "react-device-detect";
@@ -35,17 +35,44 @@ const BillingHistoryNew = ({ show, setShow, billingHistoryList }) => {
       errorMessage(action.payload.message)
     }
     const clinic_name = getClinicName(profile?.hospital_data);
-    const tokenData = getTokenData(); 
-    const deviceSdkData = getDeviceSdkData(); 
+    const tokenData = getTokenData();
+    const deviceSdkData = getDeviceSdkData();
     window.Moengage.track_event("TP_Monetization_InvoiceExplore", {
-        doctor_name: profile?.um_name,
-        doctor_number: profile?.um_contact,
-        doctor_unique_id: profile?.doctor_unique_id,
-        doctor_specialty: profile?.dp_name,
-        clinic_id: tokenData?.clinic_id,
-        um_id: tokenData?.user_id,
-        clinic_Name: clinic_name,
-        ...deviceSdkData,
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      um_id: tokenData?.user_id,
+      clinic_Name: clinic_name,
+      ...deviceSdkData,
+    });
+  }
+
+  const generateReceipt = async (receipt_id) => {
+    const action = await dispatch(receiptGenerate(receipt_id));
+    if (action.meta.requestStatus === "fulfilled") {
+      if (action?.payload?.status === 200) {
+        setPdfUrl(action?.payload?.body?.url)
+        handlePdfDrawer()
+      } else {
+        errorMessage(action.payload.message)
+      }
+    } else {
+      errorMessage(action.payload.message)
+    }
+    const clinic_name = getClinicName(profile?.hospital_data);
+    const tokenData = getTokenData();
+    const deviceSdkData = getDeviceSdkData();
+    window.Moengage.track_event("TP_Monetization_ReceiptExplore", {
+      doctor_name: profile?.um_name,
+      doctor_number: profile?.um_contact,
+      doctor_unique_id: profile?.doctor_unique_id,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      um_id: tokenData?.user_id,
+      clinic_Name: clinic_name,
+      ...deviceSdkData,
     });
   }
 
@@ -60,8 +87,11 @@ const BillingHistoryNew = ({ show, setShow, billingHistoryList }) => {
     },
     {
       title: 'Amount Paid',
-      dataIndex: 'plan_amount',
-      key: 'plan_amount',
+      dataIndex: 'total_amount',
+      key: 'total_amount',
+      onCell: (record) => ({
+        rowSpan: record.rowSpan,
+      })
     },
     {
       title: 'Start Date',
@@ -77,10 +107,12 @@ const BillingHistoryNew = ({ show, setShow, billingHistoryList }) => {
       title: 'Invoice',
       dataIndex: 'invoice_id',
       key: 'invoice_id',
-      render: (text) => <button className="btn btn-link text-primary p-0" onClick={() => generateInvoice(text)}>View Invoice</button> || "N/A",
-      onCell: (record) => ({
-        rowSpan: record.rowSpan,
-      }),
+      render: (text, record) => (
+        record?.payment_status ? <button className="btn btn-link text-primary p-0" onClick={() => record?.payment_status === 'FULL' ? generateInvoice(record?.invoice_id) : generateReceipt(record?.receipt_id)}>{record?.payment_status === 'FULL' ? 'View Invoice' : 'View Receipt'}</button> : "N/A"
+      ),
+      // onCell: (record) => ({
+      //   rowSpan: record.rowSpan,
+      // }),
     },
     {
       title: 'Status',

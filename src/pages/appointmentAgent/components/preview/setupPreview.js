@@ -23,7 +23,7 @@ const SetupPreview = ({
         : setupData?.logo && typeof setupData.logo === "string"
         ? setupData.logo
         : null;
-    const maxLength = 34;
+    const maxLength = 30;
     const displayClinicName =
       clinicName || setupData?.clinicName || "Enter Clinic Name";
 
@@ -101,8 +101,8 @@ const SetupPreview = ({
             >
               <div
                 style={{
-                  fontSize: "0.8rem",
-                  padding: "5px 0",
+                  fontSize: "0.7rem",
+                  padding: "2px 0",
                   width: "80%",
                   fontWeight: "500",
                   display: "flex",
@@ -185,7 +185,7 @@ const SetupPreview = ({
             <Button
               type="button"
               className="btn align-items-center justify-content-center d-flex btn-41 btn-primary3 px-4"
-              style={{ width: "80%" }}
+              style={{ width: "80%", cursor: "default" }}
               // onClick={handleSubmitClick}
             >
               Book Appointment

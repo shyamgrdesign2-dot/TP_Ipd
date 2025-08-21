@@ -121,7 +121,6 @@ function TabPrescription() {
   const isApexAIAccessable = useFeatureIsOn("cdss");
   const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
-  const isSCAccessable = useFeatureIsOn("symptoms-collector");
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
   const { privateNotesList } = useSelector((state) => state.medicalhistory);
@@ -346,10 +345,8 @@ function TabPrescription() {
   }, []);
 
   useEffect(() => {
-    if (isSCAccessable) {
-      getSymptomsCollectorData();
-    }
-  }, [isSCAccessable]);
+    getSymptomsCollectorData();
+  }, []);
 
   useEffect(() => {
     if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {

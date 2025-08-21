@@ -36,7 +36,10 @@ import dayjs from "dayjs";
 import {
   errorMessage,
   getClinic,
+  getClinicName,
+  getTokenData,
   sendMessageToParent,
+  shouldAppointmentAgentDisabled,
   trackEvent,
 } from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
@@ -62,6 +65,7 @@ import {
   S_BILLING,
   S_TATVA_PRACTICE,
   TRIAL,
+  GB_SNAP_RX_DIGITIZATION,
 } from "../utils/constants";
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
@@ -188,6 +192,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   const isSmartSyncAccessableFromGB = useFeatureIsOn(GB_ISCRIBE);
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
   const isSnapRxAccessable = useFeatureIsOn(GB_SNAP_RX);
+  const isSnapRxDigitizationAccessable = useFeatureIsOn(GB_SNAP_RX_DIGITIZATION);
   const isAppointmentAgentAccessableFromGB =
     useFeatureIsOn("appointment-agent");
   const [zydusSearchQuery, setZydusSearchQuery] = useState("");
@@ -213,6 +218,8 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     (e) => e.service_name === S_BILLING
   );
 
+  const isAppointmentAgentEnable = planDetails?.currentPlanStatus === "PAID" && !shouldAppointmentAgentDisabled();
+
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
   const [appointmentSelectedFromMenu, setAppointmentSelectedFromMenu] =
@@ -222,6 +229,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
   const [agentsData, setAgentsData] = useState(null);
   const [isAgentsLoading, setIsAgentsLoading] = useState(false);
+
 
   const showHideSubModal = () => {
     setIsSubModalOpen(!isSubModalOpen);
@@ -275,9 +283,8 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
             width: "305px",
           }}
         >
-          This icon means the AI Agent{" "}
-          <strong>{appointmentAgentsData?.name}</strong> has collected the
-          patient's <strong style={{ fontWeight: 600 }}>symptoms</strong> &{" "}
+          This icon means the AI Agent <strong>{appointmentAgentsData?.name || "Mira"}</strong> has collected the patient's{" "}
+          <strong style={{ fontWeight: 600 }}>symptoms</strong> &{" "}
           <strong style={{ fontWeight: 600 }}>medical history</strong>. You can
           now <strong style={{ fontWeight: 600 }}>preview</strong> and{" "}
           <strong style={{ fontWeight: 600 }}>autofill</strong> them into the{" "}
@@ -529,7 +536,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
 
     // Conditionally add the Pending Digitisation tab
     if (
-      (isSmartSyncCVTAccessableFromGB || isSnapRxAccessable) &&
+      (isSmartSyncCVTAccessableFromGB || isSnapRxDigitizationAccessable) &&
       unDigitizedUnReviewedIdsLength > 0
     ) {
       updatedItems.push({
@@ -583,7 +590,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     appointmentsData,
     isZydusUserAccessableFromGB,
     isSmartSyncCVTAccessableFromGB,
-    isSnapRxAccessable,
+    isSnapRxDigitizationAccessable,
   ]);
 
   const [selectedTab, setSelectedTab] = useState(TAB_QUEUE);
@@ -675,6 +682,8 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   useEffect(() => {
     if (appointmentAgentsData) {
       setAgentsData(appointmentAgentsData);
+      // Store appointment data to local storage
+      localStorage.setItem('appointmentAgentsData', JSON.stringify(appointmentAgentsData));
     }
   }, [appointmentAgentsData]);
 
@@ -713,7 +722,6 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
                 }
               : {}),
           };
-          // console.log(sendData)
           dispatch(getAllAppointment(sendData));
         } else {
           encounterAndFinishDataManage();
@@ -833,10 +841,10 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   }, [isSmartSyncAccessableFromGB]);
 
   useEffect(() => {
-    if (isSnapRxAccessable) {
+    if (isSnapRxDigitizationAccessable) {
       dispatch(getSnapRxUnDigitisedIds());
     }
-  }, [isSnapRxAccessable]);
+  }, [isSnapRxDigitizationAccessable]);
 
   useEffect(() => {
     if (date.startDate === date.endDate) {
@@ -871,7 +879,9 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
           startDate: moment(0).format(dateFormat),
           endDate: moment().format(dateFormat),
         });
+        dispatch(changeSortOrder("descend"));
       } else {
+        dispatch(changeSortOrder("ascend"));
         setIsDigitisationTab(false);
         setDate({
           startDate: moment().format(dateFormat),
@@ -1423,25 +1433,37 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     //     "doctor_id": profile?.doctor_unique_id,
     //     "patient_id": record?.patient_unique_id
     // });
+    const tokenData = getTokenData();
+    const clinic = getClinic(profile?.hospital_data);
     if (agentsData) {
+      window.Moengage.track_event("TP_AG_YourAIReceptionist", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        um_id: tokenData?.user_id,
+        clinic_name: clinic?.hm_name,
+        agent: "true",
+      });
+
       // If agentsData exists, navigate to success page
       navigate("/appointment-agent/success", {
         state: {
           agentsData,
           setupData: {
-            clinicId: agentsData.clinicId || profile?.clinicId || 390,
+            clinicId: agentsData.clinicId || profile?.clinicId,
             doctors:
               agentsData.doctors?.map((doctor) => ({
-                id: doctor.um_id || doctor.id,
-                name: doctor.um_name || doctor.name,
+                um_id: doctor.um_id,
+                dp_id: doctor.dp_id,
+                um_name: doctor.um_name,
                 speciality: doctor.speciality || "MBBS",
-                availability:
-                  doctor.availability || doctor.slotsAvailable || true,
+                slotsAvailable: doctor.slotsAvailable,
               })) || [],
-            clinicData: getClinic(profile?.hospital_data),
+            clinicData: clinic,
             useUploadLogo: agentsData.logo ? true : false,
             logo: agentsData.logo || null,
-            clinicName: agentsData.clinicName || null,
+            clinicName: agentsData.clinicName || clinic?.hm_name,
             avatar: agentsData.avatarDetails || null,
             avatarId: agentsData.avatarId || null,
             googleLocation:
@@ -1458,6 +1480,15 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
         },
       });
     } else {
+      window.Moengage.track_event("TP_AG_YourAIReceptionist", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        um_id: tokenData?.user_id,
+        clinic_name: clinic?.hm_name,
+        agent: "false",
+      });
       // If no agentsData, navigate to normal flow
       navigate("/appointment-agent", { state: { agentsData } });
     }
@@ -1617,13 +1648,32 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     [snapRxUnDigitisedIds?.unReviewedAppointmentIds]
   );
 
+  const updateRxDigitizeInUrl = async ({print_rx_url, patient_unique_id, tcm_id}) => {
+    const urlObj = new URL(print_rx_url);
+
+    const snapRxDigitisedData = await getSnapRxDigitization(
+      patient_unique_id,
+      tcm_id
+    );
+
+    const isSnapRxdigitised = snapRxDigitisedData?.digitization?.isVerified && snapRxDigitisedData?.digitization?.isDigitize;
+    if (isSnapRxdigitised) {
+      urlObj.searchParams.set("rxDigitize", "true");
+    } else {
+      urlObj.searchParams.delete("rxDigitize");
+    }
+
+    return urlObj.toString();
+  };
+
   const onPrintRxUrlClick = async (record) => {
     if (record.print_rx_url) {
+      const printUrl = await updateRxDigitizeInUrl(record);
       if (!isChrome && !isSafari) {
-        navigate(`/?url=${record.print_rx_url}&key=print`, { replace: true });
+        navigate(`/?url=${printUrl}&key=print`, { replace: true });
         navigate(0, { replace: true });
       } else {
-        await window.open(record.print_rx_url);
+        await window.open(printUrl);
       }
     } else {
       setAppointmentSelectedFromMenu(record);
@@ -1810,7 +1860,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
             {isSnapRxAccessable &&
             !isMobile &&
             selectedTab != TAB_ZYDUS_ENCOUNTER ? (
-              isDigitisationTab ? (
+              (isDigitisationTab && isSnapRxDigitizationAccessable) ? (
                 isUnreviewedRx(record) ? (
                   <button
                     className="btn btn-outline-primary"
@@ -2024,7 +2074,6 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   ];
 
   const handleChange = (pagination, filters, sorter, extra) => {
-    // console.log('params', pagination, filters, sorter, extra);
     setVisitTypeFilters(filters.toct_type ? filters.toct_type.toString() : "");
   };
 
@@ -2438,7 +2487,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
               onChange={onChange}
               activeKey={selectedTab}
             />
-            {isAppointmentAgentAccessableFromGB && (
+            {isAppointmentAgentEnable && (
               <div
                 className="receptionist-setup-button"
                 onClick={onAppointmentAgentClick}

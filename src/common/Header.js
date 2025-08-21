@@ -144,7 +144,7 @@ function Header({ locationPath }) {
   }, []);
 
   useEffect(() => {
-    if (profile) {
+    if (profile) { 
       if (profile.moengage_b2c_send === undefined) {
         window.Moengage.add_unique_user_id(profile?.b2c)
         dispatch(updateStatusMoengageB2C());
@@ -162,7 +162,7 @@ function Header({ locationPath }) {
   }, [profile]);
 
   useEffect(() => {
-    if (clinicOptions.length > 0) {
+    if (clinicOptions?.length > 0) {
       const getStorageData = async () => {
         const token = await getToken()
         if (token !== undefined) {

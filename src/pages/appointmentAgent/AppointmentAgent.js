@@ -83,10 +83,11 @@ function AppointmentAgent() {
         clinicId: agentsData.clinicId || profile?.clinicId,
         hospitalBusinessId: hos_business_id,
         doctors: agentsData.doctors?.map(doctor => ({
-          id: doctor.um_id || doctor.id,
-          name: doctor.um_name || doctor.name,
+          um_id: doctor.um_id,
+          dp_id: doctor.dp_id,
+          um_name: doctor.um_name,
           speciality: doctor.speciality || "MBBS",
-          availability: doctor.availability || doctor.slotsAvailable || true
+          slotsAvailable: doctor.slotsAvailable
         })) || [],
         clinicData: clinic,
         useUploadLogo: agentsData.logo ? true : false,
@@ -299,10 +300,26 @@ function AppointmentAgent() {
 
     // Reset trigger validation
     setTriggerValidation(false);
-
+    const clinic = getClinic(profile?.hospital_data);
     if (currentStep === 0) {
+      window.Moengage.track_event("TP_AG_AgentSetup", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        um_id: decodedToken?.user_id,
+        clinic_name: clinic?.hm_name,
+      });
       setCurrentStep(1);
     } else if (currentStep === 1) {
+      window.Moengage.track_event("TP_AG_ClinicDetails", {
+        doctor_name: profile?.um_name,
+        doctor_number: profile?.um_contact,
+        doctor_unique_id: profile?.doctor_unique_id,
+        doctor_specialty: profile?.dp_name,
+        um_id: decodedToken?.user_id,
+        clinic_name: clinic?.hm_name,
+      });
       setCurrentStep(2);
     } else if (currentStep === 2) {
       // This is the final step, handle setup completion
@@ -317,6 +334,14 @@ function AppointmentAgent() {
       try {
         const response = await setupReceptionist(setupData);
         if (response) {
+          window.Moengage.track_event("TP_AG_Receptionist_Setup_Complete", {
+            doctor_name: profile?.um_name,
+            doctor_number: profile?.um_contact,
+            doctor_unique_id: profile?.doctor_unique_id,
+            doctor_specialty: profile?.dp_name,
+            um_id: decodedToken?.user_id,
+            clinic_name: clinic?.hm_name,
+          });
           handleSetupComplete(response);
         }
       } catch (error) {

@@ -73,9 +73,9 @@ const ClinicDetailsSetup = ({
           const doctorsData = response?.doctors
             .map((doctor) => ({
               ...doctor, // Keep all original properties
-              id: doctor.um_id,
-              name: `Dr. ${doctor.um_name}`,
-              availability: doctor.slotsAvailable,
+              um_id: doctor.um_id,
+              um_name: `Dr. ${doctor.um_name}`,
+              slotsAvailable: doctor.slotsAvailable,
             }));
           setAllDoctors(doctorsData);
         } else {
@@ -132,22 +132,23 @@ const ClinicDetailsSetup = ({
   }, [triggerValidation, contactNumber, location, selectedDoctors, email]);
 
   const handleDoctorSelect = (doctor) => {
-    const newSelectedDoctors = selectedDoctors.find((d) => d.id === doctor.id)
-      ? selectedDoctors.filter((d) => d.id !== doctor.id)
+    const newSelectedDoctors = selectedDoctors.find((d) => d.um_id === doctor.um_id)
+      ? selectedDoctors.filter((d) => d.um_id !== doctor.um_id)
       : [
           ...selectedDoctors,
           {
             ...doctor, // Keep all original properties
-            um_id: doctor.id,
-            um_name: doctor.name.replace("Dr. ", ""), // Remove Dr. prefix for consistency
-            slotsAvailable: doctor.availability,
+            um_id: doctor.um_id,
+            dp_id: doctor.dp_id,
+            um_name: doctor.um_name.replace("Dr. ", ""), // Remove Dr. prefix for consistency
+            slotsAvailable: doctor.slotsAvailable,
           },
         ];
 
     setSelectedDoctors(newSelectedDoctors);
     setSelectAllDoctors(
       newSelectedDoctors.length ===
-        allDoctors.filter((d) => d.availability).length
+        allDoctors.filter((d) => d.slotsAvailable).length
     );
 
     // Clear doctors error when doctors are selected
@@ -161,12 +162,12 @@ const ClinicDetailsSetup = ({
 
   const handleSelectAllDoctors = (checked) => {
     const availableDoctors = allDoctors
-      .filter((d) => d.availability)
+      .filter((d) => d.slotsAvailable)
       .map((doctor) => ({
         ...doctor, // Keep all original properties
-        um_id: doctor.id,
-        um_name: doctor.name.replace("Dr. ", ""), // Remove Dr. prefix for consistency
-        slotsAvailable: doctor.availability,
+        um_id: doctor.um_id,
+        um_name: doctor.um_name.replace("Dr. ", ""), // Remove Dr. prefix for consistency
+        slotsAvailable: doctor.slotsAvailable,
       }));
 
     const newSelectedDoctors = checked ? availableDoctors : [];
@@ -190,7 +191,7 @@ const ClinicDetailsSetup = ({
   const handleRemoveDoctor = (doctor, e) => {
     e.stopPropagation();
     const newSelectedDoctors = selectedDoctors.filter(
-      (d) => d.id !== doctor.id
+      (d) => d.um_id !== doctor.um_id
     );
     setSelectedDoctors(newSelectedDoctors);
     setSelectAllDoctors(false);
@@ -267,21 +268,21 @@ const ClinicDetailsSetup = ({
               ) : allDoctors.length > 0 ? (
                 allDoctors.map((doctor) => (
                   <div
-                    key={doctor.id}
+                    key={doctor.um_id}
                     className={`doctor-option ${
-                      !doctor.availability ? "disabled" : ""
+                      !doctor.slotsAvailable ? "disabled" : ""
                     }`}
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Checkbox
-                      checked={selectedDoctors.some((d) => d.id === doctor.id)}
+                      checked={selectedDoctors.some((d) => d.um_id === doctor.um_id)}
                       onChange={() =>
-                        doctor.availability && handleDoctorSelect(doctor)
+                        doctor.slotsAvailable && handleDoctorSelect(doctor)
                       }
-                      disabled={!doctor.availability}
+                      disabled={!doctor.slotsAvailable}
                     >
-                      {doctor.name}
-                      {!doctor.availability && (
+                      {doctor.um_name}
+                      {!doctor.slotsAvailable && (
                         <span className="availability-note">
                           ( No Availability Set)
                         </span>
@@ -510,7 +511,7 @@ const ClinicDetailsSetup = ({
 
         <div className="form-section">
           <label>
-            Clinic Reception Contact number <span className="required">*</span>
+            Enter clinic mobile number <span className="required">*</span>
             <Tooltip 
               title="This number will be shown to patients for appointment-related queries. Make sure it's active and reachable during working hours."
               overlayClassName="clinic-tooltip"
@@ -523,7 +524,7 @@ const ClinicDetailsSetup = ({
             value={contactNumber}
             className={`phone-input ${showContactError ? "error-input" : ""}`}
             onChange={handleContactChange}
-            placeholder="Enter your reception's contact number"
+            placeholder="Enter clinic mobile number"
             id="phone"
             maxLength={10}
             type="tel"
@@ -549,7 +550,7 @@ const ClinicDetailsSetup = ({
 
         <div className="form-section">
           <label>
-            Clinic Reception Email ID
+            Enter clinic email ID
             <Tooltip 
               title="Patients can use this email to send queries or follow-up messages related to their appointments and consultation"
               overlayClassName="clinic-tooltip"
@@ -561,7 +562,7 @@ const ClinicDetailsSetup = ({
             value={email}
             className={`phone-input ${showEmailError ? "error-input" : ""}`}
             onChange={handleEmailChange}
-            placeholder="Enter your reception's email ID"
+            placeholder="Enter clinic email ID"
             prefix={
               <img
                 src={Mail}
@@ -592,7 +593,7 @@ const ClinicDetailsSetup = ({
 
         <div className="form-section">
           <label>
-            Add Your Clinic Google Location <span className="required">*</span>
+            Search your clinic location <span className="required">*</span>
             <Tooltip 
               title="Search and select your clinic's location from Google Maps so patients can easily find you online."
               overlayClassName="clinic-tooltip"
@@ -621,47 +622,6 @@ const ClinicDetailsSetup = ({
           )}
         </div>
 
-        <div className="form-section">
-          <label>
-            Clinic Name
-          </label>
-          <Input
-            readOnly
-            value={initialData?.clinicData?.hm_name}
-            className="phone-input readonly-input"
-            style={{ backgroundColor: "#F1F1F5" }}
-          />
-        </div>
-
-        <div className="form-section">
-          <label>
-            Clinic Pincode
-          </label>
-          <Input
-            readOnly
-            value={initialData?.clinicData?.hm_pincode}
-            className="phone-input readonly-input"
-            style={{ backgroundColor: "#F1F1F5" }}
-            suffix={
-              <span className="location" style={{ color: "#666" }}>
-                Bengaluru, KA
-              </span>
-            }
-          />
-        </div>
-
-        <div className="form-section">
-          <label>
-            Clinic Address
-          </label>
-          <Input
-            readOnly
-            value={initialData?.clinicData?.hm_address}
-            className="phone-input readonly-input"
-            style={{ backgroundColor: "#F1F1F5" }}
-          />
-        </div>
-
         <div className="form-section" onClick={() => handleFocus("doctors")}>
           <label>
             Select Doctors whom you want to enable this Appointment{" "}
@@ -687,8 +647,8 @@ const ClinicDetailsSetup = ({
             {selectedDoctors.length > 0 ? (
               <div className="selected-doctors">
                 {selectedDoctors.map((doctor) => (
-                  <div key={doctor.id} className="doctor-chip">
-                    {doctor.name}
+                  <div key={doctor.um_id} className="doctor-chip">
+                    {doctor.um_name}
                     <CloseOutlined
                       onClick={(e) => handleRemoveDoctor(doctor, e)}
                     />
@@ -696,8 +656,16 @@ const ClinicDetailsSetup = ({
                 ))}
               </div>
             ) : (
-              <div>
-                All Doctors ({allDoctors.filter((d) => d.availability).length})
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Checkbox
+                  className="mb-0"
+                  checked={selectAllDoctors}
+                  onChange={(e) => handleSelectAllDoctors(e.target.checked)}
+                  disabled={loading}
+                />
+                <span>
+                  All Doctors ({allDoctors.filter((d) => d.slotsAvailable).length})
+                </span>
               </div>
             )}
             <span className="dropdown-arrow">{isDropdownOpen ? "▲" : "▼"}</span>
@@ -709,6 +677,48 @@ const ClinicDetailsSetup = ({
           )}
           {renderDoctorsDropdown()}
         </div>
+
+        <div className="form-section">
+          <label>
+            Clinic Name
+          </label>
+          <Input
+            readOnly
+            value={initialData?.clinicData?.hm_name}
+            className="phone-input readonly-input"
+            style={{ backgroundColor: "#F1F1F5" }}
+          />
+        </div>
+
+        <div className="form-section">
+          <label>
+            Clinic Pincode
+          </label>
+          <Input
+            readOnly
+            value={initialData?.clinicData?.hm_pincode}
+            className="phone-input readonly-input"
+            style={{ backgroundColor: "#F1F1F5" }}
+            suffix={
+              <span className="location" style={{ color: "#666" }}>
+                {/* Bengaluru, KA */}
+              </span>
+            }
+          />
+        </div>
+
+        <div className="form-section">
+          <label>
+            Clinic Address
+          </label>
+          <Input
+            readOnly
+            value={initialData?.clinicData?.hm_address}
+            className="phone-input readonly-input"
+            style={{ backgroundColor: "#F1F1F5" }}
+          />
+        </div>
+
       </div>
       {renderPreview()}
     </div>
