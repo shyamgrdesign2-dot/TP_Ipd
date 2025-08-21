@@ -55,6 +55,7 @@ const PreviewDrawer = forwardRef(
   ) => {
     const dispatch = useDispatch();
     const [selectedFileIndex, setSelectedFileIndex] = useState(0);
+    const [croppedImgDimensions, setCroppedImgDimensions] = useState({});
     const [selectedFileId, setSelectedFileId] = useState(
       uploadedFiles?.[0]?.id || null
     );
@@ -64,9 +65,6 @@ const PreviewDrawer = forwardRef(
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    // preview that matches rotation without CSS transform
-    const [displayUrl, setDisplayUrl] = useState(baseUrl);
-
     const { fileUploadToken } = useSelector((state) => state.snapRx);
     const imageRefs = useRef(new Map());
     const canvasRefs = useRef(new Map());
@@ -144,51 +142,22 @@ const PreviewDrawer = forwardRef(
     }, [uploadedFiles?.length, selectedFileIndex, selectedFileId]);
 
     const currentFile = uploadedFiles?.[selectedFileIndex];
-    const baseUrl = currentFile?.fileUrl || currentFile?.preview;
-    
+    const imageUrl = currentFile?.fileUrl || currentFile?.preview;
+    const imageRotation = currentFile?.rotation || 0;
     useEffect(() => {
-      let revokeUrl = null;
-      let cancelled = false;
-    
-      if (!baseUrl || !currentFile) return;
-
-      if (!currentFile.rotation) {
-        setDisplayUrl(baseUrl);
-        return () => {};
+      if (imageUrl) {
+        const img = new Image();
+        img.onload = () => {
+          setImageLoaded(true);
+          setImageError(false);
+        };
+        img.onerror = () => {
+          setImageError(true);
+          setImageLoaded(false);
+        };
+        img.src = imageUrl;
       }
-      const img = new Image();
-      if (!baseUrl.startsWith("blob:")) img.crossOrigin = "anonymous";
-      img.onload = () => {
-        if (cancelled) return;
-        try {
-          const canvas = drawRotatedCanvasFromImageEl(img, currentFile.rotation);
-          canvas.toBlob(
-            (blob) => {
-              if (cancelled || !blob) {
-                setDisplayUrl(baseUrl);
-                return;
-              }
-              const url = URL.createObjectURL(blob);
-              revokeUrl = url;
-              setDisplayUrl(url);
-            },
-            "image/jpeg",
-            0.95
-          );
-        } catch {
-          setDisplayUrl(baseUrl);
-        }
-      };
-      img.onerror = () => {
-        if (!cancelled) setDisplayUrl(baseUrl);
-      };
-      img.src = baseUrl;
-    
-      return () => {
-        cancelled = true;
-        if (revokeUrl) URL.revokeObjectURL(revokeUrl);
-      };
-    }, [baseUrl, currentFile?.rotation]);
+    }, [imageUrl, imageRotation, uploadedFiles?.length]);
 
     const onImageLoad = useCallback(
       (e, fileId) => {
@@ -210,16 +179,25 @@ const PreviewDrawer = forwardRef(
       [uploadedFiles, handleUpdatedFiles]
     );
 
-    const getCroppedImg = async (image, crop, fileId, rotation = 0, fileZoom = 1) => {
+    const getCroppedImg = async (image, crop, fileId, rotation = 0, fileZoom = 1, totalFile) => {
       const canvas = canvasRefs.current.get(fileId)?.current;
       if (!canvas || !crop) return null;
 
       const naturalWidth = image.naturalWidth || image.width;
       const naturalHeight = image.naturalHeight || image.height;
 
-      const scaleX = naturalWidth / image.width;
-      const scaleY = naturalHeight / image.height;
-      
+      let imgWidth = image.width;
+      let imgHeight = image.height;
+      if (naturalHeight === image.height && totalFile?.manualHeight) {
+        imgHeight = totalFile.manualHeight;
+      }
+      if (naturalWidth === image.width && totalFile?.manualWidth) {
+        imgWidth = totalFile.manualWidth;
+      }
+
+      const scaleX = naturalWidth / imgWidth;
+      const scaleY = naturalHeight / imgHeight;
+
       const rotatedCanvas = document.createElement("canvas");
       const rotatedCtx = rotatedCanvas.getContext("2d");
 
@@ -269,24 +247,6 @@ const PreviewDrawer = forwardRef(
       });
     };
     
-      const pxOnDisplay = percentCropToPx(crop, imageEl);
-      const nat = pxDisplayToNatural(pxOnDisplay, imageEl);
-      const rotatedCanvas = drawRotatedCanvasFromImageEl(imageEl, rotation);
-      const finalCanvas = document.createElement("canvas");
-      finalCanvas.width = nat.width;
-      finalCanvas.height = nat.height;
-      const ctx = finalCanvas.getContext("2d");
-      ctx.drawImage(
-        rotatedCanvas,
-        nat.x, nat.y, nat.width, nat.height,
-        0, 0, nat.width, nat.height
-      );
-    
-      return new Promise((resolve) =>
-        finalCanvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.95)
-      );
-    };
-
     const showHideModal = () => {
       setIsModalOpen(!isModalOpen);
     };
@@ -337,10 +297,13 @@ const PreviewDrawer = forwardRef(
                 hiddenImg.style.pointerEvents = "none";
                 hiddenImg.style.zIndex = "-1";
                 document.body.appendChild(hiddenImg);
-
                 if (!imageRefs.current.get(file.id)?.current) {
                   imageRefs.current.set(file.id, { current: hiddenImg });
                 }
+                const manualDimensions = {
+                  manualWidth: croppedImgDimensions?.[file.id]?.width,
+                  manualHeight: croppedImgDimensions?.[file.id]?.height,
+                };
                 if (!file.crop || Object.keys(file.crop)?.length === 0) {
                   const defaultCrop = {
                     unit: "%",
@@ -349,10 +312,10 @@ const PreviewDrawer = forwardRef(
                     width: 100,
                     height: 100,
                   };
-                  return { ...file, crop: defaultCrop };
+                  return { ...file, crop: defaultCrop, ...manualDimensions };
                 }
-                resolve(file);
-                return file;
+                resolve({ ...file, ...manualDimensions });
+                return { ...file, ...manualDimensions };
               };
               img.onerror = () => {
                 console.error(`Failed to load image for file ${file.id}`);
@@ -402,19 +365,23 @@ const PreviewDrawer = forwardRef(
                 imageRefs.current?.get(updatedFile.id)?.current,
                 updatedFile.crop,
                 updatedFile.id,
-                updatedFile.rotation || 0
+                updatedFile.rotation || 0,
+                updatedFile.zoom || 1,
+                updatedFile
               );
               if (croppedBlob) {
-                let fileName = updatedFile.name || "image.jpeg";
-                if (fileName.toLowerCase().endsWith(".pdf"))
+                let fileName = updatedFile.name;
+                if (fileName?.toLowerCase()?.endsWith(".pdf")) {
                   fileName = fileName.slice(0, -4);
-                if (!/\.(jpeg|jpg|png)$/i.test(fileName)) fileName += ".jpeg";
+                }
+                if (!fileName?.toLowerCase()?.match(/\.(jpeg|jpg|png)$/)) {
+                  fileName += ".jpeg";
+                }
 
                 const croppedFile = new File([croppedBlob], fileName, {
                   type: "image/jpeg",
                 });
                 const croppedUrl = URL.createObjectURL(croppedBlob);
-
                 return {
                   ...updatedFile,
                   name: fileName,
@@ -464,13 +431,12 @@ const PreviewDrawer = forwardRef(
                 handleGoBackToMainFiles();
                 setHasUploadedFiles(true);
               }, 500);
-              const totalUploadBytes = updatedCroppedFiles.reduce(
-                (acc, f) => acc + (f.file?.size || 0),
-                0
-              );
               trackEvent(EVENTS.SNAP_RX.uploadSuccess, {
                 file_type: "img",
-                file_size: totalUploadBytes,
+                file_size: updatedCroppedFiles?.reduce(
+                  (acc, file) => acc + file.size,
+                  0
+                ),
                 upload_time: (Date.now() - apiStartTime) / 1000,
                 upload_source: "EMR",
               });
@@ -484,8 +450,7 @@ const PreviewDrawer = forwardRef(
             setIsSubmitting(false);
           }
         } catch (error) {
-          if (error?.response?.status === 401) {
-            // TODO: INTEL - handle better
+          if (error?.response?.status === 401) { // TODO: INTEL - handle better
             dispatch(resetFileUploadToken());
             handleGoBackToMainFiles();
           } else {
@@ -499,6 +464,14 @@ const PreviewDrawer = forwardRef(
     const handleCropChange = (newCrop, fileId) => {
       const updatedCropFiles = uploadedFiles?.map((file, _) => {
         if (fileId === file.id) {
+          setCroppedImgDimensions({
+            ...croppedImgDimensions,
+            [file.id]: {
+              width: imageRefs.current.get(file.id)?.current?.width,
+              height: imageRefs.current.get(file.id)?.current?.height,
+              img: imageRefs.current.get(file.id)?.current,
+            },
+          });
           return { ...file, crop: newCrop };
         }
         return file;
@@ -553,7 +526,6 @@ const PreviewDrawer = forwardRef(
       try {
         const blob = await rotateImage90(imgEl, 'left');
         const url = URL.createObjectURL(blob);
-        console.log("intel ==>", {blob, imgEl})
     
         if (file.preview?.startsWith('blob:')) {
           try { URL.revokeObjectURL(file.preview); } catch {}
@@ -773,7 +745,6 @@ const PreviewDrawer = forwardRef(
                   <div className="crop-container">
                     <ReactCrop
                       crop={cropOfFile}
-                      key={displayUrl}      
                       keepSelection
                       onChange={(newCrop) =>
                         handleCropChange(newCrop, selectedFileId)
@@ -782,16 +753,10 @@ const PreviewDrawer = forwardRef(
                         handleCropChange(completedCrop, selectedFileId)
                       }
                       className="react-crop-wrapper"
-                      style={{
-                        transform: `scale(${currentFile?.zoom || 1}) rotate(${
-                          currentFile?.rotation || 0
-                        }deg)`,
-                        transformOrigin: "center center",
-                      }}
                     >
                       <img
                         ref={imageRefs.current.get(selectedFileId)}
-                        src={displayUrl}            // <- see the next step
+                        src={imageUrl}
                         alt="Prescription"
                         className="prescription-image"
                         onLoad={(e) => onImageLoad(e, selectedFileId)}
