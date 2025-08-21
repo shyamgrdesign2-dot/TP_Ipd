@@ -29,7 +29,7 @@ import CommonModal from "../common/CommonModal";
 
 import "../components/bulk_messages/messages.scss";
 import { InfoCircleOutlined } from '@ant-design/icons';
-import { fetchAgents } from "../pages/appointmentAgent/service";
+import { fetchAgents, fetchGoogleMapsLink } from "../pages/appointmentAgent/service";
 import { getDecodedToken } from "../utils/localStorage";
 
 const { RangePicker } = DatePicker;
@@ -81,6 +81,7 @@ function MessageCreateCampaign() {
     const [clinic_name, setclinic_name] = useState('');
     const [agent_name, setagent_name] = useState(state.setupData?.name || "");
     const [agent_link, setagent_link] = useState(state.setupData?.appointmentLinkShared || "");
+    const [location_link, setlocation_link] = useState("");
     const [regards_as_hospital, setregards_as_hospital] = useState('');
     const [clinic_address, setclinic_address] = useState('');
     const [festival_name, setfestival_name] = useState('');
@@ -168,7 +169,8 @@ function MessageCreateCampaign() {
             setTemplate(templateData)
 
             if (campaign_data?.msg_rowData?.hasOwnProperty('clinic_name')) {
-                setclinic_name(campaign_data?.msg_rowData?.clinic_name)
+                setclinic_name(campaign_data?.msg_rowData?.clinic_name);
+                setregards_as_hospital(campaign_data?.msg_rowData?.clinic_name);
             }
             if (campaign_data?.msg_rowData?.hasOwnProperty('agent_name')) {
                 setagent_name(campaign_data?.msg_rowData?.agent_name)
@@ -176,8 +178,12 @@ function MessageCreateCampaign() {
             if (campaign_data?.msg_rowData?.hasOwnProperty('agent_link')) {
                 setagent_link(campaign_data?.msg_rowData?.agent_link)
             }
+            if (campaign_data?.msg_rowData?.hasOwnProperty('location_link')) {
+                setlocation_link(campaign_data?.msg_rowData?.location_link)
+            }
             if (campaign_data?.msg_rowData?.hasOwnProperty('regards_as_hospital')) {
-                setregards_as_hospital(campaign_data?.msg_rowData?.regards_as_hospital)
+                setregards_as_hospital(campaign_data?.msg_rowData?.regards_as_hospital);
+                setclinic_name(campaign_data?.msg_rowData?.clinic_name);
             }
             if (campaign_data?.msg_rowData?.hasOwnProperty('clinic_address')) {
                 setclinic_address(campaign_data?.msg_rowData?.clinic_address)
@@ -295,6 +301,7 @@ function MessageCreateCampaign() {
 
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('clinic_name')) {
                 setclinic_name(reuse_campaign_data?.msg_rowData?.clinic_name)
+                setregards_as_hospital(reuse_campaign_data?.msg_rowData?.clinic_name);
             }
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('agent_name')) {
                 setagent_name(reuse_campaign_data?.msg_rowData?.agent_name)
@@ -302,8 +309,12 @@ function MessageCreateCampaign() {
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('agent_link')) {
                 setagent_link(reuse_campaign_data?.msg_rowData?.agent_link)
             }
+            if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('location_link')) {
+                setlocation_link(reuse_campaign_data?.msg_rowData?.location_link)
+            }
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('regards_as_hospital')) {
-                setregards_as_hospital(reuse_campaign_data?.msg_rowData?.regards_as_hospital)
+                setregards_as_hospital(reuse_campaign_data?.msg_rowData?.regards_as_hospital);
+                setclinic_name(reuse_campaign_data?.msg_rowData?.clinic_name);
             }
             if (reuse_campaign_data?.msg_rowData?.hasOwnProperty('clinic_address')) {
                 setclinic_address(reuse_campaign_data?.msg_rowData?.clinic_address)
@@ -460,9 +471,9 @@ function MessageCreateCampaign() {
     }, [selectedCategory, state?.category]);
 
     useEffect(() => {
+        const decodedToken = getDecodedToken();
+        const clinicId = decodedToken?.result?.clinic_id;
         async function fetchAgentData() {
-            const decodedToken = getDecodedToken();
-            const clinicId = decodedToken?.result?.clinic_id;
             if (clinicId) {
                 const res = await fetchAgents(clinicId);
                 if (res && res.length > 0) {
@@ -474,7 +485,15 @@ function MessageCreateCampaign() {
         if (selectedCategory === 6 || state?.category === 'ai-receptionist') {
             fetchAgentData();
         }
+        getGoogleLink(clinicId);
     }, [selectedCategory, state?.category]);
+
+    const getGoogleLink = async (clinicId) => {
+      const res = await fetchGoogleMapsLink(clinicId);
+      if (res) {
+        setlocation_link(res);
+      }
+    };
 
     //Message Details
     const handleAvailableCredit = useCallback(
@@ -812,7 +831,10 @@ function MessageCreateCampaign() {
                             }}
                             maxLength={30}
                             value={clinic_name}
-                            onChange={(e) => setclinic_name(e.target.value)}
+                            onChange={(e) => {
+                                setclinic_name(e.target.value);
+                                setregards_as_hospital(e.target.value);
+                            }}
                             placeholder="Enter clinic name"
                             className="me-1 my-1 fw-medium"
                         />
@@ -858,6 +880,24 @@ function MessageCreateCampaign() {
                         />
                     );
                 }
+                else if (part === 'location_link') {
+                    return (
+                        <Input
+                            readOnly
+                            key={index}
+                            style={{
+                                height: '30px',
+                                width: location_link ? parseInt(location_link?.length * 7.55) >= 150 ? location_link?.length * 7.55 : 150 : 150,
+                                maxWidth: 250,
+                                border: "none",
+                            }}
+                            classNames="text-greycolor"
+                            value={location_link}
+                            placeholder="Enter google map link"
+                            className="me-1 my-1 fw-medium"
+                        />
+                    );
+                }
                 else if (part === 'regards_as_hospital') {
                     return (
                         <Input
@@ -871,7 +911,7 @@ function MessageCreateCampaign() {
                             value={ regards_as_hospital || clinic_name}
                             onChange={(e) => {
                                 setregards_as_hospital(e.target.value);
-                                // setclinic_name(e.target.value);
+                                setclinic_name(e.target.value);
                             }}
                             placeholder="Enter clinic name"
                             className="me-1 my-1 fw-medium"
@@ -1186,6 +1226,7 @@ function MessageCreateCampaign() {
         clinic_name,
         agent_name,
         agent_link,
+        location_link,
         regards_as_hospital,
         clinic_address,
         festival_name,
@@ -1213,6 +1254,7 @@ function MessageCreateCampaign() {
             .replace(/{clinic_name}/g, clinic_name ? clinic_name : '{clinic_name}')
             .replace(/{agent_name}/g, agent_name ? agent_name : '{agent_name}')
             .replace(/{agent_link}/g, agent_link ? agent_link : '{agent_link}')
+            .replace(/{location_link}/g, location_link ? location_link : '{location_link}')
             .replace(/{regards_as_hospital}/g, regards_as_hospital ? regards_as_hospital : '{regards_as_hospital}')
             .replace(/{clinic_address}/g, clinic_address ? clinic_address : '{clinic_address}')
             .replace(/{festival_name}/g, festival_name ? festival_name : '{festival_name}')
@@ -1237,6 +1279,7 @@ function MessageCreateCampaign() {
         template,
         clinic_name,
         agent_link,
+        location_link,
         regards_as_hospital,
         agent_name,
         clinic_address,
@@ -1275,8 +1318,11 @@ function MessageCreateCampaign() {
                 else if (part === 'agent_link') {
                     msg_rowData['agent_link'] = agent_link;
                 }
+                else if (part === 'location_link') {
+                    msg_rowData['location_link'] = location_link;
+                }
                 else if (part === 'regards_as_hospital') {
-                    msg_rowData['regards_as_hospital'] = regards_as_hospital;
+                    msg_rowData['regards_as_hospital'] = clinic_name;
                 }
                 else if (part === 'clinic_address') {
                     msg_rowData['clinic_address'] = clinic_address;
@@ -1604,6 +1650,7 @@ function MessageCreateCampaign() {
                                                                 .replace(/{clinic_name}/g, `<label class="text-greycolor">{clinic_name}</label>`)
                                                                 .replace(/{agent_name}/g, `<label class="text-greycolor">{agent_name}</label>`)
                                                                 .replace(/{agent_link}/g, `<label class="text-greycolor">{agent_link}</label>`)
+                                                                .replace(/{location_link}/g, `<label class="text-greycolor">{location_link}</label>`)
                                                                 .replace(/{regards_as_hospital}/g, `<label class="text-greycolor">{regards_as_hospital}</label>`)
                                                                 .replace(/{clinic_address}/g, `<label class="text-greycolor">{clinic_address}</label>`)
                                                                 .replace(/{festival_name}/g, `<label class="text-greycolor">{festival_name}</label>`)

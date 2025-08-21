@@ -359,6 +359,7 @@ const UploadWrittenRx = forwardRef(
       if (!shortLink) {
         return "";
       }
+      console.log('shortLink ==>', shortLink)
       return shortLink;
     }, [shortLink]);
 
