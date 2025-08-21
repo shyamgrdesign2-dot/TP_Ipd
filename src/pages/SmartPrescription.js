@@ -1310,34 +1310,31 @@ function SmartPrescription() {
     });
   };
 
-  // // Function to handle RX type selection
-  // const handleRxTypeSelection = (rxType) => {
-  //   setSelectedRxType(rxType);
+  // Function to get scale factors for X and Y axes
+  const getScaleFactors = () => {
+    // Canvas dimensions
+    const canvasWidth = 720;
+    const canvasHeight = 980;
     
-  //   if (rxType === "none") {
-  //     // Clear RX images and create blank pages
-  //     setSmartRxFiles([]);
-  //     setCustomRxImages([]);
-  //     setImageLoaded({});
-  //     setImageRefs({});
-      
-  //     // Create a blank page if none exists
-  //     if (pages.length === 0) {
-  //       handleAddPage();
-  //     }
-  //   } else {
-  //     // Load RX images for the selected type
-  //     if (smartRxFilesData?.length > 0) {
-  //       setLoading(true);
-  //       setSmartRxFiles(smartRxFilesData);
-  //       loadRxImages();
-  //     }
-  //   }
-  // };
+    // Coordinate ranges from your system
+    const xMin = 3;
+    const xMax = 475;
+    const yMin = 0;
+    const yMax = 650;
+    
+    // Calculate scale factors
+    const xScaleFactor = canvasWidth / (xMax - xMin);
+    // const yScaleFactor = canvasHeight / (yMax - yMin);
+    const yScaleFactor = 1.5;
+    
+    return { xScaleFactor, yScaleFactor };
+  };
 
-  // Function to get scale factor (default for all templates)
+  // Function to get scale factor (default for all templates) - keeping for backward compatibility
   const getScaleFactor = () => {
-    return 1.5; // Default scale factor for all templates
+    const { xScaleFactor, yScaleFactor } = getScaleFactors();
+    // Return average scale factor for backward compatibility
+    return (xScaleFactor + yScaleFactor) / 2;
   };
 
   // Function to check if there are unsaved changes on the current canvas
@@ -2094,18 +2091,15 @@ function SmartPrescription() {
       ctx.fillStyle = "#fff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     } 
-    // else {
-    //   console.log('🖼️ Preserving canvas background (template or smart RX)');
-    // }
     
-    // Use scale factor
-    const scaleFactor = getScaleFactor();
+    // Get proper scale factors for X and Y axes
+    const { xScaleFactor, yScaleFactor } = getScaleFactors();
 
     // Set consistent styles
     ctx.strokeStyle = "#000"; // Example color for regular drawing
 
-    ctx.moveTo(t * scaleFactor, n * scaleFactor);
-    ctx.lineTo(a * scaleFactor, c * scaleFactor);
+    ctx.moveTo(t * xScaleFactor, n * yScaleFactor);
+    ctx.lineTo(a * xScaleFactor, c * yScaleFactor);
     ctx.lineJoin = ctx.lineCap = "round";
     ctx.stroke();
     if (!dataPresentInCanvas[selectedPage]) {
@@ -2118,13 +2112,13 @@ function SmartPrescription() {
   function editDraw(t, n, a, c, pageIndex) {
     const canvas = canvasRefs.current[pageIndex];
     if (!canvas) return;
-    // Use scale factor
-    const scaleFactor = getScaleFactor();
+    // Get proper scale factors for X and Y axes
+    const { xScaleFactor, yScaleFactor } = getScaleFactors();
     
     ctxGlobalRefs.current[pageIndex].strokeStyle = "#000";
     ctxGlobalRefs.current[pageIndex].beginPath();
-    ctxGlobalRefs.current[pageIndex].moveTo(t * scaleFactor, n * scaleFactor);
-    ctxGlobalRefs.current[pageIndex].lineTo(a * scaleFactor, c * scaleFactor);
+    ctxGlobalRefs.current[pageIndex].moveTo(t * xScaleFactor, n * yScaleFactor);
+    ctxGlobalRefs.current[pageIndex].lineTo(a * xScaleFactor, c * yScaleFactor);
     ctxGlobalRefs.current[pageIndex].lineJoin = ctxGlobalRefs.current[
       pageIndex
     ].lineCap = "round";
