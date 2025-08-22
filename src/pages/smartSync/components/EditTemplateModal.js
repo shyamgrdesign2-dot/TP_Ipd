@@ -60,7 +60,6 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
   // Initialize edit data when template changes
   useEffect(() => {
     if (template && visible) {
-      console.log('🔧 Initializing edit data for template:', template.title);
       
       // Convert template data to file format (exactly like upload drawer)
       const editPages = template.uploaded_files.map((file, index) => ({
@@ -386,7 +385,6 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
       })
     }));
     
-    console.log('✅ Page reset completed for page', selectedPageIndex + 1);
   };
 
   // Convert PDF to image for cropping with timeout and corruption handling
@@ -786,9 +784,7 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
     
     try {
       message.loading('Updating template...', 0);
-      
-      console.log('🔧 Preparing template data for update...');
-      
+            
       // ✅ FIXED: Auto-save current page state before submitting
       if (cropperRef.current?.cropper) {
         await autoSavePageState(false);
@@ -819,9 +815,7 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
                     // Fallback to stored image data
                   }
                 }
-                
-                console.log(`🖼️ Creating File object for page ${index + 1}`);
-                
+                                
                 // Convert image to File object with unique name
                 const uniqueId = Date.now() + Math.random().toString(36).substr(2, 9);
                 fileToUpload = await dataUrlToFileUsingFetch(
@@ -830,7 +824,7 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
                   'image/png'
                 );
               } catch (error) {
-                console.error(`❌ Failed to create File object for page ${index + 1}:`, error);
+                console.error(`Failed to create File object for page ${index + 1}:`, error);
                 throw new Error(`Failed to prepare file for page ${index + 1}: ${error.message}`);
               }
             } else {
@@ -855,7 +849,6 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
         files: filesForUpload
       };
 
-      console.log(`✅ Template data prepared: "${templateData.title}" with ${templateData.files.length} files`);
 
       const result = await updateCustomSyncPadTemplate(
         file.id,
@@ -869,35 +862,28 @@ const EditTemplateModal = ({ visible, onClose, template, onSave }) => {
       message.destroy();
       
       if (result.success) {
-        console.log('✅ Update successful, calling onSave and closing...');
         message.success('Template updated successfully!');
         
         // Call the onSave callback with the response data
         if (onSave) {
-          console.log('📞 Calling onSave callback...');
           onSave(result.data);
         }
         
-        console.log('🚪 Closing drawer...');
         onClose();
         
         // Reset state
-        console.log('🧹 Resetting state...');
         setFile(null);
         setZoom(1);
         setSelectedPageIndex(0);
         setIsProcessing(false);
         
-        console.log('✅ Update process completed successfully');
       } else {
-        console.log('❌ Update failed with error:', result.error);
         message.error(result.error || 'Failed to update template');
         setIsProcessing(false);
       }
     } catch (error) {
       message.destroy();
-      console.error('💥 Exception in handleSave:', error);
-      console.error('Error stack:', error.stack);
+      console.error('Exception in handleSave:', error);
       message.error('Failed to update template. Please try again.');
       setIsProcessing(false);
     }

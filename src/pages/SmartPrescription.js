@@ -370,25 +370,19 @@ function SmartPrescription() {
     // smartRxFiles should take priority over templates
     if (!smartRxFilesData || smartRxFilesData.length === 0) {
       loadCustomTemplates();
-    } else {
-      console.log('📱 SmartRxFiles present on mount, skipping template loading');
     }
   }, [smartRxFilesData]);
 
   // Auto-load template images when selectedTemplateId changes
   useEffect(() => {
-    console.log("THIS IS GETTING CALLED")
     // Only load template images if there are no smartRxFiles
     // smartRxFiles should take priority over templates
     if (selectedTemplateId && selectedTemplateId !== 'none' && templates.length > 0 && 
         (!smartRxFiles || smartRxFiles.length === 0)) {
       const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
       if (selectedTemplate) {
-        console.log('Loading template images (no smartRxFiles present)');
         loadTemplateImages(selectedTemplate);
       }
-    } else if (smartRxFiles && smartRxFiles.length > 0) {
-      console.log('SmartRxFiles present, skipping template loading');
     }
   }, [selectedTemplateId, smartRxFiles.length]); // Only depend on length, not the array reference
 
@@ -407,14 +401,11 @@ function SmartPrescription() {
           const defaultTemplate = result.data.find(template => template.default === true);
           if (defaultTemplate) {
             setSelectedTemplateId(defaultTemplate.id);
-            console.log('Auto-selected default template:', defaultTemplate.title);
           } else if (!selectedTemplateId && !preserveSelection) {
             // Fallback to first template if no default template found
             setSelectedTemplateId(result.data[0].id);
-            console.log('Auto-selected first template:', result.data[0].title);
           }
         } else {
-          console.log('SmartRxFiles present, not auto-selecting template');
           // Keep template selection as 'none' when smartRxFiles are present
           setSelectedTemplateId('none');
         }
@@ -2018,7 +2009,6 @@ function SmartPrescription() {
           img.src = smartRxImage;
           img.crossOrigin = "anonymous";
           img.onload = () => {
-            console.log('📱 SmartRx image reloaded for page:', currentPageId);
             ctx.drawImage(img, 0, 0, 720, 980);
             
             // Update the image refs
@@ -2046,7 +2036,6 @@ function SmartPrescription() {
               img.src = templateImage.file_url;
               img.crossOrigin = "anonymous";
               img.onload = () => {
-                console.log('Template image reloaded for page:', currentPageId, 'template index:', templateImageIndex);
                 // Draw the template image
                 ctx.drawImage(img, 0, 0, 720, 980);
                 
@@ -2067,7 +2056,6 @@ function SmartPrescription() {
             console.error('No template or uploaded files found');
           }
         } else {
-          console.log('Not a template page, cleared to blank canvas for page:', currentPageId);
           // For blank pages, just clear and leave as white background
           ctx.fillStyle = "#fff";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -2330,9 +2318,6 @@ function SmartPrescription() {
           // Only draw template image if canvas is empty
           ctx.drawImage(imageRefs[pageId], 0, 0, 720, 980);
           ctxGlobalRefs.current[pageId] = ctx;
-          console.log('Template image drawn on page:', pageId);
-        } else {
-          console.log('Preserving user drawings on page:', pageId);
         }
       }
     });

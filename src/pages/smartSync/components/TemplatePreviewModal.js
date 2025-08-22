@@ -129,16 +129,8 @@ const TemplatePreviewModal = ({
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      console.log('🗑️ Template object for deletion:', template);
-      console.log('🗑️ Template ID fields:', { 
-        id: template.id, 
-        unique_id: template.unique_id,
-        _id: template._id 
-      });
-      
       // Use the id field as shown in the curl example
       const templateId = template.id;
-      console.log('🗑️ Using template ID for deletion:', templateId);
       
       if (!templateId) {
         throw new Error('Template ID not found');
@@ -159,7 +151,7 @@ const TemplatePreviewModal = ({
         message.error(result.error || 'Failed to delete template');
       }
     } catch (error) {
-      console.error('❌ Delete error:', error);
+      console.error('Delete error:', error);
       message.error('Error deleting template. Please try again.');
     } finally {
       setIsDeleting(false);

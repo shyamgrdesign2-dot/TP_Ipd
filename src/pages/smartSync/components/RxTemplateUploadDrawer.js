@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Drawer, Button, message } from 'antd';
-// import { Cropper } from 'react-cropper';
-// import 'cropperjs/dist/cropper.css';
 import { PlusOutlined, MinusOutlined, RedoOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { pdfjs } from "react-pdf";
 import {
@@ -78,10 +76,7 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
     return () => {
       // Cleanup function for component unmount
       try {
-        // if (cropperRef.current?.cropper) {
-        //   cropperRef.current.cropper.destroy();
-        // }
-        // Clear auto-save timeout
+
         if (autoSaveTimeoutRef.current) {
           clearTimeout(autoSaveTimeoutRef.current);
         }
@@ -368,79 +363,6 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
     }
   };
 
-  // Auto-save function that saves current page state independently
-  // const autoSavePageState = async (isCropOperation = false) => {
-  //   const currentPageIndex = currentPageIndexRef.current;
-    
-  //   if (!file?.pages || !file.pages[currentPageIndex] || !cropperRef.current?.cropper) {
-  //     return;
-  //   }
-
-  //   try {
-  //     const cropper = cropperRef.current.cropper;
-      
-  //     // Ensure cropper is ready
-  //     if (!cropper.ready) {
-  //       return;
-  //     }
-      
-  //       const currentPage = file.pages[currentPageIndex];
-      
-  //       // Get current cropper data
-  //       const cropBoxData = cropper.getData();
-  //       const currentZoom = currentPage.zoom || 1;
-  //       // ✅ FIXED: Get current rotation from cropper, not from stored state
-  //       const currentRotation = cropBoxData.rotate || 0;
-      
-  //       let croppedImage = currentPage.croppedImage;
-  //       let uploadFile = currentPage.uploadFile;
-      
-  //       // If this is a crop operation, generate new cropped image
-  //       if (isCropOperation) {
-  //         const trimData = cropper.getCropper().toDataURL('image/png');
-  //         uploadFile = await dataUrlToFileUsingFetch(
-  //           trimData,
-  //           `rx-template-page${currentPageIndex + 1}.png`,
-  //           'image/png'
-  //         );
-  //         croppedImage = trimData;
-  //       }
-      
-  //       // Update page with auto-saved state - ONLY the current page
-  //       setFile(prev => ({
-  //         ...prev,
-  //         pages: prev.pages.map((page, idx) =>
-  //           idx === currentPageIndex
-  //             ? {
-  //                 ...page,
-  //                   zoom: currentZoom,
-  //                   rotation: currentRotation,
-  //                   cropBoxData: cropBoxData,
-  //                   croppedImage: croppedImage,
-  //                   uploadFile: uploadFile,
-  //                   hasBeenEdited: true,
-  //                   isReady: true,
-  //                   showFile: croppedImage || page.showFile,
-  //                   // Update auto-saved state for THIS page only
-  //                   autoSavedState: {
-  //                     zoom: currentZoom,
-  //                     rotation: currentRotation,
-  //                     cropBoxData: cropBoxData,
-  //                   croppedImage: croppedImage,
-  //                   hasBeenEdited: true
-  //                 }
-  //               }
-  //             : page // Keep other pages unchanged
-  //         )
-  //       }));
-      
-  //     } catch (error) {
-  //       console.error('Auto-save failed:', error);
-  //       message.error('Auto-save failed. Please try again.');
-  //       }
-  //   }
-  // };
-
   // Drag and drop handlers for page reordering
   const handleDragStart = (event) => {
     // Prevent page selection during drag
@@ -478,40 +400,6 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       }
     }
   };
-
-  // Function to restore auto-saved state when navigating to a page
-  // const restorePageState = (pageIndex) => {
-  //   if (!file?.pages || !file.pages[pageIndex]) {
-  //     return;
-  //   }
-    
-  //   const page = file.pages[pageIndex];
-    
-  //   // Wait for cropper to be ready
-  //   setTimeout(() => {
-  //     if (cropperRef.current?.cropper) {
-  //       const cropper = cropperRef.current.cropper;
-        
-  //       // Restore zoom
-  //       if (page.zoom && page.zoom !== 1) {
-  //         cropper.zoomTo(page.zoom);
-  //         setZoom(page.zoom); // Also update the zoom state
-  //       } else {
-  //         setZoom(1);
-  //       }
-        
-  //       // Restore rotation using setData
-  //       if (page.rotation && page.rotation !== 0) {
-  //         cropper.setData({ rotate: page.rotation });
-  //       }
-        
-  //       // Restore crop box if it exists
-  //       if (page.cropBoxData) {
-  //         cropper.setData({ rotate: page.rotation });
-  //       }
-  //     }
-  //   }, 100);
-  // };
 
   // Sortable thumbnail component
   const SortableThumbnail = ({ page, index }) => {
@@ -600,11 +488,6 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       return;
     }
     
-    // ✅ FIXED: Auto-save current page state before submitting
-    // if (cropperRef.current?.cropper) {
-    //   await autoSavePageState(false);
-    // }
-    
     // Create proper file objects for each page
     const filesForUpload = await Promise.all(
       file.pages.map(async (page, index) => {
@@ -615,22 +498,7 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
           if (page.showFile || page.image) {
             try {       
               let imageData = page.showFile || page.image;
-              
-              // ✅ FIXED: Get current state from cropper for the selected page
-              // if (index === selectedPageIndex && cropperRef.current?.cropper) {
-              //   const cropper = cropperRef.current.cropper;
-              //   try {
-              //     // Get the current canvas with all transformations applied
-              //     const canvas = cropper.getCroppedCanvas() || cropper.getCanvas();
-              //     if (canvas) {
-              //       imageData = canvas.toDataURL('image/png', 0.9);
-              //     }
-              //   } catch (error) {
-              //     console.warn(`Could not get current cropper state for page ${index + 1}:`, error);
-              //     // Fallback to stored image data
-              //   }
-              // }
-                            
+                    
               // Convert image to File object with unique name
               const uniqueId = Date.now() + Math.random().toString(36).substr(2, 9);
               fileToUpload = await dataUrlToFileUsingFetch(
