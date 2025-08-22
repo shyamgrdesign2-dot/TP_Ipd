@@ -1047,10 +1047,10 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
             {!file ? 'Upload Custom Rx Canvas' : 'Custom Rx Canvas Preview'}
           </div>
           <div className="rx-upload-header-actions">
-            <button className="rx-upload-tutorial">
+            {/* <button className="rx-upload-tutorial">
               <img src={tutorialIcon} alt="Tutorial" className="rx-upload-tutorial-icon" height="24"/>
               Tutorial
-            </button>
+            </button> */}
             <button 
               type="default"
               className="rx-upload-submit" 
