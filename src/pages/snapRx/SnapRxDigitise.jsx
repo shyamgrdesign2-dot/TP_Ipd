@@ -162,11 +162,11 @@ function SnapRxDigitise() {
       <div
         className={`${
           isMobile ? "p-0" : ""
-        } w-100 bg-body prescription-wrapper`}
+        } w-100 bg-body prescription-wrapper srx-drx-container`}
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
           <Col md={17} lg={17} xl={10}>
-            <div className="appointment-wrap PatientDetailswrap m-0">
+            <div className="appointment-wrap PatientDetailswrap m-0 drx-written-container">
               <Card className="">
                 <>
                   <Card.Header className="bg-white py-3">
@@ -181,7 +181,7 @@ function SnapRxDigitise() {
                       </div>
                     </div>
                   </Card.Header>
-                  <Card.Body className="p-0 cardbody-data ">
+                  <Card.Body className="p-0 cardbody-data written-rx ">
                     {loading ? (
                       <div className="d-flex flex-column justify-content-center">
                         <div className="align-items-center text-center">
@@ -204,8 +204,8 @@ function SnapRxDigitise() {
             </div>
           </Col>
           <Col md={17} lg={17} xl={10}>
-            <div className="appointment-wrap PatientDetailswrap m-0">
-              <Card className={isLoading ? 'border-none' : null}>
+            <div className="appointment-wrap PatientDetailswrap m-0 drx-h-full drx-digitize-container">
+            <Card className={isLoading ? 'border-none' : null}>
                 <>
                   <Card.Header className={`bg-white py-3 ${isLoading ? 'border-none' : null}`}>
                     <div className="d-flex align-items-center justify-content-between">
@@ -219,7 +219,7 @@ function SnapRxDigitise() {
                       </div>
                     </div>
                   </Card.Header>
-                  <Card.Body className="p-0 cardbody-data" style={{border: 'none'}}>
+                  <Card.Body className="p-0 cardbody-data digitize-rx" style={{border: 'none'}}>
                     <div style={!isLoading ? { padding: "5px" } : null}>
                       <DigitisedPrescription
                         data={data}

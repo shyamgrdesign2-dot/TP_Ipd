@@ -1686,7 +1686,8 @@ body {
   letter-spacing: 0.1px;
 }
 
-.digitised-section, .digitised-section-rx {
+.digitised-section,
+.digitised-section-rx {
   display: flex;
   padding: 16px;
   align-items: center;
@@ -2959,8 +2960,8 @@ body {
   }
 }
 .header-snap-rx-nav {
-    height: 62px !important;
-    box-shadow: none !important;
+  height: 62px !important;
+  box-shadow: none !important;
 }
 .header-snap-rx {
   position: fixed;
@@ -2970,13 +2971,12 @@ body {
   z-index: 2;
   height: 62px !important;
   margin: 0 !important;
-  box-shadow: -1px -1px 0px 0px #E2E2EA inset;
+  box-shadow: -1px -1px 0px 0px #e2e2ea inset;
 }
 
 .snap-rx-img {
-    border-radius: 16px;
+  border-radius: 16px;
 }
-
 
 .title-digitise-section-wrapper {
   border: 2px solid transparent;
@@ -2995,4 +2995,32 @@ body {
   background: transparent;
   padding: 0 2px;
   font: inherit;
+}
+
+.drx-h-full {
+  height: calc(100dvh - 170px);
+  position: relative;
+  overflow: hidden;
+  .card {
+    position: relative;
+    height: 100%;
+    overflow: auto;
+  }
+}
+
+.drx-written-container, .drx-digitize-container {
+  .written-rx, .digitize-rx {
+    overflow: hidden;
+    padding-bottom: 20px !important;
+    > div {
+      overflow: auto;
+      height: calc(100dvh - 250px);
+    }
+  }
+}
+
+.srx-drx-container {
+  .card {
+    margin-bottom: 0 !important;
+  }
 }
