@@ -2579,7 +2579,7 @@ function SmartPrescription() {
           smartRxData={smartRxDetails}
           loader={loader}
           caseManagerData={caseManagerData}
-          isCustomSSrX={isCustomSSRX}
+          isCustomSSRX={isCustomSSRX}
           selectedTemplateId={selectedTemplateId}
         />
         
