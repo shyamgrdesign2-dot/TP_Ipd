@@ -38,6 +38,7 @@ import {
 import CommonModal from "../../../common/CommonModal";
 import './RxTemplateUploadDrawer.scss';
 import tutorialIcon from '../../../assets/images/tutorial.svg';
+import { useSelector } from 'react-redux';
 
 const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
   const [file, setFile] = useState(null);
@@ -56,6 +57,9 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
   const [selectedPageIndex, setSelectedPageIndex] = useState(0);
   const autoSaveTimeoutRef = useRef(null); // For debouncing auto-save operations
   const currentPageIndexRef = useRef(0); // Track current page index for timeouts
+  const {
+    profile,
+  } = useSelector((state) => state.doctors);
 
   // Drag and drop sensors for page reordering
   const sensors = useSensors(
@@ -609,7 +613,7 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
         // If no uploadFile exists, create one from the image data
         if (!fileToUpload) {
           if (page.showFile || page.image) {
-            try {
+            try {       
               let imageData = page.showFile || page.image;
               
               // ✅ FIXED: Get current state from cropper for the selected page
@@ -655,6 +659,13 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
         };
       })
     );
+
+    window.Moengage.track_event("TP_CC_Submit_canvas", {
+      "Doctor_specialty": profile?.dp_name,
+      "Doctor_unique_id": profile?.doctor_unique_id,
+      "Doctor_Name": profile?.um_name,
+      "Doctor_mobile_No": profile?.um_contact,
+    });
     
     const templateData = {
       title: file.name.trim(),
@@ -1192,7 +1203,15 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
               <img src={rxUploadIllustration} alt="Upload Illustration" className="rx-upload-illustration" />
               <div 
                 className="rx-upload-area" 
-                onClick={() => inputFileRef.current?.click()}
+                onClick={() => {
+                  inputFileRef.current?.click()
+                  window.Moengage.track_event("TP_CC_Click to Upload", {
+                    "Doctor_specialty": profile?.dp_name,
+                    "Doctor_unique_id": profile?.doctor_unique_id,
+                    "Doctor_Name": profile?.um_name,
+                    "Doctor_mobile_No": profile?.um_contact,
+                  });
+                }}
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
               >

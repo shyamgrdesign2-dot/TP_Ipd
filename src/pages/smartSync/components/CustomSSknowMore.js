@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { Tabs } from "antd";
-import "../smartSync.css";
-import playIcon from "../../../assets/images/tube-icon.svg";
-import videoThumb from "../../../assets/images/website-images/know-more.jpg";
+import playIcons from "../../../assets/images/tube-icon.svg";
+import VideoModal from "../../../common/VideoModal";
 
 const { TabPane } = Tabs;
 
 const CustomSSknowMore = () => {
   const [showVideo, setShowVideo] = useState(false);
+
+  const videoLink = {
+    link: "https://tatvacare1.portal.trainn.co/share/ZtsIVdxk9MGJ0b3bUGK5pA",
+    thumbnail: "https://i.ytimg.com/vi/mAZ7Sa86PnQ/hqdefault.jpg",
+  };
 
   return (
     <div className="drawer-container">
@@ -40,43 +44,30 @@ const CustomSSknowMore = () => {
               Please watch this video to know how Custom Canvas Works👇
             </div>
             <div
-              className="d-flex align-items-center justify-content-center know-more-video-thumb"
+              className="d-flex align-items-center justify-content-center"
               style={{
-                background: `url(${videoThumb})`,
+                background: `url(${videoLink.thumbnail})`,
                 width: 447,
-                height: 250,
+                height: 252,
                 borderRadius: 24,
                 cursor: "pointer",
                 backgroundSize: "cover",
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center",
-                position: "relative"
               }}
               onClick={() => setShowVideo(true)}
             >
-              <img width={55} height={55} src={playIcon} alt="Play" className="know-more-play-icon" />
-              <div className="know-more-video-duration">04:02</div>
-              <div className="know-more-video-label">Custom Canvas</div>
+              <img width={55} height={55} src={playIcons} alt="play-icon" />
             </div>
           </div>
-          {showVideo && (
-            <div className="video-modal-overlay">
-              <div className="video-modal-content">
-                <button className="video-modal-close" onClick={() => setShowVideo(false)}>&times;</button>
-                <iframe
-                  width="750"
-                  height="420"
-                  src="https://www.youtube.com/embed/UgeyXlHItXI"
-                  title="How Custom Canvas Works"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-              </div>
-            </div>
-          )}
         </div>
       </div>
+      {showVideo && (
+        <VideoModal
+          videoLink={videoLink}
+          onCancel={() => setShowVideo(false)}
+        />
+      )}
     </div>
   );
 };

@@ -742,6 +742,12 @@ function SmartPrescription() {
 
   // Handle opening upload drawer from template manager
   const handleUploadNewTemplate = () => {
+    window.Moengage.track_event("TP_CC_Add_Custom_Rx", {
+      "Doctor_specialty": profile?.dp_name,
+      "Doctor_unique_id": profile?.doctor_unique_id,
+      "Doctor_Name": profile?.um_name,
+      "Doctor_mobile_No": profile?.um_contact,
+    });
     setTemplateManagerDrawer(false);
     setUploadCanvasDrawer(true);
   };
