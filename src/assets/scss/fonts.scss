@@ -238,6 +238,7 @@
 
 .iconrotate180 {
   transform: rotate(180deg);
+  display: inline-block;
 }
 .iconrotatehistory90 {
   transform: rotate(90deg);
@@ -246,6 +247,7 @@
 }
 .iconrotate270 {
   transform: rotate(270deg);
+  display: inline-block;
 }
 
 .icon-analytics:before {
