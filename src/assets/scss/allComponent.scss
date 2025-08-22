@@ -3024,3 +3024,19 @@ body {
     margin-bottom: 0 !important;
   }
 }
+
+.newpage-btn{
+    width: "40px";
+    height: "40px";
+    border-radius: 12px;
+    background-color: #f0f0ff;
+    border: none;
+    cursor: "pointer";
+    color: "#6b46c1";
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(107, 70, 193, 0.2);
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 1001;
+}

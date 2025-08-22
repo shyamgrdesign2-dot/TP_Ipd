@@ -32,6 +32,7 @@ function SnapRxDigitise() {
     print_url,
     digitisedData,
     pam_id,
+    isCustomSSRX
   } = state;
 
   const [token, setToken] = useState(null);
@@ -190,10 +191,10 @@ function SnapRxDigitise() {
                       </div>
                     ) : (
                       smartRxFile?.length > 0 &&
-                      smartRxFile?.map(({ fileUrl }) => (
-                        <div key={fileUrl} style={{ padding: "5px" }}>
-                          {fileUrl && (
-                            <img src={fileUrl} alt="Smart Rx" className="snap-rx-img" width="100%" />
+                      smartRxFile?.map(({ fileUrl, smart_prescription_file }) => (
+                        <div key={fileUrl || smart_prescription_file} style={{ padding: "5px" }}>
+                          {(isCustomSSRX ? smart_prescription_file : fileUrl) && (
+                            <img src={isCustomSSRX ? smart_prescription_file : fileUrl} alt="Smart Rx" className="snap-rx-img" width="100%" />
                           )}
                         </div>
                       ))
