@@ -62,6 +62,7 @@ import ReconnectingWebSocket from "reconnectingwebsocket";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_SMARTSYNC_CONNECT } from "../utils/constants";
 import { upsertDoctorSettingFlag } from "../redux/doctorsSlice";
+import { setDefaultCustomSyncPadTemplate } from "../pages/smartSync/services/uploadService";
 
 function HeaderPrescription({
   prescription,
@@ -71,7 +72,9 @@ function HeaderPrescription({
   loader,
   isVaccinationEnabled,
   isGrowthChartEnabled,
-  caseManagerData
+  caseManagerData,
+  isCustomSSrX,
+  selectedTemplateId
 }) {
   const { templates, loading } = useSelector((state) => state.caseManager);
   const { profile, videoList } = useSelector((state) => state.doctors);
@@ -471,6 +474,11 @@ function HeaderPrescription({
     if (smartRxData?.length || vitalsData.length > 0 || followUpDate) {
       onEndVisitClick();
       setClicked(true);
+      
+      // Call setDefaultCustomSyncPadTemplate if selectedTemplateId is available
+      if (selectedTemplateId && selectedTemplateId !== "none") {
+        setDefaultCustomSyncPadTemplate(selectedTemplateId);
+      }
     }
   }, [smartRxData]);
 
@@ -502,7 +510,8 @@ function HeaderPrescription({
       visit_advice: additionalNote,
       medical_history: medicalHistoryData,
       smart_prescription_filename: smartRxFiles || [],
-      pillup_fulfilment: isPillUpAccessableFromGB && pillupSwitch ? 1 : 0
+      pillup_fulfilment: isPillUpAccessableFromGB && pillupSwitch ? 1 : 0,
+      isCustomSSRX: isCustomSSrX ? "1" : "0",
     };
 
     const action =

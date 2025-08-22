@@ -16,3 +16,9 @@
 @import 'doctorProfile&Website.scss';
 @import 'shimmerLoader.scss';
 
+// Icon rotation classes
+.icon-right.iconrotate180 {
+  transform: rotate(180deg);
+  display: inline-block;
+}
+
