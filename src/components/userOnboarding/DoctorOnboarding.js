@@ -133,7 +133,9 @@ const DoctorOnboarding = ({
       );
 
       if (response.data && response.data.speciality) {
-        setSpecialities(response.data.speciality);
+        setSpecialities(
+          response.data.speciality?.filter(({ pmEnabled }) => !!pmEnabled)
+        );
       }
     } catch (error) {
       console.error("Error fetching specialities:", error);
@@ -483,13 +485,15 @@ const DoctorOnboarding = ({
           clinic_pincode: formData.clinicPincode,
           clinic_lat: formData.clinic_lat,
           clinic_long: formData.clinic_long,
-          utm_campaign: utm.utm_campaign ?? 'NA',
-          utm_source: utm.utm_source ?? 'NA',
-          utm_medium: utm.utm_medium ?? 'NA',
-          utm_content: utm.utm_content ?? 'NA',
-          utm_term: utm.utm_term ?? 'NA',
+          utm_campaign: utm.utm_campaign ?? "NA",
+          utm_source: utm.utm_source ?? "NA",
+          utm_medium: utm.utm_medium ?? "NA",
+          utm_content: utm.utm_content ?? "NA",
+          utm_term: utm.utm_term ?? "NA",
           operating_system: detectOperatingSystem(),
-          is_marketing: Object.values(utm).some(value => value && value.length > 0),
+          is_marketing: Object.values(utm).some(
+            (value) => value && value.length > 0
+          ),
         });
       }
       if (!success) return;
@@ -508,13 +512,15 @@ const DoctorOnboarding = ({
           clinic_pincode: formData.clinicPincode,
           clinic_lat: formData.clinic_lat,
           clinic_long: formData.clinic_long,
-          utm_campaign: utm.utm_campaign ?? 'NA',
-          utm_source: utm.utm_source ?? 'NA',
-          utm_medium: utm.utm_medium ?? 'NA',
-          utm_content: utm.utm_content ?? 'NA',
-          utm_term: utm.utm_term ?? 'NA',
+          utm_campaign: utm.utm_campaign ?? "NA",
+          utm_source: utm.utm_source ?? "NA",
+          utm_medium: utm.utm_medium ?? "NA",
+          utm_content: utm.utm_content ?? "NA",
+          utm_term: utm.utm_term ?? "NA",
           operating_system: detectOperatingSystem(),
-          is_marketing: Object.values(utm).some(value => value && value.length > 0),
+          is_marketing: Object.values(utm).some(
+            (value) => value && value.length > 0
+          ),
         });
       }
       if (!success) return;
@@ -534,13 +540,15 @@ const DoctorOnboarding = ({
           clinic_pincode: formData.clinicPincode,
           clinic_lat: formData.clinic_lat,
           clinic_long: formData.clinic_long,
-          utm_campaign: utm.utm_campaign ?? 'NA',
-          utm_source: utm.utm_source ?? 'NA',
-          utm_medium: utm.utm_medium ?? 'NA',
-          utm_content: utm.utm_content ?? 'NA',
-          utm_term: utm.utm_term ?? 'NA',
+          utm_campaign: utm.utm_campaign ?? "NA",
+          utm_source: utm.utm_source ?? "NA",
+          utm_medium: utm.utm_medium ?? "NA",
+          utm_content: utm.utm_content ?? "NA",
+          utm_term: utm.utm_term ?? "NA",
           operating_system: detectOperatingSystem(),
-          is_marketing: Object.values(utm).some(value => value && value.length > 0),
+          is_marketing: Object.values(utm).some(
+            (value) => value && value.length > 0
+          ),
         });
 
         // Don't navigate or reload - stay on current page
@@ -617,13 +625,15 @@ const DoctorOnboarding = ({
                       clinic_pincode: formData.clinicPincode,
                       clinic_lat: formData.clinic_lat,
                       clinic_long: formData.clinic_long,
-                      utm_campaign: utm.utm_campaign ?? 'NA',
-                      utm_source: utm.utm_source ?? 'NA',
-                      utm_medium: utm.utm_medium ?? 'NA',
-                      utm_content: utm.utm_content ?? 'NA',
-                      utm_term: utm.utm_term ?? 'NA',
+                      utm_campaign: utm.utm_campaign ?? "NA",
+                      utm_source: utm.utm_source ?? "NA",
+                      utm_medium: utm.utm_medium ?? "NA",
+                      utm_content: utm.utm_content ?? "NA",
+                      utm_term: utm.utm_term ?? "NA",
                       operating_system: detectOperatingSystem(),
-                      is_marketing: Object.values(utm).some(value => value && value.length > 0),
+                      is_marketing: Object.values(utm).some(
+                        (value) => value && value.length > 0
+                      ),
                     }
                   );
 
@@ -699,7 +709,7 @@ const DoctorOnboarding = ({
                 { label: "Upload ID" },
               ]}
               currentStep={currentStep}
-            // onStepClick={handleStepClick}
+              // onStepClick={handleStepClick}
             />
           </div>
         </div>
@@ -734,7 +744,6 @@ const DoctorOnboarding = ({
               <Button
                 block
                 onClick={() => {
-                  
                   // moengage event for skip and upload later
                   window.Moengage.track_event(
                     "TP_NewLoginFlow_Skip_And_Submit_later",
@@ -747,13 +756,15 @@ const DoctorOnboarding = ({
                       clinic_pincode: formData.clinicPincode,
                       clinic_lat: formData.clinic_lat,
                       clinic_long: formData.clinic_long,
-                      utm_campaign: utm.utm_campaign ?? 'NA',
-                      utm_source: utm.utm_source ?? 'NA',
-                      utm_medium: utm.utm_medium ?? 'NA',
-                      utm_content: utm.utm_content ?? 'NA',
-                      utm_term: utm.utm_term ?? 'NA',
+                      utm_campaign: utm.utm_campaign ?? "NA",
+                      utm_source: utm.utm_source ?? "NA",
+                      utm_medium: utm.utm_medium ?? "NA",
+                      utm_content: utm.utm_content ?? "NA",
+                      utm_term: utm.utm_term ?? "NA",
                       operating_system: detectOperatingSystem(),
-                      is_marketing: Object.values(utm).some(value => value && value.length > 0),
+                      is_marketing: Object.values(utm).some(
+                        (value) => value && value.length > 0
+                      ),
                     }
                   );
 
@@ -835,9 +846,9 @@ const DoctorOnboarding = ({
       style={
         isMobile
           ? {
-            borderTopLeftRadius: "1rem",
-            borderTopRightRadius: "1rem",
-          }
+              borderTopLeftRadius: "1rem",
+              borderTopRightRadius: "1rem",
+            }
           : {}
       }
     >
