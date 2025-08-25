@@ -23,7 +23,7 @@ import { viewCaseManager } from "../redux/caseManagerSlice";
 
 import { pdfjs, Document, Page } from "react-pdf";
 import { getGynecDetails } from "../api/services/ApiGynec";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, WHATS_APP_API, WTSAP_ERR_MESSAGE, ZYDUS_WHATS_APP_API } from "../utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, WHATS_APP_API, WTSAP_ERR_MESSAGE, ZYDUS_WHATS_APP_API, ZYDUS_WHATSAPP_ENABLED_DOCTORS } from "../utils/constants";
 import { env } from "../EnvironmentConfig";
 import { setCurrentSessionRx } from "../redux/obstetricSlice";
 import CreateBill from "./opdBilling/components/createBill/CreateBill";
@@ -534,9 +534,8 @@ function PrescriptionPrintView() {
                                     const tokenData = decodedToken?.result;
                                     
                                     // Check if current doctor has WhatsApp enabled
-                                    const enabledDoctors = ["9825181439", "9925179799", "9537045169"];
                                     const currentDoctorPhone = profile?.um_contact?.replace(/\D/g, '').slice(-10);
-                                    const isWhatsAppEnabled = enabledDoctors.includes(currentDoctorPhone);
+                                    const isWhatsAppEnabled = ZYDUS_WHATSAPP_ENABLED_DOCTORS.includes(currentDoctorPhone);
                                     
                                     return tokenData?.hospital_business_id === env.zydus_business_id && isWhatsAppEnabled ? (
                                         <>

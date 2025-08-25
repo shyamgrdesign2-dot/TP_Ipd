@@ -337,3 +337,10 @@ export const HIDE_ROUTES = {
   BANNER: ["/snap-rx"],
   TALKATIVE: ["/snap-rx"],
 };
+
+// WhatsApp enabled doctors for Zydus Hospital
+export const ZYDUS_WHATSAPP_ENABLED_DOCTORS = [
+  "9825181439",
+  "9925179799", 
+  "9537045169"
+];
