@@ -148,6 +148,12 @@ function TabFollowUpBox() {
                 setFollowUpInput("3 Months")
             } else if (weeks === 17) {
                 setFollowUpInput("4 Months")
+            } else if (weeks === 19 || weeks === 21) {
+                setFollowUpInput("5 Months")
+            } else if (weeks === 23 || weeks === 25) {
+                setFollowUpInput("6 Months")
+            } else if (weeks === 27 || weeks === 29) {
+                setFollowUpInput("7 Months")
             } else if (weeks % 4 === 0 && weeks >= 4 && weeks < 48) {
                 const monthsValue = Math.floor(weeks / 4);
                 setFollowUpInput(`${monthsValue} ${monthsValue <= 1 ? 'Month' : 'Months'}`)

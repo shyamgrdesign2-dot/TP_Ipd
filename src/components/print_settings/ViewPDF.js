@@ -411,6 +411,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             return "3 Months";
         } else if (weeks === 17) {
             return "4 Months";
+        } else if (weeks === 19 || weeks === 21) {
+            return "5 Months";
+        } else if (weeks === 23 || weeks === 25) {
+            return "6 Months";
+        } else if (weeks === 27 || weeks === 29) {
+            return "7 Months";
         } else if (weeks % 4 === 0 && weeks >= 4 && weeks < 48) {
             const monthsValue = Math.floor(weeks / 4);
             return `${monthsValue} ${monthsValue <= 1 ? 'Month' : 'Months'}`;
