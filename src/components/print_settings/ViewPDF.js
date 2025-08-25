@@ -403,6 +403,20 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         if (weeks >= 48 && weeks % 48 === 0) {
             const yearsValue = Math.floor(weeks / 48);
             return `${yearsValue} ${yearsValue <= 1 ? 'Year' : 'Years'}`;
+        } else if (weeks === 5) {
+            return "1 Month";
+        } else if (weeks === 7 || weeks === 9) {
+            return "2 Months";
+        } else if (weeks === 11 || weeks === 13) {
+            return "3 Months";
+        } else if (weeks === 17) {
+            return "4 Months";
+        } else if (weeks === 19 || weeks === 21) {
+            return "5 Months";
+        } else if (weeks === 23 || weeks === 25) {
+            return "6 Months";
+        } else if (weeks === 27 || weeks === 29) {
+            return "7 Months";
         } else if (weeks % 4 === 0 && weeks >= 4 && weeks < 48) {
             const monthsValue = Math.floor(weeks / 4);
             return `${monthsValue} ${monthsValue <= 1 ? 'Month' : 'Months'}`;
