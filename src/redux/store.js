@@ -30,6 +30,7 @@ import snapRxDigitizationSlice from "./snapRxDigitizationSlice";
 import billingSlice from "./billingSlice";
 import shortLinkSlice from "./shortLinkSlice";
 import monetizationSlice from "./monetizationSlice";
+import prescriptionSlice from "./prescriptionSlice";
 
 const persistConfig = {
   key: "root",
@@ -65,6 +66,7 @@ const rootReducer = combineReducers({
   snapRx: snapRxDigitizationSlice,
   shortLink: shortLinkSlice,
   monetization: monetizationSlice,
+  prescription: prescriptionSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

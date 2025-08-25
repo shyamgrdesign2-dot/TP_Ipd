@@ -113,6 +113,7 @@ import genRxBg from "../assets/images/gen-rx-bg.gif";
 import LabResultsTable from "../components/LabParams";
 import ZydusLabParams from "../components/ZydusLabParams";
 import ZydusLabParametersList from "../components/ZydusLabParametersList";
+import { getLabParamsData, setMedicationData, setPillupSwitch } from "../redux/prescriptionSlice";
 
 function Prescription() {
   const {
@@ -176,7 +177,6 @@ function Prescription() {
   const [diagnosisData, setDiagnosisData] = useState([]);
   const [adviceData, setAdviceData] = useState([]);
   const [investigationData, setInvestigationData] = useState([]);
-  const [medicationData, setMedicationData] = useState([]);
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
@@ -185,13 +185,11 @@ function Prescription() {
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
   const [isGrowthChart, setIsGrowthChart] = useState(false);
-  const [labParamsData, setLabParamsData] = useState([]);
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
   const [customModuleContents, setCustomModuleContents] = useState([]);
   const [isGenRxDrawerVisible, setIsGenRxDrawerVisible] = useState(
     caseManagerData?.smart_prescription_filename || false
   );
-  const [pillupSwitch, setPillupSwitch] = useState(true);
   const [showSCBanner, setShowSCBanner] = useState(false);
   const [zydusTestReportDrawer, setZydusTestReportDrawer] = useState(false);
   const [labReportID, setLabReportID] = useState(null);
@@ -223,6 +221,7 @@ function Prescription() {
     object && setSubModalData(object)
     setIsSubModalOpen(!isSubModalOpen);
   }
+  let { medicationData, pillupSwitch, labParamsData } = useSelector((state) => state.prescription);
 
   const contextApi = {
     patient_data,
@@ -867,20 +866,13 @@ function Prescription() {
   };
 
   const getLabParams = async () => {
-    try {
-      const cleanedToken = token.replace(/['"]+/g, "");
-      const response = await axios.get(
-        `${baseUrl}/api/v1/lab-parameters/results/${patient_data?.patient_unique_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${cleanedToken}`,
-          },
-        }
-      );
-      setLabParamsData(response.data?.data?.results || []);
-    } catch (error) {
-      console.error("Error fetching lab params:", error);
-    }
+    dispatch(
+      getLabParamsData({
+        patient_unique_id: patient_data?.patient_unique_id,
+      })
+    ).catch((err) => {
+          console.error("Error fetching lab params:", err);
+      });
   };
 
   const handleDDxKnowMore = () => {
@@ -1305,8 +1297,6 @@ function Prescription() {
             </div>
             <LabParametersList
               labParamsData={labParamsData}
-              patient_unique_id={patient_data?.patient_unique_id}
-              doc_id={userId}
             />
           </div>
         </>

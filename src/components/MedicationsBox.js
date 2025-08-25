@@ -42,6 +42,8 @@ import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, MESSAGE_KEY } from "../utils/constan
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DoseCalculator from "./dose_calculator/doseCalculator";
 import { upsertDoctorSettingFlag } from "../redux/doctorsSlice";
+import { useLocation } from "react-router-dom";
+import { setMedicationData, setPillupSwitch } from "../redux/prescriptionSlice";
 
 
 const { TextArea } = Input;
@@ -50,7 +52,6 @@ function MedicationsBox() {
   const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     dosesList,
-    selectedMedicationList,
     parentOptionsList,
     templates,
     genericList,
@@ -58,8 +59,13 @@ function MedicationsBox() {
   } = useSelector((state) => state.medication);
   const { todayData } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
+  const { state } = useLocation();
+  const { patient_data, caseManagerData } = state;
+  const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
 
-  const { patient_data, medicationData, setMedicationData, pillupSwitch, setPillupSwitch, tcmId } = useContext(CashManagerContext);
+  let { medicationData : medicationDataFromStore, pillupSwitch } = useSelector((state) => state.prescription);
+  const medicationData = medicationDataFromStore ? structuredClone(medicationDataFromStore) : [];
+
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -322,14 +328,12 @@ function MedicationsBox() {
             medicine_generic_name: modifyData.tmm_generic,
             exist: dosesList.some((e1) => e1.medicine_id == modifyData.tmm_id) ? true : false
           });
-          setMedicationLibrary((prev) => [...prev]);
+          setMedicationLibrary(medicationData);
           setSearchMLQuery("");
           setAddCustom(null);
         } else {
-          medicationData.push({
-            ...updatedData[0],
-          });
-          setMedicationData((prev) => [...prev]);
+          const next =  [...medicationData, updatedData?.[0]];
+          dispatch(setMedicationData(next));
           setSearchParentQuery("");
           setAddCustom(null);
         }
@@ -348,7 +352,7 @@ function MedicationsBox() {
       medicationData[i].tmm_unit = 0;
       medicationData[i].tmm_unit_name = '';
       medicationData[i].tmu_id = 0;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
       if (updateQuery) {
         const options = medicationData[i].medicineUnit.map((e) => {
           return {
@@ -374,7 +378,7 @@ function MedicationsBox() {
         medicationData[i].tmm_unit = 0;
         medicationData[i].tmm_unit_name = '';
         medicationData[i].tmu_id = 0;
-        setMedicationData((prev) => [...prev]);
+        dispatch(setMedicationData(medicationData));
       }
     },
     [unitPerDoseOptions, medicationData]
@@ -389,7 +393,7 @@ function MedicationsBox() {
       medicationData[i].tmm_unit = objParse.tmu_id;
       medicationData[i].tmm_unit_name = objParse.tmu_title;
       medicationData[i].tmu_id = objParse.tmu_id;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [unitPerDoseOptions, medicationData]
   );
@@ -406,7 +410,7 @@ function MedicationsBox() {
   //       medicationData[i].tmm_freq_type_name = '';
   //       medicationData[i].tmf_block_val = 0;
   //     }
-  //     setMedicationData((prev) => [...prev]);
+  //     setMedicationData(medicationData);
   //   },
   //   [medicationData]
   // );
@@ -425,7 +429,7 @@ function MedicationsBox() {
         medicationData[i].tcm_tmm_freq_evening = 0;
         medicationData[i].tcm_tmm_freq_morning = frequencyQuery[0];
         medicationData[i].tcm_tmm_freq_night = frequencyQuery[2] ? frequencyQuery[2] : 0;
-        setMedicationData((prev) => [...prev]);
+        dispatch(setMedicationData(medicationData));
       } else if (isNumeric(frequencyQuery) && frequencyQuery.length >= 4) {
         medicationData[i].tmm_freq_type_name = `${frequencyQuery[0]}-${frequencyQuery[1] ? frequencyQuery[1] : 0}-${frequencyQuery[2] ? frequencyQuery[2] : 0}-${frequencyQuery[3] ? frequencyQuery[3] : 0}`;
         medicationData[i].tmf_block = 0;
@@ -434,7 +438,7 @@ function MedicationsBox() {
         medicationData[i].tcm_tmm_freq_evening = frequencyQuery[2] ? frequencyQuery[2] : 0;
         medicationData[i].tcm_tmm_freq_morning = frequencyQuery[0];
         medicationData[i].tcm_tmm_freq_night = frequencyQuery[3] ? frequencyQuery[3] : 0;
-        setMedicationData((prev) => [...prev]);
+        dispatch(setMedicationData(medicationData));
       } else if (!frequencyFormat(medicationData[i].tmm_freq_type_name) && filteredTitles.findIndex((x) => x.tmf_title == medicationData[i].tmm_freq_type_name) == -1) {
         medicationData[i].tmm_freq_type_name = "";
         medicationData[i].tmf_block = 0;
@@ -443,7 +447,7 @@ function MedicationsBox() {
         medicationData[i].tcm_tmm_freq_evening = 0;
         medicationData[i].tcm_tmm_freq_morning = 0;
         medicationData[i].tcm_tmm_freq_night = 0;
-        setMedicationData((prev) => [...prev]);
+        dispatch(setMedicationData(medicationData));
       } else if (frequencyFormat(medicationData[i].tmm_freq_type_name)) {
         medicationData[i].tmm_freq_type_name = frequencyQuery;
         medicationData[i].tmf_block = 0;
@@ -459,7 +463,7 @@ function MedicationsBox() {
           medicationData[i].tcm_tmm_freq_morning = frequencyQuery.split("-")[0] ? frequencyQuery.split("-")[0] : 0;
           medicationData[i].tcm_tmm_freq_night = frequencyQuery.split("-")[2] ? frequencyQuery.split("-")[2] : 0;
         }
-        setMedicationData((prev) => [...prev]);
+        dispatch(setMedicationData(medicationData));
       }
     },
     [medicationData]
@@ -500,7 +504,7 @@ function MedicationsBox() {
         medicationData[i].tcm_tmm_freq_evening = 0;
         medicationData[i].tcm_tmm_freq_morning = 0;
         medicationData[i].tcm_tmm_freq_night = 0;
-        setMedicationData((prev) => [...prev]);
+        dispatch(setMedicationData(medicationData));
       }
     },
     [frequencyOptions, medicationData]
@@ -536,7 +540,7 @@ function MedicationsBox() {
         medicationData[i].tcm_tmm_freq_morning = 0;
         medicationData[i].tcm_tmm_freq_night = 0;
       }
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [medicationData]
   );
@@ -551,7 +555,7 @@ function MedicationsBox() {
         medicationData[i].tmm_time = 0;
         medicationData[i].tmm_time_name = '';
       }
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [medicationData]
   );
@@ -562,7 +566,7 @@ function MedicationsBox() {
       medicationData[i].tmm_days_duration_type = updateQuery;
       medicationData[i].tmm_days = '';
       medicationData[i].tmm_duration_type = '';
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
       if (updateQuery) {
         const options = SINCE_OPTIONS.map((option) => {
           return {
@@ -586,7 +590,7 @@ function MedicationsBox() {
       medicationData[i].tmm_days_duration_type = data;
       medicationData[i].tmm_days = objParse.tmm_days;
       medicationData[i].tmm_duration_type = objParse.value;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [sinceOptions, medicationData]
   );
@@ -598,7 +602,7 @@ function MedicationsBox() {
       e.tmm_days = tmm_days;
       e.tmm_duration_type = tmm_duration_type;
     });
-    setMedicationData((prev) => [...prev]);
+    dispatch(setMedicationData(medicationData));
     message.open({
       key: MESSAGE_KEY,
       type: '',
@@ -619,14 +623,14 @@ function MedicationsBox() {
   const onChangeNoteChild = useCallback(
     (e, i) => {
       medicationData[i].tmm_remarks = e.target.value;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [medicationData]
   );
 
   const onRemoveRow = (index) => {
     medicationData.splice(index, 1);
-    setMedicationData((prev) => [...prev]);
+    dispatch(setMedicationData(medicationData));
   };
 
   //PopOver1 function
@@ -688,7 +692,7 @@ function MedicationsBox() {
           unique_id: uuidv4(),
         };
       });
-      setMedicationData([...medicationData, ...updatedData]);
+      dispatch(setMedicationData([...medicationData, ...updatedData]));
     } else {
       errorMessage(action.error)
     }
@@ -733,7 +737,7 @@ function MedicationsBox() {
           unique_id: uuidv4(),
         };
       });
-      setMedicationData([...medicationData, ...updatedData]);
+      dispatch(setMedicationData([...medicationData, ...updatedData]));
       showHideTemplatesListPopover();
     } else {
       errorMessage(action.error)
@@ -925,7 +929,7 @@ function MedicationsBox() {
     }
     let { index, ...updated } = updatedData
     medicationData.splice(parseInt(array.at(-1).index) + 1, 0, updated);
-    setMedicationData((prev) => [...prev]);
+    dispatch(setMedicationData(medicationData));
   };
 
   const reorder = async (list, startIndex, endIndex) => {
@@ -957,7 +961,7 @@ function MedicationsBox() {
       result.source.index,
       result.destination.index
     );
-    setMedicationData(reorderedItems);
+    dispatch(setMedicationData(reorderedItems));
   };
 
   const TABLE_MEDICATION = useMemo(() => {
@@ -1738,10 +1742,10 @@ function MedicationsBox() {
         }
       }
       if (doseCalculatorDrawer) {
-        setMedicationLibrary((prev) => [...prev]);
+        setMedicationLibrary(medicationData);
         setSearchMLQuery("");
       } else {
-        setMedicationData((prev) => [...prev]);
+        dispatch(setMedicationData(medicationData));
         setSearchParentQuery("");
       }
       showHideAddMedicineModal()
@@ -1866,7 +1870,7 @@ function MedicationsBox() {
   }, [isModalOpen1]);
 
   const onRemoveRows = () => {
-    setMedicationData([])
+    dispatch(setMedicationData([]))
     showHideClearData()
   };
 
@@ -1956,7 +1960,7 @@ function MedicationsBox() {
   ];
 
   const pillUpChange = (checked) => {
-    setPillupSwitch(checked)
+    dispatch(setPillupSwitch(checked))
   };
 
   return (

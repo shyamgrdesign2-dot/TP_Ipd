@@ -3,8 +3,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { CaretRightOutlined, CaretDownOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
+import { useSelector } from 'react-redux';
 
-const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitchToAddLabParams }) => {
+const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToAddLabParams = () => {}, showSearchBar = true, showHeader = true }) => {
+    const { labParamsData: labParamsDataFromStore } = useSelector(
+        (state) => state.prescription
+      );
+      const labParamsData = labParamsDataFromStore
+        ? structuredClone(labParamsDataFromStore)
+        : [];
     const [searchTerm, setSearchTerm] = useState('');
     const [expandedReports, setExpandedReports] = useState({});
     const scrollRef = useRef(null);
@@ -120,7 +127,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
 
     return (
         <div style={{ backgroundColor: "#fff" }}>
-            <div className='modalCard-header h-60 align-items-center justify-content-between d-flex' style={{ position: "sticky", top: "0", zIndex: "999" }}>
+            {showHeader ? <div className='modalCard-header h-60 align-items-center justify-content-between d-flex' style={{ position: "sticky", top: "0", zIndex: "999" }}>
                 <div className='align-items-center d-flex'>
                     <Button type="text" className='btn btn-delete-prescription px-3 focus-none h-100' onClick={handleViewLabParamsDrawer} >
                         <i className='icon-Cross fs-3'></i>
@@ -130,9 +137,9 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                 <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={handleSwitchToAddLabParams}>
                     Add/ Edit Parameters
                 </Button>
-            </div>
+            </div>: null}
             {/* Search Bar */}
-            <div className="align-items-center d-flex justify-content-between px-20 py-3 gap-4" style={{ position: "sticky", top: "3.78rem", backgroundColor: "white", zIndex: "999" }}>
+            {showSearchBar ? <div className="align-items-center d-flex justify-content-between px-20 py-3 gap-4" style={{ position: "sticky", top: "3.78rem", backgroundColor: "white", zIndex: "999" }}>
                 <Input
                     placeholder="Search by test name or category"
                     className="inputheight38"
@@ -140,7 +147,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer, labParamsData, handleSwitc
                     prefix={<i className="icon-search" />}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
-            </div>
+            </div> : null}
 
             {/* Table Wrapper */}
             <div style={{ overflowX: 'auto', margin: "8px" }}>

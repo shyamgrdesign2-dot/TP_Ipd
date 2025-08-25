@@ -83,6 +83,8 @@ import TabMedicationMoreModal from "./TabMedicationMoreModal";
 import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, MESSAGE_KEY } from "../../utils/constants";
 import DoseCalculator from "../dose_calculator/doseCalculator";
 import { upsertDoctorSettingFlag } from "../../redux/doctorsSlice";
+import { useLocation } from "react-router-dom";
+import { setMedicationData, setPillupSwitch } from "../../redux/prescriptionSlice";
 
 function TabMedicationBox() {
   const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
@@ -96,9 +98,12 @@ function TabMedicationBox() {
   } = useSelector((state) => state.medication);
   const { todayData } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
+  const { state } = useLocation();
+  const { patient_data, caseManagerData } = state;
+  const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
 
-  const { patient_data, medicationData, setMedicationData, pillupSwitch, setPillupSwitch, tcmId } =
-    useContext(CashManagerContext);
+  let { medicationData : medicationDataFromStore, pillupSwitch } = useSelector((state) => state.prescription);
+  const medicationData = medicationDataFromStore ? JSON.parse(JSON.stringify(medicationDataFromStore)) : [];
 
   const isPillUpAccessableFromGB = useFeatureIsOn(GB_PILLUP_MEDICINE);
 
@@ -305,7 +310,7 @@ function TabMedicationBox() {
     if (data?.length > 0) {
       medicationData.splice(selectedIndex, 0, ...data)
     }
-    setMedicationData((prev) => [...prev]);
+    dispatch(setMedicationData(medicationData));
     setSelectedIndex(null);
   };
 
@@ -421,7 +426,7 @@ function TabMedicationBox() {
           medicationData.push({
             ...updatedData[0],
           });
-          setMedicationData((prev) => [...prev]);
+          dispatch(setMedicationData(medicationData));
           setSelectedIndex(medicationData.length - 1);
           handleDrawerParent();
         }
@@ -544,7 +549,7 @@ function TabMedicationBox() {
           unique_id: uuidv4(),
         };
       });
-      setMedicationData([...medicationData, ...updatedData]);
+      dispatch(setMedicationData([...medicationData, ...updatedData]));
     } else {
       errorMessage(action.error)
     }
@@ -587,7 +592,7 @@ function TabMedicationBox() {
           unique_id: uuidv4(),
         };
       });
-      setMedicationData([...medicationData, ...updatedData]);
+      dispatch(setMedicationData([...medicationData, ...updatedData]));
       handleDrawerTemplate();
     } else {
       errorMessage(action.error)
@@ -797,7 +802,7 @@ function TabMedicationBox() {
               removedArray.splice(dragIndex + 1, 0, ...array)
             }
 
-            setMedicationData(removedArray);
+            dispatch(setMedicationData(removedArray));
           }}
           axis="xy"
           pressDelay={150}
@@ -1340,7 +1345,7 @@ function TabMedicationBox() {
       e.tmm_days = tmm_days;
       e.tmm_duration_type = tmm_duration_type;
     });
-    setMedicationData((prev) => [...prev]);
+    dispatch(setMedicationData(medicationData));
     message.open({
       key: MESSAGE_KEY,
       type: '',
@@ -2237,7 +2242,7 @@ function TabMedicationBox() {
   }, [isModalOpen1]);
 
   const onRemoveRows = () => {
-    setMedicationData([])
+    dispatch(setMedicationData([]))
     showHideClearData()
   };
 
@@ -2459,7 +2464,7 @@ function TabMedicationBox() {
         setMedicationLibrary((prev) => [...prev]);
         setSearchMLQuery("");
       } else {
-        setMedicationData((prev) => [...prev]);
+        dispatch(setMedicationData(medicationData));
         const childData = await innerMedication(selectedIndex)
         setChildDrawerData(childData);
       }
@@ -2686,7 +2691,7 @@ function TabMedicationBox() {
   ];
 
   const pillUpChange = (checked) => {
-    setPillupSwitch(checked)
+    dispatch(setPillupSwitch(checked))
   };
 
   return (
