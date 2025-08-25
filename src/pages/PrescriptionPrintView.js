@@ -532,7 +532,13 @@ function PrescriptionPrintView() {
                                 {(() => {
                                     const decodedToken = getDecodedToken();
                                     const tokenData = decodedToken?.result;
-                                    return tokenData?.hospital_business_id === env.zydus_business_id ? (
+                                    
+                                    // Check if current doctor has WhatsApp enabled
+                                    const enabledDoctors = ["9825181439", "9925179799", "9537045169"];
+                                    const currentDoctorPhone = profile?.um_contact?.replace(/\D/g, '').slice(-10);
+                                    const isWhatsAppEnabled = enabledDoctors.includes(currentDoctorPhone);
+                                    
+                                    return tokenData?.hospital_business_id === env.zydus_business_id && isWhatsAppEnabled ? (
                                         <>
                                             <div className="bg-body d-flex p-3 rounded-10px border">
                                                 <img src={wtsp} alt="Whatsapp Icon" className='align-self-baseline me-3' />
