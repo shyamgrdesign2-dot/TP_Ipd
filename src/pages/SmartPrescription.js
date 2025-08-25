@@ -304,8 +304,8 @@ function SmartPrescription() {
   const [showAllSymptoms, setShowAllSymptoms] = useState(false);
   const [downloadingTemplateId, setDownloadingTemplateId] = useState(null);
   
-  // Track which template image index each page should use
-  const [pageTemplateImageIndex, setPageTemplateImageIndex] = useState({});
+  // Track page metadata including template pages and blank pages
+  const [pagesMetaData, setPagesMetaData] = useState([]);
   
   // Add state to store canvas image data for preserving drawings
   const [canvasImageData, setCanvasImageData] = useState({});
@@ -385,6 +385,60 @@ function SmartPrescription() {
       }
     }
   }, [selectedTemplateId, smartRxFiles.length]); // Only depend on length, not the array reference
+
+  // Ensure pages metadata is always in sync with pages array
+  useEffect(() => {
+    if (pages.length > 0 && pagesMetaData.length !== pages.length) {
+      // First try to sync with backend metadata if available
+      if (!syncMetadataWithBackend()) {
+        // Fallback to validation if backend sync fails
+        validatePagesMetadata();
+      }
+    }
+  }, [pages.length, caseManagerData?.custom_ss_data?.custom_ss_data?.pages, caseManagerData?.custom_ss_data?.pages]);
+
+  // Sync backend metadata immediately when we receive it and have smartRx data
+  useEffect(() => {
+    if (smartRxFilesData?.length > 0 && 
+        isCustomSSRX && 
+        hasBackendMetadata()) {
+      
+      console.log("Syncing backend metadata immediately...");
+      
+      // Sync the backend metadata to our state
+      const backendPages = caseManagerData?.custom_ss_data?.custom_ss_data?.pages || caseManagerData?.custom_ss_data?.pages;
+      const syncedMetadata = backendPages.map((meta, index) => ({
+        page_order: meta.page_order || index + 1,
+        page_type: meta.page_type || "smartRx",
+        template_page_index: meta.template_page_index,
+        page_id: pages[index] || uuidv4()
+      }));
+      
+      setPagesMetaData(syncedMetadata);
+      console.log("Backend metadata synced:", syncedMetadata);
+      
+      // Also update the selected template from backend data
+      updateSelectedTemplateFromBackend();
+    }
+  }, [smartRxFilesData, isCustomSSRX, caseManagerData?.custom_ss_data?.custom_ss_data?.pages, caseManagerData?.custom_ss_data?.pages, pages.length]);
+
+  // Debug useEffect to track caseManagerData changes
+  useEffect(() => {
+    console.log("caseManagerData changed:", {
+      hasCaseManagerData: !!caseManagerData,
+      hasCustomSSData: !!caseManagerData?.custom_ss_data,
+      nestedCustomSSData: !!caseManagerData?.custom_ss_data?.custom_ss_data,
+      customSSDataPages: caseManagerData?.custom_ss_data?.pages,
+      nestedCustomSSDataPages: caseManagerData?.custom_ss_data?.custom_ss_data?.pages,
+      smartRxFilesDataLength: smartRxFilesData?.length,
+      isCustomSSRX: isCustomSSRX
+    });
+    
+    // If we have backend template data, update the selected template
+    if (caseManagerData?.custom_ss_data?.custom_ss_data?.template_id || caseManagerData?.custom_ss_data?.template_id) {
+      updateSelectedTemplateFromBackend();
+    }
+  }, [caseManagerData, smartRxFilesData, isCustomSSRX]);
 
   // Function to load templates from API
   const loadCustomTemplates = async (preserveSelection = false) => {
@@ -711,6 +765,13 @@ function SmartPrescription() {
       setPages([newPageId]);
       setDataPresentInCanvas([false]);
       setSelectedPage(0);
+      
+      // Initialize pages metadata for blank page
+      setPagesMetaData([{
+        page_order: 1,
+        page_type: "blank",
+        page_id: newPageId
+      }]);
     } else {
       // Handle template selection
       const selected = templates.find(t => t.id === templateId);
@@ -770,6 +831,13 @@ function SmartPrescription() {
       setPages([newPageId]);
       setDataPresentInCanvas([false]);
       setSelectedPage(0);
+      
+      // Initialize pages metadata for blank page
+      setPagesMetaData([{
+        page_order: 1,
+        page_type: "blank",
+        page_id: newPageId
+      }]);
       
       message.info('Selected template was deleted. Switched to blank canvas.');
     }
@@ -1282,6 +1350,31 @@ function SmartPrescription() {
     setPages(newPageIds);
     setDataPresentInCanvas(Array(smartRxFilesData.length).fill(true));
     
+    // Use metadata from caseManagerData.custom_ss_data if available, otherwise initialize default
+    const backendPages = caseManagerData?.custom_ss_data?.custom_ss_data?.pages || caseManagerData?.custom_ss_data?.pages;
+    if (backendPages && Array.isArray(backendPages)) {
+      console.log("Loading backend metadata in loadRxImages:", backendPages);
+      
+      // Map backend metadata to our internal structure
+      const newPagesMetaData = backendPages.map((meta, index) => ({
+        page_order: meta.page_order || index + 1,
+        page_type: meta.page_type || "smartRx",
+        template_page_index: meta.template_page_index,
+        page_id: newPageIds[index]
+      }));
+      setPagesMetaData(newPagesMetaData);
+      console.log("Set pagesMetaData from backend:", newPagesMetaData);
+    } else {
+      console.log("No backend metadata available, using default");
+      // Fallback to default metadata if backend metadata is not available
+      const newPagesMetaData = newPageIds.map((pageId, index) => ({
+        page_order: index + 1,
+        page_type: "smartRx",
+        page_id: pageId
+      }));
+      setPagesMetaData(newPagesMetaData);
+    }
+    
     smartRxFilesData.forEach((imageObj, index) => {
       const { smart_prescription_file: imageUrl } = imageObj;
       const img = new Image();
@@ -1382,12 +1475,14 @@ function SmartPrescription() {
     setDataPresentInCanvas(Array(template.uploaded_files.length).fill(true));
     setSelectedPage(0); // Select the first page
     
-    // Initialize template image index for each page
-    const templateImageIndexMap = {};
-    newPageIds.forEach((pageId, index) => {
-      templateImageIndexMap[pageId] = index;
-    });
-    setPageTemplateImageIndex(templateImageIndexMap);
+    // Initialize pages metadata for template pages
+    const newPagesMetaData = newPageIds.map((pageId, index) => ({
+      page_order: index + 1,
+      page_type: "template",
+      template_page_index: index,
+      page_id: pageId
+    }));
+    setPagesMetaData(newPagesMetaData);
     
     // Clear previous custom RX images since we're loading templates
     setCustomRxImages([]);
@@ -1734,6 +1829,9 @@ function SmartPrescription() {
     if (smartRxFilesData?.length > 0) {
       setLoading(true);
       setSmartRxFiles(smartRxFilesData);
+      
+      // Load smartRx images and metadata
+      loadRxImages();
     }
 
     if(selectedTemplateId === "none" || !selectedTemplateId ){
@@ -1741,7 +1839,7 @@ function SmartPrescription() {
     } else{
       setIsCustomSSRX(true)
     }
-  }, [selectedTemplateId]);
+  }, [selectedTemplateId, smartRxFilesData]);
 
   const toggleDeletePopup = () => {
     setShowDeletePopup((prev) => !prev);
@@ -1859,6 +1957,16 @@ function SmartPrescription() {
     setPages([...pages, newPageId]);
     setDataPresentInCanvas([...dataPresentInCanvas, false]);
     
+    // Add blank page metadata
+    setPagesMetaData(prev => {
+      const newPageMeta = {
+        page_order: prev.length + 1,
+        page_type: "blank",
+        page_id: newPageId
+      };
+      return [...prev, newPageMeta];
+    });
+    
     // Restore canvas drawings after the new page is added
     setTimeout(() => {
       restoreCanvasDrawings(preservedCanvasData);
@@ -1917,11 +2025,14 @@ function SmartPrescription() {
     );
     setPages(newPages);
     
-    // Clean up template image index for the deleted page
-    setPageTemplateImageIndex(prev => {
-      const newState = { ...prev };
-      delete newState[deletedPageId];
-      return newState;
+    // Clean up pages metadata for the deleted page
+    setPagesMetaData(prev => {
+      const newMetaData = prev.filter(page => page.page_id !== deletedPageId);
+      // Update page_order for remaining pages
+      return newMetaData.map((page, index) => ({
+        ...page,
+        page_order: index + 1
+      }));
     });
     
     // Restore canvas drawings after the page is deleted
@@ -1969,9 +2080,14 @@ function SmartPrescription() {
     setDataPresentInCanvas([false]);
     setSelectedPage(0);
     
-    // Reset template image index for the remaining page
+    // Reset pages metadata for the remaining page
     const remainingPageId = pages[0];
-    setPageTemplateImageIndex({ [remainingPageId]: 0 });
+    setPagesMetaData([{
+      page_order: 1,
+      page_type: "template",
+      template_page_index: 0,
+      page_id: remainingPageId
+    }]);
     
     const canvas = canvasRefs.current[pages[0]];
     if (canvas) {
@@ -1997,8 +2113,9 @@ function SmartPrescription() {
       // Check if this page has smartRxFiles (priority over templates)
       const hasSmartRxImages = smartRxFiles?.length >= selectedPage + 1;
       
-      // Check if this page is actually a template page by looking at pageTemplateImageIndex
-      const templateImageIndex = pageTemplateImageIndex[currentPageId];
+      // Check if this page is actually a template page by looking at pagesMetaData
+      const currentPageMeta = getPageMetadata(currentPageId);
+      const templateImageIndex = currentPageMeta?.template_page_index;
 
       
       if (hasSmartRxImages) {
@@ -2078,7 +2195,7 @@ function SmartPrescription() {
     // Check if this is a template page or has smart RX images
     const hasSmartRxImages = smartRxFiles?.length >= pageIndex + 1;
     const hasTemplateImages = selectedTemplateId && selectedTemplateId !== 'none';
-    const isTemplatePage = hasTemplateImages && pageTemplateImageIndex[pages[pageIndex]] !== undefined;
+    const isTemplatePage = hasTemplateImages && getPageMetadata(pages[pageIndex])?.page_type === "template";
     
     // Only fill with white if this is NOT a template page and has no smart RX images
     if (!hasSmartRxImages && !isTemplatePage) {
@@ -2394,7 +2511,8 @@ function SmartPrescription() {
     
     // Get the current page's template image index
     const currentPageId = pages[pageIndex];
-    const currentTemplateImageIndex = pageTemplateImageIndex[currentPageId] || 0;
+    const currentPageMeta = getPageMetadata(currentPageId);
+    const currentTemplateImageIndex = currentPageMeta?.template_page_index || 0;
     
     // Load the same image for the new page
     if (isTemplateSelected(selectedTemplateId)) {
@@ -2424,10 +2542,25 @@ function SmartPrescription() {
         };
         
         // Set the template image index for the new page
-        setPageTemplateImageIndex(prev => ({
-          ...prev,
-          [newPageId]: currentTemplateImageIndex
-        }));
+        setPagesMetaData(prev => {
+          const newPageMeta = {
+            page_order: pageIndex + 2, // +2 because we're inserting after current page
+            page_type: "template",
+            template_page_index: currentTemplateImageIndex,
+            page_id: newPageId
+          };
+          
+          // Insert the new page metadata at the correct position
+          const newMetaData = [...prev];
+          newMetaData.splice(pageIndex + 1, 0, newPageMeta);
+          
+          // Update page_order for subsequent pages
+          for (let i = pageIndex + 2; i < newMetaData.length; i++) {
+            newMetaData[i].page_order = i + 1;
+          }
+          
+          return newMetaData;
+        });
       }
     } else if (smartRxFiles && smartRxFiles.length > 0) {
       // For smart RX files
@@ -2522,6 +2655,26 @@ function SmartPrescription() {
     newDataPresentInCanvas.splice(pageIndex + 1, 0, false);
     setDataPresentInCanvas(newDataPresentInCanvas);
     
+    // Add blank page metadata
+    setPagesMetaData(prev => {
+      const newPageMeta = {
+        page_order: pageIndex + 2, // +2 because we're inserting after current page
+        page_type: "blank",
+        page_id: newPageId
+      };
+      
+      // Insert the new page metadata at the correct position
+      const newMetaData = [...prev];
+      newMetaData.splice(pageIndex + 1, 0, newPageMeta);
+      
+      // Update page_order for subsequent pages
+      for (let i = pageIndex + 2; i < newMetaData.length; i++) {
+        newMetaData[i].page_order = i + 1;
+      }
+      
+      return newMetaData;
+    });
+    
     // Initialize the new canvas with white background
     setTimeout(() => {
       const newCanvas = canvasRefs.current[newPageId];
@@ -2551,14 +2704,234 @@ function SmartPrescription() {
     return isTemplateSelected(selectedTemplateId) || (smartRxFiles && smartRxFiles.length > 0);
   };
 
+  // Helper function to get page metadata by page ID
+  const getPageMetadata = (pageId) => {
+    return pagesMetaData.find(page => page.page_id === pageId);
+  };
+
   // Function to check if a specific page is a template page
   const isTemplatePage = (pageIndex) => {
     if (!isTemplateSelected(selectedTemplateId)) {
       return false;
     }
     const pageId = pages[pageIndex];
-    // A page is a template page if it has a template image index defined
-    return pageTemplateImageIndex[pageId] !== undefined && pageTemplateImageIndex[pageId] >= 0;
+    // A page is a template page if it has template metadata defined
+    const pageMeta = getPageMetadata(pageId);
+    return pageMeta?.page_type === "template" && pageMeta?.template_page_index !== undefined;
+  };
+
+  // Function to check if a specific page is a blank page
+  const isBlankPage = (pageIndex) => {
+    const pageId = pages[pageIndex];
+    const pageMeta = getPageMetadata(pageId);
+    return pageMeta?.page_type === "blank";
+  };
+
+  // Function to check if a specific page is a smartRx page
+  const isSmartRxPage = (pageIndex) => {
+    const pageId = pages[pageIndex];
+    const pageMeta = getPageMetadata(pageId);
+    return pageMeta?.page_type === "smartRx";
+  };
+
+  // Function to get the current pages metadata structure
+  const getCurrentPagesMetadata = () => {
+    return pagesMetaData;
+  };
+
+  // Function to get page metadata by page index
+  const getPageMetadataByIndex = (pageIndex) => {
+    if (pageIndex < 0 || pageIndex >= pages.length) return null;
+    const pageId = pages[pageIndex];
+    return getPageMetadata(pageId);
+  };
+
+  // Function to update page metadata
+  const updatePageMetadata = (pageId, updates) => {
+    setPagesMetaData(prev => 
+      prev.map(page => 
+        page.page_id === pageId 
+          ? { ...page, ...updates }
+          : page
+      )
+    );
+  };
+
+  // Function to reorder pages metadata (useful for drag and drop)
+  const reorderPagesMetadata = (startIndex, endIndex) => {
+    setPagesMetaData(prev => {
+      const newMetaData = [...prev];
+      const [removed] = newMetaData.splice(startIndex, 1);
+      newMetaData.splice(endIndex, 0, removed);
+      
+      // Update page_order for all pages
+      return newMetaData.map((page, index) => ({
+        ...page,
+        page_order: index + 1
+      }));
+    });
+  };
+
+  // Function to validate and fix pages metadata structure
+  const validatePagesMetadata = () => {
+    setPagesMetaData(prev => {
+      const validMetaData = [];
+      
+      pages.forEach((pageId, index) => {
+        const existingMeta = prev.find(meta => meta.page_id === pageId);
+        
+        if (existingMeta) {
+          // Update page_order if it's incorrect
+          validMetaData.push({
+            ...existingMeta,
+            page_order: index + 1
+          });
+        } else {
+          // Create default metadata for missing pages
+          validMetaData.push({
+            page_order: index + 1,
+            page_type: "blank", // Default to blank if no metadata exists
+            page_id: pageId
+          });
+        }
+      });
+      
+      return validMetaData;
+    });
+  };
+
+  // Function to get pages metadata in the requested format (without page_id)
+  const getPagesMetadataForExport = () => {
+    return pagesMetaData.map(({ page_id, ...metadata }) => metadata);
+  };
+
+  // Function to check if we have backend metadata for smartRx files
+  const hasBackendMetadata = () => {
+    // Check for nested custom_ss_data structure
+    const pages = caseManagerData?.custom_ss_data?.custom_ss_data?.pages || caseManagerData?.custom_ss_data?.pages;
+    const hasData = pages && Array.isArray(pages) && pages.length > 0;
+    
+    console.log("hasBackendMetadata check:", {
+      caseManagerData: !!caseManagerData,
+      custom_ss_data: !!caseManagerData?.custom_ss_data,
+      nested_custom_ss_data: !!caseManagerData?.custom_ss_data?.custom_ss_data,
+      pages: !!pages,
+      isArray: Array.isArray(pages),
+      length: pages?.length,
+      result: hasData,
+      actualPages: pages
+    });
+    return hasData;
+  };
+
+  // Function to get backend metadata for a specific page
+  const getBackendPageMetadata = (pageIndex) => {
+    if (!hasBackendMetadata()) return null;
+    const pages = caseManagerData?.custom_ss_data?.custom_ss_data?.pages || caseManagerData?.custom_ss_data?.pages;
+    return pages[pageIndex];
+  };
+
+  // Function to sync current metadata with backend metadata
+  const syncMetadataWithBackend = () => {
+    if (hasBackendMetadata()) {
+      const backendPages = caseManagerData?.custom_ss_data?.custom_ss_data?.pages || caseManagerData?.custom_ss_data?.pages;
+      if (pages.length === backendPages.length) {
+        const syncedMetadata = backendPages.map((meta, index) => {
+          return {
+            page_order: meta.page_order || index + 1,
+            page_type: meta.page_type || "smartRx",
+            template_page_index: meta.template_page_index,
+            page_id: pages[index] || uuidv4()
+          };
+        });
+        setPagesMetaData(syncedMetadata);
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Function to check if current pages match backend metadata
+  const doPagesMatchBackendMetadata = () => {
+    if (!hasBackendMetadata()) return false;
+    const backendPages = caseManagerData?.custom_ss_data?.custom_ss_data?.pages || caseManagerData?.custom_ss_data?.pages;
+    const matches = pages.length === backendPages.length;
+    console.log("doPagesMatchBackendMetadata check:", {
+      pagesLength: pages.length,
+      backendPagesLength: backendPages.length,
+      matches: matches
+    });
+    return matches;
+  };
+
+  // Function to handle smartRx file editing - preserve backend metadata
+  const handleSmartRxEdit = () => {
+    if (hasBackendMetadata() && doPagesMatchBackendMetadata()) {
+      // We're editing existing smartRx files, preserve the backend metadata
+      const backendPages = caseManagerData?.custom_ss_data?.custom_ss_data?.pages || caseManagerData?.custom_ss_data?.pages;
+      const preservedMetadata = backendPages.map((meta, index) => ({
+        page_order: meta.page_order || index + 1,
+        page_type: meta.page_type || "smartRx",
+        template_page_index: meta.template_page_index,
+        page_id: pages[index] || uuidv4()
+      }));
+      setPagesMetaData(preservedMetadata);
+      return true;
+    }
+    return false;
+  };
+
+  // Function to prepare metadata for submission to backend
+  const prepareMetadataForSubmission = () => {
+    // Format metadata for submission as custom_ss_data structure
+    const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+    
+    return {
+      custom_ss_data: {
+        template_id: selectedTemplateId || null,
+        template_title: selectedTemplate?.title || null,
+        pages: getPagesMetadataForExport()
+      }
+    };
+  };
+
+  // Function to get current template information
+  const getCurrentTemplateInfo = () => {
+    if (selectedTemplateId && selectedTemplateId !== 'none') {
+      const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+      return {
+        template_id: selectedTemplateId,
+        template_title: selectedTemplate?.title || 'Unknown Template'
+      };
+    }
+    return null;
+  };
+
+  // Function to check if we're using a custom template
+  const isUsingCustomTemplate = () => {
+    return selectedTemplateId && selectedTemplateId !== 'none';
+  };
+
+  // Function to update selected template from backend data
+  const updateSelectedTemplateFromBackend = () => {
+    if (caseManagerData?.custom_ss_data?.custom_ss_data?.template_id || caseManagerData?.custom_ss_data?.template_id) {
+      const templateId = caseManagerData?.custom_ss_data?.custom_ss_data?.template_id || caseManagerData?.custom_ss_data?.template_id;
+      const templateTitle = caseManagerData?.custom_ss_data?.custom_ss_data?.template_title || caseManagerData?.custom_ss_data?.template_title;
+      
+      console.log("Updating selected template from backend:", { templateId, templateTitle });
+      
+      // Update the selected template ID and title
+      setSelectedTemplateId(templateId);
+      
+      // If we have a template title, we might want to update the templates list
+      // or ensure the template is loaded
+      if (templateId && templateId !== 'none') {
+        setIsCustomSSRX(true);
+      }
+      
+      return true;
+    }
+    return false;
   };
 
   // Function to handle disclaimer close
@@ -2566,6 +2939,15 @@ function SmartPrescription() {
     setShowDisclaimer(false);
     localStorage.setItem('customRxDisclaimerDismissed', 'true');
   };
+
+  console.log(pagesMetaData, "pagesMetaData (internal)");
+  console.log(getPagesMetadataForExport(), "pagesMetaData (export format)");
+  console.log(caseManagerData?.custom_ss_data, "Backend custom_ss_data from caseManagerData");
+  console.log(hasBackendMetadata(), "Has backend metadata");
+  console.log(doPagesMatchBackendMetadata(), "Pages match backend metadata");
+  console.log(prepareMetadataForSubmission(), "Metadata prepared for submission");
+  console.log(getCurrentTemplateInfo(), "Current template info");
+  console.log(isUsingCustomTemplate(), "Using custom template");
 
   return (
     <CashManagerContext.Provider value={contextApi}>
@@ -2581,6 +2963,7 @@ function SmartPrescription() {
           caseManagerData={caseManagerData}
           isCustomSSRX={isCustomSSRX}
           selectedTemplateId={selectedTemplateId}
+          prepareMetadataForSubmissionData={prepareMetadataForSubmission()}
         />
         
         {loading && <FullPageLoader />}

@@ -324,7 +324,6 @@ function SmartRxPreview() {
                         try {
                             // Guard: ensure prerequisites
                             if (!(smartRxFile?.length > 0 && token)) return;
-                            console.log(smartRxFile?.length,"smartRxFile?.length")
                             const isCustomSSRX = Boolean(viewCaseManagerData?.isCustomSSRX === "1");
                             const path = isCustomSSRX ? "/snap-rx/digitise" : "/smart-rx-digitise";
                             const navState = {
@@ -559,7 +558,7 @@ function SmartRxPreview() {
                                             </p>
                                         </div>
                                     )}
-                                    {(viewCaseManagerData?.isCustomSSRX === "0") && !rxDigitiseApiResponse && !showProgressbar && smartRxFile?.length > 0 && state?.page !== "digitise" && (
+                                    { !rxDigitiseApiResponse && !showProgressbar && smartRxFile?.length > 0 && state?.page !== "digitise" && (
                                         <div className="digitise-container p-3 rounded-10px">
                                             <div className="digitise-box-top">
                                                 <img src={successIcon} alt="success" width="40px" height="40px" />

@@ -74,7 +74,8 @@ function HeaderPrescription({
   isGrowthChartEnabled,
   caseManagerData,
   isCustomSSRX,
-  selectedTemplateId
+  selectedTemplateId,
+  prepareMetadataForSubmissionData
 }) {
   const { templates, loading } = useSelector((state) => state.caseManager);
   const { profile, videoList } = useSelector((state) => state.doctors);
@@ -512,6 +513,7 @@ function HeaderPrescription({
       smart_prescription_filename: smartRxFiles || [],
       pillup_fulfilment: isPillUpAccessableFromGB && pillupSwitch ? 1 : 0,
       isCustomSSRX: isCustomSSRX ? "1" : "0",
+      custom_ss_data: prepareMetadataForSubmissionData?.custom_ss_data || null,
     };
 
     const action =
