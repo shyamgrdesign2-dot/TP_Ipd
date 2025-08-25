@@ -28,6 +28,44 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showTooltip, setShowTooltip] = useState(false);
+  useEffect(() => {
+  const SCRIPT_ID = "aisensy-wa-widget";
+ 
+  // if login flow or any path where you want it hidden → remove script + widget
+  if (isLoginFlow) {
+    const existingScript = document.getElementById(SCRIPT_ID);
+    if (existingScript) {
+      document.body.removeChild(existingScript);
+    }
+    // also remove any injected widget container/button
+    const widget = document.querySelector(".aisensy-widget-container");
+    if (widget) widget.remove();
+    return;
+  }
+ 
+  // if signup → inject script
+  if (!document.getElementById(SCRIPT_ID)) {
+    const script = document.createElement("script");
+    script.src = "https://d3mkw6s8thqya7.cloudfront.net/integration-plugin.js";
+    script.id = SCRIPT_ID;
+    script.setAttribute("widget-id", "aaako1");
+    script.async = true;
+    document.body.appendChild(script);
+  }
+ 
+  return () => {
+    // cleanup on unmount / flow change
+    const existingScript = document.getElementById(SCRIPT_ID);
+    const aiSensiDiv = document.getElementsByClassName('df-btn df-closed');
+    aiSensiDiv.forEach(div => div.remove());
+    console.log("Cleaning up Aisensy script and widget", isLoginFlow, existingScript);
+    if (existingScript) {
+      document.body.removeChild(existingScript);
+    }
+    const widget = document.querySelector(".aisensy-widget-container");
+    if (widget) widget.remove();
+  };
+}, [isLoginFlow]);
   const [errors, setErrors] = useState({
     password: "",
     confirmPassword: ""
