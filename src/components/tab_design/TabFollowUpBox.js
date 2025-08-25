@@ -140,6 +140,14 @@ function TabFollowUpBox() {
             if (weeks >= 48 && weeks % 48 === 0) {
                 const yearsValue = Math.floor(weeks / 48);
                 setFollowUpInput(`${yearsValue} ${yearsValue <= 1 ? 'Year' : 'Years'}`)
+            } else if (weeks === 5) {
+                setFollowUpInput("1 Month")
+            } else if (weeks === 7 || weeks === 9) {
+                setFollowUpInput("2 Months")
+            } else if (weeks === 11 || weeks === 13) {
+                setFollowUpInput("3 Months")
+            } else if (weeks === 17) {
+                setFollowUpInput("4 Months")
             } else if (weeks % 4 === 0 && weeks >= 4 && weeks < 48) {
                 const monthsValue = Math.floor(weeks / 4);
                 setFollowUpInput(`${monthsValue} ${monthsValue <= 1 ? 'Month' : 'Months'}`)
