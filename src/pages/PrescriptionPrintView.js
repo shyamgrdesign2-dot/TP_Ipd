@@ -534,7 +534,7 @@ function PrescriptionPrintView() {
                                     const tokenData = decodedToken?.result;
                                     
                                     // Check if current doctor has WhatsApp enabled
-                                    const currentDoctorPhone = profile?.um_contact?.replace(/\D/g, '').slice(-10);
+                                    const currentDoctorPhone = profile?.um_contact?.toString().replace(/\D/g, '').slice(-10);
                                     const isWhatsAppEnabled = ZYDUS_WHATSAPP_ENABLED_DOCTORS.includes(currentDoctorPhone);
                                     
                                     return tokenData?.hospital_business_id === env.zydus_business_id && isWhatsAppEnabled ? (
