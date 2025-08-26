@@ -34,6 +34,7 @@ import { useAccess } from "../pages/vaccination/useAccess";
 import { getClinicName } from "../utils/utils";
 import VideoModal from "../common/VideoModal";
 import TextArea from "antd/es/input/TextArea";
+import { setGynecHistoryData, setMedicalHistoryData } from "../redux/prescriptionSlice";
 
 const dateFormat = 'YYYY-MM-DD'
 const showDateFormat = 'DD-MM-YYYY'
@@ -47,12 +48,12 @@ function MedicalHistoryBox(props) {
         defaultList,
         loading,
     } = useSelector((state) => state.medicalhistory);
+    const { medicalHistoryData } = useSelector((state) => state.prescription);
     const { profile, userId } = useSelector((state) => state.doctors);
     const dispatch = useDispatch();
 
     const { isGynaecHistoryAccessable } = useAccess();
 
-    const { medicalHistoryData, setMedicalHistoryData } = useContext(CashManagerContext);
     // const [ medicalHistoryData, setMedicalHistoryData] = useState([]);
     const [cloneMedicalHistoryData, setCloneMedicalHistoryData] = useState([])
 
@@ -713,11 +714,11 @@ function MedicalHistoryBox(props) {
             }
         })
         if (!remarks && medicalHistory.filter(e => !e?.no_know_history && e?.tags?.length === 0).length === medicalHistory.length) {
-            setMedicalHistoryData([])
-            handleDrawerMedicalHistory()
+            dispatch(setMedicalHistoryData([]))
+            handleDrawerMedicalHistory?.()
         } else {
-            setMedicalHistoryData(JSON.parse(JSON.stringify(medicalHistory)))
-            handleCollapsed(2)
+            dispatch(setMedicalHistoryData(JSON.parse(JSON.stringify(medicalHistory))))
+            handleCollapsed?.(2)
         }
     }
 
@@ -872,7 +873,8 @@ function MedicalHistoryBox(props) {
             }
             return acc;
         }, {});
-        onSave(filteredGynecHistory);
+        if (onSave) onSave(filteredGynecHistory);
+        else dispatch(setGynecHistoryData(filteredGynecHistory));
         handleSaveClick()
     };
 
@@ -941,7 +943,7 @@ function MedicalHistoryBox(props) {
         }, {});
 
         setGynecHistory(filteredGynecHistory)
-        handleCollapsed(2)
+        handleCollapsed?.(2)
 
         if (gynecEditState === "CREATE") {
             const payload = {

@@ -15,10 +15,16 @@ import alertIcon from '../assets/images/alertIcon.svg';
 import editIcon from '../assets/images/edit.svg';
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import _ from 'lodash';
+import { useDispatch } from 'react-redux';
+import { getLabParamsData } from '../redux/prescriptionSlice';
+import { useLocation } from 'react-router-dom';
 
 
 const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal, patientGender  }) => {
+  const dispatch = useDispatch();
 
+  const { state } = useLocation();
+  const { patient_data } = state;
     const [token, setToken] = useState(null);
     const searchRef = useRef(null);
     const [tokenData, setTokenData] = useState(null);
@@ -163,26 +169,24 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         }
     };
 
-    const getLabParams = async () => {
-        try {
-            const cleanedToken = token.replace(/['"]+/g, '');
-            const patientId = patient_unique_id;
-            const response = await axios.get(`${labParamsBaseUrl}/api/v1/lab-parameters/results/${patientId}`, {
-                headers: {
-                    'Authorization': `Bearer ${cleanedToken}`,
-                },
-            });
-            setExistingResults(response.data?.data?.results || []); 
-        } catch (error) {
-            console.error("Error fetching lab params:", error);
-        }
-    };
-
     useEffect(() => {
         if(token){
             getLabParams();
         }
     },[token])
+
+    const getLabParams = () => {
+      dispatch(
+        getLabParamsData({
+          patient_unique_id: patient_data?.patient_unique_id,
+        })
+      ).then(({payload}) => {
+        setExistingResults(payload);
+      }).catch((err) => {
+            console.error("Error fetching lab params:", err);
+        });
+    };
+  
 
     const onSearch = useCallback((query) => {
         setSearchQuery(query);
@@ -572,15 +576,15 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     }
 
     const handleDateChange = (newDate, index) => {
-      setDates((prevDates) => {
-        const updatedDates = [...prevDates];
-        updatedDates[index] = newDate;
-        return updatedDates;
+      setDates(prevDates => {
+        const oldDate = prevDates[index];
+        const next = [...prevDates];
+        next[index] = newDate;
+        setInputValues(prevValues => replaceDate(prevValues, oldDate, newDate));
+    
+        return next;
       });
-      setInputValues((prev) => {
-        const updatedData = replaceDate(prev, dates[index], newDate);
-        return updatedData;
-      });
+
     };
 
     const handleDeleteDate = (dateToDelete) => {
@@ -736,12 +740,16 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     }
     };
 
-  useEffect(() => {
-    const sortedDates = dates.sort((a, b) => new Date(b) - new Date(a));
-  
-    setDates(sortedDates);
-  
-  }, [inputValues, dates]);
+    useEffect(() => {
+      if (!dates || dates.length < 2) return;
+    
+      const sorted = [...dates].sort((a, b) => new Date(b) - new Date(a));
+    
+      const changed = sorted.length !== dates.length ||
+        sorted.some((d, i) => d !== dates[i]);
+    
+      if (changed) setDates(sorted);
+    }, [dates]); 
 
     const handleSave = async() =>{
 
@@ -763,8 +771,9 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
               baseUrl
             );
             if(response){
-                onSave();
-                handleAddLabParamsDrawer();
+                // onSave();
+                getLabParams();
+                // handleAddLabParamsDrawer(); TODO: INTEL - fix
             }
           } catch (error) {
             console.error("Error:", error);
@@ -800,7 +809,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     const handleDeleteDataModal = () => {
       setFilledData([]);
       setInputValues([]);
-      handleAddLabParamsDrawer();
+      // handleAddLabParamsDrawer();  // TODO: INTEL
       showHideBackModal();
     }
 

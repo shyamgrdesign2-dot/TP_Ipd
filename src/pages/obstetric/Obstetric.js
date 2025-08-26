@@ -45,7 +45,7 @@ import "./Obstetric.scss";
 const { TabPane } = Tabs;
 
 const Obstetric = ({
-  obstetricDetails,
+  obstetricDetails : obstetricDetailsFromProps,
   obstetricDrawer,
   handleDrawerObstetric,
   handleCollapsed,
@@ -65,6 +65,7 @@ const Obstetric = ({
     immunisationDoctorList,
     obstetricDetails: allObstetricDetails,
   } = useSelector((state) => state.obstetric);
+  const obstetricDetails = obstetricDetailsFromProps || allObstetricDetails?.currentPregnancy || {};
   const isPregnancyCompleted =
     Object.keys(obstetricDetails)?.length === 0 &&
     allObstetricDetails &&
@@ -437,7 +438,7 @@ const Obstetric = ({
   };
 
   const clearObstetricData = () => {
-    handleDrawerObstetric();
+    handleDrawerObstetric?.();
     getAllObstetricDetails();
     dispatch(resetUpdatedPatientDiagnosis());
     if (isNavigateToObstetric) {
@@ -452,7 +453,7 @@ const Obstetric = ({
   };
 
   const handleObstetricBackBtn = () => {
-    handleDrawerObstetric();
+    handleDrawerObstetric?.();
     if (isNavigateToObstetric) {
       navigate(-1);
       dispatch(navigateToObstetric(false));

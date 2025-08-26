@@ -107,6 +107,7 @@ import { services } from "../../redux/doctorsSlice";
 import SCPopup from "../../components/SCPopup";
 import { fetchSymptomsCollectorData } from "../../api/services/ApiGenRx";
 import SCBanner from "../../components/SCBanner";
+import { getLabParamsData, setMedicationData, setPillupSwitch } from "../../redux/prescriptionSlice";
 
 function TabPrescription() {
   const {
@@ -116,6 +117,7 @@ function TabPrescription() {
     timingList,
     userId,
   } = useSelector((state) => state.doctors);
+  let { labParamsData } = useSelector((state) => state.prescription);
   const { planDetails } = useSelector((state) => state.subscription);
   const tp_monetization_enable = !shouldMonetizationDisabled();
   const isApexAIAccessable = useFeatureIsOn("cdss");
@@ -176,7 +178,6 @@ function TabPrescription() {
   const [diagnosisData, setDiagnosisData] = useState([]);
   const [adviceData, setAdviceData] = useState([]);
   const [investigationData, setInvestigationData] = useState([]);
-  const [medicationData, setMedicationData] = useState([]);
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [privateNotesData, setPrivateNotesData] = useState(null);
@@ -193,13 +194,11 @@ function TabPrescription() {
     caseManagerData?.patient_data?.patient_age
   );
   const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);
-  const [labParamsData, setLabParamsData] = useState(null);
   const [generatedDDx, setGeneratedDDx] = useState({ results: [] });
   const [likeDislike, setLikeDislike] = useState([]);
   const [isDDxGenerated, setIsDDxGenerated] = useState(false);
   const [isDDxLoading, setIsDDxLoading] = useState(false);
   const [customModuleContents, setCustomModuleContents] = useState([]);
-  const [pillupSwitch, setPillupSwitch] = useState(true);
   const [showSCBanner, setShowSCBanner] = useState(false);
 
   const { servicesList } = useSelector((state) => state.doctors);
@@ -231,8 +230,6 @@ function TabPrescription() {
     setAdviceData,
     investigationData,
     setInvestigationData,
-    medicationData,
-    setMedicationData,
     vitalsData,
     setVitalsData,
     medicalHistoryData,
@@ -246,8 +243,6 @@ function TabPrescription() {
     startTime,
     customModuleContents,
     setCustomModuleContents,
-    pillupSwitch,
-    setPillupSwitch,
     showHideSubModal,
     useVoiceRx,
     setUseVoiceRx,
@@ -454,7 +449,7 @@ function TabPrescription() {
             unique_id: uuidv4(),
           };
         });
-        setMedicationData([...updatedData]);
+        dispatch(setMedicationData([...updatedData]));
       }
       if (
         caseManagerData.advice.length > 0 &&
@@ -493,7 +488,7 @@ function TabPrescription() {
           (e) => !!customModules.find((cm) => cm.module_id === e.module_id)
         ))
       }
-      setPillupSwitch(caseManagerData?.pillup_fulfilment == 1 ? true : false)
+      dispatch(setPillupSwitch(caseManagerData?.pillup_fulfilment == 1 ? true : false))
     }
   }, []);
 
@@ -563,18 +558,13 @@ function TabPrescription() {
   };
 
   const getLabParams = async () => {
-    try {
-      const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-      const cleanedToken = token.replace(/['"]+/g, '');
-      const response = await axios.get(`${baseUrl}/api/v1/lab-parameters/results/${patient_data?.patient_unique_id}`, {
-        headers: {
-          'Authorization': `Bearer ${cleanedToken}`,
-        },
+    dispatch(
+      getLabParamsData({
+        patient_unique_id: patient_data?.patient_unique_id,
+      })
+    ).catch((err) => {
+          console.error("Error fetching lab params:", err);
       });
-      setLabParamsData(response.data?.data?.results || []);
-    } catch (error) {
-      console.error("Error fetching lab params:", error);
-    }
   };
 
   useEffect(() => {

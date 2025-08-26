@@ -4,13 +4,32 @@ import { Collapse } from 'antd';
 import CashManagerContext from '../context/CashManagerContext';
 import GynecHistoryList from "./GynecHistoryList";
 import { useAccess } from "../pages/vaccination/useAccess";
+import { fetchGynecHistory } from "../redux/prescriptionSlice";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 function MedicalHistoryList(props) {
-    const { medicalHistoryData } = useContext(CashManagerContext);
-    const {gynecHistory} = props
+    const {gynecHistory: gynecHistoryFromProps} = props
+
     const [accordionItems, setAccordionItems] = useState([]);
 
     const {isGynaecHistoryAccessable} = useAccess();
+    const  dispatch = useDispatch();
+
+    const {
+        userId,
+      } = useSelector((state) => state.doctors);
+    const { medicalHistoryData, gynecHistoryData: gynecHistoryFromStore } = useSelector((state) => state.prescription);
+    const gynecHistory = gynecHistoryFromProps || gynecHistoryFromStore;
+      const { state } = useLocation();
+  const { patient_data } = state;
+
+    useEffect(() => {
+        if (!gynecHistory) {
+            dispatch(fetchGynecHistory(patient_data.patient_unique_id,userId));
+        }
+    }, []);
 
     const filteredGynecHistory = Object.keys(gynecHistory || {}).reduce((acc, key) => {
         if ( key !== 'reproductiveLifeStages' ) {

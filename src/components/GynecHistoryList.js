@@ -1,10 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import { Collapse } from 'antd';
 import moment from 'moment';
+import { fetchGynecHistory } from '../redux/prescriptionSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 
 function GynecHistoryList(props) {
-    const {gynecHistory} = props
+    const {gynecHistory: gynecHistoryFromProps} = props
     const [accordionItems, setAccordionItems] = useState([]);
+
+    const  dispatch = useDispatch();
+
+    const {
+        userId,
+      } = useSelector((state) => state.doctors);
+    const { gynecHistoryData : gynecHistoryFromStore } = useSelector((state) => state.prescription);
+
+    const { state } = useLocation();
+    const { patient_data } = state;
+    
+    const gynecHistory = gynecHistoryFromProps || gynecHistoryFromStore;
+
+    useEffect(() => {
+        if (!gynecHistory) {
+            dispatch(
+              fetchGynecHistory({
+                patientId: patient_data.patient_unique_id,
+                userId,
+              })
+            );
+        }
+    }, []);
 
     const filteredGynecHistory = Object.keys(gynecHistory || {}).reduce((acc, key) => {
         if ( key !== 'reproductiveLifeStages' ) {

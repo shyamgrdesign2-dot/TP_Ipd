@@ -1,3 +1,4 @@
+// TODO: INTEL - still expanding ft style fixes pending 
 import { Button, Input, Tooltip } from 'antd';
 import React, { useState, useRef, useEffect } from 'react';
 import { CaretRightOutlined, CaretDownOutlined } from '@ant-design/icons';
@@ -10,7 +11,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
         (state) => state.prescription
       );
       const labParamsData = labParamsDataFromStore
-        ? structuredClone(labParamsDataFromStore)
+        ? JSON.parse(JSON.stringify(labParamsDataFromStore))
         : [];
     const [searchTerm, setSearchTerm] = useState('');
     const [expandedReports, setExpandedReports] = useState({});
@@ -36,7 +37,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                 [reportName]: true,
             }));
         });
-    }, [labParamsData]);
+    }, [labParamsDataFromStore]);
 
     useEffect(() => {
         if (labParamsData?.length > 0) {
@@ -72,7 +73,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
             });
             setGroupedData(updatedData);
         }
-    }, [searchTerm, labParamsData]);
+    }, [searchTerm, labParamsDataFromStore]);
     
     const filterDataBySearchKey = (data, searchKey) => {
         // If no search term, return the full data
@@ -170,8 +171,8 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                             >
                                 Name
                             </th>
-                            <th>
-                                <div className='d-flex'>
+                            <th className='w-full'>
+                                <div className='d-flex w-full'>
                                     {filteredReports.length < 2 ? (
                                         filteredReports.map((entry, entryIndex) => {
                                             const isLastCell = entryIndex === filteredReports.length - 1;
@@ -180,7 +181,9 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                                     <div
                                                         key={entry.date}
                                                         style={{
-                                                            width: '160px',
+                                                            // width: '160px',
+                                                            maxWidth: '33%',
+                                                            flexBasis: '33%',
                                                             padding: '10px',
                                                             zIndex: "1",
                                                             fontWeight: "600",
@@ -193,7 +196,9 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                                     <div
                                                         key={entry.date}
                                                         style={{
-                                                            width: '160px',
+                                                            // width: '160px',
+                                                            maxWidth: '33%',
+                                                            flexBasis: '33%',
                                                             padding: '10px',
                                                             zIndex: "1",
                                                             fontWeight: "600",
@@ -214,7 +219,8 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                                 <div
                                                     key={entry.date}
                                                     style={{
-                                                        width: '160px',
+                                                        maxWidth: '33%',
+                                                        flexBasis: '33%',
                                                         padding: '10px',
                                                         zIndex: "1",
                                                         fontWeight: "600",
@@ -249,6 +255,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                             style={{
                                                 cursor: 'pointer',
                                                 width: '100%',
+                                                position: 'relative'
                                             }}
                                         >
                                             <td
@@ -268,14 +275,14 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                                 }}
                                             >
                                                 <span>{reportName}</span>
-                                                <div style={{ position: "absolute", top: "16%", right: "-81%" }}>
-                                                    {isExpanded ? (
-                                                        <button className='btn p-0 ms-2 iconrotate180'><i className='icon-right fs-5' /></button>
-                                                    ) : (
-                                                        <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right fs-5' /></button>
-                                                    )}
-                                                </div>
                                             </td>
+                                            <div style={{ position: "absolute", top: "16%", right: "20px" }}>
+                                                {isExpanded ? (
+                                                    <button className='btn p-0 ms-2 iconrotate180'><i className='icon-right fs-5' /></button>
+                                                ) : (
+                                                    <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right fs-5' /></button>
+                                                )}
+                                            </div>
                                             {filteredReports.length < 2 ? (
                                                 // Render at least two empty <td>s if the length is less than 2
                                                 <>
@@ -290,7 +297,8 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                                             key={entry.date}
                                                             style={{
                                                                 background: "#FAFAFB",
-                                                                width: "160px",
+                                                                maxWidth: "33%",
+                                                                flexBasis: "33%",
                                                                 padding: '10px',
                                                                 textAlign: 'right', // Right align the icon for the last cell
                                                                 borderTopRightRadius: isLastCell ? "10px" : " ",
@@ -315,7 +323,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                                                 position: 'sticky',
                                                                 left: 0,
                                                                 background: '#fff',
-                                                                width: "23rem",
+                                                                width: "25%",
                                                                 padding: '10px',
                                                                 borderRight: '1px solid #ddd',
                                                                 overflow: "hidden",
@@ -323,7 +331,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                                         >
                                                             {testName}
                                                         </td>
-                                                        <td colSpan={filteredReports.length} style={{ padding: 0 }}>
+                                                        <td colSpan={filteredReports.length} style={{ padding: 0, width: '100%' }}>
                                                             <div
                                                                 ref={scrollRef}
                                                                 onMouseDown={handleMouseDown}
@@ -334,6 +342,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                                                     display: 'flex',
                                                                     overflowX: 'auto',
                                                                     cursor: isDragging ? 'grabbing' : 'grab',
+                                                                    width: '100%'
                                                                 }}
                                                             >
                                                                 {filteredReports.map((entry) => {
@@ -344,7 +353,8 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                                                     return (
                                                                       <div
                                                                         key={entry.date}
-                                                                        style={{width: "160px",
+                                                                        style={{maxWidth: "33%",
+                                                                            flexBasis: "33%",
                                                                           borderRight: "1px solid #ddd",
                                                                           padding: "10px",
                                                                           background: "white",

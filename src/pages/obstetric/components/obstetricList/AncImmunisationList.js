@@ -69,7 +69,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
                 <i
                   className="icon-Edit me-1 fs-5"
                   style={{ cursor: "pointer" }}
-                  onClick={() => handleDrawerObstetric("ancScheduler")}
+                  onClick={() => handleDrawerObstetric?.("ancScheduler")}
                 />
               </div>
             </div>
@@ -127,7 +127,7 @@ const AncImmunisationList = ({ handleDrawerObstetric }) => {
                 <i
                   className="icon-Edit me-1 fs-5"
                   style={{ cursor: "pointer" }}
-                  onClick={() => handleDrawerObstetric("immunisationHistory")}
+                  onClick={() => handleDrawerObstetric?.("immunisationHistory")}
                 />
               </div>
             </div>

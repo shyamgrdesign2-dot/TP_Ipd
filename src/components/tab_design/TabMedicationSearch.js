@@ -279,7 +279,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             return {
               key: JSON.stringify({ ...e1 }),
               value: e1.tmu_id,
-              label: <>{e1.tmu_title}</>,
+              label: e1.tmu_title + '',
             };
           });
           console.log('INTEL ==? issuee', medicineUnit)
@@ -451,7 +451,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
       <Button
         type="text"
         className="rounded-0 btn-close-chips"
-        onClick={() => onRemoveRow(item?.index)}
+        onClick={() => {
+          console.log('tab search')
+          return onRemoveRow(item?.index);
+        }}
       >
         <i className="icon-Cross"></i>
       </Button>
@@ -1812,7 +1815,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
           return {
             key: JSON.stringify({ ...e1 }),
             value: e1.tmu_id,
-            label: <>{e1.tmu_title}</>,
+            label: e1.tmu_title + '',
           };
         });
 
@@ -1855,7 +1858,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             return {
               key: JSON.stringify({ ...e1 }),
               value: e1.tmu_id,
-              label: <>{e1.tmu_title}</>,
+              label: e1.tmu_title + '',
             };
           });
 

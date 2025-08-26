@@ -64,6 +64,16 @@ import SnapRxDigitise from "./pages/snapRx/SnapRxDigitise";
 import AppointmentAgent from "./pages/appointmentAgent/AppointmentAgent";
 import AppointmentSuccess from "./pages/appointmentAgent/components/AppointmentSuccess/AppointmentSuccess";
 import OpdBill from "./pages/opdBilling/OpdBill";
+import MedicationsBox from "./components/MedicationsBox";
+import TabMedicationBox from './components/tab_design/TabMedicationBox';
+import LabParametersList from "./components/LabParametersList";
+import LabParams from "./components/LabParams";
+import LabResultsTable from "./components/ViewLabParams";
+import GynecHistoryList from "./components/GynecHistoryList";
+import Obstetric from "./pages/obstetric/Obstetric";
+import ObstetricList from "./pages/obstetric/components/obstetricList/ObstetricList";
+import MedicalHistoryBox from "./components/MedicalHistoryBox";
+import MedicalHistoryList from "./components/MedicalHistoryList";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -408,7 +418,27 @@ function App() {
                 <Route path="patient_details" element={<PatientDetails />} />
                 <Route
                   path="prescription"
+                  // element={isMobile ? <TabMedicationBox /> : <MedicationsBox />}
                   element={isMobile ? <TabPrescription /> : <Prescription />}
+                  // element={isMobile ? <TabPrescription /> : <Obstetric />}
+                  // element={isMobile ? <TabPrescription /> : <ObstetricList />}
+                  // element={isMobile ? <TabPrescription /> : <MedicalHistoryBox />}
+                  // element={isMobile ? <TabPrescription /> : <MedicalHistoryList  />}
+                  // element={isMobile ? <TabMedicationBox /> : <GynecHistoryList />}
+                  // element={isMobile ? <TabMedicationBox /> : <LabParametersList />}
+                //   element={isMobile ? <TabMedicationBox /> : (
+                //     <>
+                //       <LabResultsTable showHeader={true} showSearchBar={false} />
+                //       <LabParams
+                //         // handleAddLabParamsDrawer={handleAddLabParamsDrawer}
+                //         // patient_unique_id={patient_data?.patient_unique_id}
+                //         onSave={() => {}}
+                //         // isBackModalOpen={isBackModalOpen}
+                //         // showHideBackModal={showHideBackModal}
+                //         // patientGender={patient_data?.pm_gender}
+                //       />
+                //     </>
+                // )}
                 />
                 <Route
                   path="prescription_print_view"

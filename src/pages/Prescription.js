@@ -113,7 +113,7 @@ import genRxBg from "../assets/images/gen-rx-bg.gif";
 import LabResultsTable from "../components/LabParams";
 import ZydusLabParams from "../components/ZydusLabParams";
 import ZydusLabParametersList from "../components/ZydusLabParametersList";
-import { getLabParamsData, setMedicationData, setPillupSwitch } from "../redux/prescriptionSlice";
+import { fetchGynecHistory, getLabParamsData, setGynecHistoryData, setMedicalHistoryData as setMedicalHistory, setMedicationData, setPillupSwitch } from "../redux/prescriptionSlice";
 
 function Prescription() {
   const {
@@ -178,7 +178,6 @@ function Prescription() {
   const [adviceData, setAdviceData] = useState([]);
   const [investigationData, setInvestigationData] = useState([]);
   const [vitalsData, setVitalsData] = useState([]);
-  const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
   const [viewlabparamsDrawer, setViewlabparamsDrawer] = useState(false);
   const [privateNotesData, setPrivateNotesData] = useState(null);
@@ -202,6 +201,10 @@ function Prescription() {
   const [useVoiceRx, setUseVoiceRx] = useState(false);
   const [useDDX, setUseDDX] = useState(false);
 
+  const setMedicalHistoryData = (data) => {
+    dispatch(setMedicalHistory(data));
+  }
+
   const responsive = {
     desktop: {
       breakpoint: { max: 3000, min: 1024 },
@@ -221,7 +224,7 @@ function Prescription() {
     object && setSubModalData(object)
     setIsSubModalOpen(!isSubModalOpen);
   }
-  let { medicationData, pillupSwitch, labParamsData } = useSelector((state) => state.prescription);
+  let { medicationData, pillupSwitch, labParamsData, medicalHistoryData, gynecHistoryData } = useSelector((state) => state.prescription);
 
   const contextApi = {
     patient_data,
@@ -271,7 +274,6 @@ function Prescription() {
   const [selectPrivateNotes, setSelectPrivateNotes] = useState(null);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const [growthDrawer, setGrowthDrawer] = useState(false);
-  const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);
   const [obstetricDrawer, setObstetricDrawer] = useState(false);
   const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
   const [medicalReportDrawer, setMedicalReportDrawer] = useState(false);
@@ -738,13 +740,13 @@ function Prescription() {
     }
   }, [privateNotesList]);
 
-  const handleSaveGynecHistory = (updatedGynecHistory) => {
-    setUpdatedGynecHistory(updatedGynecHistory);
+  const handleSaveGynecHistory = (gynecHistoryData) => {
+    dispatch(setGynecHistoryData(gynecHistoryData));
   };
 
   useEffect(() => {
     if (isGynaecHistoryAccessable) {
-      fetchGynecHistory();
+      fetchGynecHistoryData();
     }
   }, [isGynaecHistoryAccessable]);
 
@@ -783,19 +785,8 @@ function Prescription() {
     }
   };
 
-  const fetchGynecHistory = async () => {
-    try {
-      const data = await getGynecDetails(
-        patient_data.patient_unique_id,
-        userId
-      );
-      // Destructure to remove createdAt and createdBy
-      const { createdAt, createdBy, ...updatedData } = data;
-
-      setUpdatedGynecHistory(updatedData);
-    } catch (error) {
-      console.error("Error fetching gynec history:", error);
-    }
+  const fetchGynecHistoryData = async () => {
+    dispatch(fetchGynecHistory({patientId: patient_data.patient_unique_id,userId}));
   };
 
   const handleFileUpload = (event) => {
@@ -1082,16 +1073,16 @@ function Prescription() {
                   <i
                     className={`${
                       medicalHistoryData.length > 0 ||
-                      (updatedGynecHistory &&
-                        Object.keys(updatedGynecHistory).length > 0)
+                      (gynecHistoryData &&
+                        Object.keys(gynecHistoryData).length > 0)
                         ? "icon-Edit"
                         : "icon-Add"
                     } me-1 fs-5`}
                   ></i>{" "}
                   <span>{`${
                     medicalHistoryData.length > 0 ||
-                    (updatedGynecHistory &&
-                      Object.keys(updatedGynecHistory).length > 0)
+                    (gynecHistoryData &&
+                      Object.keys(gynecHistoryData).length > 0)
                       ? "Edit"
                       : "Add"
                   }`}</span>
@@ -1101,9 +1092,9 @@ function Prescription() {
                 <ShimmerLoader />
               ) : (
                 (medicalHistoryData.length > 0 ||
-                  (updatedGynecHistory &&
-                    Object.keys(updatedGynecHistory).length > 0)) && (
-                  <MedicalHistoryList gynecHistory={updatedGynecHistory} />
+                  (gynecHistoryData &&
+                    Object.keys(gynecHistoryData).length > 0)) && (
+                  <MedicalHistoryList gynecHistory={gynecHistoryData} />
                 )
               )}
             </div>
@@ -1405,7 +1396,7 @@ function Prescription() {
         <HeaderPrescription
           isVaccinationEnabled={isVaccinationAccessable}
           isGrowthChartEnabled={isGrowthChartAccessable}
-          gynecHistory={updatedGynecHistory}
+          gynecHistory={gynecHistoryData}
           labParamsData={labParamsData}
           zydusSelectedLabParams={zydusSelectedLabParams}
           handleGenRx={handleGenRx}

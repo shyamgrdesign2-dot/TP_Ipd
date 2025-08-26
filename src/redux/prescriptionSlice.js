@@ -1,11 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiPrescription from "../api/services/ApiPrescription";
+import { getGynecDetails } from "../api/services/ApiGynec";
 
 const initialState = {
-    medicationData: [],
-    pillupSwitch: true,
-    labParamsData: [],
-
+  medicationData: [],
+  pillupSwitch: true,
+  labParamsData: [],
+  medicalHistoryData: [],
+  gynecHistoryData: null,
 };
 
 export const getLabParamsData = createAsyncThunk(
@@ -22,6 +24,25 @@ export const getLabParamsData = createAsyncThunk(
     } catch (error) {
       console.log("error: ", error);
       throw Error(error);
+    }
+  }
+);
+
+export const fetchGynecHistory = createAsyncThunk(
+  "prescription/fetchGynecHistory",
+  async ({ patientId, userId }) => {
+    try {
+      let result = {};
+      result = await getGynecDetails(patientId, userId);
+      const { createdAt, createdBy, ...updatedData } = result;
+      if (updatedData) {
+        return updatedData;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (err) {
+      console.log("error: ", err);
+      throw Error(err);
     }
   }
 );
@@ -44,10 +65,23 @@ const prescriptionSlice = createSlice({
         state.pillupSwitch = action.payload;
       }
     },
+    setMedicalHistoryData: (state, action) => {
+      if (typeof action.payload === "function") {
+        state.medicalHistoryData = action.payload(state.medicalHistoryData);
+      } else {
+        state.medicalHistoryData = action.payload;
+      }
+    },
+    setGynecHistoryData: (state, action) => {
+      if (typeof action.payload === "function") {
+        state.gynecHistoryData = action.payload(state.gynecHistoryData);
+      } else {
+        state.gynecHistoryData = action.payload;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
-      
       .addCase(getLabParamsData.pending, (state) => {
         state.loading = true;
       })
@@ -59,8 +93,20 @@ const prescriptionSlice = createSlice({
         state.labParamsData = [];
         state.loading = false;
       })
+      .addCase(fetchGynecHistory.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchGynecHistory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.gynecHistoryData = action.payload;
+      })
+      .addCase(fetchGynecHistory.rejected, (state, action) => {
+        state.gynecHistoryData = [];
+        state.loading = false;
+      });
   },
 });
 
-export const { setMedicationData, setPillupSwitch } = prescriptionSlice.actions;
+export const { setMedicationData, setPillupSwitch, setMedicalHistoryData, setGynecHistoryData } =
+  prescriptionSlice.actions;
 export default prescriptionSlice.reducer;
