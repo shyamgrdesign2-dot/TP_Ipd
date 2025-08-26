@@ -12,6 +12,8 @@ import { validateUser, checkPediaExists } from "../../auth/authService";
 import { getUtmParams } from "../../../components/userOnboarding/services/userDataService";
 import { detectOperatingSystem } from "../../../utils/utils";
 import { GB_DISABLE_MSG91_OTP_FLOW } from "../../../utils/constants";
+import { AISENSY_SCRIPT_CONTAINER,AISENSY_SCRIPT_ID,AISENSY_SCRIPT_SRC } from "../../../utils/constants";
+import { aisensybotInjection } from "../../../utils/utils";
 
 const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }) => {
   const [mobileNumber, setMobileNumber] = useState(initialMobileNumber || "");
@@ -28,6 +30,24 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showTooltip, setShowTooltip] = useState(false);
+useEffect(() => {
+
+  // Aisensy Integration
+  aisensybotInjection(isLoginFlow);
+
+  return () => {
+    // cleanup on unmount / flow change
+    const existingScript = document.getElementById(AISENSY_SCRIPT_ID);
+    const aiSensiDiv = document.getElementsByClassName('df-btn df-closed');
+    aiSensiDiv.forEach(div => div.remove());
+    if (existingScript) {
+      document.body.removeChild(existingScript);
+    }
+    const widget = document.querySelector(AISENSY_SCRIPT_CONTAINER);
+    if (widget) widget.remove();
+  };
+}, [isLoginFlow]);
+
   const [errors, setErrors] = useState({
     password: "",
     confirmPassword: ""

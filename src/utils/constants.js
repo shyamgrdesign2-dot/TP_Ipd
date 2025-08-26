@@ -63,6 +63,10 @@ export const OPD_API_KEY = "lChjFRJce3bxmoS3TSQk5w==";
 export const WTSAP_ERR_MESSAGE =
   "Error sending the prescription, Please try again";
 
+export const AISENSY_SCRIPT_ID = "aisensy-wa-widget";
+export const AISENSY_SCRIPT_CONTAINER = ".aisensy-widget-container";
+export const AISENSY_SCRIPT_SRC = "https://d3mkw6s8thqya7.cloudfront.net/integration-plugin.js";
+
 export const GB_ISCRIBE = "iscribe";
 export const GB_SMARTSYNC_CONNECT = "smartsync-connect";
 export const GB_SMARTSYNC_CVT = "smartsync-cvt";
