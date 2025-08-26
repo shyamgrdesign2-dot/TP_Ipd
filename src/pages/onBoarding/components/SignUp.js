@@ -40,7 +40,6 @@ useEffect(() => {
     const existingScript = document.getElementById(AISENSY_SCRIPT_ID);
     const aiSensiDiv = document.getElementsByClassName('df-btn df-closed');
     aiSensiDiv.forEach(div => div.remove());
-    console.log("Cleaning up Aisensy script and widget", isLoginFlow, existingScript);
     if (existingScript) {
       document.body.removeChild(existingScript);
     }
