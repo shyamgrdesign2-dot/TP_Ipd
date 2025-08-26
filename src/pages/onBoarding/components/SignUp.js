@@ -12,6 +12,8 @@ import { validateUser, checkPediaExists } from "../../auth/authService";
 import { getUtmParams } from "../../../components/userOnboarding/services/userDataService";
 import { detectOperatingSystem } from "../../../utils/utils";
 import { GB_DISABLE_MSG91_OTP_FLOW } from "../../../utils/constants";
+import { AISENSY_SCRIPT_CONTAINER,AISENSY_SCRIPT_ID,AISENSY_SCRIPT_SRC } from "../../../utils/constants";
+import { aisensybotInjection } from "../../../utils/utils";
 
 const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }) => {
   const [mobileNumber, setMobileNumber] = useState(initialMobileNumber || "");
@@ -28,44 +30,25 @@ const SignUp = ({ onViewChange, isLoginFlow, mobileNumber: initialMobileNumber }
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showTooltip, setShowTooltip] = useState(false);
-  useEffect(() => {
-  const SCRIPT_ID = "aisensy-wa-widget";
- 
-  // if login flow or any path where you want it hidden → remove script + widget
-  if (isLoginFlow) {
-    const existingScript = document.getElementById(SCRIPT_ID);
-    if (existingScript) {
-      document.body.removeChild(existingScript);
-    }
-    // also remove any injected widget container/button
-    const widget = document.querySelector(".aisensy-widget-container");
-    if (widget) widget.remove();
-    return;
-  }
- 
-  // if signup → inject script
-  if (!document.getElementById(SCRIPT_ID)) {
-    const script = document.createElement("script");
-    script.src = "https://d3mkw6s8thqya7.cloudfront.net/integration-plugin.js";
-    script.id = SCRIPT_ID;
-    script.setAttribute("widget-id", "aaako1");
-    script.async = true;
-    document.body.appendChild(script);
-  }
- 
+useEffect(() => {
+
+  // Aisensy Integration
+  aisensybotInjection(isLoginFlow);
+
   return () => {
     // cleanup on unmount / flow change
-    const existingScript = document.getElementById(SCRIPT_ID);
+    const existingScript = document.getElementById(AISENSY_SCRIPT_ID);
     const aiSensiDiv = document.getElementsByClassName('df-btn df-closed');
     aiSensiDiv.forEach(div => div.remove());
     console.log("Cleaning up Aisensy script and widget", isLoginFlow, existingScript);
     if (existingScript) {
       document.body.removeChild(existingScript);
     }
-    const widget = document.querySelector(".aisensy-widget-container");
+    const widget = document.querySelector(AISENSY_SCRIPT_CONTAINER);
     if (widget) widget.remove();
   };
 }, [isLoginFlow]);
+
   const [errors, setErrors] = useState({
     password: "",
     confirmPassword: ""
