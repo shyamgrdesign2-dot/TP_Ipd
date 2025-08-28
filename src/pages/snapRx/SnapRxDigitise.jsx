@@ -206,31 +206,42 @@ function SnapRxDigitise() {
           </Col>
           <Col md={17} lg={17} xl={10}>
             <div className="appointment-wrap PatientDetailswrap m-0 drx-h-full drx-digitize-container">
-            <Card className={isLoading ? 'border-none' : null}>
-                <>
-                  <Card.Header className={`bg-white py-3 ${isLoading ? 'border-none' : null}`}>
-                    <div className="d-flex align-items-center justify-content-between">
-                      <div className="title-digitise-card">
-                        <img
-                          src={digitiseRxIcon}
-                          alt="rx-icon2"
-                          className="me-2"
-                        />
-                        {`Digitised Rx`}
-                      </div>
-                    </div>
-                  </Card.Header>
-                  <Card.Body className="p-0 cardbody-data digitize-rx" style={{border: 'none'}}>
-                    <div style={!isLoading ? { padding: "5px" } : null}>
-                      <DigitisedPrescription
-                        data={data}
-                        setData={setData}
-                        loading={isLoading}
-                      />
-                    </div>
-                  </Card.Body>
-                </>
-              </Card>
+              {
+                isLoading ? (
+                  <DigitisedPrescription
+                    data={data}
+                    setData={setData}
+                    loading={isLoading}
+                    showAbsHeaderInsideLoader={true}
+                  />
+                ) : (
+                  <Card className={isLoading ? 'border-none' : null}>
+                    <>
+                      <Card.Header className={`bg-white py-3 ${isLoading ? 'border-none' : null}`}>
+                        <div className="d-flex align-items-center justify-content-between">
+                          <div className="title-digitise-card">
+                            <img
+                              src={digitiseRxIcon}
+                              alt="rx-icon2"
+                              className="me-2"
+                            />
+                            {`Digitised Rx`}
+                          </div>
+                        </div>
+                      </Card.Header>
+                      <Card.Body className="p-0 cardbody-data digitize-rx" style={{border: 'none'}}>
+                        <div style={!isLoading ? { padding: "5px" } : null}>
+                          <DigitisedPrescription
+                            data={data}
+                            setData={setData}
+                            loading={isLoading}
+                          />
+                        </div>
+                      </Card.Body>
+                    </>
+                  </Card>
+                )
+              }
             </div>
           </Col>
         </Row>

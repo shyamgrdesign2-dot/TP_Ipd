@@ -53,7 +53,7 @@ const getPrimaryText = (type, item) => {
   return item?.name || "";
 };
 
-const DigitisedPrescription = ({ data, setData, loading }) => {
+const DigitisedPrescription = ({ data, setData, loading, showAbsHeaderInsideLoader = false }) => {
   const [activeIndex, setActiveIndex] = useState(null);
   const [activeType, setActiveType] = useState(null);
   const [editableText, setEditableText] = useState("");
@@ -438,7 +438,7 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
                         }}
                         onFocus={() => { editingRef.current = true; setVisibleSection("vitals"); }}
                         autoFocus
-                        style={{ width: `${textWidth + 10}px` }}
+                        style={{ width: `clamp(12px, ${textWidth + 10}px, 90%)` }}
                       />
                     ) : (
                       <span
@@ -526,7 +526,7 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
                         editingRef.current = true;
                         setVisibleSection(type);
                       }}
-                      style={{ width: `${textWidth + 10}px` }}
+                      style={{ width: `clamp(12px, ${textWidth + 10}px, 100%)` }}
                     />
                   ) : (
                     <span
@@ -563,7 +563,7 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
                             handleEnterToInsert(type, index, true);
                           }
                         }}
-                        style={{ width: `${lineItemWidth + 10}px` }}
+                        style={{ width: `clamp(12px, ${lineItemWidth + 10}px, 100%)` }}
                       />
                     ) : (
                       <span
@@ -598,7 +598,7 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
                           }
                         }}
                         autoFocus
-                        style={{ width: `${lineItemWidth + 10}px` }}
+                        style={{ width: `clamp(12px, ${lineItemWidth + 10}px, 100%)` }}
                       />
                     ) : (
                       <span
@@ -636,9 +636,9 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
 
   
   return (
-    <div className="digitised-container" ref={containerRef}>
+    <div className={ loading ? "loading-digitised-container": "digitised-container" } ref={containerRef}>
       {loading ? (
-        <GenRXLoaders isProcessing={true} isSnapRx={true} />
+        <GenRXLoaders showAbsHeaderInsideLoader={showAbsHeaderInsideLoader} isProcessing={true} isSnapRx={true} />
       ) : (
         <>
           {data?.vitals &&

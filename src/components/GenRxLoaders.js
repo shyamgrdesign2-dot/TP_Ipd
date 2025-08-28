@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import SkeletonScreen from "./SkeletonScreen";
+import digitiseRxIcon from "../assets/images/digitise-rx.svg";
 import styles from "./VoiceRxLoaders.module.css";
 import GradientProgressBar from "./GradientProgressbar";
 import genRxInputProcessing from "../assets/lotties/genRxInputProcessing.lottie";
@@ -13,7 +14,7 @@ const CREEP_RATE = 1;
 const CREEP_MS = 1000; 
 const CREEP_CAP = 95;  
 
-const GenRXLoaders = ({ isProcessing, isSnapRx = false }) => {
+const GenRXLoaders = ({ isProcessing, showAbsHeaderInsideLoader = false, isSnapRx = false }) => {
   const STEP_PROGRESS = !isSnapRx ? [0, 30, 45, 60] : [15, 15, 30, 60];
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -93,29 +94,63 @@ const GenRXLoaders = ({ isProcessing, isSnapRx = false }) => {
 
   return (
     <div className={styles.backgroundContainer}>
+      {showAbsHeaderInsideLoader ? (
+        <div className="title-digitise-card-inside-loader">
+          <img src={digitiseRxIcon} alt="rx-icon2" className="me-2" />
+          {`Digitised Rx`}
+        </div>
+      ) : null}
       <div className="d-flex justify-content-center align-items-center flex-column z-3">
         {currentStep === 0 && (
           <div className="d-flex justify-content-center align-items-center flex-column">
-            <DotLottieReact src={genRxInputProcessing} loop autoplay style={{ width: 168, height: 140 }} />
-            <div className={styles.genRxLoadingText}>Your input is being processed in the backend...</div>
+            <DotLottieReact
+              src={genRxInputProcessing}
+              loop
+              autoplay
+              style={{ width: 168, height: 140 }}
+            />
+            <div className={styles.genRxLoadingText}>
+              Your input is being processed in the backend...
+            </div>
           </div>
         )}
         {currentStep === 1 && (
           <div className="d-flex justify-content-center align-items-center flex-column">
-            <DotLottieReact src={genRxConvertingData} loop autoplay style={{ width: 168, height: 140 }} />
-            <div className={styles.genRxLoadingText}>Converting your input data...</div>
+            <DotLottieReact
+              src={genRxConvertingData}
+              loop
+              autoplay
+              style={{ width: 168, height: 140 }}
+            />
+            <div className={styles.genRxLoadingText}>
+              Converting your input data...
+            </div>
           </div>
         )}
         {currentStep === 2 && (
           <div className="d-flex justify-content-center align-items-center flex-column">
-            <DotLottieReact src={genRxStructuringData} loop autoplay style={{ width: 168, height: 140 }} />
-            <div className={styles.genRxLoadingText}>Structuring your input data...</div>
+            <DotLottieReact
+              src={genRxStructuringData}
+              loop
+              autoplay
+              style={{ width: 168, height: 140 }}
+            />
+            <div className={styles.genRxLoadingText}>
+              Structuring your input data...
+            </div>
           </div>
         )}
         {currentStep === 3 && (
           <div className="d-flex justify-content-center align-items-center flex-column">
-            <DotLottieReact src={genRxFinalizingRx} loop autoplay style={{ width: 168, height: 140 }} />
-            <div className={styles.genRxLoadingText}>Finalizing your structured prescription...</div>
+            <DotLottieReact
+              src={genRxFinalizingRx}
+              loop
+              autoplay
+              style={{ width: 168, height: 140 }}
+            />
+            <div className={styles.genRxLoadingText}>
+              Finalizing your structured prescription...
+            </div>
           </div>
         )}
 

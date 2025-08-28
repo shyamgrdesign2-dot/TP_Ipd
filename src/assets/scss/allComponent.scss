@@ -1670,6 +1670,17 @@ body {
   background: #fff;
 }
 
+.loading-digitised-container {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  > div {
+    position: relative !important;
+    height: 100% !important;
+  }
+}
+
 .digitised-container {
   padding: 20px;
   gap: 10px;
@@ -1812,6 +1823,7 @@ body {
   position: relative;
   margin-bottom: 5px;
   transition: background-color 0.3s ease;
+  max-width: 100%;
 }
 
 .medicine-item input:focus {
@@ -1827,6 +1839,14 @@ body {
   font-weight: 500;
 }
 
+.title-digitise-card-inside-loader {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
 .editable-digitised-item {
   display: flex;
   padding: 0px 6px;
@@ -1834,6 +1854,10 @@ body {
   border-radius: 6px;
   border: 1px solid #eddff7;
   background: #fafafb;
+  box-sizing: border-box;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .know-more-cvt {
