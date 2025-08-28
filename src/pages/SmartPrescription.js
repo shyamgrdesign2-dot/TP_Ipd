@@ -296,7 +296,7 @@ function SmartPrescription() {
   
   // Template management state
   const [templates, setTemplates] = useState([]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState("none");
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [refreshTemplatesTrigger, setRefreshTemplatesTrigger] = useState(0);
   const [templateManagerDrawer, setTemplateManagerDrawer] = useState(false);
   const [editTemplateModal, setEditTemplateModal] = useState(false);
@@ -1736,7 +1736,7 @@ function SmartPrescription() {
       setSmartRxFiles(smartRxFilesData);
     }
 
-    if(selectedTemplateId === "none"){
+    if(selectedTemplateId === "none" || !selectedTemplateId ){
       setIsCustomSSRX(false)
     } else{
       setIsCustomSSRX(true)
@@ -2579,7 +2579,7 @@ function SmartPrescription() {
           smartRxData={smartRxDetails}
           loader={loader}
           caseManagerData={caseManagerData}
-          isCustomSSrX={isCustomSSRX}
+          isCustomSSRX={isCustomSSRX}
           selectedTemplateId={selectedTemplateId}
         />
         

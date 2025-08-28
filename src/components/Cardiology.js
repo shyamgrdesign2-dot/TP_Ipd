@@ -957,7 +957,7 @@ function Cardiology(props) {
                   </button>
                 </div>
               ) : (
-                rxDigitisedData?.ocrData && (
+                rxDigitisedData?.ocrData && (viewCaseManagerData?.isCustomSSRX === "0")&&  (
                   <div className="digitise-info-cardiology">
                     <img
                       src={successIcon}
