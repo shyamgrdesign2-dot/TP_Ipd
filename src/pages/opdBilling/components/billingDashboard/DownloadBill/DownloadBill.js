@@ -436,7 +436,6 @@ const DownloadBill = ({
 
           <div>
             <Table
-              className="print-bill-table"
               dataSource={paymentSummaryWithTotal}
               columns={summaryColumns}
               pagination={false}

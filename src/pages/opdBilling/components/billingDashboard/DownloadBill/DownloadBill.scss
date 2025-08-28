@@ -103,3 +103,9 @@
     }
   }
 }
+
+.print-bill-table {
+  .ant-table-row {
+    height: 75px !important;
+  }
+}
