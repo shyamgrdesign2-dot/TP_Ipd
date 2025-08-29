@@ -20,7 +20,7 @@ import { getLabParamsData } from '../redux/prescriptionSlice';
 import { useLocation } from 'react-router-dom';
 
 
-const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal, patientGender  }) => {
+const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal, patientGender, isIPD = false  }) => {
   const dispatch = useDispatch();
 
   const { state } = useLocation();
@@ -181,7 +181,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
           patient_unique_id: patient_data?.patient_unique_id,
         })
       ).then(({payload}) => {
-        setExistingResults(payload);
+        payload && setExistingResults(payload);
       }).catch((err) => {
             console.error("Error fetching lab params:", err);
         });
@@ -526,7 +526,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     }, [inputValues]);
     
     useEffect(() => {
-        if (existingResults.length === 0) {
+        if (existingResults?.length === 0) {
             setDates([currentDate]);
         } else {
             const uniqueDates = [...new Set(existingResults.map((result) => result.date))];
@@ -809,7 +809,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     const handleDeleteDataModal = () => {
       setFilledData([]);
       setInputValues([]);
-      // handleAddLabParamsDrawer();  // TODO: INTEL
+      handleAddLabParamsDrawer();
       showHideBackModal();
     }
 
@@ -832,7 +832,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     };
     
     return (
-      <div style={{background:"#fff"}}>
+      <div className={isIPD ? 'ipd-lab-params-container': ''} style={{background:"#fff"}}>
         <div
           className="modalCard-header h-60 align-items-center justify-content-between d-flex"
           style={{ position: "sticky", top: "0", zIndex: "5" }}
@@ -944,7 +944,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 >
                   {" "}
                   {/* Set a fixed width here */}
-                  <span>Name</span>
+                  <span>{isIPD ? 'Test Name' : 'Name'}</span>
                 </th>
 
                 <th>
@@ -1063,7 +1063,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                     </div>  
                   ) : labParamsResults?.length > 0 || searchQuery === "" ? (
                     <>
-                      <div style={{ height: "15px" }}></div>
+                      {!isIPD ? <div style={{ height: "15px" }}></div>: null}
                       <tbody>
                         {Object.keys(inputValues).map((reportName) => (
                           <>
@@ -1100,14 +1100,14 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                 {!!expandedReports[reportName] ? (
                                   <button
                                     className="btn p-0 ms-2 iconrotate180"
-                                    style={{ position: "absolute", left: isMobile? "635px" : "816px" }}
+                                    style={{ position: "absolute", left: isMobile? "635px" : isIPD ? "calc(100vw - 70px)" : "816px" }}
                                   >
                                     <i className="icon-right fs-5" />
                                   </button>
                                 ) : (
                                   <button
                                     className="btn p-0 ms-2 iconrotate270"
-                                    style={{ position: "absolute", left: "816px" }}
+                                    style={{ position: "absolute", left: isIPD ? "calc(100vw - 70px)" : "816px" }}
                                   >
                                     <i className="icon-right fs-5" />
                                   </button>
@@ -1115,7 +1115,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                               </td>
                               {dates.length < 2 ? (
                                 // Render at least two empty <td>s if the length is less than 2
-                                <>
+                                !isIPD ? <>
                                   <td
                                     style={{
                                       background: "#FAFAFB",
@@ -1130,7 +1130,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                       padding: "10px",
                                     }}
                                   ></td>
-                                </>
+                                </>: null
                               ) : (
                                 dates.map((entry, entryIndex) => {
                                   const isLastCell = entryIndex === dates.length - 1;
@@ -1152,7 +1152,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                                 })
                               )}
                             </tr>
-                            {!expandedReports[reportName] && (
+                            {(!expandedReports[reportName] && !isIPD) && (
                               <div style={{ height: "10px" }}></div>
                             )}
                             {/* <div style="height: 15px;"></div> */}

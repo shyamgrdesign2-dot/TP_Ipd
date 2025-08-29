@@ -1,0 +1,140 @@
+.ipd-assessments-form-container {
+    .ipdaf-box-container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0px 0px 6px 0px #00000005;
+        padding: 6px 6px 14px;
+        margin-bottom: 24px;
+    }
+    .ipdaf-generic-card-container {
+        padding: 12px;
+        margin-bottom: 24px;
+        margin-top: 18px;
+        .generic-card__icon {
+            width: 25px;
+            height: 25px;
+        }
+        .generic-card__title {
+            color: #4B4AD5 !important;
+        }
+        table {
+            border: 1px solid #F1F1F5 !important;
+            border-radius: 14px !important;
+            // overflow: hidden !important;
+            border-collapse: unset !important;
+            border-spacing: 0 !important;
+            margin-bottom: 24px;
+        }
+        td, span {
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            line-height: normal !important;
+        }
+    }
+    .ipdaf-padding-0 {
+        padding: 0 !important;
+    }
+    .collapsible-wrapper-class {
+        .cw__body {
+            padding: 0px !important;
+            // border-radius: 16px;
+            // margin-top: 24px;
+            // box-shadow: 0px 0px 6px 0px #00000005;
+            // background-color: #fff;
+        }
+    }
+    .ipdaf-vitals-main-container {
+         padding: 20px !important;
+         border-radius: 16px;
+         margin-top: 24px;
+         box-shadow: 0px 0px 6px 0px #00000005;
+         background-color: #fff;
+    }
+}
+.ipd-lab-params-container {
+    table {
+        border: 1px solid #F1F1F5 !important;
+        border-radius: 14px !important;
+        // overflow: hidden !important;
+        border-collapse: unset !important;
+        border-spacing: 0 !important;
+        background-color: #FAFAFB !important;
+        th {
+            background-color: #FAFAFB !important;
+            border-radius: 0 !important;
+        }
+    }
+}
+.rich-text-editor-wrapper-header-title {
+    font-weight: 500 !important;
+}
+.ipdaf-vitals-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-bottom: 16px;
+    > img {
+        width: 24px;
+        height: 24px;
+    }
+    > div {
+        color: #454551;
+        font-size: 14px;
+        font-weight: 500;
+    }
+}
+
+.ipdaf-vitals-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    > label {
+      max-width: calc(33% - 28px);
+      flex-basis: calc(33% - 28px);
+      margin-right: 28px;
+    }
+    .cw__body {
+        padding: 0 !important;
+    }
+    .cw__bodyInner {
+        margin-top: 0 !important;
+    }
+  }
+  
+  .examinations-parent-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    > div {
+      max-width: calc(50% - 28px);
+      flex-basis: calc(50% - 28px);
+      margin-right: 28px;
+    }
+
+.examination-container-header {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    gap: 4px;
+  }
+  
+  .examination-rich-container {
+    border: 1px solid #e2e2ea80;
+    width: 500px;
+  }
+  
+  .examination-header {
+    font-size: 14px;
+    color: #171725;
+    font-weight: 500;
+  }
+  
+  .exam-radio-text {
+    .ant-radio-label {
+      font-size: 14px;
+      color: #454551;
+      font-weight: 400;
+    }
+  }  
+  }

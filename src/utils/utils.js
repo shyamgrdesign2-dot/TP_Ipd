@@ -966,3 +966,10 @@ export const clearExpiredTokensFromStorage = () => {
     console.error("Error cleaning up expired tokens:", error);
   }
 };
+
+export const normalizeToDefault = (m, key) => {
+  if (key && m[key]) return { default: m[key] };
+  if (m?.default) return { default: m.default };
+  if (typeof m === 'function') return { default: m };
+  throw new Error('Remote module does not export a React component.');
+};

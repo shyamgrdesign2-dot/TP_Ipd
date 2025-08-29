@@ -74,6 +74,8 @@ import Obstetric from "./pages/obstetric/Obstetric";
 import ObstetricList from "./pages/obstetric/components/obstetricList/ObstetricList";
 import MedicalHistoryBox from "./components/MedicalHistoryBox";
 import MedicalHistoryList from "./components/MedicalHistoryList";
+import IPDPatientDetails from "./pages/ipd/patientDetails/patientDetails";
+import AssessmentForm from "./pages/ipd/assessmentForm/assessmentForm";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -411,6 +413,8 @@ function App() {
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>
                 <Route path="/*" element={<AppointmentList />} />
+                <Route path={`/ipd/patient-details`} element={<IPDPatientDetails />}/>
+                <Route path="/ipd/patient-details/assessment-form" element={<AssessmentForm />} />
                 <Route
                   path="create-campaign"
                   element={<MessageCreateCampaign />}

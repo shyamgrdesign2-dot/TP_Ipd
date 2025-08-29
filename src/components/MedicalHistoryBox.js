@@ -41,7 +41,7 @@ const showDateFormat = 'DD-MM-YYYY'
 
 function MedicalHistoryBox(props) {
 
-    const { handleDrawerMedicalHistory, handleCollapsed, onSave } = props
+    const { handleDrawerMedicalHistory, handleCollapsed, onSave, patientDataFromProps } = props
     const { TabPane } = Tabs;
     const {
         searchList,
@@ -106,7 +106,8 @@ function MedicalHistoryBox(props) {
     const [inputCyclesDays, setInputCyclesDays] = useState(null);
     const [inputPadsNum, setInputPadsNum] = useState(null);
     const { state } = useLocation();
-    const { patient_data, caseManagerData } = state;
+    const { patient_data : patientData, caseManagerData } = state;
+    const patient_data = patientData || patientDataFromProps;
     const [gynecLoading, setGynecLoading] = useState(false);
     const [gynecHistory, setGynecHistory] = useState({});
     const [expandRemarks,setExpandRemarks] = useState(true);
