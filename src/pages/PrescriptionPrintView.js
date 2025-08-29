@@ -349,7 +349,7 @@ function PrescriptionPrintView() {
     const handleZydusSendToWhatsapp = async () => {
         const decodedToken = getDecodedToken();
         const tokenData = decodedToken?.result;
-        if (tokenData?.hospital_business_id !== env.zydus_business_id) {
+        if (String(tokenData?.hospital_business_id) !== String(env.zydus_business_id)) {
             return;
         }
         if (!patient_data?.patient_unique_id) {
