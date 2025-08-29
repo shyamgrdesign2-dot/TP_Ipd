@@ -64,6 +64,8 @@ import SnapRxDigitise from "./pages/snapRx/SnapRxDigitise";
 import AppointmentAgent from "./pages/appointmentAgent/AppointmentAgent";
 import AppointmentSuccess from "./pages/appointmentAgent/components/AppointmentSuccess/AppointmentSuccess";
 import OpdBill from "./pages/opdBilling/OpdBill";
+import IPDLayout from "./pages/IPD/IPDLayout";
+import InPatients from "./pages/IPD/InPatients";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -464,6 +466,9 @@ function App() {
                   path="appointment-agent/success"
                   element={<AppointmentSuccess />}
                 />
+                <Route path="ipd" element={<IPDLayout />}>
+                  <Route path="inPatients" element={<InPatients />} />
+                </Route>
               </Route>
               <Route path="opd-bill" element={<OpdBill />} />
             </Routes>
