@@ -155,6 +155,7 @@ function Cardiology(props) {
   const updateRxDigitizeInUrl = (url, showDigitalRx) => {
     const urlObj = new URL(url);
 
+    urlObj.searchParams.delete('voiceRxDigitize');
     if (showDigitalRx) {
       urlObj.searchParams.set("rxDigitize", "true");
     } else {
@@ -957,7 +958,7 @@ function Cardiology(props) {
                   </button>
                 </div>
               ) : (
-                rxDigitisedData?.ocrData && (viewCaseManagerData?.isCustomSSRX === "0")&&  (
+                rxDigitisedData?.ocrData && (
                   <div className="digitise-info-cardiology">
                     <img
                       src={successIcon}

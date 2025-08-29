@@ -627,6 +627,82 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         />
     );
 
+    const hasAnyData = (caseManagerData) => {
+        return (
+            // Check custom module options (1-16, 18, 91)
+            hasAnyModuleOptions(printSettings, caseManagerData, smartRxData, patientBills, advanceReceipts, gynecHistoryData, obsHistoryData, labParamsPatchData, transformGivenVaccines, growthChartData) ||
+            // (zydusLabData?.data?.length > 0) ||
+            
+            // Check smart sync data
+            (isSmartSyncPrescription && (caseManagerData.isCustomSSRX === "0" && smartRxData?.length > 0))
+            
+        );
+    };
+
+    // Utility function to check if any custom module options are enabled and have data
+    const hasAnyModuleOptions = (printSettings, caseManagerData, smartRxData, patientBills, advanceReceipts, gynecHistoryData, obsHistoryData, labParamsPatchData, transformGivenVaccines, growthChartData) => {
+        if (!printSettings?.prescription?.case_option) return false;
+        
+        return printSettings?.prescription?.case_option?.some(option => {
+            // Early return for disabled options
+            if (option?.enable !== 'Y' || option?.custom_status !== 'Y') {
+                return false;
+            }
+
+            // Check if custom module data exists
+            let customModule = caseManagerData?.moduleContents?.find(e => e?.module_id === option?.id);
+            if(customModule) {
+                customModule = {...customModule, name: getCustomModuleName(option?.id)};
+            }
+            
+            if ((option?.showDefault || (option?.is_custom_module === true)) && customModule?.content?.length > 0) {
+                return true;
+            }
+            
+            // Check if data exists for each module
+            switch (option?.id) {
+                case 1: // Symptoms
+                    return caseManagerData?.symptoms?.length > 0;
+                case 2: // Examination
+                    return caseManagerData?.examination?.length > 0;
+                case 3: // Diagnosis
+                    return caseManagerData?.diagnosis?.length > 0;
+                case 4: // Medicine
+                    return caseManagerData?.medicine?.length > 0;
+                case 5: // Advice
+                    return caseManagerData?.advice?.length > 0;
+                case 6: // Investigation
+                    return caseManagerData?.investigation?.length > 0 && caseManagerData?.investigation?.some(item => item?.investigation_name);
+                case 7: // Vitals
+                    return (caseManagerData?.vitals?.length > 0 || patientBirthWeight);
+                case 8: // Medical History (with medical_history_op check)
+                    return caseManagerData?.medical_history?.length > 0;
+                case 9: // Follow Up Date
+                    return caseManagerData?.follow_up_date;
+                case 10: // Vaccines
+                    return (transformGivenVaccines?.template?.length > 0);
+                // case 11: // smartSync
+                //     return caseManagerData?.visit_advice;
+                case 12: // Growth Chart
+                    return growthChartData?.length > 0;
+                case 13: // Gynec History
+                    return gynecHistoryData && Object.keys(gynecHistoryData).length > 2;
+                case 14: // Obs History
+                    return obsHistoryData && Object.keys(obsHistoryData).length > 2;
+                case 15: // Lab Parameters
+                    return labParamsPatchData && labParamsPatchData?.length > 0;
+                case 16: // Surgeries
+                    return caseManagerData?.surgeries?.length > 0;
+                case 17: // Patient Bills (already handled in hasAnyData)
+                    return  (patientBills?.length > 0 || advanceReceipts?.length > 0);
+                case 91: // Vaccines
+                    return caseManagerData?.visit_advice;
+                default:
+                    return false;
+            }
+        });
+    };
+
     return (
         <Document>
             {isSmartSyncPrescription && (caseManagerData?.isCustomSSRX === "1" ) &&
@@ -657,734 +733,698 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     </>
                 </Page>
             }
-            <Page
-                size="A4"
-                style={[paddingStyles, {
-                    display: 'flex',
-                    flexDirection: 'column',
-                    // justifyContent: 'space-between',
-                }]}
-                wrap={!smartRxData}>
-                {/* <View style={{flex: 1}}>     */}
-                <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed>
-                    {mode == NORMAL ? (
-                        printSettings?.letterhead_format === 0 ? (
-                            <View>
-                                {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' && printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? (
-                                    <View style={styles.directionCasemanager}>
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={styles.mainTitle}>
-                                                {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
-                                            </Text>
-                                            <Text style={[styles.subTitle, { marginTop: PX_TO_PT * 4 }]}>
-                                                {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
-                                            </Text>
-                                        </View>
-                                        {printSettings?.logo_enable === 'Y' && (
-                                            <View style={{ width: 82, height: 82, overflow: 'hidden', marginHorizontal: 16 }}>
-                                                {fileLogo && fileLogo?.imageShow && (
-                                                    <Image
-                                                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                                                        src={fileLogo?.showFile}
-                                                    />
-                                                )}
-                                            </View>
-                                        )}
-                                        <View style={{ flex: 1, textAlign: 'right' }}>
-                                            <Text style={styles.mainTitle}>
-                                                {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
-                                            </Text>
-                                            <Text style={[styles.subTitle, { marginTop: PX_TO_PT * 4 }]}>
-                                                {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                ) : (
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        {printSettings?.logo_enable === 'Y' && (
-                                            <View style={{ width: 82, height: 82, overflow: 'hidden', marginLeft: 8 }}>
-                                                {fileLogo && fileLogo?.imageShow && (
-                                                    <Image
-                                                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                                                        src={fileLogo?.showFile}
-                                                    />
-                                                )}
-                                            </View>
-                                        )}
-                                        {(printSettings?.header_footer?.header?.doctor_info?.enable === 'Y') ? (
-                                            <View style={{ flex: 1, textAlign: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 'left' : 'right', weight: '189px' }}>
+            {hasAnyData(caseManagerData) && (
+                <Page
+                    size="A4"
+                    style={[paddingStyles, {
+                        display: 'flex',
+                        flexDirection: 'column',
+                        // justifyContent: 'space-between',
+                    }]}
+                    wrap={!smartRxData}>
+                    {/* <View style={{flex: 1}}>     */}
+                    <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed>
+                        {mode == NORMAL ? (
+                            printSettings?.letterhead_format === 0 ? (
+                                <View>
+                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' && printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? (
+                                        <View style={styles.directionCasemanager}>
+                                            <View style={{ flex: 1 }}>
                                                 <Text style={styles.mainTitle}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
                                                 </Text>
                                                 <Text style={[styles.subTitle, { marginTop: PX_TO_PT * 4 }]}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
                                                 </Text>
                                             </View>
-                                        ) : printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' && (
-                                            <View style={{ flex: 1, textAlign: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 'left' : 'right', weight: '130px' }}>
+                                            {printSettings?.logo_enable === 'Y' && (
+                                                <View style={{ width: 82, height: 82, overflow: 'hidden', marginHorizontal: 16 }}>
+                                                    {fileLogo && fileLogo?.imageShow && (
+                                                        <Image
+                                                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                            src={fileLogo?.showFile}
+                                                        />
+                                                    )}
+                                                </View>
+                                            )}
+                                            <View style={{ flex: 1, textAlign: 'right' }}>
                                                 <Text style={styles.mainTitle}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
                                                 </Text>
                                                 <Text style={[styles.subTitle, { marginTop: PX_TO_PT * 4 }]}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
                                                 </Text>
                                             </View>
-                                        )}
-                                    </View>
-                                )}
-                            </View>
-                        ) : printSettings?.letterhead_format === 1 && (
-                            fileHeader && fileHeader?.imageShow && (
-                                <Image
-                                    style={{ width: '100%', objectFit: 'contain' }}
-                                    src={fileHeader?.showFile}
-                                />
+                                        </View>
+                                    ) : (
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            {printSettings?.logo_enable === 'Y' && (
+                                                <View style={{ width: 82, height: 82, overflow: 'hidden', marginLeft: 8 }}>
+                                                    {fileLogo && fileLogo?.imageShow && (
+                                                        <Image
+                                                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                            src={fileLogo?.showFile}
+                                                        />
+                                                    )}
+                                                </View>
+                                            )}
+                                            {(printSettings?.header_footer?.header?.doctor_info?.enable === 'Y') ? (
+                                                <View style={{ flex: 1, textAlign: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 'left' : 'right', weight: '189px' }}>
+                                                    <Text style={styles.mainTitle}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                    </Text>
+                                                    <Text style={[styles.subTitle, { marginTop: PX_TO_PT * 4 }]}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                    </Text>
+                                                </View>
+                                            ) : printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' && (
+                                                <View style={{ flex: 1, textAlign: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 'left' : 'right', weight: '130px' }}>
+                                                    <Text style={styles.mainTitle}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                    </Text>
+                                                    <Text style={[styles.subTitle, { marginTop: PX_TO_PT * 4 }]}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                    </Text>
+                                                </View>
+                                            )}
+                                        </View>
+                                    )}
+                                </View>
+                            ) : printSettings?.letterhead_format === 1 && (
+                                fileHeader && fileHeader?.imageShow && (
+                                    <Image
+                                        style={{ width: '100%', objectFit: 'contain' }}
+                                        src={fileHeader?.showFile}
+                                    />
+                                )
                             )
-                        )
-                    ) : mode == WHATSAPP && (
-                        printSettings?.whatsapp_letterhead_format === 0 ? (
-                            <View>
-                                {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' && printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? (
-                                    <View style={styles.directionCasemanager}>
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={styles.mainTitle}>
-                                                {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
-                                            </Text>
-                                            <Text style={[styles.subTitle, { marginTop: PX_TO_PT * 4 }]}>
-                                                {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
-                                            </Text>
-                                        </View>
-                                        {printSettings?.logo_enable === 'Y' && (
-                                            <View style={{ width: 82, height: 82, overflow: 'hidden', marginHorizontal: 16 }}>
-                                                {fileLogo && fileLogo?.imageShow && (
-                                                    <Image
-                                                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                                                        src={fileLogo?.showFile}
-                                                    />
-                                                )}
-                                            </View>
-                                        )}
-                                        <View style={{ flex: 1, textAlign: 'right' }}>
-                                            <Text style={styles.mainTitle}>
-                                                {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
-                                            </Text>
-                                            <Text style={[styles.subTitle, { marginTop: PX_TO_PT * 4 }]}>
-                                                {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                ) : (
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        {printSettings?.logo_enable === 'Y' && (
-                                            <View style={{ width: 82, height: 82, overflow: 'hidden' }}>
-                                                {fileLogo && fileLogo?.imageShow && (
-                                                    <Image
-                                                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                                                        src={fileLogo?.showFile}
-                                                    />
-                                                )}
-                                            </View>
-                                        )}
-                                        {(printSettings?.header_footer?.header?.doctor_info?.enable === 'Y') ? (
-                                            <View style={{ flex: 1, marginLeft: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 8 : 0, textAlign: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 'left' : 'right', weight: '189px' }}>
+                        ) : mode == WHATSAPP && (
+                            printSettings?.whatsapp_letterhead_format === 0 ? (
+                                <View>
+                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' && printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' ? (
+                                        <View style={styles.directionCasemanager}>
+                                            <View style={{ flex: 1 }}>
                                                 <Text style={styles.mainTitle}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
                                                 </Text>
                                                 <Text style={[styles.subTitle, { marginTop: PX_TO_PT * 4 }]}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
                                                 </Text>
                                             </View>
-                                        ) : printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' && (
-                                            <View style={{ flex: 1, marginLeft: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 8 : 0, textAlign: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 'left' : 'right', weight: '130px' }}>
+                                            {printSettings?.logo_enable === 'Y' && (
+                                                <View style={{ width: 82, height: 82, overflow: 'hidden', marginHorizontal: 16 }}>
+                                                    {fileLogo && fileLogo?.imageShow && (
+                                                        <Image
+                                                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                            src={fileLogo?.showFile}
+                                                        />
+                                                    )}
+                                                </View>
+                                            )}
+                                            <View style={{ flex: 1, textAlign: 'right' }}>
                                                 <Text style={styles.mainTitle}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
                                                 </Text>
                                                 <Text style={[styles.subTitle, { marginTop: PX_TO_PT * 4 }]}>
-                                                    {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                    {printSettings?.header_footer?.header?.doctor_info?.place === 'R' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
                                                 </Text>
                                             </View>
-                                        )}
-                                    </View>
-                                )}
-                            </View>
-                        ) : printSettings?.whatsapp_letterhead_format === 1 && (
-                            fileHeader && fileHeader?.imageShow && (
-                                <Image
-                                    style={{ width: '100%', objectFit: 'contain' }}
-                                    src={fileHeader?.showFile}
-                                />
+                                        </View>
+                                    ) : (
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            {printSettings?.logo_enable === 'Y' && (
+                                                <View style={{ width: 82, height: 82, overflow: 'hidden' }}>
+                                                    {fileLogo && fileLogo?.imageShow && (
+                                                        <Image
+                                                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                            src={fileLogo?.showFile}
+                                                        />
+                                                    )}
+                                                </View>
+                                            )}
+                                            {(printSettings?.header_footer?.header?.doctor_info?.enable === 'Y') ? (
+                                                <View style={{ flex: 1, marginLeft: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 8 : 0, textAlign: printSettings?.header_footer?.header?.doctor_info?.place === 'L' ? 'left' : 'right', weight: '189px' }}>
+                                                    <Text style={styles.mainTitle}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                    </Text>
+                                                    <Text style={[styles.subTitle, { marginTop: PX_TO_PT * 4 }]}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                    </Text>
+                                                </View>
+                                            ) : printSettings?.header_footer?.header?.clinic_info?.enable === 'Y' && (
+                                                <View style={{ flex: 1, marginLeft: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 8 : 0, textAlign: printSettings?.header_footer?.header?.clinic_info?.place === 'L' ? 'left' : 'right', weight: '130px' }}>
+                                                    <Text style={styles.mainTitle}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.header : printSettings?.header_footer?.header?.clinic_info?.header}
+                                                    </Text>
+                                                    <Text style={[styles.subTitle, { marginTop: PX_TO_PT * 4 }]}>
+                                                        {printSettings?.header_footer?.header?.doctor_info?.enable === 'Y' ? printSettings?.header_footer?.header?.doctor_info?.subheader : printSettings?.header_footer?.header?.clinic_info?.subheader}
+                                                    </Text>
+                                                </View>
+                                            )}
+                                        </View>
+                                    )}
+                                </View>
+                            ) : printSettings?.whatsapp_letterhead_format === 1 && (
+                                fileHeader && fileHeader?.imageShow && (
+                                    <Image
+                                        style={{ width: '100%', objectFit: 'contain' }}
+                                        src={fileHeader?.showFile}
+                                    />
+                                )
                             )
+                        )}
+
+                    </View>
+
+                    {/* <View style={{ flex: 1 }}> */}
+
+                    {printSettings?.water_mark_enable === 'Y' && (
+                        fileWatermark && fileWatermark?.imageShow && (
+                            <Image
+                                style={{
+                                    width: 100, height: 100, objectFit: 'contain', zIndex: -1, opacity: 0.1,
+                                    position: 'absolute', top: '50%', left: '40%'
+                                }}
+                                src={fileWatermark?.showFile}
+                                fixed />
                         )
                     )}
 
-                </View>
-
-                {/* <View style={{ flex: 1 }}> */}
-
-                {printSettings?.water_mark_enable === 'Y' && (
-                    fileWatermark && fileWatermark?.imageShow && (
-                        <Image
-                            style={{
-                                width: 100, height: 100, objectFit: 'contain', zIndex: -1, opacity: 0.1,
-                                position: 'absolute', top: '50%', left: '40%'
-                            }}
-                            src={fileWatermark?.showFile}
-                            fixed />
-                    )
-                )}
-
-                <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} 
-                      fixed={printSettings?.header_footer?.show_patient_info === 'all'} />
-                {printSettings?.header_footer?.show_patient_info === 'all' ? (
-                    <>
-                        <View style={{ flexDirection: 'row', marginVertical: PX_TO_PT * 15 }} fixed>
-                            <View style={{ flex: 0.7 }}>
-                                {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
-                                    return (
-                                        i % 2 === 0 && (
-                                            <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
-                                                <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
-                                                <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
-                                            </View>
+                    <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} 
+                        fixed={printSettings?.header_footer?.show_patient_info === 'all'} />
+                    {printSettings?.header_footer?.show_patient_info === 'all' ? (
+                        <>
+                            <View style={{ flexDirection: 'row', marginVertical: PX_TO_PT * 15 }} fixed>
+                                <View style={{ flex: 0.7 }}>
+                                    {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
+                                        return (
+                                            i % 2 === 0 && (
+                                                <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
+                                                    <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
+                                                    <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
+                                                </View>
+                                            )
                                         )
-                                    )
-                                })}
-                            </View>
-                            <View style={{ flex: 0.4 }}>
-                                {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
-                                    return (
-                                        i % 2 === 1 && (
-                                            <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
-                                                <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
-                                                <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
-                                            </View>
+                                    })}
+                                </View>
+                                <View style={{ flex: 0.4 }}>
+                                    {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
+                                        return (
+                                            i % 2 === 1 && (
+                                                <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
+                                                    <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
+                                                    <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
+                                                </View>
+                                            )
                                         )
-                                    )
-                                })}
+                                    })}
+                                </View>
                             </View>
-                        </View>
-                        <View style={{ marginBottom: PX_TO_PT * 15, backgroundColor: '#171725', height: PX_TO_PT * 1, width: '100%' }} fixed />
-                    </>
-                                 ) : (
-                     <>
-                         <View style={{ flexDirection: 'row', marginVertical: PX_TO_PT * 15 }}>
-                             <View style={{ flex: 0.7 }}>
-                                 {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
-                                     return (
-                                         i % 2 === 0 && (
-                                             <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
-                                                 <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
-                                                 <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
-                                             </View>
-                                         )
-                                     )
-                                 })}
-                             </View>
-                             <View style={{ flex: 0.4 }}>
-                                 {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
-                                     return (
-                                         i % 2 === 1 && (
-                                             <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
-                                                 <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
-                                                 <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
-                                             </View>
-                                         )
-                                     )
-                                 })}
-                             </View>
-                         </View>
-                                                
-                         <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 1, width: '100%' }} />
-                     </>
-                 )}
+                            <View style={{ marginBottom: PX_TO_PT * 15, backgroundColor: '#171725', height: PX_TO_PT * 1, width: '100%' }} fixed />
+                        </>
+                                    ) : (
+                        <>
+                            <View style={{ flexDirection: 'row', marginVertical: PX_TO_PT * 15 }}>
+                                <View style={{ flex: 0.7 }}>
+                                    {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
+                                        return (
+                                            i % 2 === 0 && (
+                                                <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
+                                                    <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
+                                                    <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
+                                                </View>
+                                            )
+                                        )
+                                    })}
+                                </View>
+                                <View style={{ flex: 0.4 }}>
+                                    {printSettings?.header_footer?.patient_info.filter(e => e.enable === 'Y').map((item, i) => {
+                                        return (
+                                            i % 2 === 1 && (
+                                                <View key={i} style={{ flexDirection: 'row', flexWrap: 'wrap', paddingVertical: PX_TO_PT * 3 }}>
+                                                    <Text style={[styles.displayPatient, { fontWeight: 500, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{`${item.title}: `}</Text>
+                                                    <Text style={[styles.displayPatient, { fontWeight: 400, fontSize: (printSettings?.page_format?.patient_info_font_size || printSettings?.page_format?.font_size || 12) * PX_TO_PT }]}>{patientDataShow(item.id)}</Text>
+                                                </View>
+                                            )
+                                        )
+                                    })}
+                                </View>
+                            </View>
+                                                    
+                            <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 1, width: '100%' }} />
+                        </>
+                    )}
 
-                {/* <View style={{ 
-                    marginTop: (printSettings?.header_footer?.show_patient_info === 'first' || 
-                               !printSettings?.header_footer?.show_patient_info) ? PX_TO_PT * 15 : 0 
-                }}> */}
-                    {printSettings?.prescription?.case_option?.map((option, index) => {
-                        let customModule = caseManagerData?.moduleContents?.find(e => e.module_id === option?.id);
-                        if(customModule) {
-                            customModule = { ...customModule, name: getCustomModuleName(option?.id) };
-                        }
-                        return (
-                            <View style={{
-                                marginTop: index === 0 ? (printSettings?.header_footer?.show_patient_info === 'first' ||
-                                    !printSettings?.header_footer?.show_patient_info) ? PX_TO_PT * 15 : 0 : 0
-                            }} break={option?.id == module_id && caseManagerData?.doctor_data?.um_id == um_id ? true : false}>
-                            {option?.id === 1 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {caseManagerData.symptoms.length > 0 && (
-                                        option?.format === 'inline' ? (
-                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
-                                                {caseManagerData.symptoms.map((item, i) => {
-                                                    return (
-                                                        <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.symptom_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
-                                                            {(item.since || item.severity || item.note) ?
-                                                                <View>
-                                                                    {/* For since and severity (English content) */}
-                                                                    {(item.since || item.severity) && (
-                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                            {`(${[
-                                                                                item.since ? `since: ${item.since}` : null,
-                                                                                item.severity ? `severity: ${item.severity}` : null
-                                                                            ].filter(Boolean).join(', ')}${(item.since || item.severity) && item.note ? ', ' : ''}${!item.note ? ')' : ''}`}
-                                                                        </Text>
-                                                                    )}
-                                                                    
-                                                                    {/* For note (potentially in Indian language) */}
-                                                                    {item.note && (
-                                                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                            {`${!(item.since || item.severity) ? '(' : ''}${item.note})`}
-                                                                        </Text>
-                                                                    )}
+                    {/* <View style={{ 
+                        marginTop: (printSettings?.header_footer?.show_patient_info === 'first' || 
+                                !printSettings?.header_footer?.show_patient_info) ? PX_TO_PT * 15 : 0 
+                    }}> */}
+                        {printSettings?.prescription?.case_option?.map((option, index) => {
+                            let customModule = caseManagerData?.moduleContents?.find(e => e.module_id === option?.id);
+                            if(customModule) {
+                                customModule = { ...customModule, name: getCustomModuleName(option?.id) };
+                            }
+                            return (
+                                <View style={{
+                                    marginTop: index === 0 ? (printSettings?.header_footer?.show_patient_info === 'first' ||
+                                        !printSettings?.header_footer?.show_patient_info) ? PX_TO_PT * 15 : 0 : 0
+                                }} break={option?.id == module_id && caseManagerData?.doctor_data?.um_id == um_id ? true : false}>
+                                {option?.id === 1 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {caseManagerData.symptoms.length > 0 && (
+                                            option?.format === 'inline' ? (
+                                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
+                                                    {caseManagerData.symptoms.map((item, i) => {
+                                                        return (
+                                                            <Text key={i}>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.symptom_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
+                                                                {(item.since || item.severity || item.note) ?
+                                                                    <View>
+                                                                        {/* For since and severity (English content) */}
+                                                                        {(item.since || item.severity) && (
+                                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                {`(${[
+                                                                                    item.since ? `since: ${item.since}` : null,
+                                                                                    item.severity ? `severity: ${item.severity}` : null
+                                                                                ].filter(Boolean).join(', ')}${(item.since || item.severity) && item.note ? ', ' : ''}${!item.note ? ')' : ''}`}
+                                                                            </Text>
+                                                                        )}
+                                                                        
+                                                                        {/* For note (potentially in Indian language) */}
+                                                                        {item.note && (
+                                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                {`${!(item.since || item.severity) ? '(' : ''}${item.note})`}
+                                                                            </Text>
+                                                                        )}
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                    </View>
+                                                                    :
                                                                     <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                                </View>
-                                                                :
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.symptoms.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                            }
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </Text>
-                                        ) : option?.format === 'listview' ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
-                                                {caseManagerData.symptoms.map((item, i) => {
-                                                    return (
-                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.symptom_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
-                                                            {(item.since || item.severity || item.note) && (
-                                                                <View>
-                                                                    {/* For since and severity (English content) */}
-                                                                    {(item.since || item.severity) && (
-                                                                    <Text style={{ 
-                                                                        color: '#171725', 
-                                                                        fontFamily: printSettings?.page_format?.font_family, 
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                        fontWeight: 400 
-                                                                    }}>
-                                                                        {`(${[
-                                                                        item.since ? `since: ${item.since}` : null,
-                                                                        item.severity ? `severity: ${item.severity}` : null
-                                                                        ].filter(Boolean).join(', ')}${(item.since || item.severity) && item.note ? ', ' : ''}${!item.note ? ')\n' : ''}`}
-                                                                    </Text>
-                                                                    )}
-                                                                    
-                                                                    {/* For note (potentially in Indian language) */}
-                                                                    {item.note && (
-                                                                    <Text style={{ 
-                                                                        color: '#171725', 
-                                                                        fontFamily: getIndianLanguageFont(item.note), 
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                        fontWeight: 400 
-                                                                    }}>
-                                                                        {`${!(item.since || item.severity) ? '(' : ''}${item.note})\n`}
-                                                                    </Text>
-                                                                    )}
-                                                                </View>
-                                                            )}
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </View>
-                                        ) : (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
-                                                    Symptoms:&nbsp;
+                                                                }
+                                                            </Text>
+                                                        )
+                                                    })}
                                                 </Text>
-                                                <View style={styles.table}>
-                                                    <View style={styles.headerRow} fixed>
-                                                        <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                        <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
-                                                        <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SEVERITY</Text>
-                                                        <Text style={[styles.headerCell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
-                                                    </View>
-                                                    {caseManagerData.symptoms.map((item, i) => (
-                                                        <View style={styles.row} key={i} wrap={false}>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.symptom_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.symptom_name}&nbsp;</Text>
-                                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
-                                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.severity ? item.severity : '-'}</Text>
-                                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}&nbsp;</Text>
-                                                        </View>
-                                                    ))}
-                                                </View>
-                                            </View>
-                                        )
-                                    )}
-                                </>
-                            ) : option?.id === 2 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {caseManagerData.examination.length > 0 && (
-                                        option?.format === 'inline' ? (
-                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
-                                                {caseManagerData.examination.map((item, i) => {
-                                                    return (
-                                                        <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.examination_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
-                                                            {(item.note) ?
-                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                                :
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                            }
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </Text>
-                                        ) : option?.format === 'listview' ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
-                                                {caseManagerData.examination.map((item, i) => {
-                                                    return (
-                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.examination_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
-                                                            {(item.since || item.severity || item.note) &&
-                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
-                                                            }
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </View>
-                                        ) : (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Examinations:&nbsp;</Text>
-                                                <View style={styles.table}>
-                                                    <View style={styles.headerRow} fixed wrap={false}>
-                                                        <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>
-                                                            NAME
-                                                        </Text>
-                                                        <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>
-                                                            NOTE
-                                                        </Text>
-                                                    </View>
-                                                    {caseManagerData.examination.map((item, i) => (
-                                                        <View style={styles.row} key={i} wrap={false}>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.examination_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>
-                                                                {item.examination_name}&nbsp;
+                                            ) : option?.format === 'listview' ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
+                                                    {caseManagerData.symptoms.map((item, i) => {
+                                                        return (
+                                                            <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.symptom_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.symptom_name}&nbsp;</Text>
+                                                                {(item.since || item.severity || item.note) && (
+                                                                    <View>
+                                                                        {/* For since and severity (English content) */}
+                                                                        {(item.since || item.severity) && (
+                                                                        <Text style={{ 
+                                                                            color: '#171725', 
+                                                                            fontFamily: printSettings?.page_format?.font_family, 
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                            fontWeight: 400 
+                                                                        }}>
+                                                                            {`(${[
+                                                                            item.since ? `since: ${item.since}` : null,
+                                                                            item.severity ? `severity: ${item.severity}` : null
+                                                                            ].filter(Boolean).join(', ')}${(item.since || item.severity) && item.note ? ', ' : ''}${!item.note ? ')\n' : ''}`}
+                                                                        </Text>
+                                                                        )}
+                                                                        
+                                                                        {/* For note (potentially in Indian language) */}
+                                                                        {item.note && (
+                                                                        <Text style={{ 
+                                                                            color: '#171725', 
+                                                                            fontFamily: getIndianLanguageFont(item.note), 
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                            fontWeight: 400 
+                                                                        }}>
+                                                                            {`${!(item.since || item.severity) ? '(' : ''}${item.note})\n`}
+                                                                        </Text>
+                                                                        )}
+                                                                    </View>
+                                                                )}
                                                             </Text>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                {item.note ? item.note : '-'}&nbsp;
+                                                        )
+                                                    })}
+                                                </View>
+                                            ) : (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
+                                                        Symptoms:&nbsp;
+                                                    </Text>
+                                                    <View style={styles.table}>
+                                                        <View style={styles.headerRow} fixed>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                            <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
+                                                            <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SEVERITY</Text>
+                                                            <Text style={[styles.headerCell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                        </View>
+                                                        {caseManagerData.symptoms.map((item, i) => (
+                                                            <View style={styles.row} key={i} wrap={false}>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.symptom_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.symptom_name}&nbsp;</Text>
+                                                                <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
+                                                                <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.severity ? item.severity : '-'}</Text>
+                                                                <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}&nbsp;</Text>
+                                                            </View>
+                                                        ))}
+                                                    </View>
+                                                </View>
+                                            )
+                                        )}
+                                    </>
+                                ) : option?.id === 2 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {caseManagerData.examination.length > 0 && (
+                                            option?.format === 'inline' ? (
+                                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
+                                                    {caseManagerData.examination.map((item, i) => {
+                                                        return (
+                                                            <Text key={i}>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.examination_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
+                                                                {(item.note) ?
+                                                                    <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                    :
+                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.examination.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                }
+                                                            </Text>
+                                                        )
+                                                    })}
+                                                </Text>
+                                            ) : option?.format === 'listview' ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Examinations:&nbsp;</Text>
+                                                    {caseManagerData.examination.map((item, i) => {
+                                                        return (
+                                                            <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.examination_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.examination_name}&nbsp;</Text>
+                                                                {(item.since || item.severity || item.note) &&
+                                                                    <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.examination[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                                }
+                                                            </Text>
+                                                        )
+                                                    })}
+                                                </View>
+                                            ) : (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Examinations:&nbsp;</Text>
+                                                    <View style={styles.table}>
+                                                        <View style={styles.headerRow} fixed wrap={false}>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>
+                                                                NAME
+                                                            </Text>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>
+                                                                NOTE
                                                             </Text>
                                                         </View>
-                                                    ))}
+                                                        {caseManagerData.examination.map((item, i) => (
+                                                            <View style={styles.row} key={i} wrap={false}>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.examination_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>
+                                                                    {item.examination_name}&nbsp;
+                                                                </Text>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                    {item.note ? item.note : '-'}&nbsp;
+                                                                </Text>
+                                                            </View>
+                                                        ))}
+                                                    </View>
                                                 </View>
-                                            </View>
-                                        )
-                                    )}
-                                </>
-                            ) : option?.id === 3 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {caseManagerData.diagnosis.length > 0 && (
-                                        option?.format === 'inline' ? (
-                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
-                                                {caseManagerData.diagnosis.map((item, i) => {
-                                                    return (
-                                                        <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.tds_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
-                                                            {(item.since || item.status || item.note) ?
-                                                                <Text>
+                                            )
+                                        )}
+                                    </>
+                                ) : option?.id === 3 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {caseManagerData.diagnosis.length > 0 && (
+                                            option?.format === 'inline' ? (
+                                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
+                                                    {caseManagerData.diagnosis.map((item, i) => {
+                                                        return (
+                                                            <Text key={i}>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.tds_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
+                                                                {(item.since || item.status || item.note) ?
+                                                                    <Text>
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            {`(`}
+                                                                        </Text>
+                                                                        {[
+                                                                            caseManagerData.diagnosis[i].since && <Text key="since" style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis[i].since}</Text>,
+                                                                            caseManagerData.diagnosis[i].status && <Text key="status" style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis[i].status}</Text>,
+                                                                            caseManagerData.diagnosis[i].note && <Text key="note" style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.diagnosis[i].note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis[i].note}</Text>
+                                                                        ].filter(Boolean).reduce((prev, curr, idx) => [prev, <Text key={`sep-${idx}`} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>, </Text>, curr])}
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            {`)`}{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;
+                                                                        </Text>
+                                                                    </Text>
+                                                                    :
+                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                }
+                                                            </Text>
+                                                        )
+                                                    })}
+                                                </Text>
+                                            ) : option?.format === 'listview' ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
+                                                    {caseManagerData.diagnosis.map((item, i) => {
+                                                        return (
+                                                            <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.tds_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
+                                                                {(item.since || item.severity || item.note) &&
                                                                     <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                                         {`(`}
+                                                                        {[
+                                                                            caseManagerData.diagnosis[i].since && <Text key="since" style={{ fontFamily: printSettings?.page_format?.font_family }}>{caseManagerData.diagnosis[i].since}</Text>,
+                                                                            caseManagerData.diagnosis[i].status && <Text key="status" style={{ fontFamily: printSettings?.page_format?.font_family }}>{caseManagerData.diagnosis[i].status}</Text>,
+                                                                            caseManagerData.diagnosis[i].note && <Text key="note" style={{ fontFamily: getIndianLanguageFont(caseManagerData.diagnosis[i].note, printSettings?.page_format?.font_family) }}>{caseManagerData.diagnosis[i].note}</Text>
+                                                                        ].filter(Boolean).reduce((prev, curr, idx) => [prev, <Text key={`sep-${idx}`}>, </Text>, curr])}
+                                                                        {`)`}
+                                                                        {'\n'}
                                                                     </Text>
-                                                                    {[
-                                                                        caseManagerData.diagnosis[i].since && <Text key="since" style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis[i].since}</Text>,
-                                                                        caseManagerData.diagnosis[i].status && <Text key="status" style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis[i].status}</Text>,
-                                                                        caseManagerData.diagnosis[i].note && <Text key="note" style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.diagnosis[i].note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis[i].note}</Text>
-                                                                    ].filter(Boolean).reduce((prev, curr, idx) => [prev, <Text key={`sep-${idx}`} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>, </Text>, curr])}
-                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                        {`)`}{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;
-                                                                    </Text>
-                                                                </Text>
-                                                                :
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.diagnosis.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                            }
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </Text>
-                                        ) : option?.format === 'listview' ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
-                                                {caseManagerData.diagnosis.map((item, i) => {
-                                                    return (
-                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.tds_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
-                                                            {(item.since || item.severity || item.note) &&
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                    {`(`}
-                                                                    {[
-                                                                        caseManagerData.diagnosis[i].since && <Text key="since" style={{ fontFamily: printSettings?.page_format?.font_family }}>{caseManagerData.diagnosis[i].since}</Text>,
-                                                                        caseManagerData.diagnosis[i].status && <Text key="status" style={{ fontFamily: printSettings?.page_format?.font_family }}>{caseManagerData.diagnosis[i].status}</Text>,
-                                                                        caseManagerData.diagnosis[i].note && <Text key="note" style={{ fontFamily: getIndianLanguageFont(caseManagerData.diagnosis[i].note, printSettings?.page_format?.font_family) }}>{caseManagerData.diagnosis[i].note}</Text>
-                                                                    ].filter(Boolean).reduce((prev, curr, idx) => [prev, <Text key={`sep-${idx}`}>, </Text>, curr])}
-                                                                    {`)`}
-                                                                    {'\n'}
-                                                                </Text>
-                                                            }
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </View>
-                                        ) : (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Diagnosis:&nbsp;</Text>
-                                                <View style={styles.table}>
-                                                    <View style={styles.headerRow} fixed>
-                                                        <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                        <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
-                                                        <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
-                                                        <Text style={[styles.headerCell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
-                                                    </View>
-                                                    {caseManagerData.diagnosis.map((item, i) => (
-                                                        <View style={styles.row} key={i} wrap={false}>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.tds_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.tds_name}&nbsp;</Text>
-                                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
-                                                            <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.status ? item.status : '-'}</Text>
-                                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}&nbsp;</Text>
-                                                        </View>
-                                                    ))}
+                                                                }
+                                                            </Text>
+                                                        )
+                                                    })}
                                                 </View>
-                                            </View>
-                                        )
-                                    )}
-                                </>
-                            ) : option?.id === 4 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {caseManagerData.medicine.length > 0 && (
-                                        option?.format === 'inline' ? (
-                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
-                                                {medicationData?.map((pItem, i) => {
-                                                    return (
-                                                        <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{pItem.tmm_medicine_name}&nbsp;</Text>
-                                                            {innerMedication(pItem.index).map((item, ii) => {
-                                                                return (
-                                                                    <Text key={ii}>
-                                                                        {ii !== 0 && (
-                                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'then'}&nbsp;</Text>
-                                                                        )}
-                                                                        <Text style={{ 
-                                                                                color: '#171725', 
-                                                                                fontFamily: printSettings?.page_format?.font_family, 
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                                fontWeight: 400 
-                                                                            }}>
-                                                                                ({[
-                                                                                    ...Object.values(
-                                                                                        Object.fromEntries(
-                                                                                            Object.entries({
-                                                                                                modiGeneric: option?.medicine_with_generic && ii === 0 ? item.tmm_generic : "",
-
-                                                                                                modiUnitPerDose: option?.medicine_option?.includes("dose")
-                                                                                                    ? item.tmm_dosage && item.tmm_unit
-                                                                                                        ? `${formatUnitPerDose(item.tmm_dosage)} ${
-                                                                                                            item.medicineUnit?.find((x) => x.tmu_id == item.tmm_unit)?.tmu_title || ""
-                                                                                                        }`
-                                                                                                        : `${
-                                                                                                            item.medicineUnit?.find((x) => x.tmu_id == item.default_tmm_unit)?.tmu_title || ""
-                                                                                                        }`
-                                                                                                    : "",
-
-                                                                                                modiFrequency:
-                                                                                                    item.tmf_block === 0 || item.tmf_block === ""
-                                                                                                        ? item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night
-                                                                                                            ? option?.numeric_frequency
-                                                                                                                ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${
-                                                                                                                    item.tcm_tmm_freq_evening ? " - " + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ""
-                                                                                                                } - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}`
-                                                                                                                : formatFrequency(
-                                                                                                                    item.tcm_tmm_freq_morning,
-                                                                                                                    item.tcm_tmm_freq_afternoon,
-                                                                                                                    item.tcm_tmm_freq_evening,
-                                                                                                                    item.tcm_tmm_freq_night
-                                                                                                                )
-                                                                                                            : ``
-                                                                                                        : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.tmf_title || ""})`,
-
-                                                                                                modiTiming: timingList.find((x) => x.tmt_id === item.tmm_time)?.tmt_title || "",
-
-                                                                                                modiDuration: option?.medicine_option?.includes("duration")
-                                                                                                    ? EXTRA_OPTIONS.some((x) => x.value == item.tmm_duration_type)
-                                                                                                        ? capitalize(item.tmm_duration_type, true)
-                                                                                                        : isNumeric(item.tmm_days)
-                                                                                                            ? `${item.tmm_days} ${item.tmm_duration_type}`
-                                                                                                            : "-"
-                                                                                                    : "",
-
-                                                                                                modiDisplayQty: option?.medicine_option?.includes("quantity") ? (item.display_qty ? `${item.display_qty} qty` : "") : ""
-                                                                                            }).filter(([_, v]) => v) // Remove empty values
-                                                                                        )
-                                                                                    )
-                                                                                ].filter(Boolean).join(", ")} 
-
-                                                                                {/* Add tmm_remarks with a different font inside parentheses */}
-                                                                                {option?.medicine_option?.includes("note") && item.tmm_remarks ? (  
-                                                                                    <>
-                                                                                        {", "}
-                                                                                        <Text style={{
-                                                                                            fontFamily: getIndianLanguageFont(item.tmm_remarks, printSettings?.page_format?.font_family),
-                                                                                            fontWeight: 400,
-                                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                                        }}>
-                                                                                            {item.tmm_remarks}
-                                                                                        </Text>
-                                                                                    </>
-                                                                                ) : null})
-
-                                                                                {innerMedication(pItem.index)?.length - 1 === ii && medicationData?.length - 1 !== i ? "," : ""}
-                                                                                &nbsp;
-                                                                            </Text>
-                                                                    </Text>
-                                                                )
-                                                            })}
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </Text>
-                                        ) : option?.format === 'listview' ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
-                                                {medicationData?.map((pItem, i) => {
-                                                    return (
-                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{pItem.tmm_medicine_name}&nbsp;</Text>
-                                                            {innerMedication(pItem.index).map((item, ii) => {
-                                                                return (
-                                                                    <Text key={ii}>
-                                                                        {ii !== 0 && (
-                                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'then'}&nbsp;</Text>
-                                                                        )}
-                                                                        <Text style={{ 
-                                                                                color: '#171725', 
-                                                                                fontFamily: printSettings?.page_format?.font_family, 
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                                fontWeight: 400 
-                                                                            }}>
-                                                                                ({[
-                                                                                    ...Object.values(
-                                                                                        Object.fromEntries(
-                                                                                            Object.entries({
-                                                                                                modiGeneric: option?.medicine_with_generic && ii === 0 ? item.tmm_generic : "",
-
-                                                                                                modiUnitPerDose: option?.medicine_option?.includes("dose")
-                                                                                                    ? item.tmm_dosage && item.tmm_unit
-                                                                                                        ? `${formatUnitPerDose(item.tmm_dosage)} ${
-                                                                                                            item.medicineUnit?.find((x) => x.tmu_id == item.tmm_unit)?.tmu_title || ""
-                                                                                                        }`
-                                                                                                        : `${
-                                                                                                            item.medicineUnit?.find((x) => x.tmu_id == item.default_tmm_unit)?.tmu_title || ""
-                                                                                                        }`
-                                                                                                    : "",
-
-                                                                                                modiFrequency:
-                                                                                                    item.tmf_block === 0 || item.tmf_block === ""
-                                                                                                        ? item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night
-                                                                                                            ? option?.numeric_frequency
-                                                                                                                ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${
-                                                                                                                    item.tcm_tmm_freq_evening ? " - " + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ""
-                                                                                                                } - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}`
-                                                                                                                : formatFrequency(
-                                                                                                                    item.tcm_tmm_freq_morning,
-                                                                                                                    item.tcm_tmm_freq_afternoon,
-                                                                                                                    item.tcm_tmm_freq_evening,
-                                                                                                                    item.tcm_tmm_freq_night
-                                                                                                                )
-                                                                                                            : ``
-                                                                                                        : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.tmf_title || ""})`,
-
-                                                                                                modiTiming: timingList.find((x) => x.tmt_id === item.tmm_time)?.tmt_title || "",
-
-                                                                                                modiDuration: option?.medicine_option?.includes("duration")
-                                                                                                    ? EXTRA_OPTIONS.some((x) => x.value == item.tmm_duration_type)
-                                                                                                        ? capitalize(item.tmm_duration_type, true)
-                                                                                                        : isNumeric(item.tmm_days)
-                                                                                                            ? `${item.tmm_days} ${item.tmm_duration_type}`
-                                                                                                            : "-"
-                                                                                                    : "",
-
-                                                                                                modiDisplayQty: option?.medicine_option?.includes("quantity") ? (item.display_qty ? `${item.display_qty} qty` : "") : ""
-                                                                                            }).filter(([_, v]) => v) // Remove empty values
-                                                                                        )
-                                                                                    )
-                                                                                ].filter(Boolean).join(", ")} 
-
-                                                                                {/* Add tmm_remarks with a different font inside parentheses */}
-                                                                                {option?.medicine_option?.includes("note") && item.tmm_remarks ? (  
-                                                                                    <>
-                                                                                        {", "}
-                                                                                        <Text style={{
-                                                                                            fontFamily: getIndianLanguageFont(item.tmm_remarks, printSettings?.page_format?.font_family),
-                                                                                            fontWeight: 400,
-                                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                                        }}>
-                                                                                            {item.tmm_remarks}
-                                                                                        </Text>
-                                                                                    </>
-                                                                                ) : null})
-
-                                                                                {innerMedication(pItem.index)?.length - 1 === ii && medicationData?.length - 1 !== i ? "," : ""}
-                                                                                &nbsp;
-                                                                            </Text>
-                                                                    </Text>
-                                                                )
-                                                            })}
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </View>
-                                        ) : (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Medication (Rx):&nbsp;</Text>
-                                                <View style={styles.table}>
-                                                    <View style={styles.headerRow} fixed>
-                                                        <Text style={[styles.headerCell, { flex: 0.18, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>S.NO</Text>
-                                                        <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>MEDICINE</Text>
-                                                        <View style={{ flex: 
-                                                            option?.medicine_option?.length === 0 ?
-                                                                0.25
-                                                                : option?.medicine_option?.length === 1 ?
-                                                                    0.8
-                                                                    : option?.medicine_option?.length === 2 ?
-                                                                        1.2
-                                                                        : option?.medicine_option?.length === 3 ?
-                                                                            1.4
-                                                                            : 2.4
-                                                         }}>
-                                                            <View style={{ flexGrow: 1, flexDirection: 'row' }}>
-                                                                {option?.medicine_option?.includes('dose') && (
-                                                                    <Text style={[styles.headerCell, { flex: 0.45, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DOSE</Text>
-                                                                )}
-                                                                <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>FREQUENCY</Text>
-                                                                {option?.medicine_option?.includes('duration') && (
-                                                                    <Text style={[styles.headerCell, { flex: 0.53, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DURATION</Text>
-                                                                )}
-                                                                {option?.medicine_option?.includes('quantity') && (
-                                                                    <Text style={[styles.headerCell, { flex: 0.18, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>QTY</Text>
-                                                                )}
-                                                                {option?.medicine_option?.includes('note') && (
-                                                                    <Text style={[styles.headerCell, { flex: 0.7, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTES</Text>
-                                                                )}
-                                                            </View>
+                                            ) : (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Diagnosis:&nbsp;</Text>
+                                                    <View style={styles.table}>
+                                                        <View style={styles.headerRow} fixed>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                            <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
+                                                            <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
+                                                            <Text style={[styles.headerCell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
                                                         </View>
-                                                    </View>
-                                                    {medicationData?.map((pItem, i) => (
-                                                        <View style={styles.row} key={i} wrap={false}>
-                                                            <Text style={[styles.cell, { flex: 0.18, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{i + 1}</Text>
-                                                            <View style={styles.cell}>
-                                                                <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{pItem.tmm_medicine_name}</Text>
-                                                                {option?.medicine_with_generic && (
-                                                                    <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: (PX_TO_PT * printSettings?.page_format?.font_size) - 2, fontWeight: 400 }]}>{pItem.tmm_generic}</Text>
-                                                                )}
+                                                        {caseManagerData.diagnosis.map((item, i) => (
+                                                            <View style={styles.row} key={i} wrap={false}>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.tds_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.tds_name}&nbsp;</Text>
+                                                                <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.since ? item.since : '-'}</Text>
+                                                                <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.status ? item.status : '-'}</Text>
+                                                                <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}&nbsp;</Text>
                                                             </View>
+                                                        ))}
+                                                    </View>
+                                                </View>
+                                            )
+                                        )}
+                                    </>
+                                ) : option?.id === 4 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {caseManagerData.medicine.length > 0 && (
+                                            option?.format === 'inline' ? (
+                                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
+                                                    {medicationData?.map((pItem, i) => {
+                                                        return (
+                                                            <Text key={i}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{pItem.tmm_medicine_name}&nbsp;</Text>
+                                                                {innerMedication(pItem.index).map((item, ii) => {
+                                                                    return (
+                                                                        <Text key={ii}>
+                                                                            {ii !== 0 && (
+                                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'then'}&nbsp;</Text>
+                                                                            )}
+                                                                            <Text style={{ 
+                                                                                    color: '#171725', 
+                                                                                    fontFamily: printSettings?.page_format?.font_family, 
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                    fontWeight: 400 
+                                                                                }}>
+                                                                                    ({[
+                                                                                        ...Object.values(
+                                                                                            Object.fromEntries(
+                                                                                                Object.entries({
+                                                                                                    modiGeneric: option?.medicine_with_generic && ii === 0 ? item.tmm_generic : "",
+
+                                                                                                    modiUnitPerDose: option?.medicine_option?.includes("dose")
+                                                                                                        ? item.tmm_dosage && item.tmm_unit
+                                                                                                            ? `${formatUnitPerDose(item.tmm_dosage)} ${
+                                                                                                                item.medicineUnit?.find((x) => x.tmu_id == item.tmm_unit)?.tmu_title || ""
+                                                                                                            }`
+                                                                                                            : `${
+                                                                                                                item.medicineUnit?.find((x) => x.tmu_id == item.default_tmm_unit)?.tmu_title || ""
+                                                                                                            }`
+                                                                                                        : "",
+
+                                                                                                    modiFrequency:
+                                                                                                        item.tmf_block === 0 || item.tmf_block === ""
+                                                                                                            ? item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night
+                                                                                                                ? option?.numeric_frequency
+                                                                                                                    ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${
+                                                                                                                        item.tcm_tmm_freq_evening ? " - " + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ""
+                                                                                                                    } - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}`
+                                                                                                                    : formatFrequency(
+                                                                                                                        item.tcm_tmm_freq_morning,
+                                                                                                                        item.tcm_tmm_freq_afternoon,
+                                                                                                                        item.tcm_tmm_freq_evening,
+                                                                                                                        item.tcm_tmm_freq_night
+                                                                                                                    )
+                                                                                                                : ``
+                                                                                                            : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.tmf_title || ""})`,
+
+                                                                                                    modiTiming: timingList.find((x) => x.tmt_id === item.tmm_time)?.tmt_title || "",
+
+                                                                                                    modiDuration: option?.medicine_option?.includes("duration")
+                                                                                                        ? EXTRA_OPTIONS.some((x) => x.value == item.tmm_duration_type)
+                                                                                                            ? capitalize(item.tmm_duration_type, true)
+                                                                                                            : isNumeric(item.tmm_days)
+                                                                                                                ? `${item.tmm_days} ${item.tmm_duration_type}`
+                                                                                                                : "-"
+                                                                                                        : "",
+
+                                                                                                    modiDisplayQty: option?.medicine_option?.includes("quantity") ? (item.display_qty ? `${item.display_qty} qty` : "") : ""
+                                                                                                }).filter(([_, v]) => v) // Remove empty values
+                                                                                            )
+                                                                                        )
+                                                                                    ].filter(Boolean).join(", ")} 
+
+                                                                                    {/* Add tmm_remarks with a different font inside parentheses */}
+                                                                                    {option?.medicine_option?.includes("note") && item.tmm_remarks ? (  
+                                                                                        <>
+                                                                                            {", "}
+                                                                                            <Text style={{
+                                                                                                fontFamily: getIndianLanguageFont(item.tmm_remarks, printSettings?.page_format?.font_family),
+                                                                                                fontWeight: 400,
+                                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                            }}>
+                                                                                                {item.tmm_remarks}
+                                                                                            </Text>
+                                                                                        </>
+                                                                                    ) : null})
+
+                                                                                    {innerMedication(pItem.index)?.length - 1 === ii && medicationData?.length - 1 !== i ? "," : ""}
+                                                                                    &nbsp;
+                                                                                </Text>
+                                                                        </Text>
+                                                                    )
+                                                                })}
+                                                            </Text>
+                                                        )
+                                                    })}
+                                                </Text>
+                                            ) : option?.format === 'listview' ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
+                                                    {medicationData?.map((pItem, i) => {
+                                                        return (
+                                                            <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{pItem.tmm_medicine_name}&nbsp;</Text>
+                                                                {innerMedication(pItem.index).map((item, ii) => {
+                                                                    return (
+                                                                        <Text key={ii}>
+                                                                            {ii !== 0 && (
+                                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'then'}&nbsp;</Text>
+                                                                            )}
+                                                                            <Text style={{ 
+                                                                                    color: '#171725', 
+                                                                                    fontFamily: printSettings?.page_format?.font_family, 
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                    fontWeight: 400 
+                                                                                }}>
+                                                                                    ({[
+                                                                                        ...Object.values(
+                                                                                            Object.fromEntries(
+                                                                                                Object.entries({
+                                                                                                    modiGeneric: option?.medicine_with_generic && ii === 0 ? item.tmm_generic : "",
+
+                                                                                                    modiUnitPerDose: option?.medicine_option?.includes("dose")
+                                                                                                        ? item.tmm_dosage && item.tmm_unit
+                                                                                                            ? `${formatUnitPerDose(item.tmm_dosage)} ${
+                                                                                                                item.medicineUnit?.find((x) => x.tmu_id == item.tmm_unit)?.tmu_title || ""
+                                                                                                            }`
+                                                                                                            : `${
+                                                                                                                item.medicineUnit?.find((x) => x.tmu_id == item.default_tmm_unit)?.tmu_title || ""
+                                                                                                            }`
+                                                                                                        : "",
+
+                                                                                                    modiFrequency:
+                                                                                                        item.tmf_block === 0 || item.tmf_block === ""
+                                                                                                            ? item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night
+                                                                                                                ? option?.numeric_frequency
+                                                                                                                    ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${
+                                                                                                                        item.tcm_tmm_freq_evening ? " - " + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ""
+                                                                                                                    } - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}`
+                                                                                                                    : formatFrequency(
+                                                                                                                        item.tcm_tmm_freq_morning,
+                                                                                                                        item.tcm_tmm_freq_afternoon,
+                                                                                                                        item.tcm_tmm_freq_evening,
+                                                                                                                        item.tcm_tmm_freq_night
+                                                                                                                    )
+                                                                                                                : ``
+                                                                                                            : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.tmf_title || ""})`,
+
+                                                                                                    modiTiming: timingList.find((x) => x.tmt_id === item.tmm_time)?.tmt_title || "",
+
+                                                                                                    modiDuration: option?.medicine_option?.includes("duration")
+                                                                                                        ? EXTRA_OPTIONS.some((x) => x.value == item.tmm_duration_type)
+                                                                                                            ? capitalize(item.tmm_duration_type, true)
+                                                                                                            : isNumeric(item.tmm_days)
+                                                                                                                ? `${item.tmm_days} ${item.tmm_duration_type}`
+                                                                                                                : "-"
+                                                                                                        : "",
+
+                                                                                                    modiDisplayQty: option?.medicine_option?.includes("quantity") ? (item.display_qty ? `${item.display_qty} qty` : "") : ""
+                                                                                                }).filter(([_, v]) => v) // Remove empty values
+                                                                                            )
+                                                                                        )
+                                                                                    ].filter(Boolean).join(", ")} 
+
+                                                                                    {/* Add tmm_remarks with a different font inside parentheses */}
+                                                                                    {option?.medicine_option?.includes("note") && item.tmm_remarks ? (  
+                                                                                        <>
+                                                                                            {", "}
+                                                                                            <Text style={{
+                                                                                                fontFamily: getIndianLanguageFont(item.tmm_remarks, printSettings?.page_format?.font_family),
+                                                                                                fontWeight: 400,
+                                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                            }}>
+                                                                                                {item.tmm_remarks}
+                                                                                            </Text>
+                                                                                        </>
+                                                                                    ) : null})
+
+                                                                                    {innerMedication(pItem.index)?.length - 1 === ii && medicationData?.length - 1 !== i ? "," : ""}
+                                                                                    &nbsp;
+                                                                                </Text>
+                                                                        </Text>
+                                                                    )
+                                                                })}
+                                                            </Text>
+                                                        )
+                                                    })}
+                                                </View>
+                                            ) : (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Medication (Rx):&nbsp;</Text>
+                                                    <View style={styles.table}>
+                                                        <View style={styles.headerRow} fixed>
+                                                            <Text style={[styles.headerCell, { flex: 0.18, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>S.NO</Text>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>MEDICINE</Text>
                                                             <View style={{ flex: 
                                                                 option?.medicine_option?.length === 0 ?
                                                                     0.25
@@ -1396,1593 +1436,984 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 1.4
                                                                                 : 2.4
                                                             }}>
-                                                                {innerMedication(pItem.index).map((item, ii) => {
-                                                                    return (
-                                                                        <View style={{ flexGrow: 1, flexDirection: 'row', borderBottom: ii != innerMedication(pItem.index)?.length - 1 ? '1px solid #171725' : '0px' }} key={ii}>
-                                                                            {option?.medicine_option?.includes('dose') && (
-                                                                                <Text style={[styles.cell, { flex: 0.45, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`${item.tmm_dosage && item.tmm_unit ? `${formatUnitPerDose(item.tmm_dosage)} ${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit).tmu_title : ""}` : `${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit).tmu_title : ""}`}`}</Text>
-                                                                            )}
-                                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                                {item.tmf_block === 0 || item.tmf_block === "" ? `${(item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night) ? (option?.numeric_frequency) ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${item.tcm_tmm_freq_evening ? ' - ' + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ''} - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}` : formatFrequency(item.tcm_tmm_freq_morning, item.tcm_tmm_freq_afternoon,item.tcm_tmm_freq_evening,item.tcm_tmm_freq_night) : `-`}` : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}
-                                                                            </Text>
-                                                                            {option?.medicine_option?.includes('duration') && (
-                                                                                <Text style={[styles.cell, { flex: 0.53, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                                    {EXTRA_OPTIONS.some((x) => x.value == item.tmm_duration_type) ? capitalize(item.tmm_duration_type, true) :
-                                                                                        isNumeric(item.tmm_days) ?
-                                                                                            `${item.tmm_days} ${item.tmm_duration_type}`
-                                                                                            : '-'}
-                                                                                </Text>
-                                                                            )}
-                                                                            {option?.medicine_option?.includes('quantity') && (
-                                                                                <Text style={[styles.cell, { flex: 0.18, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                                    {item.display_qty ? item.display_qty : '-'}
-                                                                                </Text>
-                                                                            )}
-                                                                            {option?.medicine_option?.includes('note') && (
-                                                                                <Text style={[styles.cell, { flex: 0.7, color: '#171725', fontFamily: getIndianLanguageFont(item.tmm_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                                    {item.tmm_remarks ? item.tmm_remarks : '-'}&nbsp;
-                                                                                </Text>
-                                                                            )}
-                                                                        </View>
-                                                                    )
-                                                                })}
-                                                            </View>
-                                                        </View>
-                                                    ))}
-                                                </View>
-                                            </View>
-                                        )
-                                    )}
-                                </>
-                            ) : option?.id === 5 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {caseManagerData.advice.length > 0 && (
-                                        option?.format === 'inline' ? (
-                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
-                                                {caseManagerData.advice.map((item, i) => {
-                                                    return (
-                                                        <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.advice_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.advice_name}</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.advice.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </Text>
-                                        ) : option?.format === 'listview' ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
-                                                {caseManagerData.advice.map((item, i) => {
-                                                    return (
-                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.advice_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.advice_name}</Text>
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </View>
-                                        ) : (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Advices:&nbsp;</Text>
-                                                <View style={styles.table}>
-                                                    <View style={styles.headerRow} fixed>
-                                                        <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                    </View>
-                                                    {caseManagerData.advice.map((item, i) => (
-                                                        <View style={styles.row} key={i} wrap={false}>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.advice_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.advice_name}&nbsp;</Text>
-                                                        </View>
-                                                    ))}
-                                                </View>
-                                            </View>
-                                        )
-                                    )}
-                                </>
-                            ) : option?.id === 6 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {caseManagerData.investigation.length > 0 && (
-                                        option?.format === 'inline' ? (
-                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
-                                                {caseManagerData.investigation.map((item, i) => {
-                                                    return (
-                                                        <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.investigation_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
-                                                            {(item.note) ?
-                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                                :
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                            }
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </Text>
-                                        ) : option?.format === 'listview' ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
-                                                {caseManagerData.investigation.map((item, i) => {
-                                                    return (
-                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.investigation_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
-                                                            {(item.since || item.severity || item.note) &&
-                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
-                                                            }
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </View>
-                                        ) : (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Lab Investigation:&nbsp;</Text>
-                                                <View style={styles.table}>
-                                                    <View style={styles.headerRow} fixed>
-                                                        <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                        <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
-                                                    </View>
-                                                    {caseManagerData.investigation.map((item, i) => (
-                                                        <View style={styles.row} key={i} wrap={false}>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.investigation_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.investigation_name}&nbsp;</Text>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}&nbsp;</Text>
-                                                        </View>
-                                                    ))}
-                                                </View>
-                                            </View>
-                                        )
-                                    )}
-                                </>
-                            ) : option?.id === 7 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {(caseManagerData.vitals.length > 0 || patientBirthWeight) &&  (
-                                        option?.format === 'inline' ? (
-                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
-                                                {patientBirthWeight && (
-                                                    <>
-                                                        <Text
-                                                            style={{
-                                                                color: '#171725',
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500
-                                                            }}>Patient's birth weight:&nbsp;
-                                                        </Text>
-                                                        <Text
-                                                            style={{
-                                                                color: '#171725',
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 400
-                                                            }}>({patientBirthWeight}kg),&nbsp;
-                                                        </Text>
-                                                    </>
-                                                )}
-                                                {caseManagerData.vitals.length > 0 && caseManagerData.vitals.map((item, i) => {
-                                                    return (
-                                                        <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{moment(item.date).format('DD/MM/YYYY')}&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                {`- ${Object.values(Object.fromEntries(Object.entries(
-                                                                    (
-                                                                        ({
-                                                                            temp,
-                                                                            pres,
-                                                                            resp_rate,
-                                                                            blood_press,
-                                                                            spo2,
-                                                                            height,
-                                                                            weight,
-                                                                            bmi,
-                                                                            bmr,
-                                                                            bsa,
-                                                                            ofc,
-                                                                            general_rbs
-                                                                        }) => ({
-                                                                            temp: temp ? `Temp: ${temp}F` : '',
-                                                                            pres: pres ? `Pulse: ${pres}/min` : '',
-                                                                            resp_rate: resp_rate ? `Resp. Rate: ${resp_rate}/min` : '',
-                                                                            blood_press: blood_press ? blood_press.endsWith("/") ? `BP: ${blood_press?.substring(0, blood_press.length - 1)}mmHg` : `BP: ${blood_press}mmHg` : '',
-                                                                            // systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
-                                                                            // diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
-                                                                            spo2: spo2 ? `SPO2: ${spo2}%` : '',
-                                                                            general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : '',
-                                                                            ofc: ofc ? `OFC: ${ofc}cms` : '',
-                                                                            height: height ? `Height: ${height}cms` : '',
-                                                                            weight: weight ? `Weight: ${weight}kgs` : '',
-                                                                            bmi: bmi ? `BMI: ${parseFloat(bmi).toFixed(2)}kg/m²` : '',
-                                                                            bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
-                                                                            bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',
-                                                                        })
-                                                                    )(caseManagerData.vitals[i])
-                                                                ).filter(([_, v]) => v))).join(', ')}`}{caseManagerData.vitals.length - 1 != i ? ',' : ''}&nbsp;
-                                                            </Text>
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </Text>
-                                        ) : option?.format === 'listview' ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
-                                                    Vitals & Body Composition:&nbsp;
-
-                                                    {patientBirthWeight && (
-                                                        <>
-                                                            <Text
-                                                                style={{
-                                                                    color: '#171725',
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500
-                                                                }}>Patient's birth weight:&nbsp;
-                                                            </Text>
-                                                            <Text
-                                                                style={{
-                                                                    color: '#171725',
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400
-                                                                }}>({patientBirthWeight}kg)
-                                                            </Text>
-                                                        </>
-                                                    )}
-                                                </Text>
-                                                {caseManagerData.vitals.length > 0 && caseManagerData.vitals.map((item, i) => {
-                                                    return (
-                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{moment(item.date).format('DD/MM/YYYY')}&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                {`- ${Object.values(Object.fromEntries(Object.entries(
-                                                                    (
-                                                                        ({
-                                                                            temp,
-                                                                            pres,
-                                                                            resp_rate,
-                                                                            blood_press,
-                                                                            spo2,
-                                                                            height,
-                                                                            weight,
-                                                                            bmi,
-                                                                            bmr,
-                                                                            bsa,
-                                                                            ofc,
-                                                                            general_rbs
-                                                                        }) => ({
-                                                                            temp: temp ? `Temp: ${temp}F` : '',
-                                                                            pres: pres ? `Pulse: ${pres}/min` : '',
-                                                                            resp_rate: resp_rate ? `Resp. Rate: ${resp_rate}/min` : '',
-                                                                            blood_press: blood_press ? blood_press.endsWith("/") ? `BP: ${blood_press?.substring(0, blood_press.length - 1)}mmHg` : `BP: ${blood_press}mmHg` : '',
-                                                                            // systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
-                                                                            // diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
-                                                                            spo2: spo2 ? `SPO2: ${spo2}%` : '',
-                                                                            general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : '',
-                                                                            ofc: ofc ? `OFC: ${ofc}cms` : '',
-                                                                            height: height ? `Height: ${height}cms` : '',
-                                                                            weight: weight ? `Weight: ${weight}kgs` : '',
-                                                                            bmi: bmi ? `BMI: ${parseFloat(bmi).toFixed(2)}kg/m²` : '',
-                                                                            bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
-                                                                            bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',
-                                                                        })
-                                                                    )(caseManagerData.vitals[i])
-                                                                ).filter(([_, v]) => v))).join(', ')}\n`}
-                                                            </Text>
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </View>
-                                        ) : (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
-                                                    Vitals & Body Composition:&nbsp;
-
-                                                    {patientBirthWeight && (
-                                                        <>
-                                                            <Text
-                                                                style={{
-                                                                    color: '#171725',
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500
-                                                                }}>Patient's birth weight:&nbsp;
-                                                            </Text>
-                                                            <Text
-                                                                style={{
-                                                                    color: '#171725',
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400
-                                                                }}>({patientBirthWeight}kg)
-                                                            </Text>
-                                                        </>
-                                                    )}
-                                                </Text>
-                                                {caseManagerData.vitals.length > 0 && (<View style={styles.table}>
-                                                    <View style={styles.headerRow} fixed>
-                                                        {columns.map((item, i) => {
-                                                            return (
-                                                                <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>{item.title}</Text>
-                                                            )
-                                                        })}
-                                                    </View>
-                                                    {initialRows.map((item, i) => {
-                                                        return (
-                                                            (item['0'] != '-' || (item.hasOwnProperty('1') && item['1'] != '-') || (item.hasOwnProperty('2') && item['2'] != '-')) && (
-                                                                <View style={styles.row} key={i} wrap={false}>
-                                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.name}</Text>
-                                                                    <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['0']}</Text>
-                                                                    {item.hasOwnProperty('1') && (
-                                                                        <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['1']}</Text>
+                                                                <View style={{ flexGrow: 1, flexDirection: 'row' }}>
+                                                                    {option?.medicine_option?.includes('dose') && (
+                                                                        <Text style={[styles.headerCell, { flex: 0.45, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DOSE</Text>
                                                                     )}
-                                                                    {item.hasOwnProperty('2') && (
-                                                                        <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['2']}</Text>
+                                                                    <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>FREQUENCY</Text>
+                                                                    {option?.medicine_option?.includes('duration') && (
+                                                                        <Text style={[styles.headerCell, { flex: 0.53, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DURATION</Text>
+                                                                    )}
+                                                                    {option?.medicine_option?.includes('quantity') && (
+                                                                        <Text style={[styles.headerCell, { flex: 0.18, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>QTY</Text>
+                                                                    )}
+                                                                    {option?.medicine_option?.includes('note') && (
+                                                                        <Text style={[styles.headerCell, { flex: 0.7, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTES</Text>
                                                                     )}
                                                                 </View>
+                                                            </View>
+                                                        </View>
+                                                        {medicationData?.map((pItem, i) => (
+                                                            <View style={styles.row} key={i} wrap={false}>
+                                                                <Text style={[styles.cell, { flex: 0.18, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{i + 1}</Text>
+                                                                <View style={styles.cell}>
+                                                                    <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{pItem.tmm_medicine_name}</Text>
+                                                                    {option?.medicine_with_generic && (
+                                                                        <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: (PX_TO_PT * printSettings?.page_format?.font_size) - 2, fontWeight: 400 }]}>{pItem.tmm_generic}</Text>
+                                                                    )}
+                                                                </View>
+                                                                <View style={{ flex: 
+                                                                    option?.medicine_option?.length === 0 ?
+                                                                        0.25
+                                                                        : option?.medicine_option?.length === 1 ?
+                                                                            0.8
+                                                                            : option?.medicine_option?.length === 2 ?
+                                                                                1.2
+                                                                                : option?.medicine_option?.length === 3 ?
+                                                                                    1.4
+                                                                                    : 2.4
+                                                                }}>
+                                                                    {innerMedication(pItem.index).map((item, ii) => {
+                                                                        return (
+                                                                            <View style={{ flexGrow: 1, flexDirection: 'row', borderBottom: ii != innerMedication(pItem.index)?.length - 1 ? '1px solid #171725' : '0px' }} key={ii}>
+                                                                                {option?.medicine_option?.includes('dose') && (
+                                                                                    <Text style={[styles.cell, { flex: 0.45, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`${item.tmm_dosage && item.tmm_unit ? `${formatUnitPerDose(item.tmm_dosage)} ${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit).tmu_title : ""}` : `${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit).tmu_title : ""}`}`}</Text>
+                                                                                )}
+                                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                                    {item.tmf_block === 0 || item.tmf_block === "" ? `${(item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night) ? (option?.numeric_frequency) ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${item.tcm_tmm_freq_evening ? ' - ' + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ''} - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}` : formatFrequency(item.tcm_tmm_freq_morning, item.tcm_tmm_freq_afternoon,item.tcm_tmm_freq_evening,item.tcm_tmm_freq_night) : `-`}` : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type).tmf_title : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time).tmt_title : ''}
+                                                                                </Text>
+                                                                                {option?.medicine_option?.includes('duration') && (
+                                                                                    <Text style={[styles.cell, { flex: 0.53, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                                        {EXTRA_OPTIONS.some((x) => x.value == item.tmm_duration_type) ? capitalize(item.tmm_duration_type, true) :
+                                                                                            isNumeric(item.tmm_days) ?
+                                                                                                `${item.tmm_days} ${item.tmm_duration_type}`
+                                                                                                : '-'}
+                                                                                    </Text>
+                                                                                )}
+                                                                                {option?.medicine_option?.includes('quantity') && (
+                                                                                    <Text style={[styles.cell, { flex: 0.18, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                                        {item.display_qty ? item.display_qty : '-'}
+                                                                                    </Text>
+                                                                                )}
+                                                                                {option?.medicine_option?.includes('note') && (
+                                                                                    <Text style={[styles.cell, { flex: 0.7, color: '#171725', fontFamily: getIndianLanguageFont(item.tmm_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                                        {item.tmm_remarks ? item.tmm_remarks : '-'}&nbsp;
+                                                                                    </Text>
+                                                                                )}
+                                                                            </View>
+                                                                        )
+                                                                    })}
+                                                                </View>
+                                                            </View>
+                                                        ))}
+                                                    </View>
+                                                </View>
+                                            )
+                                        )}
+                                    </>
+                                ) : option?.id === 5 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {caseManagerData.advice.length > 0 && (
+                                            option?.format === 'inline' ? (
+                                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
+                                                    {caseManagerData.advice.map((item, i) => {
+                                                        return (
+                                                            <Text key={i}>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.advice_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.advice_name}</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.advice.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                            </Text>
+                                                        )
+                                                    })}
+                                                </Text>
+                                            ) : option?.format === 'listview' ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Advices:&nbsp;</Text>
+                                                    {caseManagerData.advice.map((item, i) => {
+                                                        return (
+                                                            <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.advice_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{item.advice_name}</Text>
+                                                            </Text>
+                                                        )
+                                                    })}
+                                                </View>
+                                            ) : (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Advices:&nbsp;</Text>
+                                                    <View style={styles.table}>
+                                                        <View style={styles.headerRow} fixed>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                        </View>
+                                                        {caseManagerData.advice.map((item, i) => (
+                                                            <View style={styles.row} key={i} wrap={false}>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.advice_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.advice_name}&nbsp;</Text>
+                                                            </View>
+                                                        ))}
+                                                    </View>
+                                                </View>
+                                            )
+                                        )}
+                                    </>
+                                ) : option?.id === 6 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {caseManagerData.investigation.length > 0 && (
+                                            option?.format === 'inline' ? (
+                                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
+                                                    {caseManagerData.investigation.map((item, i) => {
+                                                        return (
+                                                            <Text key={i}>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.investigation_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
+                                                                {(item.note) ?
+                                                                    <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                    :
+                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.investigation.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                }
+                                                            </Text>
+                                                        )
+                                                    })}
+                                                </Text>
+                                            ) : option?.format === 'listview' ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
+                                                    {caseManagerData.investigation.map((item, i) => {
+                                                        return (
+                                                            <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.investigation_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
+                                                                {(item.since || item.severity || item.note) &&
+                                                                    <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ note }) => ({ note }))(caseManagerData.investigation[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                                }
+                                                            </Text>
+                                                        )
+                                                    })}
+                                                </View>
+                                            ) : (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Lab Investigation:&nbsp;</Text>
+                                                    <View style={styles.table}>
+                                                        <View style={styles.headerRow} fixed>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                        </View>
+                                                        {caseManagerData.investigation.map((item, i) => (
+                                                            <View style={styles.row} key={i} wrap={false}>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.investigation_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.investigation_name}&nbsp;</Text>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.note ? item.note : '-'}&nbsp;</Text>
+                                                            </View>
+                                                        ))}
+                                                    </View>
+                                                </View>
+                                            )
+                                        )}
+                                    </>
+                                ) : option?.id === 7 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {(caseManagerData.vitals.length > 0 || patientBirthWeight) &&  (
+                                            option?.format === 'inline' ? (
+                                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Vitals & Body Composition:&nbsp;</Text>
+                                                    {patientBirthWeight && (
+                                                        <>
+                                                            <Text
+                                                                style={{
+                                                                    color: '#171725',
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500
+                                                                }}>Patient's birth weight:&nbsp;
+                                                            </Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: '#171725',
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 400
+                                                                }}>({patientBirthWeight}kg),&nbsp;
+                                                            </Text>
+                                                        </>
+                                                    )}
+                                                    {caseManagerData.vitals.length > 0 && caseManagerData.vitals.map((item, i) => {
+                                                        return (
+                                                            <Text key={i}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{moment(item.date).format('DD/MM/YYYY')}&nbsp;</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                    {`- ${Object.values(Object.fromEntries(Object.entries(
+                                                                        (
+                                                                            ({
+                                                                                temp,
+                                                                                pres,
+                                                                                resp_rate,
+                                                                                blood_press,
+                                                                                spo2,
+                                                                                height,
+                                                                                weight,
+                                                                                bmi,
+                                                                                bmr,
+                                                                                bsa,
+                                                                                ofc,
+                                                                                general_rbs
+                                                                            }) => ({
+                                                                                temp: temp ? `Temp: ${temp}F` : '',
+                                                                                pres: pres ? `Pulse: ${pres}/min` : '',
+                                                                                resp_rate: resp_rate ? `Resp. Rate: ${resp_rate}/min` : '',
+                                                                                blood_press: blood_press ? blood_press.endsWith("/") ? `BP: ${blood_press?.substring(0, blood_press.length - 1)}mmHg` : `BP: ${blood_press}mmHg` : '',
+                                                                                // systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
+                                                                                // diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
+                                                                                spo2: spo2 ? `SPO2: ${spo2}%` : '',
+                                                                                general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : '',
+                                                                                ofc: ofc ? `OFC: ${ofc}cms` : '',
+                                                                                height: height ? `Height: ${height}cms` : '',
+                                                                                weight: weight ? `Weight: ${weight}kgs` : '',
+                                                                                bmi: bmi ? `BMI: ${parseFloat(bmi).toFixed(2)}kg/m²` : '',
+                                                                                bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
+                                                                                bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',
+                                                                            })
+                                                                        )(caseManagerData.vitals[i])
+                                                                    ).filter(([_, v]) => v))).join(', ')}`}{caseManagerData.vitals.length - 1 != i ? ',' : ''}&nbsp;
+                                                                </Text>
+                                                            </Text>
+                                                        )
+                                                    })}
+                                                </Text>
+                                            ) : option?.format === 'listview' ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
+                                                        Vitals & Body Composition:&nbsp;
+
+                                                        {patientBirthWeight && (
+                                                            <>
+                                                                <Text
+                                                                    style={{
+                                                                        color: '#171725',
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500
+                                                                    }}>Patient's birth weight:&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: '#171725',
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400
+                                                                    }}>({patientBirthWeight}kg)
+                                                                </Text>
+                                                            </>
+                                                        )}
+                                                    </Text>
+                                                    {caseManagerData.vitals.length > 0 && caseManagerData.vitals.map((item, i) => {
+                                                        return (
+                                                            <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{moment(item.date).format('DD/MM/YYYY')}&nbsp;</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                    {`- ${Object.values(Object.fromEntries(Object.entries(
+                                                                        (
+                                                                            ({
+                                                                                temp,
+                                                                                pres,
+                                                                                resp_rate,
+                                                                                blood_press,
+                                                                                spo2,
+                                                                                height,
+                                                                                weight,
+                                                                                bmi,
+                                                                                bmr,
+                                                                                bsa,
+                                                                                ofc,
+                                                                                general_rbs
+                                                                            }) => ({
+                                                                                temp: temp ? `Temp: ${temp}F` : '',
+                                                                                pres: pres ? `Pulse: ${pres}/min` : '',
+                                                                                resp_rate: resp_rate ? `Resp. Rate: ${resp_rate}/min` : '',
+                                                                                blood_press: blood_press ? blood_press.endsWith("/") ? `BP: ${blood_press?.substring(0, blood_press.length - 1)}mmHg` : `BP: ${blood_press}mmHg` : '',
+                                                                                // systolic: blood_press ? blood_press.split('/')[0] ? `Systolic (${blood_press.split('/')[0]}mmHg)` : '' : '',
+                                                                                // diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
+                                                                                spo2: spo2 ? `SPO2: ${spo2}%` : '',
+                                                                                general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : '',
+                                                                                ofc: ofc ? `OFC: ${ofc}cms` : '',
+                                                                                height: height ? `Height: ${height}cms` : '',
+                                                                                weight: weight ? `Weight: ${weight}kgs` : '',
+                                                                                bmi: bmi ? `BMI: ${parseFloat(bmi).toFixed(2)}kg/m²` : '',
+                                                                                bmr: bmr ? `BMR: ${parseFloat(bmr).toFixed(2)}kcals` : '',
+                                                                                bsa: bsa ? `BSA: ${parseFloat(bsa).toFixed(2)}m²` : '',
+                                                                            })
+                                                                        )(caseManagerData.vitals[i])
+                                                                    ).filter(([_, v]) => v))).join(', ')}\n`}
+                                                                </Text>
+                                                            </Text>
+                                                        )
+                                                    })}
+                                                </View>
+                                            ) : (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
+                                                        Vitals & Body Composition:&nbsp;
+
+                                                        {patientBirthWeight && (
+                                                            <>
+                                                                <Text
+                                                                    style={{
+                                                                        color: '#171725',
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500
+                                                                    }}>Patient's birth weight:&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: '#171725',
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400
+                                                                    }}>({patientBirthWeight}kg)
+                                                                </Text>
+                                                            </>
+                                                        )}
+                                                    </Text>
+                                                    {caseManagerData.vitals.length > 0 && (<View style={styles.table}>
+                                                        <View style={styles.headerRow} fixed>
+                                                            {columns.map((item, i) => {
+                                                                return (
+                                                                    <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>{item.title}</Text>
+                                                                )
+                                                            })}
+                                                        </View>
+                                                        {initialRows.map((item, i) => {
+                                                            return (
+                                                                (item['0'] != '-' || (item.hasOwnProperty('1') && item['1'] != '-') || (item.hasOwnProperty('2') && item['2'] != '-')) && (
+                                                                    <View style={styles.row} key={i} wrap={false}>
+                                                                        <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.name}</Text>
+                                                                        <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['0']}</Text>
+                                                                        {item.hasOwnProperty('1') && (
+                                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['1']}</Text>
+                                                                        )}
+                                                                        {item.hasOwnProperty('2') && (
+                                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item['2']}</Text>
+                                                                        )}
+                                                                    </View>
+                                                                )
+                                                            )
+                                                        })}
+                                                    </View>)}
+                                                </View>
+                                            )
+                                        )}
+                                    </>
+                                ) : option?.id === 8 && option?.enable === 'Y' && option?.custom_status === 'Y' && option?.medical_history_option?.length > 0 ? (
+                                    <>
+                                        {caseManagerData.medical_history.length > 0 && (
+                                            option?.format === 'inline' ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:</Text>
+                                                    {(() => {
+                                                        const grouped = {};
+                                                        if (caseManagerData?.medical_history && Array.isArray(caseManagerData.medical_history)) {
+                                                            caseManagerData.medical_history.forEach(item => {
+                                                                if (item && option?.medical_history_option?.includes(item.tmmhs_id)) {
+                                                                    if (!grouped[item.title]) {
+                                                                        grouped[item.title] = [];
+                                                                    }
+                                                                    if (item?.tags?.length > 0 && !item?.no_know_history) {
+                                                                        item.tags.forEach(tag => {
+                                                                            if (tag && tag.enable === 'Y') {
+                                                                                let conditionName = tag.title || '';
+                                                                                let details = '';
+                                                                                let hasDetails = false;
+                                                                                if (tag.since) {
+                                                                                    details += ` (Since: ${tag.since}`;
+                                                                                    hasDetails = true;
+                                                                                }
+                                                                                if (item.tmmhs_id !== 3 && tag.status) {
+                                                                                    details += hasDetails ? ` | Status: ${tag.status}` : ` (Status: ${tag.status}`;
+                                                                                    hasDetails = true;
+                                                                                }
+                                                                                if (item.tmmhs_id !== 3 && tag.medication) {
+                                                                                    details += hasDetails ? ` | Medication: ${tag.medication}` : ` (Medication: ${tag.medication}`;
+                                                                                    hasDetails = true;
+                                                                                }
+                                                                                if (item.tmmhs_id === 3 && tag.relationship) {
+                                                                                    details += hasDetails ? ` | Relative: ${tag.relationship}` : ` (Relative: ${tag.relationship}`;
+                                                                                    hasDetails = true;
+                                                                                }
+                                                                                if (tag.note) {
+                                                                                    details += hasDetails ? ` | ${tag.note}` : ` (${tag.note}`;
+                                                                                    hasDetails = true;
+                                                                                }
+                                                                                if (hasDetails) {
+                                                                                    details += `)`;
+                                                                                }
+                                                                                grouped[item.title].push({ conditionName, details, hasDetails });
+                                                                            }
+                                                                        });
+                                                                    } else if (item?.no_know_history) {
+                                                                        grouped[item.title].push({ conditionName: 'No known history', details: '', hasDetails: false });
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
+                                                        return Object.keys(grouped).map(category => 
+                                                            grouped[category]?.length > 0 ? (
+                                                                <Text key={category} style={{ marginTop: PX_TO_PT * 8, lineHeight: 1.4 }}>
+                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                        {category}:
+                                                                    </Text>
+                                                                    {grouped[category].map((item, index) => (
+                                                                        <Text key={index} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            {index > 0 ? ', ' : ' '}
+                                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                                {item.conditionName}
+                                                                            </Text>
+                                                                            {item.details}
+                                                                        </Text>
+                                                                    ))}
+                                                                </Text>
+                                                            ) : null
+                                                        );
+                                                    })()}
+                                                    {caseManagerData?.medical_history?.[0]?.medical_history_remarks && (
+                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, marginTop: PX_TO_PT * 8 }}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{'\n'}Additional History: </Text>
+                                                            <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                ({caseManagerData?.medical_history?.[0]?.medical_history_remarks})
+                                                            </Text>
+                                                        </Text>
+                                                    )}
+                                                </View>
+                                            ) : option?.format === 'listview' ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
+                                                    {caseManagerData.medical_history.map((item, i) => {
+                                                        let abcd = 97
+                                                        return (
+                                                            option?.medical_history_option?.includes(item.tmmhs_id) && item?.tags?.length > 0 && (
+                                                                <Text key={i} style={{ marginTop: (item?.no_know_history || item?.tags?.length > 0) ? PX_TO_PT * 6 : 0, lineHeight: 1.4 }}>
+                                                                    {!item?.no_know_history ? (
+                                                                        item?.tags?.length > 0 && (
+                                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, lineHeight: 1.4 }}>&nbsp;{medicalHistoryIndex++}. {item.title}&nbsp;:</Text>
+                                                                                {item.tags.map((item1, i1) => {
+                                                                                    return (
+                                                                                        <>
+                                                                                            {item1.enable == 'Y' ? (
+                                                                                                <>
+                                                                                                    <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;{item1.title}&nbsp;</Text>
+                                                                                                    {(item1.since || item1.status || item1.medication || item1.relationship || item1.note) &&
+                                                                                                        <Text key={i1} style={{ lineHeight: 1.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                                            {`(${Object.values(Object.fromEntries(Object.entries((
+                                                                                                                ({
+                                                                                                                    since,
+                                                                                                                    status,
+                                                                                                                    medication,
+                                                                                                                    relationship,
+                                                                                                                    note
+                                                                                                                }) => ({
+                                                                                                                    since: since && `Since : ${since}`,
+                                                                                                                    status: status && `Status : ${status}`,
+                                                                                                                    medication: medication && `Medication : ${medication}`,
+                                                                                                                    relationship: relationship && `Relative : ${relationship}`,
+                                                                                                                    note: note && `${note}`,
+                                                                                                                })
+                                                                                                            )(item1)).filter(([_, v]) => v))).join(' | ')})`}
+                                                                                                        </Text>
+                                                                                                    }
+                                                                                                </>
+                                                                                            ) : (
+                                                                                                <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;{`No ${item1.title}`}&nbsp;</Text>
+                                                                                            )}
+                                                                                        </>
+                                                                                    )
+                                                                                })}
+                                                                                {'\n'}</Text>
+                                                                        )
+                                                                    ) : (
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{medicalHistoryIndex++}. {item.title}&nbsp;:
+                                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;No known history&nbsp;</Text>
+                                                                        </Text>
+                                                                    )}
+                                                                </Text>
                                                             )
                                                         )
                                                     })}
-                                                </View>)}
-                                            </View>
-                                        )
-                                    )}
-                                </>
-                            ) : option?.id === 8 && option?.enable === 'Y' && option?.custom_status === 'Y' && option?.medical_history_option?.length > 0 ? (
-                                <>
-                                    {caseManagerData.medical_history.length > 0 && (
-                                        option?.format === 'inline' ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:</Text>
-                                                {(() => {
-                                                    const grouped = {};
-                                                    if (caseManagerData?.medical_history && Array.isArray(caseManagerData.medical_history)) {
-                                                        caseManagerData.medical_history.forEach(item => {
-                                                            if (item && option?.medical_history_option?.includes(item.tmmhs_id)) {
-                                                                if (!grouped[item.title]) {
-                                                                    grouped[item.title] = [];
-                                                                }
-                                                                if (item?.tags?.length > 0 && !item?.no_know_history) {
-                                                                    item.tags.forEach(tag => {
-                                                                        if (tag && tag.enable === 'Y') {
-                                                                            let conditionName = tag.title || '';
-                                                                            let details = '';
-                                                                            let hasDetails = false;
-                                                                            if (tag.since) {
-                                                                                details += ` (Since: ${tag.since}`;
-                                                                                hasDetails = true;
-                                                                            }
-                                                                            if (item.tmmhs_id !== 3 && tag.status) {
-                                                                                details += hasDetails ? ` | Status: ${tag.status}` : ` (Status: ${tag.status}`;
-                                                                                hasDetails = true;
-                                                                            }
-                                                                            if (item.tmmhs_id !== 3 && tag.medication) {
-                                                                                details += hasDetails ? ` | Medication: ${tag.medication}` : ` (Medication: ${tag.medication}`;
-                                                                                hasDetails = true;
-                                                                            }
-                                                                            if (item.tmmhs_id === 3 && tag.relationship) {
-                                                                                details += hasDetails ? ` | Relative: ${tag.relationship}` : ` (Relative: ${tag.relationship}`;
-                                                                                hasDetails = true;
-                                                                            }
-                                                                            if (tag.note) {
-                                                                                details += hasDetails ? ` | ${tag.note}` : ` (${tag.note}`;
-                                                                                hasDetails = true;
-                                                                            }
-                                                                            if (hasDetails) {
-                                                                                details += `)`;
-                                                                            }
-                                                                            grouped[item.title].push({ conditionName, details, hasDetails });
-                                                                        }
-                                                                    });
-                                                                } else if (item?.no_know_history) {
-                                                                    grouped[item.title].push({ conditionName: 'No known history', details: '', hasDetails: false });
-                                                                }
-                                                            }
-                                                        });
-                                                    }
-                                                    return Object.keys(grouped).map(category => 
-                                                        grouped[category]?.length > 0 ? (
-                                                            <Text key={category} style={{ marginTop: PX_TO_PT * 8, lineHeight: 1.4 }}>
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                    {category}:
-                                                                </Text>
-                                                                {grouped[category].map((item, index) => (
-                                                                    <Text key={index} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                        {index > 0 ? ', ' : ' '}
-                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                            {item.conditionName}
-                                                                        </Text>
-                                                                        {item.details}
-                                                                    </Text>
-                                                                ))}
-                                                            </Text>
-                                                        ) : null
-                                                    );
-                                                })()}
-                                                {caseManagerData?.medical_history?.[0]?.medical_history_remarks && (
-                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, marginTop: PX_TO_PT * 8 }}>
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{'\n'}Additional History: </Text>
-                                                        <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                            ({caseManagerData?.medical_history?.[0]?.medical_history_remarks})
-                                                        </Text>
-                                                    </Text>
-                                                )}
-                                            </View>
-                                        ) : option?.format === 'listview' ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
-                                                {caseManagerData.medical_history.map((item, i) => {
-                                                    let abcd = 97
-                                                    return (
-                                                        option?.medical_history_option?.includes(item.tmmhs_id) && item?.tags?.length > 0 && (
-                                                            <Text key={i} style={{ marginTop: (item?.no_know_history || item?.tags?.length > 0) ? PX_TO_PT * 6 : 0, lineHeight: 1.4 }}>
-                                                                {!item?.no_know_history ? (
-                                                                    item?.tags?.length > 0 && (
-                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, lineHeight: 1.4 }}>&nbsp;{medicalHistoryIndex++}. {item.title}&nbsp;:</Text>
-                                                                            {item.tags.map((item1, i1) => {
-                                                                                return (
-                                                                                    <>
-                                                                                        {item1.enable == 'Y' ? (
-                                                                                            <>
-                                                                                                <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;{item1.title}&nbsp;</Text>
-                                                                                                {(item1.since || item1.status || item1.medication || item1.relationship || item1.note) &&
-                                                                                                    <Text key={i1} style={{ lineHeight: 1.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                                        {`(${Object.values(Object.fromEntries(Object.entries((
-                                                                                                            ({
-                                                                                                                since,
-                                                                                                                status,
-                                                                                                                medication,
-                                                                                                                relationship,
-                                                                                                                note
-                                                                                                            }) => ({
-                                                                                                                since: since && `Since : ${since}`,
-                                                                                                                status: status && `Status : ${status}`,
-                                                                                                                medication: medication && `Medication : ${medication}`,
-                                                                                                                relationship: relationship && `Relative : ${relationship}`,
-                                                                                                                note: note && `${note}`,
-                                                                                                            })
-                                                                                                        )(item1)).filter(([_, v]) => v))).join(' | ')})`}
-                                                                                                    </Text>
-                                                                                                }
-                                                                                            </>
-                                                                                        ) : (
-                                                                                            <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;{`No ${item1.title}`}&nbsp;</Text>
-                                                                                        )}
-                                                                                    </>
-                                                                                )
-                                                                            })}
-                                                                            {'\n'}</Text>
-                                                                    )
-                                                                ) : (
-                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{medicalHistoryIndex++}. {item.title}&nbsp;:
-                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;No known history&nbsp;</Text>
-                                                                    </Text>
-                                                                )}
-                                                            </Text>
-                                                        )
-                                                    )
-                                                })}
-                                                {caseManagerData?.medical_history?.[0]?.medical_history_remarks && (
-                                                    <>
-                                                        <Text
-                                                            style={{
-                                                                color: '#454551',
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                            }}
-                                                        >
+                                                    {caseManagerData?.medical_history?.[0]?.medical_history_remarks && (
+                                                        <>
                                                             <Text
                                                                 style={{
-                                                                    color: '#171725',
+                                                                    color: '#454551',
                                                                     fontFamily: printSettings?.page_format?.font_family,
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                     fontWeight: 500,
                                                                 }}
                                                             >
-                                                                {'\n'}&nbsp;{medicalHistoryIndex++}. {`Additional History`}&nbsp;:
+                                                                <Text
+                                                                    style={{
+                                                                        color: '#171725',
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    {'\n'}&nbsp;{medicalHistoryIndex++}. {`Additional History`}&nbsp;:
+                                                                </Text>
+                                                                {'\n'}
                                                             </Text>
-                                                            {'\n'}
-                                                        </Text>
-                                                        <Text
-                                                            style={{
-                                                                color: '#454551',
-                                                                fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family),
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                marginLeft: PX_TO_PT * 15,
-                                                                marginTop: PX_TO_PT * 2
-                                                            }}
-                                                        >
-                                                            {caseManagerData?.medical_history?.[0]?.medical_history_remarks}
-                                                        </Text>
-                                                    </>
-                                                )}
-                                            </View>
-                                        ) : (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
-                                                {caseManagerData.medical_history.map((item, i) => {
-                                                    return (
-                                                        option?.medical_history_option?.includes(item.tmmhs_id) && (
-                                                            (item?.no_know_history || item?.tags?.length > 0) && (
-                                                                <>
-                                                                    <Text style={{ color: '#000', marginTop: i === 0 ? PX_TO_PT * 4 : PX_TO_PT * 12, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`${item.title} : `}</Text>
-                                                                    {!item?.no_know_history ? (
-                                                                        <View key={i} style={[styles.table, { marginTop: 0 }]}>
-                                                                            <View style={styles.headerRow} fixed>
-                                                                                <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                                                {item?.tmmhs_id != 3 && (
-                                                                                    <>
-                                                                                        <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
-                                                                                        <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
-                                                                                        {item?.tmmhs_id == 2 && (
-                                                                                            <Text style={[styles.headerCell, { flex: 0.25, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>MEDICATION</Text>
-                                                                                        )}
-                                                                                    </>
-                                                                                )}
-                                                                                {item?.tmmhs_id === 3 && (
-                                                                                    <Text style={[styles.headerCell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>RELATIVE</Text>
-                                                                                )}
-                                                                                <Text style={[styles.headerCell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                            <Text
+                                                                style={{
+                                                                    color: '#454551',
+                                                                    fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family),
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    marginLeft: PX_TO_PT * 15,
+                                                                    marginTop: PX_TO_PT * 2
+                                                                }}
+                                                            >
+                                                                {caseManagerData?.medical_history?.[0]?.medical_history_remarks}
+                                                            </Text>
+                                                        </>
+                                                    )}
+                                                </View>
+                                            ) : (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medical History:&nbsp;</Text>
+                                                    {caseManagerData.medical_history.map((item, i) => {
+                                                        return (
+                                                            option?.medical_history_option?.includes(item.tmmhs_id) && (
+                                                                (item?.no_know_history || item?.tags?.length > 0) && (
+                                                                    <>
+                                                                        <Text style={{ color: '#000', marginTop: i === 0 ? PX_TO_PT * 4 : PX_TO_PT * 12, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`${item.title} : `}</Text>
+                                                                        {!item?.no_know_history ? (
+                                                                            <View key={i} style={[styles.table, { marginTop: 0 }]}>
+                                                                                <View style={styles.headerRow} fixed>
+                                                                                    <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                                                    {item?.tmmhs_id != 3 && (
+                                                                                        <>
+                                                                                            <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
+                                                                                            <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
+                                                                                            {item?.tmmhs_id == 2 && (
+                                                                                                <Text style={[styles.headerCell, { flex: 0.25, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>MEDICATION</Text>
+                                                                                            )}
+                                                                                        </>
+                                                                                    )}
+                                                                                    {item?.tmmhs_id === 3 && (
+                                                                                        <Text style={[styles.headerCell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>RELATIVE</Text>
+                                                                                    )}
+                                                                                    <Text style={[styles.headerCell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                                                </View>
+                                                                                {item?.tags?.filter(x => x.enable == 'Y')?.map((item1, i1) => {
+                                                                                    return (
+                                                                                        <View style={styles.row} key={i1} wrap={false}>
+                                                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item1.title}</Text>
+                                                                                            {item?.tmmhs_id != 3 && (
+                                                                                                <>
+                                                                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.since ? item1.since : '-'}</Text>
+                                                                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.status ? item1.status : '-'}</Text>
+                                                                                                    {item?.tmmhs_id == 2 && (
+                                                                                                        <Text style={[styles.cell, { flex: 0.25, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.medication ? item1.medication : '-'}</Text>
+                                                                                                    )}
+                                                                                                </>
+                                                                                            )}
+                                                                                            {item?.tmmhs_id === 3 && (
+                                                                                                <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.relationship ? item1.relationship : '-'}</Text>
+                                                                                            )}
+                                                                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: getIndianLanguageFont(item1?.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.note ? item1.note : '-'}&nbsp;</Text>
+                                                                                        </View>
+                                                                                    )
+                                                                                })}
+                                                                                {item?.tags?.filter(x => x.enable == 'N')?.map((item1, i1) => {
+                                                                                    return (
+                                                                                        <View style={styles.row} key={i1}>
+                                                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`No ${item1.title}`}</Text>
+                                                                                        </View>
+                                                                                    )
+                                                                                })}
                                                                             </View>
-                                                                            {item?.tags?.filter(x => x.enable == 'Y')?.map((item1, i1) => {
-                                                                                return (
-                                                                                    <View style={styles.row} key={i1} wrap={false}>
-                                                                                        <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item1.title}</Text>
-                                                                                        {item?.tmmhs_id != 3 && (
-                                                                                            <>
-                                                                                                <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.since ? item1.since : '-'}</Text>
-                                                                                                <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.status ? item1.status : '-'}</Text>
-                                                                                                {item?.tmmhs_id == 2 && (
-                                                                                                    <Text style={[styles.cell, { flex: 0.25, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.medication ? item1.medication : '-'}</Text>
-                                                                                                )}
-                                                                                            </>
-                                                                                        )}
-                                                                                        {item?.tmmhs_id === 3 && (
-                                                                                            <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.relationship ? item1.relationship : '-'}</Text>
-                                                                                        )}
-                                                                                        <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: getIndianLanguageFont(item1?.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.note ? item1.note : '-'}&nbsp;</Text>
-                                                                                    </View>
-                                                                                )
-                                                                            })}
-                                                                            {item?.tags?.filter(x => x.enable == 'N')?.map((item1, i1) => {
-                                                                                return (
-                                                                                    <View style={styles.row} key={i1}>
-                                                                                        <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`No ${item1.title}`}</Text>
-                                                                                    </View>
-                                                                                )
-                                                                            })}
-                                                                        </View>
-                                                                    ) : (
-                                                                        <Text style={{ color: '#000', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, border: 1, borderStyle: 'solid', borderColor: '#171725' }}>{`No known history`}</Text>
+                                                                        ) : (
+                                                                            <Text style={{ color: '#000', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, border: 1, borderStyle: 'solid', borderColor: '#171725' }}>{`No known history`}</Text>
 
-                                                                    )}
-                                                                </>
+                                                                        )}
+                                                                    </>
+                                                                )
                                                             )
                                                         )
-                                                    )
-                                                })}
-                                                {caseManagerData?.medical_history?.[0]?.medical_history_remarks &&
-                                                    <View style={styles.table}>
-                                                        <View style={styles.headerRow} fixed>
-                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000', backgroundColor: '#E2E2EA' }]}>Additional History :</Text>
-                                                        </View>
+                                                    })}
+                                                    {caseManagerData?.medical_history?.[0]?.medical_history_remarks &&
+                                                        <View style={styles.table}>
+                                                            <View style={styles.headerRow} fixed>
+                                                                <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000', backgroundColor: '#E2E2EA' }]}>Additional History :</Text>
+                                                            </View>
 
-                                                        <View style={styles.row} wrap={false}>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{caseManagerData?.medical_history?.[0]?.medical_history_remarks}&nbsp;</Text>
+                                                            <View style={styles.row} wrap={false}>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{caseManagerData?.medical_history?.[0]?.medical_history_remarks}&nbsp;</Text>
+                                                            </View>
+                                                        </View>
+                                                    }
+                                                </View>
+                                            )
+                                        )}
+                                    </>
+                                ) : option?.id === 9 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {caseManagerData.follow_up_date && (
+                                            option?.format === 'inline' ? (
+                                                    <Text style={{ marginTop: PX_TO_PT * 15 }}>
+                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.follow_up_date, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{option?.followup_dateformat ? moment(caseManagerData.follow_up_date).format('DD/MM/YYYY') : onCalFollowUp(moment(caseManagerData.follow_up_date).format('YYYY-MM-DD'), moment(caseManagerData?.patient_data?.patient_consultaion_date).format('YYYY-MM-DD'))}</Text>
+                                                    </Text>
+                                            ) : option?.format === 'listview' ? (
+                                                    <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
+                                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.follow_up_date, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, marginTop: PX_TO_PT * 4 }}>{option?.followup_dateformat ? moment(caseManagerData.follow_up_date).format('DD/MM/YYYY') : onCalFollowUp(moment(caseManagerData.follow_up_date).format('YYYY-MM-DD'), moment(caseManagerData?.patient_data?.patient_consultaion_date).format('YYYY-MM-DD'))}</Text>
+                                                    </View>
+                                            ) : (
+                                                    <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
+                                                        <View style={styles.table}>
+                                                            <Text style={{border: '1px solid #171725', padding: 6, color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.follow_up_date, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{option?.followup_dateformat ? moment(caseManagerData.follow_up_date).format('DD/MM/YYYY') : onCalFollowUp(moment(caseManagerData.follow_up_date).format('YYYY-MM-DD'), moment(caseManagerData?.patient_data?.patient_consultaion_date).format('YYYY-MM-DD'))}</Text>
                                                         </View>
                                                     </View>
-                                                }
-                                            </View>
-                                        )
-                                    )}
-                                </>
-                            ) : option?.id === 9 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {caseManagerData.follow_up_date && (
-                                        option?.format === 'inline' ? (
+                                            )
+                                        )}
+                                    </>
+                                ) : option?.id === 91 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {caseManagerData.visit_advice && (
+                                            option?.format === 'inline' ? (
                                                 <Text style={{ marginTop: PX_TO_PT * 15 }}>
-                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
-                                                    <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.follow_up_date, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{option?.followup_dateformat ? moment(caseManagerData.follow_up_date).format('DD/MM/YYYY') : onCalFollowUp(moment(caseManagerData.follow_up_date).format('YYYY-MM-DD'), moment(caseManagerData?.patient_data?.patient_consultaion_date).format('YYYY-MM-DD'))}</Text>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.visit_advice, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.visit_advice}</Text>
                                                 </Text>
-                                        ) : option?.format === 'listview' ? (
+                                            ) : option?.format === 'listview' ? (
                                                 <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
-                                                    <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.follow_up_date, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, marginTop: PX_TO_PT * 4 }}>{option?.followup_dateformat ? moment(caseManagerData.follow_up_date).format('DD/MM/YYYY') : onCalFollowUp(moment(caseManagerData.follow_up_date).format('YYYY-MM-DD'), moment(caseManagerData?.patient_data?.patient_consultaion_date).format('YYYY-MM-DD'))}</Text>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
+                                                    <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.visit_advice, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, marginTop: PX_TO_PT * 4 }}>{caseManagerData.visit_advice}</Text>
                                                 </View>
-                                        ) : (
+                                            ) : (
                                                 <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Follow-up:&nbsp;</Text>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
                                                     <View style={styles.table}>
-                                                        <Text style={{border: '1px solid #171725', padding: 6, color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.follow_up_date, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{option?.followup_dateformat ? moment(caseManagerData.follow_up_date).format('DD/MM/YYYY') : onCalFollowUp(moment(caseManagerData.follow_up_date).format('YYYY-MM-DD'), moment(caseManagerData?.patient_data?.patient_consultaion_date).format('YYYY-MM-DD'))}</Text>
+                                                        <Text style={{border: '1px solid #171725', padding: 6, color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.visit_advice, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.visit_advice}</Text>
                                                     </View>
                                                 </View>
-                                        )
-                                    )}
-                                </>
-                            ) : option?.id === 91 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {caseManagerData.visit_advice && (
-                                        option?.format === 'inline' ? (
-                                            <Text style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
-                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.visit_advice, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.visit_advice}</Text>
-                                            </Text>
-                                        ) : option?.format === 'listview' ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
-                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.visit_advice, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, marginTop: PX_TO_PT * 4 }}>{caseManagerData.visit_advice}</Text>
-                                            </View>
-                                        ) : (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Notes:&nbsp;</Text>
-                                                <View style={styles.table}>
-                                                    <Text style={{border: '1px solid #171725', padding: 6, color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData.visit_advice, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.visit_advice}</Text>
-                                                </View>
-                                            </View>
-                                        )
-                                    )}
-                                </>
-                            ) : option?.id === 10 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
+                                            )
+                                        )}
+                                    </>
+                                ) : option?.id === 10 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                     <>
-                                        {(transformGivenVaccines?.length > 0 || todayVaccines?.due?.length > 0) && (
-                                            option?.format === 'inline' ? (
-                                                <>
-                                                    {transformGivenVaccines?.length > 0 && <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;{'\n'}</Text>
-                                                        {transformGivenVaccines?.map((item, i) => {
-                                                            return (
-                                                                <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
-                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.tvac_name}&nbsp;</Text>
-                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                        {`(Given Date : `}
-                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                            {item?.tvp_given_date ? moment(item?.tvp_given_date).format("DD MMM YYYY") : '-'}
-                                                                        </Text>
-                                                                    </Text>
-                                                                    {item?.tvc_name && <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                        {` | Brand : `}
-                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                            {item?.tvc_name}
-                                                                        </Text>
-                                                                    </Text>}
-                                                                    {item?.tvpv_site && <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                        {` | Site : `}
-                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                            {item?.tvpv_site}
-                                                                        </Text>
-                                                                    </Text>}
-                                                                    {item?.tvp_remarks &&
+                                        <>
+                                            {(transformGivenVaccines?.length > 0 || todayVaccines?.due?.length > 0) && (
+                                                option?.format === 'inline' ? (
+                                                    <>
+                                                        {transformGivenVaccines?.length > 0 && <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                            <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;{'\n'}</Text>
+                                                            {transformGivenVaccines?.map((item, i) => {
+                                                                return (
+                                                                    <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.tvac_name}&nbsp;</Text>
                                                                         <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                            {`(Given Date : `}
+                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                {item?.tvp_given_date ? moment(item?.tvp_given_date).format("DD MMM YYYY") : '-'}
+                                                                            </Text>
+                                                                        </Text>
+                                                                        {item?.tvc_name && <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                            {` | Brand : `}
+                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                {item?.tvc_name}
+                                                                            </Text>
+                                                                        </Text>}
+                                                                        {item?.tvpv_site && <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                            {` | Site : `}
+                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                {item?.tvpv_site}
+                                                                            </Text>
+                                                                        </Text>}
+                                                                        {item?.tvp_remarks &&
+                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                                {` | Note : `}
+                                                                                <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(item?.tvp_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                    {item?.tvp_remarks}
+                                                                                </Text>
+                                                                            </Text>}
+                                                                        <Text key={i} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')\n'}</Text>
+                                                                    </Text>
+                                                                )
+                                                            })}
+                                                        </Text>}
+                                                        {todayVaccines?.due?.length > 0 && <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                            <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Due Vaccines :&nbsp;{'\n'}</Text>
+                                                            {todayVaccines?.due?.map((item, i) => {
+                                                                return (
+                                                                    <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.tvac_name}&nbsp;</Text>
+                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                            {`(Updated Due Date : `}
+                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                {item?.tvd_due_date ? moment(item?.tvd_due_date).format("DD MMM YYYY") : '-'}
+                                                                            </Text>
+                                                                        </Text>
+                                                                        {item?.tvd_remarks &&
+                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                                {` | Note : `}
+                                                                                <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(item?.tvd_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                    {item?.tvd_remarks}
+                                                                                </Text>
+                                                                            </Text>}
+                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')\n'}</Text>
+                                                                    </Text>
+                                                                )
+                                                            })}
+                                                        </Text>}
+                                                    </>
+                                                ) : option?.format === 'listview' ? (
+                                                    <>
+                                                        {transformGivenVaccines?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                            <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;{'\n'}</Text>
+                                                            {transformGivenVaccines?.map((item, i) => {
+                                                                return (
+                                                                    <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.tvac_name}&nbsp;</Text>
+                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                            {`(Given Date : `}
+                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                {item?.tvp_given_date ? moment(item?.tvp_given_date).format("DD MMM YYYY") : '-'}
+                                                                            </Text>
+                                                                        </Text>
+                                                                        {item?.tvc_name && <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                            {` | Brand : `}
+                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                {item?.tvc_name}
+                                                                            </Text>
+                                                                        </Text>}
+                                                                        {item?.tvpv_site && <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                            {` | Site : `}
+                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                {item?.tvpv_site}
+                                                                            </Text>
+                                                                        </Text>}
+                                                                        {item?.tvp_remarks && <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
                                                                             {` | Note : `}
                                                                             <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(item?.tvp_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                                                 {item?.tvp_remarks}
                                                                             </Text>
                                                                         </Text>}
-                                                                    <Text key={i} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')\n'}</Text>
-                                                                </Text>
-                                                            )
-                                                        })}
-                                                    </Text>}
-                                                    {todayVaccines?.due?.length > 0 && <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Due Vaccines :&nbsp;{'\n'}</Text>
-                                                        {todayVaccines?.due?.map((item, i) => {
-                                                            return (
-                                                                <Text key={i} style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
-                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.tvac_name}&nbsp;</Text>
-                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                        {`(Updated Due Date : `}
-                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                            {item?.tvd_due_date ? moment(item?.tvd_due_date).format("DD MMM YYYY") : '-'}
-                                                                        </Text>
+                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')\n'}</Text>
                                                                     </Text>
-                                                                    {item?.tvd_remarks &&
+                                                                )
+                                                            })}
+                                                        </View>}
+                                                        {todayVaccines?.due?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                            <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Due Vaccines :&nbsp;{'\n'}</Text>
+                                                            {todayVaccines?.due?.map((item, i) => {
+                                                                return (
+                                                                    <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.tvac_name}&nbsp;</Text>
                                                                         <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                            {`(Updated Due Date : `}
+                                                                            <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                {item?.tvd_due_date ? moment(item?.tvd_due_date).format("DD MMM YYYY") : '-'}
+                                                                            </Text>
+                                                                        </Text>
+                                                                        {item?.tvp_remarks && <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
                                                                             {` | Note : `}
                                                                             <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(item?.tvd_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                                                 {item?.tvd_remarks}
                                                                             </Text>
                                                                         </Text>}
-                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')\n'}</Text>
-                                                                </Text>
-                                                            )
-                                                        })}
-                                                    </Text>}
-                                                </>
-                                            ) : option?.format === 'listview' ? (
-                                                <>
-                                                    {transformGivenVaccines?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Given Vaccines :&nbsp;{'\n'}</Text>
-                                                        {transformGivenVaccines?.map((item, i) => {
-                                                            return (
-                                                                <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.tvac_name}&nbsp;</Text>
-                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                        {`(Given Date : `}
-                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')\n'}</Text>
+                                                                    </Text>
+                                                                )
+                                                            })}
+                                                        </View>}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        {transformGivenVaccines?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                            <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Given Vaccines :&nbsp;{'\n'}</Text>
+                                                            <View style={styles.table}>
+                                                                <View style={styles.headerRow} fixed>
+                                                                    <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                                    <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>GIVEN DATE</Text>
+                                                                    <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>BRAND</Text>
+                                                                    <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SITE</Text>
+                                                                    <Text style={[styles.headerCell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                                </View>
+                                                                {transformGivenVaccines?.map((item, i) => (
+                                                                    <View style={styles.row} key={i} wrap={false}>
+                                                                        <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                            {item?.tvac_name || '-'}
+                                                                        </Text>
+                                                                        <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                             {item?.tvp_given_date ? moment(item?.tvp_given_date).format("DD MMM YYYY") : '-'}
                                                                         </Text>
-                                                                    </Text>
-                                                                    {item?.tvc_name && <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                        {` | Brand : `}
-                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                            {item?.tvc_name}
+                                                                        <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                            {item?.tvc_name || '-'}
                                                                         </Text>
-                                                                    </Text>}
-                                                                    {item?.tvpv_site && <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                        {` | Site : `}
-                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                            {item?.tvpv_site}
+                                                                        <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                            {item?.tvpv_site || '-'}
                                                                         </Text>
-                                                                    </Text>}
-                                                                    {item?.tvp_remarks && <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                        {` | Note : `}
-                                                                        <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(item?.tvp_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                            {item?.tvp_remarks}
+                                                                        <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: getIndianLanguageFont(item?.tvp_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                            {item.tvp_remarks || '-'}&nbsp;
                                                                         </Text>
-                                                                    </Text>}
-                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')\n'}</Text>
-                                                                </Text>
-                                                            )
-                                                        })}
-                                                    </View>}
-                                                    {todayVaccines?.due?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Due Vaccines :&nbsp;{'\n'}</Text>
-                                                        {todayVaccines?.due?.map((item, i) => {
-                                                            return (
-                                                                <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.tvac_name}&nbsp;</Text>
-                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                        {`(Updated Due Date : `}
-                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                    </View>
+                                                                ))}
+                                                            </View>
+                                                        </View>}
+                                                        {todayVaccines?.due?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                            <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Due Vaccines :&nbsp;{'\n'}</Text>
+                                                            <View style={styles.table}>
+                                                                <View style={styles.headerRow} fixed>
+                                                                    <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                                    <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>UPDATED DUE DATE</Text>
+                                                                    <Text style={[styles.headerCell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                                </View>
+                                                                {todayVaccines?.due?.map((item, i) => (
+                                                                    <View style={styles.row} key={i} wrap={false}>
+                                                                        <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                            {item?.tvac_name || '-'}
+                                                                        </Text>
+                                                                        <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                             {item?.tvd_due_date ? moment(item?.tvd_due_date).format("DD MMM YYYY") : '-'}
                                                                         </Text>
-                                                                    </Text>
-                                                                    {item?.tvp_remarks && <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                        {` | Note : `}
-                                                                        <Text style={{ color: '#454551', fontFamily: getIndianLanguageFont(item?.tvd_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                            {item?.tvd_remarks}
+                                                                        <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: getIndianLanguageFont(item?.tvd_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                            {item.tvd_remarks || '-'}&nbsp;
                                                                         </Text>
-                                                                    </Text>}
-                                                                    <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')\n'}</Text>
-                                                                </Text>
-                                                            )
-                                                        })}
-                                                    </View>}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {transformGivenVaccines?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Given Vaccines :&nbsp;{'\n'}</Text>
-                                                        <View style={styles.table}>
-                                                            <View style={styles.headerRow} fixed>
-                                                                <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                                <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>GIVEN DATE</Text>
-                                                                <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>BRAND</Text>
-                                                                <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SITE</Text>
-                                                                <Text style={[styles.headerCell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                                    </View>
+                                                                ))}
                                                             </View>
-                                                            {transformGivenVaccines?.map((item, i) => (
-                                                                <View style={styles.row} key={i} wrap={false}>
-                                                                    <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                        {item?.tvac_name || '-'}
-                                                                    </Text>
-                                                                    <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                        {item?.tvp_given_date ? moment(item?.tvp_given_date).format("DD MMM YYYY") : '-'}
-                                                                    </Text>
-                                                                    <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                        {item?.tvc_name || '-'}
-                                                                    </Text>
-                                                                    <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                        {item?.tvpv_site || '-'}
-                                                                    </Text>
-                                                                    <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: getIndianLanguageFont(item?.tvp_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                        {item.tvp_remarks || '-'}&nbsp;
-                                                                    </Text>
-                                                                </View>
-                                                            ))}
-                                                        </View>
-                                                    </View>}
-                                                    {todayVaccines?.due?.length && <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Due Vaccines :&nbsp;{'\n'}</Text>
-                                                        <View style={styles.table}>
-                                                            <View style={styles.headerRow} fixed>
-                                                                <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                                <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>UPDATED DUE DATE</Text>
-                                                                <Text style={[styles.headerCell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
-                                                            </View>
-                                                            {todayVaccines?.due?.map((item, i) => (
-                                                                <View style={styles.row} key={i} wrap={false}>
-                                                                    <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                        {item?.tvac_name || '-'}
-                                                                    </Text>
-                                                                    <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                        {item?.tvd_due_date ? moment(item?.tvd_due_date).format("DD MMM YYYY") : '-'}
-                                                                    </Text>
-                                                                    <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: getIndianLanguageFont(item?.tvd_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                        {item.tvd_remarks || '-'}&nbsp;
-                                                                    </Text>
-                                                                </View>
-                                                            ))}
-                                                        </View>
-                                                    </View>}
-                                                </>
-                                            )
+                                                        </View>}
+                                                    </>
+                                                )
+                                            )}
+                                        </>
+                                    </>
+                                ) : option?.id === 11 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {isSmartSyncPrescription && (caseManagerData?.isCustomSSRX === "0" ) && (
+                                            smartRxData?.map((item, i) => (
+                                                <View key={i}>
+                                                    <View style={{ marginTop: PX_TO_PT * 15, width: '100%', height: '800' }}>
+                                                        <Image
+                                                            style={{ width: '100%', height: '100%' }}
+                                                            src={item.smart_prescription_file}
+                                                            objectFit="contain"
+                                                        />
+                                                    </View>
+                                                </View>
+                                            ))
                                         )}
                                     </>
-                                </>
-                            ) : option?.id === 11 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {isSmartSyncPrescription && (caseManagerData?.isCustomSSRX === "0" ) && (
-                                        smartRxData?.map((item, i) => (
-                                            <View key={i}>
-                                                <View style={{ marginTop: PX_TO_PT * 15, width: '100%', height: '800' }}>
-                                                    <Image
-                                                        style={{ width: '100%', height: '100%' }}
-                                                        src={item.smart_prescription_file}
-                                                        objectFit="contain"
-                                                    />
-                                                </View>
-                                            </View>
-                                        ))
-                                    )}
-                                </>
-                            ) : option?.id === 12 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {growthChartData?.length > 0 && Object.keys(growthChartImageData)?.length > 0 && todayGrowthChartData?.length > 0 && (
-                                        option?.format === 'table' ? (
-                                            <>
-                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Growth Chart &nbsp;{'\n'}</Text>
-                                                    <View style={styles.table}>
-                                                        <View style={styles.headerRow} fixed>
-                                                            <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Parameters</Text>
-                                                            {option?.growth_chart_option?.includes('height') && <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Height</Text>}
-                                                            {option?.growth_chart_option?.includes('weight') && <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Weight</Text>}
-                                                            {option?.growth_chart_option?.includes('bmi') && <Text style={[styles.headerCell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>BMI</Text>}
-                                                            {option?.growth_chart_option?.includes('ofc') && <Text style={[styles.headerCell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>OFC</Text>}
-                                                        </View>
-                                                        {growthChartData?.map((item, i) => (
-                                                            <View style={styles.row} key={i} wrap={false}>
-                                                                <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                    {item?.tcbc_created_date ? moment(item?.tcbc_created_date).format("DD MMM YYYY") : ''}
-                                                                </Text>
-                                                                {option?.growth_chart_option?.includes('height') && <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                    {item?.height ? `${item?.height} cms` : ''}
-                                                                </Text>}
-                                                                {option?.growth_chart_option?.includes('weight') && <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                    {item?.weight ? `${item?.weight} kgs` : ''}
-                                                                </Text>}
-                                                                {option?.growth_chart_option?.includes('bmi') && <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                    {item.bmi ? `${item.bmi} kg/m2` : ''}
-                                                                </Text>}
-                                                                {option?.growth_chart_option?.includes('ofc') && <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                    {item.ofc ? `${item.ofc} cms` : ''}
-                                                                </Text>}
+                                ) : option?.id === 12 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {growthChartData?.length > 0 && Object.keys(growthChartImageData)?.length > 0 && todayGrowthChartData?.length > 0 && (
+                                            option?.format === 'table' ? (
+                                                <>
+                                                    <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Growth Chart &nbsp;{'\n'}</Text>
+                                                        <View style={styles.table}>
+                                                            <View style={styles.headerRow} fixed>
+                                                                <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Parameters</Text>
+                                                                {option?.growth_chart_option?.includes('height') && <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Height</Text>}
+                                                                {option?.growth_chart_option?.includes('weight') && <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Weight</Text>}
+                                                                {option?.growth_chart_option?.includes('bmi') && <Text style={[styles.headerCell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>BMI</Text>}
+                                                                {option?.growth_chart_option?.includes('ofc') && <Text style={[styles.headerCell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>OFC</Text>}
                                                             </View>
-                                                        ))}
+                                                            {growthChartData?.map((item, i) => (
+                                                                <View style={styles.row} key={i} wrap={false}>
+                                                                    <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                        {item?.tcbc_created_date ? moment(item?.tcbc_created_date).format("DD MMM YYYY") : ''}
+                                                                    </Text>
+                                                                    {option?.growth_chart_option?.includes('height') && <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                        {item?.height ? `${item?.height} cms` : ''}
+                                                                    </Text>}
+                                                                    {option?.growth_chart_option?.includes('weight') && <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                        {item?.weight ? `${item?.weight} kgs` : ''}
+                                                                    </Text>}
+                                                                    {option?.growth_chart_option?.includes('bmi') && <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                        {item.bmi ? `${item.bmi} kg/m2` : ''}
+                                                                    </Text>}
+                                                                    {option?.growth_chart_option?.includes('ofc') && <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                        {item.ofc ? `${item.ofc} cms` : ''}
+                                                                    </Text>}
+                                                                </View>
+                                                            ))}
+                                                        </View>
                                                     </View>
+                                                </>
+                                            ) : growthChartImageChunks?.length > 0 &&
+                                            <>
+                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginTop: PX_TO_PT * 15 }}>Growth Chart &nbsp;{'\n'}</Text>
+                                                <View>
+                                                    {growthChartImageChunks?.map((chunk, index) => (
+                                                        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: PX_TO_PT * 15 }} key={index}>
+                                                            {chunk?.filter(c => option?.growth_chart_option?.includes(c))?.map(img => (<Image key={img} style={{ width: '48%', objectFit: 'contain' }} src={growthChartImageData[img]} />))}
+                                                        </View>
+                                                    ))}
                                                 </View>
                                             </>
-                                        ) : growthChartImageChunks?.length > 0 &&
-                                        <>
-                                            <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginTop: PX_TO_PT * 15 }}>Growth Chart &nbsp;{'\n'}</Text>
-                                            <View>
-                                                {growthChartImageChunks?.map((chunk, index) => (
-                                                    <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: PX_TO_PT * 15 }} key={index}>
-                                                        {chunk?.filter(c => option?.growth_chart_option?.includes(c))?.map(img => (<Image key={img} style={{ width: '48%', objectFit: 'contain' }} src={growthChartImageData[img]} />))}
-                                                    </View>
-                                                ))}
-                                            </View>
-                                        </>
-                                    )}
-                                </>
-                            ) : option?.id === 13 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {gynecHistoryData && isGynaecHistoryAccessable &&
-                                        (option?.format === "inline" ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text
-                                                    style={{
-                                                        color: "#171725",
-                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                        fontWeight: 700,
-                                                    }}
-                                                    fixed
-                                                >
-                                                    Menstrual details&nbsp;:&nbsp;
-                                                </Text>
+                                        )}
+                                    </>
+                                ) : option?.id === 13 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {gynecHistoryData && isGynaecHistoryAccessable &&
+                                            (option?.format === "inline" ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                        fixed
+                                                    >
+                                                        Menstrual details&nbsp;:&nbsp;
+                                                    </Text>
 
-                                                <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
-                                                    {gynecHistoryData?.lmp && (
-                                                        <>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                LMP&nbsp;&nbsp;:&nbsp;
-                                                            </Text>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                }}
-                                                            >
-                                                                {moment(gynecHistoryData?.lmp).format("DD MMM YYYY")}
-                                                            </Text>
-                                                        </>
-                                                    )}
+                                                    <Text style={{ marginTop: PX_TO_PT * 6, lineHeight: 1.4 }}>
+                                                        {gynecHistoryData?.lmp && (
+                                                            <>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    LMP&nbsp;&nbsp;:&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                    }}
+                                                                >
+                                                                    {moment(gynecHistoryData?.lmp).format("DD MMM YYYY")}
+                                                                </Text>
+                                                            </>
+                                                        )}
 
-                                                    {(gynecHistoryData?.cycle || gynecHistoryData?.intervalOfCycle || gynecHistoryData?.cycleNotes || gynecHistoryData?.cycleNotes) && (
-                                                        <>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                Cycle&nbsp;
-                                                            </Text>
+                                                        {(gynecHistoryData?.cycle || gynecHistoryData?.intervalOfCycle || gynecHistoryData?.cycleNotes || gynecHistoryData?.cycleNotes) && (
+                                                            <>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    Cycle&nbsp;
+                                                                </Text>
 
-                                                            {gynecHistoryData?.cycle && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        (Type&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                            textTransform: 'capitalize'
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.cycle}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.intervalOfCycle || gynecHistoryData?.cycleNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.intervalOfCycle && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Interval of cycle&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.intervalOfCycle}&nbsp;
-                                                                        {Number(gynecHistoryData?.intervalOfCycle) > 1 ? `days` : `day`}
-                                                                    </Text>
-                                                                    {gynecHistoryData?.cycleNotes && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.cycleNotes && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Note&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.cycleNotes, printSettings?.page_format?.font_family),
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.cycleNotes}
-                                                                    </Text>
-                                                                </>
-                                                            )}
-                                                        </>
-                                                    )}
-
-                                                    {(gynecHistoryData?.flow || gynecHistoryData?.durationOfMenstrualFlow || gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
-                                                        <>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                ),&nbsp;
-                                                            </Text>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                Flow&nbsp;(
-                                                            </Text>
-
-                                                            {gynecHistoryData?.flow && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Volume&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                            textTransform: 'capitalize'
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.flow}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.durationOfMenstrualFlow || gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.durationOfMenstrualFlow && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Duration of menstrual flow&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.durationOfMenstrualFlow}&nbsp;
-                                                                        {Number(gynecHistoryData?.durationOfMenstrualFlow) > 1 ? `days` : `day`}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.clots && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Clots&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {Boolean(gynecHistoryData?.clots) ? `Yes` : `No`}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.numberOfPadsPerDay && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Number of pads per day&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.numberOfPadsPerDay}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.flowNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.flowNotes && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Note&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.flowNotes, printSettings?.page_format?.font_family),
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.flowNotes}
-                                                                    </Text>
-                                                                </>
-                                                            )}
-                                                        </>
-                                                    )}
-
-                                                    {(gynecHistoryData?.pain || gynecHistoryData?.occurrenceOfPain || gynecHistoryData?.painNotes) && (
-                                                        <>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                ),&nbsp;
-                                                            </Text>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                Pain&nbsp;(
-                                                            </Text>
-
-                                                            {gynecHistoryData?.pain && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Level&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                            textTransform: 'capitalize'
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.pain}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.occurrenceOfPain || gynecHistoryData?.painNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.occurrenceOfPain && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Occurrence of pain&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                            textTransform: 'capitalize'
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.occurrenceOfPain}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.painNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.painNotes && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Note&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.painNotes, printSettings?.page_format?.font_family),
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.painNotes}
-                                                                    </Text>
-                                                                </>
-                                                            )}
-                                                        </>
-                                                    )}
-
-                                                    {(gynecHistoryData?.ageAtMenarche || gynecHistoryData?.menarcheNotes) && (
-                                                        <>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                ),&nbsp;
-                                                            </Text>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                Menarche&nbsp;(
-                                                            </Text>
-
-                                                            {gynecHistoryData?.ageAtMenarche && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Age at&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.ageAtMenarche} {`years`}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.menarcheNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.menarcheNotes && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Note&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.menarcheNotes, printSettings?.page_format?.font_family),
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.menarcheNotes}
-                                                                    </Text>
-                                                                </>
-                                                            )}
-                                                        </>
-                                                    )}
-
-                                                    {(gynecHistoryData?.ageAtMenopause || gynecHistoryData?.typeOfMenopause || gynecHistoryData?.reproductiveNotes) && (
-                                                        <>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                ),&nbsp;
-                                                            </Text>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}&nbsp;(
-                                                            </Text>
-
-                                                            {gynecHistoryData?.ageAtMenopause && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Age at&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.ageAtMenopause} {`years`}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.typeOfMenopause || gynecHistoryData?.reproductiveNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.typeOfMenopause && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Type of {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                            textTransform: 'capitalize'
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.typeOfMenopause}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.reproductiveNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.reproductiveNotes && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Note&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.reproductiveNotes, printSettings?.page_format?.font_family),
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.reproductiveNotes}
-                                                                    </Text>
-
-                                                                    {!gynecHistoryData?.notes && (
+                                                                {gynecHistoryData?.cycle && (
+                                                                    <>
                                                                         <Text
                                                                             style={{
                                                                                 color: "#171725",
@@ -2991,148 +2422,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 fontWeight: 500,
                                                                             }}
                                                                         >
-                                                                            {`)`}
+                                                                            (Type&nbsp;:&nbsp;
                                                                         </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-                                                        </>
-                                                    )}
-
-                                                    {gynecHistoryData?.notes && (
-                                                        <>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                ),&nbsp;
-                                                            </Text>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                Menstruation note&nbsp;:&nbsp;
-                                                            </Text>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: getIndianLanguageFont(gynecHistoryData?.notes, printSettings?.page_format?.font_family),
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                }}
-                                                            >
-                                                                {gynecHistoryData?.notes}
-                                                            </Text>
-                                                        </>
-                                                    )}
-                                                </Text>
-                                            </View>
-                                        ) : option?.format === "listview" ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text
-                                                    style={{
-                                                        color: "#171725",
-                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                        fontWeight: 700,
-                                                    }}
-                                                    fixed
-                                                >
-                                                    Menstrual details&nbsp;:&nbsp;
-                                                </Text>
-
-                                                {gynecHistoryData?.lmp && (
-                                                    <Text
-                                                        style={{ marginTop: 5, lineHeight: 1.4 }}
-                                                    >
-                                                        <Text
-                                                            style={{
-                                                                color: "#171725",
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                            }}
-                                                        >
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                &nbsp;{gynecListViewCounter++}.&nbsp;LMP&nbsp;:&nbsp;
-                                                            </Text>
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                }}
-                                                            >
-                                                                {moment(gynecHistoryData?.lmp).format("DD MMM YYYY")}
-                                                            </Text>
-                                                        </Text>
-                                                    </Text>
-                                                )}
-
-                                                {(gynecHistoryData?.cycle || gynecHistoryData?.intervalOfCycle || gynecHistoryData?.cycleNotes || gynecHistoryData?.cycleNotes) && (
-                                                    <Text
-                                                        style={{ lineHeight: 1.4 }}
-                                                    >
-                                                        <Text
-                                                            style={{
-                                                                color: "#171725",
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                            }}
-                                                        >
-
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                &nbsp;{gynecListViewCounter++}.&nbsp;Cycle&nbsp;:&nbsp;
-                                                            </Text>
-
-                                                            {gynecHistoryData?.cycle && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Type&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                            textTransform: 'capitalize'
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.cycle}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.intervalOfCycle || gynecHistoryData?.cycleNotes) && (
                                                                         <Text
                                                                             style={{
                                                                                 color: "#171725",
@@ -3142,1538 +2433,48 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 textTransform: 'capitalize'
                                                                             }}
                                                                         >
-                                                                            &nbsp;|&nbsp;
+                                                                            {gynecHistoryData?.cycle}
                                                                         </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.intervalOfCycle && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Interval of cycle&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.intervalOfCycle || ``}&nbsp;
-                                                                        {Number(gynecHistoryData?.intervalOfCycle) > 1 ? `days` : `day`}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.cycleNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.cycleNotes && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Note&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.cycleNotes, printSettings?.page_format?.font_family),
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.cycleNotes}
-                                                                    </Text>
-                                                                </>
-                                                            )}
-                                                        </Text>
-                                                    </Text>
-                                                )}
-
-                                                {(gynecHistoryData?.flow || gynecHistoryData?.durationOfMenstrualFlow || gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
-                                                    <Text
-                                                        style={{ lineHeight: 1.4 }}
-                                                    >
-                                                        <Text
-                                                            style={{
-                                                                color: "#171725",
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                            }}
-                                                        >
-
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                &nbsp;{gynecListViewCounter++}.&nbsp;Flow&nbsp;:&nbsp;
-                                                            </Text>
-
-
-                                                            {gynecHistoryData?.flow && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Volume&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                            textTransform: 'capitalize'
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.flow}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.durationOfMenstrualFlow || gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.durationOfMenstrualFlow && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Duration of mentrual flow&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.durationOfMenstrualFlow || ``}&nbsp;
-                                                                        {Number(gynecHistoryData?.durationOfMenstrualFlow) > 1 ? `days` : `day`}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.clots && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Clots&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {Boolean(gynecHistoryData?.clots) ? `Yes` : `No`}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.numberOfPadsPerDay && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Number of pads per day&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.numberOfPadsPerDay}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.flowNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.flowNotes && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Note&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.flowNotes, printSettings?.page_format?.font_family),
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.flowNotes}
-                                                                    </Text>
-                                                                </>
-                                                            )}
-                                                        </Text>
-                                                    </Text>
-                                                )}
-
-                                                {(gynecHistoryData?.pain || gynecHistoryData?.occurrenceOfPain || gynecHistoryData?.painNotes) && (
-                                                    <Text
-                                                        style={{ lineHeight: 1.4 }}
-                                                    >
-                                                        <Text
-                                                            style={{
-                                                                color: "#171725",
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                            }}
-                                                        >
-
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                &nbsp;{gynecListViewCounter++}.&nbsp;Pain&nbsp;:&nbsp;
-                                                            </Text>
-
-
-                                                            {gynecHistoryData?.pain && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Level&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                            textTransform: 'capitalize'
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.pain}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.occurrenceOfPain || gynecHistoryData?.painNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.occurrenceOfPain && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Occurrence of pain&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                            textTransform: 'capitalize'
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.occurrenceOfPain}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.painNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.painNotes && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Note&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.painNotes, printSettings?.page_format?.font_family),
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.painNotes}
-                                                                    </Text>
-                                                                </>
-                                                            )}
-                                                        </Text>
-                                                    </Text>
-                                                )}
-
-                                                {(gynecHistoryData?.ageAtMenarche || gynecHistoryData?.menarcheNotes) && (
-                                                    <Text
-                                                        style={{ lineHeight: 1.4 }}
-                                                    >
-                                                        <Text
-                                                            style={{
-                                                                color: "#171725",
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                            }}
-                                                        >
-
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                &nbsp;{gynecListViewCounter++}.&nbsp;Menarche&nbsp;:&nbsp;
-                                                            </Text>
-
-
-                                                            {gynecHistoryData?.ageAtMenarche && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Age at&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.ageAtMenarche} {`years`}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.menarcheNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.menarcheNotes && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Note&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.menarcheNotes, printSettings?.page_format?.font_family),
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.menarcheNotes}
-                                                                    </Text>
-                                                                </>
-                                                            )}
-                                                        </Text>
-                                                    </Text>
-                                                )}
-
-                                                {(gynecHistoryData?.ageAtMenopause || gynecHistoryData?.typeOfMenopause || gynecHistoryData?.reproductiveNotes) && (
-                                                    <Text
-                                                        style={{ lineHeight: 1.4 }}
-                                                    >
-                                                        <Text
-                                                            style={{
-                                                                color: "#171725",
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                            }}
-                                                        >
-
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                &nbsp;{gynecListViewCounter++}.&nbsp;{gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}&nbsp;:&nbsp;
-                                                            </Text>
-
-
-                                                            {gynecHistoryData?.ageAtMenopause && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Age at&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.ageAtMenopause} {`years`}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.typeOfMenopause || gynecHistoryData?.reproductiveNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.typeOfMenopause && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Type of {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                            textTransform: 'capitalize'
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.typeOfMenopause}
-                                                                    </Text>
-                                                                    {(gynecHistoryData?.reproductiveNotes) && (
-                                                                        <Text
-                                                                            style={{
-                                                                                color: "#171725",
-                                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                fontWeight: 400,
-                                                                                textTransform: 'capitalize'
-                                                                            }}
-                                                                        >
-                                                                            &nbsp;|&nbsp;
-                                                                        </Text>
-                                                                    )}
-                                                                </>
-                                                            )}
-
-                                                            {gynecHistoryData?.reproductiveNotes && (
-                                                                <>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 500,
-                                                                        }}
-                                                                    >
-                                                                        Note&nbsp;:&nbsp;
-                                                                    </Text>
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.reproductiveNotes, printSettings?.page_format?.font_family),
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        {gynecHistoryData?.reproductiveNotes}
-                                                                    </Text>
-                                                                </>
-                                                            )}
-                                                        </Text>
-                                                    </Text>
-                                                )}
-
-                                                {gynecHistoryData?.notes && (
-                                                    <Text
-                                                        style={{ lineHeight: 1.4 }}
-                                                    >
-                                                        <Text
-                                                            style={{
-                                                                color: "#171725",
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                            }}
-                                                        >
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                }}
-                                                            >
-                                                                &nbsp;{gynecListViewCounter++}.&nbsp;Menstruation note&nbsp;:&nbsp;
-                                                            </Text>
-
-                                                            <Text
-                                                                style={{
-                                                                    color: "#171725",
-                                                                    fontFamily: getIndianLanguageFont(gynecHistoryData?.notes, printSettings?.page_format?.font_family),
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                }}
-                                                            >
-                                                                {gynecHistoryData?.notes}
-                                                            </Text>
-                                                        </Text>
-                                                    </Text>
-                                                )}
-                                            </View>
-                                        ) : (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text
-                                                    style={{
-                                                        color: "#171725",
-                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                        fontWeight: 700,
-                                                    }}
-                                                    wrap={false}
-                                                    fixed
-                                                >
-                                                    Menstrual details&nbsp;:&nbsp;
-                                                </Text>
-                                                <View wrap={false} style={{ break: "avoid" }}>
-                                                <Text
-                                                    style={{
-                                                        color: "#000",
-                                                        marginTop: PX_TO_PT * 12,
-                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                        fontWeight: 500,
-                                                        padding: 6,
-                                                        borderTop: "1px solid #171725",
-                                                        borderLeft: "1px solid #171725",
-                                                        borderRight: "1px solid #171725",
-                                                        backgroundColor: "#E2E2EA",
-                                                    }}
-                                                >
-                                                    LMP
-                                                </Text>
-                                                <View style={[styles.table, { marginTop: 0 }]}>
-                                                    <View
-                                                        style={[
-                                                            styles.headerRow,
-                                                            { alignItems: "center", justifyContent: "center" },
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.headerCell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                    color: "#000",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Date
-                                                        </Text>
-                                                    </View>
-                                                    <View
-                                                        style={[
-                                                            styles.row,
-                                                            { alignItems: "center", justifyContent: "center" },
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                    color: "#000",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            {gynecHistoryData?.lmp ? moment(gynecHistoryData?.lmp).format("DD MMM YYYY") : `-`}
-                                                        </Text>
-                                                    </View>
-                                                </View>
-                                                </View>
-                                                <View wrap={false} style={{ break: "avoid" }}>
-                                                <Text
-                                                    style={{
-                                                        color: "#000",
-                                                        marginTop: PX_TO_PT * 12,
-                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                        fontWeight: 500,
-                                                        padding: 6,
-                                                        borderTop: "1px solid #171725",
-                                                        borderLeft: "1px solid #171725",
-                                                        borderRight: "1px solid #171725",
-                                                        backgroundColor: "#E2E2EA",
-                                                    }}
-                                                >
-                                                    Cycle
-                                                </Text>
-                                                <View style={[styles.table, { marginTop: 0 }]}>
-                                                    <View
-                                                        style={[
-                                                            styles.headerRow,
-                                                            { alignItems: "center", justifyContent: "center" },
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.headerCell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Type
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.headerCell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Interval
-                                                        </Text>
-                                                    </View>
-
-                                                    <View
-                                                        style={[
-                                                            styles.row,
-                                                            { alignItems: "center", justifyContent: "center" },
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                    textTransform: 'capitalize'
-                                                                },
-                                                            ]}
-                                                        >
-                                                            {gynecHistoryData?.cycle || `-`}
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            {gynecHistoryData?.intervalOfCycle || ``}&nbsp;
-                                                            {gynecHistoryData?.intervalOfCycle ? Number(gynecHistoryData?.intervalOfCycle) > 1 ? `days` : `day` : `-`}
-                                                        </Text>
-                                                    </View>
-
-                                                    <View
-                                                        style={[
-                                                            styles.row
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.cell
-                                                            ]}
-                                                        >
-                                                            <Text
-                                                                style={[
-                                                                    {
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                        color: "#000",
-                                                                    }
-                                                                ]}>
-                                                                Note&nbsp;:&nbsp;
-                                                            </Text>
-
-                                                            <Text
-                                                                style={[
-                                                                    {
-                                                                        fontFamily: getIndianLanguageFont(gynecHistoryData?.cycleNotes, printSettings?.page_format?.font_family),
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 400,
-                                                                        color: "#000",
-                                                                    }
-                                                                ]}>
-                                                                {gynecHistoryData?.cycleNotes || `-`}&nbsp;
-                                                            </Text>
-                                                        </Text>
-                                                    </View>
-                                                </View>
-                                                </View>
-                                                <View wrap={false} style={{ break: "avoid" }}>
-                                                <Text
-                                                    style={{
-                                                        color: "#000",
-                                                        marginTop: PX_TO_PT * 12,
-                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                        fontWeight: 500,
-                                                        padding: 6,
-                                                        borderTop: "1px solid #171725",
-                                                        borderLeft: "1px solid #171725",
-                                                        borderRight: "1px solid #171725",
-                                                        backgroundColor: "#E2E2EA",
-                                                    }}
-                                                >
-                                                    Flow
-                                                </Text>
-                                                <View style={[styles.table, { marginTop: 0 }]}>
-                                                    <View
-                                                        style={[
-                                                            styles.headerRow,
-                                                            { alignItems: "center", justifyContent: "center" },
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.headerCell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Volume
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.headerCell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Duration flow
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.headerCell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Clots
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.headerCell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Pads per day
-                                                        </Text>
-                                                    </View>
-
-                                                    <View
-                                                        style={[
-                                                            styles.row,
-                                                            { alignItems: "center", justifyContent: "center" },
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                    textTransform: 'capitalize'
-                                                                },
-                                                            ]}
-                                                        >
-                                                            {gynecHistoryData?.flow || `-`}
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            {gynecHistoryData?.durationOfMenstrualFlow || ``}&nbsp;
-                                                            {gynecHistoryData?.durationOfMenstrualFlow ? Number(gynecHistoryData?.durationOfMenstrualFlow) > 1
-                                                                ? `days`
-                                                                : `day` : `-`}
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            {Boolean(gynecHistoryData?.clots) ? `Yes` : `No`}
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            {gynecHistoryData?.numberOfPadsPerDay || `-`}
-                                                        </Text>
-                                                    </View>
-
-                                                    <View
-                                                        style={[
-                                                            styles.row
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.cell
-                                                            ]}
-                                                        >
-                                                            <Text
-                                                                style={[
-                                                                    {
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                        color: "#000",
-                                                                    }
-                                                                ]}>
-                                                                Note&nbsp;:&nbsp;
-                                                            </Text>
-
-                                                            <Text
-                                                                style={[
-                                                                    {
-                                                                        fontFamily: getIndianLanguageFont(gynecHistoryData?.flowNotes, printSettings?.page_format?.font_family),
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 400,
-                                                                        color: "#000",
-                                                                    }
-                                                                ]}>
-                                                                {gynecHistoryData?.flowNotes || `-`}&nbsp;
-                                                            </Text>
-                                                        </Text>
-                                                    </View>
-                                                </View>
-                                                </View>
-                                                <View wrap={false} style={{ break: "avoid" }}>
-                                                <Text
-                                                    style={{
-                                                        color: "#000",
-                                                        marginTop: PX_TO_PT * 12,
-                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                        fontWeight: 500,
-                                                        padding: 6,
-                                                        borderTop: "1px solid #171725",
-                                                        borderLeft: "1px solid #171725",
-                                                        borderRight: "1px solid #171725",
-                                                        backgroundColor: "#E2E2EA",
-                                                    }}
-                                                >
-                                                    Pain
-                                                </Text>
-                                                <View style={[styles.table, { marginTop: 0 }]}>
-                                                    <View
-                                                        style={[
-                                                            styles.headerRow,
-                                                            { alignItems: "center", justifyContent: "center" },
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.headerCell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Level
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.headerCell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Occurrence
-                                                        </Text>
-                                                    </View>
-
-                                                    <View
-                                                        style={[
-                                                            styles.row,
-                                                            { alignItems: "center", justifyContent: "center" },
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                    textTransform: 'capitalize'
-                                                                },
-                                                            ]}
-                                                        >
-                                                            {gynecHistoryData?.pain || `-`}
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                    textTransform: 'capitalize'
-                                                                },
-                                                            ]}
-                                                        >
-                                                            {gynecHistoryData?.occurrenceOfPain || `-`}
-                                                        </Text>
-                                                    </View>
-
-                                                    <View
-                                                        style={[
-                                                            styles.row
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.cell
-                                                            ]}
-                                                        >
-                                                            <Text
-                                                                style={[
-                                                                    {
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                        color: "#000",
-                                                                    }
-                                                                ]}>
-                                                                Note&nbsp;:&nbsp;
-                                                            </Text>
-
-                                                            <Text
-                                                                style={[
-                                                                    {
-                                                                        fontFamily: getIndianLanguageFont(gynecHistoryData?.painNotes, printSettings?.page_format?.font_family),
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 400,
-                                                                        color: "#000",
-                                                                    }
-                                                                ]}>
-                                                                {gynecHistoryData?.painNotes || `-`}&nbsp;
-                                                            </Text>
-                                                        </Text>
-                                                    </View>
-                                                </View>
-                                            </View>
-                                            <View wrap={false} style={{ break: "avoid" }}>
-                                                <Text
-                                                    style={{
-                                                        color: "#000",
-                                                        marginTop: PX_TO_PT * 12,
-                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                        fontWeight: 500,
-                                                        padding: 6,
-                                                        borderTop: "1px solid #171725",
-                                                        borderLeft: "1px solid #171725",
-                                                        borderRight: "1px solid #171725",
-                                                        backgroundColor: "#E2E2EA",
-                                                    }}
-                                                >
-                                                    Menarche
-                                                </Text>
-                                                <View style={[styles.table, { marginTop: 0 }]}>
-                                                    <View
-                                                        style={[
-                                                            styles.headerRow,
-                                                            { alignItems: "center", justifyContent: "center" },
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.headerCell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                    color: "#000",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Age at
-                                                        </Text>
-                                                    </View>
-
-                                                    <View
-                                                        style={[
-                                                            styles.row,
-                                                            { alignItems: "center", justifyContent: "center" },
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                    color: "#000",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            {gynecHistoryData?.ageAtMenarche || ``} {gynecHistoryData?.ageAtMenarche ? `years` : `-`}
-                                                        </Text>
-                                                    </View>
-
-                                                    <View
-                                                        style={[
-                                                            styles.row
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.cell
-                                                            ]}
-                                                        >
-                                                            <Text
-                                                                style={[
-                                                                    {
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                        color: "#000",
-                                                                    }
-                                                                ]}>
-                                                                Note&nbsp;:&nbsp;
-                                                            </Text>
-
-                                                            <Text
-                                                                style={[
-                                                                    {
-                                                                        fontFamily: getIndianLanguageFont(gynecHistoryData?.menarcheNotes, printSettings?.page_format?.font_family),
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 400,
-                                                                        color: "#000",
-                                                                    }
-                                                                ]}>
-                                                                {gynecHistoryData?.menarcheNotes || `-`}&nbsp;
-                                                            </Text>
-                                                        </Text>
-                                                    </View>
-                                                </View>
-                                                </View>
-                                                <View wrap={false} style={{ break: "avoid" }}>
-                                                <Text
-                                                    style={{
-                                                        color: "#000",
-                                                        marginTop: PX_TO_PT * 12,
-                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                        fontWeight: 500,
-                                                        padding: 6,
-                                                        borderTop: "1px solid #171725",
-                                                        borderLeft: "1px solid #171725",
-                                                        borderRight: "1px solid #171725",
-                                                        backgroundColor: "#E2E2EA",
-                                                    }}
-                                                >
-                                                    {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}
-                                                </Text>
-                                                <View style={[styles.table, { marginTop: 0 }]}>
-                                                    <View
-                                                        style={[
-                                                            styles.headerRow,
-                                                            { alignItems: "center", justifyContent: "center" },
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.headerCell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Age
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.headerCell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 500,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            Type of {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}
-                                                        </Text>
-                                                    </View>
-
-                                                    <View
-                                                        style={[
-                                                            styles.row,
-                                                            { alignItems: "center", justifyContent: "center" },
-                                                        ]}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                },
-                                                            ]}
-                                                        >
-                                                            {gynecHistoryData?.ageAtMenopause || ``} {gynecHistoryData?.ageAtMenopause ? `years` : `-`}
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.cell,
-                                                                {
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                    fontWeight: 400,
-                                                                    color: "#000",
-                                                                    textAlign: "center",
-                                                                    textTransform: 'capitalize'
-                                                                },
-                                                            ]}
-                                                        >
-                                                            {gynecHistoryData?.typeOfMenopause || `-`}
-                                                        </Text>
-                                                    </View>
-
-                                                    <View
-                                                        style={[
-                                                            styles.row
-                                                        ]}
-                                                        wrap={false}
-                                                    >
-                                                        <Text
-                                                            style={[
-                                                                styles.cell
-                                                            ]}
-                                                        >
-                                                            <Text
-                                                                style={[
-                                                                    {
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                        color: "#000",
-                                                                    }
-                                                                ]}>
-                                                                Note&nbsp;:&nbsp;
-                                                            </Text>
-
-                                                            <Text
-                                                                style={[
-                                                                    {
-                                                                        fontFamily: getIndianLanguageFont(gynecHistoryData?.reproductiveNotes, printSettings?.page_format?.font_family),
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 400,
-                                                                        color: "#000",
-                                                                    }
-                                                                ]}>
-                                                                {gynecHistoryData?.reproductiveNotes || `-`}&nbsp;
-                                                            </Text>
-                                                        </Text>
-                                                    </View>
-                                                </View>
-
-                                                {gynecHistoryData?.notes && (
-                                                    <View wrap={false} style={{ break: "avoid" }}>
-                                                        <Text
-                                                            style={{
-                                                                color: "#000",
-                                                                marginTop: PX_TO_PT * 12,
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 500,
-                                                                padding: 6,
-                                                                borderTop: "1px solid #171725",
-                                                                borderLeft: "1px solid #171725",
-                                                                borderRight: "1px solid #171725",
-                                                                backgroundColor: "#E2E2EA",
-                                                            }}
-                                                        >
-                                                            Menstruation note
-                                                        </Text>
-                                                        <View style={[styles.table, { marginTop: 0 }]}>
-                                                            <View
-                                                                style={[
-                                                                    styles.headerRow
-                                                                ]}
-                                                            >
-                                                                <Text
-                                                                    style={[
-                                                                        styles.cell,
-                                                                        {
-                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.notes, printSettings?.page_format?.font_family),
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                            color: "#000",
-                                                                        },
-                                                                    ]}
-                                                                >
-                                                                    {gynecHistoryData?.notes || `-`}&nbsp;
-                                                                </Text>
-                                                            </View>
-                                                        </View>
-                                                    </View>
-                                                )}
-                                                </View>
-                                            </View>
-                                        )
-                                        )}
-                                </>
-                            ) : option?.id === 14 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {isGynaecHistoryAccessable && obsHistoryData &&
-                                        Object.keys(obsHistoryData).length > 2 &&
-                                        (option?.format === "inline" ? (
-                                            <ObsHistoryInlineView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} consultationDate={caseManagerData?.patient_data?.patient_consultaion_date} />
-                                        ) : option?.format === "listview" ? (
-                                            <ObsHistoryListView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} consultationDate={caseManagerData?.patient_data?.patient_consultaion_date} />
-                                        ) : (
-                                            <ObsHistoryTableView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} consultationDate={caseManagerData?.patient_data?.patient_consultaion_date} />
-                                        ))
-                                    }
-                                </>
-                            ) : option?.id === 15 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {labParamsPatchData &&
-                                        labParamsPatchData.length &&
-                                        (option?.format === "inline" ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text>
-                                                    <>
-                                                        <Text
-                                                            style={{
-                                                                color: "#171725",
-                                                                fontFamily: printSettings?.page_format?.font_family,
-                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                fontWeight: 700,
-                                                            }}
-                                                            fixed
-                                                        >
-                                                            Lab Results:&nbsp;
-                                                        </Text>
-
-                                                        {labParamsPatchData?.map((item, i) => (
-                                                            <>
-                                                                {i !== 0 && (
-                                                                    <Text
-                                                                        style={{
-                                                                            color: "#171725",
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                            fontWeight: 400,
-                                                                        }}
-                                                                    >
-                                                                        ,&nbsp;
-                                                                    </Text>
+                                                                        {(gynecHistoryData?.intervalOfCycle || gynecHistoryData?.cycleNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
                                                                 )}
-                                                                <Text
-                                                                    key={i}
-                                                                    style={{
-                                                                        color: "#171725",
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 500,
-                                                                    }}
-                                                                >
-                                                                    {moment(item?.date).format("Do MMM YYYY")}&nbsp;
-                                                                </Text>
-                                                                <Text
-                                                                    style={{
-                                                                        color: "#171725",
-                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                        fontWeight: 400,
-                                                                    }}
-                                                                >
-                                                                    -&nbsp;
-                                                                </Text>
 
-                                                                {Object.entries(item.groupedInputs).map(([reportName, tests], reportIndex) => (
-                                                                    <Text key={reportIndex}>
-                                                                        {reportIndex !== 0 && (
+                                                                {gynecHistoryData?.intervalOfCycle && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Interval of cycle&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.intervalOfCycle}&nbsp;
+                                                                            {Number(gynecHistoryData?.intervalOfCycle) > 1 ? `days` : `day`}
+                                                                        </Text>
+                                                                        {gynecHistoryData?.cycleNotes && (
                                                                             <Text
                                                                                 style={{
                                                                                     color: "#171725",
@@ -4682,10 +2483,14 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                     fontWeight: 400,
                                                                                 }}
                                                                             >
-                                                                                ),&nbsp;
+                                                                                &nbsp;|&nbsp;
                                                                             </Text>
                                                                         )}
+                                                                    </>
+                                                                )}
 
+                                                                {gynecHistoryData?.cycleNotes && (
+                                                                    <>
                                                                         <Text
                                                                             style={{
                                                                                 color: "#171725",
@@ -4694,25 +2499,655 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 fontWeight: 500,
                                                                             }}
                                                                         >
-                                                                            {reportName}&nbsp;(
+                                                                            Note&nbsp;:&nbsp;
                                                                         </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: getIndianLanguageFont(gynecHistoryData?.cycleNotes, printSettings?.page_format?.font_family),
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.cycleNotes}
+                                                                        </Text>
+                                                                    </>
+                                                                )}
+                                                            </>
+                                                        )}
 
-                                                                        {tests.map((input, inputIndex) => (
+                                                        {(gynecHistoryData?.flow || gynecHistoryData?.durationOfMenstrualFlow || gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                            <>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    ),&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    Flow&nbsp;(
+                                                                </Text>
+
+                                                                {gynecHistoryData?.flow && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Volume&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.flow}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.durationOfMenstrualFlow || gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
                                                                             <Text
-                                                                                key={inputIndex}
                                                                                 style={{
                                                                                     color: "#171725",
-                                                                                    fontFamily: getIndianLanguageFont(input.value, printSettings?.page_format?.font_family),
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
                                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                                     fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
                                                                                 }}
                                                                             >
-                                                                                {inputIndex !== 0 && <Text>, </Text>}
-                                                                                {input.testName}:&nbsp;{input.value}&nbsp;{input.testName !== 'Remarks' ? input.units : ''}
+                                                                                &nbsp;|&nbsp;
                                                                             </Text>
-                                                                        ))}
-                                                                    </Text>
-                                                                ))}
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.durationOfMenstrualFlow && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Duration of menstrual flow&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.durationOfMenstrualFlow}&nbsp;
+                                                                            {Number(gynecHistoryData?.durationOfMenstrualFlow) > 1 ? `days` : `day`}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.clots && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Clots&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {Boolean(gynecHistoryData?.clots) ? `Yes` : `No`}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.numberOfPadsPerDay && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Number of pads per day&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.numberOfPadsPerDay}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.flowNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.flowNotes && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Note&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: getIndianLanguageFont(gynecHistoryData?.flowNotes, printSettings?.page_format?.font_family),
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.flowNotes}
+                                                                        </Text>
+                                                                    </>
+                                                                )}
+                                                            </>
+                                                        )}
+
+                                                        {(gynecHistoryData?.pain || gynecHistoryData?.occurrenceOfPain || gynecHistoryData?.painNotes) && (
+                                                            <>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    ),&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    Pain&nbsp;(
+                                                                </Text>
+
+                                                                {gynecHistoryData?.pain && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Level&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.pain}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.occurrenceOfPain || gynecHistoryData?.painNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.occurrenceOfPain && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Occurrence of pain&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.occurrenceOfPain}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.painNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.painNotes && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Note&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: getIndianLanguageFont(gynecHistoryData?.painNotes, printSettings?.page_format?.font_family),
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.painNotes}
+                                                                        </Text>
+                                                                    </>
+                                                                )}
+                                                            </>
+                                                        )}
+
+                                                        {(gynecHistoryData?.ageAtMenarche || gynecHistoryData?.menarcheNotes) && (
+                                                            <>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    ),&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    Menarche&nbsp;(
+                                                                </Text>
+
+                                                                {gynecHistoryData?.ageAtMenarche && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Age at&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.ageAtMenarche} {`years`}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.menarcheNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.menarcheNotes && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Note&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: getIndianLanguageFont(gynecHistoryData?.menarcheNotes, printSettings?.page_format?.font_family),
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.menarcheNotes}
+                                                                        </Text>
+                                                                    </>
+                                                                )}
+                                                            </>
+                                                        )}
+
+                                                        {(gynecHistoryData?.ageAtMenopause || gynecHistoryData?.typeOfMenopause || gynecHistoryData?.reproductiveNotes) && (
+                                                            <>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    ),&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}&nbsp;(
+                                                                </Text>
+
+                                                                {gynecHistoryData?.ageAtMenopause && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Age at&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.ageAtMenopause} {`years`}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.typeOfMenopause || gynecHistoryData?.reproductiveNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.typeOfMenopause && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Type of {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.typeOfMenopause}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.reproductiveNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.reproductiveNotes && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Note&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: getIndianLanguageFont(gynecHistoryData?.reproductiveNotes, printSettings?.page_format?.font_family),
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.reproductiveNotes}
+                                                                        </Text>
+
+                                                                        {!gynecHistoryData?.notes && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 500,
+                                                                                }}
+                                                                            >
+                                                                                {`)`}
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+                                                            </>
+                                                        )}
+
+                                                        {gynecHistoryData?.notes && (
+                                                            <>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    ),&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    Menstruation note&nbsp;:&nbsp;
+                                                                </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: getIndianLanguageFont(gynecHistoryData?.notes, printSettings?.page_format?.font_family),
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                    }}
+                                                                >
+                                                                    {gynecHistoryData?.notes}
+                                                                </Text>
+                                                            </>
+                                                        )}
+                                                    </Text>
+                                                </View>
+                                            ) : option?.format === "listview" ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                        fixed
+                                                    >
+                                                        Menstrual details&nbsp;:&nbsp;
+                                                    </Text>
+
+                                                    {gynecHistoryData?.lmp && (
+                                                        <Text
+                                                            style={{ marginTop: 5, lineHeight: 1.4 }}
+                                                        >
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;LMP&nbsp;:&nbsp;
+                                                                </Text>
                                                                 <Text
                                                                     style={{
                                                                         color: "#171725",
@@ -4721,86 +3156,780 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         fontWeight: 400,
                                                                     }}
                                                                 >
-                                                                    )
+                                                                    {moment(gynecHistoryData?.lmp).format("DD MMM YYYY")}
                                                                 </Text>
-                                                            </>
-                                                        ))}
-                                                    </>
-                                                </Text>
-                                            </View>
-                                        ) : option?.format === "listview" ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text fixed style={{
-                                                    color: "#171725",
-                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                    fontWeight: 700,
-                                                }}>
-                                                    Lab Results:
-                                                </Text>
-    
-                                                {labParamsPatchData?.map((item, dateIndex) => (
-                                                    <View key={dateIndex}>
-                                                        <Text style={{
-                                                            color: "#171725",
-                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                            fontWeight: 500,
-                                                            marginTop: PX_TO_PT * 8,
-                                                        }}>
-                                                            {moment(item?.date).format("Do MMM YYYY")}
+                                                            </Text>
                                                         </Text>
-    
-                                                        {Object.entries(item.groupedInputs).map(([reportName, tests], reportIndex) => (
-                                                            <View key={reportIndex} style={{ marginLeft: PX_TO_PT * 16 }}>
-                                                                <Text style={{
+                                                    )}
+
+                                                    {(gynecHistoryData?.cycle || gynecHistoryData?.intervalOfCycle || gynecHistoryData?.cycleNotes || gynecHistoryData?.cycleNotes) && (
+                                                        <Text
+                                                            style={{ lineHeight: 1.4 }}
+                                                        >
+                                                            <Text
+                                                                style={{
                                                                     color: "#171725",
                                                                     fontFamily: printSettings?.page_format?.font_family,
                                                                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                     fontWeight: 500,
-                                                                }}>
-                                                                    {reportIndex + 1}. {reportName}
-                                                                </Text>
-    
-                                                                {tests.map((input, testIndex) => (
-                                                                    <Text key={testIndex} style={{
+                                                                }}
+                                                            >
+
+                                                                <Text
+                                                                    style={{
                                                                         color: "#171725",
-                                                                        fontFamily: getIndianLanguageFont(input.value, printSettings?.page_format?.font_family),
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;Cycle&nbsp;:&nbsp;
+                                                                </Text>
+
+                                                                {gynecHistoryData?.cycle && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Type&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.cycle}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.intervalOfCycle || gynecHistoryData?.cycleNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.intervalOfCycle && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Interval of cycle&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.intervalOfCycle || ``}&nbsp;
+                                                                            {Number(gynecHistoryData?.intervalOfCycle) > 1 ? `days` : `day`}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.cycleNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.cycleNotes && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Note&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: getIndianLanguageFont(gynecHistoryData?.cycleNotes, printSettings?.page_format?.font_family),
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.cycleNotes}
+                                                                        </Text>
+                                                                    </>
+                                                                )}
+                                                            </Text>
+                                                        </Text>
+                                                    )}
+
+                                                    {(gynecHistoryData?.flow || gynecHistoryData?.durationOfMenstrualFlow || gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                        <Text
+                                                            style={{ lineHeight: 1.4 }}
+                                                        >
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;Flow&nbsp;:&nbsp;
+                                                                </Text>
+
+
+                                                                {gynecHistoryData?.flow && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Volume&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.flow}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.durationOfMenstrualFlow || gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.durationOfMenstrualFlow && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Duration of mentrual flow&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.durationOfMenstrualFlow || ``}&nbsp;
+                                                                            {Number(gynecHistoryData?.durationOfMenstrualFlow) > 1 ? `days` : `day`}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.clots || gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.clots && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Clots&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {Boolean(gynecHistoryData?.clots) ? `Yes` : `No`}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.numberOfPadsPerDay || gynecHistoryData?.flowNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.numberOfPadsPerDay && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Number of pads per day&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.numberOfPadsPerDay}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.flowNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.flowNotes && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Note&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: getIndianLanguageFont(gynecHistoryData?.flowNotes, printSettings?.page_format?.font_family),
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.flowNotes}
+                                                                        </Text>
+                                                                    </>
+                                                                )}
+                                                            </Text>
+                                                        </Text>
+                                                    )}
+
+                                                    {(gynecHistoryData?.pain || gynecHistoryData?.occurrenceOfPain || gynecHistoryData?.painNotes) && (
+                                                        <Text
+                                                            style={{ lineHeight: 1.4 }}
+                                                        >
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;Pain&nbsp;:&nbsp;
+                                                                </Text>
+
+
+                                                                {gynecHistoryData?.pain && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Level&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.pain}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.occurrenceOfPain || gynecHistoryData?.painNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.occurrenceOfPain && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Occurrence of pain&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.occurrenceOfPain}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.painNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.painNotes && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Note&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: getIndianLanguageFont(gynecHistoryData?.painNotes, printSettings?.page_format?.font_family),
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.painNotes}
+                                                                        </Text>
+                                                                    </>
+                                                                )}
+                                                            </Text>
+                                                        </Text>
+                                                    )}
+
+                                                    {(gynecHistoryData?.ageAtMenarche || gynecHistoryData?.menarcheNotes) && (
+                                                        <Text
+                                                            style={{ lineHeight: 1.4 }}
+                                                        >
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;Menarche&nbsp;:&nbsp;
+                                                                </Text>
+
+
+                                                                {gynecHistoryData?.ageAtMenarche && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Age at&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.ageAtMenarche} {`years`}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.menarcheNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.menarcheNotes && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Note&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: getIndianLanguageFont(gynecHistoryData?.menarcheNotes, printSettings?.page_format?.font_family),
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.menarcheNotes}
+                                                                        </Text>
+                                                                    </>
+                                                                )}
+                                                            </Text>
+                                                        </Text>
+                                                    )}
+
+                                                    {(gynecHistoryData?.ageAtMenopause || gynecHistoryData?.typeOfMenopause || gynecHistoryData?.reproductiveNotes) && (
+                                                        <Text
+                                                            style={{ lineHeight: 1.4 }}
+                                                        >
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;{gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}&nbsp;:&nbsp;
+                                                                </Text>
+
+
+                                                                {gynecHistoryData?.ageAtMenopause && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Age at&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.ageAtMenopause} {`years`}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.typeOfMenopause || gynecHistoryData?.reproductiveNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.typeOfMenopause && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Type of {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                textTransform: 'capitalize'
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.typeOfMenopause}
+                                                                        </Text>
+                                                                        {(gynecHistoryData?.reproductiveNotes) && (
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 400,
+                                                                                    textTransform: 'capitalize'
+                                                                                }}
+                                                                            >
+                                                                                &nbsp;|&nbsp;
+                                                                            </Text>
+                                                                        )}
+                                                                    </>
+                                                                )}
+
+                                                                {gynecHistoryData?.reproductiveNotes && (
+                                                                    <>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 500,
+                                                                            }}
+                                                                        >
+                                                                            Note&nbsp;:&nbsp;
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: getIndianLanguageFont(gynecHistoryData?.reproductiveNotes, printSettings?.page_format?.font_family),
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            {gynecHistoryData?.reproductiveNotes}
+                                                                        </Text>
+                                                                    </>
+                                                                )}
+                                                            </Text>
+                                                        </Text>
+                                                    )}
+
+                                                    {gynecHistoryData?.notes && (
+                                                        <Text
+                                                            style={{ lineHeight: 1.4 }}
+                                                        >
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                }}
+                                                            >
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}
+                                                                >
+                                                                    &nbsp;{gynecListViewCounter++}.&nbsp;Menstruation note&nbsp;:&nbsp;
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: getIndianLanguageFont(gynecHistoryData?.notes, printSettings?.page_format?.font_family),
                                                                         fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                         fontWeight: 400,
-                                                                        marginLeft: PX_TO_PT * 24,
-                                                                    }}>
-                                                                        {String.fromCharCode(97 + testIndex)}. {input.testName}: {input.value} {input.testName !== 'Remarks' ? input.units : ''}
-                                                                    </Text>
-                                                                ))}
-                                                            </View>
-                                                        ))}
-                                                    </View>
-                                                ))}
-                                            </View>
-                                        ) : (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text
-                                                    style={{
-                                                        color: "#171725",
-                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                        fontWeight: 700,
-                                                        marginBottom: PX_TO_PT * 6
-                                                    }}
-                                                    fixed
-                                                >
-                                                    Lab Results:&nbsp;
-                                                </Text>
-
-                                                <View style={{ marginTop: PX_TO_PT * 6 }}>
+                                                                    }}
+                                                                >
+                                                                    {gynecHistoryData?.notes}
+                                                                </Text>
+                                                            </Text>
+                                                        </Text>
+                                                    )}
+                                                </View>
+                                            ) : (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                        }}
+                                                        wrap={false}
+                                                        fixed
+                                                    >
+                                                        Menstrual details&nbsp;:&nbsp;
+                                                    </Text>
+                                                    <View wrap={false} style={{ break: "avoid" }}>
+                                                    <Text
+                                                        style={{
+                                                            color: "#000",
+                                                            marginTop: PX_TO_PT * 12,
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 500,
+                                                            padding: 6,
+                                                            borderTop: "1px solid #171725",
+                                                            borderLeft: "1px solid #171725",
+                                                            borderRight: "1px solid #171725",
+                                                            backgroundColor: "#E2E2EA",
+                                                        }}
+                                                    >
+                                                        LMP
+                                                    </Text>
                                                     <View style={[styles.table, { marginTop: 0 }]}>
-                                                        <View style={[styles.headerRow]} fixed>
+                                                        <View
+                                                            style={[
+                                                                styles.headerRow,
+                                                                { alignItems: "center", justifyContent: "center" },
+                                                            ]}
+                                                        >
                                                             <Text
                                                                 style={[
                                                                     styles.headerCell,
                                                                     {
-                                                                        flex: 1,
                                                                         fontFamily: printSettings?.page_format?.font_family,
                                                                         fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                         fontWeight: 500,
@@ -4808,11 +3937,943 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     },
                                                                 ]}
                                                             >
-                                                                {"NAME"}
+                                                                Date
                                                             </Text>
-                                                            {labParamsPatchTableData.map((entry, i) => (
+                                                        </View>
+                                                        <View
+                                                            style={[
+                                                                styles.row,
+                                                                { alignItems: "center", justifyContent: "center" },
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                {gynecHistoryData?.lmp ? moment(gynecHistoryData?.lmp).format("DD MMM YYYY") : `-`}
+                                                            </Text>
+                                                        </View>
+                                                    </View>
+                                                    </View>
+                                                    <View wrap={false} style={{ break: "avoid" }}>
+                                                    <Text
+                                                        style={{
+                                                            color: "#000",
+                                                            marginTop: PX_TO_PT * 12,
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 500,
+                                                            padding: 6,
+                                                            borderTop: "1px solid #171725",
+                                                            borderLeft: "1px solid #171725",
+                                                            borderRight: "1px solid #171725",
+                                                            backgroundColor: "#E2E2EA",
+                                                        }}
+                                                    >
+                                                        Cycle
+                                                    </Text>
+                                                    <View style={[styles.table, { marginTop: 0 }]}>
+                                                        <View
+                                                            style={[
+                                                                styles.headerRow,
+                                                                { alignItems: "center", justifyContent: "center" },
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.headerCell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                Type
+                                                            </Text>
+                                                            <Text
+                                                                style={[
+                                                                    styles.headerCell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                Interval
+                                                            </Text>
+                                                        </View>
+
+                                                        <View
+                                                            style={[
+                                                                styles.row,
+                                                                { alignItems: "center", justifyContent: "center" },
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                        textTransform: 'capitalize'
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                {gynecHistoryData?.cycle || `-`}
+                                                            </Text>
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                {gynecHistoryData?.intervalOfCycle || ``}&nbsp;
+                                                                {gynecHistoryData?.intervalOfCycle ? Number(gynecHistoryData?.intervalOfCycle) > 1 ? `days` : `day` : `-`}
+                                                            </Text>
+                                                        </View>
+
+                                                        <View
+                                                            style={[
+                                                                styles.row
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell
+                                                                ]}
+                                                            >
                                                                 <Text
-                                                                    key={i}
+                                                                    style={[
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        }
+                                                                    ]}>
+                                                                    Note&nbsp;:&nbsp;
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={[
+                                                                        {
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.cycleNotes, printSettings?.page_format?.font_family),
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        }
+                                                                    ]}>
+                                                                    {gynecHistoryData?.cycleNotes || `-`}&nbsp;
+                                                                </Text>
+                                                            </Text>
+                                                        </View>
+                                                    </View>
+                                                    </View>
+                                                    <View wrap={false} style={{ break: "avoid" }}>
+                                                    <Text
+                                                        style={{
+                                                            color: "#000",
+                                                            marginTop: PX_TO_PT * 12,
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 500,
+                                                            padding: 6,
+                                                            borderTop: "1px solid #171725",
+                                                            borderLeft: "1px solid #171725",
+                                                            borderRight: "1px solid #171725",
+                                                            backgroundColor: "#E2E2EA",
+                                                        }}
+                                                    >
+                                                        Flow
+                                                    </Text>
+                                                    <View style={[styles.table, { marginTop: 0 }]}>
+                                                        <View
+                                                            style={[
+                                                                styles.headerRow,
+                                                                { alignItems: "center", justifyContent: "center" },
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.headerCell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                Volume
+                                                            </Text>
+                                                            <Text
+                                                                style={[
+                                                                    styles.headerCell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                Duration flow
+                                                            </Text>
+                                                            <Text
+                                                                style={[
+                                                                    styles.headerCell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                Clots
+                                                            </Text>
+                                                            <Text
+                                                                style={[
+                                                                    styles.headerCell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                Pads per day
+                                                            </Text>
+                                                        </View>
+
+                                                        <View
+                                                            style={[
+                                                                styles.row,
+                                                                { alignItems: "center", justifyContent: "center" },
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                        textTransform: 'capitalize'
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                {gynecHistoryData?.flow || `-`}
+                                                            </Text>
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                {gynecHistoryData?.durationOfMenstrualFlow || ``}&nbsp;
+                                                                {gynecHistoryData?.durationOfMenstrualFlow ? Number(gynecHistoryData?.durationOfMenstrualFlow) > 1
+                                                                    ? `days`
+                                                                    : `day` : `-`}
+                                                            </Text>
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                {Boolean(gynecHistoryData?.clots) ? `Yes` : `No`}
+                                                            </Text>
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                {gynecHistoryData?.numberOfPadsPerDay || `-`}
+                                                            </Text>
+                                                        </View>
+
+                                                        <View
+                                                            style={[
+                                                                styles.row
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell
+                                                                ]}
+                                                            >
+                                                                <Text
+                                                                    style={[
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        }
+                                                                    ]}>
+                                                                    Note&nbsp;:&nbsp;
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={[
+                                                                        {
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.flowNotes, printSettings?.page_format?.font_family),
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        }
+                                                                    ]}>
+                                                                    {gynecHistoryData?.flowNotes || `-`}&nbsp;
+                                                                </Text>
+                                                            </Text>
+                                                        </View>
+                                                    </View>
+                                                    </View>
+                                                    <View wrap={false} style={{ break: "avoid" }}>
+                                                    <Text
+                                                        style={{
+                                                            color: "#000",
+                                                            marginTop: PX_TO_PT * 12,
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 500,
+                                                            padding: 6,
+                                                            borderTop: "1px solid #171725",
+                                                            borderLeft: "1px solid #171725",
+                                                            borderRight: "1px solid #171725",
+                                                            backgroundColor: "#E2E2EA",
+                                                        }}
+                                                    >
+                                                        Pain
+                                                    </Text>
+                                                    <View style={[styles.table, { marginTop: 0 }]}>
+                                                        <View
+                                                            style={[
+                                                                styles.headerRow,
+                                                                { alignItems: "center", justifyContent: "center" },
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.headerCell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                Level
+                                                            </Text>
+                                                            <Text
+                                                                style={[
+                                                                    styles.headerCell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                Occurrence
+                                                            </Text>
+                                                        </View>
+
+                                                        <View
+                                                            style={[
+                                                                styles.row,
+                                                                { alignItems: "center", justifyContent: "center" },
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                        textTransform: 'capitalize'
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                {gynecHistoryData?.pain || `-`}
+                                                            </Text>
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                        textTransform: 'capitalize'
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                {gynecHistoryData?.occurrenceOfPain || `-`}
+                                                            </Text>
+                                                        </View>
+
+                                                        <View
+                                                            style={[
+                                                                styles.row
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell
+                                                                ]}
+                                                            >
+                                                                <Text
+                                                                    style={[
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        }
+                                                                    ]}>
+                                                                    Note&nbsp;:&nbsp;
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={[
+                                                                        {
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.painNotes, printSettings?.page_format?.font_family),
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        }
+                                                                    ]}>
+                                                                    {gynecHistoryData?.painNotes || `-`}&nbsp;
+                                                                </Text>
+                                                            </Text>
+                                                        </View>
+                                                    </View>
+                                                </View>
+                                                <View wrap={false} style={{ break: "avoid" }}>
+                                                    <Text
+                                                        style={{
+                                                            color: "#000",
+                                                            marginTop: PX_TO_PT * 12,
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 500,
+                                                            padding: 6,
+                                                            borderTop: "1px solid #171725",
+                                                            borderLeft: "1px solid #171725",
+                                                            borderRight: "1px solid #171725",
+                                                            backgroundColor: "#E2E2EA",
+                                                        }}
+                                                    >
+                                                        Menarche
+                                                    </Text>
+                                                    <View style={[styles.table, { marginTop: 0 }]}>
+                                                        <View
+                                                            style={[
+                                                                styles.headerRow,
+                                                                { alignItems: "center", justifyContent: "center" },
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.headerCell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                Age at
+                                                            </Text>
+                                                        </View>
+
+                                                        <View
+                                                            style={[
+                                                                styles.row,
+                                                                { alignItems: "center", justifyContent: "center" },
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                {gynecHistoryData?.ageAtMenarche || ``} {gynecHistoryData?.ageAtMenarche ? `years` : `-`}
+                                                            </Text>
+                                                        </View>
+
+                                                        <View
+                                                            style={[
+                                                                styles.row
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell
+                                                                ]}
+                                                            >
+                                                                <Text
+                                                                    style={[
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        }
+                                                                    ]}>
+                                                                    Note&nbsp;:&nbsp;
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={[
+                                                                        {
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.menarcheNotes, printSettings?.page_format?.font_family),
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        }
+                                                                    ]}>
+                                                                    {gynecHistoryData?.menarcheNotes || `-`}&nbsp;
+                                                                </Text>
+                                                            </Text>
+                                                        </View>
+                                                    </View>
+                                                    </View>
+                                                    <View wrap={false} style={{ break: "avoid" }}>
+                                                    <Text
+                                                        style={{
+                                                            color: "#000",
+                                                            marginTop: PX_TO_PT * 12,
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 500,
+                                                            padding: 6,
+                                                            borderTop: "1px solid #171725",
+                                                            borderLeft: "1px solid #171725",
+                                                            borderRight: "1px solid #171725",
+                                                            backgroundColor: "#E2E2EA",
+                                                        }}
+                                                    >
+                                                        {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'Menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'Perimenopause' : 'Lactational amenorrhea'}
+                                                    </Text>
+                                                    <View style={[styles.table, { marginTop: 0 }]}>
+                                                        <View
+                                                            style={[
+                                                                styles.headerRow,
+                                                                { alignItems: "center", justifyContent: "center" },
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.headerCell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                Age
+                                                            </Text>
+                                                            <Text
+                                                                style={[
+                                                                    styles.headerCell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                Type of {gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'menopause' ? 'menopause' : gynecHistoryData?.reproductiveLifeStages?.toLowerCase() === 'perimenopause' ? 'perimenopause' : 'lactational amenorrhea'}
+                                                            </Text>
+                                                        </View>
+
+                                                        <View
+                                                            style={[
+                                                                styles.row,
+                                                                { alignItems: "center", justifyContent: "center" },
+                                                            ]}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                {gynecHistoryData?.ageAtMenopause || ``} {gynecHistoryData?.ageAtMenopause ? `years` : `-`}
+                                                            </Text>
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell,
+                                                                    {
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 400,
+                                                                        color: "#000",
+                                                                        textAlign: "center",
+                                                                        textTransform: 'capitalize'
+                                                                    },
+                                                                ]}
+                                                            >
+                                                                {gynecHistoryData?.typeOfMenopause || `-`}
+                                                            </Text>
+                                                        </View>
+
+                                                        <View
+                                                            style={[
+                                                                styles.row
+                                                            ]}
+                                                            wrap={false}
+                                                        >
+                                                            <Text
+                                                                style={[
+                                                                    styles.cell
+                                                                ]}
+                                                            >
+                                                                <Text
+                                                                    style={[
+                                                                        {
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                            color: "#000",
+                                                                        }
+                                                                    ]}>
+                                                                    Note&nbsp;:&nbsp;
+                                                                </Text>
+
+                                                                <Text
+                                                                    style={[
+                                                                        {
+                                                                            fontFamily: getIndianLanguageFont(gynecHistoryData?.reproductiveNotes, printSettings?.page_format?.font_family),
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            color: "#000",
+                                                                        }
+                                                                    ]}>
+                                                                    {gynecHistoryData?.reproductiveNotes || `-`}&nbsp;
+                                                                </Text>
+                                                            </Text>
+                                                        </View>
+                                                    </View>
+
+                                                    {gynecHistoryData?.notes && (
+                                                        <View wrap={false} style={{ break: "avoid" }}>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#000",
+                                                                    marginTop: PX_TO_PT * 12,
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 500,
+                                                                    padding: 6,
+                                                                    borderTop: "1px solid #171725",
+                                                                    borderLeft: "1px solid #171725",
+                                                                    borderRight: "1px solid #171725",
+                                                                    backgroundColor: "#E2E2EA",
+                                                                }}
+                                                            >
+                                                                Menstruation note
+                                                            </Text>
+                                                            <View style={[styles.table, { marginTop: 0 }]}>
+                                                                <View
+                                                                    style={[
+                                                                        styles.headerRow
+                                                                    ]}
+                                                                >
+                                                                    <Text
+                                                                        style={[
+                                                                            styles.cell,
+                                                                            {
+                                                                                fontFamily: getIndianLanguageFont(gynecHistoryData?.notes, printSettings?.page_format?.font_family),
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                                color: "#000",
+                                                                            },
+                                                                        ]}
+                                                                    >
+                                                                        {gynecHistoryData?.notes || `-`}&nbsp;
+                                                                    </Text>
+                                                                </View>
+                                                            </View>
+                                                        </View>
+                                                    )}
+                                                    </View>
+                                                </View>
+                                            )
+                                            )}
+                                    </>
+                                ) : option?.id === 14 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {isGynaecHistoryAccessable && obsHistoryData &&
+                                            Object.keys(obsHistoryData).length > 2 &&
+                                            (option?.format === "inline" ? (
+                                                <ObsHistoryInlineView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} consultationDate={caseManagerData?.patient_data?.patient_consultaion_date} />
+                                            ) : option?.format === "listview" ? (
+                                                <ObsHistoryListView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} consultationDate={caseManagerData?.patient_data?.patient_consultaion_date} />
+                                            ) : (
+                                                <ObsHistoryTableView PX_TO_PT={PX_TO_PT} styles={styles} printSettings={printSettings} options={option?.obs_history_option} obsHistoryData={obsHistoryData} consultationDate={caseManagerData?.patient_data?.patient_consultaion_date} />
+                                            ))
+                                        }
+                                    </>
+                                ) : option?.id === 15 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {labParamsPatchData &&
+                                            labParamsPatchData.length &&
+                                            (option?.format === "inline" ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                    <Text>
+                                                        <>
+                                                            <Text
+                                                                style={{
+                                                                    color: "#171725",
+                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                    fontWeight: 700,
+                                                                }}
+                                                                fixed
+                                                            >
+                                                                Lab Results:&nbsp;
+                                                            </Text>
+
+                                                            {labParamsPatchData?.map((item, i) => (
+                                                                <>
+                                                                    {i !== 0 && (
+                                                                        <Text
+                                                                            style={{
+                                                                                color: "#171725",
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                fontWeight: 400,
+                                                                            }}
+                                                                        >
+                                                                            ,&nbsp;
+                                                                        </Text>
+                                                                    )}
+                                                                    <Text
+                                                                        key={i}
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 500,
+                                                                        }}
+                                                                    >
+                                                                        {moment(item?.date).format("Do MMM YYYY")}&nbsp;
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        -&nbsp;
+                                                                    </Text>
+
+                                                                    {Object.entries(item.groupedInputs).map(([reportName, tests], reportIndex) => (
+                                                                        <Text key={reportIndex}>
+                                                                            {reportIndex !== 0 && (
+                                                                                <Text
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 400,
+                                                                                    }}
+                                                                                >
+                                                                                    ),&nbsp;
+                                                                                </Text>
+                                                                            )}
+
+                                                                            <Text
+                                                                                style={{
+                                                                                    color: "#171725",
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 500,
+                                                                                }}
+                                                                            >
+                                                                                {reportName}&nbsp;(
+                                                                            </Text>
+
+                                                                            {tests.map((input, inputIndex) => (
+                                                                                <Text
+                                                                                    key={inputIndex}
+                                                                                    style={{
+                                                                                        color: "#171725",
+                                                                                        fontFamily: getIndianLanguageFont(input.value, printSettings?.page_format?.font_family),
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                        fontWeight: 400,
+                                                                                    }}
+                                                                                >
+                                                                                    {inputIndex !== 0 && <Text>, </Text>}
+                                                                                    {input.testName}:&nbsp;{input.value}&nbsp;{input.testName !== 'Remarks' ? input.units : ''}
+                                                                                </Text>
+                                                                            ))}
+                                                                        </Text>
+                                                                    ))}
+                                                                    <Text
+                                                                        style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                        }}
+                                                                    >
+                                                                        )
+                                                                    </Text>
+                                                                </>
+                                                            ))}
+                                                        </>
+                                                    </Text>
+                                                </View>
+                                            ) : option?.format === "listview" ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                    <Text fixed style={{
+                                                        color: "#171725",
+                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                        fontWeight: 700,
+                                                    }}>
+                                                        Lab Results:
+                                                    </Text>
+        
+                                                    {labParamsPatchData?.map((item, dateIndex) => (
+                                                        <View key={dateIndex}>
+                                                            <Text style={{
+                                                                color: "#171725",
+                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                fontWeight: 500,
+                                                                marginTop: PX_TO_PT * 8,
+                                                            }}>
+                                                                {moment(item?.date).format("Do MMM YYYY")}
+                                                            </Text>
+        
+                                                            {Object.entries(item.groupedInputs).map(([reportName, tests], reportIndex) => (
+                                                                <View key={reportIndex} style={{ marginLeft: PX_TO_PT * 16 }}>
+                                                                    <Text style={{
+                                                                        color: "#171725",
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                        fontWeight: 500,
+                                                                    }}>
+                                                                        {reportIndex + 1}. {reportName}
+                                                                    </Text>
+        
+                                                                    {tests.map((input, testIndex) => (
+                                                                        <Text key={testIndex} style={{
+                                                                            color: "#171725",
+                                                                            fontFamily: getIndianLanguageFont(input.value, printSettings?.page_format?.font_family),
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                            fontWeight: 400,
+                                                                            marginLeft: PX_TO_PT * 24,
+                                                                        }}>
+                                                                            {String.fromCharCode(97 + testIndex)}. {input.testName}: {input.value} {input.testName !== 'Remarks' ? input.units : ''}
+                                                                        </Text>
+                                                                    ))}
+                                                                </View>
+                                                            ))}
+                                                        </View>
+                                                    ))}
+                                                </View>
+                                            ) : (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text
+                                                        style={{
+                                                            color: "#171725",
+                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                            fontWeight: 700,
+                                                            marginBottom: PX_TO_PT * 6
+                                                        }}
+                                                        fixed
+                                                    >
+                                                        Lab Results:&nbsp;
+                                                    </Text>
+
+                                                    <View style={{ marginTop: PX_TO_PT * 6 }}>
+                                                        <View style={[styles.table, { marginTop: 0 }]}>
+                                                            <View style={[styles.headerRow]} fixed>
+                                                                <Text
                                                                     style={[
                                                                         styles.headerCell,
                                                                         {
@@ -4824,17 +4885,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         },
                                                                     ]}
                                                                 >
-                                                                    {moment(entry.date).format('Do MMM YY')}
+                                                                    {"NAME"}
                                                                 </Text>
-                                                            ))}
-                                                        </View>
-
-                                                        {Object.keys(labParamsPatchTableData[0].groupedInputs).map((reportName, j) => (
-                                                            <View key={j} style={{ marginTop: PX_TO_PT * 0 }}>
-                                                                <View style={[styles.row]} wrap={false}>
+                                                                {labParamsPatchTableData.map((entry, i) => (
                                                                     <Text
+                                                                        key={i}
                                                                         style={[
-                                                                            styles.cell,
+                                                                            styles.headerCell,
                                                                             {
                                                                                 flex: 1,
                                                                                 fontFamily: printSettings?.page_format?.font_family,
@@ -4844,464 +4901,462 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             },
                                                                         ]}
                                                                     >
-                                                                        {reportName}
+                                                                        {moment(entry.date).format('Do MMM YY')}
                                                                     </Text>
-                                                                </View>
-
-                                                                {labParamsPatchTableData[0].groupedInputs[reportName].map((test, idx) => (
-                                                                    <View key={idx} style={{ marginTop: PX_TO_PT * 0 }}>
-                                                                        <View style={[styles.row]} wrap={false}>
-                                                                            <Text
-                                                                                style={[
-                                                                                    styles.cell,
-                                                                                    {
-                                                                                        flex: 1,
-                                                                                        fontFamily: printSettings?.page_format?.font_family,
-                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                        fontWeight: 500,
-                                                                                        color: "#000",
-                                                                                    },
-                                                                                ]}
-                                                                            >
-                                                                                {test.testName}
-                                                                            </Text>
-
-                                                                            {labParamsPatchTableData.map((entry, k) => {
-                                                                                const testResult = entry.groupedInputs[reportName]?.find(
-                                                                                    (input) => input.testName === test.testName
-                                                                                );
-                                                                                return (
-                                                                                    <Text
-                                                                                        key={k}
-                                                                                        style={[
-                                                                                            styles.cell,
-                                                                                            {
-                                                                                                flex: 1,
-                                                                                                fontFamily: getIndianLanguageFont(testResult.value, printSettings?.page_format?.font_family),
-                                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                                fontWeight: 400,
-                                                                                                color: "#000",
-                                                                                            },
-                                                                                        ]}
-                                                                                    >
-                                                                                        {testResult ? testResult.value + " " + (testResult.testName !== 'Remarks' ? testResult.units : '') : "-"}&nbsp;
-                                                                                    </Text>
-                                                                                );
-                                                                            })}
-                                                                        </View>
-                                                                    </View>
                                                                 ))}
+                                                            </View>
+
+                                                            {Object.keys(labParamsPatchTableData[0].groupedInputs).map((reportName, j) => (
+                                                                <View key={j} style={{ marginTop: PX_TO_PT * 0 }}>
+                                                                    <View style={[styles.row]} wrap={false}>
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.cell,
+                                                                                {
+                                                                                    flex: 1,
+                                                                                    fontFamily: printSettings?.page_format?.font_family,
+                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                    fontWeight: 500,
+                                                                                    color: "#000",
+                                                                                },
+                                                                            ]}
+                                                                        >
+                                                                            {reportName}
+                                                                        </Text>
+                                                                    </View>
+
+                                                                    {labParamsPatchTableData[0].groupedInputs[reportName].map((test, idx) => (
+                                                                        <View key={idx} style={{ marginTop: PX_TO_PT * 0 }}>
+                                                                            <View style={[styles.row]} wrap={false}>
+                                                                                <Text
+                                                                                    style={[
+                                                                                        styles.cell,
+                                                                                        {
+                                                                                            flex: 1,
+                                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                            fontWeight: 500,
+                                                                                            color: "#000",
+                                                                                        },
+                                                                                    ]}
+                                                                                >
+                                                                                    {test.testName}
+                                                                                </Text>
+
+                                                                                {labParamsPatchTableData.map((entry, k) => {
+                                                                                    const testResult = entry.groupedInputs[reportName]?.find(
+                                                                                        (input) => input.testName === test.testName
+                                                                                    );
+                                                                                    return (
+                                                                                        <Text
+                                                                                            key={k}
+                                                                                            style={[
+                                                                                                styles.cell,
+                                                                                                {
+                                                                                                    flex: 1,
+                                                                                                    fontFamily: getIndianLanguageFont(testResult.value, printSettings?.page_format?.font_family),
+                                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                                                                                                    fontWeight: 400,
+                                                                                                    color: "#000",
+                                                                                                },
+                                                                                            ]}
+                                                                                        >
+                                                                                            {testResult ? testResult.value + " " + (testResult.testName !== 'Remarks' ? testResult.units : '') : "-"}&nbsp;
+                                                                                        </Text>
+                                                                                    );
+                                                                                })}
+                                                                            </View>
+                                                                        </View>
+                                                                    ))}
+                                                                </View>
+                                                            ))}
+                                                        </View>
+                                                    </View>
+                                                </View>
+                                            ))
+                                        }
+                                    </>
+                                ) : option?.id === 16 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {caseManagerData.surgeries.length > 0 && (
+                                            option?.format === 'inline' ? (
+                                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Surgeries/Procedures:&nbsp;</Text>
+                                                    {caseManagerData.surgeries.map((item, i) => {
+                                                        return (
+                                                            <Text key={i}>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.name}&nbsp;</Text>
+                                                                {(item.notes) ?
+                                                                    <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ notes }) => ({ notes }))(caseManagerData.surgeries[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.surgeries.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                    :
+                                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.surgeries.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                                }
+                                                            </Text>
+                                                        )
+                                                    })}
+                                                </Text>
+                                            ) : option?.format === 'listview' ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Surgeries/Procedures:&nbsp;</Text>
+                                                    {caseManagerData.surgeries.map((item, i) => {
+                                                        return (
+                                                            <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.name}&nbsp;</Text>
+                                                                {(item.notes) &&
+                                                                    <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ notes }) => ({ notes }))(caseManagerData.surgeries[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
+                                                                }
+                                                            </Text>
+                                                        )
+                                                    })}
+                                                </View>
+                                            ) : (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Surgeries/Procedures:&nbsp;</Text>
+                                                    <View style={styles.table}>
+                                                        <View style={styles.headerRow} fixed>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                        </View>
+                                                        {caseManagerData.surgeries.map((item, i) => (
+                                                            <View style={styles.row} key={i} wrap={false}>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.name}&nbsp;</Text>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes ? item.notes : '-'}&nbsp;</Text>
                                                             </View>
                                                         ))}
                                                     </View>
                                                 </View>
-                                            </View>
-                                        ))
-                                    }
-                                </>
-                            ) : option?.id === 16 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {caseManagerData.surgeries.length > 0 && (
-                                        option?.format === 'inline' ? (
-                                            <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Surgeries/Procedures:&nbsp;</Text>
-                                                {caseManagerData.surgeries.map((item, i) => {
-                                                    return (
-                                                        <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.name}&nbsp;</Text>
-                                                            {(item.notes) ?
-                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ notes }) => ({ notes }))(caseManagerData.surgeries[i])).filter(([_, v]) => v))).join(', ')})`}{caseManagerData.surgeries.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                                :
-                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{caseManagerData.surgeries.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                            }
+                                            )
+                                        )}
+                                    </>
+                                ) : option?.id === 18 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
+                                    <>
+                                        {caseManagerData?.zydusSelectedLabParams?.length > 0 && (
+                                            option?.format === 'inline' ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                    <Text>
+                                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
+                                                            Zydus Lab Results:&nbsp;
                                                         </Text>
-                                                    )
-                                                })}
-                                            </Text>
-                                        ) : option?.format === 'listview' ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Surgeries/Procedures:&nbsp;</Text>
-                                                {caseManagerData.surgeries.map((item, i) => {
-                                                    return (
-                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.name}&nbsp;</Text>
-                                                            {(item.notes) &&
-                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${Object.values(Object.fromEntries(Object.entries((({ notes }) => ({ notes }))(caseManagerData.surgeries[i])).filter(([_, v]) => v))).join(', ')})\n`}</Text>
-                                                            }
-                                                        </Text>
-                                                    )
-                                                })}
-                                            </View>
-                                        ) : (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Surgeries/Procedures:&nbsp;</Text>
-                                                <View style={styles.table}>
-                                                    <View style={styles.headerRow} fixed>
-                                                        <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                        <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
-                                                    </View>
-                                                    {caseManagerData.surgeries.map((item, i) => (
-                                                        <View style={styles.row} key={i} wrap={false}>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.name}&nbsp;</Text>
-                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes ? item.notes : '-'}&nbsp;</Text>
+                                                        {caseManagerData.zydusSelectedLabParams.map((dateEntry, dateIndex) => (
+                                                            <Text key={dateIndex}>
+                                                                <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 600 }}>
+                                                                    {moment(dateEntry.date, "DD-MM-YYYY").format("Do MMM YYYY")}:&nbsp;
+                                                                </Text>
+                                                                {dateEntry.inputs.map((test, testIndex) => (
+                                                                    <Text key={testIndex}>
+                                                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(test.serviceName, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                            {test.serviceName}
+                                                                        </Text>
+                                                                        {test.resultvalue !== '-' && (
+                                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                : {test.resultvalue}
+                                                                            </Text>
+                                                                        )}
+                                                                        {test.labResultParameters && test.labResultParameters.map((param, paramIndex) => (
+                                                                            <Text key={paramIndex}>
+                                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(param.parameterName, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                    , {param.parameterName}: {param.resultValue}
+                                                                                </Text>
+                                                                            </Text>
+                                                                        ))}
+                                                                        {testIndex < dateEntry.inputs.length - 1 && <Text style={{ color: '#171725' }}>, </Text>}
+                                                                    </Text>
+                                                                ))}
+                                                                {dateIndex < caseManagerData.zydusSelectedLabParams.length - 1 && <Text style={{ color: '#171725' }}>; </Text>}
+                                                            </Text>
+                                                        ))}
+                                                    </Text>
+                                                </View>
+                                            ) : option?.format === 'listview' ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
+                                                        Zydus Lab Results:
+                                                    </Text>
+                                                    {caseManagerData.zydusSelectedLabParams.map((dateEntry, dateIndex) => (
+                                                        <View key={dateIndex} style={{ marginTop: PX_TO_PT * 10 }}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 600 }}>
+                                                                {moment(dateEntry.date, "DD-MM-YYYY").format("Do MMM YYYY")}:
+                                                            </Text>
+                                                            {dateEntry.inputs.map((test, testIndex) => (
+                                                                <View key={testIndex} style={{ marginLeft: PX_TO_PT * 15, marginTop: PX_TO_PT * 5 }}>
+                                                                    <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(test.serviceName, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
+                                                                        • {test.serviceName}
+                                                                        {test.resultvalue !== '-' && (
+                                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                                : {test.resultvalue}
+                                                                            </Text>
+                                                                        )}
+                                                                    </Text>
+                                                                    {test.labResultParameters && test.labResultParameters.map((param, paramIndex) => (
+                                                                        <Text key={paramIndex} style={{ marginLeft: PX_TO_PT * 15, marginTop: PX_TO_PT * 2, color: '#171725', fontFamily: getIndianLanguageFont(param.parameterName, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                            - {param.parameterName}: {param.resultValue}
+                                                                        </Text>
+                                                                    ))}
+                                                                </View>
+                                                            ))}
                                                         </View>
                                                     ))}
                                                 </View>
-                                            </View>
-                                        )
-                                    )}
-                                </>
-                            ) : option?.id === 18 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
-                                <>
-                                    {caseManagerData?.zydusSelectedLabParams?.length > 0 && (
-                                        option?.format === 'inline' ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                <Text>
-                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
-                                                        Zydus Lab Results:&nbsp;
+                                            ) : (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
+                                                        Zydus Lab Results:
                                                     </Text>
-                                                    {caseManagerData.zydusSelectedLabParams.map((dateEntry, dateIndex) => (
-                                                        <Text key={dateIndex}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 600 }}>
-                                                                {moment(dateEntry.date, "DD-MM-YYYY").format("Do MMM YYYY")}:&nbsp;
-                                                            </Text>
-                                                            {dateEntry.inputs.map((test, testIndex) => (
-                                                                <Text key={testIndex}>
-                                                                    <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(test.serviceName, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                        {test.serviceName}
-                                                                    </Text>
-                                                                    {test.resultvalue !== '-' && (
-                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                            : {test.resultvalue}
-                                                                        </Text>
-                                                                    )}
-                                                                    {test.labResultParameters && test.labResultParameters.map((param, paramIndex) => (
-                                                                        <Text key={paramIndex}>
-                                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(param.parameterName, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                                , {param.parameterName}: {param.resultValue}
-                                                                            </Text>
-                                                                        </Text>
-                                                                    ))}
-                                                                    {testIndex < dateEntry.inputs.length - 1 && <Text style={{ color: '#171725' }}>, </Text>}
-                                                                </Text>
-                                                            ))}
-                                                            {dateIndex < caseManagerData.zydusSelectedLabParams.length - 1 && <Text style={{ color: '#171725' }}>; </Text>}
-                                                        </Text>
-                                                    ))}
-                                                </Text>
-                                            </View>
-                                        ) : option?.format === 'listview' ? (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>
-                                                    Zydus Lab Results:
-                                                </Text>
-                                                {caseManagerData.zydusSelectedLabParams.map((dateEntry, dateIndex) => (
-                                                    <View key={dateIndex} style={{ marginTop: PX_TO_PT * 10 }}>
-                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 600 }}>
-                                                            {moment(dateEntry.date, "DD-MM-YYYY").format("Do MMM YYYY")}:
-                                                        </Text>
-                                                        {dateEntry.inputs.map((test, testIndex) => (
-                                                            <View key={testIndex} style={{ marginLeft: PX_TO_PT * 15, marginTop: PX_TO_PT * 5 }}>
-                                                                <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(test.serviceName, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>
-                                                                    • {test.serviceName}
-                                                                    {test.resultvalue !== '-' && (
-                                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                            : {test.resultvalue}
-                                                                        </Text>
-                                                                    )}
-                                                                </Text>
-                                                                {test.labResultParameters && test.labResultParameters.map((param, paramIndex) => (
-                                                                    <Text key={paramIndex} style={{ marginLeft: PX_TO_PT * 15, marginTop: PX_TO_PT * 2, color: '#171725', fontFamily: getIndianLanguageFont(param.parameterName, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                                        - {param.parameterName}: {param.resultValue}
-                                                                    </Text>
-                                                                ))}
-                                                            </View>
-                                                        ))}
-                                                    </View>
-                                                ))}
-                                            </View>
-                                        ) : (
-                                            <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>
-                                                    Zydus Lab Results:
-                                                </Text>
-                                                {/* Zydus Cross-Tab Table Structure */}
-                                                {(() => {
-                                                    const allDates = [...new Set(caseManagerData.zydusSelectedLabParams.map(entry => entry.date))]
-                                                        .sort((a, b) => new Date(b.split('-').reverse().join('-')) - new Date(a.split('-').reverse().join('-')));
-                                                        const dates = allDates.slice(0, 5);
-                                                        const dateColumnCount = dates.length;
-                                                        const investigationFlex = dateColumnCount >= 4 ? 0.8 : 1;
-                                                        const subParamsFlex = dateColumnCount >= 4 ? 0.8 : 1;
-                                                        const dateColumnFlex = dateColumnCount >= 4 ? 0.6 : 1;
-                                                    
-                                                    const serviceGroups = [];
-                                                    const serviceMap = new Map();
-                                                    
-                                                    {/* Group services by date */}
-                                                    caseManagerData.zydusSelectedLabParams
-                                                        .filter(dateEntry => dates.includes(dateEntry.date))
-                                                        .forEach(dateEntry => {
-                                                        dateEntry.inputs.forEach(test => {
-                                                            if (!serviceMap.has(test.serviceName)) {
-                                                                serviceMap.set(test.serviceName, {
-                                                                    serviceName: test.serviceName,
-                                                                    rows: []
-                                                                });
-                                                                serviceGroups.push(serviceMap.get(test.serviceName));
-                                                            }
-                                                        });
-                                                    });
-                                                    
-                                                    // Process each service group
-                                                    serviceGroups.forEach(serviceGroup => {
-                                                        const serviceName = serviceGroup.serviceName;
+                                                    {/* Zydus Cross-Tab Table Structure */}
+                                                    {(() => {
+                                                        const allDates = [...new Set(caseManagerData.zydusSelectedLabParams.map(entry => entry.date))]
+                                                            .sort((a, b) => new Date(b.split('-').reverse().join('-')) - new Date(a.split('-').reverse().join('-')));
+                                                            const dates = allDates.slice(0, 5);
+                                                            const dateColumnCount = dates.length;
+                                                            const investigationFlex = dateColumnCount >= 4 ? 0.8 : 1;
+                                                            const subParamsFlex = dateColumnCount >= 4 ? 0.8 : 1;
+                                                            const dateColumnFlex = dateColumnCount >= 4 ? 0.6 : 1;
                                                         
-                                                        let hasDirectResults = false;
-                                                        const directResults = {};
-                                                        let directReferenceRange = '';
+                                                        const serviceGroups = [];
+                                                        const serviceMap = new Map();
                                                         
+                                                        {/* Group services by date */}
                                                         caseManagerData.zydusSelectedLabParams
                                                             .filter(dateEntry => dates.includes(dateEntry.date))
                                                             .forEach(dateEntry => {
-                                                            const test = dateEntry.inputs.find(t => t.serviceName === serviceName);
-                                                            if (test && test.resultvalue !== '-') {
-                                                                hasDirectResults = true;
-                                                                directResults[dateEntry.date] = test.resultvalue;
-                                                                if (test.referenceRange !== '-') {
-                                                                    directReferenceRange = test.referenceRange;
+                                                            dateEntry.inputs.forEach(test => {
+                                                                if (!serviceMap.has(test.serviceName)) {
+                                                                    serviceMap.set(test.serviceName, {
+                                                                        serviceName: test.serviceName,
+                                                                        rows: []
+                                                                    });
+                                                                    serviceGroups.push(serviceMap.get(test.serviceName));
                                                                 }
-                                                            }
+                                                            });
                                                         });
                                                         
-                                                        // Collect all parameters for this service
-                                                        const parameterMap = new Map();
-                                                        
-                                                        caseManagerData.zydusSelectedLabParams
-                                                            .filter(dateEntry => dates.includes(dateEntry.date))
-                                                            .forEach(dateEntry => {
-                                                            const test = dateEntry.inputs.find(t => t.serviceName === serviceName);
-                                                            if (test && test.labResultParameters) {
-                                                                test.labResultParameters.forEach(param => {
-                                                                    if (!parameterMap.has(param.parameterName)) {
-                                                                        parameterMap.set(param.parameterName, {
-                                                                            name: param.parameterName,
-                                                                            referenceRange: param.referenceRange || '',
-                                                                            results: {},
-                                                                            type: 'parameter'
-                                                                        });
+                                                        // Process each service group
+                                                        serviceGroups.forEach(serviceGroup => {
+                                                            const serviceName = serviceGroup.serviceName;
+                                                            
+                                                            let hasDirectResults = false;
+                                                            const directResults = {};
+                                                            let directReferenceRange = '';
+                                                            
+                                                            caseManagerData.zydusSelectedLabParams
+                                                                .filter(dateEntry => dates.includes(dateEntry.date))
+                                                                .forEach(dateEntry => {
+                                                                const test = dateEntry.inputs.find(t => t.serviceName === serviceName);
+                                                                if (test && test.resultvalue !== '-') {
+                                                                    hasDirectResults = true;
+                                                                    directResults[dateEntry.date] = test.resultvalue;
+                                                                    if (test.referenceRange !== '-') {
+                                                                        directReferenceRange = test.referenceRange;
                                                                     }
-                                                                    parameterMap.get(param.parameterName).results[dateEntry.date] = param.resultValue;
-                                                                });
-                                                            }
-                                                        });
-                                                        
-                                                        const parameters = Array.from(parameterMap.values());
-                                                        const splitLongContent = (param) => {
-                                                            const getCharLimit = () => {
-                                                                if (dateColumnCount >= 5) return 200;
-                                                                if (dateColumnCount >= 3) return 300;
-                                                                return 400;
-                                                            };
-                                                            const maxCharsPerRow = getCharLimit();
-                                                            const resultEntries = Object.entries(param.results);
-                                                            const hasLongContent = resultEntries.some(([date, value]) => 
-                                                                value && value.length > maxCharsPerRow
-                                                            );
-                                                            if (!hasLongContent) {
-                                                                return [param];
-                                                            }
-                                                            const smartSplit = (text, maxLength) => {
-                                                                if (text.length <= maxLength) return [text];
-                                                                const chunks = [];
-                                                                let remaining = text;
-                                                                while (remaining.length > maxLength) {
-                                                                    let splitPoint = maxLength;
-                                                                    const breakPoints = [
-                                                                        remaining.lastIndexOf('\n\n', maxLength),
-                                                                        remaining.lastIndexOf('\n', maxLength),
-                                                                        remaining.lastIndexOf('. ', maxLength),
-                                                                        remaining.lastIndexOf(', ', maxLength),
-                                                                        remaining.lastIndexOf(' ', maxLength)
-                                                                    ];
-                                                                    for (const breakPoint of breakPoints) {
-                                                                        if (breakPoint > maxLength * 0.7) {
-                                                                            splitPoint = breakPoint + (breakPoint === breakPoints[2] ? 2 : 1);
-                                                                            break;
+                                                                }
+                                                            });
+                                                            
+                                                            // Collect all parameters for this service
+                                                            const parameterMap = new Map();
+                                                            
+                                                            caseManagerData.zydusSelectedLabParams
+                                                                .filter(dateEntry => dates.includes(dateEntry.date))
+                                                                .forEach(dateEntry => {
+                                                                const test = dateEntry.inputs.find(t => t.serviceName === serviceName);
+                                                                if (test && test.labResultParameters) {
+                                                                    test.labResultParameters.forEach(param => {
+                                                                        if (!parameterMap.has(param.parameterName)) {
+                                                                            parameterMap.set(param.parameterName, {
+                                                                                name: param.parameterName,
+                                                                                referenceRange: param.referenceRange || '',
+                                                                                results: {},
+                                                                                type: 'parameter'
+                                                                            });
                                                                         }
+                                                                        parameterMap.get(param.parameterName).results[dateEntry.date] = param.resultValue;
+                                                                    });
+                                                                }
+                                                            });
+                                                            
+                                                            const parameters = Array.from(parameterMap.values());
+                                                            const splitLongContent = (param) => {
+                                                                const getCharLimit = () => {
+                                                                    if (dateColumnCount >= 5) return 200;
+                                                                    if (dateColumnCount >= 3) return 300;
+                                                                    return 400;
+                                                                };
+                                                                const maxCharsPerRow = getCharLimit();
+                                                                const resultEntries = Object.entries(param.results);
+                                                                const hasLongContent = resultEntries.some(([date, value]) => 
+                                                                    value && value.length > maxCharsPerRow
+                                                                );
+                                                                if (!hasLongContent) {
+                                                                    return [param];
+                                                                }
+                                                                const smartSplit = (text, maxLength) => {
+                                                                    if (text.length <= maxLength) return [text];
+                                                                    const chunks = [];
+                                                                    let remaining = text;
+                                                                    while (remaining.length > maxLength) {
+                                                                        let splitPoint = maxLength;
+                                                                        const breakPoints = [
+                                                                            remaining.lastIndexOf('\n\n', maxLength),
+                                                                            remaining.lastIndexOf('\n', maxLength),
+                                                                            remaining.lastIndexOf('. ', maxLength),
+                                                                            remaining.lastIndexOf(', ', maxLength),
+                                                                            remaining.lastIndexOf(' ', maxLength)
+                                                                        ];
+                                                                        for (const breakPoint of breakPoints) {
+                                                                            if (breakPoint > maxLength * 0.7) {
+                                                                                splitPoint = breakPoint + (breakPoint === breakPoints[2] ? 2 : 1);
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                        chunks.push(remaining.substring(0, splitPoint).trim());
+                                                                        remaining = remaining.substring(splitPoint).trim();
                                                                     }
-                                                                    chunks.push(remaining.substring(0, splitPoint).trim());
-                                                                    remaining = remaining.substring(splitPoint).trim();
-                                                                }
-                                                                if (remaining.length > 0) {
-                                                                    chunks.push(remaining);
-                                                                }
-                                                                return chunks;
-                                                            };
-                                                            const rows = [];
-                                                            resultEntries.forEach(([date, value]) => {
-                                                                if (value && value.length > maxCharsPerRow) {
-                                                                    const chunks = smartSplit(value, maxCharsPerRow);
-                                                                    chunks.forEach((chunk, index) => {
-                                                                        if (!rows[index]) {
-                                                                            rows[index] = {
-                                                                                name: index === 0 ? param.name : `${param.name} (cont.)`,
-                                                                                referenceRange: index === 0 ? param.referenceRange : '',
+                                                                    if (remaining.length > 0) {
+                                                                        chunks.push(remaining);
+                                                                    }
+                                                                    return chunks;
+                                                                };
+                                                                const rows = [];
+                                                                resultEntries.forEach(([date, value]) => {
+                                                                    if (value && value.length > maxCharsPerRow) {
+                                                                        const chunks = smartSplit(value, maxCharsPerRow);
+                                                                        chunks.forEach((chunk, index) => {
+                                                                            if (!rows[index]) {
+                                                                                rows[index] = {
+                                                                                    name: index === 0 ? param.name : `${param.name} (cont.)`,
+                                                                                    referenceRange: index === 0 ? param.referenceRange : '',
+                                                                                    results: {},
+                                                                                    type: param.type
+                                                                                };
+                                                                            }
+                                                                            rows[index].results[date] = chunk;
+                                                                        });
+                                                                    } else {
+                                                                        if (!rows[0]) {
+                                                                            rows[0] = {
+                                                                                name: param.name,
+                                                                                referenceRange: param.referenceRange,
                                                                                 results: {},
                                                                                 type: param.type
                                                                             };
                                                                         }
-                                                                        rows[index].results[date] = chunk;
-                                                                    });
-                                                                } else {
-                                                                    if (!rows[0]) {
-                                                                        rows[0] = {
-                                                                            name: param.name,
-                                                                            referenceRange: param.referenceRange,
-                                                                            results: {},
-                                                                            type: param.type
-                                                                        };
+                                                                        rows[0].results[date] = value || '';
                                                                     }
-                                                                    rows[0].results[date] = value || '';
-                                                                }
-                                                            });
-                                                            
-                                                            return rows.length > 0 ? rows : [param];
-                                                        };
-                                                        const splitParameters = [];
-                                                        parameters.forEach(param => {
-                                                            const splitRows = splitLongContent(param);
-                                                            splitParameters.push(...splitRows);
-                                                        })
-                                                        if (splitParameters.length > 0) {
-                                                            serviceGroup.rows.push(...splitParameters);
-                                                            serviceGroup.hasParameters = true;
-                                                        } else if (hasDirectResults) {
-                                                            const directServiceRow = {
-                                                                name: serviceName,
-                                                                referenceRange: directReferenceRange,
-                                                                results: directResults,
-                                                                type: 'service'
+                                                                });
+                                                                
+                                                                return rows.length > 0 ? rows : [param];
                                                             };
-                                                            const splitDirectRows = splitLongContent(directServiceRow);
-                                                            serviceGroup.rows.push(...splitDirectRows);
-                                                            serviceGroup.hasParameters = false;
-                                                        }
-                                                    });
-                                                    
-                                                    return (
-                                                        <View style={[styles.table, { break: "avoid" }]}>
-                                                            <View style={[styles.headerRow, { borderTop: '1px solid #171725', backgroundColor: '#cccccc' }]} fixed wrap={false}>
-                                                                <View style={[styles.headerCell, { 
-                                                                    flex: investigationFlex, 
-                                                                    minHeight: PX_TO_PT * 30, 
-                                                                    justifyContent: 'center',
-                                                                borderRight: '1px solid #171725',
-                                                                    padding: PX_TO_PT * 6
-                                                                }]}>
-                                                                <Text style={{
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                        fontWeight: 600, 
-                                                                    color: "#000",
-                                                                        textAlign: 'center',
-                                                                        lineHeight: 1.3
-                                                                    }} wrap>
-                                                                    Investigation
-                                                                </Text>
-                                                            </View>
-                                                                <View style={[styles.headerCell, { 
-                                                                    flex: subParamsFlex, 
-                                                                    minHeight: PX_TO_PT * 30, 
-                                                                    justifyContent: 'center',
-                                                                borderRight: '1px solid #171725',
-                                                                    padding: PX_TO_PT * 6
-                                                                }]}>
-                                                                <Text style={{
-                                                                    fontFamily: printSettings?.page_format?.font_family,
-                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                        fontWeight: 600, 
-                                                                    color: "#000",
-                                                                        textAlign: 'center',
-                                                                        lineHeight: 1.3
-                                                                    }} wrap>
-                                                                    Sub Params
-                                                                </Text>
-                                                            </View>
-                                                                {dates.map((date, index) => (
-                                                                    <View key={index} style={[styles.headerCell, { 
-                                                                        flex: dateColumnFlex, 
+                                                            const splitParameters = [];
+                                                            parameters.forEach(param => {
+                                                                const splitRows = splitLongContent(param);
+                                                                splitParameters.push(...splitRows);
+                                                            })
+                                                            if (splitParameters.length > 0) {
+                                                                serviceGroup.rows.push(...splitParameters);
+                                                                serviceGroup.hasParameters = true;
+                                                            } else if (hasDirectResults) {
+                                                                const directServiceRow = {
+                                                                    name: serviceName,
+                                                                    referenceRange: directReferenceRange,
+                                                                    results: directResults,
+                                                                    type: 'service'
+                                                                };
+                                                                const splitDirectRows = splitLongContent(directServiceRow);
+                                                                serviceGroup.rows.push(...splitDirectRows);
+                                                                serviceGroup.hasParameters = false;
+                                                            }
+                                                        });
+                                                        
+                                                        return (
+                                                            <View style={[styles.table, { break: "avoid" }]}>
+                                                                <View style={[styles.headerRow, { borderTop: '1px solid #171725', backgroundColor: '#cccccc' }]} fixed wrap={false}>
+                                                                    <View style={[styles.headerCell, { 
+                                                                        flex: investigationFlex, 
                                                                         minHeight: PX_TO_PT * 30, 
                                                                         justifyContent: 'center',
+                                                                    borderRight: '1px solid #171725',
                                                                         padding: PX_TO_PT * 6
                                                                     }]}>
-                                                                        <Text style={{
-                                                                            fontFamily: printSettings?.page_format?.font_family,
+                                                                    <Text style={{
+                                                                        fontFamily: printSettings?.page_format?.font_family,
                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
                                                                             fontWeight: 600, 
-                                                                            color: "#000",
+                                                                        color: "#000",
                                                                             textAlign: 'center',
                                                                             lineHeight: 1.3
                                                                         }} wrap>
-                                                                            {moment(date, "DD-MM-YYYY").format("DD MMM YY")}
-                                                                        </Text>
-                                                                    </View>
-                                                                ))}
-                                                        </View>
-                                                            {serviceGroups.map((serviceGroup, groupIndex) => {
-                                                                const totalRows = serviceGroup.rows.length;
-                                                                const hasParameters = serviceGroup.hasParameters;
-                                                                if (totalRows === 0) {
-                                                                    return (
-                                                                        <View key={groupIndex} style={{ flexDirection: 'row' }} wrap={false}>
-                                                                    <View style={{
-                                                                                flex: investigationFlex, 
-                                                                                minHeight: PX_TO_PT * 30, 
-                                                                                justifyContent: 'flex-start',
-                                                                        padding: PX_TO_PT * 6,
-                                                                                borderTop: '0px solid transparent',
-                                                                                borderBottom: '1px solid #171725',
-                                                                                borderLeft: '1px solid #171725',
-                                                                                borderRight: '1px solid #171725'
-                                                                    }}>
-                                                                        <Text style={{
-                                                                                    color: "#171725", 
-                                                                                    fontFamily: getIndianLanguageFont(serviceGroup.serviceName, printSettings?.page_format?.font_family), 
-                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                                    fontWeight: 400,
-                                                                                    textAlign: 'left',
-                                                                                    lineHeight: 1.3
-                                                                                }} wrap>
-                                                                                    {serviceGroup.serviceName}
-                                                                                </Text>
-                                                                            </View>
-                                                                            <View style={{ 
-                                                                                flex: subParamsFlex, 
-                                                                                minHeight: PX_TO_PT * 30, 
-                                                                                justifyContent: 'flex-start',
-                                                                                padding: PX_TO_PT * 6,
-                                                                                borderTop: '0px solid transparent',
-                                                                                borderBottom: '1px solid #171725',
-                                                                                borderRight: '1px solid #171725',
-                                                                                borderLeft: '0px solid transparent'
-                                                                            }}>
-                                                                                <Text style={{ 
-                                                                                    color: "#171725", 
-                                                                            fontFamily: printSettings?.page_format?.font_family,
-                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
-                                                                                    fontWeight: 400,
-                                                                                    textAlign: 'left',
-                                                                                    lineHeight: 1.3
-                                                                                }} wrap>
-                                                                                    -
-                                                                                </Text>
-                                                                            </View>
-                                                                            {dates.map((date, dateIndex) => (
-                                                                                <View key={dateIndex} style={{ 
-                                                                                    flex: dateColumnFlex, 
+                                                                        Investigation
+                                                                    </Text>
+                                                                </View>
+                                                                    <View style={[styles.headerCell, { 
+                                                                        flex: subParamsFlex, 
+                                                                        minHeight: PX_TO_PT * 30, 
+                                                                        justifyContent: 'center',
+                                                                    borderRight: '1px solid #171725',
+                                                                        padding: PX_TO_PT * 6
+                                                                    }]}>
+                                                                    <Text style={{
+                                                                        fontFamily: printSettings?.page_format?.font_family,
+                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                            fontWeight: 600, 
+                                                                        color: "#000",
+                                                                            textAlign: 'center',
+                                                                            lineHeight: 1.3
+                                                                        }} wrap>
+                                                                        Sub Params
+                                                                    </Text>
+                                                                </View>
+                                                                    {dates.map((date, index) => (
+                                                                        <View key={index} style={[styles.headerCell, { 
+                                                                            flex: dateColumnFlex, 
+                                                                            minHeight: PX_TO_PT * 30, 
+                                                                            justifyContent: 'center',
+                                                                            padding: PX_TO_PT * 6
+                                                                        }]}>
+                                                                            <Text style={{
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                fontWeight: 600, 
+                                                                                color: "#000",
+                                                                                textAlign: 'center',
+                                                                                lineHeight: 1.3
+                                                                            }} wrap>
+                                                                                {moment(date, "DD-MM-YYYY").format("DD MMM YY")}
+                                                                            </Text>
+                                                                        </View>
+                                                                    ))}
+                                                            </View>
+                                                                {serviceGroups.map((serviceGroup, groupIndex) => {
+                                                                    const totalRows = serviceGroup.rows.length;
+                                                                    const hasParameters = serviceGroup.hasParameters;
+                                                                    if (totalRows === 0) {
+                                                                        return (
+                                                                            <View key={groupIndex} style={{ flexDirection: 'row' }} wrap={false}>
+                                                                        <View style={{
+                                                                                    flex: investigationFlex, 
                                                                                     minHeight: PX_TO_PT * 30, 
-                                                                                    justifyContent: 'center',
+                                                                                    justifyContent: 'flex-start',
+                                                                            padding: PX_TO_PT * 6,
+                                                                                    borderTop: '0px solid transparent',
+                                                                                    borderBottom: '1px solid #171725',
+                                                                                    borderLeft: '1px solid #171725',
+                                                                                    borderRight: '1px solid #171725'
+                                                                        }}>
+                                                                            <Text style={{
+                                                                                        color: "#171725", 
+                                                                                        fontFamily: getIndianLanguageFont(serviceGroup.serviceName, printSettings?.page_format?.font_family), 
+                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                        fontWeight: 400,
+                                                                                        textAlign: 'left',
+                                                                                        lineHeight: 1.3
+                                                                                    }} wrap>
+                                                                                        {serviceGroup.serviceName}
+                                                                                    </Text>
+                                                                                </View>
+                                                                                <View style={{ 
+                                                                                    flex: subParamsFlex, 
+                                                                                    minHeight: PX_TO_PT * 30, 
+                                                                                    justifyContent: 'flex-start',
                                                                                     padding: PX_TO_PT * 6,
                                                                                     borderTop: '0px solid transparent',
                                                                                     borderBottom: '1px solid #171725',
@@ -5310,361 +5365,384 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 }}>
                                                                                     <Text style={{ 
                                                                                         color: "#171725", 
-                                                                                        fontFamily: printSettings?.page_format?.font_family, 
-                                                                                        fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                fontFamily: printSettings?.page_format?.font_family,
+                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                                                                                         fontWeight: 400,
-                                                                                        textAlign: 'center',
+                                                                                        textAlign: 'left',
                                                                                         lineHeight: 1.3
                                                                                     }} wrap>
                                                                                         -
-                                                                        </Text>
-                                                                    </View>
-                                                                            ))}
-                                                                </View>
-                                                                    );
-                                                                }
-                                                                return (
-                                                                    <React.Fragment key={groupIndex}>
-                                                                        {serviceGroup.rows.map((row, rowIndex) => {
-                                                                            const isFirstRow = rowIndex === 0;
-                                                                            const isLastRow = rowIndex === totalRows - 1;
-                                                                            const isMiddleRow = !isFirstRow && !isLastRow;
-                                                                    
-                                                                    return (
-                                                                                <View key={rowIndex} style={{ flexDirection: 'row' }} wrap={false}>
-                                                                                <View style={{
-                                                                                        flex: investigationFlex,
-                                                                                        minHeight: PX_TO_PT * 30,
-                                                                                        justifyContent: 'flex-start',
-                                                                                        padding: PX_TO_PT * 6,
-                                                                                        backgroundColor: "transparent",
-                                                                                        borderLeft: '1px solid #171725',
-                                                                                        borderTop: '0px solid transparent',
-                                                                                        borderBottom: isLastRow ? '1px solid #171725' : (hasParameters && totalRows > 1 ? '0px solid transparent' : '1px solid #171725'),
-                                                                                        borderRight: '1px solid #171725'
-                                                                                }}>
-                                                                                    <Text style={{
-                                                                                            color: "#171725", 
-                                                                                            fontFamily: getIndianLanguageFont(serviceGroup.serviceName, printSettings?.page_format?.font_family), 
-                                                                                            fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                                        fontWeight: 400,
-                                                                                            textAlign: 'left',
-                                                                                            lineHeight: 1.3
-                                                                                        }} wrap>
-
-                                                                                            {(hasParameters && isFirstRow) || (!hasParameters) ? serviceGroup.serviceName : ""}
                                                                                     </Text>
                                                                                 </View>
-                                                                                <View style={{
-                                                                                        flex: subParamsFlex,
-                                                                                        minHeight: PX_TO_PT * 30,
-                                                                                        justifyContent: 'flex-start',
+                                                                                {dates.map((date, dateIndex) => (
+                                                                                    <View key={dateIndex} style={{ 
+                                                                                        flex: dateColumnFlex, 
+                                                                                        minHeight: PX_TO_PT * 30, 
+                                                                                        justifyContent: 'center',
                                                                                         padding: PX_TO_PT * 6,
-                                                                                        backgroundColor: "transparent",
                                                                                         borderTop: '0px solid transparent',
                                                                                         borderBottom: '1px solid #171725',
-                                                                                    borderRight: '1px solid #171725',
+                                                                                        borderRight: '1px solid #171725',
                                                                                         borderLeft: '0px solid transparent'
-                                                                                }}>
-                                                                                    <Text style={{
+                                                                                    }}>
+                                                                                        <Text style={{ 
                                                                                             color: "#171725", 
-                                                                                            fontFamily: getIndianLanguageFont(row.name, printSettings?.page_format?.font_family), 
+                                                                                            fontFamily: printSettings?.page_format?.font_family, 
                                                                                             fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                                        fontWeight: 400,
-                                                                                            textAlign: 'left',
+                                                                                            fontWeight: 400,
+                                                                                            textAlign: 'center',
                                                                                             lineHeight: 1.3
                                                                                         }} wrap>
-                                                                                        {hasParameters ? row.name : '-'}{hasParameters && row.referenceRange ? ` (${row.referenceRange})` : ''}
-                                                                                    </Text>
-                                                                                </View>
-                                                                                    {dates.map((date, dateIndex) => (
-                                                                                        <View key={dateIndex} style={{ 
-                                                                                            flex: dateColumnFlex,
+                                                                                            -
+                                                                            </Text>
+                                                                        </View>
+                                                                                ))}
+                                                                    </View>
+                                                                        );
+                                                                    }
+                                                                    return (
+                                                                        <React.Fragment key={groupIndex}>
+                                                                            {serviceGroup.rows.map((row, rowIndex) => {
+                                                                                const isFirstRow = rowIndex === 0;
+                                                                                const isLastRow = rowIndex === totalRows - 1;
+                                                                                const isMiddleRow = !isFirstRow && !isLastRow;
+                                                                        
+                                                                        return (
+                                                                                    <View key={rowIndex} style={{ flexDirection: 'row' }} wrap={false}>
+                                                                                    <View style={{
+                                                                                            flex: investigationFlex,
                                                                                             minHeight: PX_TO_PT * 30,
-                                                                                            justifyContent: 'center',
+                                                                                            justifyContent: 'flex-start',
                                                                                             padding: PX_TO_PT * 6,
-                                                                                            backgroundColor: "white",
+                                                                                            backgroundColor: "transparent",
+                                                                                            borderLeft: '1px solid #171725',
                                                                                             borderTop: '0px solid transparent',
-                                                                                            borderBottom: '1px solid #171725',
-                                                                                            borderRight: '1px solid #171725',
-                                                                                            borderLeft: '0px solid transparent'
-                                                                                        }}>
-                                                                                            <Text style={{
+                                                                                            borderBottom: isLastRow ? '1px solid #171725' : (hasParameters && totalRows > 1 ? '0px solid transparent' : '1px solid #171725'),
+                                                                                            borderRight: '1px solid #171725'
+                                                                                    }}>
+                                                                                        <Text style={{
                                                                                                 color: "#171725", 
-                                                                                                fontFamily: printSettings?.page_format?.font_family, 
+                                                                                                fontFamily: getIndianLanguageFont(serviceGroup.serviceName, printSettings?.page_format?.font_family), 
                                                                                                 fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
-                                                                                                fontWeight: 400,
-                                                                                                textAlign: 'center',
+                                                                                            fontWeight: 400,
+                                                                                                textAlign: 'left',
                                                                                                 lineHeight: 1.3
                                                                                             }} wrap>
-                                                                                                {row.results[date] || '-'}
-                                                                                            </Text>
-                                                                                        </View>
-                                                                                    ))}
-                                                                                        </View>
-                                                                            );
-                                                                        })}
-                                                                    </React.Fragment>
-                                                                    );
-                                                            })}
-                                                        </View>
-                                                    );
-                                                })()}
-                                            </View>
-                                        )
-                                    )}
-                                </>
-                            ) : option?.is_custom_module === true && option?.enable === 'Y' && option?.custom_status === 'Y' && customModule?.content?.length > 0 ? (
-                                option?.format === 'inline' ? (
-                                    <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                        <Text fixed style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
-                                        {customModule?.content?.map((item, i) => {
-                                            return (
-                                                <Text key={i}>
-                                                    {item.title && <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;</Text>}
-                                                    {item.notes &&
-                                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                            {`${item?.title ? '(' : ''}`}
-                                                            {item.notes?.replace(/ /g, '\u00A0')}
-                                                            {`${item?.title ? ')' : ''}`}
-                                                        </Text>
-                                                    }
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{customModule?.content.length - 1 != i ? ',' : ''}&nbsp;</Text>
-                                                </Text>
-                                            )
-                                        })}
-                                    </Text>
-                                ) : option?.format === 'listview' ? (
-                                    <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text fixed style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
-                                        {customModule?.content.map((item, i) => {
-                                            return (
-                                                <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                    <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                    {item.title && <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;</Text>}
-                                                    {item.notes &&
-                                                        <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
-                                                            {`${item?.title ? '(' : ''}`}
-                                                            {item.notes?.replace(/ /g, '\u00A0')}
-                                                            {`${item?.title ? ')' : ''}`}
-                                                        </Text>
-                                                    }
-                                                </Text>
-                                            )
-                                        })}
-                                    </View>
-                                ) : (customModule?.content?.some((item) => item.title || item.notes) &&
-                                    <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                        <Text fixed style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>{customModule?.name}:&nbsp;</Text>
-                                        <View style={styles.table}>
-                                            <View style={styles.headerRowFixed} fixed/>
-                                            {customModule?.content.map((item, i) => (
-                                                <View style={styles.row} key={i} wrap={false}>
-                                                    {customModule?.content?.some((item) => item.title) &&<Text style={[styles.dynamicModuleCell, { flex: 0.3, color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.title || '-'}&nbsp;</Text>}
-                                                    {customModule?.content?.some((item) => item.notes) &&<Text style={[styles.dynamicModuleCell, { flex: 0.7, color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes?.replace(/ /g, '\u00A0') || '-'}&nbsp;</Text>}
+
+                                                                                                {(hasParameters && isFirstRow) || (!hasParameters) ? serviceGroup.serviceName : ""}
+                                                                                        </Text>
+                                                                                    </View>
+                                                                                    <View style={{
+                                                                                            flex: subParamsFlex,
+                                                                                            minHeight: PX_TO_PT * 30,
+                                                                                            justifyContent: 'flex-start',
+                                                                                            padding: PX_TO_PT * 6,
+                                                                                            backgroundColor: "transparent",
+                                                                                            borderTop: '0px solid transparent',
+                                                                                            borderBottom: '1px solid #171725',
+                                                                                        borderRight: '1px solid #171725',
+                                                                                            borderLeft: '0px solid transparent'
+                                                                                    }}>
+                                                                                        <Text style={{
+                                                                                                color: "#171725", 
+                                                                                                fontFamily: getIndianLanguageFont(row.name, printSettings?.page_format?.font_family), 
+                                                                                                fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                            fontWeight: 400,
+                                                                                                textAlign: 'left',
+                                                                                                lineHeight: 1.3
+                                                                                            }} wrap>
+                                                                                            {hasParameters ? row.name : '-'}{hasParameters && row.referenceRange ? ` (${row.referenceRange})` : ''}
+                                                                                        </Text>
+                                                                                    </View>
+                                                                                        {dates.map((date, dateIndex) => (
+                                                                                            <View key={dateIndex} style={{ 
+                                                                                                flex: dateColumnFlex,
+                                                                                                minHeight: PX_TO_PT * 30,
+                                                                                                justifyContent: 'center',
+                                                                                                padding: PX_TO_PT * 6,
+                                                                                                backgroundColor: "white",
+                                                                                                borderTop: '0px solid transparent',
+                                                                                                borderBottom: '1px solid #171725',
+                                                                                                borderRight: '1px solid #171725',
+                                                                                                borderLeft: '0px solid transparent'
+                                                                                            }}>
+                                                                                                <Text style={{
+                                                                                                    color: "#171725", 
+                                                                                                    fontFamily: printSettings?.page_format?.font_family, 
+                                                                                                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size, 
+                                                                                                    fontWeight: 400,
+                                                                                                    textAlign: 'center',
+                                                                                                    lineHeight: 1.3
+                                                                                                }} wrap>
+                                                                                                    {row.results[date] || '-'}
+                                                                                                </Text>
+                                                                                            </View>
+                                                                                        ))}
+                                                                                            </View>
+                                                                                );
+                                                                            })}
+                                                                        </React.Fragment>
+                                                                        );
+                                                                })}
+                                                            </View>
+                                                        );
+                                                    })()}
                                                 </View>
-                                            ))}
+                                            )
+                                        )}
+                                    </>
+                                ) : option?.is_custom_module === true && option?.enable === 'Y' && option?.custom_status === 'Y' && customModule?.content?.length > 0 ? (
+                                    option?.format === 'inline' ? (
+                                        <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                            <Text fixed style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
+                                            {customModule?.content?.map((item, i) => {
+                                                return (
+                                                    <Text key={i}>
+                                                        {item.title && <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;</Text>}
+                                                        {item.notes &&
+                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                {`${item?.title ? '(' : ''}`}
+                                                                {item.notes?.replace(/ /g, '\u00A0')}
+                                                                {`${item?.title ? ')' : ''}`}
+                                                            </Text>
+                                                        }
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{customModule?.content.length - 1 != i ? ',' : ''}&nbsp;</Text>
+                                                    </Text>
+                                                )
+                                            })}
+                                        </Text>
+                                    ) : option?.format === 'listview' ? (
+                                        <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                            <Text fixed style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>{customModule?.name}:&nbsp;</Text>
+                                            {customModule?.content.map((item, i) => {
+                                                return (
+                                                    <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                        <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                        {item.title && <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.title}&nbsp;</Text>}
+                                                        {item.notes &&
+                                                            <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
+                                                                {`${item?.title ? '(' : ''}`}
+                                                                {item.notes?.replace(/ /g, '\u00A0')}
+                                                                {`${item?.title ? ')' : ''}`}
+                                                            </Text>
+                                                        }
+                                                    </Text>
+                                                )
+                                            })}
                                         </View>
-                                    </View>
-                                )
-                            ) : option?.id === 17 && option?.enable === 'Y' && option?.custom_status === 'Y' && (patientBills?.length > 0 || advanceReceipts?.length > 0) && (
-                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Payment:&nbsp;</Text>
-                                    {patientBills?.map((patientBill, i) => {
-                                        const paymentModes = patientBill?.paymentModes?.map((item) => item?.paymentMode) || [];
-                                        const formattedPaymentModes =
-                                        paymentModes.length > 1
-                                            ? paymentModes.slice(0, -1).join(", ") + " & " + paymentModes[paymentModes.length - 1]
-                                            : paymentModes.join("");
-                                            if (patientBill?.paymentStatus !== "Refunded") {
+                                    ) : (customModule?.content?.some((item) => item.title || item.notes) &&
+                                        <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                            <Text fixed style={{ color: '#171725', fontFamily: getIndianLanguageFont(customModule?.name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>{customModule?.name}:&nbsp;</Text>
+                                            <View style={styles.table}>
+                                                <View style={styles.headerRowFixed} fixed/>
+                                                {customModule?.content.map((item, i) => (
+                                                    <View style={styles.row} key={i} wrap={false}>
+                                                        {customModule?.content?.some((item) => item.title) &&<Text style={[styles.dynamicModuleCell, { flex: 0.3, color: '#171725', fontFamily: getIndianLanguageFont(item?.title, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item.title || '-'}&nbsp;</Text>}
+                                                        {customModule?.content?.some((item) => item.notes) &&<Text style={[styles.dynamicModuleCell, { flex: 0.7, color: '#171725', fontFamily: getIndianLanguageFont(item?.notes, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item.notes?.replace(/ /g, '\u00A0') || '-'}&nbsp;</Text>}
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        </View>
+                                    )
+                                ) : option?.id === 17 && option?.enable === 'Y' && option?.custom_status === 'Y' && (patientBills?.length > 0 || advanceReceipts?.length > 0) && (
+                                    <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                        <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Payment:&nbsp;</Text>
+                                        {patientBills?.map((patientBill, i) => {
+                                            const paymentModes = patientBill?.paymentModes?.map((item) => item?.paymentMode) || [];
+                                            const formattedPaymentModes =
+                                            paymentModes.length > 1
+                                                ? paymentModes.slice(0, -1).join(", ") + " & " + paymentModes[paymentModes.length - 1]
+                                                : paymentModes.join("");
+                                                if (patientBill?.paymentStatus !== "Refunded") {
+                                                    return (
+                                                        <Text key={i} style={{ color: "#171725", fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, }}>
+                                                            {"\n"}
+                                                            {`Received ₹${patientBill?.paidAmount} via ${formattedPaymentModes} for ( ${patientBill?.billItems
+                                                            ?.map((item) => `${item?.name}: ₹${item?.totalAmount}`)
+                                                            .join(" | ")}${patientBill?.dueAmount ? ` | Due Amount: ₹${patientBill?.dueAmount}` : ""} )`}
+                                                        </Text>
+                                                    )
+                                            }
+                                        })}
+                                        {advanceReceipts?.map((advanceReceipt, i) => {
+                                            const paymentModes = advanceReceipt?.paymentModes?.map((item) => item?.paymentMode) || [];
+                                            const formattedPaymentModes =
+                                            paymentModes.length > 1
+                                                ? paymentModes.slice(0, -1).join(", ") + " & " + paymentModes[paymentModes.length - 1]
+                                                : paymentModes.join("");
+                                            if (advanceReceipt?.transactionType !== "Refund") {
                                                 return (
                                                     <Text key={i} style={{ color: "#171725", fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, }}>
                                                         {"\n"}
-                                                        {`Received ₹${patientBill?.paidAmount} via ${formattedPaymentModes} for ( ${patientBill?.billItems
-                                                        ?.map((item) => `${item?.name}: ₹${item?.totalAmount}`)
-                                                        .join(" | ")}${patientBill?.dueAmount ? ` | Due Amount: ₹${patientBill?.dueAmount}` : ""} )`}
+                                                        {`Advance Deposit Received with thanks ₹${advanceReceipt?.totalAmount} via ${formattedPaymentModes}`}
                                                     </Text>
                                                 )
-                                        }
-                                    })}
-                                    {advanceReceipts?.map((advanceReceipt, i) => {
-                                        const paymentModes = advanceReceipt?.paymentModes?.map((item) => item?.paymentMode) || [];
-                                        const formattedPaymentModes =
-                                        paymentModes.length > 1
-                                            ? paymentModes.slice(0, -1).join(", ") + " & " + paymentModes[paymentModes.length - 1]
-                                            : paymentModes.join("");
-                                        if (advanceReceipt?.transactionType !== "Refund") {
-                                            return (
-                                                <Text key={i} style={{ color: "#171725", fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, }}>
-                                                    {"\n"}
-                                                    {`Advance Deposit Received with thanks ₹${advanceReceipt?.totalAmount} via ${formattedPaymentModes}`}
-                                                </Text>
-                                            )
-                                        }
-                                    })}
-                                    {patientWalletBalance > 0 && (<Text style={{ color: "#171725", fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, }}>
-                                        {"\n"}
-                                        {`Available Advance Balance ₹${patientWalletBalance}`}
-                                    </Text>)}
-                                </Text>
-                            )}
-                            </View>
-                        )
-                      
-                    })}
-                {/* </View> */}
+                                            }
+                                        })}
+                                        {patientWalletBalance > 0 && (<Text style={{ color: "#171725", fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, }}>
+                                            {"\n"}
+                                            {`Available Advance Balance ₹${patientWalletBalance}`}
+                                        </Text>)}
+                                    </Text>
+                                )}
+                                </View>
+                            )
+                        
+                        })}
+                    {/* </View> */}
 
-                <View style={{ marginTop: PX_TO_PT * 29 }} wrap={false}>
-                    {printSettings?.signature_enable === 'Y' && fileSignature && fileSignature?.imageShow && (
-                        <View style={{ alignSelf: printSettings?.header_footer?.other_settings?.signature_place === 'R' && 'flex-end' }}>
-                            {fileSignature?.showFile && (
-                                <Image
-                                    style={{ width: 139, height: 60, objectFit: 'contain' }}
-                                    src={fileSignature?.showFile} />
-                            )}
-                        </View>
-                    )}
+                    <View style={{ marginTop: PX_TO_PT * 29 }} wrap={false}>
+                        {printSettings?.signature_enable === 'Y' && fileSignature && fileSignature?.imageShow && (
+                            <View style={{ alignSelf: printSettings?.header_footer?.other_settings?.signature_place === 'R' && 'flex-end' }}>
+                                {fileSignature?.showFile && (
+                                    <Image
+                                        style={{ width: 139, height: 60, objectFit: 'contain' }}
+                                        src={fileSignature?.showFile} />
+                                )}
+                            </View>
+                        )}
 
-                    {printSettings?.qrcode_enable === 'Y' && printSettings?.signature_enable === 'Y' ? (
-                        printSettings?.header_footer?.other_settings?.signature_place === 'R' ? (
-                            <View style={styles.directionCasemanager}>
-                                <View style={[styles.directionCasemanager, { flex: 1 }]} >
-                                    {printSettings?.qrcode && (
-                                        <>
-                                            <Image
-                                                style={{ width: 61, height: 61, objectFit: 'contain' }}
-                                                src={printSettings?.qrcode} />
-                                            <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                                {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
-                                            </Text>
-                                        </>
-                                    )}
-                                </View>
-                                <View style={{ flex: 1, textAlign: 'right' }} >
-                                    {printSettings?.header_footer?.other_settings?.name_of_doctor_enable === 'Y' && (
-                                        <Text style={[styles.extraText, { fontWeight: 700, color: '#000' }]}>
-                                            {caseManagerData?.doctor_data?.doctor_name}
-                                        </Text>
-                                    )}
-                                    {printSettings?.header_footer?.other_settings?.registration_no_enable === 'Y' && (
-                                        <Text style={[styles.extraText, { fontWeight: 400, color: '#000' }]}>
-                                            Medical Registration No.: {caseManagerData?.doctor_data?.gmc_no}
-                                        </Text>
-                                    )}
-                                    {printSettings?.header_footer?.other_settings?.qualification_enable === 'Y' && (
-                                        <Text style={[styles.extraText, { fontWeight: 400, color: '#000' }]}>
-                                            {printSettings?.header_footer?.other_settings?.qualification ? printSettings?.header_footer?.other_settings?.qualification : caseManagerData?.doctor_data?.um_qualifications}
-                                        </Text>
-                                    )}
-                                </View>
-                            </View>
-                        ) : (
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <View style={{ flex: 1 }} >
-                                    {printSettings?.header_footer?.other_settings?.name_of_doctor_enable === 'Y' && (
-                                        <Text style={[styles.extraText, { fontWeight: 700, color: '#000' }]}>
-                                            {caseManagerData?.doctor_data?.doctor_name}
-                                        </Text>
-                                    )}
-                                    {printSettings?.header_footer?.other_settings?.registration_no_enable === 'Y' && (
-                                        <Text style={[styles.extraText, { fontWeight: 400, color: '#000' }]}>
-                                            Medical Registration No.: {caseManagerData?.doctor_data?.gmc_no}
-                                        </Text>
-                                    )}
-                                    {printSettings?.header_footer?.other_settings?.qualification_enable === 'Y' && (
-                                        <Text style={[styles.extraText, { fontWeight: 400, color: '#000' }]}>
-                                            {printSettings?.header_footer?.other_settings?.qualification ? printSettings?.header_footer?.other_settings?.qualification : caseManagerData?.doctor_data?.um_qualifications}
-                                        </Text>
-                                    )}
-                                </View>
-                                <View style={[styles.directionCasemanager, { flex: 1, justifyContent: 'flex-end' }]}>
-                                    {printSettings?.qrcode && (
-                                        <>
-                                            <Image
-                                                style={{ width: 61, height: 61, objectFit: 'contain' }}
-                                                src={printSettings?.qrcode} />
-                                            <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                                {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
-                                            </Text>
-                                        </>
-                                    )}
-                                </View>
-                            </View>
-                        )
-                    ) : (printSettings?.qrcode_enable === 'Y' || printSettings?.signature_enable === 'Y') && (
-                        <View style={{ flexDirection: 'row' }}>
-                            {printSettings?.qrcode_enable === 'Y' && (
+                        {printSettings?.qrcode_enable === 'Y' && printSettings?.signature_enable === 'Y' ? (
+                            printSettings?.header_footer?.other_settings?.signature_place === 'R' ? (
                                 <View style={styles.directionCasemanager}>
-                                    {printSettings?.qrcode && (
-                                        <>
-                                            <Image
-                                                style={{ width: 61, height: 61, objectFit: 'contain' }}
-                                                src={printSettings?.qrcode} />
-                                            <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
-                                                {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
+                                    <View style={[styles.directionCasemanager, { flex: 1 }]} >
+                                        {printSettings?.qrcode && (
+                                            <>
+                                                <Image
+                                                    style={{ width: 61, height: 61, objectFit: 'contain' }}
+                                                    src={printSettings?.qrcode} />
+                                                <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
+                                                    {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
+                                                </Text>
+                                            </>
+                                        )}
+                                    </View>
+                                    <View style={{ flex: 1, textAlign: 'right' }} >
+                                        {printSettings?.header_footer?.other_settings?.name_of_doctor_enable === 'Y' && (
+                                            <Text style={[styles.extraText, { fontWeight: 700, color: '#000' }]}>
+                                                {caseManagerData?.doctor_data?.doctor_name}
                                             </Text>
-                                        </>
-                                    )}
+                                        )}
+                                        {printSettings?.header_footer?.other_settings?.registration_no_enable === 'Y' && (
+                                            <Text style={[styles.extraText, { fontWeight: 400, color: '#000' }]}>
+                                                Medical Registration No.: {caseManagerData?.doctor_data?.gmc_no}
+                                            </Text>
+                                        )}
+                                        {printSettings?.header_footer?.other_settings?.qualification_enable === 'Y' && (
+                                            <Text style={[styles.extraText, { fontWeight: 400, color: '#000' }]}>
+                                                {printSettings?.header_footer?.other_settings?.qualification ? printSettings?.header_footer?.other_settings?.qualification : caseManagerData?.doctor_data?.um_qualifications}
+                                            </Text>
+                                        )}
+                                    </View>
                                 </View>
-                            )}
-                            {printSettings?.signature_enable === 'Y' && (
-                                <View style={{ flex: 1, textAlign: printSettings?.header_footer?.other_settings?.signature_place === 'R' && 'right' }} >
-                                    {printSettings?.header_footer?.other_settings?.name_of_doctor_enable === 'Y' && (
-                                        <Text style={[styles.extraText, { fontWeight: 700, color: '#000' }]}>
-                                            {caseManagerData?.doctor_data?.doctor_name}
-                                        </Text>
-                                    )}
-                                    {printSettings?.header_footer?.other_settings?.registration_no_enable === 'Y' && (
-                                        <Text style={[styles.extraText, { fontWeight: 400, color: '#000' }]}>
-                                            Medical Registration No.: {caseManagerData?.doctor_data?.gmc_no}
-                                        </Text>
-                                    )}
-                                    {printSettings?.header_footer?.other_settings?.qualification_enable === 'Y' && (
-                                        <Text style={[styles.extraText, { fontWeight: 400, color: '#000' }]}>
-                                            {printSettings?.header_footer?.other_settings?.qualification ? printSettings?.header_footer?.other_settings?.qualification : caseManagerData?.doctor_data?.um_qualifications}
-                                        </Text>
-                                    )}
+                            ) : (
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <View style={{ flex: 1 }} >
+                                        {printSettings?.header_footer?.other_settings?.name_of_doctor_enable === 'Y' && (
+                                            <Text style={[styles.extraText, { fontWeight: 700, color: '#000' }]}>
+                                                {caseManagerData?.doctor_data?.doctor_name}
+                                            </Text>
+                                        )}
+                                        {printSettings?.header_footer?.other_settings?.registration_no_enable === 'Y' && (
+                                            <Text style={[styles.extraText, { fontWeight: 400, color: '#000' }]}>
+                                                Medical Registration No.: {caseManagerData?.doctor_data?.gmc_no}
+                                            </Text>
+                                        )}
+                                        {printSettings?.header_footer?.other_settings?.qualification_enable === 'Y' && (
+                                            <Text style={[styles.extraText, { fontWeight: 400, color: '#000' }]}>
+                                                {printSettings?.header_footer?.other_settings?.qualification ? printSettings?.header_footer?.other_settings?.qualification : caseManagerData?.doctor_data?.um_qualifications}
+                                            </Text>
+                                        )}
+                                    </View>
+                                    <View style={[styles.directionCasemanager, { flex: 1, justifyContent: 'flex-end' }]}>
+                                        {printSettings?.qrcode && (
+                                            <>
+                                                <Image
+                                                    style={{ width: 61, height: 61, objectFit: 'contain' }}
+                                                    src={printSettings?.qrcode} />
+                                                <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
+                                                    {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
+                                                </Text>
+                                            </>
+                                        )}
+                                    </View>
                                 </View>
-                            )}
-                        </View>
-                    )}
-                </View>
-
-                {/* </View> */}
-                <View style={{
-                    position: 'absolute',
-                    bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),
-                    left: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
-                    right: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
-                    }} fixed>
-                    {mode == NORMAL ? (
-                        printSettings?.letterhead_format === 0 ? (
-                            <View>
-                                {printSettings?.header_footer?.footer?.title && (<View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />)}
-                                <Text style={{ marginTop: PX_TO_PT * 8, color: '#171725', fontFamily: 'Roboto', fontSize: PX_TO_PT * printSettings?.header_footer?.footer?.font_size, fontWeight: 400, maxLines: 1 }}>{printSettings?.header_footer?.footer?.title}</Text>
-                            </View>
-                        ) : printSettings?.letterhead_format === 1 && (
-                            fileFooter && fileFooter?.imageShow && (
-                                renderFooterImage()
                             )
-                        )
-                    ) : (
-                        printSettings?.whatsapp_letterhead_format === 0 ? (
-                            <View>
-                                {printSettings?.header_footer?.footer?.title && (<View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />)}
-                                <Text style={{ marginTop: PX_TO_PT * 8, color: '#171725', fontFamily: 'Roboto', fontSize: PX_TO_PT * printSettings?.header_footer?.footer?.font_size, fontWeight: 400, maxLines: 1 }}>{printSettings?.header_footer?.footer?.title}</Text>
+                        ) : (printSettings?.qrcode_enable === 'Y' || printSettings?.signature_enable === 'Y') && (
+                            <View style={{ flexDirection: 'row' }}>
+                                {printSettings?.qrcode_enable === 'Y' && (
+                                    <View style={styles.directionCasemanager}>
+                                        {printSettings?.qrcode && (
+                                            <>
+                                                <Image
+                                                    style={{ width: 61, height: 61, objectFit: 'contain' }}
+                                                    src={printSettings?.qrcode} />
+                                                <Text style={{ fontSize: PX_TO_PT * 10, color: '#000', fontFamily: 'Roboto', fontWeight: 400 }}>
+                                                    {`Scan QR code to book an appointment\nwith your doctor or download your old\ndigital prescription`}
+                                                </Text>
+                                            </>
+                                        )}
+                                    </View>
+                                )}
+                                {printSettings?.signature_enable === 'Y' && (
+                                    <View style={{ flex: 1, textAlign: printSettings?.header_footer?.other_settings?.signature_place === 'R' && 'right' }} >
+                                        {printSettings?.header_footer?.other_settings?.name_of_doctor_enable === 'Y' && (
+                                            <Text style={[styles.extraText, { fontWeight: 700, color: '#000' }]}>
+                                                {caseManagerData?.doctor_data?.doctor_name}
+                                            </Text>
+                                        )}
+                                        {printSettings?.header_footer?.other_settings?.registration_no_enable === 'Y' && (
+                                            <Text style={[styles.extraText, { fontWeight: 400, color: '#000' }]}>
+                                                Medical Registration No.: {caseManagerData?.doctor_data?.gmc_no}
+                                            </Text>
+                                        )}
+                                        {printSettings?.header_footer?.other_settings?.qualification_enable === 'Y' && (
+                                            <Text style={[styles.extraText, { fontWeight: 400, color: '#000' }]}>
+                                                {printSettings?.header_footer?.other_settings?.qualification ? printSettings?.header_footer?.other_settings?.qualification : caseManagerData?.doctor_data?.um_qualifications}
+                                            </Text>
+                                        )}
+                                    </View>
+                                )}
                             </View>
-                        ) : printSettings?.whatsapp_letterhead_format === 1 && (
-                            fileFooter && fileFooter?.imageShow && (
-                                renderFooterImage()
+                        )}
+                    </View>
+
+                    {/* </View> */}
+                    <View style={{
+                        position: 'absolute',
+                        bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),
+                        left: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
+                        right: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
+                        }} fixed>
+                        {mode == NORMAL ? (
+                            printSettings?.letterhead_format === 0 ? (
+                                <View>
+                                    {printSettings?.header_footer?.footer?.title && (<View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />)}
+                                    <Text style={{ marginTop: PX_TO_PT * 8, color: '#171725', fontFamily: 'Roboto', fontSize: PX_TO_PT * printSettings?.header_footer?.footer?.font_size, fontWeight: 400, maxLines: 1 }}>{printSettings?.header_footer?.footer?.title}</Text>
+                                </View>
+                            ) : printSettings?.letterhead_format === 1 && (
+                                fileFooter && fileFooter?.imageShow && (
+                                    renderFooterImage()
+                                )
                             )
-                        )
-                    )}
-                </View>
+                        ) : (
+                            printSettings?.whatsapp_letterhead_format === 0 ? (
+                                <View>
+                                    {printSettings?.header_footer?.footer?.title && (<View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />)}
+                                    <Text style={{ marginTop: PX_TO_PT * 8, color: '#171725', fontFamily: 'Roboto', fontSize: PX_TO_PT * printSettings?.header_footer?.footer?.font_size, fontWeight: 400, maxLines: 1 }}>{printSettings?.header_footer?.footer?.title}</Text>
+                                </View>
+                            ) : printSettings?.whatsapp_letterhead_format === 1 && (
+                                fileFooter && fileFooter?.imageShow && (
+                                    renderFooterImage()
+                                )
+                            )
+                        )}
+                    </View>
 
-                {printSettings?.page_format?.pagination === true && <PageNumberFooter />}
+                    {printSettings?.page_format?.pagination === true && <PageNumberFooter />}
 
-            </Page>
+                </Page>
+            )}
         </Document>
     )
 }
