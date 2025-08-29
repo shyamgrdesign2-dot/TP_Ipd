@@ -53,6 +53,7 @@ import { services } from "../redux/doctorsSlice";
 import { deviceType, osName } from "react-device-detect";
 import SCBanner from "./SCBanner";
 import { setSelectAutofill } from "../redux/ddxSlice";
+import DigitisedPrescription from "./DigitisedPrescription";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -1770,166 +1771,171 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                     {isProcessing ? (
                       <GenRXLoaders isProcessing={isProcessing} />
                     ) : (
-                      <div
-                        className={`${styles.rightSection} ${isProcessing ? styles.gradientBorder : ""
-                          }`}
-                        style={{
-                          background: isProcessing ? `url(${genRxBg})` : "",
-                        }}
-                      >
-                        {prescriptionData?.vitalsAndBodyComposition &&
-                          Object.values(
-                            prescriptionData.vitalsAndBodyComposition
-                          ).some((value) => value) && (
-                            <>
-                              <div className="title-digitise-section mb-2">
-                                Vitals
-                              </div>
-                              {renderItems("vitalsAndBodyComposition")}
-                            </>
-                          )}
+                      <DigitisedPrescription
+                          data={prescriptionData} 
+                          setData={setPrescriptionData}
+                          loading={isProcessing}
+                      />
+                      // <div
+                      //   className={`${styles.rightSection} ${isProcessing ? styles.gradientBorder : ""
+                      //     }`}
+                      //   style={{
+                      //     background: isProcessing ? `url(${genRxBg})` : "",
+                      //   }}
+                      // >
+                      //   {prescriptionData?.vitalsAndBodyComposition &&
+                      //     Object.values(
+                      //       prescriptionData.vitalsAndBodyComposition
+                      //     ).some((value) => value) && (
+                      //       <>
+                      //         <div className="title-digitise-section mb-2">
+                      //           Vitals
+                      //         </div>
+                      //         {renderItems("vitalsAndBodyComposition")}
+                      //       </>
+                      //     )}
 
-                        {prescriptionData?.medicalHistory &&
-                          prescriptionData.medicalHistory.length > 0 && (
-                            <>
-                              <div className="title-digitise-section mb-2">
-                                Medical History
-                              </div>
-                              {renderItems("medicalHistory")}
-                            </>
-                          )}
+                      //   {prescriptionData?.medicalHistory &&
+                      //     prescriptionData.medicalHistory.length > 0 && (
+                      //       <>
+                      //         <div className="title-digitise-section mb-2">
+                      //           Medical History
+                      //         </div>
+                      //         {renderItems("medicalHistory")}
+                      //       </>
+                      //     )}
 
-                        {prescriptionData?.symptoms &&
-                          prescriptionData.symptoms.length > 0 && (
-                            <>
-                              <div className="title-digitise-section mb-2">
-                                Symptoms
-                              </div>
-                              {renderItems("symptoms")}
-                            </>
-                          )}
+                      //   {prescriptionData?.symptoms &&
+                      //     prescriptionData.symptoms.length > 0 && (
+                      //       <>
+                      //         <div className="title-digitise-section mb-2">
+                      //           Symptoms
+                      //         </div>
+                      //         {renderItems("symptoms")}
+                      //       </>
+                      //     )}
 
-                        {prescriptionData?.examinations &&
-                          prescriptionData.examinations.length > 0 && (
-                            <>
-                              <div className="title-digitise-section mb-2">
-                                Examinations
-                              </div>
-                              {renderItems("examinations")}
-                            </>
-                          )}
+                      //   {prescriptionData?.examinations &&
+                      //     prescriptionData.examinations.length > 0 && (
+                      //       <>
+                      //         <div className="title-digitise-section mb-2">
+                      //           Examinations
+                      //         </div>
+                      //         {renderItems("examinations")}
+                      //       </>
+                      //     )}
 
-                        {prescriptionData?.diagnosis &&
-                          prescriptionData.diagnosis.length > 0 && (
-                            <>
-                              <div className="title-digitise-section mb-2">
-                                Diagnosis
-                              </div>
-                              {renderItems("diagnosis")}
-                            </>
-                          )}
+                      //   {prescriptionData?.diagnosis &&
+                      //     prescriptionData.diagnosis.length > 0 && (
+                      //       <>
+                      //         <div className="title-digitise-section mb-2">
+                      //           Diagnosis
+                      //         </div>
+                      //         {renderItems("diagnosis")}
+                      //       </>
+                      //     )}
 
-                        {prescriptionData?.medications &&
-                          prescriptionData.medications.length > 0 && (
-                            <>
-                              <div className="title-digitise-section mb-2">
-                                Medicine
-                              </div>
-                              {renderItems("medications")}
-                            </>
-                          )}
+                      //   {prescriptionData?.medications &&
+                      //     prescriptionData.medications.length > 0 && (
+                      //       <>
+                      //         <div className="title-digitise-section mb-2">
+                      //           Medicine
+                      //         </div>
+                      //         {renderItems("medications")}
+                      //       </>
+                      //     )}
 
-                        {prescriptionData?.labInvestigation &&
-                          prescriptionData.labInvestigation.length > 0 && (
-                            <>
-                              <div className="title-digitise-section mb-2">
-                                Lab Investigation
-                              </div>
-                              {renderItems("labInvestigation")}
-                            </>
-                          )}
+                      //   {prescriptionData?.labInvestigation &&
+                      //     prescriptionData.labInvestigation.length > 0 && (
+                      //       <>
+                      //         <div className="title-digitise-section mb-2">
+                      //           Lab Investigation
+                      //         </div>
+                      //         {renderItems("labInvestigation")}
+                      //       </>
+                      //     )}
 
-                        {prescriptionData?.advice &&
-                          prescriptionData.advice.length > 0 && (
-                            <>
-                              <div className="title-digitise-section mb-2">
-                                Advices
-                              </div>
-                              {renderItems("advice")}
-                            </>
-                          )}
+                      //   {prescriptionData?.advice &&
+                      //     prescriptionData.advice.length > 0 && (
+                      //       <>
+                      //         <div className="title-digitise-section mb-2">
+                      //           Advices
+                      //         </div>
+                      //         {renderItems("advice")}
+                      //       </>
+                      //     )}
 
-                        {prescriptionData?.vaccinations &&
-                          prescriptionData.vaccinations.length > 0 && (
-                            <>
-                              <div className="title-digitise-section mb-2">
-                                Vaccination
-                              </div>
-                              {renderItems("vaccinations")}
-                            </>
-                          )}
-                        {prescriptionData?.others &&
-                          prescriptionData.others.length > 0 && (
-                            <>
-                              <div className="title-digitise-section mb-2">
-                                Others
-                              </div>
-                              {renderItems("others")}
-                            </>
-                          )}
-                        {renderCustomModules()}
-                        {prescriptionData?.followUp && (
-                          <>
-                            <div className="title-digitise-section mb-2">
-                              Follow Up
-                            </div>
-                            {renderItems("followUp")}
-                          </>
-                        )}
-                        {showInput && (
-                          <>
-                            <div className="d-flex justify-content-between align-items-center mb-4">
-                              <Input
-                                placeholder="Enter custom module name"
-                                value={newModuleName}
-                                onChange={(e) =>
-                                  setNewModuleName(e.target.value)
-                                }
-                                className="custom-module-input"
-                              />
-                              <>
-                                <CheckOutlined
-                                  className="input-action-icon tick-icon"
-                                  onClick={handleAddModule}
-                                />
-                                <CloseOutlined
-                                  className="input-action-icon cross-icon"
-                                  onClick={handleCancel}
-                                />
-                              </>
-                            </div>
-                            <div className="genRxCustomModuleBox"></div>
-                          </>
-                        )}
-                        <div
-                          className="cta-container mt-4 mb-4"
-                          onClick={() => setShowInput(true)}
-                        >
-                          <Button
-                            type="link"
-                            icon={<PlusOutlined />}
-                            className="add-custom-module-link"
-                          >
-                            Add Custom Module
-                          </Button>
-                        </div>
-                        <div className={styles.disclaimer}>
-                          <span style={{ fontWeight: 500 }}>Disclaimer:</span>{" "}
-                          Our AI model aims to be accurate, but sometimes it
-                          might make mistakes. Please double-check all details
-                          to ensure they are correct and complete.
-                        </div>
-                      </div>
+                      //   {prescriptionData?.vaccinations &&
+                      //     prescriptionData.vaccinations.length > 0 && (
+                      //       <>
+                      //         <div className="title-digitise-section mb-2">
+                      //           Vaccination
+                      //         </div>
+                      //         {renderItems("vaccinations")}
+                      //       </>
+                      //     )}
+                      //   {prescriptionData?.others &&
+                      //     prescriptionData.others.length > 0 && (
+                      //       <>
+                      //         <div className="title-digitise-section mb-2">
+                      //           Others
+                      //         </div>
+                      //         {renderItems("others")}
+                      //       </>
+                      //     )}
+                      //   {renderCustomModules()}
+                      //   {prescriptionData?.followUp && (
+                      //     <>
+                      //       <div className="title-digitise-section mb-2">
+                      //         Follow Up
+                      //       </div>
+                      //       {renderItems("followUp")}
+                      //     </>
+                      //   )}
+                      //   {showInput && (
+                      //     <>
+                      //       <div className="d-flex justify-content-between align-items-center mb-4">
+                      //         <Input
+                      //           placeholder="Enter custom module name"
+                      //           value={newModuleName}
+                      //           onChange={(e) =>
+                      //             setNewModuleName(e.target.value)
+                      //           }
+                      //           className="custom-module-input"
+                      //         />
+                      //         <>
+                      //           <CheckOutlined
+                      //             className="input-action-icon tick-icon"
+                      //             onClick={handleAddModule}
+                      //           />
+                      //           <CloseOutlined
+                      //             className="input-action-icon cross-icon"
+                      //             onClick={handleCancel}
+                      //           />
+                      //         </>
+                      //       </div>
+                      //       <div className="genRxCustomModuleBox"></div>
+                      //     </>
+                      //   )}
+                      //   <div
+                      //     className="cta-container mt-4 mb-4"
+                      //     onClick={() => setShowInput(true)}
+                      //   >
+                      //     <Button
+                      //       type="link"
+                      //       icon={<PlusOutlined />}
+                      //       className="add-custom-module-link"
+                      //     >
+                      //       Add Custom Module
+                      //     </Button>
+                      //   </div>
+                      //   <div className={styles.disclaimer}>
+                      //     <span style={{ fontWeight: 500 }}>Disclaimer:</span>{" "}
+                      //     Our AI model aims to be accurate, but sometimes it
+                      //     might make mistakes. Please double-check all details
+                      //     to ensure they are correct and complete.
+                      //   </div>
+                      // </div>
                     )}
                   </div>
                 </div>
