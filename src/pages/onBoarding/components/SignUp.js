@@ -36,7 +36,12 @@ useEffect(() => {
   aisensybotInjection(isLoginFlow);
 
   return () => {
-    // cleanup on unmount / flow change
+    
+    aisensybotInjection(true);
+    const dialogBox = document.querySelector(".df-chatbox");
+    if (dialogBox) dialogBox.remove();
+    const dfButtons = document.querySelectorAll(".df-btn");
+    dfButtons.forEach(btn => btn.remove());
     const existingScript = document.getElementById(AISENSY_SCRIPT_ID);
     const aiSensiDiv = document.getElementsByClassName('df-btn df-closed');
     aiSensiDiv.forEach(div => div.remove());
