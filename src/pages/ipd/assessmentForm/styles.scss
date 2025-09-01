@@ -1,6 +1,27 @@
+
+$panel-top: #f8f4ff;
+$panel-btm: #fbfaff;
+$border: rgba(80, 56, 160, 0.12);
+$text: #232336;
+$muted: #6f6b88;
+
 .ipd-assessments-form-container {
+    .toolbar-container {
+        justify-content: flex-end !important;
+    }
+    #cw-panel-additional-notes, #cw-panel-functional-assessment, #cw-panel-treatment-plan {
+        margin-top: 16px !important;
+    }
+    .patient-details-menu-container {
+        .sections {
+            gap: 0 !important;
+        }
+        .patient-section {
+            padding: 24px 24px 0 !important;
+        }
+    }
     .ipdaf-box-container {
-        background: white;
+        background: var(--backgroundColor, #fff);
         border-radius: 16px;
         box-shadow: 0px 0px 6px 0px #00000005;
         padding: 6px 6px 14px;
@@ -31,6 +52,28 @@
             line-height: normal !important;
         }
     }
+    .ipdaf-obstetrics-container {
+        .ant-table-content {
+            table {
+                border: none !important;
+                margin-bottom: 0;
+                border-radius: 14px !important;
+                border-top-left-radius: 0 !important;
+                border-top-right-radius: 0 !important;
+                overflow: hidden;
+                tr, th, td {
+                    border-radius: 0 !important;
+                    
+                }
+            }
+        }
+        .st__section {
+            table {
+                border-bottom: 1px solid #F1F1F5 !important;
+                border-radius: 0 !important;
+            }
+        }
+    }
     .ipdaf-padding-0 {
         padding: 0 !important;
     }
@@ -47,8 +90,14 @@
          padding: 20px !important;
          border-radius: 16px;
          margin-top: 24px;
+         margin-bottom: 24px;
          box-shadow: 0px 0px 6px 0px #00000005;
-         background-color: #fff;
+         background-color: var(--backgroundColor, #fff);
+    }
+}
+.ipd-assessments-readable-container {
+    .rich-text-editor-container {
+        border: none !important;
     }
 }
 .ipd-lab-params-container {
@@ -106,6 +155,8 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    position: relative;
+    width: 100%;
     > div {
       max-width: calc(50% - 28px);
       flex-basis: calc(50% - 28px);
@@ -121,7 +172,8 @@
   
   .examination-rich-container {
     border: 1px solid #e2e2ea80;
-    width: 500px;
+    width: 100% !important;
+    background: #FAFAFB66;
   }
   
   .examination-header {
@@ -138,3 +190,114 @@
     }
   }  
   }
+
+
+
+.assessments-parent-container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); // two-column layout
+    gap: 24px;
+    margin-bottom: 24px;
+    }
+
+    .assessment-card {
+    border: 1px solid $border;
+    border-radius: 16px;
+    padding: 16px;
+    background-color: var(--backgroundColor, #fff);
+    }
+
+    .assessment-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    }
+
+    .assessment-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: $text;
+    }
+
+    .assessment-radio-group {
+    display: grid;
+    gap: 12px;
+
+    // antd radio text tone
+    .ant-radio-wrapper {
+        color: $muted;
+        font-size: 16px;
+    }
+    .ant-radio-label {
+        font-size: 14px;
+        color: #454551;
+        padding: 0 !important;
+    }
+    }
+
+    @media (max-width: 900px) {
+    .assessments-parent-container {
+        grid-template-columns: 1fr;
+    }
+    }
+
+    .generic-card-container {
+        margin-bottom: 20px;
+      }
+      
+      .big-ring-radio {
+        --radio-size: 16px;
+        --radio-ring: 2px;
+        --radio-dot: 7px;
+        --radio-primary: #4b4ad5;
+        --radio-unchecked: #8a8a8a;
+      
+        .ant-radio .ant-radio-inner {
+          --radio-ring: 1px;
+          width: var(--radio-size) !important;
+          height: var(--radio-size) !important;
+          border-radius: 50% !important;
+          border-width: var(--radio-ring) !important;
+          border-color: var(--radio-unchecked) !important;
+          background: #fff !important;
+          box-shadow: none !important;
+        }
+      
+        .ant-radio-wrapper:hover .ant-radio:not(.ant-radio-checked) .ant-radio-inner {
+          border-color: var(--radio-unchecked) !important;
+        }
+      
+        .ant-radio .ant-radio-inner::after {
+          width: var(--radio-dot) !important;
+          height: var(--radio-dot) !important;
+          border-radius: 50% !important;
+          top: 50% !important;
+          left: 50% !important;
+          margin: 0 !important;
+          transform: translate(-50%, -50%) scale(0) !important;
+          opacity: 0 !important;
+          background: var(--radio-primary) !important;
+        }
+      
+        .ant-radio-checked .ant-radio-inner {
+          --radio-ring: 2px !important;
+          border-width: var(--radio-ring) !important;
+          border-color: var(--radio-primary) !important;
+        }
+        .ant-radio-checked .ant-radio-inner::after {
+          transform: translate(-50%, -50%) scale(1) !important;
+          opacity: 1 !important;
+        }
+      
+        .ant-radio-checked .ant-radio-inner::after {
+          transition:
+            transform 20ms ease-out,
+            opacity 20ms ease-out !important;
+        }
+      
+        .ant-radio-wrapper {
+          gap: 8px !important;
+          cursor: pointer !important;
+        }
+      }

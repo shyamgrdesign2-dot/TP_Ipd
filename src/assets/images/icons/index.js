@@ -14,6 +14,8 @@ import microphone from './microphone.webp';
 import numberedList from './numbered-list.svg';
 import obstetrics from './obstetrics.webp';
 import recordPad from './record-pad.webp';
+import recordPadDark from './record-pad-dark.svg';
+import folderDark from './folder-dark.svg';
 import referDoctors from './refer-doctors.webp';
 import roundDotted from './round-dotted.webp';
 import vitals from './vitals.webp';
@@ -111,5 +113,7 @@ settingsIcon,
 moreIcon,
 basicInfoBg,
 plusIconColoured,
-vitalsDarkColoured
+vitalsDarkColoured,
+folderDark,
+recordPadDark
 };

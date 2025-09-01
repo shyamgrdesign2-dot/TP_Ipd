@@ -142,5 +142,80 @@ export const IPD = {
         { label: 'Abnormal', value: 2, name: 'abnormal' },
       ],
     },
+  ],
+  FUNCTIONAL_ASSESSMENT : [
+    {
+      key: 'bedActivity',
+      title: 'Bed Activity',
+      options: [
+        { label: 'Independent', value: 1, name: 'independent' },
+        {
+          label: 'Needs Assistance',
+          value: 2,
+          name: 'needs-assistance',
+        },
+        { label: 'Dependent', value: 3, name: 'dependent' },
+      ],
+    },
+    {
+      key: 'sitting',
+      title: 'Sitting',
+      options: [
+        { label: 'Independent', value: 1, name: 'independent' },
+        {
+          label: 'Needs Assistance',
+          value: 2,
+          name: 'needs-assistance',
+        },
+        { label: 'Dependent', value: 3, name: 'dependent' },
+      ],
+    },
+    {
+      key: 'standing',
+      title: 'Standing',
+      options: [
+        { label: 'Independent', value: 1, name: 'independent' },
+        {
+          label: 'Needs Assistance',
+          value: 2,
+          name: 'needs-assistance',
+        },
+        { label: 'Dependent', value: 3, name: 'dependent' },
+      ],
+    },
+    {
+      key: 'ambulation',
+      title: 'Ambulation',
+      options: [
+        { label: 'Independent', value: 1, name: 'independent' },
+        {
+          label: 'Needs Assistance',
+          value: 2,
+          name: 'needs-assistance',
+        },
+        { label: 'Dependent', value: 3, name: 'dependent' },
+      ],
+    },
+    {
+      key: 'stairClimbing',
+      title: 'Stair Climbing',
+      options: [
+        { label: 'Independent', value: 1, name: 'independent' },
+        {
+          label: 'Needs Assistance',
+          value: 2,
+          name: 'needs-assistance',
+        },
+        { label: 'Dependent', value: 3, name: 'dependent' },
+      ],
+    },
+    {
+      key: 'bedSoreOnAdmission',
+      title: 'Bed Sore on Admission',
+      options: [
+        { label: 'Yes', value: 1, name: 'yes' },
+        { label: 'No', value: 2, name: 'no' },
+      ],
+    },
   ]
 };

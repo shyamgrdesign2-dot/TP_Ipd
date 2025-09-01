@@ -2982,3 +2982,7 @@ body {
     position: relative;
     z-index: 1001;
 }
+
+.ant-notification-notice, .ant-notification-notice-error, .ant-notification-notice-closable {
+  display: none !important;
+}

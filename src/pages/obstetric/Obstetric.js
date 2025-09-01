@@ -51,11 +51,13 @@ const Obstetric = ({
   handleCollapsed,
   isPreviousPregnancyOverview = false,
   handleDrawerMedicalReport,
+  patientDataFromProps,
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { patient_data } = state;
+  const { patient_data : patientData, caseManagerData } = state;
+    const patient_data = patientData || patientDataFromProps;
   const {
     isPatientDiagnosisUpdated,
     isNavigateToObstetric,

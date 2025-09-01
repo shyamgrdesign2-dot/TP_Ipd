@@ -75,7 +75,7 @@ import ObstetricList from "./pages/obstetric/components/obstetricList/ObstetricL
 import MedicalHistoryBox from "./components/MedicalHistoryBox";
 import MedicalHistoryList from "./components/MedicalHistoryList";
 import IPDPatientDetails from "./pages/ipd/patientDetails/patientDetails";
-import AssessmentForm from "./pages/ipd/assessmentForm/assessmentForm";
+import AssessmentForm from "./pages/ipd/assessmentForm/AssessmentForm";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
