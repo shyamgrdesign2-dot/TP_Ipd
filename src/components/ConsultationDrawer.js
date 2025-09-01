@@ -921,23 +921,27 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
             <div className="shimmer-container">
               <div className="shimmer"></div>
             </div>
-          ) : activeType === "followUp" ? (
-            <input
-              type="text"
-              value={editableText}
-              className="editable-digitised-item"
-              onChange={handleInputChange}
-              onBlur={() => handleInputBlur("followUp")}
-              autoFocus
-            // style={{ width: `${textWidth + 10}px` }}
-            />
           ) : (
-            <span
-              onClick={() => handleItemClick("followUp")}
-              className="digitised-item"
-            >
-              {prescriptionData?.followUp}
-            </span>
+            <div className="medicine-item">
+              {activeType === "followUp" ? (
+                <input
+                  type="text"
+                  value={editableText}
+                  className="editable-digitised-item"
+                  onChange={handleInputChange}
+                  onBlur={() => handleInputBlur("followUp")}
+                  autoFocus
+                  style={{ width: `${textWidth + 10}px` }}
+                />
+              ) : (
+                <span
+                  onClick={() => handleItemClick("followUp")}
+                  className="digitised-item"
+                >
+                  {prescriptionData?.followUp}
+                </span>
+              )}
+            </div>
           )}
         </div>
       );
