@@ -9,6 +9,10 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
+import {
+  getClinic,
+  getTokenData
+} from "../utils/utils";
 
 import {
   ADD,
@@ -2335,7 +2339,23 @@ function SmartPrescription() {
     });
   };
 
+  
   const handleSubmit = async () => {
+      const type = isCustomSSRX ? 1 : 0;
+      const tokenData = getTokenData();
+      const clinic = getClinic(profile?.hospital_data);
+      window.Moengage.track_event("TP_SmartRx_Submit", {
+      patient_id: patient_data?.patient_unique_id || "",
+      patient_name: patient_data?.pm_fullname,
+      doctor_id: profile?.doctor_unique_id,
+      doctor_name: profile?.um_name,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      clinic_name: clinic?.hm_name,
+      source: "Submit rx button",
+      type: type,
+      device_details: navigator.userAgent
+  });
     // Only get canvases that correspond to current pages
     const currentCanvasArray = pages.map(pageId => canvasRefs.current[pageId]).filter(
       (canvas) => canvas !== null

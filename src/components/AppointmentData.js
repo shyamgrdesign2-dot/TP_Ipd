@@ -37,10 +37,10 @@ import {
   errorMessage,
   getClinic,
   getClinicName,
-  getTokenData,
   sendMessageToParent,
   shouldAppointmentAgentDisabled,
   trackEvent,
+  getTokenData,
 } from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
 import {
@@ -158,7 +158,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   const { isLoading } = useSelector((state) => state.uploadDoc);
   const { advancedSettings } = useSelector((state) => state.billing);
   const { isOpdBillingAccessable } = useOpdBilling();
-
+  const [genRxDetails, setGenRxDetails] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const from = searchParams.get("from");
   const [modalOpen, setModalOpen] = useState(false);
@@ -1421,10 +1421,23 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   };
 
   const onSmartRxClick = async (record) => {
+    const tokenData = getTokenData();
+    const clinic = getClinic(profile?.hospital_data);
     window.Moengage.track_event("patient_search_consult", {
       doctor_id: profile?.doctor_unique_id,
       patient_id: record?.patient_unique_id,
     });
+    window.Moengage.track_event("TP_SmartRx_Started", {
+      patient_id: record?.patient_unique_id || "",
+      patient_name: record.pm_fullname,
+      doctor_id: profile?.doctor_unique_id,
+      doctor_name: profile?.um_name,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      clinic_name: clinic?.hm_name,
+      source: "Appointment Landing Page",
+      device_details: navigator.userAgent
+  });
     navigate("/smart-prescription", { state: { patient_data: record } });
   };
 
@@ -1573,7 +1586,24 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
       );
       const tcm_id = response.data[0]?.tcm_id;
       const smartRxData = await fetchData(tcm_id);
+      const isCustomSSRX = response.data[0]?.isCustomSSRX === "1" ? true : false;
+      const type = isCustomSSRX ? 1 : 0;
       // const ocrData = await fetchRxDigitisedData(tcm_id);
+      const tokenData = getTokenData();
+      const clinic = getClinic(profile?.hospital_data);
+      window.Moengage.track_event("TP_DigitizeSSRx", {
+      patient_id: record?.patient_unique_id || "",
+      patient_name: record.pm_fullname,
+      doctor_id: profile?.doctor_unique_id,
+      doctor_name: profile?.um_name,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      clinic_name: clinic?.hm_name,
+      rx_id: tcm_id || " ",
+      type: type,
+      source: "pending for digitization bar",
+      device_details: navigator.userAgent
+  });
 
       navigate("/smart-rx-digitise", {
         state: {
