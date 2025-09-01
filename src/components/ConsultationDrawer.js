@@ -53,7 +53,6 @@ import { services } from "../redux/doctorsSlice";
 import { deviceType, osName } from "react-device-detect";
 import SCBanner from "./SCBanner";
 import { setSelectAutofill } from "../redux/ddxSlice";
-import DigitisedPrescription from "./DigitisedPrescription";
 
 const GenRxTips = lazy(() => import("./GenRxTips"));
 
@@ -72,6 +71,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [prescriptionData, setPrescriptionData] = useState(null);
+  const isAutoFocusShownRef = useRef(false);
   const [symptomsCollectorData, setSymptomsCollectorData] = useState(null);
   const [localModules, setLocalModules] = useState([]);
   const [showInput, setShowInput] = useState(false);
@@ -89,6 +89,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
   const [activeIndex, setActiveIndex] = useState(null);
   const [activeType, setActiveType] = useState(null);
   const [editableLineItem, setEditableLineItem] = useState("");
+  const [editableKey, setEditableKey] = useState("");
   const [queries, setQueries] = useState([]);
   const [isRxEdited, setIsRxEdited] = useState(false);
   const [editingModule, setEditingModule] = useState("");
@@ -153,6 +154,69 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
   useEffect(() => {
     if (caseManagerData?.smart_prescription_filename) getGenRxDetails();
   }, [caseManagerData?.smart_prescription_filename]);
+
+  useEffect(() => {
+    if (isAutoFocusShownRef.current) return;
+    if (!prescriptionData || activeIndex !== null || activeType !== null) return;
+
+    const fieldsToCheck = [
+      { name: 'vitalsAndBodyComposition', type: 'object' },
+      { name: 'medicalHistory', type: 'array' },
+      { name: 'symptoms', type: 'array' },
+      { name: 'examinations', type: 'array' },
+      { name: 'diagnosis', type: 'array' },
+      { name: 'medications', type: 'array' },
+      { name: 'labInvestigation', type: 'array' },
+      { name: 'advice', type: 'array' },
+      { name: 'vaccinations', type: 'array' },
+      { name: 'others', type: 'array' },
+      { name: 'dynamicFields', type: 'object' },
+      { name: 'followUp', type: 'string' }
+    ];
+
+    for (const field of fieldsToCheck) {
+      if (field.type === 'object' && field.name === 'vitalsAndBodyComposition') {
+        const keysWithValue = Object.entries(prescriptionData[field.name] || {})
+          .filter(([_, value]) => value)
+          .map(([key]) => key);
+        if (keysWithValue?.length) {
+          setTimeout(() => {
+            isAutoFocusShownRef.current = true;
+            return handleKeyEditClick(keysWithValue[0]);
+          }, 0);
+          return;
+        }
+      } else if (field.type === 'object' && field.name === 'dynamicFields') {
+        const modules = Object.keys(prescriptionData[field.name] || {});
+        if (modules.length && prescriptionData[field.name][modules[0]]?.length) {
+          setTimeout(() => {
+            isAutoFocusShownRef.current = true;
+            return handleItemClick(modules[0], 0, true);
+          }, 100);
+          return;
+        }
+      } else if (field.type === 'array') {
+        if (prescriptionData[field.name]?.length) {
+          setTimeout(() => {
+            isAutoFocusShownRef.current = true;
+            if (["advice", "others"].includes(field.name)) {
+              return handleItemClick(field.name, 0);
+            }
+            return handleLineItemClick(field.name, 0);
+          }, 100);
+          return;
+        }
+      } else if (field.type === 'string') {
+        if (prescriptionData[field.name]) {
+          setTimeout(() => {
+            isAutoFocusShownRef.current = true;
+            return handleItemClick(field.name);
+          }, 100);
+          return;
+        }
+      }
+    }
+  }, [prescriptionData, activeIndex, activeType]);
 
   useEffect(() => {
     if (symptomCollector && Object.keys(symptomCollector)?.length > 0) {
@@ -635,16 +699,32 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
   };
 
   const inputRefs = useRef({});
+  const inputLineItemRefs = useRef({});
 
-  const handleKeyDown = (e, type, index) => {
+  const handleKeyDown = (e, type, index, isExisting) => {
     if (e.key === "Enter") {
       e.preventDefault(); // Prevent newline in the input field
-
-      const trimmedText = editableText.trim();
+      
+      const trimmedText = editableText.trim() || editableLineItem?.trim();
       if (trimmedText) {
         setPrescriptionData((prevData) => {
           const updatedData = { ...prevData };
 
+          if (isExisting) {
+            if (!updatedData?.[type]) {
+              updatedData[type] = [];
+            }
+            if (['advice', 'others'].includes(type)) {
+              updatedData[type][index] = trimmedText;
+              updatedData[type].splice(index + 1, 0, "");
+            } else {
+              updatedData[type][index].lineItem = trimmedText;
+              updatedData[type].splice(index + 1, 0, { lineItem: " ", name: " " });
+            }
+            setEditableLineItem(" ");
+            setEditableText("");
+          return updatedData;
+          }
           if (!updatedData.dynamicFields[type]) {
             updatedData.dynamicFields[type] = [];
           }
@@ -659,13 +739,20 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
 
         // Update active index and clear input
         setActiveIndex(index + 1);
-        setActiveType(type);
         setIsRxEdited(true);
-        setEditableText("");
+        if (isExisting && !['advice', 'others'].includes(type)) {
+          setActiveType(`${type}-lineItem`);
+          setEditableLineItem("");
+        } else {
+          setActiveType(type);
+          setEditableText("");
+        }
 
         // Focus on the newly added input
         setTimeout(() => {
           const nextIndex = index + 1;
+          if (isExisting) inputLineItemRefs.current[nextIndex]?.focus();
+          else
           inputRefs.current[nextIndex]?.focus();
         }, 0);
       }
@@ -687,25 +774,11 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
     setIsRxEdited(true);
   };
 
-  const handleLineItemBlur = (type, index) => {
-    setPrescriptionData((prevData) => {
-      const updatedData = { ...prevData };
-
-      updatedData[type][index].lineItem = editableLineItem; // Update lineItem with the new value
-
-      return updatedData;
-    });
-    setActiveIndex(null);
-    setActiveType(null);
-    setIsRxEdited(true);
-  };
-
-  const handleInputBlur = (type, index, isCustom) => {
-    if ((activeIndex !== null && activeType !== null) || isCustom) {
+  const handleInputBlur = (type, index, isCustom, isExisting) => {
+    if ((activeIndex !== null && activeType !== null) || (isCustom || isExisting)) {
       setPrescriptionData((prevData) => {
         const updatedData = { ...prevData };
-        const trimmedText = editableText.trim();
-
+        const trimmedText = editableText.trim() || editableLineItem?.trim();
         if (!trimmedText) {
           if (type === "vitalsAndBodyComposition") {
             updatedData.vitalsAndBodyComposition[index] = "";
@@ -713,7 +786,12 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
             updatedData.dynamicFields[type] = updatedData.dynamicFields[
               type
             ].filter((_, i) => i !== index);
-          } else if (type === "followUp") {
+          } else if (isExisting) {
+            updatedData[type] = updatedData[
+              type
+            ].filter((_, i) => i !== index);
+          }
+           else if (type === "followUp") {
             updatedData.followUp = "";
           } else {
             updatedData[type] = updatedData?.[type]?.filter(
@@ -732,6 +810,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
           type === "vaccinations"
         ) {
           updatedData[type][index].name = trimmedText;
+          updatedData[type][index].lineItem = trimmedText;
         } else if (type === "advice" || type === "others") {
           updatedData[type][index] = trimmedText;
         } else if (type === "vitalsAndBodyComposition") {
@@ -902,6 +981,28 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
     }
   }
 
+  const handleKeyEditClick = (key) => {
+    setActiveIndex(key);
+    setActiveType("vitalsAndBodyComposition-key");
+    setEditableKey(key);
+  };
+
+  const handleKeyEditBlur = (key) => {
+    if (editableKey && editableKey !== key) {
+      setPrescriptionData((prevData) => {
+        const updatedData = { ...prevData };
+        const value = updatedData.vitalsAndBodyComposition[key];
+        delete updatedData.vitalsAndBodyComposition[key];
+        updatedData.vitalsAndBodyComposition[editableKey] = value;
+        return updatedData;
+      });
+      setIsRxEdited(true);
+    }
+    setActiveIndex(null);
+    setActiveType(null);
+    setEditableKey("");
+  };
+
   const renderItems = (type) => {
     if (type === "followUp") {
       // Dynamically calculate input width
@@ -976,9 +1077,28 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                       <div className="medicine-item">
                         <span className="digitised-item">
                           {/* Format the key to be human-readable */}
-                          {`${key
-                            .replace(/([A-Z])/g, " $1")
-                            .replace(/^./, (str) => str.toUpperCase())}: `}
+                          {activeIndex === key && activeType === "vitalsAndBodyComposition-key" ? (
+                            <input
+                              type="text"
+                              value={editableKey || key}
+                              className="editable-digitised-item"
+                              onChange={(e) => setEditableKey(e.target.value)}
+                              onBlur={() => handleKeyEditBlur(key)}
+                              autoFocus
+                              style={{ width: `${(editableKey || key).length * 8 + 20}px` }}
+                            />
+                          ) : (
+                            <span
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleKeyEditClick(key);
+                              }}
+                              className="digitised-item digitised-key-item"
+                              style={{ cursor: "pointer", fontWeight: 500 }}
+                            >
+                              {`${key}: `}
+                            </span>
+                          )}
                         </span>
                         {activeIndex === key &&
                           activeType === "vitalsAndBodyComposition" ? (
@@ -1064,6 +1184,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                           className="editable-digitised-item"
                           onChange={handleInputChange}
                           onBlur={() => handleInputBlur(type, index)}
+                          onKeyDown={(e) => handleKeyDown(e, type, index, true)}
                           autoFocus
                           style={{ width: `${textWidth + 10}px` }}
                         />
@@ -1094,7 +1215,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                             value={editableLineItem}
                             className="editable-digitised-item"
                             onChange={handleLineItemChange}
-                            onBlur={() => handleLineItemBlur(type, index)}
+                            onBlur={() => handleInputBlur(type, index, false, true)}
+                            onKeyDown={(e) => handleKeyDown(e, type, index, true)}
+                            ref={(el) => (inputLineItemRefs.current[index] = el)}
                             autoFocus
                             style={{ width: `${lineItemWidth + 10}px` }} // Add padding for better UX
                           />
@@ -1771,171 +1894,166 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                     {isProcessing ? (
                       <GenRXLoaders isProcessing={isProcessing} />
                     ) : (
-                      <DigitisedPrescription
-                          data={prescriptionData} 
-                          setData={setPrescriptionData}
-                          loading={isProcessing}
-                      />
-                      // <div
-                      //   className={`${styles.rightSection} ${isProcessing ? styles.gradientBorder : ""
-                      //     }`}
-                      //   style={{
-                      //     background: isProcessing ? `url(${genRxBg})` : "",
-                      //   }}
-                      // >
-                      //   {prescriptionData?.vitalsAndBodyComposition &&
-                      //     Object.values(
-                      //       prescriptionData.vitalsAndBodyComposition
-                      //     ).some((value) => value) && (
-                      //       <>
-                      //         <div className="title-digitise-section mb-2">
-                      //           Vitals
-                      //         </div>
-                      //         {renderItems("vitalsAndBodyComposition")}
-                      //       </>
-                      //     )}
+                      <div
+                        className={`${styles.rightSection} ${isProcessing ? styles.gradientBorder : ""
+                          }`}
+                        style={{
+                          background: isProcessing ? `url(${genRxBg})` : "",
+                        }}
+                      >
+                        {prescriptionData?.vitalsAndBodyComposition &&
+                          Object.values(
+                            prescriptionData.vitalsAndBodyComposition
+                          ).some((value) => value) && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Vitals
+                              </div>
+                              {renderItems("vitalsAndBodyComposition")}
+                            </>
+                          )}
 
-                      //   {prescriptionData?.medicalHistory &&
-                      //     prescriptionData.medicalHistory.length > 0 && (
-                      //       <>
-                      //         <div className="title-digitise-section mb-2">
-                      //           Medical History
-                      //         </div>
-                      //         {renderItems("medicalHistory")}
-                      //       </>
-                      //     )}
+                        {prescriptionData?.medicalHistory &&
+                          prescriptionData.medicalHistory.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Medical History
+                              </div>
+                              {renderItems("medicalHistory")}
+                            </>
+                          )}
 
-                      //   {prescriptionData?.symptoms &&
-                      //     prescriptionData.symptoms.length > 0 && (
-                      //       <>
-                      //         <div className="title-digitise-section mb-2">
-                      //           Symptoms
-                      //         </div>
-                      //         {renderItems("symptoms")}
-                      //       </>
-                      //     )}
+                        {prescriptionData?.symptoms &&
+                          prescriptionData.symptoms.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Symptoms
+                              </div>
+                              {renderItems("symptoms")}
+                            </>
+                          )}
 
-                      //   {prescriptionData?.examinations &&
-                      //     prescriptionData.examinations.length > 0 && (
-                      //       <>
-                      //         <div className="title-digitise-section mb-2">
-                      //           Examinations
-                      //         </div>
-                      //         {renderItems("examinations")}
-                      //       </>
-                      //     )}
+                        {prescriptionData?.examinations &&
+                          prescriptionData.examinations.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Examinations
+                              </div>
+                              {renderItems("examinations")}
+                            </>
+                          )}
 
-                      //   {prescriptionData?.diagnosis &&
-                      //     prescriptionData.diagnosis.length > 0 && (
-                      //       <>
-                      //         <div className="title-digitise-section mb-2">
-                      //           Diagnosis
-                      //         </div>
-                      //         {renderItems("diagnosis")}
-                      //       </>
-                      //     )}
+                        {prescriptionData?.diagnosis &&
+                          prescriptionData.diagnosis.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Diagnosis
+                              </div>
+                              {renderItems("diagnosis")}
+                            </>
+                          )}
 
-                      //   {prescriptionData?.medications &&
-                      //     prescriptionData.medications.length > 0 && (
-                      //       <>
-                      //         <div className="title-digitise-section mb-2">
-                      //           Medicine
-                      //         </div>
-                      //         {renderItems("medications")}
-                      //       </>
-                      //     )}
+                        {prescriptionData?.medications &&
+                          prescriptionData.medications.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Medicine
+                              </div>
+                              {renderItems("medications")}
+                            </>
+                          )}
 
-                      //   {prescriptionData?.labInvestigation &&
-                      //     prescriptionData.labInvestigation.length > 0 && (
-                      //       <>
-                      //         <div className="title-digitise-section mb-2">
-                      //           Lab Investigation
-                      //         </div>
-                      //         {renderItems("labInvestigation")}
-                      //       </>
-                      //     )}
+                        {prescriptionData?.labInvestigation &&
+                          prescriptionData.labInvestigation.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Lab Investigation
+                              </div>
+                              {renderItems("labInvestigation")}
+                            </>
+                          )}
 
-                      //   {prescriptionData?.advice &&
-                      //     prescriptionData.advice.length > 0 && (
-                      //       <>
-                      //         <div className="title-digitise-section mb-2">
-                      //           Advices
-                      //         </div>
-                      //         {renderItems("advice")}
-                      //       </>
-                      //     )}
+                        {prescriptionData?.advice &&
+                          prescriptionData.advice.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Advices
+                              </div>
+                              {renderItems("advice")}
+                            </>
+                          )}
 
-                      //   {prescriptionData?.vaccinations &&
-                      //     prescriptionData.vaccinations.length > 0 && (
-                      //       <>
-                      //         <div className="title-digitise-section mb-2">
-                      //           Vaccination
-                      //         </div>
-                      //         {renderItems("vaccinations")}
-                      //       </>
-                      //     )}
-                      //   {prescriptionData?.others &&
-                      //     prescriptionData.others.length > 0 && (
-                      //       <>
-                      //         <div className="title-digitise-section mb-2">
-                      //           Others
-                      //         </div>
-                      //         {renderItems("others")}
-                      //       </>
-                      //     )}
-                      //   {renderCustomModules()}
-                      //   {prescriptionData?.followUp && (
-                      //     <>
-                      //       <div className="title-digitise-section mb-2">
-                      //         Follow Up
-                      //       </div>
-                      //       {renderItems("followUp")}
-                      //     </>
-                      //   )}
-                      //   {showInput && (
-                      //     <>
-                      //       <div className="d-flex justify-content-between align-items-center mb-4">
-                      //         <Input
-                      //           placeholder="Enter custom module name"
-                      //           value={newModuleName}
-                      //           onChange={(e) =>
-                      //             setNewModuleName(e.target.value)
-                      //           }
-                      //           className="custom-module-input"
-                      //         />
-                      //         <>
-                      //           <CheckOutlined
-                      //             className="input-action-icon tick-icon"
-                      //             onClick={handleAddModule}
-                      //           />
-                      //           <CloseOutlined
-                      //             className="input-action-icon cross-icon"
-                      //             onClick={handleCancel}
-                      //           />
-                      //         </>
-                      //       </div>
-                      //       <div className="genRxCustomModuleBox"></div>
-                      //     </>
-                      //   )}
-                      //   <div
-                      //     className="cta-container mt-4 mb-4"
-                      //     onClick={() => setShowInput(true)}
-                      //   >
-                      //     <Button
-                      //       type="link"
-                      //       icon={<PlusOutlined />}
-                      //       className="add-custom-module-link"
-                      //     >
-                      //       Add Custom Module
-                      //     </Button>
-                      //   </div>
-                      //   <div className={styles.disclaimer}>
-                      //     <span style={{ fontWeight: 500 }}>Disclaimer:</span>{" "}
-                      //     Our AI model aims to be accurate, but sometimes it
-                      //     might make mistakes. Please double-check all details
-                      //     to ensure they are correct and complete.
-                      //   </div>
-                      // </div>
+                        {prescriptionData?.vaccinations &&
+                          prescriptionData.vaccinations.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Vaccination
+                              </div>
+                              {renderItems("vaccinations")}
+                            </>
+                          )}
+                        {prescriptionData?.others &&
+                          prescriptionData.others.length > 0 && (
+                            <>
+                              <div className="title-digitise-section mb-2">
+                                Others
+                              </div>
+                              {renderItems("others")}
+                            </>
+                          )}
+                        {renderCustomModules()}
+                        {prescriptionData?.followUp && (
+                          <>
+                            <div className="title-digitise-section mb-2">
+                              Follow Up
+                            </div>
+                            {renderItems("followUp")}
+                          </>
+                        )}
+                        {showInput && (
+                          <>
+                            <div className="d-flex justify-content-between align-items-center mb-4">
+                              <Input
+                                placeholder="Enter custom module name"
+                                value={newModuleName}
+                                onChange={(e) =>
+                                  setNewModuleName(e.target.value)
+                                }
+                                className="custom-module-input"
+                              />
+                              <>
+                                <CheckOutlined
+                                  className="input-action-icon tick-icon"
+                                  onClick={handleAddModule}
+                                />
+                                <CloseOutlined
+                                  className="input-action-icon cross-icon"
+                                  onClick={handleCancel}
+                                />
+                              </>
+                            </div>
+                            <div className="genRxCustomModuleBox"></div>
+                          </>
+                        )}
+                        <div
+                          className="cta-container mt-4 mb-4"
+                          onClick={() => setShowInput(true)}
+                        >
+                          <Button
+                            type="link"
+                            icon={<PlusOutlined />}
+                            className="add-custom-module-link"
+                          >
+                            Add Custom Module
+                          </Button>
+                        </div>
+                        <div className={styles.disclaimer}>
+                          <span style={{ fontWeight: 500 }}>Disclaimer:</span>{" "}
+                          Our AI model aims to be accurate, but sometimes it
+                          might make mistakes. Please double-check all details
+                          to ensure they are correct and complete.
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
