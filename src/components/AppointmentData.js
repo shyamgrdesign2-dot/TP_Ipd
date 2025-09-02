@@ -158,7 +158,6 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   const { isLoading } = useSelector((state) => state.uploadDoc);
   const { advancedSettings } = useSelector((state) => state.billing);
   const { isOpdBillingAccessable } = useOpdBilling();
-  const [genRxDetails, setGenRxDetails] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const from = searchParams.get("from");
   const [modalOpen, setModalOpen] = useState(false);
