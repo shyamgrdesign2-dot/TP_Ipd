@@ -17,6 +17,10 @@ import { isAndroid, isBrowser } from 'react-device-detect';
 import { generateUniqueFileName, getCorrectedFileName } from '../pages/medicalRecords/utils/helper';
 import { EVENTS } from '../utils/events';
 import { getDecodedToken } from '../utils/localStorage';
+import {
+  getClinic,
+  getTokenData
+} from "../utils/utils";
 
 function Welcome1(props) {
 
@@ -63,6 +67,19 @@ function Welcome1(props) {
     const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
 
     const onSmartRxClick = async (patient) => {
+        const tokenData = getTokenData();
+        const clinic = getClinic(profile?.hospital_data);
+        window.Moengage.track_event("TP_SmartRx_Started", {
+      patient_id: patient?.patient_unique_id || "",
+      patient_name: patient?.pm_fullname,
+      doctor_id: profile?.doctor_unique_id,
+      doctor_name: profile?.um_name,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      clinic_name: clinic?.hm_name,
+      source: "Appointment Landing Page",
+      device_details: navigator.userAgent
+  });
         navigate("/smart-prescription", { state: { patient_data: patient } });
     };
 

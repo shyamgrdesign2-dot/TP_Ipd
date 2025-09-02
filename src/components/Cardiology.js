@@ -23,7 +23,10 @@ import vitalsIcon from "../assets/images/Vitals.svg";
 import medicalHistoryIcon from "../assets/images/Medical-History.svg";
 import vaccinationIcon from "../assets/images/Vaccination.svg";
 import customModuleIcon from "../assets/images/custom-module.svg";
-
+import {
+  getClinic,
+  getTokenData,
+} from "../utils/utils";
 import {
   EXTRA_OPTIONS,
   FETCH_SMART_RX,
@@ -636,6 +639,22 @@ function Cardiology(props) {
   };
 
   const handleDigitiseRx = async (record) => {
+    const type = viewCaseManagerData?.isCustomSSRX === "1" ? 1 : 0;
+    const tokenData = getTokenData();
+    const clinic = getClinic(profile?.hospital_data);
+    window.Moengage.track_event("TP_DigitizeSSRx", {
+    patient_id: patient_data?.patient_unique_id || "",
+    patient_name: patient_data?.pm_fullname || "",
+    doctor_id: profile?.doctor_unique_id,
+    doctor_name: profile?.um_name,
+    doctor_specialty: profile?.dp_name,
+    clinic_id: tokenData?.clinic_id,
+    clinic_name: clinic?.hm_name,
+    rx_id: viewCaseManagerData?.tcm_id || "",
+    source: "Patient Details page",
+    type: type,
+    device_details: navigator.userAgent
+  });
     navigate("/smart-rx-digitise", {
       state: {
         patient_data: patient_data,
