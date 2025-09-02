@@ -32,7 +32,7 @@ import { v4 as uuidv4 } from "uuid";
 import CashManagerContext from "../context/CashManagerContext";
 import { addCaseManager, editCaseManager } from "../redux/caseManagerSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { errorMessage, getClinicName, trackEvent, getTokenData, getDeviceSdkData, isVoiceRxFree } from "../utils/utils";
+import { errorMessage, getClinicName, trackEvent, getTokenData, getDeviceSdkData, isVoiceRxFree, getSupportedMimeType } from "../utils/utils";
 import { CheckOutlined, CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import deleteModuleIcon from "../assets/images/delete-icon-blue.svg";
 import alertIcon from "../assets/images/alertIcon.svg";
@@ -321,9 +321,11 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioStreamRef.current = stream;
-      mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: "audio/mp4",
-      });
+      // Find the supported MIME type for this browser
+      const mimeType = getSupportedMimeType();
+      mediaRecorderRef.current = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream);
       audioChunksRef.current = [];
 
       mediaRecorderRef.current.ondataavailable = (event) => {
@@ -333,7 +335,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
       };
 
       mediaRecorderRef.current.onstop = () => {
-        const blob = new Blob(audioChunksRef.current, { type: "audio/wav" });
+        // Use the same MIME type that was detected or fall back to audio/webm
+        const mimeType = mediaRecorderRef.current.mimeType || "audio/webm";
+        const blob = new Blob(audioChunksRef.current, { type: mimeType });
         setAudioBlob(blob);
       };
 
@@ -410,8 +414,10 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                 mediaRecorderRef.current?.stop();
                 await new Promise((resolve) => setTimeout(resolve, 100)); // Ensure audio is processed
 
+                const mimeType =
+                  mediaRecorderRef.current?.mimeType || "audio/webm";
                 const audioBlob = new Blob(audioChunksRef.current, {
-                  type: "audio/webm",
+                  type: mimeType,
                 });
 
                 await handleVoiceDigitize(audioBlob, "");
