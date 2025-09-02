@@ -705,7 +705,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
     if (e.key === "Enter") {
       e.preventDefault(); // Prevent newline in the input field
       
-      const trimmedText = editableText.trim() || editableLineItem?.trim();
+      const trimmedText =  isExisting ? editableLineItem?.trim() : editableText.trim();
       if (trimmedText) {
         setPrescriptionData((prevData) => {
           const updatedData = { ...prevData };
@@ -778,7 +778,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
     if ((activeIndex !== null && activeType !== null) || (isCustom || isExisting)) {
       setPrescriptionData((prevData) => {
         const updatedData = { ...prevData };
-        const trimmedText = editableText.trim() || editableLineItem?.trim();
+        const trimmedText = isCustom ? editableText.trim() : isExisting ? editableLineItem?.trim() : "";
         if (!trimmedText) {
           if (type === "vitalsAndBodyComposition") {
             updatedData.vitalsAndBodyComposition[index] = "";
@@ -1031,7 +1031,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
               onChange={handleInputChange}
               onBlur={() => handleInputBlur("followUp")}
               autoFocus
-            // style={{ width: `${textWidth + 10}px` }}
+              style={{ width: `clamp(12px, ${textWidth + 10}px, 100%)` }}
             />
           ) : (
             <span
@@ -1085,7 +1085,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                               onChange={(e) => setEditableKey(e.target.value)}
                               onBlur={() => handleKeyEditBlur(key)}
                               autoFocus
-                              style={{ width: `${(editableKey || key).length * 8 + 20}px` }}
+                              style={{ width: `clamp(12px, ${(editableKey || key).length * 8 + 20}px, 100%)` }}
                             />
                           ) : (
                             <span
@@ -1109,7 +1109,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                             onChange={(e) => setEditableText(e.target.value)}
                             onBlur={() => handleInputBlur(type, key)}
                             autoFocus
-                            style={{ width: `${textWidth + 10}px` }} // Add padding for better UX
+                            style={{ width: `clamp(12px, ${textWidth + 10}px, 100%)` }} // Add padding for better UX
                           />
                         ) : (
                           <span
@@ -1186,7 +1186,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                           onBlur={() => handleInputBlur(type, index)}
                           onKeyDown={(e) => handleKeyDown(e, type, index, true)}
                           autoFocus
-                          style={{ width: `${textWidth + 10}px` }}
+                          style={{ width: `clamp(12px, ${textWidth + 10}px, 100%)` }}
                         />
                       ) : (
                         ["advice", "others"].includes(type) && (
@@ -1219,7 +1219,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                             onKeyDown={(e) => handleKeyDown(e, type, index, true)}
                             ref={(el) => (inputLineItemRefs.current[index] = el)}
                             autoFocus
-                            style={{ width: `${lineItemWidth + 10}px` }} // Add padding for better UX
+                            style={{ width: `clamp(12px, ${lineItemWidth + 10}px, 100%)` }}
                           />
                         ) : (
                           <span
@@ -1426,7 +1426,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                                 }
                                 autoFocus
                                 style={{
-                                  width: `${textWidth + 10}px`,
+                                  width: `clamp(12px, ${textWidth + 10}px, 100%)`,
                                 }}
                                 onPaste={(e) => handlePaste(e, module)}
                                 onKeyDown={(e) =>
