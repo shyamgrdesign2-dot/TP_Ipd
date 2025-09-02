@@ -175,30 +175,58 @@ const DigitisedPrescription = ({ data, setData, loading, showAbsHeaderInsideLoad
           const v = { ...(updatedData.vitals || {}) };
           if (val) v[index] = val;
           else delete v[index];
+          Object.keys(v).forEach((k) => {
+            if (!v[k] || v[k].trim() === "") {
+              delete v[k];
+            }
+          });
           updatedData.vitals = v;
           return updatedData;
         }
 
         if (ARRAY_SECTIONS.includes(type)) {
-          const arr = [...(updatedData[type] || [])];
+          let arr = [...(updatedData[type] || [])];
           const item = arr[index];
 
           const val = (editableText || "").trim();
           if (type === "advice") {
             arr[index] = (editableText || "").trim();
-            if (!arr[index]) arr.splice(index, 1);
           } else if (type === "medications" || type === "tests") {
-            if (!val) { arr.splice(index, 1); }
-            else {
+            if (val) {
               arr[index] = {
                 ...item,
                 name: item?.name || val,
                 refinedName: val,
               };
+            } else {
+              arr[index] = "";
             }
           } else {
-            if (!val) { arr.splice(index, 1); }
-            else { arr[index] = { ...item, name: val }; }
+            if (val) {
+              arr[index] = { ...item, name: val };
+            } else {
+              arr[index] = "";
+            }
+          }
+          if (type === "advice") {
+            arr = arr.filter((v) => typeof v === "string" && v.trim() !== "");
+          } else if (type === "medications" || type === "tests") {
+            arr = arr.filter(
+              (v) =>
+                v &&
+                ((typeof v === "object" &&
+                  ((v.name && v.name.trim() !== "") ||
+                    (v.refinedName && v.refinedName.trim() !== ""))) ||
+                  (typeof v === "string" && v.trim() !== ""))
+            );
+          } else {
+            arr = arr.filter(
+              (v) =>
+                v &&
+                typeof v === "object" &&
+                v.name &&
+                v.name.trim() !== ""
+            );
           }
           updatedData[type] = arr;
         }
@@ -438,7 +466,7 @@ const DigitisedPrescription = ({ data, setData, loading, showAbsHeaderInsideLoad
                         }}
                         onFocus={() => { editingRef.current = true; setVisibleSection("vitals"); }}
                         autoFocus
-                        style={{ width: `clamp(12px, ${textWidth + 10}px, 90%)` }}
+                        style={{ width: `clamp(12px, ${textWidth + 10}px, 100%)` }}
                       />
                     ) : (
                       <span

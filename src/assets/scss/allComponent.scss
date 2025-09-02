@@ -3041,6 +3041,14 @@ body {
       height: calc(100dvh - 250px);
     }
   }
+  .digitize-rx {
+    .digitised-section-rx {
+      ul, li {
+        position: relative;
+        width: 100%;
+      }
+    }
+  }
 }
 
 .srx-drx-container {
