@@ -103,6 +103,22 @@ function SnapRxDigitise() {
             consultation_id: state?.tcm_id,
             doctor_id: getDecodedToken()?.user_id,
           });
+        
+        // // Navigate based on isCustomSSRX flag
+        // if (isCustomSSRX) {
+        //   navigate("/smart-rx/preview", {
+        //     replace: true,
+        //     state: {
+        //       patient_data,
+        //       files: smartRxFilesData,
+        //       tcm_id,
+        //       pam_id: pam_id || patient_data?.pam_id,
+        //       print_url,
+        //       showProgressbar: false,
+        //       page: "digitise",
+        //     },
+        //   });
+        // } else {
         navigate("/snap-rx/preview", {
           replace: true,
           state: {
@@ -115,6 +131,7 @@ function SnapRxDigitise() {
             page: "digitise",
           },
         });
+        // }
       }
     } catch (error) {
       console.error("Error saving data:", error);
