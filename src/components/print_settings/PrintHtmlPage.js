@@ -509,6 +509,14 @@ function PrintHtmlPage() {
       key: "13",
       name: `BSA (m²)`,
     },
+    {
+      key: "14",
+      name: `FIB4`,
+    },
+    {
+      key: "15",
+      name: `Waist Circumference (cm)`,
+    }
   ];
 
   const initialColumns = [
@@ -553,6 +561,8 @@ function PrintHtmlPage() {
       initialRows[10][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : "-";
       initialRows[11][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : "-";
       initialRows[12][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : "-";
+      initialRows[13][index] = item.fib4 ? item.fib4 : "-";
+      initialRows[14][index] = item.waist_circumference ? item.waist_circumference : "-";
     });
 
   const patientDataShow = (id) => {
@@ -598,6 +608,7 @@ function PrintHtmlPage() {
     } else if (id == 11) {
       value = `${caseManagerData?.patient_data?.patinet_reference_id}`;
     }
+    
     return value;
   };
 
@@ -907,6 +918,8 @@ function PrintHtmlPage() {
                                             spo2,
                                             height,
                                             weight,
+                                            fib4,
+                                            waist_circumference,
                                             bmi,
                                             bmr,
                                             bsa,
@@ -938,6 +951,10 @@ function PrintHtmlPage() {
                                               : "",
                                             weight: weight
                                               ? `Weight (${weight}kgs)`
+                                              : "",
+                                            fib4: fib4 ? `FIB4 (${fib4})` : "",
+                                            waist_circumference: waist_circumference
+                                              ? `Waist Circumference (${waist_circumference}cms)`
                                               : "",
                                             bmi: bmi
                                               ? `BMI (${parseFloat(bmi).toFixed(
@@ -1017,6 +1034,8 @@ function PrintHtmlPage() {
                                               spo2,
                                               height,
                                               weight,
+                                              fib4,
+                                              waist_circumference,
                                               bmi,
                                               bmr,
                                               bsa,
@@ -1050,6 +1069,10 @@ function PrintHtmlPage() {
                                                 : "",
                                               weight: weight
                                                 ? `Weight (${weight}kgs)`
+                                                : "",
+                                              fib4: fib4 ? `FIB4 (${fib4})` : "",
+                                              waist_circumference: waist_circumference
+                                                ? `Waist Circumference (${waist_circumference}cms)`
                                                 : "",
                                               bmi: bmi
                                                 ? `BMI (${parseFloat(

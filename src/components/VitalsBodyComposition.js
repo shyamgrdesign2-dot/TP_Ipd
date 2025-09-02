@@ -68,6 +68,14 @@ function VitalsBodyComposition({ loading, passVitals, patientBirthWeight }) {
         {
             key: '12',
             name: `BSA (m²)`,
+        },
+        {
+            key: '13',
+            name: `FIB4 `,
+        },
+         {
+            key: '14',
+            name: `Waist Circumference (cms)`,
         }
     ];
 
@@ -107,6 +115,8 @@ function VitalsBodyComposition({ loading, passVitals, patientBirthWeight }) {
         initialRows[9][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'
         initialRows[10][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
         initialRows[11][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
+        initialRows[12][index]  = item.fib4 ? parseFloat(item.fib4).toFixed(2) : '-'
+        initialRows[13][index] = item.waist_circumference ? item.waist_circumference : '-'
     });
 
     return (

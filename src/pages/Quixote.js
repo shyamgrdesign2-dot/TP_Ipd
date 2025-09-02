@@ -85,6 +85,15 @@ function Quixote({ mode = NORMAL, ...props }) {
             key: '12',
             name: `BSA (m²)`,
         },
+        {
+            key: '13',
+            name: `fib4 `,
+        },
+        {
+            key: '14',
+            name: `waist_circumference (cm)`,
+        },
+
     ];
 
     const initialColumns = [
@@ -118,6 +127,8 @@ function Quixote({ mode = NORMAL, ...props }) {
         initialRows[9][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'
         initialRows[10][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
         initialRows[11][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
+        initialRows[12][index] = item.fib4 ? item.fib4 : '-'
+        initialRows[13][index] = item.waist_circumference ? item.waist_circumference : '-'
     });
 
     const [pdfUrl, setPdfUrl] = useState(null)
