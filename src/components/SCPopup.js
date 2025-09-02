@@ -1,5 +1,5 @@
 import { Button, Checkbox, Divider, message, Modal } from "antd";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import autoFill from "../assets/images/autofill-white.svg";
 import scHeaderBg from "../assets/images/sc-header-bg.png";
 import autoFillRx from "../assets/images/sc-rx.svg";
@@ -20,6 +20,9 @@ import {
   setSelectedSymptomsCollector,
 } from "../redux/ddxSlice";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import { getClinicName, getTokenData, trackEvent } from "../utils/utils";
+import dayjs from "dayjs";
+import CashManagerContext from "../context/CashManagerContext";
 
 const VALID_TYPES = {
   medical_condition: "Medical Condition",
@@ -171,16 +174,34 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
   const { symptomCollector, selectedSymptomsCollector } = useSelector(
     (state) => state.ddx
   );
+  const { profile, userId } = useSelector((state) => state.doctors);
+  const { patient_data, pamId } = useContext(CashManagerContext);
+  const clinic_name = getClinicName(profile?.hospital_data);
+  const tokenData = getTokenData();
+  const moengageData = {
+    clinic_name,
+    appointment_id:
+      patient_data !== undefined
+        ? patient_data.hasOwnProperty("pam_id")
+          ? patient_data.pam_id
+          : pamId
+        : 0,
+    hospital_id: tokenData?.clinic_id,
+    timestamp: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    doctor_id: userId,
+    doctor_name: profile?.um_name,
+    doctor_speciality: profile?.dp_name,
+  };
 
   // Get appointment agent data from localStorage
   const getAppointmentAgentData = () => {
     try {
-      const storedData = localStorage.getItem('appointmentAgentsData');
+      const storedData = localStorage.getItem("appointmentAgentsData");
       if (storedData) {
         return JSON.parse(storedData);
       }
     } catch (error) {
-      console.error('Error parsing appointment agent data:', error);
+      console.error("Error parsing appointment agent data:", error);
     }
     return null;
   };
@@ -262,6 +283,7 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
     dispatch(setSelectAutofill(true));
     handlePopup();
     toastMessage();
+    trackEvent("SC_Doctor_SentoRxPad", moengageData);
   };
 
   const toastMessage = () => {
@@ -350,7 +372,10 @@ const SCPopup = ({ handlePopup, handleGenRx }) => {
                 src={close}
                 alt="close"
                 className="cursor-pointer"
-                onClick={handlePopup}
+                onClick={() => {
+                  handlePopup();
+                  trackEvent("SC_Doctor_DismissedSummary", moengageData);
+                }}
               />
             </div>
           </div>

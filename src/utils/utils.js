@@ -12,7 +12,7 @@ import imageCompression from "browser-image-compression";
 import numeral from "numeral";
 import packageJson from "../../package.json";
 import { EVENTS } from "./events.js";
-
+import { AISENSY_SCRIPT_CONTAINER,AISENSY_SCRIPT_ID,AISENSY_SCRIPT_SRC } from "../utils/constants";
 // export const validateEmail = (email) => {
 //   return String(email)
 //     .toLowerCase()
@@ -20,6 +20,34 @@ import { EVENTS } from "./events.js";
 //       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 //     );
 // };
+
+export const aisensybotInjection = (isLoginFlow) => {
+  // If in login flow, remove the script and widget
+  if (isLoginFlow) {
+    const existingScript = document.getElementById(AISENSY_SCRIPT_ID);
+    if (existingScript) {
+      document.body.removeChild(existingScript);
+    }
+    
+    // Also remove any injected widget container/button
+    const widget = document.querySelector(AISENSY_SCRIPT_CONTAINER);
+    if (widget) widget.remove();
+    if (typeof window.dfToggle === "function") {
+      window.dfToggle = () => {};
+    }
+    return;
+  }
+
+  // If signup → inject script
+  if (!document.getElementById(AISENSY_SCRIPT_ID)) {
+    const script = document.createElement("script");
+    script.src = AISENSY_SCRIPT_SRC;
+    script.id = AISENSY_SCRIPT_ID;
+    script.setAttribute("widget-id", "aaa4hg");
+    script.async = true;
+    document.body.appendChild(script);
+  }
+};
 
 export const validateEmail = (email) => {
   let reg =

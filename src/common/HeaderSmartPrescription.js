@@ -73,8 +73,9 @@ function HeaderPrescription({
   isVaccinationEnabled,
   isGrowthChartEnabled,
   caseManagerData,
-  isCustomSSrX,
-  selectedTemplateId
+  isCustomSSRX,
+  selectedTemplateId,
+  prepareMetadataForSubmissionData
 }) {
   const { templates, loading } = useSelector((state) => state.caseManager);
   const { profile, videoList } = useSelector((state) => state.doctors);
@@ -511,7 +512,8 @@ function HeaderPrescription({
       medical_history: medicalHistoryData,
       smart_prescription_filename: smartRxFiles || [],
       pillup_fulfilment: isPillUpAccessableFromGB && pillupSwitch ? 1 : 0,
-      isCustomSSRX: isCustomSSrX ? "1" : "0",
+      isCustomSSRX: isCustomSSRX ? "1" : "0",
+      custom_ss_data: prepareMetadataForSubmissionData?.custom_ss_data || null,
     };
 
     const action =

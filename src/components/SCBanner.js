@@ -2,9 +2,19 @@ import { Button } from "antd";
 import scStrip from "../assets/images/sc-banner-strip.png";
 import { useDispatch } from "react-redux";
 import { setShowSCPopup } from "../redux/ddxSlice";
+import { getClinicName, getTokenData, trackEvent } from "../utils/utils";
+import { useSelector } from "react-redux";
+import { useContext } from "react";
+import CashManagerContext from "../context/CashManagerContext";
+import dayjs from "dayjs";
 
 const SCBanner = ({ handleBanner }) => {
   const dispatch = useDispatch();
+  const { profile, userId } = useSelector((state) => state.doctors);
+  const { patient_data, pamId } = useContext(CashManagerContext);
+  const clinic_name = getClinicName(profile?.hospital_data);
+  const tokenData = getTokenData();
+
   return (
     <div
       className="d-flex justify-content-between align-items-center"
@@ -32,7 +42,23 @@ const SCBanner = ({ handleBanner }) => {
               <span
                 className="theme-color cursor-pointer"
                 style={{ textDecoration: "underline", marginLeft: 5 }}
-                onClick={() => dispatch(setShowSCPopup(true))}
+                onClick={() => {
+                  dispatch(setShowSCPopup(true));
+                  trackEvent("SC_Doctor_ViewedSummary", {
+                    clinic_name,
+                    appointment_id:
+                      patient_data !== undefined
+                        ? patient_data.hasOwnProperty("pam_id")
+                          ? patient_data.pam_id
+                          : pamId
+                        : 0,
+                    hospital_id: tokenData?.clinic_id,
+                    timestamp: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+                    doctor_id: userId,
+                    doctor_name: profile?.um_name,
+                    doctor_speciality: profile?.dp_name,
+                  });
+                }}
               >
                 View now
               </span>

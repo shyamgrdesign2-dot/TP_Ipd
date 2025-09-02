@@ -968,7 +968,12 @@ const ZydusLabParams = ({
                 </Button>
             </div>
 
-            <div style={{ overflowX: "auto", margin: "8px" }}>
+            <div style={{ 
+                overflowX: "auto", 
+                overflowY: "auto",
+                maxHeight: "calc(100vh - 100px)",
+                margin: "8px"
+            }}>
                 {loading ? (
                     <div style={{ 
                         display: "flex", 
