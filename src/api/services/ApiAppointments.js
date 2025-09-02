@@ -147,7 +147,7 @@ ApiAppointments.zydusDocsList = function (mrno) {
 
 ApiAppointments.zydusRadioList = function (mrno) {
   return api.get(
-    `/ictApiProxy/emr/serviceorder/radiology/orders?mrno=${mrno}`,
+    `/ictApiProxy/emr/serviceorder/radiology/orders?mrno=${mrno}&noOfDays=150`,
     baseZydusProxyUrl
   );
 };

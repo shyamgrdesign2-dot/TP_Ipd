@@ -324,16 +324,14 @@ function SmartRxPreview() {
                         try {
                             // Guard: ensure prerequisites
                             if (!(smartRxFile?.length > 0 && token)) return;
-                            console.log(smartRxFile?.length,"smartRxFile?.length")
                             const isCustomSSRX = Boolean(viewCaseManagerData?.isCustomSSRX === "1");
-                            const path = isCustomSSRX ? "/snap-rx/digitise" : "/smart-rx-digitise";
+                            const path = "/smart-rx-digitise";
                             const navState = {
                                 patient_data: patient_data,
                                 smartRxFilesData: smartRxFile,
                                 tcm_id: state.tcm_id,
                                 pam_id: state?.pam_id,
-                                print_url: isCustomSSRX ? (state.print_rx_url || state.print_url) : state.print_url,
-                                // digitisedData: rxDigitiseApiResponse,
+                                print_url: state.print_url,                                // digitisedData: rxDigitiseApiResponse,
                                 type: "new",
                                 isCustomSSRX : isCustomSSRX
                             };
@@ -358,6 +356,8 @@ function SmartRxPreview() {
     // Function to update rxDigitize parameter in the URL
     const updateRxDigitizeInUrl = (url, showDigitalRx) => {
         const urlObj = new URL(url);
+
+        urlObj.searchParams.delete('voiceRxDigitize');
 
         if (showDigitalRx) {
             urlObj.searchParams.set('rxDigitize', 'true');
@@ -443,6 +443,7 @@ function SmartRxPreview() {
             if (action.meta.requestStatus === "fulfilled") {
                 if (showDigitalRx) {
                     const response = await fetchRxDigitisedData();
+                    const isCustomSSRX = Boolean(viewCaseManagerData?.isCustomSSRX === "1");
                     if(response){
                         navigate("/smart-rx-digitise", {
                             state: {
@@ -452,7 +453,8 @@ function SmartRxPreview() {
                                 print_url: state.print_url,
                                 digitisedData: response?.data,
                                 pam_id: state?.pam_id,
-                                type:"edit"
+                                type:"edit",
+                                isCustomSSRX : isCustomSSRX
                             },
                         })
                     }
@@ -475,6 +477,7 @@ function SmartRxPreview() {
     };
 
     const handleViewDigitiseRx = async() => {
+        const isCustomSSRX = Boolean(viewCaseManagerData?.isCustomSSRX === "1");
         navigate("/smart-rx-digitise", {
             state: {
                 patient_data: patient_data,
@@ -483,7 +486,8 @@ function SmartRxPreview() {
                 pam_id: state?.pam_id,
                 print_url: state.print_url,
                 digitisedData: rxDigitiseApiResponse,
-                type:"new"
+                type:"new",
+                isCustomSSRX : isCustomSSRX
             },
         })
     };
@@ -559,7 +563,7 @@ function SmartRxPreview() {
                                             </p>
                                         </div>
                                     )}
-                                    {(viewCaseManagerData?.isCustomSSRX === "0") && !rxDigitiseApiResponse && !showProgressbar && smartRxFile?.length > 0 && state?.page !== "digitise" && (
+                                    {!rxDigitiseApiResponse && !showProgressbar && smartRxFile?.length > 0 && state?.page !== "digitise" && (
                                         <div className="digitise-container p-3 rounded-10px">
                                             <div className="digitise-box-top">
                                                 <img src={successIcon} alt="success" width="40px" height="40px" />

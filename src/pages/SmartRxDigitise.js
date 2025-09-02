@@ -30,7 +30,7 @@ function SmartRxDigitise() {
     const navigate = useNavigate();
 
     const { state } = useLocation();
-    const { patient_data, smartRxFilesData, tcm_id, print_url, digitisedData, pam_id} = state
+    const { patient_data, smartRxFilesData, tcm_id, print_url, digitisedData, pam_id, isCustomSSRX} = state
 
     const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}` : null);
     const [token, setToken] = useState(null);
@@ -151,8 +151,13 @@ function SmartRxDigitise() {
             // Append other required fields
             formData.append('doctorId', tokenData.user_id);
             formData.append('patientId', patient_data.patient_unique_id);
-            formData.append('appointmentId', pam_id);
+            formData.append('appointmentId', pam_id || patient_data?.pam_id);
             formData.append('caseId', tcm_id);
+
+            // Append ocrModelSelected only if isCustomSSRX is true
+            if (isCustomSSRX) {
+                formData.append('ocrModelSelected', 'zyvelor');
+            }
     
             const cleanedToken = token.replace(/['"]+/g, '');
             const response = await axios.post(

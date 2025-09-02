@@ -32,6 +32,9 @@ export const aisensybotInjection = (isLoginFlow) => {
     // Also remove any injected widget container/button
     const widget = document.querySelector(AISENSY_SCRIPT_CONTAINER);
     if (widget) widget.remove();
+    if (typeof window.dfToggle === "function") {
+      window.dfToggle = () => {};
+    }
     return;
   }
 
@@ -40,7 +43,7 @@ export const aisensybotInjection = (isLoginFlow) => {
     const script = document.createElement("script");
     script.src = AISENSY_SCRIPT_SRC;
     script.id = AISENSY_SCRIPT_ID;
-    script.setAttribute("widget-id", "aaako1");
+    script.setAttribute("widget-id", "aaa4hg");
     script.async = true;
     document.body.appendChild(script);
   }
