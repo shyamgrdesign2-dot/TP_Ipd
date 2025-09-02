@@ -1211,7 +1211,14 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     ]?.filter((item) => item);
 
     if (selectedTab === TAB_QUEUE) {
-      return items.filter((item) => item.key !== "endvisitreason");
+      const decodedToken = getDecodedToken();
+      const tokenData = decodedToken?.result;
+      const isZydusAccount = tokenData?.hospital_business_id == env.zydus_business_id;
+      if (isZydusAccount) {
+        return items.filter((item) => item.key !== "endvisit" && item.key !== "endvisitreason");
+      } else {
+        return items.filter((item) => item.key !== "endvisitreason");
+      }
     } else if (selectedTab === TAB_FINISHED) {
       return items.filter(
         (item) => item.key !== "endvisit" && item.key !== "cancelappt"
