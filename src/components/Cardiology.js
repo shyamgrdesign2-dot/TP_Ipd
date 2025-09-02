@@ -693,9 +693,17 @@ function Cardiology(props) {
       snapRxDigitisedData
         ? snapRxDigitisedData
         : rxDigitisedData?.editedData;
+
     return (
       <div className="digitised-data-section">
         <ul>
+          {type === "followUp" && data?.followUp && (
+            <li>
+              <div className="medicine-item">
+                <span>{data?.followUp}</span>
+              </div>
+            </li>
+          )}
           {/* Handle vitals type separately */}
           {type === "vitals" &&
             Object.entries(data?.vitals || {})
@@ -754,9 +762,11 @@ function Cardiology(props) {
     <div className="digitised-data-section" style={{ marginLeft: 0 }}>
       <ol>
         {type === "followUp" && genRxData?.followUp && (
-          <div className="medicine-item">
-            <span>{genRxData?.followUp}</span>
-          </div>
+          <li>
+            <div className="medicine-item">
+              <span>{genRxData?.followUp}</span>
+            </div>
+          </li>
         )}
         {/* Handle vitals type separately */}
         {type === "vitalsAndBodyComposition" &&
@@ -1656,6 +1666,22 @@ function Cardiology(props) {
                           {renderItems("vaccinations")}
                         </>
                       )}
+
+                    {snapRxDigitisedData?.followUp && (
+                      <>
+                        <div className="d-flex align-items-start">
+                          <img
+                            className="me-2"
+                            src={followUp}
+                            alt="Follow Up"
+                          />
+                          <div className="title-digitise-section mb-1">
+                            Follow Up
+                          </div>
+                        </div>
+                        {renderItems("followUp")}
+                      </>
+                    )}
                   </div>
                 ) : (
                   <>

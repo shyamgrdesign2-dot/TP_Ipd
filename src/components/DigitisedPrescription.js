@@ -31,7 +31,10 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
             updatedData[type][index] = editableText.trim();
           } else if (type === "vitals") {
             updatedData.vitals[index] = editableText.trim();
+          } else if (type === "followUp") {
+            updatedData.followUp = editableText.trim();
           }
+
           return updatedData; // Persist changes
         });
       }
@@ -133,6 +136,8 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
       setEditableText(data[type][index]);
     } else if (type === "vitals") {
       setEditableText(data.vitals[index]);
+    } else if (type === "followUp") {
+      setEditableText(data?.followUp);
     }
 
     setActiveIndex(index);
@@ -157,6 +162,54 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
   };
 
   const renderItems = (type) => {
+    if (type === "followUp") {
+      let textWidth = 0;
+      if (activeType === "followUp") {
+        const tempSpan = document.createElement("span");
+        tempSpan.style.visibility = "hidden";
+        tempSpan.style.position = "absolute";
+        tempSpan.style.whiteSpace = "nowrap";
+        tempSpan.innerText = editableText || "";
+        document.body.appendChild(tempSpan);
+        textWidth = tempSpan.offsetWidth;
+        document.body.removeChild(tempSpan);
+      }
+      return (
+        <div className="digitised-section">
+          {loading ? (
+            <div className="shimmer-container">
+              <div className="shimmer-header">
+                <div className="shimmer"></div>
+              </div>
+              <div className="shimmer-content">
+                <div className="shimmer"></div>
+              </div>
+            </div>
+          ) : (
+            <div className="medicine-item">
+              {activeType === "followUp" ? (
+                <input
+                  type="text"
+                  value={editableText}
+                  className="editable-digitised-item"
+                  onChange={handleInputChange}
+                  onBlur={() => handleInputBlur("followUp")}
+                  autoFocus
+                  style={{ width: `${textWidth + 10}px` }}
+                />
+              ) : (
+                <span
+                  onClick={() => handleItemClick("followUp")}
+                  className="digitised-item"
+                >
+                  {data?.followUp}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
     // Check if type is 'vitals' and handle accordingly
     if (type === "vitals") {
       return (
@@ -380,7 +433,7 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
   return (
     <div className="digitised-container">
       {loading ? (
-        // TODO:INTEL - PROGRESS BAR TO BE HANDLED 
+        // TODO:INTEL - PROGRESS BAR TO BE HANDLED
         <GenRXLoaders isProcessing={true} />
       ) : (
         // Show actual content when not loading
@@ -450,6 +503,13 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
             <>
               <div className="title-digitise-section mb-2">Vaccination</div>
               {renderItems("vaccinations")}
+            </>
+          )}
+
+          {data?.followUp && (
+            <>
+              <div className="title-digitise-section mb-2">Follow Up</div>
+              {renderItems("followUp")}
             </>
           )}
         </>
