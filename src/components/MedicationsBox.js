@@ -262,7 +262,7 @@ function MedicationsBox() {
           let doseCalData = {}
           const objDose = dosesList.find((e1) => e1.medicine_id == e.tmm_id)
           if (objDose !== undefined) {
-            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration)
+            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration, e?.tmm_type)
             doseCalData['tmm_dosage_unit_name'] = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`;
             doseCalData['tmm_dosage'] = dose ? dose : "";
             doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? unitObj.tmu_title : "";
@@ -1672,7 +1672,7 @@ function MedicationsBox() {
           let doseCalData = {}
           const objDose = dosesList.find((e1) => e1.medicine_id == e.tmm_id)
           if (objDose !== undefined) {
-            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration)
+            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration, e?.tmm_type)
             doseCalData['tmm_dosage_unit_name'] = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`;
             doseCalData['tmm_dosage'] = dose ? dose : "";
             doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? unitObj.tmu_title : "";
