@@ -186,6 +186,7 @@ function SmartRxDigitise() {
             <HeaderSmartRxDigitise 
                 onSave={handleSave} 
                 patient_data={patient_data}
+                tcm_id ={tcm_id}
             />
             <div className="cvt-info">
                 <img src={cvtInfoIcon} alt="cvt-info-icon" className="me-2" />

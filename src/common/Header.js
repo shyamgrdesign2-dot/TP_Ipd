@@ -909,7 +909,7 @@ function Header({ locationPath }) {
             <i className="icon-right iconrotate180"></i>
           </a>
         ),
-        key: "6",
+        key: "9",
       },
     ];
 
@@ -940,7 +940,7 @@ function Header({ locationPath }) {
       : [...commonItems, ...logoutItem];
 
     // If not admin, filter out account setting item, else return all items
-    return !tokenData?.admin ? items.filter((item) => item.key !== "5") : items;
+    return !tokenData?.admin ? items.filter((item) => item.key !== "6") : items;
   };
 
   const showHideBackModal = useCallback(() => {

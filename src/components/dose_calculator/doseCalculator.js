@@ -212,7 +212,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
           const findTmmId = medicationData.findIndex(e1 => e1.tmm_id == e.medicine_id)
           // if (!medicationData[findTmmId].tmm_dosage) {
           const tmm_unit = medicationData[findTmmId]?.tmm_unit;
-          const dose = calculateDose(e.dosage, todayWeight, e.concentration)
+          const dose = calculateDose(e.dosage, todayWeight, e.concentration, medicationData[findTmmId]?.tmm_type)
           if (isMobile) {
             const unitObj = medicationData[findTmmId]?.medicineUnit.find((x) => x.value == tmm_unit) !== undefined ?
               medicationData[findTmmId]?.medicineUnit.find((x) => x.value == tmm_unit) :

@@ -636,6 +636,24 @@ const DigitisedPrescription = ({ data, setData, loading, showAbsHeaderInsideLoad
                         {`(${item.notes})`}
                       </span>
                     ))}
+                    {/* {activeType === "followUp" ? (
+                      <input
+                        type="text"
+                        value={editableText}
+                        className="editable-digitised-item"
+                        onChange={handleInputChange}
+                        onBlur={() => handleInputBlur("followUp")}
+                        autoFocus
+                        style={{ width: `${textWidth + 10}px` }}
+                      />
+                    ) : (
+                      <span
+                        onClick={() => handleItemClick("followUp")}
+                        className="digitised-item"
+                      >
+                        {data?.followUp}
+                      </span>
+                    )} */}
                 </div>
               </li>
             );
@@ -750,6 +768,13 @@ const DigitisedPrescription = ({ data, setData, loading, showAbsHeaderInsideLoad
               <div className="title-digitise-section mb-2">Vaccination</div>
               {renderArraySection("vaccinations")}
             </div>
+          )}
+
+          {data?.followUp && (
+            <>
+              <div className="title-digitise-section mb-2">Follow Up</div>
+              {renderArraySection("followUp")}
+            </>
           )}
         </>
       )}

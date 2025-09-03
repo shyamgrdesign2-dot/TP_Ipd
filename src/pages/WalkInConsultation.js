@@ -23,7 +23,10 @@ import { resetGrowthChartState } from "../redux/growthChartSlice";
 import { resetObstetricState } from "../redux/obstetricSlice";
 import { resetUploadDocState } from "../redux/uploadDocSlice";
 import { resetDDxState } from "../redux/ddxSlice";
-
+import {
+  getClinic,
+  getTokenData
+} from "../utils/utils";
 function WalkInConsultation() {
   const navigate = useNavigate();
 
@@ -568,6 +571,19 @@ function WalkInConsultation() {
   }
 
   const onSmartRxClick = async (patient) => {
+    const tokenData = getTokenData();
+    const clinic = getClinic(profile?.hospital_data);
+    window.Moengage.track_event("TP_SmartRx_Started", {
+      patient_id: patient?.patient_unique_id || "",
+      patient_name: patient?.pm_fullname,
+      doctor_id: profile?.doctor_unique_id,
+      doctor_name: profile?.um_name,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      clinic_name: clinic?.hm_name,
+      source: "Appointment Landing Page",
+      device_details: navigator.userAgent
+  });
     // window.Moengage.track_event("patient_search_consult", {
     //   doctor_id: profile?.doctor_unique_id,
     //   //   patient_id: record?.patient_unique_id,

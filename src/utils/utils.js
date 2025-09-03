@@ -267,10 +267,11 @@ export const medicine_freq_dosage_format = (freqDosage) => {
   return value;
 };
 
-export const calculateDose = (dosage, weight, concentration) => {
+export const calculateDose = (dosage, weight, concentration, tmmType) => {
   const dose =
     (parseFloat(dosage) * parseFloat(weight)) / parseFloat(concentration);
-  return !isNaN(dose) ? dose.toFixed(1).replace(/\.0$/, "") : "";
+    console.log(dose.toFixed(1))
+  return !isNaN(dose) ? [8, 11, 23, 20, 34, 27, 9, 33, 21, 1, 17, 35, 12, 40, 10, 18, 31, 36, 2, 19, 14, 30, 15, 13, 3, 16]?.includes(parseInt(tmmType)) ? Math.round(dose.toFixed(1)) : dose.toFixed(1).replace(/\.0$/, "") : "";
 };
 
 export const formatAmount = (amount) => {
