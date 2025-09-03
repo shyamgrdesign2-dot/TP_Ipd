@@ -1,6 +1,6 @@
 import React, { useContext, useState, useCallback } from 'react';
 import { Navbar } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Popover } from 'antd';
 import { useSelector, useDispatch } from "react-redux";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
@@ -24,13 +24,16 @@ import { addModule } from '../redux/customModuleSlice';
 import { getDecodedToken } from '../utils/localStorage';
 import { env } from '../EnvironmentConfig';
 import { GB_ZYDUS_USER } from '../utils/constants';
+import { updatePatientDefaultLanguage } from '../api/services/DefaultLanguageService';
 
 function HeaderPrintSetting({ defaultPrintSettings }) {
     const navigate = useNavigate();
+    const { state } = useLocation();
 
     const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
     const decodedToken = getDecodedToken();
     const tokenData = decodedToken?.result;
+    const { currentSessionRx } = useSelector((state) => state.obstetric);
 
     const [popOverVideo, setPopOverVideo] = useState(false);
     const [videoLink, setVideoLink] = useState(null);
@@ -105,6 +108,7 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
             errorMessage(`Upload header`)
         } else {
             var sendData = {
+                default_language: printSettings?.default_language,
                 letterhead_format: printSettings?.letterhead_format,
                 whatsapp_letterhead_format: printSettings?.whatsapp_letterhead_format,
                 qrcode_enable: printSettings?.qrcode_enable,
@@ -144,19 +148,25 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
             const action = await dispatch(savePrintsettings(sendData));
 
             if (action.meta.requestStatus === "fulfilled") {
-                navigate(-1)
+                navigate("/prescription_print_view", { replace: true, state: { ...state, currentSessionRx: null } });
             } else {
                 errorMessage(action.error)
             }
         }
         dispatch(setCurrentSessionRx(null));
+        if (defaultPrintSettings?.default_language !== printSettings?.default_language) {
+            updatePatientDefaultLanguage({
+                patientId: state?.patient_data?.patient_unique_id,
+                default_language: printSettings?.default_language,
+            });
+        }
     };
 
     const checkDataFillOrNot = () => {
         let update_json = { ...printSettings }
         delete update_json['qrcode']
         if (JSON.stringify(defaultPrintSettings) == JSON.stringify(update_json)) {
-            navigate(-1)
+            navigate("/prescription_print_view", { replace: true, state: { ...state, currentSessionRx: currentSessionRx } });
         } else {
             setFlag(1)
             showHideBackModal()
@@ -169,10 +179,10 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
 
     const onYesLeaveClick = async() => {
         if (flag === 1) {
-            navigate(-1);
+            navigate("/prescription_print_view", { replace: true, state: { ...state, currentSessionRx: null } });
             dispatch(setCurrentSessionRx(null));
         } else if (flag === 3) {
-            navigate(-1);
+            navigate("/prescription_print_view", { replace: true, state: { ...state, currentSessionRx: currentSessionRx } });
         } else {
             const action = await dispatch(getDefaultPrintsettings({ default: true }));
             if(action.meta.requestStatus === "fulfilled") {

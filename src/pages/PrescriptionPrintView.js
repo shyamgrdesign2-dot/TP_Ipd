@@ -23,7 +23,7 @@ import { viewCaseManager } from "../redux/caseManagerSlice";
 
 import { pdfjs, Document, Page } from "react-pdf";
 import { getGynecDetails } from "../api/services/ApiGynec";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, WHATS_APP_API, WTSAP_ERR_MESSAGE, ZYDUS_WHATS_APP_API, ZYDUS_WHATSAPP_ENABLED_DOCTORS } from "../utils/constants";
+import { LANGUAGE_LIST, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, WHATS_APP_API, WTSAP_ERR_MESSAGE, ZYDUS_WHATS_APP_API, ZYDUS_WHATSAPP_ENABLED_DOCTORS } from "../utils/constants";
 import { env } from "../EnvironmentConfig";
 import { setCurrentSessionRx } from "../redux/obstetricSlice";
 import CreateBill from "./opdBilling/components/createBill/CreateBill";
@@ -35,67 +35,13 @@ import { setShouldShowOpdBilling } from "../redux/billingSlice";
 import { printBlobInNewTab } from "./opdBilling/utils/helper";
 import { getDecodedToken } from '../utils/localStorage';
 import api from '../api/services/axiosService';
+import { fetchPatientDefaultLanguage, updatePatientDefaultLanguage } from "../api/services/DefaultLanguageService";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 //     "pdfjs-dist/build/pdf.worker.min.js",
 //     import.meta.url
 // ).toString();
-
-const LANGUAGE_LIST = [
-    {
-        value: 1,
-        label: 'English',
-    },
-    {
-        value: 2,
-        label: 'Gujarati',
-    },
-    {
-        value: 3,
-        label: 'Hindi',
-    },
-    {
-        value: 4,
-        label: 'Marathi',
-    },
-    // {
-    //     value: 5,
-    //     label: 'Telugu',
-    // },
-    {
-        value: 6,
-        label: 'Kannada',
-    },
-    // {
-    //     value: 7,
-    //     label: 'Urdu',
-    // },
-    // {
-    //     value: 8,
-    //     label: 'Punjabi',
-    // },
-    // {
-    //     value: 9,
-    //     label: 'Malayalam',
-    // },
-    {
-        value: 10,
-        label: 'Tamil',
-    },
-    {
-        value: 11,
-        label: 'Assamese',
-    },
-    {
-        value: 12,
-        label: 'Bengali',
-    },
-    {
-        value: 13,
-        label: 'Odia',
-    },
-]
 function PrescriptionPrintView() {
 
     const divRef = useRef(null);
@@ -104,8 +50,7 @@ function PrescriptionPrintView() {
     const {
         loading,
     } = useSelector((state) => state.caseManager);
-    const { userId, profile } = useSelector((state) => state.doctors);
-    const { currentSessionRx } = useSelector((state) => state.obstetric);
+    const { userId, profile, defaultPrintSettings } = useSelector((state) => state.doctors);
     const { isOpdBillChecked } = useSelector((state) => state.billing);
     const { isOpdBillingAccessable } = useOpdBilling();
     const dispatch = useDispatch();
@@ -115,11 +60,12 @@ function PrescriptionPrintView() {
     const { state } = useLocation();
     const { patient_data, pam_id, labParamsData: passedLabParamsData, zydusSelectedLabParams, labReportID } = state;
 
+    const [selectedLang, setSelectedLang] = useState(defaultPrintSettings?.default_language && defaultPrintSettings?.default_language !== "English" ? defaultPrintSettings?.default_language : 1);
+    const encodedData = btoa(selectedLang.toString());
 
-    const [selectedLang, setSelectedLang] = useState(1);
-
-    const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}&pam_id=${pam_id}` : null);
+    const [printUrl, setPrintUrl] = useState(state !== undefined ? `${state.print_url}&pam_id=${pam_id}&lg=${encodedData}` : null);
     const [printRxUrl, setPrintRxUrl] = useState(state !== undefined ? `${state.print_rx_url}` : null);
+    const [currentSessionRx, setCurrentSessionRx] = useState(state !== undefined ? state.currentSessionRx : null);
 
     const [divWidth, setDivWidth] = useState(0);
     const [numPages, setNumPages] = useState();
@@ -175,8 +121,16 @@ function PrescriptionPrintView() {
         }
       };
 
+    const getPatientDefaultLanguage = async () => {
+        const res = await fetchPatientDefaultLanguage(patient_data?.patient_unique_id);
+        if (res?.settings?.defaultLanguage) {
+            setSelectedLang(res?.settings?.defaultLanguage);
+        }
+    };
+
     useEffect(() => {
         getLabParams();
+        getPatientDefaultLanguage();
     },[])
 
     useEffect(() => {
@@ -189,7 +143,7 @@ function PrescriptionPrintView() {
     useEffect(() => {
       const encodedData = btoa(selectedLang.toString());
       setPrintUrl(`${printUrl}&lg=${encodedData}`);
-    }, [patientBills, advanceReceipts]);
+    }, [patientBills, advanceReceipts, selectedLang]);
 
     useEffect(() => {
         if (!isOpdBillChecked) {
@@ -305,7 +259,11 @@ function PrescriptionPrintView() {
         (data) => {
             const encodedData = btoa(data.toString());
             setPrintUrl(`${currentSessionRx || printUrl}&lg=${encodedData}`);
-            setSelectedLang(data)
+            setSelectedLang(data);
+            updatePatientDefaultLanguage({
+              patientId: patient_data?.patient_unique_id,
+              default_language: data,
+            });
         },
         [selectedLang, printUrl]
     );
@@ -459,7 +417,7 @@ function PrescriptionPrintView() {
         }
         const action = await dispatch(viewCaseManager(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            navigate('/configure_print_setting', { state: { caseManagerData: {...action.payload, patient_data: {...action.payload.patient_data, pm_id: patient_data?.pm_id}, gynecHistoryData, labParamsData, zydusSelectedLabParams: zydusSelectedLabParams}, pam_id: pam_id } })
+            navigate('/configure_print_setting', { state: { ...state, selectedLang: selectedLang, caseManagerData: {...action.payload, patient_data: {...action.payload.patient_data, pm_id: patient_data?.pm_id}, gynecHistoryData, labParamsData, zydusSelectedLabParams: zydusSelectedLabParams}, pam_id: pam_id } })
         } else {
             errorMessage(action.error)
         }
@@ -576,7 +534,7 @@ function PrescriptionPrintView() {
                                 <div className="d-flex align-items-center">
                                     <label className="fontroboto">Select Language</label>
                                     <Select placeholder="English" className='ms-3 appointmentselect'
-                                        value={selectedLang}
+                                        value={LANGUAGE_LIST.find(item => item.value == selectedLang)}
                                         onSelect={onSelect}
                                         options={LANGUAGE_LIST}
                                     />
@@ -590,6 +548,9 @@ function PrescriptionPrintView() {
                                             error={<div style={{ position: 'absolute', zIndex: 0, left: "42%", top: "50%" }} >{'Failed to load PDF file.'}</div>}
                                             noData={<div style={{ position: 'absolute', zIndex: 0, left: "50%", top: "50%" }} >{'No PDF file specified.'}</div>}
                                             file={currentSessionRx || printUrl}
+                                            onLoadError={() => {
+                                                setCurrentSessionRx(null);
+                                            }}
                                             onLoadSuccess={onDocumentLoadSuccess}>
                                             {Array.apply(null, Array(numPages))
                                                 .map((x, i) => i + 1)
