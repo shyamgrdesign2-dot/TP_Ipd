@@ -64,18 +64,10 @@ import SnapRxDigitise from "./pages/snapRx/SnapRxDigitise";
 import AppointmentAgent from "./pages/appointmentAgent/AppointmentAgent";
 import AppointmentSuccess from "./pages/appointmentAgent/components/AppointmentSuccess/AppointmentSuccess";
 import OpdBill from "./pages/opdBilling/OpdBill";
-import MedicationsBox from "./components/MedicationsBox";
-import TabMedicationBox from './components/tab_design/TabMedicationBox';
-import LabParametersList from "./components/LabParametersList";
-import LabParams from "./components/LabParams";
-import LabResultsTable from "./components/ViewLabParams";
-import GynecHistoryList from "./components/GynecHistoryList";
-import Obstetric from "./pages/obstetric/Obstetric";
-import ObstetricList from "./pages/obstetric/components/obstetricList/ObstetricList";
-import MedicalHistoryBox from "./components/MedicalHistoryBox";
-import MedicalHistoryList from "./components/MedicalHistoryList";
 import IPDPatientDetails from "./pages/ipd/patientDetails/patientDetails";
 import AssessmentsForm from "./pages/ipd/assessmentForm/AssessmentsForm";
+import IPDLayout from "./pages/ipd/IPDLayout";
+import InPatients from "./pages/ipd/InPatients";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -498,6 +490,9 @@ function App() {
                   path="appointment-agent/success"
                   element={<AppointmentSuccess />}
                 />
+                <Route path="ipd" element={<IPDLayout />}>
+                  <Route path="inPatients" element={<InPatients />} />
+                </Route>
               </Route>
               <Route path="opd-bill" element={<OpdBill />} />
             </Routes>
