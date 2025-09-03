@@ -518,5 +518,6 @@ export const formatPatientsForTable = (patients) => {
     doctorId: patient.doctor.id,
     admittedOn: patient.admittedOn,
     referral: patient.referral,
+    patientData: patient,
   }));
 };

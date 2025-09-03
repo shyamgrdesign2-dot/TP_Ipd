@@ -1,10 +1,15 @@
 import React, { Suspense, useEffect, useState } from "react";
 import { IPD } from "../../../utils/locale";
-import { formatDateToShortMonthYear, normalizeToDefault } from "../../../utils/utils";
+import {
+  formatDateToShortMonthYear,
+  normalizeToDefault,
+} from "../../../utils/utils";
 import { AnimatePresence } from "framer-motion";
 import "./styles.scss";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setPatientDetailsInOldFormat } from "../../../redux/ipd/ipdSlice";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -18,6 +23,15 @@ const IPDPatientDetails = () => {
   console.log("INTEL ==> patientDetails", patientDetails);
   const [open, setOpen] = useState(true);
   const [patientData, setPatientData] = useState(null);
+  const { state } = useLocation();
+  const { patientData: patientDataFromState } = state;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (patientDataFromState) {
+      dispatch(setPatientDetailsInOldFormat(patientDataFromState));
+    }
+  }, [patientDataFromState]);
 
   const handleAddAssessmentClick = () => {
     navigate("/ipd/patient-details/assessment-form", {
@@ -34,9 +48,9 @@ const IPDPatientDetails = () => {
       wardBedNumber: `${patientDetails.ward.title} - ${patientDetails.room.title}`,
       consultant: patientDetails.doctor.name,
       admittedOn: formatDateToShortMonthYear(patientDetails.admittedOn),
-    }
+    };
     setPatientData(data);
-  }, [patientDetails])
+  }, [patientDetails]);
   const handleEmptyCtaClick = {
     assessment: handleAddAssessmentClick,
   };
@@ -44,6 +58,10 @@ const IPDPatientDetails = () => {
     return IPD.PATIENT_DETAILS_MENU.map((item) => {
       return { ...item, ctaClick: handleEmptyCtaClick?.[item.id] };
     });
+  };
+
+  const onRequestClose = () => {
+    navigate(`/ipd/inPatients`);
   };
 
   return (
@@ -54,7 +72,7 @@ const IPDPatientDetails = () => {
             <PatientDetailsLayout
               key="patient-details"
               items={patientDetailsMenu()}
-              onRequestClose={() => setOpen(false)}
+              onRequestClose={onRequestClose}
               fullName={patientData.fullName}
               gender={patientData.gender}
               age={patientData.age}

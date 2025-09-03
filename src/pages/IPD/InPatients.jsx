@@ -11,11 +11,12 @@ import {
   setFilterParams,
   resetPatients,
   incrementPage,
-} from "../../redux/ipdSlice";
+} from "../../redux/ipd/inPatientsSlice";
 import SubHeader from "./components/SubHeader";
 import FilterDropdown from "../../components/InPatients/FilterDropdown";
 import Referral from "./components/Referral";
 import "./InPatients.scss";
+import { useNavigate } from "react-router-dom";
 
 // Custom hook for debouncing values
 const useDebounce = (value, delay) => {
@@ -47,6 +48,8 @@ function InPatients() {
 
   const dispatch = useDispatch();
 
+  const navigate = useNavigate();
+
   // Get IPD data from Redux store
   const {
     patients: {
@@ -57,7 +60,7 @@ function InPatients() {
     },
     filters: { ward: wardFilters, doctor: doctorFilters, error: filtersError },
     filterParams,
-  } = useSelector((state) => state.ipd);
+  } = useSelector((state) => state.inPatients);
 
   // Format doctor data for the filter dropdown
   const doctors =
@@ -228,6 +231,12 @@ function InPatients() {
     setInputSearchQuery(query);
   }, []);
 
+  const onViewDetails = (patientData) => {
+    navigate(`/ipd/patient-details`, {
+      state: { patientData },
+    });
+  };
+
   const columns = [
     {
       title: "#",
@@ -248,7 +257,12 @@ function InPatients() {
       fixed: "left",
       render: (text, record) => (
         <div>
-          <span className="text-primary">{record?.patientName}</span>
+          <span
+            className="text-primary cursor-pointer"
+            onClick={() => onViewDetails(record?.patientData)}
+          >
+            {record?.patientName}
+          </span>
           <br />
           <small>
             {record?.gender}, {`${record?.age}y`}
@@ -327,9 +341,7 @@ function InPatients() {
             className="btn btn-outline-primary"
             style={{ fontSize: "13px !important" }}
             onClick={() => {
-              // Handle view patient details
-              // You can navigate to patient details page or open a modal
-              console.log("View patient details:", record);
+              onViewDetails(record?.patientData);
             }}
           >
             View Details

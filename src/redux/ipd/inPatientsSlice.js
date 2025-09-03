@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import IpdService from "../api/services/IpdService";
-import { formatPatientsForTable } from "../pages/IPD/staticData";
+import IpdService from "../../api/services/IpdService";
+import { formatPatientsForTable } from "../../pages/ipd/staticData";
 
 // Async thunk for fetching patients
 export const fetchPatients = createAsyncThunk(
@@ -93,7 +93,7 @@ const initialState = {
   },
 };
 
-const ipdSlice = createSlice({
+const inPatientsSlice = createSlice({
   name: "ipd",
   initialState,
   reducers: {
@@ -173,6 +173,6 @@ const ipdSlice = createSlice({
 });
 
 export const { setFilterParams, incrementPage, resetPatients } =
-  ipdSlice.actions;
+  inPatientsSlice.actions;
 
-export default ipdSlice.reducer;
+export default inPatientsSlice.reducer;
