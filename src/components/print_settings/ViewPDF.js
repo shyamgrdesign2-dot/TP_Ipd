@@ -412,6 +412,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             value = `Allergies to : `
         } else if (id == 1) {
             value = `Habit : `
+        } else if (id == 5) {
+            value = `Surgery : `
         }
         return value
     }
@@ -1864,15 +1866,19 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 let conditionName = tag.title || '';
                                                                                 let details = '';
                                                                                 let hasDetails = false;
-                                                                                if (tag.since) {
+                                                                                if (tag.since && item.tmmhs_id !== 5) {
                                                                                     details += ` (Since: ${tag.since}`;
                                                                                     hasDetails = true;
                                                                                 }
-                                                                                if (item.tmmhs_id !== 3 && tag.status) {
+                                                                                if (tag.date && item.tmmhs_id === 5 && typeof tag.date === 'string' && tag.date.trim()) {
+                                                                                    details += ` (${tag.date}`;
+                                                                                    hasDetails = true;
+                                                                                }
+                                                                                if (item.tmmhs_id !== 3 && item.tmmhs_id !== 5 && tag.status) {
                                                                                     details += hasDetails ? ` | Status: ${tag.status}` : ` (Status: ${tag.status}`;
                                                                                     hasDetails = true;
                                                                                 }
-                                                                                if (item.tmmhs_id !== 3 && tag.medication) {
+                                                                                if (item.tmmhs_id !== 3 && item.tmmhs_id !== 5 && tag.medication) {
                                                                                     details += hasDetails ? ` | Medication: ${tag.medication}` : ` (Medication: ${tag.medication}`;
                                                                                     hasDetails = true;
                                                                                 }
@@ -1880,8 +1886,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                     details += hasDetails ? ` | Relative: ${tag.relationship}` : ` (Relative: ${tag.relationship}`;
                                                                                     hasDetails = true;
                                                                                 }
-                                                                                if (tag.note) {
+                                                                                if (tag.note && item.tmmhs_id !== 5) {
                                                                                     details += hasDetails ? ` | ${tag.note}` : ` (${tag.note}`;
+                                                                                    hasDetails = true;
+                                                                                }
+                                                                                if (tag.note && item.tmmhs_id === 5) {
+                                                                                    details += hasDetails ? ` | Remarks: ${tag.note}` : ` (Remarks: ${tag.note}`;
                                                                                     hasDetails = true;
                                                                                 }
                                                                                 if (hasDetails) {
@@ -1942,21 +1952,22 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                             {item1.enable == 'Y' ? (
                                                                                                 <>
                                                                                                     <Text key={i1} style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{'\n'}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{String.fromCharCode(abcd++)}.&nbsp;{item1.title}&nbsp;</Text>
-                                                                                                    {(item1.since || item1.status || item1.medication || item1.relationship || item1.note) &&
+                                                                                                    {((item1.since && item.tmmhs_id !== 5) || (item1.date && item.tmmhs_id === 5) || item1.status || item1.medication || item1.relationship || item1.note) &&
                                                                                                         <Text key={i1} style={{ lineHeight: 1.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>
                                                                                                             {`(${Object.values(Object.fromEntries(Object.entries((
                                                                                                                 ({
                                                                                                                     since,
+                                                                                                                    date,
                                                                                                                     status,
                                                                                                                     medication,
                                                                                                                     relationship,
                                                                                                                     note
                                                                                                                 }) => ({
-                                                                                                                    since: since && `Since : ${since}`,
-                                                                                                                    status: status && `Status : ${status}`,
-                                                                                                                    medication: medication && `Medication : ${medication}`,
+                                                                                                                    since: (item.tmmhs_id === 5 && date) ? `${date}` : (since ? `Since : ${since}` : null),
+                                                                                                                    status: status && item.tmmhs_id !== 5 && `Status : ${status}`,
+                                                                                                                    medication: medication && item.tmmhs_id !== 5 && `Medication : ${medication}`,
                                                                                                                     relationship: relationship && `Relative : ${relationship}`,
-                                                                                                                    note: note && `${note}`,
+                                                                                                                    note: note && (item.tmmhs_id === 5 ? `Remarks : ${note}` : `${note}`),
                                                                                                                 })
                                                                                                             )(item1)).filter(([_, v]) => v))).join(' | ')})`}
                                                                                                         </Text>
@@ -2029,7 +2040,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                             <View key={i} style={[styles.table, { marginTop: 0 }]}>
                                                                                 <View style={styles.headerRow} fixed>
                                                                                     <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
-                                                                                    {item?.tmmhs_id != 3 && (
+                                                                                    {item?.tmmhs_id != 3 && item?.tmmhs_id != 5 && (
                                                                                         <>
                                                                                             <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
                                                                                             <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
@@ -2038,16 +2049,19 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                             )}
                                                                                         </>
                                                                                     )}
+                                                                                    {item?.tmmhs_id === 5 && (
+                                                                                        <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DATE</Text>
+                                                                                    )}
                                                                                     {item?.tmmhs_id === 3 && (
                                                                                         <Text style={[styles.headerCell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>RELATIVE</Text>
                                                                                     )}
-                                                                                    <Text style={[styles.headerCell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NOTE</Text>
+                                                                                    <Text style={[styles.headerCell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>{item?.tmmhs_id === 5 ? 'REMARKS' : 'NOTE'}</Text>
                                                                                 </View>
                                                                                 {item?.tags?.filter(x => x.enable == 'Y')?.map((item1, i1) => {
                                                                                     return (
                                                                                         <View style={styles.row} key={i1} wrap={false}>
                                                                                             <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item1.title}</Text>
-                                                                                            {item?.tmmhs_id != 3 && (
+                                                                                            {item?.tmmhs_id != 3 && item?.tmmhs_id != 5 && (
                                                                                                 <>
                                                                                                     <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.since ? item1.since : '-'}</Text>
                                                                                                     <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.status ? item1.status : '-'}</Text>
@@ -2055,6 +2069,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                                         <Text style={[styles.cell, { flex: 0.25, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.medication ? item1.medication : '-'}</Text>
                                                                                                     )}
                                                                                                 </>
+                                                                                            )}
+                                                                                            {item?.tmmhs_id === 5 && (
+                                                                                                <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.date || '-'}</Text>
                                                                                             )}
                                                                                             {item?.tmmhs_id === 3 && (
                                                                                                 <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.relationship ? item1.relationship : '-'}</Text>
