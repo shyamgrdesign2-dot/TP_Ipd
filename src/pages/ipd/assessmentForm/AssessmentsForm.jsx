@@ -142,7 +142,7 @@ const UnitInput = React.lazy(() => {
     );
   });
 
-const AssessmentForm = (props) => {
+const AssessmentsForm = (props) => {
     const { isEditable = true } = props;
   const dispatch = useDispatch();
   let {
@@ -928,4 +928,4 @@ const AssessmentForm = (props) => {
   );
 };
 
-export default AssessmentForm;
+export default AssessmentsForm;
