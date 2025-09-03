@@ -1697,6 +1697,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 spo2,
                                                                                 height,
                                                                                 weight,
+                                                                                fib4,
+                                                                                waist_circumference,
                                                                                 bmi,
                                                                                 bmr,
                                                                                 bsa,
@@ -1711,6 +1713,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 // diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
                                                                                 spo2: spo2 ? `SPO2: ${spo2}%` : '',
                                                                                 general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : '',
+                                                                                fib4: fib4 ? `FIB4: ${fib4}` : '',
+                                                                                waist_circumference: waist_circumference ? `Waist Circumference: ${waist_circumference}cms` : '',
                                                                                 ofc: ofc ? `OFC: ${ofc}cms` : '',
                                                                                 height: height ? `Height: ${height}cms` : '',
                                                                                 weight: weight ? `Weight: ${weight}kgs` : '',
@@ -1767,6 +1771,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 spo2,
                                                                                 height,
                                                                                 weight,
+                                                                                fib4,
+                                                                                waist_circumference,
                                                                                 bmi,
                                                                                 bmr,
                                                                                 bsa,
@@ -1781,6 +1787,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 // diastolic: blood_press ? blood_press.split('/')[1] ? `Diastolic (${blood_press.split('/')[1]}mmHg)` : '' : '',
                                                                                 spo2: spo2 ? `SPO2: ${spo2}%` : '',
                                                                                 general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : '',
+                                                                                fib4: fib4 ? `FIB4: ${fib4}` : '',
+                                                                                waist_circumference: waist_circumference ? `Waist Circumference : ${waist_circumference}cms` : '',
                                                                                 ofc: ofc ? `OFC: ${ofc}cms` : '',
                                                                                 height: height ? `Height: ${height}cms` : '',
                                                                                 weight: weight ? `Weight: ${weight}kgs` : '',
@@ -2381,6 +2389,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                 <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Parameters</Text>
                                                                 {option?.growth_chart_option?.includes('height') && <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Height</Text>}
                                                                 {option?.growth_chart_option?.includes('weight') && <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Weight</Text>}
+                                                                {option?.growth_chart_option?.includes('fib4') && <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>FIB4</Text>}
+                                                                {option?.growth_chart_option?.includes('waist_circumference') && <Text style={[styles.headerCell, { flex: 0.6, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>Waist Circumference</Text>}
                                                                 {option?.growth_chart_option?.includes('bmi') && <Text style={[styles.headerCell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>BMI</Text>}
                                                                 {option?.growth_chart_option?.includes('ofc') && <Text style={[styles.headerCell, { flex: 0.8, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>OFC</Text>}
                                                             </View>
@@ -2394,6 +2404,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     </Text>}
                                                                     {option?.growth_chart_option?.includes('weight') && <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                         {item?.weight ? `${item?.weight} kgs` : ''}
+                                                                    </Text>}
+                                                                    {option?.growth_chart_option?.includes('fib4') && <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                        {item?.fib4 ? `${item?.fib4} ` : ''}
+                                                                    </Text>}
+                                                                    {option?.growth_chart_option?.includes('waist_circumference') && <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                        {item?.waist_circumference ? `${item?.waist_circumference} cms` : ''}
                                                                     </Text>}
                                                                     {option?.growth_chart_option?.includes('bmi') && <Text style={[styles.cell, { flex: 0.8, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                         {item.bmi ? `${item.bmi} kg/m2` : ''}

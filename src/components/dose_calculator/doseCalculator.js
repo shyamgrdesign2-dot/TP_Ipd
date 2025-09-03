@@ -299,6 +299,8 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         height: '',
         weight: todayWeight || '',
         ofc: '',
+        fib4:'',
+        waist_circumference:'',
         bmi: cal.bmi,
         bmr: cal.bmr,
         bsa: cal.bsa,
