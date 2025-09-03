@@ -177,7 +177,7 @@ function CertificatePrintView() {
         }
         const action = await dispatch(viewPatientCertificate(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            navigate('/configure_print_setting', { state: { certificateData: action.payload } })
+            navigate('/configure_print_setting', { state: { ...state, certificateData: action.payload } })
         } else {
             errorMessage(action.error)
         }

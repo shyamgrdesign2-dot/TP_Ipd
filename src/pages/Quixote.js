@@ -167,6 +167,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 patientBills={props.patientBills}
                 advanceReceipts={props.advanceReceipts}
                 patientWalletBalance={props.patientWalletBalance}
+                selectedLang={printSettings?.default_language === "English" ? 1 : printSettings?.default_language}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
             dispatch(setCurrentSessionRx(URL.createObjectURL(blob)));
@@ -189,7 +190,8 @@ function Quixote({ mode = NORMAL, ...props }) {
         fileLogo,
         props.todayVaccines,
         props.growthChartDetails,
-        props.obstetricDetails
+        props.obstetricDetails,
+        printSettings?.default_language
     ]);
 
     const onDocumentLoadSuccess = ({ numPages }) => {
