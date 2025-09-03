@@ -186,6 +186,61 @@ export const FONTS_SIZE_LIST = [
   },
 ];
 
+export const LANGUAGE_LIST = [
+    {
+        value: 1,
+        label: 'English',
+    },
+    {
+        value: 2,
+        label: 'Gujarati',
+    },
+    {
+        value: 3,
+        label: 'Hindi',
+    },
+    {
+        value: 4,
+        label: 'Marathi',
+    },
+    // {
+    //     value: 5,
+    //     label: 'Telugu',
+    // },
+    {
+        value: 6,
+        label: 'Kannada',
+    },
+    // {
+    //     value: 7,
+    //     label: 'Urdu',
+    // },
+    // {
+    //     value: 8,
+    //     label: 'Punjabi',
+    // },
+    // {
+    //     value: 9,
+    //     label: 'Malayalam',
+    // },
+    {
+        value: 10,
+        label: 'Tamil',
+    },
+    {
+        value: 11,
+        label: 'Assamese',
+    },
+    {
+        value: 12,
+        label: 'Bengali',
+    },
+    {
+        value: 13,
+        label: 'Odia',
+    },
+]
+
 export const PAEDIATRIC_DP_ID = 9;
 
 export const DDX_KNOW_MORE_DATA = {
