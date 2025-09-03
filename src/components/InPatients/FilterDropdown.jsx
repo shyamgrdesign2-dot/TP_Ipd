@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Drawer } from "antd";
 import "./FilterDropdown.scss";
+import { isMobile } from "react-device-detect";
 
 const FilterDropdown = ({
   title,
@@ -9,37 +11,64 @@ const FilterDropdown = ({
   searchPlaceholder = "Search",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
+  const [tempSelectedItems, setTempSelectedItems] = useState([]);
   const dropdownRef = useRef(null);
 
   const showSearchBar = items.length > 6;
 
+  // Helper function to get the display name for an item (handles both name and title properties)
+  const getItemDisplayName = (item) => {
+    return item.name || item.title || "";
+  };
+
   const filteredItems = items.filter((item) =>
-    item.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    getItemDisplayName(item).toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const toggleDropdown = () => {
-    setIsOpen(!isOpen);
+    if (isMobile && showSearchBar) {
+      setDrawerVisible(!drawerVisible);
+    } else {
+      setIsOpen(!isOpen);
+    }
+    setTempSelectedItems([...selectedItems]);
   };
 
   const handleItemSelect = (itemId) => {
-    if (selectedItems.includes(itemId)) {
-      setSelectedItems(selectedItems.filter((id) => id !== itemId));
+    if (tempSelectedItems.includes(itemId)) {
+      setTempSelectedItems(tempSelectedItems.filter((id) => id !== itemId));
     } else {
-      setSelectedItems([...selectedItems, itemId]);
+      setTempSelectedItems([...tempSelectedItems, itemId]);
     }
   };
 
   const handleApplyFilter = () => {
-    onFilterChange(selectedItems);
-    setIsOpen(false);
+    if (isMobile && showSearchBar) {
+      setDrawerVisible(false);
+    } else {
+      setIsOpen(false);
+    }
+    setSelectedItems(tempSelectedItems);
+    onFilterChange(tempSelectedItems);
   };
 
   const handleClearFilter = () => {
+    if (isMobile && showSearchBar) {
+      setDrawerVisible(false);
+    } else {
+      setIsOpen(false);
+    }
+    setTempSelectedItems([]);
     setSelectedItems([]);
     onFilterChange([]);
-    setIsOpen(false);
+  };
+
+  const handleDrawerClose = () => {
+    setDrawerVisible(false);
+    setTempSelectedItems([...selectedItems]);
   };
 
   // Close dropdown when clicking outside
@@ -62,7 +91,7 @@ const FilterDropdown = ({
       return placeholder;
     } else if (selectedItems.length === 1) {
       const selectedItem = items.find((item) => item.id === selectedItems[0]);
-      return selectedItem ? selectedItem.name : placeholder;
+      return selectedItem ? getItemDisplayName(selectedItem) : placeholder;
     } else {
       // For multiple selections, show the category name (without "All")
       // For example: "All Doctor" becomes "Doctors", "All Ward" becomes "Wards"
@@ -72,6 +101,74 @@ const FilterDropdown = ({
       }
       return placeholder;
     }
+  };
+
+  // Render the filter items list (used in both dropdown and drawer)
+  const renderFilterItems = (useTemp = false) => {
+    const currentSelections = tempSelectedItems;
+
+    return (
+      <div className="items-list">
+        {filteredItems.map((item, i) => {
+          const isSelected = currentSelections.includes(item.id);
+          return (
+            <div
+              key={`${item.id}-${i}`}
+              className={`item ${isSelected ? "selected" : ""}`}
+            >
+              <label className="checkbox-container">
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => handleItemSelect(item.id)}
+                />
+                <span className="checkmark"></span>
+                <span className="item-name">{getItemDisplayName(item)}</span>
+              </label>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // Render search bar (used in both dropdown and drawer)
+  const renderSearchBar = () => {
+    return (
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder={searchPlaceholder}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+    );
+  };
+
+  const ApplyFilter = () => {
+    return (
+      <button
+        className="apply-filter"
+        onClick={handleApplyFilter}
+        disabled={tempSelectedItems.length === 0}
+      >
+        Apply Filter{" "}
+        {tempSelectedItems.length > 0 && `(${tempSelectedItems.length})`}
+      </button>
+    );
+  };
+
+  const ClearFilter = () => {
+    return (
+      <button
+        className="clear-filter"
+        onClick={handleClearFilter}
+        disabled={tempSelectedItems.length === 0}
+      >
+        Clear Filter
+      </button>
+    );
   };
 
   return (
@@ -92,48 +189,42 @@ const FilterDropdown = ({
         />
       </div>
 
-      {isOpen && (
+      {/* Regular dropdown for desktop or mobile without search */}
+      {isOpen && !isMobile && (
         <div className="dropdown-content">
           <div className="filter-header">{title}</div>
 
-          {showSearchBar && (
-            <div className="search-container">
-              <input
-                type="text"
-                placeholder={searchPlaceholder}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          )}
+          {showSearchBar && renderSearchBar()}
 
-          <div className="items-list">
-            {filteredItems.map((item) => (
-              <div key={item.id} className="item">
-                <label className="checkbox-container">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.includes(item.id)}
-                    onChange={() => handleItemSelect(item.id)}
-                  />
-                  <span className="checkmark"></span>
-                  <span className="item-name">{item.name}</span>
-                </label>
-              </div>
-            ))}
-          </div>
+          {renderFilterItems()}
 
           <div className="filter-actions">
-            <button className="apply-filter" onClick={handleApplyFilter}>
-              Apply Filter{" "}
-              {selectedItems.length > 0 && `(${selectedItems.length})`}
-            </button>
-            <button className="clear-filter" onClick={handleClearFilter}>
-              Clear Filter
-            </button>
+            <ApplyFilter />
+            <ClearFilter />
           </div>
         </div>
       )}
+
+      {/* Ant Design Drawer for mobile/tablet with search */}
+      <Drawer
+        title={
+          <div className="d-flex align-items-center justify-content-between filter-drawer-header">
+            <span className="filter-drawer-title">{title}</span>
+            <div className="d-flex align-items-center gap-18">
+              <ClearFilter />
+              <ApplyFilter />
+            </div>
+          </div>
+        }
+        placement="right"
+        onClose={handleDrawerClose}
+        open={drawerVisible}
+        width={585}
+        className="filter-drawer"
+      >
+        {showSearchBar && renderSearchBar()}
+        {renderFilterItems(true)}
+      </Drawer>
     </div>
   );
 };

@@ -1,14 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import moment from "moment";
-import {
-  Table,
-  DatePicker,
-  Input,
-  Button,
-  Alert,
-  notification,
-  Spin,
-} from "antd";
+import { Table, DatePicker, Input, Button, notification, Spin } from "antd";
 import { Row, Col } from "react-bootstrap";
 import dayjs from "dayjs";
 import noData from "../../assets/images/nodata-found.svg";
@@ -23,6 +15,7 @@ import {
 import SubHeader from "./components/SubHeader";
 import FilterDropdown from "../../components/InPatients/FilterDropdown";
 import Referral from "./components/Referral";
+import "./InPatients.scss";
 
 // Custom hook for debouncing values
 const useDebounce = (value, delay) => {
@@ -105,10 +98,6 @@ function InPatients() {
   // Add state to track if filters have been fetched
   const [filtersAttempted, setFiltersAttempted] = useState(false);
 
-  // Check if auth token exists
-  const authToken = localStorage.getItem("persistant.storage.key.auth-token");
-  const [authError, setAuthError] = useState(!authToken);
-
   // State to track if we're using static filters
   const [usingStaticFilters, setUsingStaticFilters] = useState(false);
 
@@ -128,19 +117,13 @@ function InPatients() {
 
   // Fetch doctor and ward filters on component mount only
   useEffect(() => {
-    // Check for authentication token
-    if (!authToken) {
-      setAuthError(true);
-      return;
-    }
-
     // Only fetch if we haven't attempted to fetch filters yet
     if (!filtersAttempted) {
       dispatch(fetchFilters({ field: "doctor" }));
       dispatch(fetchFilters({ field: "ward" }));
       setFiltersAttempted(true);
     }
-  }, [dispatch, filtersAttempted, authToken]);
+  }, [dispatch, filtersAttempted]);
 
   // Track if we've attempted to fetch data
   const [fetchAttempted, setFetchAttempted] = useState(false);
@@ -167,12 +150,6 @@ function InPatients() {
 
   // Fetch patients data when filters change (initial load)
   useEffect(() => {
-    // Check for authentication token
-    if (!authToken) {
-      setAuthError(true);
-      return;
-    }
-
     // Skip if we're loading more data (pagination is handled separately)
     if (loadingMore) return;
 
@@ -204,7 +181,6 @@ function InPatients() {
     dateRange,
     patientsError,
     fetchAttempted,
-    authToken,
     loadingMore,
   ]);
 
@@ -212,13 +188,6 @@ function InPatients() {
   useEffect(() => {
     // Skip if this is page 1 (handled by the above effect)
     if (filterParams.page === 1 || !loadingMore) return;
-
-    // Check for authentication token
-    if (!authToken) {
-      setAuthError(true);
-      setLoadingMore(false); // Reset loading state if not authenticated
-      return;
-    }
 
     // Fetch the next page of data
     dispatch(
@@ -231,15 +200,8 @@ function InPatients() {
         ward: selectedWards.length > 0 ? selectedWards.join(",") : "",
       })
     );
-  }, [
-    dispatch,
-    filterParams, // Include the entire filterParams object to satisfy the linter
-    loadingMore,
-    authToken,
-    // dateRange,
-    selectedDoctors,
-    selectedWards,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, filterParams, loadingMore, selectedDoctors, selectedWards]);
 
   // Reset loadingMore when patients data changes or there's an error
   useEffect(() => {
@@ -271,9 +233,8 @@ function InPatients() {
       title: "#",
       dataIndex: "srno",
       key: "srno",
-      ellipsis: true,
-      width: 80,
       className: "fs-14",
+      fixed: "left",
       render: (text, record, index) => (
         <div>
           <span>{index + 1}</span>
@@ -284,7 +245,7 @@ function InPatients() {
       title: "PATIENT DETAILS",
       dataIndex: "patientName",
       key: "patientName",
-      ellipsis: true,
+      fixed: "left",
       render: (text, record) => (
         <div>
           <span className="text-primary">{record?.patientName}</span>
@@ -299,7 +260,6 @@ function InPatients() {
       title: "Patient ID",
       dataIndex: "patientId",
       key: "patientId",
-      ellipsis: true,
       render: (text, record) => (
         <div className="d-flex align-items-center gap-2">
           <span>{record?.patientId || ""}</span>
@@ -311,7 +271,6 @@ function InPatients() {
       title: "Ward/Room",
       dataIndex: "ward",
       key: "ward",
-      ellipsis: true,
       render: (text, record) => (
         <div>
           <span>
@@ -324,7 +283,6 @@ function InPatients() {
       title: "Contact",
       dataIndex: "contactNumber",
       key: "contactNumber",
-      ellipsis: true,
       render: (text, record) => (
         <div>
           <span>{record.contactNumber || "N/A"}</span>
@@ -335,7 +293,6 @@ function InPatients() {
       title: "Admitting Doctor",
       dataIndex: "doctorName",
       key: "doctorName",
-      ellipsis: true,
       render: (text, record) => (
         <div>
           <span>{record.doctorName || "N/A"}</span>
@@ -346,7 +303,6 @@ function InPatients() {
       title: "Admitted On",
       dataIndex: "admittedOn",
       key: "admittedOn",
-      ellipsis: true,
       sortDirections: ["descend", "ascend", "descend"],
       defaultSortOrder: "descend",
       sorter: (a, b) => {
@@ -356,17 +312,12 @@ function InPatients() {
       },
       render: (text, record) => {
         const dateTime = moment(record.admittedOn);
-        return (
-          <div>
-            <small>{dateTime.format("DD-MM-YYYY")}</small>
-          </div>
-        );
+        return <div>{dateTime.format("DD-MM-YYYY")}</div>;
       },
     },
     {
       title: "Action",
       key: "action",
-      width: 200,
       render: (_, record) => (
         <div
           size="middle"
@@ -631,7 +582,9 @@ function InPatients() {
                   >
                     <span>
                       {!dateRange ? (
-                        "Filter by admitted date"
+                        <span className="date-placeholder">
+                          Filter by admitted date
+                        </span>
                       ) : dateStatus === 1 ? (
                         "Today"
                       ) : dateStatus === 2 ? (
@@ -677,7 +630,6 @@ function InPatients() {
                             onClick={() => {
                               setDateStatus(null);
                               setDateRange(null);
-                              // Just close the modal without triggering API call
                               setPickerModal(false);
                             }}
                           >
@@ -693,7 +645,6 @@ function InPatients() {
                         </div>
                       </div>
                     )}
-                    onOpenChange={() => {}}
                     value={
                       dateRange
                         ? [
@@ -726,22 +677,9 @@ function InPatients() {
                   <div className="ms-3">
                     <button
                       onClick={handleClearAllFilters}
-                      className="clear-filter-link"
-                      style={{
-                        color: "#5C4EE5",
-                        fontSize: "16px",
-                        fontWeight: "500",
-                        textDecoration: "underline",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        background: "none",
-                        border: "none",
-                        padding: 0,
-                        cursor: "pointer",
-                      }}
+                      className="clear-filter-button"
                     >
-                      Clear Filter
+                      Clear All Filter
                     </button>
                   </div>
                 )}
@@ -749,86 +687,38 @@ function InPatients() {
             </Col>
           </Row>
 
-          <div>
-            <>
-              {(usingStaticData || usingStaticFilters) && (
-                <Alert
-                  message="Using Demo Data"
-                  description="API calls failed. Using static demo data for demonstration purposes. All filtering and sorting functionality will still work with the demo data."
-                  type="info"
-                  showIcon
-                  className="mx-4 my-3"
-                  banner
-                />
-              )}
+          <div className="inpatients-table-container">
+            <Table
+              className="px-xl-4 px-0"
+              columns={columns}
+              dataSource={patientsData}
+              onChange={handleChange}
+              pagination={false}
+              loading={patientsLoading && filterParams.page === 1}
+              locale={{ emptyText: emptyText }}
+              rowKey="id"
+              tableLayout="auto"
+              scroll={{ x: "max-content" }}
+            />
 
-              {!authError && patientsError && !usingStaticData && (
-                <Alert
-                  message="Error Loading Patients"
-                  description={
-                    typeof patientsError === "string"
-                      ? patientsError
-                      : "Failed to fetch patient data. Please try refreshing the page."
-                  }
-                  type="error"
-                  showIcon
-                  className="mx-4 my-3"
-                  action={
-                    <Button
-                      size="small"
-                      type="primary"
-                      onClick={() => window.location.reload()}
-                    >
-                      Refresh
-                    </Button>
-                  }
-                />
-              )}
+            {/* Add a loading indicator at the bottom when loading more data */}
+            {(loadingMore || (patientsLoading && filterParams.page > 1)) && (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "20px 0",
+                  backgroundColor: "#f0f2f5",
+                  borderRadius: "0 0 8px 8px",
+                }}
+              >
+                <Spin tip="Loading more..." />
+              </div>
+            )}
 
-              {!authError && filtersError && !usingStaticFilters && (
-                <Alert
-                  message="Filter Options Unavailable"
-                  description={
-                    typeof filtersError === "string"
-                      ? filtersError
-                      : "Failed to load filter options. Default filter options will be used."
-                  }
-                  type="warning"
-                  showIcon
-                  className="mx-4 mb-3"
-                />
-              )}
-
-              <Table
-                className="px-xl-4 px-0"
-                columns={columns}
-                dataSource={patientsData}
-                onChange={handleChange}
-                pagination={false}
-                loading={patientsLoading && filterParams.page === 1}
-                locale={{ emptyText: emptyText }}
-                rowKey="id"
-              />
-
-              {/* Add a loading indicator at the bottom when loading more data */}
-              {(loadingMore || (patientsLoading && filterParams.page > 1)) && (
-                <div
-                  style={{
-                    textAlign: "center",
-                    padding: "20px 0",
-                    backgroundColor: "#f0f2f5",
-                    borderRadius: "0 0 8px 8px",
-                  }}
-                >
-                  <Spin tip="Loading more..." />
-                </div>
-              )}
-
-              {/* Add an invisible element at the bottom that will trigger loading more data */}
-              {!patientsLoading && !loadingMore && hasMore && (
-                <div ref={lastPostElementRef} style={{ height: "20px" }}></div>
-              )}
-            </>
+            {/* Add an invisible element at the bottom that will trigger loading more data */}
+            {!patientsLoading && !loadingMore && hasMore && (
+              <div ref={lastPostElementRef} style={{ height: "20px" }}></div>
+            )}
           </div>
         </div>
       </div>
