@@ -80,9 +80,7 @@ function SnapRxDigitise() {
       const payload = {
         tcm_id: tcm_id,
         patient_unique_id: patient_data?.patient_unique_id,
-        editedData: {
-          ...data,
-        },
+        editedData: {...data},
       };
 
       // API call to save the data
@@ -182,11 +180,11 @@ function SnapRxDigitise() {
       <div
         className={`${
           isMobile ? "p-0" : ""
-        } w-100 bg-body prescription-wrapper`}
+        } w-100 bg-body prescription-wrapper srx-drx-container`}
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
           <Col md={17} lg={17} xl={10}>
-            <div className="appointment-wrap PatientDetailswrap m-0">
+            <div className="appointment-wrap PatientDetailswrap m-0 drx-written-container">
               <Card className="">
                 <>
                   <Card.Header className="bg-white py-3">
@@ -201,7 +199,7 @@ function SnapRxDigitise() {
                       </div>
                     </div>
                   </Card.Header>
-                  <Card.Body className="p-0 cardbody-data ">
+                  <Card.Body className="p-0 cardbody-data written-rx ">
                     {loading ? (
                       <div className="d-flex flex-column justify-content-center">
                         <div className="align-items-center text-center">
@@ -224,32 +222,43 @@ function SnapRxDigitise() {
             </div>
           </Col>
           <Col md={17} lg={17} xl={10}>
-            <div className="appointment-wrap PatientDetailswrap m-0">
-              <Card className="">
-                <>
-                  <Card.Header className="bg-white py-3">
-                    <div className="d-flex align-items-center justify-content-between">
-                      <div className="title-digitise-card">
-                        <img
-                          src={digitiseRxIcon}
-                          alt="rx-icon2"
-                          className="me-2"
-                        />
-                        {`Digitised Rx`}
-                      </div>
-                    </div>
-                  </Card.Header>
-                  <Card.Body className="p-0 cardbody-data">
-                    <div style={{ padding: "5px" }}>
-                      <DigitisedPrescription
-                        data={data}
-                        setData={setData}
-                        loading={isLoading}
-                      />
-                    </div>
-                  </Card.Body>
-                </>
-              </Card>
+            <div className="appointment-wrap PatientDetailswrap m-0 drx-h-full drx-digitize-container">
+              {
+                isLoading ? (
+                  <DigitisedPrescription
+                    data={data}
+                    setData={setData}
+                    loading={isLoading}
+                    showAbsHeaderInsideLoader={true}
+                  />
+                ) : (
+                  <Card className={isLoading ? 'border-none' : null}>
+                    <>
+                      <Card.Header className={`bg-white py-3 ${isLoading ? 'border-none' : null}`}>
+                        <div className="d-flex align-items-center justify-content-between">
+                          <div className="title-digitise-card">
+                            <img
+                              src={digitiseRxIcon}
+                              alt="rx-icon2"
+                              className="me-2"
+                            />
+                            {`Digitised Rx`}
+                          </div>
+                        </div>
+                      </Card.Header>
+                      <Card.Body className="p-0 cardbody-data digitize-rx" style={{border: 'none'}}>
+                        <div style={!isLoading ? { padding: "5px" } : null}>
+                          <DigitisedPrescription
+                            data={data}
+                            setData={setData}
+                            loading={isLoading}
+                          />
+                        </div>
+                      </Card.Body>
+                    </>
+                  </Card>
+                )
+              }
             </div>
           </Col>
         </Row>

@@ -235,27 +235,38 @@ function SmartRxDigitise() {
                     </Col>
                     <Col md={17} lg={17} xl={12}>
                         <div className="appointment-wrap PatientDetailswrap m-0">
-                            <Card className="">
-                                <>
-                                    <Card.Header className="bg-white py-3">
-                                        <div className="d-flex align-items-center justify-content-between">
-                                            <div className="title-digitise-card">
-                                                <img src={digitiseRxIcon} alt="rx-icon2" className='me-2' />
-                                                {`Digitised Rx`}
-                                            </div>
-                                        </div>
-                                    </Card.Header>
-                                    <Card.Body className="p-0 cardbody-data scrollable-body">
-                                        <div style={{padding: "5px"}}>
-                                            <DigitisedPrescription 
-                                                data={data} 
-                                                setData={setData}
-                                                loading={isLoading}
-                                            />
-                                        </div>
-                                    </Card.Body>
-                                </>
-                            </Card>
+                            {
+                                isLoading ? (
+                                    <DigitisedPrescription 
+                                        data={data} 
+                                        setData={setData}
+                                        loading={isLoading}
+                                        showAbsHeaderInsideLoader={true}
+                                    />
+                                ) : (
+                                    <Card className="">
+                                        <>
+                                            <Card.Header className="bg-white py-3">
+                                                <div className="d-flex align-items-center justify-content-between">
+                                                    <div className="title-digitise-card">
+                                                        <img src={digitiseRxIcon} alt="rx-icon2" className='me-2' />
+                                                        {`Digitised Rx`}
+                                                    </div>
+                                                </div>
+                                            </Card.Header>
+                                            <Card.Body className="p-0 cardbody-data scrollable-body">
+                                                <div style={{padding: "5px"}}>
+                                                    <DigitisedPrescription 
+                                                        data={data} 
+                                                        setData={setData}
+                                                        loading={isLoading}
+                                                    />
+                                                </div>
+                                            </Card.Body>
+                                        </>
+                                    </Card>
+                                )
+                            }
                         </div>
                     </Col>
                 </Row>

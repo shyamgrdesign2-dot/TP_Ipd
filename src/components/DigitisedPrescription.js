@@ -1,53 +1,260 @@
-import { Button } from "antd";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import GenRXLoaders from "./GenRxLoaders";
-const DigitisedPrescription = ({ data, setData, loading }) => {
+
+
+export const ARRAY_SECTIONS = [
+  "symptoms",
+  "medicalHistory",
+  "examination",
+  "diagnosis",
+  "medications",
+  "tests",
+  "vaccinations",
+  "advice",
+  "followUp"
+];
+
+export const normalizeNewItem = (type, text = "") => {
+  const t = (text ?? "").trim();
+
+  if (type === "advice") return t; 
+
+  if (type === "medications" || type === "tests") {
+    return {
+      name: t,
+      refinedName: t,
+      frequency: "",
+      dosage: "",
+      schedule: "",
+      duration: "",
+      notes: "",
+      lineItem: "",
+      suggestions: [],
+    };
+  }
+
+  if (type === "examination" || type === "diagnosis") {
+    return { name: t, notes: "", lineItem: "" };
+  }
+
+  
+  return { name: t, lineItem: "" };
+};
+
+const getPrimaryText = (type, item) => {
+  if (type === "advice") return typeof item === "string" ? item : "";
+  if (type === "medications" || type === "tests") return item?.refinedName || item?.name || "";
+  return item?.name || "";
+};
+
+const DigitisedPrescription = ({ data, setData, loading, showAbsHeaderInsideLoader = false }) => {
   const [activeIndex, setActiveIndex] = useState(null);
   const [activeType, setActiveType] = useState(null);
   const [editableText, setEditableText] = useState("");
   const [editableLineItem, setEditableLineItem] = useState("");
+  const [editableKey, setEditableKey] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [ioAutoFocusEnabled, setIoAutoFocusEnabled] = useState(true);
+  const editingRef = useRef(false);
   const suggestionRef = useRef(null);
   const inputRef = useRef(null);
+  
+  const containerRef = useRef(null);
+  const sectionRefs = useRef({}); 
+  const [visibleSection, setVisibleSection] = useState(null);
 
-  // Handle input blur (closing edit mode)
+  
+  const renderedSections = useMemo(() => {
+    const order = [];
+    if (data?.vitals && Object.values(data.vitals || {}).some((v) => v?.trim?.()?.length)) {
+      order.push("vitals");
+    }
+    ARRAY_SECTIONS.forEach((s) => {
+      if (Array.isArray(data?.[s]) && data[s].length > 0) {
+        order.push(s);
+      }
+    });
+    return order;
+  }, [data]);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const root = containerRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (editingRef.current) return;
+        const firstVisible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (firstVisible) {
+          const sec = firstVisible.target.dataset.section;
+          setVisibleSection(sec);
+        }
+      },
+      {
+        root,
+        threshold: 0.2, 
+      }
+    );
+
+    renderedSections.forEach((sec) => {
+      const el = sectionRefs.current[sec];
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [renderedSections]);
+
+  
+  useEffect(() => {
+    if (activeType !== null) return;
+    if (!visibleSection) return;
+    if (!ARRAY_SECTIONS.includes(visibleSection)) return;
+    if (!ioAutoFocusEnabled) return;
+    const arr = data?.[visibleSection];
+    if (!Array.isArray(arr) || arr.length === 0) return;
+    const lastIndex = arr.length - 1;
+    const lastItem = arr[lastIndex];
+    const text = getPrimaryText(visibleSection, lastItem);
+
+    setActiveType(visibleSection);
+    setActiveIndex(lastIndex);
+    setEditableText(text);
+    setTimeout(() => {
+      const el = sectionRefs.current[visibleSection]?.querySelector("input");
+      el?.focus?.();
+    }, 0);
+    setIoAutoFocusEnabled(false);
+  }, [visibleSection, data, activeType, ioAutoFocusEnabled]);
+
+  const nextVitalsKey = (vitals = {}) => {
+    const nums = Object.keys(vitals)
+      .map((k) => parseInt(k, 10))
+      .filter((n) => Number.isFinite(n));
+    return String((nums.length ? Math.max(...nums) : 0) + 1);
+  };
+
+  const handleEnterInVitals = (key) => {
+      handleInputBlur("vitals", key);
+      setVisibleSection("vitals");
+      editingRef.current = true;
+    
+      let newKey = "";
+      setData((prev) => {
+        const vitals = { ...(prev.vitals || {}) };
+        newKey = nextVitalsKey(vitals);
+        vitals[newKey] = "";
+        return { ...prev, vitals };
+      });
+
+      setTimeout(() => {
+        setActiveType("vitals");
+        setActiveIndex(newKey);
+        setEditableText("");
+        sectionRefs.current["vitals"]
+          ?.querySelector(`input[data-vitals-key="${newKey}"]`)
+          ?.focus?.();
+      }, 0);
+    };
+  
+  
   const handleInputBlur = useCallback(
     (type, index) => {
-      if (activeIndex !== null && activeType !== null) {
-        setData((prevData) => {
-          const updatedData = { ...prevData };
+      if (activeIndex === null || activeType === null) return;
 
-          if (type === "medications" || type === "tests") {
-            updatedData[type][index].refinedName = editableText.trim();
-          } else if (
-            type === "symptoms" ||
-            type === "examination" ||
-            type === "diagnosis" ||
-            type === "medicalHistory" ||
-            type === "vaccinations"
-          ) {
-            updatedData[type][index].name = editableText.trim();
-          } else if (type === "advice") {
-            updatedData[type][index] = editableText.trim();
-          } else if (type === "vitals") {
-            updatedData.vitals[index] = editableText.trim();
-          } else if (type === "followUp") {
-            updatedData.followUp = editableText.trim();
+      setData((prevData) => {
+        const updatedData = { ...prevData };
+
+        if (type === "vitals-key") {
+          const newKey = (editableKey || "").trim()
+            .replace(/\s+/g, '')
+            .replace(/^(.)/, c => c.toLowerCase());
+          if (newKey && newKey !== index) {
+            const v = { ...(updatedData.vitals || {}) };
+            const value = v[index];
+            delete v[index];
+            v[newKey] = value;
+            updatedData.vitals = v;
           }
+          return updatedData;
+        }
+        
+        if (type === "vitals") {
+          const val = (editableText || "").trim();
+          const v = { ...(updatedData.vitals || {}) };
+          if (val) v[index] = val;
+          updatedData.vitals = v;
+          return updatedData;
+        }
+        if (type === "followUp") {
+          updatedData.followUp = editableText.trim();
+          return updatedData;
+        } else if (ARRAY_SECTIONS.includes(type)) {
+          let arr = [...(updatedData[type] || [])];
+          const item = arr[index];
 
-          return updatedData; // Persist changes
-        });
-      }
+          const val = (editableText || "").trim();
+          if (type === "advice") {
+            arr[index] = (editableText || "").trim();
+          } else if (type === "medications" || type === "tests") {
+            if (val) {
+              arr[index] = {
+                ...item,
+                name: item?.name || val,
+                refinedName: val,
+              };
+            } else {
+              arr[index] = "";
+            }
+          } else {
+            if (val) {
+              arr[index] = { ...item, name: val };
+            } else {
+              arr[index] = "";
+            }
+          }
+          if (type === "advice") {
+            arr = arr.filter((v) => typeof v === "string" && v.trim() !== "");
+          } else if (type === "medications" || type === "tests") {
+            arr = arr.filter(
+              (v) =>
+                v &&
+                ((typeof v === "object" &&
+                  ((v.name && v.name.trim() !== "") ||
+                    (v.refinedName && v.refinedName.trim() !== ""))) ||
+                  (typeof v === "string" && v.trim() !== ""))
+            );
+          } else {
+            arr = arr.filter(
+              (v) =>
+                v &&
+                typeof v === "object" &&
+                v.name &&
+                v.name.trim() !== ""
+            );
+          }
+          updatedData[type] = arr;
+        }
+
+        return updatedData;
+      });
 
       setShowSuggestions(false);
       setActiveIndex(null);
       setActiveType(null);
-      setEditableText(""); // Clear editable text after blur
+      setEditableText("");
+      setEditableKey("");
     },
-    [activeIndex, activeType, editableText, setData]
+    [activeIndex, activeType, editableText, editableKey, setData]
   );
 
-  // Handle click outside suggestion and input box
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -56,231 +263,329 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
         suggestionRef.current &&
         !suggestionRef.current.contains(event.target)
       ) {
-        handleInputBlur(activeType, activeIndex);
+        if (activeType !== null) {
+          if (!editableLineItem) {
+            handleInputBlur(activeType, activeIndex)
+          } else {
+            handleLineItemBlur(activeType, activeIndex);
+          }
+        };
+      }
+      const target = event.target;
+      const inActiveInput =
+        inputRef.current && inputRef.current.contains(target);
+      const inSuggestions =
+        suggestionRef.current && suggestionRef.current.contains(target);
+      
+      const sectionEl =
+        visibleSection && sectionRefs.current[visibleSection]
+          ? sectionRefs.current[visibleSection]
+          : null;
+      const clickedInsideHighlighted =
+        sectionEl && sectionEl.contains(target);
+      if (!inActiveInput && !inSuggestions) {
+        
+        if (activeType !== null) {
+          if (!editableLineItem) {
+            handleInputBlur(activeType, activeIndex)
+          } else {
+            handleLineItemBlur(activeType, activeIndex);
+          }
+        };
+        
+        if (!clickedInsideHighlighted) {
+          setVisibleSection(null);
+          setActiveType(null);
+          setActiveIndex(null);
+          setEditableText("");
+          editingRef.current = false;
+          
+          setIoAutoFocusEnabled(false);
+        }
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [activeIndex, activeType, handleInputBlur, visibleSection, editableLineItem, editableText]);
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [activeIndex, activeType, handleInputBlur]);
-
-  // Handle selecting an item from suggestions
+  
   const handleSuggestionClick = (type, index, suggestion) => {
     setData((prevData) => {
       const updatedData = { ...prevData };
       if (type === "medications" || type === "tests") {
         updatedData[type][index].name = suggestion;
-      } else if (
-        type === "symptoms" ||
-        type === "examination" ||
-        type === "diagnosis"
-      ) {
+      } else if (type === "symptoms" || type === "examination" || type === "diagnosis") {
         updatedData[type][index].name = suggestion;
       } else if (type === "advice") {
         updatedData[type][index] = suggestion;
       }
       return updatedData;
     });
-
     setShowSuggestions(false);
-    setEditableText(suggestion); // Update editableText to match the selected suggestion
+    setEditableText(suggestion);
     setActiveIndex(null);
     setActiveType(null);
   };
 
-  // Handle lineItem input blur (closing edit mode)
+  
   const handleLineItemBlur = (type, index) => {
+    const itemType = type?.split('-')?.[0];
     setData((prevData) => {
       const updatedData = { ...prevData };
-      if (type === "diagnosis" || type === "examination") {
-        updatedData[type][index].notes = editableLineItem;
+      const arr = [...(updatedData[itemType] || [])];
+      if (itemType === "diagnosis" || itemType === "examination") {
+        arr[index] = { ...arr[index], notes: editableLineItem };
       } else {
-        updatedData[type][index].lineItem = editableLineItem; // Update lineItem with the new value
+        arr[index] = { ...arr[index], lineItem: editableLineItem };
       }
+      updatedData[itemType] = arr;
       return updatedData;
     });
+    setEditableLineItem("")
     setActiveIndex(null);
     setActiveType(null);
   };
 
-  // Handle input change for editing
-  const handleInputChange = (e) => {
-    setEditableText(e.target.value);
-  };
+  const handleInputChange = (e) => setEditableText(e.target.value);
+  const handleLineItemChange = (e) => setEditableLineItem(e.target.value);
 
-  // Handle lineItem input change for editing
-  const handleLineItemChange = (e) => {
-    setEditableLineItem(e.target.value);
-  };
-
-  // Handle click on an item (to edit)
+  
   const handleItemClick = (type, index) => {
     if (activeIndex !== null && activeType !== null) {
       handleInputBlur(activeType, activeIndex);
     }
 
-    if (type === "medications" || type === "tests") {
-      setEditableText(data[type][index].refinedName);
-    } else if (
-      type === "symptoms" ||
-      type === "examination" ||
-      type === "diagnosis" ||
-      type === "medicalHistory" ||
-      type === "vaccinations"
-    ) {
-      setEditableText(data[type][index].name);
-    } else if (type === "advice") {
-      setEditableText(data[type][index]);
+    if (type === "vitals-key") {
+      const isNumberKey = /^\d+$/.test(index);
+      const label = isNumberKey
+        ? index
+        : index.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
+      setEditableKey(label);
     } else if (type === "vitals") {
-      setEditableText(data.vitals[index]);
+      setEditableText(data.vitals[index] || "");
     } else if (type === "followUp") {
       setEditableText(data?.followUp);
+    } else if (ARRAY_SECTIONS.includes(type)) {
+      const item = data[type][index];
+      setEditableText(type === "advice" ? data[type][index] : getPrimaryText(type, item));
     }
 
     setActiveIndex(index);
     setActiveType(type);
   };
 
-  // Handle click on a lineItem (to edit)
+  
   const handleLineItemClick = (type, index) => {
-    if (
-      type === "medications" ||
-      type === "tests" ||
-      type === "vaccinations" ||
-      type === "medicalHistory" ||
-      type === "symptoms"
-    ) {
-      setEditableLineItem(data[type][index]?.lineItem);
-    } else {
-      setEditableLineItem(data[type][index]?.notes);
-    }
+    const src = data[type][index];
+    setEditableLineItem(type === "diagnosis" || type === "examination" ? src?.notes : src?.lineItem);
     setActiveIndex(index);
     setActiveType(`${type}-lineItem`);
   };
 
-  const renderItems = (type) => {
-    if (type === "followUp") {
-      let textWidth = 0;
-      if (activeType === "followUp") {
-        const tempSpan = document.createElement("span");
-        tempSpan.style.visibility = "hidden";
-        tempSpan.style.position = "absolute";
-        tempSpan.style.whiteSpace = "nowrap";
-        tempSpan.innerText = editableText || "";
-        document.body.appendChild(tempSpan);
-        textWidth = tempSpan.offsetWidth;
-        document.body.removeChild(tempSpan);
+  
+  const handleEnterToInsert = (type, index, isLineItem = false) => {
+    if (!ARRAY_SECTIONS.includes(type)) return;
+    setVisibleSection(type);
+    editingRef.current = true;
+    setData((prev) => {
+      const updated = { ...prev };
+      const arr = Array.isArray(updated[type]) ? [...updated[type]] : [];
+      const cur = arr[index];
+    
+      const currentText = (isLineItem ? editableLineItem : editableText ?? "").trim();
+      if (type === "advice") {
+        arr[index] = currentText;
+      } else if (type === "medications" || type === "tests") {
+        const name = isLineItem ? cur?.name || prev[type]?.name : currentText || cur?.name;
+        const lineItem = isLineItem ? currentText || cur?.lineItem || prev[type]?.lineItem : cur?.lineItem;
+        arr[index] = currentText ? { ...(cur || {}), name, refinedName: name, lineItem } : cur;
+      } else {
+        const name = isLineItem ? cur?.name || prev[type]?.name : currentText || cur?.name;
+        const lineItem = isLineItem ? currentText || cur?.lineItem || prev[type]?.lineItem : cur?.lineItem;
+        arr[index] = { ...cur, name, lineItem, notes: lineItem };
       }
-      return (
-        <div className="digitised-section">
-          {loading ? (
-            <div className="shimmer-container">
-              <div className="shimmer-header">
-                <div className="shimmer"></div>
-              </div>
-              <div className="shimmer-content">
-                <div className="shimmer"></div>
-              </div>
-            </div>
-          ) : (
-            <div className="medicine-item">
-              {activeType === "followUp" ? (
-                <input
-                  type="text"
-                  value={editableText}
-                  className="editable-digitised-item"
-                  onChange={handleInputChange}
-                  onBlur={() => handleInputBlur("followUp")}
-                  autoFocus
-                  style={{ width: `${textWidth + 10}px` }}
-                />
-              ) : (
-                <span
-                  onClick={() => handleItemClick("followUp")}
-                  className="digitised-item"
-                >
-                  {data?.followUp}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-      );
-    }
-    // Check if type is 'vitals' and handle accordingly
-    if (type === "vitals") {
-      return (
-        <div className="digitised-section">
-          {loading ? (
-            <div className="shimmer-container">
-              <div className="shimmer-header">
-                <div className="shimmer"></div>
-              </div>
-              <div className="shimmer-content">
-                <div className="shimmer"></div>
-              </div>
-            </div>
-          ) : (
-            <ul>
-              {Object.entries(data.vitals || {})
-                .filter(([key, value]) => value)
-                .map(([key, value]) => {
-                  // Dynamically calculate input width
-                  let textWidth = 0;
-                  if (activeIndex === key && activeType === "vitals") {
-                    const tempSpan = document.createElement("span");
-                    tempSpan.style.visibility = "hidden";
-                    tempSpan.style.position = "absolute";
-                    tempSpan.style.whiteSpace = "nowrap";
-                    tempSpan.innerText = editableText || "";
-                    document.body.appendChild(tempSpan);
-                    textWidth = tempSpan.offsetWidth;
-                    document.body.removeChild(tempSpan);
-                  }
+      arr.splice(index + 1, 0, normalizeNewItem(type, ""));
+      updated[type] = arr;
+      return updated;
+    });
 
-                  return (
-                    <li key={key}>
-                      <div className="medicine-item">
-                        <span className="digitised-item">
-                          {/* Format the key to be human-readable */}
-                          {`${key
-                            .replace(/([A-Z])/g, " $1")
-                            .replace(/^./, (str) => str.toUpperCase())}: `}
-                        </span>
-                        {activeIndex === key && activeType === "vitals" ? (
-                          <input
-                            type="text"
-                            value={editableText} // Pre-fill the input with the current value
-                            className="editable-digitised-item"
-                            onChange={(e) => setEditableText(e.target.value)}
-                            onBlur={() => handleInputBlur(type, key)}
-                            autoFocus
-                            style={{ width: `${textWidth + 10}px` }} // Add padding for better UX
-                          />
-                        ) : (
-                          <span
-                            onClick={() => handleItemClick(type, key)}
-                            className="digitised-item"
-                          >
-                            {value}
-                          </span>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
-            </ul>
-          )}
-        </div>
-      );
-    }
+    
+    setTimeout(() => {
+      setActiveType(type);
+      setActiveIndex(index + 1);
+      setEditableText("");
+      setEditableLineItem("");
+      const sec = sectionRefs.current[type];
+      const inputs = sec?.querySelectorAll("input");
+      inputs?.[index + 1]?.focus?.();
+    }, 0);
+  };
 
-    // Handle other types dynamically (like medications, symptoms, etc.)
+  
+
+  
+  const renderVitals = () => (
+     <div
+       data-section="vitals"
+       ref={(el) => (sectionRefs.current["vitals"] = el)}
+       className={`digitised-section-rx ${visibleSection === "vitals" ? "highlight-blue" : ""}`}
+     >
+      {loading ? (
+        <div className="shimmer-container">
+          <div className="shimmer-header">
+            <div className="shimmer"></div>
+          </div>
+          <div className="shimmer-content">
+            <div className="shimmer"></div>
+          </div>
+        </div>
+      ) : (
+        <ul>
+          {Object.entries(data.vitals || {}).map(([key, value]) => {
+              
+              let textWidth = 0;
+              let keyWidth = 0;
+              if (activeIndex === key && activeType === "vitals") {
+                const temp = document.createElement("span");
+                temp.style.visibility = "hidden";
+                temp.style.position = "absolute";
+                temp.style.whiteSpace = "nowrap";
+                temp.innerText = editableText || "";
+                document.body.appendChild(temp);
+                textWidth = temp.offsetWidth;
+                document.body.removeChild(temp);
+              }
+              if (activeIndex === key && activeType === "vitals-key") {
+                const temp = document.createElement("span");
+                temp.style.visibility = "hidden";
+                temp.style.position = "absolute";
+                temp.style.whiteSpace = "nowrap";
+                temp.innerText = editableKey || "";
+                document.body.appendChild(temp);
+                keyWidth = temp.offsetWidth;
+                document.body.removeChild(temp);
+              }
+
+              const isNumberKey = /^\d+$/.test(key);
+              const label = isNumberKey
+                ? `${key}: `
+                : `${key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())}: `;
+
+
+              return (
+                <li key={key}>
+                  <div className="medicine-item">
+                    {activeIndex === key && activeType === "vitals-key" ? (
+                      <input
+                        ref={inputRef}
+                        data-vitals-key={key}
+                        type="text"
+                        value={editableKey}
+                        className="editable-digitised-item"
+                        onChange={(e) => setEditableKey(e.target.value)}
+                        onBlur={() => {
+                          editingRef.current = false;
+                          handleInputBlur("vitals-key", key);
+                        }}
+                        onFocus={() => { editingRef.current = true; setVisibleSection("vitals"); }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleInputBlur("vitals-key", key);
+                          }
+                        }}
+                        autoFocus
+                        style={{ width: `clamp(12px, ${keyWidth + 10}px, 100%)` }}
+                      />
+                    ) : (
+                      <span
+                        onClick={() => handleItemClick("vitals-key", key)}
+                        className="digitised-item"
+                      >
+                        {label}
+                      </span>
+                    )}
+                    {activeIndex === key && activeType === "vitals" ? (
+                      <input
+                        ref={inputRef}
+                        data-vitals-key={key}
+                        type="text"
+                        value={editableText}
+                        className="editable-digitised-item"
+                        onChange={(e) => setEditableText(e.target.value)}
+                        onBlur={() => {
+                          editingRef.current = false;
+                          handleInputBlur("vitals", key);
+                        }}
+                        onFocus={() => { editingRef.current = true; setVisibleSection("vitals"); }}
+                        autoFocus
+                        style={{ width: `clamp(12px, ${textWidth + 10}px, 100%)` }}
+                      />
+                    ) : (
+                      <span
+                        onClick={() => handleItemClick("vitals", key)}
+                        className="digitised-item"
+                      >
+                        {value || "_"}
+                      </span>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+        </ul>
+      )}
+    </div>
+  );
+
+  
+  const renderFollowUp = () => {
+    let textWidth = 0;
+    let lineItemWidth = 0;
+    if (activeType === "followUp") {
+      const temp = document.createElement("span");
+      temp.style.visibility = "hidden";
+      temp.style.position = "absolute";
+      temp.style.whiteSpace = "nowrap";
+      temp.innerText = editableText || "";
+      document.body.appendChild(temp);
+      textWidth = temp.offsetWidth;
+      document.body.removeChild(temp);
+    }
     return (
-      <div className="digitised-section">
+      <div className="medicine-item digitised-rx-follow-up-item">
+        {activeType === "followUp" ? (
+          <input
+            type="text"
+            value={editableText}
+            className="editable-digitised-item"
+            onChange={handleInputChange}
+            onBlur={() => {
+              editingRef.current = false;
+              handleInputBlur("followUp");
+            }}
+            onFocus={() => {
+              editingRef.current = true;
+              setVisibleSection("followUp");
+            }}
+            autoFocus
+            style={{ width: `clamp(12px, ${textWidth + 10}px, 100%)` }}
+          />
+        ) : (
+          <span
+            onClick={() => handleItemClick("followUp")}
+            className="digitised-item"
+          >
+            {data?.followUp}
+          </span>
+        )}
+      </div>
+    );
+  };
+  const renderArraySection = (type) => {
+    return (
+      <div data-section={type} ref={(el) => (sectionRefs.current[type] = el)} className={`digitised-section-rx ${visibleSection === type ? "highlight-blue" : ""}`}>
         {loading ? (
           <div className="shimmer-container">
             <div className="shimmer-header">
@@ -293,79 +598,98 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
         ) : Array.isArray(data[type]) && data[type].length > 0 ? (
           <ul>
             {data[type].map((item, index) => {
-              // Measure the width of the editable text
               let textWidth = 0;
               let lineItemWidth = 0;
-
-              // For name or other primary data (editableText)
+  
+              
               if (activeIndex === index && activeType === type) {
-                const tempSpan = document.createElement("span");
-                tempSpan.style.visibility = "hidden";
-                tempSpan.style.position = "absolute";
-                tempSpan.style.whiteSpace = "nowrap";
-                tempSpan.innerText = editableText || "";
-                document.body.appendChild(tempSpan);
-                textWidth = tempSpan.offsetWidth;
-                document.body.removeChild(tempSpan);
+                const temp = document.createElement("span");
+                temp.style.visibility = "hidden";
+                temp.style.position = "absolute";
+                temp.style.whiteSpace = "nowrap";
+                temp.innerText = editableText || "";
+                document.body.appendChild(temp);
+                textWidth = temp.offsetWidth;
+                document.body.removeChild(temp);
               }
-
-              // For lineItem (editableLineItem)
+  
+              
               if (activeIndex === index && activeType === `${type}-lineItem`) {
-                const tempSpanLineItem = document.createElement("span");
-                tempSpanLineItem.style.visibility = "hidden";
-                tempSpanLineItem.style.position = "absolute";
-                tempSpanLineItem.style.whiteSpace = "nowrap";
-                tempSpanLineItem.innerText = editableLineItem || "";
-                document.body.appendChild(tempSpanLineItem);
-                lineItemWidth = tempSpanLineItem.offsetWidth;
-                document.body.removeChild(tempSpanLineItem);
+                const temp2 = document.createElement("span");
+                temp2.style.visibility = "hidden";
+                temp2.style.position = "absolute";
+                temp2.style.whiteSpace = "nowrap";
+                temp2.innerText = editableLineItem || "";
+                document.body.appendChild(temp2);
+                lineItemWidth = temp2.offsetWidth;
+                document.body.removeChild(temp2);
               }
-
+  
+              const primaryDisplay = getPrimaryText(type, item);
+  
               return (
                 <li key={index}>
                   <div className="medicine-item">
                     {activeIndex === index && activeType === type ? (
                       <input
+                        ref={inputRef}
                         type="text"
                         value={editableText}
                         className="editable-digitised-item"
                         onChange={handleInputChange}
-                        onBlur={() => handleInputBlur(type, index)}
+                        onBlur={() => {
+                          editingRef.current = false;
+                          handleInputBlur(type, index);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleEnterToInsert(type, index);
+                          }
+                        }}
                         autoFocus
-                        style={{ width: `${textWidth + 10}px` }} // Add padding for better UX
+                        onFocus={() => {
+                          editingRef.current = true;
+                          setVisibleSection(type);
+                        }}
+                        style={{ width: `clamp(12px, ${textWidth + 10}px, 100%)` }}
                       />
                     ) : (
                       <span
                         onClick={() => handleItemClick(type, index)}
                         className="digitised-item"
                       >
-                        {type === "advice"
-                          ? item
-                          : type === "symptoms" && item?.name?.length > 0
-                          ? item.name[0]?.toUpperCase() + item.name?.slice(1)
-                          : type === "medications" || type === "tests"
-                          ? item?.refinedName
-                          : item?.name}
+                        {primaryDisplay}
                       </span>
                     )}
-
-                    {/* Editable input for lineItem */}
+  
+                    {/* Editable input for lineItem (not for advice/userAdded) */}
                     {(type === "medications" ||
                       type === "symptoms" ||
                       type === "vaccinations" ||
                       type === "medicalHistory" ||
                       type === "tests") &&
                       item?.lineItem &&
-                      (activeIndex === index &&
-                      activeType === `${type}-lineItem` ? (
+                      (activeIndex === index && activeType === `${type}-lineItem` ? (
                         <input
                           type="text"
                           value={editableLineItem}
                           className="editable-digitised-item"
                           onChange={handleLineItemChange}
-                          onBlur={() => handleLineItemBlur(type, index)}
+                          onBlur={() => {
+                            editingRef.current = false;
+                            setVisibleSection(type);
+                            handleLineItemBlur(type, index);
+                          }}
+                          onFocus={() => { editingRef.current = true; setVisibleSection(type); }}
                           autoFocus
-                          style={{ width: `${lineItemWidth + 10}px` }} // Add padding for better UX
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              handleEnterToInsert(type, index, true);
+                            }
+                          }}
+                          style={{ width: `clamp(12px, ${lineItemWidth + 10}px, 100%)` }}
                         />
                       ) : (
                         <span
@@ -375,20 +699,32 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
                           {`(${item.lineItem})`}
                         </span>
                       ))}
-
-                    {/* Editable input for notes (lineItem) */}
+  
+                    {/* Editable input for notes (examination/diagnosis) */}
                     {(type === "examination" || type === "diagnosis") &&
                       item?.notes &&
-                      (activeIndex === index &&
-                      activeType === `${type}-lineItem` ? (
+                      (activeIndex === index && activeType === `${type}-lineItem` ? (
                         <input
                           type="text"
                           value={editableLineItem}
                           className="editable-digitised-item"
                           onChange={handleLineItemChange}
-                          onBlur={() => handleLineItemBlur(type, index)}
+                          onBlur={() => {
+                            editingRef.current = false;
+                            handleLineItemBlur(type, index);
+                          }}
+                          onFocus={() => {
+                            editingRef.current = true;
+                            setVisibleSection(type);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              handleEnterToInsert(type, index, true);
+                            }
+                          }}
                           autoFocus
-                          style={{ width: `${lineItemWidth + 10}px` }} // Add padding for better UX
+                          style={{ width: `clamp(12px, ${lineItemWidth + 10}px, 100%)` }}
                         />
                       ) : (
                         <span
@@ -403,19 +739,20 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
               );
             })}
           </ul>
-        ) : null}
+        ) : (
+          <>
+          {type === "followUp" && renderFollowUp()}
+          </>
+        )}
       </div>
     );
-  };
+  } 
 
   const hasValidContent = (type) => {
     if (!data[type] || !Array.isArray(data[type])) return false;
-
     return data[type].some((item) => {
       if (typeof item === "string") return item.trim().length > 0;
-
-      // For object types, check if any relevant fields have content
-      const relevantFields = {
+      const relevant = {
         medications: ["refinedName", "lineItem"],
         symptoms: ["name", "lineItem"],
         examination: ["name", "notes"],
@@ -423,94 +760,101 @@ const DigitisedPrescription = ({ data, setData, loading }) => {
         medicalHistory: ["name", "lineItem"],
         vaccinations: ["name", "lineItem"],
         tests: ["refinedName", "lineItem"],
-      };
-
-      const fieldsToCheck = relevantFields[type] || ["name"];
-      return fieldsToCheck.some((field) => item[field]?.trim?.().length > 0);
+      }[type] || ["name"];
+      return relevant.some((f) => item[f]?.trim?.()?.length > 0);
     });
   };
 
+  
   return (
-    <div className="digitised-container">
+    <div
+      className={
+        loading ? "loading-digitised-container" : "digitised-container"
+      }
+      ref={containerRef}
+    >
       {loading ? (
-        // TODO:INTEL - PROGRESS BAR TO BE HANDLED
-        <GenRXLoaders isProcessing={true} />
+        <GenRXLoaders
+          showAbsHeaderInsideLoader={showAbsHeaderInsideLoader}
+          isProcessing={true}
+          isSnapRx={true}
+        />
       ) : (
-        // Show actual content when not loading
         <>
           {data?.vitals &&
-            Object.values(data.vitals).some(
-              (value) => value?.trim?.().length > 0
-            ) && (
-              <>
+            Object.values(data.vitals).some((v) => v?.trim?.()?.length > 0) && (
+              <div
+                ref={(el) => (sectionRefs.current["vitals"] = el)}
+                className="title-digitise-section-wrapper"
+              >
                 <div className="title-digitise-section mb-2">Vitals</div>
-                {renderItems("vitals")}
-              </>
+                {renderVitals()}
+              </div>
             )}
 
           {data?.medicalHistory && hasValidContent("medicalHistory") && (
-            <>
+            <div className="title-digitise-section-wrapper">
               <div className="title-digitise-section mb-2">Medical History</div>
-              {renderItems("medicalHistory")}
-            </>
+              {renderArraySection("medicalHistory")}
+            </div>
           )}
 
           {data?.symptoms && hasValidContent("symptoms") && (
-            <>
+            <div className="title-digitise-section-wrapper">
               <div className="title-digitise-section mb-2">Symptoms</div>
-              {renderItems("symptoms")}
-            </>
+              {renderArraySection("symptoms")}
+            </div>
           )}
 
           {data?.examination && hasValidContent("examination") && (
-            <>
+            <div className="title-digitise-section-wrapper">
               <div className="title-digitise-section mb-2">Examination</div>
-              {renderItems("examination")}
-            </>
+              {renderArraySection("examination")}
+            </div>
           )}
 
           {data?.diagnosis && hasValidContent("diagnosis") && (
-            <>
+            <div className="title-digitise-section-wrapper">
               <div className="title-digitise-section mb-2">Diagnosis</div>
-              {renderItems("diagnosis")}
-            </>
+              {renderArraySection("diagnosis")}
+            </div>
           )}
 
           {data?.medications && hasValidContent("medications") && (
-            <>
+            <div className="title-digitise-section-wrapper">
               <div className="title-digitise-section mb-2">Medicine</div>
-              {renderItems("medications")}
-            </>
+              {renderArraySection("medications")}
+            </div>
           )}
 
           {data?.tests && hasValidContent("tests") && (
-            <>
+            <div className="title-digitise-section-wrapper">
               <div className="title-digitise-section mb-2">
                 Lab Investigation
               </div>
-              {renderItems("tests")}
-            </>
+              {renderArraySection("tests")}
+            </div>
           )}
 
           {data?.advice && hasValidContent("advice") && (
-            <>
+            <div className="title-digitise-section-wrapper">
               <div className="title-digitise-section mb-2">Advices</div>
-              {renderItems("advice")}
-            </>
+              {renderArraySection("advice")}
+            </div>
           )}
 
           {data?.vaccinations && hasValidContent("vaccinations") && (
-            <>
+            <div className="title-digitise-section-wrapper">
               <div className="title-digitise-section mb-2">Vaccination</div>
-              {renderItems("vaccinations")}
-            </>
+              {renderArraySection("vaccinations")}
+            </div>
           )}
 
           {data?.followUp && (
-            <>
+            <div className="title-digitise-section-wrapper">
               <div className="title-digitise-section mb-2">Follow Up</div>
-              {renderItems("followUp")}
-            </>
+              {renderArraySection("followUp")}
+            </div>
           )}
         </>
       )}
