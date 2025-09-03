@@ -1314,8 +1314,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                                             }`
                                                                                                         : "",
 
-                                                                                                    modiFrequency:
-                                                                                                        item.tmf_block === 0 || item.tmf_block === ""
+                                                                                                    modiFrequency:option?.medicine_option?.includes("frequency")
+                                                                                                        ?item.tmf_block === 0 || item.tmf_block === ""
                                                                                                             ? item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night
                                                                                                                 ? option?.numeric_frequency
                                                                                                                     ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${
@@ -1328,7 +1328,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                                                         item.tcm_tmm_freq_night
                                                                                                                     )
                                                                                                                 : ``
-                                                                                                            : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.[frequencyLang()] || ""})`,
+                                                                                                            : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.[frequencyLang()] || ""})` : "",
 
                                                                                                     modiTiming: timingList.find((x) => x.tmt_id === item.tmm_time)?.[timeingLang()] || "",
 
@@ -1406,8 +1406,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                                             }`
                                                                                                         : "",
 
-                                                                                                    modiFrequency:
-                                                                                                        item.tmf_block === 0 || item.tmf_block === ""
+                                                                                                    modiFrequency:option?.medicine_option?.includes("frequency")
+                                                                                                        ?item.tmf_block === 0 || item.tmf_block === ""
                                                                                                             ? item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night
                                                                                                                 ? option?.numeric_frequency
                                                                                                                     ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${
@@ -1420,7 +1420,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                                                         item.tcm_tmm_freq_night
                                                                                                                     )
                                                                                                                 : ``
-                                                                                                            : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.[frequencyLang()] || ""})`,
+                                                                                                            : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.[frequencyLang()] || ""})` : "",
 
                                                                                                     modiTiming: timingList.find((x) => x.tmt_id === item.tmm_time)?.[timeingLang()] || "",
 
@@ -1484,7 +1484,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                     {option?.medicine_option?.includes('dose') && (
                                                                         <Text style={[styles.headerCell, { flex: 0.45, fontFamily: getFont(), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>{medicineHeaderLang("DOSE")}</Text>
                                                                     )}
-                                                                    <Text style={[styles.headerCell, { fontFamily: getFont(), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>{medicineHeaderLang("FREQUENCY")}</Text>
+                                                                    {option?.medicine_option?.includes('frequency') && (
+                                                                        <Text style={[styles.headerCell, { flex: 0.6, fontFamily: getFont(), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>{medicineHeaderLang("FREQUENCY")}</Text>
+                                                                    )}
                                                                     {option?.medicine_option?.includes('duration') && (
                                                                         <Text style={[styles.headerCell, { flex: 0.53, fontFamily: getFont(), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>{medicineHeaderLang("DURATION")}</Text>
                                                                     )}
@@ -1523,9 +1525,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 {option?.medicine_option?.includes('dose') && (
                                                                                     <Text style={[styles.cell, { flex: 0.45, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`${item.tmm_dosage && item.tmm_unit ? `${formatUnitPerDose(item.tmm_dosage)} ${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit).tmu_title : ""}` : `${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit).tmu_title : ""}`}`}</Text>
                                                                                 )}
-                                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getFont(), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                                {option?.medicine_option?.includes('frequency') && (
+                                                                                <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: getFont(), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                                     {item.tmf_block === 0 || item.tmf_block === "" ? `${(item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night) ? (option?.numeric_frequency) ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${item.tcm_tmm_freq_evening ? ' - ' + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ''} - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}` : formatFrequency(item.tcm_tmm_freq_morning, item.tcm_tmm_freq_afternoon,item.tcm_tmm_freq_evening,item.tcm_tmm_freq_night) : `-`}` : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.[timeingLang()] : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time)?.[timeingLang()] : ''}
                                                                                 </Text>
+                                                                                )}
                                                                                 {option?.medicine_option?.includes('duration') && (
                                                                                     <Text style={[styles.cell, { flex: 0.53, color: '#171725', fontFamily: getFont(), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
                                                                                         {EXTRA_OPTIONS.some((x) => x.value == item.tmm_duration_type) ? durationLang(capitalize(item.tmm_duration_type, true)) :
