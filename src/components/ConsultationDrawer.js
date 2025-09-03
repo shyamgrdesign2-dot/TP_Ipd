@@ -1889,14 +1889,14 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                     </div>
                   </div>
                   <div className={styles.prescriptionSection}>
-                    <div>
+                    {!isProcessing && <div>
                       <img src={documentIcon} alt="Document" />
                       <span className={styles.heading}>
                         Generated Digitised Rx
                       </span>
-                    </div>
+                    </div>}
                     {isProcessing ? (
-                      <GenRXLoaders isProcessing={isProcessing} />
+                      <GenRXLoaders isProcessing={isProcessing} showAbsHeaderInsideLoader={true} />
                     ) : (
                       <div
                         className={`${styles.rightSection} ${isProcessing ? styles.gradientBorder : ""
