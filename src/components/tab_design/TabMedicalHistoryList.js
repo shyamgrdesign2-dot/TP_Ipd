@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Button, Collapse } from 'antd';
+import dayjs from "dayjs";
 
 import CashManagerContext from '../../context/CashManagerContext';
 import { GB_GYNEC_HISTORY } from "../../utils/constants";
@@ -119,13 +120,19 @@ function TabMedicalHistoryList(props) {
                                                     <div className="text-history font-roboto fw-medium">Issue&nbsp;:&nbsp;</div>
                                                     <div className="fontroboto text-history fw-normal">{e1?.title}</div>
                                                 </div>
-                                                {e1?.since && (
+                                                {e1?.since && e?.tmmhs_id != 5 && (
                                                     <div key={Math.random()} className="d-flex my-2">
                                                         <div className="text-history fontroboto fw-medium">Since&nbsp;:&nbsp;</div>
                                                         <div className="fontroboto text-history fw-normal">{e1?.since}</div>
                                                     </div>
                                                 )}
-                                                {e?.tmmhs_id != 3 && (
+                                                {e1?.date && e?.tmmhs_id == 5 && (
+                                                    <div key={Math.random()} className="d-flex my-2">
+                                                        <div className="text-history fontroboto fw-medium">Date of Surgery&nbsp;:&nbsp;</div>
+                                                        <div className="fontroboto text-history fw-normal">{e1?.date}</div>
+                                                    </div>
+                                                )}
+                                                                                                            {e?.tmmhs_id != 3 && e?.tmmhs_id != 5 && (
                                                     <>
                                                         {e1?.status && (
                                                             <div key={Math.random()} className="d-flex my-2">
@@ -149,7 +156,9 @@ function TabMedicalHistoryList(props) {
                                                 )}
                                                 {e1?.note && (
                                                     <div key={Math.random()} className="my-2">
-                                                        <div className="text-history fontroboto fw-medium">Notes&nbsp;:&nbsp;</div>
+                                                        <div className="text-history fontroboto fw-medium">
+                                                            {e?.tmmhs_id == 5 ? "Remarks" : "Notes"}&nbsp;:&nbsp;
+                                                        </div>
                                                         <div className="border rounded-3 px-2 py-5px-3px">
                                                             <ReadMore>
                                                                 {e1?.note}

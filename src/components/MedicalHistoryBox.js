@@ -72,6 +72,14 @@ function MedicalHistoryBox(props) {
         note: ''
     }
 
+    const SURGICAL_HISTORY = {
+        since: '',
+        status: '',
+        note: '',
+        dateType: 'year',
+        date: ''
+    }
+
     const videoLink = {
         link: "https://www.youtube.com/embed/Y91zuWBeao4",
         thumbnail: "https://i.ytimg.com/vi/o6ALwX9hPMM/hqdefault.jpg",
@@ -110,6 +118,8 @@ function MedicalHistoryBox(props) {
     const [gynecHistory, setGynecHistory] = useState({});
     const [expandRemarks,setExpandRemarks] = useState(true);
     const [remarks,setRemarks] = useState(medicalHistoryData?.[0]?.medical_history_remarks || "");
+    const [surgicalDateType, setSurgicalDateType] = useState('year');
+    const [surgicalDate, setSurgicalDate] = useState(null);
 
     const datePickerRef = useRef(null);
     // Function to handle custom input changes
@@ -159,6 +169,10 @@ function MedicalHistoryBox(props) {
         { value: "Week", label: "Week" },
         { value: "Month", label: "Month" },
         { value: "Year", label: "Year" },
+    ];
+    const SURGICAL_DATE_TYPE_OPTIONS = [
+        { value: "year", label: "Year Only" },
+        { value: "full", label: "Full Date" },
     ];
 
     const STATUS_LIST = [
@@ -341,6 +355,8 @@ function MedicalHistoryBox(props) {
             initial = { ...MEDICAL_PROBLEM }
         } else if (tmmhs_id === 3) {
             initial = { ...FAMILY_HISTORY }
+        } else if (tmmhs_id === 5) {
+            initial = { ...SURGICAL_HISTORY }
         } else {
             initial = { ...OTHERS }
         }
@@ -355,8 +371,62 @@ function MedicalHistoryBox(props) {
                 return newArray;
             })
         }
-        setSinceValue(cloneMedicalHistoryData[i].tags[i1].since ? parseInt(cloneMedicalHistoryData[i].tags[i1].since.split(" ")[0]) : 1)
-        setSelectedRelationship(cloneMedicalHistoryData[i].tags[i1].relationship ? cloneMedicalHistoryData[i].tags[i1].relationship.split(', ') : [])
+        if (tmmhs_id === 5) {
+            try {
+                const dateType = cloneMedicalHistoryData[i].tags[i1].dateType;
+                const dateValue = cloneMedicalHistoryData[i].tags[i1].date;
+                if (dateType && dateValue) {
+                    if (dateType === 'onlyYear') {
+                        setSurgicalDateType('year');
+                        setSurgicalDate(dateValue);
+                    } else if (dateType === 'fullDate') {
+                        setSurgicalDateType('full');
+                        try {
+                            const parsedDate = dayjs(dateValue, 'DD-MM-YYYY');
+                            if (parsedDate.isValid()) {
+                                setSurgicalDate(parsedDate);
+                            } else {
+                                setSurgicalDate(null);
+                            }
+                        } catch (error) {
+                            console.error('Error parsing surgical date:', error);
+                            setSurgicalDate(null);
+                        }
+                    }
+                } else {
+                    const sinceValue = cloneMedicalHistoryData[i].tags[i1].since;
+                    if (sinceValue) {
+                        if (/^\d{4}$/.test(sinceValue)) {
+                            setSurgicalDateType('year');
+                            setSurgicalDate(sinceValue);
+                        } else {
+                            setSurgicalDateType('full');
+                            try {
+                                const parsedDate = dayjs(sinceValue, 'DD-MM-YYYY');
+                                if (parsedDate.isValid()) {
+                                    setSurgicalDate(parsedDate);
+                                } else {
+                                    setSurgicalDate(null);
+                                }
+                            } catch (error) {
+                                console.error('Error parsing surgical date:', error);
+                                setSurgicalDate(null);
+                            }
+                        }
+                    } else {
+                        setSurgicalDateType('year');
+                        setSurgicalDate(null);
+                    }
+                }
+            } catch (error) {
+                console.error('Error initializing surgical history:', error);
+                setSurgicalDateType('year');
+                setSurgicalDate(null);
+            }
+        } else {
+            setSinceValue(cloneMedicalHistoryData[i].tags[i1].since ? parseInt(cloneMedicalHistoryData[i].tags[i1].since.split(" ")[0]) : 1)
+            setSelectedRelationship(cloneMedicalHistoryData[i].tags[i1].relationship ? cloneMedicalHistoryData[i].tags[i1].relationship.split(', ') : [])
+        }
     }, [addEditData, selectData, cloneMedicalHistoryData]);
 
     const onEnableClick = useCallback((tmmhs_id, tmmhst_id, i, i1) => {
@@ -372,6 +442,8 @@ function MedicalHistoryBox(props) {
             initial = { ...MEDICAL_PROBLEM }
         } else if (tmmhs_id === 3) {
             initial = { ...FAMILY_HISTORY }
+        } else if (tmmhs_id === 5) {
+            initial = { ...SURGICAL_HISTORY }
         } else {
             initial = { ...OTHERS }
         }
@@ -387,8 +459,62 @@ function MedicalHistoryBox(props) {
             };
             return newArray;
         })
-        setSinceValue(cloneMedicalHistoryData[i].tags[i1].since ? parseInt(cloneMedicalHistoryData[i].tags[i1].since.split(" ")[0]) : 1)
-        setSelectedRelationship(cloneMedicalHistoryData[i].tags[i1].relationship ? cloneMedicalHistoryData[i].tags[i1].relationship.split(', ') : [])
+        if (tmmhs_id === 5) {
+            try {
+                const dateType = cloneMedicalHistoryData[i].tags[i1].dateType;
+                const dateValue = cloneMedicalHistoryData[i].tags[i1].date;
+                if (dateType && dateValue) {
+                    if (dateType === 'onlyYear') {
+                        setSurgicalDateType('year');
+                        setSurgicalDate(dateValue);
+                    } else if (dateType === 'fullDate') {
+                        setSurgicalDateType('full');
+                        try {
+                            const parsedDate = dayjs(dateValue, 'DD-MM-YYYY');
+                            if (parsedDate.isValid()) {
+                                setSurgicalDate(parsedDate);
+                            } else {
+                                setSurgicalDate(null);
+                            }
+                        } catch (error) {
+                            console.error('Error parsing surgical date:', error);
+                            setSurgicalDate(null);
+                        }
+                    }
+                } else {
+                    const sinceValue = cloneMedicalHistoryData[i].tags[i1].since;
+                    if (sinceValue) {
+                        if (/^\d{4}$/.test(sinceValue)) {
+                            setSurgicalDateType('year');
+                            setSurgicalDate(sinceValue);
+                        } else {
+                            setSurgicalDateType('full');
+                            try {
+                                const parsedDate = dayjs(sinceValue, 'DD-MM-YYYY');
+                                if (parsedDate.isValid()) {
+                                    setSurgicalDate(parsedDate);
+                                } else {
+                                    setSurgicalDate(null);
+                                }
+                            } catch (error) {
+                                console.error('Error parsing surgical date:', error);
+                                setSurgicalDate(null);
+                            }
+                        }
+                    } else {
+                        setSurgicalDateType('year');
+                        setSurgicalDate(null);
+                    }
+                }
+            } catch (error) {
+                console.error('Error initializing surgical history:', error);
+                setSurgicalDateType('year');
+                setSurgicalDate(null);
+            }
+        } else {
+            setSinceValue(cloneMedicalHistoryData[i].tags[i1].since ? parseInt(cloneMedicalHistoryData[i].tags[i1].since.split(" ")[0]) : 1)
+            setSelectedRelationship(cloneMedicalHistoryData[i].tags[i1].relationship ? cloneMedicalHistoryData[i].tags[i1].relationship.split(', ') : [])
+        }
     }, [addEditData, selectData, cloneMedicalHistoryData]);
 
 
@@ -459,6 +585,19 @@ function MedicalHistoryBox(props) {
             return { ...prev };
         })
     }, [addEditData]);
+
+    const onSurgicalDateTypeChange = useCallback((value) => {
+        setSurgicalDateType(value);
+        if (value === 'year') {
+            setSurgicalDate(null);
+        }
+    }, []);
+    const onSurgicalDateChange = useCallback((date) => {
+        setSurgicalDate(date);
+    }, []);
+    const onSurgicalYearChange = useCallback((value) => {
+        setSurgicalDate(value);
+    }, []);
 
     const onAddEditSaveClick = async () => {
         var sendData = JSON.parse(JSON.stringify(addEditData))
@@ -703,6 +842,22 @@ function MedicalHistoryBox(props) {
             "patient_id": patient_data?.patient_unique_id
         });
         handleSave();
+        if (selectData && selectData.tmmhs_id === 5) {
+            const sectionIndex = selectData.section_index;
+            const tagIndex = selectData.tag_index;
+            if (cloneMedicalHistoryData[sectionIndex] && cloneMedicalHistoryData[sectionIndex].tags[tagIndex]) {
+                cloneMedicalHistoryData[sectionIndex].tags[tagIndex].dateType = surgicalDateType === 'year' ? 'onlyYear' : 'fullDate';
+                if (surgicalDateType === 'year' && surgicalDate) {
+                    cloneMedicalHistoryData[sectionIndex].tags[tagIndex].date = surgicalDate.toString();
+                } else if (surgicalDateType === 'full' && surgicalDate) {
+                    cloneMedicalHistoryData[sectionIndex].tags[tagIndex].date = dayjs(surgicalDate).format('DD-MM-YYYY');
+                } else {
+                    cloneMedicalHistoryData[sectionIndex].tags[tagIndex].date = '';
+                }
+                cloneMedicalHistoryData[sectionIndex].tags[tagIndex].since = '';
+            }
+        }
+        
         const medicalHistory = cloneMedicalHistoryData?.map((e, i) => {
             return {
                 title: e?.title,
@@ -1662,7 +1817,7 @@ function MedicalHistoryBox(props) {
 
                                                         <div className="p-3">
                                                             {isMobile ? (
-                                                                selectData?.tmmhs_id !== 3 &&
+                                                                selectData?.tmmhs_id !== 3 && selectData?.tmmhs_id !== 5 &&
                                                                 <>
                                                                     <div className="mt-2">
                                                                         <label className="title-common mb-1"> Since</label>
@@ -1696,7 +1851,7 @@ function MedicalHistoryBox(props) {
                                                                 </>
                                                             ) : (
                                                                 <Row gutter={20} className="mt-2">
-                                                                    {selectData?.tmmhs_id !== 3 &&
+                                                                    {selectData?.tmmhs_id !== 3 && selectData?.tmmhs_id !== 5 &&
                                                                         <Col lg={24} >
                                                                             <label className="title-common mb-1"> Since</label>
                                                                             <AutoComplete
@@ -1733,7 +1888,7 @@ function MedicalHistoryBox(props) {
                                                                 </Row>
 
                                                             )}
-                                                            {selectData?.tmmhs_id != 3 && (
+                                                            {selectData?.tmmhs_id != 3 && selectData?.tmmhs_id != 5 && (
                                                                 <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
                                                                     <label className="title-common mb-1">Status</label>
                                                                     {/* <div className="segement-static d-flex">
@@ -1806,9 +1961,56 @@ function MedicalHistoryBox(props) {
                                                                     </Popover>
                                                                 </div>
                                                             )}
+                                                            {selectData?.tmmhs_id == 5 && (
+                                                                <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
+                                                                    <label className="title-common mb-1">Date of Surgery</label>
+                                                                    <div className="mb-3">
+                                                                        <Radio.Group
+                                                                            className="d-flex gender-radio all-change-radio"
+                                                                            value={surgicalDateType}
+                                                                            onChange={(e) => onSurgicalDateTypeChange(e.target.value)}
+                                                                        >
+                                                                            {SURGICAL_DATE_TYPE_OPTIONS.map((item, i) => (
+                                                                                <Radio.Button 
+                                                                                    key={i} 
+                                                                                    className="w-100 text-center text-segment" 
+                                                                                    value={item.value}
+                                                                                >
+                                                                                    {item.label}
+                                                                                </Radio.Button>
+                                                                            ))}
+                                                                        </Radio.Group>
+                                                                    </div>
+                                                                    {surgicalDateType === 'year' ? (
+                                                                        <Input
+                                                                            className="popinput"
+                                                                            placeholder="Enter year (e.g., 2020)"
+                                                                            value={surgicalDate || ''}
+                                                                            onChange={(e) => onSurgicalYearChange(e.target.value)}
+                                                                            maxLength={4}
+                                                                        />
+                                                                    ) : (
+                                                                        <DatePicker
+                                                                            className="popinput w-100"
+                                                                            placeholder="Select date"
+                                                                            format={showDateFormat}
+                                                                            value={surgicalDate}
+                                                                            onChange={onSurgicalDateChange}
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            )}
                                                             <div className={`${isMobile ? 'mt-5' : 'mt-20'}`}>
-                                                                <label className="title-common mb-1">Note</label>
-                                                                <Input.TextArea value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.note !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.note} placeholder="Enter any specific notes here" className="textareaPlaceholder" rows={3} onChange={onChangeInputNote} />
+                                                                <label className="title-common mb-1">
+                                                                    {selectData?.tmmhs_id == 5 ? "Surgical History Remarks" : "Note"}
+                                                                </label>
+                                                                <Input.TextArea 
+                                                                    value={cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.note !== undefined && cloneMedicalHistoryData[selectData?.section_index]?.tags[selectData?.tag_index]?.note} 
+                                                                    placeholder={selectData?.tmmhs_id == 5 ? "Enter surgical history remarks here" : "Enter any specific notes here"} 
+                                                                    className="textareaPlaceholder" 
+                                                                    rows={3} 
+                                                                    onChange={onChangeInputNote} 
+                                                                />
                                                             </div>
                                                         </div>
                                                     </div>
