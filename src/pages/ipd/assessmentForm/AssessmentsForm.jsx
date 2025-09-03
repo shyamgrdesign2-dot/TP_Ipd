@@ -1,6 +1,13 @@
 import { AnimatePresence } from "framer-motion";
 import patient_data from "../../../utils/patientMockData.json";
-import React, { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  Suspense,
+  use,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { IPD } from "../../../utils/locale";
 import "./styles.scss";
 import { normalizeToDefault } from "../../../utils/utils";
@@ -28,7 +35,10 @@ import MedicationsBox from "../../../components/MedicationsBox";
 import LabParams from "../../../components/LabParams";
 import LabParametersList from "../../../components/LabParametersList";
 import { ConfigProvider, Drawer, Radio } from "antd";
-import { getLabParamsData, setGynecHistoryData } from "../../../redux/prescriptionSlice";
+import {
+  getLabParamsData,
+  setGynecHistoryData,
+} from "../../../redux/prescriptionSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import LabResultsTable from "../../../components/ViewLabParams";
@@ -37,73 +47,77 @@ import MedicalHistoryBox from "../../../components/MedicalHistoryBox";
 import { useNavigate } from "react-router-dom";
 import Obstetric from "../../obstetric/Obstetric";
 
-
 const dummyData = {
-    generic: {
-        headings: [
-      'LMP',
-      'E.D.D',
-      'C.E.E.D',
-      'Gestation',
-      'Blood',
-      'Husband’s blood',
-      'Consng',
-      'Merital status',
+  generic: {
+    headings: [
+      "LMP",
+      "E.D.D",
+      "C.E.E.D",
+      "Gestation",
+      "Blood",
+      "Husband’s blood",
+      "Consng",
+      "Merital status",
     ],
-    values: 
-      [
-        '20 Oct 24',
-        '20 Oct 24',
-        '20 Oct 24',
-        '2W, 3D',
-        'AB-',
-        '1',
-        'Yes',
-        'Married',
-      ],
-    },
-    sectioned: {
-        headings: ['Gravida', 'Para', 'Living', 'Abortion', 'NND', 'Ectopic'],
-        values: [['2', '1', '1', '1', '1', '1']]
-    }
+    values: [
+      "20 Oct 24",
+      "20 Oct 24",
+      "20 Oct 24",
+      "2W, 3D",
+      "AB-",
+      "1",
+      "Yes",
+      "Married",
+    ],
+  },
+  sectioned: {
+    headings: ["Gravida", "Para", "Living", "Abortion", "NND", "Ectopic"],
+    values: [["2", "1", "1", "1", "1", "1"]],
+  },
 };
 
 const pregnancyHistory = {
-    title: 'Pregnancy history',
-    sections: [
-      {
-        columns: [
-          'Gravida no',
-          'Outcome',
-          'Term length',
-          'Mode of delivery',
-          'Delivery date',
-          'Gender',
-          'Baby weight',
-        ],
-        values: [['1', 'Live', 'Term', 'NVD', '20 Oct ‘24', 'Male', '2kgs']],
-        remarks: 'Patient not able to remember previous medicines consumed',
-      },
-      {
-        columns: [
-          'Gravida no',
-          'Outcome',
-          'Gestation',
-          'Location',
-          'Mode of management',
-        ],
-        values: [['2', 'Ectopic', '4', 'Left tube', 'Medical']],
-        remarks: 'Patient not able to remember previous medicines consumed',
-      },
-    ],
-  };
-
+  title: "Pregnancy history",
+  sections: [
+    {
+      columns: [
+        "Gravida no",
+        "Outcome",
+        "Term length",
+        "Mode of delivery",
+        "Delivery date",
+        "Gender",
+        "Baby weight",
+      ],
+      values: [["1", "Live", "Term", "NVD", "20 Oct ‘24", "Male", "2kgs"]],
+      remarks: "Patient not able to remember previous medicines consumed",
+    },
+    {
+      columns: [
+        "Gravida no",
+        "Outcome",
+        "Gestation",
+        "Location",
+        "Mode of management",
+      ],
+      values: [["2", "Ectopic", "4", "Left tube", "Medical"]],
+      remarks: "Patient not able to remember previous medicines consumed",
+    },
+  ],
+};
 
 const LayoutWithMenu = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
     normalizeToDefault(m, "LayoutWithMenu")
   );
 });
+
+const Customization = React.lazy(() => {
+  return import("shared_ui/components").then((m) =>
+    normalizeToDefault(m, "Customization")
+  );
+});
+
 const CollapsibleWrapper = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
     normalizeToDefault(m, "CollapsibleWrapper")
@@ -121,29 +135,29 @@ const RichTextEditWrapper = React.lazy(() => {
 });
 
 const GenericTable = React.lazy(() => {
-    return import("shared_ui/components").then((m) =>
-      normalizeToDefault(m, "GenericTable")
-    );
-  });
-  const SectionedTable = React.lazy(() => {
-    return import("shared_ui/components").then((m) =>
-      normalizeToDefault(m, "SectionedTable")
-    );
-  });
+  return import("shared_ui/components").then((m) =>
+    normalizeToDefault(m, "GenericTable")
+  );
+});
+const SectionedTable = React.lazy(() => {
+  return import("shared_ui/components").then((m) =>
+    normalizeToDefault(m, "SectionedTable")
+  );
+});
 const UnitInput = React.lazy(() => {
-    return import("shared_ui/components").then((m) =>
-      normalizeToDefault(m, "UnitInput")
-    );
-  });
+  return import("shared_ui/components").then((m) =>
+    normalizeToDefault(m, "UnitInput")
+  );
+});
 
-  const AutoFillButton = React.lazy(() => {
-    return import("shared_ui/components").then((m) =>
-      normalizeToDefault(m, "AutoFillButton")
-    );
-  });
+const AutoFillButton = React.lazy(() => {
+  return import("shared_ui/components").then((m) =>
+    normalizeToDefault(m, "AutoFillButton")
+  );
+});
 
 const AssessmentsForm = (props) => {
-    const { isEditable = true } = props;
+  const { isEditable = true } = props;
   const dispatch = useDispatch();
   let {
     medicationData,
@@ -160,12 +174,14 @@ const AssessmentsForm = (props) => {
   const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
+  const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const [assessmentsFormItems, setAssessmentsFormItems] = useState([]);
   const [assessmentValue, setAssessmentValue] = useState({});
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [value, setValue] = useState({});
   const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
-  const [addObstetricHistoryDrawer, setAddObstetricHistoryDrawer] = useState(false);
+  const [addObstetricHistoryDrawer, setAddObstetricHistoryDrawer] =
+    useState(false);
   const [addMedicalHistoryDrawer, setAddMedicaHistoryDrawer] = useState(false);
   const [examinationValue, setExaminationValue] = useState({});
 
@@ -179,18 +195,32 @@ const AssessmentsForm = (props) => {
 
   const handleAssessmentChange = (key, e) => {
     const next = { ...assessmentValue, [key]: e.target.value };
-    console.log('INTEL ==> next', next)
+    console.log("INTEL ==> next", next);
     setAssessmentValue(next);
   };
 
   const getLabParams = async () => {
     dispatch(
       getLabParamsData({
-        patient_unique_id: patient_data?.patient_unique_id,
+        patient_unique_id: patient_data?.details?.id,
       })
     ).catch((err) => {
       console.error("Error fetching lab params:", err);
     });
+  };
+
+  useEffect(() => {
+    // fetch assessments form from api
+  }, []);
+
+  useEffect(() => {
+    // fetch all the templates available
+  }, []);
+
+  const patientDataForOPDComponents = {
+    pm_contact_no: patient_data?.details?.contact,
+    pm_gender: patient_data?.details?.gender,
+    patient_unique_id: patient_data?.details?.id,
   };
 
   const showHideBackModal = () => {
@@ -211,11 +241,11 @@ const AssessmentsForm = (props) => {
 
   const handleAddMedicalHistory = () => {
     setAddMedicaHistoryDrawer(!addMedicalHistoryDrawer);
-  }
+  };
 
   const handleObstetricHistory = () => {
     setAddObstetricHistoryDrawer(!addObstetricHistoryDrawer);
-  }
+  };
 
   const handleVitalsValue = (e, key) => {
     setValue({ ...value, [key]: e });
@@ -223,61 +253,99 @@ const AssessmentsForm = (props) => {
 
   const renderLabResultsBody = () => {
     return (
-      <div className={`ipdaf-generic-card-container ${labParamsData?.length ? 'ipdaf-padding-0': ''}`}>
+      <div
+        className={`ipdaf-generic-card-container ${
+          labParamsData?.length ? "ipdaf-padding-0" : ""
+        }`}
+      >
         {labParamsData?.length ? (
-          <LabResultsTable isIPD={true} showHeader={false} showSearchBar={false} />
+          <LabResultsTable
+            isIPD={true}
+            showHeader={false}
+            showSearchBar={false}
+          />
         ) : null}
-        {isEditable ? <div onClick={handleAddLabResults}>
-          <GenericCard icon={plusIconColoured} title={"Add Lab Results"} />
-        </div> : null}
+        {isEditable ? (
+          <div onClick={handleAddLabResults}>
+            <GenericCard icon={plusIconColoured} title={"Add Lab Results"} />
+          </div>
+        ) : null}
       </div>
     );
   };
 
   const renderMedicalHistory = () => {
     return (
-        <div className={`ipdaf-generic-card-container ${medicalHistoryData?.length ? 'ipdaf-padding-0': ''}`}>
+      <div
+        className={`ipdaf-generic-card-container ${
+          medicalHistoryData?.length ? "ipdaf-padding-0" : ""
+        }`}
+      >
         {medicalHistoryData?.length ? (
-          <MedicalHistoryList  patientDataFromProps={patient_data}/>
+          <MedicalHistoryList
+            patientDataFromProps={patientDataForOPDComponents}
+          />
         ) : null}
-        {isEditable ? <div onClick={handleAddMedicalHistory}>
-          <GenericCard icon={medicalHistoryData?.length ? editIcon : plusIconColoured} title={medicalHistoryData?.length ? "Add/Edit Past Medical History" : "Add Past Medical History"} />
-        </div> : null}
+        {isEditable ? (
+          <div onClick={handleAddMedicalHistory}>
+            <GenericCard
+              icon={medicalHistoryData?.length ? editIcon : plusIconColoured}
+              title={
+                medicalHistoryData?.length
+                  ? "Add/Edit Past Medical History"
+                  : "Add Past Medical History"
+              }
+            />
+          </div>
+        ) : null}
       </div>
-    )
-  }
+    );
+  };
 
   const renderObstetricHistory = () => {
     return (
-        <div className={`ipdaf-generic-card-container ipdaf-obstetrics-container ${dummyData?.generic ? 'ipdaf-padding-0': ''}`}>
+      <div
+        className={`ipdaf-generic-card-container ipdaf-obstetrics-container ${
+          dummyData?.generic ? "ipdaf-padding-0" : ""
+        }`}
+      >
         {dummyData?.generic ? (
-            <>
-                <GenericTable
-                    title='Patient diagnosis'
-                    columns={dummyData?.sectioned?.headings}
-                    rows={dummyData?.sectioned?.values}
-                />
-                <SectionedTable
-                    title={pregnancyHistory.title}
-                    sections={pregnancyHistory.sections}
-                />
-            </>
+          <>
+            <GenericTable
+              title="Patient diagnosis"
+              columns={dummyData?.sectioned?.headings}
+              rows={dummyData?.sectioned?.values}
+            />
+            <SectionedTable
+              title={pregnancyHistory.title}
+              sections={pregnancyHistory.sections}
+            />
+          </>
         ) : null}
-        {isEditable ? <div onClick={handleObstetricHistory}>
-          <GenericCard icon={dummyData?.generic ? editIcon : plusIconColoured} title={dummyData?.generic ? "Add/Edit Obstetric History" : "Add Obstetric History"} />
-        </div>: null}
+        {isEditable ? (
+          <div onClick={handleObstetricHistory}>
+            <GenericCard
+              icon={dummyData?.generic ? editIcon : plusIconColoured}
+              title={
+                dummyData?.generic
+                  ? "Add/Edit Obstetric History"
+                  : "Add Obstetric History"
+              }
+            />
+          </div>
+        ) : null}
       </div>
-    )
-  }
+    );
+  };
 
   const renderAutoFillButton = () => {
     return (
-        <AutoFillButton
-          onClick={() => {}}
-          title={`Autofill Basic Info Details From OPD (15 Jun 2025)`}
-        />
-    )
-  }
+      <AutoFillButton
+        onClick={() => {}}
+        title={`Autofill Basic Info Details From OPD (15 Jun 2025)`}
+      />
+    );
+  };
   const renderBasicInfo = () => {
     return (
       <CollapsibleWrapper
@@ -287,18 +355,23 @@ const AssessmentsForm = (props) => {
         width={"100%"}
         className={"collapsible-wrapper-class"}
         defaultOpen
-        renderRightHeaderSection={isEditable ? renderAutoFillButton: null}
+        renderRightHeaderSection={isEditable ? renderAutoFillButton : null}
       >
-        <RichTextEditWrapper readOnly={!isEditable} showToolbar={isEditable} showActionBtns={isEditable} 
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
           title="Chief Complaint"
           width="100%"
           initialValue={[
             {
-              type: 'paragraph',
-              children: [{ text: '' }],
+              type: "paragraph",
+              children: [{ text: "" }],
             },
           ]}
-          placeholder={'Enter chief complaint like patient’s main symptoms or presenting problem'} // TODO: FIX - shouldnt add styling to placeholder
+          placeholder={
+            "Enter chief complaint like patient’s main symptoms or presenting problem"
+          } // TODO: FIX - shouldnt add styling to placeholder
           icon={roundDotted}
           showAutoFill={isEditable}
           containerClass="wrapper-class"
@@ -323,7 +396,10 @@ const AssessmentsForm = (props) => {
           }}
         />
 
-        <RichTextEditWrapper readOnly={!isEditable} showToolbar={isEditable} showActionBtns={isEditable} 
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
           title="History of Present Illness"
           width="100%"
           icon={aidKit}
@@ -336,11 +412,13 @@ const AssessmentsForm = (props) => {
           }}
           initialValue={[
             {
-              type: 'paragraph',
-              children: [{ text: '' }],
+              type: "paragraph",
+              children: [{ text: "" }],
             },
           ]}
-          placeholder={"Enter details like onset, duration, progression, and associated symptoms"}
+          placeholder={
+            "Enter details like onset, duration, progression, and associated symptoms"
+          }
           onSave={() => {
             console.log("save");
           }}
@@ -360,7 +438,10 @@ const AssessmentsForm = (props) => {
         <div className="ipdaf-box-container">
           <MedicationsBox />
         </div>
-        <RichTextEditWrapper readOnly={!isEditable} showToolbar={isEditable} showActionBtns={isEditable} 
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
           title="Lab Results"
           width="100%"
           containerClass="wrapper-class"
@@ -387,7 +468,10 @@ const AssessmentsForm = (props) => {
           }}
           renderBody={renderLabResultsBody}
         />
-        <RichTextEditWrapper readOnly={!isEditable} showToolbar={isEditable} showActionBtns={isEditable} 
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
           title="Past Medical History"
           width="100%"
           containerClass="wrapper-class"
@@ -414,7 +498,10 @@ const AssessmentsForm = (props) => {
           }}
           renderBody={renderMedicalHistory}
         />
-        <RichTextEditWrapper readOnly={!isEditable} showToolbar={isEditable} showActionBtns={isEditable} 
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
           title="Obstetric History"
           width="100%"
           containerClass="wrapper-class"
@@ -447,45 +534,48 @@ const AssessmentsForm = (props) => {
 
   const renderExaminationSection = () => {
     return (
-        <div className="examinations-parent-container">
-            {IPD.EXAMINATION.map(item => {
-            return (
-                <RichTextEditWrapper readOnly={!isEditable} showToolbar={isEditable} showActionBtns={isEditable} 
-                    initialValue={[
-                        {
-                        type: 'paragraph',
-                        children: [{ text: '' }],
-                        },
-                    ]}
-                    // title="Examination"
-                    // width="100%"
-                    // icon={aidKit}
-                    showAutoFill={false}
-                    opdDate="15 Jun 2025"
-                    showMagicPenGif={false}
-                    showMicrophone={false}
-                    placeholder={'Additional notes if any'}
-                    containerClass='wrapper-class examination-rich-container'
-                >
-                    <div className='examination-container-header'>
-                        <div className='examination-header'>{item.title} : </div>
-                        <Radio.Group
-                            className='exam-radio-text'
-                            onChange={e => onExaminationRadioChange(e, item.title)}
-                            value={examinationValue[item.title]}
-                            options={item.options}
-                        />
-                    </div>
-                </RichTextEditWrapper>
-            );
-            })}
-        </div>
-    )
-  }
+      <div className="examinations-parent-container">
+        {IPD.EXAMINATION.map((item) => {
+          return (
+            <RichTextEditWrapper
+              readOnly={!isEditable}
+              showToolbar={isEditable}
+              showActionBtns={isEditable}
+              initialValue={[
+                {
+                  type: "paragraph",
+                  children: [{ text: "" }],
+                },
+              ]}
+              // title="Examination"
+              // width="100%"
+              // icon={aidKit}
+              showAutoFill={false}
+              opdDate="15 Jun 2025"
+              showMagicPenGif={false}
+              showMicrophone={false}
+              placeholder={"Additional notes if any"}
+              containerClass="wrapper-class examination-rich-container"
+            >
+              <div className="examination-container-header">
+                <div className="examination-header">{item.title} : </div>
+                <Radio.Group
+                  className="exam-radio-text"
+                  onChange={(e) => onExaminationRadioChange(e, item.title)}
+                  value={examinationValue[item.title]}
+                  options={item.options}
+                />
+              </div>
+            </RichTextEditWrapper>
+          );
+        })}
+      </div>
+    );
+  };
 
   const renderPhysicalExamination = () => {
     return (
-        <CollapsibleWrapper
+      <CollapsibleWrapper
         title="Physical Examination"
         icon={vitalsDarkColoured}
         collapsible={isEditable}
@@ -494,46 +584,51 @@ const AssessmentsForm = (props) => {
         defaultOpen
       >
         <div className="ipdaf-vitals-main-container">
-            <div className="ipdaf-vitals-header">
-                <img src={vitals} alt="vitals" />
-                <div>{'Vitals'}</div>
-            </div>
-            <div className='ipdaf-vitals-container'>
-                {IPD.VITALS?.map(vital => {
-                    return (
-                        <UnitInput
-                            containerStyle={{ marginBottom: '20px' }}
-                            onChange={e => handleVitalsValue(e, vital.name)}
-                            value={value?.[vital?.name]}
-                            type='text'
-                            inputMode='decimal'
-                            {...vital}
-                        />
-                    );
-                })}
-            </div>
+          <div className="ipdaf-vitals-header">
+            <img src={vitals} alt="vitals" />
+            <div>{"Vitals"}</div>
+          </div>
+          <div className="ipdaf-vitals-container">
+            {IPD.VITALS?.map((vital) => {
+              return (
+                <UnitInput
+                  containerStyle={{ marginBottom: "20px" }}
+                  onChange={(e) => handleVitalsValue(e, vital.name)}
+                  value={value?.[vital?.name]}
+                  type="text"
+                  inputMode="decimal"
+                  {...vital}
+                />
+              );
+            })}
+          </div>
         </div>
 
-        
-        <RichTextEditWrapper readOnly={!isEditable} showToolbar={isEditable} showActionBtns={isEditable} 
-            initialValue={[
-                {
-                type: 'paragraph',
-                children: [{ text: '' }],
-                },
-            ]}
-            title="Examination"
-            width="100%"
-            icon={aidKit}
-            showAutoFill={false}
-            opdDate="15 Jun 2025"
-            showMagicPenGif={false}
-            showMicrophone={false}
-            placeholder={'Additional notes if any'}
-            containerClass='wrapper-class examination-rich-container'
-            renderBody={renderExaminationSection}
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
+          initialValue={[
+            {
+              type: "paragraph",
+              children: [{ text: "" }],
+            },
+          ]}
+          title="Examination"
+          width="100%"
+          icon={aidKit}
+          showAutoFill={false}
+          opdDate="15 Jun 2025"
+          showMagicPenGif={false}
+          showMicrophone={false}
+          placeholder={"Additional notes if any"}
+          containerClass="wrapper-class examination-rich-container"
+          renderBody={renderExaminationSection}
         />
-        <RichTextEditWrapper readOnly={!isEditable} showToolbar={isEditable} showActionBtns={isEditable} 
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
           title="Others"
           width="100%"
           icon={galaxy}
@@ -544,8 +639,8 @@ const AssessmentsForm = (props) => {
           showMicrophone={false}
           initialValue={[
             {
-              type: 'paragraph',
-              children: [{ text: '' }],
+              type: "paragraph",
+              children: [{ text: "" }],
             },
           ]}
           placeholder={"Enter any other examination findings not covered above"}
@@ -566,7 +661,10 @@ const AssessmentsForm = (props) => {
           }}
         />
 
-        <RichTextEditWrapper readOnly={!isEditable} showToolbar={isEditable} showActionBtns={isEditable} 
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
           title="Provisional Diagnosis"
           width="100%"
           icon={ddx}
@@ -577,11 +675,13 @@ const AssessmentsForm = (props) => {
           showMicrophone={false}
           initialValue={[
             {
-              type: 'paragraph',
-              children: [{ text: '' }],
+              type: "paragraph",
+              children: [{ text: "" }],
             },
           ]}
-          placeholder={"Enter provisional diagnosis like suspected condition or working diagnosis"}
+          placeholder={
+            "Enter provisional diagnosis like suspected condition or working diagnosis"
+          }
           onSave={() => {
             console.log("save");
           }}
@@ -599,12 +699,12 @@ const AssessmentsForm = (props) => {
           }}
         />
       </CollapsibleWrapper>
-    )
-  }
+    );
+  };
 
   const renderFunctionalAssessment = () => {
     return (
-        <CollapsibleWrapper
+      <CollapsibleWrapper
         title="Functional Assessment"
         icon={vitalsDarkColoured}
         collapsible={isEditable}
@@ -612,34 +712,37 @@ const AssessmentsForm = (props) => {
         className={"collapsible-wrapper-class"}
         defaultOpen
       >
-        <div className='assessments-parent-container'>
-            {IPD.FUNCTIONAL_ASSESSMENT.map(item => (
-            <div key={item.key} className='assessment-card'>
-                <div className='assessment-card-header'>
-                <div className='assessment-title'>{item.title}:</div>
-                </div>
-                <ConfigProvider
+        <div className="assessments-parent-container">
+          {IPD.FUNCTIONAL_ASSESSMENT.map((item) => (
+            <div key={item.key} className="assessment-card">
+              <div className="assessment-card-header">
+                <div className="assessment-title">{item.title}:</div>
+              </div>
+              <ConfigProvider
                 theme={{
-                    components: {
+                  components: {
                     Radio: {
-                        colorPrimary: '#4B4AD5',
-                        colorPrimaryHover: '#4B4AD5',
-                        colorPrimaryActive: '#4B4AD5',
+                      colorPrimary: "#4B4AD5",
+                      colorPrimaryHover: "#4B4AD5",
+                      colorPrimaryActive: "#4B4AD5",
                     },
-                    },
+                  },
                 }}
-                >
+              >
                 <Radio.Group
-                    className='assessment-radio-group big-ring-radio'
-                    options={item.options}
-                    onChange={e => handleAssessmentChange(item.key, e)}
-                    value={assessmentValue[item.key]}
+                  className="assessment-radio-group big-ring-radio"
+                  options={item.options}
+                  onChange={(e) => handleAssessmentChange(item.key, e)}
+                  value={assessmentValue[item.key]}
                 />
-                </ConfigProvider>
+              </ConfigProvider>
             </div>
-            ))}
+          ))}
         </div>
-        <RichTextEditWrapper readOnly={!isEditable} showToolbar={isEditable} showActionBtns={isEditable} 
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
           title="Others"
           width="100%"
           icon={galaxy}
@@ -650,8 +753,8 @@ const AssessmentsForm = (props) => {
           showMicrophone={false}
           initialValue={[
             {
-              type: 'paragraph',
-              children: [{ text: '' }],
+              type: "paragraph",
+              children: [{ text: "" }],
             },
           ]}
           placeholder={"Enter any other examination findings not covered above"}
@@ -672,12 +775,12 @@ const AssessmentsForm = (props) => {
           }}
         />
       </CollapsibleWrapper>
-    )
-  }
+    );
+  };
 
   const renderTreatmentPlan = () => {
     return (
-        <CollapsibleWrapper
+      <CollapsibleWrapper
         title="Treatment Plan"
         icon={folderDark}
         collapsible={isEditable}
@@ -685,7 +788,10 @@ const AssessmentsForm = (props) => {
         className={"collapsible-wrapper-class"}
         defaultOpen
       >
-        <RichTextEditWrapper readOnly={!isEditable} showToolbar={isEditable} showActionBtns={isEditable} 
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
           title="Immediate Management"
           width="100%"
           icon={recordPad}
@@ -696,11 +802,13 @@ const AssessmentsForm = (props) => {
           showMicrophone={false}
           initialValue={[
             {
-              type: 'paragraph',
-              children: [{ text: '' }],
+              type: "paragraph",
+              children: [{ text: "" }],
             },
           ]}
-          placeholder={"Enter immediate management like emergency interventions or initial treatment"}
+          placeholder={
+            "Enter immediate management like emergency interventions or initial treatment"
+          }
           onSave={() => {
             console.log("save");
           }}
@@ -717,7 +825,10 @@ const AssessmentsForm = (props) => {
             }, 3000);
           }}
         />
-        <RichTextEditWrapper readOnly={!isEditable} showToolbar={isEditable} showActionBtns={isEditable} 
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
           title="Monitoring Plan"
           width="100%"
           icon={vitals}
@@ -728,11 +839,13 @@ const AssessmentsForm = (props) => {
           showMicrophone={false}
           initialValue={[
             {
-              type: 'paragraph',
-              children: [{ text: '' }],
+              type: "paragraph",
+              children: [{ text: "" }],
             },
           ]}
-          placeholder={"Enter monitoring plan like vitals charting, labs, or daily observations"}
+          placeholder={
+            "Enter monitoring plan like vitals charting, labs, or daily observations"
+          }
           onSave={() => {
             console.log("save");
           }}
@@ -750,12 +863,12 @@ const AssessmentsForm = (props) => {
           }}
         />
       </CollapsibleWrapper>
-    )
-  }
+    );
+  };
 
   const renderNote = () => {
     return (
-        <CollapsibleWrapper
+      <CollapsibleWrapper
         title="Additional Notes"
         icon={recordPadDark}
         collapsible={isEditable}
@@ -763,7 +876,10 @@ const AssessmentsForm = (props) => {
         className={"collapsible-wrapper-class"}
         defaultOpen
       >
-        <RichTextEditWrapper readOnly={!isEditable} showToolbar={isEditable} showActionBtns={isEditable} 
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
           title="Special Instructions"
           width="100%"
           icon={instructions}
@@ -774,11 +890,13 @@ const AssessmentsForm = (props) => {
           showMicrophone={false}
           initialValue={[
             {
-              type: 'paragraph',
-              children: [{ text: '' }],
+              type: "paragraph",
+              children: [{ text: "" }],
             },
           ]}
-          placeholder={"Enter Special Instructions, Precautions or Additional Notes"}
+          placeholder={
+            "Enter Special Instructions, Precautions or Additional Notes"
+          }
           onSave={() => {
             console.log("save");
           }}
@@ -795,7 +913,10 @@ const AssessmentsForm = (props) => {
             }, 3000);
           }}
         />
-        <RichTextEditWrapper readOnly={!isEditable} showToolbar={isEditable} showActionBtns={isEditable} 
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
           title="Discharge Criteria"
           width="100%"
           icon={doc}
@@ -806,11 +927,13 @@ const AssessmentsForm = (props) => {
           showMicrophone={false}
           initialValue={[
             {
-              type: 'paragraph',
-              children: [{ text: '' }],
+              type: "paragraph",
+              children: [{ text: "" }],
             },
           ]}
-          placeholder={"Enter discharge criteria like stable vitals, afebrile status etc"}
+          placeholder={
+            "Enter discharge criteria like stable vitals, afebrile status etc"
+          }
           onSave={() => {
             console.log("save");
           }}
@@ -828,8 +951,8 @@ const AssessmentsForm = (props) => {
           }}
         />
       </CollapsibleWrapper>
-    )
-  }
+    );
+  };
 
   const renderSections = useMemo(() => {
     return {
@@ -837,35 +960,64 @@ const AssessmentsForm = (props) => {
       pe: renderPhysicalExamination || (() => <>Physial exam</>),
       func: renderFunctionalAssessment || (() => <>Functional Assessment</>),
       plan: renderTreatmentPlan || (() => <>Treatment Plan</>),
-      note: renderNote || (() => (<>Note</>))
+      note: renderNote || (() => <>Note</>),
     };
   }, [examinationValue, value, assessmentValue]);
 
-    useEffect(() => {
-      const formItems = IPD.ASSESSMENTS_MENU.map(item => ({
-        ...item,
-        renderSection: renderSections[item.id],
-      }));
-      setAssessmentsFormItems(formItems);
-    }, [renderSections]);
-  
+  useEffect(() => {
+    const formItems = IPD.ASSESSMENTS_MENU.map((item) => ({
+      ...item,
+      renderSection: renderSections[item.id],
+    }));
+    setAssessmentsFormItems(formItems);
+  }, [renderSections]);
+
   return (
-    <>
+    <div className="afipd-assessments-form-container">
       <Suspense fallback={<>Loading ...</>}>
-        <div className={`ipd-assessments-form-container ${!isEditable ? 'ipd-assessments-readable-container': ''}`} style={{"--backgroundColor": isEditable ? '#fff': '#FFFFFF80'}}>
-        {(open && assessmentsFormItems) && (
+        <div
+          className={`ipd-assessments-form-container ${
+            !isEditable ? "ipd-assessments-readable-container" : ""
+          }`}
+          style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
+        >
+          {open && assessmentsFormItems && (
             <LayoutWithMenu
-            key="assessment"
-            items={assessmentsFormItems}
-            onRequestClose={() => {
+              onCustomiseClick={() => setShowCustomisationDrawer(true)}
+              key="assessment"
+              items={assessmentsFormItems}
+              onRequestClose={() => {
                 navigate(-1);
                 return setOpen(false);
-            }}
-            headerOffset={72}
+              }}
+              headerOffset={72}
             />
-        )}
+          )}
         </div>
       </Suspense>
+      {
+        showCustomisationDrawer && (
+          <Drawer
+          closeIcon={true}
+          width={"100%"}
+          placement="right"
+          title="Customise Your Form"
+          open={showCustomisationDrawer}
+          onClose={() => setShowCustomisationDrawer(false)}
+          bodyStyle={{ backgroundColor: "white" }}
+          >
+            <Suspense fallback={<>Loading ...</>}>
+            <Customization
+              onModelChange={(data) => {
+                console.log('INTEL ==> model change', data)
+                // setAssessmentsFormItems(data);
+              }}
+              customModel={IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE}
+            />
+            </Suspense>
+          </Drawer>
+        )
+      }
       {addlabparamsDrawer && (
         <Drawer
           closeIcon={false}
@@ -877,54 +1029,51 @@ const AssessmentsForm = (props) => {
         >
           <LabParams
             handleAddLabParamsDrawer={handleAddLabParamsDrawer}
-            patient_unique_id={patient_data?.patient_unique_id}
+            patient_unique_id={patient_data?.details?.id}
             onSave={handleLabParamsUpdate}
             isBackModalOpen={isBackModalOpen}
             showHideBackModal={showHideBackModal}
             isIPD={true}
-            patientGender={patient_data?.pm_gender}
+            patientGender={patient_data?.details?.gender}
           />
         </Drawer>
       )}
-      {
-        addMedicalHistoryDrawer && (
-            <Drawer
-                closeIcon={false}
-                width={"100%"}
-                placement="right"
-                open={addMedicalHistoryDrawer}
-                onClose={showHideBackModal}
-                bodyStyle={{ backgroundColor: "white" }}
+      {addMedicalHistoryDrawer && (
+        <Drawer
+          closeIcon={false}
+          width={"100%"}
+          placement="right"
+          open={addMedicalHistoryDrawer}
+          onClose={showHideBackModal}
+          bodyStyle={{ backgroundColor: "white" }}
         >
-            <MedicalHistoryBox 
-                handleDrawerMedicalHistory={handleAddMedicalHistory}
-                handleCollapsed={handleAddMedicalHistory}
-                onSave={handleSaveGynecHistory}
-                patientDataFromProps={patient_data}
-            />
+          <MedicalHistoryBox
+            handleDrawerMedicalHistory={handleAddMedicalHistory}
+            handleCollapsed={handleAddMedicalHistory}
+            onSave={handleSaveGynecHistory}
+            patientDataFromProps={patientDataForOPDComponents}
+          />
         </Drawer>
-        )
-      }
-      {
-        addObstetricHistoryDrawer && (
-            <Drawer
-                closeIcon={false}
-                width={"100%"}
-                placement="right"
-                open={addObstetricHistoryDrawer}
-                onClose={showHideBackModal}
-                bodyStyle={{ backgroundColor: "white" }}
+      )}
+      {addObstetricHistoryDrawer && (
+        <Drawer
+          closeIcon={false}
+          width={"100%"}
+          placement="right"
+          classNames={{header: "ipd-customization-drawer"}}
+          open={addObstetricHistoryDrawer}
+          onClose={showHideBackModal}
+          bodyStyle={{ backgroundColor: "white" }}
         >
-            <Obstetric 
-                obstetricDetails={obstetricDetails}
-                obstetricDrawer={"pregnancyHistory"}
-                handleDrawerObstetric={handleObstetricHistory}
-                patientDataFromProps={patient_data}
-            />
+          <Obstetric
+            obstetricDetails={obstetricDetails}
+            obstetricDrawer={"pregnancyHistory"}
+            handleDrawerObstetric={handleObstetricHistory}
+            patientDataFromProps={patientDataForOPDComponents}
+          />
         </Drawer>
-        )
-      }
-    </>
+      )}
+    </div>
   );
 };
 

@@ -1,9 +1,17 @@
-
+$theme-black: #454551;
 $panel-top: #f8f4ff;
 $panel-btm: #fbfaff;
 $border: rgba(80, 56, 160, 0.12);
 $text: #232336;
 $muted: #6f6b88;
+
+.ipd-customization-drawer {
+    .ant-drawer-title {
+        font-size: 18px !important;
+        font-weight: 600;
+        color: $theme-black !important;
+    }
+}
 
 .ipd-assessments-form-container {
     .toolbar-container {
@@ -11,6 +19,15 @@ $muted: #6f6b88;
     }
     #cw-panel-additional-notes, #cw-panel-functional-assessment, #cw-panel-treatment-plan {
         margin-top: 16px !important;
+    }
+    .cw.cw--closed .cw__body#cw-panel-functional-assessment {
+        margin-top: 0 !important;
+    }
+    .cw.cw--closed .cw__body#cw-panel-additional-notes {
+        margin-top: 0 !important;
+    }
+    .cw.cw--closed .cw__body#cw-panel-treatment-plan {
+        margin-top: 0 !important;
     }
     .patient-details-menu-container {
         .sections {

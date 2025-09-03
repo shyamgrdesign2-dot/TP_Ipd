@@ -14,8 +14,108 @@ import {
     treatment,
     noteColoured,
     basicInfoBg, } from '../assets/images/icons';
+    import {basic, functional, note, physical, treatmentPlan} from '../assets/images/icons/assessments';
 export const IPD = {
-    
+  DEFAULT_ASSESSMENTS_FORM_STRUCTURE: [
+    {
+      id: 'basic',
+      order: 1,
+      title: 'Basic Info',
+      icon: basic,
+      enabled: true,
+      expanded: false,
+      children: [
+        { id: 'chief', order: 1, title: 'Chief Complaint', enabled: true },
+        {
+          id: 'hpi',
+          order: 0,
+          title: 'History of Present Illness',
+          enabled: true,
+        },
+        {
+          id: 'rx',
+          order: 2,
+          title: 'Current Medications (Rx)',
+          enabled: true,
+        },
+        { id: 'inv', order: 3, title: 'Investigations', enabled: true },
+        { id: 'pmh', order: 4, title: 'Past Medical History', enabled: true },
+        { id: 'oh', order: 5, title: 'Obstetric History', enabled: true },
+        { id: 'gh', order: 6, title: 'Gynaec History', enabled: true },
+      ],
+    },
+    {
+      id: 'physical',
+      order: 0,
+      title: 'Physical Examination',
+      icon: physical,
+      enabled: true,
+      expanded: false,
+      children: [
+        { id: 'vitals', order: 0, title: 'Vitals', enabled: true },
+        { id: 'examinations', order: 1, title: 'Examinations', enabled: true },
+        { id: 'others', order: 2, title: 'Others', enabled: true },
+        {
+          id: 'provisionalDiagnosis',
+          order: 3,
+          title: 'Provisional Diagnosis',
+          enabled: true,
+        },
+      ],
+    },
+    {
+      id: 'functional',
+      order: 2,
+      title: 'Functional Assessment',
+      icon: functional,
+      enabled: true,
+      expanded: false,
+      children: [
+        { id: 'assessment', order: 0, title: 'Assessment', enabled: true },
+        { id: 'others', order: 1, title: 'Others', enabled: true },
+        {
+          id: 'referredToPhysiotherapy',
+          order: 2,
+          title: 'Referred To Physiotherapy for Review',
+          enabled: true,
+        },
+      ],
+    },
+    {
+      id: 'treatmentPlan',
+      icon: treatmentPlan,
+      order: 3,
+      title: 'Treatment Plan',
+      enabled: true,
+      expanded: false,
+      children: [
+        {
+          id: 'immediateManagement',
+          order: 0,
+          title: 'Immediate Management',
+          enabled: true,
+        },
+        { id: 'monitoringPlan', order: 1, title: 'Monitoring Plan', enabled: true },
+      ],
+    },
+    {
+      id: 'additionalNotes',
+      icon: note,
+      order: 4,
+      title: 'Additional Notes',
+      enabled: true,
+      expanded: false,
+      children: [
+        {
+          id: 'specialInstructions',
+          order: 0,
+          title: 'Special Instructions',
+          enabled: true,
+        },
+        { id: 'dischargeCriteria', order: 1, title: 'Discharge Criteria', enabled: true },
+      ],
+    },
+  ],
   ASSESSMENTS_MENU: [
     { id: 'basic', name: 'Basic Info', icon: basicInfoBg, renderSection: () => <>hello basic</>, isActive: true },
     { id: 'pe', name: 'Physical Exam.', icon: physicalExam },

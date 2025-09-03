@@ -163,6 +163,8 @@ const qa_tp = {
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
+  ipd_api_url:
+    "https://pm-ipd-uat.ambitiousstone-b2402989.centralindia.azurecontainerapps.io/api/v1",
 };
 
 const qa = {
@@ -245,6 +247,8 @@ const qa = {
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
+  ipd_api_url:
+    "https://pm-ipd-uat.ambitiousstone-b2402989.centralindia.azurecontainerapps.io/api/v1",
 };
 
 const uat = {
@@ -332,6 +336,8 @@ const uat = {
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-uat-doctor-portal.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
+  ipd_api_url:
+    "https://pm-ipd-uat.ambitiousstone-b2402989.centralindia.azurecontainerapps.io/api/v1",
 };
 
 const prod = {
@@ -425,6 +431,8 @@ const prod = {
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://tatvapractice.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
+  ipd_api_url:
+    "https://pm-ipd-uat.ambitiousstone-b2402989.centralindia.azurecontainerapps.io/api/v1",
 };
 
 const getEnv = () => {

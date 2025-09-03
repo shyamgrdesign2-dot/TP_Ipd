@@ -534,6 +534,11 @@ export const getFormattedDate = (date) => {
   return moment(date).format("YYYY-MM-DD");
 };
 
+export const formatDateToShortMonthYear = (date) => {
+  if (!date) return '';
+  return moment(date).format('DD MMM\’YY').replace('\'20', '\'');
+};
+
 const getTime = (date) => {
   return date.getHours() + ":" + ("0" + date.getMinutes()).slice(-2);
 };
@@ -1000,4 +1005,52 @@ export const normalizeToDefault = (m, key) => {
   if (m?.default) return { default: m.default };
   if (typeof m === 'function') return { default: m };
   throw new Error('Remote module does not export a React component.');
+};
+
+export const sortAssessmentFormStructure = (array) => {
+  if (!Array.isArray(array)) {
+    return [];
+  }
+
+  const sortedArray = [...array].sort((a, b) => {
+    const orderA = typeof a.order === 'number' ? a.order : 0;
+    const orderB = typeof b.order === 'number' ? b.order : 0;
+    return orderA - orderB;
+  });
+
+  return sortedArray.map(section => {
+    if (Array.isArray(section.children)) {
+      return {
+        ...section,
+        children: [...section.children].sort((a, b) => {
+          const orderA = typeof a.order === 'number' ? a.order : 0;
+          const orderB = typeof b.order === 'number' ? b.order : 0;
+          return orderA - orderB;
+        })
+      };
+    }
+    return section;
+  });
+};
+
+export const addOrderToAssessmentFormStructure = (array) => {
+  if (!Array.isArray(array)) {
+    return [];
+  }
+
+  return array.map((section, index) => {
+    const sectionWithOrder = {
+      ...section,
+      order: index
+    };
+
+    if (Array.isArray(section.children)) {
+      sectionWithOrder.children = section.children.map((child, childIndex) => ({
+        ...child,
+        order: childIndex
+      }));
+    }
+
+    return sectionWithOrder;
+  });
 };
