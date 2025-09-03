@@ -71,6 +71,18 @@ function VitalsList(props) {
                                 <Input className='inputheight41-group mx-2' value={item.general_rbs} addonAfter={'mg/dl'} readOnly />
                             </div>
                         )}
+                        {item.fib4 && (
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">FIB4</div>
+                                <Input className='inputheight41-group mx-2' value={item.fib4} addonAfter={<span style={{ width: "24px" }} />}  readOnly />
+                            </div>
+                        )}
+                        {item.waist_circumference && (
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">Waist Circumference</div>
+                                <Input className='inputheight41-group mx-2' value={item.waist_circumference} addonAfter={'cms'} readOnly />
+                            </div>
+                        )}
                         {item.ofc ? (
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">OFC</div>
@@ -87,18 +99,6 @@ function VitalsList(props) {
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">Weight</div>
                                 <Input className='inputheight41-group mx-2' value={item.weight} addonAfter={'kgs'} readOnly />
-                            </div>
-                        )}
-                        {item.fib4 && (
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">FIB4</div>
-                                <Input className='inputheight41-group mx-2' value={item.fib4} addonAfter={''} readOnly />
-                            </div>
-                        )}
-                        {item.waist_circumference && (
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Waist Circumference</div>
-                                <Input className='inputheight41-group mx-2' value={item.waist_circumference} addonAfter={'cms'} readOnly />
                             </div>
                         )}
                         {item.bmi && (
@@ -177,6 +177,18 @@ function VitalsList(props) {
                                 <Input className='inputheight41-group mx-2' value={item.general_rbs} addonAfter={'mg/dl'} readOnly />
                             </div>
                         )}
+                         {item.fib4 && (
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">FIB4</div>
+                                <Input className='inputheight41-group mx-2' value={item.fib4} addonAfter={<span style={{ width: "24px" }} />}  readOnly />
+                            </div>
+                        )}
+                         {item.waist_circumference && (
+                            <div className="d-flex align-items-center justify-content-between mb-12">
+                                <div className="fontroboto">Waist Circumference</div>
+                                <Input className='inputheight41-group mx-2' value={item.waist_circumference} addonAfter={'cms'} readOnly />
+                            </div>
+                        )}
                         {item?.ofc ? (
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">OFC</div>
@@ -195,19 +207,6 @@ function VitalsList(props) {
                                 <Input className='inputheight41-group mx-2' value={item.weight} addonAfter={'kgs'} readOnly />
                             </div>
                         )}
-                         {item.fib4 && (
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">FIB4</div>
-                                <Input className='inputheight41-group mx-2' value={item.fib4} addonAfter={''} readOnly />
-                            </div>
-                        )}
-                         {item.waist_circumference && (
-                            <div className="d-flex align-items-center justify-content-between mb-12">
-                                <div className="fontroboto">Waist Circumference</div>
-                                <Input className='inputheight41-group mx-2' value={item.waist_circumference} addonAfter={'cms'} readOnly />
-                            </div>
-                        )}
-
                         {item.bmi && (
                             <div className="d-flex align-items-center justify-content-between mb-12">
                                 <div className="fontroboto">BMI</div>

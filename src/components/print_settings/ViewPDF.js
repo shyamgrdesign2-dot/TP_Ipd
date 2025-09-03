@@ -1788,7 +1788,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 spo2: spo2 ? `SPO2: ${spo2}%` : '',
                                                                                 general_rbs: general_rbs ? `General RBS: ${general_rbs}mg/dl` : '',
                                                                                 fib4: fib4 ? `FIB4: ${fib4}` : '',
-                                                                                waist_circumference: waist_circumference ? `Waist Circumference: ${waist_circumference}cms` : '',
+                                                                                waist_circumference: waist_circumference ? `Waist Circumference : ${waist_circumference}cms` : '',
                                                                                 ofc: ofc ? `OFC: ${ofc}cms` : '',
                                                                                 height: height ? `Height: ${height}cms` : '',
                                                                                 weight: weight ? `Weight: ${weight}kgs` : '',

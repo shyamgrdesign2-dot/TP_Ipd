@@ -298,6 +298,12 @@ function VitalsBox(props) {
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.general_rbs} addonAfter={'mg/dl'} onChange={(e) => onChangeInput(e.target.value, i, 10)} />
                         </div>
+                         <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
+                            <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.fib4} addonAfter={<span style={{ width: "24px" }} />}  onChange={(e) => onChangeInput(e.target.value, i, 11)} />
+                        </div>
+                        <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
+                            <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.waist_circumference} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 12)} />
+                        </div>
                         {profile?.dp_name === PAEDIATRICS || isGowthChartAccessableFromGB ? <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.ofc} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 9)} />
                         </div> : null}
@@ -306,12 +312,6 @@ function VitalsBox(props) {
                         </div>
                         <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.weight} addonAfter={'kgs'} onChange={(e) => onChangeInput(e.target.value, i, 8)} />
-                        </div>
-                        <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
-                            <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.fib4}  addonAfter={''} onChange={(e) => onChangeInput(e.target.value, i, 11)} />
-                        </div>
-                        <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
-                            <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.waist_circumference} addonAfter={'cm'} onChange={(e) => onChangeInput(e.target.value, i, 12)} />
                         </div>
                         <div className='vitals-row vitals-row-40 d-flex align-items-center px-2 w-100'>
                             <div className='fs-14 '>{`${item.bmi != '' ? parseFloat(item.bmi).toFixed(2) : '--'} kg/m²`}</div>
@@ -401,6 +401,12 @@ function VitalsBox(props) {
                                 <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     General RBS
                                 </div>
+                                 <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>
+                                    FIB4
+                                </div>
+                                 <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>
+                                    Waist Circumference
+                                </div>
                                 {profile?.dp_name === PAEDIATRICS || isGowthChartAccessableFromGB? <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     OFC
                                 </div> : null}
@@ -409,12 +415,6 @@ function VitalsBox(props) {
                                 </div>
                                 <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>
                                     Weight
-                                </div>
-                                 <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>
-                                    FIB4
-                                </div>
-                                 <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>
-                                    Waist Circumference
                                 </div>
                                 <div className='vitals-row vitals-row-40 d-flex align-items-center px-2'>
                                     BMI

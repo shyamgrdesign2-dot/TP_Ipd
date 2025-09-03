@@ -485,38 +485,38 @@ function PrintHtmlPage() {
       key: "7",
       name: `General RBS (mg/dl)`,
     },
-    {
+     {
       key: "8",
-      name: `OFC (cms)`,
-    },
-    {
-      key: "9",
-      name: `Height (cms)`,
-    },
-    {
-      key: "10",
-      name: `Weight (kgs)`,
-    },
-    {
-      key: "11",
-      name: `BMI (kg/m²)`,
-    },
-    {
-      key: "12",
-      name: `BMR (kcals)`,
-    },
-    {
-      key: "13",
-      name: `BSA (m²)`,
-    },
-    {
-      key: "14",
       name: `FIB4`,
     },
     {
+      key: "9",
+      name: `Waist Circumference (cms)`,
+    },
+    {
+      key: "10",
+      name: `OFC (cms)`,
+    },
+    {
+      key: "11",
+      name: `Height (cms)`,
+    },
+    {
+      key: "12",
+      name: `Weight (kgs)`,
+    },
+    {
+      key: "13",
+      name: `BMI (kg/m²)`,
+    },
+    {
+      key: "14",
+      name: `BMR (kcals)`,
+    },
+    {
       key: "15",
-      name: `Waist Circumference (cm)`,
-    }
+      name: `BSA (m²)`,
+    },
   ];
 
   const initialColumns = [
@@ -555,14 +555,15 @@ function PrintHtmlPage() {
         : "-";
       initialRows[5][index] = item.spo2 ? item.spo2 : "-";
       initialRows[6][index] = item.general_rbs ? item.general_rbs : "-";
-      initialRows[7][index] = item.ofc ? item.ofc : "-";
-      initialRows[8][index] = item.height ? item.height : "-";
-      initialRows[9][index] = item.weight ? item.weight : "-";
-      initialRows[10][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : "-";
-      initialRows[11][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : "-";
-      initialRows[12][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : "-";
-      initialRows[13][index] = item.fib4 ? item.fib4 : "-";
-      initialRows[14][index] = item.waist_circumference ? item.waist_circumference : "-";
+      initialRows[7][index] = item.fib4 ? item.fib4 : "-";
+      initialRows[8][index] = item.waist_circumference ? item.waist_circumference : "-";
+      initialRows[9][index] = item.ofc ? item.ofc : "-";
+      initialRows[10][index] = item.height ? item.height : "-";
+      initialRows[11][index] = item.weight ? item.weight : "-";
+      initialRows[12][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : "-";
+      initialRows[13][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : "-";
+      initialRows[14][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : "-";
+     
     });
 
   const patientDataShow = (id) => {
