@@ -3030,12 +3030,21 @@ body {
 }
 
 .drx-written-container, .drx-digitize-container {
-  .written-rx, .digitize-rx {
+  .digitize-rx {
     overflow: hidden;
     padding-bottom: 20px !important;
     > div {
       overflow: auto;
       height: calc(100dvh - 250px);
+    }
+  }
+  .written-rx {
+    height: calc(100dvh - 230px);
+    overflow: auto;
+    padding-bottom: 20px !important;
+    > div {
+      overflow: hidden;
+      height: unset;
     }
   }
   .digitize-rx {
