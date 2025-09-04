@@ -3,7 +3,7 @@ import { fetchAdvancedDepositDetails, fetchBillDetails } from "./service";
 import { useEffect, useState } from "react";
 import { Spin } from "antd";
 import ViewBillPdf from "./components/viewBillPdf/ViewBillPdf";
-import { isAndroid } from "react-device-detect";
+import { isMobile } from "react-device-detect";
 
 const OpdBill = () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -107,7 +107,7 @@ const OpdBill = () => {
         showCreatedBy={advancedSettings?.enableCreatedByInRx}
       />
     ).toBlob();
-    if (isAndroid) {
+    if (isMobile) {
       window.location.href = URL.createObjectURL(blob);
     } else {
       setPdfUrl(URL.createObjectURL(blob));
