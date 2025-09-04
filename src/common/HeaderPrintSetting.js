@@ -19,7 +19,6 @@ import tutorial from '../assets/images/tutorial-icon.svg';
 import playIcons from '../assets/images/tube-icon.svg';
 
 import PrintSettingsContext from '../context/PrintSettingsContext';
-import { setCurrentSessionRx } from '../redux/obstetricSlice';
 import { addModule } from '../redux/customModuleSlice';
 import { getDecodedToken } from '../utils/localStorage';
 import { env } from '../EnvironmentConfig';
@@ -153,7 +152,6 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
                 errorMessage(action.error)
             }
         }
-        dispatch(setCurrentSessionRx(null));
         if (defaultPrintSettings?.default_language !== printSettings?.default_language) {
             updatePatientDefaultLanguage({
                 patientId: state?.patient_data?.patient_unique_id,
@@ -180,7 +178,6 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
     const onYesLeaveClick = async() => {
         if (flag === 1) {
             navigate("/prescription_print_view", { replace: true, state: { ...state, currentSessionRx: null } });
-            dispatch(setCurrentSessionRx(null));
         } else if (flag === 3) {
             navigate("/prescription_print_view", { replace: true, state: { ...state, currentSessionRx: currentSessionRx } });
         } else {
@@ -213,7 +210,6 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
                 }
             }
             showHideBackModal();
-            dispatch(setCurrentSessionRx(null));
         }
     }
 
