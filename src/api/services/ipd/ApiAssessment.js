@@ -4,11 +4,21 @@ const baseUrl = { customBaseUrl: config.ipd_api_url };
 
 const ApiAssessment = {};
 
-ApiAssessment.getAssessmentsData = function ({
-    patientId,
-}) {
+ApiAssessment.getAssessmentsData = function ({ patientId }) {
+  return api.get(`/assessments?patientId=${patientId}`, baseUrl);
+};
+
+ApiAssessment.addAssessmentsData = function ({ patientId, data }) {
+  return api.post(`/assessments?patientId=${patientId}`, data, baseUrl);
+};
+
+ApiAssessment.updateAssessmentsData = function ({ patientId, data }) {
+  return api.put(`/assessments?patientId=${patientId}`, data, baseUrl);
+};
+
+ApiAssessment.lastPrescriptionData = function ({ patientId, caseId }) {
   return api.get(
-    `/api/v1/assessments?patientId=${patientId}`,
+    `/assessments/prescriptions/last-prescription?patientId=${patientId}&caseId=${caseId}`,
     baseUrl
   );
 };

@@ -1054,3 +1054,61 @@ export const addOrderToAssessmentFormStructure = (array) => {
     return sectionWithOrder;
   });
 };
+
+export const convertTemplateDataToRichText = (templateData, templateType) => {
+  if (!Array.isArray(templateData)) return [];
+  switch (templateType) {
+    case 'symptoms':
+      return [
+        {
+          type: 'bulleted-list',
+          children: templateData.map(item => ({
+            type: 'list-item',
+            children: [
+              {
+                text: item?.symptom_name || item?.title || item?.symptom || '',
+                bold: true,
+              },
+              {
+                text: (() => {
+                  const parts = [];
+                  if (item.since) parts.push(`since: ${item.since}`);
+                  if (item.severity) parts.push(`severity: ${item.severity}`);
+                  if (item.note) parts.push(item.note);
+                  return parts.length ? ` (${parts.join(', ')})` : '';
+                })(),
+              },
+            ],
+          })),
+        },
+      ];
+    case 'medications':
+      return [
+        {
+          type: 'bulleted-list',
+          children: templateData.map(item => ({
+            type: 'list-item',
+            children: [
+              {
+                text: item.medication_name || '',
+                bold: true,
+              },
+              {
+                text: (() => {
+                  const parts = [];
+                  if (item.unitPerDose) parts.push(`Dose: ${item.unitPerDose}`);
+                  if (item.frequency) parts.push(`Frequency: ${item.frequency}`);
+                  if (item.schedule) parts.push(`Schedule: ${item.schedule}`);
+                  if (item.duration) parts.push(`Duration: ${item.duration}`);
+                  if (item.notes) parts.push(`Instructions: ${item.notes}`);
+                  return parts.length ? ` (${parts.join(', ')})` : '';
+                })(),
+              },
+            ],
+          })),
+        },
+      ];
+    default:
+      return [];
+  }
+};

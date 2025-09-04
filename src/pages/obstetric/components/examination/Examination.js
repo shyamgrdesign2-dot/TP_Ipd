@@ -16,6 +16,7 @@ const Examination = ({
   bottomRef,
   isPreviousPregnancyOverview,
 }) => {
+  console.log('INTEL ==>EXMAINATION', examinationHistory)
   const [open, setOpen] = useState(false);
   const [openTooltipIndex, setOpenTooltipIndex] = useState(null);
   const tableColumns = isPreviousPregnancyOverview

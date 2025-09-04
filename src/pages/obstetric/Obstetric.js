@@ -438,6 +438,7 @@ const Obstetric = ({
       handleObstetricBackBtn();
     }, 1000);
   };
+  console.log('INTEL ==> obstetricDetails', obstetricDetails)
 
   const clearObstetricData = () => {
     handleDrawerObstetric?.();
@@ -560,7 +561,7 @@ const Obstetric = ({
                   />
                 </TabPane>
               )}
-              <TabPane
+              {obstetricDetails?.examinationHistory?.length && <TabPane
                 tab={
                   isPreviousPregnancyOverview
                     ? "Examination History"
@@ -579,7 +580,7 @@ const Obstetric = ({
                   bottomRef={examinationRef}
                   isPreviousPregnancyOverview={isPreviousPregnancyOverview}
                 />
-              </TabPane>
+              </TabPane>}
               <TabPane
                 tab={
                   isPreviousPregnancyOverview ? "ANC History" : "ANC Scheduler"

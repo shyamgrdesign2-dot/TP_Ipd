@@ -16,16 +16,13 @@ import editIcon from '../assets/images/edit.svg';
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import _ from 'lodash';
 import { useDispatch } from 'react-redux';
-import { getLabParamsData } from '../redux/prescriptionSlice';
 import { useLocation } from 'react-router-dom';
 
 
-const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, isBackModalOpen, showHideBackModal, patientGender, isIPD = false  }) => {
-  const dispatch = useDispatch();
+const LabResultsTable = ({ existingDataFromProps, handleAddLabParamsDrawer, patient_unique_id, onSave = () => {}, isBackModalOpen, showHideBackModal, patientGender, isIPD = false  }) => {
 
-  const { state } = useLocation();
-  const { patient_data } = state;
-    const [token, setToken] = useState(null);
+  // console.log('TEJA ==> existingDataFromProps', existingDataFromProps)
+  const [token, setToken] = useState(null);
     const searchRef = useRef(null);
     const [tokenData, setTokenData] = useState(null);
     const [dates, setDates] = useState([]);
@@ -169,23 +166,26 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
         }
     };
 
+    const getLabParams = async () => {
+      try {
+          const cleanedToken = token.replace(/['"]+/g, '');
+          const patientId = patient_unique_id;
+          const response = await axios.get(`${labParamsBaseUrl}/api/v1/lab-parameters/results/${patientId}`, {
+              headers: {
+                  'Authorization': `Bearer ${cleanedToken}`,
+              },
+          });
+          setExistingResults(response.data?.data?.results || []); 
+      } catch (error) {
+          console.error("Error fetching lab params:", error);
+      }
+    };
+
     useEffect(() => {
-        if(token){
+        if(token && !existingDataFromProps){
             getLabParams();
         }
-    },[token])
-
-    const getLabParams = () => {
-      dispatch(
-        getLabParamsData({
-          patient_unique_id: patient_data?.patient_unique_id,
-        })
-      ).then(({payload}) => {
-        payload && setExistingResults(payload);
-      }).catch((err) => {
-            console.error("Error fetching lab params:", err);
-        });
-    };
+    },[token, existingDataFromProps])
   
 
     const onSearch = useCallback((query) => {
@@ -199,11 +199,13 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 setExpandedReports({});
             } else {
                 const labParamsResults = await searchLabParams(searchQuery);
+                console.log('TEJA ==> labParamsResults', labParamsResults)
                 setLabParamsResults(labParamsResults);
             }
         };
         fetchLabParams(); 
     }, [searchQuery]);
+    // console.log('TEJA ==> existingDataFromProps', existingDataFromProps, dates)
     
     useEffect(() => {
         const timeOutId = setTimeout(async () => {
@@ -526,13 +528,15 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
     }, [inputValues]);
     
     useEffect(() => {
-        if (existingResults?.length === 0) {
+      const existingDatesArr = existingDataFromProps || existingResults;
+        if (existingDatesArr?.length === 0) {
             setDates([currentDate]);
         } else {
-            const uniqueDates = [...new Set(existingResults.map((result) => result.date))];
+          console.log('INTEL ==> existingDatesArr', existingDatesArr)
+            const uniqueDates = [...new Set(existingDatesArr?.map((result) => result.date))];
             setDates(uniqueDates);
         }
-    }, [existingResults]);
+    }, [existingResults?.length, existingDataFromProps?.length]);
 
   function replaceDate(inputValues, oldDate, newDate) {
     const updatedValues = { ...inputValues };
@@ -600,7 +604,8 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
 
     const handleInputChange = (reportName, testName, date, value) => {
       setInputValues((prev) => {
-          const updatedData = { ...prev };
+          let updatedData = { ...prev };
+          console.log('INTEL ==> updatedData', updatedData)
   
           if (!updatedData[reportName]) {
               updatedData[reportName] = {};
@@ -624,8 +629,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
           // Update value and calculate arrow direction using existing refRange if available
           const existingRefRange = updatedData[reportName][testName][date].refRange;
           const gender = patientGender || "Male"; // Assuming `patientGender` is available globally or passed in
-  
-          updatedData[reportName][testName][date].value = value;
+          // console.log('INTEL ==> updatedData', updatedData)
+          updatedData[reportName][testName][date] = {
+            ...updatedData[reportName][testName][date],
+            value: value
+          };
           updatedData[reportName][testName][date].arrowDirection = calculateArrowDirection(value, existingRefRange, gender);
   
           // Fetch refRange if not already available
@@ -751,12 +759,22 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
       if (changed) setDates(sorted);
     }, [dates]); 
 
-    const handleSave = async() =>{
+    useEffect(() => {
+      console.log('TEJA ==> existingDataFromProps', existingDataFromProps)
+      setExistingResults(existingDataFromProps)
+    }, [existingDataFromProps])
 
+    const handleSave = async() =>{
+        console.log('INTEL ==> handleSave')
         const currentFilledData = assemblePayload(inputValues);
         const data = combineData(currentFilledData,filledData);
-        
         setFilledData([])
+
+        if (isIPD) {
+          console.log('INTEL ==> handleSave data', data)
+          onSave?.(data);
+          return;
+        }
 
         const payload = {
             patientId: patient_unique_id,
@@ -771,9 +789,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
               baseUrl
             );
             if(response){
-                // onSave();
-                getLabParams();
-                // handleAddLabParamsDrawer(); TODO: INTEL - fix
+              getLabParams();
             }
           } catch (error) {
             console.error("Error:", error);
@@ -948,7 +964,7 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                 </th>
 
                 <th>
-                  <div className='d-flex'>
+                  <div className='d-flex' style={isIPD ? {display: 'flex', justifyContent: 'flex-end'}: {}}>
                 {dates?.length < 2 ? (dates.map((date, index) => (
                   <>
                         <div
@@ -995,11 +1011,11 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
                         />
                       </Tooltip>
                         </div>
-                        <div
+                        {!isIPD ? <div
                       className="date-values"
                           style={{ padding: "10px 0" }}
                     >
-                        </div>
+                        </div>: null}
                   </>
                 ))):(dates.map((date, index) => (
                         <div
@@ -1266,7 +1282,8 @@ const LabResultsTable = ({ handleAddLabParamsDrawer, patient_unique_id, onSave, 
 
                                     <td
                                       colSpan={Object.keys(inputValues).length}
-                                      style={{ padding: 0 }}
+                                      style={{ padding: 0, display: 'flex',
+                                        justifyContent: 'flex-end', }}
                                     >
                                       <div
                                         ref={scrollRef}
