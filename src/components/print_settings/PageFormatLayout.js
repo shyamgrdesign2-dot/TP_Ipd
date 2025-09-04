@@ -135,7 +135,7 @@ function PageFormatLayout() {
                 </div>
                 <Select
                     className="autocomplete-custom"
-                    placeholder="Select Default Languag"
+                    placeholder="Select Default Language"
                     options={LANGUAGE_LIST}
                     value={LANGUAGE_LIST.find(item => item.value == printSettings?.default_language)}
                     onSelect={onSelectDefaultLanguage}
