@@ -588,9 +588,7 @@ function MedicalHistoryBox(props) {
 
     const onSurgicalDateTypeChange = useCallback((value) => {
         setSurgicalDateType(value);
-        if (value === 'year') {
-            setSurgicalDate(null);
-        }
+        setSurgicalDate(null);
     }, []);
     const onSurgicalDateChange = useCallback((date) => {
         setSurgicalDate(date);
