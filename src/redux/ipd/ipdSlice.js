@@ -37,7 +37,6 @@ export const fetchSingleTemplate = createAsyncThunk(
   "ipd/fetchSingleTemplate",
   async (data) => {
     let result = {};
-    console.log('INTEL ==> templateId, type', data);
     try {
       result = await ApiIpdService.fetchSingleTemplate(data);
       return result.data;
@@ -54,7 +53,6 @@ export const getCustomization = createAsyncThunk(
     try {
       let result = {};
       result = await ApiIpdService.getCustomization();
-      console.log('INTEL ==> result', result);
       if (result?.settings) {
         return result?.settings;  
       } else {
@@ -73,7 +71,7 @@ export const updateCustomization = createAsyncThunk(
     try {
       let result = {};
       result = await ApiIpdService.updateCustomization(data);
-      if (result.data?.length) {
+      if (result.message === 'form customization updated successfully.') {
         return result.data;
       } else {
         throw Error(result.error);
@@ -113,11 +111,9 @@ const ipdSlice = createSlice({
       })
       .addCase(updateCustomization.fulfilled, (state, action) => {
         state.loading = false;
-        state.customization = action.payload;
       })
       .addCase(updateCustomization.rejected, (state, action) => {
         state.loading = false;
-        state.customization = [];
       })
       .addCase(fetchSingleTemplate.pending, (state) => {
         state.loading = true;

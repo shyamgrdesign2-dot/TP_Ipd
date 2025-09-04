@@ -10,9 +10,18 @@ import PhysicalExamination from "./PhysicalExamination";
 import FunctionalAssessment from "./FunctionalAssessment";
 import TreatmentPlan from "./TreatmentPlan";
 import NoteSection from "./NoteSection";
-import { getAssessmentsData, lastPrescriptionData } from "../../../redux/ipd/assessmentsFormSlice";
-import { getCustomization, setCustomization } from "../../../redux/ipd/ipdSlice";
-import { getAllDoses, getMedicationTemplates } from "../../../redux/medicationSlice";
+import {
+  getAssessmentsData,
+  lastPrescriptionData,
+} from "../../../redux/ipd/assessmentsFormSlice";
+import {
+  getCustomization,
+  updateCustomization,
+} from "../../../redux/ipd/ipdSlice";
+import {
+  getAllDoses,
+  getMedicationTemplates,
+} from "../../../redux/medicationSlice";
 import { getExaminationTemplates } from "../../../redux/examinationSlice";
 import { getDiagnosisTemplates } from "../../../redux/diagnosisSlice";
 import { getSymptomsTemplates } from "../../../redux/symptomsSlice";
@@ -20,7 +29,10 @@ import { getInvestigationTemplates } from "../../../redux/investigationSlice";
 import { getAdviceTemplates } from "../../../redux/adviceSlice";
 import AddCustomModule from "../../../components/AddCustomModule";
 import { useSelector } from "react-redux";
-import { addOrderToAssessmentFormStructure, convertTemplateDataToRichText } from "../../../utils/utils";
+import {
+  addOrderToAssessmentFormStructure,
+  convertTemplateDataToRichText,
+} from "../../../utils/utils";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -33,35 +45,55 @@ const AssessmentsForm = (props) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
-  const { templates: symptomsTemplates } = useSelector((state) => state.symptoms);
-  const { templates: medicationTemplates } = useSelector((state) => state.medication);
-  const { templates: examinationTemplates } = useSelector((state) => state.examination);
-  const { templates: diagnosisTemplates } = useSelector((state) => state.diagnosis);
-  const { templates: investigationTemplates } = useSelector((state) => state.investigation);
+  const { templates: symptomsTemplates } = useSelector(
+    (state) => state.symptoms
+  );
+  const { templates: medicationTemplates } = useSelector(
+    (state) => state.medication
+  );
+  const { templates: examinationTemplates } = useSelector(
+    (state) => state.examination
+  );
+  const { templates: diagnosisTemplates } = useSelector(
+    (state) => state.diagnosis
+  );
+  const { templates: investigationTemplates } = useSelector(
+    (state) => state.investigation
+  );
   const { templates: adviceTemplates } = useSelector((state) => state.advice);
   const [assessmentsFormItems, setAssessmentsFormItems] = useState([]);
-  const [modelData, setModelData] = useState(IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE);
+  let { medicationData, pillupSwitch } = useSelector(
+    (state) => state.prescription
+  );
+
+  console.log('INTEL ==> medicationData', medicationData)
 
   const { customization = {} } = useSelector((state) => state.ipd);
-  // const {  assessments : modelData = [] } = customization;
+  const { assessments = [] } = customization;
+  const [modelData, setModelData] = useState(assessments);
+
+  useEffect(() => {
+    setModelData(assessments);
+  }, [assessments]);
 
   useEffect(() => {
     // fetch assessments form from api
-    dispatch(getAssessmentsData({ patientId: parseInt(patient_data?.details?.id, 10) }));
+    dispatch(
+      getAssessmentsData({ patientId: parseInt(patient_data?.details?.id, 10) })
+    );
     dispatch(getCustomization());
-    dispatch(lastPrescriptionData({patientId: parseInt(patient_data?.details?.id, 10), caseId: 37891 })); // TODO: INTEL - get from inpatient details (state)
+    dispatch(
+      lastPrescriptionData({
+        patientId: parseInt(patient_data?.details?.id, 10),
+        caseId: 37891,
+      })
+    ); // TODO: INTEL - get from inpatient details (state)
   }, []);
-
-  console.log('INTEL ', IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE)
-
-  useEffect(() => {
-    console.log(addOrderToAssessmentFormStructure(IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE))
-  })
 
   useEffect(() => {
     // fetch all the templates available
     dispatch(getMedicationTemplates());
-    dispatch(getAllDoses())
+    dispatch(getAllDoses());
     dispatch(getExaminationTemplates());
     dispatch(getDiagnosisTemplates());
     dispatch(getSymptomsTemplates());
@@ -101,6 +133,8 @@ const AssessmentsForm = (props) => {
 
   const handleSaveCustomization = () => {
     setShowCustomisationDrawer(false);
+    const newData = { ...customization, assessments: [...modelData] };
+    dispatch(updateCustomization(newData));
   };
 
   const renderBottomSection = () => {
@@ -108,8 +142,8 @@ const AssessmentsForm = (props) => {
       <div className="ipd-custom-module-container">
         <AddCustomModule />
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="afipd-assessments-form-container">
@@ -159,11 +193,6 @@ const AssessmentsForm = (props) => {
           <Suspense fallback={<>Loading ...</>}>
             <Customization
               onModelChange={(e) => {
-                // const newData = {...customization, settings: {
-                //   ...customization.settings,
-                //   assessments: e
-                // }}
-                // dispatch(setCustomization(newData));
                 setModelData(e);
               }}
               customModel={modelData}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons";
 import { useDispatch, useSelector } from "react-redux";

@@ -67,7 +67,6 @@ export const addAssessmentsData = createAsyncThunk(
       try {
         let result = {};
         result = await ApiAssessment.lastPrescriptionData(data);
-        console.log('INTEL ==> result', result);
         if (result.prescription) {
           return result.prescription;
         } else {
