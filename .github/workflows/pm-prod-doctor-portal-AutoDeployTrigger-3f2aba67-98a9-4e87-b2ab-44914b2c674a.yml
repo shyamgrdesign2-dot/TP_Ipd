@@ -44,4 +44,5 @@ jobs:
           resourceGroup: tatva-prod
           imageToBuild: acinacr.azurecr.io/pm-prod-doctor-portal:${{ github.sha }}
           buildArguments: |
-            "REACT_APP_ENV=prod"
+            REACT_APP_ENV=prod
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}

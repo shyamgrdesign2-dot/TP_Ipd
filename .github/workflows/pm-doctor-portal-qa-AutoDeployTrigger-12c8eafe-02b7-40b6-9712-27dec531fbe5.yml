@@ -43,4 +43,5 @@ jobs:
           resourceGroup: tatva-uat
           imageToBuild: practiceqa.azurecr.io/pm-doctor-portal-qa:${{ github.sha }}
           buildArguments: |
-            "REACT_APP_ENV=qa_tp"
+            REACT_APP_ENV=qa_tp
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
