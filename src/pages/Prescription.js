@@ -122,6 +122,21 @@ function Prescription() {
     frequencyList,
     timingList,
   } = useSelector((state) => state.doctors);
+
+  const filterMedicalHistoryForNewConsultation = (medicalHistory, caseManagerData, patientData = null, navigationState = null) => {
+    if (!medicalHistory || !Array.isArray(medicalHistory) || !caseManagerData) {
+      return [];
+    }
+    const tcmId = caseManagerData.tcm_id;
+    const isRepeatRx = tcmId === 0 && navigationState?.send_path === "patient_details";
+    if (isRepeatRx) {
+      return medicalHistory;
+    }
+    if (tcmId === 0) {
+      return [];
+    }
+    return medicalHistory;
+  };
   const { planDetails } = useSelector((state) => state.subscription);
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
@@ -425,7 +440,7 @@ function Prescription() {
         ) !== -1
       ) {
         setMedicalHistoryData(
-          JSON.parse(JSON.stringify(caseManagerData.medical_history))
+          filterMedicalHistoryForNewConsultation(caseManagerData.medical_history, caseManagerData, patient_data, state)
         );
       }
       if (
@@ -702,7 +717,9 @@ function Prescription() {
           })
         );
         if (MH_action.meta.requestStatus === "fulfilled") {
-          setMedicalHistoryData(JSON.parse(JSON.stringify(MH_action.payload)));
+          setMedicalHistoryData(
+            filterMedicalHistoryForNewConsultation(MH_action.payload, caseManagerData, patient_data, state)
+          );
         }
       }
     };
