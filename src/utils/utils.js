@@ -13,6 +13,7 @@ import numeral from "numeral";
 import packageJson from "../../package.json";
 import { EVENTS } from "./events.js";
 import { AISENSY_SCRIPT_CONTAINER,AISENSY_SCRIPT_ID,AISENSY_SCRIPT_SRC } from "../utils/constants";
+import { env } from "../EnvironmentConfig.js";
 // export const validateEmail = (email) => {
 //   return String(email)
 //     .toLowerCase()
@@ -1412,3 +1413,5 @@ export const clearExpiredTokensFromStorage = () => {
     console.error("Error cleaning up expired tokens:", error);
   }
 };
+
+export const isZydus = () => env?.ZYDUS_BUSINESS_ID === getTokenData()?.hospital_business_id;
