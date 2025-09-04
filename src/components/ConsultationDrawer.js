@@ -2103,7 +2103,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
         </>
       </Suspense>
 
-      {!isZydus && visible && (
+      {!isZydus() && visible && (
         <ExpiredSubModal
           title={S_VOICE_RX}
           styles={{
