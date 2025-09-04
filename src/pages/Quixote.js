@@ -61,30 +61,40 @@ function Quixote({ mode = NORMAL, ...props }) {
             key: '6',
             name: `General RBS (mg/dl)`,
         },
-        {
+         {
             key: '7',
-            name: `OFC (cms)`,
+            name: `FIB4 `,
         },
         {
             key: '8',
-            name: `Height (cms)`,
+            name: `Waist Circumference (cms)`,
         },
         {
             key: '9',
-            name: `Weight (kgs)`,
+            name: `OFC (cms)`,
         },
         {
             key: '10',
-            name: `BMI (kg/m²)`,
+            name: `Height (cms)`,
         },
         {
             key: '11',
-            name: `BMR (kcals)`,
+            name: `Weight (kgs)`,
         },
         {
             key: '12',
+            name: `BMI (kg/m²)`,
+        },
+        {
+            key: '13',
+            name: `BMR (kcals)`,
+        },
+        {
+            key: '14',
             name: `BSA (m²)`,
         },
+       
+
     ];
 
     const initialColumns = [
@@ -112,12 +122,14 @@ function Quixote({ mode = NORMAL, ...props }) {
         // initialRows[4][index] = item.blood_press ? item.blood_press.split('/')[1] ? item.blood_press.split('/')[1] : '-' : '-'
         initialRows[4][index] = item.spo2 ? item.spo2 : '-'
         initialRows[5][index] = item.general_rbs ? item.general_rbs : "-";
-        initialRows[6][index] = item.ofc ? item.ofc : "-";
-        initialRows[7][index] = item.height ? item.height : '-'
-        initialRows[8][index] = item.weight ? item.weight : '-'
-        initialRows[9][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'
-        initialRows[10][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
-        initialRows[11][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
+        initialRows[6][index] = item.fib4 ? item.fib4 : '-'
+        initialRows[7][index] = item.waist_circumference ? item.waist_circumference : '-'
+        initialRows[8][index] = item.ofc ? item.ofc : "-";
+        initialRows[9][index] = item.height ? item.height : '-'
+        initialRows[10][index] = item.weight ? item.weight : '-'
+        initialRows[11][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : '-'
+        initialRows[12][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : '-'
+        initialRows[13][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : '-'
     });
 
     const [pdfUrl, setPdfUrl] = useState(null)
@@ -167,6 +179,7 @@ function Quixote({ mode = NORMAL, ...props }) {
                 patientBills={props.patientBills}
                 advanceReceipts={props.advanceReceipts}
                 patientWalletBalance={props.patientWalletBalance}
+                selectedLang={printSettings?.default_language === "English" ? 1 : printSettings?.default_language}
             />).toBlob();
             setPdfUrl(URL.createObjectURL(blob))
             dispatch(setCurrentSessionRx(URL.createObjectURL(blob)));
@@ -189,7 +202,8 @@ function Quixote({ mode = NORMAL, ...props }) {
         fileLogo,
         props.todayVaccines,
         props.growthChartDetails,
-        props.obstetricDetails
+        props.obstetricDetails,
+        printSettings?.default_language
     ]);
 
     const onDocumentLoadSuccess = ({ numPages }) => {

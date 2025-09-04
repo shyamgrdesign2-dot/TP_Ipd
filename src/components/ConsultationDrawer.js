@@ -32,7 +32,7 @@ import { v4 as uuidv4 } from "uuid";
 import CashManagerContext from "../context/CashManagerContext";
 import { addCaseManager, editCaseManager } from "../redux/caseManagerSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { errorMessage, getClinicName, trackEvent, getTokenData, getDeviceSdkData } from "../utils/utils";
+import { errorMessage, getClinicName, trackEvent, getTokenData, getDeviceSdkData, isZydus } from "../utils/utils";
 import { CheckOutlined, CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import deleteModuleIcon from "../assets/images/delete-icon-blue.svg";
 import alertIcon from "../assets/images/alertIcon.svg";
@@ -945,7 +945,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
         ...deviceSdkData,
       });
 
-      if (useVoiceRx) {
+      if (!isZydus() && useVoiceRx) {
         let sendData = {
           b2c_id: profile?.b2c,
           service_name: S_VOICE_RX
@@ -1596,7 +1596,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                 </span>
               </button>
 
-              <FreeTrialButton title={S_VOICE_RX} showHideSubModal={showHideSubModal} />
+              {!isZydus() && <FreeTrialButton title={S_VOICE_RX} showHideSubModal={showHideSubModal} />}
 
               {showPrescription && (
                 <Button
@@ -2103,7 +2103,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
         </>
       </Suspense>
 
-      {visible && (
+      {!isZydus() && visible && (
         <ExpiredSubModal
           title={S_VOICE_RX}
           styles={{

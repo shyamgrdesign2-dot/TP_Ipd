@@ -72,7 +72,9 @@ function VitalsBox(props) {
                 spo2: '',
                 bmr: cal.bmr,
                 bsa: cal.bsa,
-                general_rbs: m.general_rbs
+                general_rbs: m.general_rbs,
+                fib4: '',
+                waist_circumference: ''
             })));
         }
     }, [selectedVitalsList, measurements]);
@@ -97,11 +99,14 @@ function VitalsBox(props) {
                 spo2: '',
                 height: '',
                 weight: '',
+                fib4: '',
+                waist_circumference: '',
                 ofc: '',
                 bmi: cal.bmi,
                 bmr: cal.bmr,
                 bsa: cal.bsa,
                 general_rbs: ''
+
             });
             setChildVitalsData((prev) => [...prev]);
         }
@@ -132,7 +137,9 @@ function VitalsBox(props) {
                 spo2: "",
                 bmr: cal.bmr,
                 bsa: cal.bsa,
-                general_rbs: ''
+                general_rbs: '',
+                fib4: "",
+                waist_circumference: ""
                 },
             );
             setChildVitalsData([...tempVitals]);
@@ -218,6 +225,10 @@ function VitalsBox(props) {
                 childVitalsData[i].ofc = updateValue;
             } else if (flag === 10) {
                 childVitalsData[i].general_rbs = updateValue;
+            }else if (flag === 11) {
+                childVitalsData[i].fib4 = updateValue;
+            }else if (flag === 12) {
+                childVitalsData[i].waist_circumference= updateValue;
             }
             setChildVitalsData((prev) => [...prev]);
         },
@@ -286,6 +297,12 @@ function VitalsBox(props) {
                         </div>
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.general_rbs} addonAfter={'mg/dl'} onChange={(e) => onChangeInput(e.target.value, i, 10)} />
+                        </div>
+                         <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
+                            <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.fib4} addonAfter={<span style={{ width: "24px" }} />}  onChange={(e) => onChangeInput(e.target.value, i, 11)} />
+                        </div>
+                        <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
+                            <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.waist_circumference} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 12)} />
                         </div>
                         {profile?.dp_name === PAEDIATRICS || isGowthChartAccessableFromGB ? <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.ofc} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 9)} />
@@ -383,6 +400,12 @@ function VitalsBox(props) {
                                 </div>
                                 <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     General RBS
+                                </div>
+                                 <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>
+                                    FIB4
+                                </div>
+                                 <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>
+                                    Waist Circumference
                                 </div>
                                 {profile?.dp_name === PAEDIATRICS || isGowthChartAccessableFromGB? <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     OFC

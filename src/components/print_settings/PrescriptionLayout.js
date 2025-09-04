@@ -130,6 +130,10 @@ const checkboxOptions = [
     value: "dose",
   },
   {
+    label: "FREQUENCY",
+    value: "frequency", // ✅ Added
+  },
+  {
     label: "DURATION",
     value: "duration",
   },
@@ -141,6 +145,7 @@ const checkboxOptions = [
     label: "NOTE",
     value: "note",
   },
+
 ];
 
 const obsHistoryCheckboxOptions = [
@@ -339,7 +344,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
           </div>
           <div className="subtitle-customize text-start mt-3">
             <span>Note:</span> The printed information will always include the
-            name of the medicine (brand or generic), and the frequency.
+            name of the medicine (brand or generic). and the frequency.
           </div>
         </>
       ),

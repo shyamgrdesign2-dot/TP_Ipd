@@ -78,6 +78,18 @@ function TabVitalsList(props) {
                                     <div className="fontroboto">{item.general_rbs}</div>
                                 </div>
                             )}
+                            {item.fib4 && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Fib4{<span style={{ width: "24px" }} />} </div>
+                                    <div className="fontroboto">{item.fib4}</div>
+                                </div>
+                            )}
+                            {item.waist_circumference && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Waist Circumference(cms)</div>
+                                    <div className="fontroboto">{item.waist_circumference}</div>
+                                </div>
+                            )}
                             {item.ofc ? (
                                 <div className="d-flex align-items-center justify-content-between mb-12">
                                     <div className="fontroboto">OFC (cms)</div>
@@ -125,7 +137,7 @@ function TabVitalsList(props) {
         return (
             vitalsData.length > 0 &&
             vitalsData.map((item, i) => {
-                if (item.temp || item.pres || item.resp_rate || item.blood_press || item.spo2 || item.ofc || item.height || item.weight || item.bmi || item.bmr || item.bsa) {
+                if (item.temp || item.pres || item.resp_rate || item.blood_press || item.spo2 || item.ofc || item.height || item.weight || item.bmi || item.bmr || item.bsa || item.fib4 || item.waist_circumference ) {
                 return (
                     <div key={i} className="p-10 border-bottom pb-0">
                         <div className="title-sami">
@@ -174,6 +186,19 @@ function TabVitalsList(props) {
                                     <div className="fontroboto">{item.general_rbs}</div>
                                 </div>
                             )}
+                           
+                            {item.fib4 && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Fib4{<span style={{ width: "24px" }} />} </div>
+                                    <div className="fontroboto">{item.fib4}</div>
+                                </div>
+                            )}
+                             {item.waist_circumference && (
+                                <div className="d-flex align-items-center justify-content-between mb-12">
+                                    <div className="fontroboto">Waist Circumference(cms)</div>
+                                    <div className="fontroboto">{item.waist_circumference}</div>
+                                </div>
+                            )}
                             {item.ofc ? (
                                 <div className="d-flex align-items-center justify-content-between mb-12">
                                     <div className="fontroboto">OFC (cms)</div>
@@ -186,7 +211,7 @@ function TabVitalsList(props) {
                                     <div className="fontroboto">{item.height}</div>
                                 </div>
                             )}
-                            {item.weight && (
+                             {item.weight && (
                                 <div className="d-flex align-items-center justify-content-between mb-12">
                                     <div className="fontroboto">Weight (kgs)</div>
                                     <div className="fontroboto">{item.weight}</div>

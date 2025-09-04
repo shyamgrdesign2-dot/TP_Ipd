@@ -13,6 +13,7 @@ import numeral from "numeral";
 import packageJson from "../../package.json";
 import { EVENTS } from "./events.js";
 import { AISENSY_SCRIPT_CONTAINER,AISENSY_SCRIPT_ID,AISENSY_SCRIPT_SRC } from "../utils/constants";
+import { env } from "../EnvironmentConfig.js";
 // export const validateEmail = (email) => {
 //   return String(email)
 //     .toLowerCase()
@@ -916,6 +917,423 @@ export const isValidGST = (gstNumber) => {
   return true; // GST is valid
 };
 
+export const getRxTitle = (LanguageId, title) => {
+    const translations = {
+        1: { // English
+            "S.NO": 'S.NO',
+            "MEDICINE": 'MEDICINE',
+            "DOSE": 'DOSE',
+            "DURATION": 'DURATION',
+            "QTY": 'QTY',
+            "FREQUENCY": 'FREQUENCY',
+            "NOTES": 'NOTES',
+        },
+        2: { // Gujarati
+            "S.NO": 'સંખ્યા',
+            "MEDICINE": 'દવાઓ',
+            "DOSE": 'માત્રા',
+            "DURATION": 'સમયગાળો',
+            "QTY": 'જથ્થો',
+            "FREQUENCY": 'આવર્તન',
+            "NOTES": 'નૉૅધ',
+        },
+        3: { // Hindi
+            "S.NO": 'संख्या',
+            "MEDICINE": 'दवाइयाँ',
+            "DOSE": 'खुराक',
+            "DURATION": 'अवधि',
+            "QTY": 'मात्रा',
+            "FREQUENCY": 'आवृत्ति',
+            "NOTES": 'टिप्पणियाँ',
+        },
+        4: { // Marathi
+            "S.NO": 'अ.क्र.',
+            "MEDICINE": 'औषधे',
+            "DOSE": 'डोस',
+            "DURATION": 'कालावधी',
+            "QTY": 'प्रमाण',
+            "FREQUENCY": 'FREQUENCY',
+            "NOTES": 'नोट्स',
+        },
+        5: { // Telugu 
+            "S.NO": 'S.NO',
+            "MEDICINE": 'MEDICINE',
+            "DOSE": 'DOSE',
+            "DURATION": 'DURATION',
+            "QTY": 'QTY',
+            "FREQUENCY": 'FREQUENCY',
+            "NOTES": 'NOTES',
+        },
+        6: { // Kannada
+            "S.NO": 'ಸಂಖ್ಯೆ',
+            "MEDICINE": 'ಔಷಧಿಗಳು',
+            "DOSE": 'ಡೋಸ್',
+            "DURATION": 'ಅವಧಿ',
+            "QTY": 'ಪ್ರಮಾಣ',
+            "FREQUENCY": 'ಆವರ್ತನ',
+            "NOTES": 'ಟಿಪ್ಪಣಿಗಳು',
+        },
+        7: { // Urdu
+            "S.NO": 'S.NO',
+            "MEDICINE": 'MEDICINE',
+            "DOSE": 'DOSE',
+            "DURATION": 'DURATION',
+            "QTY": 'QTY',
+            "FREQUENCY": 'FREQUENCY',
+            "NOTES": 'NOTES',
+        },
+        8: { // Punjabi
+            "S.NO": 'S.NO',
+            "MEDICINE": 'MEDICINE',
+            "DOSE": 'DOSE',
+            "DURATION": 'DURATION',
+            "QTY": 'QTY',
+            "FREQUENCY": 'FREQUENCY',
+            "NOTES": 'NOTES',
+        },
+        9: { // Malayalam
+            "S.NO": 'S.NO',
+            "MEDICINE": 'MEDICINE',
+            "DOSE": 'DOSE',
+            "DURATION": 'DURATION',
+            "QTY": 'QTY',
+            "FREQUENCY": 'FREQUENCY',
+            "NOTES": 'NOTES',
+        },
+        10: { // Tamil
+            "S.NO": 'எண்',
+            "MEDICINE": 'மருந்துகள்',
+            "DOSE": 'மருந்தளவு',
+            "DURATION": 'கால அளவு',
+            "QTY": 'மொத்த அளவு',
+            "FREQUENCY": 'அதிர்வெண்',
+            "NOTES": 'குறிப்புகள்',
+        },
+        11: { // Assamese
+            "S.NO": 'ক্ৰমিক নম্বৰ',
+            "MEDICINE": 'ঔষধ',
+            "DOSE": 'পৰিমাণ',
+            "DURATION": 'সময়কাল',
+            "QTY": 'পৰিমাণ',
+            "FREQUENCY": 'ঘনত্ব',
+            "NOTES": 'টোকা',
+        },
+        12: { // Bengali
+            "S.NO": 'ক্র.সংখ্যা',
+            "MEDICINE": 'ওষুধ',
+            "DOSE": 'ডোজ',
+            "DURATION": 'সময়কাল',
+            "QTY": 'পরিমাণ',
+            "FREQUENCY": 'ফ্রিকোয়েন্সি',
+            "NOTES": 'নোট',
+        },
+        13: { // Odia
+            "S.NO": 'କ୍ରମିକ ସଂଖ୍ୟା',
+            "MEDICINE": 'ଔଷଧ',
+            "DOSE": 'ଡୋଜ',
+            "DURATION": 'ସମୟ',
+            "QTY": 'ପରିମାଣ',
+            "FREQUENCY": 'ସମୟ ଅନୁସୂଚୀ',
+            "NOTES": 'ଟିପ୍ପଣୀ',
+        }
+    };
+    return translations?.[parseInt(LanguageId)]?.[title] || title;
+}
+
+export const getDurationTitle = (LanguageId, tmm_duration_type) => {
+  var tmm_duration_type = tmm_duration_type.toLowerCase();
+
+  const langTranslations = {
+    1: {
+      // English
+      "day(s)": "Day(S)",
+      "week(s)": "Week(S)",
+      "month(s)": "Month(S)",
+      "year(s)": "Year(S)",
+      "to be continued": "To Be Continued",
+      stat: "STAT",
+      "till required": "Till required",
+    },
+    2: {
+      // Gujarati
+      "day(s)": "દિવસ",
+      "week(s)": "અઠવાડિયા",
+      "month(s)": "મહિનાઓ",
+      "year(s)": "વર્ષ",
+      "to be continued": "ચાલુ રાખો",
+      stat: "તાત્કાલિક",
+      "till required": "જરૂરી ત્યાં સુધી",
+    },
+    3: {
+      // Hindi
+      "day(s)": "दिन",
+      "week(s)": "सप्ताह",
+      "month(s)": "महीने",
+      "year(s)": "वर्षों",
+      "to be continued": "जारी रखो",
+      stat: "तत्काल",
+      "till required": "आवश्यक होने तक",
+    },
+    4: {
+      // Marathi
+      "day(s)": "दिवस",
+      "week(s)": "आठवडे",
+      "month(s)": "महिने",
+      "year(s)": "वर्षे",
+      "to be continued": "जारी रखो",
+      stat: "लगेच",
+      "till required": "आवश्यक तेव्हा पर्यंत",
+    },
+    5: {
+      // Telugu
+      // 'day(s)': 'రోజులు',
+      // 'week(s)': 'వారాలు',
+      // 'month(s)': 'నెలల',
+      // 'year(s)': 'సంవత్సరాలు',
+      // 'to be continued': 'కొనసాగించు',
+      // 'stat': 'తక్షణమే'
+      "day(s)": "Day(S)",
+      "week(s)": "Week(S)",
+      "month(s)": "Month(S)",
+      "year(s)": "Year(S)",
+      "to be continued": "To Be Continued",
+      stat: "STAT",
+      "till required": "Till required",
+    },
+    6: {
+      // Kannada
+      "day(s)": "ದಿನಗಳು",
+      "week(s)": "ವಾರಗಳು",
+      "month(s)": "ತಿಂಗಳುಗಳು",
+      "year(s)": "ವರ್ಷಗಳು",
+      "to be continued": "ಮುಂದುವರೆಸು",
+      stat: "ತಕ್ಷಣವೇ",
+      "till required": "ಅಗತ್ಯವಿರುವವರೆಗೆ",
+    },
+    7: {
+      // Urdu
+      // 'day(s)': 'دن',
+      // 'week(s)': 'ہفتے',
+      // 'month(s)': 'مہینہ',
+      // 'year(s)': 'سال',
+      // 'to be continued': 'جاری رکھو',
+      // 'stat': 'فوراً'
+      "day(s)": "Day(S)",
+      "week(s)": "Week(S)",
+      "month(s)": "Month(S)",
+      "year(s)": "Year(S)",
+      "to be continued": "To Be Continued",
+      stat: "STAT",
+      "till required": "Till required",
+    },
+    8: {
+      // Punjabi
+      // 'day(s)': 'ਦਿਨ',
+      // 'week(s)': 'ਹਫ਼ਤੇ',
+      // 'month(s)': 'ਮਹੀਨੇ',
+      // 'year(s)': 'ਸਾਲ',
+      // 'to be continued': 'ਜਾਰੀ ਰੱਖਿਆ',
+      // 'stat': 'ਸ਼ੁਰੂ ਕਰੋ'
+      "day(s)": "Day(S)",
+      "week(s)": "Week(S)",
+      "month(s)": "Month(S)",
+      "year(s)": "Year(S)",
+      "to be continued": "To Be Continued",
+      stat: "STAT",
+      "till required": "Till required",
+    },
+    9: {
+      // Malayalam
+      // 'day(s)': 'ദിവസങ്ങളിൽ',
+      // 'week(s)': 'ആഴ്ചകൾ',
+      // 'month(s)': 'മാസങ്ങൾ',
+      // 'year(s)': 'വർഷം',
+      // 'to be continued': 'തുടരും',
+      // 'stat': 'സ്ഥിതി'
+      "day(s)": "Day(S)",
+      "week(s)": "Week(S)",
+      "month(s)": "Month(S)",
+      "year(s)": "Year(S)",
+      "to be continued": "To Be Continued",
+      stat: "STAT",
+      "till required": "Till required",
+    },
+    10: {
+      // Tamil
+      "day(s)": "நாட்களில்",
+      "week(s)": "வாரங்கள்",
+      "month(s)": "மாதங்கள்",
+      "year(s)": "ஆண்டு",
+      "to be continued": "தொடரும்",
+      stat: "புள்ளிவிவரங்கள்",
+      "till required": "தேவையான வரை",
+    },
+    11: {
+      // Assamese
+      "day(s)": "দিন",
+      "week(s)": "সপ্তাহসমূহ",
+      "month(s)": "মাহ",
+      "year(s)": "বছৰ",
+      "to be continued": "চলি থাকিব",
+      stat: "ষ্টাট",
+      "till required": "Till required",
+    },
+    12: {
+      // Bengali
+      "day(s)": "দিন",
+      "week(s)": "সপ্তাহগুলি",
+      "month(s)": "মাস",
+      "year(s)": "বছর",
+      "to be continued": "To Be Continued",
+      stat: "স্ট্যাট",
+      "till required": "Till required",
+    },
+    13: {
+      //Odia
+      "day(s)": "ଦିନ",
+      "week(s)": "ସପ୍ତାହଗୁଡ଼ିକ",
+      "month(s)": "ମାସ",
+      "year(s)": "ବର୍ଷ",
+      "to be continued": "ଚାଲୁ ରହିବ",
+      stat: "ଷ୍ଟାଟ୍",
+      "till required": "ଆବଶ୍ୟକ ହେଉଅ ଯାଏଁ",
+    },
+  };
+
+  return (
+    langTranslations[parseInt(LanguageId)][tmm_duration_type] ||
+    tmm_duration_type
+  );
+};
+
+export const getTimeingTitle = (LanguageId) => {
+
+    var FetchColumn = 'tmt_title';
+
+    if (LanguageId == 1) {
+        FetchColumn = 'tmt_title';
+    } else if (LanguageId == 2) {
+        FetchColumn = 'tmt_gujarati';
+    } else if (LanguageId == 3) {
+        FetchColumn = 'tmt_hindi';
+    } else if (LanguageId == 4) {
+        FetchColumn = 'tmt_marathi';
+    } else if (LanguageId == 6) {
+        FetchColumn = 'tmt_kannada';
+    } else if (LanguageId == 10) {
+        FetchColumn = 'tmt_tamil';
+    } else if (LanguageId == 11) {
+        FetchColumn = 'tmt_assamese';
+    } else if (LanguageId == 12) {
+        FetchColumn = 'tmt_bengali';
+    } else if (LanguageId == 13) {
+        FetchColumn = 'tmt_odia';
+    }
+
+    return FetchColumn;
+}
+
+export const getFrequencyTitle = (LanguageId) => {
+
+    var FetchColumn = 'tmf_title';
+
+    if (LanguageId == 1) {
+        FetchColumn = 'tmf_title';
+    } else if (LanguageId == 2) {
+        FetchColumn = 'tmf_gujarati';
+    } else if (LanguageId == 3) {
+        FetchColumn = 'tmf_hindi';
+    } else if (LanguageId == 4) {
+        FetchColumn = 'tmf_marathi';
+    } else if (LanguageId == 6) {
+        FetchColumn = 'tmf_kannada';
+    } else if (LanguageId == 10) {
+        FetchColumn = 'tmf_tamil';
+    } else if (LanguageId == 11) {
+        FetchColumn = 'tmf_assamese';
+    } else if (LanguageId == 12) {
+        FetchColumn = 'tmf_bengali';
+    } else if (LanguageId == 13) {
+        FetchColumn = 'tmf_odia';
+    }
+
+    return FetchColumn;
+}
+
+export const getFrequencyLanguageTitles = (languageId) => {
+    const languageMap = {
+        1: 'english',
+        2: 'gujarati',
+        3: 'hindi',
+        4: 'marathi',
+        6: 'kannada',
+        10: 'tamil',
+        11: 'assamese',
+        12: 'bengali',
+        13: 'odia',
+    };
+
+    const frequencyTitles = {
+        english: {
+            morning: 'Morning',
+            afternoon: 'Afternoon',
+            evening: 'Evening',
+            night: 'Night'
+        },
+        gujarati: {
+            morning: 'સવારે',
+            afternoon: 'બપોર',
+            evening: 'સાંજે',
+            night: 'રાત્રે'
+        },
+        hindi: {
+            morning: 'सुबह',
+            afternoon: 'दोपहर',
+            evening: 'शाम',
+            night: 'रात'
+        },
+        marathi: {
+            morning: 'सकाळी',
+            afternoon: 'दुपारी',
+            evening: 'संध्याकाळ',
+            night: 'रात्री'
+        },
+        kannada: {
+            morning: 'ಬೆಳಗ್ಗೆ',
+            afternoon: 'ಮಧ್ಯಾಹ್ನ',
+            evening: 'ಸಂಜೆ',
+            night: 'ರಾತ್ರಿ'
+        },
+        tamil: {
+            morning: 'காலை பொழுதில்',
+            afternoon: 'மதியம்',
+            evening: 'மாலையில்',
+            night: 'இரவு'
+        },
+        assamese: {
+            morning: 'সকাল',
+            afternoon: 'বিকাল',
+            evening: 'সন্ধ্যা',
+            night: 'ৰাতি'
+        },
+        bengali: {
+            morning: 'সকাল',
+            afternoon: 'দুপুর',
+            evening: 'সন্ধ্যা',
+            night: 'রাত'
+        },
+        odia: {
+            morning: 'ସକାଳ',
+            afternoon: 'ବେଳୁଆ',
+            evening: 'ସନ୍ଧ୍ୟା',
+            night: 'ରାତି'
+        },
+    };
+
+    const language = languageMap[languageId] || 'english';
+    return frequencyTitles[language];
+}
+
 export const shouldMonetizationDisabled = () => {
   const monetizationDisabled = config?.tp_monetization_disabled_hospital;
   const monetizationDisabledArray = monetizationDisabled.map(Number);
@@ -995,3 +1413,5 @@ export const clearExpiredTokensFromStorage = () => {
     console.error("Error cleaning up expired tokens:", error);
   }
 };
+
+export const isZydus = () => env?.ZYDUS_BUSINESS_ID === getTokenData()?.hospital_business_id;

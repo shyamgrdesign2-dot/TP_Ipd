@@ -44,5 +44,8 @@ jobs:
           resourceGroup: tatva-uat
           imageToBuild: acinacr.azurecr.io/pm-uat-doctor-portal:${{ github.sha }}
           buildArguments: |
-            "REACT_APP_ENV=uat" "REACT_APP_CLARITY_ID_UAT=n93vwh8yqg" "REACT_APP_MOENGAGE_LOGS_UAT=1"
+            REACT_APP_ENV=uat
+            REACT_APP_CLARITY_ID_UAT=n93vwh8yqg
+            REACT_APP_MOENGAGE_LOGS_UAT=1
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
   

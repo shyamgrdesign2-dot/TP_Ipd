@@ -1,8 +1,8 @@
 import React, { useCallback, useContext } from "react";
-import { Form, Radio, Select } from "antd";
+import { Form, Radio, Select, Tooltip } from "antd";
 
 import PrintSettingsContext from '../../context/PrintSettingsContext';
-import { FONTS_FAMILY_LIST, FONTS_SIZE_LIST } from "../../utils/constants";
+import { FONTS_FAMILY_LIST, FONTS_SIZE_LIST, LANGUAGE_LIST } from "../../utils/constants";
 
 function PageFormatLayout() {
 
@@ -35,6 +35,18 @@ function PageFormatLayout() {
     const onSelectPatientInfoFontSize = useCallback(
         (data) => {
             printSettings.page_format.patient_info_font_size = data
+            setPrintSettings((prev) => {
+                return {
+                    ...prev
+                };
+            });
+        },
+        [printSettings]
+    );
+
+    const onSelectDefaultLanguage = useCallback(
+        (data) => {
+            printSettings.default_language = data
             setPrintSettings((prev) => {
                 return {
                     ...prev
@@ -109,6 +121,26 @@ function PageFormatLayout() {
                     <Radio.Button className="w-100 text-center" value={true}>Show</Radio.Button>
                     <Radio.Button className="w-100 text-center" value={false}>Hide</Radio.Button>
                 </Radio.Group>
+            </Form.Item>
+
+            <Form.Item>
+                <div className="d-flex align-items-center mb-1">
+                    <label>Default Language</label>
+                     <Tooltip
+                        placement="bottom"
+                        title={"The below selected language will be used by default for all new prescriptions. You can still change it for specific patients while printing their Rx."}
+                        >
+                    <i className="icon-info ms-1" style={{ fontSize: "18px", cursor: "pointer" }} />
+                    </Tooltip>
+                </div>
+                <Select
+                    className="autocomplete-custom"
+                    placeholder="Select Default Language"
+                    options={LANGUAGE_LIST}
+                    value={LANGUAGE_LIST.find(item => item.value == printSettings?.default_language)}
+                    onSelect={onSelectDefaultLanguage}
+                    allowClear
+                />
             </Form.Item>
         </div>
     );
