@@ -141,7 +141,7 @@ function PrescriptionPrintView() {
 
     useEffect(() => {
       const encodedData = btoa(selectedLang.toString());
-      setPrintUrl(`${printUrl}&lg=${encodedData}`);
+      setPrintUrl(`${state.print_url}&pam_id=${pam_id}&lg=${encodedData}`);
     }, [patientBills, advanceReceipts, selectedLang]);
 
     useEffect(() => {
@@ -257,12 +257,13 @@ function PrescriptionPrintView() {
     const onSelect = useCallback(
         (data) => {
             const encodedData = btoa(data.toString());
-            setPrintUrl(`${currentSessionRx || printUrl}&lg=${encodedData}`);
+            setPrintUrl(`${currentSessionRx || state.print_url}&pam_id=${pam_id}&lg=${encodedData}`);
             setSelectedLang(data);
             updatePatientDefaultLanguage({
               patientId: patient_data?.patient_unique_id,
               default_language: data,
             });
+            setCurrentSessionRx(null);
         },
         [selectedLang, printUrl]
     );
