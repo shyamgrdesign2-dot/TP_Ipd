@@ -40,6 +40,15 @@ const IPDPatientDetails = () => {
       },
     });
   };
+
+  const handleAddConsultantNotesClick = () => {
+    navigate("/ipd/patient-details/consultant-notes", {
+      state: {
+        patient_data: patientDetails,
+      },
+    });
+  };
+
   useEffect(() => {
     const data = {
       fullName: patientDetails.details.name,
@@ -53,6 +62,7 @@ const IPDPatientDetails = () => {
   }, [patientDetails]);
   const handleEmptyCtaClick = {
     assessment: handleAddAssessmentClick,
+    consultantNotes: handleAddConsultantNotesClick,
   };
   const patientDetailsMenu = () => {
     return IPD.PATIENT_DETAILS_MENU.map((item) => {

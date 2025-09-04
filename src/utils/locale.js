@@ -143,7 +143,9 @@ export const IPD = {
       icon: noteIcon,
       isEditable: false,
     },
-    { id: 'consult', name: 'Consultant Notes', icon: notepadIcon },
+    { id: 'consultantNotes', name: 'Consultant Notes',
+      mainHeading: 'Consultant Notes',
+      icon: notepadIcon },
     { id: 'ot', name: 'OT Notes', icon: healthIcon },
     { id: 'lab', name: 'Lab Results', icon: glassIcon },
     { id: 'records', name: 'Medical Records', icon: notesIcon },
@@ -317,5 +319,39 @@ export const IPD = {
         { label: 'No', value: 2, name: 'no' },
       ],
     },
-  ]
+  ],
+  CONSULTANT_NOTES_MENU: [
+    { id: 'clinicalAssessment', name: 'Clinical Assessment & Plan', icon: basicInfoBg, renderSection: () => <>hello basic</>, isActive: true },
+    { id: 'vitals', name: 'Vitals', icon: physicalExam },
+    { id: 'medication', name: 'Medication', icon: funcAssess },
+    {
+      id: 'labInvestigation',
+      name: 'Lab Investigation',
+      icon: treatment,
+      isEditable: true,
+    },
+    { id: 'remarks', name: 'Remarks', icon: noteColoured },
+  ],
+  CONSULTANT_NOTES_VITALS : [
+    {
+      name: 'bloodPressure',
+      label: 'Blood Pressure',
+      unit: 'mmHg',
+    },
+    {
+      name: 'temperature',
+      label: 'Temperature',
+      unit: '°F',
+    },
+    {
+      name: 'pulse',
+      label: 'Heart Rate',
+      unit: '/min',
+    },
+    {
+      name: 'respiratoryRate',
+      label: 'Respiratory Rate',
+      unit: 'mmHg',
+    }
+  ],
 };

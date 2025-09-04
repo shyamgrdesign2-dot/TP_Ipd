@@ -991,6 +991,8 @@ const AssessmentsForm = (props) => {
                 return setOpen(false);
               }}
               headerOffset={72}
+              header="Admission Assessment"
+              saveButtonText="Save Admission Assessment"
             />
           )}
         </div>

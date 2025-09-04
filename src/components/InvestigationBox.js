@@ -371,7 +371,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
   );
 
   const onAddTemplateClicked = async () => {
-    if (investigationData.length === 0) {
+    if (investigationData?.length === 0) {
       errorMessage('At least 1 investigation added')
     } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
       errorMessage('Please fillup investigation name')
@@ -400,7 +400,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
   );
 
   const onUpdateTemplateClicked = async () => {
-    if (investigationData.length === 0) {
+    if (investigationData?.length === 0) {
       errorMessage('At least 1 investigation added')
     } else if (investigationData.filter(e => e.investigation_name == "").length > 0) {
       errorMessage('Please fillup investigation name')
@@ -465,7 +465,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
   //Child Componet
   // const TABLE_INVESTIGATION = useMemo(() => {
   //   return (
-  //     investigationData.length > 0 &&
+  //     investigationData?.length > 0 &&
   //     investigationData.map((item, index) => {
   //       return (
   //         <Row
@@ -540,7 +540,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
         <Droppable droppableId="investigation" direction="vertical">
           {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef}>
-              {investigationData.length > 0 &&
+              {investigationData?.length > 0 &&
                 investigationData.map((item, index) => (
                   <Draggable key={index} draggableId={`investigation-${index}`} index={index}>
                     {(provided) => (
@@ -845,7 +845,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
             <Tooltip
               placement="bottom"
               title={
-                investigationData.length > 0
+                investigationData?.length > 0
                   ? ""
                   : "Please enter some Investigation to save a template"
               }
@@ -853,7 +853,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
               <Popover
                 open={popOver2}
                 onOpenChange={() =>
-                  investigationData.length > 0 && showHideSaveTemplatePopOver()
+                  investigationData?.length > 0 && showHideSaveTemplatePopOver()
                 }
                 // onOpenChange={showHideSaveTemplatePopOver}
                 content={SAVE_CONTENT}
@@ -870,7 +870,7 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
             <button
               onClick={showHideClearData}
               className="btn btn-text clear-text d-flex align-items-center"
-              disabled={investigationData.length > 0 ? false : true}
+              disabled={investigationData?.length > 0 ? false : true}
             >
               <i className="icon-eraser1 me-2"></i> <span>Clear</span>
             </button>
