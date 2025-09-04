@@ -106,6 +106,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
   const { TextArea } = Input;
 
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+  const isZydusDoctor = isZydus();
 
   useEffect(() => {
     if (VOICE_RX_planDetails !== undefined && (VOICE_RX_planDetails?.plan_tier === FREE || VOICE_RX_planDetails?.plan_tier === FAILED_VERIFICATION)) {
@@ -368,9 +369,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
   };
 
   const handleSend = async () => {
-    if (VOICE_RX_planDetails?.plan_tier === FREE && VOICE_RX_planDetails?.credit_balance <= 0) {
+    if (!isZydusDoctor && VOICE_RX_planDetails?.plan_tier === FREE && VOICE_RX_planDetails?.credit_balance <= 0) {
       showHideSubModal()
-    } else if (VOICE_RX_planDetails?.plan_tier === FAILED_VERIFICATION) {
+    } else if (!isZydusDoctor && VOICE_RX_planDetails?.plan_tier === FAILED_VERIFICATION) {
       showHideSubModal()
     } else {
       let sendData = {
@@ -380,12 +381,12 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
       const action = await dispatch(checkCredits(sendData));
       if (action.meta.requestStatus === "fulfilled") {
         if (action?.payload?.hasOwnProperty("service_name")) {
-          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
+          if (!isZydusDoctor && action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
             if (action?.payload?.credit_balance != VOICE_RX_planDetails?.credit_balance) {
               await dispatch(services(sendData?.b2c_id))
             }
             showHideSubModal()
-          } else if (action?.payload?.plan_tier === FAILED_VERIFICATION) {
+          } else if (!isZydusDoctor && action?.payload?.plan_tier === FAILED_VERIFICATION) {
             showHideSubModal()
           } else {
             if (!isRecording && !(inputText || editableQuery)) return;
@@ -945,7 +946,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
         ...deviceSdkData,
       });
 
-      if (!isZydus() && useVoiceRx) {
+      if (!isZydusDoctor && useVoiceRx) {
         let sendData = {
           b2c_id: profile?.b2c,
           service_name: S_VOICE_RX
@@ -1596,7 +1597,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                 </span>
               </button>
 
-              {!isZydus() && <FreeTrialButton title={S_VOICE_RX} showHideSubModal={showHideSubModal} />}
+              {!isZydusDoctor && <FreeTrialButton title={S_VOICE_RX} showHideSubModal={showHideSubModal} />}
 
               {showPrescription && (
                 <Button
@@ -2103,7 +2104,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
         </>
       </Suspense>
 
-      {!isZydus() && visible && (
+      {!isZydusDoctor && visible && (
         <ExpiredSubModal
           title={S_VOICE_RX}
           styles={{
