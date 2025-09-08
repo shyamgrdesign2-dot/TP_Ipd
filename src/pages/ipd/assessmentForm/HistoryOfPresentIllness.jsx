@@ -10,7 +10,9 @@ const HistoryOfPresentIllness = (props) => {
   const { isEditable = true, sectionData } = props || {};
   const dispatch = useDispatch();
   const { historyOfPresentIllness } = useSelector((state) => state.assessment);
-  
+
+  if (!isEditable && !historyOfPresentIllness?.length) return null;
+
   return (
     <RichTextEditWrapper
       readOnly={!isEditable}
@@ -22,12 +24,16 @@ const HistoryOfPresentIllness = (props) => {
       showAutoFill={false}
       containerClass="wrapper-class"
       opdDate="15 Jun 2025"
-      initialValue={[
-        {
-          type: "paragraph",
-          children: [{ text: historyOfPresentIllness.length > 0 ? historyOfPresentIllness : "" }],
-        },
-      ]}
+      initialValue={
+        historyOfPresentIllness.length > 0
+          ? historyOfPresentIllness
+          : [
+              {
+                type: "paragraph",
+                children: [{ text: "" }],
+              },
+            ]
+      }
       placeholder={
         "Enter history of present illness, including onset, duration, and progression of symptoms"
       }
@@ -43,12 +49,6 @@ const HistoryOfPresentIllness = (props) => {
       }}
       onTemplate={() => {
         console.log("template");
-      }}
-      onVoiceDictatorClick={(callback) => {
-        console.log("voice dictation");
-        setTimeout(() => {
-          callback();
-        }, 3000);
       }}
     />
   );

@@ -4,20 +4,42 @@ import { IPD } from "../../../utils/locale";
 import { ConfigProvider, Radio } from "antd";
 import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/assessments";
 import { defaultIcons } from "../../../assets/images/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { setFunctionalAssessmentData } from "../../../redux/ipd/assessmentsFormSlice";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const FunctionalAssessment = (props) => {
+  const { functionalAssessmentData = [] } = useSelector(
+    (state) => state.assessment
+  );
+  const [initialValue] = useState(functionalAssessmentData?.others || []);
+  const dispatch = useDispatch();
+  const handleOthersChange = (data) => {
+    dispatch(
+      setFunctionalAssessmentData({ ...functionalAssessmentData, others: data })
+    );
+  };
   const { isEditable = true, sectionData } = props || {};
   const [assessmentValue, setAssessmentValue] = useState({});
 
-  const handleAssessmentChange = (key, e) => {
-    const next = { ...assessmentValue, [key]: e.target.value };
-    console.log("INTEL ==> next", next);
-    setAssessmentValue(next);
+  const handleAssessmentChange = (key, e, item) => {
+    const selectedOption = item.options.find(
+      (option) => option.value === e.target.value
+    );
+    const next = { ...assessmentValue, [key]: selectedOption.label };
+    // setAssessmentValue(next);
+    dispatch(
+      setFunctionalAssessmentData({
+        ...functionalAssessmentData,
+        [key]: selectedOption.label,
+      })
+    );
   };
 
   const renderOthers = (data) => {
+    if (!isEditable && !functionalAssessmentData?.others?.length) return null;
+
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -31,13 +53,18 @@ const FunctionalAssessment = (props) => {
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
-        initialValue={[
-          {
-            type: "paragraph",
-            children: [{ text: "" }],
-          },
-        ]}
+        initialValue={
+          initialValue.length
+            ? initialValue
+            : [
+                {
+                  type: "paragraph",
+                  children: [{ text: "" }],
+                },
+              ]
+        }
         placeholder={"Enter any other examination findings not covered above"} // TODO: INTEL - PLACEHOLDERS CAN ALSO BECOME DYNAMIC
+        onChange={handleOthersChange}
         onSave={() => {
           console.log("save");
         }}
@@ -56,7 +83,53 @@ const FunctionalAssessment = (props) => {
       />
     );
   };
+  const ASSESSMENT_CONFIGS = [
+    { key: "bedActivity", label: "Bed Activity" },
+    { key: "sitting", label: "Sitting" },
+    { key: "standing", label: "Standing" },
+    { key: "ambulation", label: "Ambulation" },
+    {
+      key: "stairClimbing",
+      label: "Stair Climbing",
+      note: "reports fatigue on climbing stairs",
+    },
+    { key: "bedSoreOnAdmission", label: "Bed Sore on Admission" },
+  ];
+
+  const AssessmentDisplay = ({ label, value, note }) => (
+    <span>
+      <span className="assessment-label">{label}:</span> {value}
+      {note && value?.toLowerCase().includes("needs assistance") && (
+        <span className="assessment-note"> ({note})</span>
+      )}
+    </span>
+  );
+
   const renderAssessment = () => {
+    if (!isEditable) {
+      const assessmentComponents = ASSESSMENT_CONFIGS.filter(
+        (config) => functionalAssessmentData?.[config.key]
+      ).map((config) => (
+        <AssessmentDisplay
+          key={config.key}
+          label={config.label}
+          value={functionalAssessmentData[config.key]}
+          note={config.note}
+        />
+      ));
+
+      return (
+        <div className="ipdaf-assessment-readonly">
+          {assessmentComponents.map((component, i) => (
+            <React.Fragment key={i}>
+              {i > 0 && <span className="separator">|</span>}
+              {component}
+            </React.Fragment>
+          ))}
+        </div>
+      );
+    }
+
     return (
       <div className="assessments-parent-container">
         {IPD.FUNCTIONAL_ASSESSMENT.map((item) => (
@@ -78,8 +151,13 @@ const FunctionalAssessment = (props) => {
               <Radio.Group
                 className="assessment-radio-group big-ring-radio"
                 options={item.options}
-                onChange={(e) => handleAssessmentChange(item.key, e)}
-                value={assessmentValue[item.key]}
+                onChange={(e) => handleAssessmentChange(item.key, e, item)}
+                value={
+                  item.options.find(
+                    (option) =>
+                      option.label === functionalAssessmentData[item.key]
+                  )?.value
+                }
               />
             </ConfigProvider>
           </div>
@@ -88,6 +166,7 @@ const FunctionalAssessment = (props) => {
     );
   };
   const renderReferredToPhysiotherapy = (data) => {
+    if (!isEditable) return null; // TODO: INTEL - REFERRED PHYSIO PENDING
     return (
       <div className="referred-to-physiotherapy-container">
         hii there referred doc

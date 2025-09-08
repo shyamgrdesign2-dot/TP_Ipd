@@ -336,6 +336,18 @@ body {
     .read-or-hide {
         color: $theme !important;
     }
+    .ipd-mhl-container {
+        * {
+            font-family: 'Poppins' !important;
+            letter-spacing: 0.1px !important;
+        }
+        b {
+            font-weight: 600 !important;
+        }
+        ul {
+            margin: 0 !important
+        }
+    }
     .cardbody-data {
         .read-or-hide {
             color: $theme !important;

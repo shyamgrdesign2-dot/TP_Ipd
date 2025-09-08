@@ -21,7 +21,7 @@ import { useLocation } from 'react-router-dom';
 
 const LabResultsTable = ({ existingDataFromProps, handleAddLabParamsDrawer, patient_unique_id, onSave = () => {}, isBackModalOpen, showHideBackModal, patientGender, isIPD = false  }) => {
 
-  // console.log('TEJA ==> existingDataFromProps', existingDataFromProps)
+  console.log('TEJA ==> existingDataFromProps', existingDataFromProps)
   const [token, setToken] = useState(null);
     const searchRef = useRef(null);
     const [tokenData, setTokenData] = useState(null);
@@ -532,7 +532,7 @@ const LabResultsTable = ({ existingDataFromProps, handleAddLabParamsDrawer, pati
         if (existingDatesArr?.length === 0) {
             setDates([currentDate]);
         } else {
-          console.log('INTEL ==> existingDatesArr', existingDatesArr)
+          
             const uniqueDates = [...new Set(existingDatesArr?.map((result) => result.date))];
             setDates(uniqueDates);
         }
@@ -605,7 +605,7 @@ const LabResultsTable = ({ existingDataFromProps, handleAddLabParamsDrawer, pati
     const handleInputChange = (reportName, testName, date, value) => {
       setInputValues((prev) => {
           let updatedData = { ...prev };
-          console.log('INTEL ==> updatedData', updatedData)
+          
   
           if (!updatedData[reportName]) {
               updatedData[reportName] = {};
@@ -629,7 +629,7 @@ const LabResultsTable = ({ existingDataFromProps, handleAddLabParamsDrawer, pati
           // Update value and calculate arrow direction using existing refRange if available
           const existingRefRange = updatedData[reportName][testName][date].refRange;
           const gender = patientGender || "Male"; // Assuming `patientGender` is available globally or passed in
-          // console.log('INTEL ==> updatedData', updatedData)
+          
           updatedData[reportName][testName][date] = {
             ...updatedData[reportName][testName][date],
             value: value
@@ -760,18 +760,17 @@ const LabResultsTable = ({ existingDataFromProps, handleAddLabParamsDrawer, pati
     }, [dates]); 
 
     useEffect(() => {
-      console.log('TEJA ==> existingDataFromProps', existingDataFromProps)
       setExistingResults(existingDataFromProps)
     }, [existingDataFromProps])
 
     const handleSave = async() =>{
-        console.log('INTEL ==> handleSave')
+        
         const currentFilledData = assemblePayload(inputValues);
         const data = combineData(currentFilledData,filledData);
         setFilledData([])
 
         if (isIPD) {
-          console.log('INTEL ==> handleSave data', data)
+          
           onSave?.(data);
           return;
         }

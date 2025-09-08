@@ -44,12 +44,17 @@ $muted: #6f6b88;
     border-radius: 16px;
     box-shadow: 0px 0px 6px 0px #00000005;
     padding: 6px 6px 14px;
-    margin-bottom: 24px;
+    margin: 24px;
+  }
+  .ipdaf-box-container-readonly {
+    padding: 6px 6px 0;
+    border: 1px solid #e9e8e8;
   }
   .ipdaf-generic-card-container {
     padding: 12px;
     margin-bottom: 24px;
-    margin-top: 18px;
+    margin-top: 24px;
+    box-shadow: 0px 0px 12px 0px #00000003;
     .generic-card__icon {
       width: 25px;
       height: 25px;
@@ -60,7 +65,6 @@ $muted: #6f6b88;
     table {
       border: 1px solid #f1f1f5 !important;
       border-radius: 14px !important;
-      // overflow: hidden !important;
       border-collapse: unset !important;
       border-spacing: 0 !important;
       margin-bottom: 24px;
@@ -71,12 +75,9 @@ $muted: #6f6b88;
       font-weight: 500 !important;
       line-height: normal !important;
     }
-    td > div {
-        // display: flex;
-        // justify-content: flex-end;
-    }
   }
   .ipdaf-obstetrics-container {
+    margin-top: 14px;
     .ant-table-content {
       table {
         border: none !important;
@@ -102,15 +103,39 @@ $muted: #6f6b88;
   .ipdaf-padding-0 {
     padding: 0 !important;
   }
+  .ipdaf-gynec-readable {
+        background-color: unset !important;
+    div, span, p, table, tr, td, th {
+        background-color: unset !important;
+    }
+    * {
+        background-color: unset !important;
+    }
+  }
+  .ipdaf-margin-0 {
+    margin: 0 !important;
+  }
   .collapsible-wrapper-class {
     .cw__body {
       padding: 0px !important;
-      // border-radius: 16px;
-      // margin-top: 24px;
-      // box-shadow: 0px 0px 6px 0px #00000005;
-      // background-color: #fff;
+    }
+    .cw {
+      box-shadow: none !important;
+      &:hover {
+        box-shadow: none !important;
+      }
     }
   }
+  .collapsible-wrapper-class-readonly {
+    .rich-text-editor-wrapper {
+      gap: 0;
+      margin: 0 20px 24px;
+      border-radius: 10px;
+      background: #ffffff80;
+      box-shadow: 0 0 12px 0 #00000003;
+    }
+  }
+
   .ipdaf-vitals-main-container {
     padding: 20px !important;
     border-radius: 16px;
@@ -124,16 +149,35 @@ $muted: #6f6b88;
     padding: 0 24px 18px;
   }
 }
+
 .ipd-assessments-readable-container {
+  overflow: auto;
+  height: calc(100dvh - 161px);
+  border-radius: 14px;
+  padding-bottom: 84px;
   .rich-text-editor-container {
     border: none !important;
+    margin: 0 28px !important;
+    .slate-editable-wrapper {
+      margin-bottom: 0;
+      min-height: auto;
+      p:has([data-slate-length="0"]) {
+        display: none !important;
+      }
+    }
+  }
+}
+.ipd-gynec-history-wrapper.rich-text-editor-wrapper {
+  gap: 0 !important;
+  * {
+    font-family: Poppins !important;
+    letter-spacing: 0;
   }
 }
 .ipd-lab-params-container {
   table {
     border: 1px solid #f1f1f5 !important;
     border-radius: 14px !important;
-    // overflow: hidden !important;
     border-collapse: unset !important;
     border-spacing: 0 !important;
     background-color: #fafafb !important;
@@ -180,6 +224,27 @@ $muted: #6f6b88;
   }
 }
 
+.ipdaf-vitals-readonly {
+  font-family: Poppins;
+  font-size: 14px;
+  color: #454551;
+  font-weight: normal;
+  line-height: 1.5;
+  padding: 0 34px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  .vital-label {
+    font-weight: 600;
+  }
+
+  .separator {
+    color: #454551;
+    margin: 0 4px;
+  }
+}
+
 .examinations-parent-container {
   display: flex;
   align-items: center;
@@ -220,11 +285,86 @@ $muted: #6f6b88;
   }
 }
 
+.ipdaf-examination-readonly {
+  font-family: Poppins;
+  font-size: 14px;
+  color: #454551;
+  font-weight: normal;
+  line-height: 1.5;
+  padding: 12px 0;
+
+  ul {
+    list-style-type: disc;
+    margin: 0;
+    padding-left: 20px;
+    margin-left: 32px;
+    .ipdaf-exam-read-notes-container {
+      display: flex;
+      justify-content: flex-start;
+      align-items: start;
+      margin-top: 4px;
+      gap: 4px;
+    }
+    .ipdaf-exam-read-notes-heading {
+      font-size: 14px;
+      font-weight: 600;
+      color: #454551;
+    }
+    .rich-text-editor-container {
+      margin: 0 !important;
+      .slate-editable-wrapper {
+        margin: 0 !important;
+      }
+    }
+  }
+
+  .examination-item {
+    margin-bottom: 8px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .examination-label {
+    font-weight: 600;
+  }
+
+  .examination-note {
+    color: #666;
+  }
+}
+
 .assessments-parent-container {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)); // two-column layout
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
   margin-bottom: 24px;
+}
+
+.ipdaf-assessment-readonly {
+  font-family: Poppins;
+  font-size: 14px;
+  color: #454551;
+  font-weight: normal;
+  line-height: 1.5;
+  padding: 12px 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+
+  .assessment-label {
+    font-weight: 600;
+  }
+
+  .assessment-note {
+    font-style: italic;
+    color: #666;
+  }
+
+  .separator {
+    color: #454551;
+    margin: 0 4px;
+  }
 }
 
 .assessment-card {
@@ -251,7 +391,6 @@ $muted: #6f6b88;
   display: grid;
   gap: 12px;
 
-  // antd radio text tone
   .ant-radio-wrapper {
     color: $muted;
     font-size: 16px;
@@ -334,4 +473,11 @@ $muted: #6f6b88;
   button > span {
     color: #fff !important;
   }
+}
+
+.patient-details-container {
+    overflow: hidden !important;
+    .content-card {
+        border: none !important;
+    }
 }

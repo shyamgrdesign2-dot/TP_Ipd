@@ -57,7 +57,7 @@ const Obstetric = ({
   const navigate = useNavigate();
   const { state } = useLocation();
   const { patient_data : patientData, caseManagerData } = state;
-    const patient_data = patientData || patientDataFromProps;
+    const patient_data = patientDataFromProps || patientData;
   const {
     isPatientDiagnosisUpdated,
     isNavigateToObstetric,
@@ -251,9 +251,9 @@ const Obstetric = ({
     }
     if (immunisationDoctorList?.length === 0) {
       let immunisationDoctorListResponse = await fetchImmunisationDoctorList();
-      immunisationDoctorListResponse = immunisationDoctorListResponse?.filter(
+      immunisationDoctorListResponse = Array.isArray(immunisationDoctorListResponse) ? immunisationDoctorListResponse?.filter(
         (item) => !item?.deleted
-      );
+      ) : [];
       if (immunisationDoctorListResponse) {
         dispatch(setImmunisationDoctorList(immunisationDoctorListResponse));
       }
@@ -438,7 +438,6 @@ const Obstetric = ({
       handleObstetricBackBtn();
     }, 1000);
   };
-  console.log('INTEL ==> obstetricDetails', obstetricDetails)
 
   const clearObstetricData = () => {
     handleDrawerObstetric?.();
@@ -628,7 +627,7 @@ const Obstetric = ({
             open={examinationDrawer}
             className="modalWidth-563"
             width="auto"
-            zIndex={200}
+            zIndex={2000}
           >
             <AddExamination
               editIndex={examinationEditIndex}
@@ -662,7 +661,7 @@ const Obstetric = ({
             open={pastPregnancyDrawer}
             className="modalWidth-563"
             width="auto"
-            zIndex={200}
+            zIndex={2000}
           >
             <PastPregnancy
               editIndex={pastPregnancyEditIndex}

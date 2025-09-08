@@ -8,9 +8,11 @@ import LabParams from "../../../components/LabParams";
 import { useDispatch } from "react-redux";
 import { setLabResults } from "../../../redux/ipd/assessmentsFormSlice";
 import { useSelector } from "react-redux";
+import { formatDateToShortMonthYear } from "../../../utils/utils";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const GenericCard = createRemoteComponent("GenericCard");
+const AutoFillButton = createRemoteComponent("AutoFillButton");
 
 const LabResults = (props) => {
   const { isEditable = true, sectionData, patient_data } = props || {};
@@ -24,10 +26,6 @@ const LabResults = (props) => {
     setAddlabparamsDrawer(!addlabparamsDrawer);
   }, [addlabparamsDrawer]);
 
-  useEffect(() => {
-    dispatch(setLabResults(lastPrescriptionDataForAssessment?.labResults?.results))
-  }, [lastPrescriptionDataForAssessment?.labResults?.results])
-
   const handleAddLabResults = () => {
     handleAddLabParamsDrawer();
   };
@@ -37,10 +35,36 @@ const LabResults = (props) => {
   };
 
   const handleLabParamsUpdate = (data) => {
-    dispatch(setLabResults(data))
-      handleAddLabParamsDrawer()
+    dispatch(setLabResults(data));
+    handleAddLabParamsDrawer();
   };
+
   
+  const renderAutoFillButton = useCallback(() => {
+    const { labResults: lastLabResults = {} } = lastPrescriptionDataForAssessment || {};
+    const { modifiedAt, results, createdAt, date } = lastLabResults;
+    return (
+      <AutoFillButton
+        onClick={(data, e) => {
+          e?.stopPropagation();
+
+          if (data?.[0] === "undo") {
+            dispatch(setLabResults([]));
+            return;
+          }
+          if (results && !labResults?.length) {
+            dispatch(setLabResults(results));
+          } else {
+            dispatch(setLabResults([...labResults, ...results]));
+          }
+        }}
+        title={`Autofill Lab Results Details From OPD (${formatDateToShortMonthYear(
+          modifiedAt || createdAt || date
+        )})`}
+      />
+    );
+  }, [lastPrescriptionDataForAssessment, labResults]);
+
   const renderLabResultsBody = useCallback(() => {
     return (
       <div
@@ -58,13 +82,19 @@ const LabResults = (props) => {
         ) : null}
         {isEditable ? (
           <div onClick={handleAddLabResults}>
-            <GenericCard icon={defaultIcons.plusIconColoured} title={"Add Lab Results"} />
+            <GenericCard
+              icon={defaultIcons.plusIconColoured}
+              title={"Add Lab Results"}
+            >
+              {renderAutoFillButton()}
+            </GenericCard>
           </div>
         ) : null}
       </div>
     );
-  }, [labResults]);
+  }, [labResults, lastPrescriptionDataForAssessment]);
 
+  if (!isEditable && !labResults?.length) return null;
   return (
     <>
       <RichTextEditWrapper
@@ -75,19 +105,9 @@ const LabResults = (props) => {
         width="100%"
         containerClass="wrapper-class"
         icon={defaultIcons[sectionData?.icon]}
-        showAutoFill={isEditable}
-        opdDate="15 Jun 2025"
-        onAutoFill={() => {
-          console.log("auto fill");
-        }}
-        onSave={() => {
-          console.log("save");
-        }}
+        showAutoFill={false}
         onErase={() => {
           console.log("erase");
-        }}
-        onTemplate={() => {
-          console.log("template");
         }}
         renderBody={renderLabResultsBody}
       />

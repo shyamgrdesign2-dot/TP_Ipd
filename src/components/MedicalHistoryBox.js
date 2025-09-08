@@ -41,7 +41,7 @@ const showDateFormat = 'DD-MM-YYYY'
 
 function MedicalHistoryBox(props) {
 
-    const { handleDrawerMedicalHistory, handleCollapsed, onSave, patientDataFromProps } = props
+    const { handleDrawerMedicalHistory, handleCollapsed, onSave, patientDataFromProps, showMenstrualHistory = true, showMedicalHistory = true } = props
     const { TabPane } = Tabs;
     const {
         searchList,
@@ -107,7 +107,7 @@ function MedicalHistoryBox(props) {
     const [inputPadsNum, setInputPadsNum] = useState(null);
     const { state } = useLocation();
     const { patient_data : patientData, caseManagerData } = state;
-    const patient_data = patientData || patientDataFromProps;
+    const patient_data = patientDataFromProps || patientData;
     const [gynecLoading, setGynecLoading] = useState(false);
     const [gynecHistory, setGynecHistory] = useState({});
     const [expandRemarks,setExpandRemarks] = useState(true);
@@ -1092,7 +1092,7 @@ function MedicalHistoryBox(props) {
                     </div>
                 </div>
                 <Tabs defaultActiveKey="gynec" onChange={onTabChange}>
-                    {isGynaecHistoryAccessable &&
+                    {isGynaecHistoryAccessable && showMenstrualHistory &&
                         <TabPane tab="Menstrual History" key="gynec">
                             <div style={{ marginTop: "-1rem" }}>
                                 <Row>
@@ -1527,7 +1527,8 @@ function MedicalHistoryBox(props) {
                             </div>
                         </TabPane>
                     }
-                    <TabPane tab="Medical History" key="medical">
+                    {showMedicalHistory &&
+                        <TabPane tab="Medical History" key="medical">
                         <div style={{ marginTop: "-1rem" }}>
                             <Row>
                                 <Col lg={15}>
@@ -1837,7 +1838,7 @@ function MedicalHistoryBox(props) {
                                 </Col>
                             </Row>
                         </div>
-                    </TabPane>
+                    </TabPane>}
                 </Tabs>
             </Card>
             {shouldShowVideo && (

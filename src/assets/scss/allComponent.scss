@@ -2641,7 +2641,7 @@ body {
   color: #4b4ad5 !important; /* Applies the color to the Ant Design icon */
 }
 
-.show-more-link:hover {
+.show-more-link:hover, .text-underline {
   text-decoration: underline !important;
 }
 
@@ -2985,4 +2985,13 @@ body {
 
 .ant-notification-notice, .ant-notification-notice-error, .ant-notification-notice-closable {
   display: none !important;
+}
+.ipdaf-gynec-readable {
+  background-color: unset !important;
+div, span, p, table, tr, td, th {
+  background-color: unset !important;
+}
+* {
+  background-color: unset !important;
+}
 }

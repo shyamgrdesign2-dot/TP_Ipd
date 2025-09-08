@@ -1,12 +1,13 @@
 import React from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import ChiefComplaint from "./ChiefComplaint";
-import HistoryOfPresentIllness from "./HistoryOfPresentIllness";
-import CurrentMedications from "./CurrentMedications";
-import LabResults from "./LabResults";
-import PastMedicalHistory from "./PastMedicalHistory";
-import ObstetricHistory from "./ObstetricHistory";
+import ChiefComplaint from "./ChiefComplaint.jsx";
+import HistoryOfPresentIllness from "./HistoryOfPresentIllness.jsx";
+import CurrentMedications from "./CurrentMedications.jsx";
+import LabResults from "./LabResults.jsx";
+import PastMedicalHistory from "./PastMedicalHistory.jsx";
+import ObstetricHistory from "./ObstetricHistory.jsx";
 import { defaultIcons } from "../../../assets/images/icons/assessments";
+import GynecHistory from "./GynecHistory.jsx";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const AutoFillButton = createRemoteComponent("AutoFillButton");
@@ -36,6 +37,8 @@ const BasicInfo = (props) => {
           return <LabResults {...props} sectionData={item} />;
         case "pastMedicalHistory":
           return <PastMedicalHistory {...props} sectionData={item} />;
+        case "gynecHistory":
+            return <GynecHistory {...props} sectionData={item} />;
         case "obstetricHistory":
           return <ObstetricHistory {...props} sectionData={item} />;
         default:
@@ -50,9 +53,9 @@ const BasicInfo = (props) => {
       icon={defaultIcons[sectionData?.icon]}
       collapsible={isEditable} // TODO: INTEL - TO BE USED for view details screen
       width={"100%"}
-      className={"collapsible-wrapper-class"}
+      className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
       defaultOpen
-      renderRightHeaderSection={isEditable ? renderAutoFillButton : null}
+    //   renderRightHeaderSection={isEditable ? renderAutoFillButton : null} // TODO: INTEL - UNCOMMENT IT ONCE READY
     >
       {renderChildren()}
     </CollapsibleWrapper>

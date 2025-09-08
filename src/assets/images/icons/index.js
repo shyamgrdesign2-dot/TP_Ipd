@@ -24,6 +24,7 @@ import aiRefineGif from "./ai-refine.gif";
 import template from "./template.webp";
 import save from "./save.webp";
 import settingsIcon from "./settings.svg";
+import settingsPrimaryIcon from "./settings-primary.svg";
 import erase from "./eraser.webp";
 import plusIcon from "./plus.svg";
 import plusIconColoured from "./plus-coloured.svg";
@@ -31,6 +32,10 @@ import copy from "./copy.webp";
 import closeSecondary from "./close-secondary.webp";
 import arrowIcon from "./arrow-icon.svg";
 import infoIcon from "./info.svg";
+import editPrimary from "./edit-primary.svg";
+import plainDocument from "./plain-document.svg";
+import eyeIcon from "./eye.svg";
+import printerIcon from "./printer.svg";
 import editIcon from "./edit.svg";
 import hospitalIcon from "./hospital.svg";
 import doctorIcon from "./doctor.svg";
@@ -55,6 +60,7 @@ import physicalExam from "./physical-exam.svg";
 import basicInfo from "./basic-info.svg";
 import basicInfoBg from "./basic-info-bg.svg";
 import funcAssess from "./func-assess.svg";
+import downloadIcon from "./download.svg";
 import treatment from "./treatment.svg";
 
 // Icon exports
@@ -114,4 +120,10 @@ export const defaultIcons = {
   vitalsDarkColoured,
   folderDark,
   recordPadDark,
+  eyeIcon,
+  printerIcon,
+  editPrimary,
+  downloadIcon,
+  settingsPrimaryIcon,
+  plainDocument
 };

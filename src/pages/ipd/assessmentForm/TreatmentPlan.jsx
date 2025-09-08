@@ -1,13 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/assessments";
 import { defaultIcons } from "../../../assets/images/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { setTreatmentPlanData } from "../../../redux/ipd/assessmentsFormSlice";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const TreatmentPlan = (props) => {
   const { isEditable = true, sectionData } = props || {};
+  const { treatmentPlanData = {} } = useSelector((state) => state.assessment);
+  const [initialValue] = useState(treatmentPlanData || {});
+  const dispatch = useDispatch();
+  const handleOthersChange = (data, key) => {
+    dispatch(setTreatmentPlanData({ ...treatmentPlanData, [key]: data }));
+  };
 
   const renderChildren = () => {
     return sectionData?.children?.map((item) => {
@@ -22,6 +30,8 @@ const TreatmentPlan = (props) => {
     });
   };
   const renderImmediateManagement = (data) => {
+    if (!isEditable && !treatmentPlanData?.immediateManagement) return null;
+
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -35,12 +45,17 @@ const TreatmentPlan = (props) => {
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
-        initialValue={[
-          {
-            type: "paragraph",
-            children: [{ text: "" }],
-          },
-        ]}
+        onChange={(data) => handleOthersChange(data, "immediateManagement")}
+        initialValue={
+          initialValue?.immediateManagement
+            ? initialValue?.immediateManagement
+            : [
+                {
+                  type: "paragraph",
+                  children: [{ text: "" }],
+                },
+              ]
+        }
         placeholder={
           "Enter immediate management like emergency interventions or initial treatment" // TODO: INTEL - PLACEHOLDERS CAN ALSO BECOME DYNAMIC
         }
@@ -63,6 +78,7 @@ const TreatmentPlan = (props) => {
     );
   };
   const renderMonitoringPlan = (data) => {
+    if (!isEditable && !treatmentPlanData?.monitoringPlan) return null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -76,12 +92,17 @@ const TreatmentPlan = (props) => {
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
-        initialValue={[
-          {
-            type: "paragraph",
-            children: [{ text: "" }],
-          },
-        ]}
+        onChange={(data) => handleOthersChange(data, "monitoringPlan")}
+        initialValue={
+          initialValue?.monitoringPlan
+            ? initialValue?.monitoringPlan
+            : [
+                {
+                  type: "paragraph",
+                  children: [{ text: "" }],
+                },
+              ]
+        }
         placeholder={
           "Enter monitoring plan like vitals charting, labs, or daily observations"
         }
@@ -103,6 +124,14 @@ const TreatmentPlan = (props) => {
       />
     );
   };
+
+  if (
+    !isEditable &&
+    !treatmentPlanData?.monitoringPlan &&
+    !treatmentPlanData?.immediateManagement
+  )
+    return null;
+
   return (
     <>
       <CollapsibleWrapper

@@ -25,17 +25,18 @@ const PastMedicalHistory = (props) => {
     return (
       <div
         className={`ipdaf-generic-card-container ${
-          medicalHistoryData?.length ? "ipdaf-padding-0" : ""
+          medicalHistoryData?.length ? "ipdaf-padding-0 ipdaf-margin-0" : ""
         }`}
       >
         {medicalHistoryData?.length ? 
-        // isMobile ?  (
+        // isMobile ?  ( // TODO: INTEL - HANDLE TAB
         //   <TabMedicalHistoryList
         //     patientDataFromProps={patientDataForOPDComponents}
         //   />
         // ) :
         <MedicalHistoryList
             patientDataFromProps={patientDataForOPDComponents}
+            isIPD={true}
         /> : null}
         {isEditable ? (
           <div onClick={handleAddMedicalHistory}>
@@ -53,6 +54,7 @@ const PastMedicalHistory = (props) => {
     );
   };
 
+  if (!isEditable && !medicalHistoryData?.length) return null;
   return (
     <>
     <RichTextEditWrapper
@@ -99,6 +101,8 @@ const PastMedicalHistory = (props) => {
             handleCollapsed={handleAddMedicalHistory}
             onSave={handleAddMedicalHistory} // TODO: INTEL - fix
             patientDataFromProps={patientDataForOPDComponents}
+            showMenstrualHistory={false}
+            showMedicalHistory={true}
           />
         </Drawer>
       )}

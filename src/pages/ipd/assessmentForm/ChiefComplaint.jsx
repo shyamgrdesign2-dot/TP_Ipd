@@ -9,8 +9,8 @@ import { fetchSingleTemplate } from "../../../redux/ipd/ipdSlice";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const ChiefComplaint = (props) => {
-  // You can pass props as needed, e.g., isEditable, initialValue, etc.
-  const { isEditable = true, sectionData } = props || {};
+    // You can pass props as needed, e.g., isEditable, initialValue, etc.
+    const { isEditable = true, sectionData } = props || {};
   const dispatch = useDispatch();
   const { chiefComplaint, lastPrescriptionDataForAssessment } = useSelector(
     (state) => state.assessment
@@ -54,6 +54,8 @@ const ChiefComplaint = (props) => {
       setAutoFillTextToAppend(chiefComplaintFromLastPrescription);
     }
   }
+
+  if (!isEditable && !chiefComplaint?.length) return null;
 
   return (
     <RichTextEditWrapper

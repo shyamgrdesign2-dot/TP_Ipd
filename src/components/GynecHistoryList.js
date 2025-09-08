@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
 function GynecHistoryList(props) {
-    const {gynecHistory: gynecHistoryFromProps} = props
+    const {gynecHistory: gynecHistoryFromProps, showTitle = true} = props
     const [accordionItems, setAccordionItems] = useState([]);
 
     const  dispatch = useDispatch();
@@ -20,9 +20,12 @@ function GynecHistoryList(props) {
     const { patient_data } = state;
     
     const gynecHistory = gynecHistoryFromProps || gynecHistoryFromStore;
-
+    
+    
     useEffect(() => {
+        
         if (!gynecHistory) {
+        
             dispatch(
               fetchGynecHistory({
                 patientId: patient_data.patient_unique_id,
@@ -30,7 +33,7 @@ function GynecHistoryList(props) {
               })
             );
         }
-    }, []);
+    }, [gynecHistory.length]);
 
     const filteredGynecHistory = Object.keys(gynecHistory || {}).reduce((acc, key) => {
         if ( key !== 'reproductiveLifeStages' ) {
@@ -44,72 +47,110 @@ function GynecHistoryList(props) {
             const data = [];
             const updateData = {
                 key: `${1}`,
-                label: <div className="fw-semibold">Menstrual Details</div>,
+                label: showTitle ? <ul style={{margin: 0}}><li className="fw-semibold">Menstrual Details</li></ul> : null,
                 children: (
-                    <>
-                        <div className="cardbody-data border rounded px-2 my-2">
-                            <div className="my-2">
-                                {gynecHistory.lmp && (
-                                    <> <span>LMP</span> : <label>{moment(gynecHistory.lmp).format('DD/MM/YYYY')}</label> </>
-                                )}
-                            </div>
-                            <div className="my-2">
-                                {gynecHistory.ageAtMenarche && (
-                                    <> <span>Menarche at</span> : <label>{gynecHistory.ageAtMenarche} years</label> | </>
-                                )}
-                                {gynecHistory.menarcheNotes && (
-                                    <> <span> Menarche notes</span> : <label>{gynecHistory.menarcheNotes}</label> | </>
-                                )}
-                                {gynecHistory.cycle && (
-                                    <> <span>Cycle</span> : <label>{gynecHistory.cycle}</label> | </>
-                                )}
-                                {gynecHistory.intervalOfCycle && (
-                                    <> <span>Cycle Interval</span> : <label>{gynecHistory.intervalOfCycle} days</label> | </>
-                                )}
-                                {gynecHistory.cycleNotes && (
-                                    <> <span>Cycle Note</span> : <label>{gynecHistory.cycleNotes}</label> | </>
-                                )}
-                                {gynecHistory.flow && (
-                                    <> <span>Flow</span> : <label>{gynecHistory.flow}</label> | </>
-                                )}
-                                {gynecHistory.durationOfMenstrualFlow && (
-                                    <> <span>Duration</span> : <label>{gynecHistory.durationOfMenstrualFlow} days</label> | </>
-                                )}
-                                {gynecHistory.clots !== undefined && gynecHistory.clots !== '' && (
-                                    <> <span> Clots</span> : <label>{gynecHistory.clots ? 'Yes' : 'No'}</label> | </>
-                                )}
-                                {gynecHistory.numberOfPadsPerDay && (
-                                    <> <span> Pads per day</span> : <label>{gynecHistory.numberOfPadsPerDay}</label> | </>
-                                )}
-                                {gynecHistory.flowNotes && (
-                                    <> <span> Flow notes</span> : <label>{gynecHistory.flowNotes}</label> | </>
-                                )}
-                                {gynecHistory.pain && (
-                                    <> <span>Pain</span> : <label>{gynecHistory.pain}</label> | </>
-                                )}
-                                {gynecHistory.occurrenceOfPain && (
-                                    <> <span> Occurrence</span> : <label>{gynecHistory.occurrenceOfPain}</label> | </>
-                                )}
-                                {gynecHistory.painNotes && (
-                                    <> <span> Pain note</span> : <label>{gynecHistory.painNotes}</label> | </>
-                                )}
-                                {gynecHistory.ageAtMenopause && (
-                                    <> <span>{gynecHistory?.reproductiveLifeStages} at</span> : <label>{gynecHistory.ageAtMenopause} years</label> | </>
-                                )}
-                                {gynecHistory.typeOfMenopause && (
-                                    <> <span>{gynecHistory?.reproductiveLifeStages} type</span> : <label>{gynecHistory.typeOfMenopause}</label> | </>
-                                )}
-                                {gynecHistory.reproductiveNotes && (
-                                    <> <span>{gynecHistory?.reproductiveLifeStages} note</span> : <label>{gynecHistory.reproductiveNotes}</label> </>
-                                )}
-                            </div>
-                            <div className="my-2">
-                                {gynecHistory.notes && (
-                                    <> <span>Menstruation notes</span> : <label>{gynecHistory.notes}</label> </>
-                                )}
-                            </div>
-                        </div>
-                    </>
+                    <div className="cardbody-data ipd-mhl-cardbody">
+                        <ul style={{paddingLeft: '36px', paddingRight: '36px'}}>
+                            {gynecHistory.lmp && (
+                                <li key={Math.random()} className="my-2">
+                                    <span>LMP</span> : <label>{moment(gynecHistory.lmp).format('DD/MM/YYYY')}</label>
+                                </li>
+                            )}
+                            {gynecHistory.ageAtMenarche && (
+                                <li key={Math.random()} className="my-2">
+                                    <span>Menarche at</span> : <label>{gynecHistory.ageAtMenarche} years</label>
+                                    {gynecHistory.menarcheNotes && (
+                                        <> (<span>Menarche notes</span> : <label>{gynecHistory.menarcheNotes}</label>)</>
+                                    )}
+                                </li>
+                            )}
+                            {(gynecHistory.cycle || gynecHistory.intervalOfCycle || gynecHistory.cycleNotes) && (
+                                <li key={Math.random()} className="my-2">
+                                    {gynecHistory.cycle && (
+                                        <><span>Cycle</span> : <label>{gynecHistory.cycle}</label></>
+                                    )}
+                                    {(gynecHistory.intervalOfCycle || gynecHistory.cycleNotes) && (
+                                        <> (<>
+                                            {gynecHistory.intervalOfCycle && (
+                                                <><span>Cycle Interval</span> : <label>{gynecHistory.intervalOfCycle} days</label></>
+                                            )}
+                                            {gynecHistory.intervalOfCycle && gynecHistory.cycleNotes && <>, </>}
+                                            {gynecHistory.cycleNotes && (
+                                                <><span>Cycle Note</span> : <label>{gynecHistory.cycleNotes}</label></>
+                                            )}
+                                        </>)</>
+                                    )}
+                                </li>
+                            )}
+                            {(gynecHistory.flow || gynecHistory.durationOfMenstrualFlow || gynecHistory.clots || gynecHistory.numberOfPadsPerDay || gynecHistory.flowNotes) && (
+                                <li key={Math.random()} className="my-2">
+                                    {gynecHistory.flow && (
+                                        <><span>Flow</span> : <label>{gynecHistory.flow}</label></>
+                                    )}
+                                    {(gynecHistory.durationOfMenstrualFlow || gynecHistory.clots || gynecHistory.numberOfPadsPerDay || gynecHistory.flowNotes) && (
+                                        <> (<>
+                                            {gynecHistory.durationOfMenstrualFlow && (
+                                                <><span>Duration</span> : <label>{gynecHistory.durationOfMenstrualFlow} days</label></>
+                                            )}
+                                            {gynecHistory.durationOfMenstrualFlow && (gynecHistory.clots || gynecHistory.numberOfPadsPerDay || gynecHistory.flowNotes) && <>, </>}
+                                            {gynecHistory.clots !== undefined && gynecHistory.clots !== '' && (
+                                                <><span>Clots</span> : <label>{gynecHistory.clots ? 'Yes' : 'No'}</label></>
+                                            )}
+                                            {gynecHistory.clots !== undefined && gynecHistory.clots !== '' && (gynecHistory.numberOfPadsPerDay || gynecHistory.flowNotes) && <>, </>}
+                                            {gynecHistory.numberOfPadsPerDay && (
+                                                <><span>Pads per day</span> : <label>{gynecHistory.numberOfPadsPerDay}</label></>
+                                            )}
+                                            {gynecHistory.numberOfPadsPerDay && gynecHistory.flowNotes && <>, </>}
+                                            {gynecHistory.flowNotes && (
+                                                <><span>Flow notes</span> : <label>{gynecHistory.flowNotes}</label></>
+                                            )}
+                                        </>)</>
+                                    )}
+                                </li>
+                            )}
+                            {(gynecHistory.pain || gynecHistory.occurrenceOfPain || gynecHistory.painNotes) && (
+                                <li key={Math.random()} className="my-2">
+                                    {gynecHistory.pain && (
+                                        <><span>Pain</span> : <label>{gynecHistory.pain}</label></>
+                                    )}
+                                    {(gynecHistory.occurrenceOfPain || gynecHistory.painNotes) && (
+                                        <> (<>
+                                            {gynecHistory.occurrenceOfPain && (
+                                                <><span>Occurrence</span> : <label>{gynecHistory.occurrenceOfPain}</label></>
+                                            )}
+                                            {gynecHistory.occurrenceOfPain && gynecHistory.painNotes && <>, </>}
+                                            {gynecHistory.painNotes && (
+                                                <><span>Pain note</span> : <label>{gynecHistory.painNotes}</label></>
+                                            )}
+                                        </>)</>
+                                    )}
+                                </li>
+                            )}
+                            {(gynecHistory.ageAtMenopause || gynecHistory.typeOfMenopause || gynecHistory.reproductiveNotes) && gynecHistory?.reproductiveLifeStages && (
+                                <li key={Math.random()} className="my-2">
+                                    {gynecHistory.ageAtMenopause && (
+                                        <><span>{gynecHistory?.reproductiveLifeStages} at</span> : <label>{gynecHistory.ageAtMenopause} years</label></>
+                                    )}
+                                    {(gynecHistory.typeOfMenopause || gynecHistory.reproductiveNotes) && (
+                                        <> (<>
+                                            {gynecHistory.typeOfMenopause && (
+                                                <><span>{gynecHistory?.reproductiveLifeStages} type</span> : <label>{gynecHistory.typeOfMenopause}</label></>
+                                            )}
+                                            {gynecHistory.typeOfMenopause && gynecHistory.reproductiveNotes && <>, </>}
+                                            {gynecHistory.reproductiveNotes && (
+                                                <><span>{gynecHistory?.reproductiveLifeStages} note</span> : <label>{gynecHistory.reproductiveNotes}</label></>
+                                            )}
+                                        </>)</>
+                                    )}
+                                </li>
+                            )}
+                            {gynecHistory.notes && (
+                                <li key={Math.random()} className="my-2">
+                                    <span>Menstruation notes</span> : <label>{gynecHistory.notes}</label>
+                                </li>
+                            )}
+                        </ul>
+                    </div>
                 )
             };
     

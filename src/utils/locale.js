@@ -36,7 +36,7 @@ export const IPD = {
       enabled: true,
       expanded: false,
       children: [
-        { placeholder: "", id: 'chiefComplaint', title: 'Chief Complaint', enabled: true, icon: "roundDotted" },
+        { placeholder: "", id: 'chiefComplaint', title: 'Chief Complaints', enabled: true, icon: "roundDotted" },
         {
           placeholder: "", id: 'historyPresentIllness',
           title: 'History of Present Illness',
@@ -52,7 +52,7 @@ export const IPD = {
         { placeholder: "", id: 'investigations', title: 'Lab Results', enabled: true, icon: "lab" },
         { placeholder: "", id: 'pastMedicalHistory', title: 'Past Medical History', enabled: true, icon: "recordPad" },
         { placeholder: "", id: 'obstetricHistory', title: 'Obstetric History', enabled: true, icon: "obstetrics" },
-        // { id: 'gh', title: 'Gynaec History', enabled: true, icon: " },"
+        { placeholder: "", id: 'gynecHistory', title: 'Gynaec History', enabled: true, icon: "obstetrics" },
       ],
     },
     {
@@ -211,6 +211,7 @@ export const IPD = {
   EXAMINATION: [
     {
       title: 'CVS',
+      id: 'cvs',
       description: '',
       options: [
         { label: 'WNL', value: 1, name: 'wnl' },
@@ -219,6 +220,7 @@ export const IPD = {
     },
     {
       title: 'Breast/Chest',
+      id: 'breast_chest',
       description: '',
       options: [
         { label: 'WNL', value: 1, name: 'wnl' },
@@ -227,6 +229,7 @@ export const IPD = {
     },
     {
       title: 'Abdomen',
+      id: 'abdomen',
       description: '',
       options: [
         { label: 'WNL', value: 1, name: 'wnl' },
@@ -235,6 +238,7 @@ export const IPD = {
     },
     {
       title: 'Neurological/Psychosocial',
+      id: 'neurological_psychosocial',
       description: '',
       options: [
         { label: 'WNL', value: 1, name: 'wnl' },
@@ -243,6 +247,7 @@ export const IPD = {
     },
     {
       title: 'Back',
+      id: 'back',
       description: '',
       options: [
         { label: 'WNL', value: 1, name: 'wnl' },
@@ -251,6 +256,7 @@ export const IPD = {
     },
     {
       title: 'HEENT',
+      id: 'heent',
       description: '',
       options: [
         { label: 'WNL', value: 1, name: 'wnl' },

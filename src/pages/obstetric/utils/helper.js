@@ -99,7 +99,7 @@ export function mergeDefaultAndDoctorList(
   const updatedArrayData = [...arrayData];
 
   // Loop through defaultData and check if each item is present in arrayData
-  defaultData.forEach((defaultItem) => {
+  defaultData?.forEach((defaultItem) => {
     const isPresent = arrayData.some(
       (arrayItem) =>
         arrayItem.masterId === defaultItem.id &&

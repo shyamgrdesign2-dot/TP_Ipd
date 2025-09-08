@@ -8,6 +8,15 @@ const initialState = {
   chiefComplaint: [],
   historyOfPresentIllness: [],
   labResults: [],
+  physicalExaminationOthersData: [],
+  physicalExaminationProvisionalDiagnosisData: [],
+  physicalExaminationBasicData: {},
+  functionalAssessmentData: {},
+  treatmentPlanData: {},
+  additionalNotesData: {},
+  vitalsData: {},
+  gynecHistoryData: {},
+  referredDocForReview: null,
 };
 
 export const getAssessmentsData = createAsyncThunk(
@@ -28,56 +37,56 @@ export const getAssessmentsData = createAsyncThunk(
   }
 );
 export const addAssessmentsData = createAsyncThunk(
-    "assessment/addAssessmentsData",
-    async (data) => {
-      try {
-        let result = {};
-        result = await ApiAssessment.addAssessmentsData(data);
-        if (result.data?.length) {
-          return result.data;
-        } else {
-          throw Error(result.error);
-        }
-      } catch (error) {
-        console.log("error: ", error);
-        throw Error(error);
+  "assessment/addAssessmentsData",
+  async (data) => {
+    try {
+      let result = {};
+      result = await ApiAssessment.addAssessmentsData(data);
+      if (result.data?.length) {
+        return result.data;
+      } else {
+        throw Error(result.error);
       }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
     }
-  );
-  export const updateAssessmentsData = createAsyncThunk(
-    "assessment/updateAssessmentsData",
-    async (data) => {
-      try {
-        let result = {};
-        result = await ApiAssessment.updateAssessmentsData(data);
-        if (result.data?.length) {
-          return result.data;
-        } else {
-          throw Error(result.error);
-        }
-      } catch (error) {
-        console.log("error: ", error);
-        throw Error(error);
+  }
+);
+export const updateAssessmentsData = createAsyncThunk(
+  "assessment/updateAssessmentsData",
+  async (data) => {
+    try {
+      let result = {};
+      result = await ApiAssessment.updateAssessmentsData(data);
+      if (result.data?.length) {
+        return result.data;
+      } else {
+        throw Error(result.error);
       }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
     }
-  );
-  export const lastPrescriptionData = createAsyncThunk(
-    "assessment/lastPrescriptionData",
-    async (data) => {
-      try {
-        let result = {};
-        result = await ApiAssessment.lastPrescriptionData(data);
-        if (result.prescription) {
-          return result.prescription;
-        } else {
-          throw Error(result.error);
-        }
-      } catch (error) {
-        console.log("error: ", error);
-        throw Error(error);
+  }
+);
+export const lastPrescriptionData = createAsyncThunk(
+  "assessment/lastPrescriptionData",
+  async (data) => {
+    try {
+      let result = {};
+      result = await ApiAssessment.lastPrescriptionData(data);
+      if (result.prescription) {
+        return result.prescription;
+      } else {
+        throw Error(result.error);
       }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
     }
-  );
+  }
+);
 const assessmentSlice = createSlice({
   name: "assessment",
   initialState,
@@ -92,8 +101,35 @@ const assessmentSlice = createSlice({
       state.historyOfPresentIllness = action.payload;
     },
     setLabResults: (state, action) => {
-        state.labResults = action.payload;
-    }
+      state.labResults = action.payload;
+    },
+    setPhysicalExaminationOthersData: (state, action) => {
+      state.physicalExaminationOthersData = action.payload;
+    },
+    setPhysicalExaminationProvisionalDiagnosisData: (state, action) => {
+      state.physicalExaminationProvisionalDiagnosisData = action.payload;
+    },
+    setPhysicalExaminationBasicData: (state, action) => {
+      state.physicalExaminationBasicData = action.payload;
+    },
+    setReferredDocForReview: (state, action) => {
+      state.referredDocForReview = action.payload;
+    },
+    setFunctionalAssessmentData: (state, action) => {
+      state.functionalAssessmentData = action.payload;
+    },
+    setTreatmentPlanData: (state, action) => {
+      state.treatmentPlanData = action.payload;
+    },
+    setAdditionalNotesData: (state, action) => {
+      state.additionalNotesData = action.payload;
+    },
+    setVitalsData: (state, action) => {
+      state.vitalsData = action.payload;
+    },
+    setGynecHistoryData: (state, action) => {
+      state.gynecHistoryData = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -105,7 +141,7 @@ const assessmentSlice = createSlice({
         state.assessmentsData = action.payload;
       })
       .addCase(getAssessmentsData.rejected, (state, action) => {
-        state.assessmentsData = []; 
+        state.assessmentsData = [];
         state.loading = false;
       })
       .addCase(addAssessmentsData.pending, (state) => {
@@ -144,5 +180,19 @@ const assessmentSlice = createSlice({
   },
 });
 
-export const { setAssessmentsData, setChiefComplaint, setHistoryOfPresentIllness, setLabResults } = assessmentSlice.actions;
+export const {
+  setAssessmentsData,
+  setChiefComplaint,
+  setHistoryOfPresentIllness,
+  setLabResults,
+  setPhysicalExaminationOthersData,
+  setPhysicalExaminationProvisionalDiagnosisData,
+  setFunctionalAssessmentData,
+  setTreatmentPlanData,
+  setAdditionalNotesData,
+  setVitalsData,
+  setGynecHistoryData,
+  setReferredDocForReview,
+  setPhysicalExaminationBasicData
+} = assessmentSlice.actions;
 export default assessmentSlice.reducer;
