@@ -1,31 +1,3 @@
-import { 
-    healthIcon,
-    notesIcon,
-    glassIcon,
-    notepadIcon,
-    cardiogramColouredIcon,
-    roundDotted,
-    noteIcon,
-    usersTwoIcon,
-    layerIcon,
-    basicInfo,
-    physicalExam,
-    funcAssess,
-    treatment,
-    noteColoured,
-    basicInfoBg,
-    aidKit,
-    lab,
-    obstetrics,
-    medication,
-    recordPad,
-    ddx,
-    vitals,
-    galaxy,
-    referDoctors,
-    instructions,
-    doc } from '../assets/images/icons';
-    import {basic, functional, note, physical, treatmentPlan} from '../assets/images/icons/assessments';
 export const IPD = {
   DEFAULT_ASSESSMENTS_FORM_STRUCTURE: [
     {
