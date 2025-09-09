@@ -14,8 +14,8 @@ const CurrentMedications = (props) => {
 
   return (
     <div
-      className={`ipdaf-box-container ${
-        !isEditable ? "ipdaf-box-container-readonly" : ""
+      className={`ipdaf-medication-box-container ${
+        !isEditable ? "ipdaf-medication-box-container-readonly" : ""
       }`}
     >
       {isEditable ? (

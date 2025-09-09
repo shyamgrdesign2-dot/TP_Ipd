@@ -23,4 +23,11 @@ ApiAssessment.lastPrescriptionData = function ({ patientId, caseId }) {
   );
 };
 
+ApiAssessment.lastPrescriptionDate = function ({ patientId }) {
+  return api.get(
+    `/assessments/prescriptions/last-prescription-date?patientId=${patientId}`,
+    baseUrl
+  );
+};
+
 export default ApiAssessment;

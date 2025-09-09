@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 
 function MedicalHistoryList(props) {
-    const {gynecHistory: gynecHistoryFromProps, patientDataFromProps } = props
+    const {gynecHistory: gynecHistoryFromProps, patientDataFromProps, isIPD } = props
 
     const [accordionItems, setAccordionItems] = useState([]);
 
@@ -28,7 +28,7 @@ function MedicalHistoryList(props) {
   const patientData = patient_data || patientDataFromProps;
 
     useEffect(() => {
-        if (!gynecHistory) {
+        if (!gynecHistory && !isIPD) {
             dispatch(fetchGynecHistory(patientData?.patient_unique_id,userId));
         }
     }, []);

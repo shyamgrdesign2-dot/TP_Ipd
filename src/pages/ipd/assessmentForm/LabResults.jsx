@@ -15,7 +15,7 @@ const GenericCard = createRemoteComponent("GenericCard");
 const AutoFillButton = createRemoteComponent("AutoFillButton");
 
 const LabResults = (props) => {
-  const { isEditable = true, sectionData, patient_data } = props || {};
+  const { isEditable = true, sectionData } = props || {};
   const { labResults, lastPrescriptionDataForAssessment } = useSelector(
     (state) => state.assessment
   );
@@ -122,13 +122,11 @@ const LabResults = (props) => {
         >
           <LabParams
             handleAddLabParamsDrawer={handleAddLabParamsDrawer}
-            patient_unique_id={patient_data?.details?.id}
             onSave={handleLabParamsUpdate} // TODO: INTEL - fix
             isBackModalOpen={isBackModalOpen}
             showHideBackModal={showHideBackModal}
             existingDataFromProps={labResults}
             isIPD={true}
-            patientGender={patient_data?.details?.gender}
           />
         </Drawer>
       )}

@@ -41,7 +41,7 @@ const showDateFormat = 'DD-MM-YYYY'
 
 function MedicalHistoryBox(props) {
 
-    const { handleDrawerMedicalHistory, handleCollapsed, onSave, patientDataFromProps, showMenstrualHistory = true, showMedicalHistory = true } = props
+    const { handleDrawerMedicalHistory, handleCollapsed, onSave, gynecHistoryFromProps, showMenstrualHistory = true, showMedicalHistory = true, fetchDataOnLaunch = true } = props
     const { TabPane } = Tabs;
     const {
         searchList,
@@ -106,8 +106,7 @@ function MedicalHistoryBox(props) {
     const [inputCyclesDays, setInputCyclesDays] = useState(null);
     const [inputPadsNum, setInputPadsNum] = useState(null);
     const { state } = useLocation();
-    const { patient_data : patientData, caseManagerData } = state;
-    const patient_data = patientDataFromProps || patientData;
+    const { patient_data, caseManagerData } = state;
     const [gynecLoading, setGynecLoading] = useState(false);
     const [gynecHistory, setGynecHistory] = useState({});
     const [expandRemarks,setExpandRemarks] = useState(true);
@@ -884,10 +883,16 @@ function MedicalHistoryBox(props) {
     }, []);
 
     useEffect(() => {
-        if (isGynaecHistoryAccessable) {
+        if (isGynaecHistoryAccessable && fetchDataOnLaunch) {
             fetchGynecHistory();
         }
-    }, [isGynaecHistoryAccessable]);
+    }, [isGynaecHistoryAccessable, fetchDataOnLaunch]);
+
+    useEffect(() => {
+        if (gynecHistoryFromProps) {
+            setGynecHistory(gynecHistoryFromProps);
+        }
+    }, [gynecHistoryFromProps])
 
     const fetchGynecHistory = async () => {
         try {

@@ -232,8 +232,17 @@ function InPatients() {
   }, []);
 
   const onViewDetails = (patientData) => {
+    const patient_data = {
+      pm_contact_no: patientData?.details?.contact,
+      pm_gender: patientData?.details?.gender,
+      patient_unique_id: patientData?.details?.id,
+    };
     navigate(`/ipd/patient-details`, {
-      state: { patientData },
+      state: { 
+        patientDetails: patientData, 
+        patient_data,
+        isEditable: false
+      },
     });
   };
 

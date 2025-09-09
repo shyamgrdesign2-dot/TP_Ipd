@@ -34,13 +34,13 @@ const GynecHistory = (props) => {
       <div
         className={`ipdaf-generic-card-container ${
           isGynecHistoryDataExists ? "ipdaf-padding-0 ipdaf-margin-0" : ""
-        } ${!isEditable ? 'ipdaf-gynec-readable' : '' }`}
+        } ${!isEditable ? "ipdaf-gynec-readable" : ""}`}
       >
         {isGynecHistoryDataExists ? (
           <GynecHistoryList
-            patientDataFromProps={patientDataForOPDComponents}
             gynecHistory={gynecHistoryData}
             showTitle={false}
+            fetchDataOnLaunch={false}
           />
         ) : null}
         {isEditable ? (
@@ -104,12 +104,13 @@ const GynecHistory = (props) => {
           onClose={handleGynecHistory}
         >
           <MedicalHistoryBox
+            fetchDataOnLaunch={false}
             handleDrawerMedicalHistory={handleGynecHistory}
             handleCollapsed={handleGynecHistory}
             onSave={onSaveGynecHistory} // TODO: INTEL - fix
-            patientDataFromProps={patientDataForOPDComponents}
             showMenstrualHistory={true}
             showMedicalHistory={false}
+            gynecHistoryFromProps={gynecHistoryData}
           />
         </Drawer>
       )}

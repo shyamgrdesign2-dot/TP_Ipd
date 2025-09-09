@@ -1,4 +1,4 @@
-import React, { act, Suspense, useEffect, useState } from "react";
+import React, { act, Suspense, useEffect, useMemo, useState } from "react";
 import { IPD } from "../../../utils/locale";
 import {
   formatDateToShortMonthYear,
@@ -12,6 +12,26 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { setPatientDetailsInOldFormat } from "../../../redux/ipd/ipdSlice";
+import {
+  getAssessmentsData,
+  setAdditionalNotesData,
+  setChiefComplaint,
+  setFunctionalAssessmentData,
+  setGynecHistoryData,
+  setHistoryOfPresentIllness,
+  setLabResults,
+  setPhysicalExaminationBasicData,
+  setPhysicalExaminationOthersData,
+  setPhysicalExaminationProvisionalDiagnosisData,
+  setReferredDocForReview,
+  setTreatmentPlanData,
+  setVitalsData,
+} from "../../../redux/ipd/assessmentsFormSlice";
+import {
+  setMedicalHistoryData,
+  setMedicationData,
+} from "../../../redux/prescriptionSlice";
+import { addObstetricDetails } from "../../../redux/obstetricSlice";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -22,33 +42,22 @@ const PatientDetailsLayout = React.lazy(() => {
 const IPDPatientDetails = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { isEditable = true } = state || {};
-  const { patientDetails } = useSelector((state) => state.ipd);
+  const { isEditable = true, patient_data, patientDetails } = state || {};
+  const { assessmentsData } = useSelector((state) => state.assessment);
   const [open, setOpen] = useState(true);
   const [patientData, setPatientData] = useState(null);
-  const { patientData: patientDataFromState } = state;
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (patientDataFromState) {
-      dispatch(setPatientDetailsInOldFormat(patientDataFromState));
-    }
-  }, [patientDataFromState]);
-
-  const patientDataForOPDComponents = {
-    pm_contact_no: patientDetails?.details?.contact,
-    pm_gender: patientDetails?.details?.gender,
-    patient_unique_id: patientDetails?.details?.id,
-  };
   const handleAddAssessmentClick = () => {
     navigate("/ipd/patient-details/assessment-form", {
       state: {
-        patient_data: patientDetails,
-        patient_data_main: patientDataForOPDComponents,
+        patient_data,
+        patientDetails,
         isEditable: true,
       },
     });
   };
+
   useEffect(() => {
     const data = {
       fullName: patientDetails?.details?.name,
@@ -60,6 +69,86 @@ const IPDPatientDetails = () => {
     };
     setPatientData(data);
   }, [patientDetails]);
+
+  const addDataToStore = (data) => {
+    if (data) {
+      // Chief Complaint
+      dispatch(setChiefComplaint(data?.basicInfo?.chiefComplaint || []));
+
+      // History of Present Illness
+      dispatch(
+        setHistoryOfPresentIllness(
+          data?.basicInfo?.historyOfPresentIllness || []
+        )
+      );
+
+      // Medication
+      dispatch(setMedicationData(data?.basicInfo?.medications || []));
+
+      // Lab Results
+      dispatch(setLabResults(data?.basicInfo?.labResults || []));
+
+      // Medical History
+      dispatch(
+        setMedicalHistoryData(data?.basicInfo?.pastMedicalHistory || [])
+      );
+
+      // Gynec History
+      dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || []));
+
+      // Obstetric History
+      dispatch(addObstetricDetails(data?.basicInfo?.obstetricHistory || []));
+
+      // Physical Examination Vitals Data
+      dispatch(setVitalsData(data?.physicalExamination?.vitals || {}));
+
+      // Physical Examination Provisional Diagnosis
+      dispatch(
+        setPhysicalExaminationProvisionalDiagnosisData(
+          data?.physicalExamination?.provisionalDiagnosis || []
+        )
+      );
+
+      // Physical Examination Others Data
+      dispatch(
+        setPhysicalExaminationOthersData(
+          data?.physicalExamination?.others || []
+        )
+      );
+
+      // Physical Examination Basic Data
+      dispatch(
+        setPhysicalExaminationBasicData(
+          data?.physicalExamination?.examination || {}
+        )
+      );
+
+      // Functional Assessment Data
+      dispatch(setFunctionalAssessmentData(data?.functionalAssessment || {}));
+
+      // Treatment Plan Data
+      dispatch(setTreatmentPlanData(data?.treatmentPlan || {}));
+
+      // Additional Notes Data
+      dispatch(setAdditionalNotesData(data?.additionalNotes || {}));
+
+      // Referred Doc For Review
+      dispatch(
+        setReferredDocForReview(
+          data?.functionalAssessment?.referredToPhysiotherapyForReview || null
+        )
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (!patientDetails?.details?.id) return;
+    dispatch(
+      getAssessmentsData({ patientId: patientDetails?.details?.id })
+    ).then((res) => {
+      addDataToStore(res.payload);
+    });
+  }, [patientDetails?.details?.id]);
   const handleEmptyCtaClick = {
     assessment: handleAddAssessmentClick,
   };
@@ -69,23 +158,23 @@ const IPDPatientDetails = () => {
     });
   };
 
+  const isDataPresent = useMemo(() => {
+    return Object.keys(assessmentsData)?.length > 0;
+  }, [assessmentsData]);
+
   const onRequestClose = () => {
     navigate(`/ipd/inPatients`);
   };
   const handleCustomizeClick = () => {
-    console.log('INTEL ==> CUSTOMMM')  
-  }
+    console.log("INTEL ==> CUSTOMMM print settings");
+  };
 
   const renderContent = (activeItem) => {
     switch (activeItem?.id) {
       case "assessment":
         return (
           <div className="ipd-adm-assess-container-readable">
-            <AssessmentsForm
-              isEditable={isEditable}
-              patientDetails={patientDetails.details}
-              patientDataForOPDComponents={patientDataForOPDComponents}
-            />
+            <AssessmentsForm isEditable={isEditable} />
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
                 onEdit={handleAddAssessmentClick}
@@ -116,7 +205,9 @@ const IPDPatientDetails = () => {
               wardBedNumber={patientData.wardBedNumber}
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
-              renderContent={!isEditable ? renderContent : null}
+              renderContent={
+                !isEditable && isDataPresent ? renderContent : null
+              }
             />
           )}
         </AnimatePresence>

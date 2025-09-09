@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
 function GynecHistoryList(props) {
-    const {gynecHistory: gynecHistoryFromProps, showTitle = true} = props
+    const {gynecHistory: gynecHistoryFromProps, showTitle = true, fetchDataOnLaunch = true} = props
     const [accordionItems, setAccordionItems] = useState([]);
 
     const  dispatch = useDispatch();
@@ -23,6 +23,7 @@ function GynecHistoryList(props) {
     
     
     useEffect(() => {
+        if (!fetchDataOnLaunch) return;
         
         if (!gynecHistory) {
         
@@ -33,7 +34,7 @@ function GynecHistoryList(props) {
               })
             );
         }
-    }, [gynecHistory.length]);
+    }, [gynecHistory.length, fetchDataOnLaunch]);
 
     const filteredGynecHistory = Object.keys(gynecHistory || {}).reduce((acc, key) => {
         if ( key !== 'reproductiveLifeStages' ) {

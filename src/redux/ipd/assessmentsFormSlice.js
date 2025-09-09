@@ -3,6 +3,7 @@ import ApiAssessment from "../../api/services/ipd/ApiAssessment";
 
 const initialState = {
   assessmentsData: {},
+  lastPrescriptionDate: null,
   lastPrescriptionDataForAssessment: {},
   loading: false,
   chiefComplaint: [],
@@ -25,8 +26,8 @@ export const getAssessmentsData = createAsyncThunk(
     try {
       let result = {};
       result = await ApiAssessment.getAssessmentsData(data);
-      if (result.data?.assessment) {
-        return result.data?.assessment;
+      if (result?.assessment) {
+        return result?.assessment;
       } else {
         throw Error(result.error);
       }
@@ -61,6 +62,23 @@ export const updateAssessmentsData = createAsyncThunk(
       result = await ApiAssessment.updateAssessmentsData(data);
       if (result.data?.length) {
         return result.data;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      throw Error(error);
+    }
+  }
+);
+export const getLastPrescriptionDate = createAsyncThunk(
+  "assessment/getLastPrescriptionDate",
+  async (data) => {
+    try {
+      let result = {};
+      result = await ApiAssessment.lastPrescriptionDate(data);
+      return result;
+      if (result.prescription) {
+        return result.prescription;
       } else {
         throw Error(result.error);
       }
@@ -164,6 +182,17 @@ const assessmentSlice = createSlice({
       })
       .addCase(updateAssessmentsData.rejected, (state, action) => {
         state.assessmentsData = [];
+        state.loading = false;
+      })
+      .addCase(getLastPrescriptionDate.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getLastPrescriptionDate.fulfilled, (state, action) => {
+        state.loading = false;
+        state.lastPrescriptionDate = action.payload;
+      })
+      .addCase(getLastPrescriptionDate.rejected, (state, action) => {
+        state.lastPrescriptionDate = {};
         state.loading = false;
       })
       .addCase(lastPrescriptionData.pending, (state) => {

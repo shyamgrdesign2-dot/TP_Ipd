@@ -8,18 +8,22 @@ import PastMedicalHistory from "./PastMedicalHistory.jsx";
 import ObstetricHistory from "./ObstetricHistory.jsx";
 import { defaultIcons } from "../../../assets/images/icons/assessments";
 import GynecHistory from "./GynecHistory.jsx";
+import { useSelector } from "react-redux";
+import { formatDateToShortMonthYear } from "../../../utils/utils.js";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const AutoFillButton = createRemoteComponent("AutoFillButton");
 
 const BasicInfo = (props) => {
   const { isEditable = true, sectionData } = props;
+  const { chiefComplaint, lastPrescriptionDate } = useSelector((state) => state.assessment);
+  const { lastRxDate } = lastPrescriptionDate || {};
 
   const renderAutoFillButton = () => {
     return (
       <AutoFillButton
         onClick={() => {}}
-        title={`Autofill Basic Info Details From OPD (15 Jun 2025)`}
+        title={`Autofill Basic Info Details From OPD (${formatDateToShortMonthYear(lastRxDate)})`}
       />
     );
   };
@@ -55,7 +59,7 @@ const BasicInfo = (props) => {
       width={"100%"}
       className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
       defaultOpen
-    //   renderRightHeaderSection={isEditable ? renderAutoFillButton : null} // TODO: INTEL - UNCOMMENT IT ONCE READY
+      // renderRightHeaderSection={isEditable ? renderAutoFillButton : null} // TODO: INTEL - UNCOMMENT IT ONCE READY
     >
       {renderChildren()}
     </CollapsibleWrapper>
