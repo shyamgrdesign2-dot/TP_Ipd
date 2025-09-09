@@ -182,7 +182,6 @@ const OtNotes = (props) => {
     );
   };
 
-  console.log('INTEL ==> otNotes', {open, modelData, otNotes})
   return (
     <div className="afipd-assessments-form-container">
       <Suspense fallback={<>Loading ...</>}>

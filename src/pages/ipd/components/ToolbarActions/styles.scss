@@ -174,7 +174,7 @@ $divider: linear-gradient(
     }
 
     .action-btn__label {
-      color: #4b4ad5;
+      color: #4b4ad5 !important;
       font-family: Poppins;
       font-size: 14px;
       font-style: normal;
@@ -234,28 +234,3 @@ $divider: linear-gradient(
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
   }
 }
-
-// @media (max-width: 1100px) {
-//   .action-btn.is-square {
-//     //  width: 108px;
-//     //  height: 108px;
-//   }
-//   .action-btn.is-big {
-//     //  height: 96px;
-//     .action-btn__label {
-//       font-size: 22px;
-//     }
-//   }
-//   .toolbar__divider {
-//     height: 56px;
-//   }
-// }
-
-// @media (max-width: 820px) {
-//   .toolbar__inner {
-//     flex-wrap: wrap;
-//     gap: 14px 18px;
-//     justify-content: center;
-//   }
-// }
-
