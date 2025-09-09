@@ -4,30 +4,31 @@ import { customizationMockData } from "../../utils/mockData";
 import { IPD } from "../../utils/locale";
 
 const initialState = {
-  patientDetails: {
-    details: {
-      id: "123",
-      name: "Abhishek Kunte",
-      gender: "Male",
-      age: 30,
-      contact: "+91-9876543210",
-    },
-    ward: {
-      id: 1,
-      title: "General Ward",
-    },
-    room: {
-      id: 101,
-      title: "101",
-    },
-    doctor: {
-      id: 524,
-      name: "Dr. Ramesh Shah",
-    },
-    admittedOn: "2025-08-05T10:00:00.000Z",
-    _id: "68ad7740ecbc6168f6270f9e",
-    referral: false,
-  },
+  // patientDetails: {
+  //   details: {
+  //     id: "123",
+  //     name: "Abhishek Kunte",
+  //     gender: "Male",
+  //     age: 30,
+  //     contact: "+91-9876543210",
+  //   },
+  //   ward: {
+  //     id: 1,
+  //     title: "General Ward",
+  //   },
+  //   room: {
+  //     id: 101,
+  //     title: "101",
+  //   },
+  //   doctor: {
+  //     id: 524,
+  //     name: "Dr. Ramesh Shah",
+  //   },
+  //   admittedOn: "2025-08-05T10:00:00.000Z",
+  //   _id: "68ad7740ecbc6168f6270f9e",
+  //   referral: false,
+  // },
+  patientDetails: {},
   customization: {},
   loading: false,
   singleTemplate: null,
@@ -37,7 +38,6 @@ export const fetchSingleTemplate = createAsyncThunk(
   "ipd/fetchSingleTemplate",
   async (data) => {
     let result = {};
-    console.log('INTEL ==> templateId, type', data);
     try {
       result = await ApiIpdService.fetchSingleTemplate(data);
       return result.data;
@@ -54,7 +54,6 @@ export const getCustomization = createAsyncThunk(
     try {
       let result = {};
       result = await ApiIpdService.getCustomization();
-      console.log('INTEL ==> result', result);
       if (result?.settings) {
         return result?.settings;  
       } else {
@@ -73,7 +72,7 @@ export const updateCustomization = createAsyncThunk(
     try {
       let result = {};
       result = await ApiIpdService.updateCustomization(data);
-      if (result.data?.length) {
+      if (result.message === 'form customization updated successfully.') {
         return result.data;
       } else {
         throw Error(result.error);
@@ -113,11 +112,9 @@ const ipdSlice = createSlice({
       })
       .addCase(updateCustomization.fulfilled, (state, action) => {
         state.loading = false;
-        state.customization = action.payload;
       })
       .addCase(updateCustomization.rejected, (state, action) => {
         state.loading = false;
-        state.customization = [];
       })
       .addCase(fetchSingleTemplate.pending, (state) => {
         state.loading = true;

@@ -1,0 +1,217 @@
+{
+    "basicInfo": {
+        "chiefComplaint": [
+            {
+                "title": "Frequent urination 213",
+                "since": "2 days",
+                "severity": "Mild",
+                "notes": "Gradual"
+            }
+        ],
+        "historyOfPresentIllness": [
+            {
+                "complaint": "Lower abdominal pain1",
+                "narrative": "Patient reports sudden onset of cramping pain in the lower left abdomen since 3 days. Pain increases on walking and is relieved by rest. No history of trauma.",
+                "progression": "Pain has remained consistent over 3 days",
+                "interventionsTried": "Took over-the-counter paracetamol",
+                "responseToIntervention": "Mild relief",
+                "additionalContext": "No history of similar complaints in the past"
+            }
+        ],
+        "currentMedications": [
+            {
+                "name": "Pantoprazole",
+                "unitPerDose": "40mg",
+                "frequency": "Once daily",
+                "schedule": "Morning",
+                "duration": "7 days",
+                "notes": "Before breakfast"
+            },
+            {
+                "name": "Paracetamol",
+                "unitPerDose": "500mg",
+                "frequency": "Thrice daily",
+                "schedule": "After meals",
+                "duration": "5 days",
+                "notes": "For fever"
+            }
+        ],
+        "labResults": [
+            {
+                "date": "2025-08-17T07:07:04.318Z",
+                "inputs": [
+                    {
+                        "reportName": "Complete Blood Count - CBC",
+                        "testName": "Haemoglobin (Hb)",
+                        "value": "23",
+                        "units": "Gms/dL",
+                        "arrowDirection": "up",
+                        "refRange": {
+                            "isConditional": true,
+                            "ranges": [{
+                                "gender": "MALE",
+                                "max": "17",
+                                "min": "13",
+                                "unit": "Gms/dL",
+                                "value": ""
+                            }]
+                        }
+                    }
+                ]
+            }
+        ],
+        "pastMedicalHistory": [
+            {
+                "Diabetes": [
+                    {
+                        "type2": {
+                            "have": true,
+                            "active": true,
+                            "period": "5 years",
+                            "notes": "Controlled with oral medication"
+                        }
+                    }
+                ]
+            },
+            {
+                "Hypertension": [
+                    {
+                        "primary": {
+                            "have": true,
+                            "active": false,
+                            "period": "3 years",
+                            "notes": "Resolved after lifestyle changes"
+                        }
+                    }
+                ]
+            }
+        ],
+        "gyneacHistory": [
+            {
+                "MenstrualHistory": [
+                    {
+                        "cycleLength": "28 days",
+                        "flowDuration": "5 days",
+                        "pain": "Moderate"
+                    }
+                ]
+            }
+        ],
+        "obstetricHistory": [
+            {
+                "lmp": "2025-07-01T00:00:00.000Z",
+                "edd": "2026-04-07T00:00:00.000Z",
+                "ceed": "2026-04-05T00:00:00.000Z",
+                "gestationWeeks": 5,
+                "gestationDays": 2,
+                "blood": "B+",
+                "husbandsBlood": "O+",
+                "consang": false,
+                "maritialStatus": "Married",
+                "marriageDurationYears": 3,
+                "marriageDurationMonths": 6,
+                "conceptionType": "Natural",
+                "gravidity": 2,
+                "parity": 1,
+                "livingChildren": 1,
+                "abortion": 0,
+                "ectopicPregnancies": 0,
+                "diagnosisNotes": "Normal pregnancy progress so far",
+                "pregnancyHistory": [
+                    {
+                        "gravidaNumber": 1,
+                        "termLength": "Full Term",
+                        "outcome": "Live Birth",
+                        "deliveryMode": "Vaginal",
+                        "typeOfDelivery": "Normal",
+                        "dateOfDelivery": "2022-01-10T00:00:00.000Z",
+                        "ageOfDelivery": "25",
+                        "gender": "Female",
+                        "babysWeight": 2.9,
+                        "gestationPeriod": 39,
+                        "modeOfManagement": "Hospital",
+                        "typeOfAbortion": "",
+                        "modeOfAbortion": "",
+                        "location": "Zydus Hospital",
+                        "remarks": "Healthy baby"
+                    }
+                ]
+            }
+        ]
+    },
+    "physicalExamination": {
+        "vitals": {
+            "pulse": 78,
+            "bloodPressure": 120,
+            "temperature": 98.6,
+            "spo2": 98,
+            "respiratoryRate": 16,
+            "weight": 62,
+            "height": 62,
+            "generalRBS": 62
+        },
+        "examination": {
+            "cvs": {
+                "title": "WNL",
+                "notes": "Normal heart sounds"
+            },
+            "breast_chest": {
+                "title": "WNL",
+                "notes": "No lumps or abnormalities noted"
+            },
+            "abdomen": {
+                "title": "Abnormal",
+                "notes": "Tenderness in the lower right quadrant"
+            },
+            "neurological_psychosocial": {
+                "title": "WNL",
+                "notes": "Alert and oriented"
+            },
+            "back": {
+                "title": "Abnormal",
+                "notes": "Tenderness in the lower right quadrant"
+            },
+            "heent": {
+                "title": "WNL",
+                "notes": "Alert and oriented"
+            }
+        },
+        "others": "No signs of trauma or external injury",
+        "provisionalDiagnosis": "Acute Appendicitis"
+    },
+    "functionalAssessment": {
+        "bedActivity": "Independent",
+        "sitting": "Independent",
+        "standing": "Needs Assistance",
+        "ambulation": "Needs Assistance",
+        "stairClimbing": "Dependent",
+        "bedSoreOnAdmission": false,
+        "others": "Mild muscle weakness in right leg",
+        "referredToPhysiotherapyForReview": {
+            "id": 507,
+            "name": "Dr. Sanjay Kapoor"
+        }
+    },
+    "treatmentPlan": {
+        "immediateManagement": "Administer IV fluids, start antibiotics, NPO status",
+        "monitoringPlan": "Monitor vitals every 4 hours, maintain fluid chart"
+    },
+    "additionalNotes": {
+        "specialInstructions": "Patient is advised complete bed rest. Monitor signs of peritonitis.",
+        "dischargeCriteria": "Afebrile for 24 hours, tolerating oral intake, normal abdominal exam"
+    },
+    "customModule": [
+        {
+            "NutritionAssessment": {
+                "title": "Dietary Intake",
+                "notes": "Patient following a low-fat diabetic diet"
+            }
+        },
+        {
+            "MentalHealth": {
+                "title": "Anxiety Level",
+                "notes": "Mild anxiety observed, referred to counselor"
+            }
+        }
+    ]
+}

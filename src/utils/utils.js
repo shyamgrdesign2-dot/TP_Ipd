@@ -1055,6 +1055,44 @@ export const addOrderToAssessmentFormStructure = (array) => {
   });
 };
 
+export const convertMedicationFormat = (medications) => {
+  if (!medications) return [];
+  
+  // If single object is passed, convert to array
+  const medicationArray = Array.isArray(medications) ? medications : [medications];
+
+  return medicationArray.map(medication => {
+    // Extract frequency and schedule from the medication object
+    let frequency = '';
+    let schedule = [];
+    
+    // Convert frequency type to human readable format
+    if (medication.tmm_freq_type_name) {
+      frequency = medication.tmm_freq_type_name;
+    }
+
+    // Build schedule based on morning, afternoon, evening, night values
+    if (medication.tcm_tmm_freq_morning === "1") schedule.push("Morning");
+    if (medication.tcm_tmm_freq_afternoon === "1") schedule.push("Afternoon");
+    if (medication.tcm_tmm_freq_evening === "1") schedule.push("Evening");
+    if (medication.tcm_tmm_freq_night === "1") schedule.push("Night");
+
+    // If tmm_time_name exists, use that for schedule
+    if (medication.tmm_time_name) {
+      schedule = [medication.tmm_time_name];
+    }
+
+    return {
+      name: medication.tmm_medicine_name || "",
+      unitPerDose: medication.tmm_generic || "",
+      frequency: frequency || "Once daily", // Default to once daily if not specified
+      schedule: schedule.join(", ") || "As needed",
+      duration: medication.tmm_duration_type || "as needed",
+      notes: medication.tmm_remarks || ""
+    };
+  });
+};
+
 export const convertTemplateDataToRichText = (templateData, templateType) => {
   if (!Array.isArray(templateData)) return [];
   switch (templateType) {

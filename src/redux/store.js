@@ -33,6 +33,7 @@ import monetizationSlice from "./monetizationSlice";
 import prescriptionSlice from "./prescriptionSlice";
 import ipdSlice from "./ipd/ipdSlice";
 import assessmentSlice from "./ipd/assessmentsFormSlice";
+import otNotesSlice from "./ipd/otNotesSlice";
 import inPatientsSlice from "./ipd/inPatientsSlice";
 
 const persistConfig = {
@@ -47,6 +48,7 @@ const rootReducer = combineReducers({
   symptoms: symptomsSlice,
   examination: examinationSlice,
   assessment: assessmentSlice,
+  otNotes: otNotesSlice,
   ipd: ipdSlice,
   surgical: surgicalSlice,
   diagnosis: diagnosisSlice,

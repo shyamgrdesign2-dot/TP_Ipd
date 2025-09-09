@@ -58,6 +58,7 @@ function PastPregnancy({
   const { state } = useLocation();
   const { patient_data } = state;
 
+
   useEffect(() => {
     if (editIndex >= 0) {
       const data = pregnancyHistory[editIndex] || {};

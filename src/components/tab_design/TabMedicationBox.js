@@ -86,7 +86,8 @@ import { upsertDoctorSettingFlag } from "../../redux/doctorsSlice";
 import { useLocation } from "react-router-dom";
 import { setMedicationData, setPillupSwitch } from "../../redux/prescriptionSlice";
 
-function TabMedicationBox() {
+function TabMedicationBox(props) {
+  const { hideFrequentlyUsedMeds = false, isEditable = true } = props;
   const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     dosesList,
@@ -754,13 +755,13 @@ function TabMedicationBox() {
           )}
         </div>
       </div>
-      <Button
+      {isEditable && <Button
         type="text"
         className="rounded-0 btn-close-chips"
         onClick={() => onRemoveRow(item?.index)}
       >
         <i className="icon-Cross"></i>
-      </Button>
+      </Button>}
     </div>
   ));
 
@@ -2702,7 +2703,7 @@ function TabMedicationBox() {
           <div className="d-flex align-items-center">
             <img className="me-2" src={Medicationicon} alt="Medication" />
             <div className="title-common">{isPillUpAccessableFromGB ? 'Meds' : 'Medications'} (Rx)</div>
-            {isPillUpAccessableFromGB &&
+            {isPillUpAccessableFromGB && isEditable &&
               <div ref={tourRef} className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center" style={{ backgroundColor: 'rgb(226, 226, 234, 0.2)' }}>
                 <img src={Pillup} />
                 <Popover
@@ -2720,7 +2721,7 @@ function TabMedicationBox() {
             }
           </div>
 
-          <div className="d-flex align-items-center">
+          {isEditable && <div className="d-flex align-items-center">
             {profile?.dp_id === 9 && (
               <button
                 className="btn d-flex align-items-center btn-text"
@@ -2763,7 +2764,7 @@ function TabMedicationBox() {
             <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={medicationData.length > 0 ? false : true}>
               <i className="icon-eraser1 me-2"></i> {!isPillUpAccessableFromGB && <span>Clear</span>}
             </button>
-          </div>
+          </div>}
           <Drawer
             title="Medication Templates"
             placement="right"
@@ -2799,7 +2800,7 @@ function TabMedicationBox() {
             {addCustom ? ADD_MEDICINE_DATA : CHILD_DRAWER_DATA}
           </Drawer>
         </div>
-        <div className="p-14 py-0">
+        {isEditable && <div className="p-14 py-0">
           <div
             className="inputheight38 border rounded-10px d-flex align-items-center"
             onClick={handleDrawerParent}
@@ -2809,7 +2810,7 @@ function TabMedicationBox() {
               Search Medicines by Name
             </span>
           </div>
-        </div>
+        </div>}
         <Drawer
           closeIcon={false}
           placement="right"
@@ -2825,7 +2826,7 @@ function TabMedicationBox() {
             />
           )}
         </Drawer>
-        <div
+        {!hideFrequentlyUsedMeds ? <div
           className="d-flex flex-wrap p-14-pb0 overflow-hidden"
           style={{ maxHeight: "114px" }}
         >
@@ -2853,7 +2854,7 @@ function TabMedicationBox() {
                   </div>
                 );
               })}
-        </div>
+        </div>: null}
         {DELETE_MODAL}
         {REMOVE_ALL_ROWS}
         {/* Dose Calc Drawer */}

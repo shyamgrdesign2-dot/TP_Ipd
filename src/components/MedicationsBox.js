@@ -48,7 +48,8 @@ import { setMedicationData, setPillupSwitch } from "../redux/prescriptionSlice";
 
 const { TextArea } = Input;
 
-function MedicationsBox() {
+function MedicationsBox(props) {
+  const { isEditable = true } = props;
   const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     dosesList,
@@ -965,6 +966,7 @@ function MedicationsBox() {
   };
 
   const TABLE_MEDICATION = useMemo(() => {
+    const noteProps = isEditable ? { lg: 6, md: 6, sm: 6, xs: 6 } : { flex: 'auto' };
     return (
       <>
         {medicationData.length > 0 &&
@@ -1012,16 +1014,16 @@ function MedicationsBox() {
                     <label>DURATION</label>
                   </div>
                 </Col>
-                <Col lg={6} md={6} sm={6} xs={6} className="border-end">
+                <Col {...noteProps} className="border-end">
                   <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
                     <label>NOTE</label>
                   </div>
                 </Col>
-                <Col lg={1} md={1} sm={2} xs={2} className="text-center">
+                {isEditable && <Col lg={1} md={1} sm={2} xs={2} className="text-center">
                   <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
                     <label></label>
                   </div>
-                </Col>
+                </Col>}
               </Row>
             </Col>
           </Row>
@@ -1156,7 +1158,7 @@ function MedicationsBox() {
                                       <div className="badge-autofill" onClick={() => onAutoFillDuration(item?.index)}><i className="icon-copyIcon fs-12-1" />Autofill to all meds</div>
                                     )}
                                   </Col>
-                                  <Col lg={6} md={6} sm={6} xs={6} className="border-end">
+                                  <Col {...noteProps} className="border-end">
                                     <TextArea
                                       className="notesinput border-0 h-100 align-self-center"
                                       placeholder="Notes"
@@ -1169,14 +1171,14 @@ function MedicationsBox() {
                                       onChange={(e) => onChangeNoteChild(e, item?.index)}
                                     />
                                   </Col>
-                                  <Col lg={1} md={1} sm={2} xs={2} className="d-flex align-items-center justify-content-center">
+                                  {isEditable ? <Col lg={1} md={1} sm={2} xs={2} className="d-flex align-items-center justify-content-center">
                                     <Button
                                       className="btn py-0 btn-delete-prescription px-0"
                                       onClick={() => onRemoveRow(item?.index)}
                                     >
                                       <i className="icon-delete"></i>
                                     </Button>
-                                  </Col>
+                                  </Col> : null}
                                   {ii != 0 && (<div className="badge-then">Then</div>)}
                                 </Row>
                               )
@@ -1196,7 +1198,7 @@ function MedicationsBox() {
         </DragDropContext>
       </>
     );
-  }, [medicationData, frequencyPopOver]);
+  }, [medicationData, frequencyPopOver, isEditable]);
 
   //Child Component
   // const TABLE_MEDICATION = useMemo(() => {
@@ -1926,13 +1928,14 @@ function MedicationsBox() {
   }, [isPillUpAccessableFromGB]);
 
   const PILLUP_CONTENT = useCallback(() => {
+    if (!isEditable)  return null;
     return (
       <div className="p-2">
         <div className="fs-18 fw-semibold text-black">Pillup Fulfilment <img className="img-fluid ms-2" src={tagNew} /></div>
         <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
       </div>
     );
-  }, [popOver3]);
+  }, [popOver3, isEditable]);
 
   //PopOver3 function
   const showHidePillUpPopover = useCallback(() => {
@@ -1970,7 +1973,7 @@ function MedicationsBox() {
           <div className="d-flex align-items-center">
             <img className="me-2" src={Medicationicon} alt="Medication" />
             <div className="title-common">{isPillUpAccessableFromGB ? 'Meds' : 'Medications'} (Rx)</div>
-            {isPillUpAccessableFromGB &&
+            {(isPillUpAccessableFromGB && isEditable) &&
               <div ref={tourRef} className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center" style={{ backgroundColor: 'rgb(226, 226, 234, 0.2)' }}>
                 <img src={Pillup} />
                 <Popover
@@ -1987,7 +1990,7 @@ function MedicationsBox() {
               </div>
             }
           </div>
-          <div className="d-flex align-items-center">
+          {isEditable && <div className="d-flex align-items-center">
             {profile?.dp_id === 9 && (
               <button
                 className="btn d-flex align-items-center btn-text"
@@ -2037,7 +2040,7 @@ function MedicationsBox() {
             <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={medicationData.length > 0 ? false : true}>
               <i className="icon-eraser1 me-2"></i> {!isPillUpAccessableFromGB && <span>Clear</span>}
             </button>
-          </div>
+          </div>}
         </div>
 
         {DELETE_MODAL}
@@ -2079,7 +2082,7 @@ function MedicationsBox() {
           </Drawer>
         }
 
-        <div className="p-14">
+        {isEditable && <div className="p-14">
           <AutoComplete
             // defaultValue={searchParentQuery}
             value={searchParentQuery}
@@ -2095,7 +2098,7 @@ function MedicationsBox() {
               prefix={<i className="icon-search"></i>}
             />
           </AutoComplete>
-        </div>
+        </div>}
       </div>
     </>
   );

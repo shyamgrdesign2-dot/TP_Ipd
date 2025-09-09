@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 
 function MedicalHistoryList(props) {
-    const {gynecHistory: gynecHistoryFromProps, patientDataFromProps} = props
+    const {gynecHistory: gynecHistoryFromProps, patientDataFromProps, isIPD } = props
 
     const [accordionItems, setAccordionItems] = useState([]);
 
@@ -28,7 +28,7 @@ function MedicalHistoryList(props) {
   const patientData = patient_data || patientDataFromProps;
 
     useEffect(() => {
-        if (!gynecHistory) {
+        if (!gynecHistory && !isIPD) {
             dispatch(fetchGynecHistory(patientData?.patient_unique_id,userId));
         }
     }, []);
@@ -61,64 +61,65 @@ function MedicalHistoryList(props) {
                 if (e?.no_know_history || e?.tags?.length > 0) {
                     return data.push({
                         key: `${i + 1}`,
-                        label: <div className="fw-semibold">{e?.title}</div>,
+                        label: <ul style={{margin: 0}}><li className="fw-semibold">{e?.title}</li></ul>,
                         children:
                             !e?.no_know_history ? (
-                                <div className="cardbody-data">
-                                    {e?.tags?.filter(x => x.enable == 'Y').length > 0 && (
-                                        <div className='border rounded px-2 my-2'>
-                                            {e?.tags?.filter(x => x.enable == 'Y')?.map((e1, i1) => {
-                                                return (
-                                                    <>
-                                                        <div key={Math.random()} className='my-2'>
-                                                            <span>{medical_history_title(e?.tmmhs_id)}</span> <label>{e1?.title}</label>
-                                                            {e1?.since && (
-                                                                <> | <span>Since</span> : <label>{e1?.since}</label></>
+                                <div className="cardbody-data ipd-mhl-cardbody">
+                                        {e?.tags?.filter(x => x.enable == 'Y').length > 0 && (
+                                            <ul style={{paddingLeft: '48px', paddingRight: '48px'}}>
+                                                {e?.tags?.filter(x => x.enable == 'Y')?.map((e1, i1) => {
+                                                    return (
+                                                        <>
+                                                            <li key={Math.random()} className='my-2'>
+                                                                <label style={{fontWeight: 600}} >{e1?.title}</label>
+                                                                {(() => {
+                                                                    const parts = [];
+                                                                    if (e1?.since) parts.push(<><b>Since</b>: {e1.since}</>);
+                                                                    if (e?.tmmhs_id != 3) {
+                                                                        if (e1?.status) parts.push(<><b>Status</b>: {e1.status}</>);
+                                                                        if (e1?.medication) parts.push(<><b>Medication</b>: {e1.medication}</>);
+                                                                    }
+                                                                    if (e?.tmmhs_id == 3 && e1?.relationship) {
+                                                                        parts.push(<><b>Relationship</b>: {e1.relationship}</>);
+                                                                    }
+                                                                    if (e1?.note) parts.push(<><b>Note</b>: {e1.note}</>);
+                                                                    return parts.length ? (
+                                                                        <> ({parts.map((part, index) => (
+                                                                            <React.Fragment key={index}>
+                                                                                {index > 0 && ', '}
+                                                                                {part}
+                                                                            </React.Fragment>
+                                                                        ))})</>
+                                                                    ) : null;
+                                                                })()}
+                                                            </li>
+                                                            {e1?.medical_history_remarks && (
+                                                                <li key={Math.random()} className='my-2'>
+                                                                    <span>Additional History</span> : <label>{e1?.medical_history_remarks}</label>
+                                                                </li>
                                                             )}
-                                                            {e?.tmmhs_id != 3 && (
-                                                                <>
-                                                                    {e1?.status && (
-                                                                        <> | <span>Status</span> : <label>{e1?.status}</label></>
-                                                                    )}
-                                                                    {e1?.medication && (
-                                                                        <> | <span>Medication</span> : <label>{e1?.medication}</label></>
-                                                                    )}
-                                                                </>
-                                                            )}
-                                                            {e?.tmmhs_id == 3 && e1?.relationship && (
-                                                                <> | <span>Relationship</span> : <label>{e1?.relationship}</label></>
-                                                            )}
-                                                        </div>
-                                                        {e1?.note && (
-                                                            <div key={Math.random()} className='my-2'>
-                                                                <span>Note</span> : <label>{e1?.note}</label>
-                                                            </div>
-                                                        )}
-                                                        {e1?.medical_history_remarks && (
-                                                            <div key={Math.random()} className='my-2'>
-                                                                <span>Additional History</span> : <label>{e1?.medical_history_remarks}</label>
-                                                            </div>
-                                                        )}
-                                                    </>
+                                                        </>
 
-                                                )
-                                            })}
-                                        </div>
-                                    )}
+                                                    )
+                                                })}
+                                            </ul>
+                                        )}
                                     {e?.tags?.filter(x => x.enable == 'N').length > 0 && (
-                                        <div className='border rounded px-2 my-2'>
+                                        <ul style={{paddingLeft: '48px', paddingRight: '48px'}}>
                                             {e?.tags?.filter(x => x.enable == 'N')?.map((e1, i1) => {
                                                 return (
-                                                    <div key={Math.random()} className='my-2'>
-                                                        <label>{`No ${e1?.title}`}</label>
-                                                    </div>
+                                                    <li key={Math.random()} className='my-2'>
+                                                        <label style={{fontWeight: 600}}>{`No ${e1?.title}`}</label>
+                                                    </li>
                                                 )
                                             })}
-                                        </div>
+                                        </ul>
                                     )}
                                 </div>
                             ) : (
-                                <div className="fontroboto border rounded p-2 my-2 text-history fw-normal">{`No known history`}</div>
+                                <ul style={{paddingLeft: '48px', paddingRight: '48px'}}>
+                                    <li className="fontroboto p-1 text-history fw-normal">{`No known history`}</li>
+                                </ul>
                             )
                     });
                 }
@@ -126,8 +127,10 @@ function MedicalHistoryList(props) {
             if(medicalHistoryData?.[0]?.medical_history_remarks) {
                 data.push({
                     key: "5",
-                    label: <div className="fw-semibold">Additional History</div>,
-                    children: <div className="fontroboto border rounded p-2 my-2 text-history fw-normal overflow-auto d-flex text-wrap">{medicalHistoryData?.[0]?.medical_history_remarks}</div>
+                    label: <ul style={{margin: 0}}><li className="fw-semibold">Additional History</li></ul>,
+                    children: <ul style={{paddingLeft: '48px', paddingRight: '48px'}}>
+                    <li className="fontroboto p-1 text-history fw-normal">{medicalHistoryData?.[0]?.medical_history_remarks}</li>
+                </ul>
                 })
             }
             setAccordionItems(data)
@@ -138,7 +141,7 @@ function MedicalHistoryList(props) {
 
     return (
         <>
-            <div className="overflow-y-auto" style={{ maxHeight: "661px" }}>
+            <div className="overflow-y-auto ipd-mhl-container" style={{ maxHeight: "661px" }}>
                 { (medicalHistoryData.length > 0 || (gynecHistory && Object.keys(filteredGynecHistory).length > 0)) && (
                     <div className="p-10">
                         { isGynaecHistoryAccessable && gynecHistory && Object.keys(filteredGynecHistory).length > 0 &&

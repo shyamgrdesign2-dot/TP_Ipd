@@ -1,26 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { setChiefComplaint } from "../../../redux/ipd/assessmentsFormSlice";
-import { convertTemplateDataToRichText } from "../../../utils/utils";
+import { convertTemplateDataToRichText, formatDateToShortMonthYear } from "../../../utils/utils";
 import { fetchSingleTemplate } from "../../../redux/ipd/ipdSlice";
 // import { errorMessage } from "../../../utils/toast";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const ChiefComplaint = (props) => {
-  // You can pass props as needed, e.g., isEditable, initialValue, etc.
-  const { isEditable = true, sectionData } = props || {};
+    // You can pass props as needed, e.g., isEditable, initialValue, etc.
+    const { isEditable = true, sectionData } = props || {};
   const dispatch = useDispatch();
-  const { chiefComplaint, lastPrescriptionDataForAssessment } = useSelector(
+  const { chiefComplaint, lastPrescriptionDataForAssessment, lastPrescriptionDate } = useSelector(
     (state) => state.assessment
   );
   const { templates: symptomsTemplates } = useSelector(
     (state) => state.symptoms
   );
+  
   const { chiefComplaint: chiefComplaintFromLastPrescription = [] } =
     lastPrescriptionDataForAssessment;
-  
+  const { lastRxDate } = lastPrescriptionDate || {};
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [isShimmering, setIsShimmering] = useState(false);
 
@@ -55,6 +56,12 @@ const ChiefComplaint = (props) => {
     }
   }
 
+  const isLastChiefComplaintPresent = useMemo(() => {
+    return ((!Array.isArray(chiefComplaintFromLastPrescription) && typeof chiefComplaintFromLastPrescription === 'string' &&  !!chiefComplaintFromLastPrescription) || (Array.isArray(chiefComplaintFromLastPrescription) && !!chiefComplaintFromLastPrescription?.[0]?.children?.[0]?.text))
+  }, [chiefComplaint, chiefComplaintFromLastPrescription]);
+
+  if (!isEditable && !chiefComplaint?.length) return null;
+
   return (
     <RichTextEditWrapper
       readOnly={!isEditable}
@@ -78,9 +85,9 @@ const ChiefComplaint = (props) => {
         "Enter chief complaint like patient’s main symptoms or presenting problem"
       }
       icon={defaultIcons[sectionData?.icon]}
-      showAutoFill={isEditable}
+      showAutoFill={isEditable && isLastChiefComplaintPresent}
       containerClass="wrapper-class"
-      opdDate="15 Jun 2025"
+      opdDate={formatDateToShortMonthYear(lastRxDate)}
       onSave={() => {
         console.log("save");
       }}

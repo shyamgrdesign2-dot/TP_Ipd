@@ -13,12 +13,19 @@ ApiAssessment.addAssessmentsData = function ({ patientId, data }) {
 };
 
 ApiAssessment.updateAssessmentsData = function ({ patientId, data }) {
-  return api.put(`/assessments?patientId=${patientId}`, data, baseUrl);
+  return api.put(`/assessments?patientId=${parseInt(patientId, 10)}`, data, baseUrl);
 };
 
 ApiAssessment.lastPrescriptionData = function ({ patientId, caseId }) {
   return api.get(
     `/assessments/prescriptions/last-prescription?patientId=${patientId}&caseId=${caseId}`,
+    baseUrl
+  );
+};
+
+ApiAssessment.lastPrescriptionDate = function ({ patientId }) {
+  return api.get(
+    `/assessments/prescriptions/last-prescription-date?patientId=${patientId}`,
     baseUrl
   );
 };
