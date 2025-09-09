@@ -66,8 +66,8 @@ import AppointmentSuccess from "./pages/appointmentAgent/components/AppointmentS
 import OpdBill from "./pages/opdBilling/OpdBill";
 import IPDPatientDetails from "./pages/ipd/patientDetails/patientDetails";
 import AssessmentsForm from "./pages/ipd/assessmentForm/AssessmentsForm";
-import IPDLayout from "./pages/ipd/IPDLayout";
-import InPatients from "./pages/ipd/InPatients";
+import IPDLayout from "./pages/ipd/inPatients/components/IPDLayout";
+import InPatients from "./pages/ipd/inPatients/InPatients";
 import ConsultantNotes from "./pages/ipd/consultantNotes/ConsultantNotes";
 
 const growthbook = new GrowthBook({
@@ -406,9 +406,18 @@ function App() {
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>
                 <Route path="/*" element={<AppointmentList />} />
-                <Route path={`/ipd/patient-details`} element={<IPDPatientDetails />}/>
-                <Route path="/ipd/patient-details/assessment-form" element={<AssessmentsForm />} />
-                <Route path="/ipd/patient-details/consultant-notes" element={<ConsultantNotes />} />
+                <Route
+                  path={`/ipd/patient-details`}
+                  element={<IPDPatientDetails />}
+                />
+                <Route
+                  path="/ipd/patient-details/assessment-form"
+                  element={<AssessmentsForm />}
+                />
+                <Route
+                  path="/ipd/patient-details/consultant-notes"
+                  element={<ConsultantNotes />}
+                />
                 <Route
                   path="create-campaign"
                   element={<MessageCreateCampaign />}
@@ -424,19 +433,19 @@ function App() {
                   // element={isMobile ? <TabPrescription /> : <MedicalHistoryList  />}
                   // element={isMobile ? <TabMedicationBox /> : <GynecHistoryList />}
                   // element={isMobile ? <TabMedicationBox /> : <LabParametersList />}
-                //   element={isMobile ? <TabMedicationBox /> : (
-                //     <>
-                //       <LabResultsTable showHeader={true} showSearchBar={false} />
-                //       <LabParams
-                //         // handleAddLabParamsDrawer={handleAddLabParamsDrawer}
-                //         // patient_unique_id={patient_data?.patient_unique_id}
-                //         onSave={() => {}}
-                //         // isBackModalOpen={isBackModalOpen}
-                //         // showHideBackModal={showHideBackModal}
-                //         // patientGender={patient_data?.pm_gender}
-                //       />
-                //     </>
-                // )}
+                  //   element={isMobile ? <TabMedicationBox /> : (
+                  //     <>
+                  //       <LabResultsTable showHeader={true} showSearchBar={false} />
+                  //       <LabParams
+                  //         // handleAddLabParamsDrawer={handleAddLabParamsDrawer}
+                  //         // patient_unique_id={patient_data?.patient_unique_id}
+                  //         onSave={() => {}}
+                  //         // isBackModalOpen={isBackModalOpen}
+                  //         // showHideBackModal={showHideBackModal}
+                  //         // patientGender={patient_data?.pm_gender}
+                  //       />
+                  //     </>
+                  // )}
                 />
                 <Route
                   path="prescription_print_view"

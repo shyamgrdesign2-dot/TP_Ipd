@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import IPDHeader from "./components/IPDHeader";
-import IPDNavBar from "./components/IPDNavBar";
+import IPDHeader from "./IPDHeader";
+import IPDNavBar from "./IPDNavBar";
 
 export default function IPDLayout() {
   return (

@@ -321,7 +321,8 @@ export const IPD = {
     },
   ],
   CONSULTANT_NOTES_MENU: [
-    { id: 'clinicalAssessment', name: 'Clinical Assessment & Plan', icon: basicInfoBg, renderSection: () => <>hello basic</>, isActive: true },
+    { id: 'filledBy', name: 'Filled By' },
+    { id: 'clinicalAssessment', name: 'Clinical Assessment & Plan', icon: basicInfoBg, isActive: true },
     { id: 'vitals', name: 'Vitals', icon: physicalExam },
     { id: 'medication', name: 'Medication', icon: funcAssess },
     {

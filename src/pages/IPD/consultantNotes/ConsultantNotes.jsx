@@ -1,22 +1,12 @@
 import patient_data from "../../../utils/patientMockData.json";
-import React, {
-  Suspense,
-  use,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { IPD } from "../../../utils/locale";
 import "./styles.scss";
 import { normalizeToDefault } from "../../../utils/utils";
 import { aidKit, doc, vitals } from "../../../assets/images/icons";
 import MedicationsBox from "../../../components/MedicationsBox";
 import { Drawer } from "antd";
-import {
-  getLabParamsData,
-  setGynecHistoryData,
-} from "../../../redux/prescriptionSlice";
+import { getLabParamsData } from "../../../redux/prescriptionSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -72,6 +62,12 @@ const AutoFillButton = React.lazy(() => {
   );
 });
 
+const FilledByCard = React.lazy(() => {
+  return import("shared_ui/components").then((m) =>
+    normalizeToDefault(m, "FilledByCard")
+  );
+});
+
 const ConsultantNotes = (props) => {
   const { isEditable = true } = props;
   const dispatch = useDispatch();
@@ -111,7 +107,6 @@ const ConsultantNotes = (props) => {
 
   const handleAssessmentChange = (key, e) => {
     const next = { ...assessmentValue, [key]: e.target.value };
-    console.log("INTEL ==> next", next);
     setAssessmentValue(next);
   };
 
@@ -143,10 +138,6 @@ const ConsultantNotes = (props) => {
     setIsBackModalOpen(!isBackModalOpen);
   };
 
-  const handleSaveGynecHistory = (gynecHistoryData) => {
-    dispatch(setGynecHistoryData(gynecHistoryData));
-  };
-
   const handleAddLabParamsDrawer = useCallback(() => {
     setAddlabparamsDrawer(!addlabparamsDrawer);
   }, [addlabparamsDrawer]);
@@ -175,7 +166,7 @@ const ConsultantNotes = (props) => {
       />
     );
   };
-  const renderClinicalAssessment = () => {
+  const ClinicalAssessment = () => {
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -184,10 +175,11 @@ const ConsultantNotes = (props) => {
         title="Clinical Assessment & Plan"
         width="100%"
         icon={aidKit}
-        showAutoFill={false}
         containerClass="wrapper-class"
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
+        showAutoFill
+        autoFillTitle="Autofill From Prev. Consultant Notes (24 Jun, 9:00AM)"
         onAutoFill={() => {
           console.log("auto fill");
         }}
@@ -219,7 +211,7 @@ const ConsultantNotes = (props) => {
     );
   };
 
-  const renderAdditionalRemarks = () => {
+  const AdditionalRemarks = () => {
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -228,7 +220,8 @@ const ConsultantNotes = (props) => {
         title="Additional Remarks"
         width="100%"
         icon={doc}
-        showAutoFill={false}
+        showAutoFill
+        autoFillTitle="Autofill From Prev. Consultant Notes (24 Jun, 9:00AM)"
         containerClass="wrapper-class"
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
@@ -259,9 +252,9 @@ const ConsultantNotes = (props) => {
     );
   };
 
-  const renderVitals = () => {
+  const Vitals = () => {
     return (
-      <div className="ipd-vitals-main-container">
+      <div className="ipdcn-vitals-main-container">
         <div className="ipdaf-vitals-header">
           <img src={vitals} alt="vitals" />
           <div>{"Vitals"}</div>
@@ -269,14 +262,16 @@ const ConsultantNotes = (props) => {
         <div className="ipdcn-vitals-container">
           {IPD.CONSULTANT_NOTES_VITALS?.map((vital) => {
             return (
-              <UnitInput
-                containerStyle={{ marginBottom: "20px" }}
-                onChange={(e) => handleVitalsValue(e, vital.name)}
-                value={value?.[vital?.name]}
-                type="text"
-                inputMode="decimal"
-                {...vital}
-              />
+              <div className="input-container">
+                <UnitInput
+                  containerStyle={{ marginBottom: "20px" }}
+                  onChange={(e) => handleVitalsValue(e, vital.name)}
+                  value={value?.[vital?.name]}
+                  type="text"
+                  inputMode="decimal"
+                  {...vital}
+                />
+              </div>
             );
           })}
         </div>
@@ -284,23 +279,32 @@ const ConsultantNotes = (props) => {
     );
   };
 
-  const renderSections = useMemo(() => {
-    return {
-      clinicalAssessment: renderClinicalAssessment,
-      vitals: renderVitals,
-      medication: () => (
-        <div className="ipdaf-box-container">
-          <MedicationsBox />
-        </div>
-      ),
-      labInvestigation: () => (
-        <div className="ipdaf-box-container">
-          <InvestigationBox />
-        </div>
-      ),
-      remarks: renderAdditionalRemarks,
-    };
-  }, [examinationValue, value, assessmentValue]);
+  const renderSections = (data) => {
+    switch (data?.id) {
+      case "filledBy":
+        return <FilledByCard />;
+      case "clinicalAssessment":
+        return <ClinicalAssessment />;
+      case "vitals":
+        return <Vitals />;
+      case "medication":
+        return (
+          <div className="ipdaf-box-container">
+            <MedicationsBox />
+          </div>
+        );
+      case "labInvestigation":
+        return (
+          <div className="ipdaf-box-container">
+            <InvestigationBox />
+          </div>
+        );
+      case "remarks":
+        return <AdditionalRemarks />;
+      default:
+        return null;
+    }
+  };
 
   useEffect(() => {
     const formItems = IPD.CONSULTANT_NOTES_MENU.map((item) => ({
@@ -310,6 +314,8 @@ const ConsultantNotes = (props) => {
 
     setConsultantNotesFormItems(formItems);
   }, [renderSections]);
+
+  console.log({ consultantNotesFormItems });
 
   return (
     <div className="afipd-assessments-form-container">
@@ -332,6 +338,12 @@ const ConsultantNotes = (props) => {
               headerOffset={72}
               header="Consultant Notes"
               saveButtonText="Save"
+              renderSection={renderSections}
+              showAutoFill
+              autoFillTitle="Autofill From Prev. Consultant Notes (24 Jun, 9:00AM)"
+              onAutoFill={() => {
+                console.log("auto fill");
+              }}
             />
           )}
         </div>
@@ -349,7 +361,7 @@ const ConsultantNotes = (props) => {
           <Suspense fallback={<>Loading ...</>}>
             <Customization
               onModelChange={(data) => {
-                console.log("INTEL ==> model change", data);
+                console.log(data);
               }}
               customModel={IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE}
             />
@@ -360,4 +372,4 @@ const ConsultantNotes = (props) => {
   );
 };
 
-export default ConsultantNotes;
+export default React.memo(ConsultantNotes);

@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-import patientsActiveIcon from "../../../assets/images/all-patients-active.svg";
+import patientsActiveIcon from "../../../../assets/images/all-patients-active.svg";
 
 function IPDNavbar() {
   return (
