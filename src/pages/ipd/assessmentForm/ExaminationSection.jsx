@@ -99,7 +99,7 @@ const ExaminationSection = (props) => {
                     ]
               }
             >
-              <div className="examination-container-header">
+              <div className="examination-container-header" data-testid={`examination-radio-${item.id}`}>
                 <div className="examination-header">{item.title} : </div>
                 <Radio.Group
                   className="exam-radio-text"

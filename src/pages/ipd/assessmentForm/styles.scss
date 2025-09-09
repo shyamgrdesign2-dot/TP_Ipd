@@ -270,6 +270,10 @@ $muted: #6f6b88;
     align-items: center;
     justify-content: left;
     gap: 4px;
+    &[data-testid="examination-radio-neurological_psychosocial"] {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 
   .examination-rich-container {
