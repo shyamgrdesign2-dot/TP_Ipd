@@ -152,23 +152,15 @@ function WalkInConsultation() {
   };
 
   const getMenuItems = (record) => {
-    return [
+    const items = [
       {
         label: (
           <span
             style={{
-              position: "absolute",
-              left: "-6.5rem",
-              top: "-6px",
-              backgroundColor: "white",
-              padding: "6px 68px 4px 14px",
-              borderRadius: "9px",
-              border: "1px solid #d5d5d5",
-              display: "inline-block",
               cursor: "pointer",
             }}
             onClick={() => {
-              setAutoCompleteFlag(false)
+              setAutoCompleteFlag(false);
               onConsultClick(record);
             }}
           >
@@ -178,7 +170,31 @@ function WalkInConsultation() {
         key: "consult",
       },
     ];
+  
+    if (isSmartSyncAccessableFromGB && isSnapRxAccessable) {
+      items.unshift({
+        label: (
+          <span
+            style={{
+              display: "inline-block",
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              setAutoCompleteFlag(false);
+              onSnapRxClick(record);
+            }}
+          >
+            SnapRx
+          </span>
+        ),
+        key: "snaprx",
+      });
+    }
+  
+    return items;
   };
+  
+
 
   const PatientPlank = (patient) => {
     return (
@@ -238,23 +254,56 @@ function WalkInConsultation() {
             >
               Patient Details
             </Button>
-            {isSnapRxAccessable && !isMobile ? (
+            {(isSnapRxAccessable || isSmartSyncAccessableFromGB) && !isMobile ? (
               <div className="d-flex btn btn-smart-rx-walkin">
-                <div style={{ paddingLeft: "6px" }} onClick={() => onSnapRxClick(patient)}>
-                  <img src={smartPad} alt="vitals" />
-                  <button
-                    className="btn btn-smartRx-text"
-                  >
-                    Snap Rx
-                  </button>
-                </div>
-                <div>
+                { isSmartSyncAccessableFromGB ?
+                  (
+                    <div style={{ paddingLeft: "6px" }} onClick={() => onSmartRxClick(patient)}>
+                      <img src={smartPad} alt="vitals" />
+                      <button
+                        className="btn btn-smartRx-text"
+                      >
+                        SmartRx
+                      </button>
+                    </div>
+                  ) : isSnapRxAccessable ? (
+                    <div style={{ paddingLeft: "6px" }} onClick={() => onSmartRxClick(patient)}>
+                      <img src={smartPad} alt="vitals" />
+                      <button
+                        // className="btn btn-outline-primary btn-smart-rx"
+                        className="btn btn-smartRx-text"
+                      >
+                        SmartRx
+                      </button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="text"
+                      className="btn btn-primary3 align-items-center d-flex"
+                      icon={<i className="icon-Consult"></i>}
+                      onClick={() => {
+                        const clinic_name = getClinicName(profile?.hospital_data);
+                        window.Moengage.track_event("TP_Consult_started", {
+                          clinic_name,
+                          "patient_number": patient?.pm_contact_no,
+                          "patient_id": patient?.patient_unique_id
+                        });
+                        navigate("/prescription", { state: { patient_data: patient } })
+                      }}
+                    >
+                      Start Consult
+                    </Button>
+                  )
+                }
+                <div className="consult-btns-group">
                   <Dropdown
-                    className="btn"
+                    // className="consult-btns-group"
                     menu={{
                       items: getMenuItems(patient),
+                      style: { width: "8rem", marginTop: "-1rem", marginRight: "-0.3rem" }
                     }}
                     trigger={["click"]}
+                    placement="bottomRight"
                   >
                     <a
                       onClick={(e) => {
@@ -298,7 +347,7 @@ function WalkInConsultation() {
                       onClick={(e) => {
                         e.preventDefault();
                       }}
-                      style={{ padding: "5px" }}
+                      // style={{ padding: "5px" }}
                     >
                       <i
                         className="icon-right"

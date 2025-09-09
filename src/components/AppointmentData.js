@@ -1893,7 +1893,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
             size="middle"
             style={{ display: "flex", justifyContent: "space-between" }}
           >
-            {isSnapRxAccessable &&
+            {(isSnapRxAccessable) &&
             !isMobile &&
             selectedTab != TAB_ZYDUS_ENCOUNTER ? (
               (isDigitisationTab && isSnapRxDigitizationAccessable) ? (
@@ -1929,12 +1929,18 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
                           : "btn-smart-rx"
                       }`}
                       onClick={() =>
-                        selectedTab === TAB_QUEUE
-                          ? handleSnapRxClick(record)
+                        selectedTab === TAB_QUEUE && isSmartSyncAccessableFromGB ? 
+                          onSmartRxClick (record) : isSnapRxAccessable ? handleSnapRxClick(record)
                           : onPrintRxUrlClick(record)
                       }
                     >
-                      {selectedTab === TAB_FINISHED ? "Print Rx" : "Snap Rx"}
+                      {
+                        selectedTab === TAB_FINISHED
+                          ? "PrintRx"
+                          : (isSmartSyncAccessableFromGB && "SmartRx") ||
+                            (isSnapRxAccessable && "SnapRx") ||
+                            ""
+                      }
                     </button>
                   )}
                   {selectedTab === TAB_QUEUE && (
@@ -1959,15 +1965,29 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
                       </span>
                     </button>
                   )}
-                  {openRowIndex === index && (
-                    <button
-                      ref={consultButtonRef}
-                      className="btn-consult"
-                      onClick={() => onConsultClick(record)}
-                    >
-                      Consult
-                    </button>
-                  )}
+                  {openRowIndex === index && 
+                    <div className="rx-btns-grp" ref={consultButtonRef}>
+                      {(isSmartSyncAccessableFromGB && isSnapRxAccessable) && 
+                        <button
+                          // ref={snapRxButtonRef}
+                          className="btn-consult top-br with-divider"
+                          onClick={() => {
+                            console.log("this is callledddddd")
+                            handleSnapRxClick(record)}
+                          }
+                        >
+                          SnapRx
+                        </button>
+                      }
+                      <button
+                        // ref={consultButtonRef}
+                        className="btn-consult bottom-br"
+                        onClick={() => onConsultClick(record)}
+                      >
+                        Consult
+                      </button>
+                    </div>
+                  }
                 </div>
               )
             ) : isSmartSyncAccessableFromGB &&
@@ -1999,7 +2019,13 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
                           : onPrintRxUrlClick(record)
                       }
                     >
-                      {selectedTab === TAB_FINISHED ? "PrintRx" : "SmartRx"}
+                      {
+                        selectedTab === TAB_FINISHED
+                          ? "PrintRx"
+                          : (isSmartSyncAccessableFromGB && "SmartRx") ||
+                            (isSnapRxAccessable && "SnapRx") ||
+                            ""
+                      }                    
                     </button>
                   )}
                   {selectedTab === TAB_QUEUE && (

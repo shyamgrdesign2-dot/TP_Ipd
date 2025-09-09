@@ -650,17 +650,64 @@ body {
         }
     }
 
-    .btn-consult {
+    .rx-btns-grp {
         border: 1px solid rgb(255, 255, 255);
         position: absolute;
         top: 91%;
+        width: 55%;
         font-size: 15px;
         background-color: white;
         color: rgb(94, 93, 93);
         border-radius: 9px;
-        padding: 7px 40px 7px 9px;
+        // padding: 7px 40px 7px 9px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         z-index: 1;
+    }
+
+    .consult-btns-group {
+        font-size: 15px;
+        color: rgb(94, 93, 93);
+        z-index: 1;
+
+        .ant-dropdown .ant-dropdown-menu {
+            width: 100% !important;
+            right: -2% !important;
+            padding-right: 5rem !important;
+
+            // .ant-dropdown-menu-item{
+            //     padding: 5px 0px !important;
+            // }
+        }
+
+    }
+
+    .btn-consult {
+        width: 100% !important;
+        border: none;
+        font-size: 15px;
+        background-color: white;
+        color: rgb(94, 93, 93);
+        padding: 0.3rem 0 0.3rem 0.5rem;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .btn-consult:hover{
+        background-color: #f0f0f0;
+    }
+
+    .btn-consult.top-br{
+        border-top-left-radius: 9px;
+        border-top-right-radius: 9px;
+    }
+
+    .btn-consult.bottom-br{
+        border-bottom-left-radius: 9px;
+        border-bottom-right-radius: 9px;
+    }
+
+    .btn-consult.with-divider {
+        border-bottom: 1px solid #ddd; /* 👈 divider line */
     }
 
     .btn-consult-walkIn {
