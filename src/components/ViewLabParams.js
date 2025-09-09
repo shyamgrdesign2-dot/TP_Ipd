@@ -6,13 +6,7 @@ import dayjs from 'dayjs';
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import { useSelector } from 'react-redux';
 
-const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToAddLabParams = () => {}, showSearchBar = true, showHeader = true, isIPD = false }) => {
-    const { labParamsData: labParamsDataFromStore } = useSelector(
-        (state) => state.prescription
-      );
-      const labParamsData = labParamsDataFromStore
-        ? JSON.parse(JSON.stringify(labParamsDataFromStore))
-        : [];
+const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, handleSwitchToAddLabParams = () => {}, showSearchBar = true, showHeader = true, isIPD = false }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [expandedReports, setExpandedReports] = useState({});
     const scrollRef = useRef(null);
@@ -37,7 +31,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                 [reportName]: true,
             }));
         });
-    }, [labParamsDataFromStore]);
+    }, [labParamsData]);
 
     useEffect(() => {
         if (labParamsData?.length > 0) {
@@ -73,7 +67,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
             });
             setGroupedData(updatedData);
         }
-    }, [searchTerm, labParamsDataFromStore]);
+    }, [searchTerm, labParamsData]);
     
     const filterDataBySearchKey = (data, searchKey) => {
         // If no search term, return the full data
@@ -176,7 +170,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                     {filteredReports.length < 2 ? (
                             <th className={filteredReports.length < 2 ? 'w-full' : ''}>
                                 {/* <div className='d-flex w-full'> */}
-                                        <div className='d-flex w-full'>
+                                        <div className='d-flex w-full' style={isIPD ? {justifyContent: 'flex-start'}: {}}>
                                         {filteredReports.map((entry, entryIndex) => {
                                             const isLastCell = entryIndex === filteredReports.length - 1;
                                             return (
@@ -189,7 +183,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                                             flexBasis: '33%',
                                                             display: 'flex',
                                                             alignItems: 'center',
-                                                            justifyContent: 'center',
+                                                            justifyContent: isIPD ? 'flex-start' : 'center',
                                                             padding: '10px',
                                                             zIndex: "1",
                                                             fontWeight: "600",
@@ -199,7 +193,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                                     >
                                                         {dayjs(entry?.date).format("DD MMM, YYYY")}
                                                     </div>
-                                                    <div
+                                                    {!isIPD ? <div
                                                         key={entry.date}
                                                         style={{
                                                             // width: '160px',
@@ -207,7 +201,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                                             flexBasis: '33%',
                                                             display: 'flex',
                                                             alignItems: 'center',
-                                                            justifyContent: 'center',
+                                                            justifyContent: isIPD ? 'flex-start' : 'center',
                                                             padding: '10px',
                                                             zIndex: "1",
                                                             fontWeight: "600",
@@ -217,7 +211,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                                                             textWrap: "nowrap",
                                                         }}
                                                     >
-                                                    </div>
+                                                    </div> : null}
                                                 </>
                                             );
                                         })}
@@ -256,7 +250,7 @@ const LabResultsTable = ({ handleViewLabParamsDrawer = () => {}, handleSwitchToA
                     <tbody>
                         {Object.keys(groupedData).length > 0 ? (
                             Object.keys(groupedData).map((reportName, index) => {
-                                const isExpanded = expandedReports[reportName];
+                                const isExpanded = isIPD ? true : expandedReports[reportName];
 
                                 return (
                                     <React.Fragment key={index}>

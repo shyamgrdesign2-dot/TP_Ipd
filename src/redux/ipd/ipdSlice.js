@@ -1,4 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import ApiIpdService from "../../api/services/ipd/ipdService";
+import { customizationMockData } from "../../utils/mockData";
+import { IPD } from "../../utils/locale";
 
 const initialState = {
   patientDetails: {
@@ -25,7 +28,62 @@ const initialState = {
     _id: "68ad7740ecbc6168f6270f9e",
     referral: false,
   },
+  customization: {},
+  loading: false,
+  singleTemplate: null,
 };
+
+export const fetchSingleTemplate = createAsyncThunk(
+  "ipd/fetchSingleTemplate",
+  async (data) => {
+    let result = {};
+    console.log('INTEL ==> templateId, type', data);
+    try {
+      result = await ApiIpdService.fetchSingleTemplate(data);
+      return result.data;
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
+export const getCustomization = createAsyncThunk(
+  "ipd/getCustomization",
+  async () => {
+    try {
+      let result = {};
+      result = await ApiIpdService.getCustomization();
+      console.log('INTEL ==> result', result);
+      if (result?.settings) {
+        return result?.settings;  
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
+export const updateCustomization = createAsyncThunk(
+  "ipd/updateCustomization",
+  async (data) => {
+    try {
+      let result = {};
+      result = await ApiIpdService.updateCustomization(data);
+      if (result.data?.length) {
+        return result.data;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
 
 const ipdSlice = createSlice({
   name: "ipd",
@@ -34,8 +92,46 @@ const ipdSlice = createSlice({
     setPatientDetailsInOldFormat: (state, action) => {
       state.patientDetails = action.payload;
     },
+    setCustomization: (state, action) => {
+      state.customization = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(getCustomization.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getCustomization.fulfilled, (state, action) => {
+        state.loading = false;
+        state.customization = action.payload;
+      })
+      .addCase(getCustomization.rejected, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(updateCustomization.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateCustomization.fulfilled, (state, action) => {
+        state.loading = false;
+        state.customization = action.payload;
+      })
+      .addCase(updateCustomization.rejected, (state, action) => {
+        state.loading = false;
+        state.customization = [];
+      })
+      .addCase(fetchSingleTemplate.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchSingleTemplate.fulfilled, (state, action) => {
+        state.loading = false;
+        state.singleTemplate = action.payload;
+      })
+      .addCase(fetchSingleTemplate.rejected, (state, action) => {
+        state.loading = false;
+        state.singleTemplate = null;
+      });
   },
 });
 
-export const { setPatientDetailsInOldFormat } = ipdSlice.actions;
+export const { setPatientDetailsInOldFormat, setCustomization } = ipdSlice.actions;
 export default ipdSlice.reducer;

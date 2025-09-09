@@ -6,4 +6,4 @@ import physical from './physical.svg';
 import treatmentPlan from './treatmentPlan.svg';
 
 //  exports
-export { basic, functional, note, physical, treatmentPlan };
+export const defaultIcons = { basic, functional, note, physical, treatmentPlan };
