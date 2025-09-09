@@ -13,7 +13,7 @@ ApiAssessment.addAssessmentsData = function ({ patientId, data }) {
 };
 
 ApiAssessment.updateAssessmentsData = function ({ patientId, data }) {
-  return api.put(`/assessments?patientId=${patientId}`, data, baseUrl);
+  return api.put(`/assessments?patientId=${parseInt(patientId, 10)}`, data, baseUrl);
 };
 
 ApiAssessment.lastPrescriptionData = function ({ patientId, caseId }) {

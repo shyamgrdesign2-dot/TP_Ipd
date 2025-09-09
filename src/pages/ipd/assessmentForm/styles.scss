@@ -104,12 +104,18 @@ $muted: #6f6b88;
     padding: 0 !important;
   }
   .ipdaf-gynec-readable {
-        background-color: unset !important;
-    div, span, p, table, tr, td, th {
-        background-color: unset !important;
+    background-color: unset !important;
+    div,
+    span,
+    p,
+    table,
+    tr,
+    td,
+    th {
+      background-color: unset !important;
     }
     * {
-        background-color: unset !important;
+      background-color: unset !important;
     }
   }
   .ipdaf-margin-0 {
@@ -153,8 +159,10 @@ $muted: #6f6b88;
 .ipd-assessments-readable-container {
   overflow: auto;
   height: calc(100dvh - 161px);
-  border-radius: 14px;
-  padding-bottom: 84px;
+  border-radius: 24px;
+  padding: 30px 30px 84px;
+  border: 1px solid #eaecf0;
+
   .rich-text-editor-container {
     border: none !important;
     margin: 0 28px !important;
@@ -320,7 +328,7 @@ $muted: #6f6b88;
 
   .examination-item {
     margin-bottom: 8px;
-    
+
     &:last-child {
       margin-bottom: 0;
     }
@@ -476,8 +484,8 @@ $muted: #6f6b88;
 }
 
 .patient-details-container {
-    overflow: hidden !important;
-    .content-card {
-        border: none !important;
-    }
+  overflow: hidden !important;
+  .content-card {
+    border: none !important;
+  }
 }

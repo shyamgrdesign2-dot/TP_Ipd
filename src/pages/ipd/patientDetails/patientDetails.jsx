@@ -6,10 +6,12 @@ import {
 } from "../../../utils/utils";
 import { AnimatePresence } from "framer-motion";
 import "./styles.scss";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
 import AssessmentsForm from "../assessmentForm/AssessmentsForm";
 import ToolbarActions from "../components/ToolbarActions/ToolbarActions";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setPatientDetailsInOldFormat } from "../../../redux/ipd/ipdSlice";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -24,6 +26,14 @@ const IPDPatientDetails = () => {
   const { patientDetails } = useSelector((state) => state.ipd);
   const [open, setOpen] = useState(true);
   const [patientData, setPatientData] = useState(null);
+  const { patientData: patientDataFromState } = state;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (patientDataFromState) {
+      dispatch(setPatientDetailsInOldFormat(patientDataFromState));
+    }
+  }, [patientDataFromState]);
 
   const patientDataForOPDComponents = {
     pm_contact_no: patientDetails?.details?.contact,
@@ -41,12 +51,12 @@ const IPDPatientDetails = () => {
   };
   useEffect(() => {
     const data = {
-      fullName: patientDetails.details.name,
-      gender: patientDetails.details.gender,
-      age: patientDetails.details.age,
-      wardBedNumber: `${patientDetails.ward.title} - ${patientDetails.room.title}`,
-      consultant: patientDetails.doctor.name,
-      admittedOn: formatDateToShortMonthYear(patientDetails.admittedOn),
+      fullName: patientDetails?.details?.name,
+      gender: patientDetails?.details?.gender,
+      age: patientDetails?.details?.age,
+      wardBedNumber: `${patientDetails?.ward?.title} - ${patientDetails?.room?.title}`,
+      consultant: patientDetails?.doctor?.name,
+      admittedOn: formatDateToShortMonthYear(patientDetails?.admittedOn),
     };
     setPatientData(data);
   }, [patientDetails]);
@@ -58,6 +68,13 @@ const IPDPatientDetails = () => {
       return { ...item, ctaClick: handleEmptyCtaClick?.[item.id] };
     });
   };
+
+  const onRequestClose = () => {
+    navigate(`/ipd/inPatients`);
+  };
+  const handleCustomizeClick = () => {
+    console.log('INTEL ==> CUSTOMMM')  
+  }
 
   const renderContent = (activeItem) => {
     switch (activeItem?.id) {
@@ -74,7 +91,7 @@ const IPDPatientDetails = () => {
                 onEdit={handleAddAssessmentClick}
                 onPrintPreview={() => console.log("Preview")}
                 onPrint={() => console.log("Print")}
-                onSettings={() => console.log("Settings")}
+                onSettings={handleCustomizeClick}
                 onDownload={() => console.log("Download")}
               />
             </div>
@@ -92,7 +109,7 @@ const IPDPatientDetails = () => {
             <PatientDetailsLayout
               key="patient-details"
               items={patientDetailsMenu()}
-              onRequestClose={() => setOpen(false)}
+              onRequestClose={onRequestClose}
               fullName={patientData.fullName}
               gender={patientData.gender}
               age={patientData.age}

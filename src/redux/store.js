@@ -33,6 +33,7 @@ import monetizationSlice from "./monetizationSlice";
 import prescriptionSlice from "./prescriptionSlice";
 import ipdSlice from "./ipd/ipdSlice";
 import assessmentSlice from "./ipd/assessmentsFormSlice";
+import inPatientsSlice from "./ipd/inPatientsSlice";
 
 const persistConfig = {
   key: "root",
@@ -71,6 +72,8 @@ const rootReducer = combineReducers({
   shortLink: shortLinkSlice,
   monetization: monetizationSlice,
   prescription: prescriptionSlice,
+  ipd: ipdSlice,
+  inPatients: inPatientsSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

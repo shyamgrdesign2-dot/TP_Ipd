@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiAssessment from "../../api/services/ipd/ApiAssessment";
 
 const initialState = {
-  assessmentsData: [],
+  assessmentsData: {},
   lastPrescriptionDataForAssessment: {},
   loading: false,
   chiefComplaint: [],
@@ -25,8 +25,8 @@ export const getAssessmentsData = createAsyncThunk(
     try {
       let result = {};
       result = await ApiAssessment.getAssessmentsData(data);
-      if (result.data?.results?.length) {
-        return result.data?.results;
+      if (result.data?.assessment) {
+        return result.data?.assessment;
       } else {
         throw Error(result.error);
       }
@@ -141,7 +141,7 @@ const assessmentSlice = createSlice({
         state.assessmentsData = action.payload;
       })
       .addCase(getAssessmentsData.rejected, (state, action) => {
-        state.assessmentsData = [];
+        state.assessmentsData = {};
         state.loading = false;
       })
       .addCase(addAssessmentsData.pending, (state) => {

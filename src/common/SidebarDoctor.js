@@ -131,6 +131,12 @@ function SidebarDoctor() {
   };
 
   const clickOldModule = async (moduleName) => {
+      if(moduleName === "ipd") {
+          navigate("/ipd/inPatients");
+
+        return check_SSO(moduleName);
+      }
+
     // if (moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') > 0) {
       if (tp_monetization_enable && (moduleName === S_PHARMACY || moduleName === S_IPD)) {
         setSubModalData({ service_name: moduleName })
@@ -196,7 +202,10 @@ function SidebarDoctor() {
 
   async function check_SSO(moduleName) {
     SSO_TO_PM().then(async (data) => {
-      if (moduleName === "opd_billing" && isOpdBillingAccessable) {
+      if(moduleName === "ipd") {
+        navigate("/ipd/inPatients");
+      }
+      else if (moduleName === "opd_billing" && isOpdBillingAccessable) {
         navigate("/billing-dashboard");
       } else if (moduleName === "all_patients") {
         navigate("/all_patients");
