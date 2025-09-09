@@ -24,7 +24,7 @@ import { isMobile } from "react-device-detect";
 import { calculateDose, errorMessage, onlyDecimalFormat, removeBeforeWhiteSpace } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import CashManagerContext from "../../context/CashManagerContext";
-import { MESSAGE_KEY, PAEDIATRICS } from "../../utils/constants";
+import { MESSAGE_KEY, NEO_NATOLOGISTS_DP_ID, PAEDIATRICS } from "../../utils/constants";
 import {
   createDose,
   updateDose,
@@ -316,7 +316,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         data: updateVitals,
       };
       const action = await dispatch(addUpdateVitals(sendData));
-      if (profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
+      if ((profile?.dp_name === PAEDIATRICS || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
         dispatch(
           getPatientBirthWeight({
             patient_unique_id:
