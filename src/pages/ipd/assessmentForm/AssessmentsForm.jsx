@@ -53,6 +53,7 @@ import {
   setMedicationData,
 } from "../../../redux/prescriptionSlice";
 import { addObstetricDetails } from "../../../redux/obstetricSlice";
+import CustomModule from "../../../components/CustomModule";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -69,6 +70,7 @@ const AssessmentsForm = (props) => {
     (state) => state.obstetric
   );
   const { customization = {} } = useSelector((state) => state.ipd);
+  const { customModules } = useSelector((state) => state.customModules);
   const assessmentData = useSelector((state) => state.assessment);
   const prescriptionData = useSelector((state) => state.prescription);
   const { assessments = [] } = customization;
@@ -270,6 +272,7 @@ const AssessmentsForm = (props) => {
         patientId: patientDetails?.details?.id,
       })
     ).then((res) => {
+      if (!res.payload) return;
       addDataToStore(reqData);
       dispatch(
         getAssessmentsData({
@@ -290,6 +293,13 @@ const AssessmentsForm = (props) => {
   const renderBottomSection = () => {
     return (
       <div className="ipd-custom-module-container">
+        {
+          customModules?.map(customModule => {
+            return (
+              <CustomModule module={customModule} patient_data={patient_data} />
+            )
+          })
+        }
         <AddCustomModule />
       </div>
     );
@@ -328,6 +338,7 @@ const AssessmentsForm = (props) => {
               <LayoutWithMenu
                 onCustomiseClick={() => setShowCustomisationDrawer(true)}
                 key="assessment"
+                title={"Admission Assessment"}
                 mainCta={{
                   handler: onSaveAssessmentClick,
                   title: "Save Admission Assessment",
@@ -350,6 +361,7 @@ const AssessmentsForm = (props) => {
           closeIcon={true}
           width={"70%"}
           placement="right"
+          className="customise-form-ipd-container"
           title="Customise Your Form"
           open={showCustomisationDrawer}
           onClose={() => setShowCustomisationDrawer(false)}
@@ -377,12 +389,14 @@ const AssessmentsForm = (props) => {
           }
         >
           <Suspense fallback={<>Loading ...</>}>
-            <Customization
-              onModelChange={(e) => {
-                setModelData(e);
-              }}
-              customModel={modelData}
-            />
+            <div className="customise-form-ipd-container-inner">
+              <Customization
+                onModelChange={(e) => {
+                  setModelData(e);
+                }}
+                customModel={modelData}
+              />
+            </div>
           </Suspense>
         </Drawer>
       )}

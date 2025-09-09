@@ -68,6 +68,7 @@ import IPDPatientDetails from "./pages/ipd/patientDetails/patientDetails";
 import AssessmentsForm from "./pages/ipd/assessmentForm/AssessmentsForm";
 import IPDLayout from "./pages/ipd/IPDLayout";
 import InPatients from "./pages/ipd/InPatients";
+import OtNotes from "./pages/ipd/otNotes/OtNotes";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -407,6 +408,7 @@ function App() {
                 <Route path="/*" element={<AppointmentList />} />
                 <Route path={`/ipd/patient-details`} element={<IPDPatientDetails />}/>
                 <Route path="/ipd/patient-details/assessment-form" element={<AssessmentsForm />} />
+                <Route path="/ipd/patient-details/ot-notes" element={<OtNotes />} />
                 <Route
                   path="create-campaign"
                   element={<MessageCreateCampaign />}

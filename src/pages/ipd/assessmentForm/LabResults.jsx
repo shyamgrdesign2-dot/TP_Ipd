@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { setLabResults } from "../../../redux/ipd/assessmentsFormSlice";
 import { useSelector } from "react-redux";
 import { formatDateToShortMonthYear } from "../../../utils/utils";
+import { useLocation } from "react-router-dom";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const GenericCard = createRemoteComponent("GenericCard");
@@ -19,6 +20,8 @@ const LabResults = (props) => {
   const { labResults, lastPrescriptionDataForAssessment } = useSelector(
     (state) => state.assessment
   );
+  const { state } = useLocation();
+  const { patient_data } = state;
   const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const dispatch = useDispatch();
@@ -43,6 +46,7 @@ const LabResults = (props) => {
   const renderAutoFillButton = useCallback(() => {
     const { labResults: lastLabResults = {} } = lastPrescriptionDataForAssessment || {};
     const { modifiedAt, results, createdAt, date } = lastLabResults;
+    if (!(modifiedAt || createdAt || date)) return null;
     return (
       <AutoFillButton
         onClick={(data, e) => {
@@ -125,6 +129,7 @@ const LabResults = (props) => {
             onSave={handleLabParamsUpdate} // TODO: INTEL - fix
             isBackModalOpen={isBackModalOpen}
             showHideBackModal={showHideBackModal}
+            patient_unique_id={patient_data?.patient_unique_id}
             existingDataFromProps={labResults}
             isIPD={true}
           />
