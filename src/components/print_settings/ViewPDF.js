@@ -254,7 +254,7 @@ const um_id = process.env.REACT_APP_ENV !== "prod" ? '493' : '12028';
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData, customModules, patientBills, advanceReceipts, patientWalletBalance, selectedLang } = props
-
+    const showMode = printSettings?.header_footer?.show_header_footer_page || 'all';
     const gynecHistoryData = caseManagerData?.gynecHistoryData
     const labParamsData = caseManagerData?.labParamsData
     const patientBirthWeight = caseManagerData?.patient_birth_weight ?? null;
@@ -598,13 +598,16 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
        try {
          if (fileFooter?.showFile && fileFooter?.imageShow) {
            return (
+            <View>
              <Image
                src={fileFooter.showFile}
                style={{
                  width: "100%",
+                 height: fileFooter?.renderedFooterImageHeight,
                  objectFit: "cover",
                }}
              />
+             </View>
            );
          }
          return null;
@@ -634,9 +637,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             };
         }
 
+        const isOwnLetterheadFirstPageOnly = letterhead_format === 2 && showMode === 'first';
+        
         const paddingTop = [0,1,2].includes(letterhead_format)
-        ? getMarginByFormat(letterhead_format, header_footer, "top", 0.5)
+        ? (isOwnLetterheadFirstPageOnly ? 0.5 * 25 : getMarginByFormat(letterhead_format, header_footer, "top", 0.5))
         : PX_TO_PT * 30;
+        
         const paddingLeft = [0,1,2].includes(letterhead_format)
         ? getMarginByFormat(letterhead_format, header_footer, "left", 0.5)
         : PX_TO_PT * 30;
@@ -646,7 +652,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         : PX_TO_PT * 30;
 
         const paddingBottom = letterhead_format === 2
-        ? getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5
+        ? (isOwnLetterheadFirstPageOnly ? (0.5 * 25) + 5 : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5)
         : letterhead_format === 1
             ? fileFooter?.imageShow
                 ? ((fileFooter?.footerHeight / fileFooter?.footerWidth) * (widthOfA4PageInPts - (paddingLeft + paddingRight))) + paddingTop
@@ -786,8 +792,33 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         // justifyContent: 'space-between',
                     }]}
                     wrap={!smartRxData}>
+                    
+                    {/* Letterhead spacer for Own Letterhead first-page-only mode */}
+                    <View
+                        fixed
+                        render={({ pageNumber }) => {
+                            const isFirstPage = pageNumber === 1;
+                            const isOwnLetterheadFirstPageOnly = printSettings?.letterhead_format === 2 && showMode === 'first';
+                            
+                            if (isOwnLetterheadFirstPageOnly && isFirstPage) {
+                                // On first page, add spacer to match user's intended letterhead margins
+                                const userTopMargin = getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "top", 0.5);
+                                const standardMargin = 0.5 * 25; // 0.5 inches in points
+                                const extraTopSpace = Math.max(0, userTopMargin - standardMargin);
+                                
+                                return (
+                                    <View style={{
+                                        marginTop: extraTopSpace,
+                                        height: 0,
+                                    }} />
+                                );
+                            }
+                            return null;
+                        }}
+                    />
+                    
                     {/* <View style={{flex: 1}}>     */}
-                    <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed>
+                    <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed = {printSettings?.header_footer?.show_header_footer_page !== 'first'}>
                         {mode == NORMAL ? (
                             printSettings?.letterhead_format === 0 ? (
                                 <View>
@@ -5786,44 +5817,103 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         )}
                     </View>
 
-                    {/* </View> */}
-                    <View style={{
-                        position: 'absolute',
-                        bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),
-                        left: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
-                        right: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
-                        }} fixed>
-                        {mode == NORMAL ? (
-                            printSettings?.letterhead_format === 0 ? (
-                                <View>
-                                    {printSettings?.header_footer?.footer?.title && (<View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />)}
-                                    <Text style={{ marginTop: PX_TO_PT * 8, color: '#171725', fontFamily: 'Roboto', fontSize: PX_TO_PT * printSettings?.header_footer?.footer?.font_size, fontWeight: 400, maxLines: 1 }}>{printSettings?.header_footer?.footer?.title}</Text>
-                                </View>
-                            ) : printSettings?.letterhead_format === 1 && (
-                                fileFooter && fileFooter?.imageShow && (
+                    {/* Bottom spacer for Own Letterhead first-page-only mode */}
+                    <View
+                        fixed
+                        render={({ pageNumber }) => {
+                            const isFirstPage = pageNumber === 1;
+                            const isOwnLetterheadFirstPageOnly = printSettings?.letterhead_format === 2 && showMode === 'first';
+                            
+                            if (isOwnLetterheadFirstPageOnly && isFirstPage) {
+                                // On first page, add bottom spacer to match user's intended letterhead margins
+                                const userBottomMargin = getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5);
+                                const standardMargin = 0.5 * 25; // 0.5 inches in points
+                                const extraBottomSpace = Math.max(0, userBottomMargin - standardMargin);
+                                
+                                return (
+                                    <View style={{
+                                        marginBottom: extraBottomSpace,
+                                        height: 0,
+                                    }} />
+                                );
+                            }
+                            return null;
+                        }}
+                    />
+
+                    <View
+                        style={{
+                          position: 'absolute',
+                          bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),
+                          left: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
+                          right: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
+                        }}
+                        fixed
+                        render={({ pageNumber }) => {
+                          if (pageNumber === 1 || (pageNumber > 1 && showMode === 'all')) {
+                            return (
+                              <View>
+                                {mode === NORMAL ? (
+                                  printSettings?.letterhead_format === 0 ? (
+                                    <View>
+                                      {printSettings?.header_footer?.footer?.title && (
+                                        <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />
+                                      )}
+                                      <Text
+                                        style={{
+                                          marginTop: PX_TO_PT * 8,
+                                          color: '#171725',
+                                          fontFamily: 'Roboto',
+                                          fontSize: PX_TO_PT * printSettings?.header_footer?.footer?.font_size,
+                                          fontWeight: 400,
+                                          maxLines: 1,
+                                        }}
+                                      >
+                                        {printSettings?.header_footer?.footer?.title}
+                                      </Text>
+                                    </View>
+                                  ) : printSettings?.letterhead_format === 1 && (
                                     renderFooterImage()
-                                )
-                            )
-                        ) : (
-                            printSettings?.whatsapp_letterhead_format === 0 ? (
-                                <View>
-                                    {printSettings?.header_footer?.footer?.title && (<View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />)}
-                                    <Text style={{ marginTop: PX_TO_PT * 8, color: '#171725', fontFamily: 'Roboto', fontSize: PX_TO_PT * printSettings?.header_footer?.footer?.font_size, fontWeight: 400, maxLines: 1 }}>{printSettings?.header_footer?.footer?.title}</Text>
-                                </View>
-                            ) : printSettings?.whatsapp_letterhead_format === 1 && (
-                                fileFooter && fileFooter?.imageShow && (
+                                  )
+                                ) : (
+                                  printSettings?.whatsapp_letterhead_format === 0 ? (
+                                    <View>
+                                      {printSettings?.header_footer?.footer?.title && (
+                                        <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />
+                                      )}
+                                      <Text
+                                        style={{
+                                          marginTop: PX_TO_PT * 8,
+                                          color: '#171725',
+                                          fontFamily: 'Roboto',
+                                          fontSize: PX_TO_PT * printSettings?.header_footer?.footer?.font_size,
+                                          fontWeight: 400,
+                                          maxLines: 1,
+                                        }}
+                                      >
+                                        {printSettings?.header_footer?.footer?.title}
+                                      </Text>
+                                    </View>
+                                  ) : (
+                                    printSettings?.whatsapp_letterhead_format === 1 &&
+                                    fileFooter &&
+                                    fileFooter?.imageShow &&
                                     renderFooterImage()
-                                )
-                            )
-                        )}
-                    </View>
-
-                    {printSettings?.page_format?.pagination === true && <PageNumberFooter />}
-
-                </Page>
-            )}
-        </Document>
-    )
-}
-
-export default React.memo(ViewPDF)
+                                  )
+                                )}
+                              </View>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                               
+                      {printSettings?.page_format?.pagination === true && <PageNumberFooter />}
+                             
+                      </Page>
+                      )}
+                      </Document>
+                          )
+                      }
+                      
+                      export default React.memo(ViewPDF)  
