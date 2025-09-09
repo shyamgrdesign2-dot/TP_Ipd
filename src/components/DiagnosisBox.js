@@ -151,7 +151,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
       return data.push({
         key: JSON.stringify({ ...e, unique_id: uuidv4() }),
         value: e.tds_name,
-        label: <div>{e.tds_name}</div>,
+        label: <div>{`${e.tds_name} ${e?.icd_code ? `(${e?.icd_code})` : ''}`}</div>,
       });
     });
     if (searchParentQuery.length === 0) {
@@ -239,7 +239,7 @@ function DiagnosisBox({handleDDxDrawer, generatedDDx, getGenerateDDx, isDDxLoadi
       return data.push({
         key: JSON.stringify({ ...e, unique_id: uuidv4() }),
         value: e.tds_name,
-        label: <div>{e.tds_name}</div>,
+        label: <div>{`${e.tds_name} ${e?.icd_code ? `(${e?.icd_code})` : ''}`}</div>,
       });
     });
     if (searchChildQuery?.query && childOptionsList.findIndex(e => e.tds_name?.toLowerCase()?.trim() == searchChildQuery?.query?.toLowerCase()?.trim()) === -1) {

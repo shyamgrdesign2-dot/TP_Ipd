@@ -139,7 +139,6 @@ function PageFormatLayout() {
                     options={LANGUAGE_LIST}
                     value={LANGUAGE_LIST.find(item => item.value == printSettings?.default_language)}
                     onSelect={onSelectDefaultLanguage}
-                    allowClear
                 />
             </Form.Item>
         </div>
