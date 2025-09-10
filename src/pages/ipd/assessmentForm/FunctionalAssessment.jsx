@@ -49,7 +49,9 @@ const FunctionalAssessment = (props) => {
         width="100%"
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${
+          isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
@@ -118,15 +120,33 @@ const FunctionalAssessment = (props) => {
         />
       ));
 
+      const renderReadOnlyBody = () => {
+        return (
+          <div className="ipdaf-assessment-readonly">
+            {assessmentComponents.map((component, i) => (
+              <React.Fragment key={i}>
+                {i > 0 && <span className="separator">|</span>}
+                {component}
+              </React.Fragment>
+            ))}
+          </div>
+        );
+      };
+
       return (
-        <div className="ipdaf-assessment-readonly">
-          {assessmentComponents.map((component, i) => (
-            <React.Fragment key={i}>
-              {i > 0 && <span className="separator">|</span>}
-              {component}
-            </React.Fragment>
-          ))}
-        </div>
+        <RichTextEditWrapper
+          readOnly={true}
+          showToolbar={false}
+          showActionBtns={false}
+          title={'Basics'}
+          width="100%"
+          icon={defaultIcons.medication}
+          showAutoFill={false}
+          containerClass={`ipd-fn-as-readonly`}
+          showMagicPenGif={false}
+          showMicrophone={false}
+          renderBody={renderReadOnlyBody}
+        />
       );
     }
 
