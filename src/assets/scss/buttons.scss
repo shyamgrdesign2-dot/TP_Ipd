@@ -766,8 +766,44 @@ body {
         }
     }
 
+    .smart-rx-buttons-group{
+        border: 1px solid rgb(200, 200, 200);
+        border-radius: 9px;
+        width: 96%;
+    }
 
+    .smart-rx-buttons{
+        border: none;
+        width: 99%;
+        padding: 0.5rem 0.1rem;
+        margin: 2px;
+        border-radius: 9px;
+        background-color: #ffffff;
 
+        &.top-br{
+            border-top-left-radius: 9px;
+            border-top-right-radius: 9px;
+        }
+    
+        &.bottom-br{
+            border-bottom-left-radius: 9px;
+            border-bottom-right-radius: 9px;
+        }
+
+        &.border-radius-all{
+            border-radius: 9px;
+        }
+
+        &.bottom-border{
+            border-radius: 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        &:hover{
+            border-radius: 9px;
+            background-color: #f0f0f0;
+        }
+    }
 
     .btn-span-smartRx {
         color: white !important;
