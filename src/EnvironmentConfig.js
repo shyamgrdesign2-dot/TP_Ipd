@@ -435,6 +435,11 @@ const prod = {
     "https://pm-ipd-uat.ambitiousstone-b2402989.centralindia.azurecontainerapps.io/api/v1",
 };
 
+const ipd = {
+  ...uat,  // Copy all properties from UAT
+  // Add any IPD-specific overrides here if needed in the future
+};
+
 const getEnv = () => {
   switch (process.env.REACT_APP_ENV) {
     case "dev":
@@ -445,10 +450,12 @@ const getEnv = () => {
       return qa;
     case "uat":
       return uat;
+    case "ipd":
+      return ipd;
     case "prod":
       return prod;
     default:
-      break;
+      return uat; // Default to UAT if no environment is specified
   }
 };
 export const env = getEnv();

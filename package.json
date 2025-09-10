@@ -11,7 +11,7 @@
     "@growthbook/growthbook-react": "^1.0.0",
     "@hcaptcha/react-hcaptcha": "^1.11.0",
     "@lottiefiles/dotlottie-react": "^0.13.0",
-    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.17",
     "@react-pdf-viewer/core": "^3.12.0",
     "@react-pdf-viewer/page-navigation": "^3.12.0",
     "@react-pdf-viewer/rotate": "^3.12.0",
@@ -38,7 +38,7 @@
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
     "chart.js": "^4.4.3",
     "css-loader": "^6.5.1",
-    "css-minimizer-webpack-plugin": "^3.2.0",
+    "css-minimizer-webpack-plugin": "^5.0.1",
     "dayjs": "^1.11.10",
     "dotenv": "^10.0.0",
     "dotenv-expand": "^5.1.0",
@@ -51,7 +51,7 @@
     "firebase": "^10.12.2",
     "framer-motion": "^12.23.0",
     "fs-extra": "^10.0.0",
-    "html-webpack-plugin": "^5.5.0",
+    "html-webpack-plugin": "^5.6.4",
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.10.1",
     "identity-obj-proxy": "^3.0.0",
@@ -64,7 +64,7 @@
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "lottie-react": "^2.4.0",
-    "mini-css-extract-plugin": "^2.4.5",
+    "mini-css-extract-plugin": "^2.9.4",
     "moment": "^2.29.4",
     "numeral": "^2.0.6",
     "pdfjs-dist": "^3.11.174",
@@ -115,11 +115,11 @@
     "source-map-loader": "^3.0.0",
     "style-loader": "^3.3.1",
     "tailwindcss": "^3.0.2",
-    "terser-webpack-plugin": "^5.2.5",
+    "terser-webpack-plugin": "^5.3.14",
     "uuid": "^9.0.1",
     "web-vitals": "^2.1.4",
-    "webpack": "^5.64.4",
-    "webpack-dev-server": "^4.6.0",
+    "webpack": "^5.101.3",
+    "webpack-dev-server": "^4.15.2",
     "webpack-manifest-plugin": "^4.0.2",
     "workbox-webpack-plugin": "^6.4.1",
     "xlsx": "^0.18.5"
@@ -203,5 +203,8 @@
     "presets": [
       "react-app"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3"
   }
 }
