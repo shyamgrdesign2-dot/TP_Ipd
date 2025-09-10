@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useMemo,
   useContext,
+  useRef,
 } from "react";
 import {
   AutoComplete,
@@ -47,6 +48,10 @@ import { GB_APOLLO_DISABLE_FEATURE } from "../utils/constants";
 
 const { TextArea } = Input;
 
+function isCoarsePointer() {
+  return typeof window !== "undefined" && matchMedia("(pointer: coarse)").matches;
+}
+
 function SurgicalBox() {
   const {
     selectedSurgicalList,
@@ -89,6 +94,57 @@ function SurgicalBox() {
     { key: TAB_UPDATE_TEMPLATE, label: "Update Template" },
   ];
   const [tabChange, setTabChange] = useState(TAB_ADD_TEMPLATE);
+
+  const headerOffset = 102;
+  const [sticky, setSticky] = useState(false);
+  const inputRef = useRef(null);
+
+  // keep the popup pinned to the *visual* top (works with mobile browser UI)
+  const scrollFieldToTop = () => {
+    // antd Input exposes the real element at .input (v4/v5)
+    const node = inputRef.current && (inputRef.current.input || inputRef.current);
+    if (node && typeof node.scrollIntoView === "function") {
+      node.scrollIntoView({ block: "start", behavior: "smooth" });
+    } else {
+      // Fallback if we still don't have the DOM element
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const syncTop = () => {
+      const top = (vv.offsetTop || 0) + headerOffset + 10;
+      document.documentElement.style.setProperty("--sticky-top", `${top}px`);
+    };
+
+    if (sticky) {
+      syncTop();
+      vv.addEventListener("resize", syncTop);
+      vv.addEventListener("scroll", syncTop);
+      return () => {
+        vv.removeEventListener("resize", syncTop);
+        vv.removeEventListener("scroll", syncTop);
+      };
+    }
+  }, [sticky]);
+
+  const handleFocus = () => {
+    if (!isCoarsePointer()) {
+      setSticky(true);
+      document.documentElement.classList.add("sticky-search-open");
+      // Put page at top, then ensure the input itself is at the top
+      window.scrollTo({ top: -64, behavior: "smooth" });
+      requestAnimationFrame(scrollFieldToTop);
+    }
+  };
+
+  const cleanup = () => {
+    setSticky(false);
+    document.documentElement.classList.remove("sticky-search-open");
+    document.documentElement.style.removeProperty("--sticky-top");
+  };
 
   useEffect(() => {
     if (selectedSurgicalList?.length > 0) {
@@ -902,11 +958,17 @@ function SurgicalBox() {
             options={parentSearchOptions}
             className="autocomplete-custom w-100"
             onSelect={onSelectParent}
+            getPopupContainer={() => document.body}
             defaultActiveFirstOption={true}
+            popupClassName={sticky ? "search-sticky" : undefined}
+            dropdownClassName={sticky ? "search-sticky" : undefined}
           >
             <Input
               placeholder="Search Surgeries/Procedures"
               prefix={<i className="icon-search"></i>}
+              onFocus={handleFocus}
+              onBlur={cleanup}
+              ref={inputRef}
             />
           </AutoComplete>
         </div>
