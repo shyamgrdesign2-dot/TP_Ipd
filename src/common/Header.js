@@ -913,25 +913,23 @@ function Header({ locationPath }) {
       },
     ];
 
-    // Log Out Section, If isBrowser is false, then don't include logoutItem
-    const logoutItem = isBrowser
-      ? [
-        {
-          type: "divider",
-        },
-        {
-          label: (
-            <div className="title-common d-flex align-items-center">
-              <i className="icon-exit me-3 color-red"></i>
-              <span className="color-red">Log Out</span>
-            </div>
-          ),
-          key: "logout",
-          onClick: handleLogout,
-          className: "logout-menu-item"
-        },
-      ]
-      : [];
+    // Log Out Section - Show logout button for all device types
+    const logoutItem = [
+      {
+        type: "divider",
+      },
+      {
+        label: (
+          <div className="title-common d-flex align-items-center">
+            <i className="icon-exit me-3 color-red"></i>
+            <span className="color-red">Log Out</span>
+          </div>
+        ),
+        key: "logout",
+        onClick: handleLogout,
+        className: "logout-menu-item"
+      },
+    ];
 
 
     // Combine commonItems, extraItems (if applicable), and logoutItem (always at the end)
