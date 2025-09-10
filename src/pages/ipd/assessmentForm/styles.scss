@@ -207,7 +207,12 @@ $muted: #6f6b88;
   }
 }
 .rich-text-editor-wrapper-header-title {
-  font-weight: 600 !important;
+  font-weight: 500 !important;
+}
+.ipd-adm-assess-container-readable {
+  .rich-text-editor-wrapper-header-title {
+    font-weight: 600 !important;
+  } 
 }
 .ipd-fn-as-readonly {
   margin-bottom: 24px;
