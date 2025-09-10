@@ -765,7 +765,7 @@ module.exports = function (webpackEnv) {
           remotes: {
             shared_ui:
               process.env.REACT_APP_ENV === 'ipd'
-                ? 'module https://pm-storybook-ui-uat.kindmushroom-6f77b425.centralindia.azurecontainerapps.io/assets/remoteEntry.js'
+                ? 'module /shared-ui/assets/remoteEntry.js'
                 : 'module http://localhost:3001/assets/remoteEntry.js',
           },
           shared: {
