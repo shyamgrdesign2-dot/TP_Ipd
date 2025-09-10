@@ -138,12 +138,17 @@ $muted: #6f6b88;
       gap: 0;
       margin: 0 20px 24px;
       border-radius: 10px;
-      background: #ffffff80;
+      background: #ffffff80 !important;
       box-shadow: 0 0 12px 0 #00000003;
     }
     .ipd-pmh-wrapper-class,
     .ipd-gynec-history-wrapper {
       background-color: #fff;
+    }
+  }
+  .ipd-wrapper-class-readonly {
+    .rich-text-editor-wrapper {
+      background: #ffffff80 !important;
     }
   }
 

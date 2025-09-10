@@ -22,7 +22,7 @@ const HistoryOfPresentIllness = (props) => {
       width="100%"
       icon={defaultIcons[sectionData?.icon]}
       showAutoFill={false}
-      containerClass="wrapper-class"
+      containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
       opdDate="15 Jun 2025"
       initialValue={
         historyOfPresentIllness.length > 0

@@ -171,18 +171,19 @@ const AssessmentsForm = (props) => {
       });
     }
     dispatch(getCustomization());
-    dispatch(
-      getLastPrescriptionDate({ patientId: patientDetails?.details?.id })
-    ).then((res) => {
-      if (res.payload) {
-        dispatch(
-          lastPrescriptionData({
-            patientId: patientDetails?.details?.id,
-            caseId: res.payload?.caseId,
-          })
-        );
-      }
-    });
+    if (isEditable)
+      dispatch(
+        getLastPrescriptionDate({ patientId: patientDetails?.details?.id })
+      ).then((res) => {
+        if (res.payload) {
+          dispatch(
+            lastPrescriptionData({
+              patientId: patientDetails?.details?.id,
+              caseId: res.payload?.caseId,
+            })
+          );
+        }
+      });
   }, []);
 
   useEffect(() => {
@@ -293,13 +294,11 @@ const AssessmentsForm = (props) => {
   const renderBottomSection = () => {
     return (
       <div className="ipd-custom-module-container">
-        {
-          customModules?.map(customModule => {
-            return (
-              <CustomModule module={customModule} patient_data={patient_data} />
-            )
-          })
-        }
+        {customModules?.map((customModule) => {
+          return (
+            <CustomModule module={customModule} patient_data={patient_data} />
+          );
+        })}
         <AddCustomModule />
       </div>
     );

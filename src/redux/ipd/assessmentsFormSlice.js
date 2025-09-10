@@ -60,7 +60,8 @@ export const updateAssessmentsData = createAsyncThunk(
     try {
       let result = {};
       result = await ApiAssessment.updateAssessmentsData(data);
-      if (result.data?.length) {
+      console.log('intel update',result)
+      if (!!result.data) {
         return result.data;
       } else {
         throw Error(result.error);

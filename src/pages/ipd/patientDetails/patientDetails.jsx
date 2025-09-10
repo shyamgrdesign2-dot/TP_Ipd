@@ -44,7 +44,9 @@ const IPDPatientDetails = () => {
   const { state } = useLocation();
   const { isEditable = true, patient_data, patientDetails } = state || {};
   const { assessmentsData } = useSelector((state) => state.assessment);
+  const { otNotesData } = useSelector((state) => state.otNotes);
   const [open, setOpen] = useState(true);
+  const [activeMenuItem, setActiveMenuItem] = useState("assessment");
   const [patientData, setPatientData] = useState(null);
   const dispatch = useDispatch();
 
@@ -66,7 +68,7 @@ const IPDPatientDetails = () => {
         isEditable: true,
       },
     });
-  }
+  };
 
   useEffect(() => {
     const data = {
@@ -153,15 +155,18 @@ const IPDPatientDetails = () => {
 
   useEffect(() => {
     if (!patientDetails?.details?.id) return;
-    dispatch(
-      getAssessmentsData({ patientId: patientDetails?.details?.id })
-    ).then((res) => {
-      addDataToStore(res.payload);
-    });
-  }, [patientDetails?.details?.id]);
+    if (activeMenuItem === "assessment") {
+      dispatch(
+        getAssessmentsData({ patientId: patientDetails?.details?.id })
+      ).then((res) => {
+        addDataToStore(res.payload);
+      });
+    }
+  }, [patientDetails?.details?.id, activeMenuItem]);
+
   const handleEmptyCtaClick = {
     assessment: handleAddAssessmentClick,
-    otNotes: handleOtNotesClick
+    otNotes: handleOtNotesClick,
   };
   const patientDetailsMenu = () => {
     return IPD.PATIENT_DETAILS_MENU.map((item) => {
@@ -170,14 +175,21 @@ const IPDPatientDetails = () => {
   };
 
   const isDataPresent = useMemo(() => {
-    return Object.keys(assessmentsData)?.length > 0;
-  }, [assessmentsData]);
+    if (activeMenuItem === 'assessment') {
+      return Object.keys(assessmentsData)?.length > 0;
+    } else if (activeMenuItem === 'otNotes') {
+      return Object.keys(otNotesData)?.length > 0;
+    } return false;
+  }, [assessmentsData, otNotesData, activeMenuItem]);
 
   const onRequestClose = () => {
     navigate(`/ipd/inPatients`);
   };
   const handleCustomizeClick = () => {
     console.log("INTEL ==> CUSTOMMM print settings");
+  };
+  const onHandleSelect = (id) => {
+    setActiveMenuItem(id);
   };
 
   const renderContent = (activeItem) => {
@@ -209,6 +221,7 @@ const IPDPatientDetails = () => {
             <PatientDetailsLayout
               key="patient-details"
               items={patientDetailsMenu()}
+              onHandleSelect={onHandleSelect}
               onRequestClose={onRequestClose}
               fullName={patientData.fullName}
               gender={patientData.gender}

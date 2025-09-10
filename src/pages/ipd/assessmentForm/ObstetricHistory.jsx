@@ -65,7 +65,7 @@ const ObstetricHistory = (props) => {
         showActionBtns={false}
         title={sectionData?.title}
         width="100%"
-        containerClass="wrapper-class"
+        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         icon={defaultIcons[sectionData?.icon]}
         showAutoFill={isEditable}
         opdDate="15 Jun 2025"

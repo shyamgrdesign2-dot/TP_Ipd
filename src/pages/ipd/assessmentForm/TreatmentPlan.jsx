@@ -41,7 +41,7 @@ const TreatmentPlan = (props) => {
         width="100%"
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
-        containerClass="wrapper-class"
+        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
@@ -88,7 +88,7 @@ const TreatmentPlan = (props) => {
         width="100%"
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
-        containerClass="wrapper-class"
+        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
