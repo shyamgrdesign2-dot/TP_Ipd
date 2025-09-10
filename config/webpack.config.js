@@ -763,7 +763,10 @@ module.exports = function (webpackEnv) {
         new ModuleFederationPlugin({
           name: 'host',
           remotes: {
-            shared_ui: 'module http://localhost:3001/assets/remoteEntry.js',
+            shared_ui:
+              process.env.REACT_APP_ENV === 'ipd'
+                ? 'module https://pm-storybook-ui-uat.kindmushroom-6f77b425.centralindia.azurecontainerapps.io/assets/remoteEntry.js'
+                : 'module http://localhost:3001/assets/remoteEntry.js',
           },
           shared: {
             react: { singleton: true, requiredVersion: false, eager: false },
