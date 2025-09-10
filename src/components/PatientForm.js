@@ -12,7 +12,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
-import { ADD, EDIT, GB_ISCRIBE } from "../utils/constants";
+import { ADD, EDIT, GB_ISCRIBE, GB_SNAP_RX } from "../utils/constants";
 import { errorMessage, getClinicName } from "../utils/utils";
 
 import TabHeader from "../components/tab_design/TabHeader";
@@ -44,6 +44,7 @@ function PatientForm({ mode = ADD, patient_data }) {
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
     );
+    const isSnapRxAccessable = useFeatureIsOn(GB_SNAP_RX);
 
     // Check if user came from all patients page
     const isFromAllPatients = location.state?.from === "/all_patients";
@@ -68,6 +69,9 @@ function PatientForm({ mode = ADD, patient_data }) {
     }
     const handleSmartRx = () => {
         navigate("/smart-prescription", { state: { patient_data: patientData } })
+    }
+    const handleSnapRx = () => {
+        navigate("/snap-rx", { state: { patient_data: patientData } })
     }
 
     const onFinish = () => {
@@ -253,18 +257,44 @@ function PatientForm({ mode = ADD, patient_data }) {
                                             <div className="me-4 text-decoration-underline btn p-0 text-main">
                                                 Choose Action
                                             </div>
-                                            <div className="d-flex align-items-center mt-2" style={{ gap: "3.4rem" }}>
-                                                {isSmartSyncAccessableFromGB ? (
-                                                    <>
-                                                        <Button onClick={handleConsult} className="lh-lg btn btn-secondary2 btn-41 px-4 me-4">
-                                                            <img className='me-3' src={startConsultIcon} alt="Consult" />
-                                                            <span>Start Consult</span>
+                                            <div>
+                                                {(isSmartSyncAccessableFromGB && isSnapRxAccessable) ? (
+                                                    <div className="d-flex align-items-center mt-2" style={{ gap: "1rem" }}>
+                                                        <Button onClick={handleSmartRx} className="lh-lg btn btn-secondary3 btn-41 px-4 me-2">
+                                                            <img className='me-1' src={smartPad} alt="SmartRx" />
+                                                            <span>Smart Rx</span>
                                                         </Button>
+                                                        <Button onClick={handleSnapRx} className="lh-lg btn btn-secondary3 btn-41 px-4 me-2">
+                                                            <img className='me-1' src={smartPad} alt="SmartRx" />
+                                                            <span>Snap Rx</span>
+                                                        </Button>
+                                                        <Button onClick={handleConsult} className="lh-lg btn btn-secondary2 btn-41 px-4 me-2">
+                                                            <img className='me-1' src={startConsultIcon} alt="Consult" />
+                                                            <span>Consult</span>
+                                                        </Button>
+                                                    </div>
+                                                ) : isSmartSyncAccessableFromGB ? (
+                                                    <div className="d-flex align-items-center mt-2" style={{ gap: "3.4rem" }}>
                                                         <Button onClick={handleSmartRx} className="lh-lg btn btn-secondary3 btn-41 px-4 me-4">
                                                             <img className='me-3' src={smartPad} alt="SmartRx" />
                                                             <span>Start Smart Rx</span>
                                                         </Button>
-                                                    </>
+                                                        <Button onClick={handleConsult} className="lh-lg btn btn-secondary2 btn-41 px-4 me-4">
+                                                            <img className='me-3' src={startConsultIcon} alt="Consult" />
+                                                            <span>Start Consult</span>
+                                                        </Button>
+                                                    </div>
+                                                ) : isSnapRxAccessable ? (
+                                                    <div className="d-flex align-items-center mt-2" style={{ gap: "3.4rem" }}>
+                                                        <Button onClick={handleSnapRx} className="lh-lg btn btn-secondary3 btn-41 px-4 me-4">
+                                                            <img className='me-3' src={smartPad} alt="SmartRx" />
+                                                            <span>Start Snap Rx</span>
+                                                        </Button>
+                                                        <Button onClick={handleConsult} className="lh-lg btn btn-secondary2 btn-41 px-4 me-4">
+                                                            <img className='me-3' src={startConsultIcon} alt="Consult" />
+                                                            <span>Start Consult</span>
+                                                        </Button>
+                                                    </div>
                                                 ) : (
                                                     <Button onClick={handleConsult} className="lh-lg btn btn-secondary2 btn-41 px-4 me-4">
                                                         <img className='me-3' src={startConsultIcon} alt="Consult" />

@@ -1893,10 +1893,10 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
             size="middle"
             style={{ display: "flex", justifyContent: "space-between" }}
           >
-            {(isSnapRxAccessable) &&
+            {(isSnapRxAccessable || isSmartSyncAccessableFromGB) &&
             !isMobile &&
             selectedTab != TAB_ZYDUS_ENCOUNTER ? (
-              (isDigitisationTab && isSnapRxDigitizationAccessable) ? (
+              (isDigitisationTab && (isSnapRxDigitizationAccessable || isSmartSyncAccessableFromGB)) ? (
                 isUnreviewedRx(record) ? (
                   <button
                     className="btn btn-outline-primary"
@@ -1929,8 +1929,8 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
                           : "btn-smart-rx"
                       }`}
                       onClick={() =>
-                        selectedTab === TAB_QUEUE && isSmartSyncAccessableFromGB ? 
-                          onSmartRxClick (record) : isSnapRxAccessable ? handleSnapRxClick(record)
+                        (selectedTab === TAB_QUEUE && isSmartSyncAccessableFromGB) ? 
+                          onSmartRxClick (record) : (selectedTab === TAB_QUEUE  && isSnapRxAccessable) ? handleSnapRxClick(record)
                           : onPrintRxUrlClick(record)
                       }
                     >
@@ -1966,13 +1966,12 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
                     </button>
                   )}
                   {openRowIndex === index && 
-                    <div className="rx-btns-grp" ref={consultButtonRef}>
+                    <div className="rx-btns-grp" style={{width: (isSnapRxAccessable && isSmartSyncAccessableFromGB ? "55%" : "52%")}} ref={consultButtonRef}>
                       {(isSmartSyncAccessableFromGB && isSnapRxAccessable) && 
                         <button
                           // ref={snapRxButtonRef}
                           className="btn-consult top-br with-divider"
                           onClick={() => {
-                            console.log("this is callledddddd")
                             handleSnapRxClick(record)}
                           }
                         >
@@ -1981,7 +1980,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
                       }
                       <button
                         // ref={consultButtonRef}
-                        className="btn-consult bottom-br"
+                        className={`btn-consult ${isSnapRxAccessable && isSmartSyncAccessableFromGB ?  "bottom-br" : "border-radius-all"}`}
                         onClick={() => onConsultClick(record)}
                       >
                         Consult

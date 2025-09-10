@@ -267,13 +267,13 @@ function WalkInConsultation() {
                       </button>
                     </div>
                   ) : isSnapRxAccessable ? (
-                    <div style={{ paddingLeft: "6px" }} onClick={() => onSmartRxClick(patient)}>
+                    <div style={{ paddingLeft: "6px" }} onClick={() => onSnapRxClick(patient)}>
                       <img src={smartPad} alt="vitals" />
                       <button
                         // className="btn btn-outline-primary btn-smart-rx"
                         className="btn btn-smartRx-text"
                       >
-                        SmartRx
+                        SnapRx
                       </button>
                     </div>
                   ) : (
