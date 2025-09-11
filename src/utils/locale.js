@@ -227,8 +227,8 @@ export const IPD = {
     {
       id: "chiefComplaint",
       title: "Chief Complaint",
-      icon: "chiefComplaint",
-      menuIcon: "chiefComplaint",
+      icon: "basic",
+      menuIcon: "basicInfoBg",
       enabled: true,
       expanded: false,
       children: [],
@@ -236,8 +236,8 @@ export const IPD = {
     {
       id: "findings",
       title: "Findings",
-      icon: "findings",
-      menuIcon: "findings",
+      icon: "basic",
+      menuIcon: "basicInfoBg",
       enabled: true,
       expanded: false,
       children: [],
@@ -245,8 +245,8 @@ export const IPD = {
     {
       id: "vitals",
       title: "Vitals",
-      icon: "vitals",
-      menuIcon: "vitals",
+      icon: "basic",
+      menuIcon: "basicInfoBg",
       enabled: true,
       expanded: false,
       children: [],
@@ -254,8 +254,8 @@ export const IPD = {
     {
       id: "additionalRemarks",
       title: "Additional Remarks",
-      icon: "additionalRemarks",
-      menuIcon: "additionalRemarks",
+      icon: "basic",
+      menuIcon: "basicInfoBg",
       enabled: true,
       expanded: false,
       children: [],

@@ -255,6 +255,7 @@ const IPDPatientDetails = () => {
               wardBedNumber={patientData.wardBedNumber}
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
+              showAddCTA={true}
               renderContent={
                 !isEditable && isDataPresent ? renderContent : null
               }

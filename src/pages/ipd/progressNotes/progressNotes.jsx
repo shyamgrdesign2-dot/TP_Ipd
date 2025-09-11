@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useState } from "react";
 import { IPD } from "../../../utils/locale";
 import "../assessmentForm/styles.scss";
+import "./styles.scss";
 import { Button, Drawer } from "antd";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -14,10 +15,11 @@ import { useSelector } from "react-redux";
 import CustomModule from "../../../components/CustomModule";
 import { getProgressNotesData } from "../../../redux/ipd/progressNotesSlice.js";
 // import ChiefComplaint from "./ChiefComplaint.jsx";
-import Vitals from "./Vitals.jsx";
+// import Vitals from "./Vitals.jsx";
 import Findings from "./Findings.jsx";
 import AdditionalRemarks from "./AdditionalRemarks.jsx";
 import ChiefComplaint from "../assessmentForm/ChiefComplaint.jsx";
+import Vitals from "../assessmentForm/Vitals.jsx";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
