@@ -82,6 +82,7 @@ const LabResults = (props) => {
             showHeader={false}
             labParamsData={labResults}
             showSearchBar={false}
+            isEditable={false}
           />
         ) : null}
         {isEditable ? (
@@ -107,7 +108,7 @@ const LabResults = (props) => {
         showActionBtns={false}
         title={sectionData?.title}
         width="100%"
-        containerClass="wrapper-class"
+        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         icon={defaultIcons[sectionData?.icon]}
         showAutoFill={false}
         onErase={() => {

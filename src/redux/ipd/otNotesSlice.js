@@ -1,14 +1,49 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiOtNotes from "../../api/services/ipd/ApiOtNotes";
+import ApiSurgical from "../../api/services/ApiSurgical";
 
 const initialState = {
   otNotesData: {},
   loading: false,
+
+  surgeryDetails: {
+    surgeryProcedureName: "",
+    surgeryName: "",
+    anaesthesiaType: "",
+    surgeryDate: "",
+    surgeryStartTime: "",
+    surgeryEndTime: "",
+    diagnosis: null,
+  },
+  surgeryTeam: {
+    primarySurgeon: {},
+    secondarySurgeon: {},
+    assistant: {},
+    anaesthesiologist: {},
+    scrubNurse: {},
+    floorCirculatingNurse: {},
+  },
+  operativeNotes: {},
+  surgeryProcedureOptions: [],
+  surgeryProcedureOptionsLoading: false,
 };
+
+export const searchSurgeryProcedures = createAsyncThunk(
+  "otNotes/searchSurgeryProcedures",
+  async (query) => {
+    try {
+      const result = await ApiSurgical.searchExamination(query || "");
+
+      return Array.isArray(result) ? result : [];
+    } catch (error) {
+      throw Error(error);
+    }
+  }
+);
 
 export const getOtNotesData = createAsyncThunk(
   "otNotes/getOtNotesData",
-  async (data) => {
+  async (data, {rejectWithValue}) => {
     try {
       let result = {};
       result = await ApiOtNotes.getOtNotesData(data);
@@ -19,7 +54,7 @@ export const getOtNotesData = createAsyncThunk(
       }
     } catch (error) {
       console.log("error: ", error);
-      throw Error(error);
+      return rejectWithValue({ visible: false, message: error.response.data.message });
     }
   }
 );
@@ -64,9 +99,46 @@ const otNotesSlice = createSlice({
     setOtNotesData: (state, action) => {
       state.otNotesData = action.payload;
     },
+    setSurgeryProcedureName: (state, action) => {
+      state.surgeryDetails.surgeryProcedureName = action.payload || "";
+      state.surgeryDetails.surgeryName = action.payload || "";
+    },
+    setAnaesthesiaType: (state, action) => {
+      state.surgeryDetails.anaesthesiaType = action.payload || "";
+    },
+    setSurgeryDate: (state, action) => {
+      state.surgeryDetails.surgeryDate = action.payload || "";
+    },
+    setSurgeryStartTime: (state, action) => {
+      state.surgeryDetails.surgeryStartTime = action.payload || "";
+    },
+    setSurgeryEndTime: (state, action) => {
+      state.surgeryDetails.surgeryEndTime = action.payload || "";
+    },
+    setDiagnosis: (state, action) => {
+      state.surgeryDetails.diagnosis = action.payload || null;
+    },
+    setSurgeryTeam: (state, action) => {
+      state.surgeryTeam[action.payload.roleId] = action.payload.value || {};
+    },
+    setOperativeNotes: (state, action) => {
+      state.operativeNotes[action.payload.key] = action.payload.value || "";
+    }
   },
   extraReducers: (builder) => {
     builder
+
+      .addCase(searchSurgeryProcedures.pending, (state) => {
+        state.surgeryProcedureOptionsLoading = true;
+      })
+      .addCase(searchSurgeryProcedures.fulfilled, (state, action) => {
+        state.surgeryProcedureOptionsLoading = false;
+        state.surgeryProcedureOptions = action.payload || [];
+      })
+      .addCase(searchSurgeryProcedures.rejected, (state) => {
+        state.surgeryProcedureOptionsLoading = false;
+        state.surgeryProcedureOptions = [];
+      })
       .addCase(getOtNotesData.pending, (state) => {
         state.loading = true;
       })
@@ -105,5 +177,13 @@ const otNotesSlice = createSlice({
 
 export const {
   setOtNotesData,
+  setSurgeryProcedureName,
+  setAnaesthesiaType,
+  setSurgeryDate,
+  setSurgeryStartTime,
+  setSurgeryEndTime,
+  setDiagnosis,
+  setSurgeryTeam,
+  setOperativeNotes
 } = otNotesSlice.actions;
 export default otNotesSlice.reducer;

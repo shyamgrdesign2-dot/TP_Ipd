@@ -974,9 +974,9 @@ function MedicationsBox(props) {
             gutter={[0]}
             className={`mt-14 border-top align-items-center`}
           >
-            <Col lg={1} md={1} sm={1} xs={1}>
+            {isEditable ? <Col lg={1} md={1} sm={1} xs={1}>
               &nbsp;
-            </Col>
+            </Col> : null}
             <Col lg={5} md={5} sm={5} xs={5}>
               <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
                 <label>MEDICINE</label>
@@ -1000,7 +1000,7 @@ function MedicationsBox(props) {
                       arrow={false}
                       onOpenChange={showHideFrequencyPopOver}
                       overlayClassName="pp-0">
-                      <i className='icon-info ms-1 fs-18'></i>
+                      {isEditable ? <i className='icon-info ms-1 fs-18'></i> : null}
                     </Popover>
                   </div>
                 </Col>
@@ -1043,14 +1043,14 @@ function MedicationsBox(props) {
                           gutter={[0]}
                           className={`taper-dose align-items-center ${i === 0 && "border-top"} border-bottom`}
                         >
-                          <Col lg={1} md={1} sm={1} xs={1} className="text-center">
+                          {isEditable ? <Col lg={1} md={1} sm={1} xs={1} className="text-center">
                             <MenuOutlined
                               {...provided.dragHandleProps}
                               className="drag-handle"
                               style={{ cursor: 'grab' }}
                             >
                             </MenuOutlined>
-                          </Col>
+                          </Col> : null}
                           <Col lg={5} md={5} sm={5} xs={5}>
                             <div className="fontroboto fw-medium p-2 pe-3">
                               <label>{item.tmm_medicine_name}</label>
@@ -1083,7 +1083,7 @@ function MedicationsBox(props) {
                                   <Col lg={5} md={5} sm={5} xs={5} className="border-end border-start">
                                     <AutoComplete
                                       defaultValue={item.tmm_dosage_unit_name}
-                                      value={item.tmm_dosage_unit_name}
+                                      value={item.tmm_dosage_unit_name || isEditable ? '' : '-'}
                                       placeholder="e.g 1 Tablet"
                                       bordered={false}
                                       defaultOpen={false}
@@ -1108,7 +1108,7 @@ function MedicationsBox(props) {
                                   <Col lg={4} md={4} sm={4} xs={4} className="border-end">
                                     <Select
                                       showSearch
-                                      className="autocomplete-custom w-100 h-100 inputborder"
+                                      className={`autocomplete-custom w-100 h-100 inputborder ${!isEditable ? 'autoselect-medrx-readonly': ''}`}
                                       placeholder="e.g 1-0-1"
                                       defaultValue={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
                                       value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
@@ -1123,7 +1123,7 @@ function MedicationsBox(props) {
                                   </Col>
                                   <Col lg={4} md={4} sm={4} xs={4} className="border-end">
                                     <Select
-                                      className="autocomplete-custom w-100 h-100 inputborder"
+                                      className={`autocomplete-custom w-100 h-100 inputborder ${!isEditable ? 'autoselect-medrx-readonly': ''}`}
                                       placeholder="e.g Before Food"
                                       defaultValue={item.tmm_time_name != "" ? item.tmm_time_name : null}
                                       value={item.tmm_time_name != "" ? item.tmm_time_name : null}
@@ -1163,7 +1163,7 @@ function MedicationsBox(props) {
                                       className="notesinput border-0 h-100 align-self-center"
                                       placeholder="Notes"
                                       defaultValue={item.tmm_remarks}
-                                      value={item.tmm_remarks}
+                                      value={item.tmm_remarks || !isEditable ? "-" : ""}
                                       autoSize={{
                                         minRows: 1,
                                         maxRows: 2,

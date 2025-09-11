@@ -171,18 +171,19 @@ const AssessmentsForm = (props) => {
       });
     }
     dispatch(getCustomization());
-    dispatch(
-      getLastPrescriptionDate({ patientId: patientDetails?.details?.id })
-    ).then((res) => {
-      if (res.payload) {
-        dispatch(
-          lastPrescriptionData({
-            patientId: patientDetails?.details?.id,
-            caseId: res.payload?.caseId,
-          })
-        );
-      }
-    });
+    if (isEditable)
+      dispatch(
+        getLastPrescriptionDate({ patientId: patientDetails?.details?.id })
+      ).then((res) => {
+        if (res.payload) {
+          dispatch(
+            lastPrescriptionData({
+              patientId: patientDetails?.details?.id,
+              caseId: res.payload?.caseId,
+            })
+          );
+        }
+      });
   }, []);
 
   useEffect(() => {
@@ -293,13 +294,11 @@ const AssessmentsForm = (props) => {
   const renderBottomSection = () => {
     return (
       <div className="ipd-custom-module-container">
-        {
-          customModules?.map(customModule => {
-            return (
-              <CustomModule module={customModule} patient_data={patient_data} />
-            )
-          })
-        }
+        {customModules?.map((customModule) => {
+          return (
+            <CustomModule module={customModule} patient_data={patient_data} />
+          );
+        })}
         <AddCustomModule />
       </div>
     );
@@ -308,7 +307,7 @@ const AssessmentsForm = (props) => {
   const renderAllSections = () => {
     return (
       <div
-        className={`ipd-assessments-form-container ${
+        className={`ipd-generic-form-container ${
           !isEditable ? "ipd-assessments-readable-container" : ""
         }`}
         style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
@@ -323,13 +322,13 @@ const AssessmentsForm = (props) => {
   };
 
   return (
-    <div className="afipd-assessments-form-container">
+    <div className="afipd-generic-form-container">
       <Suspense fallback={<>Loading ...</>}>
         {!isEditable ? (
           <div>{renderAllSections()}</div>
         ) : (
           <div
-            className={`ipd-assessments-form-container ${
+            className={`ipd-generic-form-container ${
               !isEditable ? "ipd-assessments-readable-container" : ""
             }`}
             style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}

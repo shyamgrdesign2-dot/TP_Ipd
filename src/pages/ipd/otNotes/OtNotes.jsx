@@ -21,6 +21,7 @@ import { getOtNotesData } from "../../../redux/ipd/otNotesSlice.js";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
+const FilledByCard = createRemoteComponent("FilledByCard");
 
 const OtNotes = (props) => {
   const dispatch = useDispatch();
@@ -165,10 +166,18 @@ const OtNotes = (props) => {
     );
   };
 
+  const renderHeaderSection = () => {
+    return (
+      <div className="ipd-filled-by-card-container">
+        <FilledByCard  filledBy='John Doe' role='Doctor' selectedTimePeriod='Morning' editable={true} />
+      </div>
+    )
+  }
+
   const renderAllSections = () => {
     return (
       <div
-        className={`ipd-assessments-form-container ${
+        className={`ipd-generic-form-container ${
           !isEditable ? "ipd-assessments-readable-container" : ""
         }`}
         style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
@@ -182,15 +191,18 @@ const OtNotes = (props) => {
     );
   };
 
-  console.log('INTEL ==> otNotes', {open, modelData, otNotes})
+  const onMenuItemClick = (activeId) => {
+    console.log('INTEL ==> activeId', activeId)
+  }
+
   return (
-    <div className="afipd-assessments-form-container">
+    <div className="afipd-otnotes-form-container">
       <Suspense fallback={<>Loading ...</>}>
         {!isEditable ? (
           <div>{renderAllSections()}</div>
         ) : (
           <div
-            className={`ipd-assessments-form-container ${
+            className={`ipd-generic-form-container ${
               !isEditable ? "ipd-assessments-readable-container" : ""
             }`}
             style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
@@ -210,8 +222,9 @@ const OtNotes = (props) => {
                   navigate(-1);
                   return setOpen(false);
                 }}
+                renderHeaderSection={renderHeaderSection}
                 headerOffset={72}
-                // renderBottomSection={renderBottomSection}
+                onMenuItemClick={onMenuItemClick}
               />
             )}
           </div>

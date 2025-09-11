@@ -13,7 +13,7 @@ $muted: #6f6b88;
   }
 }
 
-.ipd-assessments-form-container {
+.ipd-generic-form-container {
   .toolbar-container {
     justify-content: flex-end !important;
   }
@@ -146,6 +146,11 @@ $muted: #6f6b88;
       background-color: #fff;
     }
   }
+  .ipd-wrapper-class-readonly {
+    .rich-text-editor-wrapper {
+      // background: #ffffff80 !important;
+    }
+  }
 
   .ipdaf-vitals-main-container {
     padding: 20px !important;
@@ -203,6 +208,17 @@ $muted: #6f6b88;
 }
 .rich-text-editor-wrapper-header-title {
   font-weight: 500 !important;
+}
+.ipd-adm-assess-container-readable {
+  .rich-text-editor-wrapper-header-title {
+    font-weight: 600 !important;
+  } 
+}
+.ipd-fn-as-readonly {
+  margin-bottom: 24px;
+  .ipdaf-assessment-readonly {
+    padding: 0 38px;
+  }
 }
 .ipdaf-vitals-header {
   display: flex;

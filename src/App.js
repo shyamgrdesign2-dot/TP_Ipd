@@ -66,9 +66,9 @@ import AppointmentSuccess from "./pages/appointmentAgent/components/AppointmentS
 import OpdBill from "./pages/opdBilling/OpdBill";
 import IPDPatientDetails from "./pages/ipd/patientDetails/patientDetails";
 import AssessmentsForm from "./pages/ipd/assessmentForm/AssessmentsForm";
-import OtNotes from "./pages/ipd/otNotes/OtNotes";
-import IPDLayout from "./pages/ipd/inPatients/components/IPDLayout";
 import InPatients from "./pages/ipd/inPatients/InPatients";
+import OtNotes from "./pages/ipd/otNotes/OtNotes";
+import HomePageLayout from "./pages/ipd/HomePageLayout";
 import ConsultantNotes from "./pages/ipd/consultantNotes/ConsultantNotes";
 
 const growthbook = new GrowthBook({
@@ -497,7 +497,7 @@ function App() {
                   path="appointment-agent/success"
                   element={<AppointmentSuccess />}
                 />
-                <Route path="ipd" element={<IPDLayout />}>
+                <Route path="ipd" element={<HomePageLayout />}>
                   <Route path="inPatients" element={<InPatients />} />
                 </Route>
               </Route>

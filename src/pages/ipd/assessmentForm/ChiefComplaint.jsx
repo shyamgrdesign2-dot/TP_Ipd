@@ -86,7 +86,7 @@ const ChiefComplaint = (props) => {
       }
       icon={defaultIcons[sectionData?.icon]}
       showAutoFill={isEditable && isLastChiefComplaintPresent}
-      containerClass="wrapper-class"
+      containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
       opdDate={formatDateToShortMonthYear(lastRxDate)}
       onSave={() => {
         console.log("save");

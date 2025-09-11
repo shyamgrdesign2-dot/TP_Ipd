@@ -188,7 +188,7 @@ module.exports = function (webpackEnv) {
   };
 
   return {
-    target: ['browserslist'],
+    target: ['web', 'es2020'],
     // Webpack noise constrained to errors and warnings
     stats: 'errors-warnings',
     mode: isEnvProduction ? 'production' : isEnvDevelopment && 'development',
@@ -229,6 +229,7 @@ module.exports = function (webpackEnv) {
               .replace(/\\/g, '/')
         : isEnvDevelopment &&
           (info => path.resolve(info.absoluteResourcePath).replace(/\\/g, '/')),
+      module: true,
     },
     cache: {
       type: 'filesystem',
@@ -245,6 +246,9 @@ module.exports = function (webpackEnv) {
     },
     infrastructureLogging: {
       level: 'none',
+    },
+    experiments: {
+      outputModule: true,
     },
     optimization: {
       minimize: isEnvProduction,
@@ -578,6 +582,7 @@ module.exports = function (webpackEnv) {
           {
             inject: true,
             template: paths.appHtml,
+            scriptLoading: 'module',
           },
           isEnvProduction
             ? {
@@ -758,7 +763,10 @@ module.exports = function (webpackEnv) {
         new ModuleFederationPlugin({
           name: 'host',
           remotes: {
-            shared_ui: 'module http://localhost:3001/assets/remoteEntry.js',
+            shared_ui:
+              process.env.REACT_APP_ENV === 'ipd'
+                ? 'module /shared-ui/assets/remoteEntry.js'
+                : 'module http://localhost:3001/assets/remoteEntry.js',
           },
           shared: {
             react: { singleton: true, requiredVersion: false, eager: false },

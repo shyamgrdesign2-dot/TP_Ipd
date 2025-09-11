@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import IPDHeader from "./IPDHeader";
-import IPDNavBar from "./IPDNavBar";
+import IPDHeader from "./components/IPDHeader";
+import IPDNavBar from "./components/IPDNavBar";
 
 export default function HomePageLayout() {
   return (
