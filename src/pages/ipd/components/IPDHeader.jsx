@@ -8,15 +8,15 @@ import { isChrome, isSafari } from "react-device-detect";
 
 import Slider from "react-slick";
 
-import playIconutube from "../../../../assets/images/play-icon.png";
-import tutorial from "../../../../assets/images/tutorial-icon.svg";
-import playIcons from "../../../../assets/images/tube-icon.svg";
+import playIconutube from "../../../assets/images/play-icon.png";
+import tutorial from "../../../assets/images/tutorial-icon.svg";
+import playIcons from "../../../assets/images/tube-icon.svg";
 
-import { changeHospital } from "../../../../redux/doctorsSlice";
-import { useLocalStorage } from "../../../../utils/localStorage";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
-import { getClinicName } from "../../../../utils/utils";
-import VideoModal from "../../../../common/VideoModal";
+import { changeHospital } from "../../../redux/doctorsSlice";
+import { useLocalStorage } from "../../../utils/localStorage";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
+import { getClinicName } from "../../../utils/utils"; 
+import VideoModal from "../../../common/VideoModal";
 
 function IPDHeader({ locationPath }) {
   const [popOverVideo, setPopOverVideo] = useState(false);

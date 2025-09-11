@@ -42,6 +42,7 @@ const ConsultantNotes = (props) => {
   const { state } = useLocation();
   const { patient_data, patientDetails } = state || {};
   const patientId = patientDetails?.details?.id;
+  const { admissionId } = patientDetails;
 
   const { isEditable = true } = props; // Default patientId for testing
   const dispatch = useDispatch();
@@ -100,12 +101,12 @@ const ConsultantNotes = (props) => {
 
   // Fetch consultant notes on component mount and clear medication data
   useEffect(() => {
-    if (patientId) {
+    if (patientId && admissionId) {
       // Clear medication data to ensure clean state for consultant notes
       if (!currentConsultantNote?._id) dispatch(clearMedicationData());
-      dispatch(getConsultantNotes({ patientId }));
+      dispatch(getConsultantNotes({ patientId, admissionId }));
     }
-  }, [patientId, dispatch]);
+  }, [patientId, dispatch, admissionId]);
 
   // Save consultant notes
   const saveConsultantNotes = async () => {
@@ -134,6 +135,7 @@ const ConsultantNotes = (props) => {
       const result = await dispatch(
         updateConsultantNotes({
           patientId,
+          admissionId,
           _id: currentConsultantNote?._id,
           data: consultantNotesData,
         })
@@ -167,7 +169,7 @@ const ConsultantNotes = (props) => {
       }
 
       // Refresh the notes after saving
-      await dispatch(getConsultantNotes({ patientId }));
+      await dispatch(getConsultantNotes({ patientId, admissionId }));
       navigate(`/ipd/patient-details`, {
         replace: true,
         state: {

@@ -17,9 +17,12 @@ const initialState = {
 // Async thunks
 export const getConsultantNotes = createAsyncThunk(
   "consultantNotes/getConsultantNotes",
-  async ({ patientId }, { rejectWithValue }) => {
+  async ({ patientId, admissionId }, { rejectWithValue }) => {
     try {
-      const result = await ApiConsultantNotes.getConsultantNotes({ patientId });
+      const result = await ApiConsultantNotes.getConsultantNotes({
+        patientId,
+        admissionId,
+      });
       if (result?.length) {
         return result;
       } else {
@@ -36,10 +39,11 @@ export const getConsultantNotes = createAsyncThunk(
 
 export const updateConsultantNotes = createAsyncThunk(
   "consultantNotes/updateConsultantNotes",
-  async ({ patientId, _id, data }, { rejectWithValue }) => {
+  async ({ patientId, admissionId, _id, data }, { rejectWithValue }) => {
     try {
       const result = await ApiConsultantNotes.updateConsultantNotes({
         patientId,
+        admissionId,
         _id,
         data,
       });

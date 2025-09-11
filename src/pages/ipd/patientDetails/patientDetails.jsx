@@ -53,6 +53,9 @@ const IPDPatientDetails = () => {
     activeTab,
   } = state || {};
 
+  const patientId = patientDetails?.details?.id;
+  const { admissionId } = patientDetails;
+
   const { assessmentsData } = useSelector((state) => state.assessment);
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { otNotesData } = useSelector((state) => state.otNotes);
@@ -191,24 +194,20 @@ const IPDPatientDetails = () => {
   };
 
   useEffect(() => {
-    if (!patientDetails?.details?.id) return;
-
-    dispatch(clearMedicationData());
+    if (!patientId || !admissionId) return;
 
     if (activeMenuItem === "assessment") {
-      dispatch(
-        getAssessmentsData({ patientId: patientDetails?.details?.id })
-      ).then((res) => {
+      dispatch(getAssessmentsData({ patientId })).then((res) => {
         addDataToStore(res.payload);
       });
     } else if (activeMenuItem === "consultantNotes") {
-      dispatch(
-        getConsultantNotes({ patientId: patientDetails?.details?.id })
-      ).catch((error) => {
-        console.error("Error fetching consultant notes:", error);
-      });
+      dispatch(getConsultantNotes({ patientId, admissionId })).catch(
+        (error) => {
+          console.error("Error fetching consultant notes:", error);
+        }
+      );
     }
-  }, [activeMenuItem, patientDetails?.details?.id]);
+  }, [activeMenuItem, admissionId, patientId]);
 
   const handleEmptyCtaClick = {
     assessment: () => handleAddAssessmentClick(true),
@@ -246,10 +245,6 @@ const IPDPatientDetails = () => {
     setActiveMenuItem(id);
   };
 
-  const handleActiveItemChange = (item) => {
-    setActiveMenuItem(item);
-  };
-
   const renderContent = (activeItem) => {
     switch (activeItem?.id) {
       case "assessment":
@@ -279,7 +274,10 @@ const IPDPatientDetails = () => {
   };
 
   const canShowAddCTA = useMemo(() => {
-    return activeMenuItem?.showAddCTA && isDataPresent;
+    return (
+      IPD.PATIENT_DETAILS_MENU.find((item) => item.id === activeMenuItem)
+        ?.showAddCTA && isDataPresent
+    );
   }, [activeMenuItem, isDataPresent]);
 
   return (
@@ -292,7 +290,6 @@ const IPDPatientDetails = () => {
               items={patientDetailsMenu()}
               onHandleSelect={onHandleSelect}
               onRequestClose={onRequestClose}
-              onActiveItemChange={handleActiveItemChange}
               fullName={patientData.fullName}
               gender={patientData.gender}
               age={patientData.age}
