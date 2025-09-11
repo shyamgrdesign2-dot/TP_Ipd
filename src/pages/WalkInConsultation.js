@@ -586,6 +586,7 @@ function WalkInConsultation() {
                             </div>
                             ) : isSnapRxAccessable ? (
                                 <div
+                                    className="d-flex w-50 justify-content-between"
                                     style={{
                                         background: "#4B4AD5",
                                         borderRadius: "10px",

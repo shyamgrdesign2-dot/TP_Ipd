@@ -137,7 +137,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                         }
                     });
                 } else {
-                    if (isMobile || !isSmartSyncAccessableFromGB) {
+                    if (isMobile || (!isSmartSyncAccessableFromGB && !isSnapRxAccessable )) {
                         mode === EDIT ?
                             navigate("/patient_details", {
                                 replace: true,

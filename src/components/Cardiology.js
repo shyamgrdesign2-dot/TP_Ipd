@@ -116,13 +116,15 @@ function Cardiology(props) {
       fetchData();
     }
     if (
-      isSnapRxDigitizationAccessable &&
+      isSnapRxAccessableFromGB &&
       viewCaseManagerData?.tcm_id &&
       viewCaseManagerData?.smart_prescription_filename?.includes("snap_rx")
     ) {
       setIsSnapRx(true);
       fetchSnapRxFile();
-      fetchSnapRxDigitisedData(viewCaseManagerData?.tcm_id);
+      if(isSnapRxDigitizationAccessable){
+        fetchSnapRxDigitisedData(viewCaseManagerData?.tcm_id);
+      }
     } else {
       setIsSnapRx(false);
     }
@@ -1025,7 +1027,8 @@ function Cardiology(props) {
                     </button>
                   </div>
                 )
-              ))}
+              ))
+            }
 
             {isSnapRxDigitizationAccessable &&
               isSnapRx &&
@@ -1089,7 +1092,8 @@ function Cardiology(props) {
                     Digitise Rx Now
                   </button>
                 </div>
-              ))}
+              ))
+            }
 
             {genRxData &&
               isValidMongoId(
@@ -1119,7 +1123,8 @@ function Cardiology(props) {
                     Transcript
                   </button>
                 </div>
-              )}
+              )
+            }
             <Drawer
               closeIcon={false}
               // placement="right"
