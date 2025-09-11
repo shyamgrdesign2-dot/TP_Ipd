@@ -2444,7 +2444,7 @@ function SmartPrescription() {
         dispatch(setSelectAutofill(false));
       }
 
-      // Assign care plan if one is selected (not null/None)
+     
       if (selectedCarePlan && selectedCarePlan.plan_id && patient_data?.patient_unique_id && userId && decodedToken?.result?.clinic_id) {
         try {
           console.log('Assigning care plan:', selectedCarePlan);
@@ -2456,11 +2456,10 @@ function SmartPrescription() {
           });
           console.log('Care plan assigned successfully:', carePlanResponse);
           
-          // Track care plan assignment
+          
         } catch (error) {
           console.error('Failed to assign care plan:', error);
-          // Don't show error to user as prescription was successful
-          // Just log the error for debugging
+          
         }
       } else {
         console.log('No care plan selected - skipping assignment');

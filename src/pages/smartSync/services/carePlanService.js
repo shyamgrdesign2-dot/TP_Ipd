@@ -2,8 +2,8 @@ import api from '../../../api/services/axiosService';
 import config from '../../../config';
 
 
-//const defaultBaseUrl = { customBaseUrl: config.casemanager_api_url };
-const defaultBaseUrl = { customBaseUrl: "http://localhost:3001" };
+const defaultBaseUrl = { customBaseUrl: config.casemanager_api_url };
+//const defaultBaseUrl = { customBaseUrl: "http://localhost:3001" };
 
 // GET /api/v1/care-plans/fetch-plans - Get all care plan names
 export const getCarePlanNames = async (options = {}) => {
@@ -83,9 +83,7 @@ export const getCarePlanNames = async (options = {}) => {
 
 
 
-// POST /api/v1/care-plans/assign - Assign a care plan
-// payload shape: { plan_id: string, um_id: number, patient_unique_id: number, hm_id: number }
-// Backend expects: { care_plan_id: string, um_id: number, patient_unique_id: number, hm_id: number }
+
 export const assignCarePlan = async (payload, options = {}) => {
   const base = options.baseUrl || defaultBaseUrl;
   
