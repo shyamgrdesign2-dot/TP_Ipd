@@ -80,6 +80,9 @@ const prescriptionSlice = createSlice({
         state.gynecHistoryData = action.payload;
       }
     },
+    clearMedicationData: (state) => {
+      state.medicationData = [];
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -113,5 +116,6 @@ export const {
   setPillupSwitch,
   setMedicalHistoryData,
   setGynecHistoryData,
+  clearMedicationData,
 } = prescriptionSlice.actions;
 export default prescriptionSlice.reducer;

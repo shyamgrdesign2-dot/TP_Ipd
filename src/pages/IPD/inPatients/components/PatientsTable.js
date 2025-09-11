@@ -60,7 +60,7 @@ const PatientsTable = ({
       ),
     },
     {
-      title: "Ward/Room",
+      title: "Ward/Bed No",
       dataIndex: "ward",
       key: "ward",
       render: (text, record) => (
@@ -110,6 +110,7 @@ const PatientsTable = ({
     {
       title: "Action",
       key: "action",
+      fixed: "right",
       render: (_, record) => (
         <div
           size="middle"

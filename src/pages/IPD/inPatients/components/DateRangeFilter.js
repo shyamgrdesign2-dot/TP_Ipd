@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useRef, useEffect } from "react";
 import { DatePicker, Button } from "antd";
 import dayjs from "dayjs";
 
@@ -18,6 +18,38 @@ const DateRangeFilter = ({
   disabledDate,
   className = "",
 }) => {
+  const containerRef = useRef(null);
+
+  // Handle clicks outside the component to close the calendar
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isOpen) {
+        // Check if click is outside the container
+        const isOutsideContainer =
+          containerRef.current && !containerRef.current.contains(event.target);
+
+        // Check if click is on the calendar popup (Ant Design renders it with specific classes)
+        const isOnCalendarPopup =
+          event.target.closest(".ant-picker-dropdown") ||
+          event.target.closest(".ant-picker-panel") ||
+          event.target.closest(".ant-picker-range-wrapper");
+
+        // Only close if clicking outside container AND not on calendar popup
+        if (isOutsideContainer && !isOnCalendarPopup) {
+          onToggleModal();
+        }
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onToggleModal]);
+
   // Memoize presets to avoid recreation on every render
   const rangePresets = useMemo(
     () => [
@@ -83,7 +115,10 @@ const DateRangeFilter = ({
   }, [dateRange]);
 
   return (
-    <div className={`massage-date-wrapper ms-3 ${className}`}>
+    <div
+      ref={containerRef}
+      className={`massage-date-wrapper ms-3 ${className}`}
+    >
       <div
         className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between"
         onClick={onToggleModal}
@@ -127,11 +162,11 @@ const DateRangeFilter = ({
               )}
             </div>
             <div>
-              <button className="btn btn-text me-3 px-0 " onClick={onCancel}>
-                <span>Cancel</span>
+              <button className="btn btn-text me-3 px-0" onClick={onCancel}>
+                <span className="clear-filter">Clear Filter</span>
               </button>
               <Button className="px-4" type="primary" onClick={onToggleModal}>
-                Done
+                Apply Filter
               </Button>
             </div>
           </div>

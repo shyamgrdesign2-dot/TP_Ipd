@@ -39,7 +39,9 @@ import { env } from "../EnvironmentConfig";
 
 const { TextArea } = Input;
 
-function InvestigationBox({handleDDxDrawer, generatedDDx}) {
+function InvestigationBox({handleDDxDrawer, generatedDDx, investigationData: propInvestigationData,
+  setInvestigationData: propSetInvestigationData,
+  diagnosisData: propDiagnosisData}) {
   const {
     selectedInvestigationList,
     parentOptionsList,
@@ -49,9 +51,15 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
   } = useSelector((state) => state.investigation);
   const dispatch = useDispatch();
 
-  const { investigationData, setInvestigationData, diagnosisData } =
-    useContext(CashManagerContext);
-  // const [ investigationData, setInvestigationData] = useState([]);
+  // Use context if available, otherwise use props
+  const contextData = useContext(CashManagerContext);
+
+  // Fallback to context if props are not provided
+  const investigationData =
+    propInvestigationData ?? contextData?.investigationData ?? [];
+  const setInvestigationData =
+    propSetInvestigationData ?? contextData?.setInvestigationData ?? (() => {});
+  const diagnosisData = propDiagnosisData ?? contextData?.diagnosisData ?? [];
 
   const [ddxInvestigationOptionsList, setDdxInvestigationOptionsList] =
     useState([]);
@@ -204,22 +212,22 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
       window.Moengage.track_event("investigation_select", {
         "value": data
       });
-      investigationData.push({
+      const newItem = {
         ...JSON.parse(e.key),
         note: "",
-      });
-      setInvestigationData((prev) => [...prev]);
+      };
+      setInvestigationData((prev) => [...prev, newItem]);
       setSearchParentQuery("");
     },
     [searchParentQuery, investigationData]
   );
 
   const onSelectDDx = (e) => {
-    investigationData.push({
+    const newItem = {
       ...e,
       note: "",
-    });
-    setInvestigationData((prev) => [...prev]);
+    };
+    setInvestigationData((prev) => [...prev, newItem]);
     setSearchParentQuery("");
   };
 
@@ -277,13 +285,17 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
 
   const onSearchChild = useCallback(
     (query, i) => {
-      const updateQuery = removeBeforeWhiteSpace(query)
-      investigationData[i] = {
-        ...investigationData[i],
-        change: 1,
-        investigation_name: updateQuery
-      };
-      setInvestigationData((prev) => [...prev]);
+      const updateQuery = removeBeforeWhiteSpace(query);
+      const newData = investigationData.map((item, index) =>
+        index === i
+          ? {
+              ...item,
+              change: 1,
+              investigation_name: updateQuery,
+            }
+          : item
+      );
+      setInvestigationData(newData);
       setSearchChildQuery({ query: updateQuery, index: i });
     },
     [searchChildQuery, investigationData]
@@ -291,24 +303,31 @@ function InvestigationBox({handleDDxDrawer, generatedDDx}) {
 
   const onSelectChild = useCallback(
     (data, e, i) => {
-      investigationData[i] = { ...investigationData[i], ...JSON.parse(e.key) };
-      setInvestigationData((prev) => [...prev]);
-      setSearchChildQuery({ query: JSON.parse(e.key).investigation_name, index: i });
+      const newData = investigationData.map((item, index) =>
+        index === i ? { ...item, ...JSON.parse(e.key) } : item
+      );
+      setInvestigationData(newData);
+      setSearchChildQuery({
+        query: JSON.parse(e.key).investigation_name,
+        index: i,
+      });
     },
     [searchChildQuery, investigationData]
   );
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      investigationData[i].note = e.target.value;
-      setInvestigationData((prev) => [...prev]);
+      const newData = investigationData.map((item, index) =>
+        index === i ? { ...item, note: e.target.value } : item
+      );
+      setInvestigationData(newData);
     },
     [investigationData]
   );
 
   const onRemoveRow = (index) => {
-    investigationData.splice(index, 1);
-    setInvestigationData((prev) => [...prev]);
+    const newData = investigationData.filter((_, i) => i !== index);
+    setInvestigationData(newData);
   };
 
   //PopOver1 function

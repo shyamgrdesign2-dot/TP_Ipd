@@ -10,32 +10,89 @@ import { useDebounce } from "./hooks/useDebounce";
 import { useInfiniteScroll } from "./hooks/useInfiniteScroll";
 import { usePatientsData } from "./hooks/usePatientsData";
 import { useFiltersData } from "./hooks/useFiltersData";
+import {
+  loadIPDFilters,
+  saveIPDFilters,
+  clearIPDFilters,
+} from "../../../utils/localStorage";
 import "./InPatients.scss";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD-MM-YYYY";
 
-
-
 function InPatients() {
   const navigate = useNavigate();
 
+  // Initialize state from session storage
+  const initializeFiltersFromSession = () => {
+    const savedFilters = loadIPDFilters();
+    if (savedFilters) {
+      return {
+        dateStatus: savedFilters.dateStatus || null,
+        dateRange: savedFilters.dateRange || null,
+        inputSearchQuery: savedFilters.inputSearchQuery || "",
+        selectedDoctors: savedFilters.selectedDoctors || [],
+        selectedWards: savedFilters.selectedWards || [],
+      };
+    }
+    return {
+      dateStatus: null,
+      dateRange: null,
+      inputSearchQuery: "",
+      selectedDoctors: [],
+      selectedWards: [],
+    };
+  };
+
+  const initialFilters = initializeFiltersFromSession();
+
   // Local state
-  const [dateStatus, setDateStatus] = useState(null);
-  const [dateRange, setDateRange] = useState(null);
+  const [dateStatus, setDateStatus] = useState(initialFilters.dateStatus);
+  const [dateRange, setDateRange] = useState(initialFilters.dateRange);
   const [pickerModal, setPickerModal] = useState(false);
-  const [inputSearchQuery, setInputSearchQuery] = useState("");
-  const [selectedDoctors, setSelectedDoctors] = useState([]);
-  const [selectedWards, setSelectedWards] = useState([]);
+  const [inputSearchQuery, setInputSearchQuery] = useState(
+    initialFilters.inputSearchQuery
+  );
+  const [selectedDoctors, setSelectedDoctors] = useState(
+    initialFilters.selectedDoctors
+  );
+  const [selectedWards, setSelectedWards] = useState(
+    initialFilters.selectedWards
+  );
   const [filterResetKey, setFilterResetKey] = useState(0);
   const [symptomsData, setSymptomsData] = useState({
     symptom: "",
-    since:"",
-    severity:"",
-    notes:""
+    since: "",
+    severity: "",
+    notes: "",
   });
 
   // const [stateValue, funcToUpdateState] = useState(initialState)
+
+  // Function to save current filter state to session storage
+  const saveFiltersToSession = useCallback(() => {
+    const currentFilters = {
+      dateStatus,
+      dateRange,
+      inputSearchQuery,
+      selectedDoctors,
+      selectedWards,
+    };
+
+    // Only save if there are active filters
+    const hasActiveFilters =
+      dateStatus !== null ||
+      dateRange !== null ||
+      inputSearchQuery !== "" ||
+      selectedDoctors.length > 0 ||
+      selectedWards.length > 0;
+
+    if (hasActiveFilters) {
+      saveIPDFilters(currentFilters);
+    } else {
+      clearIPDFilters();
+    }
+  }, [dateStatus, dateRange, inputSearchQuery, selectedDoctors, selectedWards]);
 
   // Custom hooks
   const debouncedSearchQuery = useDebounce(inputSearchQuery, 500);
@@ -68,6 +125,11 @@ function InPatients() {
     isLoading: patientsLoading || loadingMore,
     onLoadMore: loadMore,
   });
+
+  // Save filters to session storage whenever they change
+  useEffect(() => {
+    saveFiltersToSession();
+  }, [saveFiltersToSession]);
 
   // Notification effects
   useEffect(() => {
@@ -156,8 +218,17 @@ function InPatients() {
 
   const onViewDetails = useCallback(
     (patientData) => {
+      const patient_data = {
+        pm_contact_no: patientData?.details?.contact,
+        pm_gender: patientData?.details?.gender,
+        patient_unique_id: patientData?.details?.id,
+      };
       navigate(`/ipd/patient-details`, {
-        state: { patientData },
+        state: {
+          patientDetails: patientData,
+          patient_data,
+          isEditable: false,
+        },
       });
     },
     [navigate]
@@ -246,6 +317,7 @@ function InPatients() {
     setDateStatus(null);
     setInputSearchQuery("");
     setFilterResetKey((prev) => prev + 1);
+    clearIPDFilters(); // Clear session storage
     resetData();
   }, [resetData]);
 
@@ -270,6 +342,8 @@ function InPatients() {
               wards={wards}
               onDoctorFilterChange={handleDoctorFilterChange}
               onWardFilterChange={handleWardFilterChange}
+              selectedDoctors={selectedDoctors}
+              selectedWards={selectedWards}
               dateRange={dateRange}
               dateStatus={dateStatus}
               pickerModal={pickerModal}

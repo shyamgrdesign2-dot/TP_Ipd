@@ -112,6 +112,21 @@ $muted: #6f6b88;
          box-shadow: 0px 0px 6px 0px #00000005;
          background-color: var(--backgroundColor, #fff);
     }
+    .ipd-custom-module-container {
+        background-color: #F9F7FD;
+        padding: 0 24px 18px;
+
+        .prescription-box-sm {
+            border: 1px solid #e2e2ea;
+            background-color: #fff;
+            border-radius: 20px;
+            margin-bottom: 15px;
+        
+            &:last-child {
+              margin-bottom: 0;
+            }
+          }
+      }
 }
 .ipd-assessments-readable-container {
     .rich-text-editor-container {
@@ -333,3 +348,319 @@ flex-wrap: wrap;
           cursor: pointer !important;
         }
       }
+
+// Consultant Notes Timeline Styles
+.consultant-notes-timeline {
+    padding: 24px;
+    min-height: calc(100vh - 200px);
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    box-sizing: border-box;
+    position: relative;
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #8b5cf6;
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: #7c3aed;
+    }
+
+    // Fallback for Firefox
+    scrollbar-width: thin;
+    scrollbar-color: #8b5cf6 #f1f1f1;
+
+    .timeline-filter {
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        .timeline-filter-left {
+            .timeline-date-filter {
+                width: 200px;
+                border-radius: 8px;
+                border: 1px solid #d9d9d9;
+                
+                .ant-picker-input {
+                    input {
+                        font-size: 14px;
+                        color: #232336;
+                    }
+                }
+            }
+        }
+        
+        .timeline-filter-right {
+            .new-note-button {
+                background: #8b5cf6;
+                border-color: #8b5cf6;
+                border-radius: 8px;
+                font-weight: 500;
+                
+                &:hover {
+                    background: #7c3aed;
+                    border-color: #7c3aed;
+                }
+            }
+        }
+    }
+
+    .timeline-content {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        padding-bottom: 24px;
+    }
+
+    .no-notes-message {
+        text-align: center;
+        padding: 48px 24px;
+        color: #6f6b88;
+        font-size: 16px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .consultant-note-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 24px;
+        flex-shrink: 0;
+
+        .consultant-note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+
+            .consultant-note-date-time {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+
+                .date-icon {
+                    color: #8b5cf6;
+                    font-size: 16px;
+                }
+
+                .date {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #8b5cf6;
+                }
+
+                .time {
+                    font-size: 14px;
+                    color: #6f6b88;
+                }
+            }
+
+            .consultant-note-actions {
+                display: flex;
+                gap: 8px;
+
+                .ant-btn {
+                    border: none;
+                    box-shadow: none;
+                    color: #6f6b88;
+                    
+                    &:hover {
+                        color: #8b5cf6;
+                        background: #f8f4ff;
+                    }
+                }
+            }
+        }
+
+        .consultant-note-content {
+            padding: 24px;
+        }
+
+        .consultant-note-section {
+            margin-bottom: 24px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            .section-header {
+                display: flex;
+                align-items: center;
+                margin-bottom: 12px;
+
+                .section-icon {
+                    width: 24px;
+                    height: 24px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 12px;
+                    font-size: 16px;
+                }
+
+                .section-title {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #8b5cf6;
+                    margin: 0;
+                }
+            }
+
+            .section-content {
+                margin-left: 36px;
+
+                .consultant-notes-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+
+                    .consultant-notes-item {
+                        padding: 4px 0;
+                        color: #232336;
+                        font-size: 14px;
+                        line-height: 1.5;
+
+                        &::before {
+                            content: "•";
+                            color: #8b5cf6;
+                            font-weight: bold;
+                            display: inline-block;
+                            width: 1em;
+                            margin-left: -1em;
+                        }
+                    }
+                }
+
+                .no-data {
+                    color: #6f6b88;
+                    font-style: italic;
+                    font-size: 14px;
+                }
+
+                .medication-table-container {
+                    overflow-x: auto;
+                    border-radius: 8px;
+                    border: 1px solid #f0f0f0;
+
+                    .medication-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 14px;
+
+                        thead {
+                            background: #8b5cf6;
+                            
+                            th {
+                                color: white;
+                                font-weight: 600;
+                                padding: 12px 16px;
+                                text-align: left;
+                                border: none;
+                            }
+                        }
+
+                        tbody {
+                            tr {
+                                border-bottom: 1px solid #f0f0f0;
+
+                                &:last-child {
+                                    border-bottom: none;
+                                }
+
+                                td {
+                                    padding: 12px 16px;
+                                    color: #232336;
+                                    border: none;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .filled-by-section {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+
+                    .filled-by-label {
+                        color: #6f6b88;
+                        font-size: 14px;
+                    }
+
+                    .filled-by-name {
+                        color: #8b5cf6;
+                        font-weight: 600;
+                        font-size: 16px;
+                    }
+
+                    .filled-by-role {
+                        background: #10b981;
+                        color: white;
+                        padding: 4px 12px;
+                        border-radius: 16px;
+                        font-size: 12px;
+                        font-weight: 500;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+    .consultant-notes-timeline {
+        padding: 16px;
+        min-height: calc(100vh - 150px);
+        max-height: calc(100vh - 150px);
+
+        .consultant-note-card {
+            .consultant-note-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+
+                .consultant-note-actions {
+                    align-self: flex-end;
+                }
+            }
+
+            .consultant-note-content {
+                padding: 16px;
+            }
+
+            .consultant-note-section {
+                .section-content {
+                    margin-left: 0;
+                }
+            }
+        }
+
+        .medication-table-container {
+            .medication-table {
+                font-size: 12px;
+
+                thead th,
+                tbody td {
+                    padding: 8px 12px;
+                }
+            }
+        }
+    }
+}

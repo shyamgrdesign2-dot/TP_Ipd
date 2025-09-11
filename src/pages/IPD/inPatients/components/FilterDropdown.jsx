@@ -9,15 +9,21 @@ const FilterDropdown = ({
   items,
   onFilterChange,
   searchPlaceholder = "Search",
+  selectedItems: propSelectedItems = [],
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedItems, setSelectedItems] = useState(propSelectedItems);
   const [tempSelectedItems, setTempSelectedItems] = useState([]);
   const dropdownRef = useRef(null);
 
   const showSearchBar = items.length > 6;
+
+  // Sync internal state with prop when it changes (e.g., on page refresh)
+  useEffect(() => {
+    setSelectedItems(propSelectedItems);
+  }, [propSelectedItems]);
 
   // Helper function to get the display name for an item (handles both name and title properties)
   const getItemDisplayName = (item) => {

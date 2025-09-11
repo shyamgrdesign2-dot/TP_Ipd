@@ -66,10 +66,10 @@ import AppointmentSuccess from "./pages/appointmentAgent/components/AppointmentS
 import OpdBill from "./pages/opdBilling/OpdBill";
 import IPDPatientDetails from "./pages/ipd/patientDetails/patientDetails";
 import AssessmentsForm from "./pages/ipd/assessmentForm/AssessmentsForm";
-import IPDLayout from "./pages/ipd/IPDLayout";
-import InPatients from "./pages/ipd/InPatients";
 import OtNotes from "./pages/ipd/otNotes/OtNotes";
-import ConsultantNotes from "./pages/IPD/consultantNotes/ConsultantNotes";
+import IPDLayout from "./pages/ipd/inPatients/components/IPDLayout";
+import InPatients from "./pages/ipd/inPatients/InPatients";
+import ConsultantNotes from "./pages/ipd/consultantNotes/ConsultantNotes";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",

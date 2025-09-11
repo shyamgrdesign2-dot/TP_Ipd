@@ -12,6 +12,8 @@ const FilterControls = ({
   wards,
   onDoctorFilterChange,
   onWardFilterChange,
+  selectedDoctors,
+  selectedWards,
   dateRange,
   dateStatus,
   pickerModal,
@@ -24,7 +26,7 @@ const FilterControls = ({
   onClearAllFilters,
 }) => (
   <>
-    <Col xl={4} sm={4}>
+    <Col xl={4} sm={3}>
       <SearchInput
         value={searchQuery}
         onChange={onSearchChange}
@@ -41,6 +43,7 @@ const FilterControls = ({
             items={doctors}
             onFilterChange={onDoctorFilterChange}
             searchPlaceholder="Search by doctor's name"
+            selectedItems={selectedDoctors}
           />
         </div>
         <div className="ms-3">
@@ -51,6 +54,7 @@ const FilterControls = ({
             items={wards}
             onFilterChange={onWardFilterChange}
             searchPlaceholder="Search by ward name"
+            selectedItems={selectedWards}
           />
         </div>
         <DateRangeFilter
