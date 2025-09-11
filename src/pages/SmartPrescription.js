@@ -42,6 +42,8 @@ import vitals from "../assets/images/Vitals.svg";
 import MedicalHistory from "../assets/images/Medical-History.svg";
 import privateNotes from "../assets/images/private-notes.svg";
 import SmartRxFollowUpBox from "../components/SmartRxFollowUpBox";
+import CarePlanDropdown from "../components/CarePlanDropdown";
+import { assignCarePlan } from "./smartSync/services/carePlanService";
 
 import {
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
@@ -177,6 +179,7 @@ function SmartPrescription() {
   const [investigationData, setInvestigationData] = useState([]);
   const [medicationData, setMedicationData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
+  const [selectedCarePlan, setSelectedCarePlan] = useState(null);
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
@@ -2440,6 +2443,28 @@ function SmartPrescription() {
         });
         dispatch(setSelectAutofill(false));
       }
+
+      // Assign care plan if one is selected (not null/None)
+      if (selectedCarePlan && selectedCarePlan.plan_id && patient_data?.patient_unique_id && userId && decodedToken?.result?.clinic_id) {
+        try {
+          console.log('Assigning care plan:', selectedCarePlan);
+          const carePlanResponse = await assignCarePlan({
+            plan_id: selectedCarePlan.plan_id, // This is now the UUID from the API
+            um_id: userId,
+            patient_unique_id: patient_data.patient_unique_id,
+            hm_id: decodedToken.result.clinic_id
+          });
+          console.log('Care plan assigned successfully:', carePlanResponse);
+          
+          // Track care plan assignment
+        } catch (error) {
+          console.error('Failed to assign care plan:', error);
+          // Don't show error to user as prescription was successful
+          // Just log the error for debugging
+        }
+      } else {
+        console.log('No care plan selected - skipping assignment');
+      }
     } catch (error) {
       errorMessage("Error Uploading the prescription, Please try again");
       console.error("Error Submitting the prescription:", error);
@@ -3355,6 +3380,18 @@ function SmartPrescription() {
               )}
               <div className="prescription-box-sm p-14">
                 <SmartRxFollowUpBox />
+              </div>
+              <div className="prescription-box-sm p-14">
+                <CarePlanDropdown 
+                  onCarePlanSelect={(plan) => {
+                    console.log('Selected care plan:', plan);
+                    setSelectedCarePlan(plan);
+                  }}
+                  selectedCarePlan={selectedCarePlan}
+                  patientId={patient_data?.patient_unique_id}
+                  doctorId={userId}
+                  clinicId={decodedToken?.result?.clinic_id}
+                />
               </div>
             </div>
             <div
