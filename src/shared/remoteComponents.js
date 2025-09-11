@@ -32,7 +32,8 @@ export const RemoteComponents = {
 export const withRemoteComponent = (WrappedComponent) => {
   return function WithRemoteComponentWrapper(props) {
     return (
-      <React.Suspense fallback={<div>Loading...</div>}>
+      <React.Suspense fallback={<div>{" "}</div>}> 
+      {/* TODO: INTEL - ADD LOADER/ SHIMMER */}
         <WrappedComponent {...props} />
       </React.Suspense>
     );
@@ -43,7 +44,7 @@ export const createRemoteComponent = (componentName, customFallback) => {
   const Component = RemoteComponents[componentName];
   return function RemoteComponentWrapper(props) {
     return (
-      <React.Suspense fallback={customFallback || <div>Loading...</div>}>
+      <React.Suspense fallback={customFallback || <div>{" "}</div>}>
         <Component {...props} />
       </React.Suspense>
     );

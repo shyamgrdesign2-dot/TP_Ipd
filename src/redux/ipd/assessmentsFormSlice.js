@@ -110,6 +110,7 @@ const assessmentSlice = createSlice({
   name: "assessment",
   initialState,
   reducers: {
+    resetAssessmentForm: () => initialState,
     setAssessmentsData: (state, action) => {
       state.assessmentsData = action.payload;
     },
@@ -223,6 +224,7 @@ export const {
   setVitalsData,
   setGynecHistoryData,
   setReferredDocForReview,
-  setPhysicalExaminationBasicData
+  setPhysicalExaminationBasicData,
+  resetAssessmentForm
 } = assessmentSlice.actions;
 export default assessmentSlice.reducer;

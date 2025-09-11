@@ -14,6 +14,7 @@ import { useDispatch } from "react-redux";
 import { setPatientDetailsInOldFormat } from "../../../redux/ipd/ipdSlice";
 import {
   getAssessmentsData,
+  resetAssessmentForm,
   setAdditionalNotesData,
   setChiefComplaint,
   setFunctionalAssessmentData,
@@ -50,7 +51,15 @@ const IPDPatientDetails = () => {
   const [patientData, setPatientData] = useState(null);
   const dispatch = useDispatch();
 
-  const handleAddAssessmentClick = () => {
+  const handleAddAssessmentClick = (isEmpty = false) => {
+    console.log('INTEL ==> WAITT')
+    if (isEmpty) {
+      dispatch(resetAssessmentForm());
+      dispatch(setMedicationData([]));
+      dispatch(setMedicalHistoryData([]));
+      dispatch(setLabResults([]));
+      dispatch(addObstetricDetails([]));
+    }
     navigate("/ipd/patient-details/assessment-form", {
       state: {
         patient_data,
@@ -165,7 +174,7 @@ const IPDPatientDetails = () => {
   }, [patientDetails?.details?.id, activeMenuItem]);
 
   const handleEmptyCtaClick = {
-    assessment: handleAddAssessmentClick,
+    assessment: () => handleAddAssessmentClick(true),
     otNotes: handleOtNotesClick,
   };
   const patientDetailsMenu = () => {
@@ -200,7 +209,7 @@ const IPDPatientDetails = () => {
             <AssessmentsForm isEditable={isEditable} />
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
-                onEdit={handleAddAssessmentClick}
+                onEdit={() => handleAddAssessmentClick(false)}
                 onPrintPreview={() => console.log("Preview")}
                 onPrint={() => console.log("Print")}
                 onSettings={handleCustomizeClick}

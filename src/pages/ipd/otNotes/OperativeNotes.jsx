@@ -12,7 +12,7 @@ const OperativeNotes = (props) => {
   const { operativeNotes = {} } = useSelector((state) => state.otNotes);
   const [initialValue] = useState(operativeNotes || {});
   const dispatch = useDispatch();
-  const handleOthersChange = (value, key) => {
+  const handleChange = (value, key) => {
     dispatch(setOperativeNotes({ key, value }));
   };
   const renderRichTextEditorSection = (data) => {
@@ -31,7 +31,7 @@ const OperativeNotes = (props) => {
         }`}
         showMagicPenGif={false}
         showMicrophone={false}
-        onChange={(data) => handleOthersChange(data, data?.id)}
+        onChange={(data) => handleChange(data, data?.id)}
         initialValue={
           initialValue?.[data?.id]?.value
             ? initialValue?.[data?.id]
