@@ -307,7 +307,7 @@ const AssessmentsForm = (props) => {
   const renderAllSections = () => {
     return (
       <div
-        className={`ipd-assessments-form-container ${
+        className={`ipd-generic-form-container ${
           !isEditable ? "ipd-assessments-readable-container" : ""
         }`}
         style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
@@ -322,13 +322,13 @@ const AssessmentsForm = (props) => {
   };
 
   return (
-    <div className="afipd-assessments-form-container">
+    <div className="afipd-generic-form-container">
       <Suspense fallback={<>Loading ...</>}>
         {!isEditable ? (
           <div>{renderAllSections()}</div>
         ) : (
           <div
-            className={`ipd-assessments-form-container ${
+            className={`ipd-generic-form-container ${
               !isEditable ? "ipd-assessments-readable-container" : ""
             }`}
             style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}

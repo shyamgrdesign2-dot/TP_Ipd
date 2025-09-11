@@ -1,0 +1,53 @@
+.surgery-details-first-row {
+  input::placeholder,
+  textarea::placeholder {
+    font-family: "Poppins", sans-serif !important;
+  }
+  input::-webkit-input-placeholder,
+  textarea::-webkit-input-placeholder {
+    font-family: "Poppins", sans-serif !important;
+  }
+  .ant-select .ant-select-selection-placeholder,
+  .rc-select .rc-select-selection-placeholder,
+  .rc-select .rc-select-selection__placeholder {
+    font-family: "Poppins", sans-serif !important;
+  }
+
+  display: grid;
+  margin-top: 24px;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.surgery-details-second-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+  .ant-picker .ant-picker-input > input {
+    line-height: 1 !important;
+    font-family: "Poppins", sans-serif !important;
+  }
+  .ant-picker {
+    .ant-picker-time-panel-cell-inner {
+      font-family: "Poppins", sans-serif !important;
+    }
+    .ant-picker-prefix {
+      margin-inline-end: 10px !important;
+    }
+  }
+}
+
+@media (max-width: 991px) {
+  .surgery-details-first-row,
+  .surgery-details-second-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.surgery-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #454551;
+  margin-bottom: 12px;
+}

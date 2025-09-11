@@ -28,6 +28,7 @@ export const RemoteComponents = {
   RichTextEditor: loadComponent('RichTextEditor'),
   ReusableStepper: loadComponent('ReusableStepper'),
   ReusableProgressCard: loadComponent('ReusableProgressCard'),
+  FilledByCard: loadComponent('FilledByCard'),
 };
 
 export const withRemoteComponent = (WrappedComponent) => {

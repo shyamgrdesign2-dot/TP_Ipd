@@ -202,7 +202,31 @@ export const IPD = {
       menuIcon: "basicInfoBg",
       enabled: true,
       expanded: false,
-      children: [],
+      children: [
+        {
+          placeholder:
+            "Describe intra-operative findings: anatomy, abnormalities, unexpected observations etc.",
+          id: "operativeFindings",
+          title: "Operative Findings",
+          enabled: true,
+          icon: "lab",
+        },
+        {
+          placeholder:
+            "Enter a detailed step-by-step description of the surgical procedure performed",
+          id: "procedures",
+          title: "Procedures",
+          enabled: true,
+          icon: "recordPad",
+        },
+        {
+          placeholder: "Enter additional notes if any",
+          id: "additionalNotes",
+          title: "Additional Notes",
+          enabled: true,
+          icon: "obstetrics",
+        },
+      ],
     },
     {
       id: "intraOperativeNotes",
