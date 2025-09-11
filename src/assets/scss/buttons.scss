@@ -737,6 +737,7 @@ body {
         width: 100%;
         right: 0%;
         z-index: 19999 !important;
+        text-align: left;
     }
 
     .btn-consult-patient-details {
@@ -746,6 +747,7 @@ body {
         background-color: white;
         color: rgb(94, 93, 93);
         padding: 7px 63px 7px 9px;
+        text-align: left;
 
         &.top-br{
             border-top-left-radius: 9px !important;

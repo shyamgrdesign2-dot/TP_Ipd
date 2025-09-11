@@ -532,6 +532,8 @@ function WalkInConsultation() {
                                     marginLeft: "1rem",
                                     position: "relative",
                                 }}
+
+                                className="d-flex w-50 justify-content-between"
                             >
                                 <button
                                     // className="btn btn-outline-primary btn-smart-rx"
