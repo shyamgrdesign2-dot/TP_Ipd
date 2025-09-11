@@ -9,8 +9,8 @@ const CustomSSknowMore = () => {
   const [showVideo, setShowVideo] = useState(false);
 
   const videoLink = {
-    link: "https://tatvacare1.portal.trainn.co/share/ZtsIVdxk9MGJ0b3bUGK5pA",
-    thumbnail: "https://i.ytimg.com/vi/mAZ7Sa86PnQ/hqdefault.jpg",
+    link: "https://www.youtube.com/embed/afrPzkTTl78",
+    thumbnail: "https://i.ytimg.com/vi/afrPzkTTl78/hqdefault.jpg",
   };
 
   return (
