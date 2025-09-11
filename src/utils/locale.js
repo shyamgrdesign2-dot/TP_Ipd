@@ -223,6 +223,44 @@ export const IPD = {
       children: [],
     },
   ],
+  DEFAULT_PROGRESS_NOTES_FORM_STRUCTURE: [
+    {
+      id: "chiefComplaint",
+      title: "Chief Complaint",
+      icon: "chiefComplaint",
+      menuIcon: "chiefComplaint",
+      enabled: true,
+      expanded: false,
+      children: [],
+    },
+    {
+      id: "findings",
+      title: "Findings",
+      icon: "findings",
+      menuIcon: "findings",
+      enabled: true,
+      expanded: false,
+      children: [],
+    },
+    {
+      id: "vitals",
+      title: "Vitals",
+      icon: "vitals",
+      menuIcon: "vitals",
+      enabled: true,
+      expanded: false,
+      children: [],
+    },
+    {
+      id: "additionalRemarks",
+      title: "Additional Remarks",
+      icon: "additionalRemarks",
+      menuIcon: "additionalRemarks",
+      enabled: true,
+      expanded: false,
+      children: [],
+    }
+  ],
   ASSESSMENTS_MENU: [
     {
       id: "basic",
@@ -253,6 +291,7 @@ export const IPD = {
     {
       id: "progress",
       name: "Progress Notes",
+      mainHeading: "Progress Notes",
       icon: "noteIcon",
       isEditable: false,
     },

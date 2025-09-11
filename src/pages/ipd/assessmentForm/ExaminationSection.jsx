@@ -2,7 +2,7 @@ import React from "react";
 import { IPD } from "../../../utils/locale";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { Radio } from "antd";
-import { defaultIcons } from "../../../assets/images/icons/";
+import { defaultIcons } from "../../../assets/images/icons";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { setPhysicalExaminationBasicData } from "../../../redux/ipd/assessmentsFormSlice";

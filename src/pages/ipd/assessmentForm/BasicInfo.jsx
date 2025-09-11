@@ -1,12 +1,12 @@
 import React from "react";
-import { createRemoteComponent } from "../../../shared/remoteComponents";
+import { createRemoteComponent } from "../../../shared/remoteComponents.js";
 import ChiefComplaint from "./ChiefComplaint.jsx";
 import HistoryOfPresentIllness from "./HistoryOfPresentIllness.jsx";
 import CurrentMedications from "./CurrentMedications.jsx";
 import LabResults from "./LabResults.jsx";
 import PastMedicalHistory from "./PastMedicalHistory.jsx";
 import ObstetricHistory from "./ObstetricHistory.jsx";
-import { defaultIcons } from "../../../assets/images/icons/assessments";
+import { defaultIcons } from "../../../assets/images/icons/assessments/index.js";
 import GynecHistory from "./GynecHistory.jsx";
 import { useSelector } from "react-redux";
 import { formatDateToShortMonthYear } from "../../../utils/utils.js";
