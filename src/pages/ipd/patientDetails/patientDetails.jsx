@@ -31,8 +31,11 @@ import {
 import {
   setMedicalHistoryData,
   setMedicationData,
+  clearMedicationData,
 } from "../../../redux/prescriptionSlice";
 import { addObstetricDetails } from "../../../redux/obstetricSlice";
+import { getConsultantNotes } from "../../../redux/ipd/consultantNotesSlice";
+import ConsultantNotesTimeline from "../consultantNotes/ConsultantNotesTimeline";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -43,16 +46,27 @@ const PatientDetailsLayout = React.lazy(() => {
 const IPDPatientDetails = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { isEditable = true, patient_data, patientDetails } = state || {};
+  const {
+    isEditable = true,
+    patient_data,
+    patientDetails,
+    activeTab,
+  } = state || {};
+
+  const patientId = patientDetails?.details?.id;
+  const { admissionId } = patientDetails;
+
   const { assessmentsData } = useSelector((state) => state.assessment);
+  const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { otNotesData } = useSelector((state) => state.otNotes);
   const [open, setOpen] = useState(true);
   const [activeMenuItem, setActiveMenuItem] = useState("assessment");
   const [patientData, setPatientData] = useState(null);
+
   const dispatch = useDispatch();
 
   const handleAddAssessmentClick = (isEmpty = false) => {
-    console.log('INTEL ==> WAITT')
+    console.log("INTEL ==> WAITT");
     if (isEmpty) {
       dispatch(resetAssessmentForm());
       dispatch(setMedicationData([]));
@@ -61,6 +75,16 @@ const IPDPatientDetails = () => {
       dispatch(addObstetricDetails([]));
     }
     navigate("/ipd/patient-details/assessment-form", {
+      state: {
+        patient_data,
+        patientDetails,
+        isEditable: true,
+      },
+    });
+  };
+
+  const handleAddConsultantNotesClick = () => {
+    navigate("/ipd/patient-details/consultant-notes", {
       state: {
         patient_data,
         patientDetails,
@@ -90,6 +114,13 @@ const IPDPatientDetails = () => {
     };
     setPatientData(data);
   }, [patientDetails]);
+
+  // Set active menu item based on activeTab parameter
+  useEffect(() => {
+    if (activeTab) {
+      setActiveMenuItem(activeTab);
+    }
+  }, [activeTab]);
 
   const addDataToStore = (data) => {
     if (data) {
@@ -163,33 +194,46 @@ const IPDPatientDetails = () => {
   };
 
   useEffect(() => {
-    if (!patientDetails?.details?.id) return;
+    if (!patientId || !admissionId) return;
+
     if (activeMenuItem === "assessment") {
-      dispatch(
-        getAssessmentsData({ patientId: patientDetails?.details?.id })
-      ).then((res) => {
+      dispatch(getAssessmentsData({ patientId })).then((res) => {
         addDataToStore(res.payload);
       });
+    } else if (activeMenuItem === "consultantNotes") {
+      dispatch(getConsultantNotes({ patientId, admissionId })).catch(
+        (error) => {
+          console.error("Error fetching consultant notes:", error);
+        }
+      );
     }
-  }, [patientDetails?.details?.id, activeMenuItem]);
+  }, [activeMenuItem, admissionId, patientId]);
 
   const handleEmptyCtaClick = {
     assessment: () => handleAddAssessmentClick(true),
     otNotes: handleOtNotesClick,
+    consultantNotes: handleAddConsultantNotesClick,
   };
   const patientDetailsMenu = () => {
     return IPD.PATIENT_DETAILS_MENU.map((item) => {
-      return { ...item, ctaClick: handleEmptyCtaClick?.[item.id] };
+      return {
+        ...item,
+        ctaClick: handleEmptyCtaClick?.[item.id],
+        isActive: item.id === activeTab,
+      };
     });
   };
 
   const isDataPresent = useMemo(() => {
-    if (activeMenuItem === 'assessment') {
+    if (activeMenuItem === "assessment") {
       return Object.keys(assessmentsData)?.length > 0;
-    } else if (activeMenuItem === 'otNotes') {
+    } else if (activeMenuItem === "otNotes") {
       return Object.keys(otNotesData)?.length > 0;
-    } return false;
-  }, [assessmentsData, otNotesData, activeMenuItem]);
+    } else if (activeMenuItem === "consultantNotes") {
+      return !!consultantNotes?.length;
+    }
+    return false;
+  }, [assessmentsData, otNotesData, activeMenuItem, consultantNotes]);
 
   const onRequestClose = () => {
     navigate(`/ipd/inPatients`);
@@ -218,9 +262,23 @@ const IPDPatientDetails = () => {
             </div>
           </div>
         );
+      case "consultantNotes":
+        return (
+          <div className="ipd-adm-assess-container-readable">
+            <ConsultantNotesTimeline />
+          </div>
+        );
+      default:
+        return null;
     }
-    return <>heyy</>;
   };
+
+  const canShowAddCTA = useMemo(() => {
+    return (
+      IPD.PATIENT_DETAILS_MENU.find((item) => item.id === activeMenuItem)
+        ?.showAddCTA && isDataPresent
+    );
+  }, [activeMenuItem, isDataPresent]);
 
   return (
     <div>
@@ -241,6 +299,7 @@ const IPDPatientDetails = () => {
               renderContent={
                 !isEditable && isDataPresent ? renderContent : null
               }
+              showAddCTA={canShowAddCTA}
             />
           )}
         </AnimatePresence>

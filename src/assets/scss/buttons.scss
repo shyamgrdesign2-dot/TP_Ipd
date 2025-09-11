@@ -511,6 +511,10 @@ body {
                 font-weight: 500;
                 line-height: normal;
                 text-decoration-line: underline;
+
+                &.clear-filter {
+                    color: #4B4AD5 !important;
+                }
             }
 
             &:hover {
