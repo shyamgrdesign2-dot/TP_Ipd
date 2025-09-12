@@ -1,10 +1,6 @@
 import api from '../../../api/services/axiosService';
-import config from '../../../config';
-
-
-const defaultBaseUrl = { customBaseUrl: config.casemanager_api_url };
-//const defaultBaseUrl = { customBaseUrl: "http://localhost:3001" };
-
+import { env } from "../../../EnvironmentConfig";
+const defaultBaseUrl = { customBaseUrl: env.upload_doc_api_url };
 // GET /api/v1/care-plans/fetch-plans - Get all care plan names
 export const getCarePlanNames = async (options = {}) => {
   const base = options.baseUrl || defaultBaseUrl;
