@@ -357,8 +357,8 @@ export const SNAP_RX_KNOW_MORE_DATA = {
     description: "Please watch this video to know how Snap Rx  Works👇",
   },
   videoLink: {
-    link: "https://www.youtube.com/embed/mAZ7Sa86PnQ",
-    thumbnail: "https://i.ytimg.com/vi/mAZ7Sa86PnQ/hqdefault.jpg",
+    link: "https://www.youtube.com/embed/xXPsyTPSNHA",
+    thumbnail: "https://i.ytimg.com/vi/xXPsyTPSNHA/hqdefault.jpg",
   },
   tips: {
     smallTitle: "Tips",
