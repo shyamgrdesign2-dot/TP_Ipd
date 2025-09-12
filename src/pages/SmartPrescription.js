@@ -23,6 +23,7 @@ import {
   PAEDIATRICS,
   GB_ZYDUS_USER,
   NEO_NATOLOGISTS_DP_ID,
+  GB_CARE_PLAN,
 } from "../utils/constants";
 
 import ReconnectingWebSocket from "reconnectingwebsocket";
@@ -160,6 +161,7 @@ function SmartPrescription() {
   );
   const dispatch = useDispatch();
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+  const isCarePlanEnabled = useFeatureIsOn(GB_CARE_PLAN);
 
   const { state } = useLocation();
   const { patient_data, send_path, caseManagerData, smartRxFilesData, pam_id } = state;
@@ -3380,18 +3382,20 @@ function SmartPrescription() {
               <div className="prescription-box-sm p-14">
                 <SmartRxFollowUpBox />
               </div>
-              <div className="prescription-box-sm p-14">
-                <CarePlanDropdown 
-                  onCarePlanSelect={(plan) => {
-                    console.log('Selected care plan:', plan);
-                    setSelectedCarePlan(plan);
-                  }}
-                  selectedCarePlan={selectedCarePlan}
-                  patientId={patient_data?.patient_unique_id}
-                  doctorId={userId}
-                  clinicId={decodedToken?.result?.clinic_id}
-                />
-              </div>
+              {isCarePlanEnabled && (
+                <div className="prescription-box-sm p-14">
+                  <CarePlanDropdown 
+                    onCarePlanSelect={(plan) => {
+                      console.log('Selected care plan:', plan);
+                      setSelectedCarePlan(plan);
+                    }}
+                    selectedCarePlan={selectedCarePlan}
+                    patientId={patient_data?.patient_unique_id}
+                    doctorId={userId}
+                    clinicId={decodedToken?.result?.clinic_id}
+                  />
+                </div>
+              )}
             </div>
             <div
               className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3"

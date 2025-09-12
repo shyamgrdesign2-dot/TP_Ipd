@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Input, Button, Select, Spin } from 'antd';
 import { LoadingOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { errorMessage } from "../utils/utils";
 import { getCarePlanNames, getCarePlanAssignments, assignCarePlan } from "../pages/smartSync/services/carePlanService";
+import { GB_CARE_PLAN } from "../utils/constants";
 import carePlanIcon from "../assets/images/onboard-page-icons/health.svg";
 
 const { Option } = Select;
@@ -13,6 +15,9 @@ function CarePlanDropdown({ onCarePlanSelect, selectedCarePlan, patientId, docto
     const [loading, setLoading] = useState(false);
     const [searchValue, setSearchValue] = useState('');
     const [filteredPlans, setFilteredPlans] = useState([]);
+    
+    // GrowthBook feature flag check
+    const isCarePlanEnabled = useFeatureIsOn(GB_CARE_PLAN);
 
    
     useEffect(() => {
@@ -120,6 +125,11 @@ function CarePlanDropdown({ onCarePlanSelect, selectedCarePlan, patientId, docto
             errorMessage('Failed to assign care plan. Please try again.');
         }
     };
+
+    // Don't render if feature flag is disabled
+    if (!isCarePlanEnabled) {
+        return null;
+    }
 
     return (
         <>
