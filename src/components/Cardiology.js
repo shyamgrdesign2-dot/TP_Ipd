@@ -514,7 +514,7 @@ function Cardiology(props) {
           Doctor_Unique_Id: profile?.doctor_unique_id,
         });
       await window.open(printUrl);
-    } else if (showDigitalGenRx && !isSmartRxFile) {
+    } else if (showDigitalGenRx && !isSmartRxFile && !isSnapRx) {
       const urlObj = new URL(viewCaseManagerData?.print_url);
       urlObj.searchParams.set("voiceRxDigitize", "true");
       const updatedUrl = urlObj.toString();
