@@ -116,13 +116,15 @@ function Cardiology(props) {
       fetchData();
     }
     if (
-      isSnapRxDigitizationAccessable &&
+      isSnapRxAccessableFromGB &&
       viewCaseManagerData?.tcm_id &&
       viewCaseManagerData?.smart_prescription_filename?.includes("snap_rx")
     ) {
       setIsSnapRx(true);
       fetchSnapRxFile();
-      fetchSnapRxDigitisedData(viewCaseManagerData?.tcm_id);
+      if(isSnapRxDigitizationAccessable){
+        fetchSnapRxDigitisedData(viewCaseManagerData?.tcm_id);
+      }
     } else {
       setIsSnapRx(false);
     }
@@ -512,7 +514,7 @@ function Cardiology(props) {
           Doctor_Unique_Id: profile?.doctor_unique_id,
         });
       await window.open(printUrl);
-    } else if (showDigitalGenRx && !isSmartRxFile) {
+    } else if (showDigitalGenRx && !isSmartRxFile && !isSnapRx) {
       const urlObj = new URL(viewCaseManagerData?.print_url);
       urlObj.searchParams.set("voiceRxDigitize", "true");
       const updatedUrl = urlObj.toString();
@@ -1025,7 +1027,8 @@ function Cardiology(props) {
                     </button>
                   </div>
                 )
-              ))}
+              ))
+            }
 
             {isSnapRxDigitizationAccessable &&
               isSnapRx &&
@@ -1089,7 +1092,8 @@ function Cardiology(props) {
                     Digitise Rx Now
                   </button>
                 </div>
-              ))}
+              ))
+            }
 
             {genRxData &&
               isValidMongoId(
@@ -1119,7 +1123,8 @@ function Cardiology(props) {
                     Transcript
                   </button>
                 </div>
-              )}
+              )
+            }
             <Drawer
               closeIcon={false}
               // placement="right"
@@ -1974,7 +1979,7 @@ function Cardiology(props) {
                   No visit found for this patient yet
                 </p>
                 <div className="d-flex flex-column align-items-center justify-content-center g-4">
-                  {isSmartSyncAccessableFromGB && !isMobile ? (
+                  {isSmartSyncAccessableFromGB || isSnapRxAccessableFromGB && !isMobile ? (
                     <SmartDropdownButtons
                       profile={profile}
                       patient_data={patient_data}
@@ -2013,6 +2018,10 @@ function Cardiology(props) {
 }
 
 function SmartDropdownButtons({ profile, patient_data, navigate }) {
+  
+  const isSmartSyncAccessableFromGB = useFeatureIsOn(GB_ISCRIBE);
+  const isSnapRxAccessableFromGB = useFeatureIsOn(GB_SNAP_RX);
+  
   const [open, setOpen] = React.useState(false);
   const arrowRef = React.useRef(null);
   const containerRef = React.useRef(null);
@@ -2088,28 +2097,54 @@ function SmartDropdownButtons({ profile, patient_data, navigate }) {
           </span>
         </Button>
       </div>
-      {open && (
-        <div>
-          <Button
-            className="btn btn-primary3 btn-text-white m-2 btn-41"
-            onClick={() => {
-              setOpen(false);
-              window.Moengage.track_event("start_new_SmartRx_click", {
-                doctor_id: profile?.doctor_unique_id,
-                patient_id:
-                  patient_data !== undefined
-                    ? patient_data.patient_unique_id
-                    : 0,
-              });
-              navigate("/smart-prescription", {
-                state: { patient_data: patient_data },
-              });
-            }}
-          >
-            <span style={{ padding: "0 3.4rem" }}>Start New SmartRx</span>
-          </Button>
+      {open && 
+        <div className="smart-rx-buttons-group">
+          {isSmartSyncAccessableFromGB && 
+            <div>
+              <button
+                className={`smart-rx-buttons bottom-border ${isSnapRxAccessableFromGB && isSmartSyncAccessableFromGB ?  "top-br" : "border-radius-all"}`}
+                onClick={() => {
+                  setOpen(false);
+                  window.Moengage.track_event("start_new_SmartRx_click", {
+                    doctor_id: profile?.doctor_unique_id,
+                    patient_id:
+                      patient_data !== undefined
+                        ? patient_data.patient_unique_id
+                        : 0,
+                  });
+                  navigate("/smart-prescription", {
+                    state: { patient_data: patient_data },
+                  });
+                }}
+              >
+                <span style={{ padding: "0 3.4rem" }}>Start New SmartRx</span>
+              </button>
+            </div>
+          }
+          {isSnapRxAccessableFromGB &&
+            <div>
+              <button
+                className={`smart-rx-buttons ${isSnapRxAccessableFromGB && isSmartSyncAccessableFromGB ?  "bottom-br" : "border-radius-all"}`}
+                onClick={() => {
+                  setOpen(false);
+                  window.Moengage.track_event("start_new_SnapRx_click", {
+                    doctor_id: profile?.doctor_unique_id,
+                    patient_id:
+                      patient_data !== undefined
+                        ? patient_data.patient_unique_id
+                        : 0,
+                  });
+                  navigate("/snap-rx", {
+                    state: { patient_data: patient_data },
+                  });
+                }}
+              >
+                <span style={{ padding: "0 3.4rem" }}>Start New SnapRx</span>
+              </button>
+            </div>
+          } 
         </div>
-      )}
+      }
     </div>
   );
 }
