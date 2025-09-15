@@ -1054,13 +1054,35 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         marginTop: (printSettings?.header_footer?.show_patient_info === 'first' || 
                                 !printSettings?.header_footer?.show_patient_info) ? PX_TO_PT * 15 : 0 
                     }}> */}
-                        {printSettings?.prescription?.case_option?.map((option, index) => {
+                        {(() => {
+                        let hasRenderedPageBreak = false;
+                        return printSettings?.prescription?.case_option?.map((option, index) => {
                             let customModule = caseManagerData?.moduleContents?.find(e => e.module_id === option?.id);
                             if(customModule) {
                                 customModule = { ...customModule, name: getCustomModuleName(option?.id) };
                             }
+                            if (option?.type === "page_break") {
+                                const isLastPageBreak = index === printSettings?.prescription?.case_option?.length - 1;
+                                if (isLastPageBreak) {
+                                    return null;
+                                }
+                                if (hasRenderedPageBreak) {
+                                    return null;
+                                }
+                                hasRenderedPageBreak = true;
+                                return (
+                                    <View key={option.id} break={true} style={{
+                                        marginTop: PX_TO_PT * 20,
+                                        pageBreakBefore: 'always'
+                                    }}>
+                                    </View>
+                                );
+                            }
+                            if (option?.type !== "page_break" && option?.enable === "Y") {
+                                hasRenderedPageBreak = false;
+                            }
                             return (
-                                <View style={{
+                                <View key={option.id} style={{
                                     marginTop: index === 0 ? (printSettings?.header_footer?.show_patient_info === 'first' ||
                                         !printSettings?.header_footer?.show_patient_info) ? PX_TO_PT * 15 : 0 : 0
                                 }} break={option?.id == module_id && caseManagerData?.doctor_data?.um_id == um_id ? true : false}>
@@ -5698,7 +5720,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                 </View>
                             )
                         
-                        })}
+                        });
+                        })()}
                     {/* </View> */}
 
                     <View style={{ marginTop: PX_TO_PT * 29 }} wrap={false}>

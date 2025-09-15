@@ -1,5 +1,5 @@
-import React, { useCallback, useContext, useMemo } from "react";
-import { Col, Radio, Row, Form, Table, Collapse, Checkbox } from "antd";
+import React, { useCallback, useContext, useMemo, useState } from "react";
+import { Col, Radio, Row, Form, Table, Collapse, Checkbox, Button, Modal, Tooltip } from "antd";
 
 import { MenuOutlined } from "@ant-design/icons";
 import { DndContext } from "@dnd-kit/core";
@@ -13,11 +13,13 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import PrintSettingsContext from "../../context/PrintSettingsContext";
+import PageBreakComponent from "./PageBreakComponent";
 
 import { isMobile } from "react-device-detect";
 import { useAccess } from "../../pages/vaccination/useAccess";
 import { graphsToPrintData } from "../../pages/growthChart/growthChartHelper";
-
+import { getDecodedToken } from "../../utils/localStorage";
+import { env } from "../../EnvironmentConfig";
 // const CustomRow = ({ children, ...props }) => {
 //     const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
 //         id: props['data-row-key'],
@@ -176,10 +178,20 @@ const obsHistoryCheckboxOptions = [
 ];
 
 function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetails, patientBills }) {
-  const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions, labParamsData, zydusSelectedLabParams, customModules } = useContext(PrintSettingsContext);
+  const contextValue = useContext(PrintSettingsContext);
+  const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions, labParamsData, zydusSelectedLabParams, customModules } = contextValue || {};
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
+  const [showPageBreakerModal, setShowPageBreakerModal] = useState(false);
+  let tokenData = null;
+  try {
+    const decodedToken = getDecodedToken();
+    tokenData = decodedToken?.result;
+  } catch (error) {
+    console.warn('Failed to decode token for Zydus check:', error);
+    tokenData = null;
+  }
 
   const customModulesMap = new Map(
     customModules.map((module) => [module.module_id, module.name])
@@ -193,6 +205,9 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
   const onMainCaseOptionChange = useCallback(
     (e) => {
       const updatedData = printSettings.prescription.case_option.map((x) => {
+        if (x.type === "page_break") {
+          return x;
+        }
         return { ...x, format: e.target.value };
       });
 
@@ -208,7 +223,14 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
     [printSettings]
   );
 
+  if (!caseManagerData || !printSettings) {
+    return <div>Loading...</div>;
+  }
+
   const onCaseOptionChange = (record, flag, i) => {
+    if (printSettings.prescription.case_option[i]?.type === "page_break") {
+      return;
+    }
     flag === "radio"
       ? (printSettings.prescription.case_option[i].format = record.target.value)
       : (printSettings.prescription.case_option[i].enable =
@@ -472,40 +494,69 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
       // colSpan: 0,
       dataIndex: "title",
       key: "title",
-      render: (text, record, i) => (
-        <>
-          <div className="d-flex align-items-center justify-content-between text-start">
-            <div
-              className="d-flex align-items-center cursor-pointer Preview-color-icon"
-              onClick={() => onCaseOptionChange(record, "visible", printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
-            >
-              <i
-                className={`icon-Preview ${record.enable === "N" && "disable-preview"
-                  } me-3`}
-              ></i>
-              <span style={{ wordBreak: "break-word" }}>{record.title}</span>
-            </div>
-            <Form.Item className="mb-0 form_addnewpatient ">
-              <Radio.Group
-                className={`d-flex gender-radio all-change-radio ${isMobile ? "segmented-radio-mobile" : ""
-                  }`}
-                onChange={(e) => onCaseOptionChange(e, "radio", printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
-                value={record.format}
+      render: (text, record, i) => {
+        if (record.type === "page_break") {
+          if (tokenData?.hospital_business_id == env.zydus_business_id) {
+            return (
+              <div className="d-flex align-items-center justify-content-between text-start">
+                <div className="d-flex align-items-center" style={{ width: '100%', justifyContent: "space-around" }}>
+                  <PageBreakComponent onRemove={() => removePageBreak(record.id)} />
+                  <Button
+                    type="text"
+                    danger
+                    size="small"
+                    icon={<i className="icon-delete" style={{ color: "#FC5A5A" }}></i>}
+                    onClick={() => removePageBreak(record.id)}
+                    style={{
+                      fontSize: '12px',
+                      color: '#ff4d4f',
+                      border: 'none',
+                      boxShadow: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          }
+          return null;
+        }
+
+        return (
+          <>
+            <div className="d-flex align-items-center justify-content-between text-start">
+              <div
+                className="d-flex align-items-center cursor-pointer Preview-color-icon"
+                onClick={() => onCaseOptionChange(record, "visible", printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
               >
-                <Radio.Button className="w-100 text-center" value="inline" disabled={record?.id === 17}>
-                  {record?.id === 12 ? "Graph View" : "Inline"}
-                </Radio.Button>
-                {record?.id !== 12 &&
-                  <Radio.Button className="w-100 text-center" value="listview" disabled={record?.id === 17}>
-                    List View
-                  </Radio.Button>
-                }
-                <Radio.Button className="w-100 text-center" value="table" disabled={record?.id === 17}>
-                  Table
-                </Radio.Button>
-              </Radio.Group>
-            </Form.Item>
-          </div>
+                <i
+                  className={`icon-Preview ${record.enable === "N" && "disable-preview"
+                    } me-3`}
+                ></i>
+                <span style={{ wordBreak: "break-word" }}>{record.title}</span>
+              </div>
+              <div className="d-flex align-items-center gap-2">
+                <Form.Item className="mb-0 form_addnewpatient ">
+                  <Radio.Group
+                    className={`d-flex gender-radio all-change-radio ${isMobile ? "segmented-radio-mobile" : ""
+                      }`}
+                    onChange={(e) => onCaseOptionChange(e, "radio", printSettings?.prescription?.case_option?.findIndex(x => x.id === record.id))}
+                    value={record.format}
+                  >
+                    <Radio.Button className="w-100 text-center" value="inline" disabled={record?.id === 17}>
+                      {record?.id === 12 ? "Graph View" : "Inline"}
+                    </Radio.Button>
+                    {record?.id !== 12 &&
+                      <Radio.Button className="w-100 text-center" value="listview" disabled={record?.id === 17}>
+                        List View
+                      </Radio.Button>
+                    }
+                    <Radio.Button className="w-100 text-center" value="table" disabled={record?.id === 17}>
+                      Table
+                    </Radio.Button>
+                  </Radio.Group>
+                </Form.Item>
+              </div>
+            </div>
           {record.id === 4 && (
             <div style={{ marginLeft: -40, display: "flex" }}>
               <div style={{ flex: 1 }}>
@@ -576,8 +627,9 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
               </div>
             </div>
           )}
-        </>
-      ),
+          </>
+        );
+      },
     },
   ];
 
@@ -586,6 +638,10 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
       setPrintSettings((prev) => {
         const activeIndex = prev.prescription.case_option.findIndex((i) => i.id === active.id);
         const overIndex = prev.prescription.case_option.findIndex((i) => i.id === over?.id);
+        if (activeIndex === -1 || overIndex === -1) {
+          console.warn('Invalid drag operation: activeIndex or overIndex not found');
+          return prev;
+        }
         return {
           ...prev,
           prescription: {
@@ -594,6 +650,50 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
         };
       });
     }
+  };
+
+  const addPageBreak = (index) => {
+    if (tokenData?.hospital_business_id == env.zydus_business_id) {
+      setPrintSettings((prev) => {
+        const newCaseOption = [...prev.prescription.case_option];
+        const existingPageBreaks = newCaseOption.filter(item => item.type === "page_break");
+        if (existingPageBreaks.length >= 10) {
+          console.warn('Maximum page breaks limit reached (10)');
+          return prev;
+        }
+        const pageBreakItem = {
+          id: `page_break_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`,
+          title: "Page Breaker",
+          type: "page_break",
+          enable: "Y",
+          format: "page_break"
+        };
+        newCaseOption.push(pageBreakItem);
+        return {
+          ...prev,
+          prescription: {
+            case_option: newCaseOption
+          }
+        };
+      });
+      setShowPageBreakerModal(true);
+    }
+  };
+
+  const confirmAddPageBreak = () => {
+    setShowPageBreakerModal(false);
+  };
+
+  const removePageBreak = (pageBreakId) => {
+    setPrintSettings((prev) => {
+      const newCaseOption = prev.prescription.case_option.filter(item => item.id !== pageBreakId);
+      return {
+        ...prev,
+        prescription: {
+          case_option: newCaseOption
+        }
+      };
+    });
   };
 
   return (
@@ -636,51 +736,297 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
               rowKey="id"
               columns={caseOptionTable}
               // dataSource={printSettings?.prescription?.case_option.map((e) => ({ ...e, key: e.id }))}
-              dataSource={printSettings?.prescription?.case_option?.filter((option, index) =>
-                (caseManagerData.symptoms.length > 0 && option.id === 1) ?
-                  ({ ...option, key: option.id })
-                  : (caseManagerData.examination.length > 0 && option.id === 2) ?
-                    ({ ...option, key: option.id })
-                    : (caseManagerData.diagnosis.length > 0 && option.id === 3) ?
-                      ({ ...option, key: option.id })
-                      : (caseManagerData.medicine.length > 0 && option.id === 4) ?
-                        ({ ...option, key: option.id })
-                        : (caseManagerData.advice.length > 0 && option.id === 5) ?
-                          ({ ...option, key: option.id })
-                          : (caseManagerData.investigation.length > 0 && option.id === 6) ?
-                            ({ ...option, key: option.id })
-                            : ((caseManagerData.vitals.length > 0 || caseManagerData?.patient_birth_weight) && option.id === 7) ?
-                              ({ ...option, key: option.id })
-                              : (caseManagerData.medical_history.length > 0 && option.id === 8) ?
-                                ({ ...option, key: option.id })
-                                : (caseManagerData.follow_up_date && option.id === 9) ?
-                                  ({ ...option, key: option.id })
-                                  : (caseManagerData.visit_advice && option.id === 91) ?
-                                    ({ ...option, key: option.id })
-                                    : (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ?
-                                      ({ ...option, key: option.id })
-                                      : (caseManagerData?.smart_prescription_filename?.length && option.id === 11) ?
-                                        ({ ...option, key: option.id })
-                                        : (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartImageData && Object.keys(growthChartDetails?.growthChartImageData)?.length > 0 && growthChartDetails?.todayGrowthChartData?.length > 0) ?
-                                          ({ ...option, key: option.id })
-                                          : (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ?
-                                            ({ ...option, key: option.id })
-                                            : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?.id) ?
-                                              ({ ...option, key: option.id })
-                                              : (caseManagerData.labParamsData?.length > 0 && option.id === 15) ? ({ ...option, key: option.id })
-                                                : (caseManagerData?.surgeries?.length > 0 && option.id === 16) ?
-                                                  ({ ...option, key: option.id })
-                                                  : (zydusSelectedLabParams?.length > 0 && option.id === 18) ? ({ ...option, key: option.id })
-                                                    : (option.is_custom_module === true && customModulesRxData?.find((e) => e?.module_id === option?.id)?.content?.length > 0) ?
-                                                      ({ ...option, key: option.id })
-                                                      : (patientBills?.length > 0 && option.id === 17) &&
-                                                      ({ ...option, key: option.id })
-              )}
+              dataSource={(() => {
+                const filtered = printSettings?.prescription?.case_option?.filter((option, index) => {
+                  if (option.type === "page_break") {
+                    return tokenData?.hospital_business_id == env.zydus_business_id;
+                  }
+                  return (caseManagerData.symptoms.length > 0 && option.id === 1) ||
+                    (caseManagerData.examination.length > 0 && option.id === 2) ||
+                    (caseManagerData.diagnosis.length > 0 && option.id === 3) ||
+                    (caseManagerData.medicine.length > 0 && option.id === 4) ||
+                    (caseManagerData.advice.length > 0 && option.id === 5) ||
+                    (caseManagerData.investigation.length > 0 && option.id === 6) ||
+                    ((caseManagerData.vitals.length > 0 || caseManagerData?.patient_birth_weight) && option.id === 7) ||
+                    (caseManagerData.medical_history.length > 0 && option.id === 8) ||
+                    (caseManagerData.follow_up_date && option.id === 9) ||
+                    (caseManagerData.visit_advice && option.id === 91) ||
+                    (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ||
+                    (caseManagerData?.smart_prescription_filename?.length && option.id === 11) ||
+                    (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartImageData && Object.keys(growthChartDetails?.growthChartImageData)?.length > 0 && growthChartDetails?.todayGrowthChartData?.length > 0) ||
+                    (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ||
+                    (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?.id) ||
+                    (caseManagerData.labParamsData?.length > 0 && option.id === 15) ||
+                    (caseManagerData?.surgeries?.length > 0 && option.id === 16) ||
+                    (zydusSelectedLabParams?.length > 0 && option.id === 18) ||
+                    (option.is_custom_module === true && customModulesRxData?.find((e) => e?.module_id === option?.id)?.content?.length > 0) ||
+                    (patientBills?.length > 0 && option.id === 17);
+                }).map(option => ({ ...option, key: option.id }));
+                return filtered;
+              })()}
               showHeader={false}
             />
           </SortableContext>
         </DndContext>
       )}
+      {(() => {
+        if (tokenData?.hospital_business_id == env.zydus_business_id) {
+          return (
+            <div style={{ margin: '16px 16px 40px 16px', textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <div
+                  onClick={() => addPageBreak(printSettings?.prescription?.case_option?.length - 1)}
+                  style={{ 
+                    fontSize: '14px',
+                    height: '40px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                  className="add-page-break"
+                >
+                  + <span className="add-page-break" style={{ marginLeft: '5px', textDecoration: 'underline' }}>Add Page Break</span>
+                </div>
+                
+                <Tooltip 
+                  title={
+                    <div style={{ padding: '8px 4px' }}>
+                      <div style={{ fontWeight: '400', fontSize: '14px', lineHeight: '1.4', textAlign:'justify' }}>
+                        Page Break lets you control where the content starts on a new page in the printed or PDF output. Move it anywhere in the Format Style list and all sections placed below the Page Breaker will begin on the next page.
+                      </div>
+                    </div>
+                  }
+                  placement="top"
+                  overlayStyle={{ maxWidth: '300px' }}
+                  overlayClassName="page-break-tooltip"
+                >
+                  <i 
+                    className="icon-info" 
+                    style={{ 
+                      cursor: 'pointer',
+                      color: '#6B7280',
+                      fontSize: '16px',
+                      transition: 'color 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => e.target.style.color = '#4B5563'}
+                    onMouseLeave={(e) => e.target.style.color = '#6B7280'}
+                  />
+                </Tooltip>
+              </div>
+            </div>
+          );
+        }
+        return null;
+      })()}
+
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>Page Breaker</span>
+            <span className="new-btn">
+              New
+            </span>
+          </div>
+        }
+        open={showPageBreakerModal}
+        onCancel={() => setShowPageBreakerModal(false)}
+        footer={[
+          <Button
+            key="okay"
+            type="primary"
+            onClick={confirmAddPageBreak}
+            style={{
+              backgroundColor: '#000',
+              borderColor: '#000',
+              width: '100%',
+              height: '39px',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            Okey
+          </Button>
+        ]}
+        width={360}
+        centered
+        closable={false}
+        style={{ height: '443px' }}
+      >
+        <div>
+          <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#666' }}>
+            Hold and drag anywhere in the format Style list and all sections placed below the Page Breaker will begin on the next page.
+            <br/><br/>
+            <span style={{fontSize: "12px", fontWeight: '600'}}>Note:</span> Page breaks at the end of the list won't create blank pages.
+          </p>
+          <div style={{ maxHeight: '254px', padding: '0 16px', backgroundColor:'#F1F1F5', borderRadius: '14px', overflowY: 'auto' }}>
+            {(() => {
+              const filteredItems = printSettings?.prescription?.case_option?.filter(option => 
+                option.type === "page_break" || 
+                (caseManagerData.symptoms.length > 0 && option.id === 1) ||
+                (caseManagerData.examination.length > 0 && option.id === 2) ||
+                (caseManagerData.diagnosis.length > 0 && option.id === 3) ||
+                (caseManagerData.medicine.length > 0 && option.id === 4) ||
+                (caseManagerData.advice.length > 0 && option.id === 5) ||
+                (caseManagerData.investigation.length > 0 && option.id === 6) ||
+                ((caseManagerData.vitals.length > 0 || caseManagerData?.patient_birth_weight) && option.id === 7) ||
+                (caseManagerData.medical_history.length > 0 && option.id === 8) ||
+                (caseManagerData.follow_up_date && option.id === 9) ||
+                (caseManagerData.visit_advice && option.id === 91) ||
+                (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ||
+                (caseManagerData?.smart_prescription_filename?.length && option.id === 11) ||
+                (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartImageData && Object.keys(growthChartDetails?.growthChartImageData)?.length > 0 && growthChartDetails?.todayGrowthChartData?.length > 0) ||
+                (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ||
+                (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?.id) ||
+                (caseManagerData.labParamsData?.length > 0 && option.id === 15) ||
+                (caseManagerData?.surgeries?.length > 0 && option.id === 16) ||
+                (zydusSelectedLabParams?.length > 0 && option.id === 18) ||
+                (option.is_custom_module === true && customModulesRxData?.find((e) => e?.module_id === option?.id)?.content?.length > 0) ||
+                (patientBills?.length > 0 && option.id === 17)
+              ) || [];
+
+              return (
+                <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEndCaseOption}>
+                  <SortableContext
+                    items={filteredItems.map((i) => i.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {filteredItems.map((option, index) => (
+                   <div key={option.id} style={{ 
+                     display: 'flex', 
+                     alignItems: 'center', 
+                     padding: '12px 0',
+                     borderBottom: '1px solid #E2E2EA'
+                   }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      marginRight: '12px',
+                      cursor: 'grab',
+                      color: '#8c8c8c'
+                    }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        gap: '2px',
+                        fontSize: '12px'
+                      }}>
+                        <div style={{ width: '12px', height: '1px', backgroundColor: '#8c8c8c' }}></div>
+                        <div style={{ width: '12px', height: '1px', backgroundColor: '#8c8c8c' }}></div>
+                        <div style={{ width: '12px', height: '1px', backgroundColor: '#8c8c8c' }}></div>
+                      </div>
+                    </div>
+                    {option.type !== "page_break" && (
+                      <div 
+                        style={{ 
+                          marginRight: '12px',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => onCaseOptionChange(option, "visible", printSettings?.prescription?.case_option?.findIndex(x => x.id === option.id))}
+                      >
+                          <i 
+                            className={`icon-Preview ${option.enable === 'N' && 'disable-preview'}`} 
+                            style={{ 
+                              fontSize: '16px', 
+                              color: option.enable === 'N' ? '#d9d9d9' : '#4B4AD5',
+                              lineHeight: 'unset'
+                            }}
+                          ></i>
+                      </div>
+                    )}
+                    <div style={{ 
+                      flex: 1, 
+                      marginRight: '12px',
+                      minWidth: 0,
+                      overflow: 'hidden'
+                    }}>
+                      {option.type === "page_break" ? (
+                        <div style={{
+                          borderRadius: '6px',
+                          textAlign: 'center',
+                          color: '#8c8c8c',
+                          fontSize: '9px'
+                        }}>
+                          ---------- Page Breaker ----------
+                        </div>
+                      ) : (
+                        <span style={{ 
+                          fontSize: '9px', 
+                          fontWeight: '500',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: 'block',
+                          width: '100%'
+                        }}>
+                          {option.title}
+                        </span>
+                      )}
+                    </div>
+                    {option.type !== "page_break" && (
+                      <div style={{ 
+                        marginRight: '12px',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}>
+                        <Radio.Group 
+                          size="small" 
+                          value={option.format || 'inline'}
+                          onChange={(e) => onCaseOptionChange(e, 'radio', printSettings?.prescription?.case_option?.findIndex(x => x.id === option.id))}
+                          style={{ display: 'flex', alignItems: 'center' }}
+                        >
+                          <Radio.Button value="inline" style={{ 
+                            fontSize: '9px', 
+                            padding: '2px 8px',
+                            height: '24px',
+                            lineHeight: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>Inline</Radio.Button>
+                          <Radio.Button value="listview" style={{ 
+                            fontSize: '9px', 
+                            padding: '2px 8px',
+                            height: '24px',
+                            lineHeight: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>List View</Radio.Button>
+                          <Radio.Button value="table" style={{ 
+                            fontSize: '9px', 
+                            padding: '2px 8px',
+                            height: '24px',
+                            lineHeight: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>Table</Radio.Button>
+                        </Radio.Group>
+                      </div>
+                    )}
+                    {option.type === "page_break" && (
+                      <Button
+                        type="text"
+                        danger
+                        size="small"
+                        icon={<i className="icon-delete" style={{ color: "#FC5A5A", fontSize: '13px'}}></i>}
+                        onClick={() => removePageBreak(option.id)}
+                        style={{
+                          color: '#ff4d4f',
+                          border: 'none',
+                          boxShadow: 'none'
+                        }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </SortableContext>
+            </DndContext>
+              );
+            })()}
+          </div>
+        </div>
+      </Modal>
 
       {/* {printSettings?.prescription?.case_option?.map((e, i) => {
                 return (
