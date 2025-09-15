@@ -78,6 +78,7 @@ export const GB_APOLLO_DISABLE_FEATURE = "apollo-disable-feature";
 
 export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
+export const NEO_NATOLOGISTS_DP_ID = 122;
 export const GB_SNAP_RX = "snap-rx";
 export const GB_SNAP_RX_DIGITIZATION = "snap-rx-digitization";
 export const GB_DISABLE_MSG91_OTP_FLOW = "disable-msg91-otp-flow";

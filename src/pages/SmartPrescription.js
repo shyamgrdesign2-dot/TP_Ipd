@@ -22,6 +22,7 @@ import {
   WEBSOCKET_ERROR_MESSAGE,
   PAEDIATRICS,
   GB_ZYDUS_USER,
+  NEO_NATOLOGISTS_DP_ID,
 } from "../utils/constants";
 
 import ReconnectingWebSocket from "reconnectingwebsocket";
@@ -1210,7 +1211,7 @@ function SmartPrescription() {
       );
 
       if (
-        profile?.dp_name === PAEDIATRICS &&
+        (profile?.dp_name === PAEDIATRICS || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) &&
         patient_data?.ageMonths <= 12 &&
         patient_data?.ageYears === 0
       ) {
