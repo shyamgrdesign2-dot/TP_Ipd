@@ -14,7 +14,7 @@ import { setShouldShowOpdBilling } from '../redux/billingSlice';
 import { checkToShowOpdBilling } from '../pages/opdBilling/service';
 import { useDispatch } from 'react-redux';
 import moment from 'moment';
-import { PAEDIATRIC_DP_ID } from '../utils/constants';
+import { NEO_NATOLOGISTS_DP_ID, PAEDIATRIC_DP_ID } from '../utils/constants';
 
 function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHandle }) {
     const dispatch = useDispatch();
@@ -106,7 +106,7 @@ function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHan
 
     const genderAge = (patient_data) => {
         var value = `${patient_data?.pm_gender[0].toUpperCase()}, `
-        if (profile?.dp_id === 9) {
+        if (profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) {
             if (patient_data?.ageYears != 0) {
                 value += `${patient_data?.ageYears}y`
             }

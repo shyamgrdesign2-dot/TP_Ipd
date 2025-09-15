@@ -18,7 +18,7 @@ import { isNumeric, isAlphabet, getClinicName } from "../utils/utils";
 import { resetVaccineState } from "../redux/vaccineSlice";
 
 import smartPad from "../assets/images/smartPad.svg";
-import { GB_ISCRIBE, GB_SNAP_RX } from "../utils/constants";
+import { GB_ISCRIBE, GB_SNAP_RX, NEO_NATOLOGISTS_DP_ID } from "../utils/constants";
 import { resetGrowthChartState } from "../redux/growthChartSlice";
 import { resetObstetricState } from "../redux/obstetricSlice";
 import { resetUploadDocState } from "../redux/uploadDocSlice";
@@ -103,7 +103,7 @@ function WalkInConsultation() {
 
   const genderAge = (patient_data) => {
     var value = `${patient_data?.pm_gender}, `;
-    if (profile?.dp_id === 9) {
+    if (profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) {
       if (patient_data?.ageYears != 0) {
         value += `${patient_data?.ageYears}y`;
       }

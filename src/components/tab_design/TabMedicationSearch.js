@@ -50,7 +50,7 @@ import noRecordFound from '../../assets/images/no-record-round.svg';
 import calculatorIconBlue from '../../assets/images/calculator-blue.svg';
 import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
-import { EXTRA_OPTIONS, MESSAGE_KEY } from "../../utils/constants";
+import { EXTRA_OPTIONS, MESSAGE_KEY, NEO_NATOLOGISTS_DP_ID } from "../../utils/constants";
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import DoseCalculator from "../dose_calculator/doseCalculator";
@@ -1009,7 +1009,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   // Dose Calc Dropdown
   const items = [
-    profile?.dp_id === 9 && {
+    (profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) && {
       label: dosesList.some((e1) => e1.medicine_id == medicationData[selectedIndex]?.tmm_id) ?
         <div onClick={() => handleViewDoseCalcDrawer("1", medicationData[selectedIndex]?.tmm_id)}>
           <img src={calculatorIconBlue} alt="Dose calcultor" className="me-2" width={16} />Edit Calculation</div>
@@ -1051,7 +1051,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                     medicationData[selectedIndex]?.tmm_generic}
                 </div>
               </div>
-              {(profile?.dp_id === 9 || !medicationData[selectedIndex]?.pms_default) && (
+              {((profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) || !medicationData[selectedIndex]?.pms_default) && (
                 <Dropdown className='btn btn-outline btn-more pe-0' menu={{ items }} trigger={['click']}>
                   <a onClick={(e) => e.preventDefault()}>
                     <i className='icon-More'></i>

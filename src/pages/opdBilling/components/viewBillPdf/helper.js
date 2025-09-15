@@ -1,5 +1,6 @@
 import moment from "moment";
 import { PX_TO_PT } from "./constants";
+import { NEO_NATOLOGISTS_DP_ID } from "../../../../utils/constants";
 
 export const getMarginByFormat = (
   letterHeadFormat,
@@ -107,7 +108,7 @@ export const getBillInfoTitleToShow = (id, title, isDepositReceipt) => {
 
 export const genderAge = (patient_data, profile) => {
   var value = ``;
-  if (profile?.dp_id === 9) {
+  if (profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) {
     if (patient_data?.ageYears != 0) {
       value += `${patient_data?.ageYears}y`;
     }
