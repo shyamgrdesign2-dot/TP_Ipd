@@ -66,6 +66,7 @@ import {
   S_TATVA_PRACTICE,
   TRIAL,
   GB_SNAP_RX_DIGITIZATION,
+  NEO_NATOLOGISTS_DP_ID,
 } from "../utils/constants";
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
@@ -1719,7 +1720,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
 
   const genderAge = (patient_data) => {
     var value = `${patient_data?.pm_gender}, `;
-    if (profile?.dp_id === 9) {
+    if (profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) {
       if (patient_data?.ageYears != 0) {
         value += `${patient_data?.ageYears}y`;
       }
