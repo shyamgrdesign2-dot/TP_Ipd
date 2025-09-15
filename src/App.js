@@ -66,9 +66,10 @@ import AppointmentSuccess from "./pages/appointmentAgent/components/AppointmentS
 import OpdBill from "./pages/opdBilling/OpdBill";
 import IPDPatientDetails from "./pages/ipd/patientDetails/patientDetails";
 import AssessmentsForm from "./pages/ipd/assessmentForm/AssessmentsForm";
-import InPatients from "./pages/ipd/InPatients";
+import InPatients from "./pages/ipd/inPatients/InPatients";
 import OtNotes from "./pages/ipd/otNotes/OtNotes";
 import HomePageLayout from "./pages/ipd/HomePageLayout";
+import ConsultantNotes from "./pages/ipd/consultantNotes/ConsultantNotes";
 import ProgressNotes from "./pages/ipd/progressNotes/progressNotes";
 
 const growthbook = new GrowthBook({
@@ -412,6 +413,10 @@ function App() {
                 <Route path="/ipd/patient-details/ot-notes" element={<OtNotes />} />
                 <Route path="/ipd/patient-details/progress-notes" element={<ProgressNotes />} />
                 <Route
+                  path="/ipd/patient-details/consultant-notes"
+                  element={<ConsultantNotes />}
+                />
+                <Route
                   path="create-campaign"
                   element={<MessageCreateCampaign />}
                 />
@@ -426,19 +431,19 @@ function App() {
                   // element={isMobile ? <TabPrescription /> : <MedicalHistoryList  />}
                   // element={isMobile ? <TabMedicationBox /> : <GynecHistoryList />}
                   // element={isMobile ? <TabMedicationBox /> : <LabParametersList />}
-                //   element={isMobile ? <TabMedicationBox /> : (
-                //     <>
-                //       <LabResultsTable showHeader={true} showSearchBar={false} />
-                //       <LabParams
-                //         // handleAddLabParamsDrawer={handleAddLabParamsDrawer}
-                //         // patient_unique_id={patient_data?.patient_unique_id}
-                //         onSave={() => {}}
-                //         // isBackModalOpen={isBackModalOpen}
-                //         // showHideBackModal={showHideBackModal}
-                //         // patientGender={patient_data?.pm_gender}
-                //       />
-                //     </>
-                // )}
+                  //   element={isMobile ? <TabMedicationBox /> : (
+                  //     <>
+                  //       <LabResultsTable showHeader={true} showSearchBar={false} />
+                  //       <LabParams
+                  //         // handleAddLabParamsDrawer={handleAddLabParamsDrawer}
+                  //         // patient_unique_id={patient_data?.patient_unique_id}
+                  //         onSave={() => {}}
+                  //         // isBackModalOpen={isBackModalOpen}
+                  //         // showHideBackModal={showHideBackModal}
+                  //         // patientGender={patient_data?.pm_gender}
+                  //       />
+                  //     </>
+                  // )}
                 />
                 <Route
                   path="prescription_print_view"

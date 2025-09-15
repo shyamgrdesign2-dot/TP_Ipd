@@ -359,6 +359,11 @@
     width: calc(100vw - 50px);
   }
 }
+.autoselect-medrx-readonly {
+  .ant-select-arrow {
+    display: none;
+  }
+}
 
 .list-patientName {
   span {

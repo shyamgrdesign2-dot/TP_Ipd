@@ -82,6 +82,7 @@ const LabResults = (props) => {
             showHeader={false}
             labParamsData={labResults}
             showSearchBar={false}
+            isEditable={false}
           />
         ) : null}
         {isEditable ? (

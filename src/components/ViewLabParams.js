@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import { useSelector } from 'react-redux';
 
-const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, handleSwitchToAddLabParams = () => {}, showSearchBar = true, showHeader = true, isIPD = false }) => {
+const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, handleSwitchToAddLabParams = () => {}, showSearchBar = true, showHeader = true, isIPD = false, isEditable = true }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [expandedReports, setExpandedReports] = useState({});
     const scrollRef = useRef(null);
@@ -283,13 +283,13 @@ const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, 
                                                 <span>{reportName}</span>
                                             </td>
                                             {/* <div style={{ position: "absolute", top: "16%", right: `${isIPD ? 'unset' : '20px'}`, left: `${isIPD ? 'calc(100vw - 70px)': 'unset'}` }}> */}
-                                            <div style={{ position: "absolute", top: "16%", right: "20px" }}>
+                                            {isEditable? <div style={{ position: "absolute", top: "16%", right: "20px" }}>
                                                 {isExpanded ? (
                                                     <button className='btn p-0 ms-2 iconrotate180'><i className='icon-right fs-5' /></button>
                                                 ) : (
                                                     <button className='btn p-0 ms-2 iconrotate270'><i className='icon-right fs-5' /></button>
                                                 )}
-                                            </div>
+                                            </div>: null}
                                             {filteredReports.length < 2 ? (
                                                 // Render at least two empty <td>s if the length is less than 2
                                                 <>

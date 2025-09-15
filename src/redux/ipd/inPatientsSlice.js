@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import IpdService from "../../api/services/IpdService";
-import { formatPatientsForTable } from "../../pages/ipd/staticData";
+import { formatPatientsForTable } from "../../pages/ipd/inPatients/staticData";
 
 // Async thunk for fetching patients
 export const fetchPatients = createAsyncThunk(

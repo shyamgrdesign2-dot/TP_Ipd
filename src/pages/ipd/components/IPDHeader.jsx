@@ -15,7 +15,7 @@ import playIcons from "../../../assets/images/tube-icon.svg";
 import { changeHospital } from "../../../redux/doctorsSlice";
 import { useLocalStorage } from "../../../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
-import { getClinicName } from "../../../utils/utils";
+import { getClinicName } from "../../../utils/utils"; 
 import VideoModal from "../../../common/VideoModal";
 
 function IPDHeader({ locationPath }) {
