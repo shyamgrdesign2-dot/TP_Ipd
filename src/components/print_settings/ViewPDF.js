@@ -1056,6 +1056,69 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     }}> */}
                         {(() => {
                         let hasRenderedPageBreak = false;
+                        const hasModuleData = (option, caseManagerData) => {
+                            switch(option.id) {
+                                case 1: 
+                                    return caseManagerData.symptoms?.length > 0;
+                                case 2: 
+                                    return caseManagerData.examination?.length > 0;
+                                case 3: 
+                                    return caseManagerData.diagnosis?.length > 0;
+                                case 4: 
+                                    return caseManagerData.medicine?.length > 0;
+                                case 5: 
+                                    return caseManagerData.advice?.length > 0;
+                                case 6: 
+                                    return caseManagerData.investigation?.length > 0;
+                                case 7: 
+                                    return caseManagerData.vitals?.length > 0 || caseManagerData?.patient_birth_weight;
+                                case 8: 
+                                    return caseManagerData.medical_history?.length > 0;
+                                case 9: 
+                                    return caseManagerData.follow_up_date;
+                                case 91: 
+                                    return caseManagerData.visit_advice;
+                                case 10: 
+                                    return (todayVaccines?.given?.length || todayVaccines?.due?.length);
+                                case 11: 
+                                    return caseManagerData?.smart_prescription_filename?.length;
+                                case 12: 
+                                    return growthChartDetails?.growthChartImageData && Object.keys(growthChartDetails?.growthChartImageData)?.length > 0 && growthChartDetails?.todayGrowthChartData?.length > 0;
+                                case 13: 
+                                    return caseManagerData.gynecHistoryData;
+                                case 14: 
+                                    return obsHistoryData?.length > 0;
+                                case 15: 
+                                    return labParamsData?.length > 0;
+                                case 16: 
+                                    return caseManagerData?.zydusSelectedLabParams?.length > 0;
+                                case 17: 
+                                    return patientBills?.length > 0;
+                                case 18: 
+                                    return advanceReceipts?.length > 0;
+                                default:
+                                    if (option.is_custom_module) {
+                                        const customModule = caseManagerData?.moduleContents?.find(e => e.module_id === option?.id);
+                                        return customModule?.content?.length > 0;
+                                    }
+                                    return false;
+                            }
+                        };
+                        const shouldRenderPageBreak = (pageBreakIndex) => {
+                            for (let i = pageBreakIndex - 1; i >= 0; i--) {
+                                const prevOption = printSettings?.prescription?.case_option[i];
+                                if (prevOption?.type === "page_break") {
+                                    break;
+                                }
+                                if (prevOption?.type !== "page_break" && prevOption?.enable === "Y") {
+                                    const hasData = hasModuleData(prevOption, caseManagerData);
+                                    if (hasData) {
+                                        return true;
+                                    }
+                                }
+                            }
+                            return false;
+                        };
                         return printSettings?.prescription?.case_option?.map((option, index) => {
                             let customModule = caseManagerData?.moduleContents?.find(e => e.module_id === option?.id);
                             if(customModule) {
@@ -1067,6 +1130,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     return null;
                                 }
                                 if (hasRenderedPageBreak) {
+                                    return null;
+                                }
+                                if (!shouldRenderPageBreak(index)) {
                                     return null;
                                 }
                                 hasRenderedPageBreak = true;
