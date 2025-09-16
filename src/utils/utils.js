@@ -1443,3 +1443,5 @@ export const getSupportedMimeType = () => {
 
   return null; // No supported type found, let browser use default
 };
+
+export const isApollo = () => env?.APOLLO_BUSINESS_IDS?.includes(getTokenData()?.hospital_business_id);
