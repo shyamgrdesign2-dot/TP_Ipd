@@ -277,7 +277,7 @@ const AssessmentsForm = (props) => {
       })
     ).then((res) => {
       if (res.payload.error) {
-        message.warning(`${res.payload.error}`);
+        message.warning(`${res.payload.error} - ${res.payload.message?.split('must')?.[0]} missing`);
         return;
       }
       addDataToStore(reqData);
