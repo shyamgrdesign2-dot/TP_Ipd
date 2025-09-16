@@ -164,6 +164,7 @@ const qa_tp = {
   doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
   zydus_voice_rx_expiry_date: "2025-11-01",
+  FREE_VOICE_RX_APOLLO_USER_IDS: [12469, 12475],
 };
 
 const qa = {
@@ -334,6 +335,7 @@ const uat = {
   doctor_portal_url: "https://pm-uat-doctor-portal.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
   zydus_voice_rx_expiry_date: "2025-11-01",
+  FREE_VOICE_RX_APOLLO_USER_IDS: [12469, 12475],
 };
 
 const prod = {
@@ -428,6 +430,7 @@ const prod = {
   doctor_portal_url: "https://tatvapractice.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
   zydus_voice_rx_expiry_date: "2025-11-01",
+  FREE_VOICE_RX_APOLLO_USER_IDS: [12469, 12475],
 };
 
 const getEnv = () => {

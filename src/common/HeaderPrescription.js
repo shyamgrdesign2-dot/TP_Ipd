@@ -20,7 +20,7 @@ import playIcons from '../assets/images/tube-icon.svg';
 import fullicon from '../assets/images/full-icon.svg';
 import VideoModal from './VideoModal';
 
-import { errorMessage, getClinicName, shouldMonetizationDisabled, removeBeforeWhiteSpace, isZydus } from "../utils/utils";
+import { errorMessage, getClinicName, shouldMonetizationDisabled, removeBeforeWhiteSpace, isVoiceRxFree } from "../utils/utils";
 
 import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, GB_ZYDUS_USER, MESSAGE_KEY, S_DDX, S_VOICE_RX } from "../utils/constants";
 
@@ -108,7 +108,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
 
     const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
     const isPillUpAccessableFromGB = useFeatureIsOn(GB_PILLUP_MEDICINE);
-    const isVoiceRxEnabledForZydus = isZydus() && new Date() < new Date(env?.zydus_voice_rx_expiry_date);
+    const isFreeVoiceRxUser = isVoiceRxFree();
     
     useEffect(() => {
         dispatch(oneClickTemplatesList());
@@ -1412,7 +1412,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                                     </Button>
                                 </div>
                             </Tooltip> */}
-                            {(tp_monetization_enable || isVoiceRxEnabledForZydus) && (
+                            {(tp_monetization_enable || isFreeVoiceRxUser) && (
                                 <GenRxButton onClick={handleGenRx} />
                             )}
                             <Tooltip placement="bottom" title={(symptomsData.length > 0 || examinationData.length > 0 || surgeriesData.length > 0 || diagnosisData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || medicationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || privateNotesData || followUpDate || additionalNote || givenVaccines.length > 0 || updatedDueVaccines?.length > 0 || measurements.length > 0 || (gynecHistory && Object.keys(gynecHistory).length > 0) || isObstetricDetailsUpdated || labParamsData?.length > 0 || zydusSelectedLabParams?.length > 0 || customModuleContents?.some((e) => {return e?.content?.length && e?.content?.some(c => c.title || c.notes)})) ? "" : "Please fill your prescription to end visit."}>

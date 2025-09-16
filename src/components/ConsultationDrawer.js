@@ -32,7 +32,7 @@ import { v4 as uuidv4 } from "uuid";
 import CashManagerContext from "../context/CashManagerContext";
 import { addCaseManager, editCaseManager } from "../redux/caseManagerSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { errorMessage, getClinicName, trackEvent, getTokenData, getDeviceSdkData, isZydus } from "../utils/utils";
+import { errorMessage, getClinicName, trackEvent, getTokenData, getDeviceSdkData, isVoiceRxFree } from "../utils/utils";
 import { CheckOutlined, CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import deleteModuleIcon from "../assets/images/delete-icon-blue.svg";
 import alertIcon from "../assets/images/alertIcon.svg";
@@ -106,7 +106,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
   const { TextArea } = Input;
 
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
-  const isZydusDoctor = isZydus();
+  const isFreeVoiceRxUser = isVoiceRxFree();
 
   useEffect(() => {
     if (VOICE_RX_planDetails !== undefined && (VOICE_RX_planDetails?.plan_tier === FREE || VOICE_RX_planDetails?.plan_tier === FAILED_VERIFICATION)) {
@@ -369,9 +369,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
   };
 
   const handleSend = async () => {
-    if (!isZydusDoctor && VOICE_RX_planDetails?.plan_tier === FREE && VOICE_RX_planDetails?.credit_balance <= 0) {
+    if (!isFreeVoiceRxUser && VOICE_RX_planDetails?.plan_tier === FREE && VOICE_RX_planDetails?.credit_balance <= 0) {
       showHideSubModal()
-    } else if (!isZydusDoctor && VOICE_RX_planDetails?.plan_tier === FAILED_VERIFICATION) {
+    } else if (!isFreeVoiceRxUser && VOICE_RX_planDetails?.plan_tier === FAILED_VERIFICATION) {
       showHideSubModal()
     } else {
       let sendData = {
@@ -381,12 +381,12 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
       const action = await dispatch(checkCredits(sendData));
       if (action.meta.requestStatus === "fulfilled") {
         if (action?.payload?.hasOwnProperty("service_name")) {
-          if (!isZydusDoctor && action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
+          if (!isFreeVoiceRxUser && action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
             if (action?.payload?.credit_balance != VOICE_RX_planDetails?.credit_balance) {
               await dispatch(services(sendData?.b2c_id))
             }
             showHideSubModal()
-          } else if (!isZydusDoctor && action?.payload?.plan_tier === FAILED_VERIFICATION) {
+          } else if (!isFreeVoiceRxUser && action?.payload?.plan_tier === FAILED_VERIFICATION) {
             showHideSubModal()
           } else {
             if (!isRecording && !(inputText || editableQuery)) return;
@@ -946,7 +946,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
         ...deviceSdkData,
       });
 
-      if (!isZydusDoctor && useVoiceRx) {
+      if (!isFreeVoiceRxUser && useVoiceRx) {
         let sendData = {
           b2c_id: profile?.b2c,
           service_name: S_VOICE_RX
@@ -1597,7 +1597,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                 </span>
               </button>
 
-              {!isZydusDoctor && <FreeTrialButton title={S_VOICE_RX} showHideSubModal={showHideSubModal} />}
+              {!isFreeVoiceRxUser && <FreeTrialButton title={S_VOICE_RX} showHideSubModal={showHideSubModal} />}
 
               {showPrescription && (
                 <Button
@@ -2104,7 +2104,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
         </>
       </Suspense>
 
-      {!isZydusDoctor && visible && (
+      {!isFreeVoiceRxUser && visible && (
         <ExpiredSubModal
           title={S_VOICE_RX}
           styles={{
