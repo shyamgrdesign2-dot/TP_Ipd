@@ -75,6 +75,15 @@ function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHan
                     </div>
                 </div>
             )}
+            {tokenData?.hospital_business_id == config.zydus_business_id && patient_data?.tpml_refrence_id && (
+                <div className="align-items-center d-flex medicine-templates border-top-0 without-hover p-0 pb-3">
+                    <div className="round-box bg-body-secondary"><i className="icon-Id fs-21"></i></div>
+                    <div className="text-truncate">
+                        <div className="fontroboto letterspacing">MRN Number</div>
+                        <div className="fontroboto letterspacing fw-medium">{patient_data?.tpml_refrence_id}</div>
+                    </div>
+                </div>
+            )}
             <div className="align-items-center d-flex medicine-templates border-top-0 without-hover p-0">
                 <div className="round-box bg-body-secondary"><i className="icon-phone fs-21"></i></div>
                 <div className="text-truncate">
