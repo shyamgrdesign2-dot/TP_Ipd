@@ -1418,4 +1418,28 @@ export const isZydus = () => env?.ZYDUS_BUSINESS_ID === getTokenData()?.hospital
 
 export const isVoiceRxFree = () => {
   return (isZydus() && new Date(env?.zydus_voice_rx_expiry_date) > new Date()) || env?.FREE_VOICE_RX_APOLLO_USER_IDS?.includes(getTokenData()?.user_id);
+}
+
+// Function to determine supported MIME types for MediaRecorder in the current browser
+export const getSupportedMimeType = () => {
+  if (!MediaRecorder) {
+    return null;
+  }
+
+  // Try different MIME types in order of preference
+  const mimeTypes = [
+    "audio/webm;codecs=opus",     // Best compression for long recordings
+    "audio/mp4;codecs=mp4a.40.2", // AAC - excellent compression
+    "audio/webm",                 // Good fallback
+    "audio/mp4",                  // Wide API compatibility
+    "audio/mpeg",                 // MP3 - universal support
+  ];
+
+  for (const type of mimeTypes) {
+    if (MediaRecorder.isTypeSupported(type)) {
+      return type;
+    }
+  }
+
+  return null; // No supported type found, let browser use default
 };
