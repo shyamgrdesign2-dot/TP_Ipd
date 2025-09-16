@@ -63,6 +63,7 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_SMARTSYNC_CONNECT } from "../utils/constants";
 import { upsertDoctorSettingFlag } from "../redux/doctorsSlice";
 import { setDefaultCustomSyncPadTemplate } from "../pages/smartSync/services/uploadService";
+import { assignCarePlan, updateCarePlanName, getCarePlanAssignments } from "../pages/smartSync/services/carePlanService";
 
 function HeaderPrescription({
   prescription,
@@ -75,7 +76,8 @@ function HeaderPrescription({
   caseManagerData,
   isCustomSSRX,
   selectedTemplateId,
-  prepareMetadataForSubmissionData
+  prepareMetadataForSubmissionData,
+  selectedCarePlan
 }) {
   const { templates, loading } = useSelector((state) => state.caseManager);
   const { profile, videoList } = useSelector((state) => state.doctors);
@@ -522,6 +524,48 @@ function HeaderPrescription({
         : await dispatch(editCaseManager(sendData));
 
     if (action.meta.requestStatus === "fulfilled") {
+      // After we have a confirmed consultation, ensure care plan is synced with the generated tcm_id
+      try {
+        const decodedToken = getDecodedToken();
+        const tokenData = decodedToken?.result;
+        const generatedTcmId = action?.payload?.tcm_id ?? tcmId;
+
+        if (generatedTcmId > 0 && selectedCarePlan) {
+          if (tcmId !== 0 && selectedCarePlan?.plan_name) {
+            // Editing existing consultation: update care plan name against tcm_id
+            await updateCarePlanName(parseInt(generatedTcmId), selectedCarePlan.plan_name);
+          } else if (
+            tcmId === 0 &&
+            selectedCarePlan?.plan_id &&
+            patient_data?.patient_unique_id &&
+            tokenData?.user_id &&
+            tokenData?.clinic_id
+          ) {
+            // New consultation: assign care plan with tcm_id
+            await assignCarePlan({
+              plan_id: selectedCarePlan.plan_id,
+              um_id: tokenData.user_id,
+              patient_unique_id: patient_data.patient_unique_id,
+              hm_id: tokenData.clinic_id,
+              tcm_id: parseInt(generatedTcmId),
+            });
+          }
+        }
+      } catch (cpErr) {
+        console.error('Care plan sync (assign/update) after SmartRx submit failed:', cpErr);
+      }
+
+      // Fetch care plan assignments to include in print state
+      let carePlanAssignments = [];
+      try {
+        if (patient_data?.patient_unique_id) {
+          const assignmentsResp = await getCarePlanAssignments(patient_data.patient_unique_id);
+          carePlanAssignments = Array.isArray(assignmentsResp?.data) ? assignmentsResp.data : (Array.isArray(assignmentsResp) ? assignmentsResp : (assignmentsResp?.assignments || []));
+        }
+      } catch (cpFetchErr) {
+        console.error('Failed to fetch care plan assignments for smart rx print state:', cpFetchErr);
+      }
+
       navigate("/print-smart-rx", {
         replace: true,
         state: {
@@ -529,6 +573,7 @@ function HeaderPrescription({
           patient_data: patient_data,
           smartRxFile: smartRxFiles,
           page: "prescription",
+          carePlanAssignments,
         },
       });
     } else {

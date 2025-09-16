@@ -22,7 +22,8 @@ import VideoModal from './VideoModal';
 
 import { errorMessage, getClinicName, shouldMonetizationDisabled, removeBeforeWhiteSpace, isVoiceRxFree } from "../utils/utils";
 
-import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, GB_ZYDUS_USER, MESSAGE_KEY, S_DDX, S_VOICE_RX } from "../utils/constants";
+import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, GB_ZYDUS_USER, GB_CARE_PLAN, MESSAGE_KEY, S_DDX, S_VOICE_RX } from "../utils/constants";
+import { assignCarePlan, updateCarePlanName, getCarePlanAssignments } from "../pages/smartSync/services/carePlanService";
 
 import visitEnd from '../assets/images/end-visit.svg';
 import imgCloseVisit from '../assets/images/close-visit.svg';
@@ -51,7 +52,7 @@ import { setSelectAutofill } from '../redux/ddxSlice';
 
 var oneClickCosultationTemplateId = 0
 
-function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecHistory, labParamsData, zydusSelectedLabParams, handleGenRx, labReportID }) {
+function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecHistory, labParamsData, zydusSelectedLabParams, handleGenRx, labReportID, selectedCarePlan }) {
 
     const { profile, siteId, storeCode } = useSelector((state) => state.doctors);
 
@@ -1065,6 +1066,48 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
 
             const action = tcmId == 0 ? await dispatch(addCaseManager(sendData)) : await dispatch(editCaseManager(sendData))
             if (action.meta.requestStatus === "fulfilled") {
+                try {
+                    // Ensure care plan is linked to the definitive consultation id
+                    const decodedToken = getDecodedToken();
+                    const tokenData = decodedToken?.result;
+                    const generatedTcmId = action?.payload?.tcm_id ?? tcmId;
+
+                    if (generatedTcmId > 0 && selectedCarePlan) {
+                        if (tcmId !== 0 && selectedCarePlan?.plan_name) {
+                            // Editing existing consultation: update care plan name against tcm_id
+                            await updateCarePlanName(parseInt(generatedTcmId), selectedCarePlan.plan_name);
+                        } else if (
+                            tcmId === 0 &&
+                            selectedCarePlan?.plan_id &&
+                            patient_data?.patient_unique_id &&
+                            tokenData?.user_id &&
+                            tokenData?.clinic_id
+                        ) {
+                            // New consultation: assign care plan with tcm_id
+                            await assignCarePlan({
+                                plan_id: selectedCarePlan.plan_id,
+                                um_id: tokenData.user_id,
+                                patient_unique_id: patient_data.patient_unique_id,
+                                hm_id: tokenData.clinic_id,
+                                tcm_id: parseInt(generatedTcmId),
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Care plan sync after submit failed:', error);
+                }
+                
+                // Fetch care plan assignments to include in print state
+                let carePlanAssignments = [];
+                try {
+                    if (patient_data?.patient_unique_id) {
+                        const assignmentsResp = await getCarePlanAssignments(patient_data.patient_unique_id);
+                        carePlanAssignments = Array.isArray(assignmentsResp?.data) ? assignmentsResp.data : (Array.isArray(assignmentsResp) ? assignmentsResp : (assignmentsResp?.assignments || []));
+                    }
+                } catch (cpFetchErr) {
+                    console.error('Failed to fetch care plan assignments for print state:', cpFetchErr);
+                }
+
                 message.open({
                     key: MESSAGE_KEY,
                     type: '',
@@ -1194,7 +1237,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                     }
                 }
 
-                navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data, labParamsData: labParamsData, zydusSelectedLabParams: zydusSelectedLabParams, labReportID: labReportID } })
+                navigate('/prescription_print_view', { replace: true, state: { ...action.payload, patient_data: patient_data, labParamsData: labParamsData, zydusSelectedLabParams: zydusSelectedLabParams, labReportID: labReportID, carePlanAssignments } })
             } else {
                 errorMessage(action.error)
             }

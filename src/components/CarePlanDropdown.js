@@ -10,7 +10,7 @@ import carePlanIcon from "../assets/images/onboard-page-icons/health.svg";
 
 const { Option } = Select;
 
-function CarePlanDropdown({ onCarePlanSelect, selectedCarePlan, patientId, doctorId, clinicId }) {
+function CarePlanDropdown({ onCarePlanSelect, selectedCarePlan, patientId, doctorId, clinicId, placeholder }) {
     const [carePlans, setCarePlans] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchValue, setSearchValue] = useState('');
@@ -142,7 +142,7 @@ function CarePlanDropdown({ onCarePlanSelect, selectedCarePlan, patientId, docto
                 <div className="d-flex care-plan-dropdown mt-3">
                     <Select
                         className="w-100"
-                        placeholder="Search and select care plan"
+                        placeholder={placeholder || "Select care plan"}
                         showSearch
                         value={selectedCarePlan?.plan_id || undefined}
                         onSearch={handleSearchChange}

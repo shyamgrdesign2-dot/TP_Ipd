@@ -44,6 +44,7 @@ import MedicalHistory from "../assets/images/Medical-History.svg";
 import privateNotes from "../assets/images/private-notes.svg";
 import SmartRxFollowUpBox from "../components/SmartRxFollowUpBox";
 import CarePlanDropdown from "../components/CarePlanDropdown";
+import { getCarePlanAssignments } from "./smartSync/services/carePlanService";
 import { assignCarePlan } from "./smartSync/services/carePlanService";
 
 import {
@@ -182,6 +183,7 @@ function SmartPrescription() {
   const [medicationData, setMedicationData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [selectedCarePlan, setSelectedCarePlan] = useState(null);
+  const [carePlanPlaceholder, setCarePlanPlaceholder] = useState(undefined);
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
@@ -238,6 +240,39 @@ function SmartPrescription() {
   const handleKnowMoreDrawer = useCallback(() => {
     setKnowMoreDrawer((prev) => !prev);
   }, []);
+
+  // Resolve care plan placeholder from tcm_id for Smart Rx edit
+  useEffect(() => {
+    const resolvePlaceholder = async () => {
+      try {
+        if (!isCarePlanEnabled) return;
+        if (!patient_data?.patient_unique_id) return;
+        if (!tcmId || Number(tcmId) === 0) return;
+
+        const resp = await getCarePlanAssignments(patient_data?.patient_unique_id);
+        const list = Array.isArray(resp)
+          ? resp
+          : Array.isArray(resp?.data)
+            ? resp.data
+            : Array.isArray(resp?.data?.data)
+              ? resp.data.data
+              : Array.isArray(resp?.data?.assignments)
+                ? resp.data.assignments
+                : Array.isArray(resp?.assignments)
+                  ? resp.assignments
+                  : Array.isArray(resp?.body)
+                    ? resp.body
+                    : [];
+
+        const match = list.find(x => Number(x?.tcm_id) === Number(tcmId));
+        setCarePlanPlaceholder(match?.plan_name || undefined);
+      } catch (e) {
+        setCarePlanPlaceholder(undefined);
+      }
+    };
+
+    resolvePlaceholder();
+  }, [isCarePlanEnabled, patient_data?.patient_unique_id, tcmId]);
 
   // Helper function for unified template/RX selection
   const isTemplateSelected = (templateId) => {
@@ -2446,26 +2481,7 @@ function SmartPrescription() {
         dispatch(setSelectAutofill(false));
       }
 
-     
-      if (selectedCarePlan && selectedCarePlan.plan_id && patient_data?.patient_unique_id && userId && decodedToken?.result?.clinic_id) {
-        try {
-          console.log('Assigning care plan:', selectedCarePlan);
-          const carePlanResponse = await assignCarePlan({
-            plan_id: selectedCarePlan.plan_id, // This is now the UUID from the API
-            um_id: userId,
-            patient_unique_id: patient_data.patient_unique_id,
-            hm_id: decodedToken.result.clinic_id
-          });
-          console.log('Care plan assigned successfully:', carePlanResponse);
-          
-          
-        } catch (error) {
-          console.error('Failed to assign care plan:', error);
-          
-        }
-      } else {
-        console.log('No care plan selected - skipping assignment');
-      }
+      // Care plan assignment/update is handled post-submit in HeaderSmartPrescription
     } catch (error) {
       errorMessage("Error Uploading the prescription, Please try again");
       console.error("Error Submitting the prescription:", error);
@@ -3154,6 +3170,7 @@ function SmartPrescription() {
           isCustomSSRX={isCustomSSRX}
           selectedTemplateId={selectedTemplateId}
           prepareMetadataForSubmissionData={prepareMetadataForSubmission()}
+          selectedCarePlan={selectedCarePlan}
         />
         
         {loading && <FullPageLoader />}
@@ -3393,6 +3410,7 @@ function SmartPrescription() {
                     patientId={patient_data?.patient_unique_id}
                     doctorId={userId}
                     clinicId={decodedToken?.result?.clinic_id}
+                    placeholder={carePlanPlaceholder}
                   />
                 </div>
               )}

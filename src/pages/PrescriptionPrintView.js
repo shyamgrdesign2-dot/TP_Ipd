@@ -33,6 +33,7 @@ import { useOpdBilling } from "./opdBilling/useOpdBilling";
 import { setShouldShowOpdBilling } from "../redux/billingSlice";
 import { printBlobInNewTab } from "./opdBilling/utils/helper";
 import { getDecodedToken } from '../utils/localStorage';
+import { assignCarePlan, updateCarePlanName } from './smartSync/services/carePlanService';
 import api from '../api/services/axiosService';
 import { fetchPatientDefaultLanguage, updatePatientDefaultLanguage } from "../api/services/DefaultLanguageService";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
@@ -291,6 +292,8 @@ function PrescriptionPrintView() {
     };
 
     const onEditPrescriptionClick = async () => {
+        // Best-effort: sync care plan assignment/update based on available info
+        await syncCarePlanAssignmentIfNeeded();
         var sendData = {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
             tcm_id: state.tcm_id
@@ -300,6 +303,41 @@ function PrescriptionPrintView() {
             navigate("/prescription", { replace: true, state: { patient_data: patient_data, caseManagerData: action.payload } })
         } else {
             errorMessage(action.error)
+        }
+    };
+
+    const syncCarePlanAssignmentIfNeeded = async () => {
+        try {
+            // Gather identities
+            const decoded = getDecodedToken();
+            const tokenData = decoded?.result;
+            const hm_id = tokenData?.clinic_id;
+            const um_id = tokenData?.user_id;
+            const tcm_id = state?.tcm_id;
+
+            // If caller passed a selected care plan in navigation state, prefer it
+            const selectedPlan = state?.selectedCarePlan || state?.carePlan || null;
+            const plan_id = selectedPlan?.plan_id; // expected UUID for assignment API
+            const plan_name = selectedPlan?.plan_name || state?.care_plan_name || null;
+
+            // Update when editing an existing consultation and we have a name to update
+            if (tcm_id && plan_name) {
+                await updateCarePlanName(parseInt(tcm_id), plan_name);
+                return;
+            }
+
+            // Otherwise, if we have enough info to create an assignment, do it
+            if (!tcm_id && plan_id && patient_data?.patient_unique_id && um_id && hm_id) {
+                await assignCarePlan({
+                    plan_id,
+                    um_id,
+                    patient_unique_id: patient_data.patient_unique_id,
+                    hm_id,
+                });
+            }
+            // If we don't have sufficient info, skip silently
+        } catch (err) {
+            console.error('CarePlan sync (assign/update) failed:', err);
         }
     };
 
