@@ -79,20 +79,7 @@ function ConfigurePrintSetting() {
                 const patientId = caseManagerData?.patient_data?.patient_unique_id;
                 if (!patientId) return;
                 const resp = await getCarePlanAssignments(patientId);
-                const list = Array.isArray(resp)
-                    ? resp
-                    : Array.isArray(resp?.data)
-                        ? resp.data
-                        : Array.isArray(resp?.data?.data)
-                            ? resp.data.data
-                            : Array.isArray(resp?.data?.assignments)
-                                ? resp.data.assignments
-                                : Array.isArray(resp?.assignments)
-                                    ? resp.assignments
-                                    : Array.isArray(resp?.body)
-                                        ? resp.body
-                                        : [];
-                setCarePlanAssignments(list);
+                setCarePlanAssignments(Array.isArray(resp) ? resp : []);
             } catch (e) {
                 setCarePlanAssignments([]);
             }

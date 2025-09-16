@@ -178,7 +178,8 @@ const obsHistoryCheckboxOptions = [
 ];
 
 function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetails, patientBills }) {
-  const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions, labParamsData, zydusSelectedLabParams, customModules, carePlanAssignments } = useContext(PrintSettingsContext);
+  const contextValue = useContext(PrintSettingsContext);
+  const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions, labParamsData, zydusSelectedLabParams, customModules,carePlanAssignments } = contextValue || {};
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
@@ -730,48 +731,35 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
               rowKey="id"
               columns={caseOptionTable}
               // dataSource={printSettings?.prescription?.case_option.map((e) => ({ ...e, key: e.id }))}
-              dataSource={printSettings?.prescription?.case_option?.filter((option, index) =>
-                (caseManagerData.symptoms.length > 0 && option.id === 1) ?
-                  ({ ...option, key: option.id })
-                  : (caseManagerData.examination.length > 0 && option.id === 2) ?
-                    ({ ...option, key: option.id })
-                    : (caseManagerData.diagnosis.length > 0 && option.id === 3) ?
-                      ({ ...option, key: option.id })
-                      : (caseManagerData.medicine.length > 0 && option.id === 4) ?
-                        ({ ...option, key: option.id })
-                        : (caseManagerData.advice.length > 0 && option.id === 5) ?
-                          ({ ...option, key: option.id })
-                          : (caseManagerData.investigation.length > 0 && option.id === 6) ?
-                            ({ ...option, key: option.id })
-                            : ((caseManagerData.vitals.length > 0 || caseManagerData?.patient_birth_weight) && option.id === 7) ?
-                              ({ ...option, key: option.id })
-                              : (caseManagerData.medical_history.length > 0 && option.id === 8) ?
-                                ({ ...option, key: option.id })
-                                : (caseManagerData.follow_up_date && option.id === 9) ?
-                                  ({ ...option, key: option.id })
-                                  : (caseManagerData.visit_advice && option.id === 91) ?
-                                    ({ ...option, key: option.id })
-                                    : (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ?
-                                      ({ ...option, key: option.id })
-                                      : (caseManagerData?.smart_prescription_filename?.length && option.id === 11) ?
-                                        ({ ...option, key: option.id })
-                                        : (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartImageData && Object.keys(growthChartDetails?.growthChartImageData)?.length > 0 && growthChartDetails?.todayGrowthChartData?.length > 0) ?
-                                          ({ ...option, key: option.id })
-                                          : (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ?
-                                            ({ ...option, key: option.id })
-                                            : (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?.id) ?
-                                              ({ ...option, key: option.id })
-                                              : (caseManagerData.labParamsData?.length > 0 && option.id === 15) ? ({ ...option, key: option.id })
-                                                : (caseManagerData?.surgeries?.length > 0 && option.id === 16) ?
-                                                  ({ ...option, key: option.id })
-                                                  : (zydusSelectedLabParams?.length > 0 && option.id === 18) ? ({ ...option, key: option.id })
-                                                    : (option.is_custom_module === true && customModulesRxData?.find((e) => e?.module_id === option?.id)?.content?.length > 0) ?
-                                                      ({ ...option, key: option.id })
-                                                      : (patientBills?.length > 0 && option.id === 17) ?
-                                                      ({ ...option, key: option.id }) 
-                                                      : ((option.id === 18) && (Array.isArray(carePlanAssignments) ? carePlanAssignments.length > 0 : false)) &&
-                                                      ({ ...option, key: option.id }) 
-              )}
+              dataSource={(() => {
+                const filtered = printSettings?.prescription?.case_option?.filter((option, index) => {
+                  if (option.type === "page_break") {
+                    return tokenData?.hospital_business_id == env.zydus_business_id;
+                  }
+                  return (caseManagerData.symptoms.length > 0 && option.id === 1) ||
+                    (caseManagerData.examination.length > 0 && option.id === 2) ||
+                    (caseManagerData.diagnosis.length > 0 && option.id === 3) ||
+                    (caseManagerData.medicine.length > 0 && option.id === 4) ||
+                    (caseManagerData.advice.length > 0 && option.id === 5) ||
+                    (caseManagerData.investigation.length > 0 && option.id === 6) ||
+                    ((caseManagerData.vitals.length > 0 || caseManagerData?.patient_birth_weight) && option.id === 7) ||
+                    (caseManagerData.medical_history.length > 0 && option.id === 8) ||
+                    (caseManagerData.follow_up_date && option.id === 9) ||
+                    (caseManagerData.visit_advice && option.id === 91) ||
+                    (isVaccinationAccessable && (todayVaccines?.given?.length || todayVaccines?.due?.length) && option.id === 10) ||
+                    (caseManagerData?.smart_prescription_filename?.length && option.id === 11) ||
+                    (isGrowthChartAccessable && option.id === 12 && growthChartDetails?.growthChartImageData && Object.keys(growthChartDetails?.growthChartImageData)?.length > 0 && growthChartDetails?.todayGrowthChartData?.length > 0) ||
+                    (caseManagerData.gynecHistoryData && isGynaecHistoryAccessable && option.id === 13) ||
+                    (option.id === 14 && isGynaecHistoryAccessable && obstetricDetails?.id) ||
+                    (caseManagerData.labParamsData?.length > 0 && option.id === 15) ||
+                    (caseManagerData?.surgeries?.length > 0 && option.id === 16) ||
+                    (zydusSelectedLabParams?.length > 0 && option.id === 18) ||
+                    (option.is_custom_module === true && customModulesRxData?.find((e) => e?.module_id === option?.id)?.content?.length > 0) ||
+                    (patientBills?.length > 0 && option.id === 17) ||
+                    ((option.id === 18) && (Array.isArray(carePlanAssignments) ? carePlanAssignments.length > 0 : false));
+                }).map(option => ({ ...option, key: option.id }));
+                return filtered;
+              })()}
               showHeader={false}
             />
           </SortableContext>

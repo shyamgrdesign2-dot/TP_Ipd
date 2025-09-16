@@ -250,19 +250,7 @@ function SmartPrescription() {
         if (!tcmId || Number(tcmId) === 0) return;
 
         const resp = await getCarePlanAssignments(patient_data?.patient_unique_id);
-        const list = Array.isArray(resp)
-          ? resp
-          : Array.isArray(resp?.data)
-            ? resp.data
-            : Array.isArray(resp?.data?.data)
-              ? resp.data.data
-              : Array.isArray(resp?.data?.assignments)
-                ? resp.data.assignments
-                : Array.isArray(resp?.assignments)
-                  ? resp.assignments
-                  : Array.isArray(resp?.body)
-                    ? resp.body
-                    : [];
+        const list = Array.isArray(resp) ? resp : [];
 
         const match = list.find(x => Number(x?.tcm_id) === Number(tcmId));
         setCarePlanPlaceholder(match?.plan_name || undefined);

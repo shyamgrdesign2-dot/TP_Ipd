@@ -39,14 +39,7 @@ function CarePlanDropdown({ onCarePlanSelect, selectedCarePlan, patientId, docto
             console.log('Care plans API response:', response);
             
             
-            let plansData = [];
-            if (response && Array.isArray(response)) {
-                plansData = response;
-            } else if (response && response.data && Array.isArray(response.data)) {
-                plansData = response.data;
-            } else if (response && response.body && Array.isArray(response.body)) {
-                plansData = response.body;
-            }
+            const plansData = Array.isArray(response) ? response : [];
             
             const transformedPlans = plansData.map(plan => ({
                 plan_id: plan.id, // Use the UUID as plan_id
