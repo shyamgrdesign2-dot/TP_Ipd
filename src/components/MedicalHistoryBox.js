@@ -951,6 +951,7 @@ function MedicalHistoryBox(props) {
         setGynecHistory(filteredGynecHistory)
         handleCollapsed?.(2)
 
+        if (onSave) return;
         if (gynecEditState === "CREATE") {
             const payload = {
                 patientId: patient_data.patient_unique_id,

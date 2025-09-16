@@ -51,11 +51,14 @@ const Obstetric = ({
   handleCollapsed,
   isPreviousPregnancyOverview = false,
   handleDrawerMedicalReport,
+  handleObstetricHistory,
+  isIPD,
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
+  console.log('INTEL ==> patient_data', patient_data)
   const {
     isPatientDiagnosisUpdated,
     isNavigateToObstetric,
@@ -182,7 +185,7 @@ const Obstetric = ({
   }, [pastPregnancyEditIndex]);
 
   useEffect(() => {
-    if (!isPreviousPregnancyOverview) {
+    if (!isPreviousPregnancyOverview && !isIPD) {
       getPrefillObstetricDetails();
       getDefaultAndDoctorList();
     }
@@ -319,7 +322,11 @@ const Obstetric = ({
     }
   };
 
-  const getAllObstetricDetails = async () => {
+  const getAllObstetricDetails = async (data) => {
+    if (data && isIPD) {
+      dispatch(addObstetricDetails(data));
+      return;
+    }
     const obstetricResponse = await fetchObstetricDetails(
       patient_data.patient_unique_id
     );
@@ -412,6 +419,16 @@ const Obstetric = ({
       dispatch(addObstetricDetails(payload));
       dispatch(resetUpdatedPatientDiagnosis());
       setLoader(true);
+      console.log('INTEL ==> payload', payload)
+      if (handleObstetricHistory) {
+        setLoader(false);
+        trackUpdateEvent();
+        setShowSuccess(true);
+        // getAllObstetricDetails(payload);
+        handleObstetricBackBtn();
+        handleObstetricHistory?.(payload);
+        return;
+      }
       const obstetricResponse = await upsertObstetricDetails(
         patient_data.patient_unique_id,
         payload

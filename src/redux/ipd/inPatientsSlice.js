@@ -161,7 +161,7 @@ const inPatientsSlice = createSlice({
         state.filters.error = null;
       })
       .addCase(fetchFilters.fulfilled, (state, action) => {
-        const { field, data } = action.payload;
+        const { field, data } = action.payload || {};
         state.filters[field] = data;
         state.filters.loading = false;
       })

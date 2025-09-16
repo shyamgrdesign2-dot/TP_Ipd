@@ -66,7 +66,6 @@ const IPDPatientDetails = () => {
   const dispatch = useDispatch();
 
   const handleAddAssessmentClick = (isEmpty = false) => {
-    console.log("INTEL ==> WAITT");
     if (isEmpty) {
       dispatch(resetAssessmentForm());
       dispatch(setMedicationData([]));
@@ -197,7 +196,7 @@ const IPDPatientDetails = () => {
     if (!patientId || !admissionId) return;
 
     if (activeMenuItem === "assessment") {
-      dispatch(getAssessmentsData({ patientId })).then((res) => {
+      dispatch(getAssessmentsData({ patientId, admissionId })).then((res) => {
         addDataToStore(res.payload);
       });
     } else if (activeMenuItem === "consultantNotes") {

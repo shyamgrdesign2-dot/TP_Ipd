@@ -4,16 +4,16 @@ const baseUrl = { customBaseUrl: config.ipd_api_url };
 
 const ApiAssessment = {};
 
-ApiAssessment.getAssessmentsData = function ({ patientId }) {
-  return api.get(`/assessments?patientId=${patientId}`, baseUrl);
+ApiAssessment.getAssessmentsData = function ({ patientId, admissionId }) {
+  return api.get(`/assessments?patientId=${patientId}&admissionId=${admissionId}`, baseUrl);
 };
 
-ApiAssessment.addAssessmentsData = function ({ patientId, data }) {
-  return api.post(`/assessments?patientId=${patientId}`, data, baseUrl);
+ApiAssessment.addAssessmentsData = function ({ patientId, admissionId, data }) {
+  return api.post(`/assessments?patientId=${patientId}&admissionId=${admissionId}`, data, baseUrl);
 };
 
-ApiAssessment.updateAssessmentsData = function ({ patientId, data }) {
-  return api.put(`/assessments?patientId=${parseInt(patientId, 10)}`, data, baseUrl);
+ApiAssessment.updateAssessmentsData = function ({ patientId, admissionId, data }) {
+  return api.put(`/assessments?patientId=${patientId}&admissionId=${admissionId}`, data, baseUrl);
 };
 
 ApiAssessment.lastPrescriptionData = function ({ patientId, caseId }) {
