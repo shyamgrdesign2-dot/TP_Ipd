@@ -3,6 +3,7 @@ import { createRemoteComponent } from "../../../shared/remoteComponents";
 import ExaminationSection from "./ExaminationSection";
 import Vitals from "./Vitals";
 import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/assessments";
 import {
   setPhysicalExaminationOthersData,
   setPhysicalExaminationProvisionalDiagnosisData,
@@ -134,7 +135,7 @@ const PhysicalExamination = (props) => {
     <>
       <CollapsibleWrapper
         title={sectionData?.title}
-        icon={defaultIcons[sectionData?.icon]}
+        icon={assessmentsIcons[sectionData?.icon]}
         collapsible={isEditable}
         width={"100%"}
         className={"collapsible-wrapper-class"}
