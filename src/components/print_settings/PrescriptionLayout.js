@@ -496,29 +496,26 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
       key: "title",
       render: (text, record, i) => {
         if (record.type === "page_break") {
-          if (tokenData?.hospital_business_id == env.zydus_business_id) {
-            return (
-              <div className="d-flex align-items-center justify-content-between text-start">
-                <div className="d-flex align-items-center" style={{ width: '100%', justifyContent: "space-around" }}>
-                  <PageBreakComponent onRemove={() => removePageBreak(record.id)} />
-                  <Button
-                    type="text"
-                    danger
-                    size="small"
-                    icon={<i className="icon-delete" style={{ color: "#FC5A5A" }}></i>}
-                    onClick={() => removePageBreak(record.id)}
-                    style={{
-                      fontSize: '12px',
-                      color: '#ff4d4f',
-                      border: 'none',
-                      boxShadow: 'none'
-                    }}
-                  />
-                </div>
+          return (
+            <div className="d-flex align-items-center justify-content-between text-start">
+              <div className="d-flex align-items-center" style={{ width: '100%', justifyContent: "space-around" }}>
+                <PageBreakComponent onRemove={() => removePageBreak(record.id)} />
+                <Button
+                  type="text"
+                  danger
+                  size="small"
+                  icon={<i className="icon-delete" style={{ color: "#FC5A5A" }}></i>}
+                  onClick={() => removePageBreak(record.id)}
+                  style={{
+                    fontSize: '12px',
+                    color: '#ff4d4f',
+                    border: 'none',
+                    boxShadow: 'none'
+                  }}
+                />
               </div>
-            );
-          }
-          return null;
+            </div>
+          );
         }
 
         return (
@@ -653,31 +650,29 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
   };
 
   const addPageBreak = (index) => {
-    if (tokenData?.hospital_business_id == env.zydus_business_id) {
-      setPrintSettings((prev) => {
-        const newCaseOption = [...prev.prescription.case_option];
-        const existingPageBreaks = newCaseOption.filter(item => item.type === "page_break");
-        if (existingPageBreaks.length >= 10) {
-          console.warn('Maximum page breaks limit reached (10)');
-          return prev;
+    setPrintSettings((prev) => {
+      const newCaseOption = [...prev.prescription.case_option];
+      const existingPageBreaks = newCaseOption.filter(item => item.type === "page_break");
+      if (existingPageBreaks.length >= 10) {
+        console.warn('Maximum page breaks limit reached (10)');
+        return prev;
+      }
+      const pageBreakItem = {
+        id: `page_break_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`,
+        title: "Page Breaker",
+        type: "page_break",
+        enable: "Y",
+        format: "page_break"
+      };
+      newCaseOption.push(pageBreakItem);
+      return {
+        ...prev,
+        prescription: {
+          case_option: newCaseOption
         }
-        const pageBreakItem = {
-          id: `page_break_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`,
-          title: "Page Breaker",
-          type: "page_break",
-          enable: "Y",
-          format: "page_break"
-        };
-        newCaseOption.push(pageBreakItem);
-        return {
-          ...prev,
-          prescription: {
-            case_option: newCaseOption
-          }
-        };
-      });
-      setShowPageBreakerModal(true);
-    }
+      };
+    });
+    setShowPageBreakerModal(true);
   };
 
   const confirmAddPageBreak = () => {
@@ -739,7 +734,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
               dataSource={(() => {
                 const filtered = printSettings?.prescription?.case_option?.filter((option, index) => {
                   if (option.type === "page_break") {
-                    return tokenData?.hospital_business_id == env.zydus_business_id;
+                    return true;
                   }
                   return (caseManagerData.symptoms.length > 0 && option.id === 1) ||
                     (caseManagerData.examination.length > 0 && option.id === 2) ||
@@ -769,55 +764,48 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
           </SortableContext>
         </DndContext>
       )}
-      {(() => {
-        if (tokenData?.hospital_business_id == env.zydus_business_id) {
-          return (
-            <div style={{ margin: '16px 16px 40px 16px', textAlign: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                <div
-                  onClick={() => addPageBreak(printSettings?.prescription?.case_option?.length - 1)}
-                  style={{ 
-                    fontSize: '14px',
-                    height: '40px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}
-                  className="add-page-break"
-                >
-                  + <span className="add-page-break" style={{ marginLeft: '5px', textDecoration: 'underline' }}>Add Page Break</span>
+      <div style={{ margin: '16px 16px 40px 16px', textAlign: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <div
+            onClick={() => addPageBreak(printSettings?.prescription?.case_option?.length - 1)}
+            style={{ 
+              fontSize: '14px',
+              height: '40px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center'
+            }}
+            className="add-page-break"
+          >
+            + <span className="add-page-break" style={{ marginLeft: '5px', textDecoration: 'underline' }}>Add Page Break</span>
+          </div>
+          
+          <Tooltip 
+            title={
+              <div style={{ padding: '8px 4px' }}>
+                <div style={{ fontWeight: '400', fontSize: '14px', lineHeight: '1.4', textAlign:'justify' }}>
+                  Page Break lets you control where the content starts on a new page in the printed or PDF output. Move it anywhere in the Format Style list and all sections placed below the Page Breaker will begin on the next page.
                 </div>
-                
-                <Tooltip 
-                  title={
-                    <div style={{ padding: '8px 4px' }}>
-                      <div style={{ fontWeight: '400', fontSize: '14px', lineHeight: '1.4', textAlign:'justify' }}>
-                        Page Break lets you control where the content starts on a new page in the printed or PDF output. Move it anywhere in the Format Style list and all sections placed below the Page Breaker will begin on the next page.
-                      </div>
-                    </div>
-                  }
-                  placement="top"
-                  overlayStyle={{ maxWidth: '300px' }}
-                  overlayClassName="page-break-tooltip"
-                >
-                  <i 
-                    className="icon-info" 
-                    style={{ 
-                      cursor: 'pointer',
-                      color: '#6B7280',
-                      fontSize: '16px',
-                      transition: 'color 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => e.target.style.color = '#4B5563'}
-                    onMouseLeave={(e) => e.target.style.color = '#6B7280'}
-                  />
-                </Tooltip>
               </div>
-            </div>
-          );
-        }
-        return null;
-      })()}
+            }
+            placement="top"
+            overlayStyle={{ maxWidth: '300px' }}
+            overlayClassName="page-break-tooltip"
+          >
+            <i 
+              className="icon-info" 
+              style={{ 
+                cursor: 'pointer',
+                color: '#6B7280',
+                fontSize: '16px',
+                transition: 'color 0.2s ease'
+              }}
+              onMouseEnter={(e) => e.target.style.color = '#4B5563'}
+              onMouseLeave={(e) => e.target.style.color = '#6B7280'}
+            />
+          </Tooltip>
+        </div>
+      </div>
 
       <Modal
         title={
