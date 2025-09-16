@@ -83,9 +83,9 @@ export const getCarePlanNames = async (options = {}) => {
 export const assignCarePlan = async (payload, options = {}) => {
   const base = options.baseUrl || defaultBaseUrl;
   
-  // Send payload as per original contract (plan_id, um_id, patient_unique_id, hm_id, tcm_id?)
+  // Backend requires 'care_plan_id'
   const payloadToSend = {
-    plan_id: payload.plan_id,
+    care_plan_id: payload.plan_id,
     um_id: payload.um_id,
     patient_unique_id: payload.patient_unique_id,
     hm_id: payload.hm_id,

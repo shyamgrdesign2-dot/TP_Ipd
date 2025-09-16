@@ -25,6 +25,7 @@ import useObstetric from "./obstetric/useObstetric";
 import { getModules } from "../redux/customModuleSlice";
 import moment from "moment";
 import { fetchBillsByPatient, fetchPatientWalletBalance, listAdvancedDepositByPatient } from "./opdBilling/service";
+import { getCarePlanAssignments } from "./smartSync/services/carePlanService";
 
 function ConfigurePrintSetting() {
 
@@ -52,6 +53,7 @@ function ConfigurePrintSetting() {
     const [patientBills, setPatientBills] = useState([]);
     const [advanceReceipts, setAdvanceReceipts] = useState([]);
     const [patientWalletBalance, setPatientWalletBalance] = useState(0);
+    const [carePlanAssignments, setCarePlanAssignments] = useState([]);
 
     const {customModules} = useSelector((state) => state.customModules);
     const dispatch = useDispatch();
@@ -70,11 +72,39 @@ function ConfigurePrintSetting() {
         getPatientBills();
     }, []);
 
+    // Fetch care plan assignments for PDF rendering (used by Quixote/ViewPDF)
+    useEffect(() => {
+        const fetchAssignments = async () => {
+            try {
+                const patientId = caseManagerData?.patient_data?.patient_unique_id;
+                if (!patientId) return;
+                const resp = await getCarePlanAssignments(patientId);
+                const list = Array.isArray(resp)
+                    ? resp
+                    : Array.isArray(resp?.data)
+                        ? resp.data
+                        : Array.isArray(resp?.data?.data)
+                            ? resp.data.data
+                            : Array.isArray(resp?.data?.assignments)
+                                ? resp.data.assignments
+                                : Array.isArray(resp?.assignments)
+                                    ? resp.assignments
+                                    : Array.isArray(resp?.body)
+                                        ? resp.body
+                                        : [];
+                setCarePlanAssignments(list);
+            } catch (e) {
+                setCarePlanAssignments([]);
+            }
+        };
+        fetchAssignments();
+    }, [caseManagerData?.patient_data?.patient_unique_id]);
+
     useEffect(() => {
         dispatch(getModules(userId));
       }, [userId]);
 
-    const contextApi = { smartRxFile, divWidth, caseManagerData, certificateData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature, medicalHistoryCheckboxOptions, labParamsData, zydusSelectedLabParams, customModules};
+    const contextApi = { smartRxFile, divWidth, caseManagerData, certificateData, printSettings, setPrintSettings, fileHeader, setFileHeader, fileFooter, setFileFooter, fileLogo, setFileLogo, fileWatermark, setFileWatermark, fileSignature, setFileSignature, medicalHistoryCheckboxOptions, labParamsData, zydusSelectedLabParams, customModules, carePlanAssignments };
 
     const TabsPrintSetting = [
         {
