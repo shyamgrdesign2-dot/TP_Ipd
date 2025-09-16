@@ -730,10 +730,10 @@ function TabMedicationBox() {
               isNumeric(item.tmf_block) && item.tmf_block == 0 ? (
                 <div className="text-truncate small">{`
                       ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
-                      ${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : ""}
-                      ${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : ""}
-                      ${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "" : ""}
-                      ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : ""}
+                      ${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
+                      ${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
+                      ${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}
+                      ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : "0 |"}
                       ${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
               ) : (
                 <div className="text-truncate small">{`

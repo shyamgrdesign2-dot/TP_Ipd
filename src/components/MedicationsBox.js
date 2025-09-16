@@ -281,16 +281,16 @@ function MedicationsBox() {
               e.tmf_block == 0
                 ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
                   ? e.tcm_tmm_freq_morning + " - "
-                  : ""
+                  : "0 -"
                 }${e.tcm_tmm_freq_afternoon && e.tcm_tmm_freq_afternoon != 0
                   ? e.tcm_tmm_freq_afternoon + " - "
-                  : ""
+                  : "0 -"
                 }${e.tcm_tmm_freq_evening && e.tcm_tmm_freq_evening != 0
                   ? e.tcm_tmm_freq_evening + " - "
                   : ""
                 }${e.tcm_tmm_freq_night && e.tcm_tmm_freq_night != 0
                   ? e.tcm_tmm_freq_night
-                  : ""}`
+                  : "0"}`
                 : frequencyObj !== undefined
                   ? frequencyObj.tmf_title
                   : "",
