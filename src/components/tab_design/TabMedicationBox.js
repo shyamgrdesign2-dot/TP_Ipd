@@ -705,7 +705,11 @@ function TabMedicationBox() {
     );
   }, [isModalOpen]);
 
-  const SortableItem = SortableElement(({ item }) => (
+  const SortableItem = SortableElement(({ item }) => {
+    let tmm_freq_type_name = `${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : "0 |"}${item.tmm_time_name ? item.tmm_time_name : ""}`
+    tmm_freq_type_name = tmm_freq_type_name === `0 -0 -0 -0 |None` || tmm_freq_type_name === `0 -0 -0 |None` ? "" : tmm_freq_type_name;
+
+    return (
     <div
       style={{
         width:
@@ -728,13 +732,7 @@ function TabMedicationBox() {
           ) : (
             (item.tmm_dosage || item.tmm_unit_name) ? (
               isNumeric(item.tmf_block) && item.tmf_block == 0 ? (
-                <div className="text-truncate small">{`
-                      ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
-                      ${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
-                      ${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
-                      ${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}
-                      ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : "0 |"}
-                      ${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
+                <div className="text-truncate small">{tmm_freq_type_name}</div>
               ) : (
                 <div className="text-truncate small">{`
                         ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
@@ -756,7 +754,7 @@ function TabMedicationBox() {
         <i className="icon-Cross"></i>
       </Button>
     </div>
-  ));
+  )});
 
   const SortableList = SortableContainer(({ items }) => {
     return (
