@@ -1417,5 +1417,5 @@ export const clearExpiredTokensFromStorage = () => {
 export const isZydus = () => env?.ZYDUS_BUSINESS_ID === getTokenData()?.hospital_business_id;
 
 export const isVoiceRxFree = () => {
-  return (isZydus() && env?.zydus_voice_rx_expiry_date > new Date()) || env?.FREE_VOICE_RX_APOLLO_USER_IDS?.includes(getTokenData()?.user_id);
+  return (isZydus() && new Date(env?.zydus_voice_rx_expiry_date) > new Date()) || env?.FREE_VOICE_RX_APOLLO_USER_IDS?.includes(getTokenData()?.user_id);
 };
