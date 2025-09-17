@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect, useState } from "react";
 import { IPD } from "../../../utils/locale";
 import "./styles.scss";
-import { Button, Drawer } from "antd";
+import { Button, Drawer, message } from "antd";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import BasicInfo from "./BasicInfo";
@@ -75,16 +75,17 @@ const AssessmentsForm = (props) => {
   const prescriptionData = useSelector((state) => state.prescription);
   const { assessments = [] } = customization;
   const [modelData, setModelData] = useState(
-    assessments.length > 0
-      ? assessments
-      : IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE
+    // assessments.length > 0
+    //   ? assessments
+      // : 
+      IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE
   );
 
-  useEffect(() => {
-    if (assessments.length > 0) {
-      setModelData(assessments);
-    }
-  }, [assessments]);
+  // useEffect(() => {
+  //   if (assessments.length > 0) {
+  //     setModelData(assessments);
+  //   }
+  // }, [assessments]);
 
   const addDataToStore = (data) => {
     if (data) {
@@ -165,7 +166,7 @@ const AssessmentsForm = (props) => {
       Object.keys(assessmentData?.assessmentsData || {}).length === 0
     ) {
       dispatch(
-        getAssessmentsData({ patientId: patientDetails?.details?.id })
+        getAssessmentsData({ patientId: patientDetails?.details?.id, admissionId: patientDetails?.admissionId })
       ).then((res) => {
         addDataToStore(res.payload);
       });
@@ -232,22 +233,23 @@ const AssessmentsForm = (props) => {
     dispatch(updateCustomization(newData));
   };
 
+
   const onSaveAssessmentClick = () => {
     const reqData = {
       basicInfo: {
-        chiefComplaint: assessmentData.chiefComplaint,
+        chiefComplaint: assessmentData.chiefComplaint || [],
         historyOfPresentIllness: assessmentData.historyOfPresentIllness,
         currentMedications: convertMedicationFormat(
-          prescriptionData.medicationData
+          prescriptionData.medicationData || []
         ),
-        medications: prescriptionData.medicationData,
-        labResults: assessmentData.labResults,
-        pastMedicalHistory: prescriptionData.medicalHistoryData,
-        gyneacHistory: assessmentData.gynecHistoryData,
-        obstetricHistory: allObstetricDetails,
+        medications: prescriptionData.medicationData || [],
+        labResults: assessmentData.labResults || [],
+        pastMedicalHistory: prescriptionData.medicalHistoryData ||{},
+        gyneacHistory: assessmentData.gynecHistoryData || {}, 
+        obstetricHistory: allObstetricDetails || {},
       },
       physicalExamination: {
-        vitals: assessmentData.vitalsData,
+        vitals: assessmentData.vitalsData || {},
         examination: Object.entries(
           assessmentData.physicalExaminationBasicData || {}
         ).reduce((acc, [key, value]) => {
@@ -258,26 +260,32 @@ const AssessmentsForm = (props) => {
           };
           return acc;
         }, {}),
-        others: assessmentData.physicalExaminationOthersData,
+        others: assessmentData.physicalExaminationOthersData || [],
         provisionalDiagnosis:
-          assessmentData.physicalExaminationProvisionalDiagnosisData,
+          assessmentData.physicalExaminationProvisionalDiagnosisData || [],
       },
-      functionalAssessment: assessmentData.functionalAssessmentData,
-      treatmentPlan: assessmentData.treatmentPlanData,
-      additionalNotes: assessmentData.additionalNotesData,
+      functionalAssessment: assessmentData.functionalAssessmentData || [],
+      treatmentPlan: assessmentData.treatmentPlanData || [],
+      additionalNotes: assessmentData.additionalNotesData || [],
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
     };
+
     dispatch(
       updateAssessmentsData({
         data: reqData,
         patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
       })
     ).then((res) => {
-      if (!res.payload) return;
+      if (res.payload.error) {
+        message.warning(`${res.payload.error} - ${res.payload.message?.split('must')?.[0]} missing`);
+        return;
+      }
       addDataToStore(reqData);
       dispatch(
         getAssessmentsData({
           patientId: patientDetails?.details?.id,
+          admissionId: patientDetails?.admissionId,
         })
       );
       navigate("/ipd/patient-details", {
@@ -340,7 +348,7 @@ const AssessmentsForm = (props) => {
                 title={"Admission Assessment"}
                 mainCta={{
                   handler: onSaveAssessmentClick,
-                  title: "Save Admission Assessment",
+                  title: "Save",
                 }}
                 items={modelData}
                 renderSection={renderSections}
@@ -349,7 +357,7 @@ const AssessmentsForm = (props) => {
                   return setOpen(false);
                 }}
                 headerOffset={72}
-                renderBottomSection={renderBottomSection}
+                // renderBottomSection={renderBottomSection} // TODO: INTEL - WHEN SHOWING CUSTOM MODULE - WHEN ANY NEW ADDED, ADD THEM IN CUSTOMIZATION API FOR THIS PARTICULAR USER, so that user can move the custom module too
               />
             )}
           </div>

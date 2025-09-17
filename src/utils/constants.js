@@ -338,8 +338,8 @@ export const SNAP_RX_KNOW_MORE_DATA = {
 };
 
 export const HIDE_ROUTES = {
-  BANNER: ["/snap-rx"],
-  TALKATIVE: ["/snap-rx"],
+  BANNER: ["/snap-rx", "ipd"],
+  TALKATIVE: ["/snap-rx", "/ipd"],
 };
 
 // WhatsApp enabled doctors for Zydus Hospital

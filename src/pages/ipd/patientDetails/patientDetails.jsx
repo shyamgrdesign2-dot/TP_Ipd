@@ -37,6 +37,8 @@ import { addObstetricDetails } from "../../../redux/obstetricSlice";
 import { getConsultantNotes } from "../../../redux/ipd/consultantNotesSlice";
 import ConsultantNotesTimeline from "../consultantNotes/ConsultantNotesTimeline";
 import LabResults from "../labResults/LabResults";
+import ProgressNotesView from "../progressNotes/progressNotesView/progressNotesView";
+import { getProgressNotes } from "../../../redux/ipd/progressNotesSlice";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -60,6 +62,7 @@ const IPDPatientDetails = () => {
   const { assessmentsData } = useSelector((state) => state.assessment);
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { otNotesData } = useSelector((state) => state.otNotes);
+  const { progressNotes } = useSelector((state) => state.progressNotes);
   const [open, setOpen] = useState(true);
   const [activeMenuItem, setActiveMenuItem] = useState("assessment");
   const [patientData, setPatientData] = useState(null);
@@ -67,7 +70,6 @@ const IPDPatientDetails = () => {
   const dispatch = useDispatch();
 
   const handleAddAssessmentClick = (isEmpty = false) => {
-    console.log("INTEL ==> WAITT");
     if (isEmpty) {
       dispatch(resetAssessmentForm());
       dispatch(setMedicationData([]));
@@ -106,6 +108,16 @@ const IPDPatientDetails = () => {
 
   const handleAddLabResultsClick = () => {
     navigate("/ipd/patient-details/lab-results", {
+      state: {
+        patient_data,
+        patientDetails,
+        isEditable: true,
+      },
+    });
+  };
+  
+  const handleProgressNotesClick = () => {
+    navigate("/ipd/patient-details/progress-notes", {
       state: {
         patient_data,
         patientDetails,
@@ -208,13 +220,19 @@ const IPDPatientDetails = () => {
     if (!patientId || !admissionId) return;
 
     if (activeMenuItem === "assessment") {
-      dispatch(getAssessmentsData({ patientId })).then((res) => {
+      dispatch(getAssessmentsData({ patientId, admissionId })).then((res) => {
         addDataToStore(res.payload);
       });
     } else if (activeMenuItem === "consultantNotes") {
       dispatch(getConsultantNotes({ patientId, admissionId })).catch(
         (error) => {
           console.error("Error fetching consultant notes:", error);
+        }
+      );
+    } else if (activeMenuItem === "progress") {
+      dispatch(getProgressNotes({ patientId, admissionId })).catch(
+        (error) => {
+          console.error("Error fetching progress notes:", error);
         }
       );
     }
@@ -225,7 +243,9 @@ const IPDPatientDetails = () => {
     otNotes: handleOtNotesClick,
     consultantNotes: handleAddConsultantNotesClick,
     labResults: handleAddLabResultsClick,
+    progress: handleProgressNotesClick,
   };
+
   const patientDetailsMenu = () => {
     return IPD.PATIENT_DETAILS_MENU.map((item) => {
       return {
@@ -243,9 +263,11 @@ const IPDPatientDetails = () => {
       return Object.keys(otNotesData)?.length > 0;
     } else if (activeMenuItem === "consultantNotes") {
       return !!consultantNotes?.length;
+    } else if (activeMenuItem === "progress") {
+      return !!progressNotes?.length;
     }
     return false;
-  }, [assessmentsData, otNotesData, activeMenuItem, consultantNotes]);
+  }, [assessmentsData, otNotesData, activeMenuItem, consultantNotes, progressNotes]);
 
   const onRequestClose = () => {
     navigate(`/ipd/inPatients`);
@@ -274,6 +296,21 @@ const IPDPatientDetails = () => {
             </div>
           </div>
         );
+      case "progress":
+        return(
+          <div className="ipd-progress-notes-view-container">
+            <ProgressNotesView  progressNotes={progressNotes} patientDetails={patientDetails}/>
+            <div className="ipd-toolbar-edit-custom-print-download">
+              <ToolbarActions
+                onEdit={handleAddAssessmentClick}
+                onPrintPreview={() => console.log("Preview")}
+                onPrint={() => console.log("Print")}
+                onSettings={handleCustomizeClick}
+                onDownload={() => console.log("Download")}
+              />
+            </div>
+          </div>
+        )
       case "consultantNotes":
         return (
           <div className="ipd-adm-assess-container-readable">

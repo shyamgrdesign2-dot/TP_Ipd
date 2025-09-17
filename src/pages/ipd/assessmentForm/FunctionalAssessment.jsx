@@ -109,7 +109,7 @@ const FunctionalAssessment = (props) => {
 
   const renderAssessment = () => {
     if (!isEditable) {
-      const assessmentComponents = ASSESSMENT_CONFIGS.filter(
+      const assessmentComponents = sectionData.children?.[0]?.children?.filter(
         (config) => functionalAssessmentData?.[config.key]
       ).map((config) => (
         <AssessmentDisplay
@@ -150,9 +150,10 @@ const FunctionalAssessment = (props) => {
       );
     }
 
+    console.log('INTEL ==> sectionData', sectionData)
     return (
       <div className="assessments-parent-container">
-        {IPD.FUNCTIONAL_ASSESSMENT.map((item) => (
+        {sectionData.children?.[0]?.children?.filter((item) => item.enabled)?.map((item) => (
           <div key={item.key} className="assessment-card">
             <div className="assessment-card-header">
               <div className="assessment-title">{item.title}:</div>

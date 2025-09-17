@@ -70,9 +70,131 @@ export const IPD = {
         {
           placeholder: "",
           id: "examinations",
-          title: "Examinations",
+          title: "General Examination",
           enabled: true,
           icon: "aidKit",
+          children: [
+            {
+              title: "Pallor",
+              enabled: true,
+              id: "pallor",
+              description: "",
+              options: [
+                { label: "Present", value: 1, name: "present" },
+                { label: "Absent", value: 2, name: "absent" },
+              ],
+            },
+            {
+              title: "Clubbing",
+              enabled: true,
+              id: "clubbing",
+              description: "",
+              options: [
+                { label: "Present", value: 1, name: "present" },
+                { label: "Absent", value: 2, name: "absent" },
+              ],
+            },
+            {
+              title: "Cyanosis",
+              enabled: true,
+              id: "cynosis",
+              description: "",
+              options: [
+                { label: "Present", value: 1, name: "present" },
+                { label: "Absent", value: 2, name: "absent" },
+              ],
+            },
+            {
+              title: "Lymphadenopathy:",
+              enabled: true,
+              id: "lymphadenopathy:",
+              description: "",
+              options: [
+                { label: "Present", value: 1, name: "present" },
+                { label: "Absent", value: 2, name: "absent" },
+              ],
+            },
+            {
+              title: "Edema",
+              enabled: true,
+              id: "edema",
+              description: "",
+              options: [
+                { label: "Present", value: 1, name: "present" },
+                { label: "Absent", value: 2, name: "absent" },
+              ],
+            },
+            {
+              title: "Hydration",
+              enabled: true,
+              id: "hydration",
+              description: "",
+              options: [
+                { label: "Normal", value: 1, name: "normal" },
+                { label: "Hydrated", value: 2, name: "hydrated" },
+              ],
+            },
+            {
+              title: "CVS",
+              enabled: true,
+              id: "cvs",
+              description: "",
+              options: [
+                { label: "WNL", value: 1, name: "wnl" },
+                { label: "Abnormal", value: 2, name: "abnormal" },
+              ],
+            },
+            {
+              title: "Breast/Chest",
+              enabled: true,
+              id: "breast_chest",
+              description: "",
+              options: [
+                { label: "WNL", value: 1, name: "wnl" },
+                { label: "Abnormal", value: 2, name: "abnormal" },
+              ],
+            },
+            {
+              title: "Abdomen",
+              enabled: true,
+              id: "abdomen",
+              description: "",
+              options: [
+                { label: "WNL", value: 1, name: "wnl" },
+                { label: "Abnormal", value: 2, name: "abnormal" },
+              ],
+            },
+            {
+              title: "Neurological/Psychosocial",
+              enabled: true,
+              id: "neurological_psychosocial",
+              description: "",
+              options: [
+                { label: "WNL", value: 1, name: "wnl" },
+                { label: "Abnormal", value: 2, name: "abnormal" },
+              ],
+            },
+            {
+              title: "Back",
+              enabled: true,
+              id: "back",
+              description: "",
+              options: [
+                { label: "WNL", value: 1, name: "wnl" },
+                { label: "Abnormal", value: 2, name: "abnormal" },
+              ],
+            },
+            {
+              title: "HEENT",
+              enabled: true,
+              id: "heent",
+              description: "",
+              options: [
+                { label: "WNL", value: 1, name: "wnl" },
+                { label: "Abnormal", value: 2, name: "abnormal" },
+              ],
+            },
+          ],
         },
         {
           placeholder: "",
@@ -80,6 +202,72 @@ export const IPD = {
           title: "Vitals",
           enabled: true,
           icon: "vitals",
+          children: [
+            {
+              name: "pulse",
+              id: "pulse",
+              label: "Pulse",
+              title: "Pulse",
+              enabled: true,
+              unit: "/min",
+            },
+            {
+              name: "bloodPressure",
+              id: "bloodPressure",
+              label: "Blood Pressure",
+              title: "Blood Pressure",
+              enabled: true,
+              unit: "mmHg",
+            },
+            {
+              name: "temperature",
+              id: "temperature",
+              label: "Temperature",
+              title: "Temperature",
+              enabled: true,
+              unit: "°F",
+            },
+            {
+              name: "spo2",
+              id: "spo2",
+              label: "SpO2",
+              title: "SpO2",
+              enabled: true,
+              unit: "%",
+            },
+            {
+              name: "respiratoryRate",
+              id: "respiratoryRate",
+              label: "Respiratory Rate",
+              title: "Respiratory Rate",
+              enabled: true,
+              unit: "mmHg",
+            },
+            {
+              name: "weight",
+              id: "weight",
+              label: "Weight",
+              title: "Weight",
+              enabled: true,
+              unit: "kg",
+            },
+            {
+              name: "height",
+              id: "height",
+              label: "Height",
+              title: "Height",
+              enabled: true,
+              unit: "cms",
+            },
+            {
+              name: "generalRbs",
+              id: "generalRbs",
+              label: "General RBS",
+              title: "General RBS",
+              enabled: true,
+              unit: "mg/dl",
+            },
+          ],
         },
         {
           placeholder: "",
@@ -110,6 +298,93 @@ export const IPD = {
           id: "assessment",
           title: "Assessment",
           enabled: true,
+          children: [
+            {
+              key: "bedActivity",
+              id: "bedActivity",
+              enabled: true,
+              title: "Bed Activity",
+              options: [
+                { label: "Independent", value: 1, name: "independent" },
+                {
+                  label: "Needs Assistance",
+                  value: 2,
+                  name: "needs-assistance",
+                },
+                { label: "Dependent", value: 3, name: "dependent" },
+              ],
+            },
+            {
+              key: "sitting",
+              id: "sitting",
+              enabled: true,
+              title: "Sitting",
+              options: [
+                { label: "Independent", value: 1, name: "independent" },
+                {
+                  label: "Needs Assistance",
+                  value: 2,
+                  name: "needs-assistance",
+                },
+                { label: "Dependent", value: 3, name: "dependent" },
+              ],
+            },
+            {
+              key: "standing",
+              id: "standing",
+              enabled: true,
+              title: "Standing",
+              options: [
+                { label: "Independent", value: 1, name: "independent" },
+                {
+                  label: "Needs Assistance",
+                  value: 2,
+                  name: "needs-assistance",
+                },
+                { label: "Dependent", value: 3, name: "dependent" },
+              ],
+            },
+            {
+              key: "ambulation",
+              id: "ambulation",
+              enabled: true,
+              title: "Ambulation",
+              options: [
+                { label: "Independent", value: 1, name: "independent" },
+                {
+                  label: "Needs Assistance",
+                  value: 2,
+                  name: "needs-assistance",
+                },
+                { label: "Dependent", value: 3, name: "dependent" },
+              ],
+            },
+            {
+              key: "stairClimbing",
+              id: "stairClimbing",
+              enabled: true,
+              title: "Stair Climbing",
+              options: [
+                { label: "Independent", value: 1, name: "independent" },
+                {
+                  label: "Needs Assistance",
+                  value: 2,
+                  name: "needs-assistance",
+                },
+                { label: "Dependent", value: 3, name: "dependent" },
+              ],
+            },
+            {
+              key: "bedSoreOnAdmission",
+              id: "bedSoreOnAdmission",
+              enabled: true,
+              title: "Bed Sore on Admission",
+              options: [
+                { label: "Yes", value: 1, name: "yes" },
+                { label: "No", value: 2, name: "no" },
+              ],
+            },
+          ],
         },
         {
           placeholder: "",
@@ -277,8 +552,10 @@ export const IPD = {
     {
       id: "progress",
       name: "Progress Notes",
+      mainHeading: "Progress Notes",
       icon: "noteIcon",
       isEditable: false,
+      showAddCTA: true,
     },
     {
       id: "consultantNotes",
@@ -336,6 +613,60 @@ export const IPD = {
     },
   ],
   EXAMINATION: [
+    {
+      title: "Pallor",
+      id: "pallor",
+      description: "",
+      options: [
+        { label: "Present", value: 1, name: "present" },
+        { label: "Absent", value: 2, name: "absent" },
+      ],
+    },
+    {
+      title: "Clubbing",
+      id: "clubbing",
+      description: "",
+      options: [
+        { label: "Present", value: 1, name: "present" },
+        { label: "Absent", value: 2, name: "absent" },
+      ],
+    },
+    {
+      title: "Cyanosis",
+      id: "cynosis",
+      description: "",
+      options: [
+        { label: "Present", value: 1, name: "present" },
+        { label: "Absent", value: 2, name: "absent" },
+      ],
+    },
+    {
+      title: "Lymphadenopathy:",
+      id: "lymphadenopathy:",
+      description: "",
+      options: [
+        { label: "Present", value: 1, name: "present" },
+        { label: "Absent", value: 2, name: "absent" },
+      ],
+    },
+    {
+      title: "Edema",
+      id: "edema",
+      description: "",
+      options: [
+        { label: "Present", value: 1, name: "present" },
+        { label: "Absent", value: 2, name: "absent" },
+      ],
+    },
+    {
+      title: "Hydration",
+      id: "hydration",
+      description: "",
+      options: [
+        { label: "Normal", value: 1, name: "normal" },
+        { label: "Hydrated", value: 2, name: "hydrated" },
+      ],
+    },
     {
       title: "CVS",
       id: "cvs",
@@ -513,7 +844,7 @@ export const IPD = {
       menuIcon: "basicInfoBg",
       enabled: true,
       expanded: false,
-      children:[],
+      children: [],
     },
     {
       id: "vitals",
@@ -522,7 +853,7 @@ export const IPD = {
       menuIcon: "physicalExam",
       enabled: true,
       expanded: false,
-      children:[],
+      children: [],
     },
     {
       id: "medication",
@@ -531,7 +862,7 @@ export const IPD = {
       menuIcon: "funcAssess",
       enabled: true,
       expanded: false,
-      children:[],
+      children: [],
     },
     {
       id: "labInvestigation",
@@ -540,7 +871,7 @@ export const IPD = {
       title: "Lab Investigation",
       enabled: true,
       expanded: false,
-      children:[],
+      children: [],
     },
     {
       id: "additionalRemarks",
@@ -549,7 +880,67 @@ export const IPD = {
       title: "Additional Remarks",
       enabled: true,
       expanded: false,
-      children:[],
+      children: [],
+    },
+  ],
+  DEFAULT_PROGRESS_NOTES_FORM_STRUCTURE: [
+    {
+      id: "chiefComplaint",
+      title: "Chief Complaint",
+      icon: "roundDotted",
+      menuIcon: "basicInfoBg",
+      enabled: true,
+      expanded: false,
+      children: [],
+    },
+    {
+      id: "findings",
+      title: "Findings",
+      icon: "roundDotted",
+      menuIcon: "basicInfoBg",
+      enabled: true,
+      expanded: false,
+      children: [],
+    },
+    {
+      id: "vitals",
+      title: "Vitals",
+      icon: "vitals",
+      menuIcon: "basicInfoBg",
+      enabled: true,
+      expanded: false,
+      children: [],
+    },
+    {
+      id: "additionalRemarks",
+      title: "Additional Remarks",
+      icon: "recordPad",
+      menuIcon: "basicInfoBg",
+      enabled: true,
+      expanded: false,
+      children: [],
+    }
+  ],
+  PROGRESS_NOTES_VITALS: [
+    {
+      name: "bloodPressure",
+      label: "Blood Pressure",
+      unit: "mmHg",
+    },
+    {
+      name: "temperature",
+      label: "Temperature",
+      unit: "°F",
+    },
+    {
+      name: "heartRate",
+      label: "Heart Rate",
+      unit: "/min",
+    },
+    {
+      name: "respiratoryRate",
+      label: "Respiratory Rate",
+      unit: "mmHg",
     },
   ],
 };

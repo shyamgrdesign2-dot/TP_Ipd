@@ -38,7 +38,7 @@ const AncScheduler = ({
 }) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
-  const { patient_data_main } = state || {};
+  const { patient_data } = state || {};
   const { userId } = useSelector((state) => state.doctors);
   const {
     obstetricDetails: allObstetricDetails,
@@ -58,7 +58,7 @@ const AncScheduler = ({
   const getSearchOptions = async () => {
     const searchOptionsRes = await fetchSearchAnc(
       searchQuery,
-      patient_data_main.patient_unique_id
+      patient_data.patient_unique_id
     );
     const data = [];
     searchOptionsRes?.map((e) => {

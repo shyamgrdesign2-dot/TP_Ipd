@@ -2,13 +2,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { setChiefComplaint } from "../../../redux/ipd/assessmentsFormSlice";
-import {
-  convertTemplateDataToRichText,
-  formatDateToShortMonthYear,
-} from "../../../utils/utils";
+import { setChiefComplaint } from "../../../redux/ipd/progressNotesSlice";
+import { convertTemplateDataToRichText, formatDateToShortMonthYear } from "../../../utils/utils";
 import { fetchSingleTemplate } from "../../../redux/ipd/ipdSlice";
-import { addTemplate } from "../../../redux/symptomsSlice";
 // import { errorMessage } from "../../../utils/toast";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -16,17 +12,15 @@ const ChiefComplaint = (props) => {
   // You can pass props as needed, e.g., isEditable, initialValue, etc.
   const { isEditable = true, sectionData } = props || {};
   const dispatch = useDispatch();
-  const {
-    chiefComplaint,
-    lastPrescriptionDataForAssessment,
-    lastPrescriptionDate,
-  } = useSelector((state) => state.assessment);
+  const { chiefComplaint, lastPrescriptionDataForProgress, lastPrescriptionDate } = useSelector(
+    (state) => state.progressNotes
+  );
   const { templates: symptomsTemplates } = useSelector(
     (state) => state.symptoms
   );
-
+  
   const { chiefComplaint: chiefComplaintFromLastPrescription = [] } =
-    lastPrescriptionDataForAssessment;
+  lastPrescriptionDataForProgress;
   const { lastRxDate } = lastPrescriptionDate || {};
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [isShimmering, setIsShimmering] = useState(false);
@@ -51,10 +45,7 @@ const ChiefComplaint = (props) => {
       setAutoFillTextToAppend(e);
       return;
     }
-    if (
-      !Array.isArray(chiefComplaintFromLastPrescription) ||
-      !chiefComplaintFromLastPrescription?.[0]?.children
-    ) {
+    if (!Array.isArray(chiefComplaintFromLastPrescription) || !chiefComplaintFromLastPrescription?.[0]?.children) {
       const convertedData = convertTemplateDataToRichText(
         chiefComplaintFromLastPrescription,
         "symptoms"
@@ -63,16 +54,10 @@ const ChiefComplaint = (props) => {
     } else {
       setAutoFillTextToAppend(chiefComplaintFromLastPrescription);
     }
-  };
+  }
 
   const isLastChiefComplaintPresent = useMemo(() => {
-    return (
-      (!Array.isArray(chiefComplaintFromLastPrescription) &&
-        typeof chiefComplaintFromLastPrescription === "string" &&
-        !!chiefComplaintFromLastPrescription) ||
-      (Array.isArray(chiefComplaintFromLastPrescription) &&
-        !!chiefComplaintFromLastPrescription?.[0]?.children?.[0]?.text)
-    );
+    return ((!Array.isArray(chiefComplaintFromLastPrescription) && typeof chiefComplaintFromLastPrescription === 'string' &&  !!chiefComplaintFromLastPrescription) || (Array.isArray(chiefComplaintFromLastPrescription) && !!chiefComplaintFromLastPrescription?.[0]?.children?.[0]?.text))
   }, [chiefComplaint, chiefComplaintFromLastPrescription]);
 
   if (!isEditable && !chiefComplaint?.length) return null;
@@ -99,19 +84,12 @@ const ChiefComplaint = (props) => {
       placeholder={
         "Enter chief complaint like patient’s main symptoms or presenting problem"
       }
-      icon={defaultIcons[sectionData?.icon]}
+      icon={defaultIcons.roundDotted}
       showAutoFill={isEditable && isLastChiefComplaintPresent}
-      containerClass={`wrapper-class ${
-        isEditable ? "ipd-wrapper-class-readonly" : ""
-      }`}
+      containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
       opdDate={formatDateToShortMonthYear(lastRxDate)}
       onSave={() => {
         console.log("save");
-      }}
-      addTemplate={(templateData, callback) => {
-        dispatch(addTemplate(templateData)).then((res) => {
-          callback();
-        });
       }}
       onErase={() => {
         console.log("erase");
