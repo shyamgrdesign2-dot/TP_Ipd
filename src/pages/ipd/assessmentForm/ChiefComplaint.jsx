@@ -102,7 +102,7 @@ const ChiefComplaint = (props) => {
       icon={defaultIcons[sectionData?.icon]}
       showAutoFill={isEditable && isLastChiefComplaintPresent}
       containerClass={`wrapper-class ${
-        isEditable ? "ipd-wrapper-class-readonly" : ""
+        !isEditable ? "ipd-wrapper-class-readonly" : ""
       }`}
       opdDate={formatDateToShortMonthYear(lastRxDate)}
       onSave={() => {
@@ -113,8 +113,8 @@ const ChiefComplaint = (props) => {
           callback();
         });
       }}
-      onErase={() => {
-        console.log("erase");
+      onErase={(e) => {
+        setAutoFillTextToAppend(["clear"]);
       }}
       onTemplate={() => {
         console.log("template");

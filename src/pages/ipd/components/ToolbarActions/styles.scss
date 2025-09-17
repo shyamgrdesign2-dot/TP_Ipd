@@ -1,18 +1,15 @@
-/* -----------------------------------
-   Glass tokens (add below your vars)
------------------------------------ */
 $glass-blur: 2px;
 $glass-saturate: 22%;
 $glass-contrast: 1.06;
 $glass-brightness: 1.05;
 
-$glass-tint-a: rgba(75, 77, 237, 0.18); // violet tint
-$glass-tint-b: rgba(255, 255, 255, 0.14); // neutral tint
+$glass-tint-a: rgba(75, 77, 237, 0.18);
+$glass-tint-b: rgba(255, 255, 255, 0.14);
 $glass-border-outer: rgba(255, 255, 255, 0.55);
 $glass-border-inner: rgba(75, 77, 237, 0.28);
 
 $btn-glass-bg: rgba(255, 255, 255, 0.56);
-$btn-glass-bg-hover: rgba(255, 255, 255, 0.70);
+$btn-glass-bg-hover: rgba(255, 255, 255, 0.7);
 $btn-glass-border: rgba(255, 255, 255, 0.65);
 
 $radius-xl: 28px;
@@ -64,20 +61,20 @@ $divider: linear-gradient(
     padding: 14px 24px;
     position: relative;
     border-radius: 16px;
-    background: rgba(75, 74, 213, 0.20);
+    background: rgba(75, 74, 213, 0.2);
     box-shadow: 5px 6px 8px 0 rgba(0, 0, 0, 0.18);
-    // new below
     background: linear-gradient(120deg, $glass-tint-a, $glass-tint-b);
-    border: 1px solid $glass-border-outer;
-    isolation: isolate; /* keep blur/glare self-contained */
+    isolation: isolate;
 
-    /* GLASS: true frosted background */
-    @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-      -webkit-backdrop-filter: blur($glass-blur) saturate($glass-saturate) contrast($glass-contrast) brightness($glass-brightness);
-      backdrop-filter: blur($glass-blur) saturate($glass-saturate) contrast($glass-contrast) brightness($glass-brightness);
+    @supports (
+      (-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))
+    ) {
+      -webkit-backdrop-filter: blur($glass-blur) saturate($glass-saturate)
+        contrast($glass-contrast) brightness($glass-brightness);
+      backdrop-filter: blur($glass-blur) saturate($glass-saturate)
+        contrast($glass-contrast) brightness($glass-brightness);
     }
 
-    /* GLASS: inner rim + top glare + subtle grain */
     &::before,
     &::after {
       content: "";
@@ -86,34 +83,43 @@ $divider: linear-gradient(
       border-radius: inherit;
       pointer-events: none;
     }
-    /* inner ring to sell the “encased” feel */
+
     &::before {
-      box-shadow:
-        inset 0 0 0 1px $glass-border-inner,
+      box-shadow: inset 0 0 0 1px $glass-border-inner,
         inset 0 1px 0 rgba(255, 255, 255, 0.35);
     }
 
-    /* top gloss & micro-noise */
     &::after {
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 45%),
-        radial-gradient(120% 100% at 10% -20%, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0) 55%),
-        radial-gradient(120% 100% at 90% -20%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 60%),
-        radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
-      background-size:
-        100% 100%,
-        100% 100%,
-        100% 100%,
-        2px 2px;
-      opacity: .9;
+      background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.35),
+          rgba(255, 255, 255, 0) 45%
+        ),
+        radial-gradient(
+          120% 100% at 10% -20%,
+          rgba(255, 255, 255, 0.42) 0%,
+          rgba(255, 255, 255, 0) 55%
+        ),
+        radial-gradient(
+          120% 100% at 90% -20%,
+          rgba(255, 255, 255, 0.22) 0%,
+          rgba(255, 255, 255, 0) 60%
+        ),
+        radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 2px 2px;
+      opacity: 0.9;
       filter: saturate(120%);
     }
 
-    /* keep content crisp above glare layers */
-    > * { position: relative; z-index: 1; }
+    > * {
+      position: relative;
+      z-index: 1;
+    }
 
     &__divider {
-      @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+      @supports (
+        (-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))
+      ) {
         -webkit-backdrop-filter: blur($glass-blur) saturate(160%);
         backdrop-filter: blur($glass-blur) saturate(160%);
       }
@@ -216,21 +222,25 @@ $divider: linear-gradient(
 
   background: $btn-glass-bg;
   border: 1px solid $btn-glass-border;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.60),
-    2px 4px 12px rgba(75, 74, 213, 0.50);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    2px 4px 12px rgba(75, 74, 213, 0.5);
 
-  @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  @supports (
+    (-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))
+  ) {
     -webkit-backdrop-filter: blur(8px) saturate(140%) contrast(1.02);
     backdrop-filter: blur(8px) saturate(140%) contrast(1.02);
   }
 
-  &:hover { background: $btn-glass-bg-hover; }
-  &:active { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45); }
+  &:hover {
+    background: $btn-glass-bg-hover;
+  }
+  &:active {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  }
 
-  /* keep labels readable over frosted bg */
   .action-btn__label {
-    color: #2a275b; /* darker for contrast on glass */
+    color: #2a275b;
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
   }
 }

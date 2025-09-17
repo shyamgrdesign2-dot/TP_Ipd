@@ -3040,3 +3040,14 @@ body.sticky-search-open {
 .search-sticky .ant-select-item {
   white-space: normal;
 }
+
+.ipd-assessments-readable-container {
+  .rich-text-editor-wrapper {
+    .prescriptiontab-accordian.history-sider-box.ant-collapse
+      .ant-collapse-item
+      .ant-collapse-content {
+      background: #fbfafd !important;
+      background-color: #fbfafd !important;
+    }
+  }
+}

@@ -65,27 +65,12 @@ const ObstetricHistory = (props) => {
         showActionBtns={false}
         title={sectionData?.title}
         width="100%"
-        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         icon={defaultIcons[sectionData?.icon]}
         showAutoFill={isEditable}
         opdDate="15 Jun 2025"
         onAutoFill={() => {
           console.log("auto fill");
-        }}
-        onSave={() => {
-          console.log("save");
-        }}
-        onErase={() => {
-          console.log("erase");
-        }}
-        onTemplate={() => {
-          console.log("template");
-        }}
-        onVoiceDictatorClick={(callback) => {
-          console.log("voice dictation");
-          setTimeout(() => {
-            callback();
-          }, 3000);
         }}
         renderBody={renderObstetricHistory}
       />

@@ -75,81 +75,51 @@ const AssessmentsForm = (props) => {
   const prescriptionData = useSelector((state) => state.prescription);
   const { assessments = [] } = customization;
   const [modelData, setModelData] = useState(
-    // assessments.length > 0
-    //   ? assessments
-      // : 
-      IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE
+    assessments.length > 0
+      ? assessments
+      : IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE
   );
 
-  // useEffect(() => {
-  //   if (assessments.length > 0) {
-  //     setModelData(assessments);
-  //   }
-  // }, [assessments]);
+  useEffect(() => {
+    if (assessments.length > 0) {
+      setModelData(assessments);
+    }
+  }, [assessments]);
 
   const addDataToStore = (data) => {
     if (data) {
-      // Chief Complaint
       dispatch(setChiefComplaint(data?.basicInfo?.chiefComplaint || []));
-
-      // History of Present Illness
       dispatch(
         setHistoryOfPresentIllness(
           data?.basicInfo?.historyOfPresentIllness || []
         )
       );
-
-      // Medication
       dispatch(setMedicationData(data?.basicInfo?.medications || []));
-
-      // Lab Results
       dispatch(setLabResults(data?.basicInfo?.labResults || []));
-
-      // Medical History
       dispatch(
         setMedicalHistoryData(data?.basicInfo?.pastMedicalHistory || [])
       );
-
-      // Gynec History
       dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || []));
-
-      // Obstetric History
       dispatch(addObstetricDetails(data?.basicInfo?.obstetricHistory || []));
-
-      // Physical Examination Vitals Data
       dispatch(setVitalsData(data?.physicalExamination?.vitals || {}));
-
-      // Physical Examination Provisional Diagnosis
       dispatch(
         setPhysicalExaminationProvisionalDiagnosisData(
           data?.physicalExamination?.provisionalDiagnosis || []
         )
       );
-
-      // Physical Examination Others Data
       dispatch(
         setPhysicalExaminationOthersData(
           data?.physicalExamination?.others || []
         )
       );
-
-      // Physical Examination Basic Data
       dispatch(
         setPhysicalExaminationBasicData(
           data?.physicalExamination?.examination || {}
         )
       );
-
-      // Functional Assessment Data
       dispatch(setFunctionalAssessmentData(data?.functionalAssessment || {}));
-
-      // Treatment Plan Data
       dispatch(setTreatmentPlanData(data?.treatmentPlan || {}));
-
-      // Additional Notes Data
       dispatch(setAdditionalNotesData(data?.additionalNotes || {}));
-
-      // Referred Doc For Review
       dispatch(
         setReferredDocForReview(
           data?.functionalAssessment?.referredToPhysiotherapyForReview || null
@@ -159,14 +129,16 @@ const AssessmentsForm = (props) => {
   };
 
   useEffect(() => {
-    // fetch assessments form from api
     if (
       isEditable &&
       patientDetails?.details?.id &&
       Object.keys(assessmentData?.assessmentsData || {}).length === 0
     ) {
       dispatch(
-        getAssessmentsData({ patientId: patientDetails?.details?.id, admissionId: patientDetails?.admissionId })
+        getAssessmentsData({
+          patientId: patientDetails?.details?.id,
+          admissionId: patientDetails?.admissionId,
+        })
       ).then((res) => {
         addDataToStore(res.payload);
       });
@@ -188,7 +160,6 @@ const AssessmentsForm = (props) => {
   }, []);
 
   useEffect(() => {
-    // fetch all the templates available
     dispatch(getMedicationTemplates());
     dispatch(getAllDoses());
     dispatch(getExaminationTemplates());
@@ -233,7 +204,6 @@ const AssessmentsForm = (props) => {
     dispatch(updateCustomization(newData));
   };
 
-
   const onSaveAssessmentClick = () => {
     const reqData = {
       basicInfo: {
@@ -244,8 +214,8 @@ const AssessmentsForm = (props) => {
         ),
         medications: prescriptionData.medicationData || [],
         labResults: assessmentData.labResults || [],
-        pastMedicalHistory: prescriptionData.medicalHistoryData ||{},
-        gyneacHistory: assessmentData.gynecHistoryData || {}, 
+        pastMedicalHistory: prescriptionData.medicalHistoryData || {},
+        gyneacHistory: assessmentData.gynecHistoryData || {},
         obstetricHistory: allObstetricDetails || {},
       },
       physicalExamination: {
@@ -277,8 +247,12 @@ const AssessmentsForm = (props) => {
         admissionId: patientDetails?.admissionId,
       })
     ).then((res) => {
-      if (res.payload.error) {
-        message.warning(`${res.payload.error} - ${res.payload.message?.split('must')?.[0]} missing`);
+      if (res?.payload?.error) {
+        message.warning(
+          `${res.payload.error} - ${
+            res.payload.message?.split("must")?.[0]
+          } missing`
+        );
         return;
       }
       addDataToStore(reqData);
@@ -354,6 +328,7 @@ const AssessmentsForm = (props) => {
                 renderSection={renderSections}
                 onRequestClose={() => {
                   navigate(-1);
+                  console.log('INTEL ==> CLOSE')
                   return setOpen(false);
                 }}
                 headerOffset={72}

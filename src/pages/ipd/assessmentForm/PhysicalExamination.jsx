@@ -20,6 +20,8 @@ const PhysicalExamination = (props) => {
   } = useSelector((state) => state.assessment);
   const { isEditable = true, sectionData } = props || {};
   const dispatch = useDispatch();
+  const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const [autoFillTextToAppendProvisionalDiagnosis, setAutoFillTextToAppendProvisionalDiagnosis] = useState([]);
   const handleOthersChange = (data) => {
     dispatch(setPhysicalExaminationOthersData(data));
   };
@@ -39,7 +41,7 @@ const PhysicalExamination = (props) => {
         width="100%"
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         showMagicPenGif={false}
         showMicrophone={false}
         onChange={handleOthersChange}
@@ -58,11 +60,13 @@ const PhysicalExamination = (props) => {
           console.log("save");
         }}
         onErase={() => {
-          console.log("erase");
+          setAutoFillTextToAppend(["clear"]);
         }}
         onTemplate={() => {
           console.log("template");
         }}
+        newAutoFillTextToAppend={autoFillTextToAppend}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppend}
       />
     );
   };
@@ -78,7 +82,7 @@ const PhysicalExamination = (props) => {
         width="100%"
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         onChange={handleProvisionalDiagnosisChange}
@@ -100,17 +104,13 @@ const PhysicalExamination = (props) => {
           console.log("save");
         }}
         onErase={() => {
-          console.log("erase");
+          setAutoFillTextToAppendProvisionalDiagnosis(["clear"]);
         }}
         onTemplate={() => {
           console.log("template");
         }}
-        onVoiceDictatorClick={(callback) => {
-          console.log("voice dictation");
-          setTimeout(() => {
-            callback();
-          }, 3000);
-        }}
+        newAutoFillTextToAppend={autoFillTextToAppendProvisionalDiagnosis}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppendProvisionalDiagnosis}
       />
     );
   };
@@ -138,7 +138,7 @@ const PhysicalExamination = (props) => {
         icon={assessmentsIcons[sectionData?.icon]}
         collapsible={isEditable}
         width={"100%"}
-        className={"collapsible-wrapper-class"}
+        className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
         defaultOpen
       >
         {renderChildren()}

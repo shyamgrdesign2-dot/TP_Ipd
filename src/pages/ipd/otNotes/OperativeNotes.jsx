@@ -27,7 +27,7 @@ const OperativeNotes = (props) => {
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
         containerClass={`wrapper-class ${
-          isEditable ? "ipd-wrapper-class-readonly" : ""
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         showMagicPenGif={false}
         showMicrophone={false}
@@ -65,7 +65,7 @@ const OperativeNotes = (props) => {
         icon={assessmentsIcons[sectionData?.icon]}
         collapsible={isEditable}
         width={"100%"}
-        className={"collapsible-wrapper-class"}
+        className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
         defaultOpen
       >
         {renderChildren()}

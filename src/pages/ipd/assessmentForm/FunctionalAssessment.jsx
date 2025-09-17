@@ -13,6 +13,7 @@ const FunctionalAssessment = (props) => {
   const { functionalAssessmentData = [] } = useSelector(
     (state) => state.assessment
   );
+  const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [initialValue] = useState(functionalAssessmentData?.others || []);
   const dispatch = useDispatch();
   const handleOthersChange = (data) => {
@@ -71,17 +72,13 @@ const FunctionalAssessment = (props) => {
           console.log("save");
         }}
         onErase={() => {
-          console.log("erase");
+          setAutoFillTextToAppend(["clear"]);
         }}
         onTemplate={() => {
           console.log("template");
         }}
-        onVoiceDictatorClick={(callback) => {
-          console.log("voice dictation");
-          setTimeout(() => {
-            callback();
-          }, 3000);
-        }}
+        newAutoFillTextToAppend={autoFillTextToAppend}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppend}
       />
     );
   };
@@ -150,7 +147,6 @@ const FunctionalAssessment = (props) => {
       );
     }
 
-    console.log('INTEL ==> sectionData', sectionData)
     return (
       <div className="assessments-parent-container">
         {sectionData.children?.[0]?.children?.filter((item) => item.enabled)?.map((item) => (
@@ -215,7 +211,7 @@ const FunctionalAssessment = (props) => {
         icon={assessmentsIcons[sectionData?.icon]}
         collapsible={isEditable}
         width={"100%"}
-        className={"collapsible-wrapper-class"}
+        className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
         defaultOpen
       >
         {renderChildren()}

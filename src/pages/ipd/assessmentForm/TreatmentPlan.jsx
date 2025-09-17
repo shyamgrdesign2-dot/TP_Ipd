@@ -13,6 +13,8 @@ const TreatmentPlan = (props) => {
   const { treatmentPlanData = {} } = useSelector((state) => state.assessment);
   const [initialValue] = useState(treatmentPlanData || {});
   const dispatch = useDispatch();
+  const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const [autoFillTextToAppendMonitoringPlan, setAutoFillTextToAppendMonitoringPlan] = useState([]);
   const handleOthersChange = (data, key) => {
     dispatch(setTreatmentPlanData({ ...treatmentPlanData, [key]: data }));
   };
@@ -41,7 +43,7 @@ const TreatmentPlan = (props) => {
         width="100%"
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
@@ -63,17 +65,13 @@ const TreatmentPlan = (props) => {
           console.log("save");
         }}
         onErase={() => {
-          console.log("erase");
+          setAutoFillTextToAppend(["clear"]);
         }}
         onTemplate={() => {
           console.log("template");
         }}
-        onVoiceDictatorClick={(callback) => {
-          console.log("voice dictation");
-          setTimeout(() => {
-            callback();
-          }, 3000);
-        }}
+        newAutoFillTextToAppend={autoFillTextToAppend}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppend}
       />
     );
   };
@@ -88,7 +86,7 @@ const TreatmentPlan = (props) => {
         width="100%"
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
@@ -110,17 +108,13 @@ const TreatmentPlan = (props) => {
           console.log("save");
         }}
         onErase={() => {
-          console.log("erase");
+          setAutoFillTextToAppendMonitoringPlan(["clear"]);
         }}
         onTemplate={() => {
           console.log("template");
         }}
-        onVoiceDictatorClick={(callback) => {
-          console.log("voice dictation");
-          setTimeout(() => {
-            callback();
-          }, 3000);
-        }}
+        newAutoFillTextToAppend={autoFillTextToAppendMonitoringPlan}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppendMonitoringPlan}
       />
     );
   };
@@ -139,7 +133,7 @@ const TreatmentPlan = (props) => {
         icon={assessmentsIcons[sectionData?.icon]}
         collapsible={isEditable}
         width={"100%"}
-        className={"collapsible-wrapper-class"}
+        className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
         defaultOpen
       >
         {renderChildren()}

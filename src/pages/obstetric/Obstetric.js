@@ -58,7 +58,6 @@ const Obstetric = ({
   const navigate = useNavigate();
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
-  console.log('INTEL ==> patient_data', patient_data)
   const {
     isPatientDiagnosisUpdated,
     isNavigateToObstetric,

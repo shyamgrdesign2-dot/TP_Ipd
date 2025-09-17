@@ -90,7 +90,7 @@ const AdditionalRemarks = (props) => {
         console.log("save");
       }}
       onErase={() => {
-        console.log("erase");
+        setAutoFillTextToAppend(["clear"]);
       }}
       onTemplate={() => {
         console.log("template");

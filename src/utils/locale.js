@@ -105,9 +105,9 @@ export const IPD = {
               ],
             },
             {
-              title: "Lymphadenopathy:",
+              title: "Lymphadenopathy",
               enabled: true,
-              id: "lymphadenopathy:",
+              id: "lymphadenopathy",
               description: "",
               options: [
                 { label: "Present", value: 1, name: "present" },
@@ -641,8 +641,8 @@ export const IPD = {
       ],
     },
     {
-      title: "Lymphadenopathy:",
-      id: "lymphadenopathy:",
+      title: "Lymphadenopathy",
+      id: "lymphadenopathy",
       description: "",
       options: [
         { label: "Present", value: 1, name: "present" },

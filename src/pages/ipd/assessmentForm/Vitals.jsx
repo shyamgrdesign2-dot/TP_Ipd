@@ -28,7 +28,6 @@ const Vitals = (props) => {
     </span>
   );
 
-  console.log('INTEL ==> SECCCC', sectionData, vitalsData)
   const renderReadOnlyVitals = () => {
     const vitalComponents = sectionData?.children
       ?.filter((config) => vitalsData?.[config.id] && config.enabled)
@@ -59,18 +58,20 @@ const Vitals = (props) => {
         {sectionData.children
           ?.filter((config) => config.enabled)
           ?.map((config) => {
-            // const vital = IPD.VITALS.find(v => v.name === config.id) || {};
             return (
-              <UnitInput
-                containerStyle={{ marginBottom: "20px" }}
-                onChange={(e) => handleVitalsValue(e, config.id)}
-                value={vitalsData?.[config.id]}
-                type="text"
-                inputMode="decimal"
-                label={config.label}
-                unit={config.unit}
-                {...config}
-              />
+              <React.Fragment key={config.id}>
+                <UnitInput
+                  key={config.id}
+                  containerStyle={{ marginBottom: "20px" }}
+                  onChange={(e) => handleVitalsValue(e, config.id)}
+                  value={vitalsData?.[config.id]}
+                  type="text"
+                  inputMode="decimal"
+                  label={config.label}
+                  unit={config.unit}
+                  {...config}
+                />
+              </React.Fragment>
             );
           })}
       </div>

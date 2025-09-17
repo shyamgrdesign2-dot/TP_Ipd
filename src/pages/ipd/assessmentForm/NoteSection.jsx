@@ -9,6 +9,8 @@ const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const NoteSection = (props) => {
   const { isEditable = true, sectionData } = props || {};
+  const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const [autoFillTextToAppendDischargeCriteria, setAutoFillTextToAppendDischargeCriteria] = useState([]);
   const { additionalNotesData = {} } = useSelector((state) => state.assessment);
   const [initialValue] = useState(additionalNotesData || {});
   const dispatch = useDispatch();
@@ -26,7 +28,7 @@ const NoteSection = (props) => {
         width="100%"
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
@@ -44,11 +46,13 @@ const NoteSection = (props) => {
           console.log("save");
         }}
         onErase={() => {
-          console.log("erase");
+          setAutoFillTextToAppend(["clear"]);
         }}
         onTemplate={() => {
           console.log("template");
         }}
+        newAutoFillTextToAppend={autoFillTextToAppend}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppend}
       />
     );
   };
@@ -63,7 +67,7 @@ const NoteSection = (props) => {
         width="100%"
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
@@ -81,11 +85,13 @@ const NoteSection = (props) => {
           console.log("save");
         }}
         onErase={() => {
-          console.log("erase");
+          setAutoFillTextToAppendDischargeCriteria(["clear"]);
         }}
         onTemplate={() => {
           console.log("template");
         }}
+        newAutoFillTextToAppend={autoFillTextToAppendDischargeCriteria}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppendDischargeCriteria}
       />
     );
   };
@@ -109,7 +115,7 @@ const NoteSection = (props) => {
         icon={assessmentsIcons[sectionData?.icon]}
         collapsible={isEditable}
         width={"100%"}
-        className={"collapsible-wrapper-class"}
+        className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
         defaultOpen
       >
         {renderChildren()}

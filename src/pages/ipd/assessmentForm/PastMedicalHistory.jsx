@@ -27,7 +27,7 @@ const PastMedicalHistory = (props) => {
       <div
         className={`ipdaf-generic-card-container ${
           medicalHistoryData?.length ? "ipdaf-padding-0 ipdaf-margin-0" : ""
-        }`}
+        } ${!isEditable ? 'ipdaf-readable-renderer': null}`}
       >
         {medicalHistoryData?.length ? (
           <MedicalHistoryList isIPD={true} />
@@ -70,18 +70,6 @@ const PastMedicalHistory = (props) => {
         }}
         onSave={() => {
           console.log("save");
-        }}
-        onErase={() => {
-          console.log("erase");
-        }}
-        onTemplate={() => {
-          console.log("template");
-        }}
-        onVoiceDictatorClick={(callback) => {
-          console.log("voice dictation");
-          setTimeout(() => {
-            callback();
-          }, 3000);
         }}
         renderBody={renderMedicalHistory}
       />

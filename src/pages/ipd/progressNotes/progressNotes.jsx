@@ -359,7 +359,7 @@ const ProgressNotes = (props) => {
   };
 
   return (
-    <div className="afipd-assessments-form-container">
+    <div className="afipd-assessments-form-container afipd-progress-notes-form-container">
       <Suspense fallback={<>Loading ...</>}>
         <div
           className={`ipd-assessments-form-container ${

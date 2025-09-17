@@ -271,8 +271,10 @@ const IPDPatientDetails = () => {
     switch (activeItem?.id) {
       case "assessment":
         return (
+          <>
           <div className="ipd-adm-assess-container-readable">
             <AssessmentsForm isEditable={isEditable} />
+          </div>
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
                 onEdit={() => handleAddAssessmentClick(false)}
@@ -282,7 +284,7 @@ const IPDPatientDetails = () => {
                 onDownload={() => console.log("Download")}
               />
             </div>
-          </div>
+          </>
         );
       case "progress":
         return(

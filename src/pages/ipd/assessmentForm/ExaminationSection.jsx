@@ -15,14 +15,15 @@ const ExaminationSection = (props) => {
   );
   const dispatch = useDispatch();
 
-  const onExaminationRadioChange = (e, id) => {
+  const onExaminationRadioChange = (e, item) => {
+    const { id } = item;
     dispatch(
       setPhysicalExaminationBasicData({
         ...physicalExaminationBasicData,
         [id]: {
           ...physicalExaminationBasicData[id],
           value: e.target.value,
-          title: e.target.value === 2 ? "Abnormal" : "WNL",
+          title: item.options.find(option => option.value === e.target.value)?.label,
         },
       })
     );
@@ -80,7 +81,8 @@ const ExaminationSection = (props) => {
               key={item.id}
               readOnly={!isEditable}
               showToolbar={isEditable}
-              showActionBtns={isEditable}
+              toolbarClass={'small-toolbar'}
+              showActionBtns={false}
               showAutoFill={false}
               showMagicPenGif={false}
               showMicrophone={false}
@@ -102,7 +104,7 @@ const ExaminationSection = (props) => {
                 <div className="examination-header">{item.title} : </div>
                 <Radio.Group
                   className="exam-radio-text"
-                  onChange={(e) => onExaminationRadioChange(e, item.id)}
+                  onChange={(e) => onExaminationRadioChange(e, item)}
                   value={physicalExaminationBasicData[item.id]?.value}
                   options={item.options}
                 />
@@ -126,7 +128,7 @@ const ExaminationSection = (props) => {
     <RichTextEditWrapper
       readOnly={!isEditable}
       showToolbar={isEditable}
-      showActionBtns={isEditable}
+      showActionBtns={false}
       title={sectionData?.title}
       width="100%"
       icon={defaultIcons[sectionData?.icon]}
@@ -134,7 +136,7 @@ const ExaminationSection = (props) => {
       showMagicPenGif={false}
       showMicrophone={false}
       placeholder={"Additional notes if any"}
-      containerClass="wrapper-class examination-rich-container"
+      containerClass={`wrapper-class examination-rich-container ${!isEditable ? 'examination-rich-readonly-container': ''}`}
       renderBody={renderExaminationSection}
     />
   );

@@ -87,12 +87,6 @@ const GynecHistory = (props) => {
         onSave={() => {
           console.log("save");
         }}
-        onErase={() => {
-          console.log("erase");
-        }}
-        onTemplate={() => {
-          console.log("template");
-        }}
         renderBody={renderMedicalHistory}
       />
       {addGynecHistoryDrawer && (
