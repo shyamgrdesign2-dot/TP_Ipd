@@ -19,6 +19,7 @@ import { NEO_NATOLOGISTS_DP_ID, PAEDIATRIC_DP_ID } from '../utils/constants';
 function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHandle }) {
     const dispatch = useDispatch();
     const { profile } = useSelector((state) => state.doctors);
+    const { patients_details } = useSelector((state) => state.records);
     const [tokenData, setTokenData] = useState(null);
      const { allUploadedDocs } = useSelector(
        (state) => state.uploadDoc
@@ -75,12 +76,12 @@ function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHan
                     </div>
                 </div>
             )}
-            {tokenData?.hospital_business_id == config.zydus_business_id && patient_data?.tpml_refrence_id && (
+            {tokenData?.hospital_business_id == config.zydus_business_id && (patients_details?.pm_reference_id || patient_data?.pm_reference_id || patient_data?.tpml_refrence_id) && (
                 <div className="align-items-center d-flex medicine-templates border-top-0 without-hover p-0 pb-3">
                     <div className="round-box bg-body-secondary"><i className="icon-Id fs-21"></i></div>
                     <div className="text-truncate">
                         <div className="fontroboto letterspacing">MRN Number</div>
-                        <div className="fontroboto letterspacing fw-medium">{patient_data?.tpml_refrence_id}</div>
+                        <div className="fontroboto letterspacing fw-medium">{patients_details?.pm_reference_id || patient_data?.pm_reference_id || patient_data?.tpml_refrence_id}</div>
                     </div>
                 </div>
             )}
