@@ -13,36 +13,29 @@ const Vitals = (props) => {
   const dispatch = useDispatch();
 
   // Check if at least one vital value exists
-  const hasAnyVitalValue = Object.values(vitalsData).some(value => value !== null && value !== undefined && value !== '');
+  const hasAnyVitalValue = Object.values(vitalsData).some(
+    (value) =>
+      value !== null && value !== undefined && value !== "" && value.enabled
+  );
   const handleVitalsValue = (e, key) => {
     dispatch(setVitalsData({ ...vitalsData, [key]: e }));
   };
-  const VITAL_CONFIGS = [
-    { key: 'pulse', label: 'Pulse', unit: 'T' },
-    { key: 'bloodPressure', label: 'BP', suffix: '' },
-    { key: 'temperature', label: 'Temperature', unit: 'Frh' },
-    { key: 'spo2', label: 'Spo2', unit: '%' },
-    { key: 'respiratoryRate', label: 'RR', unit: '/min' },
-    { key: 'weight', label: 'Weight', unit: 'Kg' },
-    { key: 'height', label: 'Height', unit: 'cms' },
-    { key: 'generalRBS', label: 'General Rbs', unit: 'mg/dl' }
-  ];
 
   const VitalDisplay = ({ label, value, unit, suffix }) => (
     <span>
-      <span className="vital-label">{label}:</span>
-      {' '}{value}{suffix || unit}
+      <span className="vital-label">{label}:</span> {value}
+      {suffix || unit}
     </span>
   );
 
+  console.log('INTEL ==> SECCCC', sectionData, vitalsData)
   const renderReadOnlyVitals = () => {
-    const vitalComponents = VITAL_CONFIGS
-      .filter(config => vitalsData?.[config.key])
-      .map(config => (
+    const vitalComponents = sectionData?.children
+      ?.filter((config) => vitalsData?.[config.id] && config.enabled)
+      .map((config) => (
         <VitalDisplay
-          key={config.key}
           label={config.label}
-          value={vitalsData[config.key]}
+          value={vitalsData[config.id]}
           unit={config.unit}
           suffix={config.suffix}
         />
@@ -63,22 +56,23 @@ const Vitals = (props) => {
   const renderEditableVitals = () => {
     return (
       <div className="ipdaf-vitals-container">
-        {VITAL_CONFIGS.map((config) => {
-          const vital = IPD.VITALS.find(v => v.name === config.key) || {};
-          return (
-            <UnitInput
-              key={config.key}
-              containerStyle={{ marginBottom: "20px" }}
-              onChange={(e) => handleVitalsValue(e, config.key)}
-              value={vitalsData?.[config.key]}
-              type="text"
-              inputMode="decimal"
-              label={config.label}
-              unit={config.unit}
-              {...vital}
-            />
-          );
-        })}
+        {sectionData.children
+          ?.filter((config) => config.enabled)
+          ?.map((config) => {
+            // const vital = IPD.VITALS.find(v => v.name === config.id) || {};
+            return (
+              <UnitInput
+                containerStyle={{ marginBottom: "20px" }}
+                onChange={(e) => handleVitalsValue(e, config.id)}
+                value={vitalsData?.[config.id]}
+                type="text"
+                inputMode="decimal"
+                label={config.label}
+                unit={config.unit}
+                {...config}
+              />
+            );
+          })}
       </div>
     );
   };

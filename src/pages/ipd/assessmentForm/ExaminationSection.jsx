@@ -1,5 +1,4 @@
 import React from "react";
-import { IPD } from "../../../utils/locale";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { Radio } from "antd";
 import { defaultIcons } from "../../../assets/images/icons/";
@@ -42,7 +41,7 @@ const ExaminationSection = (props) => {
     return (
       <div className="ipdaf-examination-readonly">
         <ul>
-          {IPD.EXAMINATION.map((item) => {
+          {sectionData?.children?.filter((item) => item.enabled).map((item) => {
             const data = physicalExaminationBasicData[item.id];
             if (!data?.title) return null;
 
@@ -75,7 +74,7 @@ const ExaminationSection = (props) => {
   const renderEditableExamination = () => {
     return (
       <div className="examinations-parent-container">
-        {IPD.EXAMINATION.map((item) => {
+        {sectionData?.children?.filter((item) => item.enabled).map((item) => {
           return (
             <RichTextEditWrapper
               key={item.id}

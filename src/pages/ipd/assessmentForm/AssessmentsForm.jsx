@@ -75,16 +75,17 @@ const AssessmentsForm = (props) => {
   const prescriptionData = useSelector((state) => state.prescription);
   const { assessments = [] } = customization;
   const [modelData, setModelData] = useState(
-    assessments.length > 0
-      ? assessments
-      : IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE
+    // assessments.length > 0
+    //   ? assessments
+      // : 
+      IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE
   );
 
-  useEffect(() => {
-    if (assessments.length > 0) {
-      setModelData(assessments);
-    }
-  }, [assessments]);
+  // useEffect(() => {
+  //   if (assessments.length > 0) {
+  //     setModelData(assessments);
+  //   }
+  // }, [assessments]);
 
   const addDataToStore = (data) => {
     if (data) {
