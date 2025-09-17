@@ -392,7 +392,6 @@ const ConsultantNotes = (props) => {
       ? consultantNotesCustomization
       : IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE
   );
-  console.log({ modelData });
 
   const handleDefaultClick = () => {
     setModelData(IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE);

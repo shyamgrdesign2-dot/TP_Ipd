@@ -8,3 +8,9 @@
 .ipd-adm-assess-container-readable {
     width: 100% ;
 }
+
+.ipd-progress-notes-view-container {
+    width: 100%;
+    overflow: auto;
+    height: calc(100dvh - 161px);
+}

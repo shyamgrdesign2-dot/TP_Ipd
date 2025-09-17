@@ -1,0 +1,22 @@
+$theme-black: #454551;
+$panel-top: #f8f4ff;
+$panel-btm: #fbfaff;
+$border: rgba(80, 56, 160, 0.12);
+$text: #232336;
+$muted: #6f6b88;
+
+
+.ipd-pn-view-container{
+    background-color: $panel-top !important;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    // margin-bottom: 20px;
+}
+
+.patient-details-menu-container{
+    gap: 1rem;
+}
+
+.ipd-pn-section-container{
+    // margin: 10px;
+}
