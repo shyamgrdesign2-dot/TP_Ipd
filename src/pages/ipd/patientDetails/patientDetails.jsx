@@ -37,6 +37,7 @@ import { addObstetricDetails } from "../../../redux/obstetricSlice";
 import { getConsultantNotes } from "../../../redux/ipd/consultantNotesSlice";
 import ConsultantNotesTimeline from "../consultantNotes/ConsultantNotesTimeline";
 import ProgressNotesView from "../progressNotes/progressNotesView/progressNotesView";
+import { getProgressNotes } from "../../../redux/ipd/progressNotesSlice";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -60,7 +61,7 @@ const IPDPatientDetails = () => {
   const { assessmentsData } = useSelector((state) => state.assessment);
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { otNotesData } = useSelector((state) => state.otNotes);
-  const { progressNotesData } = useSelector((state) => state.progressNotes);
+  const { progressNotes } = useSelector((state) => state.progressNotes);
   const [open, setOpen] = useState(true);
   const [activeMenuItem, setActiveMenuItem] = useState("assessment");
   const [patientData, setPatientData] = useState(null);
@@ -106,7 +107,6 @@ const IPDPatientDetails = () => {
   };
 
   const handleProgressNotesClick = () => {
-    console.log("this is getting clicked")
     navigate("/ipd/patient-details/progress-notes", {
       state: {
         patient_data,
@@ -219,6 +219,12 @@ const IPDPatientDetails = () => {
           console.error("Error fetching consultant notes:", error);
         }
       );
+    } else if (activeMenuItem === "progress") {
+      dispatch(getProgressNotes({ patientId, admissionId })).catch(
+        (error) => {
+          console.error("Error fetching progress notes:", error);
+        }
+      );
     }
   }, [activeMenuItem, admissionId, patientId]);
 
@@ -246,11 +252,11 @@ const IPDPatientDetails = () => {
       return Object.keys(otNotesData)?.length > 0;
     } else if (activeMenuItem === "consultantNotes") {
       return !!consultantNotes?.length;
-    } else if (activeMenuItem === 'progress') {
-      return Object.keys(assessmentsData)?.length > 0;
+    } else if (activeMenuItem === "progress") {
+      return !!progressNotes?.length;
     }
     return false;
-  }, [assessmentsData, otNotesData, activeMenuItem, consultantNotes]);
+  }, [assessmentsData, otNotesData, activeMenuItem, consultantNotes, progressNotes]);
 
   const onRequestClose = () => {
     navigate(`/ipd/inPatients`);
@@ -282,7 +288,16 @@ const IPDPatientDetails = () => {
       case "progress":
         return(
           <div className="ipd-progress-notes-view-container">
-            <ProgressNotesView />
+            <ProgressNotesView  progressNotes={progressNotes} patientDetails={patientDetails}/>
+            <div className="ipd-toolbar-edit-custom-print-download">
+              <ToolbarActions
+                onEdit={handleAddAssessmentClick}
+                onPrintPreview={() => console.log("Preview")}
+                onPrint={() => console.log("Print")}
+                onSettings={handleCustomizeClick}
+                onDownload={() => console.log("Download")}
+              />
+            </div>
           </div>
         )
       case "consultantNotes":

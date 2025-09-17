@@ -1,186 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, Button, Divider, Space, Typography } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import { RemoteComponents } from '../../../../shared/remoteComponents';
-
 import { defaultIcons } from '../../../../assets/images/icons/index.js';
 import './progressNotesView.scss';
 
 const { Title, Text } = Typography;
 const { ReusableStepper, ReusableProgressCard } = RemoteComponents;
 
-// Dummy data for Stepper component
-const stepperData = [
-  {
-    date: "2025-06-24",
-    period: "morning",
-    time: "08:12 AM",
-    chiefComplaint: [
-      {
-        title: "Mild headache, improved appetite",
-      }
-    ],
-    findings: [
-      "Patient appears stable",
-      "No acute distress",
-      "Vital signs within normal limits"
-    ],
-    vitals: {
-      bloodPressure: "122/80",
-      heartRate: 78,
-      temperature: 98.8,
-      respiratoryRate: 18
-    },
-    additionalRemarks: [
-      "Patient responding well to treatment",
-      "Continue current medication"
-    ],
-    filledBy: "Dr. John Smith",
-    role: "Medical Officer"
-  },
-  {
-    date: "2025-06-24",
-    period: "evening",
-    time: "06:30 PM",
-    chiefComplaint: [
-      {
-        title: "Mild headache, improved appetite",
-      }
-    ],
-    findings: [
-      "Patient resting comfortably",
-      "No signs of distress",
-      "Appetite improved"
-    ],
-    vitals: {
-      bloodPressure: "118/75",
-      heartRate: 72,
-      temperature: 98.4,
-      respiratoryRate: 16
-    },
-    additionalRemarks: [
-      "Patient stable for discharge",
-      "Follow-up appointment scheduled"
-    ],
-    filledBy: "Dr. Sarah Johnson",
-    role: "Medical Officer"
-  },
-  {
-    date: "2025-06-23",
-    period: "morning",
-    time: "09:15 AM",
-    chiefComplaint: [
-      {
-        title: "Mild headache, improved appetite",
-      }
-    ],
-    findings: [
-      "Abdominal pain started 2 days ago, mainly in the right lower quadrant",
-      "Patient appears anxious",
-      "Mild pallor observed"
-    ],
-    vitals: {
-      bloodPressure: "130/85",
-      heartRate: 88,
-      temperature: 99.2,
-      respiratoryRate: 20
-    },
-    additionalRemarks: [
-      "Paracetamol 500 mg (3 days, No other regular medication)",
-      "Ultrasound scheduled for tomorrow"
-    ],
-    filledBy: "Dr. Michael Brown",
-    role: "Medical Officer"
-  },
-  {
-    date: "2025-06-23",
-    period: "night",
-    time: "11:45 PM",
-    chiefComplaint: [
-      {
-        title: "Mild headache, improved appetite",
-      }
-    ],
-    findings: [
-      "Patient restless",
-      "Mild abdominal tenderness",
-      "No acute changes"
-    ],
-    vitals: {
-      bloodPressure: "125/80",
-      heartRate: 85,
-      temperature: 98.9,
-      respiratoryRate: 19
-    },
-    additionalRemarks: [
-      "Pain medication administered",
-      "Patient comfortable for the night"
-    ],
-    filledBy: "Dr. Emily Davis",
-    role: "Medical Officer"
-  },
-  {
-    date: "2025-06-22",
-    period: "morning",
-    time: "07:30 AM",
-    chiefComplaint: [
-      {
-        title: "Mild headache, improved appetite",
-      }
-    ],
-    findings: [
-      "Patient in acute distress",
-      "Diaphoretic",
-      "Chest pain on palpation"
-    ],
-    vitals: {
-      bloodPressure: "150/95",
-      heartRate: 110,
-      temperature: 99.5,
-      respiratoryRate: 24
-    },
-    additionalRemarks: [
-      "ECG and Troponin test ordered",
-      "Possible cardiac event",
-      "Admission to cardiology ward"
-    ],
-    filledBy: "Dr. Robert Wilson",
-    role: "Medical Officer"
-  },
-  {
-    date: "2025-06-22",
-    period: "evening",
-    time: "05:20 PM",
-    chiefComplaint: [
-      {
-        title: "Mild headache, improved appetite",
-      }
-    ],
-    findings: [
-      "Patient more comfortable",
-      "Pain reduced significantly",
-      "Vital signs stabilizing"
-    ],
-    vitals: {
-      bloodPressure: "140/88",
-      heartRate: 95,
-      temperature: 99.0,
-      respiratoryRate: 22
-    },
-    additionalRemarks: [
-      "Cardiology consultation completed",
-      "Medication adjusted",
-      "Continue monitoring"
-    ],
-    filledBy: "Dr. Lisa Anderson",
-    role: "Medical Officer"
-  }
-];
-
-function ProgressNotesView() {
+function ProgressNotesView({progressNotes , patientDetails}) {
   const [events, setEvents] = useState([]);
+  const navigate = useNavigate();
+
+  const mappedData = useMemo(() => {
+    if (!Array.isArray(progressNotes)) return [];
+    return progressNotes.map((entry) => {
+      const pn = entry?.progressNotes || {};
+      const dateIso = pn?.date ? new Date(pn.date) : null;
+      const timeIso = pn?.time ? new Date(pn.time) : null;
+      const formattedDate = dateIso ? `${dateIso.getFullYear()}-${String(dateIso.getMonth() + 1).padStart(2, '0')}-${String(dateIso.getDate()).padStart(2, '0')}` : undefined;
+      return {
+        // identifiers and raw source to support edit flow
+        _id: entry?._id,
+        raw: entry,
+        date: formattedDate,
+        period: pn?.period,
+        time: timeIso ? timeIso.toLocaleTimeString() : undefined,
+        timestamp: pn?.time,
+        chiefComplaint: pn?.chiefComplaint,
+        findings: pn?.findings,
+        vitals: pn?.vitals,
+        additionalRemarks: pn?.additionalRemarks,
+        filledBy: entry?.createdBy ? `Dr. ${entry.createdBy}` : undefined,
+        role: undefined,
+      };
+    });
+  }, [progressNotes]);
 
   // Event handlers for ReusableStepper + ReusableProgressCard
   const handleReusableItemEvent = (eventName, payload) => {
+    if(eventName === "edit") {
+      const progressNotes = payload?.data
+      navigate("/ipd/patient-details/progress-notes", {
+        state: {
+          progressNotesData : progressNotes,
+          patientDetails,
+          isEditable: true,
+        },
+      });
+    }
     console.log('ReusableStepper Event:', eventName, payload);
     addEvent(`ReusableStepper - ${eventName}`, payload);
   };
@@ -294,7 +162,7 @@ function ProgressNotesView() {
     <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
       <div>
         <ReusableStepper
-          data={stepperData}
+          data={mappedData}
           groupBy={(item) => item.date || item.timestamp?.split(' ')[0] || 'Unknown'}
           sortGroups={(a, b) => new Date(b) - new Date(a)}
           renderGroupHeader={renderCustomGroupHeader}
