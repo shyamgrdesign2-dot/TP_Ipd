@@ -287,7 +287,7 @@ export const IPD = {
       showAddCTA: true,
     },
     { id: "otNotes", name: "OT Notes", icon: "healthIcon" },
-    { id: "lab", name: "Lab Results", icon: "glassIcon" },
+    { id: "labResults", name: "Lab Results", icon: "glassIcon" },
     { id: "records", name: "Medical Records", icon: "notesIcon" },
     { id: "discharge", name: "Discharge Summary", icon: "notepadIcon" },
     { id: "logs", name: "Activity Logs", icon: "usersTwoIcon" },

@@ -36,6 +36,7 @@ import {
 import { addObstetricDetails } from "../../../redux/obstetricSlice";
 import { getConsultantNotes } from "../../../redux/ipd/consultantNotesSlice";
 import ConsultantNotesTimeline from "../consultantNotes/ConsultantNotesTimeline";
+import LabResults from "../labResults/LabResults";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -95,6 +96,16 @@ const IPDPatientDetails = () => {
 
   const handleOtNotesClick = () => {
     navigate("/ipd/patient-details/ot-notes", {
+      state: {
+        patient_data,
+        patientDetails,
+        isEditable: true,
+      },
+    });
+  };
+
+  const handleAddLabResultsClick = () => {
+    navigate("/ipd/patient-details/lab-results", {
       state: {
         patient_data,
         patientDetails,
@@ -213,6 +224,7 @@ const IPDPatientDetails = () => {
     assessment: () => handleAddAssessmentClick(true),
     otNotes: handleOtNotesClick,
     consultantNotes: handleAddConsultantNotesClick,
+    labResults: handleAddLabResultsClick,
   };
   const patientDetailsMenu = () => {
     return IPD.PATIENT_DETAILS_MENU.map((item) => {
@@ -268,6 +280,12 @@ const IPDPatientDetails = () => {
             <ConsultantNotesTimeline />
           </div>
         );
+      case "labResults":
+        return (
+          <div className="ipd-adm-assess-container-readable">
+            <LabResults />
+          </div>
+        );
       default:
         return null;
     }
@@ -297,7 +315,7 @@ const IPDPatientDetails = () => {
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
               renderContent={
-                !isEditable && isDataPresent ? renderContent : null
+                true ? renderContent : null
               }
               showAddCTA={canShowAddCTA}
             />
