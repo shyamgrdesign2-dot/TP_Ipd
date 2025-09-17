@@ -92,7 +92,7 @@ const ClinicalAssessment = (props) => {
         console.log("save");
       }}
       onErase={() => {
-        setAutoFillTextToAppend(["clear"]);
+        console.log("erase");
       }}
       onTemplate={() => {
         console.log("template");
