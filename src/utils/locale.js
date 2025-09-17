@@ -277,8 +277,10 @@ export const IPD = {
     {
       id: "progress",
       name: "Progress Notes",
+      mainHeading: "Progress Notes",
       icon: "noteIcon",
       isEditable: false,
+      showAddCTA: true,
     },
     {
       id: "consultantNotes",
@@ -550,6 +552,66 @@ export const IPD = {
       enabled: true,
       expanded: false,
       children:[],
+    },
+  ],
+  DEFAULT_PROGRESS_NOTES_FORM_STRUCTURE: [
+    {
+      id: "chiefComplaint",
+      title: "Chief Complaint",
+      icon: "roundDotted",
+      menuIcon: "basicInfoBg",
+      enabled: true,
+      expanded: false,
+      children: [],
+    },
+    {
+      id: "findings",
+      title: "Findings",
+      icon: "roundDotted",
+      menuIcon: "basicInfoBg",
+      enabled: true,
+      expanded: false,
+      children: [],
+    },
+    {
+      id: "vitals",
+      title: "Vitals",
+      icon: "vitals",
+      menuIcon: "basicInfoBg",
+      enabled: true,
+      expanded: false,
+      children: [],
+    },
+    {
+      id: "additionalRemarks",
+      title: "Additional Remarks",
+      icon: "recordPad",
+      menuIcon: "basicInfoBg",
+      enabled: true,
+      expanded: false,
+      children: [],
+    }
+  ],
+  PROGRESS_NOTES_VITALS: [
+    {
+      name: "bloodPressure",
+      label: "Blood Pressure",
+      unit: "mmHg",
+    },
+    {
+      name: "temperature",
+      label: "Temperature",
+      unit: "°F",
+    },
+    {
+      name: "heartRate",
+      label: "Heart Rate",
+      unit: "/min",
+    },
+    {
+      name: "respiratoryRate",
+      label: "Respiratory Rate",
+      unit: "mmHg",
     },
   ],
 };

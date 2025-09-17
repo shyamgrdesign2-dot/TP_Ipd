@@ -36,6 +36,7 @@ import assessmentSlice from "./ipd/assessmentsFormSlice";
 import otNotesSlice from "./ipd/otNotesSlice";
 import inPatientsSlice from "./ipd/inPatientsSlice";
 import consultantNotesSlice from "./ipd/consultantNotesSlice";
+import progressNotesSlice from "./ipd/progressNotesSlice";
 
 const persistConfig = {
   key: "root",
@@ -78,6 +79,7 @@ const rootReducer = combineReducers({
   ipd: ipdSlice,
   inPatients: inPatientsSlice,
   consultantNotes: consultantNotesSlice,
+  progressNotes: progressNotesSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
