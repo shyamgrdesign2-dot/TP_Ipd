@@ -23,7 +23,7 @@ const ExaminationSection = (props) => {
         [id]: {
           ...physicalExaminationBasicData[id],
           value: e.target.value,
-          title: item.options.find(option => option.value === e.target.value)?.label,
+          title: item.options.find(option => (option.value) === e.target.value)?.label,
         },
       })
     );
@@ -44,7 +44,7 @@ const ExaminationSection = (props) => {
         <ul>
           {sectionData?.children?.filter((item) => item.enabled).map((item) => {
             const data = physicalExaminationBasicData[item.id];
-            if (!data?.title) return null;
+            if (!data?.title && !Array.isArray(data?.notes)) return null;
 
             return (
               <li key={item.id} className="examination-item">
@@ -105,7 +105,7 @@ const ExaminationSection = (props) => {
                 <Radio.Group
                   className="exam-radio-text"
                   onChange={(e) => onExaminationRadioChange(e, item)}
-                  value={physicalExaminationBasicData[item.id]?.value}
+                  value={physicalExaminationBasicData[item.id]?.value?.toString()}
                   options={item.options}
                 />
               </div>

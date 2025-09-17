@@ -25,6 +25,7 @@ const FunctionalAssessment = (props) => {
   const [assessmentValue, setAssessmentValue] = useState({});
 
   const handleAssessmentChange = (key, e, item) => {
+    console.log("INTEL ==> KEY", key, e, item);
     const selectedOption = item.options.find(
       (option) => option.value === e.target.value
     );
@@ -51,7 +52,7 @@ const FunctionalAssessment = (props) => {
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
         containerClass={`wrapper-class ${
-          isEditable ? "ipd-wrapper-class-readonly" : ""
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
@@ -82,41 +83,25 @@ const FunctionalAssessment = (props) => {
       />
     );
   };
-  const ASSESSMENT_CONFIGS = [
-    { key: "bedActivity", label: "Bed Activity" },
-    { key: "sitting", label: "Sitting" },
-    { key: "standing", label: "Standing" },
-    { key: "ambulation", label: "Ambulation" },
-    {
-      key: "stairClimbing",
-      label: "Stair Climbing",
-      note: "reports fatigue on climbing stairs",
-    },
-    { key: "bedSoreOnAdmission", label: "Bed Sore on Admission" },
-  ];
 
-  const AssessmentDisplay = ({ label, value, note }) => (
-    <span>
-      <span className="assessment-label">{label}:</span> {value}
-      {note && value?.toLowerCase().includes("needs assistance") && (
-        <span className="assessment-note"> ({note})</span>
-      )}
-    </span>
-  );
+  const AssessmentDisplay = ({ label, value }) => {
+    return (
+      <span>
+        <span className="assessment-label">{label}:</span> {value}
+      </span>
+    );
+  };
 
   const renderAssessment = () => {
     if (!isEditable) {
-      const assessmentComponents = sectionData.children?.[0]?.children?.filter(
-        (config) => functionalAssessmentData?.[config.key]
-      ).map((config) => (
-        <AssessmentDisplay
-          key={config.key}
-          label={config.label}
-          value={functionalAssessmentData[config.key]}
-          note={config.note}
-        />
-      ));
-
+      const assessmentComponents = Object.entries(functionalAssessmentData)
+        .filter(
+          ([key, value]) =>
+            value !== null && value !== undefined && typeof value === "string"
+        )
+        .map(([key, value]) => {
+          return <AssessmentDisplay key={key} label={key} value={value} />;
+        });
       const renderReadOnlyBody = () => {
         return (
           <div className="ipdaf-assessment-readonly">
@@ -135,7 +120,7 @@ const FunctionalAssessment = (props) => {
           readOnly={true}
           showToolbar={false}
           showActionBtns={false}
-          title={'Basics'}
+          title={"Basic"}
           width="100%"
           icon={defaultIcons.medication}
           showAutoFill={false}
@@ -149,36 +134,39 @@ const FunctionalAssessment = (props) => {
 
     return (
       <div className="assessments-parent-container">
-        {sectionData.children?.[0]?.children?.filter((item) => item.enabled)?.map((item) => (
-          <div key={item.key} className="assessment-card">
-            <div className="assessment-card-header">
-              <div className="assessment-title">{item.title}:</div>
-            </div>
-            <ConfigProvider
-              theme={{
-                components: {
-                  Radio: {
-                    colorPrimary: "#4B4AD5",
-                    colorPrimaryHover: "#4B4AD5",
-                    colorPrimaryActive: "#4B4AD5",
+        {sectionData.children
+          ?.find((child) => child.id === "assessment")
+          ?.children?.filter((item) => item.enabled)
+          ?.map((item) => (
+            <div key={item.id} className="assessment-card">
+              <div className="assessment-card-header">
+                <div className="assessment-title">{item.title}:</div>
+              </div>
+              <ConfigProvider
+                theme={{
+                  components: {
+                    Radio: {
+                      colorPrimary: "#4B4AD5",
+                      colorPrimaryHover: "#4B4AD5",
+                      colorPrimaryActive: "#4B4AD5",
+                    },
                   },
-                },
-              }}
-            >
-              <Radio.Group
-                className="assessment-radio-group big-ring-radio"
-                options={item.options}
-                onChange={(e) => handleAssessmentChange(item.key, e, item)}
-                value={
-                  item.options.find(
-                    (option) =>
-                      option.label === functionalAssessmentData[item.key]
-                  )?.value
-                }
-              />
-            </ConfigProvider>
-          </div>
-        ))}
+                }}
+              >
+                <Radio.Group
+                  className="assessment-radio-group big-ring-radio"
+                  options={item.options}
+                  onChange={(e) => handleAssessmentChange(item.id, e, item)}
+                  value={
+                    item.options.find(
+                      (option) =>
+                        option.label === functionalAssessmentData[item.id]
+                    )?.value
+                  }
+                />
+              </ConfigProvider>
+            </div>
+          ))}
       </div>
     );
   };
@@ -191,14 +179,24 @@ const FunctionalAssessment = (props) => {
     );
   };
   const renderChildren = () => {
-    return sectionData?.children?.map((item) => {
+    return sectionData?.children?.map((item, index) => {
+      const key = `${item?.id || "unknown"}-${index}`;
+
       switch (item?.id) {
         case "assessment":
-          return renderAssessment();
+          return (
+            <React.Fragment key={key}>{renderAssessment()}</React.Fragment>
+          );
         case "others":
-          return renderOthers(item);
+          return (
+            <React.Fragment key={key}>{renderOthers(item)}</React.Fragment>
+          );
         case "referredToPhysiotherapy":
-          return renderReferredToPhysiotherapy(item);
+          return (
+            <React.Fragment key={key}>
+              {renderReferredToPhysiotherapy(item)}
+            </React.Fragment>
+          );
         default:
           return null;
       }
@@ -211,7 +209,9 @@ const FunctionalAssessment = (props) => {
         icon={assessmentsIcons[sectionData?.icon]}
         collapsible={isEditable}
         width={"100%"}
-        className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
+        className={`collapsible-wrapper-class ${
+          isEditable ? "" : "collapsible-wrapper-class-readonly"
+        }`}
         defaultOpen
       >
         {renderChildren()}

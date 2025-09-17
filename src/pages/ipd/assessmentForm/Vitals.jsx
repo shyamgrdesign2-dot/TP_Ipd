@@ -15,7 +15,7 @@ const Vitals = (props) => {
   // Check if at least one vital value exists
   const hasAnyVitalValue = Object.values(vitalsData).some(
     (value) =>
-      value !== null && value !== undefined && value !== "" && value.enabled
+      value !== null && value !== undefined && value !== ""
   );
   const handleVitalsValue = (e, key) => {
     dispatch(setVitalsData({ ...vitalsData, [key]: e }));
@@ -33,10 +33,10 @@ const Vitals = (props) => {
       ?.filter((config) => vitalsData?.[config.id] && config.enabled)
       .map((config) => (
         <VitalDisplay
-          label={config.label}
+          label={config.id}
           value={vitalsData[config.id]}
-          unit={config.unit}
-          suffix={config.suffix}
+          unit={config?.unit}
+          suffix={config?.suffix}
         />
       ));
 
