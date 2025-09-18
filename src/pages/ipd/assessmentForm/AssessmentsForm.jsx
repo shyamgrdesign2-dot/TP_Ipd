@@ -146,7 +146,7 @@ const AssessmentsForm = (props) => {
     dispatch(getCustomization());
     if (isEditable)
       dispatch(
-        getLastPrescriptionDate({ patientId: patientDetails?.details?.id })
+        getLastPrescriptionDate({ patientId: patientDetails?.patientUniqueId })
       ).then((res) => {
         if (res.payload) {
           dispatch(
