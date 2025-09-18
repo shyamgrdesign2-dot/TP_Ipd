@@ -1,28 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons";
 import { Drawer } from "antd";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Obstetric from "../../obstetric/Obstetric";
 import ObstetricSummary from "../../obstetric/components/ObstetricSummary";
+import { addObstetricDetails, addObstetricDetailsBackup } from "../../../redux/obstetricSlice";
+import { deepMergePreserveFirst, formatDateToShortMonthYear } from "../../../utils/utils";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const GenericCard = createRemoteComponent("GenericCard");
-// const SectionedTable = createRemoteComponent("SectionedTable");
-// const GenericTable = createRemoteComponent("GenericTable");
+const AutoFillButton = createRemoteComponent("AutoFillButton");
 
 const ObstetricHistory = (props) => {
   const { sectionData, isEditable = true, patientDataForOPDComponents } = props;
-  const { obstetricDetails: allObstetricDetails } = useSelector(
+  const { obstetricDetailsBackup, obstetricDetails: allObstetricDetails } = useSelector(
     (state) => state.obstetric
   );
   const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const { pregnancyHistory = [] } = allObstetricDetails;
+  const { lastPrescriptionDataForAssessment, lastPrescriptionDate } = useSelector((state) => state.assessment);
+  const { lastRxDate } = lastPrescriptionDate || {};
+  const dispatch = useDispatch();
   const [addObstetricHistoryDrawer, setAddObstetricHistoryDrawer] =
     useState(false);
   const handleObstetricHistory = () => {
     setAddObstetricHistoryDrawer(!addObstetricHistoryDrawer);
   };
+
+
+  const renderAutoFillButton = useCallback(() => {
+    const { obstetricHistoryEntry : lastObstetricDetails = {} } =
+      lastPrescriptionDataForAssessment || {};
+    if (!lastRxDate || !Object.keys(lastObstetricDetails)?.length) return null;
+    return (
+      <AutoFillButton
+        onClick={(data, e) => {
+          e?.stopPropagation();
+
+          if (data?.[0] === "undo") {
+            dispatch(addObstetricDetails(obstetricDetailsBackup));
+            return;
+          }
+          if (Object.keys(lastObstetricDetails)?.length && !Object.keys(allObstetricDetails)?.length) {
+            dispatch(addObstetricDetails(lastObstetricDetails));
+          } else {
+            dispatch(addObstetricDetailsBackup(allObstetricDetails));
+            dispatch(addObstetricDetails(lastObstetricDetails));
+            dispatch(addObstetricDetails(deepMergePreserveFirst(allObstetricDetails, lastObstetricDetails)));
+          }
+        }}
+        title={`Autofill Obstetric History Details From OPD (${formatDateToShortMonthYear(
+          lastRxDate
+        )})`}
+      />
+    );
+  }, [lastPrescriptionDataForAssessment, allObstetricDetails, obstetricDetailsBackup]);
 
   const renderObstetricHistory = () => {
     return (
@@ -48,7 +81,9 @@ const ObstetricHistory = (props) => {
                   ? "Add/Edit Obstetric History"
                   : "Add Obstetric History"
               }
-            />
+            >
+              {renderAutoFillButton()}
+            </GenericCard>
           </div>
         ) : null}
       </div>

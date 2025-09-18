@@ -1232,3 +1232,98 @@ export const mergeArraysOfObjects = (
 export const isEmptyRichText = (richText) => {
   return !richText?.length || richText?.[0]?.children?.[0]?.text === "";
 };
+
+export const deepMergePreserveFirst = (obj1, obj2) => {
+  const isEmpty = (value) => {
+    if (value == null) return true;
+    if (Array.isArray(value)) return value.length === 0;
+    if (typeof value === "string") return value.trim() === "";
+    return false;
+  };
+
+  if (obj1 == null && obj2 == null) return null;
+  if (obj1 == null) return obj2;
+  if (obj2 == null) return obj1;
+
+  if (
+    typeof obj1 !== "object" ||
+    obj1 === null ||
+    typeof obj2 !== "object" ||
+    obj2 === null
+  ) {
+    return isEmpty(obj2) ? obj1 : obj2;
+  }
+
+  if (obj1 instanceof Date || obj2 instanceof Date) {
+    return obj2 instanceof Date ? obj2 : obj1;
+  }
+
+  if (Array.isArray(obj1) && Array.isArray(obj2)) {
+    if (obj2.length === 0) return obj1;
+
+    if (obj1.length === 0) return obj2;
+
+    const maxLength = Math.max(obj1.length, obj2.length);
+    const result = [];
+
+    for (let i = 0; i < maxLength; i++) {
+      const val1 = i < obj1.length ? obj1[i] : undefined;
+      const val2 = i < obj2.length ? obj2[i] : undefined;
+
+      if (
+        val1 != null &&
+        val2 != null &&
+        typeof val1 === "object" &&
+        typeof val2 === "object" &&
+        !Array.isArray(val1) &&
+        !Array.isArray(val2) &&
+        !(val1 instanceof Date) &&
+        !(val2 instanceof Date)
+      ) {
+        result[i] = deepMergePreserveFirst(val1, val2);
+      } else {
+        result[i] = val2 !== undefined && !isEmpty(val2) ? val2 : val1;
+      }
+    }
+
+    return result;
+  }
+
+  if (Array.isArray(obj1) || Array.isArray(obj2)) {
+    if (Array.isArray(obj2) && obj2.length === 0) return obj1;
+    if (Array.isArray(obj1) && obj1.length === 0) return obj2;
+    return obj2;
+  }
+
+  const result = { ...obj1 };
+
+  for (const key in obj2) {
+    if (obj2.hasOwnProperty(key)) {
+      if (key in obj1) {
+        const val1 = obj1[key];
+        const val2 = obj2[key];
+
+        if (isEmpty(val2)) {
+          result[key] = val1;
+        } else if (
+          val1 != null &&
+          val2 != null &&
+          typeof val1 === "object" &&
+          typeof val2 === "object" &&
+          !Array.isArray(val1) &&
+          !Array.isArray(val2) &&
+          !(val1 instanceof Date) &&
+          !(val2 instanceof Date)
+        ) {
+          result[key] = deepMergePreserveFirst(val1, val2);
+        } else {
+          result[key] = val2;
+        }
+      } else {
+        result[key] = obj2[key];
+      }
+    }
+  }
+
+  return result;
+};
