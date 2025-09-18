@@ -9,6 +9,7 @@ import {
   setPhysicalExaminationProvisionalDiagnosisData,
 } from "../../../redux/ipd/assessmentsFormSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { isEmptyRichText } from "../../../utils/utils";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 
@@ -17,11 +18,15 @@ const PhysicalExamination = (props) => {
     physicalExaminationOthersData = [],
     referredDocForReview = "",
     physicalExaminationProvisionalDiagnosisData = [],
+    physicalExaminationBasicData = {},
   } = useSelector((state) => state.assessment);
   const { isEditable = true, sectionData } = props || {};
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
-  const [autoFillTextToAppendProvisionalDiagnosis, setAutoFillTextToAppendProvisionalDiagnosis] = useState([]);
+  const [
+    autoFillTextToAppendProvisionalDiagnosis,
+    setAutoFillTextToAppendProvisionalDiagnosis,
+  ] = useState([]);
   const handleOthersChange = (data) => {
     dispatch(setPhysicalExaminationOthersData(data));
   };
@@ -31,17 +36,20 @@ const PhysicalExamination = (props) => {
   };
 
   const renderOthers = (data) => {
-    if (!isEditable && !physicalExaminationOthersData?.length) return null;
+    if (!isEditable && isEmptyRichText(physicalExaminationOthersData))
+      return null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width="100%"
+        width={isEditable ? "100%" : "fit-content"}
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
         showMagicPenGif={false}
         showMicrophone={false}
         onChange={handleOthersChange}
@@ -72,17 +80,23 @@ const PhysicalExamination = (props) => {
   };
 
   const renderProvisionalDiagnosis = (data) => {
-    if (!isEditable && !physicalExaminationProvisionalDiagnosisData?.length) return null;
+    if (
+      !isEditable &&
+      isEmptyRichText(physicalExaminationProvisionalDiagnosisData)
+    )
+      return null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width="100%"
+        width={isEditable ? "100%" : "fit-content"}
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         onChange={handleProvisionalDiagnosisChange}
@@ -131,6 +145,13 @@ const PhysicalExamination = (props) => {
       }
     });
   };
+  if (
+    !isEditable &&
+    !Object.keys(physicalExaminationBasicData)?.length &&
+    isEmptyRichText(physicalExaminationOthersData) &&
+    isEmptyRichText(physicalExaminationProvisionalDiagnosisData)
+  )
+    return null;
   return (
     <>
       <CollapsibleWrapper
@@ -138,7 +159,9 @@ const PhysicalExamination = (props) => {
         icon={assessmentsIcons[sectionData?.icon]}
         collapsible={isEditable}
         width={"100%"}
-        className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
+        className={`collapsible-wrapper-class ${
+          isEditable ? "" : "collapsible-wrapper-class-readonly"
+        }`}
         defaultOpen
       >
         {renderChildren()}

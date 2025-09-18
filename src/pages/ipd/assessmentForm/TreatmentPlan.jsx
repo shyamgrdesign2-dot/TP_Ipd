@@ -4,6 +4,7 @@ import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/a
 import { defaultIcons } from "../../../assets/images/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { setTreatmentPlanData } from "../../../redux/ipd/assessmentsFormSlice";
+import { isEmptyRichText } from "../../../utils/utils";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -32,7 +33,7 @@ const TreatmentPlan = (props) => {
     });
   };
   const renderImmediateManagement = (data) => {
-    if (!isEditable && !treatmentPlanData?.immediateManagement) return null;
+    if (!isEditable && (isEmptyRichText(treatmentPlanData?.immediateManagement))) return null;
 
     return (
       <RichTextEditWrapper
@@ -40,7 +41,7 @@ const TreatmentPlan = (props) => {
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width="100%"
+        width={isEditable ? "100%": 'fit-content'}
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
         containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
@@ -76,14 +77,14 @@ const TreatmentPlan = (props) => {
     );
   };
   const renderMonitoringPlan = (data) => {
-    if (!isEditable && !treatmentPlanData?.monitoringPlan) return null;
+    if (!isEditable && (isEmptyRichText(treatmentPlanData?.monitoringPlan))) return null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width="100%"
+        width={isEditable ? "100%": 'fit-content'}
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
         containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
@@ -121,8 +122,8 @@ const TreatmentPlan = (props) => {
 
   if (
     !isEditable &&
-    !treatmentPlanData?.monitoringPlan &&
-    !treatmentPlanData?.immediateManagement
+    (isEmptyRichText(treatmentPlanData?.monitoringPlan) &&
+    isEmptyRichText(treatmentPlanData?.immediateManagement))
   )
     return null;
 

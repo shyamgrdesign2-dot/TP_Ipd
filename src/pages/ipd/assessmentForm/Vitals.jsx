@@ -84,7 +84,7 @@ const Vitals = (props) => {
   }
 
   return (
-    <div className="ipdaf-vitals-main-container">
+    <div className={`ipdaf-vitals-main-container ${!isEditable ? 'ipdaf-vitals-main-container-readonly' : ''}`}>
       <div className="ipdaf-vitals-header">
         <img src={defaultIcons[sectionData?.icon]} alt="vitals" />
         <div>{sectionData?.title}</div>

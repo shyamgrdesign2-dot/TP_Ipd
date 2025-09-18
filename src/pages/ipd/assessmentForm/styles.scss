@@ -207,6 +207,10 @@ $muted: #6f6b88;
     margin-bottom: 24px;
     box-shadow: 0px 0px 6px 0px #00000005;
     background-color: var(--backgroundColor, #fff);
+    &-readonly {
+      margin-left: 20px;
+      margin-right: 20px;
+    }
   }
   .ipd-custom-module-container {
     background-color: #fff;

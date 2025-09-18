@@ -4,6 +4,7 @@ import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/a
 import { defaultIcons } from "../../../assets/images/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { setAdditionalNotesData } from "../../../redux/ipd/assessmentsFormSlice";
+import { isEmptyRichText } from "../../../utils/utils";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -18,14 +19,14 @@ const NoteSection = (props) => {
     dispatch(setAdditionalNotesData({...additionalNotesData, [key]: data}));
   }
   const renderSpecialInstructions = (data) => {
-    if (!isEditable && !additionalNotesData?.specialInstructions) return null;
+    if (!isEditable && (isEmptyRichText(additionalNotesData?.specialInstructions))) return null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width="100%"
+        width={isEditable ? "100%": 'fit-content'}
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
         containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
@@ -57,14 +58,14 @@ const NoteSection = (props) => {
     );
   };
   const renderDischargeCriteria = (data) => {
-    if (!isEditable && !additionalNotesData?.dischargeCriteria) return null;
+    if (!isEditable && (isEmptyRichText(additionalNotesData?.dischargeCriteria))) return null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width="100%"
+        width={isEditable ? "100%": 'fit-content'}
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
         containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
@@ -107,7 +108,7 @@ const NoteSection = (props) => {
       }
     });
   };
-  if (!isEditable && (!additionalNotesData?.dischargeCriteria && !additionalNotesData?.specialInstructions)) return null;
+  if (!isEditable && (isEmptyRichText(additionalNotesData?.dischargeCriteria) && isEmptyRichText(additionalNotesData?.specialInstructions))) return null;
   return (
     <div>
       <CollapsibleWrapper

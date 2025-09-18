@@ -1228,3 +1228,7 @@ export const mergeArraysOfObjects = (
 
   return mergedArray;
 };
+
+export const isEmptyRichText = (richText) => {
+  return !richText?.length || richText?.[0]?.children?.[0]?.text === "";
+};

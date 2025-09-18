@@ -6,6 +6,7 @@ import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/a
 import { defaultIcons } from "../../../assets/images/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { setFunctionalAssessmentData } from "../../../redux/ipd/assessmentsFormSlice";
+import { isEmptyRichText } from "../../../utils/utils";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -40,7 +41,7 @@ const FunctionalAssessment = (props) => {
   };
 
   const renderOthers = (data) => {
-    if (!isEditable && !functionalAssessmentData?.others?.length) return null;
+    if (!isEditable && (isEmptyRichText(functionalAssessmentData?.others))) return null;
 
     return (
       <RichTextEditWrapper
@@ -48,7 +49,7 @@ const FunctionalAssessment = (props) => {
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width="100%"
+        width={isEditable ? "100%": 'fit-content'}
         icon={defaultIcons[data?.icon]}
         showAutoFill={false}
         containerClass={`wrapper-class ${
@@ -94,6 +95,7 @@ const FunctionalAssessment = (props) => {
 
   const renderAssessment = () => {
     if (!isEditable) {
+      if (!Object.keys(functionalAssessmentData || {})?.length) return null;
       const assessmentComponents = Object.entries(functionalAssessmentData)
         .filter(
           ([key, value]) =>
@@ -202,6 +204,7 @@ const FunctionalAssessment = (props) => {
       }
     });
   };
+  if (!isEditable && !Object.keys(functionalAssessmentData || {})?.length && isEmptyRichText(functionalAssessmentData?.others)) return null;
   return (
     <>
       <CollapsibleWrapper

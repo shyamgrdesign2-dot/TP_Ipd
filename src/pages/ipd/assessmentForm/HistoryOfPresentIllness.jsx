@@ -20,7 +20,7 @@ const HistoryOfPresentIllness = (props) => {
       showToolbar={isEditable}
       showActionBtns={isEditable}
       title={sectionData?.title}
-      width="100%"
+      width={isEditable ? "100%": 'fit-content'}
       icon={defaultIcons[sectionData?.icon]}
       showAutoFill={false}
       containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
