@@ -54,6 +54,7 @@ import {
 } from "../../../redux/prescriptionSlice";
 import { addObstetricDetails } from "../../../redux/obstetricSlice";
 import CustomModule from "../../../components/CustomModule";
+import BackConfirmationModal from "../components/BackConfirmationModal/BackConfirmationModal";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -79,7 +80,7 @@ const AssessmentsForm = (props) => {
       ? assessments
       : IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE
   );
-
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   useEffect(() => {
     if (assessments.length > 0) {
       setModelData(assessments);
@@ -327,9 +328,7 @@ const AssessmentsForm = (props) => {
                 items={modelData}
                 renderSection={renderSections}
                 onRequestClose={() => {
-                  navigate(-1);
-                  console.log('INTEL ==> CLOSE')
-                  return setOpen(false);
+                  setIsBackModalOpen(true);
                 }}
                 headerOffset={72}
                 // renderBottomSection={renderBottomSection} // TODO: INTEL - WHEN SHOWING CUSTOM MODULE - WHEN ANY NEW ADDED, ADD THEM IN CUSTOMIZATION API FOR THIS PARTICULAR USER, so that user can move the custom module too
@@ -382,6 +381,34 @@ const AssessmentsForm = (props) => {
           </Suspense>
         </Drawer>
       )}
+      <BackConfirmationModal
+        isModalOpen={isBackModalOpen}
+        onCancel={() => setIsBackModalOpen(false)}
+        onConfirm={() => {
+          if (!patientDetails?.details?.id && !patientDetails?.admissionId)  {
+            setIsBackModalOpen(false);
+            navigate(-1);
+            setOpen(false);
+          }
+          try {
+            dispatch(
+              getAssessmentsData({
+                patientId: patientDetails?.details?.id,
+                admissionId: patientDetails?.admissionId,
+              })
+            ).then((res) => {
+              addDataToStore(res.payload);
+              navigate(-1);
+              setIsBackModalOpen(false);
+              setOpen(false);
+            });
+          } catch(err) {
+            console.log('INTEL ==> err', err)
+            setIsBackModalOpen(false);
+            setOpen(false);
+          }
+        }}
+      />
     </div>
   );
 };
