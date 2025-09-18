@@ -278,6 +278,7 @@ const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, 
                                                     width: "23rem",
                                                     borderTopLeftRadius: isIPD ? 0: "10px",
                                                     borderBottomLeftRadius: isIPD ? 0 : "10px",
+                                                    borderBottom: !isIPD ? 'none' : '1px solid rgb(221, 221, 221)',
                                                     // borderRight: !isIPD ? 'none' : '1px solid #ddd',
                                                 }}
                                             >
@@ -311,6 +312,7 @@ const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, 
                                                                 textAlign: 'right', // Right align the icon for the last cell
                                                                 borderTopRightRadius: (isLastCell && !isIPD) ? "10px" : " ",
                                                                 borderBottomRightRadius: (isLastCell && !isIPD) ? "10px" : " ",
+                                                                borderBottom: !isIPD ? 'none' : '1px solid rgb(221, 221, 221)',
                                                             }}
                                                         >
                                                         </td>
@@ -368,7 +370,7 @@ const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, 
                                                                                     flexBasis: "34%",
                                                                                     borderRight: isIPD && isLastCell ? 'none' : "1px solid #ddd",
                                                                                     padding: "10px",
-                                                                                    background: "white",
+                                                                                    background: isIPD ? 'inherit' : "white",
                                                                                     fontWeight: "400",
                                                                                 }}
                                                                                 className={`${testOnDate?.arrowDirection ===

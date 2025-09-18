@@ -177,9 +177,13 @@ $muted: #6f6b88;
       background: #fbfafd !important;
       background-color: #fbfafd !important;
       box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01) !important;
-      *:not(thead):not(th):not(tr):not(td) {
+      *:not(thead):not(th):not(tr):not(td):not(th > div):not(th > div > div) {
         background: #fbfafd !important;
         background-color: #fbfafd !important;
+      }
+      th > div {
+        background: rgb(241, 241, 245) !important;
+        background-color: rgb(241, 241, 245) !important;
       }
       .ant-collapse-content,
       .ant-collapse-content-active {
