@@ -3,7 +3,7 @@ import CommonModal from '../../../../common/CommonModal';
 import alertIcon from '../../../../assets/images/alertIcon.svg';
 import { Button } from 'antd';
 
-const BackConfirmationModal = ({ isModalOpen, onCancel, onConfirm }) => {
+export default function BackConfirmationModal ({ isModalOpen, onCancel, onConfirm }) {
   return (
     <CommonModal
       isModalOpen={isModalOpen}
@@ -42,5 +42,3 @@ const BackConfirmationModal = ({ isModalOpen, onCancel, onConfirm }) => {
     />
   );
 };
-
-export default BackConfirmationModal;
