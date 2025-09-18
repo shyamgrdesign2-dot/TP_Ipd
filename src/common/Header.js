@@ -53,6 +53,10 @@ import AiSuite from "../pages/monetization/components/AiSuite";
 import MedEcoAppKnowMore from "../pages/monetization/components/MedEcoAppKnowMore";
 import { generateBillToken } from "../pages/opdBilling/service";
 
+import { EVENTS } from "../utils/events";
+import {
+  sendMessageToParent
+} from "../utils/utils";
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
 function Header({ locationPath }) {
@@ -669,6 +673,7 @@ function Header({ locationPath }) {
       localStorage.clear();
       sessionStorage.clear();
 
+      sendMessageToParent(EVENTS.LOGOUT);
       // Redirect to login page
       navigate("/login");
 
@@ -678,6 +683,7 @@ function Header({ locationPath }) {
       localStorage.clear();
       sessionStorage.clear();
 
+      sendMessageToParent(EVENTS.LOGOUT);
       // Redirect to login page
       navigate("/login");
     } finally {
