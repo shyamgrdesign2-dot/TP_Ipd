@@ -1361,6 +1361,19 @@ export const shouldAppointmentAgentDisabled = () => {
   return false;
 };
 
+export const isMunshiHospital = () => {
+  const munshiHospitalIds = config?.munshi_hospital_business_ids;
+  const munshiHospitalArray = munshiHospitalIds?.map(Number) || [];
+  const { hospital_business_id = null } = getTokenData();
+  const currentHospital = Number(hospital_business_id);
+
+  if (currentHospital && munshiHospitalArray.includes(currentHospital)) {
+    return true;
+  }
+
+  return false;
+};
+
 export const detectOperatingSystem = () => {
   const userAgent = window.navigator.userAgent;
   const platform = window.navigator.platform;

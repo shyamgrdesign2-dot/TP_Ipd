@@ -73,6 +73,7 @@ const dev = {
   tp_agent_disabled_hospital: [
     4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
   ],
+  munshi_hospital_business_ids: [749611704175237],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-uat-doctor-portal.tatvacare.in",
@@ -159,6 +160,7 @@ const qa_tp = {
   tp_agent_disabled_hospital: [
     4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
   ],
+  munshi_hospital_business_ids: [749611704175237],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
@@ -243,6 +245,7 @@ const qa = {
   tp_agent_disabled_hospital: [
     4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
   ],
+  munshi_hospital_business_ids: [749611704175237],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
@@ -330,6 +333,7 @@ const uat = {
   tp_agent_disabled_hospital: [
     4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
   ],
+  munshi_hospital_business_ids: [749611704175237],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-uat-doctor-portal.tatvacare.in",
@@ -425,6 +429,7 @@ const prod = {
     268741731506046, 549821734513388, 628451726551928, 684191731931706,
     879361730721433, 538421739782028, 136841742984591,
   ],
+  munshi_hospital_business_ids: [749611704175237],
   medeco_webview_url: "",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://tatvapractice.tatvacare.in",

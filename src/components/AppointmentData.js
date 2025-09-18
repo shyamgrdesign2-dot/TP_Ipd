@@ -41,6 +41,7 @@ import {
   shouldAppointmentAgentDisabled,
   trackEvent,
   getTokenData,
+  isMunshiHospital,
 } from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
 import {
@@ -1741,6 +1742,34 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     }
     return value;
   };
+  
+  const getConditionIndicator = (patient_condition_id) => {
+    if (!patient_condition_id) return null;
+
+    const conditionColors = {
+      1: { color: '#FF0000', name: 'HIV' },           
+      2: { color: '#800080', name: 'HbA1c' },       
+      3: { color: '#FF69B4', name: 'HBsAg' },       
+      4: { color: '#FFA500', name: 'Blood Group Negative' } 
+    };
+    const condition = conditionColors[patient_condition_id];
+    if (!condition) return null;
+
+    return (
+      <span 
+        style={{ 
+          display: 'inline-block',
+          width: '8px', 
+          height: '8px', 
+          borderRadius: '50%', 
+          backgroundColor: condition.color,
+          marginLeft: '6px',
+          verticalAlign: 'middle'
+        }}
+        title={condition.name}
+      />
+    );
+  };
 
   const columns = [
     {
@@ -1784,7 +1813,10 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
             <span className="text-primary">{record.pm_fullname}</span>
           )}
           <br />
-          <small>{genderAge(record)}</small>
+          <small>
+            {genderAge(record)}
+            {getConditionIndicator(record.patient_condition_id)}
+          </small>
         </div>
       ),
     },
@@ -1810,6 +1842,17 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
         </div>
       ),
     },
+    ...(isMunshiHospital() ? [{
+      title: "Referred By",
+      dataIndex: "dr_reference_name",
+      key: "dr_reference_name",
+      ellipsis: true,
+      render: (text, record) => (
+        <div>
+          <span>{record.dr_reference_name || "-"}</span>
+        </div>
+      ),
+    }] : []),
     {
       title: selectedTab !== TAB_ZYDUS_APPOINTMENT ? "Visit Type" : "Status",
       dataIndex:
@@ -1877,12 +1920,33 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
           return result;
         }
       },
-      render: (text, record) => (
-        <div>
-          <span className="text-lowercase">{record.apTime} </span> <br />{" "}
-          <small> {record.apDate}</small>
-        </div>
-      ),
+      render: (text, record) => {
+        const getDisplayText = () => {
+          if (!isMunshiHospital()) {
+            return null;
+          }
+          
+          if (selectedTab === TAB_QUEUE && record.arrivedTime) {
+            return `(${record.arrivedTime})`;
+          }
+          
+          if (selectedTab === TAB_FINISHED && record.durationConsultation) {
+            return `(${record.durationConsultation})`;
+          }
+          return null;
+        };
+        
+        const displayText = getDisplayText();
+        
+        return (
+          <div>
+            <span className="text-lowercase">
+              {record.apTime} {displayText}
+            </span> <br />{" "}
+            <small> {record.apDate}</small>
+          </div>
+        );
+      },
     },
     {
       title: selectedTab != TAB_ZYDUS_APPOINTMENT ? "Action" : "",
