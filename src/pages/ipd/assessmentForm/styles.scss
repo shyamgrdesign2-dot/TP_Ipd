@@ -51,7 +51,8 @@ $muted: #6f6b88;
     padding: 6px 6px 0;
     border: none !important;
   }
-  textarea.ant-input.css-dev-only-do-not-override-kbg4zp.ant-input-outlined.notesinput.border-0.h-100.align-self-center, .ant-select-selector {
+  textarea.ant-input.css-dev-only-do-not-override-kbg4zp.ant-input-outlined.notesinput.border-0.h-100.align-self-center,
+  .ant-select-selector {
     background: #fbfafd !important;
     background-color: #fbfafd !important;
   }
@@ -86,6 +87,10 @@ $muted: #6f6b88;
     .ant-collapse-content-box {
       background-color: #fff !important;
     }
+  }
+  .ipdaflr-readyonly {
+    margin-bottom: 24px;
+    margin-top: 24px;
   }
   .ipdaf-readable-renderer {
   }
@@ -172,7 +177,7 @@ $muted: #6f6b88;
       background: #fbfafd !important;
       background-color: #fbfafd !important;
       box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01) !important;
-      * {
+      *:not(thead):not(th):not(tr):not(td) {
         background: #fbfafd !important;
         background-color: #fbfafd !important;
       }
@@ -569,6 +574,7 @@ $muted: #6f6b88;
   overflow: hidden !important;
   .content-card {
     border: none !important;
+    align-items: flex-start !important;
   }
 }
 
@@ -588,4 +594,35 @@ $muted: #6f6b88;
   background: #fbfafd !important;
   box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01);
   border: none !important;
+}
+.ipd-success-msg-bar-container {
+  color: rgba(255, 255, 255, 1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
+  span {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 1) !important;
+  }
+}
+
+.ipd-custom-message {
+  .ant-message-notice-content {
+    background: rgba(23, 23, 37, 1) !important;
+    color: rgba(255, 255, 255, 1) !important;
+    border-radius: 8px !important;
+    box-shadow: 0px 4px 12px 0px rgba(185, 185, 185, 0.25) !important;
+  }
+
+  .ant-message-custom-content {
+    color: rgba(255, 255, 255, 1) !important;
+  }
 }

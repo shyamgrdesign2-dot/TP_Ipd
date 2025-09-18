@@ -74,7 +74,7 @@ const LabResults = (props) => {
       <div
         className={`ipdaf-generic-card-container ${
           labResults?.length ? "ipdaf-padding-0" : ""
-        }`}
+        } ${!isEditable ? 'ipdaflr-readyonly' : ''}`}
       >
         {labResults?.length ? (
           <LabResultsTable

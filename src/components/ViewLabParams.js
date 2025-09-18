@@ -265,6 +265,7 @@ const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, 
                                         >
                                             <td
                                                 colSpan={filteredReports.length + 1} // Span across all columns
+                                                // className='vlabp-td-collapsy-head'
                                                 style={{
                                                     position: 'sticky',
                                                     left: 0,  // Set the left position to make it stick on the left

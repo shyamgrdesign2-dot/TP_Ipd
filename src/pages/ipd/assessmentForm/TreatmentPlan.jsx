@@ -12,7 +12,6 @@ const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const TreatmentPlan = (props) => {
   const { isEditable = true, sectionData } = props || {};
   const { treatmentPlanData = {} } = useSelector((state) => state.assessment);
-  const [initialValue] = useState(treatmentPlanData || {});
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [autoFillTextToAppendMonitoringPlan, setAutoFillTextToAppendMonitoringPlan] = useState([]);
@@ -50,8 +49,8 @@ const TreatmentPlan = (props) => {
         showMicrophone={false}
         onChange={(data) => handleOthersChange(data, "immediateManagement")}
         initialValue={
-          initialValue?.immediateManagement
-            ? initialValue?.immediateManagement
+          treatmentPlanData?.immediateManagement
+            ? treatmentPlanData?.immediateManagement
             : [
                 {
                   type: "paragraph",
@@ -93,8 +92,8 @@ const TreatmentPlan = (props) => {
         showMicrophone={false}
         onChange={(data) => handleOthersChange(data, "monitoringPlan")}
         initialValue={
-          initialValue?.monitoringPlan
-            ? initialValue?.monitoringPlan
+          treatmentPlanData?.monitoringPlan
+            ? treatmentPlanData?.monitoringPlan
             : [
                 {
                   type: "paragraph",

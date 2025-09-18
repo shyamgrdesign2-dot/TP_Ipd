@@ -10,6 +10,7 @@ import PhysicalExamination from "./PhysicalExamination";
 import FunctionalAssessment from "./FunctionalAssessment";
 import TreatmentPlan from "./TreatmentPlan";
 import NoteSection from "./NoteSection";
+import saveIcon from "../../../assets/images/save.svg";
 import {
   getAssessmentsData,
   getLastPrescriptionDate,
@@ -217,7 +218,10 @@ const AssessmentsForm = (props) => {
         labResults: assessmentData.labResults || [],
         pastMedicalHistory: prescriptionData.medicalHistoryData || {},
         gyneacHistory: assessmentData.gynecHistoryData || {},
-        obstetricHistory: Array.isArray(allObstetricDetails) && !allObstetricDetails.length ? {} : allObstetricDetails || {},
+        obstetricHistory:
+          Array.isArray(allObstetricDetails) && !allObstetricDetails.length
+            ? {}
+            : allObstetricDetails || {},
       },
       physicalExamination: {
         vitals: assessmentData.vitalsData || {},
@@ -270,6 +274,17 @@ const AssessmentsForm = (props) => {
           patientDetails,
         },
         replace: true,
+      });
+      message.success({
+        content: (
+          <div className="ipd-success-msg-bar-container">
+            <span>Admission Assessment Form Saved Successfully</span>
+          </div>
+        ),
+        duration: 3,
+        type: "success",
+        icon: <img src={saveIcon} alt="x" />,
+        className: "ipd-custom-message",
       });
     });
   };
@@ -385,7 +400,7 @@ const AssessmentsForm = (props) => {
         isModalOpen={isBackModalOpen}
         onCancel={() => setIsBackModalOpen(false)}
         onConfirm={() => {
-          if (!patientDetails?.details?.id && !patientDetails?.admissionId)  {
+          if (!patientDetails?.details?.id && !patientDetails?.admissionId) {
             setIsBackModalOpen(false);
             navigate(-1);
             setOpen(false);
@@ -402,8 +417,8 @@ const AssessmentsForm = (props) => {
               setIsBackModalOpen(false);
               setOpen(false);
             });
-          } catch(err) {
-            console.log('INTEL ==> err', err)
+          } catch (err) {
+            console.log("INTEL ==> err", err);
             setIsBackModalOpen(false);
             setOpen(false);
           }

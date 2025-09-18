@@ -3,6 +3,7 @@ import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { setHistoryOfPresentIllness } from "../../../redux/ipd/assessmentsFormSlice";
+import { isEmptyRichText } from "../../../utils/utils";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -12,7 +13,7 @@ const HistoryOfPresentIllness = (props) => {
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const { historyOfPresentIllness } = useSelector((state) => state.assessment);
 
-  if (!isEditable && !historyOfPresentIllness?.length) return null;
+  if (!isEditable && isEmptyRichText(historyOfPresentIllness)) return null;
 
   return (
     <RichTextEditWrapper

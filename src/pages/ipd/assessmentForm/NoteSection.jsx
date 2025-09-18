@@ -13,7 +13,6 @@ const NoteSection = (props) => {
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [autoFillTextToAppendDischargeCriteria, setAutoFillTextToAppendDischargeCriteria] = useState([]);
   const { additionalNotesData = {} } = useSelector((state) => state.assessment);
-  const [initialValue] = useState(additionalNotesData || {});
   const dispatch = useDispatch();
   const handleOthersChange = (data, key) => {
     dispatch(setAdditionalNotesData({...additionalNotesData, [key]: data}));
@@ -22,6 +21,7 @@ const NoteSection = (props) => {
     if (!isEditable && (isEmptyRichText(additionalNotesData?.specialInstructions))) return null;
     return (
       <RichTextEditWrapper
+        key={data?.title}
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
@@ -34,7 +34,7 @@ const NoteSection = (props) => {
         showMagicPenGif={false}
         showMicrophone={false}
         onChange={(data) => handleOthersChange(data, 'specialInstructions')}
-        initialValue={initialValue?.specialInstructions ? initialValue?.specialInstructions : [
+        initialValue={additionalNotesData?.specialInstructions ? additionalNotesData?.specialInstructions : [
           {
             type: "paragraph",
             children: [{ text: "" }],
@@ -63,6 +63,7 @@ const NoteSection = (props) => {
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
+        key={data?.title}
         showActionBtns={isEditable}
         title={data?.title}
         width={isEditable ? "100%": 'fit-content'}
@@ -73,7 +74,7 @@ const NoteSection = (props) => {
         showMagicPenGif={false}
         showMicrophone={false}
         onChange={(data) => handleOthersChange(data, 'dischargeCriteria')}
-        initialValue={initialValue?.dischargeCriteria ? initialValue?.dischargeCriteria : [
+        initialValue={additionalNotesData?.dischargeCriteria ? additionalNotesData?.dischargeCriteria : [
           {
             type: "paragraph",
             children: [{ text: "" }],

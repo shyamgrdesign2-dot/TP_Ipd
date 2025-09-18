@@ -15,7 +15,6 @@ const FunctionalAssessment = (props) => {
     (state) => state.assessment
   );
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
-  const [initialValue] = useState(functionalAssessmentData?.others || []);
   const dispatch = useDispatch();
   const handleOthersChange = (data) => {
     dispatch(
@@ -59,8 +58,8 @@ const FunctionalAssessment = (props) => {
         showMagicPenGif={false}
         showMicrophone={false}
         initialValue={
-          initialValue.length
-            ? initialValue
+          functionalAssessmentData?.others?.length
+            ? functionalAssessmentData?.others
             : [
                 {
                   type: "paragraph",
@@ -95,7 +94,7 @@ const FunctionalAssessment = (props) => {
 
   const renderAssessment = () => {
     if (!isEditable) {
-      if (!Object.keys(functionalAssessmentData || {})?.length) return null;
+      if (!Object.keys(functionalAssessmentData)?.length || Object.keys(functionalAssessmentData)?.length === 1 && !!functionalAssessmentData.others) return null;
       const assessmentComponents = Object.entries(functionalAssessmentData)
         .filter(
           ([key, value]) =>
@@ -204,7 +203,7 @@ const FunctionalAssessment = (props) => {
       }
     });
   };
-  if (!isEditable && !Object.keys(functionalAssessmentData || {})?.length && isEmptyRichText(functionalAssessmentData?.others)) return null;
+  if (!isEditable && !Object.keys(functionalAssessmentData)?.length || Object.keys(functionalAssessmentData)?.length === 1 && !!functionalAssessmentData.others && isEmptyRichText(functionalAssessmentData?.others)) return null;
   return (
     <>
       <CollapsibleWrapper
