@@ -216,8 +216,7 @@ const AssessmentsForm = (props) => {
         labResults: assessmentData.labResults || [],
         pastMedicalHistory: prescriptionData.medicalHistoryData || {},
         gyneacHistory: assessmentData.gynecHistoryData || {},
-        // obstetricHistory: allObstetricDetails || {},
-        obstetricHistory: [],
+        obstetricHistory: Array.isArray(allObstetricDetails) && !allObstetricDetails.length ? {} : allObstetricDetails || {},
       },
       physicalExamination: {
         vitals: assessmentData.vitalsData || {},
