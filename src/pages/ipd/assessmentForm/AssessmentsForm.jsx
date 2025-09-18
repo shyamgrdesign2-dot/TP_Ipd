@@ -54,7 +54,7 @@ import {
 } from "../../../redux/prescriptionSlice";
 import { addObstetricDetails } from "../../../redux/obstetricSlice";
 import CustomModule from "../../../components/CustomModule";
-import BackConfirmationModal from "../components/BackConfirmationModal/BackConfirmationModal";
+import BackConfirmationModal from "../components/BackConfirmationModal/BackConfirmationModal.jsx";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
