@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/assessments";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
 import { useDispatch, useSelector } from "react-redux";
 import { setAdditionalNotesData } from "../../../redux/ipd/assessmentsFormSlice";
 import { isEmptyRichText } from "../../../utils/utils";
@@ -27,7 +26,7 @@ const NoteSection = (props) => {
         showActionBtns={isEditable}
         title={data?.title}
         width={isEditable ? "100%": 'fit-content'}
-        icon={defaultIcons[data?.icon]}
+        icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
         containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         opdDate="15 Jun 2025"
@@ -67,7 +66,7 @@ const NoteSection = (props) => {
         showActionBtns={isEditable}
         title={data?.title}
         width={isEditable ? "100%": 'fit-content'}
-        icon={defaultIcons[data?.icon]}
+        icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
         containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         opdDate="15 Jun 2025"
@@ -114,7 +113,7 @@ const NoteSection = (props) => {
     <div>
       <CollapsibleWrapper
         title={sectionData?.title}
-        icon={assessmentsIcons[sectionData?.icon]}
+        icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
         collapsible={isEditable}
         width={"100%"}
         className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}

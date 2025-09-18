@@ -59,6 +59,7 @@ import BackConfirmationModal from "../../../components/BackConfirmationModal";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
+const FilledByCard = createRemoteComponent("FilledByCard");
 
 const AssessmentsForm = (props) => {
   const dispatch = useDispatch();
@@ -119,7 +120,9 @@ const AssessmentsForm = (props) => {
           data?.physicalExamination?.examination || {}
         )
       );
-      dispatch(setFunctionalAssessmentData(data?.functionalAssessment || {}));
+      const functionalAssessmentWithoutReferredDoc = { ...data?.functionalAssessment };
+      delete functionalAssessmentWithoutReferredDoc.referredToPhysiotherapyForReview;
+      dispatch(setFunctionalAssessmentData(functionalAssessmentWithoutReferredDoc || {}));
       dispatch(setTreatmentPlanData(data?.treatmentPlan || {}));
       dispatch(setAdditionalNotesData(data?.additionalNotes || {}));
       dispatch(
@@ -142,7 +145,7 @@ const AssessmentsForm = (props) => {
           admissionId: patientDetails?.admissionId,
         })
       ).then((res) => {
-        addDataToStore(res.payload);
+        addDataToStore(res.payload.assessment);
       });
     }
     dispatch(getCustomization());
@@ -239,7 +242,7 @@ const AssessmentsForm = (props) => {
         provisionalDiagnosis:
           assessmentData.physicalExaminationProvisionalDiagnosisData || [],
       },
-      functionalAssessment: assessmentData.functionalAssessmentData || [],
+      functionalAssessment: {...assessmentData.functionalAssessmentData, referredToPhysiotherapyForReview: assessmentData?.referredDocForReview || {}} || {},
       treatmentPlan: assessmentData.treatmentPlanData || [],
       additionalNotes: assessmentData.additionalNotesData || [],
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
@@ -310,6 +313,12 @@ const AssessmentsForm = (props) => {
         }`}
         style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
       >
+        <FilledByCard
+          filledBy={assessmentData.assessmentsFilledByData?.createdByName || ""}
+          role={assessmentData.assessmentsFilledByData?.createdByRole || ""}
+          showFilledOnDate={true}
+          selectedDate={assessmentData.assessmentsFilledByData?.createdAt || ""}
+        />
         {assessments.length > 0
           ? assessments.map((item) => {
               return renderSections(item);
@@ -412,7 +421,7 @@ const AssessmentsForm = (props) => {
                 admissionId: patientDetails?.admissionId,
               })
             ).then((res) => {
-              addDataToStore(res.payload);
+              addDataToStore(res.payload.assessment);
               navigate(-1);
               setIsBackModalOpen(false);
               setOpen(false);

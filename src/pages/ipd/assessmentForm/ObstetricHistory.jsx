@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
 import { Drawer } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import Obstetric from "../../obstetric/Obstetric";
@@ -101,7 +102,7 @@ const ObstetricHistory = (props) => {
         title={sectionData?.title}
         width="100%"
         containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
-        icon={defaultIcons[sectionData?.icon]}
+        icon={assessmentsIcons[`${sectionData?.id}Pc`]}
         showAutoFill={isEditable}
         opdDate="15 Jun 2025"
         onAutoFill={() => {

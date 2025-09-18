@@ -1,19 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { IPD } from "../../../utils/locale";
-import { ConfigProvider, Radio } from "antd";
-import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/assessments";
-import { defaultIcons } from "../../../assets/images/icons";
+import { ConfigProvider, Radio, Select } from "antd";
+import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
 import { useDispatch, useSelector } from "react-redux";
-import { setFunctionalAssessmentData } from "../../../redux/ipd/assessmentsFormSlice";
+import {
+  setFunctionalAssessmentData,
+  setReferredDocForReview,
+} from "../../../redux/ipd/assessmentsFormSlice";
 import { isEmptyRichText } from "../../../utils/utils";
+import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const FunctionalAssessment = (props) => {
-  const { functionalAssessmentData = [] } = useSelector(
+  const { referredDocForReview, functionalAssessmentData = [] } = useSelector(
     (state) => state.assessment
   );
+  const { filters } = useSelector((state) => state.inPatients);
+  const doctorsList = filters?.doctor || [];
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const dispatch = useDispatch();
   const handleOthersChange = (data) => {
@@ -25,7 +30,6 @@ const FunctionalAssessment = (props) => {
   const [assessmentValue, setAssessmentValue] = useState({});
 
   const handleAssessmentChange = (key, e, item) => {
-    console.log("INTEL ==> KEY", key, e, item);
     const selectedOption = item.options.find(
       (option) => option.value === e.target.value
     );
@@ -39,8 +43,13 @@ const FunctionalAssessment = (props) => {
     );
   };
 
+  useEffect(() => {
+    dispatch(fetchFilters({ field: "doctor" }));
+  }, []);
+
   const renderOthers = (data) => {
-    if (!isEditable && (isEmptyRichText(functionalAssessmentData?.others))) return null;
+    if (!isEditable && isEmptyRichText(functionalAssessmentData?.others))
+      return null;
 
     return (
       <RichTextEditWrapper
@@ -48,8 +57,8 @@ const FunctionalAssessment = (props) => {
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width={isEditable ? "100%": 'fit-content'}
-        icon={defaultIcons[data?.icon]}
+        width={isEditable ? "100%" : "fit-content"}
+        icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
         containerClass={`wrapper-class ${
           !isEditable ? "ipd-wrapper-class-readonly" : ""
@@ -94,7 +103,12 @@ const FunctionalAssessment = (props) => {
 
   const renderAssessment = () => {
     if (!isEditable) {
-      if (!Object.keys(functionalAssessmentData)?.length || Object.keys(functionalAssessmentData)?.length === 1 && !!functionalAssessmentData.others) return null;
+      if (
+        !Object.keys(functionalAssessmentData)?.length ||
+        (Object.keys(functionalAssessmentData)?.length === 1 &&
+          !!functionalAssessmentData.others)
+      )
+        return null;
       const assessmentComponents = Object.entries(functionalAssessmentData)
         .filter(
           ([key, value]) =>
@@ -123,7 +137,7 @@ const FunctionalAssessment = (props) => {
           showActionBtns={false}
           title={"Basic"}
           width="100%"
-          icon={defaultIcons.medication}
+          icon={assessmentsIcons[`${sectionData?.id}Pc`]}
           showAutoFill={false}
           containerClass={`ipd-fn-as-readonly`}
           showMagicPenGif={false}
@@ -171,11 +185,61 @@ const FunctionalAssessment = (props) => {
       </div>
     );
   };
+  const renderSelectDoctor = (data) => {
+    const options = (doctorsList || []).map((item) => ({
+      key: JSON.stringify(item),
+      value: item.name,
+      label: <div key={item.id}>{item.name}</div>,
+    }));
+    return (
+      <div className="ipd-fas-refphy-container">
+        <div className="refphy-label-container">
+          <img src={assessmentsIcons[`${data?.id}Pc`]} alt="x" />
+          <label className="refphy-label">{data.title}</label>
+        </div>
+        <Select
+          showSearch
+          optionLabelProp="label"
+          options={options}
+          value={referredDocForReview?.name}
+          className="autocomplete-custom w-100 popinput inputheight41"
+          placeholder={`Select Physiotherapist`}
+          onSearch={(q) =>
+            dispatch(fetchFilters({ field: "doctor", search: q }))
+          }
+          allowClear
+          onChange={(value, option) => {
+            if (value === undefined || value === null) {
+              dispatch(setReferredDocForReview(null));
+              return;
+            }
+            try {
+              const parsed = option?.key ? JSON.parse(option.key) : null;
+              dispatch(setReferredDocForReview(parsed));
+            } catch (err) {
+              console.log("ERR in Referred To Physiotherapy", err);
+            }
+          }}
+        />
+      </div>
+    );
+  };
   const renderReferredToPhysiotherapy = (data) => {
-    if (!isEditable) return null; // TODO: INTEL - REFERRED PHYSIO PENDING
+    if (!isEditable && !referredDocForReview) return null;
+    if (!isEditable) {
+      return (
+        <div className="ipd-fas-refphy-container rich-text-editor-wrapper wrapper-class ipd-wrapper-class-readonly">
+          <div className="refphy-label-container">
+            <img src={assessmentsIcons[`${data?.id}Pc`]} alt="x" />
+            <label className="refphy-label">{data.title}</label>
+          </div>
+          <div className="referred-to-physiotherapy-name">{referredDocForReview?.name}</div>
+        </div>
+      );
+    }
     return (
       <div className="referred-to-physiotherapy-container">
-        hii there referred doc
+        {renderSelectDoctor(data)}
       </div>
     );
   };
@@ -203,12 +267,26 @@ const FunctionalAssessment = (props) => {
       }
     });
   };
-  if (!isEditable && !Object.keys(functionalAssessmentData)?.length || Object.keys(functionalAssessmentData)?.length === 1 && !!functionalAssessmentData.others && isEmptyRichText(functionalAssessmentData?.others)) return null;
+  const functionalAssessmentDataOnlyBasics = useMemo(() => {
+    const filtered = { ...functionalAssessmentData };
+    delete filtered.others;
+    return filtered;
+  }, [functionalAssessmentData]);
+
+  if (
+    !isEditable &&
+    (!Object.keys(functionalAssessmentData)?.length ||
+      (Object.keys(functionalAssessmentData)?.length === 1 &&
+        !!functionalAssessmentData.others)) &&
+    !referredDocForReview &&
+    isEmptyRichText(functionalAssessmentData?.others)
+  )
+    return null;
   return (
     <>
       <CollapsibleWrapper
         title={sectionData?.title}
-        icon={assessmentsIcons[sectionData?.icon]}
+        icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
         collapsible={isEditable}
         width={"100%"}
         className={`collapsible-wrapper-class ${

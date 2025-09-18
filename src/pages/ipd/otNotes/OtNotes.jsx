@@ -72,20 +72,26 @@ const OtNotes = (props) => {
   };
 
   const renderSections = (data) => {
-    switch (data?.id) {
-      case "surgeryDetails":
-        return <SurgeryDetails {...props} sectionData={data} />;
-      case "surgeryTeam":
-        return <SurgeryTeam {...props} sectionData={data} />;
-      case "operativeNotes":
-        return <OperativeNotes {...props} sectionData={data} />;
-      case "intraOperativeNotes":
-        return <IntraOperativeNotes {...props} sectionData={data} />;
-      case "postOperativeNotes":
-        return <PostOperativeNotes {...props} sectionData={data} />;
-      default:
-        return null;
-    }
+    return (
+      <div className="ipd-otnotes-editable-section-container">
+        {(() => {
+          switch (data?.id) {
+            case "surgeryDetails":
+              return <SurgeryDetails {...props} sectionData={data} />;
+            case "surgeryTeam":
+              return <SurgeryTeam {...props} sectionData={data} />;
+            case "operativeNotes":
+              return <OperativeNotes {...props} sectionData={data} />;
+            case "intraOperativeNotes":
+              return <IntraOperativeNotes {...props} sectionData={data} />;
+            case "postOperativeNotes":
+              return <PostOperativeNotes {...props} sectionData={data} />;
+            default:
+              return null;
+          }
+        })()}
+      </div>
+    );
   };
 
   const handleSaveCustomization = () => {
@@ -169,15 +175,20 @@ const OtNotes = (props) => {
   const renderHeaderSection = () => {
     return (
       <div className="ipd-filled-by-card-container">
-        <FilledByCard  filledBy='John Doe' role='Doctor' selectedTimePeriod='Morning' editable={true} />
+        <FilledByCard
+          filledBy="John Doe"
+          role="Doctor"
+          selectedTimePeriod="Morning"
+          editable={true}
+        />
       </div>
-    )
-  }
+    );
+  };
 
   const renderAllSections = () => {
     return (
       <div
-        className={`ipd-generic-form-container ${
+        className={`ipd-generic-form-container ipd-otnotes-form-container ${
           !isEditable ? "ipd-assessments-readable-container" : ""
         }`}
         style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
@@ -192,8 +203,8 @@ const OtNotes = (props) => {
   };
 
   const onMenuItemClick = (activeId) => {
-    console.log('INTEL ==> activeId', activeId)
-  }
+    console.log("INTEL ==> activeId", activeId);
+  };
 
   return (
     <div className="afipd-otnotes-form-container">

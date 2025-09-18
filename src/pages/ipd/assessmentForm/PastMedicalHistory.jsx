@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
 import { useSelector, useDispatch } from "react-redux";
 import MedicalHistoryList from "../../../components/MedicalHistoryList";
 import MedicalHistoryBox from "../../../components/MedicalHistoryBox";
@@ -99,7 +100,7 @@ const PastMedicalHistory = (props) => {
         title={sectionData?.title || "Past Medical History"}
         width="100%"
         containerClass="wrapper-class ipd-pmh-wrapper-class"
-        icon={defaultIcons[sectionData?.icon]}
+        icon={assessmentsIcons[`${sectionData?.id}Pc`]}
         showAutoFill={isEditable}
         opdDate="15 Jun 2025"
         onAutoFill={() => {

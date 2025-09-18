@@ -188,7 +188,9 @@ const IPDPatientDetails = () => {
       );
 
       // Functional Assessment Data
-      dispatch(setFunctionalAssessmentData(data?.functionalAssessment || {}));
+      const functionalAssessmentWithoutReferredDoc = { ...data?.functionalAssessment };
+      delete functionalAssessmentWithoutReferredDoc.referredToPhysiotherapyForReview;
+      dispatch(setFunctionalAssessmentData(functionalAssessmentWithoutReferredDoc || {}));
 
       // Treatment Plan Data
       dispatch(setTreatmentPlanData(data?.treatmentPlan || {}));
@@ -199,7 +201,7 @@ const IPDPatientDetails = () => {
       // Referred Doc For Review
       dispatch(
         setReferredDocForReview(
-          data?.functionalAssessment?.referredToPhysiotherapyForReview || null
+          data?.functionalAssessment?.referredToPhysiotherapyForReview || {}
         )
       );
     }
@@ -210,7 +212,7 @@ const IPDPatientDetails = () => {
 
     if (activeMenuItem === "assessment") {
       dispatch(getAssessmentsData({ patientId, admissionId })).then((res) => {
-        addDataToStore(res.payload);
+        addDataToStore(res.payload.assessment);
       });
     } else if (activeMenuItem === "consultantNotes") {
       dispatch(getConsultantNotes({ patientId, admissionId })).catch(
@@ -245,7 +247,7 @@ const IPDPatientDetails = () => {
   };
 
   const isDataPresent = useMemo(() => {
-    if (activeMenuItem === "assessment") {
+    if (activeMenuItem === "assessment" && !!assessmentsData) {
       return Object.keys(assessmentsData)?.length > 0;
     } else if (activeMenuItem === "otNotes") {
       return Object.keys(otNotesData)?.length > 0;

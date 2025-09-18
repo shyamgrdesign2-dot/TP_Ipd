@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
 import { useDispatch, useSelector } from "react-redux";
 import { setHistoryOfPresentIllness } from "../../../redux/ipd/assessmentsFormSlice";
 import { isEmptyRichText } from "../../../utils/utils";
@@ -22,7 +22,7 @@ const HistoryOfPresentIllness = (props) => {
       showActionBtns={isEditable}
       title={sectionData?.title}
       width={isEditable ? "100%": 'fit-content'}
-      icon={defaultIcons[sectionData?.icon]}
+      icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={false}
       containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
       opdDate="15 Jun 2025"

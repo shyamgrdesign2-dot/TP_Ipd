@@ -52,9 +52,10 @@ const SurgeryDetails = (props) => {
         <Select
           showSearch
           optionLabelProp="label"
+          mode="multiple"
           options={options}
           value={initialValue?.surgeryProcedureName || undefined}
-          className="autocomplete-custom w-100 popinput inputheight41"
+          className="multiple-select-custom autocomplete-custom w-100 popinput inputheight41"
           placeholder="Search and select Surgery/Procedure"
           onSearch={(q) => dispatch(searchSurgeryProcedures(q))}
           allowClear

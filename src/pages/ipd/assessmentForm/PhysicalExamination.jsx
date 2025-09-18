@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import ExaminationSection from "./ExaminationSection";
 import Vitals from "./Vitals";
-import { defaultIcons } from "../../../assets/images/icons";
-import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/assessments";
+import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
 import {
   setPhysicalExaminationOthersData,
   setPhysicalExaminationProvisionalDiagnosisData,
@@ -45,7 +44,7 @@ const PhysicalExamination = (props) => {
         showActionBtns={isEditable}
         title={data?.title}
         width={isEditable ? "100%" : "fit-content"}
-        icon={defaultIcons[data?.icon]}
+        icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
         containerClass={`wrapper-class ${
           !isEditable ? "ipd-wrapper-class-readonly" : ""
@@ -92,7 +91,7 @@ const PhysicalExamination = (props) => {
         showActionBtns={isEditable}
         title={data?.title}
         width={isEditable ? "100%" : "fit-content"}
-        icon={defaultIcons[data?.icon]}
+        icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
         containerClass={`wrapper-class ${
           !isEditable ? "ipd-wrapper-class-readonly" : ""
@@ -156,7 +155,7 @@ const PhysicalExamination = (props) => {
     <>
       <CollapsibleWrapper
         title={sectionData?.title}
-        icon={assessmentsIcons[sectionData?.icon]}
+        icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
         collapsible={isEditable}
         width={"100%"}
         className={`collapsible-wrapper-class ${

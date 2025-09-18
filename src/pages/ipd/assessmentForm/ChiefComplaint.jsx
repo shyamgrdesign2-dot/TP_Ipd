@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
 import { useDispatch, useSelector } from "react-redux";
 import { setChiefComplaint } from "../../../redux/ipd/assessmentsFormSlice";
 import {
@@ -99,7 +99,7 @@ const ChiefComplaint = (props) => {
       placeholder={
         "Enter chief complaint like patient’s main symptoms or presenting problem"
       }
-      icon={defaultIcons[sectionData?.icon]}
+      icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={isEditable && isLastChiefComplaintPresent}
       containerClass={`wrapper-class ${
         !isEditable ? "ipd-wrapper-class-readonly" : ""

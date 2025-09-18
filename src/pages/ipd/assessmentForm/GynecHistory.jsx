@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
 import { useSelector, useDispatch } from "react-redux";
 import GynecHistoryList from "../../../components/GynecHistoryList";
 import { isMobile } from "react-device-detect";
@@ -78,7 +79,7 @@ const GynecHistory = (props) => {
         title={sectionData?.title}
         width="100%"
         containerClass="wrapper-class ipd-gynec-history-wrapper"
-        icon={defaultIcons[sectionData?.icon]}
+        icon={assessmentsIcons[`${sectionData?.id}Pc`]}
         showAutoFill={isEditable}
         opdDate="15 Jun 2025"
         onAutoFill={() => {

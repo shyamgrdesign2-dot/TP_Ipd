@@ -1,7 +1,7 @@
 import React from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { Radio } from "antd";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { setPhysicalExaminationBasicData } from "../../../redux/ipd/assessmentsFormSlice";
@@ -131,7 +131,7 @@ const ExaminationSection = (props) => {
       showActionBtns={false}
       title={sectionData?.title}
       width="100%"
-      icon={defaultIcons[sectionData?.icon]}
+      icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={false}
       showMagicPenGif={false}
       showMicrophone={false}

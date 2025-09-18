@@ -1,7 +1,7 @@
 import React from "react";
 import { IPD } from "../../../utils/locale";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
 import { setVitalsData } from "../../../redux/ipd/assessmentsFormSlice";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -86,7 +86,7 @@ const Vitals = (props) => {
   return (
     <div className={`ipdaf-vitals-main-container ${!isEditable ? 'ipdaf-vitals-main-container-readonly' : ''}`}>
       <div className="ipdaf-vitals-header">
-        <img src={defaultIcons[sectionData?.icon]} alt="vitals" />
+        <img src={defaultIcons[`${sectionData?.id}Pc`]} alt="vitals" />
         <div>{sectionData?.title}</div>
       </div>
       {isEditable ? renderEditableVitals() : renderReadOnlyVitals()}

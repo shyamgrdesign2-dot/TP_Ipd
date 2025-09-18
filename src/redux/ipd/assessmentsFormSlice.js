@@ -3,6 +3,7 @@ import ApiAssessment from "../../api/services/ipd/ApiAssessment";
 
 const initialState = {
   assessmentsData: {},
+  assessmentsFilledByData: {},
   lastPrescriptionDate: null,
   lastPrescriptionDataForAssessment: {},
   loading: false,
@@ -26,8 +27,8 @@ export const getAssessmentsData = createAsyncThunk(
     try {
       let result = {};
       result = await ApiAssessment.getAssessmentsData(data);
-      if (result?.assessment) {
-        return result?.assessment;
+      if (!result.error) {
+        return result;
       } else {
         throw Error(result.error);
       }
@@ -158,10 +159,15 @@ const assessmentSlice = createSlice({
       })
       .addCase(getAssessmentsData.fulfilled, (state, action) => {
         state.loading = false;
-        state.assessmentsData = action.payload;
+        state.assessmentsData = action.payload.assessment;
+        state.assessmentsFilledByData = {
+          ...action.payload,
+          assessment: undefined
+        };
       })
       .addCase(getAssessmentsData.rejected, (state, action) => {
         state.assessmentsData = {};
+        state.assessmentsFilledByData = {};
         state.loading = false;
       })
       .addCase(addAssessmentsData.pending, (state) => {
