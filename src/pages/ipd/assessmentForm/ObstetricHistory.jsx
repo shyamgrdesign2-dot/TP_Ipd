@@ -50,7 +50,7 @@ const ObstetricHistory = (props) => {
             dispatch(addObstetricDetails(deepMergePreserveFirst(allObstetricDetails, lastObstetricDetails)));
           }
         }}
-        title={`Autofill Obstetric History Details From OPD (${formatDateToShortMonthYear(
+        title={`Autofill From OPD (${formatDateToShortMonthYear(
           lastRxDate
         )})`}
       />

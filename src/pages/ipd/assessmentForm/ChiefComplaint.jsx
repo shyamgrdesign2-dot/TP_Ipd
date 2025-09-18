@@ -71,7 +71,7 @@ const ChiefComplaint = (props) => {
         typeof chiefComplaintFromLastPrescription === "string" &&
         !!chiefComplaintFromLastPrescription) ||
       (Array.isArray(chiefComplaintFromLastPrescription) &&
-        !!chiefComplaintFromLastPrescription?.[0]?.children?.[0]?.text)
+        !!chiefComplaintFromLastPrescription?.[0]?.children?.[0]?.text) || Array.isArray(chiefComplaintFromLastPrescription) && !!chiefComplaintFromLastPrescription?.[0]?.title
     );
   }, [chiefComplaint, chiefComplaintFromLastPrescription]);
 

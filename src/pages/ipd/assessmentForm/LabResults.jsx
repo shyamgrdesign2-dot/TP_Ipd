@@ -62,7 +62,7 @@ const LabResults = (props) => {
             dispatch(setLabResults([...labResults, ...results]));
           }
         }}
-        title={`Autofill Lab Results Details From OPD (${formatDateToShortMonthYear(
+        title={`Autofill From OPD (${formatDateToShortMonthYear(
           modifiedAt || createdAt || date
         )})`}
       />

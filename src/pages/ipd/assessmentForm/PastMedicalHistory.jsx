@@ -50,7 +50,7 @@ const PastMedicalHistory = (props) => {
             dispatch(setMedicalHistoryData(mergeArraysOfObjects(lastPastMedicalHistory, medicalHistoryData)));
           }
         }}
-        title={`Autofill Past Medical History Details From OPD (${formatDateToShortMonthYear(
+        title={`Autofill From OPD (${formatDateToShortMonthYear(
           lastRxDate
         )})`}
       />
