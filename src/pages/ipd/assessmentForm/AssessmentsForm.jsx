@@ -151,7 +151,7 @@ const AssessmentsForm = (props) => {
         if (res.payload) {
           dispatch(
             lastPrescriptionData({
-              patientId: patientDetails?.details?.id,
+              patientId: patientDetails?.patientUniqueId,
               caseId: res.payload?.caseId,
             })
           );
