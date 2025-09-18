@@ -1,6 +1,6 @@
 import React from 'react';
-import CommonModal from '../../../../common/CommonModal';
-import alertIcon from '../../../../assets/images/alertIcon.svg';
+import CommonModal from '../common/CommonModal';
+import alertIcon from '../assets/images/alertIcon.svg';
 import { Button } from 'antd';
 
 export default function BackConfirmationModal ({ isModalOpen, onCancel, onConfirm }) {
