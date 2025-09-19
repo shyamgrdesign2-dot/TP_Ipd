@@ -99,6 +99,7 @@ import SurgicalBox from "../components/SurgicalBox";
 import AddCustomModule from "../components/AddCustomModule";
 import CustomModule from "../components/CustomModule";
 import CarePlanDropdown from "../components/CarePlanDropdown";
+import CarePlanList from "../components/CarePlanList";
 import { getCarePlanNames, getCarePlanAssignments } from "./smartSync/services/carePlanService";
 
 import TatvaAiKnowMore from "../components/TatvaAiKnowMore";
@@ -1400,17 +1401,33 @@ function Prescription() {
           key="care-plan"
           className="prescription-box-sm p-14"
         >
-          <CarePlanDropdown 
-            onCarePlanSelect={(plan) => {
-              console.log('Selected care plan:', plan);
-              setSelectedCarePlan(plan);
-            }}
-            selectedCarePlan={selectedCarePlan}
-            patientId={patient_data?.patient_unique_id}
-            doctorId={userId}
-            clinicId={decodedToken?.result?.clinic_id}
-            placeholder={carePlanPlaceholder}
-          />
+          {/* Care Plan List - Show assigned care plans above dropdown ONLY for Repeat Rx */}
+          {send_path === "repeat_rx" && (
+            <CarePlanList
+              patientId={patient_data?.patient_unique_id}
+              selectedTcmId={tcmId}
+              readOnly={true}
+              title="Assigned Care Plans"
+              onCarePlanSelect={(plan) => {
+                console.log('Selected care plan from list:', plan);
+                setSelectedCarePlan(plan);
+              }}
+            />
+          )}
+          
+          <div className={send_path === "repeat_rx" ? "mt-3" : ""}>
+            <CarePlanDropdown 
+              onCarePlanSelect={(plan) => {
+                console.log('Selected care plan:', plan);
+                setSelectedCarePlan(plan);
+              }}
+              selectedCarePlan={selectedCarePlan}
+              patientId={patient_data?.patient_unique_id}
+              doctorId={userId}
+              clinicId={decodedToken?.result?.clinic_id}
+              placeholder={carePlanPlaceholder}
+            />
+          </div>
         </div>
       );
     }

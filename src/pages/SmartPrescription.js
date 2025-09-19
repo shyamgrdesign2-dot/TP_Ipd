@@ -3389,18 +3389,18 @@ function SmartPrescription() {
               </div>
               {isCarePlanEnabled && (
                 <div className="prescription-box-sm p-14">
-                  <CarePlanDropdown 
-                    onCarePlanSelect={(plan) => {
-                      console.log('Selected care plan:', plan);
-                      setSelectedCarePlan(plan);
-                    }}
-                    selectedCarePlan={selectedCarePlan}
-                    patientId={patient_data?.patient_unique_id}
-                    doctorId={userId}
-                    clinicId={decodedToken?.result?.clinic_id}
-                    placeholder={carePlanPlaceholder}
-                  />
-                </div>
+                    <CarePlanDropdown 
+                      onCarePlanSelect={(plan) => {
+                        console.log('Selected care plan:', plan);
+                        setSelectedCarePlan(plan);
+                      }}
+                      selectedCarePlan={selectedCarePlan}
+                      patientId={patient_data?.patient_unique_id}
+                      doctorId={userId}
+                      clinicId={decodedToken?.result?.clinic_id}
+                      placeholder={carePlanPlaceholder}
+                    />
+                  </div>
               )}
             </div>
             <div

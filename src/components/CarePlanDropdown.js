@@ -149,7 +149,7 @@ function CarePlanDropdown({ onCarePlanSelect, selectedCarePlan, patientId, docto
                         loading={loading}
                         filterOption={false}
                         notFoundContent={loading ? <Spin size="small" /> : 'No care plans found'}
-                        allowClear
+                        //allowClear
                     >
                         <Option key="none" value="none">
                             None
