@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import moment from "moment";
 import { Row } from "react-bootstrap";
 import { notification } from "antd";
@@ -60,12 +60,6 @@ function InPatients() {
     initialFilters.selectedWards
   );
   const [filterResetKey, setFilterResetKey] = useState(0);
-  const [symptomsData, setSymptomsData] = useState({
-    symptom: "",
-    since: "",
-    severity: "",
-    notes: "",
-  });
 
   // const [stateValue, funcToUpdateState] = useState(initialState)
 
@@ -104,21 +98,15 @@ function InPatients() {
     filterParams,
     fetchAttempted,
     loadingMore,
-    usingStaticData,
-    setUsingStaticData,
     fetchData,
     resetData,
     loadMore,
     updateFilters,
   } = usePatientsData();
 
-  const {
-    doctors,
-    wards,
-    filtersError,
-    usingStaticFilters,
-    setUsingStaticFilters,
-  } = useFiltersData();
+  console.log({ patientsData });
+
+  const { doctors, wards } = useFiltersData();
 
   const { lastElementRef } = useInfiniteScroll({
     hasMore,
@@ -126,51 +114,29 @@ function InPatients() {
     onLoadMore: loadMore,
   });
 
+  // Memoize doctor IDs to prevent infinite loops
+  const allDoctorIds = useMemo(() => {
+    return doctors.map((doctor) => doctor.id).join(",");
+  }, [doctors]);
+
   // Save filters to session storage whenever they change
   useEffect(() => {
     saveFiltersToSession();
   }, [saveFiltersToSession]);
 
-  // Notification effects
-  useEffect(() => {
-    if (filtersError && !usingStaticFilters) {
-      setUsingStaticFilters(true);
-      notification.info({
-        message: "Using Static Filters",
-        description:
-          "Filter API call failed. Using static filter options for demonstration purposes.",
-        duration: 5,
-        placement: "topRight",
-      });
-    }
-  }, [filtersError, usingStaticFilters, setUsingStaticFilters]);
-
-  useEffect(() => {
-    if (patientsError && !usingStaticData) {
-      setUsingStaticData(true);
-      notification.info({
-        message: "Using Static Data",
-        description:
-          "API call failed. Using static data for demonstration purposes.",
-        duration: 5,
-        placement: "topRight",
-      });
-    }
-  }, [patientsError, usingStaticData, setUsingStaticData]);
-
   // Data fetching effects
   useEffect(() => {
-    if (loadingMore || filterParams.page !== 1) return;
-
-    resetData();
+    if (loadingMore) return;
 
     if (!patientsError || !fetchAttempted) {
+      const doctorIds =
+        selectedDoctors.length > 0 ? selectedDoctors.join(",") : allDoctorIds;
+
       fetchData({
         ...filterParams,
         startDate: dateRange ? dateRange.startDate : "",
         endDate: dateRange ? dateRange.endDate : "",
-        doctorIdsFilter:
-          selectedDoctors.length > 0 ? selectedDoctors.join(",") : "",
+        doctorIdsFilter: doctorIds,
         ward: selectedWards.length > 0 ? selectedWards.join(",") : "",
       });
     }
@@ -183,27 +149,7 @@ function InPatients() {
     fetchAttempted,
     loadingMore,
     fetchData,
-    resetData,
-  ]);
-
-  useEffect(() => {
-    if (filterParams.page === 1 || !loadingMore) return;
-
-    fetchData({
-      ...filterParams,
-      startDate: dateRange ? dateRange.startDate : "",
-      endDate: dateRange ? dateRange.endDate : "",
-      doctorIdsFilter:
-        selectedDoctors.length > 0 ? selectedDoctors.join(",") : "",
-      ward: selectedWards.length > 0 ? selectedWards.join(",") : "",
-    });
-  }, [
-    filterParams,
-    loadingMore,
-    selectedDoctors,
-    selectedWards,
-    dateRange,
-    fetchData,
+    allDoctorIds,
   ]);
 
   useEffect(() => {
@@ -286,7 +232,7 @@ function InPatients() {
 
   const handlePickerModal = useCallback(() => {
     setPickerModal(!pickerModal);
-  }, [pickerModal, resetData]);
+  }, [pickerModal]);
 
   const handleDateCancel = useCallback(() => {
     setDateStatus(null);

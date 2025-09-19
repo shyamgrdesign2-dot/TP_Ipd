@@ -397,7 +397,7 @@ const ConsultantNotes = (props) => {
     setModelData(IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE);
     setShowCustomisationDrawer(false);
     const newData = {
-      ...consultantNotesCustomization,
+      ...customization,
       consultationNotes: IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE,
     };
     dispatch(updateCustomization(newData));
@@ -406,7 +406,7 @@ const ConsultantNotes = (props) => {
   const handleSaveCustomization = () => {
     setShowCustomisationDrawer(false);
     const newData = {
-      ...consultantNotesCustomization,
+      ...customization,
       consultationNotes: [...modelData],
     };
     dispatch(updateCustomization(newData));

@@ -36,6 +36,7 @@ import {
 import { addObstetricDetails } from "../../../redux/obstetricSlice";
 import { getConsultantNotes } from "../../../redux/ipd/consultantNotesSlice";
 import ConsultantNotesTimeline from "../consultantNotes/ConsultantNotesTimeline";
+import LabResults from "../labResults/LabResults";
 import ProgressNotesView from "../progressNotes/progressNotesView/progressNotesView";
 import { getProgressNotes } from "../../../redux/ipd/progressNotesSlice";
 import MedicalRecords from "../medicalRecords/IPDMedicalRecords";
@@ -106,6 +107,16 @@ const IPDPatientDetails = () => {
     });
   };
 
+  const handleAddLabResultsClick = () => {
+    navigate("/ipd/patient-details/lab-results", {
+      state: {
+        patient_data,
+        patientDetails,
+        isEditable: true,
+      },
+    });
+  };
+  
   const handleMedicalRecordsClick = () => {
     navigate("/ipd/patient-details/medical-records", {
       state: {
@@ -115,7 +126,7 @@ const IPDPatientDetails = () => {
       },
     });
   };
-
+  
   const handleProgressNotesClick = () => {
     navigate("/ipd/patient-details/progress-notes", {
       state: {
@@ -251,6 +262,7 @@ const IPDPatientDetails = () => {
     assessment: () => handleAddAssessmentClick(true),
     otNotes: handleOtNotesClick,
     consultantNotes: handleAddConsultantNotesClick,
+    labResults: handleAddLabResultsClick,
     progress: handleProgressNotesClick,
     records: handleMedicalRecordsClick,
   };
@@ -331,6 +343,12 @@ const IPDPatientDetails = () => {
             <ConsultantNotesTimeline />
           </div>
         );
+      case "labResults":
+        return (
+          <div className="ipd-adm-assess-container-readable">
+            <LabResults />
+          </div>
+        );
       case "ecords":
         return (
           <div className="ipd-adm-assess-container-readable">
@@ -366,7 +384,7 @@ const IPDPatientDetails = () => {
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
               renderContent={
-                !isEditable && isDataPresent ? renderContent : null
+                true ? renderContent : null
               }
               showAddCTA={canShowAddCTA}
             />

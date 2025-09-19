@@ -1,22 +1,20 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import moment from "moment";
-import { Card, Button, Divider, Space, Typography } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { RemoteComponents } from '../../../../shared/remoteComponents.js';
-import { defaultIcons } from '../../../../assets/images/icons/index.js';
-import './progressNotesView.scss';
-import DateRangeFilter from '../../components/DateRangeFilter.js';
+import { Card, Button, Divider, Space, Typography } from "antd";
+import { useNavigate } from "react-router-dom";
+import { RemoteComponents } from "../../../../shared/remoteComponents";
+import { defaultIcons } from "../../../../assets/images/icons/index.js";
+import "./progressNotesView.scss";
+import DateRangeFilter from "../../components/DateRangeFilter.js";
 
 const { Title, Text } = Typography;
-const { ReusableStepper, ReusableProgressCard } = RemoteComponents;
+const { ReusableStepper, ReusableProgressCard, RichTextEditor } =
+  RemoteComponents;
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD-MM-YYYY";
 
-function ProgressNotesView({
-  progressNotes,
-  patientDetails,
-}) {
+function ProgressNotesView({ progressNotes, patientDetails }) {
   const [events, setEvents] = useState([]);
   const navigate = useNavigate();
 
@@ -194,26 +192,74 @@ function ProgressNotesView({
   };
 
   const renderCustomItem = (item, itemIndex, groupKey, items, emit) => {
+    console.log({ item });
+
     const value = item.period || item.timeOfDay || "";
     const formattedTimeOfDay = value.charAt(0).toUpperCase() + value.slice(1);
     return (
       <ReusableProgressCard
-        data={item}
-        timeOfDay={formattedTimeOfDay}
-        timestamp={item.time || item.timestamp}
-        chiefComplaint={item.chiefComplaint}
-        findings={item.findings}
-        vitals={item.vitals}
-        additionalRemarks={item.additionalRemarks}
-        filledBy={item.filledBy}
-        role={item.role}
-        onEvent={(eventName, payload) => emit(eventName, payload)}
-        className="medical-progress__progress-card"
-        actions={{
-          showEdit: true,
-          showDelete: true,
-          showView: true,
+        record={{
+          id: "1",
+          sections: [
+            {
+              key: "chiefComplaint",
+              title: "Chief Complaint",
+              data: item.chiefComplaint,
+              type: "richtext",
+            },
+            {
+              key: "findings",
+              title: "Findings",
+              data: item.findings,
+              type: "richtext",
+            },
+            {
+              key: "vitals",
+              title: "Vitals",
+              data: item.vitals,
+              type: "richtext",
+            },
+
+            {
+              key: "additionalRemarks",
+              title: "Additional Remarks",
+              data: item.additionalRemarks,
+              type: "richtext",
+            },
+          ],
+          filledBy: item.filledBy,
+          role: item.role,
+          timeOfDay: formattedTimeOfDay,
+          timestamp: item.time,
         }}
+        components={{
+          RichTextEditor,
+        }}
+        icons={{
+          timeIcons: {
+            morning: "morningIcon",
+            evening: "eveningIcon",
+            night: "nightIcon",
+          },
+          sectionIcons: {
+            chiefComplaint: "chiefComplaintIcon",
+            vitals: "vitalsPgIcon",
+            findings: "findingsPgIcon",
+            additionalRemarks: "notesPgIcon",
+          },
+          actionIcons: {
+            edit: "editIcon",
+          },
+        }}
+        actions={
+          new Date(item?.timestamp).toISOString().split("T")[0] ===
+          new Date().toISOString().split("T")[0]
+            ? [{ name: "edit", label: "Edit progress note" }]
+            : []
+        }
+        onAction={(eventName, payload) =>
+          emit(eventName, { ...payload, data: item })
+        }
       />
     );
   };
