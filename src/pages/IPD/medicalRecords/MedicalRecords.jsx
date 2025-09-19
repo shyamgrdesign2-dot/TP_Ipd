@@ -1,9 +1,9 @@
 import React from 'react'
 
-function MedicalRecords() {
+function IPDMedicalRecords() {
   return (
     <div>MedicalRecords</div>
   )
 }
 
-export default MedicalRecords
+export default IPDMedicalRecords
