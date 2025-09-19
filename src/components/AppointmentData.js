@@ -1771,6 +1771,54 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     );
   };
 
+  function parseDurationString(s) {
+    if (!s || (typeof s !== 'string' && typeof s !== 'number')) return { h: 0, m: 0, s: 0 };
+    const str = String(s).trim();
+    const colon = str.match(/^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/);
+    if (colon) {
+      return {
+        h: parseInt(colon[1], 10),
+        m: parseInt(colon[2], 10),
+        s: parseInt(colon[3] || '0', 10),
+      };
+    }
+
+    const hoursMatch = str.match(/(\d+)\s*(?:hours?|hrs?|h)\b/i);
+    const minsMatch  = str.match(/(\d+)\s*(?:minutes?|mins?|m)\b/i);
+    const secsMatch  = str.match(/(\d+)\s*(?:seconds?|secs?|s)\b/i);
+  
+    if (hoursMatch || minsMatch || secsMatch) {
+      return {
+        h: hoursMatch ? parseInt(hoursMatch[1], 10) : 0,
+        m: minsMatch  ? parseInt(minsMatch[1], 10) : 0,
+        s: secsMatch  ? parseInt(secsMatch[1], 10) : 0,
+      };
+    }
+    const onlyNumber = str.match(/^(\d+)$/);
+    if (onlyNumber) {
+      const totalMinutes = parseInt(onlyNumber[1], 10);
+      return { h: Math.floor(totalMinutes / 60), m: totalMinutes % 60, s: 0 };
+    }
+    return { h: 0, m: 0, s: 0 };
+  }
+  function formatHMS(duration = {}, { showZeroSeconds = false } = {}) {
+    const h = typeof duration.h !== 'undefined' ? duration.h : (typeof duration.H !== 'undefined' ? duration.H : 0);
+    const m = typeof duration.m !== 'undefined' ? duration.m : 0;
+    const s = typeof duration.s !== 'undefined' ? duration.s : 0;
+  
+    const Hr = `${h}H`;
+    const Min = `${m}m`;
+    const Sec = `${s}s`;
+  
+    if (h > 0) {
+      if (s > 0) return `${Hr} ${Min} ${Sec}`;
+      if (showZeroSeconds) return `${Hr} ${Min} ${Sec}`;
+      return `${Hr} ${Min}`;
+    }
+    if (s > 0) return `${Min} ${Sec}`;
+    if (showZeroSeconds) return `${Min} ${Sec}`;
+    return `${Min}`;
+  }
   const columns = [
     {
       title: "#",
@@ -1931,8 +1979,11 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
           }
           
           if (selectedTab === TAB_FINISHED && record.durationConsultation) {
-            return `(${record.durationConsultation})`;
+            const parsed = parseDurationString(record.durationConsultation);
+            const formatted = formatHMS(parsed, { short: true, showZeroSeconds: false }); // -> "1H 11m"
+            return `(${formatted})`;
           }
+          
           return null;
         };
         
