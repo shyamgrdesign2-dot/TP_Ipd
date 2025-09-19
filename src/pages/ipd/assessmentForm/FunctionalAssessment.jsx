@@ -27,14 +27,11 @@ const FunctionalAssessment = (props) => {
     );
   };
   const { isEditable = true, sectionData } = props || {};
-  const [assessmentValue, setAssessmentValue] = useState({});
-
+  
   const handleAssessmentChange = (key, e, item) => {
     const selectedOption = item.options.find(
       (option) => option.value === e.target.value
     );
-    const next = { ...assessmentValue, [key]: selectedOption.label };
-    // setAssessmentValue(next);
     dispatch(
       setFunctionalAssessmentData({
         ...functionalAssessmentData,
@@ -225,7 +222,7 @@ const FunctionalAssessment = (props) => {
     );
   };
   const renderReferredToPhysiotherapy = (data) => {
-    if (!isEditable && !referredDocForReview) return null;
+    if (!isEditable && !referredDocForReview?.name) return null;
     if (!isEditable) {
       return (
         <div className="ipd-fas-refphy-container rich-text-editor-wrapper wrapper-class ipd-wrapper-class-readonly">
@@ -278,7 +275,7 @@ const FunctionalAssessment = (props) => {
     (!Object.keys(functionalAssessmentData)?.length ||
       (Object.keys(functionalAssessmentData)?.length === 1 &&
         !!functionalAssessmentData.others)) &&
-    !referredDocForReview &&
+        !referredDocForReview?.name &&
     isEmptyRichText(functionalAssessmentData?.others)
   )
     return null;

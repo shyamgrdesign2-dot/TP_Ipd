@@ -295,8 +295,8 @@ const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, 
                                             {filteredReports.length < 2 ? (
                                                 // Render at least two empty <td>s if the length is less than 2
                                                 <>
-                                                    <td style={{ background: "#FAFAFB", width: "160px", padding: '10px', textAlign: 'right' }}></td>
-                                                    <td style={{ background: "#FAFAFB", width: "160px", padding: '10px', textAlign: 'right' }}></td>
+                                                    <td style={{ background: "#FAFAFB", width: "160px", padding: '10px', textAlign: 'right', borderBottom: !isIPD ? 'none' : '1px solid rgb(221, 221, 221)', }}></td>
+                                                    <td style={{ background: "#FAFAFB", width: "160px", padding: '10px', textAlign: 'right', borderBottom: !isIPD ? 'none' : '1px solid rgb(221, 221, 221)', }}></td>
                                                 </>
                                             ) : (
                                                 filteredReports.map((entry, entryIndex) => {
