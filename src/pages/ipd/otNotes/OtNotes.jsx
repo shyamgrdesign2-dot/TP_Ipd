@@ -36,14 +36,15 @@ const OtNotes = (props) => {
   const otNotesData = useSelector((state) => state.otNotes);
   const { otNotes = [] } = customization;
   const [modelData, setModelData] = useState(
-    otNotes.length > 0 ? otNotes : IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE
+    // otNotes.length > 0 ? otNotes : 
+    IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE
   );
 
-  useEffect(() => {
-    if (otNotes.length > 0) {
-      setModelData(otNotes);
-    }
-  }, [otNotes]);
+  // useEffect(() => {
+  //   if (otNotes.length > 0) {
+  //     setModelData(otNotes);
+  //   }
+  // }, [otNotes]);
 
   useEffect(() => {
     // fetch assessments form from api

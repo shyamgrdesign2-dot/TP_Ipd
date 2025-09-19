@@ -680,3 +680,10 @@ $muted: #6f6b88;
   color: rgba(186, 125, 233, 1) !important;
   }
 }
+
+.ipdaf-medication-box-container-readonly {
+  textarea.ant-input.css-kbg4zp.ant-input-outlined.notesinput {
+    background: #fbfafd !important;
+    background-color: #fbfafd !important;
+  }
+}
