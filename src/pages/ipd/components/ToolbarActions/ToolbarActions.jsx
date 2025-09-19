@@ -3,6 +3,7 @@ import "./styles.scss";
 import { defaultIcons } from "../../../../assets/images/icons";
 
 export default function ToolbarActions({
+  showEditForm = true,
   onEdit = () => {},
   onPrintPreview = () => {},
   onPrint = () => {},
@@ -70,9 +71,12 @@ export default function ToolbarActions({
   return (
     <div className="toolbar">
       <div className="toolbar__inner">
-        {renderAction(actions[0])}
-
-        <span className="toolbar__divider" aria-hidden="true" />
+        { showEditForm &&
+          <>
+            renderAction(actions[0])
+            <span className="toolbar__divider" aria-hidden="true" />
+          </>
+        }
 
         {renderAction(actions[1])}
 

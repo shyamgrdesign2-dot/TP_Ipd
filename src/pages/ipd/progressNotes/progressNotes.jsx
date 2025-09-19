@@ -306,7 +306,7 @@ const ProgressNotes = (props) => {
           onTimeChange={(time) => setFilledAtTime(time)}
           onTimePeriodChange={handleTimePeriodChange}
           editable
-          showTimePeriod={false}
+          showTimePeriod={true}
         />
       </div>
     );
