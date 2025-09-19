@@ -73,7 +73,7 @@ export default function ToolbarActions({
       <div className="toolbar__inner">
         { showEditForm &&
           <>
-            renderAction(actions[0])
+            {renderAction(actions[0])}
             <span className="toolbar__divider" aria-hidden="true" />
           </>
         }
