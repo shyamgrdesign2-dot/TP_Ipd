@@ -33,8 +33,8 @@ const OperativeNotes = (props) => {
         showMicrophone={false}
         onChange={(data) => handleChange(data, data?.id)}
         initialValue={
-          initialValue?.[data?.id]?.value
-            ? initialValue?.[data?.id]
+          operativeNotes?.[data?.id]?.value?.length
+            ? operativeNotes?.[data?.id]?.value
             : [
                 {
                   type: "paragraph",

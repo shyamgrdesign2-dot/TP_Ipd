@@ -510,79 +510,71 @@ export const IPD = {
       menuIcon: "basicInfoBg",
       enabled: true,
       expanded: false,
-      children: {
-        id: "intraOperativeDetails",
-        title: "Intra Operative Details",
-        icon: "intraOperativeDetails",
-        menuIcon: "basicInfoBg",
-        enabled: true,
-        expanded: false,
-        children: [
-          {
-            placeholder:
-              "Document any intra-operative complications and their severity (e.g., bleeding, hypotension).",
-            id: "complicationsSeverity",
-            title: "Complication & Severity",
-            enabled: true,
-            icon: "alert",
-          },
-          {
-            placeholder: "Enter specimens sent for laboratory if any",
-            id: "specimensSent",
-            title: "Specimens Sent",
-            enabled: true,
-            icon: "lab",
-          },
-          {
-            placeholder:
-              "Enter implants or prosthetics used, with batch/lot numbers if available.",
-            id: "implantsUsed",
-            title: "Implants / Prosthetics Used",
-            enabled: true,
-            icon: "implant",
-          },
-          {
-            id: "additionalUnits",
-            title: "",
-            enabled: true,
-            icon: null,
-            children: [
-              {
-                placeholder: "Enter Estimated Blood Loss",
-                id: "estimatedBloodLoss",
-                title: "Estimated Blood Loss",
-                enabled: true,
-                icon: "blood",
-                suffix: "ml",
-              },
-              {
-                placeholder: "Enter Swab Count",
-                id: "swabCount",
-                title: "Swab Count",
-                enabled: true,
-                icon: "swab",
-                suffix: "Swabs",
-              },
-              {
-                placeholder:
-                  "Enter swab/sponge counts at closure (e.g., 10 used, 10 retrieved)",
-                id: "fluidCount",
-                title: "Fluid Count",
-                enabled: true,
-                icon: "droplet",
-              },
-              {
-                placeholder:
-                  "Enter type and count of sutures used (e.g., Vicryl 3-0 × 2)",
-                id: "sutureTypeCount",
-                title: "Suture Type/Count",
-                enabled: true,
-                icon: "suture",
-              },
-            ]
-          }
-        ],
-      },
+      children: [
+        {
+          placeholder:
+            "Document any intra-operative complications and their severity (e.g., bleeding, hypotension).",
+          id: "complicationsSeverity",
+          title: "Complication & Severity",
+          enabled: true,
+          icon: "alert",
+        },
+        {
+          placeholder: "Enter specimens sent for laboratory if any",
+          id: "specimensSent",
+          title: "Specimens Sent",
+          enabled: true,
+          icon: "lab",
+        },
+        {
+          placeholder:
+            "Enter implants or prosthetics used, with batch/lot numbers if available.",
+          id: "implantsUsed",
+          title: "Implants / Prosthetics Used (Please provide Batch No if any)",
+          enabled: true,
+          icon: "implant",
+        },
+        {
+          id: "additionalUnits",
+          title: "",
+          enabled: true,
+          icon: null,
+          children: [
+            {
+              placeholder: "Enter Estimated Blood Loss",
+              id: "estimatedBloodLoss",
+              title: "Estimated Blood Loss",
+              enabled: true,
+              icon: "blood",
+              suffix: "ml",
+            },
+            {
+              placeholder: "Enter Swab Count",
+              id: "swabCount",
+              title: "Swab Count",
+              enabled: true,
+              icon: "swab",
+              suffix: "Swabs",
+            },
+            {
+              placeholder:
+                "Enter swab/sponge counts at closure (e.g., 10 used, 10 retrieved)",
+              id: "fluidCount",
+              title: "Fluid Count",
+              enabled: true,
+              icon: "droplet",
+            },
+            {
+              placeholder:
+                "Enter type and count of sutures used (e.g., Vicryl 3-0 × 2)",
+              id: "sutureTypeCount",
+              title: "Suture Type/Count",
+              enabled: true,
+              icon: "suture",
+            },
+          ],
+        },
+      ],
     },
     {
       id: "postOperativeNotes",
@@ -638,7 +630,12 @@ export const IPD = {
     { id: "otNotes", name: "OT Notes", icon: "healthIcon" },
     { id: "crossReferral", name: "Cross Referral", icon: "healthIcon" },
     { id: "lab", name: "Lab Results", icon: "glassIcon" },
-    { id: "records", name: "Medical Records", icon: "notesIcon", showAddCTA: true, },
+    {
+      id: "records",
+      name: "Medical Records",
+      icon: "notesIcon",
+      showAddCTA: true,
+    },
     { id: "discharge", name: "Discharge Summary", icon: "notepadIcon" },
     { id: "logs", name: "Activity Logs", icon: "usersTwoIcon" },
     { id: "opd", name: "OPD Visit History", icon: "layerIcon" },
