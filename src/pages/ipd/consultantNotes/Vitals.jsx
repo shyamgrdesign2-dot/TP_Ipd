@@ -1,46 +1,103 @@
 import React from "react";
+import { useState } from "react";
 import { IPD } from "../../../utils/locale";
-import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/icons";
-import { useSelector, useDispatch } from "react-redux";
-import { setVitals } from "../../../redux/ipd/consultantNotesSlice";
 
-const UnitInput = createRemoteComponent("UnitInput");
+const Vitals = ({
+  onExitModal,
+  onStoreData,
+  initialData,
+  setDataToSend,
+  dataToSend,
+}) => {
+  const [formData, setFormData] = useState({
+    temp: initialData?.temp || "",
+    pulse: initialData?.pulse || "",
+    bp: initialData?.bp || "",
+    rr: initialData?.rr || "",
+    spo2: initialData?.spo2 || "",
+    weight: initialData?.weight || "",
+    height: initialData?.height || "",
+    bmi: initialData?.bmi || "",
+  });
 
-const Vitals = (props) => {
-  const { isEditable = true, onAutofill } = props || {};
-  const { vitals } = useSelector((state) => state.consultantNotes);
-  const dispatch = useDispatch();
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-  const handleAutofill = () => {
-    if (onAutofill) {
-      onAutofill();
-    }
+  const handleSubmit = () => {
+    setDataToSend((prev) => ({
+      ...prev,
+      ...formData,
+    }));
+    onStoreData(formData);
   };
 
   return (
-    <div className="ipdcn-vitals-main-container">
-      <div className="ipdaf-vitals-header">
-        <img src={defaultIcons.vitals} alt="vitals" />
-        <div>{"Vitals"}</div>
+    <div>
+      <div className="modal-header">
+        <h5 className="modal-title" id="exampleModalLabel">
+          {IPD.vitals}
+        </h5>
+        <button
+          type="button"
+          className="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          onClick={onExitModal}
+        ></button>
       </div>
-      <div className="ipdcn-vitals-container">
-        {IPD.CONSULTANT_NOTES_VITALS?.map((vital) => {
-          return (
-            <div className="input-container">
-              <UnitInput
-                containerStyle={{ marginBottom: "20px" }}
-                onChange={(e) =>
-                  dispatch(setVitals({ ...vitals, [vital.name]: e }))
-                }
-                value={vitals?.[vital?.name]}
-                type="text"
-                inputMode="decimal"
-                {...vital}
-              />
-            </div>
-          );
-        })}
+      <div className="modal-body">
+        <div className="row">
+          <div className="col-md-6 mb-3">
+            <label htmlFor="temp" className="form-label">
+              Temperature (°F)
+            </label>
+            <input
+              type="text"
+              id="temp"
+              name="temp"
+              className="form-control"
+              value={formData.temp}
+              onChange={handleChange}
+              placeholder="Enter temperature"
+            />
+          </div>
+          <div className="col-md-6 mb-3">
+            <label htmlFor="pulse" className="form-label">
+              Pulse (bpm)
+            </label>
+            <input
+              type="text"
+              id="pulse"
+              name="pulse"
+              className="form-control"
+              value={formData.pulse}
+              onChange={handleChange}
+              placeholder="Enter pulse"
+            />
+          </div>
+        </div>
+        {/* Add more vital sign fields as needed */}
+      </div>
+      <div className="modal-footer">
+        <button
+          type="button"
+          className="btn btn-secondary me-2"
+          onClick={onExitModal}
+        >
+          {IPD.cancel}
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={handleSubmit}
+        >
+          {IPD.save}
+        </button>
       </div>
     </div>
   );
