@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import moment from "moment";
 import { Card, Button, Divider, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { RemoteComponents } from '../../../../shared/remoteComponents';
+import { RemoteComponents } from '../../../../shared/remoteComponents.js';
 import { defaultIcons } from '../../../../assets/images/icons/index.js';
 import './progressNotesView.scss';
 import DateRangeFilter from '../../components/DateRangeFilter.js';

@@ -27,7 +27,7 @@ const PastMedicalHistory = (props) => {
   const { lastRxDate } = lastPrescriptionDate || {};
   const dispatch = useDispatch();
   const [addMedicalHistoryDrawer, setAddMedicaHistoryDrawer] = useState(false);
-
+  const [autoFillButtonRef, setAutoFillButtonRef] = useState(null);
   const handleAddMedicalHistory = () => {
     setAddMedicaHistoryDrawer(!addMedicalHistoryDrawer);
   };
@@ -38,6 +38,7 @@ const PastMedicalHistory = (props) => {
     if (!lastRxDate) return null;
     return (
       <AutoFillButton
+        refCallback={setAutoFillButtonRef}
         onClick={(data, e) => {
           e?.stopPropagation();
 
@@ -96,7 +97,15 @@ const PastMedicalHistory = (props) => {
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
-        showActionBtns={false}
+        showActionBtns={isEditable}
+        showOnlyClear={isEditable}
+        isDataPresent={medicalHistoryData?.length}
+        onErase={(e) => {
+          dispatch(setMedicalHistoryData([]));
+          if (autoFillButtonRef && autoFillButtonRef.click) {
+            autoFillButtonRef.click(e);
+          }
+        }}
         title={sectionData?.title || "Past Medical History"}
         width="100%"
         containerClass="wrapper-class ipd-pmh-wrapper-class"

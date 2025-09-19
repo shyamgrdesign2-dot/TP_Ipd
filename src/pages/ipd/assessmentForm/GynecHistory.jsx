@@ -24,7 +24,7 @@ const GynecHistory = (props) => {
   const { lastRxDate } = lastPrescriptionDate || {};
   const dispatch = useDispatch();
   const [addGynecHistoryDrawer, setAddGynecHistoryDrawer] = useState(false);
-
+  const [autoFillButtonRef, setAutoFillButtonRef] = useState(null);
   const handleGynecHistory = () => {
     setAddGynecHistoryDrawer(!addGynecHistoryDrawer);
   };
@@ -35,6 +35,7 @@ const GynecHistory = (props) => {
     if (!lastRxDate) return null;
     return (
       <AutoFillButton
+        refCallback={setAutoFillButtonRef}
         onClick={(data, e) => {
           e?.stopPropagation();
 
@@ -104,7 +105,8 @@ const GynecHistory = (props) => {
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
-        showActionBtns={false}
+        showActionBtns={isEditable}
+        isDataPresent={isGynecHistoryDataExists}
         title={sectionData?.title}
         width="100%"
         containerClass="wrapper-class ipd-gynec-history-wrapper"
@@ -118,6 +120,12 @@ const GynecHistory = (props) => {
           console.log("save");
         }}
         renderBody={renderMedicalHistory}
+        onErase={(e) => {
+          dispatch(setGynecHistoryData({}));
+          if (autoFillButtonRef && autoFillButtonRef.click) {
+            autoFillButtonRef.click(e);
+          }
+        }}
       />
       {addGynecHistoryDrawer && (
         <Drawer

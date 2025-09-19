@@ -1,17 +1,17 @@
 import React, { Suspense, useEffect, useState } from "react";
-import { IPD } from "../../../utils/locale";
+import { IPD } from "../../../utils/locale.js";
 import "../assessmentForm/styles.scss";
 import { Button, Drawer } from "antd";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { createRemoteComponent } from "../../../shared/remoteComponents";
+import { createRemoteComponent } from "../../../shared/remoteComponents.js";
 import {
   getCustomization,
   updateCustomization,
-} from "../../../redux/ipd/ipdSlice";
-import AddCustomModule from "../../../components/AddCustomModule";
+} from "../../../redux/ipd/ipdSlice.js";
+import AddCustomModule from "../../../components/AddCustomModule.js";
 import { useSelector } from "react-redux";
-import CustomModule from "../../../components/CustomModule";
+import CustomModule from "../../../components/CustomModule.js";
 import SurgeryDetails from "./SurgeryDetails.jsx";
 import SurgeryTeam from "./SurgeryTeam.jsx";
 import OperativeNotes from "./OperativeNotes.jsx";
