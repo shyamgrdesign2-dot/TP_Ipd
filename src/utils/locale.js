@@ -131,7 +131,7 @@ export const IPD = {
               description: "",
               options: [
                 { label: "Normal", value: 1, name: "normal" },
-                { label: "Hydrated", value: 2, name: "hydrated" },
+                { label: "Dehydrated", value: 2, name: "dehydrated" },
               ],
             },
             {
@@ -737,7 +737,7 @@ export const IPD = {
       description: "",
       options: [
         { label: "Normal", value: 1, name: "normal" },
-        { label: "Hydrated", value: 2, name: "hydrated" },
+        { label: "Dehydrated", value: 2, name: "dehydrated" },
       ],
     },
     {
