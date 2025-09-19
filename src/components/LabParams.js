@@ -319,14 +319,17 @@ const LabResultsTable = ({ existingDataFromProps, handleAddLabParamsDrawer, pati
 
     // Function to handle saving remarks
     const handleSaveRemarks = () => {
-        const updatedValues = { ...inputValues };
+        let updatedValues = { ...inputValues };
         if (!updatedValues[activeReport]) updatedValues[activeReport] = {};
         if (!updatedValues[activeReport][activeTest]) updatedValues[activeReport][activeTest] = {};
         if (!updatedValues[activeReport][activeTest][activeDate]) {
             updatedValues[activeReport][activeTest][activeDate] = {};
         }
 
-        updatedValues[activeReport][activeTest][activeDate].value = modalContent;
+        updatedValues[activeReport][activeTest][activeDate] = {
+            ...updatedValues[activeReport][activeTest][activeDate],
+            value: modalContent
+        };
 
         // Update input values
         setInputValues(updatedValues);

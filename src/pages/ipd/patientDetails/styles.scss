@@ -1,9 +1,10 @@
 .ipd-toolbar-edit-custom-print-download {
-    position: absolute;
-    bottom: 20px;
-    left: 0;
+    position: fixed;
+    bottom: 7px;
+    left: calc(50dvw - 209px);
     right: 0;
     z-index: 100;
+    width: fit-content;
 }
 .ipd-adm-assess-container-readable {
     width: 100% ;
@@ -11,6 +12,6 @@
 
 .ipd-progress-notes-view-container {
     width: 100%;
-    overflow: auto;
-    height: calc(100dvh - 161px);
+    // overflow: auto;
+    // height: calc(100dvh - 161px);
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/assessments";
 import { defaultIcons } from "../../../assets/images/icons";
@@ -26,6 +26,7 @@ const SurgeryDetails = (props) => {
   );
   const initialValue = useMemo(() => surgeryDetails || {}, [surgeryDetails]);
   const dispatch = useDispatch();
+  const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   useEffect(() => {
     dispatch(searchSurgeryProcedures(""));
   }, []);
@@ -51,9 +52,10 @@ const SurgeryDetails = (props) => {
         <Select
           showSearch
           optionLabelProp="label"
+          mode="multiple"
           options={options}
           value={initialValue?.surgeryProcedureName || undefined}
-          className="autocomplete-custom w-100 popinput inputheight41"
+          className="multiple-select-custom autocomplete-custom w-100 popinput inputheight41"
           placeholder="Search and select Surgery/Procedure"
           onSearch={(q) => dispatch(searchSurgeryProcedures(q))}
           allowClear
@@ -181,7 +183,7 @@ const SurgeryDetails = (props) => {
         icon={defaultIcons.ddx}
         showAutoFill={false}
         containerClass={`wrapper-class ${
-          isEditable ? "ipd-wrapper-class-readonly" : ""
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="11 Sep 2025"
         showMagicPenGif={false}
@@ -204,17 +206,13 @@ const SurgeryDetails = (props) => {
           console.log("save");
         }}
         onErase={() => {
-          console.log("erase");
+          setAutoFillTextToAppend(["clear"]);
         }}
         onTemplate={() => {
           console.log("template");
         }}
-        onVoiceDictatorClick={(callback) => {
-          console.log("voice dictation");
-          setTimeout(() => {
-            callback();
-          }, 3000);
-        }}
+        newAutoFillTextToAppend={autoFillTextToAppend}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppend}
       />
     );
   };
@@ -226,7 +224,7 @@ const SurgeryDetails = (props) => {
         icon={assessmentsIcons[sectionData?.icon]}
         collapsible={isEditable}
         width={"100%"}
-        className={"collapsible-wrapper-class"}
+        className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
         data-testid={sectionData?.title}
         defaultOpen
       >

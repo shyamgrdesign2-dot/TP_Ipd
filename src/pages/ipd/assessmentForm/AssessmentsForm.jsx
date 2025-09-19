@@ -10,6 +10,7 @@ import PhysicalExamination from "./PhysicalExamination";
 import FunctionalAssessment from "./FunctionalAssessment";
 import TreatmentPlan from "./TreatmentPlan";
 import NoteSection from "./NoteSection";
+import saveIcon from "../../../assets/images/save.svg";
 import {
   getAssessmentsData,
   getLastPrescriptionDate,
@@ -54,9 +55,11 @@ import {
 } from "../../../redux/prescriptionSlice";
 import { addObstetricDetails } from "../../../redux/obstetricSlice";
 import CustomModule from "../../../components/CustomModule";
+import BackConfirmationModal from "../../../components/BackConfirmationModal";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
+const FilledByCard = createRemoteComponent("FilledByCard");
 
 const AssessmentsForm = (props) => {
   const dispatch = useDispatch();
@@ -75,81 +78,59 @@ const AssessmentsForm = (props) => {
   const prescriptionData = useSelector((state) => state.prescription);
   const { assessments = [] } = customization;
   const [modelData, setModelData] = useState(
-    // assessments.length > 0
-    //   ? assessments
-      // : 
-      IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE
+    assessments.length > 0
+      ? assessments
+      : IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE
   );
-
-  // useEffect(() => {
-  //   if (assessments.length > 0) {
-  //     setModelData(assessments);
-  //   }
-  // }, [assessments]);
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  useEffect(() => {
+    if (assessments.length > 0) {
+      setModelData(assessments);
+    }
+  }, [assessments]);
 
   const addDataToStore = (data) => {
     if (data) {
-      // Chief Complaint
       dispatch(setChiefComplaint(data?.basicInfo?.chiefComplaint || []));
-
-      // History of Present Illness
       dispatch(
         setHistoryOfPresentIllness(
           data?.basicInfo?.historyOfPresentIllness || []
         )
       );
-
-      // Medication
       dispatch(setMedicationData(data?.basicInfo?.medications || []));
-
-      // Lab Results
       dispatch(setLabResults(data?.basicInfo?.labResults || []));
-
-      // Medical History
       dispatch(
         setMedicalHistoryData(data?.basicInfo?.pastMedicalHistory || [])
       );
-
-      // Gynec History
       dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || []));
-
-      // Obstetric History
       dispatch(addObstetricDetails(data?.basicInfo?.obstetricHistory || []));
-
-      // Physical Examination Vitals Data
       dispatch(setVitalsData(data?.physicalExamination?.vitals || {}));
-
-      // Physical Examination Provisional Diagnosis
       dispatch(
         setPhysicalExaminationProvisionalDiagnosisData(
           data?.physicalExamination?.provisionalDiagnosis || []
         )
       );
-
-      // Physical Examination Others Data
       dispatch(
         setPhysicalExaminationOthersData(
           data?.physicalExamination?.others || []
         )
       );
-
-      // Physical Examination Basic Data
       dispatch(
         setPhysicalExaminationBasicData(
           data?.physicalExamination?.examination || {}
         )
       );
-
-      // Functional Assessment Data
-      dispatch(setFunctionalAssessmentData(data?.functionalAssessment || {}));
-
-      // Treatment Plan Data
+      const functionalAssessmentWithoutReferredDoc = {
+        ...data?.functionalAssessment,
+      };
+      delete functionalAssessmentWithoutReferredDoc.referredToPhysiotherapyForReview;
+      dispatch(
+        setFunctionalAssessmentData(
+          functionalAssessmentWithoutReferredDoc || {}
+        )
+      );
       dispatch(setTreatmentPlanData(data?.treatmentPlan || {}));
-
-      // Additional Notes Data
       dispatch(setAdditionalNotesData(data?.additionalNotes || {}));
-
-      // Referred Doc For Review
       dispatch(
         setReferredDocForReview(
           data?.functionalAssessment?.referredToPhysiotherapyForReview || null
@@ -159,27 +140,29 @@ const AssessmentsForm = (props) => {
   };
 
   useEffect(() => {
-    // fetch assessments form from api
     if (
       isEditable &&
       patientDetails?.details?.id &&
       Object.keys(assessmentData?.assessmentsData || {}).length === 0
     ) {
       dispatch(
-        getAssessmentsData({ patientId: patientDetails?.details?.id, admissionId: patientDetails?.admissionId })
+        getAssessmentsData({
+          patientId: patientDetails?.details?.id,
+          admissionId: patientDetails?.admissionId,
+        })
       ).then((res) => {
-        addDataToStore(res.payload);
+        addDataToStore(res.payload.assessment);
       });
     }
     dispatch(getCustomization());
     if (isEditable)
       dispatch(
-        getLastPrescriptionDate({ patientId: patientDetails?.details?.id })
+        getLastPrescriptionDate({ patientId: patientDetails?.patientUniqueId })
       ).then((res) => {
         if (res.payload) {
           dispatch(
             lastPrescriptionData({
-              patientId: patientDetails?.details?.id,
+              patientId: patientDetails?.patientUniqueId,
               caseId: res.payload?.caseId,
             })
           );
@@ -188,7 +171,6 @@ const AssessmentsForm = (props) => {
   }, []);
 
   useEffect(() => {
-    // fetch all the templates available
     dispatch(getMedicationTemplates());
     dispatch(getAllDoses());
     dispatch(getExaminationTemplates());
@@ -233,7 +215,6 @@ const AssessmentsForm = (props) => {
     dispatch(updateCustomization(newData));
   };
 
-
   const onSaveAssessmentClick = () => {
     const reqData = {
       basicInfo: {
@@ -244,9 +225,12 @@ const AssessmentsForm = (props) => {
         ),
         medications: prescriptionData.medicationData || [],
         labResults: assessmentData.labResults || [],
-        pastMedicalHistory: prescriptionData.medicalHistoryData ||{},
-        gyneacHistory: assessmentData.gynecHistoryData || {}, 
-        obstetricHistory: allObstetricDetails || {},
+        pastMedicalHistory: prescriptionData.medicalHistoryData || {},
+        gyneacHistory: assessmentData.gynecHistoryData || {},
+        obstetricHistory:
+          Array.isArray(allObstetricDetails) && !allObstetricDetails.length
+            ? {}
+            : allObstetricDetails || {},
       },
       physicalExamination: {
         vitals: assessmentData.vitalsData || {},
@@ -264,7 +248,12 @@ const AssessmentsForm = (props) => {
         provisionalDiagnosis:
           assessmentData.physicalExaminationProvisionalDiagnosisData || [],
       },
-      functionalAssessment: assessmentData.functionalAssessmentData || [],
+      functionalAssessment:
+        {
+          ...assessmentData.functionalAssessmentData,
+          referredToPhysiotherapyForReview:
+            assessmentData?.referredDocForReview || {},
+        } || {},
       treatmentPlan: assessmentData.treatmentPlanData || [],
       additionalNotes: assessmentData.additionalNotesData || [],
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
@@ -277,8 +266,12 @@ const AssessmentsForm = (props) => {
         admissionId: patientDetails?.admissionId,
       })
     ).then((res) => {
-      if (res.payload.error) {
-        message.warning(`${res.payload.error} - ${res.payload.message?.split('must')?.[0]} missing`);
+      if (res?.payload?.error) {
+        message.warning(
+          `${res.payload.error} - ${
+            res.payload.message?.split("must")?.[0]
+          } missing`
+        );
         return;
       }
       addDataToStore(reqData);
@@ -295,6 +288,17 @@ const AssessmentsForm = (props) => {
           patientDetails,
         },
         replace: true,
+      });
+      message.success({
+        content: (
+          <div className="ipd-success-msg-bar-container">
+            <span>Admission Assessment Form Saved Successfully</span>
+          </div>
+        ),
+        duration: 3,
+        type: "success",
+        icon: <img src={saveIcon} alt="x" />,
+        className: "ipd-custom-message",
       });
     });
   };
@@ -320,9 +324,19 @@ const AssessmentsForm = (props) => {
         }`}
         style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
       >
+        <FilledByCard
+          filledBy={assessmentData.assessmentsFilledByData?.createdByName || ""}
+          role={assessmentData.assessmentsFilledByData?.createdByRole || ""}
+          showFilledOnDate={true}
+          selectedDate={assessmentData.assessmentsFilledByData?.createdAt || ""}
+        />
         {assessments.length > 0
           ? assessments.map((item) => {
-              return renderSections(item);
+              return (
+                <React.Fragment key={item.id}>
+                  {renderSections(item)}
+                </React.Fragment>
+              );
             })
           : null}
       </div>
@@ -353,8 +367,7 @@ const AssessmentsForm = (props) => {
                 items={modelData}
                 renderSection={renderSections}
                 onRequestClose={() => {
-                  navigate(-1);
-                  return setOpen(false);
+                  setIsBackModalOpen(true);
                 }}
                 headerOffset={72}
                 // renderBottomSection={renderBottomSection} // TODO: INTEL - WHEN SHOWING CUSTOM MODULE - WHEN ANY NEW ADDED, ADD THEM IN CUSTOMIZATION API FOR THIS PARTICULAR USER, so that user can move the custom module too
@@ -407,6 +420,34 @@ const AssessmentsForm = (props) => {
           </Suspense>
         </Drawer>
       )}
+      <BackConfirmationModal
+        isModalOpen={isBackModalOpen}
+        onCancel={() => setIsBackModalOpen(false)}
+        onConfirm={() => {
+          if (!patientDetails?.details?.id && !patientDetails?.admissionId) {
+            setIsBackModalOpen(false);
+            navigate(-1);
+            setOpen(false);
+          }
+          try {
+            dispatch(
+              getAssessmentsData({
+                patientId: patientDetails?.details?.id,
+                admissionId: patientDetails?.admissionId,
+              })
+            ).then((res) => {
+              addDataToStore(res.payload.assessment);
+              navigate(-1);
+              setIsBackModalOpen(false);
+              setOpen(false);
+            });
+          } catch (err) {
+            console.log("INTEL ==> err", err);
+            setIsBackModalOpen(false);
+            setOpen(false);
+          }
+        }}
+      />
     </div>
   );
 };

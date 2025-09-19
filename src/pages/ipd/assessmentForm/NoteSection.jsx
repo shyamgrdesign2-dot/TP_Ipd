@@ -1,37 +1,39 @@
 import React, { useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/assessments";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
 import { useDispatch, useSelector } from "react-redux";
 import { setAdditionalNotesData } from "../../../redux/ipd/assessmentsFormSlice";
+import { isEmptyRichText } from "../../../utils/utils";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const NoteSection = (props) => {
   const { isEditable = true, sectionData } = props || {};
+  const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const [autoFillTextToAppendDischargeCriteria, setAutoFillTextToAppendDischargeCriteria] = useState([]);
   const { additionalNotesData = {} } = useSelector((state) => state.assessment);
-  const [initialValue] = useState(additionalNotesData || {});
   const dispatch = useDispatch();
   const handleOthersChange = (data, key) => {
     dispatch(setAdditionalNotesData({...additionalNotesData, [key]: data}));
   }
   const renderSpecialInstructions = (data) => {
-    if (!isEditable && !additionalNotesData?.specialInstructions) return null;
+    if (!isEditable && (isEmptyRichText(additionalNotesData?.specialInstructions))) return null;
     return (
       <RichTextEditWrapper
+        key={data?.title}
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width="100%"
-        icon={defaultIcons[data?.icon]}
+        width={isEditable ? "100%": 'fit-content'}
+        icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
         onChange={(data) => handleOthersChange(data, 'specialInstructions')}
-        initialValue={initialValue?.specialInstructions ? initialValue?.specialInstructions : [
+        initialValue={additionalNotesData?.specialInstructions ? additionalNotesData?.specialInstructions : [
           {
             type: "paragraph",
             children: [{ text: "" }],
@@ -44,31 +46,34 @@ const NoteSection = (props) => {
           console.log("save");
         }}
         onErase={() => {
-          console.log("erase");
+          setAutoFillTextToAppend(["clear"]);
         }}
         onTemplate={() => {
           console.log("template");
         }}
+        newAutoFillTextToAppend={autoFillTextToAppend}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppend}
       />
     );
   };
   const renderDischargeCriteria = (data) => {
-    if (!isEditable && !additionalNotesData?.dischargeCriteria) return null;
+    if (!isEditable && (isEmptyRichText(additionalNotesData?.dischargeCriteria))) return null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
+        key={data?.title}
         showActionBtns={isEditable}
         title={data?.title}
-        width="100%"
-        icon={defaultIcons[data?.icon]}
+        width={isEditable ? "100%": 'fit-content'}
+        icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
         onChange={(data) => handleOthersChange(data, 'dischargeCriteria')}
-        initialValue={initialValue?.dischargeCriteria ? initialValue?.dischargeCriteria : [
+        initialValue={additionalNotesData?.dischargeCriteria ? additionalNotesData?.dischargeCriteria : [
           {
             type: "paragraph",
             children: [{ text: "" }],
@@ -81,11 +86,13 @@ const NoteSection = (props) => {
           console.log("save");
         }}
         onErase={() => {
-          console.log("erase");
+          setAutoFillTextToAppendDischargeCriteria(["clear"]);
         }}
         onTemplate={() => {
           console.log("template");
         }}
+        newAutoFillTextToAppend={autoFillTextToAppendDischargeCriteria}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppendDischargeCriteria}
       />
     );
   };
@@ -101,15 +108,15 @@ const NoteSection = (props) => {
       }
     });
   };
-  if (!isEditable && (!additionalNotesData?.dischargeCriteria && !additionalNotesData?.specialInstructions)) return null;
+  if (!isEditable && (isEmptyRichText(additionalNotesData?.dischargeCriteria) && isEmptyRichText(additionalNotesData?.specialInstructions))) return null;
   return (
     <div>
       <CollapsibleWrapper
         title={sectionData?.title}
-        icon={assessmentsIcons[sectionData?.icon]}
+        icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
         collapsible={isEditable}
         width={"100%"}
-        className={"collapsible-wrapper-class"}
+        className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
         defaultOpen
       >
         {renderChildren()}

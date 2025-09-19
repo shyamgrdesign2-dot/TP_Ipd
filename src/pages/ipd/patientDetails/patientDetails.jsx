@@ -39,6 +39,7 @@ import ConsultantNotesTimeline from "../consultantNotes/ConsultantNotesTimeline"
 import LabResults from "../labResults/LabResults";
 import ProgressNotesView from "../progressNotes/progressNotesView/progressNotesView";
 import { getProgressNotes } from "../../../redux/ipd/progressNotesSlice";
+import MedicalRecords from "../medicalRecords/IPDMedicalRecords";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -116,6 +117,16 @@ const IPDPatientDetails = () => {
     });
   };
   
+  const handleMedicalRecordsClick = () => {
+    navigate("/ipd/patient-details/medical-records", {
+      state: {
+        patient_data,
+        patientDetails,
+        isEditable: true,
+      },
+    });
+  };
+  
   const handleProgressNotesClick = () => {
     navigate("/ipd/patient-details/progress-notes", {
       state: {
@@ -141,6 +152,7 @@ const IPDPatientDetails = () => {
   // Set active menu item based on activeTab parameter
   useEffect(() => {
     if (activeTab) {
+      console.log(activeTab,"activeTab")
       setActiveMenuItem(activeTab);
     }
   }, [activeTab]);
@@ -199,7 +211,9 @@ const IPDPatientDetails = () => {
       );
 
       // Functional Assessment Data
-      dispatch(setFunctionalAssessmentData(data?.functionalAssessment || {}));
+      const functionalAssessmentWithoutReferredDoc = { ...data?.functionalAssessment };
+      delete functionalAssessmentWithoutReferredDoc.referredToPhysiotherapyForReview;
+      dispatch(setFunctionalAssessmentData(functionalAssessmentWithoutReferredDoc || {}));
 
       // Treatment Plan Data
       dispatch(setTreatmentPlanData(data?.treatmentPlan || {}));
@@ -210,7 +224,7 @@ const IPDPatientDetails = () => {
       // Referred Doc For Review
       dispatch(
         setReferredDocForReview(
-          data?.functionalAssessment?.referredToPhysiotherapyForReview || null
+          data?.functionalAssessment?.referredToPhysiotherapyForReview || {}
         )
       );
     }
@@ -221,7 +235,7 @@ const IPDPatientDetails = () => {
 
     if (activeMenuItem === "assessment") {
       dispatch(getAssessmentsData({ patientId, admissionId })).then((res) => {
-        addDataToStore(res.payload);
+        addDataToStore(res.payload.assessment);
       });
     } else if (activeMenuItem === "consultantNotes") {
       dispatch(getConsultantNotes({ patientId, admissionId })).catch(
@@ -235,6 +249,12 @@ const IPDPatientDetails = () => {
           console.error("Error fetching progress notes:", error);
         }
       );
+    } else if (activeMenuItem === "records") {
+      // dispatch(getProgressNotes({ patientId, admissionId })).catch(
+      //   (error) => {
+      //     console.error("Error fetching progress notes:", error);
+      //   }
+      // );
     }
   }, [activeMenuItem, admissionId, patientId]);
 
@@ -244,6 +264,7 @@ const IPDPatientDetails = () => {
     consultantNotes: handleAddConsultantNotesClick,
     labResults: handleAddLabResultsClick,
     progress: handleProgressNotesClick,
+    records: handleMedicalRecordsClick,
   };
 
   const patientDetailsMenu = () => {
@@ -257,7 +278,7 @@ const IPDPatientDetails = () => {
   };
 
   const isDataPresent = useMemo(() => {
-    if (activeMenuItem === "assessment") {
+    if (activeMenuItem === "assessment" && !!assessmentsData) {
       return Object.keys(assessmentsData)?.length > 0;
     } else if (activeMenuItem === "otNotes") {
       return Object.keys(otNotesData)?.length > 0;
@@ -265,6 +286,8 @@ const IPDPatientDetails = () => {
       return !!consultantNotes?.length;
     } else if (activeMenuItem === "progress") {
       return !!progressNotes?.length;
+    } else if (activeMenuItem === "records") {
+      return false;
     }
     return false;
   }, [assessmentsData, otNotesData, activeMenuItem, consultantNotes, progressNotes]);
@@ -283,8 +306,10 @@ const IPDPatientDetails = () => {
     switch (activeItem?.id) {
       case "assessment":
         return (
+          <>
           <div className="ipd-adm-assess-container-readable">
             <AssessmentsForm isEditable={isEditable} />
+          </div>
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
                 onEdit={() => handleAddAssessmentClick(false)}
@@ -294,7 +319,7 @@ const IPDPatientDetails = () => {
                 onDownload={() => console.log("Download")}
               />
             </div>
-          </div>
+          </>
         );
       case "progress":
         return(
@@ -302,6 +327,7 @@ const IPDPatientDetails = () => {
             <ProgressNotesView  progressNotes={progressNotes} patientDetails={patientDetails}/>
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
+                showEditForm={false}
                 onEdit={handleAddAssessmentClick}
                 onPrintPreview={() => console.log("Preview")}
                 onPrint={() => console.log("Print")}
@@ -321,6 +347,12 @@ const IPDPatientDetails = () => {
         return (
           <div className="ipd-adm-assess-container-readable">
             <LabResults />
+          </div>
+        );
+      case "ecords":
+        return (
+          <div className="ipd-adm-assess-container-readable">
+            <MedicalRecords />
           </div>
         );
       default:

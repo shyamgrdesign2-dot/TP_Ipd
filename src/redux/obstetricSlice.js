@@ -12,6 +12,7 @@ const initialState = {
   defaultImmunisation: [],
   ancDoctorList: [],
   immunisationDoctorList: [],
+  obstetricDetailsBackup: {},
 };
 
 export const fetchObstetricsData = createAsyncThunk(
@@ -58,6 +59,9 @@ const obstetricSlice = createSlice({
       }
       state.obstetricDetails = action.payload;
       state.isObstetricDetailsFetched = true;
+    },
+    addObstetricDetailsBackup: (state, action) => {
+      state.obstetricDetailsBackup = action.payload;
     },
     patientDiagnosisUpdated: (state) => {
       state.isPatientDiagnosisUpdated = true;
@@ -106,6 +110,7 @@ const obstetricSlice = createSlice({
 export const {
   resetObstetricState,
   addObstetricDetails,
+  addObstetricDetailsBackup,
   patientDiagnosisUpdated,
   resetUpdatedPatientDiagnosis,
   obstetricDetailsUpdated,

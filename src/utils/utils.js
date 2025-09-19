@@ -12,7 +12,11 @@ import imageCompression from "browser-image-compression";
 import numeral from "numeral";
 import packageJson from "../../package.json";
 import { EVENTS } from "./events.js";
-import { AISENSY_SCRIPT_CONTAINER,AISENSY_SCRIPT_ID,AISENSY_SCRIPT_SRC } from "../utils/constants";
+import {
+  AISENSY_SCRIPT_CONTAINER,
+  AISENSY_SCRIPT_ID,
+  AISENSY_SCRIPT_SRC,
+} from "../utils/constants";
 // export const validateEmail = (email) => {
 //   return String(email)
 //     .toLowerCase()
@@ -28,7 +32,7 @@ export const aisensybotInjection = (isLoginFlow) => {
     if (existingScript) {
       document.body.removeChild(existingScript);
     }
-    
+
     // Also remove any injected widget container/button
     const widget = document.querySelector(AISENSY_SCRIPT_CONTAINER);
     if (widget) widget.remove();
@@ -535,8 +539,8 @@ export const getFormattedDate = (date) => {
 };
 
 export const formatDateToShortMonthYear = (date) => {
-  if (!date) return '';
-  return moment(date).format('DD MMM\’YY').replace('\'20', '\'');
+  if (!date) return "";
+  return moment(date).format("DD MMM’YY").replace("'20", "'");
 };
 
 const getTime = (date) => {
@@ -940,7 +944,10 @@ export const shouldAppointmentAgentDisabled = () => {
   const { hospital_business_id = null } = getTokenData();
   const currentHospital = Number(hospital_business_id);
 
-  if (currentHospital && appointmentAgentDisabledArray.includes(currentHospital)) {
+  if (
+    currentHospital &&
+    appointmentAgentDisabledArray.includes(currentHospital)
+  ) {
     return true;
   }
 
@@ -1003,8 +1010,8 @@ export const clearExpiredTokensFromStorage = () => {
 export const normalizeToDefault = (m, key) => {
   if (key && m[key]) return { default: m[key] };
   if (m?.default) return { default: m.default };
-  if (typeof m === 'function') return { default: m };
-  throw new Error('Remote module does not export a React component.');
+  if (typeof m === "function") return { default: m };
+  throw new Error("Remote module does not export a React component.");
 };
 
 export const sortAssessmentFormStructure = (array) => {
@@ -1013,20 +1020,20 @@ export const sortAssessmentFormStructure = (array) => {
   }
 
   const sortedArray = [...array].sort((a, b) => {
-    const orderA = typeof a.order === 'number' ? a.order : 0;
-    const orderB = typeof b.order === 'number' ? b.order : 0;
+    const orderA = typeof a.order === "number" ? a.order : 0;
+    const orderB = typeof b.order === "number" ? b.order : 0;
     return orderA - orderB;
   });
 
-  return sortedArray.map(section => {
+  return sortedArray.map((section) => {
     if (Array.isArray(section.children)) {
       return {
         ...section,
         children: [...section.children].sort((a, b) => {
-          const orderA = typeof a.order === 'number' ? a.order : 0;
-          const orderB = typeof b.order === 'number' ? b.order : 0;
+          const orderA = typeof a.order === "number" ? a.order : 0;
+          const orderB = typeof b.order === "number" ? b.order : 0;
           return orderA - orderB;
-        })
+        }),
       };
     }
     return section;
@@ -1041,13 +1048,13 @@ export const addOrderToAssessmentFormStructure = (array) => {
   return array.map((section, index) => {
     const sectionWithOrder = {
       ...section,
-      order: index
+      order: index,
     };
 
     if (Array.isArray(section.children)) {
       sectionWithOrder.children = section.children.map((child, childIndex) => ({
         ...child,
-        order: childIndex
+        order: childIndex,
       }));
     }
 
@@ -1057,15 +1064,17 @@ export const addOrderToAssessmentFormStructure = (array) => {
 
 export const convertMedicationFormat = (medications) => {
   if (!medications) return [];
-  
-  // If single object is passed, convert to array
-  const medicationArray = Array.isArray(medications) ? medications : [medications];
 
-  return medicationArray.map(medication => {
+  // If single object is passed, convert to array
+  const medicationArray = Array.isArray(medications)
+    ? medications
+    : [medications];
+
+  return medicationArray.map((medication) => {
     // Extract frequency and schedule from the medication object
-    let frequency = '';
+    let frequency = "";
     let schedule = [];
-    
+
     // Convert frequency type to human readable format
     if (medication.tmm_freq_type_name) {
       frequency = medication.tmm_freq_type_name;
@@ -1088,7 +1097,7 @@ export const convertMedicationFormat = (medications) => {
       frequency: frequency || "Once daily", // Default to once daily if not specified
       schedule: schedule.join(", ") || "As needed",
       duration: medication.tmm_duration_type || "as needed",
-      notes: medication.tmm_remarks || ""
+      notes: medication.tmm_remarks || "",
     };
   });
 };
@@ -1096,15 +1105,15 @@ export const convertMedicationFormat = (medications) => {
 export const convertTemplateDataToRichText = (templateData, templateType) => {
   if (!Array.isArray(templateData)) return [];
   switch (templateType) {
-    case 'symptoms':
+    case "symptoms":
       return [
         {
-          type: 'bulleted-list',
-          children: templateData.map(item => ({
-            type: 'list-item',
+          type: "bulleted-list",
+          children: templateData.map((item) => ({
+            type: "list-item",
             children: [
               {
-                text: item?.symptom_name || item?.title || item?.symptom || '',
+                text: item?.symptom_name || item?.title || item?.symptom || "",
                 bold: true,
               },
               {
@@ -1113,33 +1122,34 @@ export const convertTemplateDataToRichText = (templateData, templateType) => {
                   if (item.since) parts.push(`since: ${item.since}`);
                   if (item.severity) parts.push(`severity: ${item.severity}`);
                   if (item.note) parts.push(item.note);
-                  return parts.length ? ` (${parts.join(', ')})` : '';
+                  return parts.length ? ` (${parts.join(", ")})` : "";
                 })(),
               },
             ],
           })),
         },
       ];
-    case 'medications':
+    case "medications":
       return [
         {
-          type: 'bulleted-list',
-          children: templateData.map(item => ({
-            type: 'list-item',
+          type: "bulleted-list",
+          children: templateData.map((item) => ({
+            type: "list-item",
             children: [
               {
-                text: item.medication_name || '',
+                text: item.medication_name || "",
                 bold: true,
               },
               {
                 text: (() => {
                   const parts = [];
                   if (item.unitPerDose) parts.push(`Dose: ${item.unitPerDose}`);
-                  if (item.frequency) parts.push(`Frequency: ${item.frequency}`);
+                  if (item.frequency)
+                    parts.push(`Frequency: ${item.frequency}`);
                   if (item.schedule) parts.push(`Schedule: ${item.schedule}`);
                   if (item.duration) parts.push(`Duration: ${item.duration}`);
                   if (item.notes) parts.push(`Instructions: ${item.notes}`);
-                  return parts.length ? ` (${parts.join(', ')})` : '';
+                  return parts.length ? ` (${parts.join(", ")})` : "";
                 })(),
               },
             ],
@@ -1149,4 +1159,171 @@ export const convertTemplateDataToRichText = (templateData, templateType) => {
     default:
       return [];
   }
+};
+
+export const mergeArraysOfObjects = (
+  array1 = [],
+  array2 = [],
+  matchKey = "title",
+  tagsKey = "tags",
+  tagMatchKey = "title"
+) => {
+  if (!Array.isArray(array1) || !Array.isArray(array2)) {
+    return Array.isArray(array1) ? array1 : Array.isArray(array2) ? array2 : [];
+  }
+
+  const array2Map = new Map();
+  array2.forEach((item) => {
+    if (item && typeof item === "object" && item[matchKey]) {
+      array2Map.set(item[matchKey], item);
+    }
+  });
+
+  const mergedArray = array1.map((item1) => {
+    if (!item1 || typeof item1 !== "object" || !item1[matchKey]) {
+      return item1;
+    }
+
+    const matchingItem2 = array2Map.get(item1[matchKey]);
+
+    if (!matchingItem2) {
+      return item1;
+    }
+
+    const mergedItem = { ...matchingItem2, ...item1 };
+
+    if (
+      tagsKey &&
+      Array.isArray(item1[tagsKey]) &&
+      Array.isArray(matchingItem2[tagsKey])
+    ) {
+      const tags1Map = new Map();
+      item1[tagsKey].forEach((tag) => {
+        if (tag && typeof tag === "object" && tag[tagMatchKey]) {
+          tags1Map.set(tag[tagMatchKey], tag);
+        }
+      });
+
+      const mergedTags = [...item1[tagsKey]];
+
+      matchingItem2[tagsKey].forEach((tag2) => {
+        if (tag2 && typeof tag2 === "object" && tag2[tagMatchKey]) {
+          if (!tags1Map.has(tag2[tagMatchKey])) {
+            mergedTags.push(tag2);
+          }
+        }
+      });
+
+      mergedItem[tagsKey] = mergedTags;
+    }
+
+    array2Map.delete(item1[matchKey]);
+
+    return mergedItem;
+  });
+
+  array2Map.forEach((item) => {
+    mergedArray.push(item);
+  });
+
+  return mergedArray;
+};
+
+export const isEmptyRichText = (richText) => {
+  return !richText?.length || richText?.[0]?.children?.[0]?.text === "";
+};
+
+export const deepMergePreserveFirst = (obj1, obj2) => {
+  const isEmpty = (value) => {
+    if (value == null) return true;
+    if (Array.isArray(value)) return value.length === 0;
+    if (typeof value === "string") return value.trim() === "";
+    return false;
+  };
+
+  if (obj1 == null && obj2 == null) return null;
+  if (obj1 == null) return obj2;
+  if (obj2 == null) return obj1;
+
+  if (
+    typeof obj1 !== "object" ||
+    obj1 === null ||
+    typeof obj2 !== "object" ||
+    obj2 === null
+  ) {
+    return isEmpty(obj2) ? obj1 : obj2;
+  }
+
+  if (obj1 instanceof Date || obj2 instanceof Date) {
+    return obj2 instanceof Date ? obj2 : obj1;
+  }
+
+  if (Array.isArray(obj1) && Array.isArray(obj2)) {
+    if (obj2.length === 0) return obj1;
+
+    if (obj1.length === 0) return obj2;
+
+    const maxLength = Math.max(obj1.length, obj2.length);
+    const result = [];
+
+    for (let i = 0; i < maxLength; i++) {
+      const val1 = i < obj1.length ? obj1[i] : undefined;
+      const val2 = i < obj2.length ? obj2[i] : undefined;
+
+      if (
+        val1 != null &&
+        val2 != null &&
+        typeof val1 === "object" &&
+        typeof val2 === "object" &&
+        !Array.isArray(val1) &&
+        !Array.isArray(val2) &&
+        !(val1 instanceof Date) &&
+        !(val2 instanceof Date)
+      ) {
+        result[i] = deepMergePreserveFirst(val1, val2);
+      } else {
+        result[i] = val2 !== undefined && !isEmpty(val2) ? val2 : val1;
+      }
+    }
+
+    return result;
+  }
+
+  if (Array.isArray(obj1) || Array.isArray(obj2)) {
+    if (Array.isArray(obj2) && obj2.length === 0) return obj1;
+    if (Array.isArray(obj1) && obj1.length === 0) return obj2;
+    return obj2;
+  }
+
+  const result = { ...obj1 };
+
+  for (const key in obj2) {
+    if (obj2.hasOwnProperty(key)) {
+      if (key in obj1) {
+        const val1 = obj1[key];
+        const val2 = obj2[key];
+
+        if (isEmpty(val2)) {
+          result[key] = val1;
+        } else if (
+          val1 != null &&
+          val2 != null &&
+          typeof val1 === "object" &&
+          typeof val2 === "object" &&
+          !Array.isArray(val1) &&
+          !Array.isArray(val2) &&
+          !(val1 instanceof Date) &&
+          !(val2 instanceof Date)
+        ) {
+          result[key] = deepMergePreserveFirst(val1, val2);
+        } else {
+          result[key] = val2;
+        }
+      } else {
+        result[key] = obj2[key];
+      }
+    }
+  }
+
+  return result;
 };

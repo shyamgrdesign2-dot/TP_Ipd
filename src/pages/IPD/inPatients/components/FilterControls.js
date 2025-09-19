@@ -2,7 +2,7 @@ import React from "react";
 import { Col } from "react-bootstrap";
 import SearchInput from "./SearchInput";
 import FilterDropdown from "./FilterDropdown";
-import DateRangeFilter from "./DateRangeFilter";
+import DateRangeFilter from "../../components/DateRangeFilter";
 
 const FilterControls = ({
   searchQuery,

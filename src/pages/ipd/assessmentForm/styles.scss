@@ -49,12 +49,17 @@ $muted: #6f6b88;
   .ipdaf-medication-box-container-readonly {
     margin: 24px;
     padding: 6px 6px 0;
-    border: 1px solid #e9e8e8;
+    border: none !important;
+  }
+  textarea.ant-input.css-dev-only-do-not-override-kbg4zp.ant-input-outlined.notesinput.border-0.h-100.align-self-center,
+  .ant-select-selector {
+    background: #fbfafd !important;
+    background-color: #fbfafd !important;
   }
   .ipdaf-generic-card-container {
     padding: 12px;
-    margin-bottom: 24px;
-    margin-top: 24px;
+    // margin-bottom: 24px;
+    // margin-top: 24px;
     box-shadow: 0px 0px 12px 0px #00000003;
     .generic-card__icon {
       width: 25px;
@@ -76,6 +81,18 @@ $muted: #6f6b88;
       font-weight: 500 !important;
       line-height: normal !important;
     }
+    .ant-collapse-expand-icon {
+      display: none !important;
+    }
+    .ant-collapse-content-box {
+      background-color: #fff !important;
+    }
+  }
+  .ipdaflr-readyonly {
+    margin-bottom: 24px;
+    margin-top: 24px;
+  }
+  .ipdaf-readable-renderer {
   }
   .ipdaf-obstetrics-container {
     margin-top: 14px;
@@ -123,6 +140,24 @@ $muted: #6f6b88;
     margin: 0 !important;
   }
   .collapsible-wrapper-class {
+    background: linear-gradient(
+      164.22deg,
+      rgba(243, 232, 253, 0.7) 0.28%,
+      rgba(242, 239, 250, 0.7) 16.3%
+    );
+    .collapsible-wrapper-abs-header-shadow {
+      background: linear-gradient(
+        180deg,
+        #ffffff 0%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      width: 100%;
+    }
     .cw__body {
       padding: 0px !important;
     }
@@ -138,17 +173,39 @@ $muted: #6f6b88;
       gap: 0;
       margin: 0 20px 24px;
       border-radius: 10px;
-      background: #ffffff80;
-      box-shadow: 0 0 12px 0 #00000003;
+
+      background: #fbfafd !important;
+      background-color: #fbfafd !important;
+      box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01) !important;
+      *:not(thead):not(th):not(tr):not(td):not(th > div):not(th > div > div) {
+        background: #fbfafd !important;
+        background-color: #fbfafd !important;
+      }
+      th > div {
+        background: rgb(241, 241, 245) !important;
+        background-color: rgb(241, 241, 245) !important;
+      }
+      .ant-collapse-content,
+      .ant-collapse-content-active {
+        background: #fbfafd !important;
+        background-color: #fbfafd !important;
+      }
     }
     .ipd-pmh-wrapper-class,
     .ipd-gynec-history-wrapper {
       background-color: #fff;
     }
+    &:hover {
+      box-shadow: none !important;
+    }
   }
   .ipd-wrapper-class-readonly {
+    background: #fbfafd !important;
+    background-color: #fbfafd !important;
+    box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01);
     .rich-text-editor-wrapper {
-      // background: #ffffff80 !important;
+      background: #fbfafd !important;
+      background-color: #fbfafd !important;
     }
   }
 
@@ -159,6 +216,10 @@ $muted: #6f6b88;
     margin-bottom: 24px;
     box-shadow: 0px 0px 6px 0px #00000005;
     background-color: var(--backgroundColor, #fff);
+    &-readonly {
+      margin-left: 20px;
+      margin-right: 20px;
+    }
   }
   .ipd-custom-module-container {
     background-color: #fff;
@@ -167,11 +228,12 @@ $muted: #6f6b88;
 }
 
 .ipd-assessments-readable-container {
-  overflow: auto;
-  height: calc(100dvh - 161px);
   border-radius: 24px;
   padding: 30px 30px 84px;
   border: 1px solid #eaecf0;
+  gap: 18px;
+  display: flex;
+  flex-direction: column;
 
   .rich-text-editor-container {
     border: none !important;
@@ -212,12 +274,14 @@ $muted: #6f6b88;
 .ipd-adm-assess-container-readable {
   .rich-text-editor-wrapper-header-title {
     font-weight: 600 !important;
-  } 
+  }
 }
 .ipd-fn-as-readonly {
   margin-bottom: 24px;
+  background-color: #fbfafd !important;
+  box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01);
   .ipdaf-assessment-readonly {
-    padding: 0 38px;
+    padding: 0 41px;
   }
 }
 .ipdaf-vitals-header {
@@ -292,7 +356,7 @@ $muted: #6f6b88;
     align-items: center;
     justify-content: left;
     gap: 4px;
-    @media (max-width: 900px) {
+    @media (max-width: 1100px) {
       &[data-testid="examination-radio-neurological_psychosocial"] {
         flex-direction: column;
         align-items: flex-start;
@@ -303,7 +367,6 @@ $muted: #6f6b88;
   .examination-rich-container {
     border: 1px solid #e2e2ea80;
     width: 100% !important;
-    background: #fafafb66;
   }
 
   .examination-header {
@@ -515,6 +578,7 @@ $muted: #6f6b88;
   overflow: hidden !important;
   .content-card {
     border: none !important;
+    align-items: flex-start !important;
   }
 }
 
@@ -527,5 +591,99 @@ $muted: #6f6b88;
     .formClusters {
       border-radius: 24px;
     }
+  }
+}
+
+.examination-rich-readonly-container {
+  background: #fbfafd !important;
+  box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01);
+  border: none !important;
+}
+.ipd-success-msg-bar-container {
+  color: rgba(255, 255, 255, 1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
+  span {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 1) !important;
+  }
+}
+
+.ipd-custom-message {
+  .ant-message-notice-content {
+    background: rgba(23, 23, 37, 1) !important;
+    color: rgba(255, 255, 255, 1) !important;
+    border-radius: 8px !important;
+    box-shadow: 0px 4px 12px 0px rgba(185, 185, 185, 0.25) !important;
+  }
+
+  .ant-message-custom-content {
+    color: rgba(255, 255, 255, 1) !important;
+  }
+}
+
+.ipd-fas-refphy-container {
+  box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.02);
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  .referred-to-physiotherapy-name {
+    margin: 6px 40px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #454551;
+  }
+  .refphy-label-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px;
+    .refphy-label {
+      font-size: 16px;
+      font-weight: 500;
+      color: #454551;
+    }
+    img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+  }
+  .autocomplete-custom.ant-select .ant-select-selector {
+    padding: 8px !important;
+  }
+  .autocomplete-custom.ant-select .ant-select-selection-placeholder {
+    font-family: "Poppins" !important;
+    font-size: 14px !important;
+  }
+}
+
+.ipd-wrapper-class-readonly {
+  .refphy-label-container {
+    gap: 16px;
+  }
+}
+.filled-on-date  {
+  span {
+  color: rgba(186, 125, 233, 1) !important;
+  }
+}
+
+.ipdaf-medication-box-container-readonly {
+  textarea.ant-input.css-kbg4zp.ant-input-outlined.notesinput {
+    background: #fbfafd !important;
+    background-color: #fbfafd !important;
   }
 }

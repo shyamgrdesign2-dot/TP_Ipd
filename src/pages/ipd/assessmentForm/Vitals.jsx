@@ -1,7 +1,7 @@
 import React from "react";
 import { IPD } from "../../../utils/locale";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
 import { setVitalsData } from "../../../redux/ipd/assessmentsFormSlice";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -15,7 +15,7 @@ const Vitals = (props) => {
   // Check if at least one vital value exists
   const hasAnyVitalValue = Object.values(vitalsData).some(
     (value) =>
-      value !== null && value !== undefined && value !== "" && value.enabled
+      value !== null && value !== undefined && value !== ""
   );
   const handleVitalsValue = (e, key) => {
     dispatch(setVitalsData({ ...vitalsData, [key]: e }));
@@ -28,16 +28,15 @@ const Vitals = (props) => {
     </span>
   );
 
-  console.log('INTEL ==> SECCCC', sectionData, vitalsData)
   const renderReadOnlyVitals = () => {
     const vitalComponents = sectionData?.children
       ?.filter((config) => vitalsData?.[config.id] && config.enabled)
       .map((config) => (
         <VitalDisplay
-          label={config.label}
+          label={config.id}
           value={vitalsData[config.id]}
-          unit={config.unit}
-          suffix={config.suffix}
+          unit={config?.unit}
+          suffix={config?.suffix}
         />
       ));
 
@@ -59,18 +58,20 @@ const Vitals = (props) => {
         {sectionData.children
           ?.filter((config) => config.enabled)
           ?.map((config) => {
-            // const vital = IPD.VITALS.find(v => v.name === config.id) || {};
             return (
-              <UnitInput
-                containerStyle={{ marginBottom: "20px" }}
-                onChange={(e) => handleVitalsValue(e, config.id)}
-                value={vitalsData?.[config.id]}
-                type="text"
-                inputMode="decimal"
-                label={config.label}
-                unit={config.unit}
-                {...config}
-              />
+              <React.Fragment key={config.id}>
+                <UnitInput
+                  key={config.id}
+                  containerStyle={{ marginBottom: "20px" }}
+                  onChange={(e) => handleVitalsValue(e, config.id)}
+                  value={vitalsData?.[config.id]}
+                  type="text"
+                  inputMode="decimal"
+                  label={config.label}
+                  unit={config.unit}
+                  {...config}
+                />
+              </React.Fragment>
             );
           })}
       </div>
@@ -83,9 +84,9 @@ const Vitals = (props) => {
   }
 
   return (
-    <div className="ipdaf-vitals-main-container">
+    <div className={`ipdaf-vitals-main-container ${!isEditable ? 'ipdaf-vitals-main-container-readonly' : ''}`}>
       <div className="ipdaf-vitals-header">
-        <img src={defaultIcons[sectionData?.icon]} alt="vitals" />
+        <img src={defaultIcons[`${sectionData?.id}Pc`]} alt="vitals" />
         <div>{sectionData?.title}</div>
       </div>
       {isEditable ? renderEditableVitals() : renderReadOnlyVitals()}

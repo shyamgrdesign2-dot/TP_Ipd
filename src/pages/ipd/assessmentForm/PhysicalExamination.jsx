@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import ExaminationSection from "./ExaminationSection";
 import Vitals from "./Vitals";
-import { defaultIcons } from "../../../assets/images/icons";
-import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/assessments";
+import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
 import {
   setPhysicalExaminationOthersData,
   setPhysicalExaminationProvisionalDiagnosisData,
 } from "../../../redux/ipd/assessmentsFormSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { isEmptyRichText } from "../../../utils/utils";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 
@@ -17,9 +17,15 @@ const PhysicalExamination = (props) => {
     physicalExaminationOthersData = [],
     referredDocForReview = "",
     physicalExaminationProvisionalDiagnosisData = [],
+    physicalExaminationBasicData = {},
   } = useSelector((state) => state.assessment);
   const { isEditable = true, sectionData } = props || {};
   const dispatch = useDispatch();
+  const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const [
+    autoFillTextToAppendProvisionalDiagnosis,
+    setAutoFillTextToAppendProvisionalDiagnosis,
+  ] = useState([]);
   const handleOthersChange = (data) => {
     dispatch(setPhysicalExaminationOthersData(data));
   };
@@ -29,17 +35,20 @@ const PhysicalExamination = (props) => {
   };
 
   const renderOthers = (data) => {
-    if (!isEditable && !physicalExaminationOthersData?.length) return null;
+    if (!isEditable && isEmptyRichText(physicalExaminationOthersData))
+      return null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width="100%"
-        icon={defaultIcons[data?.icon]}
+        width={isEditable ? "100%" : "fit-content"}
+        icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
         showMagicPenGif={false}
         showMicrophone={false}
         onChange={handleOthersChange}
@@ -58,27 +67,35 @@ const PhysicalExamination = (props) => {
           console.log("save");
         }}
         onErase={() => {
-          console.log("erase");
+          setAutoFillTextToAppend(["clear"]);
         }}
         onTemplate={() => {
           console.log("template");
         }}
+        newAutoFillTextToAppend={autoFillTextToAppend}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppend}
       />
     );
   };
 
   const renderProvisionalDiagnosis = (data) => {
-    if (!isEditable && !physicalExaminationProvisionalDiagnosisData?.length) return null;
+    if (
+      !isEditable &&
+      isEmptyRichText(physicalExaminationProvisionalDiagnosisData)
+    )
+      return null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width="100%"
-        icon={defaultIcons[data?.icon]}
+        width={isEditable ? "100%" : "fit-content"}
+        icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         onChange={handleProvisionalDiagnosisChange}
@@ -100,45 +117,56 @@ const PhysicalExamination = (props) => {
           console.log("save");
         }}
         onErase={() => {
-          console.log("erase");
+          setAutoFillTextToAppendProvisionalDiagnosis(["clear"]);
         }}
         onTemplate={() => {
           console.log("template");
         }}
-        onVoiceDictatorClick={(callback) => {
-          console.log("voice dictation");
-          setTimeout(() => {
-            callback();
-          }, 3000);
-        }}
+        newAutoFillTextToAppend={autoFillTextToAppendProvisionalDiagnosis}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppendProvisionalDiagnosis}
       />
     );
   };
 
   const renderChildren = () => {
     return sectionData?.children?.map((item) => {
-      switch (item?.id) {
-        case "examinations":
-          return <ExaminationSection {...props} sectionData={item} />;
-        case "vitals":
-          return <Vitals {...props} sectionData={item} />;
-        case "others":
-          return renderOthers(item);
-        case "provisionalDiagnosis":
-          return renderProvisionalDiagnosis(item);
-        default:
-          return null;
-      }
+      return (
+        <React.Fragment key={item.id}>
+          {(() => {
+            switch (item?.id) {
+              case "examinations":
+                return <ExaminationSection {...props} sectionData={item} />;
+              case "vitals":
+                return <Vitals {...props} sectionData={item} />;
+              case "others":
+                return renderOthers(item);
+              case "provisionalDiagnosis":
+                return renderProvisionalDiagnosis(item);
+              default:
+                return null;
+            }
+          })()}
+        </React.Fragment>
+      );
     });
   };
+  if (
+    !isEditable &&
+    !Object.keys(physicalExaminationBasicData)?.length &&
+    isEmptyRichText(physicalExaminationOthersData) &&
+    isEmptyRichText(physicalExaminationProvisionalDiagnosisData)
+  )
+    return null;
   return (
     <>
       <CollapsibleWrapper
         title={sectionData?.title}
-        icon={assessmentsIcons[sectionData?.icon]}
+        icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
         collapsible={isEditable}
         width={"100%"}
-        className={"collapsible-wrapper-class"}
+        className={`collapsible-wrapper-class ${
+          isEditable ? "" : "collapsible-wrapper-class-readonly"
+        }`}
         defaultOpen
       >
         {renderChildren()}

@@ -1,13 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons";
-import { useSelector } from "react-redux";
+import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
+import { useSelector, useDispatch } from "react-redux";
 import MedicalHistoryList from "../../../components/MedicalHistoryList";
 import MedicalHistoryBox from "../../../components/MedicalHistoryBox";
 import { Drawer } from "antd";
+import { setMedicalHistoryData } from "../../../redux/prescriptionSlice";
+import { formatDateToShortMonthYear, mergeArraysOfObjects } from "../../../utils/utils";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const GenericCard = createRemoteComponent("GenericCard");
+const AutoFillButton = createRemoteComponent("AutoFillButton");
 
 const PastMedicalHistory = (props) => {
   const {
@@ -16,18 +20,50 @@ const PastMedicalHistory = (props) => {
     patientDataForOPDComponents,
   } = props || {};
   let { medicalHistoryData } = useSelector((state) => state.prescription);
+  const {
+    lastPrescriptionDataForAssessment,
+    lastPrescriptionDate,
+  } = useSelector((state) => state.assessment);
+  const { lastRxDate } = lastPrescriptionDate || {};
+  const dispatch = useDispatch();
   const [addMedicalHistoryDrawer, setAddMedicaHistoryDrawer] = useState(false);
 
   const handleAddMedicalHistory = () => {
     setAddMedicaHistoryDrawer(!addMedicalHistoryDrawer);
   };
 
+  const renderAutoFillButton = useCallback(() => {
+    const { pastMedicalHistory: lastPastMedicalHistory = {} } =
+      lastPrescriptionDataForAssessment || {};
+    if (!lastRxDate) return null;
+    return (
+      <AutoFillButton
+        onClick={(data, e) => {
+          e?.stopPropagation();
+
+          if (data?.[0] === "undo") {
+            dispatch(setMedicalHistoryData([]));
+            return;
+          }
+          if (lastPastMedicalHistory.length && !medicalHistoryData?.length) {
+            dispatch(setMedicalHistoryData(lastPastMedicalHistory));
+          } else {
+            dispatch(setMedicalHistoryData(mergeArraysOfObjects(lastPastMedicalHistory, medicalHistoryData)));
+          }
+        }}
+        title={`Autofill From OPD (${formatDateToShortMonthYear(
+          lastRxDate
+        )})`}
+      />
+    );
+  }, [lastPrescriptionDataForAssessment, medicalHistoryData]);
+
   const renderMedicalHistory = () => {
     return (
       <div
         className={`ipdaf-generic-card-container ${
           medicalHistoryData?.length ? "ipdaf-padding-0 ipdaf-margin-0" : ""
-        }`}
+        } ${!isEditable ? "ipdaf-readable-renderer" : null}`}
       >
         {medicalHistoryData?.length ? (
           <MedicalHistoryList isIPD={true} />
@@ -45,7 +81,9 @@ const PastMedicalHistory = (props) => {
                   ? "Add/Edit Past Medical History"
                   : "Add Past Medical History"
               }
-            />
+            >
+              {renderAutoFillButton()}
+            </GenericCard>
           </div>
         ) : null}
       </div>
@@ -62,7 +100,7 @@ const PastMedicalHistory = (props) => {
         title={sectionData?.title || "Past Medical History"}
         width="100%"
         containerClass="wrapper-class ipd-pmh-wrapper-class"
-        icon={defaultIcons[sectionData?.icon]}
+        icon={assessmentsIcons[`${sectionData?.id}Pc`]}
         showAutoFill={isEditable}
         opdDate="15 Jun 2025"
         onAutoFill={() => {
@@ -70,18 +108,6 @@ const PastMedicalHistory = (props) => {
         }}
         onSave={() => {
           console.log("save");
-        }}
-        onErase={() => {
-          console.log("erase");
-        }}
-        onTemplate={() => {
-          console.log("template");
-        }}
-        onVoiceDictatorClick={(callback) => {
-          console.log("voice dictation");
-          setTimeout(() => {
-            callback();
-          }, 3000);
         }}
         renderBody={renderMedicalHistory}
       />

@@ -265,6 +265,7 @@ const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, 
                                         >
                                             <td
                                                 colSpan={filteredReports.length + 1} // Span across all columns
+                                                // className='vlabp-td-collapsy-head'
                                                 style={{
                                                     position: 'sticky',
                                                     left: 0,  // Set the left position to make it stick on the left
@@ -277,6 +278,7 @@ const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, 
                                                     width: "23rem",
                                                     borderTopLeftRadius: isIPD ? 0: "10px",
                                                     borderBottomLeftRadius: isIPD ? 0 : "10px",
+                                                    borderBottom: !isIPD ? 'none' : '1px solid rgb(221, 221, 221)',
                                                     // borderRight: !isIPD ? 'none' : '1px solid #ddd',
                                                 }}
                                             >
@@ -293,8 +295,8 @@ const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, 
                                             {filteredReports.length < 2 ? (
                                                 // Render at least two empty <td>s if the length is less than 2
                                                 <>
-                                                    <td style={{ background: "#FAFAFB", width: "160px", padding: '10px', textAlign: 'right' }}></td>
-                                                    <td style={{ background: "#FAFAFB", width: "160px", padding: '10px', textAlign: 'right' }}></td>
+                                                    <td style={{ background: "#FAFAFB", width: "160px", padding: '10px', textAlign: 'right', borderBottom: !isIPD ? 'none' : '1px solid rgb(221, 221, 221)', }}></td>
+                                                    <td style={{ background: "#FAFAFB", width: "160px", padding: '10px', textAlign: 'right', borderBottom: !isIPD ? 'none' : '1px solid rgb(221, 221, 221)', }}></td>
                                                 </>
                                             ) : (
                                                 filteredReports.map((entry, entryIndex) => {
@@ -310,6 +312,7 @@ const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, 
                                                                 textAlign: 'right', // Right align the icon for the last cell
                                                                 borderTopRightRadius: (isLastCell && !isIPD) ? "10px" : " ",
                                                                 borderBottomRightRadius: (isLastCell && !isIPD) ? "10px" : " ",
+                                                                borderBottom: !isIPD ? 'none' : '1px solid rgb(221, 221, 221)',
                                                             }}
                                                         >
                                                         </td>
@@ -367,7 +370,7 @@ const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, 
                                                                                     flexBasis: "34%",
                                                                                     borderRight: isIPD && isLastCell ? 'none' : "1px solid #ddd",
                                                                                     padding: "10px",
-                                                                                    background: "white",
+                                                                                    background: isIPD ? 'inherit' : "white",
                                                                                     fontWeight: "400",
                                                                                 }}
                                                                                 className={`${testOnDate?.arrowDirection ===

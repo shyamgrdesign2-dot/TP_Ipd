@@ -1,19 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { IPD } from "../../../utils/locale";
-import { ConfigProvider, Radio } from "antd";
-import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/assessments";
-import { defaultIcons } from "../../../assets/images/icons";
+import { ConfigProvider, Radio, Select } from "antd";
+import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
 import { useDispatch, useSelector } from "react-redux";
-import { setFunctionalAssessmentData } from "../../../redux/ipd/assessmentsFormSlice";
+import {
+  setFunctionalAssessmentData,
+  setReferredDocForReview,
+} from "../../../redux/ipd/assessmentsFormSlice";
+import { isEmptyRichText } from "../../../utils/utils";
+import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const FunctionalAssessment = (props) => {
-  const { functionalAssessmentData = [] } = useSelector(
+  const { referredDocForReview, functionalAssessmentData = [] } = useSelector(
     (state) => state.assessment
   );
-  const [initialValue] = useState(functionalAssessmentData?.others || []);
+  const { filters } = useSelector((state) => state.inPatients);
+  const doctorsList = filters?.doctor || [];
+  const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const dispatch = useDispatch();
   const handleOthersChange = (data) => {
     dispatch(
@@ -21,14 +27,11 @@ const FunctionalAssessment = (props) => {
     );
   };
   const { isEditable = true, sectionData } = props || {};
-  const [assessmentValue, setAssessmentValue] = useState({});
-
+  
   const handleAssessmentChange = (key, e, item) => {
     const selectedOption = item.options.find(
       (option) => option.value === e.target.value
     );
-    const next = { ...assessmentValue, [key]: selectedOption.label };
-    // setAssessmentValue(next);
     dispatch(
       setFunctionalAssessmentData({
         ...functionalAssessmentData,
@@ -37,8 +40,13 @@ const FunctionalAssessment = (props) => {
     );
   };
 
+  useEffect(() => {
+    dispatch(fetchFilters({ field: "doctor" }));
+  }, []);
+
   const renderOthers = (data) => {
-    if (!isEditable && !functionalAssessmentData?.others?.length) return null;
+    if (!isEditable && isEmptyRichText(functionalAssessmentData?.others))
+      return null;
 
     return (
       <RichTextEditWrapper
@@ -46,18 +54,18 @@ const FunctionalAssessment = (props) => {
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width="100%"
-        icon={defaultIcons[data?.icon]}
+        width={isEditable ? "100%" : "fit-content"}
+        icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
         containerClass={`wrapper-class ${
-          isEditable ? "ipd-wrapper-class-readonly" : ""
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
         initialValue={
-          initialValue.length
-            ? initialValue
+          functionalAssessmentData?.others?.length
+            ? functionalAssessmentData?.others
             : [
                 {
                   type: "paragraph",
@@ -71,55 +79,41 @@ const FunctionalAssessment = (props) => {
           console.log("save");
         }}
         onErase={() => {
-          console.log("erase");
+          setAutoFillTextToAppend(["clear"]);
         }}
         onTemplate={() => {
           console.log("template");
         }}
-        onVoiceDictatorClick={(callback) => {
-          console.log("voice dictation");
-          setTimeout(() => {
-            callback();
-          }, 3000);
-        }}
+        newAutoFillTextToAppend={autoFillTextToAppend}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppend}
       />
     );
   };
-  const ASSESSMENT_CONFIGS = [
-    { key: "bedActivity", label: "Bed Activity" },
-    { key: "sitting", label: "Sitting" },
-    { key: "standing", label: "Standing" },
-    { key: "ambulation", label: "Ambulation" },
-    {
-      key: "stairClimbing",
-      label: "Stair Climbing",
-      note: "reports fatigue on climbing stairs",
-    },
-    { key: "bedSoreOnAdmission", label: "Bed Sore on Admission" },
-  ];
 
-  const AssessmentDisplay = ({ label, value, note }) => (
-    <span>
-      <span className="assessment-label">{label}:</span> {value}
-      {note && value?.toLowerCase().includes("needs assistance") && (
-        <span className="assessment-note"> ({note})</span>
-      )}
-    </span>
-  );
+  const AssessmentDisplay = ({ label, value }) => {
+    return (
+      <span>
+        <span className="assessment-label">{label}:</span> {value}
+      </span>
+    );
+  };
 
   const renderAssessment = () => {
     if (!isEditable) {
-      const assessmentComponents = sectionData.children?.[0]?.children?.filter(
-        (config) => functionalAssessmentData?.[config.key]
-      ).map((config) => (
-        <AssessmentDisplay
-          key={config.key}
-          label={config.label}
-          value={functionalAssessmentData[config.key]}
-          note={config.note}
-        />
-      ));
-
+      if (
+        !Object.keys(functionalAssessmentData)?.length ||
+        (Object.keys(functionalAssessmentData)?.length === 1 &&
+          !!functionalAssessmentData.others)
+      )
+        return null;
+      const assessmentComponents = Object.entries(functionalAssessmentData)
+        .filter(
+          ([key, value]) =>
+            value !== null && value !== undefined && typeof value === "string"
+        )
+        .map(([key, value]) => {
+          return <AssessmentDisplay key={key} label={key} value={value} />;
+        });
       const renderReadOnlyBody = () => {
         return (
           <div className="ipdaf-assessment-readonly">
@@ -138,9 +132,9 @@ const FunctionalAssessment = (props) => {
           readOnly={true}
           showToolbar={false}
           showActionBtns={false}
-          title={'Basics'}
+          title={"Basic"}
           width="100%"
-          icon={defaultIcons.medication}
+          icon={assessmentsIcons[`${sectionData?.id}Pc`]}
           showAutoFill={false}
           containerClass={`ipd-fn-as-readonly`}
           showMagicPenGif={false}
@@ -150,72 +144,151 @@ const FunctionalAssessment = (props) => {
       );
     }
 
-    console.log('INTEL ==> sectionData', sectionData)
     return (
       <div className="assessments-parent-container">
-        {sectionData.children?.[0]?.children?.filter((item) => item.enabled)?.map((item) => (
-          <div key={item.key} className="assessment-card">
-            <div className="assessment-card-header">
-              <div className="assessment-title">{item.title}:</div>
-            </div>
-            <ConfigProvider
-              theme={{
-                components: {
-                  Radio: {
-                    colorPrimary: "#4B4AD5",
-                    colorPrimaryHover: "#4B4AD5",
-                    colorPrimaryActive: "#4B4AD5",
+        {sectionData.children
+          ?.find((child) => child.id === "assessment")
+          ?.children?.filter((item) => item.enabled)
+          ?.map((item) => (
+            <div key={item.id} className="assessment-card">
+              <div className="assessment-card-header">
+                <div className="assessment-title">{item.title}:</div>
+              </div>
+              <ConfigProvider
+                theme={{
+                  components: {
+                    Radio: {
+                      colorPrimary: "#4B4AD5",
+                      colorPrimaryHover: "#4B4AD5",
+                      colorPrimaryActive: "#4B4AD5",
+                    },
                   },
-                },
-              }}
-            >
-              <Radio.Group
-                className="assessment-radio-group big-ring-radio"
-                options={item.options}
-                onChange={(e) => handleAssessmentChange(item.key, e, item)}
-                value={
-                  item.options.find(
-                    (option) =>
-                      option.label === functionalAssessmentData[item.key]
-                  )?.value
-                }
-              />
-            </ConfigProvider>
-          </div>
-        ))}
+                }}
+              >
+                <Radio.Group
+                  className="assessment-radio-group big-ring-radio"
+                  options={item.options}
+                  onChange={(e) => handleAssessmentChange(item.id, e, item)}
+                  value={
+                    item.options.find(
+                      (option) =>
+                        option.label === functionalAssessmentData[item.id]
+                    )?.value
+                  }
+                />
+              </ConfigProvider>
+            </div>
+          ))}
+      </div>
+    );
+  };
+  const renderSelectDoctor = (data) => {
+    const options = (doctorsList || []).map((item) => ({
+      key: JSON.stringify(item),
+      value: item.name,
+      label: <div key={item.id}>{item.name}</div>,
+    }));
+    return (
+      <div className="ipd-fas-refphy-container">
+        <div className="refphy-label-container">
+          <img src={assessmentsIcons[`${data?.id}Pc`]} alt="x" />
+          <label className="refphy-label">{data.title}</label>
+        </div>
+        <Select
+          showSearch
+          optionLabelProp="label"
+          options={options}
+          value={referredDocForReview?.name}
+          className="autocomplete-custom w-100 popinput inputheight41"
+          placeholder={`Select Physiotherapist`}
+          onSearch={(q) =>
+            dispatch(fetchFilters({ field: "doctor", search: q }))
+          }
+          allowClear
+          onChange={(value, option) => {
+            if (value === undefined || value === null) {
+              dispatch(setReferredDocForReview(null));
+              return;
+            }
+            try {
+              const parsed = option?.key ? JSON.parse(option.key) : null;
+              dispatch(setReferredDocForReview(parsed));
+            } catch (err) {
+              console.log("ERR in Referred To Physiotherapy", err);
+            }
+          }}
+        />
       </div>
     );
   };
   const renderReferredToPhysiotherapy = (data) => {
-    if (!isEditable) return null; // TODO: INTEL - REFERRED PHYSIO PENDING
+    if (!isEditable && !referredDocForReview?.name) return null;
+    if (!isEditable) {
+      return (
+        <div className="ipd-fas-refphy-container rich-text-editor-wrapper wrapper-class ipd-wrapper-class-readonly">
+          <div className="refphy-label-container">
+            <img src={assessmentsIcons[`${data?.id}Pc`]} alt="x" />
+            <label className="refphy-label">{data.title}</label>
+          </div>
+          <div className="referred-to-physiotherapy-name">{referredDocForReview?.name}</div>
+        </div>
+      );
+    }
     return (
       <div className="referred-to-physiotherapy-container">
-        hii there referred doc
+        {renderSelectDoctor(data)}
       </div>
     );
   };
   const renderChildren = () => {
-    return sectionData?.children?.map((item) => {
+    return sectionData?.children?.map((item, index) => {
+      const key = `${item?.id || "unknown"}-${index}`;
+
       switch (item?.id) {
         case "assessment":
-          return renderAssessment();
+          return (
+            <React.Fragment key={key}>{renderAssessment()}</React.Fragment>
+          );
         case "others":
-          return renderOthers(item);
+          return (
+            <React.Fragment key={key}>{renderOthers(item)}</React.Fragment>
+          );
         case "referredToPhysiotherapy":
-          return renderReferredToPhysiotherapy(item);
+          return (
+            <React.Fragment key={key}>
+              {renderReferredToPhysiotherapy(item)}
+            </React.Fragment>
+          );
         default:
           return null;
       }
     });
   };
+  const functionalAssessmentDataOnlyBasics = useMemo(() => {
+    const filtered = { ...functionalAssessmentData };
+    delete filtered.others;
+    return filtered;
+  }, [functionalAssessmentData]);
+
+  if (
+    !isEditable &&
+    (!Object.keys(functionalAssessmentData)?.length ||
+      (Object.keys(functionalAssessmentData)?.length === 1 &&
+        !!functionalAssessmentData.others)) &&
+        !referredDocForReview?.name &&
+    isEmptyRichText(functionalAssessmentData?.others)
+  )
+    return null;
   return (
     <>
       <CollapsibleWrapper
         title={sectionData?.title}
-        icon={assessmentsIcons[sectionData?.icon]}
+        icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
         collapsible={isEditable}
         width={"100%"}
-        className={"collapsible-wrapper-class"}
+        className={`collapsible-wrapper-class ${
+          isEditable ? "" : "collapsible-wrapper-class-readonly"
+        }`}
         defaultOpen
       >
         {renderChildren()}

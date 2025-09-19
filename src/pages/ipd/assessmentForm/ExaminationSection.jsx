@@ -1,7 +1,7 @@
 import React from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { Radio } from "antd";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { setPhysicalExaminationBasicData } from "../../../redux/ipd/assessmentsFormSlice";
@@ -15,14 +15,15 @@ const ExaminationSection = (props) => {
   );
   const dispatch = useDispatch();
 
-  const onExaminationRadioChange = (e, id) => {
+  const onExaminationRadioChange = (e, item) => {
+    const { id } = item;
     dispatch(
       setPhysicalExaminationBasicData({
         ...physicalExaminationBasicData,
         [id]: {
           ...physicalExaminationBasicData[id],
           value: e.target.value,
-          title: e.target.value === 2 ? "Abnormal" : "WNL",
+          title: item.options.find(option => (option.value) === e.target.value)?.label,
         },
       })
     );
@@ -43,7 +44,7 @@ const ExaminationSection = (props) => {
         <ul>
           {sectionData?.children?.filter((item) => item.enabled).map((item) => {
             const data = physicalExaminationBasicData[item.id];
-            if (!data?.title) return null;
+            if (!data?.title && !Array.isArray(data?.notes)) return null;
 
             return (
               <li key={item.id} className="examination-item">
@@ -80,7 +81,8 @@ const ExaminationSection = (props) => {
               key={item.id}
               readOnly={!isEditable}
               showToolbar={isEditable}
-              showActionBtns={isEditable}
+              toolbarClass={'small-toolbar'}
+              showActionBtns={false}
               showAutoFill={false}
               showMagicPenGif={false}
               showMicrophone={false}
@@ -102,8 +104,8 @@ const ExaminationSection = (props) => {
                 <div className="examination-header">{item.title} : </div>
                 <Radio.Group
                   className="exam-radio-text"
-                  onChange={(e) => onExaminationRadioChange(e, item.id)}
-                  value={physicalExaminationBasicData[item.id]?.value}
+                  onChange={(e) => onExaminationRadioChange(e, item)}
+                  value={physicalExaminationBasicData[item.id]?.value?.toString()}
                   options={item.options}
                 />
               </div>
@@ -126,15 +128,15 @@ const ExaminationSection = (props) => {
     <RichTextEditWrapper
       readOnly={!isEditable}
       showToolbar={isEditable}
-      showActionBtns={isEditable}
+      showActionBtns={false}
       title={sectionData?.title}
       width="100%"
-      icon={defaultIcons[sectionData?.icon]}
+      icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={false}
       showMagicPenGif={false}
       showMicrophone={false}
       placeholder={"Additional notes if any"}
-      containerClass="wrapper-class examination-rich-container"
+      containerClass={`wrapper-class examination-rich-container ${!isEditable ? 'examination-rich-readonly-container': ''}`}
       renderBody={renderExaminationSection}
     />
   );

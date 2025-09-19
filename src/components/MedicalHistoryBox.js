@@ -883,10 +883,10 @@ function MedicalHistoryBox(props) {
     }, []);
 
     useEffect(() => {
-        if (isGynaecHistoryAccessable && fetchDataOnLaunch) {
+        if (isGynaecHistoryAccessable && fetchDataOnLaunch && !showMedicalHistory && showMenstrualHistory) {
             fetchGynecHistory();
         }
-    }, [isGynaecHistoryAccessable, fetchDataOnLaunch]);
+    }, [isGynaecHistoryAccessable, fetchDataOnLaunch, showMenstrualHistory, showMedicalHistory]);
 
     useEffect(() => {
         if (gynecHistoryFromProps) {
@@ -1072,11 +1072,11 @@ function MedicalHistoryBox(props) {
                             </div>
                         </div>
                         <div className="title-common">
-                            {isGynaecHistoryAccessable ? `Gynec History` : `Medical History`}
+                            {(isGynaecHistoryAccessable && showMenstrualHistory) ? `Gynec History` : `Medical History`}
                         </div>
                     </div>
                     <div className="d-flex align-items-center gap-2">
-                        {isGynaecHistoryAccessable && (
+                        {(isGynaecHistoryAccessable && showMenstrualHistory) && (
                             <Popover
                                 open={popOverVideo}
                                 onOpenChange={showHideVideoListPopover}

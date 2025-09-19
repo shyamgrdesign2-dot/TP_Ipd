@@ -3,6 +3,7 @@ import { createRemoteComponent } from "../../../shared/remoteComponents";
 import "./styles.scss";
 import LabResultsTable from "../../../components/ViewLabParams";
 import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
 import { Drawer } from "antd";
 import LabParams from "../../../components/LabParams";
 import { useDispatch } from "react-redux";
@@ -62,7 +63,7 @@ const LabResults = (props) => {
             dispatch(setLabResults([...labResults, ...results]));
           }
         }}
-        title={`Autofill Lab Results Details From OPD (${formatDateToShortMonthYear(
+        title={`Autofill From OPD (${formatDateToShortMonthYear(
           modifiedAt || createdAt || date
         )})`}
       />
@@ -74,7 +75,7 @@ const LabResults = (props) => {
       <div
         className={`ipdaf-generic-card-container ${
           labResults?.length ? "ipdaf-padding-0" : ""
-        }`}
+        } ${!isEditable ? 'ipdaflr-readyonly' : ''}`}
       >
         {labResults?.length ? (
           <LabResultsTable
@@ -108,12 +109,9 @@ const LabResults = (props) => {
         showActionBtns={false}
         title={sectionData?.title}
         width="100%"
-        containerClass={`wrapper-class ${isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
-        icon={defaultIcons[sectionData?.icon]}
+        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`} 
+        icon={assessmentsIcons[`${sectionData?.id}Pc`]}
         showAutoFill={false}
-        onErase={() => {
-          console.log("erase");
-        }}
         renderBody={renderLabResultsBody}
       />
       {addlabparamsDrawer && (

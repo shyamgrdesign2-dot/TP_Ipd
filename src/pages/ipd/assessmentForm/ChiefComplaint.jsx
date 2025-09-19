@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
 import { useDispatch, useSelector } from "react-redux";
 import { setChiefComplaint } from "../../../redux/ipd/assessmentsFormSlice";
 import {
@@ -71,7 +71,7 @@ const ChiefComplaint = (props) => {
         typeof chiefComplaintFromLastPrescription === "string" &&
         !!chiefComplaintFromLastPrescription) ||
       (Array.isArray(chiefComplaintFromLastPrescription) &&
-        !!chiefComplaintFromLastPrescription?.[0]?.children?.[0]?.text)
+        !!chiefComplaintFromLastPrescription?.[0]?.children?.[0]?.text) || Array.isArray(chiefComplaintFromLastPrescription) && !!chiefComplaintFromLastPrescription?.[0]?.title
     );
   }, [chiefComplaint, chiefComplaintFromLastPrescription]);
 
@@ -85,7 +85,7 @@ const ChiefComplaint = (props) => {
       templates={symptomsTemplates}
       templateType="symptoms"
       title={sectionData?.title}
-      width="100%"
+      width={isEditable ? "100%": 'fit-content'}
       initialValue={
         chiefComplaint?.length > 0
           ? chiefComplaint
@@ -99,10 +99,10 @@ const ChiefComplaint = (props) => {
       placeholder={
         "Enter chief complaint like patient’s main symptoms or presenting problem"
       }
-      icon={defaultIcons[sectionData?.icon]}
+      icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={isEditable && isLastChiefComplaintPresent}
       containerClass={`wrapper-class ${
-        isEditable ? "ipd-wrapper-class-readonly" : ""
+        !isEditable ? "ipd-wrapper-class-readonly" : ""
       }`}
       opdDate={formatDateToShortMonthYear(lastRxDate)}
       onSave={() => {
@@ -113,8 +113,8 @@ const ChiefComplaint = (props) => {
           callback();
         });
       }}
-      onErase={() => {
-        console.log("erase");
+      onErase={(e) => {
+        setAutoFillTextToAppend(["clear"]);
       }}
       onTemplate={() => {
         console.log("template");

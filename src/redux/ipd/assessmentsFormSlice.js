@@ -3,6 +3,7 @@ import ApiAssessment from "../../api/services/ipd/ApiAssessment";
 
 const initialState = {
   assessmentsData: {},
+  assessmentsFilledByData: {},
   lastPrescriptionDate: null,
   lastPrescriptionDataForAssessment: {},
   loading: false,
@@ -18,6 +19,7 @@ const initialState = {
   vitalsData: {},
   gynecHistoryData: {},
   referredDocForReview: null,
+  gyneacHistoryBackup : {},
 };
 
 export const getAssessmentsData = createAsyncThunk(
@@ -26,8 +28,8 @@ export const getAssessmentsData = createAsyncThunk(
     try {
       let result = {};
       result = await ApiAssessment.getAssessmentsData(data);
-      if (result?.assessment) {
-        return result?.assessment;
+      if (!result.error) {
+        return result;
       } else {
         throw Error(result.error);
       }
@@ -150,6 +152,9 @@ const assessmentSlice = createSlice({
     setGynecHistoryData: (state, action) => {
       state.gynecHistoryData = action.payload;
     },
+    setGyneacHistoryBackup: (state, action) => {
+      state.gyneacHistoryBackup = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -158,10 +163,15 @@ const assessmentSlice = createSlice({
       })
       .addCase(getAssessmentsData.fulfilled, (state, action) => {
         state.loading = false;
-        state.assessmentsData = action.payload;
+        state.assessmentsData = action.payload.assessment;
+        state.assessmentsFilledByData = {
+          ...action.payload,
+          assessment: undefined
+        };
       })
       .addCase(getAssessmentsData.rejected, (state, action) => {
         state.assessmentsData = {};
+        state.assessmentsFilledByData = {};
         state.loading = false;
       })
       .addCase(addAssessmentsData.pending, (state) => {
@@ -225,6 +235,7 @@ export const {
   setGynecHistoryData,
   setReferredDocForReview,
   setPhysicalExaminationBasicData,
-  resetAssessmentForm
+  resetAssessmentForm,
+  setGyneacHistoryBackup
 } = assessmentSlice.actions;
 export default assessmentSlice.reducer;
