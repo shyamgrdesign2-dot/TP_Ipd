@@ -6,7 +6,7 @@ import { defaultIcons } from '../../../../assets/images/icons/index.js';
 import './progressNotesView.scss';
 
 const { Title, Text } = Typography;
-const { ReusableStepper, ReusableProgressCard } = RemoteComponents;
+const { ReusableStepper, ReusableProgressCard, RichTextEditor } = RemoteComponents;
 
 function ProgressNotesView({progressNotes , patientDetails}) {
   const [events, setEvents] = useState([]);
@@ -122,23 +122,99 @@ function ProgressNotesView({progressNotes , patientDetails}) {
     const value = (item.period || item.timeOfDay) || "";
     const formattedTimeOfDay = value.charAt(0).toUpperCase() + value.slice(1);
     return (
+      // <ReusableProgressCard
+      //   data={item}
+      //   timeOfDay={formattedTimeOfDay}
+      //   timestamp={item.time || item.timestamp}
+      //   chiefComplaint={item.chiefComplaint}
+      //   findings={item.findings}
+      //   vitals={item.vitals}
+      //   additionalRemarks={item.additionalRemarks}
+      //   filledBy={item.filledBy}
+      //   role={item.role}
+      //   onEvent={(eventName, payload) => emit(eventName, payload)}
+      //   className="medical-progress__progress-card"
+      //   actions={{
+      //     showEdit: true,
+      //     showDelete: true,
+      //     showView: true,
+      //   }}
+      //   icons={{
+      //     timeIcons: {
+      //       morning: defaultIcons.clockIcon,
+      //       afternoon: defaultIcons.clockIcon,
+      //       evening: defaultIcons.clockIcon,
+      //       night: defaultIcons.clockIcon,
+      //     },
+      //     sectionIcons: {
+      //       clinicalAssessmentPlan: defaultIcons.basicInfoBg,
+      //       vitals: defaultIcons.physicalExam,
+      //       currentMedication: defaultIcons.funcAssess,
+      //       labInvestigation: defaultIcons.treatment,
+      //       additionalRemarks: defaultIcons.noteColoured,
+      //     },
+      //     actionIcons: {
+      //       download: defaultIcons.downloadIcon,
+      //       print: defaultIcons.printerIcon,
+      //       edit: defaultIcons.editIcon,
+      //     },
+      //   }}
+      // />
       <ReusableProgressCard
-        data={item}
-        timeOfDay={formattedTimeOfDay}
-        timestamp={item.time || item.timestamp}
-        chiefComplaint={item.chiefComplaint}
-        findings={item.findings}
-        vitals={item.vitals}
-        additionalRemarks={item.additionalRemarks}
-        filledBy={item.filledBy}
-        role={item.role}
-        onEvent={(eventName, payload) => emit(eventName, payload)}
-        className="medical-progress__progress-card"
-        actions={{
-          showEdit: true,
-          showDelete: true,
-          showView: true,
+        record={{
+          id: "1",
+          sections: [
+            {
+              key: "chiefComplaint",
+              title: "Chief Complaint",
+              data: item.chiefComplaint,
+              type: "richtext",
+            },
+            {
+              key: "findings",
+              title: "Findings",
+              data: item.findings,
+              type: "richtext",
+            },
+            {
+              key: "vitals",
+              title: "Vitals",
+              data: item.vitals,
+              type: "richtext",
+            },
+            
+            {
+              key: "additionalRemarks",
+              title: "Additional Remarks",
+              data: item.additionalRemarks,
+              type: "richtext",
+            },
+          ],
+          filledBy: item.filledBy,
+          role: item.role,
+          timeOfDay: formattedTimeOfDay,
+          timestamp: item.time,
         }}
+        components={{
+          RichTextEditor,
+        }}
+        icons={{
+          timeIcons: {
+            morning: "morningIcon",
+            evening: "eveningIcon",
+            night: "nightIcon",
+          },
+          sectionIcons: {
+            chiefComplaint: "chiefComplaintIcon",
+            vitals: "vitalsPgIcon",
+            findings: "findingsPgIcon",
+            additionalRemarks: "notesPgIcon",
+          },
+          actionIcons: {
+            edit: "editIcon",
+          },
+        }}
+        onAction={(eventName, payload) => emit(eventName, {...payload, data:item})}
       />
     );
   };

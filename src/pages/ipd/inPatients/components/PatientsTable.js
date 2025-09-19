@@ -3,6 +3,7 @@ import { Table, Spin } from "antd";
 import moment from "moment";
 import noData from "../../../../assets/images/nodata-found.svg";
 import Referral from "./Referral";
+import "../InPatients.scss";
 
 const PatientsTable = ({
   data,

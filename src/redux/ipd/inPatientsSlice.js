@@ -122,8 +122,6 @@ const inPatientsSlice = createSlice({
         state.patients.error = null;
       })
       .addCase(fetchPatients.fulfilled, (state, action) => {
-        console.log({ action });
-
         const { patients, pagination } = action.payload;
         const formattedPatients = formatPatientsForTable(patients || []);
 

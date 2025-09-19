@@ -819,21 +819,25 @@ export const IPD = {
       name: "bloodPressure",
       label: "Blood Pressure",
       unit: "mmHg",
+      placeholder: "Enter Systolic/Diastolic",
     },
     {
       name: "temperature",
       label: "Temperature",
       unit: "°F",
+      placeholder: "Enter temperature",
     },
     {
       name: "heartRate",
       label: "Heart Rate",
       unit: "/min",
+      placeholder: "Enter heart rate",
     },
     {
       name: "respiratoryRate",
       label: "Respiratory Rate",
       unit: "mmHg",
+      placeholder: "Enter respiratory rate",
     },
   ],
   DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE: [
@@ -919,7 +923,7 @@ export const IPD = {
       enabled: true,
       expanded: false,
       children: [],
-    }
+    },
   ],
   PROGRESS_NOTES_VITALS: [
     {
