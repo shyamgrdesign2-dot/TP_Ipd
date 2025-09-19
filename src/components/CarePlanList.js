@@ -24,11 +24,9 @@ function CarePlanList({ patientId, selectedTcmId, onCarePlanSelect, readOnly = f
         try {
             setLoading(true);
             setError(null);
-            console.log('Loading assigned care plans for patient:', patientId);
             
             const response = await getCarePlanAssignments(patientId);
-            console.log('Assigned care plans API response:', response);
-            console.log('Sample care plan item structure:', response?.[0]);
+           
             
             // Transform the response data
             const plansData = Array.isArray(response) ? response : [];
@@ -49,7 +47,6 @@ function CarePlanList({ patientId, selectedTcmId, onCarePlanSelect, readOnly = f
                 return dateB - dateA; // Most recent first
             });
             
-            console.log('Processed assigned care plans data:', sortedPlans);
             setAssignedCarePlans(sortedPlans);
         } catch (error) {
             console.error('Failed to load assigned care plans:', error);
@@ -74,8 +71,6 @@ function CarePlanList({ patientId, selectedTcmId, onCarePlanSelect, readOnly = f
         if (!readOnly && onCarePlanSelect) {
             onCarePlanSelect(plan);
         }
-        // For patient details page, we might want to show more details or navigate
-        console.log('Care plan clicked:', plan);
     };
 
     const renderCarePlanItem = (plan) => {
