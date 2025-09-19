@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   fetchPatients,
   resetPatients,
   incrementPage,
   setFilterParams,
-} from '../../../../redux/ipd/inPatientsSlice';
+} from "../../../../redux/ipd/inPatientsSlice";
 
 export const usePatientsData = () => {
   const dispatch = useDispatch();
@@ -14,14 +14,22 @@ export const usePatientsData = () => {
   const [usingStaticData, setUsingStaticData] = useState(false);
 
   const {
-    patients: { data: patientsData, loading: patientsLoading, hasMore, error: patientsError },
+    patients: {
+      data: patientsData,
+      loading: patientsLoading,
+      hasMore,
+      error: patientsError,
+    },
     filterParams,
   } = useSelector((state) => state.inPatients);
 
-  const fetchData = useCallback((params) => {
-    dispatch(fetchPatients(params));
-    setFetchAttempted(true);
-  }, [dispatch]);
+  const fetchData = useCallback(
+    (params) => {
+      dispatch(fetchPatients(params));
+      setFetchAttempted(true);
+    },
+    [dispatch]
+  );
 
   const resetData = useCallback(() => {
     dispatch(resetPatients());
@@ -34,9 +42,12 @@ export const usePatientsData = () => {
     dispatch(incrementPage());
   }, [dispatch, patientsLoading, patientsError, hasMore, loadingMore]);
 
-  const updateFilters = useCallback((filters) => {
-    dispatch(setFilterParams(filters));
-  }, [dispatch]);
+  const updateFilters = useCallback(
+    (filters) => {
+      dispatch(setFilterParams(filters));
+    },
+    [dispatch]
+  );
 
   // Reset loadingMore when data changes
   useEffect(() => {

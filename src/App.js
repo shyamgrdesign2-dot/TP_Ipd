@@ -70,6 +70,7 @@ import InPatients from "./pages/ipd/inPatients/InPatients";
 import OtNotes from "./pages/ipd/otNotes/OtNotes";
 import HomePageLayout from "./pages/ipd/HomePageLayout";
 import ConsultantNotes from "./pages/ipd/consultantNotes/ConsultantNotes";
+import LabResults from "./pages/ipd/labResults/LabResults";
 import ProgressNotes from "./pages/ipd/progressNotes/progressNotes";
 import IPDMedicalRecords from "./pages/ipd/medicalRecords/IPDMedicalRecords";
 
@@ -417,6 +418,7 @@ function App() {
                   path="/ipd/patient-details/consultant-notes"
                   element={<ConsultantNotes />}
                 />
+                <Route path="/ipd/patient-details/lab-results" element={<LabResults />} />
                 <Route
                   path="/ipd/patient-details/medical-records"
                   element={<IPDMedicalRecords />}

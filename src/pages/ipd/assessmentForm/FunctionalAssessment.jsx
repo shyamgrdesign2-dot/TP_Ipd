@@ -117,7 +117,7 @@ const FunctionalAssessment = (props) => {
       const renderReadOnlyBody = () => {
         return (
           <div className="ipdaf-assessment-readonly">
-            {assessmentComponents.map((component, i) => (
+            {assessmentComponents?.map((component, i) => (
               <React.Fragment key={i}>
                 {i > 0 && <span className="separator">|</span>}
                 {component}

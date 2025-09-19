@@ -351,7 +351,6 @@ flex-wrap: wrap;
 
 // Consultant Notes Timeline Styles
 .consultant-notes-timeline {
-    padding: 24px;
     min-height: calc(100vh - 200px);
     max-height: calc(100vh - 200px);
     overflow-y: auto;
@@ -382,7 +381,7 @@ flex-wrap: wrap;
     scrollbar-color: #8b5cf6 #f1f1f1;
 
     .timeline-filter {
-        margin-bottom: 24px;
+        padding: 24px 24px 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -663,4 +662,35 @@ flex-wrap: wrap;
             }
         }
     }
+}
+
+.consultant-notes-timeline-card {
+    display: flex !important;
+    padding-top: 16px !important;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    align-self: stretch;
+    border-radius: 10px !important;
+    background: rgba(255, 255, 255, 0.50) !important;
+    box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.01) !important;
+    min-width: max-content !important;
+    border: none !important;
+}
+
+.detailed-medical-card {
+    width: 100% !important;
+    min-width: 1000px !important;
+  
+    border: none !important;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.01);
+
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    align-items: flex-start;
+    gap: 16px;
+    align-self: stretch;
 }
