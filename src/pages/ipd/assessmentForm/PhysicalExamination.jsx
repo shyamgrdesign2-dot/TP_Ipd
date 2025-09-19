@@ -130,18 +130,24 @@ const PhysicalExamination = (props) => {
 
   const renderChildren = () => {
     return sectionData?.children?.map((item) => {
-      switch (item?.id) {
-        case "examinations":
-          return <ExaminationSection {...props} sectionData={item} />;
-        case "vitals":
-          return <Vitals {...props} sectionData={item} />;
-        case "others":
-          return renderOthers(item);
-        case "provisionalDiagnosis":
-          return renderProvisionalDiagnosis(item);
-        default:
-          return null;
-      }
+      return (
+        <React.Fragment key={item.id}>
+          {(() => {
+            switch (item?.id) {
+              case "examinations":
+                return <ExaminationSection {...props} sectionData={item} />;
+              case "vitals":
+                return <Vitals {...props} sectionData={item} />;
+              case "others":
+                return renderOthers(item);
+              case "provisionalDiagnosis":
+                return renderProvisionalDiagnosis(item);
+              default:
+                return null;
+            }
+          })()}
+        </React.Fragment>
+      );
     });
   };
   if (

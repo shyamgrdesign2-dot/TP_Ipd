@@ -120,9 +120,15 @@ const AssessmentsForm = (props) => {
           data?.physicalExamination?.examination || {}
         )
       );
-      const functionalAssessmentWithoutReferredDoc = { ...data?.functionalAssessment };
+      const functionalAssessmentWithoutReferredDoc = {
+        ...data?.functionalAssessment,
+      };
       delete functionalAssessmentWithoutReferredDoc.referredToPhysiotherapyForReview;
-      dispatch(setFunctionalAssessmentData(functionalAssessmentWithoutReferredDoc || {}));
+      dispatch(
+        setFunctionalAssessmentData(
+          functionalAssessmentWithoutReferredDoc || {}
+        )
+      );
       dispatch(setTreatmentPlanData(data?.treatmentPlan || {}));
       dispatch(setAdditionalNotesData(data?.additionalNotes || {}));
       dispatch(
@@ -242,7 +248,12 @@ const AssessmentsForm = (props) => {
         provisionalDiagnosis:
           assessmentData.physicalExaminationProvisionalDiagnosisData || [],
       },
-      functionalAssessment: {...assessmentData.functionalAssessmentData, referredToPhysiotherapyForReview: assessmentData?.referredDocForReview || {}} || {},
+      functionalAssessment:
+        {
+          ...assessmentData.functionalAssessmentData,
+          referredToPhysiotherapyForReview:
+            assessmentData?.referredDocForReview || {},
+        } || {},
       treatmentPlan: assessmentData.treatmentPlanData || [],
       additionalNotes: assessmentData.additionalNotesData || [],
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
@@ -321,7 +332,11 @@ const AssessmentsForm = (props) => {
         />
         {assessments.length > 0
           ? assessments.map((item) => {
-              return renderSections(item);
+              return (
+                <React.Fragment key={item.id}>
+                  {renderSections(item)}
+                </React.Fragment>
+              );
             })
           : null}
       </div>

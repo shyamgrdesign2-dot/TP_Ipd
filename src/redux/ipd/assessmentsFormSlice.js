@@ -19,6 +19,7 @@ const initialState = {
   vitalsData: {},
   gynecHistoryData: {},
   referredDocForReview: null,
+  gyneacHistoryBackup : {},
 };
 
 export const getAssessmentsData = createAsyncThunk(
@@ -151,6 +152,9 @@ const assessmentSlice = createSlice({
     setGynecHistoryData: (state, action) => {
       state.gynecHistoryData = action.payload;
     },
+    setGyneacHistoryBackup: (state, action) => {
+      state.gyneacHistoryBackup = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -231,6 +235,7 @@ export const {
   setGynecHistoryData,
   setReferredDocForReview,
   setPhysicalExaminationBasicData,
-  resetAssessmentForm
+  resetAssessmentForm,
+  setGyneacHistoryBackup
 } = assessmentSlice.actions;
 export default assessmentSlice.reducer;

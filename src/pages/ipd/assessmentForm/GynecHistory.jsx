@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons";
 import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
 import { useSelector, useDispatch } from "react-redux";
 import GynecHistoryList from "../../../components/GynecHistoryList";
-import { isMobile } from "react-device-detect";
-// import TabMedicalHistoryList from "../../../components/tab_design/TabMedicalHistoryList";
 import MedicalHistoryBox from "../../../components/MedicalHistoryBox";
 import { Drawer } from "antd";
-import { setGynecHistoryData } from "../../../redux/ipd/assessmentsFormSlice";
+import { setGyneacHistoryBackup, setGynecHistoryData } from "../../../redux/ipd/assessmentsFormSlice";
+import { formatDateToShortMonthYear } from "../../../utils/utils";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const GenericCard = createRemoteComponent("GenericCard");
+const AutoFillButton = createRemoteComponent("AutoFillButton");
 
 const GynecHistory = (props) => {
   const {
@@ -20,13 +20,42 @@ const GynecHistory = (props) => {
     patientDataForOPDComponents,
   } = props || {};
 
-  let { gynecHistoryData } = useSelector((state) => state.assessment);
+  let { gynecHistoryData, lastPrescriptionDataForAssessment, lastPrescriptionDate, gyneacHistoryBackup } = useSelector((state) => state.assessment);
+  const { lastRxDate } = lastPrescriptionDate || {};
   const dispatch = useDispatch();
   const [addGynecHistoryDrawer, setAddGynecHistoryDrawer] = useState(false);
 
   const handleGynecHistory = () => {
     setAddGynecHistoryDrawer(!addGynecHistoryDrawer);
   };
+
+  const renderAutoFillButton = useCallback(() => {
+    const { gyneacHistory: lastGyneacHistory = {} } =
+      lastPrescriptionDataForAssessment || {};
+    if (!lastRxDate) return null;
+    return (
+      <AutoFillButton
+        onClick={(data, e) => {
+          e?.stopPropagation();
+
+          if (data?.[0] === "undo") {
+            dispatch(setGynecHistoryData(gyneacHistoryBackup));
+            return;
+          }
+          if (lastGyneacHistory.length && !gynecHistoryData?.length) {
+            dispatch(setGynecHistoryData(lastGyneacHistory));
+          } else {
+            dispatch(setGyneacHistoryBackup(gynecHistoryData));
+            dispatch(setGynecHistoryData({...gynecHistoryData, ...lastGyneacHistory}));
+          }
+        }}
+        title={`Autofill From OPD (${formatDateToShortMonthYear(
+          lastRxDate
+        )})`}
+      />
+    );
+  }, [lastPrescriptionDataForAssessment, gynecHistoryData, gyneacHistoryBackup]);
+
 
   const isGynecHistoryDataExists =
     gynecHistoryData && Object.keys(gynecHistoryData).length;
@@ -57,7 +86,7 @@ const GynecHistory = (props) => {
                   ? "Add/Edit Gynec History"
                   : "Add Gynec History"
               }
-            />
+            >{renderAutoFillButton()}</GenericCard>
           </div>
         ) : null}
       </div>

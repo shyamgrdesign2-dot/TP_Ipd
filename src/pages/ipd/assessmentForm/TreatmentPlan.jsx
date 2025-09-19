@@ -13,25 +13,35 @@ const TreatmentPlan = (props) => {
   const { treatmentPlanData = {} } = useSelector((state) => state.assessment);
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
-  const [autoFillTextToAppendMonitoringPlan, setAutoFillTextToAppendMonitoringPlan] = useState([]);
+  const [
+    autoFillTextToAppendMonitoringPlan,
+    setAutoFillTextToAppendMonitoringPlan,
+  ] = useState([]);
   const handleOthersChange = (data, key) => {
     dispatch(setTreatmentPlanData({ ...treatmentPlanData, [key]: data }));
   };
 
   const renderChildren = () => {
     return sectionData?.children?.map((item) => {
-      switch (item?.id) {
-        case "immediateManagement":
-          return renderImmediateManagement(item);
-        case "monitoringPlan":
-          return renderMonitoringPlan(item);
-        default:
-          return null;
-      }
+      return (
+        <React.Fragment key={item.id}>
+          {(() => {
+            switch (item?.id) {
+              case "immediateManagement":
+                return renderImmediateManagement(item);
+              case "monitoringPlan":
+                return renderMonitoringPlan(item);
+              default:
+                return null;
+            }
+          })()}
+        </React.Fragment>
+      );
     });
   };
   const renderImmediateManagement = (data) => {
-    if (!isEditable && (isEmptyRichText(treatmentPlanData?.immediateManagement))) return null;
+    if (!isEditable && isEmptyRichText(treatmentPlanData?.immediateManagement))
+      return null;
 
     return (
       <RichTextEditWrapper
@@ -39,10 +49,12 @@ const TreatmentPlan = (props) => {
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width={isEditable ? "100%": 'fit-content'}
+        width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
@@ -75,17 +87,20 @@ const TreatmentPlan = (props) => {
     );
   };
   const renderMonitoringPlan = (data) => {
-    if (!isEditable && (isEmptyRichText(treatmentPlanData?.monitoringPlan))) return null;
+    if (!isEditable && isEmptyRichText(treatmentPlanData?.monitoringPlan))
+      return null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width={isEditable ? "100%": 'fit-content'}
+        width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
@@ -120,8 +135,8 @@ const TreatmentPlan = (props) => {
 
   if (
     !isEditable &&
-    (isEmptyRichText(treatmentPlanData?.monitoringPlan) &&
-    isEmptyRichText(treatmentPlanData?.immediateManagement))
+    isEmptyRichText(treatmentPlanData?.monitoringPlan) &&
+    isEmptyRichText(treatmentPlanData?.immediateManagement)
   )
     return null;
 
@@ -132,7 +147,9 @@ const TreatmentPlan = (props) => {
         icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
         collapsible={isEditable}
         width={"100%"}
-        className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
+        className={`collapsible-wrapper-class ${
+          isEditable ? "" : "collapsible-wrapper-class-readonly"
+        }`}
         defaultOpen
       >
         {renderChildren()}

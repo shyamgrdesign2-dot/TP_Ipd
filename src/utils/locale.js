@@ -241,7 +241,7 @@ export const IPD = {
               label: "Respiratory Rate",
               title: "Respiratory Rate",
               enabled: true,
-              unit: "mmHg",
+              unit: "/min",
             },
             {
               name: "weight",
