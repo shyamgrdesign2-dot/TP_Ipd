@@ -565,7 +565,7 @@ export const IPD = {
     },
     { id: "otNotes", name: "OT Notes", icon: "healthIcon" },
     { id: "lab", name: "Lab Results", icon: "glassIcon" },
-    { id: "records", name: "Medical Records", icon: "notesIcon" },
+    { id: "records", name: "Medical Records", icon: "notesIcon", showAddCTA: true, },
     { id: "discharge", name: "Discharge Summary", icon: "notepadIcon" },
     { id: "logs", name: "Activity Logs", icon: "usersTwoIcon" },
     { id: "opd", name: "OPD Visit History", icon: "layerIcon" },
