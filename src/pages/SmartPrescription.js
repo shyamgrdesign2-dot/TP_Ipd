@@ -42,6 +42,10 @@ import vitals from "../assets/images/Vitals.svg";
 import MedicalHistory from "../assets/images/Medical-History.svg";
 import privateNotes from "../assets/images/private-notes.svg";
 import SmartRxFollowUpBox from "../components/SmartRxFollowUpBox";
+import CarePlanDropdown from "../components/CarePlanDropdown";
+import CarePlanList from "../components/CarePlanList";
+import { getCarePlanAssignments } from "./smartSync/services/carePlanService";
+import { assignCarePlan } from "./smartSync/services/carePlanService";
 
 import {
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
@@ -3358,6 +3362,18 @@ function SmartPrescription() {
               </div>
               {isCarePlanEnabled && (
                 <div className="prescription-box-sm p-14">
+                  <CarePlanList
+                    patientId={patient_data?.patient_unique_id}
+                    selectedTcmId={tcmId}
+                    readOnly={true}
+                    title="Assigned Care Plans"
+                    onCarePlanSelect={(plan) => {
+                      console.log('Selected care plan from list:', plan);
+                      setSelectedCarePlan(plan);
+                    }}
+                  />
+
+                  <div className="mt-3">
                     <CarePlanDropdown 
                       onCarePlanSelect={(plan) => {
                         console.log('Selected care plan:', plan);
@@ -3370,6 +3386,7 @@ function SmartPrescription() {
                       placeholder={carePlanPlaceholder}
                     />
                   </div>
+              </div>
               )}
             </div>
             <div

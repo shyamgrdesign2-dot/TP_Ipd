@@ -1357,21 +1357,19 @@ function Prescription() {
           key="care-plan"
           className="prescription-box-sm p-14"
         >
-          {/* Care Plan List - Show assigned care plans above dropdown ONLY for Repeat Rx */}
-          {send_path === "repeat_rx" && (
-            <CarePlanList
-              patientId={patient_data?.patient_unique_id}
-              selectedTcmId={tcmId}
-              readOnly={true}
-              title="Assigned Care Plans"
-              onCarePlanSelect={(plan) => {
-                console.log('Selected care plan from list:', plan);
-                setSelectedCarePlan(plan);
-              }}
-            />
-          )}
+          {/* Care Plan List - Show assigned care plans above dropdown on all prescription pages */}
+          <CarePlanList
+            patientId={patient_data?.patient_unique_id}
+            selectedTcmId={tcmId}
+            readOnly={true}
+            title="Assigned Care Plans"
+            onCarePlanSelect={(plan) => {
+              console.log('Selected care plan from list:', plan);
+              setSelectedCarePlan(plan);
+            }}
+          />
           
-          <div className={send_path === "repeat_rx" ? "mt-3" : ""}>
+          <div className="mt-3">
             <CarePlanDropdown 
               onCarePlanSelect={(plan) => {
                 console.log('Selected care plan:', plan);
