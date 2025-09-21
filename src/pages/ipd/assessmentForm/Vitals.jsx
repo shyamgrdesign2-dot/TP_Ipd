@@ -33,7 +33,7 @@ const Vitals = (props) => {
       ?.filter((config) => vitalsData?.[config.id] && config.enabled)
       .map((config) => (
         <VitalDisplay
-          label={config.id}
+          label={config?.label || config?.title || config?.id}
           value={vitalsData[config.id]}
           unit={config?.unit}
           suffix={config?.suffix}

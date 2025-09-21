@@ -94,7 +94,7 @@ const ObstetricHistory = (props) => {
     );
   };
 
-  if (!isEditable && (!Object.keys(obstetricDetails)?.length || !pregnancyHistory?.length)) return null;
+  if (!isEditable && (!Object.keys(obstetricDetails)?.length && !pregnancyHistory?.length)) return null;
 
   return (
     <div>

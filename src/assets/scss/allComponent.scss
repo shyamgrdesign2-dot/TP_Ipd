@@ -3051,3 +3051,59 @@ body.sticky-search-open {
     }
   }
 }
+
+.ipd-wrapper-class-medbox-thead-readonly {
+  background: rgba(248, 244, 252, 1);
+  border-radius: 12px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border: 1px solid #dee2e6 !important;
+}
+.ipd-wrapper-class-medbox-tbody-readonly {
+  border-radius: 12px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border: 1px solid #dee2e6 !important;
+  border-top-width: 0 !important;
+  overflow: hidden;
+}
+.ipd-wrapper-class-medbox-readonly {
+  margin: 0 18px !important;
+  padding: 10px 0 18px !important;
+}
+
+.ipd-wrapper-class-readonly {
+  .ipdaf-obstetrics-container {
+    .obstetric-summary {
+      .ant-spin-container {
+        overflow: hidden;
+        border: 1px solid rgba(241, 241, 245, 1) !important;
+        border-radius: 12px;
+        // > div {
+        //   border: none !important;
+        // }
+      }
+      .ant-table-title {
+        overflow: hidden;
+        .st__section-header {
+          overflow: hidden;
+          background-color: rgba(237, 223, 247, 0.3) !important;
+          background: rgba(237, 223, 247, 0.3) !important;
+          span {
+            font-weight: 600 !important;
+            background-color: transparent !important;
+            background: transparent !important;
+          }
+        }
+      }
+      .ant-table-container {
+        border-bottom-left-radius: 12px !important;
+        border-bottom-right-radius: 12px !important;
+        overflow: hidden;
+      }
+      th.ant-table-cell.st__th {
+        font-weight: 600 !important;
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { Radio } from "antd";
 import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
@@ -14,7 +14,8 @@ const ExaminationSection = (props) => {
     (state) => state.assessment
   );
   const dispatch = useDispatch();
-
+  const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const [disableFocusEffect, setDisableFocusEffect] = useState({});
   const onExaminationRadioChange = (e, item) => {
     const { id } = item;
     dispatch(
@@ -72,6 +73,23 @@ const ExaminationSection = (props) => {
     );
   };
 
+  const handleEraseDataFromRichTextEditor = (item) => {
+    setDisableFocusEffect(prev => ({
+      ...prev,
+      [item?.id]: true
+    }));
+    setAutoFillTextToAppend(prev => ({
+      ...prev,
+      [item?.id]: ["clear"]
+    }));
+    setTimeout(() => {
+      setDisableFocusEffect(prev => ({
+        ...prev,
+        [item?.id]: false
+      }));
+    }, 100)
+  }
+
   const renderEditableExamination = () => {
     return (
       <div className="examinations-parent-container">
@@ -81,10 +99,19 @@ const ExaminationSection = (props) => {
               key={item.id}
               readOnly={!isEditable}
               showToolbar={isEditable}
-              toolbarClass={'small-toolbar'}
               showActionBtns={false}
+              onErase={() => handleEraseDataFromRichTextEditor(item)}
+              newAutoFillTextToAppend={autoFillTextToAppend[item?.id]}
+              setNewAutoFillTextToAppend={(value) => {
+                setAutoFillTextToAppend(prev => ({
+                  ...prev,
+                  [item?.id]: value
+                }));
+              }}
+              toolbarClass={'small-toolbar'}
               showAutoFill={false}
               showMagicPenGif={false}
+              disableFocusEffect={disableFocusEffect[item?.id]}
               showMicrophone={false}
               placeholder={"Additional notes if any"}
               containerClass="wrapper-class examination-rich-container"
@@ -128,7 +155,15 @@ const ExaminationSection = (props) => {
     <RichTextEditWrapper
       readOnly={!isEditable}
       showToolbar={isEditable}
-      showActionBtns={false}
+      showActionBtns={isEditable}
+      showOnlyClear={isEditable}
+      isDataPresent={Object.keys(physicalExaminationBasicData)?.length}
+      onErase={(e) => {
+        dispatch(setPhysicalExaminationBasicData({}));
+        sectionData?.children?.filter((item) => item.enabled)?.forEach(item => {
+          handleEraseDataFromRichTextEditor(item)
+        })
+      }}
       title={sectionData?.title}
       width="100%"
       icon={defaultIcons[`${sectionData?.id}Pc`]}

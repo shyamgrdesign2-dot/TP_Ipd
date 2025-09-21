@@ -968,11 +968,11 @@ function MedicationsBox(props) {
   const TABLE_MEDICATION = useMemo(() => {
     const noteProps = isEditable ? { lg: 6, md: 6, sm: 6, xs: 6 } : { flex: 'auto' };
     return (
-      <>
+      <div className="ipd-wrapper-class-medbox-readonly">
         {medicationData.length > 0 &&
           <Row
             gutter={[0]}
-            className={`mt-14 border-top align-items-center`}
+            className={`mt-14 border-top align-items-center ${!isEditable ? 'ipd-wrapper-class-medbox-thead-readonly' : ''}`}
           >
             {isEditable ? <Col lg={1} md={1} sm={1} xs={1}>
               &nbsp;
@@ -1029,9 +1029,17 @@ function MedicationsBox(props) {
           </Row>
         }
         <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId="medication" direction="vertical">
+          <Droppable droppableId="medication" direction="vertical" className="ipd-wrapper-class-medbox-tbody-readonly"
+          //  style={{
+          //     borderRadius: '12px',
+          //     borderTopLeftRadius: 0,
+          //     borderTopRightRadius: 0,
+          //     border: '1px solid #dee2e6 !important',
+          //     borderTopWidth: '0 !important'
+          //   }}
+            >
             {(provided) => (
-              <div {...provided.droppableProps} ref={provided.innerRef}>
+              <div  className="ipd-wrapper-class-medbox-tbody-readonly" {...provided.droppableProps} ref={provided.innerRef}>
                 {medicationData.length > 0 &&
                   medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], []).map((item, i) => (
                     <Draggable key={i} draggableId={`medication-${i}`} index={i}>
@@ -1196,7 +1204,7 @@ function MedicationsBox(props) {
             )}
           </Droppable>
         </DragDropContext>
-      </>
+      </div>
     );
   }, [medicationData, frequencyPopOver, isEditable]);
 
