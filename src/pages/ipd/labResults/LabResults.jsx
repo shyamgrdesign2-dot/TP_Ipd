@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Card,
   Tabs,
@@ -12,6 +13,8 @@ import {
   Tooltip,
   Dropdown,
   Menu,
+  Spin,
+  message,
 } from "antd";
 import {
   SearchOutlined,
@@ -24,6 +27,40 @@ import {
   MinusOutlined,
 } from "@ant-design/icons";
 import "./styles.scss";
+import ToolbarActions from "../components/ToolbarActions/ToolbarActions";
+import {
+  getPathologyResults,
+  addToDischargeThunk,
+  setActiveTab,
+  setSearchText,
+  toggleCategory,
+  selectAll,
+  deselectAll,
+  selectCategoryWithTests,
+  deselectCategoryWithTests,
+  selectTest,
+  deselectTest,
+  selectCategory,
+  deselectCategory,
+  clearError,
+  selectLabResultsState,
+  selectPathologyResults,
+  selectSelectedTests,
+  selectSelectedCategories,
+  selectIsLoading,
+  selectIsUpdating,
+  selectError,
+  selectUpdateError,
+  selectActiveTab,
+  selectSearchText,
+  selectExpandedCategories,
+  selectTotalSelectionCount,
+  selectTotalItemCount,
+  selectIsAllSelected,
+  selectIsCategorySelected,
+  selectIsCategoryIndeterminate,
+  selectIsMainCheckboxIndeterminate,
+} from "../../../redux/labResultsSlice";
 
 const { TabPane } = Tabs;
 const { Text, Title } = Typography;
@@ -233,11 +270,187 @@ const labResultsData = [
   },
 ];
 
-const LabResults = () => {
-  const [activeTab, setActiveTab] = useState("pathology");
-  const [searchText, setSearchText] = useState("");
-  const [expandedCategories, setExpandedCategories] = useState(["1"]);
-  const [selectedTests, setSelectedTests] = useState([]);
+const LabResults = ({ patientId = "123", admissionId = "AID-5698" }) => {
+  const dispatch = useDispatch();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Redux state
+  const pathologyResults = useSelector(selectPathologyResults);
+  const selectedTests = useSelector(selectSelectedTests);
+  const selectedCategories = useSelector(selectSelectedCategories);
+  const activeTab = useSelector(selectActiveTab);
+  const searchText = useSelector(selectSearchText);
+  const expandedCategories = useSelector(selectExpandedCategories);
+  const isLoading = useSelector(selectIsLoading);
+  const isUpdating = useSelector(selectIsUpdating);
+  const error = useSelector(selectError);
+  const updateError = useSelector(selectUpdateError);
+  const totalSelectionCount = useSelector(selectTotalSelectionCount);
+  const totalItemCount = useSelector(selectTotalItemCount);
+  const isAllSelected = useSelector(selectIsAllSelected);
+  const isMainIndeterminate = useSelector(selectIsMainCheckboxIndeterminate);
+
+  // Refs for scroll synchronization
+  const headerScrollRef = useRef(null);
+  const rowScrollRefs = useRef([]);
+
+  // Get auth token from localStorage or context
+  const getAuthToken = () => {
+    return (
+      localStorage.getItem("authToken") ||
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXN1bHQiOnsiZG9jdG9yX3VuaXF1ZV9pZCI6InhMd0hVRTNzSld6YUZmVCIsIm1vYmlsZV9ubyI6Ijk2ODY5OTc1NDIiLCJjbGluaWNfaWQiOjM5MCwiaG9zcGl0YWxfYnVzaW5lc3NfaWQiOjM5Njc0MTcxOTkwNjcwMCwidXNlcl9pZCI6NTI0LCJhZG1pbiI6MSwic2VhcmNoV2l0aCI6IlQiLCJpbmRpdmlkdWFsUHJlc2VudGF0aW9uIjoiTiIsInRlbXBsYXRlTm90ZXNIaWRlIjoiTiJ9LCJpYXQiOjE3MzU2MTkzMjYsImV4cCI6MTc2NzE3NjkyNn0.C8JczRD_lAyUzcb_CRQmuhuT8PsD0vEltpFtD7Vsegs"
+    );
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    if (patientId && admissionId) {
+      const token = getAuthToken();
+      dispatch(getPathologyResults({ patientId, admissionId, token }));
+    }
+  }, [dispatch, patientId, admissionId]);
+
+  // Handle errors
+  useEffect(() => {
+    if (error) {
+      message.error(`Error loading lab results: ${error}`);
+      dispatch(clearError());
+    }
+    if (updateError) {
+      message.error(`Error updating lab results: ${updateError}`);
+      dispatch(clearError());
+    }
+  }, [error, updateError, dispatch]);
+
+  // Synchronize scrolling between header and rows
+  useEffect(() => {
+    const handleHeaderScroll = (e) => {
+      const scrollLeft = e.target.scrollLeft;
+      setIsScrolled(scrollLeft > 0);
+      rowScrollRefs.current.forEach((ref) => {
+        if (ref && ref !== e.target) {
+          ref.scrollLeft = scrollLeft;
+        }
+      });
+    };
+
+    const handleRowScroll = (e) => {
+      const scrollLeft = e.target.scrollLeft;
+      setIsScrolled(scrollLeft > 0);
+      if (headerScrollRef.current) {
+        headerScrollRef.current.scrollLeft = scrollLeft;
+      }
+      rowScrollRefs.current.forEach((ref) => {
+        if (ref && ref !== e.target) {
+          ref.scrollLeft = scrollLeft;
+        }
+      });
+    };
+
+    // Add event listeners
+    if (headerScrollRef.current) {
+      headerScrollRef.current.addEventListener("scroll", handleHeaderScroll);
+    }
+
+    rowScrollRefs.current.forEach((ref) => {
+      if (ref) {
+        ref.addEventListener("scroll", handleRowScroll);
+      }
+    });
+
+    // Cleanup
+    return () => {
+      if (headerScrollRef.current) {
+        headerScrollRef.current.removeEventListener(
+          "scroll",
+          handleHeaderScroll
+        );
+      }
+      rowScrollRefs.current.forEach((ref) => {
+        if (ref) {
+          ref.removeEventListener("scroll", handleRowScroll);
+        }
+      });
+    };
+  }, [expandedCategories]); // Re-run when categories expand/collapse
+
+  // Helper functions for checkbox management
+  const getAllTestKeys = () => {
+    return labResultsData.flatMap((category) =>
+      category.tests.map((test) => test.key)
+    );
+  };
+
+  const getTotalSelectionCount = () => {
+    return selectedTests.length + selectedCategories.length;
+  };
+
+  const getTotalItemCount = () => {
+    const allTestKeys = getAllTestKeys();
+    const allCategoryKeys = getAllCategoryKeys();
+    return allTestKeys.length + allCategoryKeys.length;
+  };
+
+  const getCategoryTestKeys = (categoryKey) => {
+    const category = labResultsData.find((cat) => cat.key === categoryKey);
+    return category ? category.tests.map((test) => test.key) : [];
+  };
+
+  const getAllCategoryKeys = () => {
+    return labResultsData.map((category) => category.key);
+  };
+
+  // Handle main checkbox (select all)
+  const handleMainCheckboxChange = (checked) => {
+    if (checked) {
+      dispatch(selectAll());
+    } else {
+      dispatch(deselectAll());
+    }
+  };
+
+  // Handle category checkbox
+  const handleCategoryCheckboxChange = (categoryKey, checked) => {
+    const categoryTestKeys = getCategoryTestKeys(categoryKey);
+
+    if (checked) {
+      dispatch(
+        selectCategoryWithTests({ categoryKey, testKeys: categoryTestKeys })
+      );
+    } else {
+      dispatch(
+        deselectCategoryWithTests({ categoryKey, testKeys: categoryTestKeys })
+      );
+    }
+  };
+
+  // Handle individual test checkbox
+  const handleTestCheckboxChange = (testKey, categoryKey, checked) => {
+    if (checked) {
+      dispatch(selectTest(testKey));
+
+      // Check if all tests in category are now selected
+      const categoryTestKeys = getCategoryTestKeys(categoryKey);
+      const updatedSelectedTests = [...selectedTests, testKey];
+      const allCategoryTestsSelected = categoryTestKeys.every((key) =>
+        updatedSelectedTests.includes(key)
+      );
+
+      if (
+        allCategoryTestsSelected &&
+        !selectedCategories.includes(categoryKey)
+      ) {
+        dispatch(selectCategory(categoryKey));
+      }
+    } else {
+      dispatch(deselectTest(testKey));
+
+      // Deselect category if it was selected
+      if (selectedCategories.includes(categoryKey)) {
+        dispatch(deselectCategory(categoryKey));
+      }
+    }
+  };
 
   const getTrendIcon = (trend) => {
     switch (trend) {
@@ -413,10 +626,42 @@ const LabResults = () => {
   );
 
   const handleCategoryToggle = (categoryKey) => {
-    setExpandedCategories((prev) =>
-      prev.includes(categoryKey)
-        ? prev.filter((key) => key !== categoryKey)
-        : [...prev, categoryKey]
+    dispatch(toggleCategory(categoryKey));
+  };
+
+  // Handle add to discharge summary
+  const handleAddToDischarge = async () => {
+    try {
+      const token = getAuthToken();
+      await dispatch(
+        addToDischargeThunk({
+          patientId,
+          admissionId,
+          token,
+        })
+      ).unwrap();
+      await dispatch(getPathologyResults({ patientId, admissionId, token }));
+
+      message.success("Successfully added selected items to discharge summary");
+    } catch (error) {
+      message.error("Failed to add items to discharge summary");
+    }
+  };
+
+  // Helper function to check if category is selected
+  const isCategorySelected = (categoryKey) => {
+    return selectedCategories.includes(categoryKey);
+  };
+
+  // Helper function to check if category is indeterminate
+  const isCategoryIndeterminate = (categoryKey) => {
+    const categoryTestKeys = getCategoryTestKeys(categoryKey);
+    const selectedCategoryTests = categoryTestKeys.filter((key) =>
+      selectedTests.includes(key)
+    );
+    return (
+      selectedCategoryTests.length > 0 &&
+      selectedCategoryTests.length < categoryTestKeys.length
     );
   };
 
@@ -436,16 +681,11 @@ const LabResults = () => {
       </Text>
       <Space>
         <Checkbox
-          checked={selectedTests.includes(category.key)}
+          checked={isCategorySelected(category.key)}
+          indeterminate={isCategoryIndeterminate(category.key)}
           onChange={(e) => {
             e.stopPropagation(); // Prevent category toggle when clicking checkbox
-            if (e.target.checked) {
-              setSelectedTests([...selectedTests, category.key]);
-            } else {
-              setSelectedTests(
-                selectedTests.filter((key) => key !== category.key)
-              );
-            }
+            handleCategoryCheckboxChange(category.key, e.target.checked);
           }}
         />
         {expandedCategories.includes(category.key) ? (
@@ -463,7 +703,7 @@ const LabResults = () => {
         {/* Header Tabs */}
         <Tabs
           activeKey={activeTab}
-          onChange={setActiveTab}
+          onChange={(key) => dispatch(setActiveTab(key))}
           className="lab-results-tabs"
         >
           <TabPane
@@ -504,7 +744,7 @@ const LabResults = () => {
             placeholder="Search by test name or category"
             prefix={<SearchOutlined style={{ color: "#A2A2A8" }} />}
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={(e) => dispatch(setSearchText(e.target.value))}
             className="search-input"
           />
           <Dropdown overlay={dateFilterMenu} trigger={["click"]}>
@@ -517,7 +757,122 @@ const LabResults = () => {
 
         {/* Lab Results Table */}
         <div className="lab-results-content">
-          {labResultsData.map((category) => (
+          {/* Global Table Header */}
+          <div className="table-header-container">
+            <div
+              className={`table-header-fixed ${isScrolled ? "scrolled" : ""}`}
+            >
+              <div className="header-checkbox">
+                <Checkbox
+                  checked={isAllSelected}
+                  indeterminate={isMainIndeterminate}
+                  onChange={(e) => handleMainCheckboxChange(e.target.checked)}
+                />
+              </div>
+              <div className="header-name">
+                <Text
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#454551",
+                  }}
+                >
+                  Name
+                </Text>
+              </div>
+            </div>
+            <div className="table-header-scrollable" ref={headerScrollRef}>
+              <div className="header-date">
+                <Text
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 500,
+                    color: "#171725",
+                  }}
+                >
+                  06 Aug, 2025
+                </Text>
+              </div>
+              <div className="header-date">
+                <Text
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 500,
+                    color: "#171725",
+                  }}
+                >
+                  04 Aug, 2025
+                </Text>
+              </div>
+              <div className="header-date">
+                <Text
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 500,
+                    color: "#171725",
+                  }}
+                >
+                  03 Aug, 2025
+                </Text>
+              </div>
+              {/* Add more date columns as needed */}
+              <div className="header-date">
+                <Text
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 500,
+                    color: "#171725",
+                  }}
+                >
+                  02 Aug, 2025
+                </Text>
+              </div>
+              <div className="header-date">
+                <Text
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 500,
+                    color: "#171725",
+                  }}
+                >
+                  01 Aug, 2025
+                </Text>
+              </div>
+              <div className="header-date">
+                <Text
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 500,
+                    color: "#171725",
+                  }}
+                >
+                  31 Jul, 2025
+                </Text>
+              </div>
+              <div className="header-trends">
+                <Space>
+                  <Text
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 500,
+                      color: "#171725",
+                    }}
+                  >
+                    Trends
+                  </Text>
+                  <InfoCircleOutlined
+                    style={{ color: "#A2A2A8", fontSize: "14px" }}
+                  />
+                </Space>
+              </div>
+            </div>
+          </div>
+
+          {/* Categories and Data */}
+          {(pathologyResults.length > 0
+            ? pathologyResults
+            : labResultsData
+          ).map((category) => (
             <div key={category.key} className="category-section">
               {expandedCategories.includes(category.key) ? (
                 <div className="expanded-category">
@@ -525,13 +880,112 @@ const LabResults = () => {
                     {renderCategoryHeader(category)}
                   </div>
                   <div className="category-content">
-                    <Table
-                      columns={columns}
-                      dataSource={category.tests}
-                      pagination={false}
-                      className="lab-tests-table"
-                      rowClassName="lab-test-row"
-                    />
+                    {category.tests.map((test, testIndex) => (
+                      <div key={test.key} className="test-row-container">
+                        <div
+                          className={`test-row-fixed ${
+                            isScrolled ? "scrolled" : ""
+                          }`}
+                        >
+                          <div className="test-checkbox">
+                            <Checkbox
+                              checked={selectedTests.includes(test.key)}
+                              onChange={(e) => {
+                                handleTestCheckboxChange(
+                                  test.key,
+                                  category.key,
+                                  e.target.checked
+                                );
+                              }}
+                            />
+                          </div>
+                          <div className="test-name">
+                            <Space>
+                              <Text
+                                style={{
+                                  fontSize: "16px",
+                                  fontWeight: 500,
+                                  color: "#454551",
+                                }}
+                              >
+                                {test.name}
+                              </Text>
+                              <Tooltip title="Test information">
+                                <InfoCircleOutlined
+                                  style={{ color: "#A2A2A8", fontSize: "16px" }}
+                                />
+                              </Tooltip>
+                            </Space>
+                          </div>
+                        </div>
+                        <div
+                          className="test-row-scrollable"
+                          ref={(el) => (rowScrollRefs.current[testIndex] = el)}
+                        >
+                          <div className="test-value">
+                            <Space>
+                              <Text
+                                style={{
+                                  color:
+                                    test.values["06 Aug, 2025"]?.color ||
+                                    "#454551",
+                                }}
+                              >
+                                {test.values["06 Aug, 2025"]?.value || "--"}
+                              </Text>
+                              {getTrendIcon(test.values["06 Aug, 2025"]?.trend)}
+                            </Space>
+                          </div>
+                          <div className="test-value">
+                            <Space>
+                              <Text
+                                style={{
+                                  color:
+                                    test.values["04 Aug, 2025"]?.color ||
+                                    "#454551",
+                                }}
+                              >
+                                {test.values["04 Aug, 2025"]?.value || "--"}
+                              </Text>
+                              {getTrendIcon(test.values["04 Aug, 2025"]?.trend)}
+                            </Space>
+                          </div>
+                          <div className="test-value">
+                            <Space>
+                              <Text
+                                style={{
+                                  color:
+                                    test.values["03 Aug, 2025"]?.color ||
+                                    "#454551",
+                                }}
+                              >
+                                {test.values["03 Aug, 2025"]?.value || "--"}
+                              </Text>
+                              {getTrendIcon(test.values["03 Aug, 2025"]?.trend)}
+                            </Space>
+                          </div>
+                          {/* Add more date columns as needed */}
+                          <div className="test-value">
+                            <Space>
+                              <Text style={{ color: "#454551" }}>--</Text>
+                            </Space>
+                          </div>
+                          <div className="test-value">
+                            <Space>
+                              <Text style={{ color: "#454551" }}>--</Text>
+                            </Space>
+                          </div>
+                          <div className="test-value">
+                            <Space>
+                              <Text style={{ color: "#454551" }}>--</Text>
+                            </Space>
+                          </div>
+                          <div className="test-trend">
+                            {getTrendTag(test.trend)}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ) : (
@@ -543,6 +997,30 @@ const LabResults = () => {
           ))}
         </div>
       </Card>
+      {/* Loading Spinner */}
+      {isLoading && (
+        <div
+          style={{ display: "flex", justifyContent: "center", padding: "40px" }}
+        >
+          <Spin size="large" />
+        </div>
+      )}
+
+      {/* Toolbar Actions */}
+      <div className="ipd-toolbar-edit-custom-print-download">
+        <ToolbarActions
+          showEditForm={false}
+          showSelectionCount={totalSelectionCount > 0}
+          showAddToDischarge={totalSelectionCount > 0}
+          selectedCount={totalSelectionCount}
+          totalCount={totalItemCount}
+          onAddToDischarge={handleAddToDischarge}
+          onPrintPreview={() => console.log("Preview")}
+          onPrint={() => console.log("Print")}
+          onSettings={() => console.log("Settings")}
+          onDownload={() => console.log("Download")}
+        />
+      </div>
     </div>
   );
 };
