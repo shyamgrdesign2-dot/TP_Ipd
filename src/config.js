@@ -60,6 +60,7 @@ export default {
   monetization_url: env.monetization_url,
   tp_monetization_disabled_hospital: env.tp_monetization_disabled_hospital,
   tp_agent_disabled_hospital: env.tp_agent_disabled_hospital,
+  munshi_hospital_business_ids: env.munshi_hospital_business_ids,
   GOOGLE_MAPS_API_KEY: env.GOOGLE_MAPS_API_KEY,
   ZYDUS_BUSINESS_ID: env.ZYDUS_BUSINESS_ID,
   APOLLO_BUSINESS_IDS: env.APOLLO_BUSINESS_IDS,
