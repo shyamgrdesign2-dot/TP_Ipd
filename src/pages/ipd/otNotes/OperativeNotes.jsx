@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/assessments";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setOperativeNotes } from "../../../redux/ipd/otNotesSlice";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
@@ -24,19 +23,19 @@ const OperativeNotes = (props) => {
         showActionBtns={isEditable}
         title={data?.title}
         width="100%"
-        icon={defaultIcons[data?.id]}
+        icon={otNotesIcons[data?.id]}
         showAutoFill={false}
         onErase={() => {
-          setAutoFillTextToAppend(prev => ({
+          setAutoFillTextToAppend((prev) => ({
             ...prev,
-            [data?.id]: ["clear"]
+            [data?.id]: ["clear"],
           }));
         }}
         newAutoFillTextToAppend={autoFillTextToAppend[data?.id]}
         setNewAutoFillTextToAppend={(value) => {
-          setAutoFillTextToAppend(prev => ({
+          setAutoFillTextToAppend((prev) => ({
             ...prev,
-            [data?.id]: value
+            [data?.id]: value,
           }));
         }}
         containerClass={`wrapper-class ${
@@ -55,9 +54,7 @@ const OperativeNotes = (props) => {
                 },
               ]
         }
-        placeholder={
-          data?.placeholder
-        }
+        placeholder={data?.placeholder}
       />
     );
   };
@@ -66,19 +63,19 @@ const OperativeNotes = (props) => {
       return renderRichTextEditorSection(item);
     });
   };
-  if (
-    !isEditable &&
-    !Object.values(operativeNotes).some(value => value)
-  )
+  if (!isEditable && !Object.values(operativeNotes).some((value) => value))
     return null;
   return (
     <div>
       <CollapsibleWrapper
         title={sectionData?.title}
-        icon={assessmentsIcons[sectionData?.icon]}
+        data-testid={sectionData?.id}
+        icon={otNotesIcons[`${sectionData?.id}Dark`]}
         collapsible={isEditable}
         width={"100%"}
-        className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
+        className={`collapsible-wrapper-class ${
+          isEditable ? "" : "collapsible-wrapper-class-readonly"
+        }`}
         defaultOpen
       >
         {renderChildren()}

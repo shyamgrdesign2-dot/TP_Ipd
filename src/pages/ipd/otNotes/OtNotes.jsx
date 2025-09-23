@@ -1,7 +1,8 @@
 import React, { Suspense, useEffect, useState } from "react";
 import { IPD } from "../../../utils/locale.js";
 import "../assessmentForm/styles.scss";
-import { Button, Drawer } from "antd";
+import "./styles.scss";
+import { Button, Drawer, message } from "antd";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { createRemoteComponent } from "../../../shared/remoteComponents.js";
@@ -12,12 +13,12 @@ import {
 import AddCustomModule from "../../../components/AddCustomModule.js";
 import { useSelector } from "react-redux";
 import CustomModule from "../../../components/CustomModule.js";
-import SurgeryDetails from "./SurgeryDetails.jsx";
-import SurgeryTeam from "./SurgeryTeam.jsx";
-import OperativeNotes from "./OperativeNotes.jsx";
-import IntraOperativeNotes from "./IntraOperativeNotes.jsx";
-import PostOperativeNotes from "./PostOperativeNotes.jsx";
-import { getOtNotesData } from "../../../redux/ipd/otNotesSlice.js";
+import SurgeryDetails from "./SurgeryDetails";
+import SurgeryTeam from "./SurgeryTeam";
+import OperativeNotes from "./OperativeNotes";
+import IntraOperativeNotes from "./IntraOperativeNotes";
+import PostOperativeNotes from "./PostOperativeNotes";
+import { getOtNotesData, setSingleOtNotesData, updateOtNotesData } from "../../../redux/ipd/otNotesSlice.js";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -32,11 +33,12 @@ const OtNotes = (props) => {
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const { customization = {} } = useSelector((state) => state.ipd);
+  const otNotesState = useSelector((state) => state.otNotes);
   const { customModules } = useSelector((state) => state.customModules);
   const otNotesData = useSelector((state) => state.otNotes);
   const { otNotes = [] } = customization;
   const [modelData, setModelData] = useState(
-    // otNotes.length > 0 ? otNotes : 
+    // otNotes.length > 0 ? otNotes :
     IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE
   );
 
@@ -51,15 +53,20 @@ const OtNotes = (props) => {
     if (
       isEditable &&
       patientDetails?.details?.id &&
-      Object.keys(otNotesData?.otNotesData || {}).length === 0
+      patientDetails?.details?.admissionId &&
+      Object.keys(otNotesData?.otNotesData || {}).length === 0 &&
+      !otNotesState.currentOtNoteId
     ) {
-      dispatch(getOtNotesData({ patientId: patientDetails?.details?.id })).then(
-        (res) => {
-          // addDataToStore(res.payload);
-        }
-      );
     }
     dispatch(getCustomization());
+    dispatch(
+      getOtNotesData({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+      })
+    ).then(res => {
+      dispatch(setSingleOtNotesData({_id: otNotesData.currentOtNoteId}))
+    });
   }, []);
 
   const handleDefaultClick = () => {
@@ -102,62 +109,105 @@ const OtNotes = (props) => {
   };
 
   const onSaveOtNotesClick = () => {
-    // const reqData = {
-    //   basicInfo: {
-    //     chiefComplaint: assessmentData.chiefComplaint,
-    //     historyOfPresentIllness: assessmentData.historyOfPresentIllness,
-    //     currentMedications: convertMedicationFormat(
-    //       prescriptionData.medicationData
-    //     ),
-    //     medications: prescriptionData.medicationData,
-    //     labResults: assessmentData.labResults,
-    //     pastMedicalHistory: prescriptionData.medicalHistoryData,
-    //     gyneacHistory: assessmentData.gynecHistoryData,
-    //     obstetricHistory: allObstetricDetails,
-    //   },
-    //   physicalExamination: {
-    //     vitals: assessmentData.vitalsData,
-    //     examination: Object.entries(
-    //       assessmentData.physicalExaminationBasicData || {}
-    //     ).reduce((acc, [key, value]) => {
-    //       acc[key] = {
-    //         title: value?.title || "",
-    //         notes: value?.notes || [],
-    //         value: value?.value || null,
-    //       };
-    //       return acc;
-    //     }, {}),
-    //     others: assessmentData.physicalExaminationOthersData,
-    //     provisionalDiagnosis:
-    //       assessmentData.physicalExaminationProvisionalDiagnosisData,
-    //   },
-    //   functionalAssessment: assessmentData.functionalAssessmentData,
-    //   treatmentPlan: assessmentData.treatmentPlanData,
-    //   additionalNotes: assessmentData.additionalNotesData,
-    //   customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
-    // };
-    // dispatch(
-    //   updateAssessmentsData({
-    //     data: reqData,
-    //     patientId: patientDetails?.details?.id,
-    //   })
-    // ).then((res) => {
-    //   if (!res.payload) return;
-    //   addDataToStore(reqData);
-    //   dispatch(
-    //     getAssessmentsData({
-    //       patientId: patientDetails?.details?.id,
-    //     })
-    //   );
-    //   navigate("/ipd/patient-details", {
-    //     state: {
-    //       isEditable: false,
-    //       patient_data: patient_data,
-    //       patientDetails,
-    //     },
-    //     replace: true,
-    //   });
-    // });
+    const reqData = {
+      surgeryDetails: {
+        ...otNotesState.surgeryDetails,
+      },
+      surgeryTeam: {
+        ...otNotesState.surgeryTeam,
+      },
+      operativeNotes: Object.entries(otNotesState.operativeNotes || {}).reduce(
+        (acc, [key, value]) => {
+          acc[key] = value?.value || value;
+          return acc;
+        },
+        {}
+      ),
+      intraOperativeNotes: {
+        complication:
+          otNotesState.intraOperativeNotes.complicationsSeverity?.value || [],
+        specimensSent:
+          otNotesState.intraOperativeNotes.specimensSent?.value || [],
+        implants: otNotesState.intraOperativeNotes.implantsUsed?.value || [],
+        estimatedBloodLoss:
+          parseInt(
+            otNotesState.intraOperativeNotes?.additionalUnits
+              ?.estimatedBloodLoss,
+            10
+          ) || 0,
+        swabCount:
+          parseInt(
+            otNotesState.intraOperativeNotes?.additionalUnits?.swabCount,
+            10
+          ) || 0,
+        fluidCount:
+          parseInt(
+            otNotesState.intraOperativeNotes?.additionalUnits?.fluidCount,
+            10
+          ) || 0,
+        sutureType:
+          parseInt(
+            otNotesState.intraOperativeNotes?.additionalUnits?.sutureType,
+            10
+          ) || 0,
+      },
+      postOperativeNotes: {
+        postOpDestination:
+          otNotesState.postOperativeNotes.postOpDestination?.value || "",
+        additionalInstructions:
+          otNotesState.postOperativeNotes.additionalInstructions?.value || [],
+        ...Object.entries(otNotesState.postOperativeNotes || {}).reduce(
+          (acc, [key, value]) => {
+            const excludedKeys = [
+              "postOpDestination",
+              "additionalInstructions",
+            ];
+            if (!excludedKeys.includes(key)) {
+              acc[key] = value?.value || value;
+            }
+            return acc;
+          },
+          {}
+        ),
+      },
+      customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
+    };
+
+    console.log('INTEL ==>req data', reqData)
+
+    dispatch(
+      updateOtNotesData({
+        data: reqData,
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        _id: otNotesState?.currentOtNoteId || null,
+      })
+    ).then((res) => {
+      if (res?.payload?.error) {
+        message.warning(
+          `${res.payload.error} - ${
+            res.payload.message?.split("must")?.[0]
+          } missing`
+        );
+        return;
+      }
+      dispatch(
+        getOtNotesData({
+          patientId: patientDetails?.details?.id,
+          admissionId: patientDetails?.admissionId,
+          _id: otNotesState.currentOtNoteId,
+        })
+      );
+      navigate("/ipd/patient-details", {
+        state: {
+          isEditable: false,
+          patient_data: patient_data,
+          patientDetails,
+          activeTab: "otNotes",
+        },
+        replace: true,
+      });
+    });
   };
 
   const renderBottomSection = () => {
@@ -176,12 +226,13 @@ const OtNotes = (props) => {
   const renderHeaderSection = () => {
     return (
       <div className="ipd-filled-by-card-container">
-        <FilledByCard
-          filledBy="John Doe"
-          role="Doctor"
-          selectedTimePeriod="Morning"
-          editable={true}
-        />
+        {otNotesState.currentOtNoteFilledByDetails?.createdByName && <FilledByCard
+          filledBy={otNotesState.currentOtNoteFilledByDetails?.createdByName || ""}
+          role={otNotesState.currentOtNoteFilledByDetails?.createdByRole || ""}
+          showFilledOnDate={true}
+          selectedDate={otNotesState.currentOtNoteFilledByDetails?.createdAt || ""}
+        />}
+        {/* TODO: INTEL - SHOW EDITABLE ONE INSTEAD OF THIS */}
       </div>
     );
   };
@@ -208,7 +259,11 @@ const OtNotes = (props) => {
   };
 
   return (
-    <div className="afipd-otnotes-form-container">
+    <div
+      className={`afipd-otnotes-form-container ${
+        isEditable ? "" : "ipd-otnotes-form-container-readonly"
+      }`}
+    >
       <Suspense fallback={<>Loading ...</>}>
         {!isEditable ? (
           <div>{renderAllSections()}</div>

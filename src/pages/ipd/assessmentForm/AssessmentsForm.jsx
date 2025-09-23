@@ -56,6 +56,7 @@ import {
 import { addObstetricDetails } from "../../../redux/obstetricSlice";
 import CustomModule from "../../../components/CustomModule";
 import BackConfirmationModal from "../../../components/BackConfirmationModal";
+import { useAssessmentSectionVisibility } from "../../../hooks/useAssessmentSectionVisibility";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -63,6 +64,7 @@ const FilledByCard = createRemoteComponent("FilledByCard");
 
 const AssessmentsForm = (props) => {
   const dispatch = useDispatch();
+  const { hasAnyData } = useAssessmentSectionVisibility();
   const { state } = useLocation();
   const { patient_data, patientDetails, isEditable = true } = state || {};
 
@@ -324,12 +326,12 @@ const AssessmentsForm = (props) => {
         }`}
         style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
       >
-        <FilledByCard
+        {assessmentData.assessmentsFilledByData?.createdByName && <FilledByCard
           filledBy={assessmentData.assessmentsFilledByData?.createdByName || ""}
           role={assessmentData.assessmentsFilledByData?.createdByRole || ""}
           showFilledOnDate={true}
           selectedDate={assessmentData.assessmentsFilledByData?.createdAt || ""}
-        />
+        />}
         {assessments.length > 0
           ? assessments.map((item) => {
               return (
@@ -342,6 +344,7 @@ const AssessmentsForm = (props) => {
       </div>
     );
   };
+  if (!isEditable && !hasAnyData) return null;
 
   return (
     <div className="afipd-generic-form-container">

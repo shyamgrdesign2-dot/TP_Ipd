@@ -165,6 +165,7 @@ const ExaminationSection = (props) => {
         })
       }}
       title={sectionData?.title}
+      data-testid={sectionData?.id}
       width="100%"
       icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={false}

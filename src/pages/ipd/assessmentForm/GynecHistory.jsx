@@ -6,7 +6,10 @@ import { useSelector, useDispatch } from "react-redux";
 import GynecHistoryList from "../../../components/GynecHistoryList";
 import MedicalHistoryBox from "../../../components/MedicalHistoryBox";
 import { Drawer } from "antd";
-import { setGyneacHistoryBackup, setGynecHistoryData } from "../../../redux/ipd/assessmentsFormSlice";
+import {
+  setGyneacHistoryBackup,
+  setGynecHistoryData,
+} from "../../../redux/ipd/assessmentsFormSlice";
 import { formatDateToShortMonthYear } from "../../../utils/utils";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -20,7 +23,12 @@ const GynecHistory = (props) => {
     patientDataForOPDComponents,
   } = props || {};
 
-  let { gynecHistoryData, lastPrescriptionDataForAssessment, lastPrescriptionDate, gyneacHistoryBackup } = useSelector((state) => state.assessment);
+  let {
+    gynecHistoryData,
+    lastPrescriptionDataForAssessment,
+    lastPrescriptionDate,
+    gyneacHistoryBackup,
+  } = useSelector((state) => state.assessment);
   const { lastRxDate } = lastPrescriptionDate || {};
   const dispatch = useDispatch();
   const [addGynecHistoryDrawer, setAddGynecHistoryDrawer] = useState(false);
@@ -47,16 +55,19 @@ const GynecHistory = (props) => {
             dispatch(setGynecHistoryData(lastGyneacHistory));
           } else {
             dispatch(setGyneacHistoryBackup(gynecHistoryData));
-            dispatch(setGynecHistoryData({...gynecHistoryData, ...lastGyneacHistory}));
+            dispatch(
+              setGynecHistoryData({ ...gynecHistoryData, ...lastGyneacHistory })
+            );
           }
         }}
-        title={`Autofill From OPD (${formatDateToShortMonthYear(
-          lastRxDate
-        )})`}
+        title={`Autofill From OPD (${formatDateToShortMonthYear(lastRxDate)})`}
       />
     );
-  }, [lastPrescriptionDataForAssessment, gynecHistoryData, gyneacHistoryBackup]);
-
+  }, [
+    lastPrescriptionDataForAssessment,
+    gynecHistoryData,
+    gyneacHistoryBackup,
+  ]);
 
   const isGynecHistoryDataExists =
     gynecHistoryData && Object.keys(gynecHistoryData).length;
@@ -87,7 +98,9 @@ const GynecHistory = (props) => {
                   ? "Add/Edit Gynec History"
                   : "Add Gynec History"
               }
-            >{renderAutoFillButton()}</GenericCard>
+            >
+              {renderAutoFillButton()}
+            </GenericCard>
           </div>
         ) : null}
       </div>
@@ -108,6 +121,7 @@ const GynecHistory = (props) => {
         showActionBtns={isEditable}
         isDataPresent={isGynecHistoryDataExists}
         title={sectionData?.title}
+        data-testid={sectionData?.id}
         width="100%"
         containerClass="wrapper-class ipd-gynec-history-wrapper"
         icon={assessmentsIcons[`${sectionData?.id}Pc`]}

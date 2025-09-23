@@ -1,9 +1,10 @@
-import React, { useState,  useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/assessments";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setPostOperativeNotes } from "../../../redux/ipd/otNotesSlice";
+import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
+import { Select } from "antd";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -12,9 +13,45 @@ const PostOperativeNotes = (props) => {
   const { postOperativeNotes = {} } = useSelector((state) => state.otNotes);
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState({});
   const dispatch = useDispatch();
+  const {
+    filters: { ward: wardFilters },
+  } = useSelector((state) => state.inPatients);
   const handleChange = (value, key) => {
     dispatch(setPostOperativeNotes({ key, value }));
   };
+
+  useEffect(() => {
+    dispatch(fetchFilters({ field: "ward" }));
+  }, []);
+  const wards = useMemo(() => {
+    return (
+      wardFilters?.map((ward) => ({
+        id: ward.id,
+        name: ward.title,
+      })) || []
+    );
+  }, [wardFilters]);
+
+  const renderPostOpDestination = (data) => {
+    const options = (wards || []).map((item) => ({
+      key: JSON.stringify(item),
+      value: item.name,
+      label: <div key={item.id || item.masterId}>{item.name}</div>,
+    }));
+    return (
+      <div className="ipd-ot-notes-post-op-destination-container">
+        <label className="otNotes-label">{data?.title}</label>
+        <Select
+          className="autocomplete-custom w-100 popinput inputheight41 "
+          placeholder={data?.placeholder}
+          options={options}
+          value={postOperativeNotes?.[data?.id]?.value || undefined}
+          onChange={(val) => dispatch(setPostOperativeNotes({ key: data?.id, value: val }))}
+        />
+      </div>
+    );
+  };
+
   const renderRichTextEditorSection = (data) => {
     if (!isEditable && !postOperativeNotes?.[data?.id]) return null;
     return (
@@ -23,24 +60,25 @@ const PostOperativeNotes = (props) => {
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
+        data-testid={data?.id}
         width="100%"
-        icon={defaultIcons[data?.id]}
+        icon={otNotesIcons[data?.id]}
         showAutoFill={false}
         containerClass={`wrapper-class ${
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         showMagicPenGif={false}
         onErase={() => {
-          setAutoFillTextToAppend(prev => ({
+          setAutoFillTextToAppend((prev) => ({
             ...prev,
-            [data?.id]: ["clear"]
+            [data?.id]: ["clear"],
           }));
         }}
         newAutoFillTextToAppend={autoFillTextToAppend[data?.id]}
         setNewAutoFillTextToAppend={(value) => {
-          setAutoFillTextToAppend(prev => ({
+          setAutoFillTextToAppend((prev) => ({
             ...prev,
-            [data?.id]: value
+            [data?.id]: value,
           }));
         }}
         showMicrophone={false}
@@ -55,35 +93,37 @@ const PostOperativeNotes = (props) => {
                 },
               ]
         }
-        placeholder={
-          data?.placeholder
-        }
+        placeholder={data?.placeholder}
       />
     );
   };
   const renderChildren = () => {
-    return sectionData?.children?.map((item) => {
-      if (item?.children) {
-        return (
-          <div>wowow</div>
-        )
-      }
-      return renderRichTextEditorSection(item);
-    });
+    return sectionData?.children
+      ?.filter((item) => item.enabled)
+      .map((item) => {
+        switch (item?.id) {
+          case "postOpDestination":
+            return renderPostOpDestination(item);
+          case "additionalInstructions":
+            return renderRichTextEditorSection(item);
+          default:
+            return null;
+        }
+      });
   };
-  if (
-    !isEditable &&
-    !Object.values(postOperativeNotes).some(value => value)
-  )
+  if (!isEditable && !Object.values(postOperativeNotes).some((value) => value))
     return null;
   return (
-    <div>
+    <div className="ipd-ot-notes-post-op-container">
       <CollapsibleWrapper
         title={sectionData?.title}
-        icon={assessmentsIcons[sectionData?.icon]}
+        data-testid={sectionData?.id}
+        icon={otNotesIcons[`${sectionData?.id}Dark`]}
         collapsible={isEditable}
         width={"100%"}
-        className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
+        className={`collapsible-wrapper-class ${
+          isEditable ? "" : "collapsible-wrapper-class-readonly"
+        }`}
         defaultOpen
       >
         {renderChildren()}

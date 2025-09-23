@@ -459,7 +459,50 @@ export const IPD = {
       menuIcon: "basicInfoBg",
       enabled: true,
       expanded: false,
-      children: [],
+      children: [
+        {
+          placeholder: "Enter Surgery Procedure Name",
+          id: "procedureName",
+          title: "Surgery Procedure Name",
+          enabled: true,
+          icon: "surgeryDetails",
+        },
+        {
+          placeholder: "Enter Anaesthesia Type",
+          id: "anaesthesiaType",
+          title: "Anaesthesia Type",
+          enabled: true,
+          icon: "surgeryDetails",
+        },
+        {
+          placeholder: "Enter Surgery Date",
+          id: "surgeryDate",
+          title: "Surgery Date",
+          enabled: true,
+          icon: "surgeryDetails",
+        },
+        {
+          placeholder: "Enter Surgery Start Time",
+          id: "surgeryStartTime",
+          title: "Surgery Start Time",
+          enabled: true,
+          icon: "surgeryDetails",
+        },
+        {
+          placeholder: "Enter Surgery End Time",
+          id: "surgeryEndTime",
+          title: "Surgery End Time",
+          enabled: true,
+          icon: "surgeryDetails",
+        },
+        {
+          placeholder: "Enter Diagnosis",
+          id: "diagnosis",
+          title: "Diagnosis",
+          enabled: true,
+          icon: "surgeryDetails",
+        },
+      ],
     },
     {
       id: "surgeryTeam",
@@ -468,7 +511,44 @@ export const IPD = {
       menuIcon: "basicInfoBg",
       enabled: true,
       expanded: false,
-      children: [],
+      children: [
+        {
+          id: "primarySurgeon",
+          name: "Primary Surgeon",
+          title: "Primary Surgeon",
+          enabled: true,
+        },
+        {
+          id: "secondarySurgeon",
+          name: "Secondary Surgeon",
+          title: "Secondary Surgeon",
+          enabled: true,
+        },
+        {
+          id: "assistant",
+          name: "Assistant",
+          title: "Assistant",
+          enabled: true,
+        },
+        {
+          id: "anaesthesiologist",
+          name: "Anaesthesiologist",
+          title: "Anaesthesiologist",
+          enabled: true,
+        },
+        {
+          id: "scrubNurse",
+          name: "Scrub Nurse",
+          title: "Scrub Nurse",
+          enabled: true,
+        },
+        {
+          id: "floorCirculatingNurse",
+          name: "Floor/ Circulating Nurse",
+          title: "Floor/ Circulating Nurse",
+          enabled: true,
+        },
+      ],
     },
     {
       id: "operativeNotes",
@@ -546,7 +626,7 @@ export const IPD = {
               title: "Estimated Blood Loss",
               enabled: true,
               icon: "blood",
-              suffix: "ml",
+              unit: "ml",
             },
             {
               placeholder: "Enter Swab Count",
@@ -554,7 +634,7 @@ export const IPD = {
               title: "Swab Count",
               enabled: true,
               icon: "swab",
-              suffix: "Swabs",
+              unit: "Swabs",
             },
             {
               placeholder:
@@ -583,7 +663,22 @@ export const IPD = {
       icon: "postOperativeNotes",
       enabled: true,
       expanded: false,
-      children: [],
+      children: [
+        {
+          placeholder: "Select Post-op Destination",
+          id: "postOpDestination",
+          title: "Post-op Destination",
+          enabled: true,
+          icon: "surgeryDetails",
+        },
+        {
+          placeholder: "Enter Additional Instructions",
+          id: "additionalInstructions",
+          title: "Additional Instructions",
+          enabled: true,
+          icon: "surgeryDetails",
+        },
+      ],
     },
   ],
   ASSESSMENTS_MENU: [
@@ -630,7 +725,12 @@ export const IPD = {
     { id: "otNotes", name: "OT Notes", icon: "healthIcon" },
     { id: "crossReferral", name: "Cross Referral", icon: "healthIcon" },
     { id: "labResults", name: "Lab Results", icon: "glassIcon" },
-    { id: "records", name: "Medical Records", icon: "notesIcon", showAddCTA: true, },
+    {
+      id: "records",
+      name: "Medical Records",
+      icon: "notesIcon",
+      showAddCTA: true,
+    },
     { id: "discharge", name: "Discharge Summary", icon: "notepadIcon" },
     { id: "logs", name: "Activity Logs", icon: "usersTwoIcon" },
     { id: "opd", name: "OPD Visit History", icon: "layerIcon" },

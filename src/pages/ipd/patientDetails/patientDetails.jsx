@@ -39,7 +39,10 @@ import ConsultantNotesTimeline from "../consultantNotes/ConsultantNotesTimeline"
 import LabResults from "../labResults/LabResults";
 import ProgressNotesView from "../progressNotes/progressNotesView/progressNotesView";
 import { getProgressNotes } from "../../../redux/ipd/progressNotesSlice";
+import { getOtNotesData } from "../../../redux/ipd/otNotesSlice";
 import MedicalRecords from "../medicalRecords/IPDMedicalRecords";
+import OtNotesTimeline from "../otNotes/OtNotesTimeline";
+import { useAssessmentSectionVisibility } from "../../../hooks/useAssessmentSectionVisibility";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -59,6 +62,8 @@ const IPDPatientDetails = () => {
 
   const patientId = patientDetails?.details?.id;
   const { admissionId } = patientDetails;
+
+  const { hasAnyData: hasAnyAssessmentData } = useAssessmentSectionVisibility();
 
   const { assessmentsData } = useSelector((state) => state.assessment);
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
@@ -97,7 +102,8 @@ const IPDPatientDetails = () => {
     });
   };
 
-  const handleOtNotesClick = () => {
+  const handleAddOtNotesClick = () => {
+    // TODO: INTEL - RESET ALL THE DATA IN THE OT NOTES FORM
     navigate("/ipd/patient-details/ot-notes", {
       state: {
         patient_data,
@@ -249,6 +255,10 @@ const IPDPatientDetails = () => {
           console.error("Error fetching progress notes:", error);
         }
       );
+    } else if (activeMenuItem === "otNotes") {
+      dispatch(getOtNotesData({ patientId, admissionId })).catch((error) => {
+        console.error("Error fetching OT notes:", error);
+      });
     } else if (activeMenuItem === "records") {
       // dispatch(getProgressNotes({ patientId, admissionId })).catch(
       //   (error) => {
@@ -260,7 +270,7 @@ const IPDPatientDetails = () => {
 
   const handleEmptyCtaClick = {
     assessment: () => handleAddAssessmentClick(true),
-    otNotes: handleOtNotesClick,
+    otNotes: handleAddOtNotesClick,
     consultantNotes: handleAddConsultantNotesClick,
     labResults: handleAddLabResultsClick,
     progress: handleProgressNotesClick,
@@ -278,10 +288,10 @@ const IPDPatientDetails = () => {
   };
 
   const isDataPresent = useMemo(() => {
-    if (activeMenuItem === "assessment" && !!assessmentsData) {
-      return Object.keys(assessmentsData)?.length > 0;
-    } else if (activeMenuItem === "otNotes") {
-      return Object.keys(otNotesData)?.length > 0;
+    if (activeMenuItem === "assessment" && !!assessmentsData || hasAnyAssessmentData) {
+      return Object.keys(assessmentsData || {})?.length > 0;
+    } else if (activeMenuItem === "otNotes" && Array.isArray(otNotesData) && otNotesData.length > 0) {
+      return true;
     } else if (activeMenuItem === "consultantNotes") {
       return !!consultantNotes?.length;
     } else if (activeMenuItem === "progress") {
@@ -290,7 +300,7 @@ const IPDPatientDetails = () => {
       return false;
     }
     return false;
-  }, [assessmentsData, otNotesData, activeMenuItem, consultantNotes, progressNotes]);
+  }, [assessmentsData, otNotesData, activeMenuItem, consultantNotes, progressNotes, hasAnyAssessmentData]);
 
   const onRequestClose = () => {
     navigate(`/ipd/inPatients`);
@@ -349,12 +359,19 @@ const IPDPatientDetails = () => {
             <LabResults />
           </div>
         );
-      case "ecords":
+      case "records":
         return (
           <div className="ipd-adm-assess-container-readable">
             <MedicalRecords />
           </div>
         );
+      case "otNotes":
+        return (
+          <div className="ipd-adm-assess-container-readable"> 
+            {/* <OtNotes isEditable={isEditable} /> */}
+            <OtNotesTimeline />
+          </div>
+        )
       default:
         return null;
     }
@@ -384,7 +401,8 @@ const IPDPatientDetails = () => {
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
               renderContent={
-                true ? renderContent : null
+                isDataPresent ? renderContent : null
+                // null
               }
               showAddCTA={canShowAddCTA}
             />
