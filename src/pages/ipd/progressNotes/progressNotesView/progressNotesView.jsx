@@ -96,7 +96,7 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
         findings: pn?.findings,
         vitals: pn?.vitals,
         additionalRemarks: pn?.additionalRemarks,
-        filledBy: entry?.createdByName ? `Dr. ${entry.createdByName}` : "",
+        filledBy: entry?.createdByName ? `${entry.createdByName}` : "",
         role: entry?.createdByRole,
       };
     });
@@ -192,7 +192,6 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
   };
 
   const renderCustomItem = (item, itemIndex, groupKey, items, emit) => {
-    console.log({ item });
 
     const value = item.period || item.timeOfDay || "";
     const formattedTimeOfDay = value.charAt(0).toUpperCase() + value.slice(1);
@@ -283,6 +282,7 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
     <div style={{ padding: "20px", maxWidth: "1400px", margin: "0 auto" }}>
       <div style={{ width: "max-content", maxWidth: "260px" }}>
         <DateRangeFilter
+          placeholder={"Filter by date"}
           dateRange={dateRange}
           dateStatus={dateStatus}
           isOpen={pickerModal}
