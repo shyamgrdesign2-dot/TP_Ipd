@@ -38,6 +38,7 @@ function WalkInConsultationZydus() {
     const [clickedPatient, setClickedPatient] = useState(null);
     const [clickedDownArrow, setClickedDownArrow] = useState(false);
     const [autoCompleteFlag, setAutoCompleteFlag] = useState(false);
+    const [isLoadingPatientDetails, setIsLoadingPatientDetails] = useState(false);
     const consultButtonRef = useRef(null);
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
@@ -73,9 +74,14 @@ function WalkInConsultationZydus() {
   }, []);
 
     const BoldWordInName = ({ name, boldWord }) => {
+        if (!name || typeof name !== 'string') {
+            return <span>{name || ''}</span>;
+        }
+        if (!boldWord || typeof boldWord !== 'string') {
+            return <span>{name}</span>;
+        }
         // Split the name into parts based on the bold word
         const parts = name.split(new RegExp(`(${removeSpecialCharectorWithoutDotSpace(boldWord)})`, "i"));
-        // const parts = name.split(boldWord);
 
         // Map through the parts and apply different styles to the bold word
         const formattedName = parts.map((part, index) => {
@@ -198,7 +204,16 @@ function WalkInConsultationZydus() {
                         </div>
                     </div>
                     <div className="d-flex align-items-center">
-                        {/* <Link to='/patient_details' state={{ patient_data: patient }}> */}
+                        <Button
+                            type="text"
+                            className="btn btn-primary2 me-4 align-items-center d-flex"
+                            icon={<i className="icon-Preview"></i>}
+                            loading={isLoadingPatientDetails}
+                            disabled={isLoadingPatientDetails}
+                            onClick={() => onPatientDetailsClick(patient)}
+                        >
+                            Patient Details
+                        </Button>
                         {isSmartSyncAccessableFromGB && !isMobile ? (
                             <div className="d-flex btn btn-smart-rx-walkin">
                                 <div style={{ paddingLeft: "6px" }} onClick={() => onSmartRxClick(patient)}>
@@ -344,23 +359,35 @@ function WalkInConsultationZydus() {
                         <div className="mt-4">
                             <span className="title-common">Choose Action</span>
                             <div className="d-flex align-items-center mt-2">
+                                <div className="w-50">
+                                    <Button
+                                        type="text"
+                                        className="btn btn-primary2 align-items-center d-flex btn-41 w-100"
+                                        icon={<i className="icon-Preview" />}
+                                        loading={isLoadingPatientDetails}
+                                        disabled={isLoadingPatientDetails}
+                                        onClick={() => onPatientDetailsClick(clickedPatient)}
+                                    >
+                                        View Patient Details{" "}
+                                        <i className="icon-right iconrotate180 ms-auto" />
+                                    </Button>
+                                </div>
                                 {isSmartSyncAccessableFromGB && !isMobile ? (
-                                    <>
+                                    <div className="w-50 ms-4">
                                         <div
                                             style={{
                                                 background: "#4B4AD5",
                                                 borderRadius: "10px",
                                                 color: "white",
-                                                marginLeft: "1rem",
+                                                position: "relative",
                                             }}
+                                            className="d-flex justify-content-between"
                                         >
                                             <button
-                                                // className="btn btn-outline-primary btn-smart-rx"
                                                 className="btn btn-outline-primary btn-smart-rx"
                                                 onClick={() => onSmartRxClick(clickedPatient)}
-                                                style={{ padding: "9px 8rem 9px 10px" }}
+                                                style={{ padding: "9px 2rem 9px 10px" }}
                                             >
-                                                <img src={smartPad} alt="vitals" className="me-3" />
                                                 <span className="btn-span-smartRx">SmartRx</span>
                                             </button>
                                             <button
@@ -383,27 +410,30 @@ function WalkInConsultationZydus() {
                                                     />
                                                 </span>
                                             </button>
+                                            {clickedDownArrow && (
+                                                <div className='ps-rx-btns-grp' ref={consultButtonRef}>
+                                                    <button
+                                                        className="btn-consult-patient-details border-radius-all"
+                                                        onClick={() => onConsultClick(clickedPatient)}
+                                                    >
+                                                        Consult
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
-                                        {clickedDownArrow && (
-                                            <button
-                                                ref={consultButtonRef}
-                                                className="btn-consult-walkIn"
-                                                onClick={() => onConsultClick(clickedPatient)}
-                                            >
-                                                Consult
-                                            </button>
-                                        )}
-                                    </>
+                                    </div>
                                 ) : (
-                                    <Button
-                                        type="text"
-                                        className="btn btn-primary3 align-items-center d-flex btn-41 w-100"
-                                        icon={<i className="icon-Consult"></i>}
-                                        onClick={() => onConsultClick(clickedPatient)}
-                                    >
-                                        Start Consult{" "}
-                                        <i className="icon-right iconrotate180 ms-auto"></i>
-                                    </Button>
+                                    <div className="w-50 ms-4">
+                                        <Button
+                                            type="text"
+                                            className="btn btn-primary3 align-items-center d-flex btn-41 w-100"
+                                            icon={<i className="icon-Consult"></i>}
+                                            onClick={() => onConsultClick(clickedPatient)}
+                                        >
+                                            Start Consult{" "}
+                                            <i className="icon-right iconrotate180 ms-auto"></i>
+                                        </Button>
+                                    </div>
                                 )
                                 }
                             </div>
@@ -413,6 +443,41 @@ function WalkInConsultationZydus() {
             />
         );
     }, [clickedPatient, clickedDownArrow]);
+
+    const onPatientDetailsClick = async (record) => {
+        // Prevent multiple clicks
+        if (isLoadingPatientDetails) return;
+        setIsLoadingPatientDetails(true);
+        try {
+            const action = await dispatch(synczyduspatient(record));
+            if (action.meta.requestStatus === "fulfilled") {
+                const result = action.payload;
+                // Validate patient data before navigation
+                if (!result?.patient_unique_id) {
+                    errorMessage('Invalid patient data received. Please try again.');
+                    return;
+                }
+                // Safe analytics tracking
+                try {
+                    if (window.Moengage && typeof window.Moengage.track_event === 'function') {
+                        window.Moengage.track_event("TP_Patient_details", {
+                            patient_number: record?.mobilenumber,
+                            patient_id: result?.patient_unique_id
+                        });
+                    }
+                } catch (error) {
+                    console.warn('Analytics error:', error);
+                }
+                navigate("/patient_details", { 
+                    state: { patient_data: { ...result, mrno: record.mrno } } 
+                });
+            } else {
+                errorMessage(action.error);
+            }
+        } finally {
+            setIsLoadingPatientDetails(false);
+        }
+    };
 
     const onSmartRxClick = async (record) => {
         const action = await dispatch(synczyduspatient(record));

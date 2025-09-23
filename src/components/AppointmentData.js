@@ -1871,7 +1871,8 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     {
       title:
         selectedTab != TAB_ZYDUS_ENCOUNTER &&
-        selectedTab != TAB_ZYDUS_APPOINTMENT
+        selectedTab != TAB_ZYDUS_APPOINTMENT &&
+        selectedTab != TAB_FINISHED
           ? "Contact"
           : "Contact & Mrn",
       dataIndex: "pm_contact_no",
@@ -1879,14 +1880,20 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
       ellipsis: true,
       render: (text, record) => (
         <div>
-          <span>{record.pm_contact_no} </span> <br />{" "}
-          <small>
-            {" "}
-            {record.mrno}{" "}
-            {zydusAappointmentData.some((x) => x.mrno == record.mrno) &&
-              selectedTab == TAB_ZYDUS_ENCOUNTER &&
-              "(A)"}
-          </small>
+          <span>{record.pm_contact_no} </span>
+          {(selectedTab == TAB_ZYDUS_ENCOUNTER || 
+            selectedTab == TAB_ZYDUS_APPOINTMENT || 
+            selectedTab == TAB_FINISHED) && (
+            <>
+              <br />
+              <small>
+                {record.mrno || record.pm_reference_id || record.tpml_refrence_id || record.pm_pid}{" "}
+                {zydusAappointmentData.some((x) => x.mrno == record.mrno) &&
+                  selectedTab == TAB_ZYDUS_ENCOUNTER &&
+                  "(A)"}
+              </small>
+            </>
+          )}
         </div>
       ),
     },
