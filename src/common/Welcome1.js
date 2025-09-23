@@ -249,6 +249,7 @@ function Welcome1(props) {
                                             onCancel={() => setVideoLink(null)}
                                         />
                                     )}
+                                    
                                     {!viewCaseManagerData?.smart_prescription_filename?.length &&
                                         <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => {
                                             window.Moengage.track_event("repeat_rx_click", {

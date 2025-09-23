@@ -98,6 +98,9 @@ import DDxList from "../components/medical_certificate/DDxList";
 import SurgicalBox from "../components/SurgicalBox";
 import AddCustomModule from "../components/AddCustomModule";
 import CustomModule from "../components/CustomModule";
+import CarePlanDropdown from "../components/CarePlanDropdown";
+import CarePlanList from "../components/CarePlanList";
+import { getCarePlanNames, getCarePlanAssignments } from "./smartSync/services/carePlanService";
 
 import TatvaAiKnowMore from "../components/TatvaAiKnowMore";
 import GenRxBox from "../components/GenRxBox";
@@ -1343,6 +1346,43 @@ function Prescription() {
             </button>
           </div>
           <ZydusLabParametersList labParamsData={zydusSelectedLabParams} patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} patientGender={patient_data?.pm_gender} />
+        </div>
+      );
+    }
+
+    // Add Care Plan as a separate component
+    if (isCarePlanEnabled) {
+      modules.push(
+        <div
+          key="care-plan"
+          className="prescription-box-sm p-14"
+        >
+          {/* Care Plan List - Show assigned care plans above dropdown on all prescription pages */}
+          <CarePlanList
+            patientId={patient_data?.patient_unique_id}
+            selectedTcmId={tcmId}
+            readOnly={true}
+            title="Assigned Care Plans"
+            hideWhenEmpty={true}
+            onCarePlanSelect={(plan) => {
+              console.log('Selected care plan from list:', plan);
+              setSelectedCarePlan(plan);
+            }}
+          />
+          
+          <div className="mt-3">
+            <CarePlanDropdown 
+              onCarePlanSelect={(plan) => {
+                console.log('Selected care plan:', plan);
+                setSelectedCarePlan(plan);
+              }}
+              selectedCarePlan={selectedCarePlan}
+              patientId={patient_data?.patient_unique_id}
+              doctorId={userId}
+              clinicId={decodedToken?.result?.clinic_id}
+              placeholder={carePlanPlaceholder}
+            />
+          </div>
         </div>
       );
     }
