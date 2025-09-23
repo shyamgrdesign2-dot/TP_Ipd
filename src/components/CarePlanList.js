@@ -127,26 +127,6 @@ function CarePlanList({ patientId, selectedTcmId, onCarePlanSelect, readOnly = f
 
     return (
         <div className="care-plan-list-container">
-            <div className="d-flex align-items-center mb-3">
-                <img 
-                    className='me-3' 
-                    src={carePlanIcon} 
-                    alt="Care Plan" 
-                    style={{ 
-                        width: '20px', 
-                        height: '20px', 
-                        filter: 'brightness(0) saturate(100%) invert(20%) sepia(100%) saturate(2000%) hue-rotate(270deg) brightness(90%) contrast(100%)' 
-                    }} 
-                />
-                <Text strong style={{ fontSize: '16px', color: '#262626' }}>
-                    {title}
-                </Text>
-                {assignedCarePlans.length > 0 && (
-                    <Text type="secondary" style={{ marginLeft: '8px', fontSize: '12px' }}>
-                        ({assignedCarePlans.length})
-                    </Text>
-                )}
-            </div>
 
             {loading ? (
                 <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100px' }}>

@@ -8,7 +8,8 @@ import Welcome1 from '../common/Welcome1'
 import VitalsBodyComposition from '../components/VitalsBodyComposition';
 // import LabParameters from '../components/LabParameters';
 import MedicalHistory from '../components/MedicalHistory';
-import CarePlanList from '../components/CarePlanList';
+// import CarePlanList from '../components/CarePlanList';
+import CarePlanBox from '../components/CarePlanBox';
 // import Vaccination from '../components/Vaccination';
 import Cardiology from '../components/Cardiology';
 import variables from '../assets/scss/variables.scss'
@@ -226,16 +227,11 @@ function PatientDetails() {
                                         {<VisitLabParameters patient_unique_id={patient_data?.patient_unique_id} doc_id={userId}/>}
                                         
                                         {/* Care Plan List - Show assigned care plans for patient */}
-                                        <div className="prescription-box-sm p-14 mt-3">
-                                            <CarePlanList
-                                                patientId={patient_data?.patient_unique_id}
-                                                selectedTcmId={tcmData?.tcm_id}
-                                                readOnly={true} //added line to make it read only
-                                                onCarePlanSelect={(plan) => {
-                                                    console.log('Selected care plan from patient details:', plan);
-                                                }}
-                                            />
-                                        </div>
+                                        <CarePlanBox
+                                            patientId={patient_data?.patient_unique_id}
+                                            selectedTcmId={tcmData?.tcm_id}
+                                            readOnly={true}
+                                        />
                                         {/*   <LabParameters />
                                             <Vaccination /> */}
                                     </div>
