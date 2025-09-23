@@ -26,6 +26,7 @@ const LabResults = (props) => {
   const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const dispatch = useDispatch();
+  const [autoFillButtonRef, setAutoFillButtonRef] = useState(null);
   const handleAddLabParamsDrawer = useCallback(() => {
     setAddlabparamsDrawer(!addlabparamsDrawer);
   }, [addlabparamsDrawer]);
@@ -50,6 +51,7 @@ const LabResults = (props) => {
     if (!(modifiedAt || createdAt || date)) return null;
     return (
       <AutoFillButton
+        refCallback={setAutoFillButtonRef}
         onClick={(data, e) => {
           e?.stopPropagation();
 
@@ -106,7 +108,15 @@ const LabResults = (props) => {
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
-        showActionBtns={false}
+        showActionBtns={isEditable}
+        showOnlyClear={isEditable}
+        isDataPresent={labResults?.length}
+        onErase={(e) => {
+          dispatch(setLabResults([]));
+          if (autoFillButtonRef && autoFillButtonRef.click) {
+            autoFillButtonRef.click(e);
+          }
+        }}
         title={sectionData?.title}
         width="100%"
         containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`} 

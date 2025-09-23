@@ -24,6 +24,8 @@ const initialState = {
     floorCirculatingNurse: {},
   },
   operativeNotes: {},
+  intraOperativeNotes: {},
+  postOperativeNotes: {},
   surgeryProcedureOptions: [],
   surgeryProcedureOptionsLoading: false,
 };
@@ -122,7 +124,13 @@ const otNotesSlice = createSlice({
       state.surgeryTeam[action.payload.roleId] = action.payload.value || {};
     },
     setOperativeNotes: (state, action) => {
-      state.operativeNotes[action.payload.key] = action.payload.value || "";
+      state.operativeNotes[action.payload.key] = {...state.operativeNotes[action.payload.key], value: action.payload.value || ""};
+    },
+    setIntraOperativeNotes: (state, action) => {
+      state.intraOperativeNotes[action.payload.key] = {...state.intraOperativeNotes[action.payload.key], value: action.payload.value || ""};
+    },
+    setPostOperativeNotes: (state, action) => {
+      state.postOperativeNotes[action.payload.key] = {...state.postOperativeNotes[action.payload.key], value: action.payload.value || ""};
     }
   },
   extraReducers: (builder) => {
@@ -184,6 +192,8 @@ export const {
   setSurgeryEndTime,
   setDiagnosis,
   setSurgeryTeam,
-  setOperativeNotes
+  setOperativeNotes,
+  setIntraOperativeNotes,
+  setPostOperativeNotes
 } = otNotesSlice.actions;
 export default otNotesSlice.reducer;

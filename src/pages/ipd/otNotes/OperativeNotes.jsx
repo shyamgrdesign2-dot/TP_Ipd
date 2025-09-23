@@ -10,7 +10,7 @@ const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const OperativeNotes = (props) => {
   const { isEditable = true, sectionData } = props || {};
   const { operativeNotes = {} } = useSelector((state) => state.otNotes);
-  const [initialValue] = useState(operativeNotes || {});
+  const [autoFillTextToAppend, setAutoFillTextToAppend] = useState({});
   const dispatch = useDispatch();
   const handleChange = (value, key) => {
     dispatch(setOperativeNotes({ key, value }));
@@ -24,17 +24,30 @@ const OperativeNotes = (props) => {
         showActionBtns={isEditable}
         title={data?.title}
         width="100%"
-        icon={defaultIcons[data?.icon]}
+        icon={defaultIcons[data?.id]}
         showAutoFill={false}
+        onErase={() => {
+          setAutoFillTextToAppend(prev => ({
+            ...prev,
+            [data?.id]: ["clear"]
+          }));
+        }}
+        newAutoFillTextToAppend={autoFillTextToAppend[data?.id]}
+        setNewAutoFillTextToAppend={(value) => {
+          setAutoFillTextToAppend(prev => ({
+            ...prev,
+            [data?.id]: value
+          }));
+        }}
         containerClass={`wrapper-class ${
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         showMagicPenGif={false}
         showMicrophone={false}
-        onChange={(data) => handleChange(data, data?.id)}
+        onChange={(val) => handleChange(val, data?.id)}
         initialValue={
-          initialValue?.[data?.id]?.value
-            ? initialValue?.[data?.id]
+          operativeNotes?.[data?.id]?.value?.length
+            ? operativeNotes?.[data?.id]?.value
             : [
                 {
                   type: "paragraph",

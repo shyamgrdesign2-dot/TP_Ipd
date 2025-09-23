@@ -88,7 +88,9 @@ const DateRangeFilter = ({
 
   // Helper function - kept simple and inline
   const formatDateRange = () => {
-    if (!dateRange) return placeholder;
+    if (!dateRange){
+      if (placeholder) return placeholder;
+    };
 
     const statusLabels = {
       1: "Today",

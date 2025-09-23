@@ -262,7 +262,6 @@ const IPDPatientDetails = () => {
     assessment: () => handleAddAssessmentClick(true),
     otNotes: handleOtNotesClick,
     consultantNotes: handleAddConsultantNotesClick,
-    labResults: handleAddLabResultsClick,
     progress: handleProgressNotesClick,
     records: handleMedicalRecordsClick,
   };
@@ -288,6 +287,8 @@ const IPDPatientDetails = () => {
       return !!progressNotes?.length;
     } else if (activeMenuItem === "records") {
       return false;
+    } else if (activeMenuItem === "labResults") {
+      return true;
     }
     return false;
   }, [assessmentsData, otNotesData, activeMenuItem, consultantNotes, progressNotes]);
@@ -349,7 +350,7 @@ const IPDPatientDetails = () => {
             <LabResults />
           </div>
         );
-      case "ecords":
+      case "records":
         return (
           <div className="ipd-adm-assess-container-readable">
             <MedicalRecords />
@@ -384,7 +385,7 @@ const IPDPatientDetails = () => {
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
               renderContent={
-                true ? renderContent : null
+                !isEditable && isDataPresent ? renderContent : null
               }
               showAddCTA={canShowAddCTA}
             />

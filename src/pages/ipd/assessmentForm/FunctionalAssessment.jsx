@@ -10,6 +10,15 @@ import {
 } from "../../../redux/ipd/assessmentsFormSlice";
 import { isEmptyRichText } from "../../../utils/utils";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
+
+const ASSESSMENT_CHILDREN_MAPPING = {
+  bedActivity: "Bed Activity",
+  sitting: "Sitting", 
+  standing: "Standing",
+  ambulation: "Ambulation",
+  stairClimbing: "Stair Climbing",
+  bedSoreOnAdmission: "Bed Sore on Admission"
+};
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -112,7 +121,7 @@ const FunctionalAssessment = (props) => {
             value !== null && value !== undefined && typeof value === "string"
         )
         .map(([key, value]) => {
-          return <AssessmentDisplay key={key} label={key} value={value} />;
+          return <AssessmentDisplay key={key} label={ASSESSMENT_CHILDREN_MAPPING[key]} value={value} />;
         });
       const renderReadOnlyBody = () => {
         return (

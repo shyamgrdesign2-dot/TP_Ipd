@@ -6,6 +6,7 @@ import { setChiefComplaint } from "../../../redux/ipd/assessmentsFormSlice";
 import {
   convertTemplateDataToRichText,
   formatDateToShortMonthYear,
+  isEmptyRichText,
 } from "../../../utils/utils";
 import { fetchSingleTemplate } from "../../../redux/ipd/ipdSlice";
 import { addTemplate } from "../../../redux/symptomsSlice";
@@ -75,7 +76,7 @@ const ChiefComplaint = (props) => {
     );
   }, [chiefComplaint, chiefComplaintFromLastPrescription]);
 
-  if (!isEditable && !chiefComplaint?.length) return null;
+  if (!isEditable && isEmptyRichText(chiefComplaint)) return null;
 
   return (
     <RichTextEditWrapper
@@ -87,7 +88,7 @@ const ChiefComplaint = (props) => {
       title={sectionData?.title}
       width={isEditable ? "100%": 'fit-content'}
       initialValue={
-        chiefComplaint?.length > 0
+        !isEmptyRichText(chiefComplaint)
           ? chiefComplaint
           : [
               {

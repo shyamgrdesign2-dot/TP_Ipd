@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons";
 import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
@@ -25,17 +25,19 @@ const ObstetricHistory = (props) => {
   const dispatch = useDispatch();
   const [addObstetricHistoryDrawer, setAddObstetricHistoryDrawer] =
     useState(false);
+  const [autoFillButtonRef, setAutoFillButtonRef] = useState(null);
   const handleObstetricHistory = () => {
     setAddObstetricHistoryDrawer(!addObstetricHistoryDrawer);
   };
 
 
-  const renderAutoFillButton = useCallback(() => {
+  const renderAutoFillButton = () => {
     const { obstetricHistoryEntry : lastObstetricDetails = {} } =
       lastPrescriptionDataForAssessment || {};
     if (!lastRxDate || !Object.keys(lastObstetricDetails)?.length) return null;
     return (
       <AutoFillButton
+        refCallback={setAutoFillButtonRef}
         onClick={(data, e) => {
           e?.stopPropagation();
 
@@ -56,7 +58,8 @@ const ObstetricHistory = (props) => {
         )})`}
       />
     );
-  }, [lastPrescriptionDataForAssessment, allObstetricDetails, obstetricDetailsBackup]);
+  }
+  // , [lastPrescriptionDataForAssessment, allObstetricDetails, obstetricDetailsBackup]);
 
   const renderObstetricHistory = () => {
     return (
@@ -91,14 +94,22 @@ const ObstetricHistory = (props) => {
     );
   };
 
-  if (!isEditable && (!Object.keys(obstetricDetails)?.length || !pregnancyHistory?.length)) return null;
+  if (!isEditable && (!Object.keys(obstetricDetails)?.length && !pregnancyHistory?.length)) return null;
 
   return (
     <div>
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
-        showActionBtns={false}
+        showActionBtns={isEditable}
+        showOnlyClear={isEditable}
+        isDataPresent={Object.keys(obstetricDetails)?.length || pregnancyHistory?.length}
+        onErase={(e) => {
+          dispatch(addObstetricDetails({}));
+          if (autoFillButtonRef && autoFillButtonRef.click) {
+            autoFillButtonRef.click(e);
+          }
+        }}
         title={sectionData?.title}
         width="100%"
         containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
