@@ -6,11 +6,12 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { getCarePlanAssignments } from "../pages/smartSync/services/carePlanService";
 import { GB_CARE_PLAN } from "../utils/constants";
 import carePlanIcon from "../assets/images/onboard-page-icons/health.svg";
+import adviceIcon from "../assets/images/advice.svg";
 import "./CarePlanList.scss";
 
 const { Text } = Typography;
 
-function CarePlanList({ patientId, selectedTcmId, onCarePlanSelect, readOnly = false, title = "Assigned Care Plans" }) {
+function CarePlanList({ patientId, selectedTcmId, onCarePlanSelect, readOnly = false, title = "Assigned Care Plans", hideWhenEmpty = false }) {
     const [assignedCarePlans, setAssignedCarePlans] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -66,6 +67,10 @@ function CarePlanList({ patientId, selectedTcmId, onCarePlanSelect, readOnly = f
         return null;
     }
 
+    // Hide the entire care plan list if no care plans are assigned AND hideWhenEmpty is true
+    if (!loading && !error && assignedCarePlans.length === 0 && hideWhenEmpty) {
+        return null;
+    }
 
     const handleCarePlanClick = (plan) => {
         if (!readOnly && onCarePlanSelect) {
@@ -127,6 +132,15 @@ function CarePlanList({ patientId, selectedTcmId, onCarePlanSelect, readOnly = f
 
     return (
         <div className="care-plan-list-container">
+            {/* Add the title heading */}
+            {title && (
+                <div className="d-flex align-items-center mb-3">
+                    <img src={adviceIcon} alt="care plan" className="me-3" style={{ width: '20px', height: '22px' }} />
+                    <Text strong style={{ fontSize: '16px', color: '#262626' }}>
+                        {title}
+                    </Text>
+                </div>
+            )}
 
             {loading ? (
                 <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100px' }}>

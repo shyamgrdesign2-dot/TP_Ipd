@@ -3367,6 +3367,7 @@ function SmartPrescription() {
                     selectedTcmId={tcmId}
                     readOnly={true}
                     title="Assigned Care Plans"
+                    hideWhenEmpty={true}
                     onCarePlanSelect={(plan) => {
                       console.log('Selected care plan from list:', plan);
                       setSelectedCarePlan(plan);
