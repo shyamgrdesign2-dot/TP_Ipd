@@ -9,6 +9,8 @@ const DATE_FORMAT = "YYYY-MM-DD";
 const DISPLAY_FORMAT = "DD-MM-YYYY";
 
 const DateRangeFilter = ({
+  placeholder = "Filter by admitted date",
+  // placeholderType = "admitted", // admitted | discharged | surgery | generic
   dateRange,
   dateStatus,
   isOpen,
@@ -86,7 +88,22 @@ const DateRangeFilter = ({
 
   // Helper function - kept simple and inline
   const formatDateRange = () => {
-    if (!dateRange) return "Filter by admitted date";
+    if (!dateRange){
+      // Prefer explicit placeholder prop if provided
+      if (placeholder) return placeholder;
+      // Fallbacks by type
+      // switch (placeholderType) {
+      //   case "discharged":
+      //     return "Filter by discharge date";
+      //   case "surgery":
+      //     return "Filter by surgery date";
+      //   case "generic":
+      //     return "Filter by date";
+      //   case "admitted":
+      //   default:
+      //     return "Filter by admitted date";
+      // }
+    };
 
     const statusLabels = {
       1: "Today",

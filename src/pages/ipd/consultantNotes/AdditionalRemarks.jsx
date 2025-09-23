@@ -55,7 +55,7 @@ const AdditionalRemarks = ({
             rows="4"
             value={formData.additionalRemarks}
             onChange={handleChange}
-            placeholder={`Enter ${IPD.additionalRemarks.toLowerCase()}...`}
+            placeholder={`Enter ${IPD?.additionalRemarks?.toLowerCase()}...`}
           />
         </div>
       </div>
