@@ -1,36 +1,21 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import config from "../config";
-
-// API base URL - adjust as needed
-const API_BASE_URL = `${config.ipd_api_url}/lab-results`;
+import ApiLabResults from "../../api/services/ipd/ApiLabResults";
 
 // Async thunk for getting pathology results
 export const getPathologyResults = createAsyncThunk(
   "labResults/getPathologyResults",
-  async ({ patientId, admissionId, token }, { rejectWithValue }) => {
+  async (data) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/pathology-results/available?patientId=${patientId}&admissionId=${admissionId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      let result = {};
+      result = await ApiLabResults.getPathologyResults(data);
+      if (!result.error) {
+        return result;
+      } else {
+        throw Error(result.error);
       }
-
-      const data = await response.json();
-      return data;
     } catch (error) {
-      return rejectWithValue({
-        message: error.message || "Failed to fetch pathology results",
-        status: error.status || 500,
-      });
+      console.log("error: ", error);
+      throw Error(error);
     }
   }
 );
@@ -38,34 +23,37 @@ export const getPathologyResults = createAsyncThunk(
 // Async thunk for updating pathology results (add to discharge summary)
 export const updatePathologyResults = createAsyncThunk(
   "labResults/updatePathologyResults",
-  async (
-    { patientId, admissionId, token, selectedResults },
-    { rejectWithValue }
-  ) => {
+  async (data) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/pathology-results?patientId=${patientId}&admissionId=${admissionId}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(selectedResults),
-        }
-      );
+      let result = {};
+      result = await ApiLabResults.updatePathologyResults(data);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (result) {
+        return result;
+      } else {
+        throw Error(result.error);
       }
-
-      const data = await response.json();
-      return data;
     } catch (error) {
-      return rejectWithValue({
-        message: error.message || "Failed to update pathology results",
-        status: error.status || 500,
-      });
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
+export const getScanResults = createAsyncThunk(
+  "labResults/getScanResults",
+  async (data) => {
+    try {
+      let result = {};
+      result = await ApiLabResults.getScanResults(data);
+      if (!result.error) {
+        return result;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
     }
   }
 );
@@ -87,7 +75,6 @@ const transformApiDataToComponentFormat = (apiResponse) => {
         key: `${index + 1}-${testIndex + 1}`,
         name: test.testName,
         values: transformTestValues(test.values),
-        trend: determineTrend(test.values, test.refRange),
         refRange: test.refRange,
         selected: test.selected || false,
       })) || [],
@@ -102,8 +89,6 @@ const transformTestValues = (values) => {
     const formattedDate = formatDateForDisplay(date);
     transformed[formattedDate] = {
       value: `${data.value} ${data.unit}`,
-      trend: null, // Will be calculated based on comparison
-      color: "#454551", // Default color, will be updated based on trend
     };
   });
 
@@ -115,36 +100,6 @@ const formatDateForDisplay = (dateString) => {
   const date = new Date(dateString);
   const options = { day: "2-digit", month: "short", year: "numeric" };
   return date.toLocaleDateString("en-GB", options).replace(",", ",");
-};
-
-// Helper function to determine trend based on values and reference range
-const determineTrend = (values, refRange) => {
-  const valueEntries = Object.entries(values || {});
-  if (valueEntries.length < 2) return null;
-
-  // Sort by date to get chronological order
-  const sortedValues = valueEntries.sort(
-    ([a], [b]) => new Date(a) - new Date(b)
-  );
-  const latestValue = sortedValues[sortedValues.length - 1][1].value;
-  const previousValue = sortedValues[sortedValues.length - 2][1].value;
-
-  // Determine if values are within normal range
-  const isLatestNormal =
-    latestValue >= refRange.min && latestValue <= refRange.max;
-  const isPreviousNormal =
-    previousValue >= refRange.min && previousValue <= refRange.max;
-
-  // Determine trend
-  if (latestValue > previousValue) {
-    return isLatestNormal ? "stable" : "rising";
-  } else if (latestValue < previousValue) {
-    return isLatestNormal ? "stable" : "falling";
-  } else {
-    if (isLatestNormal && !isPreviousNormal) return "back-to-normal";
-    if (!isLatestNormal && isPreviousNormal) return "newly-abnormal";
-    return "stable";
-  }
 };
 
 // Helper function to transform component data back to API format
@@ -240,6 +195,12 @@ const initialState = {
   selectedDateRange: null,
   activeTab: "pathology",
   expandedCategories: ["1"], // Default first category expanded
+
+  // Scan results specific state
+  scanLoading: false,
+  scanError: null,
+  activeScanCategory: "all",
+  scanDateStatus: "closed",
 };
 
 const labResultsSlice = createSlice({
@@ -345,10 +306,20 @@ const labResultsSlice = createSlice({
       );
     },
 
+    // Scan results specific actions
+    setActiveScanCategory: (state, action) => {
+      state.activeScanCategory = action.payload;
+    },
+
+    setScanDateStatus: (state, action) => {
+      state.scanDateStatus = action.payload;
+    },
+
     // Clear errors
     clearError: (state) => {
       state.error = null;
       state.updateError = null;
+      state.scanError = null;
     },
   },
 
@@ -412,6 +383,22 @@ const labResultsSlice = createSlice({
         state.updateError =
           action.payload?.message || "Failed to update pathology results";
       });
+
+    // Get scan results
+    builder
+      .addCase(getScanResults.pending, (state) => {
+        state.scanLoading = true;
+        state.scanError = null;
+      })
+      .addCase(getScanResults.fulfilled, (state, action) => {
+        state.scanLoading = false;
+        state.scanResults = action.payload?.data || action.payload || [];
+      })
+      .addCase(getScanResults.rejected, (state, action) => {
+        state.scanLoading = false;
+        state.scanError =
+          action.payload?.message || "Failed to fetch scan results";
+      });
   },
 });
 
@@ -429,6 +416,8 @@ export const {
   deselectAll,
   selectCategoryWithTests,
   deselectCategoryWithTests,
+  setActiveScanCategory,
+  setScanDateStatus,
   clearError,
 } = labResultsSlice.actions;
 
@@ -437,6 +426,11 @@ export const selectLabResultsState = (state) => state.labResults;
 export const selectPathologyResults = (state) =>
   state.labResults.pathologyResults;
 export const selectScanResults = (state) => state.labResults.scanResults;
+export const selectScanLoading = (state) => state.labResults.scanLoading;
+export const selectScanError = (state) => state.labResults.scanError;
+export const selectActiveScanCategory = (state) =>
+  state.labResults.activeScanCategory;
+export const selectScanDateStatus = (state) => state.labResults.scanDateStatus;
 export const selectAvailableDates = (state) => state.labResults.availableDates;
 export const selectSelectedTests = (state) => state.labResults.selectedTests;
 export const selectSelectedCategories = (state) =>
@@ -512,10 +506,10 @@ export const selectIsMainCheckboxIndeterminate = (state) => {
 };
 
 // Thunk for adding selected items to discharge summary
-export const addToDischargeThunk = createAsyncThunk(
-  "labResults/addToDischarge",
+export const addToDischargeSummary = createAsyncThunk(
+  "labResults/addToDischargeSummary",
   async (
-    { patientId, admissionId, token },
+    { patientId, admissionId },
     { getState, dispatch, rejectWithValue }
   ) => {
     try {
@@ -535,8 +529,7 @@ export const addToDischargeThunk = createAsyncThunk(
         updatePathologyResults({
           patientId,
           admissionId,
-          token,
-          selectedResults: apiData,
+          data: apiData,
         })
       ).unwrap();
 
@@ -554,5 +547,4 @@ export {
   transformApiDataToComponentFormat,
   transformComponentDataToApiFormat,
   formatDateForDisplay,
-  determineTrend,
 };

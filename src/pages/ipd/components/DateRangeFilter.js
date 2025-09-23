@@ -17,6 +17,8 @@ const DateRangeFilter = ({
   onCancel,
   disabledDate,
   className = "",
+  placeholder = "Filter by date",
+  wrapperClassName = "",
 }) => {
   const containerRef = useRef(null);
 
@@ -86,7 +88,7 @@ const DateRangeFilter = ({
 
   // Helper function - kept simple and inline
   const formatDateRange = () => {
-    if (!dateRange) return "Filter by admitted date";
+    if (!dateRange) return placeholder;
 
     const statusLabels = {
       1: "Today",
@@ -115,12 +117,9 @@ const DateRangeFilter = ({
   }, [dateRange]);
 
   return (
-    <div
-      ref={containerRef}
-      className={`massage-date-wrapper ms-3 ${className}`}
-    >
+    <div ref={containerRef} className={`massage-date-wrapper ms-3 ${wrapperClassName}`}>
       <div
-        className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between"
+        className={`fs-14 h-100 w-100 d-flex align-items-center justify-content-center ${className}`}
         onClick={onToggleModal}
         role="button"
         tabIndex={0}
@@ -132,7 +131,7 @@ const DateRangeFilter = ({
         }}
       >
         <i className="me-2 fs-18 icon-calendar" aria-hidden="true" />
-        <span className="me-2">
+        <span>
           <span className={!dateRange ? "date-placeholder" : ""}>
             {formatDateRange()}
           </span>
@@ -171,6 +170,7 @@ const DateRangeFilter = ({
             </div>
           </div>
         )}
+        placeholder={placeholder}
       />
     </div>
   );

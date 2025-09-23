@@ -1020,4 +1020,31 @@ export const IPD = {
       unit: "mmHg",
     },
   ],
+  SCAN_RESULTS_CATEGORIES: [
+    {
+      id: "all",
+      name: "All",
+      code: "all",
+    },
+    {
+      id: "ct_scan",
+      name: "CT Scan",
+      code: "CT_SCAN",
+    },
+    {
+      id: "mri",
+      name: "MRI",
+      code: "MRI",
+    },
+    {
+      id: "x_ray",
+      name: "X-Ray",
+      code: "X_RAY",
+    },
+    {
+      id: "ultrasound",
+      name: "Ultrasound",
+      code: "ULTRASOUND",
+    },
+  ],
 };

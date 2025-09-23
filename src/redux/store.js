@@ -37,7 +37,7 @@ import otNotesSlice from "./ipd/otNotesSlice";
 import inPatientsSlice from "./ipd/inPatientsSlice";
 import consultantNotesSlice from "./ipd/consultantNotesSlice";
 import progressNotesSlice from "./ipd/progressNotesSlice";
-import labResultsSlice from "./labResultsSlice";
+import labResultsSlice from "./ipd/labResultsSlice";
 
 const persistConfig = {
   key: "root",
