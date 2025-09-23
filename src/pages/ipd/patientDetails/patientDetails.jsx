@@ -349,7 +349,7 @@ const IPDPatientDetails = () => {
             <LabResults />
           </div>
         );
-      case "ecords":
+      case "records":
         return (
           <div className="ipd-adm-assess-container-readable">
             <MedicalRecords />
@@ -384,7 +384,7 @@ const IPDPatientDetails = () => {
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
               renderContent={
-                true ? renderContent : null
+                !isEditable && isDataPresent ? renderContent : null
               }
               showAddCTA={canShowAddCTA}
             />
