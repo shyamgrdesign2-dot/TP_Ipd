@@ -21,7 +21,7 @@ const showDateFormat = 'DD MMM, YY'
 
 function Quixote({ mode = NORMAL, ...props }) {
 
-    const { smartRxFile, divWidth, caseManagerData, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, labParamsData, customModules } = useContext(PrintSettingsContext);
+    const { smartRxFile, divWidth, caseManagerData, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, labParamsData, customModules, carePlanAssignments } = useContext(PrintSettingsContext);
 
     const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
@@ -159,6 +159,7 @@ function Quixote({ mode = NORMAL, ...props }) {
             const blob = await pdf(<ViewPDF
                 mode={mode}
                 caseManagerData={caseManagerData}
+                carePlanAssignments={carePlanAssignments}
                 smartRxData={smartRxFile}
                 columns={columns}
                 initialRows={initialRows}

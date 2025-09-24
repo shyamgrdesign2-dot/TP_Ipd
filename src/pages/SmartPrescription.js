@@ -23,6 +23,7 @@ import {
   PAEDIATRICS,
   GB_ZYDUS_USER,
   NEO_NATOLOGISTS_DP_ID,
+  GB_CARE_PLAN,
 } from "../utils/constants";
 
 import ReconnectingWebSocket from "reconnectingwebsocket";
@@ -42,6 +43,10 @@ import vitals from "../assets/images/Vitals.svg";
 import MedicalHistory from "../assets/images/Medical-History.svg";
 import privateNotes from "../assets/images/private-notes.svg";
 import SmartRxFollowUpBox from "../components/SmartRxFollowUpBox";
+import CarePlanDropdown from "../components/CarePlanDropdown";
+import CarePlanList from "../components/CarePlanList";
+import { getCarePlanAssignments } from "./smartSync/services/carePlanService";
+import { assignCarePlan } from "./smartSync/services/carePlanService";
 
 import {
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
@@ -158,6 +163,7 @@ function SmartPrescription() {
   );
   const dispatch = useDispatch();
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+  const isCarePlanEnabled = useFeatureIsOn(GB_CARE_PLAN);
 
   const { state } = useLocation();
   const { patient_data, send_path, caseManagerData, smartRxFilesData, pam_id } = state;
@@ -177,6 +183,8 @@ function SmartPrescription() {
   const [investigationData, setInvestigationData] = useState([]);
   const [medicationData, setMedicationData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
+  const [selectedCarePlan, setSelectedCarePlan] = useState(null);
+  const [carePlanPlaceholder, setCarePlanPlaceholder] = useState(undefined);
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
@@ -233,6 +241,27 @@ function SmartPrescription() {
   const handleKnowMoreDrawer = useCallback(() => {
     setKnowMoreDrawer((prev) => !prev);
   }, []);
+
+  // Resolve care plan placeholder from tcm_id for Smart Rx edit
+  useEffect(() => {
+    const resolvePlaceholder = async () => {
+      try {
+        if (!isCarePlanEnabled) return;
+        if (!patient_data?.patient_unique_id) return;
+        if (!tcmId || Number(tcmId) === 0) return;
+
+        const resp = await getCarePlanAssignments(patient_data?.patient_unique_id);
+        const list = Array.isArray(resp) ? resp : [];
+
+        const match = list.find(x => Number(x?.tcm_id) === Number(tcmId));
+        setCarePlanPlaceholder(match?.plan_name || undefined);
+      } catch (e) {
+        setCarePlanPlaceholder(undefined);
+      }
+    };
+
+    resolvePlaceholder();
+  }, [isCarePlanEnabled, patient_data?.patient_unique_id, tcmId]);
 
   // Helper function for unified template/RX selection
   const isTemplateSelected = (templateId) => {
@@ -2440,6 +2469,8 @@ function SmartPrescription() {
         });
         dispatch(setSelectAutofill(false));
       }
+
+      // Care plan assignment/update is handled post-submit in HeaderSmartPrescription
     } catch (error) {
       errorMessage("Error Uploading the prescription, Please try again");
       console.error("Error Submitting the prescription:", error);
@@ -3128,6 +3159,7 @@ function SmartPrescription() {
           isCustomSSRX={isCustomSSRX}
           selectedTemplateId={selectedTemplateId}
           prepareMetadataForSubmissionData={prepareMetadataForSubmission()}
+          selectedCarePlan={selectedCarePlan}
         />
         
         {loading && <FullPageLoader />}
@@ -3356,6 +3388,35 @@ function SmartPrescription() {
               <div className="prescription-box-sm p-14">
                 <SmartRxFollowUpBox />
               </div>
+              {isCarePlanEnabled && (
+                <div className="prescription-box-sm p-14">
+                  <CarePlanList
+                    patientId={patient_data?.patient_unique_id}
+                    selectedTcmId={tcmId}
+                    readOnly={true}
+                    title="Assigned Care Plans"
+                    hideWhenEmpty={true}
+                    onCarePlanSelect={(plan) => {
+                      console.log('Selected care plan from list:', plan);
+                      setSelectedCarePlan(plan);
+                    }}
+                  />
+
+                  <div className="mt-3">
+                    <CarePlanDropdown 
+                      onCarePlanSelect={(plan) => {
+                        console.log('Selected care plan:', plan);
+                        setSelectedCarePlan(plan);
+                      }}
+                      selectedCarePlan={selectedCarePlan}
+                      patientId={patient_data?.patient_unique_id}
+                      doctorId={userId}
+                      clinicId={decodedToken?.result?.clinic_id}
+                      placeholder={carePlanPlaceholder}
+                    />
+                  </div>
+              </div>
+              )}
             </div>
             <div
               className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3"

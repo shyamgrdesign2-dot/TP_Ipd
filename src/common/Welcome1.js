@@ -249,6 +249,7 @@ function Welcome1(props) {
                                             onCancel={() => setVideoLink(null)}
                                         />
                                     )}
+                                    
                                     {!viewCaseManagerData?.smart_prescription_filename?.length &&
                                         <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => {
                                             window.Moengage.track_event("repeat_rx_click", {
@@ -256,7 +257,7 @@ function Welcome1(props) {
                                                 "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0,
                                                 "rx_date": viewCaseManagerData?.consultation_date
                                             });
-                                            navigate("/prescription", { state: { patient_data: patient_data, send_path: "patient_details", caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
+                                            navigate("/prescription", { state: { patient_data: patient_data, send_path: "repeat_rx", caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
                                         }}> <i className={'icon-reload me-2'}></i>Repeat {modifyFormat && modifyFormat.first}<sup>{modifyFormat && modifyFormat.second}</sup>&nbsp;{modifyFormat && modifyFormat.third} Rx</Button>
                                     }
                                     {(isSnapRxAccessableFromGB || isSmartSyncAccessableFromGB)  && !isMobile ? (

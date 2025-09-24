@@ -253,7 +253,7 @@ const um_id = process.env.REACT_APP_ENV !== "prod" ? '493' : '12028';
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
-    let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData, customModules, patientBills, advanceReceipts, patientWalletBalance, selectedLang } = props
+    let { smartRxData, caseManagerData, columns, initialRows, frequencyList, timingList, printSettings, fileHeader, fileFooter, fileLogo, fileWatermark, fileSignature, todayVaccines, growthChartDetails, isGynaecHistoryAccessable, obsHistoryData, customModules, patientBills, advanceReceipts, patientWalletBalance, selectedLang, carePlanAssignments } = props
     const showMode = printSettings?.header_footer?.show_header_footer_page || 'all';
     const gynecHistoryData = caseManagerData?.gynecHistoryData
     const labParamsData = caseManagerData?.labParamsData
@@ -261,6 +261,15 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
     const { growthChartData, growthChartImageData, todayGrowthChartData } =
         growthChartDetails || {};
+    // Filter care plans to only those linked with the current consultation (tcm_id)
+    const activeCarePlans = Array.isArray(carePlanAssignments)
+        ? carePlanAssignments.filter((cp) => {
+            const cpId = cp?.tcm_id !== undefined ? parseInt(cp?.tcm_id) : NaN;
+            const curId = caseManagerData?.tcm_id !== undefined ? parseInt(caseManagerData?.tcm_id) : NaN;
+            return !isNaN(cpId) && !isNaN(curId) && cpId === curId;
+        })
+        : [];
+
     let growthChartImageChunks = []
     if (growthChartImageData) {
         const growthChartOption = printSettings?.prescription?.case_option?.find(o => o.id === 12)?.growth_chart_option;
@@ -743,6 +752,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     return labParamsPatchData && labParamsPatchData?.length > 0;
                 case 16: // Surgeries
                     return caseManagerData?.surgeries?.length > 0;
+                case 18: // Zydus Lab Results or Care Plan Assignments
+                    return activeCarePlans.length > 0;
                 case 17: // Patient Bills (already handled in hasAnyData)
                     return  (patientBills?.length > 0 || advanceReceipts?.length > 0);
                 case 91: // Vaccines
@@ -5229,6 +5240,47 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </>
                                 ) : option?.id === 18 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                     <>
+                                        {activeCarePlans.length > 0 && (
+                                            option?.format === 'inline' ? (
+                                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Care Plan:&nbsp;</Text>
+                                                    {activeCarePlans.map((item, i) => (
+                                                        <Text key={i}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.plan_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${moment(item?.created_date).format('DD MMM YYYY')})`}</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{activeCarePlans.length - 1 !== i ? ',' : ''}&nbsp;</Text>
+                                                        </Text>
+                                                    ))}
+                                                </Text>
+                                            ) : option?.format === 'listview' ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Care Plan:&nbsp;</Text>
+                                                    {activeCarePlans.map((item, i) => (
+                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i === 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.plan_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${moment(item?.created_date).format('DD MMM YYYY')})`}</Text>
+                                                        </Text>
+                                                    ))}
+                                                </View>
+                                            ) : (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Care Plan:&nbsp;</Text>
+                                                    <View style={styles.table}>
+                                                        <View style={styles.headerRow} fixed>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>PLAN NAME</Text>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>ASSIGNED DATE</Text>
+                                                        </View>
+                                                        {activeCarePlans.map((item, i) => (
+                                                            <View style={styles.row} key={i} wrap={false}>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item?.plan_name}&nbsp;</Text>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{moment(item?.created_date).format('DD MMM YYYY')}</Text>
+                                                            </View>
+                                                        ))}
+                                                    </View>
+                                                </View>
+                                            )
+                                        )}
                                         {caseManagerData?.zydusSelectedLabParams?.length > 0 && (
                                             option?.format === 'inline' ? (
                                                 <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>

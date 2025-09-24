@@ -179,7 +179,7 @@ const obsHistoryCheckboxOptions = [
 
 function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetails, patientBills }) {
   const contextValue = useContext(PrintSettingsContext);
-  const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions, labParamsData, zydusSelectedLabParams, customModules } = contextValue || {};
+  const { caseManagerData, printSettings, setPrintSettings, medicalHistoryCheckboxOptions, labParamsData, zydusSelectedLabParams, customModules,carePlanAssignments } = contextValue || {};
   const { isVaccinationAccessable, isGrowthChartAccessable, isGynaecHistoryAccessable } = useAccess(
     caseManagerData?.patient_data?.patient_age
   );
@@ -734,7 +734,7 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
               dataSource={(() => {
                 const filtered = printSettings?.prescription?.case_option?.filter((option, index) => {
                   if (option.type === "page_break") {
-                    return true;
+                    return tokenData?.hospital_business_id == env.zydus_business_id;
                   }
                   return (caseManagerData.symptoms.length > 0 && option.id === 1) ||
                     (caseManagerData.examination.length > 0 && option.id === 2) ||
@@ -755,7 +755,8 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                     (caseManagerData?.surgeries?.length > 0 && option.id === 16) ||
                     (zydusSelectedLabParams?.length > 0 && option.id === 18) ||
                     (option.is_custom_module === true && customModulesRxData?.find((e) => e?.module_id === option?.id)?.content?.length > 0) ||
-                    (patientBills?.length > 0 && option.id === 17);
+                    (patientBills?.length > 0 && option.id === 17) ||
+                    ((option.id === 18) && (Array.isArray(carePlanAssignments) ? carePlanAssignments.length > 0 : false));
                 }).map(option => ({ ...option, key: option.id }));
                 return filtered;
               })()}
