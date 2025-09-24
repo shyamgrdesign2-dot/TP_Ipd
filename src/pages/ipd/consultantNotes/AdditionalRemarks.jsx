@@ -1,12 +1,12 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons } from "../../../assets/images/consultantNotesIcons";
 import { useSelector, useDispatch } from "react-redux";
 import { setAdditionalRemarks } from "../../../redux/ipd/consultantNotesSlice";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const AdditionalRemarks = (props) => {
-  const { isEditable = true, shouldAutofill = false } = props || {};
+  const { isEditable = true, shouldAutofill = false, sectionData } = props || {};
   const { additionalRemarks } = useSelector((state) => state.consultantNotes);
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
@@ -54,7 +54,7 @@ const AdditionalRemarks = (props) => {
       showActionBtns={isEditable}
       title="Additional Remarks"
       width="100%"
-      icon={defaultIcons.doc}
+      icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={hasAdditionalRemarksInLastConsultantNote}
       autoFillTitle={
         hasAdditionalRemarksInLastConsultantNote

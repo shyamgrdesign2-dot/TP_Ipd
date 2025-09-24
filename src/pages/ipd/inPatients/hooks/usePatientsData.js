@@ -49,12 +49,12 @@ export const usePatientsData = () => {
     [dispatch]
   );
 
-  // Reset loadingMore when data changes
+  // Reset loadingMore when data changes or loading completes
   useEffect(() => {
-    if (loadingMore && (patientsData.length > 0 || patientsError)) {
+    if (loadingMore && (!patientsLoading || patientsError)) {
       setLoadingMore(false);
     }
-  }, [patientsData, patientsError, loadingMore]);
+  }, [patientsLoading, patientsError, loadingMore]);
 
   return {
     patientsData,
