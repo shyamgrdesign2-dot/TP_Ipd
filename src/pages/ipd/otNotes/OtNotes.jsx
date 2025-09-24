@@ -18,7 +18,8 @@ import SurgeryTeam from "./SurgeryTeam";
 import OperativeNotes from "./OperativeNotes";
 import IntraOperativeNotes from "./IntraOperativeNotes";
 import PostOperativeNotes from "./PostOperativeNotes";
-import { getOtNotesData, setSingleOtNotesData, updateOtNotesData } from "../../../redux/ipd/otNotesSlice.js";
+import { getOtNotesData, resetOtNotesForm, setSingleOtNotesData, updateOtNotesData } from "../../../redux/ipd/otNotesSlice.js";
+import BackConfirmationModal from "../../../components/BackConfirmationModal.js";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -28,7 +29,7 @@ const OtNotes = (props) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
   const { patient_data, patientDetails, isEditable = true } = state || {};
-
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
@@ -37,37 +38,31 @@ const OtNotes = (props) => {
   const { customModules } = useSelector((state) => state.customModules);
   const otNotesData = useSelector((state) => state.otNotes);
   const { otNotes = [] } = customization;
-  const [modelData, setModelData] = useState(
-    // otNotes.length > 0 ? otNotes :
-    IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE
-  );
-
-  // useEffect(() => {
-  //   if (otNotes.length > 0) {
-  //     setModelData(otNotes);
-  //   }
-  // }, [otNotes]);
+  const [modelData, setModelData] = useState( otNotes.length > 0 ? otNotes : IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE );
 
   useEffect(() => {
-    // fetch assessments form from api
-    if (
-      isEditable &&
-      patientDetails?.details?.id &&
-      patientDetails?.details?.admissionId &&
-      Object.keys(otNotesData?.otNotesData || {}).length === 0 &&
-      !otNotesState.currentOtNoteId
-    ) {
+    if (otNotes.length > 0) {
+      setModelData(otNotes);
     }
+  }, [otNotes]);
+
+  useEffect(() => {
     dispatch(getCustomization());
-    dispatch(
-      getOtNotesData({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
-      })
-    ).then(res => {
-      dispatch(setSingleOtNotesData({_id: otNotesData.currentOtNoteId}))
-    });
-  }, []);
+    
+    // Only fetch OT Notes data if we have the required patient details
+    if (patientDetails?.details?.id && patientDetails?.admissionId) {
+      dispatch(
+        getOtNotesData({
+          patientId: patientDetails.details.id,
+          admissionId: patientDetails.admissionId,
+        })
+      ).then(res => {
+        if (otNotesData.currentOtNoteId) {
+          dispatch(setSingleOtNotesData({_id: otNotesData.currentOtNoteId}));
+        }
+      });
+    }
+  }, [patientDetails?.details?.id, patientDetails?.admissionId]);
 
   const handleDefaultClick = () => {
     setModelData(IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE);
@@ -80,10 +75,15 @@ const OtNotes = (props) => {
   };
 
   const renderSections = (data) => {
+    // Don't render if data is undefined or doesn't have required properties
+    if (!data || !data.id) {
+      return null;
+    }
+    
     return (
       <div className="ipd-otnotes-editable-section-container">
         {(() => {
-          switch (data?.id) {
+          switch (data.id) {
             case "surgeryDetails":
               return <SurgeryDetails {...props} sectionData={data} />;
             case "surgeryTeam":
@@ -173,7 +173,6 @@ const OtNotes = (props) => {
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
     };
 
-    console.log('INTEL ==>req data', reqData)
 
     dispatch(
       updateOtNotesData({
@@ -227,6 +226,7 @@ const OtNotes = (props) => {
     return (
       <div className="ipd-filled-by-card-container">
         {otNotesState.currentOtNoteFilledByDetails?.createdByName && <FilledByCard
+          showBeing={!(otNotesState.currentOtNoteFilledByDetails?.createdAt)}
           filledBy={otNotesState.currentOtNoteFilledByDetails?.createdByName || ""}
           role={otNotesState.currentOtNoteFilledByDetails?.createdByRole || ""}
           showFilledOnDate={true}
@@ -243,7 +243,6 @@ const OtNotes = (props) => {
         className={`ipd-generic-form-container ipd-otnotes-form-container ${
           !isEditable ? "ipd-assessments-readable-container" : ""
         }`}
-        style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
       >
         {otNotes.length > 0
           ? otNotes.map((item) => {
@@ -257,6 +256,11 @@ const OtNotes = (props) => {
   const onMenuItemClick = (activeId) => {
     console.log("INTEL ==> activeId", activeId);
   };
+
+  // Early return if essential data is missing to prevent undefined errors
+  if (!patientDetails && isEditable) {
+    return <div>Loading patient details...</div>;
+  }
 
   return (
     <div
@@ -286,8 +290,7 @@ const OtNotes = (props) => {
                 items={modelData}
                 renderSection={renderSections}
                 onRequestClose={() => {
-                  navigate(-1);
-                  return setOpen(false);
+                  setIsBackModalOpen(true);
                 }}
                 renderHeaderSection={renderHeaderSection}
                 headerOffset={72}
@@ -341,6 +344,16 @@ const OtNotes = (props) => {
           </Suspense>
         </Drawer>
       )}
+      <BackConfirmationModal
+        isModalOpen={isBackModalOpen}
+        onCancel={() => setIsBackModalOpen(false)}
+        onConfirm={() => {
+          setIsBackModalOpen(false);
+          navigate(`/ipd/patient-details`, {state: {...state, activeTab: "otNotes", isEditable: false}, replace: true});
+          dispatch(resetOtNotesForm());
+          setOpen(false);
+        }}
+      />
     </div>
   );
 };

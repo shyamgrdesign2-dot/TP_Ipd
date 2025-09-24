@@ -1,7 +1,10 @@
 .ipd-toolbar-edit-custom-print-download {
     position: fixed;
     bottom: 7px;
-    left: calc(50dvw - 209px);
+    left: calc(50dvw - 95px);
+    &:not(.no-edit) {
+        left: calc(50dvw - 209px);
+    }
     right: 0;
     z-index: 100;
     width: fit-content;

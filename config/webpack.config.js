@@ -180,6 +180,9 @@ module.exports = function (webpackEnv) {
           loader: require.resolve(preProcessor),
           options: {
             sourceMap: true,
+            additionalData: preProcessor === 'sass-loader' 
+              ? `@import "${paths.appSrc}/assets/scss/_mixins.scss";`
+              : undefined,
           },
         }
       );

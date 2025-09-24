@@ -1,0 +1,197 @@
+.ot-notes-timeline-container {
+  .ipdot-date-range-filter-container {
+    width: max-content;
+    max-width: 260px;
+    margin: 32px 10px 4px;
+  }
+  .medical-progress__step-content {
+    background: linear-gradient(
+      164.22deg,
+      rgba(243, 232, 253, 0.7) 0.28%,
+      rgba(242, 239, 250, 0.7) 16.3%
+    ) !important;
+    .header-shadow {
+      background: linear-gradient(
+        180deg,
+        #ffffff 0%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      width: 100%;
+    }
+  }
+  .ant-steps-item-description {
+    margin-top: 0 !important;
+  }
+  .medical-progress__cards-container {
+    > div {
+      display: block !important;
+    }
+  }
+
+  .collapsible-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .ot-notes-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+
+    &.collapsed {
+      max-height: 60dvh;
+    }
+
+    &.expanded {
+      max-height: none;
+    }
+  }
+
+  .gradient-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20dvh;
+    background: linear-gradient(
+      180deg,
+      rgba(246, 244, 252, 0) 0%,
+      #f6f4fc 79.31%
+    );
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  .view-more-btn,
+  .view-less-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(236, 234, 250, 1);
+    border: none;
+    border-radius: 100px;
+    color: rgba(75, 74, 213, 1);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    img {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.2s ease;
+
+      &.arrow-down {
+        transform: rotate(0deg);
+      }
+
+      &.arrow-up {
+        transform: rotate(180deg);
+      }
+    }
+
+    &:hover {
+      background: rgb(224, 221, 239);
+      transform: translateY(-1px);
+    }
+  }
+
+  .view-less-btn {
+    margin: 16px auto 0;
+    background: rgba(236, 234, 250, 1);
+  }
+  .medical-progress__content-header {
+    position: relative;
+  }
+  .ipdot-readonly-ot-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    .ipdot-readonly-ot-header-icon {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+    .ipdot-readonly-ot-header-title {
+      z-index: 2;
+      font-size: 24px;
+      font-weight: 600;
+      span {
+        color: rgba(88, 28, 135, 1) !important;
+      }
+    }
+    .ipdot-readonly-ot-header-left-mid-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ipdot-readonly-ot-header-left-section,
+    .ipdot-readonly-ot-header-right-section {
+      z-index: 2;
+      display: flex;
+      align-items: flex-start;
+      gap: 4px;
+    }
+    .ipdot-readonly-ot-header-left-section-top-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .irohb-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      .irohb-section-left {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 8px 12px;
+        background: rgba(88, 28, 135, 0.06);
+        border-radius: 100px;
+        img {
+          width: 18px;
+          height: 18px;
+          object-fit: contain;
+        }
+        span {
+          color: rgba(88, 28, 135, 1) !important;
+          font-size: 14px;
+          font-weight: 500;
+        }
+      }
+      .irohb-section-right {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 8px 12px;
+        background: rgba(88, 28, 135, 0.06);
+        border-radius: 100px;
+        img {
+          width: 18px;
+          height: 18px;
+          object-fit: contain;
+        }
+        span {
+          color: rgba(88, 28, 135, 1) !important;
+          font-size: 14px;
+          font-weight: 500;
+        }
+      }
+    }
+    .ipdot-readonly-ot-header-right-section {
+      gap: 20px;
+    }
+  }
+}

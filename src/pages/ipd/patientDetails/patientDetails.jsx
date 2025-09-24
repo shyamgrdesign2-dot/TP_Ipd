@@ -39,7 +39,7 @@ import ConsultantNotesTimeline from "../consultantNotes/ConsultantNotesTimeline"
 import LabResults from "../labResults/LabResults";
 import ProgressNotesView from "../progressNotes/progressNotesView/progressNotesView";
 import { getProgressNotes } from "../../../redux/ipd/progressNotesSlice";
-import { getOtNotesData } from "../../../redux/ipd/otNotesSlice";
+import { getOtNotesData, resetOtNotesForm } from "../../../redux/ipd/otNotesSlice";
 import MedicalRecords from "../medicalRecords/IPDMedicalRecords";
 import OtNotesTimeline from "../otNotes/OtNotesTimeline";
 import { useAssessmentSectionVisibility } from "../../../hooks/useAssessmentSectionVisibility";
@@ -103,6 +103,7 @@ const IPDPatientDetails = () => {
   };
 
   const handleAddOtNotesClick = () => {
+    dispatch(resetOtNotesForm())
     // TODO: INTEL - RESET ALL THE DATA IN THE OT NOTES FORM
     navigate("/ipd/patient-details/ot-notes", {
       state: {
@@ -122,7 +123,7 @@ const IPDPatientDetails = () => {
       },
     });
   };
-  
+
   const handleMedicalRecordsClick = () => {
     navigate("/ipd/patient-details/medical-records", {
       state: {
@@ -132,7 +133,7 @@ const IPDPatientDetails = () => {
       },
     });
   };
-  
+
   const handleProgressNotesClick = () => {
     navigate("/ipd/patient-details/progress-notes", {
       state: {
@@ -154,11 +155,11 @@ const IPDPatientDetails = () => {
     };
     setPatientData(data);
   }, [patientDetails]);
-
+  console.log('INTEL ==> activeTab', state, activeTab)
   // Set active menu item based on activeTab parameter
   useEffect(() => {
     if (activeTab) {
-      console.log(activeTab,"activeTab")
+      console.log(activeTab, "activeTab");
       setActiveMenuItem(activeTab);
     }
   }, [activeTab]);
@@ -217,9 +218,15 @@ const IPDPatientDetails = () => {
       );
 
       // Functional Assessment Data
-      const functionalAssessmentWithoutReferredDoc = { ...data?.functionalAssessment };
+      const functionalAssessmentWithoutReferredDoc = {
+        ...data?.functionalAssessment,
+      };
       delete functionalAssessmentWithoutReferredDoc.referredToPhysiotherapyForReview;
-      dispatch(setFunctionalAssessmentData(functionalAssessmentWithoutReferredDoc || {}));
+      dispatch(
+        setFunctionalAssessmentData(
+          functionalAssessmentWithoutReferredDoc || {}
+        )
+      );
 
       // Treatment Plan Data
       dispatch(setTreatmentPlanData(data?.treatmentPlan || {}));
@@ -250,11 +257,9 @@ const IPDPatientDetails = () => {
         }
       );
     } else if (activeMenuItem === "progress") {
-      dispatch(getProgressNotes({ patientId, admissionId })).catch(
-        (error) => {
-          console.error("Error fetching progress notes:", error);
-        }
-      );
+      dispatch(getProgressNotes({ patientId, admissionId })).catch((error) => {
+        console.error("Error fetching progress notes:", error);
+      });
     } else if (activeMenuItem === "otNotes") {
       dispatch(getOtNotesData({ patientId, admissionId })).catch((error) => {
         console.error("Error fetching OT notes:", error);
@@ -287,9 +292,16 @@ const IPDPatientDetails = () => {
   };
 
   const isDataPresent = useMemo(() => {
-    if (activeMenuItem === "assessment" && !!assessmentsData || hasAnyAssessmentData) {
+    if (
+      (activeMenuItem === "assessment" && !!assessmentsData) ||
+      hasAnyAssessmentData
+    ) {
       return Object.keys(assessmentsData || {})?.length > 0;
-    } else if (activeMenuItem === "otNotes" && Array.isArray(otNotesData) && otNotesData.length > 0) {
+    } else if (
+      activeMenuItem === "otNotes" &&
+      Array.isArray(otNotesData) &&
+      otNotesData.length > 0
+    ) {
       return true;
     } else if (activeMenuItem === "consultantNotes") {
       return !!consultantNotes?.length;
@@ -301,7 +313,14 @@ const IPDPatientDetails = () => {
       return true;
     }
     return false;
-  }, [assessmentsData, otNotesData, activeMenuItem, consultantNotes, progressNotes, hasAnyAssessmentData]);
+  }, [
+    assessmentsData,
+    otNotesData,
+    activeMenuItem,
+    consultantNotes,
+    progressNotes,
+    hasAnyAssessmentData,
+  ]);
 
   const onRequestClose = () => {
     navigate(`/ipd/inPatients`);
@@ -318,9 +337,9 @@ const IPDPatientDetails = () => {
       case "assessment":
         return (
           <>
-          <div className="ipd-adm-assess-container-readable">
-            <AssessmentsForm isEditable={isEditable} />
-          </div>
+            <div className="ipd-adm-assess-container-readable">
+              <AssessmentsForm isEditable={isEditable} />
+            </div>
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
                 onEdit={() => handleAddAssessmentClick(false)}
@@ -333,9 +352,12 @@ const IPDPatientDetails = () => {
           </>
         );
       case "progress":
-        return(
+        return (
           <div className="ipd-progress-notes-view-container">
-            <ProgressNotesView  progressNotes={progressNotes} patientDetails={patientDetails}/>
+            <ProgressNotesView
+              progressNotes={progressNotes}
+              patientDetails={patientDetails}
+            />
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
                 showEditForm={false}
@@ -347,7 +369,7 @@ const IPDPatientDetails = () => {
               />
             </div>
           </div>
-        )
+        );
       case "consultantNotes":
         return (
           <div className="ipd-adm-assess-container-readable">
@@ -368,11 +390,20 @@ const IPDPatientDetails = () => {
         );
       case "otNotes":
         return (
-          <div className="ipd-adm-assess-container-readable"> 
-            {/* <OtNotes isEditable={isEditable} /> */}
+          <div className="ipd-adm-assess-container-readable">
             <OtNotesTimeline />
+            <div className="ipd-toolbar-edit-custom-print-download no-edit">
+              <ToolbarActions
+                showEditForm={false}
+                onEdit={handleAddOtNotesClick}
+                onPrintPreview={() => console.log("Preview")}
+                onPrint={() => console.log("Print")}
+                onSettings={handleCustomizeClick}
+                onDownload={() => console.log("Download")}
+              />
+            </div>
           </div>
-        )
+        );
       default:
         return null;
     }

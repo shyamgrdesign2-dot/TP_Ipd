@@ -1,446 +1,229 @@
-// import React, { useState, useMemo } from "react";
-// import { useSelector, useDispatch } from "react-redux";
-// import { useNavigate, useLocation } from "react-router-dom";
-// import { DatePicker, Card } from "antd";
-
-// import dayjs from "dayjs";
-// import {
-//   setCurrentConsultantNote,
-//   setClinicalAssessmentPlan,
-//   setVitals,
-//   setLabInvestigation,
-//   setAdditionalRemarks,
-// } from "../../../redux/ipd/consultantNotesSlice";
-// import { setMedicationData } from "../../../redux/prescriptionSlice";
-// import "./styles.scss";
-// import { createRemoteComponent } from "../../../shared/remoteComponents";
-// import { defaultIcons } from "../../../assets/images/icons/index.js";
-// import {
-//   MedicineTable,
-//   LabInvestigationTable,
-// } from "../../../components/ReusableTable";
-
-// const ReusableProgressCard = createRemoteComponent("ReusableProgressCard");
-// const ReusableStepper = createRemoteComponent("ReusableStepper");
-// const RichTextEditor = createRemoteComponent("RichTextEditor");
-
-// const OtNotesTimeline = () => {
-//   const otNotesState = useSelector((state) => state.otNotes);
-//   console.log('INTEL ==> otNotesState', otNotesState)
-//   const { state } = useLocation();
-//   const { patient_data, patientDetails } = state || {};
-//   const [filterDate, setFilterDate] = useState(null);
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-
-//   // Filter notes by date if filter is applied
-//   const filteredNotes = useMemo(() => {
-//     if (!filterDate) return otNotesState || [];
-
-//     return (otNotesState || []).filter((note) => {
-//       const noteDate = dayjs(note.createdAt);
-//       const filterDateValue = dayjs(filterDate);
-//       return noteDate.isSame(filterDateValue, "day");
-//     });
-//   }, [otNotesState, filterDate]);
-
-//   // Sort notes by date (newest first)
-//   const sortedNotes = useMemo(() => {
-//     return [...filteredNotes].sort(
-//       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-//     );
-//   }, [filteredNotes]);
-
-//   // Handle edit button click
-//   const handleEditNote = (note) => {
-//     console.log('INTEL ==> edit note', note)
-//   };
-
-//   const handleReusableItemEvent = (eventName, payload) => {
-//     if (eventName === "edit") {
-//       const note = payload?.data;
-//       console.log('INTEL ==> edit note', note)
-//     }
-//   };
-
-//   // Event handlers for group header actions (download, print)
-//   const handleGroupHeaderAction = (action, groupKey, groupData) => {
-//     console.log(`Group Header ${action}:`, { groupKey, groupData });
-//     addEvent(`Group Header - ${action}`, { groupKey, groupData });
-//   };
-
-//   // Custom render functions for ReusableStepper
-//   const renderCustomGroupHeader = (groupKey, groupData, emit) => {
-//     const date = new Date(groupKey);
-//     const formattedDate = `${date.getDate()} ${date.toLocaleString("default", {
-//       month: "short",
-//     })}, ${date.getFullYear()}`;
-
-//     return (
-//       <Card className="medical-progress__date-header-card">
-//         <div className="medical-progress__content-date">
-//           <img
-//             className="medical-progress__content-calendar-icon"
-//             style={{ fill: "#581C87" }}
-//             src={defaultIcons.calendarIcon}
-//             alt=""
-//           />
-//           <span className="medical-progress__content-date-text">
-//             {formattedDate}
-//           </span>
-//           <img
-//             className="medical-progress__content-download-icon"
-//             style={{ fill: "#581C87", cursor: "pointer" }}
-//             src={defaultIcons.downloadIcon}
-//             alt="Download"
-//             onClick={(e) => {
-//               e.preventDefault();
-//               e.stopPropagation();
-//               handleGroupHeaderAction("Download", groupKey, groupData);
-//               // Also emit the event for the stepper
-//               if (emit) {
-//                 emit("groupHeaderAction", {
-//                   action: "download",
-//                   groupKey,
-//                   groupData,
-//                 });
-//               }
-//             }}
-//             title="Download this date's consultant notes"
-//           />
-//           <img
-//             className="medical-progress__content-print-icon"
-//             style={{ fill: "#581C87", cursor: "pointer" }}
-//             src={defaultIcons.printerIcon}
-//             alt="Print"
-//             onClick={(e) => {
-//               e.preventDefault();
-//               e.stopPropagation();
-//               handleGroupHeaderAction("Print", groupKey, groupData);
-//               // Also emit the event for the stepper
-//               if (emit) {
-//                 emit("groupHeaderAction", {
-//                   action: "print",
-//                   groupKey,
-//                   groupData,
-//                 });
-//               }
-//             }}
-//             title="Print this date's consultant notes"
-//           />
-//           <img
-//             className="medical-progress__content-calendar-icon"
-//             style={{ fill: "#581C87", cursor: "pointer" }}
-//             src={defaultIcons.editIcon}
-//             alt="Edit"
-//             onClick={() => handleEditNote(groupData?.[0]?.raw)}
-//             title="Edit this date's consultant notes"
-//           />
-//         </div>
-//       </Card>
-//     );
-//   };
-
-//   const renderCustomItem = (item, itemIndex, groupKey, items, emit) => {
-//     const value = item.period || item.timeOfDay || "";
-//     const formattedTimeOfDay = value.charAt(0).toUpperCase() + value.slice(1);
-
-//     return (
-//       <ReusableProgressCard
-//         record={{
-//           id: "1",
-//           sections: [
-//             {
-//               key: "clinicalAssessmentPlan",
-//               title: "Clinical Assessment & Plan",
-//               data: item.clinicalAssessmentPlan,
-//               type: "richtext",
-//             },
-//             {
-//               key: "vitals",
-//               title: "Vitals",
-//               data: item.vitals,
-//               type: "richtext",
-//             },
-//             {
-//               key: "currentMedication",
-//               title: "Medication(Rx)",
-//               data: item.currentMedication,
-//               type: "table",
-//             },
-//             {
-//               key: "labInvestigation",
-//               title: "Lab Investigation",
-//               data: item.labInvestigation,
-//               type: "lab-table",
-//             },
-//             {
-//               key: "additionalRemarks",
-//               title: "Additional Remarks",
-//               data: item.additionalRemarks,
-//               type: "richtext",
-//             },
-//           ],
-//           filledBy: item.filledBy,
-//           role: "Consultant",
-//         }}
-//         components={{
-//           RichTextEditor,
-//           MedicineTable,
-//           LabInvestigationTable,
-//         }}
-//         icons={{
-//           timeIcons: {
-//             morning: defaultIcons.clockIcon,
-//             afternoon: defaultIcons.clockIcon,
-//             evening: defaultIcons.clockIcon,
-//             night: defaultIcons.clockIcon,
-//           },
-//           sectionIcons: {
-//             clinicalAssessmentPlan: defaultIcons.basicInfoBg,
-//             vitals: defaultIcons.physicalExam,
-//             currentMedication: defaultIcons.funcAssess,
-//             labInvestigation: defaultIcons.treatment,
-//             additionalRemarks: defaultIcons.noteColoured,
-//           },
-//           actionIcons: {
-//             download: defaultIcons.downloadIcon,
-//             print: defaultIcons.printerIcon,
-//             edit: defaultIcons.editIcon,
-//           },
-//         }}
-//         showHeader={false} // No time header
-//         className="detailed-medical-card"
-//         onAction={(eventName, payload) =>
-//           emit(eventName, { ...payload, data: item })
-//         }
-//       />
-//     );
-//   };
-
-//   // Helper function to add events to the log
-//   const addEvent = (eventType, data) => {
-//     const newEvent = {
-//       id: Date.now(),
-//       timestamp: new Date().toLocaleTimeString(),
-//       type: eventType,
-//       data: data,
-//     };
-//     // setEvents((prev) => [newEvent, ...prev.slice(0, 9)]); // Keep last 10 events
-//   };
-
-//   const mappedData = useMemo(() => {
-//     // if (!Array.isArray(otNotesState)) return [];
-//     return [1,2,4].map((entry) => {
-//       const pn = entry?.otNotes || {};
-//       const dateIso = pn?.date ? new Date(pn.date) : null;
-//       const timeIso = pn?.time ? new Date(pn.time) : null;
-//       const formattedDate = dateIso
-//         ? `${dateIso.getFullYear()}-${String(dateIso.getMonth() + 1).padStart(
-//             2,
-//             "0"
-//           )}-${String(dateIso.getDate()).padStart(2, "0")}`
-//         : undefined;
-//       return {
-//         // identifiers and raw source to support edit flow
-//         _id: entry?._id,
-//         raw: entry,
-//         date: formattedDate,
-//         period: pn?.period,
-//         time: timeIso ? timeIso.toLocaleTimeString() : undefined,
-//         timestamp: pn?.time,
-//         clinicalAssessmentPlan: pn?.clinicalAssessmentPlan,
-//         vitals: pn?.vitals,
-//         currentMedication: pn?.currentMedication,
-//         labInvestigation: pn?.labInvestigation,
-//         additionalRemarks: pn?.additionalRemarks,
-//         filledBy: entry?.createdBy ? `Dr. ${entry.createdBy}` : undefined,
-//         role: undefined,
-//       };
-//     });
-//   }, [otNotesState]);
-
-//   return (
-//     <div className="consultant-notes-timeline">
-//       {/* Filter Section */}
-//       {/* <div className="timeline-filter">
-//         <div className="timeline-filter-left">
-//           <DatePicker
-//             placeholder="Filter by Date"
-//             value={filterDate}
-//             onChange={setFilterDate}
-//             allowClear
-//             format="DD MMM YYYY"
-//             className="timeline-date-filter"
-//           />
-//         </div>
-//       </div> */}
-
-//       <ReusableStepper
-//         data={mappedData}
-//         groupBy={(item) =>
-//           item.date || item.timestamp?.split(" ")[0] || "Unknown"
-//         }
-//         sortGroups={(a, b) => new Date(b) - new Date(a)}
-//         renderGroupHeader={renderCustomGroupHeader}
-//         renderItem={renderCustomItem}
-//         onItemEvent={handleReusableItemEvent}
-//         layout={{
-//           gridGutter: [16, 16],
-//           colProps: { xs: 24, sm: 12, lg: 8 },
-//           stepDirection: "vertical",
-//           currentStep: -1,
-//         }}
-//         toolbar={{ show: false }}
-//       />
-//     </div>
-//   );
-// };
-
-// export default OtNotesTimeline;
-
-import React, { useState, useMemo } from "react";
-import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
-import { Card, DatePicker } from "antd";
-import dayjs from "dayjs";
+import React, { useMemo, useState, useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import "./otNotesTimeline.scss";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons/index.js";
+import SurgeryTeam from "./components/SurgeryTeam";
+import SurgeryDetails from "./components/SurgeryDetails";
+import IntraOperativeNotes from "./IntraOperativeNotes.jsx";
+import OperativeNotes from "./OperativeNotes.jsx";
+import PostOperativeNotes from "./PostOperativeNotes.jsx";
+import moment from "moment";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
-  MedicineTable,
-  LabInvestigationTable,
-} from "../../../components/ReusableTable";
+  setCurrentOtNoteId,
+  setSingleOtNotesData,
+} from "../../../redux/ipd/otNotesSlice.js";
+import DateRangeFilter from "../components/DateRangeFilter.js";
+import { getCustomization } from "../../../redux/ipd/ipdSlice.js";
 
-const ReusableProgressCard = createRemoteComponent("ReusableProgressCard");
 const ReusableStepper = createRemoteComponent("ReusableStepper");
-const RichTextEditor = createRemoteComponent("RichTextEditor");
 
 const OtNotesTimeline = () => {
+  const dateFormat = "YYYY-MM-DD";
+  const showDateFormat = "DD-MM-YYYY";
+  const dispatch = useDispatch();
   const otNotesState = useSelector((state) => state.otNotes);
-  console.log('INTEL ==> otnotesstate', otNotesState)
+  const { customization = {} } = useSelector((state) => state.ipd);
+  const [dateStatus, setDateStatus] = useState(null);
+  const [dateRange, setDateRange] = useState(null);
+  const [pickerModal, setPickerModal] = useState(false);
+
+  const navigate = useNavigate();
   const { state } = useLocation();
   const { patient_data, patientDetails } = state || {};
-  const [filterDate, setFilterDate] = useState(null);
+  const { otNotes = [] } = customization;
+
+  useEffect(() => {
+    dispatch(getCustomization());
+  }, []);
+
+  const handleEditOtNotes = (id) => {
+    dispatch(setCurrentOtNoteId(id));
+    dispatch(setSingleOtNotesData({ _id: id }));
+    navigate("/ipd/patient-details/ot-notes", {
+      state: {
+        patient_data,
+        patientDetails,
+        isEditable: true,
+        activeOtNoteId: id,
+      },
+    });
+  };
+
+  const handlePickerModal = useCallback(() => {
+    setPickerModal(!pickerModal);
+  }, [pickerModal]);
+  const handleDateCancel = useCallback(() => {
+    setDateStatus(null);
+    setDateRange(null);
+    setPickerModal(false);
+  }, []);
+
+  const disabledDate = useCallback((current) => {
+    return current && current >= moment().add(1, "days").startOf("day");
+  }, []);
+
+  const onRangeChange = useCallback((dates, dateStrings) => {
+    if (dates) {
+      // Determine date status based on selected dates
+      const today = moment().format(dateFormat);
+      const startDate = moment(dateStrings[0], showDateFormat).format(
+        dateFormat
+      );
+      const endDate = moment(dateStrings[1], showDateFormat).format(dateFormat);
+
+      if (startDate === today && endDate === today) {
+        setDateStatus(1);
+      } else if (
+        startDate === moment().add(-1, "d").format(dateFormat) &&
+        endDate === today
+      ) {
+        setDateStatus(2);
+      } else if (
+        startDate === moment().add(-1, "M").format(dateFormat) &&
+        endDate === today
+      ) {
+        setDateStatus(3);
+      } else {
+        setDateStatus(null);
+      }
+
+      setDateRange({
+        startDate: startDate,
+        endDate: endDate,
+      });
+    } else {
+      setDateStatus(null);
+      setDateRange(null);
+    }
+  }, []);
+
+  console.log("INTEL ==> dates", dateRange, dateStatus);
 
   const renderCustomGroupHeader = (groupKey, groupData, emit) => {
+    const data = groupData?.[0]?.originalEntry;
+    const otNotesData = data?.otNotes;
+    const calculateSurgeryDuration = (startTime, endTime) => {
+      if (!startTime || !endTime) return 0;
+
+      const startMoment = moment(startTime, "HH:mm");
+      let endMoment = moment(endTime, "HH:mm");
+
+      if (endMoment.isBefore(startMoment)) {
+        endMoment.add(1, "day");
+      }
+
+      return endMoment.diff(startMoment, "minutes");
+    };
+
+    const formatSurgeryTime = (minutes) => {
+      if (minutes <= 0) return "";
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      if (hours > 0 && mins > 0) {
+        return `${hours}hr ${mins}min`;
+      } else if (hours > 0) {
+        return `${hours}hr`;
+      } else {
+        return `${mins}min`;
+      }
+    };
+
+    const surgeryTimeDiff = calculateSurgeryDuration(
+      otNotesData?.surgeryDetails?.surgeryStartTime,
+      otNotesData?.surgeryDetails?.surgeryEndTime
+    );
+    const surgeryTime = formatSurgeryTime(surgeryTimeDiff);
     return (
-      <Card className="medical-progress__content-header">
-        <div className="medical-progress__content-header-left">
-          <span className="medical-progress__content-header-date">
-            {dayjs(groupKey).format("DD MMM YYYY")}
-          </span>
-        </div>
-        <div className="medical-progress__content-header-right">
-          <img
-            className="medical-progress__content-download-icon"
-            style={{ fill: "#581C87", cursor: "pointer" }}
-            src={defaultIcons.downloadIcon}
-            alt="Download"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              // handleGroupHeaderAction("Download", groupKey, groupData);
-              if (emit) {
-                emit("groupHeaderAction", {
-                  action: "download",
-                  groupKey,
-                  groupData,
-                });
+      <>
+        <div className="ipdot-readonly-ot-header-container">
+          <div className="ipdot-readonly-ot-header-left-section-top-container">
+            <div className="ipdot-readonly-ot-header-left-section">
+              <img
+                className="ipdot-readonly-ot-header-icon"
+                alt="OT Notes"
+                src={defaultIcons.otSurgeryIcon}
+              />
+              <div className="ipdot-readonly-ot-header-left-mid-section">
+                <div className="ipdot-readonly-ot-header-title">
+                  {otNotesData?.surgeryDetails?.procedureName?.map(
+                    (item, index) => {
+                      return (
+                        <span>
+                          {item}
+                          {index <
+                            otNotesData?.surgeryDetails?.procedureName.length -
+                              1 && ", "}
+                        </span>
+                      );
+                    }
+                  )}
+                </div>
+                <div className="irohb-section">
+                  <div className="irohb-section-left">
+                    <img
+                      src={defaultIcons.calendarDarkOutlineIcon}
+                      alt="Clock"
+                    />
+                    <span>{otNotesData?.surgeryDetails?.surgeryDate}</span>
+                  </div>
+                  <div className="irohb-section-right">
+                    <img
+                      src={defaultIcons.clockDarkOutlineIcon}
+                      alt="Calendar"
+                    />
+                    <span>
+                      {otNotesData?.surgeryDetails?.surgeryStartTime} -{" "}
+                      {otNotesData?.surgeryDetails?.surgeryEndTime} (
+                      {surgeryTime})
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="ipdot-readonly-ot-header-right-section">
+            <img
+              className="medical-progress__content-download-icon"
+              style={{ fill: "#581C87", cursor: "pointer" }}
+              src={defaultIcons.downloadIcon}
+              alt="Download"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              title="Download this date's OT notes"
+            />
+            <img
+              className="medical-progress__content-print-icon"
+              style={{ fill: "#581C87", cursor: "pointer" }}
+              src={defaultIcons.printerIcon}
+              alt="Print"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              title="Print this date's OT notes"
+            />
+            <img
+              className="medical-progress__content-calendar-icon"
+              style={{ fill: "#581C87", cursor: "pointer" }}
+              src={defaultIcons.editIcon}
+              alt="Edit"
+              onClick={() =>
+                handleEditOtNotes(groupData?.[0]?.originalEntry?._id)
               }
-            }}
-            title="Download this date's OT notes"
-          />
-          <img
-            className="medical-progress__content-print-icon"
-            style={{ fill: "#581C87", cursor: "pointer" }}
-            src={defaultIcons.printerIcon}
-            alt="Print"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              //handleGroupHeaderAction("Print", groupKey, groupData);
-              if (emit) {
-                emit("groupHeaderAction", {
-                  action: "print",
-                  groupKey,
-                  groupData,
-                });
-              }
-            }}
-            title="Print this date's OT notes"
-          />
+              title="Edit this date's OT notes"
+            />
+          </div>
         </div>
-      </Card>
+      </>
     );
   };
 
-  const renderCustomItem = (item, itemIndex, groupKey, items, emit) => {
-    console.log('INTEL ==>item', item)
-    return (
-        <div>{item.title || item.id}</div>
-    //   <ReusableProgressCard
-    //     record={{
-    //       id: "1",
-    //       sections: [
-    //         {
-    //           key: "surgeryDetails",
-    //           title: "Surgery Details",
-    //           data: item.surgeryDetails,
-    //           type: "richtext",
-    //         },
-    //         {
-    //           key: "surgeryTeam", 
-    //           title: "Surgery Team",
-    //           data: item.surgeryTeam,
-    //           type: "richtext",
-    //         },
-    //         {
-    //           key: "operativeNotes",
-    //           title: "Operative Notes",
-    //           data: item.operativeNotes,
-    //           type: "richtext",
-    //         },
-    //         {
-    //           key: "intraOperativeNotes",
-    //           title: "Intra-Operative Notes",
-    //           data: item.intraOperativeNotes,
-    //           type: "richtext",
-    //         },
-    //         {
-    //           key: "postOperativeNotes",
-    //           title: "Post-Operative Notes",
-    //           data: item.postOperativeNotes,
-    //           type: "richtext",
-    //         }
-    //       ],
-    //       filledBy: item.filledBy,
-    //       role: "Surgeon",
-    //     }}
-    //     components={{
-    //       RichTextEditor,
-    //       MedicineTable,
-    //       LabInvestigationTable,
-    //     }}
-    //     icons={{
-    //       sectionIcons: {
-    //         surgeryDetails: defaultIcons.basicInfoBg,
-    //         surgeryTeam: defaultIcons.physicalExam,
-    //         operativeNotes: defaultIcons.funcAssess,
-    //         intraOperativeNotes: defaultIcons.treatment,
-    //         postOperativeNotes: defaultIcons.noteColoured,
-    //       },
-    //       actionIcons: {
-    //         download: defaultIcons.downloadIcon,
-    //         print: defaultIcons.printerIcon,
-    //       },
-    //     }}
-    //     showHeader={false}
-    //     className="detailed-medical-card"
-    //     onAction={(eventName, payload) =>
-    //       emit(eventName, { ...payload, data: item })
-    //     }
-    //   />
-    );
+  const handleGroupHeaderAction = (action, groupKey, groupData) => {
+    console.log("Action:", action, groupKey, groupData);
   };
 
   const handleReusableItemEvent = (eventName, payload) => {
@@ -448,28 +231,133 @@ const OtNotesTimeline = () => {
   };
 
   const mappedData = useMemo(() => {
-    console.log('INTEL ==> X', otNotesState.otNotesData)
     if (!Array.isArray(otNotesState.otNotesData)) return [];
-    const x= otNotesState.otNotesData.map((entry) => {
-      const pn = entry?.otNotes || {};
+    return otNotesState?.otNotesData?.map((entry, index) => {
       const dateIso = entry?.createdAt ? new Date(entry?.createdAt) : null;
       return {
         date: dateIso?.toISOString(),
-        renderStepItem: (x,y,z,k) => {
-            console.log('INTEL ==> x,y,z,k', x,y,z,k)
+        originalEntry: entry,
+        renderStepItem: () => {
+          const CollapsibleContent = () => {
+            const [isExpanded, setIsExpanded] = useState(false);
+
             return (
-                <div className="intellasdfsafsdf">hello</div>
-            )
-        }
+              <div className="collapsible-wrapper">
+                <div
+                  className={`ot-notes-content ${
+                    isExpanded ? "expanded" : "collapsed"
+                  }`}
+                >
+                  {Object.keys(entry?.otNotes)?.map((otEntry) => {
+                    switch (otEntry) {
+                      case "surgeryDetails":
+                        return (
+                          <SurgeryDetails
+                            key={otEntry}
+                            id={otEntry}
+                            surgeryDetails={entry?.otNotes?.[otEntry]}
+                          />
+                        );
+                      case "surgeryTeam":
+                        return (
+                          <SurgeryTeam
+                            key={otEntry}
+                            id={otEntry}
+                            surgeryTeam={entry?.otNotes?.[otEntry]}
+                          />
+                        );
+                      case "operativeNotes":
+                        return (
+                          <OperativeNotes
+                            key={otEntry}
+                            isEditable={false}
+                            sectionData={otNotes?.find(
+                              (item) => item.id === otEntry
+                            )}
+                            operativeNotes={entry?.otNotes?.[otEntry]}
+                          />
+                        );
+                      case "intraOperativeNotes":
+                        return (
+                          <IntraOperativeNotes
+                            key={otEntry}
+                            isEditable={false}
+                            id={otEntry}
+                            sectionData={otNotes?.find(
+                              (item) => item.id === otEntry
+                            )}
+                            intraOperativeNotes={entry?.otNotes?.[otEntry]}
+                          />
+                        );
+                      case "postOperativeNotes":
+                        return (
+                          <PostOperativeNotes
+                            key={otEntry}
+                            isEditable={false}
+                            id={otEntry}
+                            sectionData={otNotes?.find(
+                              (item) => item.id === otEntry
+                            )}
+                            postOperativeNotes={entry?.otNotes?.[otEntry]}
+                          />
+                        );
+                      default:
+                        return null;
+                    }
+                  })}
+                </div>
+                {!isExpanded && (
+                  <div className="gradient-overlay">
+                    <button
+                      className="view-more-btn"
+                      onClick={() => setIsExpanded(true)}
+                    >
+                      View more
+                      <img
+                        src={defaultIcons.downArrowPcIcon}
+                        alt="arrow down"
+                        className="arrow-down"
+                      />
+                    </button>
+                  </div>
+                )}
+                {isExpanded && (
+                  <button
+                    className="view-less-btn"
+                    onClick={() => setIsExpanded(false)}
+                  >
+                    View less
+                    <img
+                      src={defaultIcons.downArrowPcIcon}
+                      alt="arrow up"
+                      className="arrow-up"
+                    />
+                  </button>
+                )}
+              </div>
+            );
+          };
+
+          return <CollapsibleContent key={index} />;
+        },
       };
     });
-    console.log('INTEL ==> X',x)
-    return x;
-  }, [otNotesState.otNotesData]);
-
+  }, [otNotesState.otNotesData, otNotes]);
 
   return (
-    <div className="ot-notes-timeline">
+    <div className="ot-notes-timeline-container">
+      <div className="ipdot-date-range-filter-container">
+        <DateRangeFilter
+          placeholder={"Filter by date"}
+          dateRange={dateRange}
+          dateStatus={dateStatus}
+          isOpen={pickerModal}
+          onRangeChange={onRangeChange}
+          onToggleModal={handlePickerModal}
+          onCancel={handleDateCancel}
+          disabledDate={disabledDate}
+        />
+      </div>
       <ReusableStepper
         data={mappedData}
         groupBy={(item) =>
@@ -477,15 +365,14 @@ const OtNotesTimeline = () => {
         }
         sortGroups={(a, b) => new Date(b) - new Date(a)}
         renderGroupHeader={renderCustomGroupHeader}
-        renderItem={renderCustomItem}
+        onGroupHeaderAction={handleGroupHeaderAction}
         onItemEvent={handleReusableItemEvent}
         layout={{
-          gridGutter: [16, 16],
-          colProps: { xs: 24, sm: 12, lg: 8 },
           stepDirection: "vertical",
           currentStep: -1,
         }}
-        toolbar={{ show: true, label: 'All dates' }}
+        showShadow={true}
+        toolbar={{ show: true, label: "All dates" }}
       />
     </div>
   );

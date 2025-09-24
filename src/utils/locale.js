@@ -731,7 +731,7 @@ export const IPD = {
       icon: "notepadIcon",
       showAddCTA: true,
     },
-    { id: "otNotes", name: "OT Notes", icon: "healthIcon" },
+    { id: "otNotes", name: "OT Notes", icon: "healthIcon", showAddCTA: true,  },
     { id: "crossReferral", name: "Cross Referral", icon: "healthIcon" },
     { id: "labResults", name: "Lab Results", icon: "glassIcon" },
     {

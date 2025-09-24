@@ -290,7 +290,7 @@ const SurgeryDetails = (props) => {
       <CollapsibleWrapper
         title={sectionData?.title}
         data-testid={sectionData?.id}
-        icon={otNotesIcons[`${sectionData?.id}Dark`]}
+        icon={sectionData?.id ? otNotesIcons[`${sectionData.id}Dark`] : null}
         collapsible={isEditable}
         width={"100%"}
         className={`collapsible-wrapper-class ${

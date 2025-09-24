@@ -9,7 +9,6 @@ export const initialState = {
   currentOtNoteFilledByDetails: null,
   surgeryDetails: {
     procedureName: "",
-    // surgeryName: "",
     anaesthesiaType: "",
     surgeryDate: "",
     surgeryStartTime: "",
@@ -232,6 +231,29 @@ const otNotesSlice = createSlice({
           }
         });
       }
+    },
+    resetOtNotesForm: (state) => {
+      state.surgeryDetails = {
+        procedureName: "",
+        anaesthesiaType: "",
+        surgeryDate: "",
+        surgeryStartTime: "",
+        surgeryEndTime: "",
+        diagnosis: null,
+      };
+      state.surgeryTeam = {
+        primarySurgeon: [],
+        secondarySurgeon: [],
+        assistant: [],
+        anaesthesiologist: [],
+        scrubNurse: [],
+        floorCirculatingNurse: [],
+      };
+      state.operativeNotes = {};
+      state.intraOperativeNotes = {};
+      state.postOperativeNotes = {};
+      state.currentOtNoteId = null;
+      state.currentOtNoteFilledByDetails = null;
     }
   },
   extraReducers: (builder) => {
@@ -298,6 +320,7 @@ export const {
   setPostOperativeNotes,
   setSingleOtNotesData,
   setCurrentOtNoteId,
-  setCurrentOtNoteFilledByDetails
+  setCurrentOtNoteFilledByDetails,
+  resetOtNotesForm
 } = otNotesSlice.actions;
 export default otNotesSlice.reducer;

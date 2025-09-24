@@ -112,3 +112,38 @@
     padding: 0 2px;
   }
 }
+.ipdot-ion-metrics-container {
+  .ipdot-ion-metrics-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #454551;
+    margin-bottom: 6px;
+    display: none;
+  }
+  &:has(.ipdot-ion-metrics-list-label) {
+    .ipdot-ion-metrics-title {
+      display: block;
+    }
+  }
+  .ipdot-ion-metrics-list {
+    // padding-left: 16px;
+
+    .ipdot-ion-metrics-list-value {
+      font-size: 14px;
+      font-weight: 400;
+      color: #454551;
+    }
+    .ipdot-ion-metrics-list-label {
+      font-weight: 500;
+    }
+  }
+  ul.ipdot-ion-metrics-list {
+    // padding-left: 16px;
+  }
+}
+
+.patient-details-container {
+  .add-cta-container {
+    margin-top: -10px !important;
+  }
+}

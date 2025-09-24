@@ -8,7 +8,8 @@ const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const OperativeNotes = (props) => {
   const { isEditable = true, sectionData } = props || {};
-  const { operativeNotes = {} } = useSelector((state) => state.otNotes);
+  let { operativeNotes = {} } = useSelector((state) => state.otNotes);
+  operativeNotes = props.operativeNotes || operativeNotes;
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState({});
   const dispatch = useDispatch();
   const handleChange = (value, key) => {
@@ -23,7 +24,7 @@ const OperativeNotes = (props) => {
         showActionBtns={isEditable}
         title={data?.title}
         width="100%"
-        icon={otNotesIcons[data?.id]}
+        icon={isEditable ? otNotesIcons[data?.id]: null}
         showAutoFill={false}
         onErase={() => {
           setAutoFillTextToAppend((prev) => ({
@@ -39,13 +40,13 @@ const OperativeNotes = (props) => {
           }));
         }}
         containerClass={`wrapper-class ${
-          !isEditable ? "ipd-wrapper-class-readonly" : ""
+          !isEditable ? "ipd-wrapper-class-readonly rich-text-editor-container-readonly ipdot-on-extraMargin" : ""
         }`}
         showMagicPenGif={false}
         showMicrophone={false}
         onChange={(val) => handleChange(val, data?.id)}
         initialValue={
-          operativeNotes?.[data?.id]?.value?.length
+          props.operativeNotes && props.operativeNotes?.[data?.id]?.length ? operativeNotes?.[data?.id] : operativeNotes?.[data?.id]?.value?.length
             ? operativeNotes?.[data?.id]?.value
             : [
                 {
@@ -59,10 +60,23 @@ const OperativeNotes = (props) => {
     );
   };
   const renderChildren = () => {
+    if (!isEditable)
+      return (
+        <ul>
+          {sectionData?.children?.map((item) => {
+            return (
+              <li key={item.id}>
+                {renderRichTextEditorSection(item)}
+              </li>
+            )
+          })}
+        </ul>
+      )
     return sectionData?.children?.map((item) => {
       return renderRichTextEditorSection(item);
     });
   };
+  if (!sectionData) return null;
   if (!isEditable && !Object.values(operativeNotes).some((value) => value))
     return null;
   return (
@@ -70,11 +84,11 @@ const OperativeNotes = (props) => {
       <CollapsibleWrapper
         title={sectionData?.title}
         data-testid={sectionData?.id}
-        icon={otNotesIcons[`${sectionData?.id}Dark`]}
+        icon={sectionData?.id ? otNotesIcons[`${sectionData?.id}Dark`] : null}
         collapsible={isEditable}
         width={"100%"}
         className={`collapsible-wrapper-class ${
-          isEditable ? "" : "collapsible-wrapper-class-readonly"
+          isEditable ? "" : "collapsible-wrapper-class-readonly ipdot-ion-readonly readonly-container-box"
         }`}
         defaultOpen
       >
