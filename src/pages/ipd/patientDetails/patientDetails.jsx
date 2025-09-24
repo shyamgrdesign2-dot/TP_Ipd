@@ -262,7 +262,6 @@ const IPDPatientDetails = () => {
     assessment: () => handleAddAssessmentClick(true),
     otNotes: handleOtNotesClick,
     consultantNotes: handleAddConsultantNotesClick,
-    labResults: handleAddLabResultsClick,
     progress: handleProgressNotesClick,
     records: handleMedicalRecordsClick,
   };
@@ -288,6 +287,8 @@ const IPDPatientDetails = () => {
       return !!progressNotes?.length;
     } else if (activeMenuItem === "records") {
       return false;
+    } else if (activeMenuItem === "labResults") {
+      return true;
     }
     return false;
   }, [assessmentsData, otNotesData, activeMenuItem, consultantNotes, progressNotes]);

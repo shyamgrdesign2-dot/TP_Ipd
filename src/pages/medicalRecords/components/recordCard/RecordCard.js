@@ -34,6 +34,7 @@ const RecordCard = ({
   setFilesData,
   setIsEditDocument,
   setUploadDocDrawer,
+  isIpd=false
 }) => {
   const dispatch = useDispatch();
   const decodedToken = getDecodedToken();
@@ -51,9 +52,12 @@ const RecordCard = ({
     investigation_date,
     category_id,
     display_name,
+    category
   } = cardData || {};
 
   let thumbnailUrl = thumbnail_url;
+
+  const isEditable = !isIpd && !url?.startsWith(config.zydus_proxy_url);
 
   const getThumbnailUrl = async (url) => {
     if (url?.includes(".pdf")) {
@@ -74,7 +78,7 @@ const RecordCard = ({
   const updatedFileName = shortenText(display_name);
   const categoryName = category_id === -2 ? 'Zydus Lab' : category_id === -3 ? 'Zydus Radio' : uploadDocCategories.find(
     (item) => item?.category_id === category_id
-  )?.category_name;
+  )?.category_name || category;
 
   const [showTooltip, setShowTooltip] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
@@ -218,7 +222,7 @@ const RecordCard = ({
         ),
         key: "download",
       },
-      !url?.startsWith(config.zydus_proxy_url) && {
+      isEditable && {
         label: (
           <div onClick={handleEdit}>
             <img src={edit} alt="edit" className="me-2" />
@@ -227,7 +231,7 @@ const RecordCard = ({
         ),
         key: "edit",
       },
-      !url?.startsWith(config.zydus_proxy_url) && {
+      isEditable && {
         label: (
           <div onClick={toggleDeletePopup}>
             <img src={trash} alt="delete" className="me-2" />
@@ -391,6 +395,7 @@ const RecordCard = ({
             toggleDeletePopup={toggleDeletePopup}
             handleInAppDownload={handleInAppDownload}
             handleDownload={handleDownload}
+            isEditable={isEditable}
           />
         </Drawer>
       )}
