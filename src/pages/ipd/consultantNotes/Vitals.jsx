@@ -1,6 +1,6 @@
 import React from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
+import { defaultIcons } from "../../../assets/images/consultantNotesIcons";
 import { useSelector, useDispatch } from "react-redux";
 import { setVitals } from "../../../redux/ipd/consultantNotesSlice";
 

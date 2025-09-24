@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import moment from "moment";
 import { Row } from "react-bootstrap";
 import { notification } from "antd";
@@ -60,6 +66,7 @@ function InPatients() {
     initialFilters.selectedWards
   );
   const [filterResetKey, setFilterResetKey] = useState(0);
+  const lastFetchParamsRef = useRef(null);
 
   // const [stateValue, funcToUpdateState] = useState(initialState)
 
@@ -104,8 +111,6 @@ function InPatients() {
     updateFilters,
   } = usePatientsData();
 
-  console.log({ patientsData });
-
   const { doctors, wards } = useFiltersData();
 
   const { lastElementRef } = useInfiniteScroll({
@@ -124,33 +129,29 @@ function InPatients() {
     saveFiltersToSession();
   }, [saveFiltersToSession]);
 
-  // Data fetching effects
+  // Data fetching effects - only run when filters actually change
+  const fetchParams = useMemo(
+    () => ({
+      ...filterParams,
+      startDate: dateRange ? dateRange.startDate : "",
+      endDate: dateRange ? dateRange.endDate : "",
+      doctorIdsFilter:
+        selectedDoctors.length > 0 ? selectedDoctors.join(",") : allDoctorIds,
+      ward: selectedWards.length > 0 ? selectedWards.join(",") : "",
+    }),
+    [filterParams, dateRange, selectedDoctors, selectedWards, allDoctorIds]
+  );
+
   useEffect(() => {
-    if (loadingMore) return;
+    if (loadingMore || patientsLoading) return;
 
-    if (!patientsError || !fetchAttempted) {
-      const doctorIds =
-        selectedDoctors.length > 0 ? selectedDoctors.join(",") : allDoctorIds;
+    // Check if parameters have actually changed
+    const paramsString = JSON.stringify(fetchParams);
+    if (lastFetchParamsRef.current === paramsString) return;
 
-      fetchData({
-        ...filterParams,
-        startDate: dateRange ? dateRange.startDate : "",
-        endDate: dateRange ? dateRange.endDate : "",
-        doctorIdsFilter: doctorIds,
-        ward: selectedWards.length > 0 ? selectedWards.join(",") : "",
-      });
-    }
-  }, [
-    filterParams,
-    dateRange,
-    selectedDoctors,
-    selectedWards,
-    patientsError,
-    fetchAttempted,
-    loadingMore,
-    fetchData,
-    allDoctorIds,
-  ]);
+    lastFetchParamsRef.current = paramsString;
+    fetchData(fetchParams);
+  }, [fetchParams, fetchData, loadingMore, patientsLoading]);
 
   useEffect(() => {
     resetData();
