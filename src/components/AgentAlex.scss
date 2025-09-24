@@ -1,0 +1,666 @@
+.agent-alex-container {
+  position: fixed;
+  top: 72px; // Below the page header
+  right: 24px;
+  width: 380px;
+  height: calc(100vh - 96px); // Full height minus header and margins
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0px 9.055px 20.374px -6.791px rgba(24, 39, 75, 0.12), 
+              0px 13.582px 47.539px -4.527px rgba(24, 39, 75, 0.12);
+  overflow: hidden;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+}
+
+.agent-alex-background-pattern {
+  position: absolute;
+  top: -47.85px;
+  left: -61.48px;
+  width: 796.725px;
+  height: 1015.82px;
+  background: #f1f1f5;
+  opacity: 0.6;
+  transform: rotate(180deg) scaleY(-1);
+}
+
+// Header Section
+.agent-alex-header {
+  position: relative;
+  background: #2c123e;
+  padding: 20px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 80px;
+  z-index: 2;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -325.17px;
+    left: -339.94px;
+    width: 0px;
+    height: 632.822px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 664 633"><defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23A461D8;stop-opacity:0.1" /><stop offset="100%" style="stop-color:%234B4AD5;stop-opacity:0.1" /></linearGradient></defs><rect width="664" height="633" fill="url(%23grad1)" /></svg>') no-repeat;
+    background-size: cover;
+    opacity: 0.3;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -64.13px;
+    right: -110px;
+    width: 0px;
+    height: 365.538px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 372 366"><defs><linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23A461D8;stop-opacity:0.2" /><stop offset="100%" style="stop-color:%234B4AD5;stop-opacity:0.2" /></linearGradient></defs><rect width="372" height="366" fill="url(%23grad2)" /></svg>') no-repeat;
+    background-size: cover;
+    opacity: 0.4;
+    transform: rotate(180deg) scaleY(-1);
+  }
+}
+
+.agent-alex-profile-section {
+  display: flex;
+  align-items: center;
+  gap: 8.45px;
+}
+
+.agent-alex-avatar {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 9.913px;
+  background: white;
+  border: 0.826px solid white;
+  overflow: hidden;
+}
+
+.agent-alex-avatar-image {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #A461D8 0%, #4B4AD5 100%);
+  border-radius: 9.913px;
+}
+
+.agent-alex-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.agent-alex-name {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: white !important;
+  line-height: normal;
+}
+
+.agent-alex-role {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  color: white !important;
+  line-height: normal;
+}
+
+.agent-alex-close-button {
+  width: 28.586px;
+  height: 28.586px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// AI Summary Section
+.agent-alex-ai-summary {
+  position: relative;
+  background: white;
+  border-radius: 24px;
+  margin: 18px 14px;
+  padding: 18px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  flex-shrink: 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(247, 247, 249, 0.1) 0%, #f7f7f9 100%);
+    border-radius: 24px;
+    opacity: 0.15;
+  }
+}
+
+.agent-alex-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.agent-alex-summary-icon {
+  width: 16.842px;
+  height: 16.842px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.agent-alex-summary-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  background: linear-gradient(90deg, #A461D8 0%, #4B4AD5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  line-height: normal;
+}
+
+.agent-alex-info-icon {
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.agent-alex-summary-content {
+  position: relative;
+  z-index: 1;
+}
+
+.agent-alex-summary-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    color: #454551;
+    line-height: 24px;
+    margin-bottom: 12px;
+    position: relative;
+    padding-left: 20px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #4B4AD5;
+      font-weight: bold;
+    }
+
+    strong {
+      font-weight: 600;
+      color: #454551;
+    }
+  }
+}
+
+// Progress Timeline Section
+.agent-alex-progress-timeline {
+  flex: 1;
+  padding: 0 14px;
+  overflow-y: auto;
+  z-index: 2;
+  position: relative;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #8b5cf6;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #7c3aed;
+  }
+}
+
+.agent-alex-timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(246, 240, 253, 0.6) 0%, rgba(237, 222, 254, 0.6) 100%);
+  border-radius: 13.16px;
+}
+
+.agent-alex-timeline-date {
+  display: flex;
+  align-items: center;
+  gap: 6.58px;
+}
+
+.agent-alex-calendar-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.agent-alex-date-text {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: #4B4AD5;
+  line-height: normal;
+}
+
+// Progress Cards
+.agent-alex-progress-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.agent-alex-progress-card {
+  background: rgba(242, 239, 250, 0.5);
+  border-radius: 13.16px;
+  border: 0.823px solid #eedeff;
+  box-shadow: 0px 0px 9.87px 0px rgba(0, 0, 0, 0.01);
+  overflow: hidden;
+}
+
+.agent-alex-card-header {
+  background: linear-gradient(135deg, rgba(246, 240, 253, 0.6) 0%, rgba(237, 222, 254, 0.6) 100%);
+  padding: 12px;
+  border-bottom: 0.411px solid rgba(226, 226, 234, 0.2);
+}
+
+.agent-alex-time-section {
+  display: flex;
+  align-items: center;
+  gap: 6.58px;
+}
+
+.agent-alex-time-icon {
+  width: 16.913px;
+  height: 16.913px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.morning svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.agent-alex-time-text {
+  display: flex;
+  flex-direction: column;
+
+  .time-period {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 13.16px;
+    color: rgba(78, 26, 126, 0.8);
+    line-height: normal;
+  }
+
+  .time-detail {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 8.225px;
+    color: rgba(78, 26, 126, 0.8);
+    line-height: normal;
+  }
+}
+
+.agent-alex-card-content {
+  padding: 14px;
+}
+
+.agent-alex-content-section {
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.agent-alex-section-header {
+  display: flex;
+  align-items: center;
+  gap: 6.58px;
+  margin-bottom: 6.58px;
+}
+
+.agent-alex-section-icon {
+  width: 14.805px;
+  height: 14.805px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.agent-alex-section-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 9.87px;
+  color: #171725;
+  line-height: normal;
+}
+
+.agent-alex-section-content {
+  padding-left: 14.805px;
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 400;
+      font-size: 9.87px;
+      color: #454551;
+      line-height: 16.45px;
+      opacity: 0.9;
+      position: relative;
+      padding-left: 12px;
+
+      &::before {
+        content: '•';
+        position: absolute;
+        left: 0;
+        color: #454551;
+      }
+    }
+  }
+}
+
+.agent-alex-card-footer {
+  padding: 13.16px;
+  padding-top: 0;
+}
+
+.agent-alex-signature {
+  background: rgba(243, 237, 252, 0.4);
+  border-radius: 9.87px;
+  border: 0.247px solid rgba(238, 222, 255, 0.5);
+  padding: 9.87px;
+  display: flex;
+  align-items: center;
+  gap: 6.58px;
+}
+
+.agent-alex-signature-icon {
+  width: 38.554px;
+  height: 38.554px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.08;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.agent-alex-signature-info {
+  flex: 1;
+  padding-left: 15.628px;
+}
+
+.agent-alex-signature-label {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  font-size: 6.58px;
+  color: #454551;
+  line-height: normal;
+}
+
+.agent-alex-signature-name {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 9.87px;
+  color: #454551;
+  line-height: 13.16px;
+}
+
+.agent-alex-role-badge {
+  background: #ecfdf5;
+  border: 0.726px solid #d1fae5;
+  border-radius: 7259.28px;
+  padding: 1.645px 6.58px;
+  box-shadow: 0px 0.726px 1.452px 0px rgba(0, 0, 0, 0.05);
+
+  span {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 8.225px;
+    color: #3d8c40;
+    line-height: 14.52px;
+  }
+}
+
+// View Less Button
+.agent-alex-view-less-button {
+  background: rgba(75, 74, 213, 0.08);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-bottom: 16px;
+
+  &:hover {
+    background: rgba(75, 74, 213, 0.12);
+  }
+
+  span {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #4b4ad5;
+    line-height: 22px;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// Bottom Section
+.agent-alex-bottom-section {
+  background: linear-gradient(135deg, rgba(247, 247, 249, 0.1) 0%, #f7f7f9 100%);
+  height: 216px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 14px 142px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.agent-alex-view-progress-button {
+  background: #e9e8f7;
+  border: 0.5px solid rgba(75, 74, 213, 0.5);
+  border-radius: 10px;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 252px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #dddbf0;
+    border-color: rgba(75, 74, 213, 0.7);
+  }
+
+  span {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: #4b4ad5 !important;
+    line-height: 22px;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .agent-alex-container {
+    width: 100vw;
+    height: calc(100vh - 72px);
+    border-radius: 0;
+    right: 0;
+    top: 72px;
+  }
+
+  .agent-alex-header {
+    padding: 16px;
+  }
+
+  .agent-alex-ai-summary {
+    margin: 16px;
+    padding: 16px;
+  }
+
+  .agent-alex-progress-timeline {
+    padding: 0 16px;
+  }
+
+  .agent-alex-bottom-section {
+    padding: 0 16px 142px;
+  }
+}
+
+@media (max-width: 768px) {
+  .agent-alex-container {
+    width: 100vw;
+    height: calc(100vh - 72px);
+    border-radius: 0;
+    right: 0;
+    top: 72px;
+  }
+
+  .agent-alex-header {
+    padding: 16px;
+  }
+
+  .agent-alex-ai-summary {
+    margin: 16px;
+    padding: 16px;
+  }
+
+  .agent-alex-progress-timeline {
+    padding: 0 16px;
+  }
+
+  .agent-alex-bottom-section {
+    padding: 0 16px 142px;
+  }
+}
+
+@media (max-width: 480px) {
+  .agent-alex-header {
+    padding: 12px;
+  }
+
+  .agent-alex-name {
+    font-size: 12px;
+  }
+
+  .agent-alex-role {
+    font-size: 9px;
+  }
+
+  .agent-alex-ai-summary {
+    margin: 12px;
+    padding: 12px;
+  }
+
+  .agent-alex-summary-title {
+    font-size: 12px;
+  }
+
+  .agent-alex-summary-list li {
+    font-size: 12px;
+    line-height: 20px;
+  }
+
+  .agent-alex-view-progress-button {
+    width: 200px;
+    padding: 8px 20px;
+
+    span {
+      font-size: 12px;
+    }
+  }
+}

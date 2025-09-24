@@ -9,8 +9,6 @@ const DATE_FORMAT = "YYYY-MM-DD";
 const DISPLAY_FORMAT = "DD-MM-YYYY";
 
 const DateRangeFilter = ({
-  placeholder = "Filter by admitted date",
-  // placeholderType = "admitted", // admitted | discharged | surgery | generic
   dateRange,
   dateStatus,
   isOpen,
@@ -19,6 +17,8 @@ const DateRangeFilter = ({
   onCancel,
   disabledDate,
   className = "",
+  placeholder = "Filter by date",
+  wrapperClassName = "",
 }) => {
   const containerRef = useRef(null);
 
@@ -89,20 +89,7 @@ const DateRangeFilter = ({
   // Helper function - kept simple and inline
   const formatDateRange = () => {
     if (!dateRange){
-      // Prefer explicit placeholder prop if provided
       if (placeholder) return placeholder;
-      // Fallbacks by type
-      // switch (placeholderType) {
-      //   case "discharged":
-      //     return "Filter by discharge date";
-      //   case "surgery":
-      //     return "Filter by surgery date";
-      //   case "generic":
-      //     return "Filter by date";
-      //   case "admitted":
-      //   default:
-      //     return "Filter by admitted date";
-      // }
     };
 
     const statusLabels = {
@@ -132,12 +119,9 @@ const DateRangeFilter = ({
   }, [dateRange]);
 
   return (
-    <div
-      ref={containerRef}
-      className={`massage-date-wrapper ms-3 ${className}`}
-    >
+    <div ref={containerRef} className={`massage-date-wrapper ms-3 ${wrapperClassName}`}>
       <div
-        className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between"
+        className={`fs-14 h-100 w-100 d-flex align-items-center justify-content-center ${className}`}
         onClick={onToggleModal}
         role="button"
         tabIndex={0}
@@ -149,7 +133,7 @@ const DateRangeFilter = ({
         }}
       >
         <i className="me-2 fs-18 icon-calendar" aria-hidden="true" />
-        <span className="me-2">
+        <span>
           <span className={!dateRange ? "date-placeholder" : ""}>
             {formatDateRange()}
           </span>
@@ -188,6 +172,7 @@ const DateRangeFilter = ({
             </div>
           </div>
         )}
+        placeholder={placeholder}
       />
     </div>
   );
