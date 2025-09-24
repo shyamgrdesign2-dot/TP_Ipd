@@ -42,6 +42,7 @@ import smartSyncConnected from "../assets/images/smart-sync-connected.svg";
 import smartSyncDisconnected from "../assets/images/smart-sync-disconnected.svg";
 import tagNew from '../assets/images/tag-new.svg';
 import Pillup from '../assets/images/pillup.svg';
+import EazyDoseLogo from '../assets/images/EazyDose Logo.png';
 
 import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
@@ -611,10 +612,17 @@ function HeaderPrescription({
 
     
   const PILLUP_CONTENT = useCallback(() => {
+    const decodedToken = getDecodedToken();
+    const tokenData = decodedToken?.result;
+    const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+    
+    const serviceName = isZydusUser ? "eaZY Dose" : "PillUp";
+    const serviceNameTitle = isZydusUser ? "eaZY Dose Fulfilment" : "Pillup Fulfilment";
+    
     return (
       <div className="p-2">
-        <div className="fs-18 fw-semibold text-black">Pillup Fulfilment <img className="img-fluid ms-2" src={tagNew} /></div>
-        <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
+        <div className="fs-18 fw-semibold text-black">{serviceNameTitle} <img className="img-fluid ms-2" src={tagNew} /></div>
+        <div className="pt-1">You can now activate <b>{serviceName}</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
       </div>
     );
   }, [popOver3]);
@@ -633,8 +641,21 @@ function HeaderPrescription({
       {
         description:
           <>
-            <div className="fs-18 fw-semibold pt-3 text-black">Pillup Fulfilment <img className="img-fluid ms-2" src={tagNew} /></div>
-            <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
+            <div className="fs-18 fw-semibold pt-3 text-black">
+              {(() => {
+                const decodedToken = getDecodedToken();
+                const tokenData = decodedToken?.result;
+                const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+                return isZydusUser ? "eaZY Dose Fulfilment" : "Pillup Fulfilment";
+              })()} <img className="img-fluid ms-2" src={tagNew} />
+            </div>
+            <div className="pt-1">You can now activate <b>
+              {(() => {
+                const decodedToken = getDecodedToken();
+                const tokenData = decodedToken?.result;
+                const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+                return isZydusUser ? "eaZY Dose" : "PillUp";
+              })()}</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
           </>,
         target: () => tourRef.current,
         nextButtonProps: {
@@ -819,7 +840,12 @@ function HeaderPrescription({
                   className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center"
                   style={{ backgroundColor: "rgb(226, 226, 234, 0.2)" }}
                 >
-                  <img src={Pillup} />
+                  {(() => {
+                    const decodedToken = getDecodedToken();
+                    const tokenData = decodedToken?.result;
+                    const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+                    return isZydusUser ? <img src={EazyDoseLogo} alt="eaZY Dose" style={{ height: '20px' }} /> : <img src={Pillup} />;
+                  })()}
                   <Popover
                     open={popOver3}
                     onOpenChange={showHidePillUpPopover}
