@@ -161,7 +161,7 @@ const PatientsTable = ({
         />
       </div>
 
-      {(loadingMore || (loading && filterParams.page > 1)) && (
+      {loadingMore && (
         <div
           style={{
             textAlign: "center",
