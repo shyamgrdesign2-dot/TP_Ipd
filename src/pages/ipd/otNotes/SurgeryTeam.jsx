@@ -48,7 +48,7 @@ const SurgeryTeam = (props) => {
     }));
     return (
       <div className="ipdot-st-section">
-        <label className="otNotes-label">{role.name}</label>
+        <label className="otNotes-label">{role.name || role.title}</label>
         <Select
           showSearch
           optionLabelProp="label"
@@ -60,7 +60,7 @@ const SurgeryTeam = (props) => {
               : undefined
           }
           className="multiple-select-custom autocomplete-custom w-100 popinput inputheight41"
-          placeholder={`Select ${role.name}`}
+          placeholder={`Select ${role.name || role.title}`}
           onSearch={(q) =>
             dispatch(fetchFilters({ field: "doctor", search: q }))
           }

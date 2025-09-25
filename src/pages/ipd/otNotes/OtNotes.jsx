@@ -18,8 +18,15 @@ import SurgeryTeam from "./SurgeryTeam";
 import OperativeNotes from "./OperativeNotes";
 import IntraOperativeNotes from "./IntraOperativeNotes";
 import PostOperativeNotes from "./PostOperativeNotes";
-import { getOtNotesData, resetOtNotesForm, setSingleOtNotesData, updateOtNotesData } from "../../../redux/ipd/otNotesSlice.js";
+import {
+  getOtNotesData,
+  resetOtNotesForm,
+  setCurrentOtNoteId,
+  setSingleOtNotesData,
+  updateOtNotesData,
+} from "../../../redux/ipd/otNotesSlice.js";
 import BackConfirmationModal from "../../../components/BackConfirmationModal.js";
+import FullPageLoader from "../../vaccination/components/Loader.js";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -28,9 +35,17 @@ const FilledByCard = createRemoteComponent("FilledByCard");
 const OtNotes = (props) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
-  const { patient_data, patientDetails, isEditable = true } = state || {};
+  const {
+    patient_data,
+    patientDetails,
+    isEditable = true,
+    isNew = false,
+  } = state || {};
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const navigate = useNavigate();
+  const [showAutoFillLocal, setShowAutoFillLocal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [autoFillTitleLocal, setAutoFillTitleLocal] = useState("");
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const { customization = {} } = useSelector((state) => state.ipd);
@@ -38,7 +53,9 @@ const OtNotes = (props) => {
   const { customModules } = useSelector((state) => state.customModules);
   const otNotesData = useSelector((state) => state.otNotes);
   const { otNotes = [] } = customization;
-  const [modelData, setModelData] = useState( otNotes.length > 0 ? otNotes : IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE );
+  const [modelData, setModelData] = useState(
+    otNotes.length > 0 ? otNotes : IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE
+  );
 
   useEffect(() => {
     if (otNotes.length > 0) {
@@ -47,8 +64,14 @@ const OtNotes = (props) => {
   }, [otNotes]);
 
   useEffect(() => {
+    if (isNew) {
+      dispatch(setCurrentOtNoteId(null));
+    }
+  }, [isNew]);
+
+  useEffect(() => {
     dispatch(getCustomization());
-    
+
     // Only fetch OT Notes data if we have the required patient details
     if (patientDetails?.details?.id && patientDetails?.admissionId) {
       dispatch(
@@ -56,13 +79,30 @@ const OtNotes = (props) => {
           patientId: patientDetails.details.id,
           admissionId: patientDetails.admissionId,
         })
-      ).then(res => {
+      ).then((res) => {
         if (otNotesData.currentOtNoteId) {
-          dispatch(setSingleOtNotesData({_id: otNotesData.currentOtNoteId}));
+          dispatch(setSingleOtNotesData({ _id: otNotesData.currentOtNoteId }));
         }
       });
     }
   }, [patientDetails?.details?.id, patientDetails?.admissionId]);
+
+  useEffect(() => {
+    if (otNotesData?.otNotesData?.length > 0) {
+      setShowAutoFillLocal(true);
+      setAutoFillTitleLocal(
+        `Autofill From Prev. OT Notes (${new Date(
+          otNotesData?.otNotesData[
+            otNotesData?.otNotesData?.length - 1
+          ].createdAt
+        ).toLocaleDateString()}, ${new Date(
+          otNotesData?.otNotesData[
+            otNotesData?.otNotesData?.length - 1
+          ].createdAt
+        ).toLocaleTimeString()})`
+      );
+    }
+  }, [otNotesData?.otNotesData?.length]);
 
   const handleDefaultClick = () => {
     setModelData(IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE);
@@ -79,7 +119,7 @@ const OtNotes = (props) => {
     if (!data || !data.id) {
       return null;
     }
-    
+
     return (
       <div className="ipd-otnotes-editable-section-container">
         {(() => {
@@ -173,7 +213,6 @@ const OtNotes = (props) => {
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
     };
 
-
     dispatch(
       updateOtNotesData({
         data: reqData,
@@ -225,13 +264,21 @@ const OtNotes = (props) => {
   const renderHeaderSection = () => {
     return (
       <div className="ipd-filled-by-card-container">
-        {otNotesState.currentOtNoteFilledByDetails?.createdByName && <FilledByCard
-          showBeing={!(otNotesState.currentOtNoteFilledByDetails?.createdAt)}
-          filledBy={otNotesState.currentOtNoteFilledByDetails?.createdByName || ""}
-          role={otNotesState.currentOtNoteFilledByDetails?.createdByRole || ""}
-          showFilledOnDate={true}
-          selectedDate={otNotesState.currentOtNoteFilledByDetails?.createdAt || ""}
-        />}
+        {otNotesState.currentOtNoteFilledByDetails?.createdByName && (
+          <FilledByCard
+            showBeing={!otNotesState.currentOtNoteFilledByDetails?.createdAt}
+            filledBy={
+              otNotesState.currentOtNoteFilledByDetails?.createdByName || ""
+            }
+            role={
+              otNotesState.currentOtNoteFilledByDetails?.createdByRole || ""
+            }
+            showFilledOnDate={true}
+            selectedDate={
+              otNotesState.currentOtNoteFilledByDetails?.createdAt || ""
+            }
+          />
+        )}
         {/* TODO: INTEL - SHOW EDITABLE ONE INSTEAD OF THIS */}
       </div>
     );
@@ -257,6 +304,9 @@ const OtNotes = (props) => {
     console.log("INTEL ==> activeId", activeId);
   };
 
+  if (isLoading) {
+    return <FullPageLoader />;
+  }
   // Early return if essential data is missing to prevent undefined errors
   if (!patientDetails && isEditable) {
     return <div>Loading patient details...</div>;
@@ -287,10 +337,16 @@ const OtNotes = (props) => {
                   handler: onSaveOtNotesClick,
                   title: "Save",
                 }}
-                showAutoFill={true}
-                autoFillTitle={`Autofill From Prev. OT Notes : coming soon`}
+                showAutoFill={showAutoFillLocal && isNew}
+                autoFillTitle={autoFillTitleLocal}
                 onAutoFill={() => {
-                  console.log("INTEL ==> onAutoFill");
+                  // setIsLoading(true);
+                  // otNotesData?.otNotesData[otNotesData?.otNotesData?.length - 1]?._id && dispatch(setSingleOtNotesData({_id: otNotesData?.otNotesData[otNotesData?.otNotesData?.length - 1]?._id})).then(() => {
+                  //   console.log('INTEL ==> DONE')
+                  // })
+                  // setTimeout(() => {
+                  //   setIsLoading(false)
+                  // }, 100)
                 }}
                 items={modelData}
                 renderSection={renderSections}
@@ -354,7 +410,10 @@ const OtNotes = (props) => {
         onCancel={() => setIsBackModalOpen(false)}
         onConfirm={() => {
           setIsBackModalOpen(false);
-          navigate(`/ipd/patient-details`, {state: {...state, activeTab: "otNotes", isEditable: false}, replace: true});
+          navigate(`/ipd/patient-details`, {
+            state: { ...state, activeTab: "otNotes", isEditable: false },
+            replace: true,
+          });
           dispatch(resetOtNotesForm());
           setOpen(false);
         }}

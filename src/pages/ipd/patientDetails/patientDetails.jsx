@@ -113,6 +113,7 @@ const IPDPatientDetails = () => {
         patient_data,
         patientDetails,
         isEditable: true,
+        isNew: true,
       },
     });
   };

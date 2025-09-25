@@ -5,7 +5,7 @@ import ApiSurgical from "../../api/services/ApiSurgical";
 export const initialState = {
   otNotesData: {},
   loading: false,
-  currentOtNoteId: null, //"68d26742d5f86080a3a6383a", 
+  currentOtNoteId: null, //"68d26742d5f86080a3a6383a",
   currentOtNoteFilledByDetails: null,
   surgeryDetails: {
     procedureName: "",
@@ -45,7 +45,7 @@ export const searchSurgeryProcedures = createAsyncThunk(
 
 export const getOtNotesData = createAsyncThunk(
   "otNotes/getOtNotesData",
-  async (data, {rejectWithValue}) => {
+  async (data, { rejectWithValue }) => {
     try {
       let result = {};
       result = await ApiOtNotes.getOtNotes(data);
@@ -56,7 +56,10 @@ export const getOtNotesData = createAsyncThunk(
       }
     } catch (error) {
       console.log("error: ", error);
-      return rejectWithValue({ visible: false, message: error.response.data.message });
+      return rejectWithValue({
+        visible: false,
+        message: error.response.data.message,
+      });
     }
   }
 );
@@ -79,17 +82,17 @@ export const addOtNotesData = createAsyncThunk(
 );
 export const updateOtNotesData = createAsyncThunk(
   "otNotes/updateOtNotesData",
-  async (data) => {
+  async (data, { rejectWithValue }) => {
     try {
       let result = {};
       result = await ApiOtNotes.updateOtNotes(data);
-      if (result.data?.length) {
-        return result.data;
+      if (result.message === "ot notes updated successfully.") {
+        return result;
       } else {
-        throw Error(result.error);
+        return result?.data;
       }
     } catch (error) {
-      throw Error(error);
+      return rejectWithValue(error.message || "Failed to add/update OT Notes");
     }
   }
 );
@@ -123,20 +126,30 @@ const otNotesSlice = createSlice({
       state.surgeryTeam[action.payload.roleId] = action.payload.value || [];
     },
     setOperativeNotes: (state, action) => {
-      state.operativeNotes[action.payload.key] = {...state.operativeNotes[action.payload.key], value: action.payload.value || ""};
+      state.operativeNotes[action.payload.key] = {
+        ...state.operativeNotes[action.payload.key],
+        value: action.payload.value || "",
+      };
     },
     setIntraOperativeNotes: (state, action) => {
       if (action.payload?.parentId) {
         if (!state.intraOperativeNotes[action.payload.parentId]) {
           state.intraOperativeNotes[action.payload.parentId] = {};
         }
-        state.intraOperativeNotes[action.payload.parentId][action.payload.key] = action.payload.value || "";
+        state.intraOperativeNotes[action.payload.parentId][action.payload.key] =
+          action.payload.value || "";
       } else {
-        state.intraOperativeNotes[action.payload.key] = {...state.intraOperativeNotes[action.payload.key], value: action.payload.value || ""};
+        state.intraOperativeNotes[action.payload.key] = {
+          ...state.intraOperativeNotes[action.payload.key],
+          value: action.payload.value || "",
+        };
       }
     },
     setPostOperativeNotes: (state, action) => {
-      state.postOperativeNotes[action.payload.key] = {...state.postOperativeNotes[action.payload.key], value: action.payload.value || ""};
+      state.postOperativeNotes[action.payload.key] = {
+        ...state.postOperativeNotes[action.payload.key],
+        value: action.payload.value || "",
+      };
     },
     setCurrentOtNoteId: (state, action) => {
       state.currentOtNoteId = action.payload;
@@ -145,35 +158,40 @@ const otNotesSlice = createSlice({
       state.currentOtNoteFilledByDetails = action.payload;
     },
     setSingleOtNotesData: (state, action) => {
-      const otNotesArray = Array.isArray(state.otNotesData) ? state.otNotesData : [];
+      const otNotesArray = Array.isArray(state.otNotesData)
+        ? state.otNotesData
+        : [];
       const { _id } = action.payload;
-      const foundNote = otNotesArray.find(note => note._id === _id);
-      
+      const foundNote = otNotesArray.find((note) => note._id === _id);
+
       if (foundNote) {
         state.currentOtNoteFilledByDetails = {
           ...foundNote.filledByDetails,
           ...foundNote,
         };
       }
-      const selectedOtNote = otNotesArray.find(note => note._id === _id)?.otNotes;
-      
+      const selectedOtNote = otNotesArray.find(
+        (note) => note._id === _id
+      )?.otNotes;
+
       if (!selectedOtNote) {
         console.warn(`OT Note with _id ${_id} not found`);
         return;
       }
-      
+
       // Surgery Details
       if (selectedOtNote.surgeryDetails) {
         state.surgeryDetails = {
           procedureName: selectedOtNote.surgeryDetails.procedureName || "",
           anaesthesiaType: selectedOtNote.surgeryDetails.anaesthesiaType || "",
           surgeryDate: selectedOtNote.surgeryDetails.surgeryDate || "",
-          surgeryStartTime: selectedOtNote.surgeryDetails.surgeryStartTime || "",
+          surgeryStartTime:
+            selectedOtNote.surgeryDetails.surgeryStartTime || "",
           surgeryEndTime: selectedOtNote.surgeryDetails.surgeryEndTime || "",
           diagnosis: selectedOtNote.surgeryDetails.diagnosis || null,
         };
       }
-      
+
       // Surgery Team
       if (selectedOtNote.surgeryTeam) {
         state.surgeryTeam = {
@@ -182,18 +200,21 @@ const otNotesSlice = createSlice({
           assistant: selectedOtNote.surgeryTeam.assistant || [],
           anaesthesiologist: selectedOtNote.surgeryTeam.anaesthesiologist || [],
           scrubNurse: selectedOtNote.surgeryTeam.scrubNurse || [],
-          floorCirculatingNurse: selectedOtNote.surgeryTeam.floorCirculatingNurse || [],
+          floorCirculatingNurse:
+            selectedOtNote.surgeryTeam.floorCirculatingNurse || [],
         };
       }
-      
+
       // Operative Notes - convert back to value structure
       if (selectedOtNote.operativeNotes) {
         state.operativeNotes = {};
-        Object.entries(selectedOtNote.operativeNotes).forEach(([key, value]) => {
-          state.operativeNotes[key] = { value: value };
-        });
+        Object.entries(selectedOtNote.operativeNotes).forEach(
+          ([key, value]) => {
+            state.operativeNotes[key] = { value: value };
+          }
+        );
       }
-      
+
       // Intra Operative Notes - reverse mapping from flat structure to nested
       if (selectedOtNote.intraOperativeNotes) {
         const intraOp = selectedOtNote.intraOperativeNotes;
@@ -206,23 +227,27 @@ const otNotesSlice = createSlice({
             swabCount: (intraOp.swabCount || 0).toString(),
             fluidCount: (intraOp.fluidCount || 0).toString(),
             sutureType: (intraOp.sutureType || 0).toString(),
-          }
+          },
         };
       }
-      
+
       // Post Operative Notes - reverse mapping
       if (selectedOtNote.postOperativeNotes) {
         const postOp = selectedOtNote.postOperativeNotes;
         state.postOperativeNotes = {};
-        
+
         // Handle special fields
         if (postOp.postOpDestination !== undefined) {
-          state.postOperativeNotes.postOpDestination = { value: postOp.postOpDestination };
+          state.postOperativeNotes.postOpDestination = {
+            value: postOp.postOpDestination,
+          };
         }
         if (postOp.additionalInstructions !== undefined) {
-          state.postOperativeNotes.additionalInstructions = { value: postOp.additionalInstructions };
+          state.postOperativeNotes.additionalInstructions = {
+            value: postOp.additionalInstructions,
+          };
         }
-        
+
         // Handle other fields
         Object.entries(postOp).forEach(([key, value]) => {
           const excludedKeys = ["postOpDestination", "additionalInstructions"];
@@ -254,7 +279,7 @@ const otNotesSlice = createSlice({
       state.postOperativeNotes = {};
       state.currentOtNoteId = null;
       state.currentOtNoteFilledByDetails = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -321,6 +346,6 @@ export const {
   setSingleOtNotesData,
   setCurrentOtNoteId,
   setCurrentOtNoteFilledByDetails,
-  resetOtNotesForm
+  resetOtNotesForm,
 } = otNotesSlice.actions;
 export default otNotesSlice.reducer;
