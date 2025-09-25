@@ -30,6 +30,8 @@ const SurgeryTeam = ({ surgeryTeam ,  id }) => {
     );
   };
 
+  if (Object.keys(surgeryTeam).filter(key => surgeryTeam[key]?.length > 0).length === 0) return null;
+
   return (
     <div className="surgery-team-container">
       <div className="surgery-team-header">
