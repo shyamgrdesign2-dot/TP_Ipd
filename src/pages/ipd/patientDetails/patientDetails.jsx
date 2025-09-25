@@ -172,7 +172,6 @@ const IPDPatientDetails = () => {
   // Set active menu item based on activeTab parameter
   useEffect(() => {
     if (activeTab) {
-      console.log(activeTab, "activeTab");
       setActiveMenuItem(activeTab);
     }
   }, [activeTab]);
@@ -460,7 +459,10 @@ const IPDPatientDetails = () => {
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
               renderContent={
-                !isEditable && isDataPresent ? renderContent : null
+                !isEditable &&
+                (isDataPresent || activeMenuItem === "consultantNotes")
+                  ? renderContent
+                  : null
               }
               showAddCTA={canShowAddCTA}
             />

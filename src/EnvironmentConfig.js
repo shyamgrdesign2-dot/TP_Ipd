@@ -164,7 +164,7 @@ const qa_tp = {
   doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
   ipd_api_url:
-    "https://pm-ipd-uat.ambitiousstone-b2402989.centralindia.azurecontainerapps.io/api/v1",
+    "https://pm-ipd-uat.tatvacare.in/api/v1",
 };
 
 const qa = {
@@ -248,7 +248,7 @@ const qa = {
   doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
   ipd_api_url:
-    "https://pm-ipd-uat.ambitiousstone-b2402989.centralindia.azurecontainerapps.io/api/v1",
+    "https://pm-ipd-uat.tatvacare.in/api/v1",
 };
 
 const uat = {
@@ -337,7 +337,7 @@ const uat = {
   doctor_portal_url: "https://pm-uat-doctor-portal.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
   ipd_api_url:
-    "https://pm-ipd-uat.ambitiousstone-b2402989.centralindia.azurecontainerapps.io/api/v1",
+    "https://pm-ipd-uat.tatvacare.in/api/v1",
 };
 
 const prod = {
@@ -432,7 +432,7 @@ const prod = {
   doctor_portal_url: "https://tatvapractice.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
   ipd_api_url:
-    "https://pm-ipd-uat.ambitiousstone-b2402989.centralindia.azurecontainerapps.io/api/v1",
+    "https://pm-ipd-prod.tatvacare.in/api/v1",
 };
 
 const ipd = {

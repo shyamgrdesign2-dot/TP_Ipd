@@ -1,24 +1,26 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { DatePicker, Card } from "antd";
-
-import dayjs from "dayjs";
+import { Card } from "antd";
+import moment from "moment";
 import {
   setCurrentConsultantNote,
   setClinicalAssessmentPlan,
   setVitals,
   setLabInvestigation,
   setAdditionalRemarks,
+  getConsultantNotes,
 } from "../../../redux/ipd/consultantNotesSlice";
 import { setMedicationData } from "../../../redux/prescriptionSlice";
 import "./styles.scss";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/icons/index.js";
+import { defaultIcons } from "../../../assets/images/consultantNotesIcons/index.js";
 import {
   MedicineTable,
   LabInvestigationTable,
 } from "../../../components/ReusableTable";
+import DateRangeFilter from "../components/DateRangeFilter.js";
+import { defaultIcons as icons } from "../../../assets/images/icons/index.js";
 
 const ReusableProgressCard = createRemoteComponent("ReusableProgressCard");
 const ReusableStepper = createRemoteComponent("ReusableStepper");
@@ -28,27 +30,75 @@ const ConsultantNotesTimeline = () => {
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { state } = useLocation();
   const { patient_data, patientDetails } = state || {};
-  const [filterDate, setFilterDate] = useState(null);
+  const patientId = patientDetails?.details?.id;
+  const { admissionId } = patientDetails;
+  const [dateRange, setDateRange] = useState(null);
+  const [dateStatus, setDateStatus] = useState(null);
+  const [pickerModal, setPickerModal] = useState(false);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Filter notes by date if filter is applied
-  const filteredNotes = useMemo(() => {
-    if (!filterDate) return consultantNotes || [];
+  useEffect(() => {
+    if (dateRange)
+      dispatch(
+        getConsultantNotes({
+          patientId: patientId,
+          admissionId: admissionId,
+          filterStartDate: dateRange?.startDate,
+          filterEndDate: dateRange?.endDate,
+        })
+      );
+  }, [dateRange, dispatch, patientId, admissionId]);
 
-    return (consultantNotes || []).filter((note) => {
-      const noteDate = dayjs(note.createdAt);
-      const filterDateValue = dayjs(filterDate);
-      return noteDate.isSame(filterDateValue, "day");
-    });
-  }, [consultantNotes, filterDate]);
+  const onDateRangeChange = useCallback((dates, dateStrings) => {
+    if (dates) {
+      // Determine date status based on selected dates
+      const today = moment().format("YYYY-MM-DD");
+      const startDate = moment(dateStrings[0], "DD-MM-YYYY").format(
+        "YYYY-MM-DD"
+      );
+      const endDate = moment(dateStrings[1], "DD-MM-YYYY").format("YYYY-MM-DD");
 
-  // Sort notes by date (newest first)
-  const sortedNotes = useMemo(() => {
-    return [...filteredNotes].sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-    );
-  }, [filteredNotes]);
+      if (startDate === today && endDate === today) {
+        setDateStatus(1);
+      } else if (
+        startDate === moment().add(-1, "d").format("YYYY-MM-DD") &&
+        endDate === today
+      ) {
+        setDateStatus(2);
+      } else if (
+        startDate === moment().add(-1, "M").format("YYYY-MM-DD") &&
+        endDate === today
+      ) {
+        setDateStatus(3);
+      } else {
+        setDateStatus(null);
+      }
+
+      setDateRange({
+        startDate: startDate,
+        endDate: endDate,
+      });
+    } else {
+      setDateStatus(null);
+      setDateRange(null);
+    }
+  }, []);
+
+  const onDatePickerToggle = useCallback(() => {
+    setPickerModal(!pickerModal);
+  }, [pickerModal]);
+
+  const onDateCancel = useCallback(() => {
+    setDateStatus(null);
+    setDateRange(null);
+    setPickerModal(false);
+  }, []);
+
+  const disabledDate = (current) => {
+    return current && current >= moment().add(1, "days").startOf("day");
+  };
 
   // Handle edit button click
   const handleEditNote = (note) => {
@@ -122,7 +172,7 @@ const ConsultantNotesTimeline = () => {
           <img
             className="medical-progress__content-calendar-icon"
             style={{ fill: "#581C87" }}
-            src={defaultIcons.calendarIcon}
+            src={icons.calendarIcon}
             alt=""
           />
           <span className="medical-progress__content-date-text">
@@ -131,7 +181,7 @@ const ConsultantNotesTimeline = () => {
           <img
             className="medical-progress__content-download-icon"
             style={{ fill: "#581C87", cursor: "pointer" }}
-            src={defaultIcons.downloadIcon}
+            src={icons.downloadIcon}
             alt="Download"
             onClick={(e) => {
               e.preventDefault();
@@ -151,7 +201,7 @@ const ConsultantNotesTimeline = () => {
           <img
             className="medical-progress__content-print-icon"
             style={{ fill: "#581C87", cursor: "pointer" }}
-            src={defaultIcons.printerIcon}
+            src={icons.printerIcon}
             alt="Print"
             onClick={(e) => {
               e.preventDefault();
@@ -171,7 +221,7 @@ const ConsultantNotesTimeline = () => {
           <img
             className="medical-progress__content-calendar-icon"
             style={{ fill: "#581C87", cursor: "pointer" }}
-            src={defaultIcons.editIcon}
+            src={icons.editIcon}
             alt="Edit"
             onClick={() => handleEditNote(groupData?.[0]?.raw)}
             title="Edit this date's consultant notes"
@@ -203,7 +253,7 @@ const ConsultantNotesTimeline = () => {
               type: "richtext",
             },
             {
-              key: "currentMedication",
+              key: "medication",
               title: "Medication(Rx)",
               data: item.currentMedication,
               type: "table",
@@ -229,26 +279,7 @@ const ConsultantNotesTimeline = () => {
           MedicineTable,
           LabInvestigationTable,
         }}
-        icons={{
-          timeIcons: {
-            morning: defaultIcons.clockIcon,
-            afternoon: defaultIcons.clockIcon,
-            evening: defaultIcons.clockIcon,
-            night: defaultIcons.clockIcon,
-          },
-          sectionIcons: {
-            clinicalAssessmentPlan: defaultIcons.basicInfoBg,
-            vitals: defaultIcons.physicalExam,
-            currentMedication: defaultIcons.funcAssess,
-            labInvestigation: defaultIcons.treatment,
-            additionalRemarks: defaultIcons.noteColoured,
-          },
-          actionIcons: {
-            download: defaultIcons.downloadIcon,
-            print: defaultIcons.printerIcon,
-            edit: defaultIcons.editIcon,
-          },
-        }}
+        actions={[]}
         showHeader={false} // No time header
         className="detailed-medical-card"
         onAction={(eventName, payload) =>
@@ -302,19 +333,20 @@ const ConsultantNotesTimeline = () => {
 
   return (
     <div className="consultant-notes-timeline">
-      {/* Filter Section */}
-      {/* <div className="timeline-filter">
+      <div className="timeline-filter">
         <div className="timeline-filter-left">
-          <DatePicker
+          <DateRangeFilter
+            dateRange={dateRange}
+            dateStatus={dateStatus}
+            isOpen={pickerModal}
+            onRangeChange={onDateRangeChange}
+            onToggleModal={onDatePickerToggle}
+            onCancel={onDateCancel}
+            disabledDate={disabledDate}
             placeholder="Filter by Date"
-            value={filterDate}
-            onChange={setFilterDate}
-            allowClear
-            format="DD MMM YYYY"
-            className="timeline-date-filter"
           />
         </div>
-      </div> */}
+      </div>
 
       <ReusableStepper
         data={mappedData}
