@@ -66,7 +66,6 @@ const OtNotesTimeline = () => {
 
   const onRangeChange = useCallback((dates, dateStrings) => {
     if (dates) {
-      // Determine date status based on selected dates
       const today = moment().format(dateFormat);
       const startDate = moment(dateStrings[0], showDateFormat).format(
         dateFormat
@@ -344,6 +343,31 @@ const OtNotesTimeline = () => {
     });
   }, [otNotesState.otNotesData, otNotes]);
 
+  const filteredMappedData = useMemo(() => {
+    if (!dateRange || !dateRange.startDate || !dateRange.endDate) {
+      return mappedData;
+    }
+
+    const startDate = moment(dateRange.startDate).startOf('day');
+    const endDate = moment(dateRange.endDate).endOf('day');
+
+    return mappedData.filter((item) => {
+      const surgeryDate = item.originalEntry?.otNotes?.surgeryDetails?.surgeryDate;
+      if (!surgeryDate) return false;
+      
+      let itemDate = moment(surgeryDate, "DD MMM YYYY");
+      if (!itemDate.isValid()) {
+        itemDate = moment(surgeryDate, showDateFormat);
+      }
+      
+      if (!itemDate.isValid()) {
+        return false;
+      }
+      
+      return itemDate.isBetween(startDate, endDate, null, '[]');
+    });
+  }, [mappedData, dateRange]);
+
   return (
     <div className="ot-notes-timeline-container">
       <div className="ipdot-date-range-filter-container">
@@ -359,7 +383,7 @@ const OtNotesTimeline = () => {
         />
       </div>
       <ReusableStepper
-        data={mappedData}
+        data={filteredMappedData}
         groupBy={(item) =>
           item.date || item.timestamp?.split(" ")[0] || "Unknown"
         }
@@ -372,7 +396,12 @@ const OtNotesTimeline = () => {
           currentStep: -1,
         }}
         showShadow={true}
-        toolbar={{ show: true, label: "All dates" }}
+        toolbar={{ 
+          show: true, 
+          label: dateRange 
+            ? `Filtered: ${moment(dateRange.startDate).format(showDateFormat)} - ${moment(dateRange.endDate).format(showDateFormat)}`
+            : "All dates" 
+        }}
       />
     </div>
   );

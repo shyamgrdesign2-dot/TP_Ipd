@@ -13,19 +13,16 @@ import {
 import AddCustomModule from "../../../components/AddCustomModule.js";
 import { useSelector } from "react-redux";
 import CustomModule from "../../../components/CustomModule.js";
-import SurgeryDetails from "./SurgeryDetails";
-import SurgeryTeam from "./SurgeryTeam";
-import OperativeNotes from "./OperativeNotes";
-import IntraOperativeNotes from "./IntraOperativeNotes";
-import PostOperativeNotes from "./PostOperativeNotes";
-import { getOtNotesData, resetOtNotesForm, setSingleOtNotesData, updateOtNotesData } from "../../../redux/ipd/otNotesSlice.js";
+import { resetCrossReferralForm, updateCrossReferralData } from "../../../redux/ipd/crossReferralSlice.js";
 import BackConfirmationModal from "../../../components/BackConfirmationModal.js";
+import { getCrossReferralData, setSingleCrossReferralData } from "../../../redux/ipd/crossReferralSlice.js";
+import ReferralInformation from "./ReferralInformation.jsx";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
 const FilledByCard = createRemoteComponent("FilledByCard");
 
-const OtNotes = (props) => {
+const CrossReferral = (props) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
   const { patient_data, patientDetails, isEditable = true } = state || {};
@@ -34,42 +31,42 @@ const OtNotes = (props) => {
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const { customization = {} } = useSelector((state) => state.ipd);
-  const otNotesState = useSelector((state) => state.otNotes);
+  const crossReferralState = useSelector((state) => state.crossReferral);
   const { customModules } = useSelector((state) => state.customModules);
-  const otNotesData = useSelector((state) => state.otNotes);
-  const { otNotes = [] } = customization;
-  const [modelData, setModelData] = useState( otNotes.length > 0 ? otNotes : IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE );
+  const crossReferralData = useSelector((state) => state.crossReferral);
+  const { crossReferral = [] } = customization;
+  const [modelData, setModelData] = useState( crossReferral.length > 0 ? crossReferral : IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE );
 
   useEffect(() => {
-    if (otNotes.length > 0) {
-      setModelData(otNotes);
+    if (crossReferral.length > 0) {
+      setModelData(crossReferral);
     }
-  }, [otNotes]);
+  }, [crossReferral]);
 
   useEffect(() => {
     dispatch(getCustomization());
     
-    // Only fetch OT Notes data if we have the required patient details
+    // Only fetch Cross Referral data if we have the required patient details
     if (patientDetails?.details?.id && patientDetails?.admissionId) {
       dispatch(
-        getOtNotesData({
+        getCrossReferralData({
           patientId: patientDetails.details.id,
           admissionId: patientDetails.admissionId,
         })
       ).then(res => {
-        if (otNotesData.currentOtNoteId) {
-          dispatch(setSingleOtNotesData({_id: otNotesData.currentOtNoteId}));
+        if (crossReferralData.currentCrossReferralId) {
+          dispatch(setSingleCrossReferralData({_id: crossReferralData.currentCrossReferralId}));
         }
       });
     }
   }, [patientDetails?.details?.id, patientDetails?.admissionId]);
 
   const handleDefaultClick = () => {
-    setModelData(IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE);
+    setModelData(IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE);
     setShowCustomisationDrawer(false);
     const newData = {
       ...customization,
-      otNotes: IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE,
+      crossReferral: IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE,
     };
     dispatch(updateCustomization(newData));
   };
@@ -84,16 +81,8 @@ const OtNotes = (props) => {
       <div className="ipd-otnotes-editable-section-container">
         {(() => {
           switch (data.id) {
-            case "surgeryDetails":
-              return <SurgeryDetails {...props} sectionData={data} />;
-            case "surgeryTeam":
-              return <SurgeryTeam {...props} sectionData={data} />;
-            case "operativeNotes":
-              return <OperativeNotes {...props} sectionData={data} />;
-            case "intraOperativeNotes":
-              return <IntraOperativeNotes {...props} sectionData={data} />;
-            case "postOperativeNotes":
-              return <PostOperativeNotes {...props} sectionData={data} />;
+            case "referralInformation":
+              return <ReferralInformation {...props} sectionData={data} />;
             default:
               return null;
           }
@@ -104,82 +93,25 @@ const OtNotes = (props) => {
 
   const handleSaveCustomization = () => {
     setShowCustomisationDrawer(false);
-    const newData = { ...customization, otNotes: [...modelData] };
+    const newData = { ...customization, crossReferral: [...modelData] };
     dispatch(updateCustomization(newData));
   };
 
-  const onSaveOtNotesClick = () => {
+const onAddReferralClick = () => {
     const reqData = {
-      surgeryDetails: {
-        ...otNotesState.surgeryDetails,
-      },
-      surgeryTeam: {
-        ...otNotesState.surgeryTeam,
-      },
-      operativeNotes: Object.entries(otNotesState.operativeNotes || {}).reduce(
-        (acc, [key, value]) => {
-          acc[key] = value?.value || value;
-          return acc;
-        },
-        {}
-      ),
-      intraOperativeNotes: {
-        complication:
-          otNotesState.intraOperativeNotes.complicationsSeverity?.value || [],
-        specimensSent:
-          otNotesState.intraOperativeNotes.specimensSent?.value || [],
-        implants: otNotesState.intraOperativeNotes.implantsUsed?.value || [],
-        estimatedBloodLoss:
-          parseInt(
-            otNotesState.intraOperativeNotes?.additionalUnits
-              ?.estimatedBloodLoss,
-            10
-          ) || 0,
-        swabCount:
-          parseInt(
-            otNotesState.intraOperativeNotes?.additionalUnits?.swabCount,
-            10
-          ) || 0,
-        fluidCount:
-          parseInt(
-            otNotesState.intraOperativeNotes?.additionalUnits?.fluidCount,
-            10
-          ) || 0,
-        sutureType:
-          parseInt(
-            otNotesState.intraOperativeNotes?.additionalUnits?.sutureType,
-            10
-          ) || 0,
-      },
-      postOperativeNotes: {
-        postOpDestination:
-          otNotesState.postOperativeNotes.postOpDestination?.value || "",
-        additionalInstructions:
-          otNotesState.postOperativeNotes.additionalInstructions?.value || [],
-        ...Object.entries(otNotesState.postOperativeNotes || {}).reduce(
-          (acc, [key, value]) => {
-            const excludedKeys = [
-              "postOpDestination",
-              "additionalInstructions",
-            ];
-            if (!excludedKeys.includes(key)) {
-              acc[key] = value?.value || value;
-            }
-            return acc;
-          },
-          {}
-        ),
+      referralInformation: {
+        ...crossReferralState.referralInformation,
       },
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
     };
 
 
     dispatch(
-      updateOtNotesData({
+      updateCrossReferralData({
         data: reqData,
         patientId: patientDetails?.details?.id,
         admissionId: patientDetails?.admissionId,
-        _id: otNotesState?.currentOtNoteId || null,
+        _id: crossReferralState?.currentCrossReferralId || null,
       })
     ).then((res) => {
       if (res?.payload?.error) {
@@ -191,10 +123,10 @@ const OtNotes = (props) => {
         return;
       }
       dispatch(
-        getOtNotesData({
+        getCrossReferralData({
           patientId: patientDetails?.details?.id,
           admissionId: patientDetails?.admissionId,
-          _id: otNotesState.currentOtNoteId,
+          _id: crossReferralState.currentCrossReferralId,
         })
       );
       navigate("/ipd/patient-details", {
@@ -202,7 +134,7 @@ const OtNotes = (props) => {
           isEditable: false,
           patient_data: patient_data,
           patientDetails,
-          activeTab: "otNotes",
+          activeTab: "crossReferral",
         },
         replace: true,
       });
@@ -225,12 +157,12 @@ const OtNotes = (props) => {
   const renderHeaderSection = () => {
     return (
       <div className="ipd-filled-by-card-container">
-        {otNotesState.currentOtNoteFilledByDetails?.createdByName && <FilledByCard
-          showBeing={!(otNotesState.currentOtNoteFilledByDetails?.createdAt)}
-          filledBy={otNotesState.currentOtNoteFilledByDetails?.createdByName || ""}
-          role={otNotesState.currentOtNoteFilledByDetails?.createdByRole || ""}
+        {crossReferralState.currentCrossReferralFilledByDetails?.createdByName && <FilledByCard
+          showBeing={!(crossReferralState.currentCrossReferralFilledByDetails?.createdAt)}
+          filledBy={crossReferralState.currentCrossReferralFilledByDetails?.createdByName || ""}
+          role={crossReferralState.currentCrossReferralFilledByDetails?.createdByRole || ""}
           showFilledOnDate={true}
-          selectedDate={otNotesState.currentOtNoteFilledByDetails?.createdAt || ""}
+          selectedDate={crossReferralState.currentCrossReferralFilledByDetails?.createdAt || ""}
         />}
         {/* TODO: INTEL - SHOW EDITABLE ONE INSTEAD OF THIS */}
       </div>
@@ -244,8 +176,8 @@ const OtNotes = (props) => {
           !isEditable ? "ipd-assessments-readable-container" : ""
         }`}
       >
-        {otNotes.length > 0
-          ? otNotes.map((item) => {
+        {crossReferral.length > 0
+          ? crossReferral.map((item) => {
               return renderSections(item);
             })
           : null}
@@ -281,16 +213,11 @@ const OtNotes = (props) => {
             {open && modelData && (
               <LayoutWithMenu
                 onCustomiseClick={() => setShowCustomisationDrawer(true)}
-                key="otNotes"
-                title={"OT Notes"}
+                key="crossReferral"
+                title={"Cross Referral"}
                 mainCta={{
-                  handler: onSaveOtNotesClick,
-                  title: "Save",
-                }}
-                showAutoFill={true}
-                autoFillTitle={`Autofill From Prev. OT Notes : coming soon`}
-                onAutoFill={() => {
-                  console.log("INTEL ==> onAutoFill");
+                  handler: onAddReferralClick,
+                  title: "Add Referral",
                 }}
                 items={modelData}
                 renderSection={renderSections}
@@ -354,8 +281,8 @@ const OtNotes = (props) => {
         onCancel={() => setIsBackModalOpen(false)}
         onConfirm={() => {
           setIsBackModalOpen(false);
-          navigate(`/ipd/patient-details`, {state: {...state, activeTab: "otNotes", isEditable: false}, replace: true});
-          dispatch(resetOtNotesForm());
+          navigate(`/ipd/patient-details`, {state: {...state, activeTab: "crossReferral", isEditable: false}, replace: true});
+          dispatch(resetCrossReferralForm());
           setOpen(false);
         }}
       />
@@ -363,4 +290,4 @@ const OtNotes = (props) => {
   );
 };
 
-export default OtNotes;
+export default CrossReferral;

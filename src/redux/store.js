@@ -34,6 +34,7 @@ import prescriptionSlice from "./prescriptionSlice";
 import ipdSlice from "./ipd/ipdSlice";
 import assessmentSlice from "./ipd/assessmentsFormSlice";
 import otNotesSlice from "./ipd/otNotesSlice";
+import crossReferralSlice from "./ipd/crossReferralSlice";
 import inPatientsSlice from "./ipd/inPatientsSlice";
 import consultantNotesSlice from "./ipd/consultantNotesSlice";
 import progressNotesSlice from "./ipd/progressNotesSlice";
@@ -82,6 +83,7 @@ const rootReducer = combineReducers({
   consultantNotes: consultantNotesSlice,
   progressNotes: progressNotesSlice,
   labResults: labResultsSlice,
+  crossReferral: crossReferralSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
