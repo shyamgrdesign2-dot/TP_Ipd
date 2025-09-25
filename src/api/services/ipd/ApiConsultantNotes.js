@@ -5,9 +5,16 @@ const baseUrl = { customBaseUrl: config.ipd_api_url };
 
 const ApiConsultantNotes = {};
 
-ApiConsultantNotes.getConsultantNotes = function ({ patientId, admissionId }) {
+ApiConsultantNotes.getConsultantNotes = function ({
+  patientId,
+  admissionId,
+  filterStartDate,
+  filterEndDate,
+}) {
   return api.get(
-    `/consultant-notes?patientId=${patientId}&admissionId=${admissionId}`,
+    `/consultant-notes?patientId=${patientId}&admissionId=${admissionId}${
+      filterStartDate ? `&filterStartDate=${filterStartDate}` : ""
+    }${filterEndDate ? `&filterEndDate=${filterEndDate}` : ""}`,
     baseUrl
   );
 };

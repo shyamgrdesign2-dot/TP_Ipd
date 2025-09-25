@@ -116,7 +116,7 @@ const IPDPatientDetails = () => {
       },
     });
   };
-  
+
   const handleMedicalRecordsClick = () => {
     navigate("/ipd/patient-details/medical-records", {
       state: {
@@ -126,7 +126,7 @@ const IPDPatientDetails = () => {
       },
     });
   };
-  
+
   const handleProgressNotesClick = () => {
     navigate("/ipd/patient-details/progress-notes", {
       state: {
@@ -152,7 +152,6 @@ const IPDPatientDetails = () => {
   // Set active menu item based on activeTab parameter
   useEffect(() => {
     if (activeTab) {
-      console.log(activeTab,"activeTab")
       setActiveMenuItem(activeTab);
     }
   }, [activeTab]);
@@ -211,9 +210,15 @@ const IPDPatientDetails = () => {
       );
 
       // Functional Assessment Data
-      const functionalAssessmentWithoutReferredDoc = { ...data?.functionalAssessment };
+      const functionalAssessmentWithoutReferredDoc = {
+        ...data?.functionalAssessment,
+      };
       delete functionalAssessmentWithoutReferredDoc.referredToPhysiotherapyForReview;
-      dispatch(setFunctionalAssessmentData(functionalAssessmentWithoutReferredDoc || {}));
+      dispatch(
+        setFunctionalAssessmentData(
+          functionalAssessmentWithoutReferredDoc || {}
+        )
+      );
 
       // Treatment Plan Data
       dispatch(setTreatmentPlanData(data?.treatmentPlan || {}));
@@ -244,11 +249,9 @@ const IPDPatientDetails = () => {
         }
       );
     } else if (activeMenuItem === "progress") {
-      dispatch(getProgressNotes({ patientId, admissionId })).catch(
-        (error) => {
-          console.error("Error fetching progress notes:", error);
-        }
-      );
+      dispatch(getProgressNotes({ patientId, admissionId })).catch((error) => {
+        console.error("Error fetching progress notes:", error);
+      });
     } else if (activeMenuItem === "records") {
       // dispatch(getProgressNotes({ patientId, admissionId })).catch(
       //   (error) => {
@@ -291,7 +294,13 @@ const IPDPatientDetails = () => {
       return true;
     }
     return false;
-  }, [assessmentsData, otNotesData, activeMenuItem, consultantNotes, progressNotes]);
+  }, [
+    assessmentsData,
+    otNotesData,
+    activeMenuItem,
+    consultantNotes,
+    progressNotes,
+  ]);
 
   const onRequestClose = () => {
     navigate(`/ipd/inPatients`);
@@ -308,9 +317,9 @@ const IPDPatientDetails = () => {
       case "assessment":
         return (
           <>
-          <div className="ipd-adm-assess-container-readable">
-            <AssessmentsForm isEditable={isEditable} />
-          </div>
+            <div className="ipd-adm-assess-container-readable">
+              <AssessmentsForm isEditable={isEditable} />
+            </div>
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
                 onEdit={() => handleAddAssessmentClick(false)}
@@ -323,9 +332,12 @@ const IPDPatientDetails = () => {
           </>
         );
       case "progress":
-        return(
+        return (
           <div className="ipd-progress-notes-view-container">
-            <ProgressNotesView  progressNotes={progressNotes} patientDetails={patientDetails}/>
+            <ProgressNotesView
+              progressNotes={progressNotes}
+              patientDetails={patientDetails}
+            />
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
                 showEditForm={false}
@@ -337,7 +349,7 @@ const IPDPatientDetails = () => {
               />
             </div>
           </div>
-        )
+        );
       case "consultantNotes":
         return (
           <div className="ipd-adm-assess-container-readable">
@@ -385,7 +397,10 @@ const IPDPatientDetails = () => {
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
               renderContent={
-                !isEditable && isDataPresent ? renderContent : null
+                !isEditable &&
+                (isDataPresent || activeMenuItem === "consultantNotes")
+                  ? renderContent
+                  : null
               }
               showAddCTA={canShowAddCTA}
             />
