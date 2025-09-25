@@ -44,9 +44,9 @@ const LabResults = (props) => {
     handleAddLabParamsDrawer();
   };
 
-  
   const renderAutoFillButton = useCallback(() => {
-    const { labResults: lastLabResults = {} } = lastPrescriptionDataForAssessment || {};
+    const { labResults: lastLabResults = {} } =
+      lastPrescriptionDataForAssessment || {};
     const { modifiedAt, results, createdAt, date } = lastLabResults;
     if (!(modifiedAt || createdAt || date)) return null;
     return (
@@ -77,7 +77,7 @@ const LabResults = (props) => {
       <div
         className={`ipdaf-generic-card-container ${
           labResults?.length ? "ipdaf-padding-0" : ""
-        } ${!isEditable ? 'ipdaflr-readyonly' : ''}`}
+        } ${!isEditable ? "ipdaflr-readyonly" : ""}`}
       >
         {labResults?.length ? (
           <LabResultsTable
@@ -118,8 +118,11 @@ const LabResults = (props) => {
           }
         }}
         title={sectionData?.title}
+        data-testid={sectionData?.id}
         width="100%"
-        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`} 
+        containerClass={`wrapper-class ${
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
         icon={assessmentsIcons[`${sectionData?.id}Pc`]}
         showAutoFill={false}
         renderBody={renderLabResultsBody}

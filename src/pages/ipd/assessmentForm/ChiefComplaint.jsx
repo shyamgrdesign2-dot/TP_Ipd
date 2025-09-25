@@ -86,6 +86,7 @@ const ChiefComplaint = (props) => {
       templates={symptomsTemplates}
       templateType="symptoms"
       title={sectionData?.title}
+      data-testid={sectionData?.id}
       width={isEditable ? "100%": 'fit-content'}
       initialValue={
         !isEmptyRichText(chiefComplaint)

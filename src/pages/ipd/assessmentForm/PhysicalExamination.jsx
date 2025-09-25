@@ -161,6 +161,7 @@ const PhysicalExamination = (props) => {
     <>
       <CollapsibleWrapper
         title={sectionData?.title}
+        data-testid={sectionData?.id}
         icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
         collapsible={isEditable}
         width={"100%"}

@@ -1,0 +1,35 @@
+#cw-panel-referral-information {
+    .cw__bodyInner {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        .surgery-details-first-row:has(> *) {
+            margin-top: 0 !important;
+        }
+        .surgery-details-second-row-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.02);
+            padding: 20px;
+            border-radius: 16px;
+        }
+        .surgery-details-second-row-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #454551;
+        }
+        .surgery-details-second-row {
+            
+            display: flex;
+            flex-direction: row;
+            gap: 24px;
+            flex-wrap: nowrap;
+            & > * {
+                flex: 1;
+                min-width: 0; /* Allows flex items to shrink below content size */
+            }
+        }
+    }
+}

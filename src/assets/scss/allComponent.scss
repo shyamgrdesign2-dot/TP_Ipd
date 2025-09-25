@@ -3107,3 +3107,6 @@ body.sticky-search-open {
     }
   }
 }
+.readonly-container-box {
+  @include readonly-container-box;
+}
