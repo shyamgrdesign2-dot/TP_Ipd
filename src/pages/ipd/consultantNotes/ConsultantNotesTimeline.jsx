@@ -14,7 +14,6 @@ import {
 import { setMedicationData } from "../../../redux/prescriptionSlice";
 import "./styles.scss";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/consultantNotesIcons/index.js";
 import {
   MedicineTable,
   LabInvestigationTable,
@@ -168,64 +167,68 @@ const ConsultantNotesTimeline = () => {
 
     return (
       <Card className="medical-progress__date-header-card">
-        <div className="medical-progress__content-date">
-          <img
-            className="medical-progress__content-calendar-icon"
-            style={{ fill: "#581C87" }}
-            src={icons.calendarIcon}
-            alt=""
-          />
-          <span className="medical-progress__content-date-text">
-            {formattedDate}
-          </span>
-          <img
-            className="medical-progress__content-download-icon"
-            style={{ fill: "#581C87", cursor: "pointer" }}
-            src={icons.downloadIcon}
-            alt="Download"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleGroupHeaderAction("Download", groupKey, groupData);
-              // Also emit the event for the stepper
-              if (emit) {
-                emit("groupHeaderAction", {
-                  action: "download",
-                  groupKey,
-                  groupData,
-                });
-              }
-            }}
-            title="Download this date's consultant notes"
-          />
-          <img
-            className="medical-progress__content-print-icon"
-            style={{ fill: "#581C87", cursor: "pointer" }}
-            src={icons.printerIcon}
-            alt="Print"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleGroupHeaderAction("Print", groupKey, groupData);
-              // Also emit the event for the stepper
-              if (emit) {
-                emit("groupHeaderAction", {
-                  action: "print",
-                  groupKey,
-                  groupData,
-                });
-              }
-            }}
-            title="Print this date's consultant notes"
-          />
-          <img
-            className="medical-progress__content-calendar-icon"
-            style={{ fill: "#581C87", cursor: "pointer" }}
-            src={icons.editIcon}
-            alt="Edit"
-            onClick={() => handleEditNote(groupData?.[0]?.raw)}
-            title="Edit this date's consultant notes"
-          />
+        <div className="d-flex justify-content-between align-items-center">
+          <div className="medical-progress__content-date">
+            <img
+              className="medical-progress__content-calendar-icon"
+              style={{ fill: "#581C87" }}
+              src={icons.calendarIcon}
+              alt=""
+            />
+            <span className="medical-progress__content-date-text">
+              {formattedDate}
+            </span>
+          </div>
+          <div className="d-flex align-items-center gap-2">
+            <img
+              className="medical-progress__content-download-icon"
+              style={{ fill: "#581C87", cursor: "pointer" }}
+              src={icons.downloadIcon}
+              alt="Download"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleGroupHeaderAction("Download", groupKey, groupData);
+                // Also emit the event for the stepper
+                if (emit) {
+                  emit("groupHeaderAction", {
+                    action: "download",
+                    groupKey,
+                    groupData,
+                  });
+                }
+              }}
+              title="Download this date's consultant notes"
+            />
+            <img
+              className="medical-progress__content-print-icon"
+              style={{ fill: "#581C87", cursor: "pointer" }}
+              src={icons.printerIcon}
+              alt="Print"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleGroupHeaderAction("Print", groupKey, groupData);
+                // Also emit the event for the stepper
+                if (emit) {
+                  emit("groupHeaderAction", {
+                    action: "print",
+                    groupKey,
+                    groupData,
+                  });
+                }
+              }}
+              title="Print this date's consultant notes"
+            />
+            <img
+              className="medical-progress__content-calendar-icon"
+              style={{ fill: "#581C87", cursor: "pointer" }}
+              src={icons.editIcon}
+              alt="Edit"
+              onClick={() => handleEditNote(groupData?.[0]?.raw)}
+              title="Edit this date's consultant notes"
+            />
+          </div>
         </div>
       </Card>
     );

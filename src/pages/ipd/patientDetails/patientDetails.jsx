@@ -39,12 +39,18 @@ import ConsultantNotesTimeline from "../consultantNotes/ConsultantNotesTimeline"
 import LabResults from "../labResults/LabResults";
 import ProgressNotesView from "../progressNotes/progressNotesView/progressNotesView";
 import { getProgressNotes } from "../../../redux/ipd/progressNotesSlice";
-import { getOtNotesData, resetOtNotesForm } from "../../../redux/ipd/otNotesSlice";
+import {
+  getOtNotesData,
+  resetOtNotesForm,
+} from "../../../redux/ipd/otNotesSlice";
 import MedicalRecords from "../medicalRecords/IPDMedicalRecords";
 import OtNotesTimeline from "../otNotes/OtNotesTimeline";
 import { useAssessmentSectionVisibility } from "../../../hooks/useAssessmentSectionVisibility";
 import CrossReferralTimeline from "../crossReferral/CrossReferralTimeline";
-import { getCrossReferralData, resetCrossReferralForm } from "../../../redux/ipd/crossReferralSlice";
+import {
+  getCrossReferralData,
+  resetCrossReferralForm,
+} from "../../../redux/ipd/crossReferralSlice";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -106,7 +112,7 @@ const IPDPatientDetails = () => {
   };
 
   const handleAddOtNotesClick = () => {
-    dispatch(resetOtNotesForm())
+    dispatch(resetOtNotesForm());
     // TODO: INTEL - RESET ALL THE DATA IN THE OT NOTES FORM
     navigate("/ipd/patient-details/ot-notes", {
       state: {
@@ -120,16 +126,6 @@ const IPDPatientDetails = () => {
 
   const handleAddCrossReferralClick = () => {
     navigate("/ipd/patient-details/cross-referral", {
-      state: {
-        patient_data,
-        patientDetails,
-        isEditable: true,
-      },
-    });
-  };
-
-  const handleAddLabResultsClick = () => {
-    navigate("/ipd/patient-details/lab-results", {
       state: {
         patient_data,
         patientDetails,
@@ -276,10 +272,12 @@ const IPDPatientDetails = () => {
       dispatch(getOtNotesData({ patientId, admissionId })).catch((error) => {
         console.error("Error fetching OT notes:", error);
       });
-    }  else if (activeMenuItem === "crossReferral") {
-      dispatch(getCrossReferralData({ patientId, admissionId })).catch((error) => {
-        console.error("Error fetching Cross Referral notes:", error);
-      });
+    } else if (activeMenuItem === "crossReferral") {
+      dispatch(getCrossReferralData({ patientId, admissionId })).catch(
+        (error) => {
+          console.error("Error fetching Cross Referral notes:", error);
+        }
+      );
     } else if (activeMenuItem === "records") {
       // dispatch(getProgressNotes({ patientId, admissionId })).catch(
       //   (error) => {
@@ -310,7 +308,8 @@ const IPDPatientDetails = () => {
 
   const isDataPresent = useMemo(() => {
     if (
-      (activeMenuItem === "assessment" && (!!assessmentsData || hasAnyAssessmentData))
+      activeMenuItem === "assessment" &&
+      (!!assessmentsData || hasAnyAssessmentData)
     ) {
       return Object.keys(assessmentsData || {})?.length > 0;
     } else if (
@@ -342,7 +341,7 @@ const IPDPatientDetails = () => {
 
   const onRequestClose = () => {
     dispatch(resetOtNotesForm());
-    dispatch(resetCrossReferralForm())
+    dispatch(resetCrossReferralForm());
     navigate(`/ipd/inPatients`);
   };
   const handleCustomizeClick = () => {
@@ -459,10 +458,7 @@ const IPDPatientDetails = () => {
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
               renderContent={
-                !isEditable &&
-                (isDataPresent || activeMenuItem === "consultantNotes")
-                  ? renderContent
-                  : null
+                !isEditable && isDataPresent ? renderContent : null
               }
               showAddCTA={canShowAddCTA}
             />
