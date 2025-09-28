@@ -1,7 +1,10 @@
 .ipd-ot-notes-section-container {
-  min-height: 500px !important;
+  min-height: 100px !important;
 }
 .afipd-otnotes-form-container {
+  .ipd-otnotes-form-container-readonly {
+    overflow: auto;
+  }
   .ipd-filled-by-card-container {
     background-color: #fff !important;
     padding: 24px 24px 0;
@@ -11,6 +14,12 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04),
       0 8px 24px rgba(44, 33, 100, 0.06);
     transition: box-shadow 150ms ease;
+  }
+  .cw {
+    box-shadow: none !important;
+    &:hover {
+      box-shadow: none !important;
+    }
   }
 }
 
@@ -44,6 +53,9 @@
       }
     }
   }
+  > div {
+    padding: 2px;
+  }
 }
 .ipd-otnotes-editable-section-container {
   .multiple-select-custom.ant-select .ant-select-selector {
@@ -65,13 +77,73 @@
       color: rgba(75, 74, 213, 1) !important;
     }
   }
-  .multiple-select-custom .ant-select-multiple .ant-select-selection-wrap {
+  .multiple-select-custom .ant-select-selection-wrap {
     display: flex;
-    
-    align-self: center;
+
+    align-self: center !important;
   }
   .multiple-select-custom.ant-select .ant-select-selection-placeholder {
     font-family: "Poppins" !important;
     font-size: 14px !important;
+  }
+}
+
+.ipd-ot-notes-section-children-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+.ipd-ot-notes-section-children-item {
+  flex-basis: calc(50% - 12px);
+  max-width: calc(50% - 12px);
+  padding: 0 2px;
+}
+.ipd-ot-notes-post-op-container {
+  .collapsible-wrapper-class .cw__body .cw__bodyInner {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .rich-text-editor-wrapper.wrapper-class {
+    margin-bottom: 0 !important;
+  }
+  .ipd-ot-notes-post-op-destination-container {
+    width: 25%;
+    padding: 0 2px;
+  }
+}
+.ipdot-ion-metrics-container {
+  .ipdot-ion-metrics-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #454551;
+    margin-bottom: 6px;
+    display: none;
+  }
+  &:has(.ipdot-ion-metrics-list-label) {
+    .ipdot-ion-metrics-title {
+      display: block;
+    }
+  }
+  .ipdot-ion-metrics-list {
+    // padding-left: 16px;
+
+    .ipdot-ion-metrics-list-value {
+      font-size: 14px;
+      font-weight: 400;
+      color: #454551;
+    }
+    .ipdot-ion-metrics-list-label {
+      font-weight: 500;
+    }
+  }
+  ul.ipdot-ion-metrics-list {
+    // padding-left: 16px;
+  }
+}
+
+.patient-details-container {
+  .add-cta-container {
+    margin-top: -10px !important;
   }
 }

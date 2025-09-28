@@ -13,11 +13,11 @@ import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 
 const ASSESSMENT_CHILDREN_MAPPING = {
   bedActivity: "Bed Activity",
-  sitting: "Sitting", 
+  sitting: "Sitting",
   standing: "Standing",
   ambulation: "Ambulation",
   stairClimbing: "Stair Climbing",
-  bedSoreOnAdmission: "Bed Sore on Admission"
+  bedSoreOnAdmission: "Bed Sore on Admission",
 };
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -36,7 +36,7 @@ const FunctionalAssessment = (props) => {
     );
   };
   const { isEditable = true, sectionData } = props || {};
-  
+
   const handleAssessmentChange = (key, e, item) => {
     const selectedOption = item.options.find(
       (option) => option.value === e.target.value
@@ -121,7 +121,13 @@ const FunctionalAssessment = (props) => {
             value !== null && value !== undefined && typeof value === "string"
         )
         .map(([key, value]) => {
-          return <AssessmentDisplay key={key} label={ASSESSMENT_CHILDREN_MAPPING[key]} value={value} />;
+          return (
+            <AssessmentDisplay
+              key={key}
+              label={ASSESSMENT_CHILDREN_MAPPING[key]}
+              value={value}
+            />
+          );
         });
       const renderReadOnlyBody = () => {
         return (
@@ -239,7 +245,9 @@ const FunctionalAssessment = (props) => {
             <img src={assessmentsIcons[`${data?.id}Pc`]} alt="x" />
             <label className="refphy-label">{data.title}</label>
           </div>
-          <div className="referred-to-physiotherapy-name">{referredDocForReview?.name}</div>
+          <div className="referred-to-physiotherapy-name">
+            {referredDocForReview?.name}
+          </div>
         </div>
       );
     }
@@ -284,7 +292,7 @@ const FunctionalAssessment = (props) => {
     (!Object.keys(functionalAssessmentData)?.length ||
       (Object.keys(functionalAssessmentData)?.length === 1 &&
         !!functionalAssessmentData.others)) &&
-        !referredDocForReview?.name &&
+    !referredDocForReview?.name &&
     isEmptyRichText(functionalAssessmentData?.others)
   )
     return null;
@@ -292,6 +300,7 @@ const FunctionalAssessment = (props) => {
     <>
       <CollapsibleWrapper
         title={sectionData?.title}
+        data-testid={sectionData?.id}
         icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
         collapsible={isEditable}
         width={"100%"}

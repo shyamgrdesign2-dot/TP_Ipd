@@ -1,0 +1,283 @@
+// Utility Classes
+// =============================================================================
+// Ready-to-use CSS classes for rapid development
+
+@import 'themeVariables';
+@import '_typography-mixins';
+
+// Color Utility Classes
+// =============================================================================
+
+// Text Colors
+.text-color { @include text-color; }
+.text-light { @include text-light; }
+.text-primary { @include text-primary; }
+.text-primary-dark { @include text-primary-dark; }
+.text-secondary { @include text-secondary; }
+.text-tertiary { @include text-tertiary; }
+
+// Background Colors
+.bg-primary { @include bg-primary; }
+.bg-tertiary { @include bg-tertiary; }
+
+// Font Size Utility Classes
+// =============================================================================
+.fs-10 { @include font-size-10; }
+.fs-12 { @include font-size-12; }
+.fs-14 { @include font-size-14; }
+.fs-16 { @include font-size-16; }
+.fs-18 { @include font-size-18; }
+.fs-20 { @include font-size-20; }
+.fs-24 { @include font-size-24; }
+
+// Font Weight Utility Classes
+// =============================================================================
+.fw-normal { @include font-weight-normal; }
+.fw-semibold { @include font-weight-semibold; }
+.fw-bold { @include font-weight-bold; }
+.fw-bigbold { @include font-weight-bigbold; }
+
+// Combined Typography Utility Classes (Size + Weight)
+// =============================================================================
+
+// Font Size 10px combinations
+.fs10-normal { @include fs10-normal; }
+.fs10-semibold { @include fs10-semibold; }
+.fs10-bold { @include fs10-bold; }
+.fs10-bigbold { @include fs10-bigbold; }
+
+// Font Size 12px combinations
+.fs12-normal { @include fs12-normal; }
+.fs12-semibold { @include fs12-semibold; }
+.fs12-bold { @include fs12-bold; }
+.fs12-bigbold { @include fs12-bigbold; }
+
+// Font Size 14px combinations
+.fs14-normal { @include fs14-normal; }
+.fs14-semibold { @include fs14-semibold; }
+.fs14-bold { @include fs14-bold; }
+.fs14-bigbold { @include fs14-bigbold; }
+
+// Font Size 16px combinations
+.fs16-normal { @include fs16-normal; }
+.fs16-semibold { @include fs16-semibold; }
+.fs16-bold { @include fs16-bold; }
+.fs16-bigbold { @include fs16-bigbold; }
+
+// Font Size 18px combinations
+.fs18-normal { @include fs18-normal; }
+.fs18-semibold { @include fs18-semibold; }
+.fs18-bold { @include fs18-bold; }
+.fs18-bigbold { @include fs18-bigbold; }
+
+// Font Size 20px combinations
+.fs20-normal { @include fs20-normal; }
+.fs20-semibold { @include fs20-semibold; }
+.fs20-bold { @include fs20-bold; }
+.fs20-bigbold { @include fs20-bigbold; }
+
+// Font Size 24px combinations
+.fs24-normal { @include fs24-normal; }
+.fs24-semibold { @include fs24-semibold; }
+.fs24-bold { @include fs24-bold; }
+.fs24-bigbold { @include fs24-bigbold; }
+
+// Combined Typography + Color Utility Classes
+// =============================================================================
+
+// Default text color combinations
+.fs10-normal-text { @include fs10-normal-text; }
+.fs10-semibold-text { @include fs10-semibold-text; }
+.fs10-bold-text { @include fs10-bold-text; }
+.fs10-bigbold-text { @include fs10-bigbold-text; }
+
+.fs12-normal-text { @include fs12-normal-text; }
+.fs12-semibold-text { @include fs12-semibold-text; }
+.fs12-bold-text { @include fs12-bold-text; }
+.fs12-bigbold-text { @include fs12-bigbold-text; }
+
+.fs14-normal-text { @include fs14-normal-text; }
+.fs14-semibold-text { @include fs14-semibold-text; }
+.fs14-bold-text { @include fs14-bold-text; }
+.fs14-bigbold-text { @include fs14-bigbold-text; }
+
+.fs16-normal-text { @include fs16-normal-text; }
+.fs16-semibold-text { @include fs16-semibold-text; }
+.fs16-bold-text { @include fs16-bold-text; }
+.fs16-bigbold-text { @include fs16-bigbold-text; }
+
+.fs18-normal-text { @include fs18-normal-text; }
+.fs18-semibold-text { @include fs18-semibold-text; }
+.fs18-bold-text { @include fs18-bold-text; }
+.fs18-bigbold-text { @include fs18-bigbold-text; }
+
+.fs20-normal-text { @include fs20-normal-text; }
+.fs20-semibold-text { @include fs20-semibold-text; }
+.fs20-bold-text { @include fs20-bold-text; }
+.fs20-bigbold-text { @include fs20-bigbold-text; }
+
+.fs24-normal-text { @include fs24-normal-text; }
+.fs24-semibold-text { @include fs24-semibold-text; }
+.fs24-bold-text { @include fs24-bold-text; }
+.fs24-bigbold-text { @include fs24-bigbold-text; }
+
+// Primary text color combinations
+.fs10-normal-primary { @include fs10-normal-primary; }
+.fs10-semibold-primary { @include fs10-semibold-primary; }
+.fs10-bold-primary { @include fs10-bold-primary; }
+.fs10-bigbold-primary { @include fs10-bigbold-primary; }
+
+.fs12-normal-primary { @include fs12-normal-primary; }
+.fs12-semibold-primary { @include fs12-semibold-primary; }
+.fs12-bold-primary { @include fs12-bold-primary; }
+.fs12-bigbold-primary { @include fs12-bigbold-primary; }
+
+.fs14-normal-primary { @include fs14-normal-primary; }
+.fs14-semibold-primary { @include fs14-semibold-primary; }
+.fs14-bold-primary { @include fs14-bold-primary; }
+.fs14-bigbold-primary { @include fs14-bigbold-primary; }
+
+.fs16-normal-primary { @include fs16-normal-primary; }
+.fs16-semibold-primary { @include fs16-semibold-primary; }
+.fs16-bold-primary { @include fs16-bold-primary; }
+.fs16-bigbold-primary { @include fs16-bigbold-primary; }
+
+.fs18-normal-primary { @include fs18-normal-primary; }
+.fs18-semibold-primary { @include fs18-semibold-primary; }
+.fs18-bold-primary { @include fs18-bold-primary; }
+.fs18-bigbold-primary { @include fs18-bigbold-primary; }
+
+.fs20-normal-primary { @include fs20-normal-primary; }
+.fs20-semibold-primary { @include fs20-semibold-primary; }
+.fs20-bold-primary { @include fs20-bold-primary; }
+.fs20-bigbold-primary { @include fs20-bigbold-primary; }
+
+.fs24-normal-primary { @include fs24-normal-primary; }
+.fs24-semibold-primary { @include fs24-semibold-primary; }
+.fs24-bold-primary { @include fs24-bold-primary; }
+.fs24-bigbold-primary { @include fs24-bigbold-primary; }
+
+// Light text color combinations
+.fs10-normal-light { @include fs10-normal-light; }
+.fs10-semibold-light { @include fs10-semibold-light; }
+.fs10-bold-light { @include fs10-bold-light; }
+.fs10-bigbold-light { @include fs10-bigbold-light; }
+
+.fs12-normal-light { @include fs12-normal-light; }
+.fs12-semibold-light { @include fs12-semibold-light; }
+.fs12-bold-light { @include fs12-bold-light; }
+.fs12-bigbold-light { @include fs12-bigbold-light; }
+
+.fs14-normal-light { @include fs14-normal-light; }
+.fs14-semibold-light { @include fs14-semibold-light; }
+.fs14-bold-light { @include fs14-bold-light; }
+.fs14-bigbold-light { @include fs14-bigbold-light; }
+
+.fs16-normal-light { @include fs16-normal-light; }
+.fs16-semibold-light { @include fs16-semibold-light; }
+.fs16-bold-light { @include fs16-bold-light; }
+.fs16-bigbold-light { @include fs16-bigbold-light; }
+
+.fs18-normal-light { @include fs18-normal-light; }
+.fs18-semibold-light { @include fs18-semibold-light; }
+.fs18-bold-light { @include fs18-bold-light; }
+.fs18-bigbold-light { @include fs18-bigbold-light; }
+
+.fs20-normal-light { @include fs20-normal-light; }
+.fs20-semibold-light { @include fs20-semibold-light; }
+.fs20-bold-light { @include fs20-bold-light; }
+.fs20-bigbold-light { @include fs20-bigbold-light; }
+
+.fs24-normal-light { @include fs24-normal-light; }
+.fs24-semibold-light { @include fs24-semibold-light; }
+.fs24-bold-light { @include fs24-bold-light; }
+.fs24-bigbold-light { @include fs24-bigbold-light; }
+
+// Secondary and Tertiary Color Utility Classes
+// =============================================================================
+
+// Secondary text color combinations
+.fs14-semibold-secondary { @include fs14-semibold; @include text-secondary; }
+.fs16-semibold-secondary { @include fs16-semibold; @include text-secondary; }
+.fs18-bold-secondary { @include fs18-bold; @include text-secondary; }
+
+// Tertiary text color combinations
+.fs14-normal-tertiary { @include fs14-normal; @include text-tertiary; }
+.fs16-semibold-tertiary { @include fs16-semibold; @include text-tertiary; }
+
+// Primary dark text color combinations
+.fs16-bold-primary-dark { @include fs16-bold; @include text-primary-dark; }
+.fs18-bold-primary-dark { @include fs18-bold; @include text-primary-dark; }
+.fs20-bigbold-primary-dark { @include fs20-bigbold; @include text-primary-dark; }
+
+// Common Component Utility Classes
+// =============================================================================
+
+// Heading styles
+.heading-primary { @include fs24-bigbold-primary; }
+.heading-secondary { @include fs20-bold-text; }
+.heading-tertiary { @include fs18-bold-text; }
+
+// Body text styles
+.body-large { @include fs16-normal-text; }
+.body-medium { @include fs14-normal-text; }
+.body-small { @include fs12-normal-text; }
+
+// Label styles
+.label-large { @include fs14-semibold-text; }
+.label-medium { @include fs12-semibold-text; }
+.label-small { @include fs10-semibold-text; }
+
+// Caption styles
+.caption { @include fs10-normal-text; }
+.caption-light { @include fs10-normal; color: rgba(69, 69, 81, 0.6); }
+
+// Link styles
+.link-primary { @include fs14-normal-primary; text-decoration: none; }
+.link-secondary { @include fs14-normal-secondary; text-decoration: none; }
+
+// Button text styles
+.btn-text-large { @include fs16-semibold-light; }
+.btn-text-medium { @include fs14-semibold-light; }
+.btn-text-small { @include fs12-semibold-light; }
+
+// Status text styles
+.status-success { @include fs14-semibold-tertiary; }
+.status-warning { color: #f59e0b; @include fs14-semibold; @include typography-base; }
+.status-error { color: #ef4444; @include fs14-semibold; @include typography-base; }
+
+// Interactive Utility Classes
+// =============================================================================
+
+// Hover states for links and buttons
+.link-primary:hover { opacity: 0.8; }
+.link-secondary:hover { opacity: 0.8; }
+
+// Focus states
+.text-focus:focus { outline: 2px solid $text-primary; outline-offset: 2px; }
+
+// Typography Helpers
+// =============================================================================
+
+// Line height modifiers
+.lh-tight { line-height: 1.2; }
+.lh-normal { line-height: $line-height-base; }
+.lh-relaxed { line-height: 1.5; }
+
+// Text alignment
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+// Text transform
+.text-uppercase { text-transform: uppercase; }
+.text-lowercase { text-transform: lowercase; }
+.text-capitalize { text-transform: capitalize; }
+
+// Text decoration
+.text-underline { text-decoration: underline; }
+.text-no-underline { text-decoration: none; }
+
+// Font style
+.text-italic { font-style: italic; }
+.text-normal { font-style: normal; }

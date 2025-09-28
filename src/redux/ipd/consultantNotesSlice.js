@@ -17,12 +17,9 @@ const initialState = {
 // Async thunks
 export const getConsultantNotes = createAsyncThunk(
   "consultantNotes/getConsultantNotes",
-  async ({ patientId, admissionId }, { rejectWithValue }) => {
+  async (data, { rejectWithValue }) => {
     try {
-      const result = await ApiConsultantNotes.getConsultantNotes({
-        patientId,
-        admissionId,
-      });
+      const result = await ApiConsultantNotes.getConsultantNotes(data);
       if (result?.length) {
         return result;
       } else {
@@ -39,15 +36,10 @@ export const getConsultantNotes = createAsyncThunk(
 
 export const updateConsultantNotes = createAsyncThunk(
   "consultantNotes/updateConsultantNotes",
-  async ({ patientId, admissionId, _id, data }, { rejectWithValue }) => {
+  async (data, { rejectWithValue }) => {
     try {
-      const result = await ApiConsultantNotes.updateConsultantNotes({
-        patientId,
-        admissionId,
-        _id,
-        data,
-      });
-      return { result, data, _id };
+      const result = await ApiConsultantNotes.updateConsultantNotes(data);
+      return { result, data, _id: data?._id };
     } catch (error) {
       console.log("Error updating consultant notes: ", error);
       return rejectWithValue(

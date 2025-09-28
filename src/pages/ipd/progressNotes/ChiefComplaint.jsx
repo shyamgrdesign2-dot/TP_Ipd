@@ -3,7 +3,10 @@ import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { setChiefComplaint } from "../../../redux/ipd/progressNotesSlice";
-import { convertTemplateDataToRichText, formatDateToShortMonthYear } from "../../../utils/utils";
+import {
+  convertTemplateDataToRichText,
+  formatDateToShortMonthYear,
+} from "../../../utils/utils";
 import { fetchSingleTemplate } from "../../../redux/ipd/ipdSlice";
 // import { errorMessage } from "../../../utils/toast";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -12,15 +15,17 @@ const ChiefComplaint = (props) => {
   // You can pass props as needed, e.g., isEditable, initialValue, etc.
   const { isEditable = true, sectionData } = props || {};
   const dispatch = useDispatch();
-  const { chiefComplaint, lastPrescriptionDataForProgress, lastPrescriptionDate } = useSelector(
-    (state) => state.progressNotes
-  );
+  const {
+    chiefComplaint,
+    lastPrescriptionDataForProgress,
+    lastPrescriptionDate,
+  } = useSelector((state) => state.progressNotes);
   const { templates: symptomsTemplates } = useSelector(
     (state) => state.symptoms
   );
-  
+
   const { chiefComplaint: chiefComplaintFromLastPrescription = [] } =
-  lastPrescriptionDataForProgress;
+    lastPrescriptionDataForProgress;
   const { lastRxDate } = lastPrescriptionDate || {};
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [isShimmering, setIsShimmering] = useState(false);
@@ -45,7 +50,10 @@ const ChiefComplaint = (props) => {
       setAutoFillTextToAppend(e);
       return;
     }
-    if (!Array.isArray(chiefComplaintFromLastPrescription) || !chiefComplaintFromLastPrescription?.[0]?.children) {
+    if (
+      !Array.isArray(chiefComplaintFromLastPrescription) ||
+      !chiefComplaintFromLastPrescription?.[0]?.children
+    ) {
       const convertedData = convertTemplateDataToRichText(
         chiefComplaintFromLastPrescription,
         "symptoms"
@@ -54,10 +62,16 @@ const ChiefComplaint = (props) => {
     } else {
       setAutoFillTextToAppend(chiefComplaintFromLastPrescription);
     }
-  }
+  };
 
   const isLastChiefComplaintPresent = useMemo(() => {
-    return ((!Array.isArray(chiefComplaintFromLastPrescription) && typeof chiefComplaintFromLastPrescription === 'string' &&  !!chiefComplaintFromLastPrescription) || (Array.isArray(chiefComplaintFromLastPrescription) && !!chiefComplaintFromLastPrescription?.[0]?.children?.[0]?.text))
+    return (
+      (!Array.isArray(chiefComplaintFromLastPrescription) &&
+        typeof chiefComplaintFromLastPrescription === "string" &&
+        !!chiefComplaintFromLastPrescription) ||
+      (Array.isArray(chiefComplaintFromLastPrescription) &&
+        !!chiefComplaintFromLastPrescription?.[0]?.children?.[0]?.text)
+    );
   }, [chiefComplaint, chiefComplaintFromLastPrescription]);
 
   if (!isEditable && !chiefComplaint?.length) return null;
@@ -70,7 +84,8 @@ const ChiefComplaint = (props) => {
       templates={symptomsTemplates}
       templateType="symptoms"
       title={sectionData?.title}
-      width={isEditable ? "100%": 'fit-content'}
+      data-testid={sectionData?.id}
+      width={isEditable ? "100%" : "fit-content"}
       initialValue={
         chiefComplaint?.length > 0
           ? chiefComplaint

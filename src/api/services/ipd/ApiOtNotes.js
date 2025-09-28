@@ -4,16 +4,21 @@ const baseUrl = { customBaseUrl: config.ipd_api_url };
 
 const ApiOtNotes = {};
 
-ApiOtNotes.getOtNotesData = function ({ patientId }) {
-  return api.get(`/ot-notes?patientId=${patientId}`, baseUrl);
+ApiOtNotes.getOtNotes = function ({ patientId, admissionId, filterStartDate, filterEndDate, _id }) {
+  let url = `/ot-notes?patientId=${patientId}&admissionId=${admissionId}`;
+  if (filterStartDate) url += `&filterStartDate=${filterStartDate}`;
+  if (filterEndDate) url += `&filterEndDate=${filterEndDate}`;
+  if (_id) url += `&_id=${_id}`;
+  return api.get(url, baseUrl);
 };
 
-ApiOtNotes.addOtNotesData = function ({ patientId, data }) {
-  return api.post(`/ot-notes?patientId=${patientId}`, data, baseUrl);
+ApiOtNotes.addOtNotes = function ({ patientId, admissionId, data }) {
+  return api.post(`/ot-notes?patientId=${patientId}&admissionId=${admissionId}`, data, baseUrl);
 };
 
-ApiOtNotes.updateOtNotesData = function ({ patientId, data }) {
-  return api.put(`/ot-notes?patientId=${patientId}`, data, baseUrl);
+ApiOtNotes.updateOtNotes = function ({ patientId, admissionId, _id, data }) {
+  
+  return api.put(`/ot-notes?patientId=${patientId}&admissionId=${admissionId}${_id ? `&_id=${_id}` : ''}`, data, baseUrl);
 };
 
 export default ApiOtNotes;

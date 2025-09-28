@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons as assessmentsIcons } from "../../../assets/images/icons/assessments";
+import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { defaultIcons } from "../../../assets/images/icons";
 import "./surgeryDetails.scss";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,18 +27,10 @@ const SurgeryDetails = (props) => {
   const initialValue = useMemo(() => surgeryDetails || {}, [surgeryDetails]);
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+
   useEffect(() => {
     dispatch(searchSurgeryProcedures(""));
   }, []);
-
-  const fields = [
-    { id: "surgeryProcedureName", title: "Surgery/Procedure Name" },
-    { id: "anaesthesiaType", title: "Anaesthesia Type" },
-    { id: "surgeryDate", title: "Surgery Date" },
-    { id: "surgeryStartTime", title: "Surgery Start Time" },
-    { id: "surgeryEndTime", title: "Surgery End Time" },
-    { id: "diagnosis", title: "Diagnosis" },
-  ];
 
   const renderSurgeryProcedureName = () => {
     const options = (surgeryProcedureOptions || []).map((item) => ({
@@ -48,13 +40,13 @@ const SurgeryDetails = (props) => {
     }));
     return (
       <div>
-        <label className="surgery-label">Surgery/Procedure Name</label>
+        <label className="otNotes-label">Surgery/Procedure Name</label>
         <Select
           showSearch
           optionLabelProp="label"
           mode="multiple"
           options={options}
-          value={initialValue?.surgeryProcedureName || undefined}
+          value={initialValue?.procedureName || undefined}
           className="multiple-select-custom autocomplete-custom w-100 popinput inputheight41"
           placeholder="Search and select Surgery/Procedure"
           onSearch={(q) => dispatch(searchSurgeryProcedures(q))}
@@ -75,7 +67,7 @@ const SurgeryDetails = (props) => {
       </div>
     );
   };
-  const renderAnaesthesiaType = () => {
+  const renderAnaesthesiaType = (data) => {
     const options = [
       { value: "General", label: <div>General</div> },
       { value: "Spinal", label: <div>Spinal</div> },
@@ -85,7 +77,7 @@ const SurgeryDetails = (props) => {
     ];
     return (
       <div>
-        <label className="surgery-label">Anaesthesia Type</label>
+        <label className="otNotes-label">{data?.title}</label>
         <Select
           className="autocomplete-custom w-100 popinput inputheight41"
           placeholder="Select Anaesthesia Type"
@@ -96,11 +88,11 @@ const SurgeryDetails = (props) => {
       </div>
     );
   };
-  const renderSurgeryDate = () => {
+  const renderSurgeryDate = (data) => {
     const dateDisplayFormat = "D MMM YYYY";
     return (
       <div>
-        <label className="surgery-label">Surgery Date</label>
+        <label className="otNotes-label">{data?.title}</label>
         <DatePicker
           className="w-100 popinput inputheight41"
           format={{ format: dateDisplayFormat, type: "mask" }}
@@ -120,14 +112,15 @@ const SurgeryDetails = (props) => {
       </div>
     );
   };
-  const renderSurgeryStartTime = () => {
-    const timeFormat = "HH:mm";
+  const renderSurgeryStartTime = (data) => {
+    const timeFormat = "h:mm A";
     return (
       <div>
-        <label className="surgery-label">Surgery Start Time</label>
+        <label className="otNotes-label">{data?.title}</label>
         <TimePicker
           className="w-100 popinput inputheight41"
           format={timeFormat}
+          use12Hours
           value={
             initialValue?.surgeryStartTime
               ? dayjs(initialValue.surgeryStartTime, timeFormat)
@@ -140,17 +133,18 @@ const SurgeryDetails = (props) => {
           prefix={<img src={defaultIcons.clockIcon} />}
           allowClear
           inputReadOnly
-          defaultOpenValue={dayjs("00:00", timeFormat)}
+          defaultOpenValue={dayjs("00:00 AM", timeFormat)}
         />
       </div>
     );
   };
-  const renderSurgeryEndTime = () => {
-    const timeFormat = "HH:mm";
+  const renderSurgeryEndTime = (data) => {
+    const timeFormat = "h:mm A";
     return (
       <div>
-        <label className="surgery-label">Surgery End Time</label>
+        <label className="otNotes-label">{data?.title}</label>
         <TimePicker
+          use12Hours
           className="w-100 popinput inputheight41"
           format={timeFormat}
           value={
@@ -165,12 +159,12 @@ const SurgeryDetails = (props) => {
           prefix={<img src={defaultIcons.clockIcon} />}
           allowClear
           inputReadOnly
-          defaultOpenValue={dayjs("00:00", timeFormat)}
+          defaultOpenValue={dayjs("00:00 AM", timeFormat)}
         />
       </div>
     );
   };
-  const renderDiagnosis = () => {
+  const renderDiagnosis = (data) => {
     if (!isEditable && !initialValue?.diagnosis) return null;
 
     return (
@@ -178,9 +172,9 @@ const SurgeryDetails = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
-        title={"Diagnosis"}
+        title={data?.title}
         width="100%"
-        icon={defaultIcons.ddx}
+        icon={otNotesIcons[data?.id]}
         showAutoFill={false}
         containerClass={`wrapper-class ${
           !isEditable ? "ipd-wrapper-class-readonly" : ""
@@ -217,27 +211,94 @@ const SurgeryDetails = (props) => {
     );
   };
 
+  // Dynamic render method using switch based on locale children
+  const renderFieldById = (fieldConfig) => {
+    if (!fieldConfig.enabled) return null;
+
+    switch (fieldConfig.id) {
+      case "procedureName":
+        return renderSurgeryProcedureName(fieldConfig);
+
+      case "anaesthesiaType":
+        return renderAnaesthesiaType(fieldConfig);
+
+      case "surgeryDate":
+        return renderSurgeryDate(fieldConfig);
+
+      case "surgeryStartTime":
+        return renderSurgeryStartTime(fieldConfig);
+
+      case "surgeryEndTime":
+        return renderSurgeryEndTime(fieldConfig);
+
+      case "diagnosis":
+        return renderDiagnosis(fieldConfig);
+
+      default:
+        return null;
+    }
+  };
+
+  // Group fields for layout purposes
+  const renderDynamicFields = () => {
+    const firstRowFields = ["procedureName", "anaesthesiaType"];
+    const secondRowFields = [
+      "surgeryDate",
+      "surgeryStartTime",
+      "surgeryEndTime",
+    ];
+    const fullWidthFields = ["diagnosis"];
+
+    return (
+      <>
+        {/* First row: Surgery Procedure Name and Anaesthesia Type */}
+        <div className="surgery-details-first-row">
+          {sectionData?.children
+            ?.filter(
+              (field) => field.enabled && firstRowFields.includes(field.id)
+            )
+            .map((field) => (
+              <div key={field.id}>{renderFieldById(field)}</div>
+            ))}
+        </div>
+
+        {/* Second row: Surgery Date, Start Time, End Time */}
+        <div className="surgery-details-second-row mt-3">
+          {sectionData?.children
+            ?.filter(
+              (field) => field.enabled && secondRowFields.includes(field.id)
+            )
+            .map((field) => (
+              <div key={field.id}>{renderFieldById(field)}</div>
+            ))}
+        </div>
+
+        {/* Full width fields: Diagnosis */}
+        {sectionData?.children
+          ?.filter(
+            (field) => field.enabled && fullWidthFields.includes(field.id)
+          )
+          .map((field) => (
+            <div key={field.id}>{renderFieldById(field)}</div>
+          ))}
+      </>
+    );
+  };
+
   return (
     <>
       <CollapsibleWrapper
         title={sectionData?.title}
-        icon={assessmentsIcons[sectionData?.icon]}
+        data-testid={sectionData?.id}
+        icon={sectionData?.id ? otNotesIcons[`${sectionData.id}Dark`] : null}
         collapsible={isEditable}
         width={"100%"}
-        className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
-        data-testid={sectionData?.title}
+        className={`collapsible-wrapper-class ${
+          isEditable ? "" : "collapsible-wrapper-class-readonly"
+        }`}
         defaultOpen
       >
-        <div className="surgery-details-first-row">
-          {renderSurgeryProcedureName()}
-          {renderAnaesthesiaType()}
-        </div>
-        <div className="surgery-details-second-row mt-3">
-          {renderSurgeryDate()}
-          {renderSurgeryStartTime()}
-          {renderSurgeryEndTime()}
-        </div>
-        {renderDiagnosis()}
+        {renderDynamicFields()}
       </CollapsibleWrapper>
     </>
   );

@@ -39,11 +39,22 @@ import ConsultantNotesTimeline from "../consultantNotes/ConsultantNotesTimeline"
 import LabResults from "../labResults/LabResults";
 import ProgressNotesView from "../progressNotes/progressNotesView/progressNotesView";
 import { getProgressNotes } from "../../../redux/ipd/progressNotesSlice";
+import {
+  getOtNotesData,
+  resetOtNotesForm,
+} from "../../../redux/ipd/otNotesSlice";
 import MedicalRecords from "../medicalRecords/IPDMedicalRecords";
 import { Drawer } from "antd";
 import UploadDocument from "../../medicalRecords/UploadDocument";
 import { getAllPatientDocs } from "../medicalRecords/utils.js/helper";
 import VisitMedicalRecords from "../../medicalRecords/components/visitMedicalRecords/VisitMedicalRecords";
+import OtNotesTimeline from "../otNotes/OtNotesTimeline";
+import { useAssessmentSectionVisibility } from "../../../hooks/useAssessmentSectionVisibility";
+import CrossReferralTimeline from "../crossReferral/CrossReferralTimeline";
+import {
+  getCrossReferralData,
+  resetCrossReferralForm,
+} from "../../../redux/ipd/crossReferralSlice";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -64,11 +75,14 @@ const IPDPatientDetails = () => {
   const patientId = patientDetails?.details?.id;
   const { admissionId } = patientDetails;
 
+  const { hasAnyData: hasAnyAssessmentData } = useAssessmentSectionVisibility();
+
   const { assessmentsData } = useSelector((state) => state.assessment);
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { otNotesData } = useSelector((state) => state.otNotes);
   const { progressNotes } = useSelector((state) => state.progressNotes);
   const { medicalRecords } = useSelector((state) => state.medicalRecords);
+  const { crossReferralData } = useSelector((state) => state.crossReferral);
   const [open, setOpen] = useState(true);
   const [activeMenuItem, setActiveMenuItem] = useState("assessment");
   const [patientData, setPatientData] = useState(null);
@@ -112,8 +126,22 @@ const IPDPatientDetails = () => {
     });
   };
 
-  const handleOtNotesClick = () => {
+  const handleAddOtNotesClick = () => {
+    dispatch(resetOtNotesForm());
+    // TODO: INTEL - RESET ALL THE DATA IN THE OT NOTES FORM
     navigate("/ipd/patient-details/ot-notes", {
+      state: {
+        patient_data,
+        patientDetails,
+        isEditable: true,
+        isNew: true,
+      },
+    });
+  };
+
+  const handleAddCrossReferralClick = () => {
+    dispatch(resetCrossReferralForm());
+    navigate("/ipd/patient-details/cross-referral", {
       state: {
         patient_data,
         patientDetails,
@@ -168,7 +196,7 @@ const IPDPatientDetails = () => {
     //   },
     // });
   };
-  
+
   const handleProgressNotesClick = () => {
     navigate("/ipd/patient-details/progress-notes", {
       state: {
@@ -190,7 +218,6 @@ const IPDPatientDetails = () => {
     };
     setPatientData(data);
   }, [patientDetails]);
-
   // Set active menu item based on activeTab parameter
   useEffect(() => {
     if (activeTab) {
@@ -252,9 +279,15 @@ const IPDPatientDetails = () => {
       );
 
       // Functional Assessment Data
-      const functionalAssessmentWithoutReferredDoc = { ...data?.functionalAssessment };
+      const functionalAssessmentWithoutReferredDoc = {
+        ...data?.functionalAssessment,
+      };
       delete functionalAssessmentWithoutReferredDoc.referredToPhysiotherapyForReview;
-      dispatch(setFunctionalAssessmentData(functionalAssessmentWithoutReferredDoc || {}));
+      dispatch(
+        setFunctionalAssessmentData(
+          functionalAssessmentWithoutReferredDoc || {}
+        )
+      );
 
       // Treatment Plan Data
       dispatch(setTreatmentPlanData(data?.treatmentPlan || {}));
@@ -285,9 +318,17 @@ const IPDPatientDetails = () => {
         }
       );
     } else if (activeMenuItem === "progress") {
-      dispatch(getProgressNotes({ patientId, admissionId })).catch(
+      dispatch(getProgressNotes({ patientId, admissionId })).catch((error) => {
+        console.error("Error fetching progress notes:", error);
+      });
+    } else if (activeMenuItem === "otNotes") {
+      dispatch(getOtNotesData({ patientId, admissionId })).catch((error) => {
+        console.error("Error fetching OT notes:", error);
+      });
+    } else if (activeMenuItem === "crossReferral") {
+      dispatch(getCrossReferralData({ patientId, admissionId })).catch(
         (error) => {
-          console.error("Error fetching progress notes:", error);
+          console.error("Error fetching Cross Referral notes:", error);
         }
       );
     } else if (activeMenuItem === "records") {
@@ -304,11 +345,11 @@ const IPDPatientDetails = () => {
 
   const handleEmptyCtaClick = {
     assessment: () => handleAddAssessmentClick(true),
-    otNotes: handleOtNotesClick,
+    otNotes: handleAddOtNotesClick,
     consultantNotes: handleAddConsultantNotesClick,
-    labResults: handleAddLabResultsClick,
     progress: handleProgressNotesClick,
     records: handleMedicalRecordsClick,
+    crossReferral: handleAddCrossReferralClick,
   };
 
   const patientDetailsMenu = () => {
@@ -322,21 +363,43 @@ const IPDPatientDetails = () => {
   };
 
   const isDataPresent = useMemo(() => {
-    if (activeMenuItem === "assessment" && !!assessmentsData) {
-      return Object.keys(assessmentsData)?.length > 0;
-    } else if (activeMenuItem === "otNotes") {
-      return Object.keys(otNotesData)?.length > 0;
+    if (
+      activeMenuItem === "assessment" &&
+      (!!assessmentsData || hasAnyAssessmentData)
+    ) {
+      return Object.keys(assessmentsData || {})?.length > 0;
+    } else if (
+      activeMenuItem === "otNotes" &&
+      Array.isArray(otNotesData) &&
+      otNotesData.length > 0
+    ) {
+      return true;
+    } else if (activeMenuItem === "crossReferral") {
+      return !!crossReferralData?.length;
     } else if (activeMenuItem === "consultantNotes") {
       return !!consultantNotes?.length;
     } else if (activeMenuItem === "progress") {
       return !!progressNotes?.length;
     } else if (activeMenuItem === "records") {
       return !!medicalRecords?.length;
+    } else if (activeMenuItem === "labResults") {
+      return true;
     }
     return false;
-  }, [assessmentsData, otNotesData, activeMenuItem, consultantNotes, progressNotes, medicalRecords]);
+  }, [
+    assessmentsData,
+    otNotesData,
+    activeMenuItem,
+    consultantNotes,
+    progressNotes,
+    hasAnyAssessmentData,
+    crossReferralData,
+    medicalRecords
+  ]);
 
   const onRequestClose = () => {
+    dispatch(resetOtNotesForm());
+    dispatch(resetCrossReferralForm());
     navigate(`/ipd/inPatients`);
   };
   const handleCustomizeClick = () => {
@@ -351,9 +414,9 @@ const IPDPatientDetails = () => {
       case "assessment":
         return (
           <>
-          <div className="ipd-adm-assess-container-readable">
-            <AssessmentsForm isEditable={isEditable} />
-          </div>
+            <div className="ipd-adm-assess-container-readable">
+              <AssessmentsForm isEditable={isEditable} />
+            </div>
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
                 onEdit={() => handleAddAssessmentClick(false)}
@@ -366,10 +429,10 @@ const IPDPatientDetails = () => {
           </>
         );
       case "progress":
-        return(
+        return (
           <div className="ipd-progress-notes-view-container">
-            <ProgressNotesView  
-              progressNotes={progressNotes} 
+            <ProgressNotesView
+              progressNotes={progressNotes}
               patientDetails={patientDetails}
             />
             <div className="ipd-toolbar-edit-custom-print-download">
@@ -383,7 +446,7 @@ const IPDPatientDetails = () => {
               />
             </div>
           </div>
-        )
+        );
       case "consultantNotes":
         return (
           <div className="ipd-adm-assess-container-readable">
@@ -411,6 +474,38 @@ const IPDPatientDetails = () => {
               patientId={patientId}
               admissionId={admissionId}
             />
+          </div>
+        );
+      case "otNotes":
+        return (
+          <div className="ipd-adm-assess-container-readable">
+            <OtNotesTimeline />
+            <div className="ipd-toolbar-edit-custom-print-download no-edit">
+              <ToolbarActions
+                showEditForm={false}
+                onEdit={handleAddOtNotesClick}
+                onPrintPreview={() => console.log("Preview")}
+                onPrint={() => console.log("Print")}
+                onSettings={handleCustomizeClick}
+                onDownload={() => console.log("Download")}
+              />
+            </div>
+          </div>
+        );
+      case "crossReferral":
+        return (
+          <div className="ipd-adm-assess-container-readable">
+            <CrossReferralTimeline />
+            <div className="ipd-toolbar-edit-custom-print-download no-edit">
+              <ToolbarActions
+                showEditForm={false}
+                onEdit={handleAddCrossReferralClick}
+                onPrintPreview={() => console.log("Preview")}
+                onPrint={() => console.log("Print")}
+                onSettings={handleCustomizeClick}
+                onDownload={() => console.log("Download")}
+              />
+            </div>
           </div>
         );
       default:

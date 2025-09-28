@@ -73,6 +73,8 @@ import ConsultantNotes from "./pages/ipd/consultantNotes/ConsultantNotes";
 import LabResults from "./pages/ipd/labResults/LabResults";
 import ProgressNotes from "./pages/ipd/progressNotes/progressNotes";
 import IPDMedicalRecords from "./pages/ipd/medicalRecords/IPDMedicalRecords";
+import CrossReferral from "./pages/ipd/crossReferral/CrossReferral";
+import CrossReferralConsultantNotes from "./pages/ipd/crossReferral/CrossReferralConsultantNotes";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -413,6 +415,8 @@ function App() {
                 <Route path={`/ipd/patient-details`} element={<IPDPatientDetails />}/>
                 <Route path="/ipd/patient-details/assessment-form" element={<AssessmentsForm />} />
                 <Route path="/ipd/patient-details/ot-notes" element={<OtNotes />} />
+                <Route path="/ipd/patient-details/cross-referral" element={<CrossReferral />} />
+                <Route path="/ipd/patient-details/cross-referral/consultant-notes" element={<CrossReferralConsultantNotes />} />
                 <Route path="/ipd/patient-details/progress-notes" element={<ProgressNotes />} />
                 <Route
                   path="/ipd/patient-details/consultant-notes"

@@ -150,7 +150,7 @@ $muted: #6f6b88;
 .rich-text-editor-wrapper-header-title {
     font-weight: 500 !important;
 }
-.ipdaf-vitals-header {
+.ipdcn-vitals-header {
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -171,12 +171,12 @@ $muted: #6f6b88;
     display: flex;
     flex-wrap: wrap;
 
-padding: 24px 0;
-align-items: flex-start;
-align-content: flex-start;
-gap: 28px;
-align-self: stretch;
-flex-wrap: wrap;
+    padding: 24px 0;
+    align-items: flex-start;
+    align-content: flex-start;
+    gap: 28px;
+    align-self: stretch;
+
     > label {
       max-width: calc(33% - 28px);
       flex-basis: calc(33% - 28px);
@@ -194,7 +194,6 @@ flex-wrap: wrap;
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
-        flex: 1 0 0;
     }
   }
   
@@ -378,7 +377,7 @@ flex-wrap: wrap;
 
     // Fallback for Firefox
     scrollbar-width: thin;
-    scrollbar-color: #8b5cf6 #f1f1f1;
+    // scrollbar-color: #8b5cf6 #f1f1f1;
 
     .timeline-filter {
         padding: 24px 24px 0;
@@ -693,4 +692,49 @@ flex-wrap: wrap;
     align-items: flex-start;
     gap: 16px;
     align-self: stretch;
+}
+
+// Progress Summary Wrapper
+.progress-summary-wrapper {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    pointer-events: auto;
+    
+    @media (max-width: 768px) {
+        bottom: 16px;
+        right: 16px;
+    }
+    
+    @media (max-width: 480px) {
+        bottom: 12px;
+        right: 12px;
+    }
+}
+
+// Agent Alex Layout Adjustments
+.ipd-assessments-form-container {
+    &.agent-alex-open {
+        .ipd-assessments-form-container {
+            transition: width 0.3s ease;
+        }
+    }
+    
+    @media (max-width: 1200px) {
+        &.agent-alex-open {
+            .ipd-assessments-form-container {
+                width: calc(100% - 404px) !important;
+                min-width: 600px; // Ensure minimum usable width
+            }
+        }
+    }
+    
+    @media (max-width: 1024px) {
+        &.agent-alex-open {
+            .ipd-assessments-form-container {
+                width: 100% !important; // On smaller screens, agent panel goes full screen
+            }
+        }
+    }
 }

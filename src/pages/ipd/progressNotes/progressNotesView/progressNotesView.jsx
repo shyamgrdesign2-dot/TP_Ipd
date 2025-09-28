@@ -222,7 +222,6 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
   };
 
   const renderCustomItem = (item, itemIndex, groupKey, items, emit) => {
-
     const value = item.period || item.timeOfDay || "";
     const formattedTimeOfDay = value.charAt(0).toUpperCase() + value.slice(1);
     return (
@@ -263,22 +262,6 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
         }}
         components={{
           RichTextEditor,
-        }}
-        icons={{
-          timeIcons: {
-            morning: "morningIcon",
-            evening: "eveningIcon",
-            night: "nightIcon",
-          },
-          sectionIcons: {
-            chiefComplaint: "chiefComplaintIcon",
-            vitals: "vitalsPgIcon",
-            findings: "findingsPgIcon",
-            additionalRemarks: "notesPgIcon",
-          },
-          actionIcons: {
-            edit: "editIcon",
-          },
         }}
         actions={
           new Date(item?.timestamp).toISOString().split("T")[0] ===

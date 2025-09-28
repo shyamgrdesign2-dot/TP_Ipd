@@ -34,10 +34,12 @@ import prescriptionSlice from "./prescriptionSlice";
 import ipdSlice from "./ipd/ipdSlice";
 import assessmentSlice from "./ipd/assessmentsFormSlice";
 import otNotesSlice from "./ipd/otNotesSlice";
+import crossReferralSlice from "./ipd/crossReferralSlice";
 import inPatientsSlice from "./ipd/inPatientsSlice";
 import consultantNotesSlice from "./ipd/consultantNotesSlice";
 import progressNotesSlice from "./ipd/progressNotesSlice";
 import medicalRecordsSlice from "./ipd/medicalRecordsSlice";
+import labResultsSlice from "./ipd/labResultsSlice";
 
 const persistConfig = {
   key: "root",
@@ -81,6 +83,8 @@ const rootReducer = combineReducers({
   consultantNotes: consultantNotesSlice,
   progressNotes: progressNotesSlice,
   medicalRecords: medicalRecordsSlice,
+  labResults: labResultsSlice,
+  crossReferral: crossReferralSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

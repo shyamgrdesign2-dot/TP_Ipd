@@ -56,6 +56,7 @@ import {
 import { addObstetricDetails } from "../../../redux/obstetricSlice";
 import CustomModule from "../../../components/CustomModule";
 import BackConfirmationModal from "../../../components/BackConfirmationModal";
+import { useAssessmentSectionVisibility } from "../../../hooks/useAssessmentSectionVisibility";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -63,6 +64,7 @@ const FilledByCard = createRemoteComponent("FilledByCard");
 
 const AssessmentsForm = (props) => {
   const dispatch = useDispatch();
+  const { hasAnyData } = useAssessmentSectionVisibility();
   const { state } = useLocation();
   const { patient_data, patientDetails, isEditable = true } = state || {};
 
@@ -303,6 +305,31 @@ const AssessmentsForm = (props) => {
     });
   };
 
+  const handleBackConfirmation = () => {
+    if (!patientDetails?.details?.id && !patientDetails?.admissionId) {
+      setIsBackModalOpen(false);
+      navigate(`/ipd/patient-details`, {state: {...state, activeTab: "assessment", isEditable: false}, replace: true});
+      setOpen(false);
+    }
+    try {
+      dispatch(
+        getAssessmentsData({
+          patientId: patientDetails?.details?.id,
+          admissionId: patientDetails?.admissionId,
+        })
+      ).then((res) => {
+        addDataToStore(res.payload.assessment);
+        navigate(`/ipd/patient-details`, {state: {...state, activeTab: "assessment", isEditable: false}, replace: true});
+        setIsBackModalOpen(false);
+        setOpen(false);
+      });
+    } catch (err) {
+      console.log("INTEL ==> err", err);
+      setIsBackModalOpen(false);
+      setOpen(false);
+    }
+  };
+
   const renderBottomSection = () => {
     return (
       <div className="ipd-custom-module-container">
@@ -324,12 +351,18 @@ const AssessmentsForm = (props) => {
         }`}
         style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
       >
-        <FilledByCard
-          filledBy={assessmentData.assessmentsFilledByData?.createdByName || ""}
-          role={assessmentData.assessmentsFilledByData?.createdByRole || ""}
-          showFilledOnDate={true}
-          selectedDate={assessmentData.assessmentsFilledByData?.createdAt || ""}
-        />
+        {assessmentData.assessmentsFilledByData?.createdByName && (
+          <FilledByCard
+            filledBy={
+              assessmentData.assessmentsFilledByData?.createdByName || ""
+            }
+            role={assessmentData.assessmentsFilledByData?.createdByRole || ""}
+            showFilledOnDate={true}
+            selectedDate={
+              assessmentData.assessmentsFilledByData?.createdAt || ""
+            }
+          />
+        )}
         {assessments.length > 0
           ? assessments.map((item) => {
               return (
@@ -342,6 +375,7 @@ const AssessmentsForm = (props) => {
       </div>
     );
   };
+  if (!isEditable && !hasAnyData) return null;
 
   return (
     <div className="afipd-generic-form-container">
@@ -423,30 +457,7 @@ const AssessmentsForm = (props) => {
       <BackConfirmationModal
         isModalOpen={isBackModalOpen}
         onCancel={() => setIsBackModalOpen(false)}
-        onConfirm={() => {
-          if (!patientDetails?.details?.id && !patientDetails?.admissionId) {
-            setIsBackModalOpen(false);
-            navigate(-1);
-            setOpen(false);
-          }
-          try {
-            dispatch(
-              getAssessmentsData({
-                patientId: patientDetails?.details?.id,
-                admissionId: patientDetails?.admissionId,
-              })
-            ).then((res) => {
-              addDataToStore(res.payload.assessment);
-              navigate(-1);
-              setIsBackModalOpen(false);
-              setOpen(false);
-            });
-          } catch (err) {
-            console.log("INTEL ==> err", err);
-            setIsBackModalOpen(false);
-            setOpen(false);
-          }
-        }}
+        onConfirm={handleBackConfirmation}
       />
     </div>
   );

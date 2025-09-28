@@ -33,6 +33,8 @@ import TabInvestigationBox from "../../../components/tab_design/TabInvestigation
 import { MESSAGE_KEY } from "../../../utils/constants";
 import visitEnd from "../../../assets/images/end-visit.svg";
 import imgCloseVisit from "../../../assets/images/close-visit.svg";
+import ProgressSummary from "../../../components/ProgressSummary";
+import AgentAlex from "../../../components/AgentAlex";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -62,6 +64,7 @@ const ConsultantNotes = (props) => {
 
   const { consultationNotes: consultantNotesCustomization = [] } =
     customization;
+  console.log({ customization });
 
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
@@ -70,6 +73,7 @@ const ConsultantNotes = (props) => {
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [investigationData, setInvestigationData] = useState([]);
   const [shouldAutofill, setShouldAutofill] = useState(false);
+  const [showAgentAlex, setShowAgentAlex] = useState(false);
 
   // Load filledDate and filledAtTime from current consultant note
   useEffect(() => {
@@ -230,29 +234,14 @@ const ConsultantNotes = (props) => {
 
   // Main autofill function that calls all individual autofill functions
   const handleAutofillAll = () => {
-    console.log(
-      "handleAutofillAll called with consultantNotes:",
-      consultantNotes
-    );
     setShouldAutofill(true);
     if (consultantNotes && consultantNotes.length > 0) {
       const latestNote = consultantNotes[consultantNotes?.length - 1];
-      console.log("Latest note:", latestNote);
-      if (latestNote.consultationNotes) {
-        console.log(
-          "Dispatching Redux actions with data:",
-          latestNote.consultationNotes
-        );
 
+      if (latestNote.consultationNotes) {
         // Call all individual autofill functions
-        handleAutofillVitals();
         handleAutofillMedication();
         handleAutofillLabInvestigation();
-
-        console.log(
-          "Autofilled all sections from latest consultant note:",
-          latestNote.consultationNotes
-        );
       }
     } else {
       console.log("No previous consultant notes found for autofill");
@@ -354,7 +343,6 @@ const ConsultantNotes = (props) => {
           role="Doctor"
           selectedDate={dayjs(filledDate)}
           selectedTime={dayjs(filledAtTime)}
-          // showRole={false}
           dateFormat="DD MMM YYYY"
           timeFormat="HH:mm A"
           selectedTimePeriod={selectedTimePeriod}
@@ -412,14 +400,34 @@ const ConsultantNotes = (props) => {
     dispatch(updateCustomization(newData));
   };
 
+  const handleProgressSummaryClick = () => {
+    console.log("Progress Summary clicked - Opening Agent Alex");
+    setShowAgentAlex(true);
+  };
+
+  const handleAgentAlexClose = () => {
+    console.log("Agent Alex closed");
+    setShowAgentAlex(false);
+  };
+
+  const handleViewProgressNotes = () => {
+    console.log("View Progress Notes clicked");
+    // TODO: Implement navigation to progress notes or open detailed view
+    // You can add navigation logic here
+  };
+
   return (
     <div className="afipd-assessments-form-container">
       <Suspense fallback={<>Loading ...</>}>
         <div
           className={`ipd-assessments-form-container ${
             !isEditable ? "ipd-assessments-readable-container" : ""
-          }`}
-          style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
+          } ${showAgentAlex ? "agent-alex-open" : ""}`}
+          style={{
+            "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80",
+            width: showAgentAlex ? "calc(100% - 404px)" : "100%", // 380px panel + 24px margin
+            transition: "width 0.3s ease",
+          }}
         >
           {open && modelData && (
             <LayoutWithMenu
@@ -435,7 +443,7 @@ const ConsultantNotes = (props) => {
               title="Consultant Notes"
               renderSection={renderSections}
               renderTopSection={renderFilledBySection}
-              renderBottomSection={renderCustomModuleSection}
+              // renderBottomSection={renderCustomModuleSection}
               showAutoFill={!!consultantNotes?.length}
               autoFillTitle={
                 consultantNotes && consultantNotes.length > 0
@@ -456,6 +464,21 @@ const ConsultantNotes = (props) => {
           )}
         </div>
       </Suspense>
+
+      {/* Progress Summary Component - Fixed Bottom Right */}
+      {/* {!showAgentAlex && (
+        <div className="progress-summary-wrapper">
+          <ProgressSummary onClick={handleProgressSummaryClick} />
+        </div>
+      )} */}
+
+      {/* Agent Alex Panel */}
+      {showAgentAlex && (
+        <AgentAlex
+          onClose={handleAgentAlexClose}
+          onViewProgressNotes={handleViewProgressNotes}
+        />
+      )}
       {showCustomisationDrawer && (
         <Drawer
           closeIcon={true}

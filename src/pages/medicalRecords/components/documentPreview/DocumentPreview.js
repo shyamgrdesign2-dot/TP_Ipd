@@ -30,6 +30,7 @@ const DocumentPreview = ({
   toggleDeletePopup,
   handleInAppDownload,
   handleDownload,
+  isEditable = true
 }) => {
   const { uploadDocCategories } = useSelector((state) => state.uploadDoc);
   const categoryName =
@@ -271,7 +272,7 @@ const DocumentPreview = ({
                 }
               />
 
-              {!cardData?.url?.startsWith(config.zydus_proxy_url) && (
+              {isEditable && (
                 <>
                   <i
                     className="icon-delete"

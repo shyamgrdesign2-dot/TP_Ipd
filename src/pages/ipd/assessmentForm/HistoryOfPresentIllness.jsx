@@ -21,10 +21,13 @@ const HistoryOfPresentIllness = (props) => {
       showToolbar={isEditable}
       showActionBtns={isEditable}
       title={sectionData?.title}
-      width={isEditable ? "100%": 'fit-content'}
+      data-testid={sectionData?.id}
+      width={isEditable ? "100%" : "fit-content"}
       icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={false}
-      containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+      containerClass={`wrapper-class ${
+        !isEditable ? "ipd-wrapper-class-readonly" : ""
+      }`}
       opdDate="15 Jun 2025"
       initialValue={
         historyOfPresentIllness.length > 0

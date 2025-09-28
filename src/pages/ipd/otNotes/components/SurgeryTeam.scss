@@ -1,0 +1,76 @@
+.surgery-team-container {
+  @include readonly-container-box;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+
+  .surgery-team-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 8px;
+
+    .surgery-team-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+    }
+
+    .surgery-team-title {
+      color: #333333;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+    }
+  }
+
+  .team-members-grid {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .team-member-chip {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 20px;
+    padding: 8px 12px;
+    gap: 8px;
+    font-size: 14px;
+    overflow: hidden;
+    position: relative;
+    border: 0.3px solid rgba(238, 222, 255, 0.5);
+    background: rgba(243, 237, 252, 0.4);
+    max-width: fit-content;
+
+    .team-member-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      position: absolute;
+      left: 2px;
+      bottom: -2px;
+    }
+
+    .team-member-label {
+      color: var(--label);
+      font-weight: 600;
+      white-space: nowrap;
+      padding-left: 24px;
+      font-size: 12px;
+    }
+
+    .team-member-value {
+      color: var(--label);
+      font-weight: 400;
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    // &:hover {
+    //   background: #e9ecef;
+    // }
+  }
+}

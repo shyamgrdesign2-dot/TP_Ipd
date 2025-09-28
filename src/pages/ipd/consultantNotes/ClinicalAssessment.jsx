@@ -1,12 +1,12 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons } from "../../../assets/images/consultantNotesIcons";
 import { useSelector, useDispatch } from "react-redux";
 import { setClinicalAssessmentPlan } from "../../../redux/ipd/consultantNotesSlice";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const ClinicalAssessment = (props) => {
-  const { isEditable = true, shouldAutofill = false } = props || {};
+  const { isEditable = true, shouldAutofill = false, sectionData } = props || {};
   const { clinicalAssessmentPlan } = useSelector(
     (state) => state.consultantNotes
   );
@@ -58,7 +58,7 @@ const ClinicalAssessment = (props) => {
       showActionBtns={isEditable}
       title="Clinical Assessment & Plan"
       width="100%"
-      icon={defaultIcons.aidKit}
+      icon={defaultIcons[`${sectionData?.id}Pc`]}
       containerClass="wrapper-class"
       showMagicPenGif={false}
       showAutoFill={hasClinicalAssessmentPlanInLastConsultantNote}
@@ -92,7 +92,7 @@ const ClinicalAssessment = (props) => {
         console.log("save");
       }}
       onErase={() => {
-        console.log("erase");
+        setAutoFillTextToAppend(["clear"]);
       }}
       onTemplate={() => {
         console.log("template");

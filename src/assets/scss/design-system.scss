@@ -1,0 +1,72 @@
+// Design System - Main Entry Point
+// =============================================================================
+// This file provides a comprehensive design system based on your specifications
+// Import this file to get access to all colors, typography, and utility classes
+
+// Core Design System Files
+@import 'themeVariables';           // Color palette, font sizes, weights, and other tokens
+@import '_typography-mixins';   // All typography mixins for SCSS usage
+@import '_utilities';           // Ready-to-use CSS classes
+
+// Design System Overview & Usage Examples
+// =============================================================================
+
+/*
+COLOR PALETTE:
+- Text Colors:
+  * Default: rgba(69, 69, 81, 1) - $text-color
+  * Light: rgba(255, 255, 255, 1) - $text-light
+  * Primary: rgba(186, 125, 233, 1) - $text-primary
+  * Primary Dark: rgba(88, 28, 135, 1) - $text-primary-dark
+  * Secondary: rgba(75, 74, 213, 1) - $text-secondary
+  * Tertiary: rgba(61, 140, 64, 1) - $text-tertiary
+
+- Background Colors:
+  * Primary: rgba(88, 28, 135, 0.06) - $bg-primary
+  * Tertiary: rgba(236, 253, 245, 1) - $bg-tertiary
+
+FONT SPECIFICATIONS:
+- Family: Poppins
+- Sizes: 10px, 12px, 14px, 16px, 18px, 20px, 24px
+- Weights: 400 (normal), 500 (semibold), 600 (bold), 700 (bigbold)
+- Line Height: 1.33
+
+USAGE EXAMPLES:
+
+1. Using CSS Classes (HTML):
+   <h1 class="fs24-bigbold-primary">Main Heading</h1>
+   <p class="fs14-normal-text">Body text</p>
+   <span class="fs12-semibold-secondary">Secondary text</span>
+
+2. Using Mixins (SCSS):
+   .my-component {
+     @include fs16-bold-primary;
+     // or use shortcuts:
+     @include heading-3;
+     @include body-text;
+   }
+
+3. Using Individual Properties:
+   .custom-text {
+     @include typography-base;
+     @include font-size-16;
+     @include font-weight-bold;
+     @include text-primary;
+   }
+
+4. Using Dynamic Mixin:
+   .dynamic-text {
+     @include typography($size: 18px, $weight: 600, $color: $text-secondary);
+   }
+
+UTILITY CLASS NAMING CONVENTION:
+- Font Size + Weight: .fs{size}-{weight} (e.g., .fs16-bold)
+- Font Size + Weight + Color: .fs{size}-{weight}-{color} (e.g., .fs16-bold-primary)
+- Colors: .text-{color}, .bg-{color}
+- Individual properties: .fs-{size}, .fw-{weight}
+
+MIXIN NAMING CONVENTION:
+- Individual: @include font-size-{size}, @include font-weight-{weight}, @include text-{color}
+- Combined: @include fs{size}-{weight}, @include fs{size}-{weight}-{color}
+- Shortcuts: @include heading-{1-6}, @include body-text, @include label-text
+*/

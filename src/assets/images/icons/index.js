@@ -12,6 +12,10 @@ import lab from "./lab.webp";
 import medication from "./medication.webp";
 import microphone from "./microphone.webp";
 import numberedList from "./numbered-list.svg";
+import otSurgeryIcon from "./ot-surgery-icon.svg";
+import clockDarkOutlineIcon from "./clock-dark-outlined.svg";
+import calendarDarkOutlineIcon from "./calendar-dark-outlined.svg";
+import downArrowPcIcon from "./down-arrow-pc.svg";
 import obstetrics from "./obstetrics.webp";
 import recordPad from "./record-pad.webp";
 import recordPadDark from "./record-pad-dark.svg";
@@ -37,6 +41,7 @@ import plainDocument from "./plain-document.svg";
 import eyeIcon from "./eye.svg";
 import printerIcon from "./printer.svg";
 import editIcon from "./edit.svg";
+import editDarkIcon from "./editDark.svg";
 import hospitalIcon from "./hospital.svg";
 import doctorIcon from "./doctor.svg";
 import calendarIcon from "./calendar-icon.svg";
@@ -64,6 +69,7 @@ import basicInfoBg from "./basic-info-bg.svg";
 import funcAssess from "./func-assess.svg";
 import downloadIcon from "./download.svg";
 import treatment from "./treatment.svg";
+import docIcon from "./doc-icon.svg";
 
 // Icon exports
 export const defaultIcons = {
@@ -129,5 +135,11 @@ export const defaultIcons = {
   settingsPrimaryIcon,
   plainDocument,
   calendarPlainIcon,
-  clockIcon
+  clockIcon,
+  docIcon,
+  otSurgeryIcon,
+  clockDarkOutlineIcon,
+  calendarDarkOutlineIcon,
+  downArrowPcIcon,
+  editDarkIcon
 };

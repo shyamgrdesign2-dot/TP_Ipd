@@ -1,14 +1,14 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, current } from "@reduxjs/toolkit";
 import ApiOtNotes from "../../api/services/ipd/ApiOtNotes";
 import ApiSurgical from "../../api/services/ApiSurgical";
 
-const initialState = {
+export const initialState = {
   otNotesData: {},
   loading: false,
-
+  currentOtNoteId: null, //"68d26742d5f86080a3a6383a",
+  currentOtNoteFilledByDetails: null,
   surgeryDetails: {
-    surgeryProcedureName: "",
-    surgeryName: "",
+    procedureName: "",
     anaesthesiaType: "",
     surgeryDate: "",
     surgeryStartTime: "",
@@ -16,12 +16,12 @@ const initialState = {
     diagnosis: null,
   },
   surgeryTeam: {
-    primarySurgeon: {},
-    secondarySurgeon: {},
-    assistant: {},
-    anaesthesiologist: {},
-    scrubNurse: {},
-    floorCirculatingNurse: {},
+    primarySurgeon: [],
+    secondarySurgeon: [],
+    assistant: [],
+    anaesthesiologist: [],
+    scrubNurse: [],
+    floorCirculatingNurse: [],
   },
   operativeNotes: {},
   intraOperativeNotes: {},
@@ -45,18 +45,21 @@ export const searchSurgeryProcedures = createAsyncThunk(
 
 export const getOtNotesData = createAsyncThunk(
   "otNotes/getOtNotesData",
-  async (data, {rejectWithValue}) => {
+  async (data, { rejectWithValue }) => {
     try {
       let result = {};
-      result = await ApiOtNotes.getOtNotesData(data);
-      if (result?.otNotes) {
-        return result?.otNotes;
+      result = await ApiOtNotes.getOtNotes(data);
+      if (Array.isArray(result)) {
+        return result;
       } else {
         throw Error(result.error);
       }
     } catch (error) {
       console.log("error: ", error);
-      return rejectWithValue({ visible: false, message: error.response.data.message });
+      return rejectWithValue({
+        visible: false,
+        message: error.response.data.message,
+      });
     }
   }
 );
@@ -65,7 +68,7 @@ export const addOtNotesData = createAsyncThunk(
   async (data) => {
     try {
       let result = {};
-      result = await ApiOtNotes.addOtNotesData(data);
+      result = await ApiOtNotes.addOtNotes(data);
       if (result.data?.length) {
         return result.data;
       } else {
@@ -79,17 +82,17 @@ export const addOtNotesData = createAsyncThunk(
 );
 export const updateOtNotesData = createAsyncThunk(
   "otNotes/updateOtNotesData",
-  async (data) => {
+  async (data, { rejectWithValue }) => {
     try {
       let result = {};
-      result = await ApiOtNotes.updateOtNotesData(data);
-      if (result.data?.length) {
-        return result.data;
+      result = await ApiOtNotes.updateOtNotes(data);
+      if (result.message === "ot notes updated successfully.") {
+        return result;
       } else {
-        throw Error(result.error);
+        return result?.data;
       }
     } catch (error) {
-      throw Error(error);
+      return rejectWithValue(error.message || "Failed to add/update OT Notes");
     }
   }
 );
@@ -102,8 +105,7 @@ const otNotesSlice = createSlice({
       state.otNotesData = action.payload;
     },
     setSurgeryProcedureName: (state, action) => {
-      state.surgeryDetails.surgeryProcedureName = action.payload || "";
-      state.surgeryDetails.surgeryName = action.payload || "";
+      state.surgeryDetails.procedureName = action.payload || "";
     },
     setAnaesthesiaType: (state, action) => {
       state.surgeryDetails.anaesthesiaType = action.payload || "";
@@ -121,17 +123,163 @@ const otNotesSlice = createSlice({
       state.surgeryDetails.diagnosis = action.payload || null;
     },
     setSurgeryTeam: (state, action) => {
-      state.surgeryTeam[action.payload.roleId] = action.payload.value || {};
+      state.surgeryTeam[action.payload.roleId] = action.payload.value || [];
     },
     setOperativeNotes: (state, action) => {
-      state.operativeNotes[action.payload.key] = {...state.operativeNotes[action.payload.key], value: action.payload.value || ""};
+      state.operativeNotes[action.payload.key] = {
+        ...state.operativeNotes[action.payload.key],
+        value: action.payload.value || "",
+      };
     },
     setIntraOperativeNotes: (state, action) => {
-      state.intraOperativeNotes[action.payload.key] = {...state.intraOperativeNotes[action.payload.key], value: action.payload.value || ""};
+      if (action.payload?.parentId) {
+        if (!state.intraOperativeNotes[action.payload.parentId]) {
+          state.intraOperativeNotes[action.payload.parentId] = {};
+        }
+        state.intraOperativeNotes[action.payload.parentId][action.payload.key] =
+          action.payload.value || "";
+      } else {
+        state.intraOperativeNotes[action.payload.key] = {
+          ...state.intraOperativeNotes[action.payload.key],
+          value: action.payload.value || "",
+        };
+      }
     },
     setPostOperativeNotes: (state, action) => {
-      state.postOperativeNotes[action.payload.key] = {...state.postOperativeNotes[action.payload.key], value: action.payload.value || ""};
-    }
+      state.postOperativeNotes[action.payload.key] = {
+        ...state.postOperativeNotes[action.payload.key],
+        value: action.payload.value || "",
+      };
+    },
+    setCurrentOtNoteId: (state, action) => {
+      state.currentOtNoteId = action.payload;
+    },
+    setCurrentOtNoteFilledByDetails: (state, action) => {
+      state.currentOtNoteFilledByDetails = action.payload;
+    },
+    setSingleOtNotesData: (state, action) => {
+      const otNotesArray = Array.isArray(state.otNotesData)
+        ? state.otNotesData
+        : [];
+      const { _id } = action.payload;
+      const foundNote = otNotesArray.find((note) => note._id === _id);
+
+      if (foundNote) {
+        state.currentOtNoteFilledByDetails = {
+          ...foundNote.filledByDetails,
+          ...foundNote,
+        };
+      }
+      const selectedOtNote = otNotesArray.find(
+        (note) => note._id === _id
+      )?.otNotes;
+
+      if (!selectedOtNote) {
+        console.warn(`OT Note with _id ${_id} not found`);
+        return;
+      }
+
+      // Surgery Details
+      if (selectedOtNote.surgeryDetails) {
+        state.surgeryDetails = {
+          procedureName: selectedOtNote.surgeryDetails.procedureName || "",
+          anaesthesiaType: selectedOtNote.surgeryDetails.anaesthesiaType || "",
+          surgeryDate: selectedOtNote.surgeryDetails.surgeryDate || "",
+          surgeryStartTime:
+            selectedOtNote.surgeryDetails.surgeryStartTime || "",
+          surgeryEndTime: selectedOtNote.surgeryDetails.surgeryEndTime || "",
+          diagnosis: selectedOtNote.surgeryDetails.diagnosis || null,
+        };
+      }
+
+      // Surgery Team
+      if (selectedOtNote.surgeryTeam) {
+        state.surgeryTeam = {
+          primarySurgeon: selectedOtNote.surgeryTeam.primarySurgeon || [],
+          secondarySurgeon: selectedOtNote.surgeryTeam.secondarySurgeon || [],
+          assistant: selectedOtNote.surgeryTeam.assistant || [],
+          anaesthesiologist: selectedOtNote.surgeryTeam.anaesthesiologist || [],
+          scrubNurse: selectedOtNote.surgeryTeam.scrubNurse || [],
+          floorCirculatingNurse:
+            selectedOtNote.surgeryTeam.floorCirculatingNurse || [],
+        };
+      }
+
+      // Operative Notes - convert back to value structure
+      if (selectedOtNote.operativeNotes) {
+        state.operativeNotes = {};
+        Object.entries(selectedOtNote.operativeNotes).forEach(
+          ([key, value]) => {
+            state.operativeNotes[key] = { value: value };
+          }
+        );
+      }
+
+      // Intra Operative Notes - reverse mapping from flat structure to nested
+      if (selectedOtNote.intraOperativeNotes) {
+        const intraOp = selectedOtNote.intraOperativeNotes;
+        state.intraOperativeNotes = {
+          complicationsSeverity: { value: intraOp.complication || [] },
+          specimensSent: { value: intraOp.specimensSent || [] },
+          implantsUsed: { value: intraOp.implants || [] },
+          additionalUnits: {
+            estimatedBloodLoss: (intraOp.estimatedBloodLoss || 0).toString(),
+            swabCount: (intraOp.swabCount || 0).toString(),
+            fluidCount: (intraOp.fluidCount || 0).toString(),
+            sutureType: (intraOp.sutureType || 0).toString(),
+          },
+        };
+      }
+
+      // Post Operative Notes - reverse mapping
+      if (selectedOtNote.postOperativeNotes) {
+        const postOp = selectedOtNote.postOperativeNotes;
+        state.postOperativeNotes = {};
+
+        // Handle special fields
+        if (postOp.postOpDestination !== undefined) {
+          state.postOperativeNotes.postOpDestination = {
+            value: postOp.postOpDestination,
+          };
+        }
+        if (postOp.additionalInstructions !== undefined) {
+          state.postOperativeNotes.additionalInstructions = {
+            value: postOp.additionalInstructions,
+          };
+        }
+
+        // Handle other fields
+        Object.entries(postOp).forEach(([key, value]) => {
+          const excludedKeys = ["postOpDestination", "additionalInstructions"];
+          if (!excludedKeys.includes(key)) {
+            state.postOperativeNotes[key] = { value: value };
+          }
+        });
+      }
+    },
+    resetOtNotesForm: (state) => {
+      state.surgeryDetails = {
+        procedureName: "",
+        anaesthesiaType: "",
+        surgeryDate: "",
+        surgeryStartTime: "",
+        surgeryEndTime: "",
+        diagnosis: null,
+      };
+      state.surgeryTeam = {
+        primarySurgeon: [],
+        secondarySurgeon: [],
+        assistant: [],
+        anaesthesiologist: [],
+        scrubNurse: [],
+        floorCirculatingNurse: [],
+      };
+      state.operativeNotes = {};
+      state.intraOperativeNotes = {};
+      state.postOperativeNotes = {};
+      state.currentOtNoteId = null;
+      state.currentOtNoteFilledByDetails = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -194,6 +342,10 @@ export const {
   setSurgeryTeam,
   setOperativeNotes,
   setIntraOperativeNotes,
-  setPostOperativeNotes
+  setPostOperativeNotes,
+  setSingleOtNotesData,
+  setCurrentOtNoteId,
+  setCurrentOtNoteFilledByDetails,
+  resetOtNotesForm,
 } = otNotesSlice.actions;
 export default otNotesSlice.reducer;

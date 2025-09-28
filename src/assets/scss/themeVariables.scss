@@ -1,0 +1,95 @@
+// Design System Variables
+// =============================================================================
+
+// Color Palette
+// =============================================================================
+
+// Text Colors
+$text-color: rgba(69, 69, 81, 1);                    // Default text color
+$text-light: rgba(255, 255, 255, 1);                 // Light text color (white)
+$text-primary: rgba(186, 125, 233, 1);               // Primary brand text color
+$text-primary-dark: rgba(88, 28, 135, 1);            // Primary dark text color
+$text-secondary: rgba(75, 74, 213, 1);               // Secondary accent text color
+$text-tertiary: rgba(61, 140, 64, 1);                // Tertiary success text color
+
+// Background Colors
+$bg-primary: rgba(88, 28, 135, 0.06);                // Primary background color
+$bg-tertiary: rgba(236, 253, 245, 1);                // Tertiary background color (light green)
+
+// Color Variables Map for easier access
+$colors: (
+  text: $text-color,
+  text-light: $text-light,
+  text-primary: $text-primary,
+  text-primary-dark: $text-primary-dark,
+  text-secondary: $text-secondary,
+  text-tertiary: $text-tertiary,
+  bg-primary: $bg-primary,
+  bg-tertiary: $bg-tertiary
+);
+
+// Typography
+// =============================================================================
+
+// Font Family
+$font-family-primary: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+// Font Sizes
+$font-size-10: 10px;
+$font-size-12: 12px;
+$font-size-14: 14px;
+$font-size-16: 16px;
+$font-size-18: 18px;
+$font-size-20: 20px;
+$font-size-24: 24px;
+
+// Font sizes map for easier access
+$font-sizes: (
+  fs10: $font-size-10,
+  fs12: $font-size-12,
+  fs14: $font-size-14,
+  fs16: $font-size-16,
+  fs18: $font-size-18,
+  fs20: $font-size-20,
+  fs24: $font-size-24
+);
+
+// Font Weights
+$font-weight-normal: 400;
+$font-weight-semibold: 500;
+$font-weight-bold: 600;
+$font-weight-bigbold: 700;
+
+// Font weights map for easier access
+$font-weights: (
+  normal: $font-weight-normal,
+  semibold: $font-weight-semibold,
+  bold: $font-weight-bold,
+  bigbold: $font-weight-bigbold
+);
+
+// Line Height
+$line-height-base: 1.33;
+
+// Typography Scale Map (combines size, weight, and line-height)
+$typography-scale: (
+  xs: (font-size: $font-size-10, line-height: $line-height-base),
+  sm: (font-size: $font-size-12, line-height: $line-height-base),
+  base: (font-size: $font-size-14, line-height: $line-height-base),
+  md: (font-size: $font-size-16, line-height: $line-height-base),
+  lg: (font-size: $font-size-18, line-height: $line-height-base),
+  xl: (font-size: $font-size-20, line-height: $line-height-base),
+  xxl: (font-size: $font-size-24, line-height: $line-height-base)
+);
+
+// Breakpoints for responsive design (bonus)
+// =============================================================================
+
+$breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+);

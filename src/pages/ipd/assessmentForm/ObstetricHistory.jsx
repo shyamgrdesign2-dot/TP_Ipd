@@ -6,8 +6,14 @@ import { Drawer } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import Obstetric from "../../obstetric/Obstetric";
 import ObstetricSummary from "../../obstetric/components/ObstetricSummary";
-import { addObstetricDetails, addObstetricDetailsBackup } from "../../../redux/obstetricSlice";
-import { deepMergePreserveFirst, formatDateToShortMonthYear } from "../../../utils/utils";
+import {
+  addObstetricDetails,
+  addObstetricDetailsBackup,
+} from "../../../redux/obstetricSlice";
+import {
+  deepMergePreserveFirst,
+  formatDateToShortMonthYear,
+} from "../../../utils/utils";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const GenericCard = createRemoteComponent("GenericCard");
@@ -15,12 +21,12 @@ const AutoFillButton = createRemoteComponent("AutoFillButton");
 
 const ObstetricHistory = (props) => {
   const { sectionData, isEditable = true, patientDataForOPDComponents } = props;
-  const { obstetricDetailsBackup, obstetricDetails: allObstetricDetails } = useSelector(
-    (state) => state.obstetric
-  );
+  const { obstetricDetailsBackup, obstetricDetails: allObstetricDetails } =
+    useSelector((state) => state.obstetric);
   const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const { pregnancyHistory = [] } = allObstetricDetails;
-  const { lastPrescriptionDataForAssessment, lastPrescriptionDate } = useSelector((state) => state.assessment);
+  const { lastPrescriptionDataForAssessment, lastPrescriptionDate } =
+    useSelector((state) => state.assessment);
   const { lastRxDate } = lastPrescriptionDate || {};
   const dispatch = useDispatch();
   const [addObstetricHistoryDrawer, setAddObstetricHistoryDrawer] =
@@ -30,9 +36,8 @@ const ObstetricHistory = (props) => {
     setAddObstetricHistoryDrawer(!addObstetricHistoryDrawer);
   };
 
-
   const renderAutoFillButton = () => {
-    const { obstetricHistoryEntry : lastObstetricDetails = {} } =
+    const { obstetricHistoryEntry: lastObstetricDetails = {} } =
       lastPrescriptionDataForAssessment || {};
     if (!lastRxDate || !Object.keys(lastObstetricDetails)?.length) return null;
     return (
@@ -45,20 +50,28 @@ const ObstetricHistory = (props) => {
             dispatch(addObstetricDetails(obstetricDetailsBackup));
             return;
           }
-          if (Object.keys(lastObstetricDetails)?.length && !Object.keys(allObstetricDetails)?.length) {
+          if (
+            Object.keys(lastObstetricDetails)?.length &&
+            !Object.keys(allObstetricDetails)?.length
+          ) {
             dispatch(addObstetricDetails(lastObstetricDetails));
           } else {
             dispatch(addObstetricDetailsBackup(allObstetricDetails));
             dispatch(addObstetricDetails(lastObstetricDetails));
-            dispatch(addObstetricDetails(deepMergePreserveFirst(allObstetricDetails, lastObstetricDetails)));
+            dispatch(
+              addObstetricDetails(
+                deepMergePreserveFirst(
+                  allObstetricDetails,
+                  lastObstetricDetails
+                )
+              )
+            );
           }
         }}
-        title={`Autofill From OPD (${formatDateToShortMonthYear(
-          lastRxDate
-        )})`}
+        title={`Autofill From OPD (${formatDateToShortMonthYear(lastRxDate)})`}
       />
     );
-  }
+  };
   // , [lastPrescriptionDataForAssessment, allObstetricDetails, obstetricDetailsBackup]);
 
   const renderObstetricHistory = () => {
@@ -94,7 +107,12 @@ const ObstetricHistory = (props) => {
     );
   };
 
-  if (!isEditable && (!Object.keys(obstetricDetails)?.length && !pregnancyHistory?.length)) return null;
+  if (
+    !isEditable &&
+    !Object.keys(obstetricDetails)?.length &&
+    !pregnancyHistory?.length
+  )
+    return null;
 
   return (
     <div>
@@ -103,7 +121,9 @@ const ObstetricHistory = (props) => {
         showToolbar={isEditable}
         showActionBtns={isEditable}
         showOnlyClear={isEditable}
-        isDataPresent={Object.keys(obstetricDetails)?.length || pregnancyHistory?.length}
+        isDataPresent={
+          Object.keys(obstetricDetails)?.length || pregnancyHistory?.length
+        }
         onErase={(e) => {
           dispatch(addObstetricDetails({}));
           if (autoFillButtonRef && autoFillButtonRef.click) {
@@ -111,8 +131,11 @@ const ObstetricHistory = (props) => {
           }
         }}
         title={sectionData?.title}
+        data-testid={sectionData?.id}
         width="100%"
-        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
         icon={assessmentsIcons[`${sectionData?.id}Pc`]}
         showAutoFill={isEditable}
         opdDate="15 Jun 2025"
@@ -133,7 +156,9 @@ const ObstetricHistory = (props) => {
         >
           <Obstetric
             obstetricDetails={obstetricDetails}
-            handleObstetricHistory={(data) => {console.log('INTEL ==> DATA',data)}}
+            handleObstetricHistory={(data) => {
+              console.log("INTEL ==> DATA", data);
+            }}
             obstetricDrawer={"pregnancyHistory"}
             isIPD={true}
             handleDrawerObstetric={handleObstetricHistory}

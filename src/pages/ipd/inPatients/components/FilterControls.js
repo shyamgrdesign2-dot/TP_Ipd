@@ -31,6 +31,7 @@ const FilterControls = ({
         value={searchQuery}
         onChange={onSearchChange}
         onClear={onSearchClear}
+        placeholder={"Search by patient name / ID / Bed no/ mobile no"}
       />
     </Col>
     <Col md="auto">
@@ -65,6 +66,7 @@ const FilterControls = ({
           onToggleModal={onDatePickerToggle}
           onCancel={onDateCancel}
           disabledDate={disabledDate}
+          placeholder="Filter by Admitted Date"
         />
         {hasActiveFilters && (
           <div className="ms-3">

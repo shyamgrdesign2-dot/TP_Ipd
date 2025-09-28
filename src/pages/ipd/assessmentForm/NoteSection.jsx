@@ -10,14 +10,21 @@ const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const NoteSection = (props) => {
   const { isEditable = true, sectionData } = props || {};
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
-  const [autoFillTextToAppendDischargeCriteria, setAutoFillTextToAppendDischargeCriteria] = useState([]);
+  const [
+    autoFillTextToAppendDischargeCriteria,
+    setAutoFillTextToAppendDischargeCriteria,
+  ] = useState([]);
   const { additionalNotesData = {} } = useSelector((state) => state.assessment);
   const dispatch = useDispatch();
   const handleOthersChange = (data, key) => {
-    dispatch(setAdditionalNotesData({...additionalNotesData, [key]: data}));
-  }
+    dispatch(setAdditionalNotesData({ ...additionalNotesData, [key]: data }));
+  };
   const renderSpecialInstructions = (data) => {
-    if (!isEditable && (isEmptyRichText(additionalNotesData?.specialInstructions))) return null;
+    if (
+      !isEditable &&
+      isEmptyRichText(additionalNotesData?.specialInstructions)
+    )
+      return null;
     return (
       <RichTextEditWrapper
         key={data?.title}
@@ -25,20 +32,26 @@ const NoteSection = (props) => {
         showToolbar={isEditable}
         showActionBtns={isEditable}
         title={data?.title}
-        width={isEditable ? "100%": 'fit-content'}
+        width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
-        onChange={(data) => handleOthersChange(data, 'specialInstructions')}
-        initialValue={additionalNotesData?.specialInstructions ? additionalNotesData?.specialInstructions : [
-          {
-            type: "paragraph",
-            children: [{ text: "" }],
-          },
-        ]}
+        onChange={(data) => handleOthersChange(data, "specialInstructions")}
+        initialValue={
+          additionalNotesData?.specialInstructions
+            ? additionalNotesData?.specialInstructions
+            : [
+                {
+                  type: "paragraph",
+                  children: [{ text: "" }],
+                },
+              ]
+        }
         placeholder={
           "Enter Special Instructions, Precautions or Additional Notes" // TODO: INTEL - PLACEHOLDERS CAN ALSO BECOME DYNAMIC
         }
@@ -57,7 +70,8 @@ const NoteSection = (props) => {
     );
   };
   const renderDischargeCriteria = (data) => {
-    if (!isEditable && (isEmptyRichText(additionalNotesData?.dischargeCriteria))) return null;
+    if (!isEditable && isEmptyRichText(additionalNotesData?.dischargeCriteria))
+      return null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -65,20 +79,26 @@ const NoteSection = (props) => {
         key={data?.title}
         showActionBtns={isEditable}
         title={data?.title}
-        width={isEditable ? "100%": 'fit-content'}
+        width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+        containerClass={`wrapper-class ${
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
-        onChange={(data) => handleOthersChange(data, 'dischargeCriteria')}
-        initialValue={additionalNotesData?.dischargeCriteria ? additionalNotesData?.dischargeCriteria : [
-          {
-            type: "paragraph",
-            children: [{ text: "" }],
-          },
-        ]}
+        onChange={(data) => handleOthersChange(data, "dischargeCriteria")}
+        initialValue={
+          additionalNotesData?.dischargeCriteria
+            ? additionalNotesData?.dischargeCriteria
+            : [
+                {
+                  type: "paragraph",
+                  children: [{ text: "" }],
+                },
+              ]
+        }
         placeholder={
           "Enter discharge criteria like stable vitals, afebrile status etc"
         }
@@ -108,15 +128,23 @@ const NoteSection = (props) => {
       }
     });
   };
-  if (!isEditable && (isEmptyRichText(additionalNotesData?.dischargeCriteria) && isEmptyRichText(additionalNotesData?.specialInstructions))) return null;
+  if (
+    !isEditable &&
+    isEmptyRichText(additionalNotesData?.dischargeCriteria) &&
+    isEmptyRichText(additionalNotesData?.specialInstructions)
+  )
+    return null;
   return (
     <div>
       <CollapsibleWrapper
         title={sectionData?.title}
+        data-testid={sectionData?.id}
         icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
         collapsible={isEditable}
         width={"100%"}
-        className={`collapsible-wrapper-class ${isEditable ? "" : "collapsible-wrapper-class-readonly"}`}
+        className={`collapsible-wrapper-class ${
+          isEditable ? "" : "collapsible-wrapper-class-readonly"
+        }`}
         defaultOpen
       >
         {renderChildren()}

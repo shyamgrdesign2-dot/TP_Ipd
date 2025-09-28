@@ -32,6 +32,7 @@ const initialState = {
   customization: {},
   loading: false,
   singleTemplate: null,
+  doctorDepartmentRoles: null,
 };
 
 export const fetchSingleTemplate = createAsyncThunk(
@@ -71,12 +72,26 @@ export const updateCustomization = createAsyncThunk(
   async (data) => {
     try {
       let result = {};
-      result = await ApiIpdService.updateCustomization(data);
+      result = await ApiIpdService.updateCustomization({progressNotes: [], crossReferral: [], otNotes: [], dischargeSummary: [], ...data});
       if (result.message === 'form customization updated successfully.') {
         return result.data;
       } else {
         throw Error(result.error);
       }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
+export const doctorDepartmentRoles = createAsyncThunk(
+  "ipd/doctorDepartmentRoles",  
+  async () => {
+    try {
+      let result = {};
+      result = await ApiIpdService.doctorDepartmentRoles();
+      return result;
     } catch (error) {
       console.log("error: ", error);
       throw Error(error);
@@ -93,6 +108,9 @@ const ipdSlice = createSlice({
     },
     setCustomization: (state, action) => {
       state.customization = action.payload;
+    },
+    setDoctorDepartmentRoles: (state, action) => {
+      state.doctorDepartmentRoles = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -126,9 +144,20 @@ const ipdSlice = createSlice({
       .addCase(fetchSingleTemplate.rejected, (state, action) => {
         state.loading = false;
         state.singleTemplate = null;
+      })
+      .addCase(doctorDepartmentRoles.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(doctorDepartmentRoles.fulfilled, (state, action) => {
+        state.loading = false;
+        state.doctorDepartmentRoles = action.payload;
+      })
+      .addCase(doctorDepartmentRoles.rejected, (state, action) => {
+        state.loading = false;
+        state.doctorDepartmentRoles = null;
       });
   },
 });
 
-export const { setPatientDetailsInOldFormat, setCustomization } = ipdSlice.actions;
+export const { setPatientDetailsInOldFormat, setCustomization, setDoctorDepartmentRoles } = ipdSlice.actions;
 export default ipdSlice.reducer;
