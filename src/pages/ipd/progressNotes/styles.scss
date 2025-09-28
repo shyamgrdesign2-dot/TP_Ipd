@@ -13,10 +13,57 @@ $muted: #6f6b88;
     // margin-bottom: 20px;
 }
 
+.ipdpn-vitals-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: flex-start;
+    // gap: 28px;
+    align-self: stretch;
+    flex-wrap: wrap;
+
+    >label {
+        max-width: calc(33% - 28px);
+        flex-basis: calc(33% - 28px);
+        margin-right: 28px;
+    }
+
+    .cw__body {
+        padding: 0 !important;
+    }
+
+    .cw__bodyInner {
+        margin-top: 0 !important;
+    }
+
+    .input-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: space-around !important;
+        gap: 16px;
+        margin: 0 10px;
+        flex: 1 0;
+    }
+
+    // Tablet breakpoint adjustments
+    @media (max-width: 1024px) {
+        .input-container {
+            max-width: 16rem;
+        }
+    }
+}
+
 .afipd-progress-notes-form-container {
     gap: 1rem;
 }
 
 .ipd-pn-section-container{
-    // margin: 10px;
+    .ipdpn-vitals-main-container {
+        padding: 20px !important;
+        border-radius: 16px;
+        box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.0196078431);
+        background-color: var(--backgroundColor, #fff);
+    }
 }
+

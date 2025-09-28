@@ -37,6 +37,7 @@ import otNotesSlice from "./ipd/otNotesSlice";
 import inPatientsSlice from "./ipd/inPatientsSlice";
 import consultantNotesSlice from "./ipd/consultantNotesSlice";
 import progressNotesSlice from "./ipd/progressNotesSlice";
+import medicalRecordsSlice from "./ipd/medicalRecordsSlice";
 
 const persistConfig = {
   key: "root",
@@ -76,10 +77,10 @@ const rootReducer = combineReducers({
   shortLink: shortLinkSlice,
   monetization: monetizationSlice,
   prescription: prescriptionSlice,
-  ipd: ipdSlice,
   inPatients: inPatientsSlice,
   consultantNotes: consultantNotesSlice,
   progressNotes: progressNotesSlice,
+  medicalRecords: medicalRecordsSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

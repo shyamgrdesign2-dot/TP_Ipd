@@ -3,7 +3,7 @@ import emptyDocument from "./../../../../assets/images/empty-document.png";
 import { useDispatch, useSelector } from "react-redux";
 import { setUploadDocCategories } from "../../../../redux/uploadDocSlice";
 import { fetchAllDocumentCategories } from "../../service";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { Col, Row } from "react-bootstrap";
 import "./../../MedicalRecords.scss";
 import RecordCard from "../recordCard/RecordCard";
@@ -14,12 +14,18 @@ import {
 } from "../../utils/helper";
 
 const VisitMedicalRecords = ({
+  // Existing props
   filesData,
   setUploadDocDrawer,
   setFilesData,
   handleUploadDocPopup,
   setIsEditDocument,
   handleDrawerUploadDoc,
+  // New: IPD flow props
+  isIPDFlow = false,
+  ipdRecords = [],
+  patientId,
+  admissionId,
 }) => {
   const dispatch = useDispatch();
   const { allUploadedDocs, uploadDocCategories } = useSelector(
@@ -31,17 +37,62 @@ const VisitMedicalRecords = ({
   };
   const updatedCategory = [newCategory, ...uploadDocCategories];
 
+  // Map IPD medicalRecords to existing RecordCard shape when enabled
+  const mappedIpdDocs = useMemo(() => {
+    if (!isIPDFlow || !Array.isArray(ipdRecords)) return [];
+
+    const getCategoryId = (subCategory) => {
+      const label = (subCategory || "").toString().trim().toLowerCase();
+      const targetName =
+        label === "prescription"
+          ? "Prescription"
+          : label === "radiology"
+          ? "Radiology"
+          : label === "pathology"
+          ? "Pathology"
+          : "Other";
+      return (
+        uploadDocCategories.find((c) => c?.category_name === targetName)
+          ?.category_id ?? -1
+      );
+    };
+
+    return ipdRecords.map((rec) => {
+      const subCategory = rec?.docs?.subCategory;
+      return {
+        id: rec?._id,
+        category_id: getCategoryId(subCategory),
+        display_name: rec?.docs?.name || rec?.docs?.filename || "Document",
+        url: rec?.docs?.fileUrl || "",
+        thumbnail_url: undefined,
+        investigation_date: rec?.createdAt || "",
+        notes: "",
+      };
+    });
+  }, [isIPDFlow, ipdRecords, uploadDocCategories]);
+
+  console.log(mappedIpdDocs,"mappedIpdDocs")
+  // Choose data source
+  const sourceDocs = isIPDFlow
+    ? mappedIpdDocs
+    : allUploadedDocs;
+
   const [activeCategory, setActiveCategory] = useState(-1);
-  const [activeCategoryDocs, setActiveCategoryDocs] = useState(allUploadedDocs);
+  const [activeCategoryDocs, setActiveCategoryDocs] = useState(sourceDocs);
   const fileInputRef = useRef(null);
+
+  // When an IPD record is deleted, optimistically remove it from the current view
+  const handleIpdRecordDeleted = useCallback((deletedId) => {
+    setActiveCategoryDocs((prev) => (prev || []).filter((doc) => doc?.id !== deletedId));
+  }, []);
 
   useEffect(() => {
     const updatedUploadedDocs =
       activeCategory === -1
-        ? allUploadedDocs
-        : allUploadedDocs.filter((item) => item.category_id === activeCategory);
-    setActiveCategoryDocs([...updatedUploadedDocs]);
-  }, [activeCategory, allUploadedDocs]);
+        ? sourceDocs
+        : sourceDocs.filter((item) => item.category_id === activeCategory);
+    setActiveCategoryDocs([...(updatedUploadedDocs || [])]);
+  }, [activeCategory, sourceDocs]);
 
   useEffect(() => {
     if (uploadDocCategories.length === 0) {
@@ -101,6 +152,8 @@ const VisitMedicalRecords = ({
     }
   };
 
+  console.log(sourceDocs,"sourceDocs")
+
   return (
     <div className="appointment-wrap PatientDetailswrap m-0">
       <Card>
@@ -112,7 +165,7 @@ const VisitMedicalRecords = ({
             paddingBottom: "40px",
           }}
         >
-          {allUploadedDocs.length === 0 ? (
+          {(sourceDocs?.length) === 0 ? (
             <div
               className="d-flex align-items-center justify-content-center text-center flex-column"
               style={{ rowGap: "24px" }}
@@ -158,7 +211,7 @@ const VisitMedicalRecords = ({
                     onChange={handleFileUpload}
                     accept="image/png, image/jpeg, image/jpg, application/pdf"
                     style={{ display: "none" }}
-                    disabled={filesData.length >= 5}
+                    disabled={(filesData?.length || 0) >= 5}
                   />
                 )}
                 <i className="icon-upload" />
@@ -211,6 +264,11 @@ const VisitMedicalRecords = ({
                         setFilesData={setFilesData}
                         setIsEditDocument={setIsEditDocument}
                         setUploadDocDrawer={setUploadDocDrawer}
+                        // IPD specific props
+                        isIPDFlow={isIPDFlow}
+                        patientId={patientId}
+                        admissionId={admissionId}
+                        onIpdRecordDeleted={handleIpdRecordDeleted}
                       />
                     </Col>
                   );

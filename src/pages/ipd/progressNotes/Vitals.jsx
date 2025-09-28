@@ -59,7 +59,7 @@ const Vitals = (props) => {
 
   const renderEditableVitals = () => {
     return (
-      <div className="ipdcn-vitals-container">
+      <div className="ipdpn-vitals-container">
         {sectionData?.children
           ?.filter((config) => config.enabled)
           ?.map((config) => {
@@ -94,7 +94,7 @@ const Vitals = (props) => {
   }
 
   return (
-    <div className={`ipdcn-vitals-main-container ${!isEditable ? 'ipdaf-vitals-main-container-readonly' : ''}`}>
+    <div className={`ipdpn-vitals-main-container ${!isEditable ? 'ipdaf-vitals-main-container-readonly' : ''}`}>
       <div className="ipdaf-vitals-header">
         <img src={defaultIcons[`${sectionData?.id}Pc`]} alt="vitals" />
         <div>{sectionData?.title || "Vitals"}</div>
