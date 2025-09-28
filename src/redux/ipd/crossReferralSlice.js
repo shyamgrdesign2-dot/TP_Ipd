@@ -4,14 +4,34 @@ import ApiCrossReferral from "../../api/services/ipd/ApiCrossReferral";
 export const initialState = {
   crossReferralData: {},
   loading: false,
-  currentCrossReferralId: null, //"68d26742d5f86080a3a6383a", 
+  currentCrossReferralId: null, //"68d26742d5f86080a3a6383a",
   currentCrossReferralFilledByDetails: null,
-  crossReferralFormDetails: {},
+  crossReferralFormDetails: {
+    referralInformation: {
+      referringDepartment: "",
+      referringTo: null,
+      referralDate: "",
+      reasonForReferral: [
+        {
+          type: "paragraph",
+          children: [{ text: "" }],
+        },
+      ],
+      relativesInformed: {
+        informedByDoctor: null,
+        informedTo: "",
+        informedOnDate: "",
+        informedOnTime: "",
+      },
+    },
+    consultantNotesData: [],
+  },
+  selectedConsultantNoteId: 0,
 };
 
 export const getCrossReferralData = createAsyncThunk(
   "crossReferral/getCrossReferralData",
-  async (data, {rejectWithValue}) => {
+  async (data, { rejectWithValue }) => {
     try {
       let result = {};
       result = await ApiCrossReferral.getCrossReferral(data);
@@ -22,7 +42,10 @@ export const getCrossReferralData = createAsyncThunk(
       }
     } catch (error) {
       console.log("error: ", error);
-      return rejectWithValue({ visible: false, message: error.response.data.message });
+      return rejectWithValue({
+        visible: false,
+        message: error.response.data.message,
+      });
     }
   }
 );
@@ -49,10 +72,10 @@ export const updateCrossReferralData = createAsyncThunk(
     try {
       let result = {};
       result = await ApiCrossReferral.updateCrossReferral(data);
-      if (result.data?.length) {
-        return result.data;
+      if (result.message === "cross referral created successfully.") {
+        return result;
       } else {
-        throw Error(result.error);
+        return result?.data;
       }
     } catch (error) {
       throw Error(error);
@@ -70,18 +93,89 @@ const crossReferralSlice = createSlice({
     setCrossReferralFormDetails: (state, action) => {
       state.crossReferralFormDetails = action.payload || {};
     },
+    setCrossReferralInformationDetails: (state, action) => {
+      state.crossReferralFormDetails.referralInformation = action.payload || {};
+    },
+    setCrossReferralConsultantNoteDetails: (state, action) => {
+      if (!state.crossReferralFormDetails.consultantNotesData) {
+        state.crossReferralFormDetails.consultantNotesData = [];
+      }
+
+      while (
+        state.crossReferralFormDetails.consultantNotesData.length <=
+        state.selectedConsultantNoteId
+      ) {
+        state.crossReferralFormDetails.consultantNotesData.push({});
+      }
+
+      state.crossReferralFormDetails.consultantNotesData[
+        state.selectedConsultantNoteId
+      ] = {
+        ...state.crossReferralFormDetails.consultantNotesData[
+          state.selectedConsultantNoteId
+        ],
+        ...(action.payload || {}),
+      };
+    },
     setCurrentCrossReferralFilledByDetails: (state, action) => {
       state.currentCrossReferralFilledByDetails = action.payload || null;
     },
     setSingleCrossReferralData: (state, action) => {
-      state.crossReferralData = action.payload || null;
+      const crossReferralArray = Array.isArray(state.crossReferralData)
+        ? state.crossReferralData
+        : [];
+      const { _id } = action.payload;
+      const foundCrossReferral = crossReferralArray.find(
+        (referral) => referral._id === _id
+      );
+
+      if (foundCrossReferral) {
+        state.currentCrossReferralFilledByDetails = {
+          ...foundCrossReferral.filledByDetails,
+          ...foundCrossReferral,
+        };
+      }
+
+      const selectedCrossReferral = crossReferralArray.find(
+        (referral) => referral._id === _id
+      )?.crossReferral;
+
+      if (!selectedCrossReferral) {
+        console.warn(`Cross Referral with _id ${_id} not found`);
+        return;
+      }
+      if (selectedCrossReferral.referralInformation) {
+        state.crossReferralFormDetails = selectedCrossReferral;
+      }
     },
     setCurrentCrossReferralId: (state, action) => {
       state.currentCrossReferralId = action.payload || null;
     },
+    setSelectedConsultantNoteId: (state, action) => {
+      state.selectedConsultantNoteId = action.payload || 0;
+    },
     resetCrossReferralForm: (state) => {
-      state.crossReferralFormDetails = {};
-    }
+      state.crossReferralFormDetails = {
+        referralInformation: {
+          referringDepartment: "",
+          referringTo: null,
+          referralDate: "",
+          reasonForReferral: [
+            {
+              type: "paragraph",
+              children: [{ text: "" }],
+            },
+          ],
+          relativesInformed: {
+            informedByDoctor: null,
+            informedTo: "",
+            informedOnDate: "",
+            informedOnTime: "",
+          },
+        },
+      };
+      state.currentCrossReferralId = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -124,9 +218,12 @@ const crossReferralSlice = createSlice({
 export const {
   setCrossReferralData,
   setCrossReferralFormDetails,
+  setCrossReferralInformationDetails,
+  setCrossReferralConsultantNoteDetails,
   setCurrentCrossReferralFilledByDetails,
   setSingleCrossReferralData,
   setCurrentCrossReferralId,
-  resetCrossReferralForm
+  resetCrossReferralForm,
+  setSelectedConsultantNoteId,
 } = crossReferralSlice.actions;
 export default crossReferralSlice.reducer;

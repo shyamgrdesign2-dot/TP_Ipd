@@ -125,6 +125,7 @@ const IPDPatientDetails = () => {
   };
 
   const handleAddCrossReferralClick = () => {
+    dispatch(resetCrossReferralForm());
     navigate("/ipd/patient-details/cross-referral", {
       state: {
         patient_data,
@@ -319,7 +320,7 @@ const IPDPatientDetails = () => {
     ) {
       return true;
     } else if (activeMenuItem === "crossReferral") {
-      return false; // TODO: INTEL - CHANGE THIS TO TRUE WHEN THE DATA IS PRESENT
+      return !!crossReferralData?.length;
     } else if (activeMenuItem === "consultantNotes") {
       return !!consultantNotes?.length;
     } else if (activeMenuItem === "progress") {
@@ -337,6 +338,7 @@ const IPDPatientDetails = () => {
     consultantNotes,
     progressNotes,
     hasAnyAssessmentData,
+    crossReferralData,
   ]);
 
   const onRequestClose = () => {
@@ -427,6 +429,16 @@ const IPDPatientDetails = () => {
         return (
           <div className="ipd-adm-assess-container-readable">
             <CrossReferralTimeline />
+            <div className="ipd-toolbar-edit-custom-print-download no-edit">
+              <ToolbarActions
+                showEditForm={false}
+                onEdit={handleAddCrossReferralClick}
+                onPrintPreview={() => console.log("Preview")}
+                onPrint={() => console.log("Print")}
+                onSettings={handleCustomizeClick}
+                onDownload={() => console.log("Download")}
+              />
+            </div>
           </div>
         );
       default:

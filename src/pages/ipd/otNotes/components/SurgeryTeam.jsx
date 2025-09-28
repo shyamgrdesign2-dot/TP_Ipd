@@ -23,7 +23,7 @@ const SurgeryTeam = ({ surgeryTeam ,  id }) => {
     
     return (
       <div className="team-member-chip">
-        {icon && <img src={icons.docIcon} alt="x" className="team-member-icon" />}
+        {icon && <img src={defaultIcons.docIcon} alt="x" className="team-member-icon" />}
         <span className="team-member-label">{label}:</span>
         <span className="team-member-value">{displayValue}</span>
       </div>

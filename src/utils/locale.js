@@ -77,7 +77,7 @@ const VITALS_CONFIG = {
       placeholder: "Enter",
     },
   ],
-}
+};
 
 export const IPD = {
   DEFAULT_ASSESSMENTS_FORM_STRUCTURE: [
@@ -762,7 +762,207 @@ export const IPD = {
               enabled: true,
               icon: "surgeryDetails",
             },
-          ]
+          ],
+        },
+      ],
+    },
+    {
+      id: "consultantNotes",
+      title: "Consultant Notes",
+      icon: "surgeryDetails",
+      enabled: true,
+      expanded: false,
+    },
+    {
+      id: "impression",
+      title: "Impression & Advise",
+      icon: "surgeryDetails",
+      enabled: true,
+      expanded: false,
+    },
+    {
+      id: "additionalRemarksAndFollowUp",
+      title: "Additional Remarks & Follow Up",
+      icon: "surgeryDetails",
+      enabled: true,
+      expanded: false,
+      children: [
+        {
+          id: "additionalRemarks",
+          title: "Additional Remarks",
+          enabled: true,
+          icon: "surgeryDetails",
+          expanded: false,
+        },
+        {
+          id: "followUp",
+          title: "Follow up",
+          enabled: true,
+          icon: "",
+          expanded: false,
+        },
+      ],
+    },
+    // {
+    //   id: "consultantNotesData",
+    //   title: "Consultant Notes",
+    //   icon: "surgeryDetails",
+    //   enabled: true,
+    //   expanded: false,
+    //   children: [
+    //     {
+    //       id: "consultantNotes",
+    //       title: "Consultant Notes",
+    //       icon: "surgeryDetails",
+    //       enabled: true,
+    //       expanded: false,
+    //     },
+    //     {
+    //       id: "impression",
+    //       title: "Impression & Advise",
+    //       icon: "surgeryDetails",
+    //       enabled: true,
+    //       expanded: false,
+    //     },
+    //     {
+    //       id: "additionalRemarksAndFollowUp",
+    //       title: "Additional Remarks & Follow Up",
+    //       icon: "surgeryDetails",
+    //       enabled: true,
+    //       expanded: false,
+    //       children: [
+    //         {
+    //           id: "additionalRemarks",
+    //           title: "Additional Remarks",
+    //           enabled: true,
+    //           icon: "surgeryDetails",
+    //         },
+    //         {
+    //           id: "followUp",
+    //           title: "Follow up",
+    //           enabled: true,
+    //         },
+    //       ],
+    //     },
+    //   ],
+    // },
+  ],
+  DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE_VIEW_DETAILS: [
+    {
+      id: "referralInformation",
+      title: "Referral Information",
+      icon: "surgeryDetails",
+      menuIcon: "basicInfoBg",
+      enabled: true,
+      expanded: false,
+      children: [
+        {
+          placeholder: "Select Referring Department",
+          id: "referringDepartment",
+          title: "Referring Department",
+          enabled: true,
+          icon: "surgeryDetails",
+        },
+        {
+          placeholder: "Select Doctor",
+          id: "referringTo",
+          title: "Referring To",
+          enabled: true,
+          icon: "surgeryDetails",
+        },
+        {
+          placeholder: "DD/MM/YYYY",
+          id: "referralDate",
+          title: "Referral Date",
+          enabled: true,
+          icon: "surgeryDetails",
+        },
+        {
+          placeholder: "Enter Reason for Referral",
+          id: "reasonForReferral",
+          title: "Reason for Referral",
+          enabled: true,
+          icon: "surgeryDetails",
+        },
+        {
+          placeholder: "Enter Relatives Informed Regarding Cross Reference",
+          id: "relativesInformed",
+          title: "Relatives Informed Regarding Cross Reference",
+          enabled: true,
+          icon: "surgeryDetails",
+          children: [
+            {
+              placeholder: "Select Doctor",
+              id: "informedBy",
+              title: "Informed By (Doctor Name)",
+              enabled: true,
+              icon: "surgeryDetails",
+            },
+            {
+              placeholder: "Select Relation",
+              id: "informedTo",
+              title: "Informed To (Parents/Relatives)",
+              enabled: true,
+              icon: "surgeryDetails",
+            },
+            {
+              placeholder: "DD/MM/YYYY",
+              id: "informedOnDate",
+              title: "Informed On Date",
+              enabled: true,
+              icon: "surgeryDetails",
+            },
+            {
+              placeholder: "Select Time",
+              id: "informedOnTime",
+              title: "Informed On Time",
+              enabled: true,
+              icon: "surgeryDetails",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "consultantNotesData",
+      title: "Consultant Notes",
+      icon: "surgeryDetails",
+      enabled: true,
+      expanded: false,
+      children: [
+        {
+          id: "consultantNotes",
+          title: "Consultant Notes",
+          icon: "surgeryDetails",
+          enabled: true,
+          expanded: false,
+        },
+        {
+          id: "impression",
+          title: "Impression & Advise",
+          icon: "surgeryDetails",
+          enabled: true,
+          expanded: false,
+        },
+        {
+          id: "additionalRemarksAndFollowUp",
+          title: "Additional Remarks & Follow Up",
+          icon: "surgeryDetails",
+          enabled: true,
+          expanded: false,
+          children: [
+            {
+              id: "additionalRemarks",
+              title: "Additional Remarks",
+              enabled: true,
+              icon: "surgeryDetails",
+            },
+            {
+              id: "followUp",
+              title: "Follow up",
+              enabled: true,
+            },
+          ],
         },
       ],
     },
@@ -808,8 +1008,13 @@ export const IPD = {
       icon: "notepadIcon",
       showAddCTA: true,
     },
-    { id: "otNotes", name: "OT Notes", icon: "healthIcon", showAddCTA: true,  },
-    { id: "crossReferral", name: "Cross Referral", icon: "crossReferralIcon", showAddCTA: true },
+    { id: "otNotes", name: "OT Notes", icon: "healthIcon", showAddCTA: true },
+    {
+      id: "crossReferral",
+      name: "Cross Referral",
+      icon: "crossReferralIcon",
+      showAddCTA: true,
+    },
     { id: "labResults", name: "Lab Results", icon: "glassIcon" },
     {
       id: "records",

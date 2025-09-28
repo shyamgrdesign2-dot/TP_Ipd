@@ -19,6 +19,13 @@ ApiIpdService.updateCustomization = function (data) {
       baseUrl
     );
   };
+  
+ApiIpdService.doctorDepartmentRoles = function () {
+    return api.get(
+      `/patients/doctors-departments-roles`,
+      baseUrl
+    );
+  };
 
 ApiIpdService.fetchSingleTemplate = function ({templateId, type}) {
   return api.get(`/api/v1/${type}/singleTemplateDetails/${templateId}`, symptomTemplateBaseUrl); // TODO: INTEL - Change to ipd_api_url

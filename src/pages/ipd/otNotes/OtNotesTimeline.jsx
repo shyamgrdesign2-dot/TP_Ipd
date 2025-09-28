@@ -98,7 +98,6 @@ const OtNotesTimeline = () => {
     }
   }, []);
 
-  console.log("INTEL ==> dates", dateRange, dateStatus);
 
   const renderCustomGroupHeader = (groupKey, groupData, emit) => {
     const data = groupData?.[0]?.originalEntry;
@@ -208,7 +207,7 @@ const OtNotesTimeline = () => {
             <img
               className="medical-progress__content-calendar-icon"
               style={{ fill: "#581C87", cursor: "pointer" }}
-              src={defaultIcons.editIcon}
+              src={defaultIcons.editDarkIcon}
               alt="Edit"
               onClick={() =>
                 handleEditOtNotes(groupData?.[0]?.originalEntry?._id)

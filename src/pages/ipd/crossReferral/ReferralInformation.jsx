@@ -16,36 +16,70 @@ import {
   //   searchReferringDepartments,
   //   searchReferringTo,
 } from "../../../redux/ipd/crossReferralSlice";
-import { setCrossReferralFormDetails } from "../../../redux/ipd/crossReferralSlice";
+import { setCrossReferralInformationDetails } from "../../../redux/ipd/crossReferralSlice";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
+import { doctorDepartmentRoles } from "../../../redux/ipd/ipdSlice";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const ReferralInformation = (props) => {
   const { isEditable = true, sectionData } = props || {};
-  const { referralInformation, referralInformationOptions } = useSelector(
+  const { crossReferralFormDetails } = useSelector(
     (state) => state.crossReferral
   );
   const { filters } = useSelector((state) => state.inPatients);
+  const { doctorDepartmentRoles: departmentRolesData } = useSelector(
+    (state) => state.ipd
+  );
   const doctorsList = filters?.doctor || [];
   const initialValue = useMemo(
-    () => referralInformation || {},
-    [referralInformation]
+    () =>
+      crossReferralFormDetails?.referralInformation || {
+        relativesInformed: {},
+      },
+    [crossReferralFormDetails?.referralInformation]
   );
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState(null);
 
   useEffect(() => {
-    // dispatch(searchSurgeryProcedures(""));
-    // TODO: INTEL FETCH DEPT AND DOCTORS AND RELATIVES FOR REFERRAL INFORMATION
-  }, []);
+    dispatch(fetchFilters({ field: "doctor" }));
+    dispatch(doctorDepartmentRoles());
+  }, [dispatch]);
 
-  const renderSection = (role) => {
-    const options = (doctorsList || []).map((item) => ({
-      key: JSON.stringify(item),
-      value: item.name,
-      label: <div key={item.id}>{item.name}</div>,
+  const renderRelativesInformed = (role) => {
+    let options = [];
+    options = [
+      {
+        id: 1,
+        role: "Father",
+      },
+      {
+        id: 2,
+        role: "Mother",
+      },
+      {
+        id: 3,
+        role: "Son",
+      },
+      {
+        id: 4,
+        role: "Daughter",
+      },
+      {
+        id: 5,
+        role: "Husband",
+      },
+      {
+        id: 6,
+        role: "Wife",
+      },
+    ].map((relative) => ({
+      key: JSON.stringify(relative),
+      value: relative.role,
+      label: <div key={relative.id}>{relative.role}</div>,
     }));
     return (
       <div className="ipdot-st-section">
@@ -53,66 +87,185 @@ const ReferralInformation = (props) => {
         <Select
           showSearch
           optionLabelProp="label"
-          mode="multiple"
           options={options}
-          value={
-            Array.isArray(initialValue?.[role.id])
-              ? initialValue[role.id].map((item) => item.name || item)
-              : undefined
-          }
-          className="multiple-select-custom autocomplete-custom w-100 popinput inputheight41"
-          placeholder={role?.placeholder}
-          onSearch={(q) =>
-            dispatch(fetchFilters({ field: "doctor", search: q }))
-          }
+          value={initialValue?.relativesInformed?.informedTo || undefined}
+          className="autocomplete-custom w-100 popinput inputheight41"
+          placeholder={role?.placeholder || "Select Informed to"}
           allowClear
-          onChange={(values, options) => {
-            if (!values || values.length === 0) {
-              //   dispatch(setSurgeryTeam({ roleId: role.id, value: [] }));
+          onChange={(value, option) => {
+            if (!value) {
+              dispatch(
+                setCrossReferralInformationDetails({
+                  ...initialValue,
+                  relativesInformed: {
+                    ...(initialValue?.relativesInformed || {}),
+                    informedTo: null,
+                  },
+                })
+              );
               return;
             }
 
-            const parsedValues = [];
-
-            if (Array.isArray(options)) {
-              // Handle multiple selections
-              options.forEach((option, index) => {
-                try {
-                  const parsed = option?.key ? JSON.parse(option.key) : null;
-                  if (parsed) {
-                    parsedValues.push(parsed);
-                  } else {
-                    parsedValues.push({ name: values[index] });
-                  }
-                } catch (e) {
-                  parsedValues.push({ name: values[index] });
-                }
-              });
-            } else {
-              // Handle single selection (fallback)
-              try {
-                const parsed = options?.key ? JSON.parse(options.key) : null;
-                if (parsed) {
-                  parsedValues.push(parsed);
-                } else {
-                  parsedValues.push({ name: values });
-                }
-              } catch (e) {
-                parsedValues.push({ name: values });
-              }
+            try {
+              const parsed = option?.key ? JSON.parse(option.key) : null;
+              dispatch(
+                setCrossReferralInformationDetails({
+                  ...initialValue,
+                  relativesInformed: {
+                    ...(initialValue?.relativesInformed || {}),
+                    informedTo: parsed?.role || value,
+                  },
+                })
+              );
+            } catch (e) {
+              dispatch(
+                setCrossReferralInformationDetails({
+                  ...initialValue,
+                  relativesInformed: {
+                    ...(initialValue?.relativesInformed || {}),
+                    informedTo: value,
+                  },
+                })
+              );
             }
-
-            // dispatch(setSurgeryTeam({ roleId: role.id, value: parsedValues }));
           }}
         />
       </div>
     );
   };
-  const renderSurgeryProcedureName = (data) => {
-    const options = (referralInformationOptions || []).map((item) => ({
+
+  const renderSection = (role) => {
+    let options = [];
+
+    if (role.id === "referringTo" && selectedDepartment?.doctors) {
+      options = selectedDepartment.doctors.map((doctor) => ({
+        key: JSON.stringify({
+          id: doctor.doctorId,
+          name: doctor.doctorName,
+          role: doctor.role,
+        }),
+        value: doctor.doctorName,
+        label: (
+          <div key={doctor.doctorId}>
+            {doctor.doctorName} ({doctor.role})
+          </div>
+        ),
+      }));
+    } else {
+      options = (doctorsList || []).map((item) => ({
+        key: JSON.stringify(item),
+        value: item.name,
+        label: <div key={item.id}>{item.name}</div>,
+      }));
+    }
+
+    // Handle referringTo as single selection
+    if (role.id === "referringTo") {
+      return (
+        <div className="ipdot-st-section">
+          <label className="otNotes-label">{role.title}</label>
+          <Select
+            showSearch
+            optionLabelProp="label"
+            options={options}
+            value={initialValue?.referringTo?.name || undefined}
+            className="autocomplete-custom w-100 popinput inputheight41"
+            placeholder={
+              selectedDepartment ? role?.placeholder : "Select Department"
+            }
+            allowClear
+            disabled={!selectedDepartment}
+            onChange={(value, option) => {
+              if (!value) {
+                dispatch(
+                  setCrossReferralInformationDetails({
+                    ...initialValue,
+                    referringTo: null,
+                  })
+                );
+                return;
+              }
+
+              try {
+                const parsed = option?.key ? JSON.parse(option.key) : null;
+                dispatch(
+                  setCrossReferralInformationDetails({
+                    ...initialValue,
+                    referringTo: parsed,
+                  })
+                );
+              } catch (e) {
+                dispatch(
+                  setCrossReferralInformationDetails({
+                    ...initialValue,
+                  })
+                );
+              }
+            }}
+          />
+        </div>
+      );
+    }
+
+    // Handle other fields with multiple selection
+    return (
+      <div className="ipdot-st-section">
+        <label className="otNotes-label">{role.title}</label>
+        <Select
+          showSearch
+          optionLabelProp="label"
+          options={options}
+          value={
+            initialValue?.relativesInformed?.informedByDoctor?.name || undefined
+          }
+          className="autocomplete-custom w-100 popinput inputheight41"
+          placeholder={role?.placeholder || "Select Doctor"}
+          onSearch={(q) =>
+            dispatch(fetchFilters({ field: "doctor", search: q }))
+          }
+          allowClear
+          onChange={(value, option) => {
+            if (!value) {
+              dispatch(
+                setCrossReferralInformationDetails({
+                  ...initialValue,
+                  relativesInformed: {
+                    ...(initialValue?.relativesInformed || {}),
+                    informedByDoctor: null,
+                  },
+                })
+              );
+              return;
+            }
+
+            try {
+              const parsed = option?.key ? JSON.parse(option.key) : null;
+              dispatch(
+                setCrossReferralInformationDetails({
+                  ...initialValue,
+                  relativesInformed: {
+                    ...(initialValue?.relativesInformed || {}),
+                    informedByDoctor: parsed,
+                  },
+                })
+              );
+            } catch (e) {
+              dispatch(
+                setCrossReferralInformationDetails({
+                  ...initialValue,
+                })
+              );
+            }
+          }}
+        />
+      </div>
+    );
+  };
+  const renderReferringDepartment = (data) => {
+    const options = (departmentRolesData || []).map((item) => ({
       key: JSON.stringify(item),
-      value: item.name,
-      label: <div key={item.id || item.masterId}>{item.name}</div>,
+      value: item.department,
+      label: <div key={item.departmentId}>{item.department}</div>,
     }));
     return (
       <div>
@@ -120,68 +273,44 @@ const ReferralInformation = (props) => {
         <Select
           showSearch
           optionLabelProp="label"
-          mode="multiple"
           options={options}
           value={initialValue?.referringDepartment || undefined}
-          className="multiple-select-custom autocomplete-custom w-100 popinput inputheight41"
+          className="autocomplete-custom w-100 popinput inputheight41"
           placeholder={data?.placeholder}
-          //   onSearch={(q) => dispatch(searchReferringTo(q))}
           allowClear
           onChange={(value, option) => {
             if (value === undefined || value === null) {
+              setSelectedDepartment(null);
               dispatch(
-                setCrossReferralFormDetails({
-                  ...referralInformation,
+                setCrossReferralInformationDetails({
+                  ...initialValue,
                   referringDepartment: "",
+                  referringTo: "", // Clear doctor when department is cleared
                 })
               );
               return;
             }
             try {
               const parsed = option?.key ? JSON.parse(option.key) : null;
+              setSelectedDepartment(parsed);
               dispatch(
-                setCrossReferralFormDetails({
-                  ...referralInformation,
-                  referringDepartment: parsed?.name || value,
+                setCrossReferralInformationDetails({
+                  ...initialValue,
+                  referringDepartment: parsed?.department || value,
+                  referringTo: "", // Clear doctor when department changes
                 })
               );
             } catch (e) {
+              setSelectedDepartment(null);
               dispatch(
-                setCrossReferralFormDetails({
-                  ...referralInformation,
+                setCrossReferralInformationDetails({
+                  ...initialValue,
                   referringDepartment: value,
+                  referringTo: "", // Clear doctor when department changes
                 })
               );
             }
           }}
-        />
-      </div>
-    );
-  };
-  const renderAnaesthesiaType = (data) => {
-    const options = [
-      { value: "General", label: <div>General</div> },
-      { value: "Spinal", label: <div>Spinal</div> },
-      { value: "Epidural", label: <div>Epidural</div> },
-      { value: "Local", label: <div>Local</div> },
-      { value: "Sedation", label: <div>Sedation</div> },
-    ];
-    return (
-      <div>
-        <label className="otNotes-label">{data?.title}</label>
-        <Select
-          className="autocomplete-custom w-100 popinput inputheight41"
-          placeholder="Select Doctor"
-          options={options}
-          value={initialValue?.referringTo || undefined}
-          onChange={(val) =>
-            dispatch(
-              setCrossReferralFormDetails({
-                ...referralInformation,
-                referringTo: val,
-              })
-            )
-          }
         />
       </div>
     );
@@ -196,15 +325,18 @@ const ReferralInformation = (props) => {
           className="w-100 popinput inputheight41"
           format={timeFormat}
           value={
-            initialValue?.referralEndTime
-              ? dayjs(initialValue.referralEndTime, timeFormat)
+            initialValue?.relativesInformed?.informedOnTime
+              ? dayjs(initialValue.relativesInformed.informedOnTime, timeFormat)
               : null
           }
           onChange={(time) =>
             dispatch(
-              setCrossReferralFormDetails({
-                ...referralInformation,
-                referralEndTime: time ? time.format(timeFormat) : "",
+              setCrossReferralInformationDetails({
+                ...initialValue,
+                relativesInformed: {
+                  ...initialValue?.relativesInformed,
+                  informedOnTime: time ? time.format(timeFormat) : "",
+                },
               })
             )
           }
@@ -217,7 +349,7 @@ const ReferralInformation = (props) => {
       </div>
     );
   };
-  const renderDiagnosis = (data) => {
+  const renderReasonForReferral = (data) => {
     if (!isEditable && !initialValue?.diagnosis) return null;
 
     return (
@@ -235,8 +367,8 @@ const ReferralInformation = (props) => {
         showMicrophone={false}
         onChange={(data) =>
           dispatch(
-            setCrossReferralFormDetails({
-              ...referralInformation,
+            setCrossReferralInformationDetails({
+              ...initialValue,
               reasonForReferral: data,
             })
           )
@@ -252,7 +384,7 @@ const ReferralInformation = (props) => {
               ]
         }
         placeholder={
-          "Enter reason for referral" // TODO: INTEL - PLACEHOLDERS CAN ALSO BECOME DYNAMIC
+          data?.placeholder // TODO: INTEL - PLACEHOLDERS CAN ALSO BECOME DYNAMIC
         }
         onSave={() => {
           console.log("save");
@@ -271,6 +403,7 @@ const ReferralInformation = (props) => {
 
   const renderSurgeryDate = (data) => {
     const dateDisplayFormat = "D MMM YYYY";
+    const isRelative = data?.id === "informedOnDate";
     return (
       <div>
         <label className="otNotes-label">{data?.title}</label>
@@ -278,13 +411,36 @@ const ReferralInformation = (props) => {
           className="w-100 popinput inputheight41"
           format={{ format: dateDisplayFormat, type: "mask" }}
           value={
-            initialValue?.surgeryDate
-              ? dayjs(initialValue.surgeryDate, dateDisplayFormat)
+            isRelative
+              ? initialValue?.relativesInformed?.informedOnDate
+                ? dayjs(
+                    initialValue.relativesInformed.informedOnDate,
+                    dateDisplayFormat
+                  )
+                : null
+              : initialValue?.[data?.id]
+              ? dayjs(initialValue[data.id], dateDisplayFormat)
               : null
           }
-          //   onChange={(date) =>
-          //     // dispatch(setSurgeryDate(date ? date.format(dateDisplayFormat) : ""))
-          //   }
+          onChange={(date) =>
+            dispatch(
+              setCrossReferralInformationDetails({
+                ...initialValue,
+                ...(isRelative
+                  ? {
+                      relativesInformed: {
+                        ...initialValue?.relativesInformed,
+                        informedOnDate: date
+                          ? date.format(dateDisplayFormat)
+                          : "",
+                      },
+                    }
+                  : {
+                      [data?.id]: date ? date.format(dateDisplayFormat) : "",
+                    }),
+              })
+            )
+          }
           suffixIcon={null}
           prefix={<img src={defaultIcons.calendarPlainIcon} />}
           allowClear
@@ -294,14 +450,12 @@ const ReferralInformation = (props) => {
     );
   };
 
-  // Dynamic render method using switch based on locale children
   const renderFieldById = (fieldConfig) => {
-    console.log("INTEL ==> asdf", fieldConfig);
     if (!fieldConfig.enabled) return null;
 
     switch (fieldConfig.id) {
       case "referringDepartment":
-        return renderSurgeryProcedureName(fieldConfig);
+        return renderReferringDepartment(fieldConfig);
 
       case "referringTo":
         return renderSection(fieldConfig);
@@ -311,10 +465,9 @@ const ReferralInformation = (props) => {
 
       case "informedBy":
         return renderSection(fieldConfig);
-      // return renderSurgeryStartTime(fieldConfig);
 
       case "informedTo":
-        return renderSection(fieldConfig);
+        return renderRelativesInformed(fieldConfig);
 
       case "informedOnDate":
         return renderSurgeryDate(fieldConfig);
@@ -323,7 +476,7 @@ const ReferralInformation = (props) => {
         return renderInformedTime(fieldConfig);
 
       case "reasonForReferral":
-        return renderDiagnosis(fieldConfig);
+        return renderReasonForReferral(fieldConfig);
 
       default:
         return null;
@@ -336,9 +489,7 @@ const ReferralInformation = (props) => {
       "referringTo",
       "referralDate",
     ];
-    const secondRowFields = [
-      "relativesInformed",
-    ];
+    const secondRowFields = ["relativesInformed"];
     const fullWidthFields = ["reasonForReferral"];
     return (
       <>
@@ -361,13 +512,11 @@ const ReferralInformation = (props) => {
           ))}
 
         <div className="surgery-details-second-row-container">
-          
           {sectionData?.children
             ?.filter(
               (field) => field.enabled && secondRowFields.includes(field.id)
             )
             .map((field) => {
-              console.log("INTEL ==> WAITT", field);
               if (!field.children) return null;
               return (
                 <>
@@ -383,7 +532,6 @@ const ReferralInformation = (props) => {
               );
             })}
         </div>
-
       </>
     );
   };

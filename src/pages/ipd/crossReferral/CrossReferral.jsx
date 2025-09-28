@@ -99,9 +99,7 @@ const CrossReferral = (props) => {
 
 const onAddReferralClick = () => {
     const reqData = {
-      referralInformation: {
-        ...crossReferralState.referralInformation,
-      },
+      ...crossReferralState.crossReferralFormDetails,
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
     };
 
@@ -219,7 +217,7 @@ const onAddReferralClick = () => {
                   handler: onAddReferralClick,
                   title: "Add Referral",
                 }}
-                items={modelData}
+                items={[modelData[0]]}
                 renderSection={renderSections}
                 onRequestClose={() => {
                   setIsBackModalOpen(true);
