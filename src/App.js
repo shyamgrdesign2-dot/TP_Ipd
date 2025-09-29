@@ -423,10 +423,10 @@ function App() {
                   element={<ConsultantNotes />}
                 />
                 <Route path="/ipd/patient-details/lab-results" element={<LabResults />} />
-                <Route
+                {/* <Route
                   path="/ipd/patient-details/medical-records"
                   element={<IPDMedicalRecords />}
-                />
+                /> */}
                 <Route
                   path="create-campaign"
                   element={<MessageCreateCampaign />}

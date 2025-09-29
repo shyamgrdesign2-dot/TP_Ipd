@@ -1,9 +1,10 @@
 .agent-alex-container {
   position: fixed;
-  top: 72px; // Below the page header
+  top: 100px; // Below the page header
   right: 24px;
-  width: 380px;
-  height: calc(100vh - 96px); // Full height minus header and margins
+  width: 381px;
+  // height: 500px;
+  height: calc(100vh - 120px); // Full height minus header and margins
   background: white;
   border-radius: 18px;
   box-shadow: 0px 9.055px 20.374px -6.791px rgba(24, 39, 75, 0.12), 
@@ -12,6 +13,21 @@
   z-index: 1001;
   display: flex;
   flex-direction: column;
+  transition: height 0.3s ease;
+
+  // Expanded state - show full timeline
+  &.timeline-expanded {
+    height: calc(100vh - 96px);
+    
+    .agent-alex-progress-timeline {
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .agent-alex-bottom-section {
+      display: none;
+    }
+  }
 }
 
 .agent-alex-background-pattern {
@@ -69,20 +85,21 @@
 }
 
 .agent-alex-avatar {
-  position: relative;
-  width: 38px;
-  height: 38px;
-  border-radius: 9.913px;
-  background: white;
-  border: 0.826px solid white;
-  overflow: hidden;
+  display: flex;
+padding-top: 1.314px;
+justify-content: center;
+align-items: center;
+border-radius: 9.913px 9.913px 0 9.913px;
+border: 0.826px solid #FFF;
+background: #FFF;
 }
 
 .agent-alex-avatar-image {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #A461D8 0%, #4B4AD5 100%);
-  border-radius: 9.913px;
+  width: 38px;
+  height: 38px;
+  border-radius: 9.913px 9.913px 0 9.913px;
+  border: 0.826px solid #FFF;
+  background: #FFF;
 }
 
 .agent-alex-info {
@@ -243,6 +260,7 @@
   overflow-y: auto;
   z-index: 2;
   position: relative;
+  background: #fff;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -252,14 +270,80 @@
     background: #f1f1f1;
     border-radius: 3px;
   }
+}
 
-  &::-webkit-scrollbar-thumb {
-    background: #8b5cf6;
-    border-radius: 3px;
+// Timeline Header Section
+.agent-alex-timeline-header-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 20px;
+  position: relative;
+}
+
+.agent-alex-timeline-divider {
+  flex: 1;
+  height: 1px;
+  background: #E5E7EB;
+  max-width: 80px;
+}
+
+.agent-alex-timeline-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: #6B7280;
+  margin: 0 20px;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+// Timeline Container with blur effect
+.agent-alex-timeline-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  &.collapsed {
+    height: 450px; // Fixed height when collapsed
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(247, 247, 249, 0.10) 0%, #F7F7F9 100%);
+    
+    // Add overlay for better fade effect
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 450px;
+      background: linear-gradient(transparent, rgba(247, 247, 249, 0.9));
+      pointer-events: none;
+      z-index: 10;
+    }
+    
+    // Remove blur and scale effects, keep opacity for subtle fade
+    > div {
+      opacity: 0.8;
+      transition: all 0.3s ease;
+    }
   }
 
-  &::-webkit-scrollbar-thumb:hover {
-    background: #7c3aed;
+  &.expanded {
+    height: auto;
+    flex: 1;
+    overflow-y: auto;
+    background: transparent;
+    
+    // Remove overlay when expanded
+    &::after {
+      display: none;
+    }
+    
+    > div {
+      opacity: 1;
+    }
   }
 }
 
@@ -498,7 +582,7 @@
 
 // View Less Button
 .agent-alex-view-less-button {
-  background: rgba(75, 74, 213, 0.08);
+  background: #e9e8f7;
   border: none;
   border-radius: 10px;
   padding: 10px 24px;
@@ -509,17 +593,13 @@
   width: 100%;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  margin-bottom: 16px;
-
-  &:hover {
-    background: rgba(75, 74, 213, 0.12);
-  }
+  margin: 15px 0 70px 0;
 
   span {
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
     font-size: 14px;
-    color: #4b4ad5;
+    color: #4b4ad5 !important;
     line-height: 22px;
   }
 
@@ -531,12 +611,12 @@
 
 // Bottom Section
 .agent-alex-bottom-section {
-  background: linear-gradient(135deg, rgba(247, 247, 249, 0.1) 0%, #f7f7f9 100%);
-  height: 216px;
+  background: white;
+  // height: 216px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: 0 14px 142px;
+  padding: 0 14px 36px;
   position: relative;
   flex-shrink: 0;
 }
@@ -573,33 +653,6 @@
   }
 }
 
-// Responsive Design
-@media (max-width: 1024px) {
-  .agent-alex-container {
-    width: 100vw;
-    height: calc(100vh - 72px);
-    border-radius: 0;
-    right: 0;
-    top: 72px;
-  }
-
-  .agent-alex-header {
-    padding: 16px;
-  }
-
-  .agent-alex-ai-summary {
-    margin: 16px;
-    padding: 16px;
-  }
-
-  .agent-alex-progress-timeline {
-    padding: 0 16px;
-  }
-
-  .agent-alex-bottom-section {
-    padding: 0 16px 142px;
-  }
-}
 
 @media (max-width: 768px) {
   .agent-alex-container {

@@ -14,6 +14,7 @@ const initialState = {
   loading: false,
   error: null,
   success: false,
+  isFetched: false
 };
 
 export const getProgressNotes = createAsyncThunk(
@@ -140,6 +141,7 @@ const progressNotesSlice = createSlice({
       .addCase(getProgressNotes.fulfilled, (state, action) => {
         state.loading = false;
         state.progressNotes = action.payload;
+        state.isFetched = true;
         state.filteredProgressNotes = []; // Clear filtered array when new data is fetched
         state.error = null;
       })
@@ -147,6 +149,7 @@ const progressNotesSlice = createSlice({
         state.progressNotes = {};
         state.filteredProgressNotes = []; // Clear filtered array on error
         state.loading = false;
+        state.isFetched = true;
         state.error = action.payload;
       })
       .addCase(updateProgressNotes.pending, (state) => {
