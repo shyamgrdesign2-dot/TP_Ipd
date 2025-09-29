@@ -33,7 +33,7 @@ import Findings from "./Findings.jsx";
 import AdditionalRemarks from "./AdditionalRemarks.jsx";
 import ChiefComplaint from "./ChiefComplaint.jsx";
 import Vitals from "./Vitals.jsx";
-import { getConsultantNotes } from "../../../redux/ipd/consultantNotesSlice.js";
+import BackConfirmationModal from "../../../components/BackConfirmationModal.js";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -49,6 +49,7 @@ const ProgressNotes = (props) => {
   // const { isEditable = true } = props; // Default patientId for testing
 
   const navigate = useNavigate();
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const [filledDate, setFilledDate] = useState(new Date());
@@ -122,8 +123,6 @@ const ProgressNotes = (props) => {
         date: filledDate,
         time: filledAtTime,
       };
-
-      console.log(chiefComplaint,"chiefComplaint")
 
       // Validate that there's actual data to save
       const hasVitalsData = vitals && Object.values(vitals).some(value => 
@@ -414,6 +413,32 @@ const ProgressNotes = (props) => {
     dispatch(updateCustomization(newData));
   };
 
+  const handleBackConfirmation = () => {
+    if (!patientDetails?.details?.id && !patientDetails?.admissionId) {
+      setIsBackModalOpen(false);
+      navigate(`/ipd/patient-details`, {state: {...state, activeTab: "progress", isEditable: false}, replace: true});
+      setOpen(false);
+    }
+    try {
+      // dispatch(
+      //   getProgressNotes({
+      //     patientId: patientDetails?.details?.id,
+      //     admissionId: patientDetails?.admissionId,
+      //   })
+      // ).then((res) => {
+        // addDataToStore(res.payload.assessment);
+        dispatch(resetProgressNotes());
+        navigate(`/ipd/patient-details`, {state: {...state, activeTab: "progress", isEditable: false}, replace: true});
+        setIsBackModalOpen(false);
+        setOpen(false);
+      // });
+    } catch (err) {
+      console.error(err, "error");
+      setIsBackModalOpen(false);
+      setOpen(false);
+    }
+  };
+
   return (
     <div className="afipd-assessments-form-container afipd-progress-notes-form-container">
       <Suspense fallback={<>Loading ...</>}>
@@ -436,11 +461,14 @@ const ProgressNotes = (props) => {
               items={modelData}
               renderSection={renderSections}
 
+              // onRequestClose={() => {
+              //   dispatch(resetProgressNotes());
+              //   navigate(-1);
+              //   return setOpen(false);
+              // }}
               onRequestClose={() => {
-                dispatch(resetProgressNotes());
-                navigate(-1);
-                return setOpen(false);
-              }}s
+                setIsBackModalOpen(true);
+              }}
               headerOffset={72}
               renderTopSection={renderFilledBySection}
               renderBottomSection={renderCustomModuleSection}
@@ -503,6 +531,11 @@ const ProgressNotes = (props) => {
           </Suspense>
         </Drawer>
       )}
+      <BackConfirmationModal
+        isModalOpen={isBackModalOpen}
+        onCancel={() => setIsBackModalOpen(false)}
+        onConfirm={handleBackConfirmation}
+      />
     </div>
   );
 };
