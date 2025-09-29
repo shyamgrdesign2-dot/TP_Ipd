@@ -1,3 +1,21 @@
+.ipd-generic-form-container.cross-referral {
+  .patient-details-body {
+    display: block;
+    background: rgba(249, 247, 253, 1) !important;
+  }
+  .ipd-filled-by-card-container {
+    background: rgba(249, 247, 253, 1) !important;
+  }
+  .patient-details-menu {
+    display: none;
+  }
+  .patient-details-content {
+    background: transparent !important;
+  }
+  .patient-details-menu-container .patient-section {
+    background: transparent !important;
+  }
+}
 #cw-panel-referral-information {
   .cw__bodyInner {
     display: flex;
