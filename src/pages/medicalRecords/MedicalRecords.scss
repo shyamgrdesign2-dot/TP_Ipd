@@ -24,3 +24,12 @@
     color: #a461d8 !important;
   }
 }
+
+/* Force 3 cards per row on tablet widths (992px–1024px) */
+@media (min-width: 992px) and (max-width: 1024px) {
+  .medical-records .row > [class^="col"],
+  .medical-records .row > [class*=" col"] {
+    flex: 0 0 auto;
+    width: 33%;
+  }
+}

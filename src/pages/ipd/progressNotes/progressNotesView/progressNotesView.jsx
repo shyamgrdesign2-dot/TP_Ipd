@@ -6,6 +6,8 @@ import { RemoteComponents } from "../../../../shared/remoteComponents";
 import { defaultIcons } from "../../../../assets/images/icons/index.js";
 import "./progressNotesView.scss";
 import DateRangeFilter from "../../components/DateRangeFilter.js";
+import { useDispatch, useSelector } from "react-redux";
+import { filterProgressNotesByDateRange, clearDateFilter } from "../../../../redux/ipd/progressNotesSlice";
 
 const { Title, Text } = Typography;
 const { ReusableStepper, ReusableProgressCard, RichTextEditor } =
@@ -17,6 +19,10 @@ const showDateFormat = "DD-MM-YYYY";
 function ProgressNotesView({ progressNotes, patientDetails }) {
   const [events, setEvents] = useState([]);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
+  // Get filtered progress notes from store
+  const { filteredProgressNotes } = useSelector((state) => state.progressNotes);
 
   // Local state
   const [dateStatus, setDateStatus] = useState(null);
@@ -62,6 +68,25 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
     }
   }, []);
 
+  const handleDateRangeChange = useCallback((dates, dateStrings) => {
+    // Call the existing onRangeChange to update local state
+    onRangeChange(dates, dateStrings);
+    
+    // Dispatch filter action to Redux store
+    if (dates && dateStrings && dateStrings.length === 2) {
+      const startDate = moment(dateStrings[0], showDateFormat).format(dateFormat);
+      const endDate = moment(dateStrings[1], showDateFormat).format(dateFormat);
+      
+      dispatch(filterProgressNotesByDateRange({
+        startDate,
+        endDate
+      }));
+    } else {
+      // Clear filter if no dates selected
+      dispatch(clearDateFilter());
+    }
+  }, [onRangeChange, dispatch]);
+
   const handlePickerModal = useCallback(() => {
     setPickerModal(!pickerModal);
   }, [pickerModal]);
@@ -70,11 +95,16 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
     setDateStatus(null);
     setDateRange(null);
     setPickerModal(false);
-  }, []);
+    // Clear the filter when canceling
+    dispatch(clearDateFilter());
+  }, [dispatch]);
+
+  // Use filtered data if available, otherwise use original data
+  const dataToMap = filteredProgressNotes.length > 0 ? filteredProgressNotes : progressNotes;
 
   const mappedData = useMemo(() => {
-    if (!Array.isArray(progressNotes)) return [];
-    return progressNotes.map((entry) => {
+    if (!Array.isArray(dataToMap)) return [];
+    return dataToMap.map((entry) => {
       const pn = entry?.progressNotes || {};
       const dateIso = pn?.date ? new Date(pn.date) : null;
       const timeIso = pn?.time ? new Date(pn.time) : null;
@@ -100,7 +130,7 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
         role: entry?.createdByRole,
       };
     });
-  }, [progressNotes]);
+  }, [dataToMap]);
 
   // Event handlers for ReusableStepper + ReusableProgressCard
   const handleReusableItemEvent = (eventName, payload) => {
@@ -262,14 +292,14 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1400px", margin: "0 auto" }}>
+    <div style={{ padding: "20px 0", maxWidth: "1400px", margin: "0 auto" }}>
       <div style={{ width: "max-content", maxWidth: "260px" }}>
         <DateRangeFilter
           placeholder={"Filter by date"}
           dateRange={dateRange}
           dateStatus={dateStatus}
           isOpen={pickerModal}
-          onRangeChange={onRangeChange}
+          onRangeChange={handleDateRangeChange}  // Use the new handler
           onToggleModal={handlePickerModal}
           onCancel={handleDateCancel}
           disabledDate={disabledDate}
@@ -287,7 +317,7 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
           onItemEvent={handleReusableItemEvent}
           layout={{
             gridGutter: [16, 16],
-            colProps: { xs: 24, sm: 12, lg: 8 },
+            // colProps: { xs: 24, sm: 12, lg: 8 },
             stepDirection: "vertical",
             currentStep: -1,
           }}
