@@ -19,7 +19,7 @@ import fullicon from '../assets/images/full-icon.svg';
 import VideoModal from './VideoModal';
 import { useAccess } from '../pages/vaccination/useAccess';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
-import { GB_ISCRIBE } from '../utils/constants';
+import { GB_CARE_PLAN, GB_ISCRIBE } from '../utils/constants';
 import customModuleIcon from '../assets/images/custom-module.svg';
 
 const CustomRow = ({ children, ...props }) => {
@@ -85,10 +85,11 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
   const [videoLink, setVideoLink] = useState(null);
   const { isGynaecHistoryAccessable } = useAccess();
   const {customModules} = useSelector((state) => state.customModules);
+  const isCarePlanEnabled = useFeatureIsOn(GB_CARE_PLAN);
 
   useEffect(() => {
     if (customizedPadLeftList.length > 0) {
-      let updatedData = customizedPadLeftList.filter(e => e.tmdpm_id === 7 && e.tmdpm_status === 0 ? isVaccinationEnabled : e.tmdpm_id === 16 && e.tmdpm_status === 0 ? isGrowthChartEnabled : e.tmdpm_id === 17 && e.tmdpm_status === 0 ? isGynaecHistoryAccessable : true).map((e, i) => {
+      let updatedData = customizedPadLeftList.filter(e => e.tmdpm_id === 7 && e.tmdpm_status === 0 ? isVaccinationEnabled : e.tmdpm_id === 16 && e.tmdpm_status === 0 ? isGrowthChartEnabled : e.tmdpm_id === 17 && e.tmdpm_status === 0 ? isGynaecHistoryAccessable : e.tmdpm_id === 50 && e.tmdpm_status === 0 ? isCarePlanEnabled : true).map((e, i) => {
         return { ...e };
       });
       updatedData = updatedData.filter((item) => item?.tmdpm_id !== 20);
