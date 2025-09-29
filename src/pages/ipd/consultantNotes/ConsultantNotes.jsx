@@ -33,8 +33,9 @@ import TabInvestigationBox from "../../../components/tab_design/TabInvestigation
 import { MESSAGE_KEY } from "../../../utils/constants";
 import visitEnd from "../../../assets/images/end-visit.svg";
 import imgCloseVisit from "../../../assets/images/close-visit.svg";
-import ProgressSummary from "../../../components/ProgressSummary";
-import AgentAlex from "../../../components/AgentAlex";
+import ProgressSummary from "./ProgressSummary";
+import AgentAlex from "./AgentAlex";
+import { getProgressNotes } from "../../../redux/ipd/progressNotesSlice";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -61,10 +62,12 @@ const ConsultantNotes = (props) => {
   const { customModules } = useSelector((state) => state.customModules);
   const { customization = {} } = useSelector((state) => state.ipd);
   const { profile } = useSelector((state) => state.doctors);
+  const { progressNotes, isFetched: isProgressNotesFetched } = useSelector(
+    (state) => state.progressNotes
+  );
 
   const { consultationNotes: consultantNotesCustomization = [] } =
     customization;
-  console.log({ customization });
 
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
@@ -111,6 +114,12 @@ const ConsultantNotes = (props) => {
       dispatch(getConsultantNotes({ patientId, admissionId }));
     }
   }, [patientId, dispatch, admissionId]);
+
+  useEffect(() => {
+    if (!isProgressNotesFetched && patientId && admissionId) {
+      dispatch(getProgressNotes({ patientId, admissionId }));
+    }
+  }, [dispatch, isProgressNotesFetched, patientId, admissionId]);
 
   // Save consultant notes
   const saveConsultantNotes = async () => {
@@ -410,25 +419,20 @@ const ConsultantNotes = (props) => {
     setShowAgentAlex(false);
   };
 
-  const handleViewProgressNotes = () => {
-    console.log("View Progress Notes clicked");
-    // TODO: Implement navigation to progress notes or open detailed view
-    // You can add navigation logic here
-  };
+  const renderBottomSection = () => (
+    <>
+      {!showAgentAlex && progressNotes.length > 0 && (
+        <div className="progress-summary-wrapper">
+          <ProgressSummary onClick={handleProgressSummaryClick} />
+        </div>
+      )}
+    </>
+  );
 
   return (
     <div className="afipd-assessments-form-container">
       <Suspense fallback={<>Loading ...</>}>
-        <div
-          className={`ipd-assessments-form-container ${
-            !isEditable ? "ipd-assessments-readable-container" : ""
-          } ${showAgentAlex ? "agent-alex-open" : ""}`}
-          style={{
-            "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80",
-            width: showAgentAlex ? "calc(100% - 404px)" : "100%", // 380px panel + 24px margin
-            transition: "width 0.3s ease",
-          }}
-        >
+        <div className={`ipd-assessments-form-container `}>
           {open && modelData && (
             <LayoutWithMenu
               onCustomiseClick={() => setShowCustomisationDrawer(true)}
@@ -443,7 +447,7 @@ const ConsultantNotes = (props) => {
               title="Consultant Notes"
               renderSection={renderSections}
               renderTopSection={renderFilledBySection}
-              // renderBottomSection={renderCustomModuleSection}
+              renderBottomSection={renderBottomSection}
               showAutoFill={!!consultantNotes?.length}
               autoFillTitle={
                 consultantNotes && consultantNotes.length > 0
@@ -460,25 +464,13 @@ const ConsultantNotes = (props) => {
                 handler: saveConsultantNotes,
                 disabled: loading,
               }}
+              isAuxPanelOpen={showAgentAlex}
+              auxPanel={<AgentAlex onClose={handleAgentAlexClose} />}
             />
           )}
         </div>
       </Suspense>
 
-      {/* Progress Summary Component - Fixed Bottom Right */}
-      {/* {!showAgentAlex && (
-        <div className="progress-summary-wrapper">
-          <ProgressSummary onClick={handleProgressSummaryClick} />
-        </div>
-      )} */}
-
-      {/* Agent Alex Panel */}
-      {showAgentAlex && (
-        <AgentAlex
-          onClose={handleAgentAlexClose}
-          onViewProgressNotes={handleViewProgressNotes}
-        />
-      )}
       {showCustomisationDrawer && (
         <Drawer
           closeIcon={true}
