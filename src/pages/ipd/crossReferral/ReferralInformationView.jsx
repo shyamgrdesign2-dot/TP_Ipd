@@ -10,6 +10,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { createRemoteComponent } from "../../../shared/remoteComponents.js";
 import { isEmptyRichText } from "../../../utils/utils.js";
+import MemberChip from "../components/MemberChip";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
@@ -25,13 +26,9 @@ const ReferralInformationView = (props) => {
     referringDepartment,
     reasonForReferral,
   } = data || {};
-  
-  const {
-    informedByDoctor,
-    informedTo,
-    informedOnDate,
-    informedOnTime,
-  } = relativesInformed;
+
+  const { informedByDoctor, informedTo, informedOnDate, informedOnTime } =
+    relativesInformed;
   const isCurrentDoctorReferee = informedByDoctor?.id !== referringTo?.id;
   const handleEditCrossReferral = (id) => {
     dispatch(setCurrentCrossReferralId(id));
@@ -54,8 +51,14 @@ const ReferralInformationView = (props) => {
     return null;
   }
   return (
-    <div className={`ipdcrt-section-container ${!isCollapsible ? 'ipdcrt-painfosection-container' : ''}`}>
-        {!isCollapsible && <div className='collapsible-wrapper-abs-header-shadow'></div>}
+    <div
+      className={`ipdcrt-section-container ${
+        !isCollapsible ? "ipdcrt-painfosection-container" : ""
+      }`}
+    >
+      {!isCollapsible && (
+        <div className="collapsible-wrapper-abs-header-shadow"></div>
+      )}
       <div className="heading">
         <div className="left-section">
           <img src={newIcons.basicInfoPcDark} alt="x" />
@@ -76,53 +79,23 @@ const ReferralInformationView = (props) => {
       </div>
       <div className="ipdcrt-section-content">
         <div className="ipdrf-chips-container">
-          {informedByDoctor?.name && (
-            <div className="team-member-chip">
-              <img
-                src={defaultIcons.docIcon}
-                alt="x"
-                className="team-member-icon"
-              />
-              <div className="chip-content">
-                <span className="team-member-label">Referred By:</span>
-                <span className="team-member-value">
-                  {informedByDoctor?.name}
-                </span>
-              </div>
-              {informedByDoctor?.role && (
-                <div className="chip-role">{informedByDoctor?.role}</div>
-              )}
-            </div>
-          )}
-          {referringTo?.name && (
-            <div className="team-member-chip">
-              <img
-                src={defaultIcons.docIcon}
-                alt="x"
-                className="team-member-icon"
-              />
-              <div className="chip-content">
-                <span className="team-member-label">Referring To:</span>
-                <span className="team-member-value">{referringTo?.name}</span>
-              </div>
-              {referringTo?.role && (
-                <div className="chip-role">{referringTo?.role}</div>
-              )}
-            </div>
-          )}
-          {referringDepartment && (
-            <div className="team-member-chip">
-              <img
-                src={defaultIcons.docIcon}
-                alt="x"
-                className="team-member-icon"
-              />
-              <div className="chip-content">
-                <span className="team-member-label">Referring Department:</span>
-                <span className="team-member-value">{referringDepartment}</span>
-              </div>
-            </div>
-          )}
+          <MemberChip
+            icon={defaultIcons.docIcon}
+            label="Referred By"
+            value={informedByDoctor?.name}
+            role={informedByDoctor?.role}
+          />
+          <MemberChip
+            icon={defaultIcons.docIcon}
+            label="Referring To"
+            value={referringTo?.name}
+            role={referringTo?.role}
+          />
+          <MemberChip
+            icon={defaultIcons.docIcon}
+            label="Referring Department"
+            value={referringDepartment}
+          />
         </div>
         {!isEmptyRichText(reasonForReferral) && (
           <div className="ipdrf-reason-container">
