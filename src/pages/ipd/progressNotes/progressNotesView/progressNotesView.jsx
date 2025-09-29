@@ -7,7 +7,10 @@ import { defaultIcons } from "../../../../assets/images/icons/index.js";
 import "./progressNotesView.scss";
 import DateRangeFilter from "../../components/DateRangeFilter.js";
 import { useDispatch, useSelector } from "react-redux";
-import { filterProgressNotesByDateRange, clearDateFilter } from "../../../../redux/ipd/progressNotesSlice";
+import {
+  filterProgressNotesByDateRange,
+  clearDateFilter,
+} from "../../../../redux/ipd/progressNotesSlice";
 
 const { Title, Text } = Typography;
 const { ReusableStepper, ReusableProgressCard, RichTextEditor } =
@@ -16,11 +19,15 @@ const { ReusableStepper, ReusableProgressCard, RichTextEditor } =
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD-MM-YYYY";
 
-function ProgressNotesView({ progressNotes, patientDetails }) {
+function ProgressNotesView({
+  progressNotes,
+  patientDetails,
+  isProgressNotesSummary = false,
+}) {
   const [events, setEvents] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   // Get filtered progress notes from store
   const { filteredProgressNotes } = useSelector((state) => state.progressNotes);
 
@@ -68,24 +75,33 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
     }
   }, []);
 
-  const handleDateRangeChange = useCallback((dates, dateStrings) => {
-    // Call the existing onRangeChange to update local state
-    onRangeChange(dates, dateStrings);
-    
-    // Dispatch filter action to Redux store
-    if (dates && dateStrings && dateStrings.length === 2) {
-      const startDate = moment(dateStrings[0], showDateFormat).format(dateFormat);
-      const endDate = moment(dateStrings[1], showDateFormat).format(dateFormat);
-      
-      dispatch(filterProgressNotesByDateRange({
-        startDate,
-        endDate
-      }));
-    } else {
-      // Clear filter if no dates selected
-      dispatch(clearDateFilter());
-    }
-  }, [onRangeChange, dispatch]);
+  const handleDateRangeChange = useCallback(
+    (dates, dateStrings) => {
+      // Call the existing onRangeChange to update local state
+      onRangeChange(dates, dateStrings);
+
+      // Dispatch filter action to Redux store
+      if (dates && dateStrings && dateStrings.length === 2) {
+        const startDate = moment(dateStrings[0], showDateFormat).format(
+          dateFormat
+        );
+        const endDate = moment(dateStrings[1], showDateFormat).format(
+          dateFormat
+        );
+
+        dispatch(
+          filterProgressNotesByDateRange({
+            startDate,
+            endDate,
+          })
+        );
+      } else {
+        // Clear filter if no dates selected
+        dispatch(clearDateFilter());
+      }
+    },
+    [onRangeChange, dispatch]
+  );
 
   const handlePickerModal = useCallback(() => {
     setPickerModal(!pickerModal);
@@ -100,7 +116,8 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
   }, [dispatch]);
 
   // Use filtered data if available, otherwise use original data
-  const dataToMap = filteredProgressNotes.length > 0 ? filteredProgressNotes : progressNotes;
+  const dataToMap =
+    filteredProgressNotes.length > 0 ? filteredProgressNotes : progressNotes;
 
   const mappedData = useMemo(() => {
     if (!Array.isArray(dataToMap)) return [];
@@ -176,46 +193,51 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
           <span className="medical-progress__content-date-text">
             {formattedDate}
           </span>
-          <img
-            className="medical-progress__content-download-icon"
-            style={{ fill: "#581C87", cursor: "pointer" }}
-            src={defaultIcons.downloadIcon}
-            alt="Download"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleGroupHeaderAction("Download", groupKey, groupData);
-              // Also emit the event for the stepper
-              if (emit) {
-                emit("groupHeaderAction", {
-                  action: "download",
-                  groupKey,
-                  groupData,
-                });
-              }
-            }}
-            title="Download this date's progress notes"
-          />
-          <img
-            className="medical-progress__content-print-icon"
-            style={{ fill: "#581C87", cursor: "pointer" }}
-            src={defaultIcons.printerIcon}
-            alt="Print"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleGroupHeaderAction("Print", groupKey, groupData);
-              // Also emit the event for the stepper
-              if (emit) {
-                emit("groupHeaderAction", {
-                  action: "print",
-                  groupKey,
-                  groupData,
-                });
-              }
-            }}
-            title="Print this date's progress notes"
-          />
+          {!isProgressNotesSummary && (
+            <>
+              {" "}
+              <img
+                className="medical-progress__content-download-icon"
+                style={{ fill: "#581C87", cursor: "pointer" }}
+                src={defaultIcons.downloadIcon}
+                alt="Download"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleGroupHeaderAction("Download", groupKey, groupData);
+                  // Also emit the event for the stepper
+                  if (emit) {
+                    emit("groupHeaderAction", {
+                      action: "download",
+                      groupKey,
+                      groupData,
+                    });
+                  }
+                }}
+                title="Download this date's progress notes"
+              />
+              <img
+                className="medical-progress__content-print-icon"
+                style={{ fill: "#581C87", cursor: "pointer" }}
+                src={defaultIcons.printerIcon}
+                alt="Print"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleGroupHeaderAction("Print", groupKey, groupData);
+                  // Also emit the event for the stepper
+                  if (emit) {
+                    emit("groupHeaderAction", {
+                      action: "print",
+                      groupKey,
+                      groupData,
+                    });
+                  }
+                }}
+                title="Print this date's progress notes"
+              />
+            </>
+          )}
         </div>
       </Card>
     );
@@ -264,14 +286,16 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
           RichTextEditor,
         }}
         actions={
+          !isProgressNotesSummary &&
           new Date(item?.timestamp).toISOString().split("T")[0] ===
-          new Date().toISOString().split("T")[0]
+            new Date().toISOString().split("T")[0]
             ? [{ name: "edit", label: "Edit progress note" }]
             : []
         }
         onAction={(eventName, payload) =>
           emit(eventName, { ...payload, data: item })
         }
+        className={isProgressNotesSummary ? "agent-alex-card" : undefined}
       />
     );
   };
@@ -292,18 +316,26 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
   };
 
   return (
-    <div style={{ padding: "20px 0", maxWidth: "1400px", margin: "0 auto" }}>
+    <div
+      style={{
+        padding: !isProgressNotesSummary ? "20px 0" : 0,
+        maxWidth: "1400px",
+        margin: "0 auto",
+      }}
+    >
       <div style={{ width: "max-content", maxWidth: "260px" }}>
-        <DateRangeFilter
-          placeholder={"Filter by date"}
-          dateRange={dateRange}
-          dateStatus={dateStatus}
-          isOpen={pickerModal}
-          onRangeChange={handleDateRangeChange}  // Use the new handler
-          onToggleModal={handlePickerModal}
-          onCancel={handleDateCancel}
-          disabledDate={disabledDate}
-        />
+        {!isProgressNotesSummary && (
+          <DateRangeFilter
+            placeholder={"Filter by date"}
+            dateRange={dateRange}
+            dateStatus={dateStatus}
+            isOpen={pickerModal}
+            onRangeChange={handleDateRangeChange}
+            onToggleModal={handlePickerModal}
+            onCancel={handleDateCancel}
+            disabledDate={disabledDate}
+          />
+        )}
       </div>
       <div>
         <ReusableStepper
@@ -327,6 +359,11 @@ function ProgressNotesView({ progressNotes, patientDetails }) {
           //   icon: <span className="medical-progress__calendar-icon">📅</span>,
           //   onClick: handleReusableAllDatesClick,
           // }}
+          cardsDisplay={isProgressNotesSummary ? "column" : "row"}
+          sidebarClassName={isProgressNotesSummary ? "agent-alex-sidebar" : ""}
+          contentClassName={
+            isProgressNotesSummary ? "agent-pn-step-content" : undefined
+          }
         />
       </div>
     </div>
