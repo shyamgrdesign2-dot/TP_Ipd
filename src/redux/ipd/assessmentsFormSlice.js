@@ -20,6 +20,7 @@ const initialState = {
   gynecHistoryData: {},
   referredDocForReview: null,
   gyneacHistoryBackup : {},
+  assessmentId: null,
 };
 
 export const getAssessmentsData = createAsyncThunk(
@@ -58,18 +59,17 @@ export const addAssessmentsData = createAsyncThunk(
 );
 export const updateAssessmentsData = createAsyncThunk(
   "assessment/updateAssessmentsData",
-  async (data) => {
+  async (data, { rejectWithValue }) => {
     try {
       let result = {};
       result = await ApiAssessment.updateAssessmentsData(data);
-      console.log('intel update',result)
-      if (!!result.data) {
-        return result.data;
+      if (result.message === "assessment updated successfully.") {
+        return result;
       } else {
-        throw Error(result.error);
+        return result?.data;
       }
     } catch (error) {
-      throw Error(error);
+      return rejectWithValue(error.message || "Failed to add/update Assessment");
     }
   }
 );
@@ -168,6 +168,7 @@ const assessmentSlice = createSlice({
           ...action.payload,
           assessment: undefined
         };
+        state.assessmentId = action.payload._id;
       })
       .addCase(getAssessmentsData.rejected, (state, action) => {
         state.assessmentsData = {};

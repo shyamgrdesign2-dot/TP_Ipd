@@ -12,8 +12,8 @@ ApiAssessment.addAssessmentsData = function ({ patientId, admissionId, data }) {
   return api.post(`/assessments?patientId=${patientId}&admissionId=${admissionId}`, data, baseUrl);
 };
 
-ApiAssessment.updateAssessmentsData = function ({ patientId, admissionId, data }) {
-  return api.put(`/assessments?patientId=${patientId}&admissionId=${admissionId}`, data, baseUrl);
+ApiAssessment.updateAssessmentsData = function ({ patientId, admissionId, data, _id }) {
+  return api.put(`/assessments?patientId=${patientId}&admissionId=${admissionId}&_id=${_id}`, data, baseUrl);
 };
 
 ApiAssessment.lastPrescriptionData = function ({ patientId, caseId }) {

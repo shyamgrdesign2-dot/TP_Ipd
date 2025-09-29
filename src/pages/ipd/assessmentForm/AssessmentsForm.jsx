@@ -266,6 +266,7 @@ const AssessmentsForm = (props) => {
         data: reqData,
         patientId: patientDetails?.details?.id,
         admissionId: patientDetails?.admissionId,
+        _id: assessmentData?.assessmentId,
       })
     ).then((res) => {
       if (res?.payload?.error) {
@@ -308,7 +309,10 @@ const AssessmentsForm = (props) => {
   const handleBackConfirmation = () => {
     if (!patientDetails?.details?.id && !patientDetails?.admissionId) {
       setIsBackModalOpen(false);
-      navigate(`/ipd/patient-details`, {state: {...state, activeTab: "assessment", isEditable: false}, replace: true});
+      navigate(`/ipd/patient-details`, {
+        state: { ...state, activeTab: "assessment", isEditable: false },
+        replace: true,
+      });
       setOpen(false);
     }
     try {
