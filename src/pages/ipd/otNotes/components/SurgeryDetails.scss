@@ -44,6 +44,10 @@
     color: var(--value);
     font-size: 14px;
     margin: 10px 0;
+    &__padding {
+      margin: 0 !important;
+      padding: 10px 0;
+    }
   }
 
   &__label {

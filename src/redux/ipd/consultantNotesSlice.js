@@ -39,7 +39,7 @@ export const updateConsultantNotes = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const result = await ApiConsultantNotes.updateConsultantNotes(data);
-      return { result, data, _id };
+      return { result, data, _id: data?._id };
     } catch (error) {
       console.log("Error updating consultant notes: ", error);
       return rejectWithValue(

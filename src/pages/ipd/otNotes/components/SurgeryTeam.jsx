@@ -23,12 +23,14 @@ const SurgeryTeam = ({ surgeryTeam ,  id }) => {
     
     return (
       <div className="team-member-chip">
-        {icon && <img src={icons.docIcon} alt="x" className="team-member-icon" />}
+        {icon && <img src={defaultIcons.docIcon} alt="x" className="team-member-icon" />}
         <span className="team-member-label">{label}:</span>
         <span className="team-member-value">{displayValue}</span>
       </div>
     );
   };
+
+  if (Object.keys(surgeryTeam).filter(key => surgeryTeam[key]?.length > 0).length === 0) return null;
 
   return (
     <div className="surgery-team-container">

@@ -41,6 +41,7 @@ import plainDocument from "./plain-document.svg";
 import eyeIcon from "./eye.svg";
 import printerIcon from "./printer.svg";
 import editIcon from "./edit.svg";
+import editDarkIcon from "./editDark.svg";
 import hospitalIcon from "./hospital.svg";
 import doctorIcon from "./doctor.svg";
 import calendarIcon from "./calendar-icon.svg";
@@ -139,5 +140,6 @@ export const defaultIcons = {
   otSurgeryIcon,
   clockDarkOutlineIcon,
   calendarDarkOutlineIcon,
-  downArrowPcIcon
+  downArrowPcIcon,
+  editDarkIcon
 };

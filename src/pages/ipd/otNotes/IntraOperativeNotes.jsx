@@ -8,22 +8,22 @@ const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const UnitInput = createRemoteComponent("UnitInput");
 
-const MetricsList = ({ enabledChildItems, intraOperativeNotes }) => {
+export const MetricsList = ({ sectionData, data }) => {
   return (
     <div className="ipdot-ion-metrics-container">
       <div className="ipdot-ion-metrics-title">{"Metrics"}</div>
       <ul className="ipdot-ion-metrics-list">
-        {enabledChildItems?.map((enabledItem) => {
+        {sectionData?.map((section) => {
           return (
             <>
-              {intraOperativeNotes?.[enabledItem.id] && (
+              {data?.[section.id] && (
                 <li>
                   <span className="ipdot-ion-metrics-list-label">
-                    {enabledItem.title}
+                    {section.title}
                   </span>{" "}
                   :{" "}
                   <span className="ipdot-ion-metrics-list-value">
-                    {intraOperativeNotes?.[enabledItem.id]}
+                    {data?.[section.id]}
                   </span>
                 </li>
               )}
@@ -139,8 +139,8 @@ const IntraOperativeNotes = (props) => {
                 return (
                   <li key={item.id}>
                     <MetricsList
-                      enabledChildItems={enabledChildItems}
-                      intraOperativeNotes={intraOperativeNotes}
+                      sectionData={enabledChildItems}
+                      data={intraOperativeNotes}
                     />
                   </li>
                 );

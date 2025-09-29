@@ -9,6 +9,8 @@ import edit from "./../../../../assets/images/document-edit.svg";
 import trash from "./../../../../assets/images/trash.svg";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
 import { deleteDocById, fetchAllPatientDocs } from "../../service";
+// IPD services
+import { deleteDocument as deleteIPDDocument, getDocuments as getIPDDocuments } from "../../../ipd/medicalRecords/utils.js/service";
 import { setAllUploadedDocs } from "../../../../redux/uploadDocSlice";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -34,6 +36,11 @@ const RecordCard = ({
   setFilesData,
   setIsEditDocument,
   setUploadDocDrawer,
+  // IPD specific
+  isIPDFlow = false,
+  patientId,
+  admissionId,
+  onIpdRecordDeleted,
   isIpd=false
 }) => {
   const dispatch = useDispatch();
@@ -118,16 +125,31 @@ const RecordCard = ({
   };
 
   const handleDelete = async () => {
-    await deleteDocById(id);
-    const doctorUploadedDocs = await fetchAllPatientDocs(
-      patient_data.patient_unique_id
-    );
-    dispatch(
-      setAllUploadedDocs(
-        mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
-      )
-    );
-    toggleDeletePopup();
+    try {
+      if (isIPDFlow && patientId && admissionId && id) {
+        // Delete via IPD API
+        await deleteIPDDocument({ patientId, admissionId, id });
+        // Optimistically update UI
+        if (typeof onIpdRecordDeleted === "function") {
+          onIpdRecordDeleted(id);
+        }
+      } else {
+        // Existing non-IPD flow
+        await deleteDocById(id);
+        const doctorUploadedDocs = await fetchAllPatientDocs(
+          patient_data.patient_unique_id
+        );
+        dispatch(
+          setAllUploadedDocs(
+            mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
+          )
+        );
+      }
+    } catch (e) {
+      console.error("Failed to delete document", e);
+    } finally {
+      toggleDeletePopup();
+    }
   };
 
   const handleEdit = () => {

@@ -29,6 +29,7 @@ import {
   shortenText,
   uploadDocURLtoFile,
 } from "./utils/helper";
+import { putDocument as putIPDDocument } from "../ipd/medicalRecords/utils.js/service";
 
 const UploadDocument = ({
   onClose,
@@ -42,6 +43,12 @@ const UploadDocument = ({
   patientData,
   isAppointmentData,
   handleUploadDocPopup,
+  // New optional props for IPD medical records flow
+  isIPDMedicalRecords = false,
+  patientId: ipdPatientId,
+  admissionId: ipdAdmissionId,
+  // Optional override for category options
+  overrideDocumentOptions,
 }) => {
   const dispatch = useDispatch();
   const { userId } = useSelector((state) => state.doctors);
@@ -49,12 +56,14 @@ const UploadDocument = ({
   const patient_data = state?.patient_data || patientData;
   const { uploadDocCategories, allUploadedDocs, patientUploadedDocs } =
     useSelector((state) => state.uploadDoc);
-  const documentOptions = uploadDocCategories.map((item) => {
-    return {
-      label: item.category_name,
-      value: item.category_id,
-    };
-  });
+  const documentOptions = isIPDMedicalRecords && overrideDocumentOptions?.length
+    ? overrideDocumentOptions
+    : uploadDocCategories.map((item) => {
+        return {
+          label: item.category_name,
+          value: item.category_id,
+        };
+      });
 
   const [isFileSizeError, setIsFileSizeError] = useState(false);
   const [isFileLimitError, setIsFileLimitError] = useState(false);
@@ -160,6 +169,57 @@ const UploadDocument = ({
 
   const handleSubmit = async () => {
     setLoader(true);
+
+    // Separate submit flow for IPD Medical Records (does not affect existing flow)
+    if (isIPDMedicalRecords) {
+      try {
+        // Upload each file via IPD docs API
+        for (let i = 0; i < filesData.length; i++) {
+          const fileBlob = filesData[i];
+          const meta = recordData?.[i];
+          // Derive subCategory from selected document option label if available
+          const selectedOption = documentOptions.find(
+            (opt) => opt.value === meta?.recordType
+          );
+          const subCategory = (selectedOption?.label || "other").toLowerCase();
+          const name = meta?.name || fileBlob?.name;
+
+          await putIPDDocument({
+            patientId: ipdPatientId,
+            admissionId: ipdAdmissionId,
+            category: "medical_records",
+            subCategory,
+            file: fileBlob,
+            name,
+          });
+        }
+        message.open({
+          key: MESSAGE_KEY,
+          type: "",
+          className: "message-appointment",
+          content: (
+            <div className="d-flex align-items-center">
+              <img src={visitEnd} className="me-3" />
+              <div>
+                <div className="fontroboto text-start fw-normal mt-1">
+                  Medical Records added successfully
+                </div>
+              </div>
+              <img src={imgCloseVisit} className="ms-3" onClick={() => message.destroy()} />
+            </div>
+          ),
+          duration: 5,
+        });
+      } catch (e) {
+        console.error("IPD Medical Records upload failed:", e);
+      }
+      setLoader(false);
+      setFilesData([]);
+      setRecordData([]);
+      handleDrawerUploadDoc();
+      return;
+    }
+
     if (isEditDocument) {
       const fileData = recordData?.[0];
       if (fileData) {

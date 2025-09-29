@@ -27,6 +27,7 @@ import CustomModule from "../../../components/CustomModule";
 import { MESSAGE_KEY } from "../../../utils/constants";
 import visitEnd from "../../../assets/images/end-visit.svg";
 import imgCloseVisit from "../../../assets/images/close-visit.svg";
+import alertIcon from "../../../assets/images/alertIcon.svg";
 
 import Findings from "./Findings.jsx";
 import AdditionalRemarks from "./AdditionalRemarks.jsx";
@@ -122,9 +123,64 @@ const ProgressNotes = (props) => {
         time: filledAtTime,
       };
 
-      console.log("Saving consultant notes with data:", progressNotesData);
-      console.log("Filled Date:", filledDate);
-      console.log("Filled At Time:", filledAtTime);
+      console.log(chiefComplaint,"chiefComplaint")
+
+      // Validate that there's actual data to save
+      const hasVitalsData = vitals && Object.values(vitals).some(value => 
+        value !== null && value !== undefined && value !== ""
+      );
+
+      // Helper function to check if rich text editor data has meaningful content
+      const hasRichTextContent = (data) => {
+        if (!Array.isArray(data) || data.length === 0) return false;
+        
+        return data.some(item => {
+          if (item && item.children && Array.isArray(item.children)) {
+            return item.children.some(child => {
+              if (child && child.text) {
+                return child.text.trim() !== "";
+              }
+              return false;
+            });
+          }
+          return false;
+        });
+      };
+
+      const hasChiefComplaint = chiefComplaint && chiefComplaint.length > 0 && 
+        hasRichTextContent(chiefComplaint);
+      const hasFindings = findings && findings.length > 0 && 
+        hasRichTextContent(findings);
+      const hasAdditionalRemarks = additionalRemarks && additionalRemarks.length > 0 && 
+        hasRichTextContent(additionalRemarks);
+
+      // Check if any field has meaningful data
+      const hasAnyData = hasVitalsData || hasChiefComplaint || hasFindings || hasAdditionalRemarks;
+
+      if (!hasAnyData) {
+        message.open({
+          key: MESSAGE_KEY,
+          // type: "error",
+          className: "message-appointment",
+          content: (
+            <div className="d-flex align-items-center">
+              <img src={alertIcon} className="me-3" />
+              <div>
+                <div className="title-common text-start fontroboto">
+                  Please fill in at least one field before saving!
+                </div>
+              </div>
+              <img
+                src={imgCloseVisit}
+                className="ms-3"
+                onClick={() => message.destroy()}
+              />
+            </div>
+          ),
+          duration: 3,
+        });
+        return; // Exit early if no data
+      }
 
       // Update existing note (requires _id). If none, try to use currentProgressNote or skip _id.
       const result = await dispatch(

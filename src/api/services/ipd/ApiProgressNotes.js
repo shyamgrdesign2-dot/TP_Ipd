@@ -4,8 +4,17 @@ const baseUrl = { customBaseUrl: config.ipd_api_url };
 
 const ApiProgressNotes = {};
 
-ApiProgressNotes.getProgressNotes = function ({ patientId, admissionId }) {
-  return api.get(`/progress-notes?patientId=${patientId}&admissionId=${admissionId}`, baseUrl);
+ApiProgressNotes.getProgressNotes = function ({ patientId, admissionId, filterStartDate, filterEndDate }) {
+  let queryString = `patientId=${patientId}&admissionId=${admissionId}`;
+  
+  if (filterStartDate) {
+    queryString += `&filterStartDate=${filterStartDate}`;
+  }
+  
+  if (filterEndDate) {
+    queryString += `&filterEndDate=${filterEndDate}`;
+  }
+  return api.get(`/progress-notes?${queryString}`, baseUrl);
 };
 
 // ApiProgressNotes.addProgressNotesData = function ({ patientId, admissionId, data }) {

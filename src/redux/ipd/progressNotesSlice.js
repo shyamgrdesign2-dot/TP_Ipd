@@ -3,6 +3,7 @@ import ApiProgressNotes from "../../api/services/ipd/ApiProgressNotes";
 
 const initialState = {
   progressNotes: {},
+  filteredProgressNotes: [], // New array for filtered results
   lastPrescriptionDate: null,
   lastPrescriptionDataForProgress: {},
   chiefComplaint: [],
@@ -18,11 +19,13 @@ const initialState = {
 
 export const getProgressNotes = createAsyncThunk(
   "progressNotes/getProgressNotes",
-  async ({ patientId, admissionId }, { rejectWithValue }) => {
+  async ({ patientId, admissionId, filterStartDate, filterEndDate }, { rejectWithValue }) => {
     try {
       const result = await ApiProgressNotes.getProgressNotes({
         patientId,
         admissionId,
+        filterStartDate,
+        filterEndDate,
       });
       if (result?.length) {
         return result;
@@ -69,21 +72,45 @@ const progressNotesSlice = createSlice({
     },
     clearProgressNotes: (state) => {
       state.progressNotes = [];
+      state.filteredProgressNotes = []; // Clear filtered array too
       state.currentProgressNote = null;
       state.error = null;
       state.success = false;
     },
-    // updateProgressNotes: (state, action) => {
-    //   const { _id, updatedData } = action.payload;
-    //   const index = state.progressNotes.findIndex((note) => note._id === _id);
-    //   if (index !== -1) {
-    //     state.progressNotes[index] = {
-    //       ...state.progressNotes[index],
-    //       progressNotes: updatedData,
-    //       updatedAt: new Date().toISOString(),
-    //     };
-    //   }
-    // },
+    // New action to filter progress notes by date range
+    filterProgressNotesByDateRange: (state, action) => {
+      const { startDate, endDate } = action.payload;
+      
+      if (!startDate || !endDate) {
+        // If no date range, clear filtered array
+        state.filteredProgressNotes = [];
+        return;
+      }
+      
+      if (!Array.isArray(state.progressNotes)) {
+        state.filteredProgressNotes = [];
+        return;
+      }
+      
+      // Filter progress notes by date range
+      state.filteredProgressNotes = state.progressNotes.filter((entry) => {
+        const pn = entry?.progressNotes || {};
+        const dateIso = pn?.date ? new Date(pn.date) : null;
+        
+        if (!dateIso) return false;
+        
+        const formattedDate = `${dateIso.getFullYear()}-${String(dateIso.getMonth() + 1).padStart(
+          2,
+          "0"
+        )}-${String(dateIso.getDate()).padStart(2, "0")}`;
+        
+        return formattedDate >= startDate && formattedDate <= endDate;
+      });
+    },
+    // Clear date filter
+    clearDateFilter: (state) => {
+      state.filteredProgressNotes = [];
+    },
     setChiefComplaint: (state, action) => {
       state.chiefComplaint = action.payload;
     },
@@ -115,25 +142,16 @@ const progressNotesSlice = createSlice({
         state.loading = false;
         state.progressNotes = action.payload;
         state.isFetched = true;
+        state.filteredProgressNotes = []; // Clear filtered array when new data is fetched
         state.error = null;
       })
       .addCase(getProgressNotes.rejected, (state, action) => {
         state.progressNotes = {};
+        state.filteredProgressNotes = []; // Clear filtered array on error
         state.loading = false;
         state.isFetched = true;
         state.error = action.payload;
       })
-      // .addCase(addProgressNotes.pending, (state) => {
-      //   state.loading = true;
-      // })
-      // .addCase(addProgressNotesData.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.progressNotes = action.payload;
-      // })
-      // .addCase(addProgressNotesData.rejected, (state, action) => {
-      //   state.progressNotes = [];
-      //   state.loading = false;
-      // })
       .addCase(updateProgressNotes.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -157,6 +175,8 @@ export const {
   lastPrescriptionDate,
   lastPrescriptionDataForProgress,
   clearProgressNotes,
+  filterProgressNotesByDateRange, // New action
+  clearDateFilter, // New action
   setChiefComplaint,
   setFindings,
   setVitals,

@@ -52,7 +52,7 @@ const Findings = (props) => {
       readOnly={!isEditable}
       showToolbar={isEditable}
       showActionBtns={isEditable}
-      title="Findings"
+      title="Findings (Systemic Examination)"
       width="100%"
       icon={defaultIcons.doc}
       showAutoFill={hasfindingsInLastProgressNote}
@@ -66,7 +66,7 @@ const Findings = (props) => {
           : "No previous progress notes available"
       }
       onAutoFill={handleAutofill}
-      containerClass="wrapper-class"
+      containerClass=""
       showMagicPenGif={false}
       showMicrophone={false}
       initialValue={

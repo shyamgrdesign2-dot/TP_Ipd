@@ -38,6 +38,7 @@ import crossReferralSlice from "./ipd/crossReferralSlice";
 import inPatientsSlice from "./ipd/inPatientsSlice";
 import consultantNotesSlice from "./ipd/consultantNotesSlice";
 import progressNotesSlice from "./ipd/progressNotesSlice";
+import medicalRecordsSlice from "./ipd/medicalRecordsSlice";
 import labResultsSlice from "./ipd/labResultsSlice";
 
 const persistConfig = {
@@ -78,10 +79,10 @@ const rootReducer = combineReducers({
   shortLink: shortLinkSlice,
   monetization: monetizationSlice,
   prescription: prescriptionSlice,
-  ipd: ipdSlice,
   inPatients: inPatientsSlice,
   consultantNotes: consultantNotesSlice,
   progressNotes: progressNotesSlice,
+  medicalRecords: medicalRecordsSlice,
   labResults: labResultsSlice,
   crossReferral: crossReferralSlice,
 });

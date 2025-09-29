@@ -1,4 +1,4 @@
-import React, { act, Suspense, useEffect, useMemo, useState } from "react";
+import React, { act, Suspense, useEffect, useMemo, useState, useRef } from "react";
 import { IPD } from "../../../utils/locale";
 import {
   formatDateToShortMonthYear,
@@ -44,6 +44,10 @@ import {
   resetOtNotesForm,
 } from "../../../redux/ipd/otNotesSlice";
 import MedicalRecords from "../medicalRecords/IPDMedicalRecords";
+import { Drawer } from "antd";
+import UploadDocument from "../../medicalRecords/UploadDocument";
+import { getAllPatientDocs } from "../medicalRecords/utils.js/helper";
+import VisitMedicalRecords from "../../medicalRecords/components/visitMedicalRecords/VisitMedicalRecords";
 import OtNotesTimeline from "../otNotes/OtNotesTimeline";
 import { useAssessmentSectionVisibility } from "../../../hooks/useAssessmentSectionVisibility";
 import CrossReferralTimeline from "../crossReferral/CrossReferralTimeline";
@@ -77,10 +81,21 @@ const IPDPatientDetails = () => {
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { otNotesData } = useSelector((state) => state.otNotes);
   const { progressNotes } = useSelector((state) => state.progressNotes);
+  const { medicalRecords } = useSelector((state) => state.medicalRecords);
   const { crossReferralData } = useSelector((state) => state.crossReferral);
   const [open, setOpen] = useState(true);
   const [activeMenuItem, setActiveMenuItem] = useState("assessment");
   const [patientData, setPatientData] = useState(null);
+
+  // Medical records states
+  const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
+  const [medicalReportDrawer, setMedicalReportDrawer] = useState(false);
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const [filesData, setFilesData] = useState([]);
+  const [isEditDocument, setIsEditDocument] = useState(false);
+  const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
+  const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
+  const fileInputRef = useRef(null);
 
   const dispatch = useDispatch();
 
@@ -119,11 +134,13 @@ const IPDPatientDetails = () => {
         patient_data,
         patientDetails,
         isEditable: true,
+        isNew: true,
       },
     });
   };
 
   const handleAddCrossReferralClick = () => {
+    dispatch(resetCrossReferralForm());
     navigate("/ipd/patient-details/cross-referral", {
       state: {
         patient_data,
@@ -133,14 +150,51 @@ const IPDPatientDetails = () => {
     });
   };
 
-  const handleMedicalRecordsClick = () => {
-    navigate("/ipd/patient-details/medical-records", {
+  const handleAddLabResultsClick = () => {
+    navigate("/ipd/patient-details/lab-results", {
       state: {
         patient_data,
         patientDetails,
         isEditable: true,
       },
     });
+  };
+
+  /* Functions realted to Medical records */
+
+  useEffect (()=>{
+    if (patient_data?.patient_unique_id) {
+      getAllPatientDocs( patient_data?.patient_unique_id , admissionId, "medical_records");
+    }
+  }, [patient_data?.patient_unique_id])
+
+  // Drawer Medical Report
+  const handleDrawerMedicalReport = () => {
+    setMedicalReportDrawer(!medicalReportDrawer);
+  };
+
+  // Drawer Upload Document
+  const handleDrawerUploadDoc = () => {
+    setUploadDocDrawer(!uploadDocDrawer);
+  };
+
+  const handleDeletePopup = () => {
+    setShowDeletePopup(true);
+  };
+
+  const handleUploadDocPopup = () => {
+    setShowUploadDocPopup((prev) => !prev);
+  };
+  
+  const handleMedicalRecordsClick = () => {
+    handleDrawerUploadDoc();
+    // navigate("/ipd/patient-details/medical-records", {
+    //   state: {
+    //     patient_data,
+    //     patientDetails,
+    //     isEditable: true,
+    //   },
+    // });
   };
 
   const handleProgressNotesClick = () => {
@@ -278,6 +332,9 @@ const IPDPatientDetails = () => {
         }
       );
     } else if (activeMenuItem === "records") {
+      // if (patient_data.patient_unique_id) {
+      //   getAllPatientDocs( patient_data.patient_unique_id , admissionId, "medical_records");
+      // }
       // dispatch(getProgressNotes({ patientId, admissionId })).catch(
       //   (error) => {
       //     console.error("Error fetching progress notes:", error);
@@ -318,13 +375,13 @@ const IPDPatientDetails = () => {
     ) {
       return true;
     } else if (activeMenuItem === "crossReferral") {
-      return false; // TODO: INTEL - CHANGE THIS TO TRUE WHEN THE DATA IS PRESENT
+      return !!crossReferralData?.length;
     } else if (activeMenuItem === "consultantNotes") {
       return !!consultantNotes?.length;
     } else if (activeMenuItem === "progress") {
       return !!progressNotes?.length;
     } else if (activeMenuItem === "records") {
-      return false;
+      return !!medicalRecords?.length;
     } else if (activeMenuItem === "labResults") {
       return true;
     }
@@ -336,6 +393,8 @@ const IPDPatientDetails = () => {
     consultantNotes,
     progressNotes,
     hasAnyAssessmentData,
+    crossReferralData,
+    medicalRecords
   ]);
 
   const onRequestClose = () => {
@@ -403,7 +462,18 @@ const IPDPatientDetails = () => {
       case "records":
         return (
           <div className="ipd-adm-assess-container-readable">
-            <MedicalRecords />
+            <VisitMedicalRecords
+              isIPDFlow={true}
+              ipdRecords={medicalRecords}
+              filesData={medicalRecords}
+              setUploadDocDrawer={setUploadDocDrawer}
+              setFilesData={setFilesData}
+              handleUploadDocPopup={handleUploadDocPopup}
+              setIsEditDocument={setIsEditDocument}
+              handleDrawerUploadDoc={handleDrawerUploadDoc}
+              patientId={patientId}
+              admissionId={admissionId}
+            />
           </div>
         );
       case "otNotes":
@@ -426,6 +496,16 @@ const IPDPatientDetails = () => {
         return (
           <div className="ipd-adm-assess-container-readable">
             <CrossReferralTimeline />
+            <div className="ipd-toolbar-edit-custom-print-download no-edit">
+              <ToolbarActions
+                showEditForm={false}
+                onEdit={handleAddCrossReferralClick}
+                onPrintPreview={() => console.log("Preview")}
+                onPrint={() => console.log("Print")}
+                onSettings={handleCustomizeClick}
+                onDownload={() => console.log("Download")}
+              />
+            </div>
           </div>
         );
       default:
@@ -461,6 +541,39 @@ const IPDPatientDetails = () => {
               }
               showAddCTA={canShowAddCTA}
             />
+          )}
+          {uploadDocDrawer && (
+            <Drawer
+              closeIcon={false}
+              placement="right"
+              bodyStyle={{ backgroundColor: "white" }}
+              onClose={handleDeletePopup}
+              open={uploadDocDrawer}
+              className="modalWidth-700"
+              width="auto"
+              push={false}
+            >
+              <UploadDocument
+                onClose={handleDeletePopup}
+                handleDrawerUploadDoc={handleDrawerUploadDoc}
+                shouldShowDeletePopup={shouldShowDeletePopup}
+                setShowDeletePopup={setShowDeletePopup}
+                filesData={filesData}
+                setFilesData={setFilesData}
+                patientData={patientData}
+                handleUploadDocPopup={() => setShowUploadDocPopup((prev) => !prev)}
+                isAppointmentData={true}
+                isIPDMedicalRecords={true}
+                patientId={patientId}
+                admissionId={admissionId}
+                overrideDocumentOptions={[
+                  { label: "Prescription", value: "prescription" },
+                  { label: "Radiology", value: "radiology" },
+                  { label: "Pathology", value: "pathology" },
+                  { label: "Other", value: "other" },
+                ]}
+              />
+            </Drawer>
           )}
         </AnimatePresence>
       </Suspense>

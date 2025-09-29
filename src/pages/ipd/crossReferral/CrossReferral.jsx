@@ -17,6 +17,7 @@ import { resetCrossReferralForm, updateCrossReferralData } from "../../../redux/
 import BackConfirmationModal from "../../../components/BackConfirmationModal.js";
 import { getCrossReferralData, setSingleCrossReferralData } from "../../../redux/ipd/crossReferralSlice.js";
 import ReferralInformation from "./ReferralInformation.jsx";
+import dayjs from "dayjs";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -30,10 +31,14 @@ const CrossReferral = (props) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
+  const [filledDate, setFilledDate] = useState(new Date());
+  const [filledAtTime, setFilledAtTime] = useState(new Date());
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
   const { customization = {} } = useSelector((state) => state.ipd);
   const crossReferralState = useSelector((state) => state.crossReferral);
   const { customModules } = useSelector((state) => state.customModules);
   const crossReferralData = useSelector((state) => state.crossReferral);
+  const { profile } = useSelector((state) => state.doctors);
   const { crossReferral = [] } = customization;
   const [modelData, setModelData] = useState( crossReferral.length > 0 ? crossReferral : IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE );
 
@@ -99,9 +104,7 @@ const CrossReferral = (props) => {
 
 const onAddReferralClick = () => {
     const reqData = {
-      referralInformation: {
-        ...crossReferralState.referralInformation,
-      },
+      ...crossReferralState.crossReferralFormDetails,
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
     };
 
@@ -153,17 +156,39 @@ const onAddReferralClick = () => {
       </div>
     );
   };
-
+  const handleTimePeriodChange = (value) => {
+    setSelectedTimePeriod(value);
+  };
   const renderHeaderSection = () => {
     return (
       <div className="ipd-filled-by-card-container">
-        {crossReferralState.currentCrossReferralFilledByDetails?.createdByName && <FilledByCard
+        {crossReferralState.currentCrossReferralFilledByDetails?.createdByName ? <FilledByCard
           showBeing={!(crossReferralState.currentCrossReferralFilledByDetails?.createdAt)}
           filledBy={crossReferralState.currentCrossReferralFilledByDetails?.createdByName || ""}
           role={crossReferralState.currentCrossReferralFilledByDetails?.createdByRole || ""}
           showFilledOnDate={true}
           selectedDate={crossReferralState.currentCrossReferralFilledByDetails?.createdAt || ""}
-        />}
+        /> : <FilledByCard
+        filledBy={profile?.um_name}
+        role="Doctor"
+        selectedDate={dayjs(filledDate)}
+        selectedTime={dayjs(filledAtTime)}
+        // showRole={false}
+        dateFormat="DD MMM YYYY"
+        timeFormat="HH:mm A"
+        selectedTimePeriod={selectedTimePeriod}
+        timePeriodOptions={[
+          { label: "Morning", value: "Morning" },
+          { label: "Afternoon", value: "Afternoon" },
+          { label: "Evening", value: "Evening" },
+          { label: "Night", value: "Night" },
+        ]}
+        onDateChange={(date) => setFilledDate(date)}
+        onTimeChange={(time) => setFilledAtTime(time)}
+        onTimePeriodChange={handleTimePeriodChange}
+        editable
+        showTimePeriod={true}
+      />}
         {/* TODO: INTEL - SHOW EDITABLE ONE INSTEAD OF THIS */}
       </div>
     );
@@ -205,10 +230,9 @@ const onAddReferralClick = () => {
           <div>{renderAllSections()}</div>
         ) : (
           <div
-            className={`ipd-generic-form-container ${
+            className={`ipd-generic-form-container cross-referral ${
               !isEditable ? "ipd-assessments-readable-container" : ""
             }`}
-            style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
           >
             {open && modelData && (
               <LayoutWithMenu
@@ -219,7 +243,7 @@ const onAddReferralClick = () => {
                   handler: onAddReferralClick,
                   title: "Add Referral",
                 }}
-                items={modelData}
+                items={[modelData[0]]}
                 renderSection={renderSections}
                 onRequestClose={() => {
                   setIsBackModalOpen(true);
@@ -270,7 +294,7 @@ const onAddReferralClick = () => {
                 onModelChange={(e) => {
                   setModelData(e);
                 }}
-                customModel={modelData}
+                customModel={[modelData?.[0]]}
               />
             </div>
           </Suspense>
