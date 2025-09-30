@@ -18,6 +18,7 @@ import imgCloseVisit from '../assets/images/close-visit.svg';
 import { MenuOutlined } from '@ant-design/icons';
 import tagNew from '../../src/assets/images/tag-new.svg';
 import Pillup from '../assets/images/pillup.svg';
+import './ipdMedicationBox.scss';
 
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
@@ -999,17 +1000,27 @@ function MedicationsBox(props) {
     return (
       <div className="ipd-wrapper-class-medbox-readonly">
         {rows.length > 0 && (
-          <table className="table table-bordered w-100">
+          <table className="table table-bordered w-100 medbox-table">
+            <colgroup>
+              <col style={{ width: '4%' }} />
+              <col style={{ width: '24%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '10%' }} />
+            </colgroup>
             <thead>
               <tr>
-                <th style={{width: 48}}></th>
+                <th></th>
                 <th>MEDICINE</th>
                 <th>UNIT PER DOSE</th>
                 <th>FREQUENCY</th>
                 <th>WHEN</th>
                 <th>DURATION</th>
                 <th>NOTE</th>
-                <th style={{width: 96}}>Action</th>
+                <th>Action</th>
               </tr>
             </thead>
             <DragDropContext onDragEnd={onDragEnd}>
