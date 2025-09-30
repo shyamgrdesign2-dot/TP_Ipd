@@ -34,9 +34,7 @@ function CarePlanDropdown({ onCarePlanSelect, selectedCarePlan, patientId, docto
     const loadCarePlans = async () => {
         try {
             setLoading(true);
-            console.log('Loading care plans...');
             const response = await getCarePlanNames();
-            console.log('Care plans API response:', response);
             
             
             const plansData = Array.isArray(response) ? response : [];
@@ -46,7 +44,6 @@ function CarePlanDropdown({ onCarePlanSelect, selectedCarePlan, patientId, docto
                 plan_name: plan.plan_name
             }));
             
-            console.log('Processed care plans data:', transformedPlans);
             setCarePlans(transformedPlans);
             setFilteredPlans(transformedPlans);
         } catch (error) {
@@ -128,8 +125,8 @@ function CarePlanDropdown({ onCarePlanSelect, selectedCarePlan, patientId, docto
         <>
             <div style={{padding: "6px"}}>
                 <div className="d-flex align-items-center mb-14">
-                    <img className='me-3' src={carePlanIcon} alt="Care Plan" style={{ width: '22px', height: '22px', filter: 'brightness(0) saturate(100%) invert(20%) sepia(100%) saturate(2000%) hue-rotate(270deg) brightness(90%) contrast(100%)' }} />
-                    <div className="title-common">Care Plan</div>
+                    {/* <img className='me-2' src={carePlanIcon} alt="Care Plan" style={{ width: '22px', height: '22px', filter: 'brightness(0) saturate(100%) invert(20%) sepia(100%) saturate(2000%) hue-rotate(270deg) brightness(90%) contrast(100%)' }} /> */}
+                    <div className="title-common">Assign New Care Plan</div>
                 </div>
                 
                 <div className="d-flex care-plan-dropdown mt-3">
@@ -137,9 +134,10 @@ function CarePlanDropdown({ onCarePlanSelect, selectedCarePlan, patientId, docto
                         className="w-100"
                         placeholder={placeholder || "Select care plan"}
                         showSearch
-                        value={selectedCarePlan?.plan_id || undefined}
+                        labelInValue
+                        value={selectedCarePlan? {value: selectedCarePlan.plan_id, label: selectedCarePlan.plan_name} : undefined}
                         onSearch={handleSearchChange}
-                        onChange={handlePlanSelect}
+                        onChange={(option) => handlePlanSelect(option?.value)}
                         onFocus={handleDropdownFocus}
                         onDropdownVisibleChange={(open) => {
                             if (open) {

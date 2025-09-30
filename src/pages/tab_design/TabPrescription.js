@@ -57,7 +57,8 @@ import medicalRecordsDark from "../../assets/images/upload-doc-dark.svg";
 import labParamsWhite from "../../assets/images/lab-parameters-white.svg";
 import labParamsDark from "../../assets/images/Lab-Parameters.svg";
 import genRxBg from "../../assets/images/gen-rx-bg.gif";
-import carePlanIcon from "../../assets/images/advice.svg";
+import carePlanIcon from "../../assets/images/Care plan.svg";
+import carePlanIconDark from "../../assets/images/Care plan_Active_solid.svg";
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
 // import docsWhite from '../../assets/images/docs-white.svg';
@@ -111,6 +112,7 @@ import SCBanner from "../../components/SCBanner";
 import CarePlanDropdown from "../../components/CarePlanDropdown";
 import CarePlanList from "../../components/CarePlanList";
 import { getCarePlanNames, getCarePlanAssignments } from "../smartSync/services/carePlanService";
+import TabCarePlanList from "../../components/tab_design/TabCarePlanList";
 
 function TabPrescription() {
   const {
@@ -1374,7 +1376,7 @@ function TabPrescription() {
                         </div>
                         <label className="text-white mt-1">Lab</label>
                       </button>
-                    ) : e.tmdpm_id === 50 &&
+                    ) : e.tmdpm_id === 22 &&
                       e.tmdpm_status === 0 &&
                       isCarePlanEnabled ? (
                       <button
@@ -1388,7 +1390,7 @@ function TabPrescription() {
                             }`}
                         >
                           <img
-                            src={carePlanIcon}
+                            src={collapsedFlag === 11 ? carePlanIconDark : carePlanIcon}
                             alt="Care Plan"
                             style={{ width: '24px', height: '24px' }}
                           />
@@ -1497,31 +1499,16 @@ function TabPrescription() {
                       setIsGenRxDrawerVisible={setIsGenRxDrawerVisible}
                     />
                   ) : collapsedFlag === 11 && isCarePlanEnabled ? (
-                    <div className="p-3">
-                      <CarePlanList
+                    <TabCarePlanList
+                        handleCollapsed={() => setCollapsed(!collapsed)}
                         patientId={patient_data?.patient_unique_id}
                         selectedTcmId={tcmId}
-                        readOnly={true}
-                        title="Assigned Care Plans"
-                        hideWhenEmpty={true}
-                        onCarePlanSelect={(plan) => {
-                          setSelectedCarePlan(plan);
-                        }}
-                      />
-                      
-                      <div className="mt-3">
-                        <CarePlanDropdown 
-                          onCarePlanSelect={(plan) => {
-                            setSelectedCarePlan(plan);
-                          }}
-                          selectedCarePlan={selectedCarePlan}
-                          patientId={patient_data?.patient_unique_id}
-                          doctorId={userId}
-                          clinicId={decodedToken?.result?.clinic_id}
-                          placeholder={carePlanPlaceholder}
-                        />
-                      </div>
-                    </div>
+                        selectedCarePlan={selectedCarePlan}
+                        setSelectedCarePlan={setSelectedCarePlan}
+                        userId={userId}
+                        clinicId={decodedToken?.result?.clinic_id}
+                        carePlanPlaceholder={carePlanPlaceholder}
+                    />
                   ) : null}
             </Sider>
             <div

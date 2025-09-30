@@ -753,7 +753,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                 case 16: // Surgeries
                     return caseManagerData?.surgeries?.length > 0;
                 case 18: // Zydus Lab Results or Care Plan Assignments
-                    return activeCarePlans.length > 0 || caseManagerData?.zydusSelectedLabParams?.length > 0;
+                    return activeCarePlans.length > 0;
                 case 17: // Patient Bills (already handled in hasAnyData)
                     return  (patientBills?.length > 0 || advanceReceipts?.length > 0);
                 case 91: // Vaccines

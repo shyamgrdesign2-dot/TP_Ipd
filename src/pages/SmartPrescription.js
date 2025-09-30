@@ -47,7 +47,7 @@ import CarePlanDropdown from "../components/CarePlanDropdown";
 import CarePlanList from "../components/CarePlanList";
 import { getCarePlanAssignments } from "./smartSync/services/carePlanService";
 import { assignCarePlan } from "./smartSync/services/carePlanService";
-import carePlanIcon from "../assets/images/advice.svg";
+import carePlanIcon from "../assets/images/Care plan_Active.svg";
 
 import {
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
@@ -1894,7 +1894,7 @@ function SmartPrescription() {
             />
           </div>
         </>
-      ) : e.tmdpm_id === 50 && e.tmdpm_status === 0 && isCarePlanEnabled ? (
+      ) : e.tmdpm_id === 22 && e.tmdpm_status === 0 && isCarePlanEnabled ? (
           <div key={i} className="prescription-box-sm p-14">
             <div className="d-flex align-items-center justify-content-between">
               <div className="d-flex align-items-center">
@@ -1906,16 +1906,6 @@ function SmartPrescription() {
                 />
                 <div className="title-common">Care Plans</div>
               </div>
-              <button
-                className="btn d-flex align-items-center btn-text"
-                onClick={() => {
-                  // Care plan drawer logic can be added here if needed
-                  console.log('Care plan drawer clicked');
-                }}
-              >
-                <i className="icon-Add me-1 fs-5"></i>
-                <span>Manage</span>
-              </button>
             </div>
             
             {/* Care Plan List - Show assigned care plans */}
@@ -1926,7 +1916,6 @@ function SmartPrescription() {
               title="Assigned Care Plans"
               hideWhenEmpty={true}
               onCarePlanSelect={(plan) => {
-                console.log('Selected care plan from list:', plan);
                 setSelectedCarePlan(plan);
               }}
             />
@@ -1934,7 +1923,6 @@ function SmartPrescription() {
             <div className="mt-3">
               <CarePlanDropdown 
                 onCarePlanSelect={(plan) => {
-                  console.log('Selected care plan:', plan);
                   setSelectedCarePlan(plan);
                 }}
                 selectedCarePlan={selectedCarePlan}

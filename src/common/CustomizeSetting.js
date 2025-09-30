@@ -89,7 +89,10 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
 
   useEffect(() => {
     if (customizedPadLeftList.length > 0) {
-      let updatedData = customizedPadLeftList.filter(e => e.tmdpm_id === 7 && e.tmdpm_status === 0 ? isVaccinationEnabled : e.tmdpm_id === 16 && e.tmdpm_status === 0 ? isGrowthChartEnabled : e.tmdpm_id === 17 && e.tmdpm_status === 0 ? isGynaecHistoryAccessable : e.tmdpm_id === 50 && e.tmdpm_status === 0 ? isCarePlanEnabled : true).map((e, i) => {
+      let updatedData = customizedPadLeftList
+      // Hide Care Plan completely when GB flag is OFF
+      .filter(e => e.tmdpm_id === 22 ? isCarePlanEnabled : true)
+      .filter(e => e.tmdpm_id === 7 && e.tmdpm_status === 0 ? isVaccinationEnabled : e.tmdpm_id === 16 && e.tmdpm_status === 0 ? isGrowthChartEnabled : e.tmdpm_id === 17 && e.tmdpm_status === 0 ? isGynaecHistoryAccessable : true).map((e, i) => {
         return { ...e };
       });
       updatedData = updatedData.filter((item) => item?.tmdpm_id !== 20);

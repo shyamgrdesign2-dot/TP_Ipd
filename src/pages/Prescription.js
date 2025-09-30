@@ -116,7 +116,7 @@ import genRxBg from "../assets/images/gen-rx-bg.gif";
 import LabResultsTable from "../components/LabParams";
 import ZydusLabParams from "../components/ZydusLabParams";
 import ZydusLabParametersList from "../components/ZydusLabParametersList";
-import carePlanIcon from "../assets/images/advice.svg";
+import carePlanIcon from "../assets/images/Care plan_Active.svg";
 
 function Prescription() {
   const {
@@ -1358,7 +1358,7 @@ function Prescription() {
             />
           </div>
         </>
-      ) : e.tmdpm_id === 50 && e.tmdpm_status === 0 && isCarePlanEnabled ? (
+      ) : e.tmdpm_id === 22 && e.tmdpm_status === 0 && isCarePlanEnabled ? (
         <div key={i} className="prescription-box-sm p-14">
           <div className="d-flex align-items-center justify-content-between">
             <div className="d-flex align-items-center">
@@ -1370,16 +1370,6 @@ function Prescription() {
               />
               <div className="title-common">Care Plans</div>
             </div>
-            <button
-              className="btn d-flex align-items-center btn-text"
-              onClick={() => {
-                // Care plan drawer logic can be added here if needed
-                console.log('Care plan drawer clicked');
-              }}
-            >
-              <i className="icon-Add me-1 fs-5"></i>
-              <span>Manage</span>
-            </button>
           </div>
           
           {/* Care Plan List - Show assigned care plans */}

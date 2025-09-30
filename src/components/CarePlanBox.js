@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from 'react-bootstrap';
 import { useFeatureIsOn } from '@growthbook/growthbook-react';
 import CarePlanList from './CarePlanList';
-import carePlanIcon from '../assets/images/advice.svg';
+import carePlanIcon from '../assets/images/Care plan_Active.svg';
 import { getCarePlanAssignments } from '../pages/smartSync/services/carePlanService';
 import { GB_CARE_PLAN } from '../utils/constants';
 
