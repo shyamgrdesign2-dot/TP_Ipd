@@ -1,0 +1,53 @@
+.medbox-table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.medbox-table thead th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.medbox-table thead th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.medbox-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 8px;
+}
+
+.medbox-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 8px;
+}
+
+.medbox-table th,
+.medbox-table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Allow medicine and note to wrap to avoid horizontal overflow */
+.medbox-table td:nth-child(2),
+.medbox-table th:nth-child(2),
+.medbox-table td:nth-child(7),
+.medbox-table th:nth-child(7) {
+  white-space: normal;
+}
+
+/* Keep other compact columns single-line */
+.medbox-table th:not(:nth-child(2)):not(:nth-child(7)),
+.medbox-table td:not(:nth-child(2)):not(:nth-child(7)) {
+  white-space: nowrap;
+}
+
+/* Center the drag handle and action icons */
+.medbox-table td:first-child,
+.medbox-table th:first-child,
+.medbox-table td:last-child,
+.medbox-table th:last-child {
+  text-align: center;
+} 
