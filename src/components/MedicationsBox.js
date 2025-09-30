@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
-import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, hasNumber, isAlphabetExit, calculateDose, getClinicName } from "../utils/utils";
+import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, hasNumber, isAlphabetExit, calculateDose, getClinicName, capitalizeFirstWordOnly } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
@@ -1565,7 +1565,8 @@ function MedicationsBox() {
 
   const onChangeMedicineName = useCallback(
     (e) => {
-      setAddCustom({ ...addCustom, tmm_medicine_name: e.target.value });
+      const capitalizedName = capitalizeFirstWordOnly(e.target.value);
+      setAddCustom({ ...addCustom, tmm_medicine_name: capitalizedName });
     },
     [addCustom]
   );
@@ -1622,7 +1623,7 @@ function MedicationsBox() {
   const onAddEditMedicineClick = async () => {
     var sendData = {
       tmm_id: addCustom?.tmm_id,
-      tmm_medicine_name: addCustom?.tmm_medicine_name,
+      tmm_medicine_name: capitalizeFirstWordOnly(addCustom?.tmm_medicine_name),
       tmm_type: addCustom?.tmy_id,
       tmm_generic: addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : '',
       tmm_company: addCustom?.tmm_company !== undefined ? addCustom?.tmm_company : ''
@@ -1784,7 +1785,7 @@ function MedicationsBox() {
                   placeholder="Medicine Name"
                   value={addCustom?.tmm_medicine_name}
                   onChange={onChangeMedicineName}
-                  className="inputheight45 text-capitalize" />
+                  className="inputheight45" />
               </Form.Item>
             </div>
             <div>
