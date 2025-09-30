@@ -53,6 +53,10 @@ import AiSuite from "../pages/monetization/components/AiSuite";
 import MedEcoAppKnowMore from "../pages/monetization/components/MedEcoAppKnowMore";
 import { generateBillToken } from "../pages/opdBilling/service";
 
+import { EVENTS } from "../utils/events";
+import {
+  sendMessageToParent
+} from "../utils/utils";
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
 function Header({ locationPath }) {
@@ -669,6 +673,7 @@ function Header({ locationPath }) {
       localStorage.clear();
       sessionStorage.clear();
 
+      sendMessageToParent(EVENTS.LOGOUT);
       // Redirect to login page
       navigate("/login");
 
@@ -678,6 +683,7 @@ function Header({ locationPath }) {
       localStorage.clear();
       sessionStorage.clear();
 
+      sendMessageToParent(EVENTS.LOGOUT);
       // Redirect to login page
       navigate("/login");
     } finally {
@@ -913,25 +919,23 @@ function Header({ locationPath }) {
       },
     ];
 
-    // Log Out Section, If isBrowser is false, then don't include logoutItem
-    const logoutItem = isBrowser
-      ? [
-        {
-          type: "divider",
-        },
-        {
-          label: (
-            <div className="title-common d-flex align-items-center">
-              <i className="icon-exit me-3 color-red"></i>
-              <span className="color-red">Log Out</span>
-            </div>
-          ),
-          key: "logout",
-          onClick: handleLogout,
-          className: "logout-menu-item"
-        },
-      ]
-      : [];
+    // Log Out Section - Show logout button for all device types
+    const logoutItem = [
+      {
+        type: "divider",
+      },
+      {
+        label: (
+          <div className="title-common d-flex align-items-center">
+            <i className="icon-exit me-3 color-red"></i>
+            <span className="color-red">Log Out</span>
+          </div>
+        ),
+        key: "logout",
+        onClick: handleLogout,
+        className: "logout-menu-item"
+      },
+    ];
 
 
     // Combine commonItems, extraItems (if applicable), and logoutItem (always at the end)
