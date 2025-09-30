@@ -5,6 +5,7 @@ import InteractionGate from "../components/InteractionGate/InteractionGate";
 import { useSelector } from "react-redux";
 import { isMobile } from "react-device-detect";
 import TabMedicationBox from "../../../components/tab_design/TabMedicationBox";
+import IpdMedicationBox from "../../../components/ipdMedicationBox";
 
 const CurrentMedications = (props) => {
   const { isEditable = true } = props || {};
@@ -20,10 +21,7 @@ const CurrentMedications = (props) => {
     >
       {isEditable ? (
         isMobile ? (
-          <TabMedicationBox
-            hideFrequentlyUsedMeds={true}
-            isEditable={isEditable}
-          />
+          <IpdMedicationBox isEditable={isEditable} isView={true}/>
         ) : (
           <MedicationsBox isEditable={isEditable} />
         )
