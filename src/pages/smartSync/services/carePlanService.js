@@ -52,7 +52,6 @@ export const getCarePlanNames = async (options = {}) => {
     
     
     if (error.message.includes('CORS') || error.message.includes('Network Error') || !error.response) {
-      console.log('CarePlanService: Trying direct fetch as fallback...');
       try {
         const directResponse = await fetch(`${base.customBaseUrl}/api/v1/care-plans/names`, {
           method: 'GET',
@@ -92,7 +91,6 @@ export const assignCarePlan = async (payload, options = {}) => {
     ...(payload.tcm_id ? { tcm_id: payload.tcm_id } : {})
   };
 
-  console.log('CarePlanService: Assigning care plan with payload:', payloadToSend);
   return api.post(`/api/v1/care-plans/assign`, payloadToSend, base);
 };
 
