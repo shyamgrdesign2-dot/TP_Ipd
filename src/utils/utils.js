@@ -144,6 +144,16 @@ export const capitalizeFirstLetter = (text) => {
   if (!text) return ""; // Handle empty string case
   return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 };
+
+export const capitalizeFirstWordOnly = (text) => {
+  if (!text) return ""; 
+  const words = text.split(' ');
+  if (words.length === 0) return "";
+  const firstWord = words[0].charAt(0).toUpperCase() + words[0].slice(1);
+  const remainingWords = words.slice(1);
+  
+  return [firstWord, ...remainingWords].join(' ');
+};
 export const capitalize = (str, lower = false) =>
   (lower ? str.toLowerCase() : str).replace(/(?:^|\s|["'([{])+\S/g, (match) =>
     match.toUpperCase()
