@@ -15,7 +15,7 @@ const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const ChiefComplaint = (props) => {
   // You can pass props as needed, e.g., isEditable, initialValue, etc.
-  const { isEditable = true, sectionData } = props || {};
+  const { isEditable = true, sectionData, hideBorder = false } = props || {};
   const dispatch = useDispatch();
   const {
     chiefComplaint,
@@ -25,9 +25,9 @@ const ChiefComplaint = (props) => {
   const { templates: symptomsTemplates } = useSelector(
     (state) => state.symptoms
   );
-
+  
   const { chiefComplaint: chiefComplaintFromLastPrescription = [] } =
-    lastPrescriptionDataForAssessment;
+  lastPrescriptionDataForAssessment;
   const { lastRxDate } = lastPrescriptionDate || {};
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [isShimmering, setIsShimmering] = useState(false);
@@ -65,6 +65,7 @@ const ChiefComplaint = (props) => {
       setAutoFillTextToAppend(chiefComplaintFromLastPrescription);
     }
   };
+  console.log('INTEL ==> WAITTT', chiefComplaint)
 
   const isLastChiefComplaintPresent = useMemo(() => {
     return (
@@ -103,7 +104,7 @@ const ChiefComplaint = (props) => {
       }
       icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={isEditable && isLastChiefComplaintPresent}
-      containerClass={`wrapper-class ${
+      containerClass={`wrapper-class ${hideBorder ? 'ipdchiefcomplaint-hide-border' : ''} ${
         !isEditable ? "ipd-wrapper-class-readonly" : ""
       }`}
       opdDate={formatDateToShortMonthYear(lastRxDate)}

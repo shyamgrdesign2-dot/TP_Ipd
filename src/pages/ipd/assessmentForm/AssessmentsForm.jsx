@@ -333,6 +333,7 @@ const AssessmentsForm = (props) => {
       setOpen(false);
     }
   };
+  console.log('INTEL ==> DATA', assessmentData, prescriptionData, allObstetricDetails)
 
   const renderBottomSection = () => {
     return (

@@ -1,24 +1,33 @@
 import React from "react";
 import { IPD } from "../../../utils/locale";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
 import { setVitalsData } from "../../../redux/ipd/assessmentsFormSlice";
+import { setVitalsData as setDischargeVitalData } from "../../../redux/ipd/dischargeSummarySlice";
 import { useSelector, useDispatch } from "react-redux";
+import defaultIcons from "../../../assets/images/indices";
 
 const UnitInput = createRemoteComponent("UnitInput");
 
 const Vitals = (props) => {
-  const { isEditable = true, sectionData } = props || {};
-  const { vitalsData = {} } = useSelector((state) => state.assessment);
+  const {
+    isEditable = true,
+    sectionData,
+    formName = "assessment",
+  } = props || {};
+  const stateData = useSelector((state) => state[formName]);
+  const vitalsData = formName === 'assessment' ? stateData?.vitalsData : stateData?.dischargeSummaryData?.vitalsData;
   const dispatch = useDispatch();
 
   // Check if at least one vital value exists
-  const hasAnyVitalValue = Object.values(vitalsData).some(
-    (value) =>
-      value !== null && value !== undefined && value !== ""
+  const hasAnyVitalValue = !!vitalsData && Object.values(vitalsData).some(
+    (value) => value !== null && value !== undefined && value !== ""
   );
   const handleVitalsValue = (e, key) => {
-    dispatch(setVitalsData({ ...vitalsData, [key]: e }));
+    if (formName === "assessment") {
+      dispatch(setVitalsData({ ...vitalsData, [key]: e }));
+    } else if (formName === "dischargeSummary") {
+      dispatch(setDischargeVitalData({ ...vitalsData, [key]: e }));
+    }
   };
 
   const VitalDisplay = ({ label, value, unit, suffix }) => (
@@ -84,7 +93,11 @@ const Vitals = (props) => {
   }
 
   return (
-    <div className={`ipdaf-vitals-main-container ${!isEditable ? 'ipdaf-vitals-main-container-readonly' : ''}`}>
+    <div
+      className={`ipdaf-vitals-main-container ${
+        !isEditable ? "ipdaf-vitals-main-container-readonly" : ""
+      }`}
+    >
       <div className="ipdaf-vitals-header">
         <img src={defaultIcons[`${sectionData?.id}Pc`]} alt="vitals" />
         <div>{sectionData?.title}</div>

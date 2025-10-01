@@ -92,16 +92,9 @@ export const IPD = {
         {
           placeholder: "",
           id: "chiefComplaint",
-          title: "Chief Complaints",
+          title: "Presenting Complaints",
           enabled: true,
           icon: "roundDotted",
-        },
-        {
-          placeholder: "",
-          id: "historyPresentIllness",
-          title: "History of Present Illness",
-          enabled: true,
-          icon: "aidKit",
         },
         {
           placeholder: "",
@@ -285,13 +278,13 @@ export const IPD = {
           enabled: true,
           icon: "galaxy",
         },
-        {
-          placeholder: "",
-          id: "provisionalDiagnosis",
-          title: "Provisional Diagnosis",
-          enabled: true,
-          icon: "ddx",
-        },
+        // {
+        //   placeholder: "",
+        //   id: "provisionalDiagnosis",
+        //   title: "Provisional Diagnosis",
+        //   enabled: true,
+        //   icon: "ddx",
+        // },
       ],
     },
     {
@@ -932,7 +925,7 @@ export const IPD = {
       children: [
         {
           id: "consultantNotes",
-          title: "Consultant Notes",
+          title: "Clinical Assessment",
           icon: "surgeryDetails",
           enabled: true,
           expanded: false,
@@ -992,7 +985,7 @@ export const IPD = {
         },
         {
           id: "wardBedNumber",
-          title: "War/ Bed no.",
+          title: "War/ Bed no",
           enabled: true,
         },
         {
@@ -1059,7 +1052,7 @@ export const IPD = {
       expanded: false,
       children: [
         {
-          id: "presentingComplaints",
+          id: "chiefComplaint",
           title: "Presenting Complaints (at the time of admission)",
           enabled: true,
         },
@@ -1303,13 +1296,6 @@ export const IPD = {
           title: "Others",
           enabled: true,
           icon: "galaxy",
-        },
-        {
-          placeholder: "",
-          id: "provisionalDiagnosis",
-          title: "Provisional Diagnosis",
-          enabled: true,
-          icon: "ddx",
         },
       ],
     },
@@ -1695,7 +1681,7 @@ export const IPD = {
       id: "dischargeNotes",
       title: "Discharge Notes",
       menuIcon: "basicInfoBg",
-      icon: "dischargeNotes", 
+      icon: "dischargeNotes",
       enabled: true,
       expanded: false,
       children: [
@@ -1704,23 +1690,97 @@ export const IPD = {
           id: "dischargeVitals",
           title: "Discharge Vitals",
           enabled: true,
-          icon: "vitals"
+          icon: "vitals",
+          children: [
+            {
+              name: "pulse",
+              id: "pulse",
+              label: "Pulse",
+              title: "Pulse",
+              enabled: true,
+              unit: "/min",
+              placeholder: "Enter",
+            },
+            {
+              name: "bloodPressure",
+              id: "bloodPressure",
+              label: "Blood Pressure",
+              title: "Blood Pressure",
+              enabled: true,
+              unit: "mmHg",
+              placeholder: "Enter Systolic/Diastolic",
+            },
+            {
+              name: "temperature",
+              id: "temperature",
+              label: "Temperature",
+              title: "Temperature",
+              enabled: true,
+              unit: "°F",
+              placeholder: "Enter",
+            },
+            {
+              name: "spo2",
+              id: "spo2",
+              label: "SpO2",
+              title: "SpO2",
+              enabled: true,
+              unit: "%",
+              placeholder: "Enter",
+            },
+            {
+              name: "respiratoryRate",
+              id: "respiratoryRate",
+              label: "Respiratory Rate",
+              title: "Respiratory Rate",
+              enabled: true,
+              unit: "/min",
+              placeholder: "Enter",
+            },
+            {
+              name: "weight",
+              id: "weight",
+              label: "Weight",
+              title: "Weight",
+              enabled: true,
+              unit: "kg",
+              placeholder: "Enter",
+            },
+            {
+              name: "height",
+              id: "height",
+              label: "Height",
+              title: "Height",
+              enabled: true,
+              unit: "cms",
+              placeholder: "Enter",
+            },
+            {
+              name: "generalRbs",
+              id: "generalRbs",
+              label: "General RBS",
+              title: "General RBS",
+              enabled: true,
+              unit: "mg/dl",
+              placeholder: "Enter",
+            },
+          ],
         },
         {
           placeholder: "Enter Patient Condition",
-          id: "patientCondition", 
+          id: "patientCondition",
           title: "Patient Condition During Discharge",
           enabled: true,
-          icon: "condition"
+          icon: "condition",
         },
         {
           placeholder: "Enter Discharge Medications",
           id: "dischargeMedications",
           title: "Discharge Medications (Rx)",
           enabled: true,
-          icon: "medication"
-        }
-      ]
+          icon: "medication",
+        },
+      ],
     },
     {
       id: "dischargeAdvice",
@@ -1735,42 +1795,42 @@ export const IPD = {
           id: "diet",
           title: "Diet",
           enabled: true,
-          icon: "diet"
+          icon: "diet",
         },
         {
           placeholder: "Enter Physical Activity Instructions",
           id: "physicalActivities",
           title: "Physical Activities",
           enabled: true,
-          icon: "activity"
+          icon: "activity",
         },
         {
           placeholder: "Enter Other Advice",
           id: "otherAdvice",
           title: "Other Advice",
           enabled: true,
-          icon: "advice"
+          icon: "advice",
         },
         {
           placeholder: "Enter Warning Signs",
           id: "warningSigns",
           title: "Warning Signs",
           enabled: true,
-          icon: "warning"
+          icon: "warning",
         },
         {
           placeholder: "Enter Emergency Contact",
           id: "emergencyContact",
           title: "Emergency Contact",
           enabled: true,
-          icon: "contact"
-        }
-      ]
+          icon: "contact",
+        },
+      ],
     },
     {
       id: "followUp",
       title: "Follow Up",
-      menuIcon: "basicInfoBg", 
+      menuIcon: "basicInfoBg",
       icon: "followUp",
       enabled: true,
       expanded: false,
@@ -1780,23 +1840,23 @@ export const IPD = {
           id: "followUpDate",
           title: "Follow Up Date",
           enabled: true,
-          icon: "calendar"
+          icon: "calendar",
         },
         {
           placeholder: "Enter Doctor Name",
           id: "followUpDoctor",
           title: "Follow Up Doctor Name",
           enabled: true,
-          icon: "doctor"
+          icon: "doctor",
         },
         {
           placeholder: "Enter Additional Notes",
           id: "additionalNotes",
           title: "Additional Notes",
           enabled: true,
-          icon: "note"
-        }
-      ]
+          icon: "note",
+        },
+      ],
     },
     {
       id: "preparedBy",
@@ -1811,10 +1871,10 @@ export const IPD = {
           id: "preparedByPerson",
           title: "Discharge Summary Prepared By",
           enabled: true,
-          icon: "person"
-        }
-      ]
-    }
+          icon: "person",
+        },
+      ],
+    },
   ],
   ASSESSMENTS_MENU: [
     {

@@ -1327,3 +1327,170 @@ export const deepMergePreserveFirst = (obj1, obj2) => {
 
   return result;
 };
+
+// Convert patient data structure to IPD format for discharge summary
+export const convertPatientDataToIpdFormat = (patientInformation) => {
+  if (!patientInformation) return {};
+
+  return {
+    patientName: patientInformation.patientName || "",
+    patientAgeGender: patientInformation.age && patientInformation.gender 
+      ? `${patientInformation.age} / ${patientInformation.gender}` 
+      : "",
+    contactNumber: patientInformation.contactNumber || "",
+    wardBedNumber: patientInformation.wardBedNo || "",
+    patientId: patientInformation.patientId || "",
+    admissionId: patientInformation.admissionId || "",
+    admittedOn: patientInformation.admissionDate 
+      ? new Date(patientInformation.admissionDate).toLocaleDateString()
+      : "",
+    primaryConsultant: patientInformation.primaryConsultant?.name || "",
+    admitSpeciality: patientInformation.primaryConsultant?.speciality || "",
+    address: patientInformation.address || "",
+    dateOfDischarge: patientInformation.dateOfDischarge || "",
+  };
+};
+
+const calculateSurgeryDuration = (startTime, endTime) => {
+  if (!startTime || !endTime) return 0;
+
+  const startMoment = moment(startTime, "HH:mm");
+  let endMoment = moment(endTime, "HH:mm");
+
+  if (endMoment.isBefore(startMoment)) {
+    endMoment.add(1, "day");
+  }
+
+  return endMoment.diff(startMoment, "minutes");
+};
+
+const formatSurgeryTime = (minutes) => {
+  if (minutes <= 0) return "";
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (hours > 0 && mins > 0) {
+    return `${hours}hr ${mins}min`;
+  } else if (hours > 0) {
+    return `${hours}hr`;
+  } else {
+    return `${mins}min`;
+  }
+};
+
+export const convertSurgeryDataToDisplayFormat = (surgeryData) => {
+  const displayData = [];
+  
+  // Surgery Details
+  if (surgeryData.surgeryDetails) {
+    const details = surgeryData.surgeryDetails;
+    
+    if (details.procedureName?.length) {
+      displayData.push({
+        key: "Surgery/Procedure Name",
+        value: details.procedureName.join(", ")
+      });
+    }
+    
+    if (details.surgeryDate) {
+      displayData.push({
+        key: "Date Of Surgery",
+        value: details.surgeryDate
+      });
+    }
+    
+    if (details.surgeryStartTime && details.surgeryEndTime) {
+
+      const surgeryTimeDiff = calculateSurgeryDuration(
+        details.surgeryStartTime,
+        details.surgeryEndTime
+      );
+      const surgeryTime = formatSurgeryTime(surgeryTimeDiff);
+      
+      displayData.push({
+        key: "Duration",
+        value: `${details.surgeryStartTime} - ${details.surgeryEndTime} (${surgeryTime})`
+      });
+    }
+    
+    if (details.anaesthesiaType) {
+      displayData.push({
+        key: "Anaesthesia Type",
+        value: details.anaesthesiaType
+      });
+    }
+  }
+  
+  // Surgery Team
+  if (surgeryData.surgeryTeam) {
+    const team = surgeryData.surgeryTeam;
+    
+    // Combine all surgeons
+    const allSurgeons = [
+      ...(team.primarySurgeon || []),
+      ...(team.secondarySurgeon || [])
+    ];
+    
+    if (allSurgeons.length) {
+      displayData.push({
+        key: "Surgeon",
+        value: allSurgeons.map(surgeon => surgeon.name).join(", ")
+      });
+    }
+    
+    if (team.anaesthesiologist?.length) {
+      displayData.push({
+        key: "Anaesthetist",
+        value: team.anaesthesiologist.map(person => person.name).join(", ")
+      });
+    }
+    
+    if (team.assistant?.length) {
+      displayData.push({
+        key: "Assistant",
+        value: team.assistant.map(person => person.name).join(", ")
+      });
+    }
+    
+    if (team.scrubNurse?.length) {
+      displayData.push({
+        key: "Scrub Nurse",
+        value: team.scrubNurse.map(person => person.name).join(", ")
+      });
+    }
+    
+    if (team.floorCirculatingNurse?.length) {
+      displayData.push({
+        key: "Floor Circulating Nurse",
+        value: team.floorCirculatingNurse.map(person => person.name).join(", ")
+      });
+    }
+  }
+  
+  // Operative Notes - Special handling as requested
+  if (surgeryData.operativeNotes) {
+    const notes = surgeryData.operativeNotes;
+    
+    if (notes.operativeFindings) {
+      displayData.push({
+        key: "Operative Findings",
+        value: notes.operativeFindings
+      });
+    }
+    
+    if (notes.procedures) {
+      displayData.push({
+        key: "Procedure",
+        value: notes.procedures
+      });
+    }
+    
+    if (notes.additionalNotes) {
+      displayData.push({
+        key: "Additional Notes",
+        value: notes.additionalNotes
+      });
+    }
+  }
+  
+  return displayData;
+};

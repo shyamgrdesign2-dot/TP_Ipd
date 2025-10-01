@@ -14,7 +14,7 @@ const MemberChip = ({ icon, role, label, value }) => {
         className="team-member-icon"
       />
       <div className="chip-content">
-        <span className="team-member-label">{label}:</span>
+        <span className="team-member-label">{label}</span>
         <span className="team-member-value">{value}</span>
       </div>
       {role && (

@@ -31,10 +31,22 @@ import DischargeAdvice from "./components/DischargeAdvice.jsx";
 import FollowUp from "./components/FollowUp.jsx";
 import PreparedBy from "./components/PreparedBy.jsx";
 import OtNotes from "../otNotes/OtNotes.jsx";
+import {
+  setFunctionalAssessmentData,
+  setPhysicalExaminationBasicData,
+  setPhysicalExaminationOthersData,
+  setVitalsData,
+} from "../../../redux/ipd/assessmentsFormSlice.js";
+import { defaultIcons } from "../../../assets/images/icons/index.js";
+import DrawerWrapper from "../components/DrawerWrapper/DrawerWrapper.jsx";
+import OtNotesTimeline from "../otNotes/OtNotesTimeline.jsx";
+import { otNotesIcons } from "../../../assets/images/indices/index.js";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
 const FilledByCard = createRemoteComponent("FilledByCard");
+const GenericCard = createRemoteComponent("GenericCard");
+const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 
 const DischargeSummary = (props) => {
   const dispatch = useDispatch();
@@ -53,7 +65,6 @@ const DischargeSummary = (props) => {
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const { customization = {} } = useSelector((state) => state.ipd);
-  const otNotesState = useSelector((state) => state.otNotes);
   const { customModules } = useSelector((state) => state.customModules);
   const dischargeSummaryState = useSelector((state) => state.dischargeSummary);
   const { dischargeSummary = [] } = customization;
@@ -62,30 +73,221 @@ const DischargeSummary = (props) => {
       ? dischargeSummary
       : IPD.DEFAULT_DISCHARGE_SUMMARY_FORM_STRUCTURE
   );
-
+  const [showPhysicalExaminationDrawer, setShowPhysicalExaminationDrawer] =
+    useState(false);
+  const [showFunctionalAssessmentDrawer, setShowFunctionalAssessmentDrawer] =
+    useState(false);
+  const [sectionData, setSectionData] = useState(null);
+  const [showOtNotesDrawer, setShowOtNotesDrawer] = useState(false);
   useEffect(() => {
     if (dischargeSummary.length > 0) {
       setModelData(dischargeSummary);
     }
   }, [dischargeSummary]);
 
-  //   useEffect(() => {
-  //     if (isNew) {
-  //       dispatch(setCurrentOtNoteId(null));
-  //     }
-  //   }, [isNew]);
-
   useEffect(() => {
     dispatch(getCustomization());
-
-    // Only fetch OT Notes data if we have the required patient details
+    dispatch(
+      setPhysicalExaminationBasicData({
+        pallor: {
+          notes: [
+            {
+              type: "paragraph",
+              children: [
+                {
+                  text: "SDF",
+                },
+              ],
+            },
+          ],
+          value: "2",
+          title: "Absent",
+        },
+        clubbing: {
+          value: "1",
+          title: "Present",
+          notes: [
+            {
+              type: "paragraph",
+              children: [
+                {
+                  text: "SDFSF",
+                },
+              ],
+            },
+          ],
+        },
+        cynosis: {
+          value: "1",
+          title: "Present",
+          notes: [
+            {
+              type: "paragraph",
+              children: [
+                {
+                  text: "kjhvoiejsk",
+                },
+              ],
+            },
+          ],
+        },
+        lymphadenopathy: {
+          value: "1",
+          title: "Present",
+          notes: [
+            {
+              type: "paragraph",
+              children: [
+                {
+                  text: "sdfsfjk",
+                },
+              ],
+            },
+          ],
+        },
+        edema: {
+          notes: [
+            {
+              type: "paragraph",
+              children: [
+                {
+                  text: "asdfhsks",
+                },
+              ],
+            },
+          ],
+          value: "2",
+          title: "Absent",
+        },
+        hydration: {
+          value: "1",
+          title: "Normal",
+          notes: [
+            {
+              type: "paragraph",
+              children: [
+                {
+                  text: "sadfdjf",
+                },
+              ],
+            },
+          ],
+        },
+        cvs: {
+          value: "2",
+          title: "Abnormal",
+          notes: [
+            {
+              type: "paragraph",
+              children: [
+                {
+                  text: "sdf",
+                },
+              ],
+            },
+          ],
+        },
+        breast_chest: {
+          value: "1",
+          title: "WNL",
+          notes: [
+            {
+              type: "paragraph",
+              children: [
+                {
+                  text: "sdf",
+                },
+              ],
+            },
+          ],
+        },
+        abdomen: {
+          value: "2",
+          title: "Abnormal",
+          notes: [
+            {
+              type: "paragraph",
+              children: [
+                {
+                  text: "sdf",
+                },
+              ],
+            },
+          ],
+        },
+        neurological_psychosocial: {
+          value: "1",
+          title: "WNL",
+          notes: [
+            {
+              type: "paragraph",
+              children: [
+                {
+                  text: "sdfsdf",
+                },
+              ],
+            },
+          ],
+        },
+        back: {
+          notes: [
+            {
+              type: "paragraph",
+              children: [
+                {
+                  text: "sdf",
+                },
+              ],
+            },
+          ],
+        },
+      })
+    );
+    dispatch(
+      setVitalsData({
+        pulse: 100,
+        bloodPressure: 120,
+        temperature: 95,
+        spo2: 35,
+        respiratoryRate: 111,
+      })
+    );
+    dispatch(
+      setPhysicalExaminationOthersData([
+        {
+          type: "paragraph",
+          children: [
+            {
+              text: "sdfsfdsdf",
+            },
+          ],
+        },
+      ])
+    );
+    dispatch(
+      setFunctionalAssessmentData({
+        bedActivity: "Independent",
+        sitting: "Needs Assistance",
+        ambulation: "Needs Assistance",
+        others: [
+          {
+            type: "paragraph",
+            children: [
+              {
+                text: "asdfasdf",
+              },
+            ],
+          },
+        ],
+      })
+    );
     if (patientDetails?.details?.id && patientDetails?.admissionId) {
-      dispatch(
-        getDischargeSummaryData({
-          patientId: patientDetails.details.id,
-          admissionId: patientDetails.admissionId,
-        })
-      );
+      //   dispatch(
+      //     getDischargeSummaryData({
+      //       patientId: patientDetails.details.id,
+      //       admissionId: patientDetails.admissionId,
+      //     })
+      //   );
     }
   }, [patientDetails?.details?.id, patientDetails?.admissionId]);
 
@@ -99,6 +301,33 @@ const DischargeSummary = (props) => {
     dispatch(updateCustomization(newData));
   };
 
+  const handleAddEditPhysicalExamination = (data) => {
+    setSectionData(data);
+    setShowPhysicalExaminationDrawer((prev) => !prev);
+  };
+
+  const handleAddEditFunctionalAssessment = (data) => {
+    setSectionData(data);
+    setShowFunctionalAssessmentDrawer((prev) => !prev);
+  };
+
+  const handleAddEditOtNotes = (data) => {
+    setSectionData(data);
+    setShowOtNotesDrawer((prev) => !prev);
+  };
+
+  const onSavePhysicalExaminationClick = () => {
+    console.log("INTEL ==> CLICKED SAVE");
+  };
+
+  const onSaveFunctionalAssessmentClick = () => {
+    console.log("INTEL ==> CLICKED SAVE");
+  };
+
+  const onSaveOtNotesClick = () => {
+    console.log("INTEL ==> CLICKED SAVE");
+  };
+
   const renderSections = (data) => {
     if (!data || !data.id) {
       return null;
@@ -109,27 +338,86 @@ const DischargeSummary = (props) => {
         {(() => {
           switch (data.id) {
             case "patientInformation":
-                return <PatientInformation {...props} sectionData={data} />;
+              return <PatientInformation {...props} sectionData={data} />;
             case "diagnosisAndSurgery":
-                return <DiagnosisAndSurgery {...props} sectionData={data} />;
+              return <DiagnosisAndSurgery {...props} sectionData={data} />;
             case "patientHistory":
-                return <PatientHistory {...props} sectionData={data} />;
+              return <PatientHistory {...props} sectionData={data} />;
             case "physicalExamination":
-                return <PhysicalExamination {...props} sectionData={data} />;
+              return (
+                <div className="flex-column-gap-16">
+                  <PhysicalExamination
+                    isEditable={false}
+                    {...props}
+                    sectionData={data}
+                    isDischargeSummary={true}
+                  />
+                  <div onClick={() => handleAddEditPhysicalExamination(data)}>
+                    <GenericCard
+                      icon={defaultIcons.editIcon}
+                      title={"Add/Edit Physical Examination"}
+                    />
+                  </div>
+                </div>
+              );
             case "functionalAssessment":
-                return <FunctionalAssessment {...props} sectionData={data} />;
+              return (
+                <div className="flex-column-gap-16">
+                  <FunctionalAssessment
+                    isEditable={false}
+                    {...props}
+                    sectionData={data}
+                    hideBorder={true}
+                  />
+                  <div onClick={() => handleAddEditFunctionalAssessment(data)}>
+                    <GenericCard
+                      icon={defaultIcons.editIcon}
+                      title={"Add/Edit Functional Assessment"}
+                    />
+                  </div>
+                </div>
+              );
             case "courseInHospital":
-                return <CourseInHospital {...props} sectionData={data} />;
+              return <CourseInHospital {...props} sectionData={data} />;
             case "otNotes":
-                return <OtNotes {...props} sectionData={data} />;
+              return (
+                <div className="flex-column-gap-16">
+                  {/* <FunctionalAssessment
+                    isEditable={false}
+                    {...props}
+                    sectionData={data}
+                    hideBorder={true}
+                  /> */}
+                  {/* <OtNotes isEditable={false} hideLayoutWithMenu={true} {...props} sectionData={data} /> */}
+                  <CollapsibleWrapper
+                    title={data?.title}
+                    data-testid={data?.id}
+                    icon={otNotesIcons[`${data?.id}PcDark`]}
+                    collapsible={isEditable}
+                    width={"100%"}
+                    className={`collapsible-wrapper-class ${
+                      isEditable ? "" : "collapsible-wrapper-class-readonly"
+                    }`}
+                    defaultOpen
+                  >
+                    <OtNotesTimeline isLiteMode={true} />
+                  </CollapsibleWrapper>
+                  <div onClick={() => handleAddEditOtNotes(data)}>
+                    <GenericCard
+                      icon={defaultIcons.editIcon}
+                      title={"Add/Edit Ot Notes"}
+                    />
+                  </div>
+                </div>
+              );
             case "dischargeNotes":
-                return <DischargeNotes {...props} sectionData={data} />;
+              return <DischargeNotes {...props} sectionData={data} />;
             case "dischargeAdvice":
-                return <DischargeAdvice {...props} sectionData={data} />;
+              return <DischargeAdvice {...props} sectionData={data} />;
             case "followUp":
-                return <FollowUp {...props} sectionData={data} />;
+              return <FollowUp {...props} sectionData={data} />;
             case "preparedBy":
-                return <PreparedBy {...props} sectionData={data} />;
+              return <PreparedBy {...props} sectionData={data} />;
             default:
               return <>{data?.title}</>;
               return null;
@@ -266,7 +554,7 @@ const DischargeSummary = (props) => {
           <div>{renderAllSections()}</div>
         ) : (
           <div
-            className={`ipd-generic-form-container ${
+            className={`ipd-generic-form-container ipd-editable-discharge-summary-with-readonly-elements ${
               !isEditable ? "ipd-assessments-readable-container" : ""
             }`}
             style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
@@ -279,17 +567,6 @@ const DischargeSummary = (props) => {
                 mainCta={{
                   handler: onSaveDischargeSummaryClick,
                   title: "Save",
-                }}
-                showAutoFill={showAutoFillLocal && isNew}
-                autoFillTitle={autoFillTitleLocal}
-                onAutoFill={() => {
-                  // setIsLoading(true);
-                  // otNotesData?.otNotesData[otNotesData?.otNotesData?.length - 1]?._id && dispatch(setSingleOtNotesData({_id: otNotesData?.otNotesData[otNotesData?.otNotesData?.length - 1]?._id})).then(() => {
-                  //   console.log('INTEL ==> DONE')
-                  // })
-                  // setTimeout(() => {
-                  //   setIsLoading(false)
-                  // }, 100)
                 }}
                 items={modelData}
                 renderSection={renderSections}
@@ -365,6 +642,55 @@ const DischargeSummary = (props) => {
           setOpen(false);
         }}
       />
+      {showPhysicalExaminationDrawer && (
+        <DrawerWrapper
+          width={"100%"}
+          open={showPhysicalExaminationDrawer}
+          onClose={handleAddEditPhysicalExamination}
+          title="Physical Examination"
+          saveButtonText="Save"
+          onSave={onSavePhysicalExaminationClick}
+        >
+          <PhysicalExamination
+            {...props}
+            isEditable={true}
+            sectionData={sectionData}
+          />
+        </DrawerWrapper>
+      )}
+      {showFunctionalAssessmentDrawer && (
+        <DrawerWrapper
+          width={"100%"}
+          open={showFunctionalAssessmentDrawer}
+          onClose={handleAddEditFunctionalAssessment}
+          title="Functional Assessment"
+          saveButtonText="Save"
+          onSave={onSaveFunctionalAssessmentClick}
+        >
+          <FunctionalAssessment
+            showCollapsibleWrapper={false}
+            {...props}
+            isEditable={true}
+            sectionData={sectionData}
+          />
+        </DrawerWrapper>
+      )}
+      {showOtNotesDrawer && (
+        <DrawerWrapper
+          width={"100%"}
+          open={showOtNotesDrawer}
+          onClose={handleAddEditOtNotes}
+          title="Ot Notes"
+          saveButtonText="Save"
+          onSave={onSaveOtNotesClick}
+        >
+          <OtNotes
+            hideLayoutWithMenu={true}
+            {...props}
+            sectionData={sectionData}
+          />
+        </DrawerWrapper>
+      )}
     </div>
   );
 };

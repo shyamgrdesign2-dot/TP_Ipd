@@ -348,6 +348,16 @@ body {
             margin: 0 !important
         }
     }
+    .ipd-mhl-container-discharge-summary {
+        .ant-collapse-header-text {
+            ul {
+                padding: 0 !important;
+                 li {
+                    display: unset !important;
+                 }
+            }
+        }
+    }
     .cardbody-data {
         .read-or-hide {
             color: $theme !important;

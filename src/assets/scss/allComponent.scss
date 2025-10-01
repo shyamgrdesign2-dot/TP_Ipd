@@ -3051,6 +3051,26 @@ body.sticky-search-open {
     }
   }
 }
+.ipd-mhl-container-discharge-summary {
+  .prescriptiontab-accordian.history-sider-box.ant-collapse
+    .ant-collapse-item {
+    .ant-collapse-header {
+      border: 1px solid #f1f1f5;
+      padding: 8px 12px;
+      border-radius: 12px !important;
+      background-color: #fafafb !important;
+      border-bottom: 1px solid #f1f1f5;
+      border-bottom-left-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+    }
+    .ant-collapse-content {
+      border: 1px solid #f1f1f5 !important;
+      border-radius: 12px !important;
+      border-top-left-radius: 0 !important;
+      border-top-right-radius: 0 !important;
+    }
+  }
+}
 
 .ipd-wrapper-class-medbox-thead-readonly {
   background: rgba(248, 244, 252, 1);

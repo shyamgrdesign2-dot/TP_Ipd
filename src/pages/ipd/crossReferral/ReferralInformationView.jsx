@@ -80,19 +80,19 @@ const ReferralInformationView = (props) => {
       <div className="ipdcrt-section-content">
         <div className="ipdrf-chips-container">
           <MemberChip
-            icon={defaultIcons.docIcon}
+            icon={newIcons.informedBy}
             label="Referred By"
             value={informedByDoctor?.name}
             role={informedByDoctor?.role}
           />
           <MemberChip
-            icon={defaultIcons.docIcon}
+            icon={newIcons.referringTo}
             label="Referring To"
             value={referringTo?.name}
             role={referringTo?.role}
           />
           <MemberChip
-            icon={defaultIcons.docIcon}
+            icon={newIcons.referringDepartment}
             label="Referring Department"
             value={referringDepartment}
           />

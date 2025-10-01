@@ -7,7 +7,7 @@ import { isMobile } from "react-device-detect";
 import TabMedicationBox from "../../../components/tab_design/TabMedicationBox";
 
 const CurrentMedications = (props) => {
-  const { isEditable = true } = props || {};
+  const { isEditable = true, isDischargeSummary = false } = props || {};
   let { medicationData } = useSelector((state) => state.prescription);
 
   if (!isEditable && !medicationData?.length) return null;
@@ -25,7 +25,7 @@ const CurrentMedications = (props) => {
             isEditable={isEditable}
           />
         ) : (
-          <MedicationsBox isEditable={isEditable} />
+          <MedicationsBox isEditable={isEditable} isDischargeSummary={isDischargeSummary} />
         )
       ) : (
         <InteractionGate disabled={true}>
@@ -35,7 +35,7 @@ const CurrentMedications = (props) => {
               isEditable={isEditable}
             />
           ) : (
-            <MedicationsBox isEditable={isEditable} />
+            <MedicationsBox isEditable={isEditable} isDischargeSummary={isDischargeSummary} />
           )}
         </InteractionGate>
       )}

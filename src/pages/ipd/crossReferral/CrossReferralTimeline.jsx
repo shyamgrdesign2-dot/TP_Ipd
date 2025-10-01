@@ -228,7 +228,7 @@ const CrossReferralTimeline = () => {
       <div className="ipdcrt-section-container">
         <div className="heading">
           <div className="left-section">
-            <img src={newIcons.operativeNotesDark} alt="x" />
+            <img src={newIcons.consultantNotesDataDark} alt="x" />
             <span>Consultant Notes</span>
           </div>
           <div className="right-section">
@@ -276,7 +276,7 @@ const CrossReferralTimeline = () => {
                           <div className="surgery-card__item__padding">
                             <div className="d-flex align-items-center gap-1">
                               <img
-                                src={defaultIcons.notepadIcon}
+                                src={newIcons[`${item.id}Pc`]}
                                 alt="notepad"
                               />
                               <div className="surgery-card__label">
@@ -299,7 +299,7 @@ const CrossReferralTimeline = () => {
                           <div>
                             <div className="d-flex align-items-center gap-1">
                               <img
-                                src={defaultIcons.notepadIcon}
+                                src={newIcons.additionalRemarksAndFollowUpPc}
                                 alt="notepad"
                               />
                               <div className="surgery-card__label">
@@ -328,7 +328,7 @@ const CrossReferralTimeline = () => {
                 <div className="surgery-card__item__padding">
                   <div>
                     <div className="d-flex align-items-center gap-1">
-                      <img src={defaultIcons.notepadIcon} alt="notepad" />
+                      <img src={newIcons[`${item.id}Pc`]} alt="notepad" />
                       <div className="surgery-card__label">
                         {item.title}
                       </div>{" "}

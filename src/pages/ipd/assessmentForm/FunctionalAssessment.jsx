@@ -35,7 +35,7 @@ const FunctionalAssessment = (props) => {
       setFunctionalAssessmentData({ ...functionalAssessmentData, others: data })
     );
   };
-  const { isEditable = true, sectionData } = props || {};
+  const { isEditable = true, sectionData, showCollapsibleWrapper= true, hideBorder= false } = props || {};
 
   const handleAssessmentChange = (key, e, item) => {
     const selectedOption = item.options.find(
@@ -66,7 +66,7 @@ const FunctionalAssessment = (props) => {
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${
+        containerClass={`wrapper-class ${hideBorder ? "ipddaso-hide-border" : ""} ${
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
@@ -298,7 +298,7 @@ const FunctionalAssessment = (props) => {
     return null;
   return (
     <>
-      <CollapsibleWrapper
+      {showCollapsibleWrapper ? <CollapsibleWrapper
         title={sectionData?.title}
         data-testid={sectionData?.id}
         icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
@@ -310,7 +310,7 @@ const FunctionalAssessment = (props) => {
         defaultOpen
       >
         {renderChildren()}
-      </CollapsibleWrapper>
+      </CollapsibleWrapper> : renderChildren()}
     </>
   );
 };

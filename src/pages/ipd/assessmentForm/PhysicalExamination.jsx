@@ -13,13 +13,15 @@ const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 
 const PhysicalExamination = (props) => {
+  const assessmentData = useSelector((state) => state.assessment);
   const {
     physicalExaminationOthersData = [],
     referredDocForReview = "",
     physicalExaminationProvisionalDiagnosisData = [],
     physicalExaminationBasicData = {},
-  } = useSelector((state) => state.assessment);
-  const { isEditable = true, sectionData } = props || {};
+    vitalsData,
+  } = assessmentData;
+  const { isEditable = true, sectionData, showCollapsibleWrapper= true } = props || {};
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [
@@ -46,7 +48,7 @@ const PhysicalExamination = (props) => {
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${
+        containerClass={`wrapper-class ipdpe-others-section ${
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         showMagicPenGif={false}
@@ -159,19 +161,23 @@ const PhysicalExamination = (props) => {
     return null;
   return (
     <>
-      <CollapsibleWrapper
-        title={sectionData?.title}
-        data-testid={sectionData?.id}
-        icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
-        collapsible={isEditable}
-        width={"100%"}
-        className={`collapsible-wrapper-class ${
-          isEditable ? "" : "collapsible-wrapper-class-readonly"
-        }`}
-        defaultOpen
-      >
-        {renderChildren()}
-      </CollapsibleWrapper>
+      {showCollapsibleWrapper ? (
+        <CollapsibleWrapper
+          title={sectionData?.title}
+          data-testid={sectionData?.id}
+          icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
+          collapsible={isEditable}
+          width={"100%"}
+          className={`collapsible-wrapper-class ${
+            isEditable ? "" : "collapsible-wrapper-class-readonly"
+          }`}
+          defaultOpen
+        >
+          {renderChildren()}
+        </CollapsibleWrapper>
+      ) : (
+        renderChildren()
+      )}
     </>
   );
 };

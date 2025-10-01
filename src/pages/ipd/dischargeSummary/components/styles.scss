@@ -1,0 +1,230 @@
+.patient-info-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  .team-member-chip {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
+.ipdpi-divider {
+  margin: 18px 0;
+  position: relative;
+  height: 1px;
+  width: 100%;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      #e2e2ea 20%,
+      #e2e2ea 80%,
+      transparent 100%
+    );
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      rgba(226, 226, 234, 0) 0%,
+      rgba(226, 226, 234, 0.3) 15%,
+      rgba(226, 226, 234, 1) 35%,
+      rgba(226, 226, 234, 1) 65%,
+      rgba(226, 226, 234, 0.3) 85%,
+      rgba(226, 226, 234, 0) 100%
+    );
+    filter: blur(0.5px);
+  }
+}
+.diagnosis-and-surgery-container {
+  @include flex-column-gap-16;
+  .ant-select-prefix {
+    align-items: center;
+    display: flex;
+  }
+  .ant-select .ant-select-selection-placeholder {
+    color: #e2e2ea !important;
+  }
+  .icon-search {
+    font-size: 16px !important;
+  }
+}
+.ipd-provisional-diagnosis-container {
+  @include flex-column-gap-16;
+}
+.ipd-provisional-diagnosis-wrapper {
+  background: #fafafb;
+  border: 1px solid #f1f1f5;
+  border-radius: 10px;
+  padding: 14px;
+}
+.empty-surgeries-performed-container {
+  font-size: 14px;
+  @include text-light-gray;
+  strong {
+    font-weight: 500;
+  }
+}
+.ipdph-patient-history-container {
+  @include flex-column-gap-16;
+}
+.ipdpe-others-section .rich-text-editor-container,
+.ipddaso-hide-border .rich-text-editor-container,
+.ipdchiefcomplaint-hide-border .rich-text-editor-container {
+  border: none !important;
+  margin: 0 20px !important;
+  .slate-editable-wrapper {
+    margin-bottom: 0;
+    min-height: auto;
+    margin-top: 0;
+    p:has([data-slate-length="0"]) {
+      display: none !important;
+    }
+  }
+}
+.ipdph-chiefcomplaint-container {
+  @include flex-column-gap-16;
+  .ipdchiefcomplaint-hide-border {
+    margin: 0;
+  }
+}
+
+.discharge-advice-section {
+  margin-bottom: 24px;
+
+  .diet-picker-table,
+  .physical-activities-picker-table {
+    .dynamic-picker-container {
+      .dynamic-picker-table {
+        .diet-name-cell,
+        .activity-name-cell {
+          .diet-name,
+          .activity-name {
+            font-weight: 500;
+            color: #2c3e50;
+          }
+        }
+
+        .ant-table-tbody > tr > td {
+          padding: 12px 16px;
+          vertical-align: middle;
+        }
+
+        .ant-input {
+          border: 1px solid #e2e2ea;
+          border-radius: 6px;
+
+          &:focus,
+          &:hover {
+            border-color: #4f46e5;
+          }
+
+          &::placeholder {
+            color: #9ca3af;
+            font-style: italic;
+          }
+        }
+      }
+
+      .dynamic-picker-search {
+        margin-top: 16px;
+
+        .dynamic-picker-search-input {
+          .ant-select-selector {
+            border: 1px solid #e2e2ea;
+            border-radius: 8px;
+            padding: 8px 12px;
+
+            &:hover,
+            &:focus {
+              border-color: #4f46e5;
+            }
+          }
+
+          .ant-select-selection-placeholder {
+            color: #9ca3af;
+          }
+        }
+      }
+    }
+  }
+}
+
+.followup-container {
+  @include flex-column-gap-16;
+
+  .followup-fields-row {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+
+    @media (max-width: 991px) {
+      flex-direction: column;
+    }
+  }
+
+  .followup-date-section,
+  .followup-doctor-section {
+    flex: 0 0 25%;
+
+    @media (max-width: 991px) {
+      flex: 1;
+    }
+
+    .followup-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #454551;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .ant-picker {
+      .ant-picker-input > input {
+        line-height: 1 !important;
+        font-family: "Poppins", sans-serif !important;
+      }
+
+      .ant-picker-prefix {
+        margin-inline-end: 10px !important;
+      }
+    }
+
+    .ant-select {
+      .ant-select-selection-placeholder {
+        font-family: "Poppins", sans-serif !important;
+        color: #e2e2ea !important;
+      }
+
+      .ant-select-selector {
+        border: 1px solid #e2e2ea;
+        border-radius: 6px;
+
+        &:hover,
+        &:focus {
+          border-color: #4f46e5;
+        }
+      }
+    }
+  }
+  .followup-additional-notes-section {
+    margin-top: 16px;
+  }
+}

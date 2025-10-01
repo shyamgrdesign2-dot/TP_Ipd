@@ -49,6 +49,7 @@ import calendarPlainIcon from "./calendar-plain.svg";
 import clockIcon from "./clock.svg";
 import tutotialsIcon from "./tutorials.svg";
 import vitalsDarkColoured from "./vitals-dark.svg";
+import infoIconWarningColoured from "../cvt-info.svg";
 
 import noteIcon from "./note.svg";
 import notesIcon from "./notes.svg";
@@ -61,6 +62,7 @@ import glassIcon from "./glass.svg";
 import notepadIcon from "./notepad.svg";
 import folderIcon from "./folder.svg";
 import leftArrowIcon from "./left-arrow.svg";
+import crossIcon from "./cross.svg";
 
 import noteColoured from "./note-coloured.svg";
 import physicalExam from "./physical-exam.svg";
@@ -141,5 +143,7 @@ export const defaultIcons = {
   clockDarkOutlineIcon,
   calendarDarkOutlineIcon,
   downArrowPcIcon,
-  editDarkIcon
+  editDarkIcon,
+  infoIconWarningColoured,
+  crossIcon
 };

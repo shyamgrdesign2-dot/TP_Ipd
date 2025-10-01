@@ -33,14 +33,16 @@ const Customization = createRemoteComponent("Customization");
 const FilledByCard = createRemoteComponent("FilledByCard");
 
 const OtNotes = (props) => {
+  const { hideLayoutWithMenu = false, isEditable : isEditableProp = true } = props;
   const dispatch = useDispatch();
   const { state } = useLocation();
   const {
     patient_data,
     patientDetails,
-    isEditable = true,
+    isEditable: isEditableState = true,
     isNew = false,
   } = state || {};
+  const isEditable = isEditableProp && isEditableState;
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const navigate = useNavigate();
   const [showAutoFillLocal, setShowAutoFillLocal] = useState(false);
@@ -56,6 +58,8 @@ const OtNotes = (props) => {
   const [modelData, setModelData] = useState(
     otNotes.length > 0 ? otNotes : IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE
   );
+
+  console.log('iNTEL ==> DATA', otNotesData)
 
   useEffect(() => {
     if (otNotes.length > 0) {
@@ -120,6 +124,7 @@ const OtNotes = (props) => {
       return null;
     }
 
+    console.log('INTEL ==> isEditabled', isEditable)
     return (
       <div className="ipd-otnotes-editable-section-container">
         {(() => {
@@ -329,34 +334,43 @@ const OtNotes = (props) => {
             style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
           >
             {open && modelData && (
-              <LayoutWithMenu
-                onCustomiseClick={() => setShowCustomisationDrawer(true)}
-                key="otNotes"
-                title={"OT Notes"}
-                mainCta={{
-                  handler: onSaveOtNotesClick,
-                  title: "Save",
-                }}
-                showAutoFill={showAutoFillLocal && isNew}
-                autoFillTitle={autoFillTitleLocal}
-                onAutoFill={() => {
-                  // setIsLoading(true);
-                  // otNotesData?.otNotesData[otNotesData?.otNotesData?.length - 1]?._id && dispatch(setSingleOtNotesData({_id: otNotesData?.otNotesData[otNotesData?.otNotesData?.length - 1]?._id})).then(() => {
-                  //   console.log('INTEL ==> DONE')
-                  // })
-                  // setTimeout(() => {
-                  //   setIsLoading(false)
-                  // }, 100)
-                }}
-                items={modelData}
-                renderSection={renderSections}
-                onRequestClose={() => {
-                  setIsBackModalOpen(true);
-                }}
-                renderHeaderSection={renderHeaderSection}
-                headerOffset={72}
-                onMenuItemClick={onMenuItemClick}
-              />
+              !hideLayoutWithMenu ? (
+
+                <LayoutWithMenu
+                  onCustomiseClick={() => setShowCustomisationDrawer(true)}
+                  key="otNotes"
+                  title={"OT Notes"}
+                  mainCta={{
+                    handler: onSaveOtNotesClick,
+                    title: "Save",
+                  }}
+                  showAutoFill={showAutoFillLocal && isNew}
+                  autoFillTitle={autoFillTitleLocal}
+                  onAutoFill={() => {
+                    // setIsLoading(true);
+                    // otNotesData?.otNotesData[otNotesData?.otNotesData?.length - 1]?._id && dispatch(setSingleOtNotesData({_id: otNotesData?.otNotesData[otNotesData?.otNotesData?.length - 1]?._id})).then(() => {
+                    //   console.log('INTEL ==> DONE')
+                    // })
+                    // setTimeout(() => {
+                    //   setIsLoading(false)
+                    // }, 100)
+                  }}
+                  items={modelData}
+                  renderSection={renderSections}
+                  onRequestClose={() => {
+                    setIsBackModalOpen(true);
+                  }}
+                  renderHeaderSection={renderHeaderSection}
+                  headerOffset={72}
+                  onMenuItemClick={onMenuItemClick}
+                />
+              ) : (
+                otNotes.length > 0
+                ? otNotes.map((item) => {
+                    return renderSections(item);
+                  })
+                : null
+              )
             )}
           </div>
         )}

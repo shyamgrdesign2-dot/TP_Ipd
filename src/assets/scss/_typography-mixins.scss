@@ -32,17 +32,17 @@
 
 // Color Mixins
 // =============================================================================
-@mixin text-color { color: $text-color; }
-@mixin text-light { color: $text-light; }
-@mixin text-primary { color: $text-primary; }
-@mixin text-primary-dark { color: $text-primary-dark; }
-@mixin text-secondary { color: $text-secondary; }
-@mixin text-tertiary { color: $text-tertiary; }
-
+@mixin text-color { color: $text-color !important; }
+@mixin text-light { color: $text-light !important; }
+@mixin text-primary { color: $text-primary !important; }
+@mixin text-primary-dark { color: $text-primary-dark !important; }
+@mixin text-secondary { color: $text-secondary !important; }
+@mixin text-tertiary { color: $text-tertiary !important; }
+@mixin text-light-gray { color: $text-light-gray !important; }
 // Background Color Mixins
 // =============================================================================
-@mixin bg-primary { background-color: $bg-primary; }
-@mixin bg-tertiary { background-color: $bg-tertiary; }
+@mixin bg-primary { background-color: $bg-primary !important; }
+@mixin bg-tertiary { background-color: $bg-tertiary !important; }
 
 // Combined Typography Mixins (Size + Weight)
 // =============================================================================

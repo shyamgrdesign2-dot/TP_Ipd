@@ -152,7 +152,6 @@ const IPDPatientDetails = () => {
   };
 
   const handleDischargeSummaryClick = () => {
-    console.log('INTEL ==> DISCHARGE')
     // dispatch(resetCrossReferralForm());
     navigate("/ipd/patient-details/discharge-summary", {
       state: {

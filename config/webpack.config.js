@@ -181,7 +181,9 @@ module.exports = function (webpackEnv) {
           options: {
             sourceMap: true,
             additionalData: preProcessor === 'sass-loader' 
-              ? `@import "${paths.appSrc}/assets/scss/_mixins.scss";`
+              ? `@import "${paths.appSrc}/assets/scss/themeVariables.scss";
+                 @import "${paths.appSrc}/assets/scss/_typography-mixins.scss";
+                 @import "${paths.appSrc}/assets/scss/_mixins.scss";`
               : undefined,
           },
         }

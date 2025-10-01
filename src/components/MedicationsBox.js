@@ -49,7 +49,7 @@ import { setMedicationData, setPillupSwitch } from "../redux/prescriptionSlice";
 const { TextArea } = Input;
 
 function MedicationsBox(props) {
-  const { isEditable = true } = props;
+  const { isEditable = true, isDischargeSummary = false } = props;
   const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     dosesList,
@@ -1980,7 +1980,7 @@ function MedicationsBox(props) {
         <div className="d-flex align-items-center justify-content-between p-14-pb0">
           <div className="d-flex align-items-center">
             <img className="me-2" src={Medicationicon} alt="Medication" />
-            <div className="title-common">{isPillUpAccessableFromGB ? 'Meds' : 'Medications'} (Rx)</div>
+            <div className="title-common">{isDischargeSummary ? isPillUpAccessableFromGB ? 'Discharge Meds': 'Discharge Medications': isPillUpAccessableFromGB ? 'Meds' : 'Medications'} (Rx)</div>
             {(isPillUpAccessableFromGB && isEditable) &&
               <div ref={tourRef} className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center" style={{ backgroundColor: 'rgb(226, 226, 234, 0.2)' }}>
                 <img src={Pillup} />

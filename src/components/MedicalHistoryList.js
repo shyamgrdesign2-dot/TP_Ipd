@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 
 function MedicalHistoryList(props) {
-    const {gynecHistory: gynecHistoryFromProps, patientDataFromProps, isIPD } = props
+    const {gynecHistory: gynecHistoryFromProps, patientDataFromProps, isIPD, isDischargeSummary = false } = props
 
     const [accordionItems, setAccordionItems] = useState([]);
 
@@ -141,7 +141,7 @@ function MedicalHistoryList(props) {
 
     return (
         <>
-            <div className="overflow-y-auto ipd-mhl-container" style={{ maxHeight: "661px" }}>
+            <div className={`overflow-y-auto ipd-mhl-container ${isDischargeSummary ? "ipd-mhl-container-discharge-summary" : ""}`} style={{ maxHeight: "661px" }}>
                 { (medicalHistoryData.length > 0 || (gynecHistory && Object.keys(filteredGynecHistory).length > 0)) && (
                     <div className="p-10">
                         { isGynaecHistoryAccessable && gynecHistory && Object.keys(filteredGynecHistory).length > 0 &&

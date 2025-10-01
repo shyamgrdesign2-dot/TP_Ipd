@@ -140,11 +140,7 @@ $muted: #6f6b88;
     margin: 0 !important;
   }
   .collapsible-wrapper-class {
-    background: linear-gradient(
-      164.22deg,
-      rgba(243, 232, 253, 0.7) 0.28%,
-      rgba(242, 239, 250, 0.7) 16.3%
-    );
+    background: #f9f7fd;
     .collapsible-wrapper-abs-header-shadow {
       background: linear-gradient(
         180deg,
@@ -219,6 +215,7 @@ $muted: #6f6b88;
     &-readonly {
       margin-left: 20px;
       margin-right: 20px;
+      background-color: #fbfafd !important
     }
   }
   .ipd-custom-module-container {
@@ -248,6 +245,7 @@ $muted: #6f6b88;
     }
   }
 }
+
 .ipd-gynec-history-wrapper.rich-text-editor-wrapper {
   gap: 0 !important;
   * {
@@ -406,8 +404,9 @@ $muted: #6f6b88;
     }
     .ipdaf-exam-read-notes-heading {
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 400;
       color: #454551;
+      margin-left: 20px;
     }
     .rich-text-editor-container {
       margin: 0 !important;
@@ -431,6 +430,18 @@ $muted: #6f6b88;
 
   .examination-note {
     color: #666;
+  }
+  .rich-text-editor-container {
+    border: none !important;
+    margin: 0 28px !important;
+    .slate-editable-wrapper {
+      margin-bottom: 0;
+      min-height: auto;
+      margin-top: 0;
+      p:has([data-slate-length="0"]) {
+        display: none !important;
+      }
+    }
   }
 }
 
@@ -675,9 +686,9 @@ $muted: #6f6b88;
     gap: 16px;
   }
 }
-.filled-on-date  {
+.filled-on-date {
   span {
-  color: rgba(186, 125, 233, 1) !important;
+    color: rgba(186, 125, 233, 1) !important;
   }
 }
 

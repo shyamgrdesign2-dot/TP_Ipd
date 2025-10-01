@@ -7,7 +7,10 @@ import MedicalHistoryList from "../../../components/MedicalHistoryList";
 import MedicalHistoryBox from "../../../components/MedicalHistoryBox";
 import { Drawer } from "antd";
 import { setMedicalHistoryData } from "../../../redux/prescriptionSlice";
-import { formatDateToShortMonthYear, mergeArraysOfObjects } from "../../../utils/utils";
+import {
+  formatDateToShortMonthYear,
+  mergeArraysOfObjects,
+} from "../../../utils/utils";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const GenericCard = createRemoteComponent("GenericCard");
@@ -17,13 +20,11 @@ const PastMedicalHistory = (props) => {
   const {
     isEditable = true,
     sectionData,
-    patientDataForOPDComponents,
+    isDischargeSummary = false,
   } = props || {};
   let { medicalHistoryData } = useSelector((state) => state.prescription);
-  const {
-    lastPrescriptionDataForAssessment,
-    lastPrescriptionDate,
-  } = useSelector((state) => state.assessment);
+  const { lastPrescriptionDataForAssessment, lastPrescriptionDate } =
+    useSelector((state) => state.assessment);
   const { lastRxDate } = lastPrescriptionDate || {};
   const dispatch = useDispatch();
   const [addMedicalHistoryDrawer, setAddMedicaHistoryDrawer] = useState(false);
@@ -49,12 +50,14 @@ const PastMedicalHistory = (props) => {
           if (lastPastMedicalHistory.length && !medicalHistoryData?.length) {
             dispatch(setMedicalHistoryData(lastPastMedicalHistory));
           } else {
-            dispatch(setMedicalHistoryData(mergeArraysOfObjects(lastPastMedicalHistory, medicalHistoryData)));
+            dispatch(
+              setMedicalHistoryData(
+                mergeArraysOfObjects(lastPastMedicalHistory, medicalHistoryData)
+              )
+            );
           }
         }}
-        title={`Autofill From OPD (${formatDateToShortMonthYear(
-          lastRxDate
-        )})`}
+        title={`Autofill From OPD (${formatDateToShortMonthYear(lastRxDate)})`}
       />
     );
   }, [lastPrescriptionDataForAssessment, medicalHistoryData]);
@@ -67,7 +70,10 @@ const PastMedicalHistory = (props) => {
         } ${!isEditable ? "ipdaf-readable-renderer" : null}`}
       >
         {medicalHistoryData?.length ? (
-          <MedicalHistoryList isIPD={true} />
+          <MedicalHistoryList
+            isIPD={true}
+            isDischargeSummary={isDischargeSummary}
+          />
         ) : null}
         {isEditable ? (
           <div onClick={handleAddMedicalHistory}>
@@ -133,7 +139,6 @@ const PastMedicalHistory = (props) => {
             handleDrawerMedicalHistory={handleAddMedicalHistory}
             handleCollapsed={handleAddMedicalHistory}
             onSave={handleAddMedicalHistory} // TODO: INTEL - fix
-            patientDataFromProps={patientDataForOPDComponents}
             showMenstrualHistory={false}
             showMedicalHistory={true}
           />

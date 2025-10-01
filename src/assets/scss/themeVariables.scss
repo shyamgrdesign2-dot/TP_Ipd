@@ -5,16 +5,17 @@
 // =============================================================================
 
 // Text Colors
-$text-color: rgba(69, 69, 81, 1);                    // Default text color
-$text-light: rgba(255, 255, 255, 1);                 // Light text color (white)
-$text-primary: rgba(186, 125, 233, 1);               // Primary brand text color
-$text-primary-dark: rgba(88, 28, 135, 1);            // Primary dark text color
-$text-secondary: rgba(75, 74, 213, 1);               // Secondary accent text color
-$text-tertiary: rgba(61, 140, 64, 1);                // Tertiary success text color
+$text-color: rgba(69, 69, 81, 1);               // Default text color (#454551)
+$text-light: rgba(255, 255, 255, 1);            // Light text color (white) (#FFFFFF) 
+$text-primary: rgba(186, 125, 233, 1);          // Primary brand text color (#BA7DE9)
+$text-primary-dark: rgba(88, 28, 135, 1);       // Primary dark text color (#581C87)
+$text-secondary: rgba(75, 74, 213, 1);          // Secondary accent text color (#4B4AD5)
+$text-tertiary: rgba(61, 140, 64, 1);           // Tertiary success text color (#3D8C40)
+$text-light-gray: rgba(162, 162, 168, 1);       // Light gray text color (#A2A2A8)
 
 // Background Colors
-$bg-primary: rgba(88, 28, 135, 0.06);                // Primary background color
-$bg-tertiary: rgba(236, 253, 245, 1);                // Tertiary background color (light green)
+$bg-primary: rgba(88, 28, 135, 0.06);           // Primary background color (#581C87 with 6% opacity)
+$bg-tertiary: rgba(236, 253, 245, 1);           // Tertiary background color (light green) (#ECFDF5)
 
 // Color Variables Map for easier access
 $colors: (
@@ -24,6 +25,7 @@ $colors: (
   text-primary-dark: $text-primary-dark,
   text-secondary: $text-secondary,
   text-tertiary: $text-tertiary,
+  text-light-gray: $text-light-gray,
   bg-primary: $bg-primary,
   bg-tertiary: $bg-tertiary
 );
@@ -93,3 +95,17 @@ $breakpoints: (
   xl: 1200px,
   xxl: 1400px
 );
+// Typography Classes
+// =============================================================================
+
+@mixin fs16-bold {
+  font-size: $font-size-16;
+  font-weight: $font-weight-bold;
+  font-family: $font-family-primary;
+  line-height: $line-height-base;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.fs16-bold {
+  @include fs16-bold;
+}

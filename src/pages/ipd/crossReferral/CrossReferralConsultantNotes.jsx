@@ -26,7 +26,7 @@ import {
 } from "../../../redux/ipd/crossReferralSlice.js";
 import ReferralInformation from "./ReferralInformation.jsx";
 import ReferralInformationView from "./ReferralInformationView.jsx";
-import { otNotesIcons } from "../../../assets/images/indices/index.js";
+import { defaultIcons as newIcons } from "../../../assets/images/indices";
 import dayjs from "dayjs";
 import { defaultIcons } from "../../../assets/images/icons/index.js";
 
@@ -133,8 +133,11 @@ const CrossReferralConsultantNotes = (props) => {
     if (showOnlyEditorToolbar) {
       return (
         <>
-          <div className="rich-text-editor-wrapper-header-title">
-            {data?.title}
+          <div className="d-flex-align-center-gap-8">
+            <img src={newIcons[`${data?.id}Pc`]} alt="x" />
+            <div className="rich-text-editor-wrapper-header-title">
+              {data?.title}
+            </div>
           </div>
           <RichTextEditor
             showAutoFill={false}
@@ -166,7 +169,7 @@ const CrossReferralConsultantNotes = (props) => {
         showActionBtns={isEditable}
         title={data?.title}
         width="100%"
-        icon={!isEditable ? otNotesIcons[data?.id] : null}
+        icon={newIcons[`${data?.id}Pc`]}
         showAutoFill={false}
         containerClass={` ${
           !isEditable
@@ -204,82 +207,6 @@ const CrossReferralConsultantNotes = (props) => {
     );
   };
 
-  const renderChildren = (data) => {
-    const isEnabled = data?.enabled;
-    if (!isEnabled) return null;
-    if (data?.children) {
-      const enabledChildItems = data?.children?.filter((item) => item.enabled);
-      if (enabledChildItems?.length > 0) {
-        return (
-          <>
-            {enabledChildItems?.map((childItem) => {
-              if (childItem?.id === "additionalRemarksAndFollowUp") {
-                return (
-                  <div className="ipd-crosref-consult-addremarks-container">
-                    {childItem?.children.map((grandChildItem) => {
-                      switch (grandChildItem?.id) {
-                        case "additionalRemarks":
-                          return renderRichTextEditorSection(
-                            grandChildItem,
-                            true
-                          );
-                        case "followUp":
-                          const dateDisplayFormat = "D MMM YYYY";
-                          return (
-                            <div>
-                              <div className="otNotes-label">
-                                {grandChildItem?.title}
-                              </div>
-                              <DatePicker
-                                className="w-25 popinput inputheight41"
-                                format={{
-                                  format: dateDisplayFormat,
-                                  type: "mask",
-                                }}
-                                value={
-                                  initialValue?.[grandChildItem?.id]
-                                    ? dayjs(
-                                        initialValue?.[grandChildItem?.id],
-                                        dateDisplayFormat
-                                      )
-                                    : null
-                                }
-                                placeholder={"dd/mm/yyyy"}
-                                onChange={(date) =>
-                                  dispatch(
-                                    setCrossReferralConsultantNoteDetails({
-                                      [grandChildItem?.id]: date
-                                        ? date.format(dateDisplayFormat)
-                                        : "",
-                                    })
-                                  )
-                                }
-                                suffixIcon={
-                                  <img src={defaultIcons.calendarPlainIcon} />
-                                }
-                                prefix={null}
-                                allowClear
-                                inputReadOnly
-                              />
-                            </div>
-                          );
-                        default:
-                          return null;
-                      }
-                    })}
-                  </div>
-                );
-              } else {
-                return renderRichTextEditorSection(childItem, false);
-              }
-            })}
-          </>
-        );
-      }
-    } else {
-      return renderRichTextEditorSection(data);
-    }
-  };
   const renderSections = (data) => {
     if (!data || !data.id) {
       return null;

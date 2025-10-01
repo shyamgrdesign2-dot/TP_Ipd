@@ -8,38 +8,33 @@
   font-size: 14px;
   overflow: hidden;
   position: relative;
-
-  background: rgba(243, 237, 252, 0.4);
+  min-width: 298px;
+  background: #F3EDFCB2;
   border: 0.3px solid rgba(238, 222, 255, 0.5);
 
   .chip-content {
     display: flex;
     flex-direction: column;
-    gap: 0px;
-    justify-content: center;
-    margin-left: 26px;
-    overflow: hidden;
-    width: 100%;
+    align-items: flex-start;
+    gap: 4px;
   }
 
   .chip-role {
     font-size: 10px;
     color: var(--label);
     font-weight: 400;
-    // background: #fff;
     padding: 2px 8px;
     border-radius: 8px;
     white-space: nowrap;
   }
 
   .team-member-icon {
-    width: 28px;
-    height: 28px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     position: absolute;
-    left: 2px;
-    top: 50%;
-    transform: translateY(-50%);
+    left: -14px;
+    bottom: -5px;
   }
 
   .team-member-label {

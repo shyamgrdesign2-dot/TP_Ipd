@@ -16,10 +16,13 @@ import {
 } from "../../../redux/ipd/otNotesSlice.js";
 import DateRangeFilter from "../components/DateRangeFilter.js";
 import { getCustomization } from "../../../redux/ipd/ipdSlice.js";
-
+import { convertSurgeryDataToDisplayFormat } from "../../../utils/utils.js";
+import { isEmptyRichText } from "../../../utils/utils.js";
 const ReusableStepper = createRemoteComponent("ReusableStepper");
+const GenericCard = createRemoteComponent("GenericCard");
+const RichTextEditor = createRemoteComponent("RichTextEditor");
 
-const OtNotesTimeline = () => {
+const OtNotesTimeline = ({ isLiteMode = false }) => {
   const dateFormat = "YYYY-MM-DD";
   const showDateFormat = "DD-MM-YYYY";
   const dispatch = useDispatch();
@@ -47,6 +50,20 @@ const OtNotesTimeline = () => {
         patientDetails,
         isEditable: true,
         activeOtNoteId: id,
+      },
+    });
+  };
+
+  const handleAddEditOtNote = (section) => {
+    console.log("INTEL ==> SECTION", section);
+    dispatch(setCurrentOtNoteId(section?.id));
+    dispatch(setSingleOtNotesData({ _id: section?.id }));
+    navigate("/ipd/patient-details/ot-notes", {
+      state: {
+        patient_data,
+        patientDetails,
+        isEditable: true,
+        activeOtNoteId: section?.id,
       },
     });
   };
@@ -97,7 +114,6 @@ const OtNotesTimeline = () => {
       setDateRange(null);
     }
   }, []);
-
 
   const renderCustomGroupHeader = (groupKey, groupData, emit) => {
     const data = groupData?.[0]?.originalEntry;
@@ -235,7 +251,8 @@ const OtNotesTimeline = () => {
       return {
         date: dateIso?.toISOString(),
         originalEntry: entry,
-        renderStepItem: () => {
+        renderStepItem: (data) => {
+          console.log("INTEL ==> DATA", data);
           const CollapsibleContent = () => {
             const [isExpanded, setIsExpanded] = useState(false);
 
@@ -243,95 +260,150 @@ const OtNotesTimeline = () => {
               <div className="collapsible-wrapper">
                 <div
                   className={`ot-notes-content ${
-                    isExpanded ? "expanded" : "collapsed"
+                    isExpanded || isLiteMode ? "expanded" : "collapsed"
                   }`}
                 >
-                  {Object.keys(entry?.otNotes)?.map((otEntry) => {
-                    switch (otEntry) {
-                      case "surgeryDetails":
-                        return (
-                          <SurgeryDetails
-                            key={otEntry}
-                            id={otEntry}
-                            surgeryDetails={entry?.otNotes?.[otEntry]}
-                          />
-                        );
-                      case "surgeryTeam":
-                        return (
-                          <SurgeryTeam
-                            key={otEntry}
-                            id={otEntry}
-                            surgeryTeam={entry?.otNotes?.[otEntry]}
-                          />
-                        );
-                      case "operativeNotes":
-                        return (
-                          <OperativeNotes
-                            key={otEntry}
-                            isEditable={false}
-                            sectionData={otNotes?.find(
-                              (item) => item.id === otEntry
-                            )}
-                            operativeNotes={entry?.otNotes?.[otEntry]}
-                          />
-                        );
-                      case "intraOperativeNotes":
-                        return (
-                          <IntraOperativeNotes
-                            key={otEntry}
-                            isEditable={false}
-                            id={otEntry}
-                            sectionData={otNotes?.find(
-                              (item) => item.id === otEntry
-                            )}
-                            intraOperativeNotes={entry?.otNotes?.[otEntry]}
-                          />
-                        );
-                      case "postOperativeNotes":
-                        return (
-                          <PostOperativeNotes
-                            key={otEntry}
-                            isEditable={false}
-                            id={otEntry}
-                            sectionData={otNotes?.find(
-                              (item) => item.id === otEntry
-                            )}
-                            postOperativeNotes={entry?.otNotes?.[otEntry]}
-                          />
-                        );
-                      default:
-                        return null;
-                    }
-                  })}
+                  {isLiteMode ? (
+                    <ul className="ot-notes-content-lite">
+                      {convertSurgeryDataToDisplayFormat(entry?.otNotes)?.map(
+                        (item) => {
+                          if (typeof item.value === "string") {
+                            return (
+                              <li className="surgery-card__item">
+                                <span className="surgery-card__label">
+                                  {item.key}:
+                                </span>{" "}
+                                <span className="surgery-card__value">
+                                  {item.value}
+                                </span>
+                              </li>
+                            );
+                          }
+                          if (item.value?.[0]?.children) {
+                            if (isEmptyRichText(item.value)) {
+                              return null;
+                            }
+                            return (
+                              <li className="surgery-card__item">
+                                <div className="d-flex">
+                                  <span className="surgery-card__label">
+                                    {item.key}:
+                                  </span>{" "}
+                                  <RichTextEditor
+                                    showActionBtns={false}
+                                    showAutoFill={false}
+                                    showMagicPenGif={false}
+                                    width={"fit-content"}
+                                    showMicrophone={false}
+                                    showToolbar={false}
+                                    readOnly={true}
+                                    className={
+                                      "rich-text-editor-container-readonly"
+                                    }
+                                    initialValue={item.value}
+                                  />
+                                </div>
+                              </li>
+                            );
+                          }
+                          return null;
+                        }
+                      )}
+                    </ul>
+                  ) : (
+                    <>
+                      {Object.keys(entry?.otNotes)?.map((otEntry) => {
+                        switch (otEntry) {
+                          case "surgeryDetails":
+                            return (
+                              <SurgeryDetails
+                                key={otEntry}
+                                id={otEntry}
+                                surgeryDetails={entry?.otNotes?.[otEntry]}
+                              />
+                            );
+                          case "surgeryTeam":
+                            return (
+                              <SurgeryTeam
+                                key={otEntry}
+                                id={otEntry}
+                                surgeryTeam={entry?.otNotes?.[otEntry]}
+                              />
+                            );
+                          case "operativeNotes":
+                            return (
+                              <OperativeNotes
+                                key={otEntry}
+                                isEditable={false}
+                                sectionData={otNotes?.find(
+                                  (item) => item.id === otEntry
+                                )}
+                                operativeNotes={entry?.otNotes?.[otEntry]}
+                              />
+                            );
+                          case "intraOperativeNotes":
+                            return (
+                              <IntraOperativeNotes
+                                key={otEntry}
+                                isEditable={false}
+                                id={otEntry}
+                                sectionData={otNotes?.find(
+                                  (item) => item.id === otEntry
+                                )}
+                                intraOperativeNotes={entry?.otNotes?.[otEntry]}
+                              />
+                            );
+                          case "postOperativeNotes":
+                            return (
+                              <PostOperativeNotes
+                                key={otEntry}
+                                isEditable={false}
+                                id={otEntry}
+                                sectionData={otNotes?.find(
+                                  (item) => item.id === otEntry
+                                )}
+                                postOperativeNotes={entry?.otNotes?.[otEntry]}
+                              />
+                            );
+                          default:
+                            return null;
+                        }
+                      })}
+                    </>
+                  )}
                 </div>
-                {!isExpanded && (
-                  <div className="gradient-overlay">
-                    <button
-                      className="view-more-btn"
-                      onClick={() => setIsExpanded(true)}
-                    >
-                      View more
-                      <img
-                        src={defaultIcons.downArrowPcIcon}
-                        alt="arrow down"
-                        className="arrow-down"
-                      />
-                    </button>
-                  </div>
-                )}
-                {isExpanded && (
-                  <button
-                    className="view-less-btn"
-                    onClick={() => setIsExpanded(false)}
-                  >
-                    View less
-                    <img
-                      src={defaultIcons.downArrowPcIcon}
-                      alt="arrow up"
-                      className="arrow-up"
-                    />
-                  </button>
-                )}
+                {!isLiteMode ? (
+                  <>
+                    {!isExpanded && (
+                      <div className="gradient-overlay">
+                        <button
+                          className="view-more-btn"
+                          onClick={() => setIsExpanded(true)}
+                        >
+                          View more
+                          <img
+                            src={defaultIcons.downArrowPcIcon}
+                            alt="arrow down"
+                            className="arrow-down"
+                          />
+                        </button>
+                      </div>
+                    )}
+                    {isExpanded && (
+                      <button
+                        className="view-less-btn"
+                        onClick={() => setIsExpanded(false)}
+                      >
+                        View less
+                        <img
+                          src={defaultIcons.downArrowPcIcon}
+                          alt="arrow up"
+                          className="arrow-up"
+                        />
+                      </button>
+                    )}
+                  </>
+                ) : null}
               </div>
             );
           };
@@ -340,32 +412,60 @@ const OtNotesTimeline = () => {
         },
       };
     });
-  }, [otNotesState.otNotesData, otNotes]);
+  }, [otNotesState.otNotesData, otNotes, isLiteMode]);
 
   const filteredMappedData = useMemo(() => {
     if (!dateRange || !dateRange.startDate || !dateRange.endDate) {
       return mappedData;
     }
 
-    const startDate = moment(dateRange.startDate).startOf('day');
-    const endDate = moment(dateRange.endDate).endOf('day');
+    const startDate = moment(dateRange.startDate).startOf("day");
+    const endDate = moment(dateRange.endDate).endOf("day");
 
     return mappedData.filter((item) => {
-      const surgeryDate = item.originalEntry?.otNotes?.surgeryDetails?.surgeryDate;
+      const surgeryDate =
+        item.originalEntry?.otNotes?.surgeryDetails?.surgeryDate;
       if (!surgeryDate) return false;
-      
+
       let itemDate = moment(surgeryDate, "DD MMM YYYY");
       if (!itemDate.isValid()) {
         itemDate = moment(surgeryDate, showDateFormat);
       }
-      
+
       if (!itemDate.isValid()) {
         return false;
       }
-      
-      return itemDate.isBetween(startDate, endDate, null, '[]');
+
+      return itemDate.isBetween(startDate, endDate, null, "[]");
     });
   }, [mappedData, dateRange]);
+
+  if (isLiteMode) {
+    console.log("INTEL ==> SEasdfsfsfdCTION", otNotesState, filteredMappedData);
+    return (
+      <div className="ot-notes-timeline-container flex-column-gap-16">
+        {filteredMappedData?.map((section, sectionIndex) => {
+          return (
+            <div className="otnotelite-section-container big-box-with-shadow flex-column-gap-16">
+              <div className="fs16-bold">
+                Surgery {sectionIndex + 1}
+              </div>
+              <div className="otnotelite-section-content box-with-padding pl-0">
+                {section?.renderStepItem(true)}
+              </div>
+              <div onClick={() => handleAddEditOtNote(section?.originalEntry)}>
+                <GenericCard
+                  key={section?.id}
+                  icon={defaultIcons.editIcon}
+                  title={`Add/Edit Surgery ${sectionIndex + 1} Details`}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <div className="ot-notes-timeline-container">
@@ -395,11 +495,13 @@ const OtNotesTimeline = () => {
           currentStep: -1,
         }}
         showShadow={true}
-        toolbar={{ 
-          show: true, 
-          label: dateRange 
-            ? `Filtered: ${moment(dateRange.startDate).format(showDateFormat)} - ${moment(dateRange.endDate).format(showDateFormat)}`
-            : "All dates" 
+        toolbar={{
+          show: true,
+          label: dateRange
+            ? `Filtered: ${moment(dateRange.startDate).format(
+                showDateFormat
+              )} - ${moment(dateRange.endDate).format(showDateFormat)}`
+            : "All dates",
         }}
       />
     </div>

@@ -6,24 +6,98 @@ import "./styles.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { Select, DatePicker, TimePicker } from "antd";
 import dayjs from "dayjs";
+import Vitals from "../../assessmentForm/Vitals";
+import { isEmptyRichText } from "../../../../utils/utils";
+import { setDischargeSummaryData } from "../../../../redux/ipd/dischargeSummarySlice";
+import CurrentMedications from "../../assessmentForm/CurrentMedications";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const DischargeNotes = (props) => {
   const { isEditable = true, sectionData } = props || {};
-  const { surgeryDetails, surgeryProcedureOptions } = useSelector(
+  const { surgeryDetails, surgeryProcedureOptions, dischargeSummaryData } = useSelector(
     (state) => state.dischargeSummary
   );
   const initialValue = useMemo(() => surgeryDetails || {}, [surgeryDetails]);
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
-  const renderSection = () => {
+  const handleOthersChange = (data, key) => {
+    dispatch(setDischargeSummaryData({ ...dischargeSummaryData, [key]: data }));
+  };
+
+  console.log('INTEL ==> DischargeNotes', dischargeSummaryData)
+
+  const renderPatientCondition = (data) => {
+    if (!isEditable && isEmptyRichText(dischargeSummaryData?.patientCondition))
+      return null;
+
     return (
-        <div>Discharge Notes</div>
-    )
-  }
+      <RichTextEditWrapper
+        readOnly={!isEditable}
+        showToolbar={isEditable}
+        showActionBtns={isEditable}
+        title={data?.title}
+        width={isEditable ? "100%" : "fit-content"}
+        icon={dischargeSummaryIcons[`${data?.id}Pc`]}
+        showAutoFill={false}
+        containerClass={`wrapper-class ${
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
+        opdDate="15 Jun 2025"
+        showMagicPenGif={false}
+        showMicrophone={false}
+        onChange={(data) => handleOthersChange(data, "patientCondition")}
+        initialValue={
+          dischargeSummaryData?.patientCondition?.length
+            ? dischargeSummaryData?.patientCondition
+            : [
+                {
+                  type: "paragraph",
+                  children: [{ text: "" }],
+                },
+              ]
+        }
+        placeholder={
+          data?.placeholder ||
+          "Enter Patient Condition"
+        }
+        onSave={() => {
+          console.log("save");
+        }}
+        onErase={() => {
+          setAutoFillTextToAppend(["clear"]);
+        }}
+        onTemplate={() => {
+          console.log("template");
+        }}
+        newAutoFillTextToAppend={autoFillTextToAppend}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppend}
+      />
+    );
+  };
+
+  const renderSection = () => {
+    return sectionData?.children?.map((item) => {
+      return (
+        <React.Fragment key={item.id}>
+          {(() => {
+            switch (item?.id) {
+              case "dischargeVitals":
+                return <Vitals isEditable={true} {...props} formName="dischargeSummary" sectionData={item} />;
+              case "patientCondition":
+                return renderPatientCondition(item);
+              case "dischargeMedications":
+                return <CurrentMedications isDischargeSummary={true} {...props} sectionData={item} />;
+              default:
+                return null;
+            }
+          })()}
+        </React.Fragment>
+      );
+    });
+  };
 
   return (
     <>

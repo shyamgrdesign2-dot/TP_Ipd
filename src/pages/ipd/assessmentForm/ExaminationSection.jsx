@@ -9,7 +9,7 @@ import { setPhysicalExaminationBasicData } from "../../../redux/ipd/assessmentsF
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 const ExaminationSection = (props) => {
-  const { isEditable = true, sectionData } = props || {};
+  const { isEditable = true, sectionData, isDischargeSummary = false } = props || {};
   const { physicalExaminationBasicData = {} } = useSelector(
     (state) => state.assessment
   );
@@ -41,7 +41,7 @@ const ExaminationSection = (props) => {
 
   const renderReadOnlyExamination = () => {
     return (
-      <div className="ipdaf-examination-readonly">
+      <div className={`ipdaf-examination-readonly ${false ? 'box-with-padding': ''}`}>
         <ul>
           {sectionData?.children?.filter((item) => item.enabled).map((item) => {
             const data = physicalExaminationBasicData[item.id];
@@ -53,7 +53,7 @@ const ExaminationSection = (props) => {
                 {data.title}
                 {data.notes?.[0]?.children?.[0].text && (
                   <div className="ipdaf-exam-read-notes-container">
-                    <div className="ipdaf-exam-read-notes-heading">Notes:</div>
+                    <li className="ipdaf-exam-read-notes-heading">Notes:</li>
                     <RichTextEditor
                       showActionBtns={false}
                       showAutoFill={false}
