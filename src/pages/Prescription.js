@@ -116,6 +116,7 @@ import genRxBg from "../assets/images/gen-rx-bg.gif";
 import LabResultsTable from "../components/LabParams";
 import ZydusLabParams from "../components/ZydusLabParams";
 import ZydusLabParametersList from "../components/ZydusLabParametersList";
+import carePlanIcon from "../assets/images/Care plan_Active.svg";
 
 function Prescription() {
   const {
@@ -269,7 +270,9 @@ function Prescription() {
     useVoiceRx,
     setUseVoiceRx,
     useDDX,
-    setUseDDX
+    setUseDDX,
+    selectedCarePlan,
+    setSelectedCarePlan
   };
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
@@ -920,11 +923,8 @@ function Prescription() {
   const fetchCarePlanNames = async () => {
     try {
       if (isCarePlanEnabled) {
-        console.log('Fetching care plan names...');
         const response = await getCarePlanNames();
-        console.log('Care plan names response:', response);
         // The CarePlanDropdown component handles its own data fetching
-        // This function is here for any additional processing if needed
       }
     } catch (error) {
       console.error("Error fetching care plan names:", error);
@@ -1358,6 +1358,45 @@ function Prescription() {
             />
           </div>
         </>
+      ) : e.tmdpm_id === 22 && e.tmdpm_status === 0 && isCarePlanEnabled ? (
+        <div key={i} className="prescription-box-sm p-14">
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center">
+              <img
+                src={carePlanIcon}
+                alt="Care Plans"
+                className="me-3"
+                style={{ width: '20px', height: '20px' }}
+              />
+              <div className="title-common">Care Plans</div>
+            </div>
+          </div>
+          
+          {/* Care Plan List - Show assigned care plans */}
+          <CarePlanList
+            patientId={patient_data?.patient_unique_id}
+            selectedTcmId={tcmId}
+            readOnly={true}
+            title="Assigned Care Plans"
+            hideWhenEmpty={true}
+            onCarePlanSelect={(plan) => {
+              setSelectedCarePlan(plan);
+            }}
+          />
+          
+          <div className="mt-3">
+            <CarePlanDropdown 
+              onCarePlanSelect={(plan) => {
+                setSelectedCarePlan(plan);
+              }}
+              selectedCarePlan={selectedCarePlan}
+              patientId={patient_data?.patient_unique_id}
+              doctorId={userId}
+              clinicId={decodedToken?.result?.clinic_id}
+              placeholder={carePlanPlaceholder}
+            />
+          </div>
+        </div>
       ) : null;
     });
 
@@ -1390,43 +1429,6 @@ function Prescription() {
             </button>
           </div>
           <ZydusLabParametersList labParamsData={zydusSelectedLabParams} patient_unique_id={patient_data?.patient_unique_id} doc_id={userId} patientGender={patient_data?.pm_gender} />
-        </div>
-      );
-    }
-
-    // Add Care Plan as a separate component
-    if (isCarePlanEnabled) {
-      modules.push(
-        <div
-          key="care-plan"
-          className="prescription-box-sm p-14"
-        >
-          {/* Care Plan List - Show assigned care plans above dropdown on all prescription pages */}
-          <CarePlanList
-            patientId={patient_data?.patient_unique_id}
-            selectedTcmId={tcmId}
-            readOnly={true}
-            title="Assigned Care Plans"
-            hideWhenEmpty={true}
-            onCarePlanSelect={(plan) => {
-              console.log('Selected care plan from list:', plan);
-              setSelectedCarePlan(plan);
-            }}
-          />
-          
-          <div className="mt-3">
-            <CarePlanDropdown 
-              onCarePlanSelect={(plan) => {
-                console.log('Selected care plan:', plan);
-                setSelectedCarePlan(plan);
-              }}
-              selectedCarePlan={selectedCarePlan}
-              patientId={patient_data?.patient_unique_id}
-              doctorId={userId}
-              clinicId={decodedToken?.result?.clinic_id}
-              placeholder={carePlanPlaceholder}
-            />
-          </div>
         </div>
       );
     }

@@ -752,10 +752,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     return labParamsPatchData && labParamsPatchData?.length > 0;
                 case 16: // Surgeries
                     return caseManagerData?.surgeries?.length > 0;
-                case 18: // Zydus Lab Results or Care Plan Assignments
-                    return activeCarePlans.length > 0;
                 case 17: // Patient Bills (already handled in hasAnyData)
                     return  (patientBills?.length > 0 || advanceReceipts?.length > 0);
+                case 18:
+                    return caseManagerData?.zydusSelectedLabParams?.length > 0;
+                case 19: // Care Plan Assignments
+                    return activeCarePlans.length > 0;
                 case 91: // Vaccines
                     return caseManagerData?.visit_advice;
                 default:
@@ -5240,47 +5242,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     </>
                                 ) : option?.id === 18 && option?.enable === 'Y' && option?.custom_status === 'Y' ? (
                                     <>
-                                        {activeCarePlans.length > 0 && (
-                                            option?.format === 'inline' ? (
-                                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Care Plan:&nbsp;</Text>
-                                                    {activeCarePlans.map((item, i) => (
-                                                        <Text key={i}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.plan_name}&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${moment(item?.created_date).format('DD MMM YYYY')})`}</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{activeCarePlans.length - 1 !== i ? ',' : ''}&nbsp;</Text>
-                                                        </Text>
-                                                    ))}
-                                                </Text>
-                                            ) : option?.format === 'listview' ? (
-                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Care Plan:&nbsp;</Text>
-                                                    {activeCarePlans.map((item, i) => (
-                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i === 0 ? 4 : 2), lineHeight: 1.4 }}>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.plan_name}&nbsp;</Text>
-                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${moment(item?.created_date).format('DD MMM YYYY')})`}</Text>
-                                                        </Text>
-                                                    ))}
-                                                </View>
-                                            ) : (
-                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
-                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Care Plan:&nbsp;</Text>
-                                                    <View style={styles.table}>
-                                                        <View style={styles.headerRow} fixed>
-                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>PLAN NAME</Text>
-                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>ASSIGNED DATE</Text>
-                                                        </View>
-                                                        {activeCarePlans.map((item, i) => (
-                                                            <View style={styles.row} key={i} wrap={false}>
-                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item?.plan_name}&nbsp;</Text>
-                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{moment(item?.created_date).format('DD MMM YYYY')}</Text>
-                                                            </View>
-                                                        ))}
-                                                    </View>
-                                                </View>
-                                            )
-                                        )}
                                         {caseManagerData?.zydusSelectedLabParams?.length > 0 && (
                                             option?.format === 'inline' ? (
                                                 <View style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
@@ -5794,7 +5755,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             </View>
                                         </View>
                                     )
-                                ) : option?.id === 17 && option?.enable === 'Y' && option?.custom_status === 'Y' && (patientBills?.length > 0 || advanceReceipts?.length > 0) && (
+                                ) : option?.id === 17 && option?.enable === 'Y' && option?.custom_status === 'Y' && (patientBills?.length > 0 || advanceReceipts?.length > 0) ? (
                                     <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
                                         <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Payment:&nbsp;</Text>
                                         {patientBills?.map((patientBill, i) => {
@@ -5834,7 +5795,51 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                             {`Available Advance Balance ₹${patientWalletBalance}`}
                                         </Text>)}
                                     </Text>
-                                )}
+                                ) : option?.id === 19 && option?.enable === 'Y' && option?.custom_status === 'Y' && activeCarePlans?.length > 0 ? (
+                                    <>
+                                        {activeCarePlans.length > 0 && (
+                                            option?.format === 'inline' ? (
+                                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Care Plan:&nbsp;</Text>
+                                                    {activeCarePlans.map((item, i) => (
+                                                        <Text key={i}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.plan_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${moment(item?.created_date).format('DD MMM YYYY')})`}</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{activeCarePlans.length - 1 !== i ? ',' : ''}&nbsp;</Text>
+                                                        </Text>
+                                                    ))}
+                                                </Text>
+                                            ) : option?.format === 'listview' ? (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Care Plan:&nbsp;</Text>
+                                                    {activeCarePlans.map((item, i) => (
+                                                        <Text key={i} style={{ marginTop: PX_TO_PT * (i === 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item?.plan_name}&nbsp;</Text>
+                                                            <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }}>{`(${moment(item?.created_date).format('DD MMM YYYY')})`}</Text>
+                                                        </Text>
+                                                    ))}
+                                                </View>
+                                            ) : (
+                                                <View style={{ marginTop: PX_TO_PT * 15 }}>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, marginBottom: PX_TO_PT * 6 }}>Care Plan:&nbsp;</Text>
+                                                    <View style={styles.table}>
+                                                        <View style={styles.headerRow} fixed>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>PLAN NAME</Text>
+                                                            <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>ASSIGNED DATE</Text>
+                                                        </View>
+                                                        {activeCarePlans.map((item, i) => (
+                                                            <View style={styles.row} key={i} wrap={false}>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item?.plan_name}&nbsp;</Text>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{moment(item?.created_date).format('DD MMM YYYY')}</Text>
+                                                            </View>
+                                                        ))}
+                                                    </View>
+                                                </View>
+                                            )
+                                        )}
+                                    </>
+                                ) : null}
                                 </View>
                             )
                         

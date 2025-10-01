@@ -6,7 +6,7 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { getCarePlanAssignments } from "../pages/smartSync/services/carePlanService";
 import { GB_CARE_PLAN } from "../utils/constants";
 import carePlanIcon from "../assets/images/onboard-page-icons/health.svg";
-import adviceIcon from "../assets/images/advice.svg";
+import adviceIcon from "../assets/images/Care plan_Active.svg";
 import "./CarePlanList.scss";
 
 const { Text } = Typography;
@@ -116,15 +116,6 @@ function CarePlanList({ patientId, selectedTcmId, onCarePlanSelect, readOnly = f
                             {plan.plan_name}
                         </Text>
                     </div>
-                    
-                    {/* Doctor name (if available) */}
-                    {plan.doctor_name && (
-                        <div>
-                            <Text type="secondary" style={{ fontSize: '12px' }}>
-                                Dr. {plan.doctor_name}
-                            </Text>
-                        </div>
-                    )}
                 </div>
             </List.Item>
         );
@@ -134,11 +125,8 @@ function CarePlanList({ patientId, selectedTcmId, onCarePlanSelect, readOnly = f
         <div className="care-plan-list-container">
             {/* Add the title heading */}
             {title && (
-                <div className="d-flex align-items-center mb-3">
-                    <img src={adviceIcon} alt="care plan" className="me-3" style={{ width: '20px', height: '22px' }} />
-                    <Text strong style={{ fontSize: '16px', color: '#262626' }}>
-                        {title}
-                    </Text>
+                <div className="title-common mb-1" style={{ padding: '10px 0 0px 10px' }}>
+                    {title}
                 </div>
             )}
 

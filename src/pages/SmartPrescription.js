@@ -47,6 +47,7 @@ import CarePlanDropdown from "../components/CarePlanDropdown";
 import CarePlanList from "../components/CarePlanList";
 import { getCarePlanAssignments } from "./smartSync/services/carePlanService";
 import { assignCarePlan } from "./smartSync/services/carePlanService";
+import carePlanIcon from "../assets/images/Care plan_Active.svg";
 
 import {
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
@@ -304,7 +305,9 @@ function SmartPrescription() {
     pillupSwitch, 
     setPillupSwitch,
     isCustomSSRX,
-    setIsCustomSSRX
+    setIsCustomSSRX,
+    selectedCarePlan,
+    setSelectedCarePlan
   };
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
@@ -1847,54 +1850,90 @@ function SmartPrescription() {
             />
           </div>
         </>
-      ) : (
-        e.tmdpm_id === 19 &&
-        e.tmdpm_status === 0 && (
-          <>
-            <div className="prescription-box-sm" style={{ overflow: "hidden" }}>
-              <div
-                className="d-flex align-items-center justify-content-between p-14"
-                style={{ borderBottom: "1px solid #ddd" }}
-              >
-                <div className="d-flex align-items-center">
-                  <img
-                    src={labResultImg}
-                    alt="upload-document"
-                    className="me-3"
-                  />
-                  <div className="title-common">Lab Results</div>
-                </div>
-                <button
-                  className="btn d-flex align-items-center btn-text"
-                  style={{
-                    paddingRight: labParamsData?.length > 0 ? 0 : 12,
-                  }}
-                  onClick={
-                    labParamsData?.length > 0
-                      ? handleViewLabParamsDrawer
-                      : handleAddLabParamsDrawer
-                  }
-                >
-                  {labParamsData?.length === 0 && (
-                    <i className="icon-Add me-1 fs-5" />
-                  )}
-                  <span>{`${
-                    labParamsData?.length > 0 ? "View All" : "Add"
-                  }`}</span>
-                  {labParamsData?.length > 0 && (
-                    <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
-                  )}
-                </button>
+      ) : e.tmdpm_id === 19 && e.tmdpm_status === 0 ? (
+        <>
+          <div className="prescription-box-sm" style={{ overflow: "hidden" }}>
+            <div
+              className="d-flex align-items-center justify-content-between p-14"
+              style={{ borderBottom: "1px solid #ddd" }}
+            >
+              <div className="d-flex align-items-center">
+                <img
+                  src={labResultImg}
+                  alt="upload-document"
+                  className="me-3"
+                />
+                <div className="title-common">Lab Results</div>
               </div>
-              <LabParametersList
-                labParamsData={labParamsData}
-                patient_unique_id={patient_data?.patient_unique_id}
-                doc_id={userId}
+              <button
+                className="btn d-flex align-items-center btn-text"
+                style={{
+                  paddingRight: labParamsData?.length > 0 ? 0 : 12,
+                }}
+                onClick={
+                  labParamsData?.length > 0
+                    ? handleViewLabParamsDrawer
+                    : handleAddLabParamsDrawer
+                }
+              >
+                {labParamsData?.length === 0 && (
+                  <i className="icon-Add me-1 fs-5" />
+                )}
+                <span>{`${
+                  labParamsData?.length > 0 ? "View All" : "Add"
+                }`}</span>
+                {labParamsData?.length > 0 && (
+                  <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
+                )}
+              </button>
+            </div>
+            <LabParametersList
+              labParamsData={labParamsData}
+              patient_unique_id={patient_data?.patient_unique_id}
+              doc_id={userId}
+            />
+          </div>
+        </>
+      ) : e.tmdpm_id === 22 && e.tmdpm_status === 0 && isCarePlanEnabled ? (
+          <div key={i} className="prescription-box-sm p-14">
+            <div className="d-flex align-items-center justify-content-between">
+              <div className="d-flex align-items-center">
+                <img
+                  src={carePlanIcon}
+                  alt="Care Plans"
+                  className="me-3"
+                  style={{ width: '20px', height: '20px' }}
+                />
+                <div className="title-common">Care Plans</div>
+              </div>
+            </div>
+            
+            {/* Care Plan List - Show assigned care plans */}
+            <CarePlanList
+              patientId={patient_data?.patient_unique_id}
+              selectedTcmId={tcmId}
+              readOnly={true}
+              title="Assigned Care Plans"
+              hideWhenEmpty={true}
+              onCarePlanSelect={(plan) => {
+                setSelectedCarePlan(plan);
+              }}
+            />
+            
+            <div className="mt-3">
+              <CarePlanDropdown 
+                onCarePlanSelect={(plan) => {
+                  setSelectedCarePlan(plan);
+                }}
+                selectedCarePlan={selectedCarePlan}
+                patientId={patient_data?.patient_unique_id}
+                doctorId={userId}
+                clinicId={decodedToken?.result?.clinic_id}
+                placeholder={carePlanPlaceholder}
               />
             </div>
-          </>
-        )
-      );
+          </div>
+        ) : null;
     });
   };
 
@@ -3388,35 +3427,6 @@ function SmartPrescription() {
               <div className="prescription-box-sm p-14">
                 <SmartRxFollowUpBox />
               </div>
-              {isCarePlanEnabled && (
-                <div className="prescription-box-sm p-14">
-                  <CarePlanList
-                    patientId={patient_data?.patient_unique_id}
-                    selectedTcmId={tcmId}
-                    readOnly={true}
-                    title="Assigned Care Plans"
-                    hideWhenEmpty={true}
-                    onCarePlanSelect={(plan) => {
-                      console.log('Selected care plan from list:', plan);
-                      setSelectedCarePlan(plan);
-                    }}
-                  />
-
-                  <div className="mt-3">
-                    <CarePlanDropdown 
-                      onCarePlanSelect={(plan) => {
-                        console.log('Selected care plan:', plan);
-                        setSelectedCarePlan(plan);
-                      }}
-                      selectedCarePlan={selectedCarePlan}
-                      patientId={patient_data?.patient_unique_id}
-                      doctorId={userId}
-                      clinicId={decodedToken?.result?.clinic_id}
-                      placeholder={carePlanPlaceholder}
-                    />
-                  </div>
-              </div>
-              )}
             </div>
             <div
               className="col-lg-8 col-md-12 col-12 mt-lg-0 mt-3"
