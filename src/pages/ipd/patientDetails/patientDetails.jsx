@@ -83,6 +83,7 @@ const IPDPatientDetails = () => {
   const { progressNotes } = useSelector((state) => state.progressNotes);
   const { medicalRecords } = useSelector((state) => state.medicalRecords);
   const { crossReferralData } = useSelector((state) => state.crossReferral);
+  const { dischargeSummaryData } = useSelector((state) => state.dischargeSummary);
   const [open, setOpen] = useState(true);
   const [activeMenuItem, setActiveMenuItem] = useState("assessment");
   const [patientData, setPatientData] = useState(null);
@@ -142,6 +143,18 @@ const IPDPatientDetails = () => {
   const handleAddCrossReferralClick = () => {
     dispatch(resetCrossReferralForm());
     navigate("/ipd/patient-details/cross-referral", {
+      state: {
+        patient_data,
+        patientDetails,
+        isEditable: true,
+      },
+    });
+  };
+
+  const handleDischargeSummaryClick = () => {
+    console.log('INTEL ==> DISCHARGE')
+    // dispatch(resetCrossReferralForm());
+    navigate("/ipd/patient-details/discharge-summary", {
       state: {
         patient_data,
         patientDetails,
@@ -350,6 +363,7 @@ const IPDPatientDetails = () => {
     progress: handleProgressNotesClick,
     records: handleMedicalRecordsClick,
     crossReferral: handleAddCrossReferralClick,
+    dischargeSummary: handleDischargeSummaryClick,
   };
 
   const patientDetailsMenu = () => {
@@ -374,8 +388,10 @@ const IPDPatientDetails = () => {
       otNotesData.length > 0
     ) {
       return true;
-    } else if (activeMenuItem === "crossReferral") {
-      return !!crossReferralData?.length;
+      } else if (activeMenuItem === "crossReferral") {
+        return !!crossReferralData?.length;
+    } else if (activeMenuItem === "dischargeSummary") {
+      return !!dischargeSummaryData?.length;
     } else if (activeMenuItem === "consultantNotes") {
       return !!consultantNotes?.length;
     } else if (activeMenuItem === "progress") {
@@ -394,7 +410,8 @@ const IPDPatientDetails = () => {
     progressNotes,
     hasAnyAssessmentData,
     crossReferralData,
-    medicalRecords
+    medicalRecords,
+    dischargeSummaryData
   ]);
 
   const onRequestClose = () => {
@@ -506,6 +523,12 @@ const IPDPatientDetails = () => {
                 onDownload={() => console.log("Download")}
               />
             </div>
+          </div>
+        );
+      case "dischargeSummary":
+        return (
+          <div className="ipd-adm-assess-container-readable">
+            {/* TODO: SHARATH - Print preview */}
           </div>
         );
       default:
