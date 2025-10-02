@@ -23,7 +23,6 @@ const ChronologicalSummary = (props) => {
 
   const [error, setError] = useState(null);
 
-  // Function to generate chronological summary
   const handleGenerateChronologicalSummary = async () => {
     if (!patientId || !admissionId) {
       setError("Patient ID and Admission ID are required to generate chronological summary");
@@ -38,7 +37,6 @@ const ChronologicalSummary = (props) => {
     }
   };
 
-  // Render the chronological summary data
   const renderChronologicalSummaryData = () => {
     if (chronologicalSummaryLoading) {
       return (

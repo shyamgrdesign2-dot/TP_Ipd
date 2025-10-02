@@ -231,7 +231,6 @@
   }
 }
 
-// Chronological Summary Styles
 .chronological-summary-loading {
   display: flex;
   flex-direction: column;
@@ -333,10 +332,8 @@
   }
 }
 
-// Module code styling for chronological summary
 .chronological-summary-wrapper {
   .rich-text-editor-container {
-    // Style for module codes in the text
     .slate-editable-wrapper {
       p {
         position: relative;
@@ -345,7 +342,6 @@
   }
 }
 
-// Module code tooltip styles
 .module-code-tooltip {
   .ant-tooltip-inner {
     background-color: #2c3e50;
@@ -362,7 +358,6 @@
   }
 }
 
-// Custom styling for module codes within text
 .chronological-module-code {
   color: #4f46e5;
   font-weight: 600;
@@ -383,7 +378,6 @@
     border-color: rgba(79, 70, 229, 0.4);
   }
 
-  // Enhanced tooltip using CSS (default: above the element)
   &:hover::after {
     content: attr(title);
     position: absolute;
@@ -405,7 +399,6 @@
     pointer-events: none;
   }
 
-  // Tooltip arrow (default: pointing up)
   &:hover::before {
     content: "";
     position: absolute;
@@ -422,15 +415,12 @@
   }
 }
 
-// Smart positioning for module codes that might be clipped at the top
-// This targets module codes in the first few lines or near the top of containers
 .chronological-summary-wrapper p:first-child .chronological-module-code,
 .chronological-summary-wrapper p:nth-child(2) .chronological-module-code,
 .chronological-summary-wrapper p:nth-child(3) .chronological-module-code,
 .chronological-summary-wrapper ul li:first-child .chronological-module-code,
 .chronological-summary-wrapper ul li:nth-child(2) .chronological-module-code,
 .chronological-summary-wrapper ul li:nth-child(3) .chronological-module-code {
-  // Tooltip below the element for top elements
   &:hover::after {
     bottom: auto;
     top: 100%;
@@ -438,7 +428,6 @@
     margin-top: 8px;
   }
 
-  // Arrow pointing down for top elements
   &:hover::before {
     bottom: auto;
     top: 100%;
