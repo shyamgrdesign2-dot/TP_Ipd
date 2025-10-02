@@ -32,15 +32,29 @@ import FollowUp from "./components/FollowUp.jsx";
 import PreparedBy from "./components/PreparedBy.jsx";
 import OtNotes from "../otNotes/OtNotes.jsx";
 import {
+  getAssessmentsData,
+  getLastPrescriptionDate,
+  lastPrescriptionData,
+  setChiefComplaint,
   setFunctionalAssessmentData,
+  setGynecHistoryData,
+  setHistoryOfPresentIllness,
   setPhysicalExaminationBasicData,
   setPhysicalExaminationOthersData,
+  setPhysicalExaminationProvisionalDiagnosisData,
+  setReferredDocForReview,
   setVitalsData,
 } from "../../../redux/ipd/assessmentsFormSlice.js";
 import { defaultIcons } from "../../../assets/images/icons/index.js";
 import DrawerWrapper from "../components/DrawerWrapper/DrawerWrapper.jsx";
 import OtNotesTimeline from "../otNotes/OtNotesTimeline.jsx";
 import { otNotesIcons } from "../../../assets/images/indices/index.js";
+import { setMedicalHistoryData } from "../../../redux/prescriptionSlice.js";
+import { addObstetricDetails } from "../../../redux/obstetricSlice.js";
+import {
+  getOtNotesData,
+  setSingleOtNotesData,
+} from "../../../redux/ipd/otNotesSlice.js";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -65,6 +79,7 @@ const DischargeSummary = (props) => {
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const { customization = {} } = useSelector((state) => state.ipd);
+  const assessmentData = useSelector((state) => state.assessment);
   const { customModules } = useSelector((state) => state.customModules);
   const dischargeSummaryState = useSelector((state) => state.dischargeSummary);
   const { dischargeSummary = [] } = customization;
@@ -77,6 +92,7 @@ const DischargeSummary = (props) => {
     useState(false);
   const [showFunctionalAssessmentDrawer, setShowFunctionalAssessmentDrawer] =
     useState(false);
+  const otNotesData = useSelector((state) => state.otNotes);
   const [sectionData, setSectionData] = useState(null);
   const [showOtNotesDrawer, setShowOtNotesDrawer] = useState(false);
   useEffect(() => {
@@ -85,210 +101,91 @@ const DischargeSummary = (props) => {
     }
   }, [dischargeSummary]);
 
+  const addDataToStore = (data) => {
+    if (data) {
+      dispatch(setChiefComplaint(data?.basicInfo?.chiefComplaint || []));
+      dispatch(
+        setMedicalHistoryData(data?.basicInfo?.pastMedicalHistory || [])
+      );
+      dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || []));
+      dispatch(addObstetricDetails(data?.basicInfo?.obstetricHistory || []));
+      dispatch(
+        setPhysicalExaminationProvisionalDiagnosisData(
+          data?.physicalExamination?.provisionalDiagnosis || []
+        )
+      );
+      dispatch(
+        setPhysicalExaminationOthersData(
+          data?.physicalExamination?.others || []
+        )
+      );
+      dispatch(
+        setPhysicalExaminationBasicData(
+          data?.physicalExamination?.examination || {}
+        )
+      );
+      const functionalAssessmentWithoutReferredDoc = {
+        ...data?.functionalAssessment,
+      };
+      delete functionalAssessmentWithoutReferredDoc.referredToPhysiotherapyForReview;
+      dispatch(
+        setFunctionalAssessmentData(
+          functionalAssessmentWithoutReferredDoc || {}
+        )
+      );
+      dispatch(
+        setReferredDocForReview(
+          data?.functionalAssessment?.referredToPhysiotherapyForReview || null
+        )
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (isEditable && patientDetails?.details?.id) {
+      dispatch(
+        getAssessmentsData({
+          patientId: patientDetails?.details?.id,
+          admissionId: patientDetails?.admissionId,
+        })
+      ).then((res) => {
+        addDataToStore(res.payload.assessment);
+      });
+    }
+    dispatch(getCustomization());
+    if (isEditable)
+      dispatch(
+        getLastPrescriptionDate({ patientId: patientDetails?.patientUniqueId })
+      ).then((res) => {
+        if (res.payload) {
+          dispatch(
+            lastPrescriptionData({
+              patientId: patientDetails?.patientUniqueId,
+              caseId: res.payload?.caseId,
+            })
+          );
+        }
+      });
+  }, []);
+
+  useEffect(() => {
+    // Only fetch OT Notes data if we have the required patient details
+    if (patientDetails?.details?.id && patientDetails?.admissionId) {
+      dispatch(
+        getOtNotesData({
+          patientId: patientDetails.details.id,
+          admissionId: patientDetails.admissionId,
+        })
+      ).then((res) => {
+        if (otNotesData.currentOtNoteId) {
+          dispatch(setSingleOtNotesData({ _id: otNotesData.currentOtNoteId }));
+        }
+      });
+    }
+  }, [patientDetails?.details?.id, patientDetails?.admissionId]);
+
   useEffect(() => {
     dispatch(getCustomization());
-    dispatch(
-      setPhysicalExaminationBasicData({
-        pallor: {
-          notes: [
-            {
-              type: "paragraph",
-              children: [
-                {
-                  text: "SDF",
-                },
-              ],
-            },
-          ],
-          value: "2",
-          title: "Absent",
-        },
-        clubbing: {
-          value: "1",
-          title: "Present",
-          notes: [
-            {
-              type: "paragraph",
-              children: [
-                {
-                  text: "SDFSF",
-                },
-              ],
-            },
-          ],
-        },
-        cynosis: {
-          value: "1",
-          title: "Present",
-          notes: [
-            {
-              type: "paragraph",
-              children: [
-                {
-                  text: "kjhvoiejsk",
-                },
-              ],
-            },
-          ],
-        },
-        lymphadenopathy: {
-          value: "1",
-          title: "Present",
-          notes: [
-            {
-              type: "paragraph",
-              children: [
-                {
-                  text: "sdfsfjk",
-                },
-              ],
-            },
-          ],
-        },
-        edema: {
-          notes: [
-            {
-              type: "paragraph",
-              children: [
-                {
-                  text: "asdfhsks",
-                },
-              ],
-            },
-          ],
-          value: "2",
-          title: "Absent",
-        },
-        hydration: {
-          value: "1",
-          title: "Normal",
-          notes: [
-            {
-              type: "paragraph",
-              children: [
-                {
-                  text: "sadfdjf",
-                },
-              ],
-            },
-          ],
-        },
-        cvs: {
-          value: "2",
-          title: "Abnormal",
-          notes: [
-            {
-              type: "paragraph",
-              children: [
-                {
-                  text: "sdf",
-                },
-              ],
-            },
-          ],
-        },
-        breast_chest: {
-          value: "1",
-          title: "WNL",
-          notes: [
-            {
-              type: "paragraph",
-              children: [
-                {
-                  text: "sdf",
-                },
-              ],
-            },
-          ],
-        },
-        abdomen: {
-          value: "2",
-          title: "Abnormal",
-          notes: [
-            {
-              type: "paragraph",
-              children: [
-                {
-                  text: "sdf",
-                },
-              ],
-            },
-          ],
-        },
-        neurological_psychosocial: {
-          value: "1",
-          title: "WNL",
-          notes: [
-            {
-              type: "paragraph",
-              children: [
-                {
-                  text: "sdfsdf",
-                },
-              ],
-            },
-          ],
-        },
-        back: {
-          notes: [
-            {
-              type: "paragraph",
-              children: [
-                {
-                  text: "sdf",
-                },
-              ],
-            },
-          ],
-        },
-      })
-    );
-    dispatch(
-      setVitalsData({
-        pulse: 100,
-        bloodPressure: 120,
-        temperature: 95,
-        spo2: 35,
-        respiratoryRate: 111,
-      })
-    );
-    dispatch(
-      setPhysicalExaminationOthersData([
-        {
-          type: "paragraph",
-          children: [
-            {
-              text: "sdfsfdsdf",
-            },
-          ],
-        },
-      ])
-    );
-    dispatch(
-      setFunctionalAssessmentData({
-        bedActivity: "Independent",
-        sitting: "Needs Assistance",
-        ambulation: "Needs Assistance",
-        others: [
-          {
-            type: "paragraph",
-            children: [
-              {
-                text: "asdfasdf",
-              },
-            ],
-          },
-        ],
-      })
-    );
-    if (patientDetails?.details?.id && patientDetails?.admissionId) {
-      //   dispatch(
-      //     getDischargeSummaryData({
-      //       patientId: patientDetails.details.id,
-      //       admissionId: patientDetails.admissionId,
-      //     })
-      //   );
-    }
   }, [patientDetails?.details?.id, patientDetails?.admissionId]);
 
   const handleDefaultClick = () => {
@@ -365,20 +262,24 @@ const DischargeSummary = (props) => {
                 <div className="flex-column-gap-16">
                   <FunctionalAssessment
                     isEditable={false}
+                    isCollapsible={true}
                     {...props}
                     sectionData={data}
                     hideBorder={true}
+                    showAddEditButton={true}
+                    onAddEditClick={() =>
+                      handleAddEditFunctionalAssessment(data)
+                    }
                   />
-                  <div onClick={() => handleAddEditFunctionalAssessment(data)}>
-                    <GenericCard
-                      icon={defaultIcons.editIcon}
-                      title={"Add/Edit Functional Assessment"}
-                    />
-                  </div>
                 </div>
               );
             case "courseInHospital":
-              return <CourseInHospital {...props} sectionData={data} />;
+              return <CourseInHospital 
+                {...props} 
+                sectionData={data} 
+                patientId={patientDetails?.details?.id}
+                admissionId={patientDetails?.admissionId}
+              />;
             case "otNotes":
               return (
                 <div className="flex-column-gap-16">
@@ -438,6 +339,8 @@ const DischargeSummary = (props) => {
       ...dischargeSummaryState.dischargeSummaryData,
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
     };
+
+    console.log('INTEL ==> reqData',reqData)
 
     dispatch(
       updateDischargeSummaryData({

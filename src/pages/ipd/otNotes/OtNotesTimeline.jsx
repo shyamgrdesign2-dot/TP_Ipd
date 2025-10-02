@@ -18,6 +18,7 @@ import DateRangeFilter from "../components/DateRangeFilter.js";
 import { getCustomization } from "../../../redux/ipd/ipdSlice.js";
 import { convertSurgeryDataToDisplayFormat } from "../../../utils/utils.js";
 import { isEmptyRichText } from "../../../utils/utils.js";
+import { dischargeSummaryIcons } from "../../../assets/images/indices/index.js";
 const ReusableStepper = createRemoteComponent("ReusableStepper");
 const GenericCard = createRemoteComponent("GenericCard");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -42,6 +43,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
   }, []);
 
   const handleEditOtNotes = (id) => {
+    console.log("INTEL ==> OT", id);
     dispatch(setCurrentOtNoteId(id));
     dispatch(setSingleOtNotesData({ _id: id }));
     navigate("/ipd/patient-details/ot-notes", {
@@ -55,15 +57,19 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
   };
 
   const handleAddEditOtNote = (section) => {
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 10);
     console.log("INTEL ==> SECTION", section);
-    dispatch(setCurrentOtNoteId(section?.id));
-    dispatch(setSingleOtNotesData({ _id: section?.id }));
+    dispatch(setCurrentOtNoteId(section?._id));
+    dispatch(setSingleOtNotesData({ _id: section?._id }));
     navigate("/ipd/patient-details/ot-notes", {
       state: {
         patient_data,
         patientDetails,
         isEditable: true,
-        activeOtNoteId: section?.id,
+        activeOtNoteId: section?._id,
+        fromDischargeSummary: true,
       },
     });
   };
@@ -447,8 +453,9 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
         {filteredMappedData?.map((section, sectionIndex) => {
           return (
             <div className="otnotelite-section-container big-box-with-shadow flex-column-gap-16">
-              <div className="fs16-bold">
-                Surgery {sectionIndex + 1}
+              <div className="d-flex-align-center-gap-8">
+                <img src={dischargeSummaryIcons.surgeryDetailsPc} alt="Surgery" />
+                <div className="fs16-bold">Surgery {sectionIndex + 1}</div>
               </div>
               <div className="otnotelite-section-content box-with-padding pl-0">
                 {section?.renderStepItem(true)}

@@ -1,6 +1,24 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiDischargeSummary from "../../api/services/ipd/ApiDischargeSummary";
 
+// Helper function to map module to code
+const getCodeFromModule = (module) => {
+  switch (module) {
+    case "Cross Referral":
+      return "CR";
+    case "Consultant Notes":
+      return "CN";
+    case "OT Notes":
+      return "OT";
+    case "Progress Notes":
+      return "PN";
+    case "Assessment Form":
+        return "AF";
+    default:
+      return "N/A";
+  }
+};
+
 export const initialState = {
   //   dischargeSummaryData: {},
   dischargeSummaryData: {
@@ -23,6 +41,10 @@ export const initialState = {
     },
   },
   mockValues: {},
+  treatmentNotes: [],
+  treatmentNotesLoading: false,
+  chronologicalSummary: [],
+  chronologicalSummaryLoading: false,
   loading: false,
   currentDischargeSummaryId: null,
   dischargeSummaryFormDetails: {},
@@ -101,6 +123,53 @@ export const getMockValues = createAsyncThunk(
   }
 );
 
+export const generateTreatmentNotes = createAsyncThunk(
+  "dischargeSummary/generateTreatmentNotes",
+  async ({ patientId, admissionId }, { rejectWithValue }) => {
+    try {
+      const result = await ApiDischargeSummary.generateTreatmentNotes({
+        patientId,
+        admissionId,
+      });
+    //   console.log
+      if (result) {
+        return result;
+      } else {
+        throw Error(result.error || "Failed to fetch treatment notes");
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      return rejectWithValue({
+        visible: false,
+        message: error.response?.data?.message || "Failed to fetch treatment notes",
+      });
+    }
+  }
+);
+
+export const generateChronologicalSummary = createAsyncThunk(
+  "dischargeSummary/generateChronologicalSummary",
+  async ({ patientId, admissionId }, { rejectWithValue }) => {
+    try {
+      const result = await ApiDischargeSummary.generateChronologicalSummary({
+        patientId,
+        admissionId,
+      });
+      if (result) {
+        return result;
+      } else {
+        throw Error(result.error || "Failed to fetch chronological summary");
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      return rejectWithValue({
+        visible: false,
+        message: error.response?.data?.message || "Failed to fetch chronological summary",
+      });
+    }
+  }
+);
+
 const dischargeSummarySlice = createSlice({
   name: "dischargeSummary",
   initialState,
@@ -157,6 +226,26 @@ const dischargeSummarySlice = createSlice({
     setPreparedBy: (state, action) => {
       state.dischargeSummaryData.preparedBy = Array.isArray(action.payload) ? action.payload : [];
     },
+    setTreatmentNotes: (state, action) => {
+      state.treatmentNotes = Array.isArray(action.payload) ? action.payload : [];
+    },
+    addTreatmentNote: (state, action) => {
+      state.treatmentNotes.push(action.payload);
+    },
+    updateTreatmentNote: (state, action) => {
+      const { key, updates } = action.payload;
+      const index = state.treatmentNotes.findIndex(note => note.key === key);
+      if (index !== -1) {
+        state.treatmentNotes[index] = { ...state.treatmentNotes[index], ...updates };
+      }
+    },
+    removeTreatmentNote: (state, action) => {
+      const key = action.payload;
+      state.treatmentNotes = state.treatmentNotes.filter(note => note.key !== key);
+    },
+    setChronologicalSummary: (state, action) => {
+      state.chronologicalSummary = Array.isArray(action.payload) ? action.payload : [];
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -203,6 +292,45 @@ const dischargeSummarySlice = createSlice({
       .addCase(getMockValues.rejected, (state) => {
         state.mockValues = {};
         state.loading = false;
+      })
+      .addCase(generateTreatmentNotes.pending, (state) => {
+        state.treatmentNotesLoading = true;
+      })
+      .addCase(generateTreatmentNotes.fulfilled, (state, action) => {
+        state.treatmentNotesLoading = false;
+        // Transform the API response to the required format
+        const formattedData = Object.entries(action.payload).map(([key, item]) => ({
+          key: `row_${key}`,
+          id: parseInt(key),
+          name: item.name,
+          code: getCodeFromModule(item.module),
+          givenDate: item.givenDate || "",
+          duration: item.duration || "",
+          notes: item.notes || "",
+          module: item.module,
+        }));
+        state.treatmentNotes = formattedData;
+      })
+      .addCase(generateTreatmentNotes.rejected, (state) => {
+        state.treatmentNotes = [];
+        state.treatmentNotesLoading = false;
+      })
+      .addCase(generateChronologicalSummary.pending, (state) => {
+        state.chronologicalSummaryLoading = true;
+      })
+      .addCase(generateChronologicalSummary.fulfilled, (state, action) => {
+        state.chronologicalSummaryLoading = false;
+        // Store the chronological summary data in dischargeSummaryData
+        state.dischargeSummaryData.chronologicalSummary = action.payload;
+        // Also store in separate chronologicalSummary state for easier access
+        state.chronologicalSummary = action.payload;
+      })
+      .addCase(generateChronologicalSummary.rejected, (state) => {
+        state.chronologicalSummary = [];
+        state.chronologicalSummaryLoading = false;
+        if (state.dischargeSummaryData) {
+          state.dischargeSummaryData.chronologicalSummary = [];
+        }
       });
   },
 });
@@ -222,6 +350,11 @@ export const {
   setFollowUpDoctor,
   setAdditionalNotes,
   setPreparedBy,
+  setTreatmentNotes,
+  addTreatmentNote,
+  updateTreatmentNote,
+  removeTreatmentNote,
+  setChronologicalSummary,
 } = dischargeSummarySlice.actions;
 
 export default dischargeSummarySlice.reducer;

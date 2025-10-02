@@ -80,6 +80,7 @@ function DragHandle() {
 }
 
 export const DynamicPickerTable = forwardRef((props, ref) => {
+  console.log('INTEL ==> treatmentNotes',props.treatmentNotes)
   const {
     isEditable = true,
     rootClassName = "",
@@ -367,33 +368,55 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
 
   return (
     <div className={`dynamic-picker-container ${rootClassName}`}>
-      {rows?.length && isEditable ? (
-        <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-          <SortableContext
-            items={itemsIds}
-            strategy={verticalListSortingStrategy}
-          >
-            <Table
-              className="dynamic-picker-table"
-              rowKey="key"
-              components={components}
-              columns={tableColumns}
-              bordered
-              dataSource={rows}
-              pagination={false}
-              locale={{
-                emptyText: (
-                  <Empty
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    description={emptyText}
-                  />
-                ),
-              }}
-              scroll={{ x: true }}
-            />
-          </SortableContext>
-        </DndContext>
-      ) : !isEditable && rows?.length ? (
+      {isEditable ? (
+        <>
+          <DndContext sensors={sensors} onDragEnd={onDragEnd}>
+            <SortableContext
+              items={itemsIds}
+              strategy={verticalListSortingStrategy}
+            >
+              <Table
+                className="dynamic-picker-table"
+                rowKey="key"
+                components={components}
+                columns={tableColumns}
+                bordered
+                dataSource={rows}
+                pagination={false}
+                locale={{
+                  emptyText: (
+                    <Empty
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                      description={emptyText}
+                    />
+                  ),
+                }}
+                scroll={{ x: true }}
+              />
+            </SortableContext>
+          </DndContext>
+          
+          {onSearch && (
+            <div className="dynamic-picker-search">
+              <AutoComplete
+                value={query}
+                options={options}
+                onSearch={handleSearch}
+                onSelect={handleSelect}
+                onChange={setQuery}
+                defaultActiveFirstOption={true}
+                placeholder={searchPlaceholder}
+                className="dynamic-picker-search-input"
+                popupClassName={!query && "boxpopup"}
+                allowClear
+                filterOption={false}
+                loading={loading}
+                prefix={<i className="icon-search"></i>}
+              />
+            </div>
+          )}
+        </>
+      ) : (
         <Table
           className="dynamic-picker-table"
           rowKey="key"
@@ -411,26 +434,6 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
           }}
           scroll={{ x: true }}
         />
-      ) : null}
-
-      {isEditable && onSearch && (
-        <div className="dynamic-picker-search">
-          <AutoComplete
-            value={query}
-            options={options}
-            onSearch={handleSearch}
-            onSelect={handleSelect}
-            onChange={setQuery}
-            defaultActiveFirstOption={true}
-            placeholder={searchPlaceholder}
-            className="dynamic-picker-search-input"
-            popupClassName={!query && "boxpopup"}
-            allowClear
-            filterOption={false}
-            loading={loading}
-            prefix={<i className="icon-search"></i>}
-          />
-        </div>
       )}
     </div>
   );

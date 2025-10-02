@@ -15,18 +15,6 @@ import {
   getAssessmentsData,
   getLastPrescriptionDate,
   lastPrescriptionData,
-  setAdditionalNotesData,
-  setChiefComplaint,
-  setFunctionalAssessmentData,
-  setGynecHistoryData,
-  setHistoryOfPresentIllness,
-  setLabResults,
-  setPhysicalExaminationBasicData,
-  setPhysicalExaminationOthersData,
-  setPhysicalExaminationProvisionalDiagnosisData,
-  setReferredDocForReview,
-  setTreatmentPlanData,
-  setVitalsData,
   updateAssessmentsData,
 } from "../../../redux/ipd/assessmentsFormSlice";
 import {
@@ -45,18 +33,12 @@ import { getAdviceTemplates } from "../../../redux/adviceSlice";
 import AddCustomModule from "../../../components/AddCustomModule";
 import { useSelector } from "react-redux";
 import {
-  addOrderToAssessmentFormStructure,
   convertMedicationFormat,
-  convertTemplateDataToRichText,
 } from "../../../utils/utils";
-import {
-  setMedicalHistoryData,
-  setMedicationData,
-} from "../../../redux/prescriptionSlice";
-import { addObstetricDetails } from "../../../redux/obstetricSlice";
 import CustomModule from "../../../components/CustomModule";
 import BackConfirmationModal from "../../../components/BackConfirmationModal";
 import { useAssessmentSectionVisibility } from "../../../hooks/useAssessmentSectionVisibility";
+import { useAssessmentDataStore } from "../../../hooks/useAssessmentDataStore";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -65,6 +47,7 @@ const FilledByCard = createRemoteComponent("FilledByCard");
 const AssessmentsForm = (props) => {
   const dispatch = useDispatch();
   const { hasAnyData } = useAssessmentSectionVisibility();
+  const { addDataToStore } = useAssessmentDataStore();
   const { state } = useLocation();
   const { patient_data, patientDetails, isEditable = true } = state || {};
 
@@ -91,55 +74,6 @@ const AssessmentsForm = (props) => {
     }
   }, [assessments]);
 
-  const addDataToStore = (data) => {
-    if (data) {
-      dispatch(setChiefComplaint(data?.basicInfo?.chiefComplaint || []));
-      dispatch(
-        setHistoryOfPresentIllness(
-          data?.basicInfo?.historyOfPresentIllness || []
-        )
-      );
-      dispatch(setMedicationData(data?.basicInfo?.medications || []));
-      dispatch(setLabResults(data?.basicInfo?.labResults || []));
-      dispatch(
-        setMedicalHistoryData(data?.basicInfo?.pastMedicalHistory || [])
-      );
-      dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || []));
-      dispatch(addObstetricDetails(data?.basicInfo?.obstetricHistory || []));
-      dispatch(setVitalsData(data?.physicalExamination?.vitals || {}));
-      dispatch(
-        setPhysicalExaminationProvisionalDiagnosisData(
-          data?.physicalExamination?.provisionalDiagnosis || []
-        )
-      );
-      dispatch(
-        setPhysicalExaminationOthersData(
-          data?.physicalExamination?.others || []
-        )
-      );
-      dispatch(
-        setPhysicalExaminationBasicData(
-          data?.physicalExamination?.examination || {}
-        )
-      );
-      const functionalAssessmentWithoutReferredDoc = {
-        ...data?.functionalAssessment,
-      };
-      delete functionalAssessmentWithoutReferredDoc.referredToPhysiotherapyForReview;
-      dispatch(
-        setFunctionalAssessmentData(
-          functionalAssessmentWithoutReferredDoc || {}
-        )
-      );
-      dispatch(setTreatmentPlanData(data?.treatmentPlan || {}));
-      dispatch(setAdditionalNotesData(data?.additionalNotes || {}));
-      dispatch(
-        setReferredDocForReview(
-          data?.functionalAssessment?.referredToPhysiotherapyForReview || null
-        )
-      );
-    }
-  };
 
   useEffect(() => {
     if (
@@ -170,7 +104,15 @@ const AssessmentsForm = (props) => {
           );
         }
       });
-  }, []);
+  }, [
+    addDataToStore,
+    dispatch,
+    isEditable,
+    patientDetails?.details?.id,
+    patientDetails?.admissionId,
+    patientDetails?.patientUniqueId,
+    assessmentData?.assessmentsData,
+  ]);
 
   useEffect(() => {
     dispatch(getMedicationTemplates());
@@ -180,7 +122,7 @@ const AssessmentsForm = (props) => {
     dispatch(getSymptomsTemplates());
     dispatch(getInvestigationTemplates());
     dispatch(getAdviceTemplates());
-  }, []);
+  }, [dispatch]);
 
   const handleDefaultClick = () => {
     setModelData(IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE);
