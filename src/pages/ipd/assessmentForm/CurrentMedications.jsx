@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { isMobile } from "react-device-detect";
 import TabMedicationBox from "../../../components/tab_design/TabMedicationBox";
 import IpdMedicationBox from "../../../components/ipdMedicationBox";
+import MedicationBoxIpd from "../../../components/medicationBoxIpd";
 
 const CurrentMedications = (props) => {
   const { isEditable = true, isDischargeSummary = false } = props || {};
@@ -21,7 +22,7 @@ const CurrentMedications = (props) => {
     >
       {isEditable ? (
         isMobile ? (
-          <IpdMedicationBox isEditable={isEditable} isView={true}/>
+          <MedicationBoxIpd isEditable={isEditable} />
         ) : (
           <MedicationsBox isEditable={isEditable} isDischargeSummary={isDischargeSummary} />
         )
