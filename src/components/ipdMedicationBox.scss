@@ -6,6 +6,9 @@
   border-spacing: 0;
   border-radius: 8px;
   overflow: hidden;
+  border: 1px solid #E4E4EB;
+  background-clip: padding-box;
+  background-color: #fff;
 }
 
 .medbox-table thead th:first-child {
@@ -24,10 +27,26 @@
   border-bottom-right-radius: 8px;
 }
 
+.medbox-table th{
+  color: #171725;
+  font-family: Poppins;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.medbox-table td {
+  color: #171725;
+  font-family: Poppins;
+  font-size: 12px;
+  font-weight: 400;
+}
+
 .medbox-table th,
 .medbox-table td {
   overflow: hidden;
   text-overflow: ellipsis;
+  vertical-align: middle;
+  background-color: #fff;
 }
 
 /* Allow medicine and note to wrap to avoid horizontal overflow */
@@ -50,4 +69,37 @@
 .medbox-table td:last-child,
 .medbox-table th:last-child {
   text-align: center;
+}
+
+/* Provide comfortable row height and vertical rhythm */
+.medbox-table tbody td {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+/* Align action cell content to center with consistent spacing */
+.medbox-table tbody td:last-child > .d-flex {
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Ensure icons in action cell are visually centered */
+.medbox-table tbody td:last-child i,
+.medbox-table tbody td:last-child img {
+  display: inline-block;
+  vertical-align: middle;
+} 
+
+/* Remove horizontal borders: clear all, then add only vertical dividers */
+.medbox-table thead th,
+.medbox-table tbody td {
+  border: 0 !important;
+}
+
+/* Add vertical dividers between columns only */
+.medbox-table thead th + th,
+.medbox-table tbody td + td {
+  border-left: 1px solid #E4E4EB !important;
+  border-bottom: 1px solid #E4E4EB !important;
 } 

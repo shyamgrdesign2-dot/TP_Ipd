@@ -358,6 +358,12 @@
     margin-right: 20px;
     width: calc(100vw - 50px);
   }
+  
+  &.bg-white {
+    .ant-select-selector {
+      background: #ffffff !important;   // ✅ override when bg-white class is added
+    }
+  }
 }
 .autoselect-medrx-readonly {
   .ant-select-arrow {
