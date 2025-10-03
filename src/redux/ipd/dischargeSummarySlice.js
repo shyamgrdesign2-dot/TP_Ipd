@@ -39,6 +39,7 @@ export const initialState = {
       },
       address: "Random Address 21",
     },
+    surgeriesPerformed: [],
   },
   mockValues: {},
   treatmentNotes: [],
@@ -246,6 +247,9 @@ const dischargeSummarySlice = createSlice({
     setChronologicalSummary: (state, action) => {
       state.chronologicalSummary = Array.isArray(action.payload) ? action.payload : [];
     },
+    setSurgeriesPerformed: (state, action) => {
+      state.dischargeSummaryData.surgeriesPerformed = Array.isArray(action.payload) ? action.payload : [];
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -355,6 +359,7 @@ export const {
   updateTreatmentNote,
   removeTreatmentNote,
   setChronologicalSummary,
+  setSurgeriesPerformed,
 } = dischargeSummarySlice.actions;
 
 export default dischargeSummarySlice.reducer;

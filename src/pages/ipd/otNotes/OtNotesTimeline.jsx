@@ -457,7 +457,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
                 <img src={dischargeSummaryIcons.surgeryDetailsPc} alt="Surgery" />
                 <div className="fs16-bold">Surgery {sectionIndex + 1}</div>
               </div>
-              <div className="otnotelite-section-content box-with-padding pl-0">
+              <div className="otnotelite-section-content box-with-padding padding-0">
                 {section?.renderStepItem(true)}
               </div>
               <div onClick={() => handleAddEditOtNote(section?.originalEntry)}>

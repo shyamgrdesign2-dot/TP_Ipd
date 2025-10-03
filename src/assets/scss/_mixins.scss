@@ -42,6 +42,12 @@
 .pl-0 {
   @include pl-0;
 }
+@mixin padding-0 {
+  padding: 0 !important;
+}
+.padding-0 {
+  @include padding-0;
+}
 @mixin d-flex-align-center-gap-8 {
   display: flex;
   align-items: center;

@@ -174,11 +174,14 @@
   .dx-summary-item {
     color: #3f3f46;
     font-size: 14px;
-    line-height: 1.4;
-    margin: 6px 0;
+    line-height: 26px;
 
     .dx-summary-title {
+      &.lightweight {
+        font-weight: normal !important;
+      }
       font-weight: 500;
+      margin-right: 4px;
     }
 
     .dx-summary-meta {

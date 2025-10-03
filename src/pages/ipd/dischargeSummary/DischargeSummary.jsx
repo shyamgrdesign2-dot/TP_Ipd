@@ -100,6 +100,8 @@ const DischargeSummary = (props) => {
       setModelData(dischargeSummary);
     }
   }, [dischargeSummary]);
+  console.log('INTEL ==> MAIN', dischargeSummaryState, otNotesData )
+
 
   const addDataToStore = (data) => {
     if (data) {

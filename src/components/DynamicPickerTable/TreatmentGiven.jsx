@@ -15,6 +15,8 @@ import {
   replaceCommasAndSemicolons,
 } from "../../utils/utils";
 import { useLocation } from "react-router-dom";
+import { dischargeSummaryIcons } from "../../assets/images/indices";
+import './styles.scss';
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -175,17 +177,17 @@ const TreatmentGiven = ({ sectionData }) => {
   // Event handlers
   const handleRowChange = (row, field, value) => {
     dispatch(updateTreatmentNote({ key: row.key, updates: { [field]: value } }));
-    message.success(`Updated ${field} for ${row.name}`);
+    // message.success(`Updated ${field} for ${row.name}`);
   };
 
   const handleRowAdd = (row) => {
     dispatch(addTreatmentNote(row));
-    message.success(`Added ${row.name} to the list`);
+    // message.success(`Added ${row.name} to the list`);
   };
 
   const handleRowDelete = (row) => {
     dispatch(removeTreatmentNote(row.key));
-    message.success(`Removed ${row.name} from the list`);
+    // message.success(`Removed ${row.name} from the list`);
   };
 
   const renderTreatmentTable = () => (
@@ -213,7 +215,7 @@ const TreatmentGiven = ({ sectionData }) => {
       showActionBtns={isEditable}
       title={sectionData?.title}
       width="100%"
-      icon={sectionData?.id ? `${sectionData.id}Pc` : null}
+      icon={dischargeSummaryIcons[`${sectionData?.id}Pc`]}
       showAutoFill={false}
       containerClass={`wrapper-class ${
         !isEditable

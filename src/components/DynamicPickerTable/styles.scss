@@ -1,3 +1,5 @@
+@import '../../assets/scss/shimmerLoader.scss';
+
 .dynamic-picker-container {
   --border: #ececf2;
   --muted: #a9a9b2;
@@ -222,16 +224,14 @@
   }
 }
 
-// Medication-specific styles
-.medication-picker-example {
-  .medication-name-cell {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    
-    .medication-name {
-      flex: 1;
-      font-weight: 500;
-    }
+.medication-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  .medication-name {
+    @include fs12-semibold-text;
+    // flex: 1;
+    font-weight: 500;
   }
 }

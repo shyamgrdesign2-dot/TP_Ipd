@@ -28,6 +28,35 @@ import dayjs from "dayjs";
 
 const RowDndContext = React.createContext(null);
 
+// Table Shimmer Component
+const TableShimmerLoader = ({ columns = [] }) => {
+  const shimmerRows = Array.from({ length: 3 }, (_, index) => index);
+  
+  return (
+    <div className="sc-shimmer-container-table">
+      {shimmerRows.map((_, rowIndex) => (
+        <div key={rowIndex} className="shimmer-row" style={{
+          display: 'grid',
+          gridTemplateColumns: `56px ${columns.map(() => '1fr').join(' ')} 56px`,
+          gap: '16px',
+          marginBottom: '16px'
+        }}>
+          {/* Drag handle column */}
+          <div className="shimmer-cell" style={{ width: '24px', height: '20px' }} />
+          
+          {/* Data columns */}
+          {columns.map((_, colIndex) => (
+            <div key={colIndex} className="shimmer-cell" />
+          ))}
+          
+          {/* Delete button column */}
+          <div className="shimmer-cell" style={{ width: '24px', height: '20px' }} />
+        </div>
+      ))}
+    </div>
+  );
+};
+
 function DraggableRow(props) {
   const { "data-row-key": rowKey, style, ...rest } = props;
   const sortable = useSortable({ id: rowKey });
@@ -93,11 +122,12 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
     onRowAdd,
     emptyText = "No data added",
     searchPlaceholder = "Search...",
+    loading = false,
   } = props || {};
 
   const [query, setQuery] = useState("");
   const [options, setOptions] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [rows, setRows] = useState(initialData);
   const [debounceTimer, setDebounceTimer] = useState(null);
 
@@ -158,7 +188,7 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
         return;
       }
 
-      setLoading(true);
+      setSearchLoading(true);
       try {
         const results = await onSearch(val);
         
@@ -185,7 +215,7 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
         console.error("Search error:", error);
         setOptions([]);
       } finally {
-        setLoading(false);
+        setSearchLoading(false);
       }
     },
     [onSearch, searchConfig]
@@ -368,7 +398,9 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
 
   return (
     <div className={`dynamic-picker-container ${rootClassName}`}>
-      {isEditable ? (
+      {loading ? (
+        <TableShimmerLoader columns={columns} />
+      ) : isEditable ? (
         <>
           <DndContext sensors={sensors} onDragEnd={onDragEnd}>
             <SortableContext
@@ -410,7 +442,7 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
                 popupClassName={!query && "boxpopup"}
                 allowClear
                 filterOption={false}
-                loading={loading}
+                loading={searchLoading}
                 prefix={<i className="icon-search"></i>}
               />
             </div>

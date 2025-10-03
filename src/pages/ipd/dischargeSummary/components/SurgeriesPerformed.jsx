@@ -2,15 +2,17 @@ import React from "react";
 import { createRemoteComponent } from "../../../../shared/remoteComponents";
 import { useSelector } from "react-redux";
 import "./styles.scss";
-import { isEmptyRichText } from "../../../../utils/utils";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const SurgeriesPerformed = (props) => {
   const { isEditable = true, sectionData } = props || {};
-  const { surgeriesPerformed } = useSelector((state) => state.dischargeSummary);
+  const { dischargeSummaryData } = useSelector((state) => state.dischargeSummary);
+  const surgeriesPerformed = dischargeSummaryData?.surgeriesPerformed || [];
 
-  if (!isEditable && isEmptyRichText(surgeriesPerformed)) return null;
+  if (!isEditable && (!surgeriesPerformed || surgeriesPerformed.length === 0)) return null;
+
+  
 
   return (
     <RichTextEditWrapper
@@ -25,6 +27,22 @@ const SurgeriesPerformed = (props) => {
       }`}
       showAutoFill={false}
       renderBody={() => {
+        if (surgeriesPerformed?.length) {
+          return (
+            <ul className="dx-summary">
+              {surgeriesPerformed?.map((surgery) => {
+                console.log("INTEL ==> surgery", surgery);
+                return (
+                  <li className="dx-summary-item" key={surgery.key}>
+                    <span className="dx-summary-title lightweight">
+                      {surgery.text}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        }
         return (
           <div className="empty-surgeries-performed-container">
             -No <strong> OT notes </strong> available. Once you{" "}

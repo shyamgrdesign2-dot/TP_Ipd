@@ -15,6 +15,8 @@ import { Button } from "antd";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
+// Removed Slate inline component approach - using DOM-based tooltips instead
+
 const CourseInHospital = (props) => {
   const {
     isEditable = true,
@@ -23,7 +25,11 @@ const CourseInHospital = (props) => {
     admissionId,
   } = props || {};
   const {
-    dischargeSummaryData: { courseInHospital, chronologicalSummary } = {},
+    dischargeSummaryData: {
+      courseInHospital,
+      chronologicalSummary,
+      treatmentNotes,
+    } = {},
     chronologicalSummaryLoading,
   } = useSelector((state) => state.dischargeSummary);
   console.log("intel ==> chronologicalSummary", chronologicalSummary);
@@ -48,7 +54,7 @@ const CourseInHospital = (props) => {
   };
 
   useEffect(() => {
-    const addModuleTooltips = () => {
+    const addModuleCodeStyling = () => {
       const richTextContainer = document.querySelector(
         ".chronological-summary-wrapper .slate-editable-wrapper"
       );
@@ -56,59 +62,112 @@ const CourseInHospital = (props) => {
         return;
       }
 
-      const processModuleCodes = () => {
-        const textElements = richTextContainer.querySelectorAll("p, li");
+      let tooltip = null;
 
-        textElements.forEach((element) => {
-          if (element.querySelector(".chronological-module-code")) {
-            return;
-          }
+      const createTooltip = (content, x, y) => {
+        if (tooltip) {
+          tooltip.remove();
+        }
+        tooltip = document.createElement("div");
+        tooltip.className = "module-code-tooltip-overlay";
+        tooltip.textContent = content;
+        tooltip.style.position = "fixed";
+        tooltip.style.left = `${x}px`;
+        tooltip.style.top = `${y - 40}px`;
+        tooltip.style.zIndex = "10000";
+        tooltip.style.backgroundColor = "white";
+        tooltip.style.color = "white";
+        tooltip.style.padding = "8px 12px";
+        tooltip.style.borderRadius = "6px";
+        tooltip.style.fontSize = "12px";
+        tooltip.style.fontWeight = "normal";
+        tooltip.style.whiteSpace = "nowrap";
+        tooltip.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
+        tooltip.style.pointerEvents = "none";
+        tooltip.style.opacity = "0";
+        tooltip.style.transition = "opacity 0.2s ease";
 
-          const text = element.textContent || element.innerText;
+        document.body.appendChild(tooltip);
 
-          if (!text.includes("[") || !text.includes("]")) {
-            return;
-          }
+        setTimeout(() => {
+          if (tooltip) tooltip.style.opacity = "1";
+        }, 10);
+      };
 
+      const hideTooltip = () => {
+        if (tooltip) {
+          tooltip.style.opacity = "0";
+          setTimeout(() => {
+            if (tooltip && tooltip.parentNode) {
+              tooltip.parentNode.removeChild(tooltip);
+              tooltip = null;
+            }
+          }, 200);
+        }
+      };
+
+      const handleMouseMove = (event) => {
+        // Get the element under the mouse
+        const elementUnderMouse = document.elementFromPoint(
+          event.clientX,
+          event.clientY
+        );
+
+        if (
+          elementUnderMouse &&
+          richTextContainer.contains(elementUnderMouse)
+        ) {
+          const text = elementUnderMouse.textContent || "";
           const moduleRegex = /\[([A-Z]{2,4})\]/g;
-          let processedHTML = text;
-          let hasModuleCodes = false;
 
-          processedHTML = text.replace(moduleRegex, (match, code) => {
-            hasModuleCodes = true;
-            return `<span class="chronological-module-code" title="${getModuleFullName(
-              code
-            )}">${match}</span>`;
-          });
+          // Check if text contains module codes
+          if (moduleRegex.test(text)) {
+            // Find which module code the mouse is over
+            const matches = [...text.matchAll(/\[([A-Z]{2,4})\]/g)];
 
-          if (hasModuleCodes) {
-            element.innerHTML = processedHTML;
+            if (matches.length > 0) {
+              // Show tooltip for the first module code found
+              const match = matches[0];
+              const code = match[1];
+              const fullName = getModuleFullName(code);
+              createTooltip(
+                `${code}: ${fullName}`,
+                event.clientX,
+                event.clientY
+              );
+              return;
+            }
           }
-        });
+        }
+
+        hideTooltip();
       };
 
-      processModuleCodes();
-
-      const handleContentChange = () => {
-        setTimeout(processModuleCodes, 100);
+      const handleMouseOut = () => {
+        hideTooltip();
       };
 
-      richTextContainer.addEventListener("contentChanged", handleContentChange);
+      // Add event listeners to the container (no DOM manipulation)
+      richTextContainer.addEventListener("mousemove", handleMouseMove);
+      richTextContainer.addEventListener("mouseout", handleMouseOut);
 
       return () => {
-        richTextContainer.removeEventListener(
-          "contentChanged",
-          handleContentChange
-        );
+        hideTooltip();
+        richTextContainer.removeEventListener("mousemove", handleMouseMove);
+        richTextContainer.removeEventListener("mouseout", handleMouseOut);
       };
     };
 
-    const timeoutId = setTimeout(addModuleTooltips, 500);
+    const timeoutId = setTimeout(addModuleCodeStyling, 500);
 
     return () => {
       clearTimeout(timeoutId);
     };
   }, [chronologicalSummary]);
+
+  useEffect(() => {
+    handleGenerateChronologicalSummary();
+  }, []);
 
   const getModuleFullName = (code) => {
     const codeToNameMap = {
@@ -249,7 +308,7 @@ const CourseInHospital = (props) => {
 
     return (
       <div className="chronological-summary-wrapper">
-        {isEditable && (
+        {/* {isEditable && (
           <div
             className="chronological-summary-actions"
             style={{ marginBottom: "16px", textAlign: "right" }}
@@ -263,7 +322,7 @@ const CourseInHospital = (props) => {
               Generate Chronological Summary
             </Button>
           </div>
-        )}
+        )} */}
 
         <RichTextEditWrapper
           key={`chronological-summary-${
@@ -305,7 +364,9 @@ const CourseInHospital = (props) => {
   };
 
   const renderTreatmentsGiven = (data) => {
-    return <TreatmentGiven />;
+    return (
+        <TreatmentGiven sectionData={data} />
+    );
   };
 
   const renderSection = () => {
