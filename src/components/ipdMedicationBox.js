@@ -785,10 +785,10 @@ function TabMedicationBox(props) {
       medicineName: item?.tmm_medicine_name || "--",
       genericName: item?.tmm_generic || "",
       unitPerDose: item?.tmm_dosage || "--",
-      frequency: `${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
+      frequency: isNumeric(item.tmf_block) && item.tmf_block == 0 ? `${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
         ${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
         ${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}
-        ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + "" : "0"}`,
+        ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + "" : "0"}` : `${item.tmm_freq_type_name ? item.tmm_freq_type_name : "--"}`,
       when: item?.tmm_time_name || "--",
       duration: item?.tmm_days_duration_type || "--",
       note: item?.tmm_remarks || "--",
@@ -1490,7 +1490,7 @@ function TabMedicationBox(props) {
               <Button
                 type="text"
                 className="btn btn-delete-prescription px-3 focus-none h-100"
-                onClick={handleDrawerChild}
+                onClick={() => updateChild(childDrawerData)}
               >
                 <i className="icon-Cross fs-3"></i>
               </Button>
@@ -1560,6 +1560,7 @@ function TabMedicationBox(props) {
                     className="inputheight38 rounded-10px"
                   />
                 </Col>
+                {console.log("childDrawerData[childIndex]:", childDrawerData?.[childIndex])}
                 <Col md={12}>
                   <Select
                     className="autocomplete-custom w-100 popinput inputheight38"
@@ -1573,6 +1574,7 @@ function TabMedicationBox(props) {
                           : null
                         : null
                     }
+                    // value={childDrawerData[childIndex]?.tmm_unit || null}
                     value={
                       childDrawerData[childIndex]?.medicineUnit
                         ? childDrawerData[childIndex]?.medicineUnit.findIndex(
@@ -1582,8 +1584,13 @@ function TabMedicationBox(props) {
                           : null
                         : null
                     }
-                    onSelect={onSelectMedicineUnitChild}
-                    options={childDrawerData?.[childIndex]?.medicineUnit}
+                    onSelect={(val) => onSelectMedicineUnitChild(val, childIndex)}
+                    options={
+                      childDrawerData?.[childIndex]?.medicineUnit?.map((e) => ({
+                        label: e.tmu_title,
+                        value: e.tmu_id,
+                      })) || []
+                    }
                   />
                 </Col>
               </Row>
