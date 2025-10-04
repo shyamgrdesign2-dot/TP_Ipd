@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo, useRef } from "react";
-import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, Tooltip, Drawer, message, Switch, Tour } from "antd";
+import { AutoComplete, Input, Button, Form, Row, Col, Select, Popover, Tabs, Spin, Tooltip, Drawer, message, Switch, Tour, Card, Radio } from "antd";
 import { InfoCircleOutlined, LoadingOutlined } from "@ant-design/icons";
+import { Button as BSButton, ButtonGroup as BSButtonGroup } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -116,7 +117,31 @@ function MedicationsBox(props) {
   const [editDoseId, setEditDoseId] = useState(0);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
 
+  // Child drawer state variables
+  const [childDrawer, setChildDrawer] = useState(false);
+  const [childDrawerData, setChildDrawerData] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [childIndex, setChildIndex] = useState(null);
+  const [activeKey, setActiveKey] = useState(null);
+  const [selectedTab, setSelectedTab] = useState(null);
+  const [sinceValue, setSinceValue] = useState(1);
+  const [inputSince, setInputSince] = useState("");
+  const [timingMoreOptionsVisible, setTimingMoreOptionsVisible] = useState(false);
+  const [frequencyMoreOptionsVisible, setFrequencyMoreOptionsVisible] = useState(false);
+  const [durationMoreOptionsVisible, setDurationMoreOptionsVisible] = useState(false);
+
   const isPillUpAccessableFromGB = useFeatureIsOn(GB_PILLUP_MEDICINE);
+
+  // Constants for child drawer
+  const SINCE_LIST = [
+    { value: 1, label: "1" },
+    { value: 2, label: "2" },
+    { value: 3, label: "3" },
+    { value: 4, label: "4" },
+    { value: 5, label: "5" },
+    { value: -1, label: "Custom" },
+  ];
+  const filteredTitles = frequencyList.filter((item) => item.tmf_block !== 0);
 
   const handleViewDoseCalcDrawer = (tab, value) => {
     setDoseCalculatorDrawer(!doseCalculatorDrawer)
@@ -417,8 +442,6 @@ function MedicationsBox(props) {
   //   [medicationData]
   // );
 
-  const filteredTitles = frequencyList.filter((item) => item.tmf_block !== 0);
-
   const [frequencyQuery, setFrequencyQuery] = useState('');
 
   const onBlurFrequencyChild = useCallback(
@@ -622,6 +645,233 @@ function MedicationsBox(props) {
     });
   }
 
+  // Child drawer helper functions
+  const updateChild = (item) => {
+    const { index, ...updatedReqData } = item;
+    medicationData[item.index] = { ...medicationData[item.index], ...updatedReqData };
+    dispatch(setMedicationData([...medicationData]));
+    handleDrawerChild();
+  }
+
+  const onChange = (unique_id) => {
+    const index = childDrawerData.findIndex(e => e.unique_id == unique_id)
+    setChildIndex(index);
+    setActiveKey(unique_id);
+  }
+
+  const onEdit = (unique_id, action, item) => {
+    if (action === 'add') {
+      taperDoseAdd(item);
+    } else {
+      const index = childDrawerData.findIndex(e => e.unique_id == unique_id)
+      if (index != -1) {
+        childDrawerData.splice(index, 1);
+        setChildDrawerData((prev) => [...prev]);
+        const checkIndex = childDrawerData.findIndex(e => e.unique_id == activeKey)
+        if (checkIndex != -1) {
+          setChildIndex(checkIndex);
+        } else {
+          setChildIndex(selectedIndex);
+          setActiveKey(childDrawerData[selectedIndex]?.unique_id);
+        }
+      }
+    }
+  }
+
+  // Radio button change handler
+  const handleRadioChange = (e) => {
+    setSelectedTab(e.target.value);
+  }
+
+  // More options visibility handlers
+  const handleTimingMoreOptionsVisible = () => {
+    setTimingMoreOptionsVisible(!timingMoreOptionsVisible);
+  }
+
+  const handleFrequencyMoreOptionsVisible = () => {
+    setFrequencyMoreOptionsVisible(!frequencyMoreOptionsVisible);
+  }
+
+  const handleDurationMoreOptionsVisible = () => {
+    setDurationMoreOptionsVisible(!durationMoreOptionsVisible);
+  }
+
+  // Child drawer input handlers (simplified versions)
+  const onChangeDosageChild = (e) => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tmm_dosage = e.target.value;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const onSelectMedicineUnitChild = (val, index) => {
+    if (childDrawerData && childDrawerData[index]) {
+      childDrawerData[index].tmm_unit = val;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const onChangeInputMorningChild = (e) => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tcm_tmm_freq_morning = parseInt(e.target.value) || 0;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const onChangeInputAfternoonChild = (e) => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tcm_tmm_freq_afternoon = parseInt(e.target.value) || 0;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const onChangeInputEveningChild = (e) => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tcm_tmm_freq_evening = parseInt(e.target.value) || 0;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const onChangeInputNightChild = (e) => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tcm_tmm_freq_night = parseInt(e.target.value) || 0;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const onChangeInputNoteChild = (e) => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tmm_remarks = e.target.value;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  // Frequency change handlers
+  const onChangeFrequencyChild = (item) => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tmm_freq_type = item.tmf_id;
+      childDrawerData[childIndex].tmm_freq_type_name = item.tmf_title;
+      childDrawerData[childIndex].tmf_block = item.tmf_block;
+      childDrawerData[childIndex].tmf_block_val = item.tmf_block_val;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const onChangeTimingChild = (item) => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tmm_time = item.tmt_id;
+      childDrawerData[childIndex].tmm_time_name = item.tmt_title;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const onChangeSinceChild = (value) => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tmm_days_duration_type = value;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const onChangeDurationChild = (item) => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tmm_days_duration_type = item.value;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const onChangeSegmentedSinceChild = (value) => {
+    setSinceValue(value);
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tmm_days = value;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  // Increment/Decrement handlers
+  const morningClick = () => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tcm_tmm_freq_morning = 1;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const morningIncrement = () => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tcm_tmm_freq_morning = (childDrawerData[childIndex].tcm_tmm_freq_morning || 0) + 1;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const morningDecrement = () => {
+    if (childDrawerData && childDrawerData[childIndex] && childDrawerData[childIndex].tcm_tmm_freq_morning > 0) {
+      childDrawerData[childIndex].tcm_tmm_freq_morning = childDrawerData[childIndex].tcm_tmm_freq_morning - 1;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const afternoonClick = () => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tcm_tmm_freq_afternoon = 1;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const afternoonIncrement = () => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tcm_tmm_freq_afternoon = (childDrawerData[childIndex].tcm_tmm_freq_afternoon || 0) + 1;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const afternoonDecrement = () => {
+    if (childDrawerData && childDrawerData[childIndex] && childDrawerData[childIndex].tcm_tmm_freq_afternoon > 0) {
+      childDrawerData[childIndex].tcm_tmm_freq_afternoon = childDrawerData[childIndex].tcm_tmm_freq_afternoon - 1;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const eveningClick = () => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tcm_tmm_freq_evening = 1;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const eveningIncrement = () => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tcm_tmm_freq_evening = (childDrawerData[childIndex].tcm_tmm_freq_evening || 0) + 1;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const eveningDecrement = () => {
+    if (childDrawerData && childDrawerData[childIndex] && childDrawerData[childIndex].tcm_tmm_freq_evening > 0) {
+      childDrawerData[childIndex].tcm_tmm_freq_evening = childDrawerData[childIndex].tcm_tmm_freq_evening - 1;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const nightClick = () => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tcm_tmm_freq_night = 1;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const nightIncrement = () => {
+    if (childDrawerData && childDrawerData[childIndex]) {
+      childDrawerData[childIndex].tcm_tmm_freq_night = (childDrawerData[childIndex].tcm_tmm_freq_night || 0) + 1;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
+  const nightDecrement = () => {
+    if (childDrawerData && childDrawerData[childIndex] && childDrawerData[childIndex].tcm_tmm_freq_night > 0) {
+      childDrawerData[childIndex].tcm_tmm_freq_night = childDrawerData[childIndex].tcm_tmm_freq_night - 1;
+      setChildDrawerData([...childDrawerData]);
+    }
+  }
+
   const onChangeNoteChild = useCallback(
     (e, i) => {
       medicationData[i].tmm_remarks = e.target.value;
@@ -634,6 +884,33 @@ function MedicationsBox(props) {
     medicationData.splice(index, 1);
     dispatch(setMedicationData(medicationData));
   };
+
+  // Handle Child Drawer
+  const handleDrawerChild = (data, index) => {
+    setChildDrawer(!childDrawer);
+    setChildDrawerData(data);
+    if (data && data?.length > 0) {
+      if (data[0]?.tmf_block > 0) {
+        setSelectedTab("other");
+      } else {
+        if (data[0]?.tcm_tmm_freq_evening) {
+          setSelectedTab("mean");
+        } else {
+          setSelectedTab("man");
+        }
+      }
+    }
+    setSinceValue(data && data?.length > 0 && data[0].tmm_days ? parseInt(data[0].tmm_days) : 1);
+    setSelectedIndex(index);
+    setChildIndex(data && data?.length > 0 ? 0 : null)
+    setActiveKey(data && data?.length > 0 ? data[0]?.unique_id : null)
+    setAddCustom(null);
+  }
+
+  const mainMedicationSelect = async (index) => {
+    const childData = await innerMedication(index)
+    handleDrawerChild(childData, index)
+  }
 
   //PopOver1 function
   const showHideTemplatesListPopover = useCallback(() => {
@@ -895,19 +1172,9 @@ function MedicationsBox(props) {
     return mainArray
   }
 
-  const taperDoseAdd = async (item) => {
-    const clinic_name = getClinicName(profile?.hospital_data);
-    window.Moengage.track_event("TP_Medicine_Tappered_Web", {
-      clinic_name,
-      "Doctor_unique_id": profile?.doctor_unique_id,
-      "Doctor_specialty": profile?.dp_name,
-      "Patient_Name": patient_data?.pm_fullname,
-      "Patient_ID": patient_data?.patient_unique_id,
-      "Rx_Id": item?.tmm_id,
-    });
-    const array = await innerMedication(item?.index).map(e1 => ({ ...e1, index: medicationData.findIndex(e => e.unique_id == e1.unique_id) }))
+  const taperDoseAdd = (item) => {
     let updatedData = {
-      ...array.at(-1),
+      ...item,
       tmf_block: 0,
       tmm_freq_type: 0,
       tmm_freq_type_name: "",
@@ -929,9 +1196,11 @@ function MedicationsBox(props) {
       tmu_id: 0,
       unique_id: uuidv4(),
     }
-    let { index, ...updated } = updatedData
-    medicationData.splice(parseInt(array.at(-1).index) + 1, 0, updated);
-    dispatch(setMedicationData(medicationData));
+    childDrawerData.push(updatedData);
+    setChildDrawerData((prev) => [...prev]);
+    setChildIndex(childDrawerData.length - 1);
+    setSinceValue(updatedData.tmm_days ? parseInt(updatedData.tmm_days) : 1);
+    setActiveKey(updatedData.unique_id);
   };
 
   const reorder = async (list, startIndex, endIndex) => {
@@ -1187,16 +1456,16 @@ function MedicationsBox(props) {
                                   {isEditable ? <Col lg={3} md={3} sm={3} xs={3} className="d-flex align-items-center justify-content-center">
                                     <div className="d-flex align-items-center gap-2">
                                         <img
-                                            // onClick={() => mainMedicationSelect(row.index)}
+                                            onClick={() => mainMedicationSelect(item?.index)}
                                             src={editIcon}
                                             width={18}
                                             height={18}
                                             alt="edit"
-                                            // style={{ margin: "0 8px 3px 0" }}
+                                            style={{ cursor: "pointer" }}
                                         />
                                         <i
                                             className="icon-delete fs-20"
-                                            // onClick={() => onRemoveRow && onRemoveRow(row.index)}
+                                            onClick={() => onRemoveRow && onRemoveRow(item?.index)}
                                             style={{ cursor: "pointer", width: "18px", height: "18px" }}
                                         ></i>
                                     </div>
@@ -1733,6 +2002,689 @@ function MedicationsBox(props) {
     setIsModalOpen2(!isModalOpen2);
   }, [isModalOpen2]);
 
+  //Child Componet
+  const CHILD_DRAWER_DATA = useMemo(() => {
+    return (
+      <>
+        <Card bordered={false} className="search-modalCard">
+          <div className="modalCard-header align-items-center justify-content-between d-flex">
+            <div className="align-items-center d-flex text-truncate">
+              <Button
+                type="text"
+                className="btn btn-delete-prescription px-3 focus-none h-100"
+                onClick={() => updateChild(childDrawerData)}
+              >
+                <i className="icon-Cross fs-3"></i>
+              </Button>
+              <div className="text-truncate title-common fontroboto">
+                {medicationData[selectedIndex]?.tmm_medicine_name}
+                <div className="text-truncate fs-14 fw-normal fontroboto mt-1">
+                  {medicationData[selectedIndex]?.tmm_generic}
+                </div>
+              </div>
+            </div>
+            <div className="d-flex align-items-center">
+              {!medicationData[selectedIndex]?.pms_default &&
+                <i className="icon-Edit ms-2"
+                  onClick={() => {
+                    const medicineType = medicineTypeList.find(x => x?.tmy_id == medicationData[selectedIndex]?.tmm_type)
+                    const makeData = {
+                      unique_id: medicationData[selectedIndex]?.unique_id,
+                      tmm_id: medicationData[selectedIndex]?.tmm_id,
+                      tmm_medicine_name: medicationData[selectedIndex]?.tmm_medicine_name,
+                      tmm_generic: medicationData[selectedIndex]?.tmm_generic,
+                      tmm_company: medicationData[selectedIndex]?.tmm_company
+                    }
+                    const updateItem = medicineType !== undefined ? { ...makeData, ...medicineType } : makeData
+                    setAddCustom(updateItem);
+                  }}
+                ></i>
+              }
+              <Button
+                className="btn btn-primary3 btn-41 px-4 ms-3 me-20"
+                onClick={() => updateChild(childDrawerData)}
+              >
+                Done
+              </Button>
+            </div>
+          </div>
+        </Card>
+        <Tabs
+          type="editable-card"
+          onChange={onChange}
+          activeKey={activeKey}
+          onEdit={(targetKey, action) => onEdit(targetKey, action, childDrawerData[childIndex])}
+          items={childDrawerData && childDrawerData?.length > 0 && childDrawerData?.map((e, i) => {
+            return {
+              key: e.unique_id,
+              label: `Dose ${i + 1}`,
+              children: null,
+            };
+          })}
+          className="tablet-medication-tabs"
+        />
+        <i className="icon-Add custom-tapper-button" onClick={() => taperDoseAdd(childDrawerData && childDrawerData?.length > 0 ? childDrawerData[childIndex] : medicationData[selectedIndex])} />
+        {childDrawerData && childDrawerData?.length > 0 && (
+          <div className="p-4">
+            <div>
+              <label className="title-common mb-1">Unit/Dose</label>
+              <Row gutter={20} className="mb-3">
+                <Col md={12}>
+                  <Input
+                    placeholder="e.g. 1"
+                    value={
+                      childDrawerData?.[childIndex]?.tmm_dosage
+                        ? childDrawerData[childIndex]?.tmm_dosage
+                        : ""
+                    }
+                    inputMode="decimal"
+                    onChange={onChangeDosageChild}
+                    className="inputheight38 rounded-10px"
+                  />
+                </Col>
+                <Col md={12}>
+                  <Select
+                    className="autocomplete-custom w-100 popinput inputheight38"
+                    placeholder="Select"
+                    defaultValue={
+                      childDrawerData[childIndex]?.medicineUnit
+                        ? childDrawerData[childIndex]?.medicineUnit.findIndex(
+                          (e) => e.value == childDrawerData[childIndex]?.tmm_unit
+                        ) !== -1
+                          ? parseInt(childDrawerData[childIndex]?.tmm_unit)
+                          : null
+                        : null
+                    }
+                    value={
+                      childDrawerData[childIndex]?.medicineUnit
+                        ? childDrawerData[childIndex]?.medicineUnit.findIndex(
+                          (e) => e.value == childDrawerData[childIndex]?.tmm_unit
+                        ) !== -1
+                          ? parseInt(childDrawerData[childIndex]?.tmm_unit)
+                          : null
+                        : null
+                    }
+                    onSelect={(val) => onSelectMedicineUnitChild(val, childIndex)}
+                    options={
+                      childDrawerData?.[childIndex]?.medicineUnit?.map((e) => ({
+                        label: e.tmu_title,
+                        value: e.tmu_id,
+                      })) || []
+                    }
+                  />
+                </Col>
+              </Row>
+              <div className="d-flex align-items-center justify-content-between mt-3 mb-2">
+                <label className="title-common">Frequency</label>
+                <div className="mb-1 man-mean">
+                  <Radio.Group
+                    size="small"
+                    onChange={handleRadioChange}
+                    value={selectedTab}
+                  >
+                    <Radio.Button
+                      value="man"
+                      className={`${selectedTab === "man" ? "selected-tab" : ""} fw-medium`}
+                    >
+                      <span
+                        className={`${selectedTab === "man" ? "selected-tab" : ""} fw-medium`}
+                      >
+                        MAN
+                      </span>
+                    </Radio.Button>
+                    <Radio.Button
+                      value="mean"
+                      className={`${selectedTab === "mean" ? "selected-tab" : ""} fw-medium`}
+                    >
+                      <span
+                        className={`${selectedTab === "mean" ? "selected-tab" : ""} fw-medium`}
+                      >
+                        MEAN
+                      </span>
+                    </Radio.Button>
+                    <Radio.Button
+                      value="other"
+                      className={`${selectedTab === "other" ? "selected-tab" : ""} fw-medium`}
+                    >
+                      <span
+                        className={`${selectedTab === "other" ? "selected-tab" : ""} fw-medium`}
+                      >
+                        Hrs a Day
+                      </span>
+                    </Radio.Button>
+                  </Radio.Group>
+                </div>
+              </div>
+              {selectedTab === "man" && (
+                <Row className="input-dark">
+                  <Col sm={8}>
+                    <BSButtonGroup
+                      aria-label="Basic example"
+                      className="inputheight45 border w-100 rounded-0"
+                    >
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_morning != 0 && (
+                          <BSButton
+                            variant="outline-light"
+                            className="rounded-0 dateoutline px-2 bg-white"
+                            disabled={childDrawerData[childIndex]?.tmf_block}
+                            onClick={morningDecrement}
+                          >
+                            <i className="icon-minus d-block text-main"></i>
+                          </BSButton>
+                        )}
+                      <BSButton
+                        variant="outline-light"
+                        className="rounded-0 dateoutline p-0 bg-white"
+                        disabled={childDrawerData[childIndex]?.tmf_block}
+                        onClick={() =>
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_morning && morningClick()
+                        }
+                      >
+                        <Input
+                          placeholder="Morning"
+                          inputMode="numeric"
+                          value={
+                            childDrawerData[childIndex]?.tcm_tmm_freq_morning
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_morning
+                              : ""
+                          }
+                          className="rounded-0 h-100 border-0 text-center text-main"
+                          onChange={onChangeInputMorningChild}
+                        />
+                      </BSButton>
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_morning != 0 && (
+                          <BSButton
+                            variant="outline-light"
+                            className="rounded-0 dateoutline px-2 bg-white"
+                            disabled={childDrawerData[childIndex]?.tmf_block}
+                            onClick={morningIncrement}
+                          >
+                            <i className="icon-Add text-main d-block"></i>
+                          </BSButton>
+                        )}
+                    </BSButtonGroup>
+                  </Col>
+                  <Col sm={8}>
+                    <BSButtonGroup
+                      aria-label="Basic example"
+                      className="inputheight45 w-100 border rounded-0 border-start-0"
+                    >
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon != 0 && (
+                          <BSButton
+                            variant="outline-light"
+                            className="rounded-0 dateoutline px-2 bg-white"
+                            disabled={childDrawerData[childIndex]?.tmf_block}
+                            onClick={afternoonDecrement}
+                          >
+                            <i className="icon-minus d-block text-main"></i>
+                          </BSButton>
+                        )}
+                      <BSButton
+                        variant="outline-light"
+                        className="rounded-0 dateoutline p-0 bg-white"
+                        disabled={childDrawerData[childIndex]?.tmf_block}
+                        onClick={() =>
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_afternoon && afternoonClick()
+                        }
+                      >
+                        <Input
+                          placeholder="Afternoon"
+                          inputMode="numeric"
+                          value={
+                            childDrawerData[childIndex]?.tcm_tmm_freq_afternoon
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_afternoon
+                              : ""
+                          }
+                          className="rounded-0 h-100 border-0 text-center text-main"
+                          onChange={onChangeInputAfternoonChild}
+                        />
+                      </BSButton>
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon != 0 && (
+                          <BSButton
+                            variant="outline-light"
+                            className="rounded-0 dateoutline px-2 bg-white"
+                            disabled={childDrawerData[childIndex]?.tmf_block}
+                            onClick={afternoonIncrement}
+                          >
+                            <i className="icon-Add text-main d-block"></i>
+                          </BSButton>
+                        )}
+                    </BSButtonGroup>
+                  </Col>
+                  <Col sm={8}>
+                    <BSButtonGroup
+                      aria-label="Basic example"
+                      className="inputheight45 w-100 border rounded-0 border-start-0"
+                    >
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_night != 0 && (
+                          <BSButton
+                            variant="outline-light"
+                            className="rounded-0 dateoutline px-2 bg-white"
+                            disabled={childDrawerData[childIndex]?.tmf_block}
+                            onClick={nightDecrement}
+                          >
+                            <i className="icon-minus d-block text-main"></i>
+                          </BSButton>
+                        )}
+                      <BSButton
+                        variant="outline-light"
+                        className="rounded-0 dateoutline p-0 bg-white"
+                        disabled={childDrawerData[childIndex]?.tmf_block}
+                        onClick={() =>
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_night && nightClick()
+                        }
+                      >
+                        <Input
+                          placeholder="Night"
+                          inputMode="numeric"
+                          value={
+                            childDrawerData[childIndex]?.tcm_tmm_freq_night
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_night
+                              : ""
+                          }
+                          className="rounded-0 h-100 border-0 text-center text-main"
+                          onChange={onChangeInputNightChild}
+                        />
+                      </BSButton>
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_night != 0 && (
+                          <BSButton
+                            variant="outline-light"
+                            className="rounded-0 dateoutline px-2 bg-white"
+                            disabled={childDrawerData[childIndex]?.tmf_block}
+                            onClick={nightIncrement}
+                          >
+                            <i className="icon-Add d-block text-main"></i>
+                          </BSButton>
+                        )}
+                    </BSButtonGroup>
+                  </Col>
+                </Row>
+              )}
+              {selectedTab === "mean" && (
+                <Row className="input-dark">
+                  <Col sm={6}>
+                    <BSButtonGroup
+                      aria-label="Basic example"
+                      className="inputheight45 border rounded-0"
+                    >
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_morning != 0 && (
+                          <BSButton
+                            variant="outline-light"
+                            className="rounded-0 dateoutline px-2 bg-white"
+                            disabled={childDrawerData[childIndex]?.tmf_block}
+                            onClick={morningDecrement}
+                          >
+                            <i className="icon-minus d-block text-main"></i>
+                          </BSButton>
+                        )}
+                      <BSButton
+                        variant="outline-light"
+                        className="rounded-0 dateoutline p-0 bg-white"
+                        disabled={childDrawerData[childIndex]?.tmf_block}
+                        onClick={() =>
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_morning && morningClick()
+                        }
+                      >
+                        <Input
+                          placeholder="Morning"
+                          inputMode="numeric"
+                          value={
+                            childDrawerData[childIndex]?.tcm_tmm_freq_morning
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_morning
+                              : ""
+                          }
+                          className="rounded-0 h-100 border-0 text-center text-main"
+                          onChange={onChangeInputMorningChild}
+                        />
+                      </BSButton>
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_morning != 0 && (
+                          <BSButton
+                            variant="outline-light"
+                            className="rounded-0 dateoutline px-2 bg-white"
+                            disabled={childDrawerData[childIndex]?.tmf_block}
+                            onClick={morningIncrement}
+                          >
+                            <i className="icon-Add text-main d-block"></i>
+                          </BSButton>
+                        )}
+                    </BSButtonGroup>
+                  </Col>
+                  <Col sm={6}>
+                    <BSButtonGroup
+                      aria-label="Basic example"
+                      className="inputheight45 border rounded-0 border-start-0"
+                    >
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon != 0 && (
+                          <BSButton
+                            variant="outline-light"
+                            className="rounded-0 dateoutline px-2 bg-white"
+                            disabled={childDrawerData[childIndex]?.tmf_block}
+                            onClick={afternoonDecrement}
+                          >
+                            <i className="icon-minus d-block text-main"></i>
+                          </BSButton>
+                        )}
+                      <BSButton
+                        variant="outline-light"
+                        className="rounded-0 dateoutline p-0 bg-white"
+                        disabled={childDrawerData[childIndex]?.tmf_block}
+                        onClick={() =>
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_afternoon && afternoonClick()
+                        }
+                      >
+                        <Input
+                          placeholder="Afternoon"
+                          inputMode="numeric"
+                          value={
+                            childDrawerData[childIndex]?.tcm_tmm_freq_afternoon
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_afternoon
+                              : ""
+                          }
+                          className="rounded-0 h-100 border-0 text-center text-main"
+                          onChange={onChangeInputAfternoonChild}
+                        />
+                      </BSButton>
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon != 0 && (
+                          <BSButton
+                            variant="outline-light"
+                            className="rounded-0 dateoutline px-2 bg-white"
+                            disabled={childDrawerData[childIndex]?.tmf_block}
+                            onClick={afternoonIncrement}
+                          >
+                            <i className="icon-Add text-main d-block"></i>
+                          </BSButton>
+                        )}
+                    </BSButtonGroup>
+                  </Col>
+                  <Col sm={6}>
+                    <BSButtonGroup
+                      aria-label="Basic example"
+                      className="inputheight45 border rounded-0 border-start-0"
+                    >
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_evening !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_evening != 0 && (
+                          <BSButton
+                            variant="outline-light"
+                            className="rounded-0 dateoutline px-2 bg-white"
+                            disabled={childDrawerData[childIndex]?.tmf_block}
+                            onClick={eveningDecrement}
+                          >
+                            <i className="icon-minus d-block text-main"></i>
+                          </BSButton>
+                        )}
+                      <BSButton
+                        variant="outline-light"
+                        className="rounded-0 dateoutline p-0 bg-white"
+                        disabled={childDrawerData[childIndex]?.tmf_block}
+                        onClick={() =>
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_evening && eveningClick()
+                        }
+                      >
+                        <Input
+                          placeholder="Evening"
+                          inputMode="numeric"
+                          value={
+                            childDrawerData[childIndex]?.tcm_tmm_freq_evening
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_evening
+                              : ""
+                          }
+                          className="rounded-0 h-100 border-0 text-center text-main"
+                          onChange={onChangeInputEveningChild}
+                        />
+                      </BSButton>
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_evening !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_evening != 0 && (
+                          <BSButton
+                            variant="outline-light"
+                            className="rounded-0 dateoutline px-2 bg-white"
+                            disabled={childDrawerData[childIndex]?.tmf_block}
+                            onClick={eveningIncrement}
+                          >
+                            <i className="icon-Add text-main d-block"></i>
+                          </BSButton>
+                        )}
+                    </BSButtonGroup>
+                  </Col>
+                  <Col sm={6}>
+                    <BSButtonGroup
+                      aria-label="Basic example"
+                      className="inputheight45 border rounded-0 border-start-0"
+                    >
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_night != 0 && (
+                          <BSButton
+                            variant="outline-light"
+                            className="rounded-0 dateoutline px-2 bg-white"
+                            disabled={childDrawerData[childIndex]?.tmf_block}
+                            onClick={nightDecrement}
+                          >
+                            <i className="icon-minus d-block text-main"></i>
+                          </BSButton>
+                        )}
+                      <BSButton
+                        variant="outline-light"
+                        className="rounded-0 dateoutline p-0 bg-white"
+                        disabled={childDrawerData[childIndex]?.tmf_block}
+                        onClick={() =>
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_night && nightClick()
+                        }
+                      >
+                        <Input
+                          placeholder="Night"
+                          inputMode="numeric"
+                          value={
+                            childDrawerData[childIndex]?.tcm_tmm_freq_night
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_night
+                              : ""
+                          }
+                          className="rounded-0 h-100 border-0 text-center text-main"
+                          onChange={onChangeInputNightChild}
+                        />
+                      </BSButton>
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_night != 0 && (
+                          <BSButton
+                            variant="outline-light"
+                            className="rounded-0 dateoutline px-2 bg-white"
+                            disabled={childDrawerData[childIndex]?.tmf_block}
+                            onClick={nightIncrement}
+                          >
+                            <i className="icon-Add d-block text-main"></i>
+                          </BSButton>
+                        )}
+                    </BSButtonGroup>
+                  </Col>
+                </Row>
+              )}
+              <div>
+                {selectedTab === "other" && (
+                  <div className="segement-static d-flex flex-wrap">
+                    {filteredTitles.slice(0, 2).map((item, i) => {
+                      return (
+                        <>
+                          <button
+                            key={i}
+                            type="button"
+                            className={`btn text-truncate ${childDrawerData[childIndex]?.tmm_freq_type == item.tmf_id &&
+                              "btn-segement"
+                              }`}
+                            onClick={() => onChangeFrequencyChild(item)}
+                          >
+                            {item.tmf_title}
+                          </button>
+                          {i == filteredTitles.slice(0, 2).length - 1 && (
+                            <button
+                              key={-1}
+                              type="button"
+                              className={`btn segment-more ${filteredTitles
+                                .slice(2, filteredTitles.length)
+                                .some(
+                                  (e) => e.tmf_id == childDrawerData[childIndex]?.tmm_freq_type
+                                ) && "btn-segement"
+                                }`}
+                              onClick={handleFrequencyMoreOptionsVisible}
+                            >
+                              {filteredTitles
+                                .slice(2, filteredTitles.length)
+                                .some(
+                                  (e) => e.tmf_id == childDrawerData[childIndex]?.tmm_freq_type
+                                ) ? (
+                                <span id="selected">
+                                  <i className="icon-Edit me-2 fs-21"></i>{" "}
+                                  {childDrawerData[childIndex]?.tmm_freq_type_name}
+                                </span>
+                              ) : (
+                                "More"
+                              )}
+                            </button>
+                          )}
+                        </>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              <div>
+                <div className="segement-static d-flex flex-wrap">
+                  {timingList.slice(0, 5).map((item, i) => {
+                    return (
+                      <>
+                        <button
+                          key={i}
+                          type="button"
+                          className={`btn mt-3 ${childDrawerData?.[childIndex]?.tmm_time == item.tmt_id
+                            ? "btn-segement"
+                            : ""
+                            }`}
+                          onClick={() => onChangeTimingChild(item)}
+                        >
+                          {item.tmt_title}
+                        </button>
+                        {i == timingList.slice(0, 5).length - 1 && (
+                          <button
+                            key={-1}
+                            type="button"
+                            className={`btn mt-3 segment-more ${timingList
+                              .slice(5, timingList.length)
+                              .some(
+                                (e) => e.tmt_id == childDrawerData?.[childIndex]?.tmm_time
+                              ) && "btn-segement"
+                              }`}
+                            onClick={handleTimingMoreOptionsVisible}
+                          >
+                            {timingList
+                              .slice(5, timingList.length)
+                              .some(
+                                (e) => e.tmt_id == childDrawerData?.[childIndex]?.tmm_time
+                              ) ? (
+                              <span id="selected">
+                                <i className="icon-Edit me-2 fs-21"></i>
+                                {childDrawerData?.[childIndex]?.tmm_time_name}
+                              </span>
+                            ) : (
+                              "More"
+                            )}
+                          </button>
+                        )}
+                      </>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+            <div className="mt-3">
+              <label className="title-common mb-1">Duration</label>
+              <div className="segement-static d-flex">
+                {SINCE_LIST.map((item, i) => {
+                  return (
+                    <button key={i}
+                      type="button"
+                      className={`btn w-100 p-0 ${sinceValue > 5 ? item.value == -1 && 'btn-segement custom-input-selected' : sinceValue == item.value && 'btn-segement'}`}
+                      onClick={() => onChangeSegmentedSinceChild(item.value)}>
+                      {item.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+            <div className="mt-3 mb-3">
+              <div className="segement-static d-flex">
+                {sinceOptions.map((item, i) => {
+                  return (
+                    <>
+                      <button key={i}
+                        type="button"
+                        className={`btn ${childDrawerData[childIndex]?.tmm_days_duration_type == item.value && 'btn-segement'}`}
+                        onClick={() => onChangeSinceChild(item.value)}>
+                        {item.label}
+                      </button>
+                      {i == sinceOptions.length - 1 && (
+                        <button
+                          key={-1}
+                          type="button"
+                          className={`btn text-truncate px-1 segment-more ${EXTRA_OPTIONS.some((e) => e.value == childDrawerData[childIndex]?.tmm_days_duration_type) && "btn-segement"}`}
+                          onClick={handleDurationMoreOptionsVisible}
+                        >
+                          {EXTRA_OPTIONS.some((e) => e.value == childDrawerData[childIndex]?.tmm_days_duration_type) ? (
+                            <span id="selected">
+                              <i className="icon-Edit me-2 fs-21"></i>
+                              {hasNumber(childDrawerData[childIndex]?.tmm_days_duration_type) ? childDrawerData[childIndex]?.tmm_days_duration_type : capitalize(childDrawerData[childIndex]?.tmm_days_duration_type, true)}
+                            </span>
+                          ) : (
+                            "More"
+                          )}
+                        </button>
+                      )}
+                    </>
+                  )
+                })}
+              </div>
+            </div>
+
+            {childDrawerData[childIndex]?.tmm_days_duration_type && (
+              <div className="text-primary d-flex align-items-center"><i className="icon-copyIcon fs-16 me-1" /> <span className="text-primary text-decoration-underline" onClick={onAutoFillDuration}>Autofill this duration for all added meds.</span></div>
+            )}
+
+            <label className="title-common mb-1 mt-3">Note</label>
+            <Input.TextArea
+              value={
+                childDrawerData[childIndex]?.tmm_remarks
+                  ? childDrawerData[childIndex]?.tmm_remarks
+                  : ""
+              }
+              placeholder="Enter any specific notes here"
+              className="textareaPlaceholder"
+              rows={3}
+              onChange={onChangeInputNoteChild}
+            />
+          </div>
+        )}
+      </>
+    );
+  }, [
+    childDrawer,
+    childDrawerData,
+    sinceValue,
+    inputSince,
+    sinceOptions,
+    selectedTab,
+    timingMoreOptionsVisible,
+    frequencyMoreOptionsVisible,
+    durationMoreOptionsVisible,
+    activeKey,
+    childIndex
+  ]);
+
   // Tour Pillup
   const tourRef = useRef(null);
 
@@ -1899,6 +2851,17 @@ function MedicationsBox(props) {
             />
           </Drawer>
         }
+
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleDrawerChild}
+          open={childDrawer}
+          className="modalWidth-563"
+          width="auto"
+        >
+          {addCustom ? ADD_MEDICINE_DATA : CHILD_DRAWER_DATA}
+        </Drawer>
 
         {isEditable && <div className="p-14">
           <AutoComplete
