@@ -32,6 +32,7 @@ const ZydusLabParams = ({
     });
     const [loading, setLoading] = useState(false);
     const [selectedDates, setSelectedDates] = useState([]);
+    const [hasUserInteracted, setHasUserInteracted] = useState(false);
 
     useEffect(() => {
         const storedToken = localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN);
@@ -51,6 +52,14 @@ const ZydusLabParams = ({
             organizeData();
         }
     }, [labResults]);
+
+    // Set first 2 dates as default selection when data is organized (only if user hasn't interacted)
+    useEffect(() => {
+        if (organizedData.dates.length > 0 && selectedDates.length === 0 && !hasUserInteracted) {
+            const defaultDates = organizedData.dates.slice(0, Math.min(2, organizedData.dates.length));
+            setSelectedDates(defaultDates);
+        }
+    }, [organizedData.dates, selectedDates.length, hasUserInteracted]);
 
     const organizeData = () => {
         // Get unique dates and sort them in descending order (newest first)
@@ -129,6 +138,7 @@ const ZydusLabParams = ({
     };
 
     const handleDateSelection = (date, checked) => {
+        setHasUserInteracted(true);
         setSelectedDates(prev => {
             if (checked) {
                 if (prev.includes(date)) {
@@ -140,9 +150,6 @@ const ZydusLabParams = ({
                 return [...prev, date];
             } else {
                 const newDates = prev.filter(d => d !== date);
-                if (newDates.length === 0) {
-                    console.warn("⚠️ No dates selected — defaulting to the first 5 dates for consultation and print.");
-                }
                 return newDates;
             }
         });
@@ -565,15 +572,7 @@ const ZydusLabParams = ({
         // Create a map to group inputs by date
         const dateMap = new Map();
 
-        // If no dates selected, use original default behavior (top 5 dates)
         let datesToInclude = selectedDates;
-        if (selectedDates.length === 0) {
-            // Get top 5 most recent dates (same logic as original print view)
-            const sortedDates = organizedData.dates
-                .sort((a, b) => moment(b, "DD MMM, YYYY").valueOf() - moment(a, "DD MMM, YYYY").valueOf())
-                .slice(0, 5);
-            datesToInclude = sortedDates;
-        }
         // Process each selected test report for each selected date
         Object.entries(selectedItems).forEach(([key, data]) => {
             // For each selected date, create an entry for this test report
@@ -691,11 +690,22 @@ const ZydusLabParams = ({
             // Debounce the update to prevent rapid calls
             const timeoutId = setTimeout(updateDisplayData, 100);
             return () => clearTimeout(timeoutId);
+        } else if (selectedDates.length === 0) {
+            // Clear the data when no dates are selected
+            setZydusSelectedLabParams([]);
         }
     }, [selectedDates, selectedItems, organizedData.dates.length, preparePayload]); // Added preparePayload dependency
 
     const handleSave = async () => {
         try {
+            if (selectedDates.length === 0 && !labReportID) {
+                console.error("No dates selected for new report");
+                return;
+            }
+            if (organizedData.dates.length === 0) {
+                console.error("No lab data available");
+                return;
+            }
             if (selectedDates.length > 5) {
                 console.error("Maximum 5 dates can be selected");
                 return;
@@ -1032,7 +1042,11 @@ const ZydusLabParams = ({
                     />
                     <div className="modal-title">Zydus Test Reports</div>
                 </div>
-                <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={handleSave}>
+                <Button 
+                    className='btn btn-primary3 btn-41 px-4 me-20' 
+                    onClick={handleSave}
+                    disabled={organizedData.dates.length === 0 || (selectedDates.length === 0 && !labReportID)}
+                >
                     <i className="icon-Save me-2"></i>
                     Save
                 </Button>
