@@ -31,6 +31,7 @@ import AISuite from "../assets/images/ai-suite.png";
 import iconMobile from "../assets/images/icon-mobile.svg";
 
 import config from "../config";
+import { shouldUseTatvaCare } from "../utils/utils";
 import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds, campaigns } from "../redux/doctorsSlice";
 import { viewDoctorWebsite } from "../redux/doctorWebsiteSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
@@ -238,6 +239,13 @@ function Header({ locationPath }) {
     });
     showHideLogoModal();
 
+    const isTatvaCareUser = shouldUseTatvaCare();
+    
+    if (isTatvaCareUser) {
+      // For TatvaCare users (specific doctor), navigate to local offerings page
+      navigate('/our-offerings?from=home');
+    } else {
+      // For TatvaPedia users, use OAuth2 flow
     try {
       // Start loading
       setIsLoading(true);
@@ -290,6 +298,7 @@ function Header({ locationPath }) {
       // Stop loading on error
       setIsLoading(false);
     }
+    }
   };
 
   const handleRedirectToOffering = async () => {
@@ -297,29 +306,34 @@ function Header({ locationPath }) {
   }
 
   const LOGO_MODAL = useMemo(() => {
+    const isTatvaCareUser = shouldUseTatvaCare();
     return (
       <CommonModal
         isModalOpen={isLogoModalOpen}
         onCancel={showHideLogoModal}
         modalWidth={500}
-        title={"Welcome to TatvaPedia"}
+        title={isTatvaCareUser ? "Welcome to TatvaCare" : "Welcome to TatvaPedia"}
         modalBody={
           <>
             <div className="mb-4 fontroboto lh-base">
-              You can explore exclusive bit-sized medical content, expert-curated content, boost your proficiency & learning, and showcase your clinical competencies by submitting content based on your experiences.
+              {isTatvaCareUser ? (
+                "TatvaCare is your all-in-one platform to simplify clinical practice, patient management, and medical learning."
+              ) : (
+                "You can explore exclusive bit-sized medical content, expert-curated content, boost your proficiency & learning, and showcase your clinical competencies by submitting content based on your experiences."
+              )}
             </div>
             <div className="alert-warning rounded-10px p-2 patient-details mb-4">
               <div className="d-flex align-items-center">
                 <img className='me-3' src={alertIcon} alt="Warning" />
                 <span>
                   Are you sure you want to switch? <br />
-                  You will be redirect to TatvaPedia platform.
+                  You will be redirect to {isTatvaCareUser ? "TatvaCare" : "TatvaPedia"} platform.
                 </span>
               </div>
             </div>
             <div>
               <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div onClick={tatvaRedirectClick}
+                <div onClick={isTatvaCareUser ? handleRedirectToOffering : tatvaRedirectClick}
                   className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes, Switch
                 </div>

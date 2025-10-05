@@ -56,6 +56,7 @@ import GetUnlimitedAccess from "./pages/monetization/GetUnlimitedAccess";
 import UpgradeServicesModal from "./pages/monetization/components/UpgradeServicesModal";
 import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
+import OurOffering from "./pages/ourOffering/OurOffering";
 import SnapRx from "./pages/snapRx/SnapRx";
 import UploadRx from "./pages/uploadRx";
 import BottomSheetManager from "./components/bottomSheetManager";
@@ -393,6 +394,7 @@ function App() {
               {/* Public route */}
               {/* <Route path="/login" element={<AuthContainer />} /> */}
               <Route path="/login" element={<Onboarding />} />
+              <Route path="/our-offerings" element={<OurOffering />} />
               <Route path="/final-setup" element={<FinalSetup />} />
 
               {/* Restricted route - authorized only to get/upload snapRx files */}
