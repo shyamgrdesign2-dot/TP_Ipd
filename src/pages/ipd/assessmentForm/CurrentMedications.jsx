@@ -5,7 +5,7 @@ import InteractionGate from "../components/InteractionGate/InteractionGate";
 import { useSelector } from "react-redux";
 import { isMobile } from "react-device-detect";
 import TabMedicationBox from "../../../components/tab_design/TabMedicationBox";
-import IpdMedicationBox from "../../../components/ipdMedicationBox";
+// import IpdMedicationBox from "../../../components/ipdMedicationBox";
 import MedicationBoxIpd from "../../../components/medicationBoxIpd";
 
 const CurrentMedications = (props) => {
