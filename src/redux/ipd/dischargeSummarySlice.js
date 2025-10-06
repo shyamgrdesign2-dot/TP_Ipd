@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, current } from "@reduxjs/toolkit";
 import ApiDischargeSummary from "../../api/services/ipd/ApiDischargeSummary";
 
 // Helper function to map module to code
@@ -13,7 +13,7 @@ const getCodeFromModule = (module) => {
     case "Progress Notes":
       return "PN";
     case "Assessment Form":
-        return "AF";
+      return "AF";
     default:
       return "N/A";
   }
@@ -40,11 +40,12 @@ export const initialState = {
       address: "Random Address 21",
     },
     surgeriesPerformed: [],
+    followUpDoctor: null, // Will store the complete doctor object
   },
   mockValues: {},
   treatmentNotes: [],
   treatmentNotesLoading: false,
-  chronologicalSummary: [],
+  chronologicalSummary: {},
   chronologicalSummaryLoading: false,
   loading: false,
   currentDischargeSummaryId: null,
@@ -56,7 +57,7 @@ export const getDischargeSummaryData = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const result = await ApiDischargeSummary.getDischargeSummary(data);
-      if (Array.isArray(result)) {
+      if (result) {
         return result;
       } else {
         throw Error(result.error);
@@ -132,7 +133,7 @@ export const generateTreatmentNotes = createAsyncThunk(
         patientId,
         admissionId,
       });
-    //   console.log
+      //   console.log
       if (result) {
         return result;
       } else {
@@ -142,7 +143,8 @@ export const generateTreatmentNotes = createAsyncThunk(
       console.log("error: ", error);
       return rejectWithValue({
         visible: false,
-        message: error.response?.data?.message || "Failed to fetch treatment notes",
+        message:
+          error.response?.data?.message || "Failed to fetch treatment notes",
       });
     }
   }
@@ -165,7 +167,9 @@ export const generateChronologicalSummary = createAsyncThunk(
       console.log("error: ", error);
       return rejectWithValue({
         visible: false,
-        message: error.response?.data?.message || "Failed to fetch chronological summary",
+        message:
+          error.response?.data?.message ||
+          "Failed to fetch chronological summary",
       });
     }
   }
@@ -185,7 +189,7 @@ const dischargeSummarySlice = createSlice({
       state.dischargeSummaryData.courseInHospital = action.payload;
     },
     setVitalsData: (state, action) => {
-        state.dischargeSummaryData.vitalsData = action.payload;
+      state.dischargeSummaryData.vitalsData = action.payload;
     },
     setCurrentDischargeSummaryId: (state, action) => {
       state.currentDischargeSummaryId = action.payload || null;
@@ -225,30 +229,45 @@ const dischargeSummarySlice = createSlice({
       state.dischargeSummaryData.additionalNotes = action.payload;
     },
     setPreparedBy: (state, action) => {
-      state.dischargeSummaryData.preparedBy = Array.isArray(action.payload) ? action.payload : [];
+      state.dischargeSummaryData.preparedBy = Array.isArray(action.payload)
+        ? action.payload
+        : [];
     },
     setTreatmentNotes: (state, action) => {
-      state.treatmentNotes = Array.isArray(action.payload) ? action.payload : [];
+      state.treatmentNotes = Array.isArray(action.payload)
+        ? action.payload
+        : [];
     },
     addTreatmentNote: (state, action) => {
       state.treatmentNotes.push(action.payload);
     },
     updateTreatmentNote: (state, action) => {
       const { key, updates } = action.payload;
-      const index = state.treatmentNotes.findIndex(note => note.key === key);
+      const index = state.treatmentNotes.findIndex((note) => note.key === key);
       if (index !== -1) {
-        state.treatmentNotes[index] = { ...state.treatmentNotes[index], ...updates };
+        state.treatmentNotes[index] = {
+          ...state.treatmentNotes[index],
+          ...updates,
+        };
       }
     },
     removeTreatmentNote: (state, action) => {
       const key = action.payload;
-      state.treatmentNotes = state.treatmentNotes.filter(note => note.key !== key);
+      state.treatmentNotes = state.treatmentNotes.filter(
+        (note) => note.key !== key
+      );
     },
     setChronologicalSummary: (state, action) => {
-      state.chronologicalSummary = Array.isArray(action.payload) ? action.payload : [];
+      state.chronologicalSummary = Array.isArray(action.payload)
+        ? action.payload
+        : [];
     },
     setSurgeriesPerformed: (state, action) => {
-      state.dischargeSummaryData.surgeriesPerformed = Array.isArray(action.payload) ? action.payload : [];
+      state.dischargeSummaryData.surgeriesPerformed = Array.isArray(
+        action.payload
+      )
+        ? action.payload
+        : [];
     },
   },
   extraReducers: (builder) => {
@@ -258,7 +277,25 @@ const dischargeSummarySlice = createSlice({
       })
       .addCase(getDischargeSummaryData.fulfilled, (state, action) => {
         state.loading = false;
-        state.dischargeSummaryData = action.payload;
+        // Store the API response but exclude chronological summary from courseInHospital
+        // to prevent raw data from being passed to Slate
+        if (action.payload && typeof action.payload === 'object') {
+          const { courseInHospital, ...otherData } = action.payload;
+          
+          state.dischargeSummaryData = {
+            ...otherData,
+            courseInHospital: {
+              ...courseInHospital,
+              // Don't store chronologicalSummary here to avoid conflicts
+              chronologicalSummary: undefined
+            }
+          };
+          
+          // Store chronological summary in the separate state
+          if (courseInHospital?.chronologicalSummary) {
+            state.chronologicalSummary = courseInHospital.chronologicalSummary;
+          }
+        }
       })
       .addCase(getDischargeSummaryData.rejected, (state) => {
         state.dischargeSummaryData = [];
@@ -303,16 +340,18 @@ const dischargeSummarySlice = createSlice({
       .addCase(generateTreatmentNotes.fulfilled, (state, action) => {
         state.treatmentNotesLoading = false;
         // Transform the API response to the required format
-        const formattedData = Object.entries(action.payload).map(([key, item]) => ({
-          key: `row_${key}`,
-          id: parseInt(key),
-          name: item.name,
-          code: getCodeFromModule(item.module),
-          givenDate: item.givenDate || "",
-          duration: item.duration || "",
-          notes: item.notes || "",
-          module: item.module,
-        }));
+        const formattedData = Object.entries(action.payload).map(
+          ([key, item]) => ({
+            key: `row_${key}`,
+            id: parseInt(key),
+            name: item.name,
+            code: getCodeFromModule(item.module),
+            givenDate: item.givenDate || "",
+            duration: item.duration || "",
+            notes: item.notes || "",
+            module: item.module,
+          })
+        );
         state.treatmentNotes = formattedData;
       })
       .addCase(generateTreatmentNotes.rejected, (state) => {
@@ -324,9 +363,6 @@ const dischargeSummarySlice = createSlice({
       })
       .addCase(generateChronologicalSummary.fulfilled, (state, action) => {
         state.chronologicalSummaryLoading = false;
-        // Store the chronological summary data in dischargeSummaryData
-        state.dischargeSummaryData.chronologicalSummary = action.payload;
-        // Also store in separate chronologicalSummary state for easier access
         state.chronologicalSummary = action.payload;
       })
       .addCase(generateChronologicalSummary.rejected, (state) => {

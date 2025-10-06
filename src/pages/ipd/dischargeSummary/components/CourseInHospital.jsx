@@ -27,12 +27,13 @@ const CourseInHospital = (props) => {
   const {
     dischargeSummaryData: {
       courseInHospital,
-      chronologicalSummary,
+      //   chronologicalSummary,
       treatmentNotes,
     } = {},
+    chronologicalSummary,
     chronologicalSummaryLoading,
   } = useSelector((state) => state.dischargeSummary);
-  console.log("intel ==> chronologicalSummary", chronologicalSummary);
+  const dataa = useSelector((state) => state.dischargeSummary);
 
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
@@ -222,13 +223,17 @@ const CourseInHospital = (props) => {
   };
 
   const transformChronologicalData = (apiData) => {
-    if (!apiData || typeof apiData !== "object") return [];
+    if (!apiData) return [];
 
     const transformedData = [];
     const listItems = [];
 
-    Object.keys(apiData).forEach((key) => {
-      const dayData = apiData[key];
+    // Handle both array and object formats
+    const dataToProcess = Array.isArray(apiData)
+      ? apiData
+      : Object.values(apiData);
+
+    dataToProcess.forEach((dayData) => {
       if (dayData && dayData.date && dayData.day && dayData.entry) {
         const formattedDate = dayjs(dayData.date).format("DD MMM YYYY");
         const dayPrefix = `${dayData.day} (${formattedDate}): `;
@@ -236,10 +241,20 @@ const CourseInHospital = (props) => {
         const moduleCode = dayData.module ? getModuleCode(dayData.module) : "";
 
         let dayContent = "";
-        dayData.entry.forEach((entryItem, index) => {
-          if (entryItem.type === "paragraph" && entryItem.children) {
+
+        // Handle both array and single entry formats
+        const entries = Array.isArray(dayData.entry)
+          ? dayData.entry
+          : [dayData.entry];
+
+        entries.forEach((entryItem) => {
+          if (
+            entryItem &&
+            entryItem.type === "paragraph" &&
+            entryItem.children
+          ) {
             entryItem.children.forEach((child) => {
-              if (child.text) {
+              if (child && child.text) {
                 dayContent += child.text + " ";
               }
             });
@@ -287,17 +302,28 @@ const CourseInHospital = (props) => {
       return null;
 
     const getInitialValue = () => {
+      // Handle chronological summary from API
       if (
         chronologicalSummary &&
-        Object.keys(chronologicalSummary).length > 0
+        (Array.isArray(chronologicalSummary) ||
+          Object.keys(chronologicalSummary).length > 0)
       ) {
-        return transformChronologicalData(chronologicalSummary);
+        const transformed = transformChronologicalData(chronologicalSummary);
+        // Ensure we return a valid Slate structure
+        return Array.isArray(transformed) && transformed.length > 0
+          ? transformed
+          : [{ type: "paragraph", children: [{ text: "" }] }];
       }
 
+      // Handle existing courseInHospital data
       if (courseInHospital?.chronologicalSummary) {
-        return courseInHospital.chronologicalSummary;
+        // Ensure it's a valid Slate structure
+        if (Array.isArray(courseInHospital.chronologicalSummary)) {
+          return courseInHospital.chronologicalSummary;
+        }
       }
 
+      // Default empty state
       return [
         {
           type: "paragraph",
@@ -364,9 +390,7 @@ const CourseInHospital = (props) => {
   };
 
   const renderTreatmentsGiven = (data) => {
-    return (
-        <TreatmentGiven sectionData={data} />
-    );
+    return <TreatmentGiven sectionData={data} />;
   };
 
   const renderSection = () => {

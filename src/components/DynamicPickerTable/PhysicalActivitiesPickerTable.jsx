@@ -133,20 +133,42 @@ const PhysicalActivitiesPickerTable = ({ isEditable = true }) => {
 
   return (
     <div style={{ width: "100%" }}>
-      <DynamicPickerTable
-        ref={tableRef}
-        isEditable={isEditable}
-        columns={columns}
-        initialData={physicalActivitiesData}
-        searchConfig={searchConfig}
-        onSearch={handleSearch}
-        onRowChange={handleRowChange}
-        onRowAdd={handleRowAdd}
-        onRowDelete={handleRowDelete}
-        emptyText="No physical activities added"
-        searchPlaceholder="Search Physical Activities by Name"
-        rootClassName="physical-activities-picker-table"
-      />
+      {physicalActivitiesData.length > 0 ? (
+        <DynamicPickerTable
+          ref={tableRef}
+          isEditable={isEditable}
+          columns={columns}
+          initialData={physicalActivitiesData}
+          searchConfig={searchConfig}
+          onSearch={handleSearch}
+          onRowChange={handleRowChange}
+          onRowAdd={handleRowAdd}
+          onRowDelete={handleRowDelete}
+          emptyText="No physical activities added"
+          searchPlaceholder="Search Physical Activities by Name"
+          rootClassName="physical-activities-picker-table"
+        />
+      ) : (
+        isEditable && (
+          <div className="physical-activities-picker-search-only">
+            <DynamicPickerTable
+              ref={tableRef}
+              isEditable={isEditable}
+              columns={columns}
+              initialData={[]}
+              searchConfig={searchConfig}
+              onSearch={handleSearch}
+              onRowChange={handleRowChange}
+              onRowAdd={handleRowAdd}
+              onRowDelete={handleRowDelete}
+              emptyText="No physical activities added"
+              searchPlaceholder="Search Physical Activities by Name"
+              rootClassName="physical-activities-picker-table physical-activities-picker-search-only"
+              hideTableWhenEmpty={true}
+            />
+          </div>
+        )
+      )}
     </div>
   );
 };

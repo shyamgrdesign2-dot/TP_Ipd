@@ -100,8 +100,8 @@ const transformOtNotesToSurgeriesPerformed = (otNotesData) => {
     return [];
   }
 
-  return otNotesData.map((item) => {
-    const key = item.key || item.id || item.title;
+  return otNotesData.map((item, index) => {
+    const key = item.key || item.id || item.title || `surgery_${index}`;
     const procedureName = item?.otNotes?.surgeryDetails?.procedureName;
     const surgeryDate = item?.otNotes?.surgeryDetails?.surgeryDate;
     
@@ -110,9 +110,18 @@ const transformOtNotesToSurgeriesPerformed = (otNotesData) => {
       ? procedureName.join(', ') 
       : procedureName || '';
     
+    // Create a text representation for display
+    const displayText = surgeryDate 
+      ? `${procedureText} (${surgeryDate})`
+      : procedureText;
+    
     return {
       key,
-      text: `${procedureText} (${surgeryDate || ''})`
+      text: displayText,
+      procedureName: Array.isArray(procedureName) ? procedureName : (procedureName ? [procedureName] : []),
+      surgeryDate: surgeryDate || "",
+      surgeryStartTime: item?.otNotes?.surgeryDetails?.surgeryStartTime || "",
+      surgeryEndTime: item?.otNotes?.surgeryDetails?.surgeryEndTime || ""
     };
   });
 };

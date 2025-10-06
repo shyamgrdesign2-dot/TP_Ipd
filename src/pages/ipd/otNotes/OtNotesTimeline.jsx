@@ -43,7 +43,6 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
   }, []);
 
   const handleEditOtNotes = (id) => {
-    console.log("INTEL ==> OT", id);
     dispatch(setCurrentOtNoteId(id));
     dispatch(setSingleOtNotesData({ _id: id }));
     navigate("/ipd/patient-details/ot-notes", {
@@ -60,7 +59,6 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
     setTimeout(() => {
       window.scrollTo(0, 0);
     }, 10);
-    console.log("INTEL ==> SECTION", section);
     dispatch(setCurrentOtNoteId(section?._id));
     dispatch(setSingleOtNotesData({ _id: section?._id }));
     navigate("/ipd/patient-details/ot-notes", {
@@ -258,7 +256,6 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
         date: dateIso?.toISOString(),
         originalEntry: entry,
         renderStepItem: (data) => {
-          console.log("INTEL ==> DATA", data);
           const CollapsibleContent = () => {
             const [isExpanded, setIsExpanded] = useState(false);
 
@@ -447,7 +444,6 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
   }, [mappedData, dateRange]);
 
   if (isLiteMode) {
-    console.log("INTEL ==> SEasdfsfsfdCTION", otNotesState, filteredMappedData);
     return (
       <div className="ot-notes-timeline-container flex-column-gap-16">
         {filteredMappedData?.map((section, sectionIndex) => {

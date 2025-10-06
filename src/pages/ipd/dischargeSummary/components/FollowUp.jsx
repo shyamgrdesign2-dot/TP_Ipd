@@ -85,22 +85,24 @@ const FollowUp = (props) => {
           className="autocomplete-custom w-100 popinput inputheight41"
           placeholder="Select Follow Up Doctor"
           options={options}
-          value={dischargeSummaryData?.followUpDoctor || undefined}
+          value={dischargeSummaryData?.followUpDoctor?.name || undefined}
           onChange={(value, option) => {
             if (!value) {
-              dispatch(setFollowUpDoctor(""));
+              dispatch(setFollowUpDoctor(null));
               return;
             }
             
             try {
               const parsed = option?.key ? JSON.parse(option.key) : null;
               if (parsed) {
-                dispatch(setFollowUpDoctor(parsed.name));
+                dispatch(setFollowUpDoctor(parsed));
               } else {
-                dispatch(setFollowUpDoctor(value));
+                // Fallback: create a minimal doctor object with just the name
+                dispatch(setFollowUpDoctor({ name: value }));
               }
             } catch (e) {
-              dispatch(setFollowUpDoctor(value));
+              // Fallback: create a minimal doctor object with just the name
+              dispatch(setFollowUpDoctor({ name: value }));
             }
           }}
           onSearch={(q) =>

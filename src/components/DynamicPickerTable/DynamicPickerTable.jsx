@@ -109,7 +109,6 @@ function DragHandle() {
 }
 
 export const DynamicPickerTable = forwardRef((props, ref) => {
-  console.log('INTEL ==> treatmentNotes',props.treatmentNotes)
   const {
     isEditable = true,
     rootClassName = "",
@@ -123,6 +122,7 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
     emptyText = "No data added",
     searchPlaceholder = "Search...",
     loading = false,
+    hideTableWhenEmpty = false,
   } = props || {};
 
   const [query, setQuery] = useState("");
@@ -402,31 +402,34 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
         <TableShimmerLoader columns={columns} />
       ) : isEditable ? (
         <>
-          <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-            <SortableContext
-              items={itemsIds}
-              strategy={verticalListSortingStrategy}
-            >
-              <Table
-                className="dynamic-picker-table"
-                rowKey="key"
-                components={components}
-                columns={tableColumns}
-                bordered
-                dataSource={rows}
-                pagination={false}
-                locale={{
-                  emptyText: (
-                    <Empty
-                      image={Empty.PRESENTED_IMAGE_SIMPLE}
-                      description={emptyText}
-                    />
-                  ),
-                }}
-                scroll={{ x: true }}
-              />
-            </SortableContext>
-          </DndContext>
+          {/* Show table only if there's data or hideTableWhenEmpty is false */}
+          {(rows.length > 0 || !hideTableWhenEmpty) && (
+            <DndContext sensors={sensors} onDragEnd={onDragEnd}>
+              <SortableContext
+                items={itemsIds}
+                strategy={verticalListSortingStrategy}
+              >
+                <Table
+                  className="dynamic-picker-table"
+                  rowKey="key"
+                  components={components}
+                  columns={tableColumns}
+                  bordered
+                  dataSource={rows}
+                  pagination={false}
+                  locale={{
+                    emptyText: (
+                      <Empty
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        description={emptyText}
+                      />
+                    ),
+                  }}
+                  scroll={{ x: true }}
+                />
+              </SortableContext>
+            </DndContext>
+          )}
           
           {onSearch && (
             <div className="dynamic-picker-search">
