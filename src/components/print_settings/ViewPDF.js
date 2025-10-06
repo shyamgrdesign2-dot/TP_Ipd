@@ -378,10 +378,10 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         const { morning: morningLabel, afternoon: afternoonLabel, evening: eveningLabel, night: nightLabel } = getFrequencyLanguageTitles(selectedLang);
 
         const frequencyParts = [
-            morning > 0 ? `${morningLabel}(${medicine_freq_dosage_format(morning)})` : '',
-            afternoon > 0 ? `${afternoonLabel}(${medicine_freq_dosage_format(afternoon)})` : '',
-            evening > 0 ? `${eveningLabel}(${medicine_freq_dosage_format(evening)})` : '',
-            night > 0 ? `${nightLabel}(${medicine_freq_dosage_format(night)})` : ''
+            morning > 0 ? `${morningLabel}(${medicine_freq_dosage_format(morning, caseManagerData?.doctor_data?.dp_id)})` : '',
+            afternoon > 0 ? `${afternoonLabel}(${medicine_freq_dosage_format(afternoon, caseManagerData?.doctor_data?.dp_id)})` : '',
+            evening > 0 ? `${eveningLabel}(${medicine_freq_dosage_format(evening, caseManagerData?.doctor_data?.dp_id)})` : '',
+            night > 0 ? `${nightLabel}(${medicine_freq_dosage_format(night, caseManagerData?.doctor_data?.dp_id)})` : ''
         ].filter(Boolean);
         const frequencyInWords = frequencyParts.join(' - ');
         return frequencyInWords;
@@ -441,7 +441,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     const medicationData = caseManagerData.medicine?.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], [])
 
     const formatUnitPerDose = (tmm_dosage) => {
-        const unitPerDoseFormat = medicine_freq_dosage_format(tmm_dosage);
+        const unitPerDoseFormat = medicine_freq_dosage_format(tmm_dosage, caseManagerData?.doctor_data?.dp_id);
         return unitPerDoseFormat;
     }
 
@@ -1450,9 +1450,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                                         ?item.tmf_block === 0 || item.tmf_block === ""
                                                                                                             ? item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night
                                                                                                                 ? option?.numeric_frequency
-                                                                                                                    ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${
-                                                                                                                        item.tcm_tmm_freq_evening ? " - " + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ""
-                                                                                                                    } - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}`
+                                                                                                                    ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning, caseManagerData?.doctor_data?.dp_id) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon, caseManagerData?.doctor_data?.dp_id) : 0}${
+                                                                                                                        item.tcm_tmm_freq_evening ? " - " + medicine_freq_dosage_format(item.tcm_tmm_freq_evening, caseManagerData?.doctor_data?.dp_id) : ""
+                                                                                                                    } - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night, caseManagerData?.doctor_data?.dp_id) : 0}`
                                                                                                                     : formatFrequency(
                                                                                                                         item.tcm_tmm_freq_morning,
                                                                                                                         item.tcm_tmm_freq_afternoon,
@@ -1542,9 +1542,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                                         ?item.tmf_block === 0 || item.tmf_block === ""
                                                                                                             ? item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night
                                                                                                                 ? option?.numeric_frequency
-                                                                                                                    ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${
-                                                                                                                        item.tcm_tmm_freq_evening ? " - " + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ""
-                                                                                                                    } - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}`
+                                                                                                                    ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning, caseManagerData?.doctor_data?.dp_id) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon, caseManagerData?.doctor_data?.dp_id) : 0}${
+                                                                                                                        item.tcm_tmm_freq_evening ? " - " + medicine_freq_dosage_format(item.tcm_tmm_freq_evening, caseManagerData?.doctor_data?.dp_id) : ""
+                                                                                                                    } - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night, caseManagerData?.doctor_data?.dp_id) : 0}`
                                                                                                                     : formatFrequency(
                                                                                                                         item.tcm_tmm_freq_morning,
                                                                                                                         item.tcm_tmm_freq_afternoon,
@@ -1659,7 +1659,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                 )}
                                                                                 {option?.medicine_option?.includes('frequency') && (
                                                                                 <Text style={[styles.cell, { flex: 0.6, color: '#171725', fontFamily: getFont(), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
-                                                                                    {item.tmf_block === 0 || item.tmf_block === "" ? `${(item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night) ? (option?.numeric_frequency) ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${item.tcm_tmm_freq_evening ? ' - ' + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ''} - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}` : formatFrequency(item.tcm_tmm_freq_morning, item.tcm_tmm_freq_afternoon,item.tcm_tmm_freq_evening,item.tcm_tmm_freq_night) : `-`}` : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.[frequencyLang()] : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time)?.[timeingLang()] : ''}
+                                                                                    {item.tmf_block === 0 || item.tmf_block === "" ? `${(item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night) ? (option?.numeric_frequency) ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning, caseManagerData?.doctor_data?.dp_id) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon, caseManagerData?.doctor_data?.dp_id) : 0}${item.tcm_tmm_freq_evening ? ' - ' + medicine_freq_dosage_format(item.tcm_tmm_freq_evening, caseManagerData?.doctor_data?.dp_id) : ''} - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night, caseManagerData?.doctor_data?.dp_id) : 0}` : formatFrequency(item.tcm_tmm_freq_morning, item.tcm_tmm_freq_afternoon,item.tcm_tmm_freq_evening,item.tcm_tmm_freq_night) : `-`}` : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.[frequencyLang()] : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time)?.[timeingLang()] : ''}
                                                                                 </Text>
                                                                                 )}
                                                                                 {option?.medicine_option?.includes('duration') && (

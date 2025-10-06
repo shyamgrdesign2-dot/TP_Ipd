@@ -2,7 +2,7 @@ import moment from "moment";
 
 import config from "../config";
 import { message } from "antd";
-import { MESSAGE_KEY, SNAP_RX_TOKENS_STORAGE_KEY } from "../utils/constants";
+import { MESSAGE_KEY, NEO_NATOLOGISTS_DP_ID, PAEDIATRICS_DP_ID, SNAP_RX_TOKENS_STORAGE_KEY } from "../utils/constants";
 import { browserName, deviceDetect, isBrowser } from "react-device-detect";
 import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
@@ -264,7 +264,10 @@ export const frequencyCombination = (text) => {
   return makeArray;
 };
 
-export const medicine_freq_dosage_format = (freqDosage) => {
+export const medicine_freq_dosage_format = (freqDosage, dpId) => {
+  if (dpId == PAEDIATRICS_DP_ID || dpId == NEO_NATOLOGISTS_DP_ID) {
+    return freqDosage;
+  } 
   var value = "";
   if (freqDosage == "0.5") {
     value = `1/2`;
