@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button, Tooltip, Spin } from "antd";
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import axios from "axios";
@@ -31,6 +31,8 @@ const ZydusLabParams = ({
         tests: {}
     });
     const [loading, setLoading] = useState(false);
+    const [selectedDates, setSelectedDates] = useState([]);
+    const [hasUserInteracted, setHasUserInteracted] = useState(false);
 
     useEffect(() => {
         const storedToken = localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN);
@@ -50,6 +52,14 @@ const ZydusLabParams = ({
             organizeData();
         }
     }, [labResults]);
+
+    // Set first 2 dates as default selection when data is organized (only if user hasn't interacted)
+    useEffect(() => {
+        if (organizedData.dates.length > 0 && selectedDates.length === 0 && !hasUserInteracted) {
+            const defaultDates = organizedData.dates.slice(0, Math.min(2, organizedData.dates.length));
+            setSelectedDates(defaultDates);
+        }
+    }, [organizedData.dates, selectedDates.length, hasUserInteracted]);
 
     const organizeData = () => {
         // Get unique dates and sort them in descending order (newest first)
@@ -125,6 +135,24 @@ const ZydusLabParams = ({
             ...prev,
             [serviceName]: !prev[serviceName]
         }));
+    };
+
+    const handleDateSelection = (date, checked) => {
+        setHasUserInteracted(true);
+        setSelectedDates(prev => {
+            if (checked) {
+                if (prev.includes(date)) {
+                    return prev;
+                }
+                if (prev.length >= 5) {
+                    return prev;
+                }
+                return [...prev, date];
+            } else {
+                const newDates = prev.filter(d => d !== date);
+                return newDates;
+            }
+        });
     };
 
     const handleDeleteDataModal = () => {
@@ -540,55 +568,55 @@ const ZydusLabParams = ({
         return "-";
     };
 
-    const preparePayload = () => {
+    const preparePayload = useCallback(() => {
         // Create a map to group inputs by date
         const dateMap = new Map();
 
-        // Process each selected item
+        let datesToInclude = selectedDates;
+        // Process each selected test report for each selected date
         Object.entries(selectedItems).forEach(([key, data]) => {
-            // Process each parameter data entry
-            data.parameterData.forEach(paramData => {
-                const date = paramData.date;
-
-                if (!dateMap.has(date)) {
-                    dateMap.set(date, []);
+            // For each selected date, create an entry for this test report
+            datesToInclude.forEach(formattedDate => {
+                const originalDate = moment(formattedDate, "DD MMM, YYYY").format("DD-MM-YYYY");
+                // Ensure date exists in map
+                if (!dateMap.has(originalDate)) {
+                    dateMap.set(originalDate, []);
                 }
-
+                // Find if there's actual data for this test report on this date
+                const paramDataForDate = data.parameterData.find(p => p.date === originalDate);
                 // Check if this is a service with parameters
                 if (key.includes('_')) {
                     // This is a parameter of a service
                     const [serviceName, paramName] = key.split('_');
 
                     // Check if we already have this service in the inputs for this date
-                    let existingServiceIndex = dateMap.get(date).findIndex(
+                    let existingServiceIndex = dateMap.get(originalDate).findIndex(
                         input => input.serviceName === serviceName
                     );
 
                     if (existingServiceIndex === -1) {
                         // Add new service with parameter
-                        // For services with parameters, we need to get the main service's resultvalue from the raw data
-                        // Find the corresponding service data for this date from organizedData
-                        const serviceDateData = organizedData.tests[serviceName]?.dates[moment(date, "DD-MM-YYYY").format("DD MMM, YYYY")];
+                        const serviceDateData = organizedData.tests[serviceName]?.dates[formattedDate];
                         
-                        dateMap.get(date).push({
+                        dateMap.get(originalDate).push({
                             referenceRange: serviceDateData?.referenceRange || data.serviceData.referenceRange || "-",
                             serviceCode: data.serviceData.serviceCode,
-                            sampleId: paramData.sampleId,
-                            certifiedDate: paramData.certifiedDate,
+                            sampleId: paramDataForDate?.sampleId || "-",
+                            certifiedDate: paramDataForDate?.certifiedDate || originalDate,
                             serviceName: serviceName,
-                            resultvalue: serviceDateData?.resultvalue || "-", // ✅ FIX: Use date-specific service resultvalue
+                            resultvalue: serviceDateData?.resultvalue || "-",
                             labResultParameters: [{
-                                resultValue: paramData.resultValue,
-                                referenceRange: paramData.referenceRange,
-                                labResultParameterId: paramData.labResultParameterId,
+                                resultValue: paramDataForDate?.resultValue || "-",
+                                referenceRange: paramDataForDate?.referenceRange || "-",
+                                labResultParameterId: paramDataForDate?.labResultParameterId || null,
                                 parameterName: paramName,
                                 status: true
                             }],
-                            labResultId: paramData.labResultId
+                            labResultId: paramDataForDate?.labResultId || null
                         });
                     } else {
                         // Add parameter to existing service
-                        const existingService = dateMap.get(date)[existingServiceIndex];
+                        const existingService = dateMap.get(originalDate)[existingServiceIndex];
                         
                         // Check if this parameter already exists to avoid duplicates
                         const paramExists = existingService.labResultParameters.some(
@@ -597,9 +625,9 @@ const ZydusLabParams = ({
                         
                         if (!paramExists) {
                             existingService.labResultParameters.push({
-                                resultValue: paramData.resultValue,
-                                referenceRange: paramData.referenceRange,
-                                labResultParameterId: paramData.labResultParameterId,
+                                resultValue: paramDataForDate?.resultValue || "-",
+                                referenceRange: paramDataForDate?.referenceRange || "-",
+                                labResultParameterId: paramDataForDate?.labResultParameterId || null,
                                 parameterName: paramName,
                                 status: true
                             });
@@ -607,16 +635,24 @@ const ZydusLabParams = ({
                     }
                 } else {
                     // This is a service without parameters
-                    dateMap.get(date).push({
-                        referenceRange: paramData.referenceRange || data.serviceData.referenceRange,
-                        serviceCode: data.serviceData.serviceCode,
-                        sampleId: paramData.sampleId,
-                        certifiedDate: paramData.certifiedDate,
-                        serviceName: key,
-                        resultvalue: paramData.resultValue, // ✅ FIX: Use date-specific resultValue from paramData
-                        labResultId: paramData.labResultId,
-                        status: true
-                    });
+                    const serviceDateData = organizedData.tests[key]?.dates[formattedDate];
+                    // Check if already exists to avoid duplicates
+                    const serviceExists = dateMap.get(originalDate).some(
+                        input => input.serviceName === key
+                    );
+                    if (!serviceExists) {
+                        dateMap.get(originalDate).push({
+                            referenceRange: serviceDateData?.referenceRange || data.serviceData.referenceRange || "-",
+                            serviceCode: data.serviceData.serviceCode,
+                            sampleId: paramDataForDate?.sampleId || "-",
+                            certifiedDate: paramDataForDate?.certifiedDate || originalDate,
+                            serviceName: key,
+                            resultvalue: serviceDateData?.resultvalue || paramDataForDate?.resultValue || "-",
+                            labResultParameters: [],
+                            labResultId: paramDataForDate?.labResultId || null,
+                            status: true
+                        });
+                    }
                 }
             });
         });
@@ -635,11 +671,45 @@ const ZydusLabParams = ({
         };
 
         return payload;
-    };
+    }, [selectedDates, selectedItems, organizedData, patientId, mrcNo]);
+
+    // Update display data immediately when selectedDates changes
+    useEffect(() => {
+        // Only update if we have organized data and selected items
+        if (organizedData.dates.length > 0 && Object.keys(selectedItems).length > 0) {
+            // Use useCallback to prevent infinite loops
+            const updateDisplayData = () => {
+                const updatedData = preparePayload();
+                if (updatedData && updatedData.data) {
+                    setZydusSelectedLabParams(updatedData.data);
+                } else {
+                    // If no data, still show empty structure rather than completely empty
+                    setZydusSelectedLabParams([]);
+                }
+            };
+            // Debounce the update to prevent rapid calls
+            const timeoutId = setTimeout(updateDisplayData, 100);
+            return () => clearTimeout(timeoutId);
+        } else if (selectedDates.length === 0) {
+            // Clear the data when no dates are selected
+            setZydusSelectedLabParams([]);
+        }
+    }, [selectedDates, selectedItems, organizedData.dates.length, preparePayload]); // Added preparePayload dependency
 
     const handleSave = async () => {
         try {
-            // 1. Prepare payload
+            if (selectedDates.length === 0 && !labReportID) {
+                console.error("No dates selected for new report");
+                return;
+            }
+            if (organizedData.dates.length === 0) {
+                console.error("No lab data available");
+                return;
+            }
+            if (selectedDates.length > 5) {
+                console.error("Maximum 5 dates can be selected");
+                return;
+            }
             const payload = preparePayload();
             if (!payload || !payload.data || !Array.isArray(payload.data)) {
                 console.error("❌ Invalid or empty payload");
@@ -852,6 +922,11 @@ const ZydusLabParams = ({
                 if (previousData) {
                     const transformedSelections = transformPreviousSelections(previousData);
                     setSelectedItems(transformedSelections);
+                    // Restore selected dates from previous selection
+                    const previousDates = previousData.data.map(dateData => {
+                        return moment(dateData.date, "DD-MM-YYYY").format("DD MMM, YYYY");
+                    });
+                    setSelectedDates(previousDates);
 
                     // Automatically expand sections that have selected parameters
                     const expandedSectionsToSet = {};
@@ -881,6 +956,11 @@ const ZydusLabParams = ({
                 if (previousData) {
                     const transformedSelections = transformPreviousSelections(previousData);
                     setSelectedItems(transformedSelections);
+                    // Restore selected dates from previous selection
+                    const previousDates = previousData.data.map(dateData => {
+                        return moment(dateData.date, "DD-MM-YYYY").format("DD MMM, YYYY");
+                    });
+                    setSelectedDates(previousDates);
 
                     // Automatically expand sections that have selected parameters
                     const expandedSectionsToSet = {};
@@ -962,11 +1042,36 @@ const ZydusLabParams = ({
                     />
                     <div className="modal-title">Zydus Test Reports</div>
                 </div>
-                <Button className='btn btn-primary3 btn-41 px-4 me-20' onClick={handleSave}>
+                <Button 
+                    className='btn btn-primary3 btn-41 px-4 me-20' 
+                    onClick={handleSave}
+                    disabled={organizedData.dates.length === 0 || (selectedDates.length === 0 && !labReportID)}
+                >
                     <i className="icon-Save me-2"></i>
                     Save
                 </Button>
             </div>
+            {organizedData.dates.length > 0 && !loading && selectedDates.length >= 5 && (
+                <div style={{ 
+                    padding: "16px 20px", 
+                    backgroundColor: "#fafafa",
+                    borderBottom: "2px solid #e8e8e8"
+                }}>
+                    <div style={{ 
+                        padding: "8px 12px",
+                        backgroundColor: "#FFF3E0",
+                        border: "1px solid #FFB74D",
+                        borderRadius: "6px",
+                        display: "flex",
+                        alignItems: "center",
+                        fontSize: "13px",
+                        color: "#E65100"
+                    }}>
+                        <i className="icon-info me-2"></i>
+                        Maximum 5 dates can be selected. Uncheck a date to select another.
+                    </div>
+                </div>
+            )}
 
             <div style={{ 
                 overflowX: "auto", 
@@ -1014,7 +1119,23 @@ const ZydusLabParams = ({
                                         fontWeight: "600",
                                         fontSize: "14px"
                                     }}>
-                                        <div className="date-values" style={{ textWrap: "nowrap" }}>
+                                        <div className="date-values" style={{ 
+                                            textWrap: "nowrap",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "8px"
+                                        }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedDates.includes(date)}
+                                                disabled={selectedDates.length >= 5 && !selectedDates.includes(date)}
+                                                onChange={(e) => handleDateSelection(date, e.target.checked)}
+                                                style={{ 
+                                                    cursor: selectedDates.length >= 5 && !selectedDates.includes(date) ? "not-allowed" : "pointer",
+                                                    width: "16px",
+                                                    height: "16px"
+                                                }}
+                                            />
                                             <span>{date}</span>
                                         </div>
                                     </th>
