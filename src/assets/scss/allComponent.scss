@@ -358,6 +358,12 @@
     margin-right: 20px;
     width: calc(100vw - 50px);
   }
+  
+  &.bg-white {
+    .ant-select-selector {
+      background: #ffffff !important;   // ✅ override when bg-white class is added
+    }
+  }
 }
 .autoselect-medrx-readonly {
   .ant-select-arrow {
@@ -3079,6 +3085,13 @@ body.sticky-search-open {
   border-bottom-right-radius: 0;
   border: 1px solid #dee2e6 !important;
 }
+.ipd-wrapper-class-medbox {
+  background: rgba(248, 244, 252, 1);
+  border-radius: 12px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  // border: 1px solid #dee2e6 !important;
+}
 .ipd-wrapper-class-medbox-tbody-readonly {
   border-radius: 12px;
   border-top-left-radius: 0;
@@ -3088,8 +3101,8 @@ body.sticky-search-open {
   overflow: hidden;
 }
 .ipd-wrapper-class-medbox-readonly {
-  margin: 0 18px !important;
-  padding: 10px 0 18px !important;
+  width: 100%;
+  padding: 10px 0 10px 0 !important;
 }
 
 .ipd-wrapper-class-readonly {
