@@ -1125,8 +1125,8 @@ function MedicationsBox() {
                                     <Select
                                       className="autocomplete-custom w-100 h-100 inputborder"
                                       placeholder="e.g Before Food"
-                                      defaultValue={item.tmm_time_name != "" ? item.tmm_time_name : null}
-                                      value={item.tmm_time_name != "" ? item.tmm_time_name : null}
+                                      defaultValue={item.tmm_time_name != "" && item.tmm_time_name !== "None" ? item.tmm_time_name : null}
+                                      value={item.tmm_time_name != "" && item.tmm_time_name !== "None" ? item.tmm_time_name : null}
                                       onSelect={(data) => onSelectTimingChild(data, item?.index)}
                                       options={timingList.map((e) => {
                                         return {
