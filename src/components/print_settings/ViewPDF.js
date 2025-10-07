@@ -2340,7 +2340,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                     {item?.tvp_remarks}
                                                                                 </Text>
                                                                             </Text>}
-                                                                        <Text key={i} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')\n'}</Text>
+                                                                        <Text key={i} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')'}{i !== transformGivenVaccines?.length - 1 ? ', ' : ''}</Text>
                                                                     </Text>
                                                                 )
                                                             })}
@@ -2364,7 +2364,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                     {item?.tvd_remarks}
                                                                                 </Text>
                                                                             </Text>}
-                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')\n'}</Text>
+                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')'}{i !== todayVaccines?.due?.length - 1 ? ', ' : ''}</Text>
                                                                     </Text>
                                                                 )
                                                             })}
