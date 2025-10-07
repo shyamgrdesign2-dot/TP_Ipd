@@ -1468,3 +1468,36 @@ export const getSupportedMimeType = () => {
 };
 
 export const isApollo = () => env?.APOLLO_BUSINESS_IDS?.includes(getTokenData()?.hospital_business_id);
+
+// List of specific doctors who should see "Tatva Care Platform" branding
+const TATVACARE_DOCTORS = [
+  "NMQAvpjb7nPRYBh",
+  "7RULp5rlfWF8JC6",
+];
+
+// Helper function to determine if current doctor should use TatvaCare platform
+export const shouldUseTatvaCare = () => {
+  // Get user ID from localStorage or token
+  const token = localStorage.getItem('persistant.storage.key.auth-token');
+  if (!token) return false;
+  
+  try {
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    const doctorId = decodedToken?.result?.doctor_unique_id;
+    
+    // Check if this doctor is in the TatvaCare list
+    return TATVACARE_DOCTORS.includes(doctorId);
+  } catch (error) {
+    return false;
+  }
+};
+
+// Helper function to get the platform name based on user type
+export const getPlatformName = () => {
+  return shouldUseTatvaCare() ? "Tatva Care Platform" : "Tatva Pedia";
+};
+
+// Helper function to get the platform name for welcome messages
+export const getWelcomePlatformName = () => {
+  return shouldUseTatvaCare() ? "Tatva Care Platform" : "TatvaPractice";
+};
