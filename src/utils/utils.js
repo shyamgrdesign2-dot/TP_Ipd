@@ -1473,6 +1473,7 @@ export const isApollo = () => env?.APOLLO_BUSINESS_IDS?.includes(getTokenData()?
 const TATVACARE_DOCTORS = [
   "NMQAvpjb7nPRYBh",
   "7RULp5rlfWF8JC6",
+  "9RplZSe-tEGFzQP"
 ];
 
 // Helper function to determine if current doctor should use TatvaCare platform
