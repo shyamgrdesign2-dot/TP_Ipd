@@ -264,10 +264,10 @@ export const frequencyCombination = (text) => {
   return makeArray;
 };
 
-export const medicine_freq_dosage_format = (freqDosage, dpId) => {
-  if (dpId == PAEDIATRICS_DP_ID || dpId == NEO_NATOLOGISTS_DP_ID) {
+export const medicine_freq_dosage_format = (freqDosage, is_dosage_decimal) => {
+  if (!!is_dosage_decimal) {
     return freqDosage;
-  } 
+  }
   var value = "";
   if (freqDosage == "0.5") {
     value = `1/2`;
