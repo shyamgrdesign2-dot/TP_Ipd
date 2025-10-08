@@ -1,3 +1,5 @@
+@import "../../assets/scss/shimmerLoader.scss";
+
 .dynamic-picker-container {
   --border: #ececf2;
   --muted: #a9a9b2;
@@ -6,6 +8,15 @@
 
   display: grid;
   gap: 16px;
+
+  .ant-select-selection-search {
+    .ant-select-selection-placeholder {
+      font-family: "Poppins", sans-serif !important;
+    }
+    span input {
+      font-family: "Poppins", sans-serif !important;
+    }
+  }
 }
 
 /* antd table theming to match the design */
@@ -13,7 +24,7 @@
   background: var(--bg);
   border-radius: 12px;
   overflow: hidden;
-  
+
   .ant-table {
     border-radius: 12px;
     th.ant-table-cell {
@@ -21,9 +32,13 @@
       border-bottom-right-radius: 0 !important;
     }
     .ant-table-cell {
-      input, .ant-select, .ant-picker {
+      input,
+      .ant-select,
+      .ant-picker {
         border: none !important;
-        &:focus, &.ant-select-focused, &.ant-picker-focused {
+        &:focus,
+        &.ant-select-focused,
+        &.ant-picker-focused {
           box-shadow: none !important;
           border: none !important;
           background-color: transparent !important;
@@ -35,7 +50,7 @@
       }
     }
   }
-  
+
   .ant-table-thead > tr > th {
     background: #fafafb;
     color: #4b4c56;
@@ -43,7 +58,7 @@
     border-bottom: 1px solid var(--border);
     padding: 16px 12px;
   }
-  
+
   .ant-table-tbody > tr > td {
     padding: 18px 12px;
     border-bottom: 1px solid #f2f2f5;
@@ -54,7 +69,7 @@
     font-size: 14px;
     color: var(--text);
   }
-  
+
   .icd-cell {
     font-size: 14px;
     font-weight: 400;
@@ -113,22 +128,22 @@
     font-size: 12px;
     font-weight: 500;
     text-transform: uppercase;
-    
+
     &.badge-pn {
       background-color: #f3e8ff;
       color: #7c3aed;
     }
-    
+
     &.badge-cn {
       background-color: #dbeafe;
       color: #2563eb;
     }
-    
+
     &.badge-ot {
       background-color: #fef3c7;
       color: #d97706;
     }
-    
+
     &.badge-default {
       background-color: #f1f5f9;
       color: #64748b;
@@ -141,7 +156,7 @@
     width: 100%;
     height: 52px;
     padding: 0 2px;
-    
+
     .ant-input,
     .ant-select-selector {
       border-radius: 12px !important;
@@ -149,7 +164,7 @@
       border-color: #e5e6ee;
       background-color: #fff !important;
     }
-    
+
     .ant-input::placeholder {
       color: var(--muted);
     }
@@ -161,12 +176,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
+
   .option-title {
     font-weight: 500;
     color: var(--text);
   }
-  
+
   .option-subtitle {
     font-size: 12px;
     color: var(--muted);
@@ -222,16 +237,14 @@
   }
 }
 
-// Medication-specific styles
-.medication-picker-example {
-  .medication-name-cell {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    
-    .medication-name {
-      flex: 1;
-      font-weight: 500;
-    }
+.medication-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .medication-name {
+    @include fs12-semibold-text;
+    // flex: 1;
+    font-weight: 500;
   }
 }

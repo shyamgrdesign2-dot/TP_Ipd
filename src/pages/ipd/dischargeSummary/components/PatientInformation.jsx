@@ -46,7 +46,7 @@ const PatientInformation = (props) => {
               return (
                 <MemberChip
                   key={child.id}
-                  icon={defaultIcons.docIcon}
+                  icon={dischargeSummaryIcons[child.id]}
                   label={child.title}
                   value={value}
                 />

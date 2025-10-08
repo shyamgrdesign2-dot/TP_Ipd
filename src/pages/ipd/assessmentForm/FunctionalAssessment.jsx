@@ -10,6 +10,8 @@ import {
 } from "../../../redux/ipd/assessmentsFormSlice";
 import { isEmptyRichText } from "../../../utils/utils";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
+import { defaultIcons } from "../../../assets/images/icons";
+// import defaultIcons from "../../../assets/images/indices";
 
 const ASSESSMENT_CHILDREN_MAPPING = {
   bedActivity: "Bed Activity",
@@ -21,6 +23,7 @@ const ASSESSMENT_CHILDREN_MAPPING = {
 };
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
+const GenericCard = createRemoteComponent("GenericCard");
 
 const FunctionalAssessment = (props) => {
   const { referredDocForReview, functionalAssessmentData = [] } = useSelector(
@@ -35,7 +38,14 @@ const FunctionalAssessment = (props) => {
       setFunctionalAssessmentData({ ...functionalAssessmentData, others: data })
     );
   };
-  const { isEditable = true, sectionData, showCollapsibleWrapper= true, hideBorder= false } = props || {};
+  const {
+    isEditable = true,
+    sectionData,
+    showCollapsibleWrapper = true,
+    hideBorder = false,
+    isCollapsible = false,
+    showAddEditButton = false,
+  } = props || {};
 
   const handleAssessmentChange = (key, e, item) => {
     const selectedOption = item.options.find(
@@ -66,9 +76,9 @@ const FunctionalAssessment = (props) => {
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${hideBorder ? "ipddaso-hide-border" : ""} ${
-          !isEditable ? "ipd-wrapper-class-readonly" : ""
-        }`}
+        containerClass={`wrapper-class ${
+          hideBorder ? "ipddaso-hide-border" : ""
+        } ${!isEditable ? "ipd-wrapper-class-readonly" : ""}`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
@@ -287,6 +297,17 @@ const FunctionalAssessment = (props) => {
     return filtered;
   }, [functionalAssessmentData]);
 
+  const renderGenericCard = () => {
+    return (
+      <div onClick={() => props.onAddEditClick()}>
+        <GenericCard
+          icon={defaultIcons.editIcon}
+          title={"Add/Edit Functional Assessment"}
+        />
+      </div>
+    );
+  };
+
   if (
     !isEditable &&
     (!Object.keys(functionalAssessmentData)?.length ||
@@ -296,21 +317,28 @@ const FunctionalAssessment = (props) => {
     isEmptyRichText(functionalAssessmentData?.others)
   )
     return null;
+  console.log("INTEL ==> showCollapsibleWrapper", showCollapsibleWrapper);
   return (
     <>
-      {showCollapsibleWrapper ? <CollapsibleWrapper
-        title={sectionData?.title}
-        data-testid={sectionData?.id}
-        icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
-        collapsible={isEditable}
-        width={"100%"}
-        className={`collapsible-wrapper-class ${
-          isEditable ? "" : "collapsible-wrapper-class-readonly"
-        }`}
-        defaultOpen
-      >
-        {renderChildren()}
-      </CollapsibleWrapper> : renderChildren()}
+      {showCollapsibleWrapper ? (
+        <CollapsibleWrapper
+          title={sectionData?.title}
+          data-testid={sectionData?.id}
+          icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
+          collapsible={isEditable || isCollapsible}
+          width={"100%"}
+          className={`collapsible-wrapper-class ${
+            isEditable ? "" : "collapsible-wrapper-class-readonly"
+          }`}
+          defaultOpen
+        >
+          {renderChildren()}
+          {/* {renderGeneri} */}
+          {showAddEditButton && renderGenericCard()}
+        </CollapsibleWrapper>
+      ) : (
+        renderChildren()
+      )}
     </>
   );
 };

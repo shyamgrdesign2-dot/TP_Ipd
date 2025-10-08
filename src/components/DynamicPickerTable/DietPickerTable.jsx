@@ -133,20 +133,42 @@ const DietPickerTable = ({ isEditable = true }) => {
 
   return (
     <div style={{ width: "100%" }}>
-      <DynamicPickerTable
-        ref={tableRef}
-        isEditable={isEditable}
-        columns={columns}
-        initialData={dietData}
-        searchConfig={searchConfig}
-        onSearch={handleSearch}
-        onRowChange={handleRowChange}
-        onRowAdd={handleRowAdd}
-        onRowDelete={handleRowDelete}
-        emptyText="No diet recommendations added"
-        searchPlaceholder="Search Diet by Name"
-        rootClassName="diet-picker-table"
-      />
+      {dietData.length > 0 ? (
+        <DynamicPickerTable
+          ref={tableRef}
+          isEditable={isEditable}
+          columns={columns}
+          initialData={dietData}
+          searchConfig={searchConfig}
+          onSearch={handleSearch}
+          onRowChange={handleRowChange}
+          onRowAdd={handleRowAdd}
+          onRowDelete={handleRowDelete}
+          emptyText="No diet recommendations added"
+          searchPlaceholder="Search Diet by Name"
+          rootClassName="diet-picker-table"
+        />
+      ) : (
+        isEditable && (
+          <div className="diet-picker-search-only">
+            <DynamicPickerTable
+              ref={tableRef}
+              isEditable={isEditable}
+              columns={columns}
+              initialData={[]}
+              searchConfig={searchConfig}
+              onSearch={handleSearch}
+              onRowChange={handleRowChange}
+              onRowAdd={handleRowAdd}
+              onRowDelete={handleRowDelete}
+              emptyText="No diet recommendations added"
+              searchPlaceholder="Search Diet by Name"
+              rootClassName="diet-picker-table diet-picker-search-only"
+              hideTableWhenEmpty={true}
+            />
+          </div>
+        )
+      )}
     </div>
   );
 };

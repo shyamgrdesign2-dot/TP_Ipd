@@ -33,7 +33,8 @@ const Customization = createRemoteComponent("Customization");
 const FilledByCard = createRemoteComponent("FilledByCard");
 
 const OtNotes = (props) => {
-  const { hideLayoutWithMenu = false, isEditable : isEditableProp = true } = props;
+  const { hideLayoutWithMenu = false, isEditable: isEditableProp = true } =
+    props;
   const dispatch = useDispatch();
   const { state } = useLocation();
   const {
@@ -41,6 +42,7 @@ const OtNotes = (props) => {
     patientDetails,
     isEditable: isEditableState = true,
     isNew = false,
+    fromDischargeSummary = false,
   } = state || {};
   const isEditable = isEditableProp && isEditableState;
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
@@ -58,8 +60,6 @@ const OtNotes = (props) => {
   const [modelData, setModelData] = useState(
     otNotes.length > 0 ? otNotes : IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE
   );
-
-  console.log('iNTEL ==> DATA', otNotesData)
 
   useEffect(() => {
     if (otNotes.length > 0) {
@@ -124,7 +124,6 @@ const OtNotes = (props) => {
       return null;
     }
 
-    console.log('INTEL ==> isEditabled', isEditable)
     return (
       <div className="ipd-otnotes-editable-section-container">
         {(() => {
@@ -241,6 +240,18 @@ const OtNotes = (props) => {
           _id: otNotesState.currentOtNoteId,
         })
       );
+      if (fromDischargeSummary) {
+        navigate(-1, {
+          state: {
+            patient_data,
+            patientDetails,
+            isEditable: true,
+            activeTab: "dischargeSummary",
+          },
+          replace: true,
+        });
+        return;
+      }
       navigate("/ipd/patient-details", {
         state: {
           isEditable: false,
@@ -333,9 +344,9 @@ const OtNotes = (props) => {
             }`}
             style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
           >
-            {open && modelData && (
-              !hideLayoutWithMenu ? (
-
+            {open &&
+              modelData &&
+              (!hideLayoutWithMenu ? (
                 <LayoutWithMenu
                   onCustomiseClick={() => setShowCustomisationDrawer(true)}
                   key="otNotes"
@@ -364,14 +375,11 @@ const OtNotes = (props) => {
                   headerOffset={72}
                   onMenuItemClick={onMenuItemClick}
                 />
-              ) : (
-                otNotes.length > 0
-                ? otNotes.map((item) => {
-                    return renderSections(item);
-                  })
-                : null
-              )
-            )}
+              ) : otNotes.length > 0 ? (
+                otNotes.map((item) => {
+                  return renderSections(item);
+                })
+              ) : null)}
           </div>
         )}
       </Suspense>

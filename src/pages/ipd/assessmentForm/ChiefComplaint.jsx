@@ -65,7 +65,6 @@ const ChiefComplaint = (props) => {
       setAutoFillTextToAppend(chiefComplaintFromLastPrescription);
     }
   };
-  console.log('INTEL ==> WAITTT', chiefComplaint)
 
   const isLastChiefComplaintPresent = useMemo(() => {
     return (

@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, createListenerMiddleware } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import { combineReducers } from "redux";
 import storage from "redux-persist/lib/storage";
@@ -40,8 +40,8 @@ import consultantNotesSlice from "./ipd/consultantNotesSlice";
 import progressNotesSlice from "./ipd/progressNotesSlice";
 import medicalRecordsSlice from "./ipd/medicalRecordsSlice";
 import labResultsSlice from "./ipd/labResultsSlice";
-import dischargeSummarySlice from "./ipd/dischargeSummarySlice";
 import printSettingsSlice from "./ipd/printSettingsSlice";
+import dischargeSummarySlice, { setSurgeriesPerformed } from "./ipd/dischargeSummarySlice";
 
 const persistConfig = {
   key: "root",
@@ -93,13 +93,64 @@ const rootReducer = combineReducers({
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
+// Create listener middleware
+const listenerMiddleware = createListenerMiddleware();
+
+// Function to transform otNotesData to surgeries performed array
+const transformOtNotesToSurgeriesPerformed = (otNotesData) => {
+  if (!Array.isArray(otNotesData) || otNotesData.length === 0) {
+    return [];
+  }
+
+  return otNotesData.map((item, index) => {
+    const key = item.key || item.id || item.title || `surgery_${index}`;
+    const procedureName = item?.otNotes?.surgeryDetails?.procedureName;
+    const surgeryDate = item?.otNotes?.surgeryDetails?.surgeryDate;
+    
+    // Handle procedureName as array (join with comma) or string
+    const procedureText = Array.isArray(procedureName) 
+      ? procedureName.join(', ') 
+      : procedureName || '';
+    
+    // Create a text representation for display
+    const displayText = surgeryDate 
+      ? `${procedureText} (${surgeryDate})`
+      : procedureText;
+    
+    return {
+      key,
+      text: displayText,
+      procedureName: Array.isArray(procedureName) ? procedureName : (procedureName ? [procedureName] : []),
+      surgeryDate: surgeryDate || "",
+      surgeryStartTime: item?.otNotes?.surgeryDetails?.surgeryStartTime || "",
+      surgeryEndTime: item?.otNotes?.surgeryDetails?.surgeryEndTime || ""
+    };
+  });
+};
+
+// Add listener for otNotesData changes
+listenerMiddleware.startListening({
+  predicate: (action, currentState, previousState) => {
+    // Listen for any action that might change otNotesData
+    return currentState.otNotes?.otNotesData !== previousState?.otNotes?.otNotesData;
+  },
+  effect: (action, listenerApi) => {
+    const state = listenerApi.getState();
+    const otNotesData = state.otNotes?.otNotesData;
+    
+    // Transform the data and dispatch to discharge summary
+    const surgeriesPerformed = transformOtNotesToSurgeriesPerformed(otNotesData);
+    listenerApi.dispatch(setSurgeriesPerformed(surgeriesPerformed));
+  },
+});
+
 const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       immutableCheck: false,
       serializableCheck: false,
-    }),
+    }).prepend(listenerMiddleware.middleware),
 });
 
 const persistor = persistStore(store);

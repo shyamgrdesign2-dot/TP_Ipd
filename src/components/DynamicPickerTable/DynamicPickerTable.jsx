@@ -28,6 +28,35 @@ import dayjs from "dayjs";
 
 const RowDndContext = React.createContext(null);
 
+// Table Shimmer Component
+const TableShimmerLoader = ({ columns = [] }) => {
+  const shimmerRows = Array.from({ length: 3 }, (_, index) => index);
+  
+  return (
+    <div className="sc-shimmer-container-table">
+      {shimmerRows.map((_, rowIndex) => (
+        <div key={rowIndex} className="shimmer-row" style={{
+          display: 'grid',
+          gridTemplateColumns: `56px ${columns.map(() => '1fr').join(' ')} 56px`,
+          gap: '16px',
+          marginBottom: '16px'
+        }}>
+          {/* Drag handle column */}
+          <div className="shimmer-cell" style={{ width: '24px', height: '20px' }} />
+          
+          {/* Data columns */}
+          {columns.map((_, colIndex) => (
+            <div key={colIndex} className="shimmer-cell" />
+          ))}
+          
+          {/* Delete button column */}
+          <div className="shimmer-cell" style={{ width: '24px', height: '20px' }} />
+        </div>
+      ))}
+    </div>
+  );
+};
+
 function DraggableRow(props) {
   const { "data-row-key": rowKey, style, ...rest } = props;
   const sortable = useSortable({ id: rowKey });
@@ -92,11 +121,13 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
     onRowAdd,
     emptyText = "No data added",
     searchPlaceholder = "Search...",
+    loading = false,
+    hideTableWhenEmpty = false,
   } = props || {};
 
   const [query, setQuery] = useState("");
   const [options, setOptions] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [rows, setRows] = useState(initialData);
   const [debounceTimer, setDebounceTimer] = useState(null);
 
@@ -157,7 +188,7 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
         return;
       }
 
-      setLoading(true);
+      setSearchLoading(true);
       try {
         const results = await onSearch(val);
         
@@ -184,7 +215,7 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
         console.error("Search error:", error);
         setOptions([]);
       } finally {
-        setLoading(false);
+        setSearchLoading(false);
       }
     },
     [onSearch, searchConfig]
@@ -367,33 +398,60 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
 
   return (
     <div className={`dynamic-picker-container ${rootClassName}`}>
-      {rows?.length && isEditable ? (
-        <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-          <SortableContext
-            items={itemsIds}
-            strategy={verticalListSortingStrategy}
-          >
-            <Table
-              className="dynamic-picker-table"
-              rowKey="key"
-              components={components}
-              columns={tableColumns}
-              bordered
-              dataSource={rows}
-              pagination={false}
-              locale={{
-                emptyText: (
-                  <Empty
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    description={emptyText}
-                  />
-                ),
-              }}
-              scroll={{ x: true }}
-            />
-          </SortableContext>
-        </DndContext>
-      ) : !isEditable && rows?.length ? (
+      {loading ? (
+        <TableShimmerLoader columns={columns} />
+      ) : isEditable ? (
+        <>
+          {/* Show table only if there's data or hideTableWhenEmpty is false */}
+          {(rows.length > 0 || !hideTableWhenEmpty) && (
+            <DndContext sensors={sensors} onDragEnd={onDragEnd}>
+              <SortableContext
+                items={itemsIds}
+                strategy={verticalListSortingStrategy}
+              >
+                <Table
+                  className="dynamic-picker-table"
+                  rowKey="key"
+                  components={components}
+                  columns={tableColumns}
+                  bordered
+                  dataSource={rows}
+                  pagination={false}
+                  locale={{
+                    emptyText: (
+                      <Empty
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        description={emptyText}
+                      />
+                    ),
+                  }}
+                  scroll={{ x: true }}
+                />
+              </SortableContext>
+            </DndContext>
+          )}
+          
+          {onSearch && (
+            <div className="dynamic-picker-search">
+              <AutoComplete
+                value={query}
+                options={options}
+                onSearch={handleSearch}
+                onSelect={handleSelect}
+                onChange={setQuery}
+                defaultActiveFirstOption={true}
+                placeholder={searchPlaceholder}
+                className="dynamic-picker-search-input"
+                popupClassName={!query && "boxpopup"}
+                allowClear
+                filterOption={false}
+                loading={searchLoading}
+                prefix={<i className="icon-search"></i>}
+              />
+            </div>
+          )}
+        </>
+      ) : (
         <Table
           className="dynamic-picker-table"
           rowKey="key"
@@ -411,26 +469,6 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
           }}
           scroll={{ x: true }}
         />
-      ) : null}
-
-      {isEditable && onSearch && (
-        <div className="dynamic-picker-search">
-          <AutoComplete
-            value={query}
-            options={options}
-            onSearch={handleSearch}
-            onSelect={handleSelect}
-            onChange={setQuery}
-            defaultActiveFirstOption={true}
-            placeholder={searchPlaceholder}
-            className="dynamic-picker-search-input"
-            popupClassName={!query && "boxpopup"}
-            allowClear
-            filterOption={false}
-            loading={loading}
-            prefix={<i className="icon-search"></i>}
-          />
-        </div>
       )}
     </div>
   );

@@ -33,7 +33,6 @@ export const DiagnosisSummaryList = (props) => {
     (state) => state.dischargeSummary
   );
   const { provisionalDiagnosis = [] } = dischargeSummaryData?.diagnosisAndSurgery || {};
-  console.log('INTEL ==> provisionalDiagnosis', dischargeSummaryData, provisionalDiagnosis)
   if (!provisionalDiagnosis?.length) return null;
 
   return (
@@ -178,7 +177,6 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
     }
   };
 
-  console.log("INTEL ==> ROWS", rows);
 
   const onSearch = (val) => {
     setQuery(val);

@@ -1,5 +1,8 @@
 .ot-notes-timeline-container {
   margin-bottom: 50px;
+  .ot-notes-content-lite {
+    margin-bottom: 0 !important;
+  }
   .ipdot-date-range-filter-container {
     width: max-content;
     max-width: 260px;

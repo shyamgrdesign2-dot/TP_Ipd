@@ -49,4 +49,24 @@ ApiDischargeSummary.getMockValues = function () {
   return api.get(`/discharged-summary/mock-values`, baseUrl);
 };
 
+ApiDischargeSummary.generateTreatmentNotes = function ({
+  patientId,
+  admissionId,
+}) {
+  let url = `/discharged-summary/generate-treatment-notes`;
+  if (patientId) url += `?patientId=${patientId}`;
+  if (admissionId) url += `${patientId ? '&' : '?'}admissionId=${admissionId}`;
+  return api.get(url, baseUrl);
+};
+
+ApiDischargeSummary.generateChronologicalSummary = function ({
+  patientId,
+  admissionId,
+}) {
+  let url = `/discharged-summary/generate-chronological-summary`;
+  if (patientId) url += `?patientId=${patientId}`;
+  if (admissionId) url += `${patientId ? '&' : '?'}admissionId=${admissionId}`;
+  return api.get(url, baseUrl);
+};
+
 export default ApiDischargeSummary;
