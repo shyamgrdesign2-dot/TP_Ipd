@@ -40,6 +40,7 @@ import consultantNotesSlice from "./ipd/consultantNotesSlice";
 import progressNotesSlice from "./ipd/progressNotesSlice";
 import medicalRecordsSlice from "./ipd/medicalRecordsSlice";
 import labResultsSlice from "./ipd/labResultsSlice";
+import printSettingsSlice from "./ipd/printSettingsSlice";
 import dischargeSummarySlice, { setSurgeriesPerformed } from "./ipd/dischargeSummarySlice";
 
 const persistConfig = {
@@ -87,6 +88,7 @@ const rootReducer = combineReducers({
   labResults: labResultsSlice,
   crossReferral: crossReferralSlice,
   dischargeSummary: dischargeSummarySlice,
+  printSettings: printSettingsSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

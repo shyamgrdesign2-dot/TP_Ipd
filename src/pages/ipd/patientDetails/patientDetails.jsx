@@ -1,4 +1,11 @@
-import React, { act, Suspense, useEffect, useMemo, useState, useRef } from "react";
+import React, {
+  act,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
 import { IPD } from "../../../utils/locale";
 import {
   formatDateToShortMonthYear,
@@ -55,6 +62,7 @@ import {
   getCrossReferralData,
   resetCrossReferralForm,
 } from "../../../redux/ipd/crossReferralSlice";
+import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -83,7 +91,10 @@ const IPDPatientDetails = () => {
   const { progressNotes } = useSelector((state) => state.progressNotes);
   const { medicalRecords } = useSelector((state) => state.medicalRecords);
   const { crossReferralData } = useSelector((state) => state.crossReferral);
-  const { dischargeSummaryData } = useSelector((state) => state.dischargeSummary);
+  const { dischargeSummaryData } = useSelector(
+    (state) => state.dischargeSummary
+  );
+  const { printSettings } = useSelector((state) => state.printSettings);
   const [open, setOpen] = useState(true);
   const [activeMenuItem, setActiveMenuItem] = useState("assessment");
   const [patientData, setPatientData] = useState(null);
@@ -162,23 +173,26 @@ const IPDPatientDetails = () => {
     });
   };
 
-  const handleAddLabResultsClick = () => {
-    navigate("/ipd/patient-details/lab-results", {
-      state: {
-        patient_data,
-        patientDetails,
-        isEditable: true,
-      },
-    });
-  };
-
   /* Functions realted to Medical records */
 
-  useEffect (()=>{
-    if (patient_data?.patient_unique_id) {
-      getAllPatientDocs( patient_data?.patient_unique_id , admissionId, "medical_records");
+  // Fetch print settings once when component mounts
+  useEffect(() => {
+    // Only fetch if print settings are not already loaded
+    if (!printSettings || Object.keys(printSettings).length === 0) {
+      dispatch(getPrintSettings());
     }
-  }, [patient_data?.patient_unique_id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (patient_data?.patient_unique_id) {
+      getAllPatientDocs(
+        patient_data?.patient_unique_id,
+        admissionId,
+        "medical_records"
+      );
+    }
+  }, [patient_data?.patient_unique_id]);
 
   // Drawer Medical Report
   const handleDrawerMedicalReport = () => {
@@ -197,7 +211,7 @@ const IPDPatientDetails = () => {
   const handleUploadDocPopup = () => {
     setShowUploadDocPopup((prev) => !prev);
   };
-  
+
   const handleMedicalRecordsClick = () => {
     handleDrawerUploadDoc();
     // navigate("/ipd/patient-details/medical-records", {
@@ -387,8 +401,8 @@ const IPDPatientDetails = () => {
       otNotesData.length > 0
     ) {
       return true;
-      } else if (activeMenuItem === "crossReferral") {
-        return !!crossReferralData?.length;
+    } else if (activeMenuItem === "crossReferral") {
+      return !!crossReferralData?.length;
     } else if (activeMenuItem === "dischargeSummary") {
       return !!dischargeSummaryData?.length;
     } else if (activeMenuItem === "consultantNotes") {
@@ -410,7 +424,7 @@ const IPDPatientDetails = () => {
     hasAnyAssessmentData,
     crossReferralData,
     medicalRecords,
-    dischargeSummaryData
+    dischargeSummaryData,
   ]);
 
   const onRequestClose = () => {
@@ -583,7 +597,9 @@ const IPDPatientDetails = () => {
                 filesData={filesData}
                 setFilesData={setFilesData}
                 patientData={patientData}
-                handleUploadDocPopup={() => setShowUploadDocPopup((prev) => !prev)}
+                handleUploadDocPopup={() =>
+                  setShowUploadDocPopup((prev) => !prev)
+                }
                 isAppointmentData={true}
                 isIPDMedicalRecords={true}
                 patientId={patientId}
