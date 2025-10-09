@@ -1068,7 +1068,7 @@ function MedicationsBox(props) {
                             </div>
                           </Col>
                           <Col lg={18} md={18} sm={18} xs={18}>
-                            {!item.pms_default &&
+                            {(!item.pms_default && isEditable) &&
                               <i className="icon-Edit fs-18 position-absolute" style={{ bottom: 0, left: -22 }}
                                 onClick={() => {
                                   const medicineType = medicineTypeList.find(x => x?.tmy_id == item?.tmm_type)

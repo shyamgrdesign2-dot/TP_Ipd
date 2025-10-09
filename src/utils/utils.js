@@ -1230,7 +1230,7 @@ export const mergeArraysOfObjects = (
 };
 
 export const isEmptyRichText = (richText) => {
-  return !richText?.length || richText?.[0]?.children?.[0]?.text === "";
+  return richText=== undefined || !richText?.length || richText?.[0]?.children?.[0]?.text?.trim() === "";
 };
 
 export const deepMergePreserveFirst = (obj1, obj2) => {

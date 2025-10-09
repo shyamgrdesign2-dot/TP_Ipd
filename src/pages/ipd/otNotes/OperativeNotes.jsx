@@ -3,6 +3,7 @@ import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setOperativeNotes } from "../../../redux/ipd/otNotesSlice";
+import { isEmptyRichText } from "../../../utils/utils";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -16,7 +17,7 @@ const OperativeNotes = (props) => {
     dispatch(setOperativeNotes({ key, value }));
   };
   const renderRichTextEditorSection = (data) => {
-    if (!isEditable && !operativeNotes?.[data?.id]) return null;
+    if (!isEditable && isEmptyRichText(operativeNotes?.[data?.id])) return null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -46,7 +47,7 @@ const OperativeNotes = (props) => {
         showMicrophone={false}
         onChange={(val) => handleChange(val, data?.id)}
         initialValue={
-          props.operativeNotes && props.operativeNotes?.[data?.id]?.length ? operativeNotes?.[data?.id] : operativeNotes?.[data?.id]?.value?.length
+          props.operativeNotes?.[data?.id]?.length ? operativeNotes?.[data?.id] : operativeNotes?.[data?.id]?.value?.length
             ? operativeNotes?.[data?.id]?.value
             : [
                 {
@@ -64,6 +65,7 @@ const OperativeNotes = (props) => {
       return (
         <ul>
           {sectionData?.children?.map((item) => {
+            if (!isEditable && isEmptyRichText(operativeNotes?.[item?.id])) return null;
             return (
               <li key={item.id}>
                 {renderRichTextEditorSection(item)}
