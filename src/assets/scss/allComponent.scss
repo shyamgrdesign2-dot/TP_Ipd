@@ -1831,6 +1831,12 @@ body {
   width: auto;
 }
 
+.medicine-item {
+  span.separator {
+    margin: 0 4px; /* adds 4px space on both sides */
+  }
+}
+
 .title-digitise-card {
   font-size: 1rem;
   font-weight: 500;
