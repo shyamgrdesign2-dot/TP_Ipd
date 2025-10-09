@@ -650,11 +650,6 @@ const DischargeSummary = (props) => {
     });
   };
 
-  console.log(
-    "INTEL ==> dischargeSummaryState",
-    dischargeSummaryState.dischargeSummaryData?.vitalsData
-  );
-
   const renderHeaderSection = () => {
     return (
       <div className="ipd-filled-by-card-container">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import ExaminationSection from "./ExaminationSection";
 import Vitals from "./Vitals";
@@ -45,43 +45,49 @@ const PhysicalExamination = (props) => {
     if (!isEditable && isEmptyRichText(physicalExaminationOthersData))
       return null;
     return (
-      <RichTextEditWrapper
-        readOnly={!isEditable}
-        showToolbar={isEditable}
-        showActionBtns={isEditable}
-        title={data?.title}
-        width={isEditable ? "100%" : "fit-content"}
-        icon={assessmentsIcons[`${data?.id}Pc`]}
-        showAutoFill={false}
-        containerClass={`ipdpe-others-section ${
-          !isEditable ? "ipd-wrapper-class-readonly" : ""
-        }`}
-        showMagicPenGif={false}
-        showMicrophone={false}
-        onChange={handleOthersChange}
-        initialValue={
-          physicalExaminationOthersData?.length
-            ? physicalExaminationOthersData
-            : [
-                {
-                  type: "paragraph",
-                  children: [{ text: "" }],
-                },
-              ]
-        }
-        placeholder={"Enter any other examination findings not covered above"}
-        onSave={() => {
-          console.log("save");
-        }}
-        onErase={() => {
-          setAutoFillTextToAppend(["clear"]);
-        }}
-        onTemplate={() => {
-          console.log("template");
-        }}
-        newAutoFillTextToAppend={autoFillTextToAppend}
-        setNewAutoFillTextToAppend={setAutoFillTextToAppend}
-      />
+      <div
+        // key={`physical-examination-others-${JSON.stringify(
+        //   physicalExaminationOthersData
+        // )}`}
+      >
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
+          title={data?.title}
+          width={isEditable ? "100%" : "fit-content"}
+          icon={assessmentsIcons[`${data?.id}Pc`]}
+          showAutoFill={false}
+          containerClass={`ipdpe-others-section ${
+            !isEditable ? "ipd-wrapper-class-readonly" : ""
+          }`}
+          showMagicPenGif={false}
+          showMicrophone={false}
+          onChange={handleOthersChange}
+          initialValue={
+            physicalExaminationOthersData?.length
+              ? physicalExaminationOthersData
+              : [
+                  {
+                    type: "paragraph",
+                    children: [{ text: "" }],
+                  },
+                ]
+          }
+          placeholder={"Enter any other examination findings not covered above"}
+          onSave={() => {
+            console.log("save");
+          }}
+          onErase={() => {
+            setAutoFillTextToAppend(["clear"]);
+          }}
+          onTemplate={() => {
+            console.log("template");
+          }}
+          newAutoFillTextToAppend={autoFillTextToAppend}
+          setNewAutoFillTextToAppend={setAutoFillTextToAppend}
+        />
+      </div>
     );
   };
 
@@ -100,9 +106,7 @@ const PhysicalExamination = (props) => {
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`${
-          !isEditable ? "ipd-wrapper-class-readonly" : ""
-        }`}
+        containerClass={`${!isEditable ? "ipd-wrapper-class-readonly" : ""}`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         onChange={handleProvisionalDiagnosisChange}
@@ -135,7 +139,7 @@ const PhysicalExamination = (props) => {
     );
   };
 
-  const renderChildren = () => {
+  const renderChildren = useCallback(() => {
     return (
       <div className="flex-column-gap-16">
         {sectionData?.children?.map((item) => {
@@ -161,7 +165,7 @@ const PhysicalExamination = (props) => {
         {children && children}
       </div>
     );
-  };
+  }, [physicalExaminationOthersData, vitalsData, physicalExaminationBasicData]);
   if (
     !isEditable &&
     !Object.keys(physicalExaminationBasicData)?.length &&
