@@ -22,23 +22,7 @@ const getCodeFromModule = (module) => {
 export const initialState = {
   //   dischargeSummaryData: {},
   dischargeSummaryData: {
-    patientInformation: {
-      dateOfDischarge: "",
-      patientName: "Seema Rao",
-      age: 49,
-      gender: "Male",
-      contactNumber: "+91-9870537392",
-      wardBedNo: "Orthopedics",
-      patientId: "P024",
-      admissionId: "AID-5698",
-      admissionDate: "2025-07-12T17:09:00.000Z",
-      primaryConsultant: {
-        id: 524,
-        name: "Dr. Vivek Prasad",
-        speciality: "Surgeon",
-      },
-      address: "Random Address 21",
-    },
+    patientInformation: {},
     surgeriesPerformed: [],
     followUpDoctor: null, // Will store the complete doctor object
   },
@@ -277,21 +261,19 @@ const dischargeSummarySlice = createSlice({
       })
       .addCase(getDischargeSummaryData.fulfilled, (state, action) => {
         state.loading = false;
-        // Store the API response but exclude chronological summary from courseInHospital
-        // to prevent raw data from being passed to Slate
-        if (action.payload && typeof action.payload === 'object') {
+        if (action.payload && typeof action.payload === "object") {
           const { courseInHospital, ...otherData } = action.payload;
-          
+
           state.dischargeSummaryData = {
+            surgeriesPerformed:
+              state.dischargeSummaryData?.surgeriesPerformed || [],
             ...otherData,
             courseInHospital: {
               ...courseInHospital,
-              // Don't store chronologicalSummary here to avoid conflicts
-              chronologicalSummary: undefined
-            }
+              chronologicalSummary: undefined,
+            },
           };
-          
-          // Store chronological summary in the separate state
+
           if (courseInHospital?.chronologicalSummary) {
             state.chronologicalSummary = courseInHospital.chronologicalSummary;
           }

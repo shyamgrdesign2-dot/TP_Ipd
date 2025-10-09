@@ -16,6 +16,14 @@
 .flex-column-gap-16 {
   @include flex-column-gap-16;
 }
+@mixin flex-column-gap-6 {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.flex-column-gap-6 {
+  @include flex-column-gap-6;
+}
 
 @mixin box-with-padding {
   background: #FAFAFB !important;

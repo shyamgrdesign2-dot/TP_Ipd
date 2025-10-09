@@ -18,6 +18,7 @@ import FullPageLoader from "../../vaccination/components/Loader.js";
 import {
   getDischargeSummaryData,
   resetDischargeSummaryForm,
+  setSurgeriesPerformed,
   updateDischargeSummaryData,
 } from "../../../redux/ipd/dischargeSummarySlice.js";
 import { populateStoresFromDischargeSummaryAPI } from "../../../utils/dischargeSummaryDataPopulator.js";
@@ -54,6 +55,7 @@ import { setMedicalHistoryData } from "../../../redux/prescriptionSlice.js";
 import { addObstetricDetails } from "../../../redux/obstetricSlice.js";
 import {
   getOtNotesData,
+  resetOtNotesForm,
   setSingleOtNotesData,
 } from "../../../redux/ipd/otNotesSlice.js";
 
@@ -97,12 +99,30 @@ const DischargeSummary = (props) => {
     useState(false);
   const otNotesData = useSelector((state) => state.otNotes);
   const [sectionData, setSectionData] = useState(null);
-  const [showOtNotesDrawer, setShowOtNotesDrawer] = useState(false);
   useEffect(() => {
     if (dischargeSummary.length > 0) {
       setModelData(dischargeSummary);
     }
   }, [dischargeSummary]);
+
+  useEffect(() => {
+    if (otNotesData?.otNotesData && Array.isArray(otNotesData.otNotesData)) {
+      const surgeryDetails = otNotesData.otNotesData.map((otNote) => {
+        const surgeryInfo = otNote?.otNotes?.surgeryDetails || {};
+        return {
+          procedureName: Array.isArray(surgeryInfo.procedureName)
+            ? surgeryInfo.procedureName.join(", ")
+            : surgeryInfo.procedureName || "",
+          surgeryDate: surgeryInfo.surgeryDate || "",
+          otNoteId: otNote._id || null,
+        };
+      });
+
+      if (surgeryDetails.length > 0) {
+        dispatch(setSurgeriesPerformed(surgeryDetails));
+      }
+    }
+  }, [otNotesData?.otNotesData]);
 
   useEffect(() => {
     if (patientDetails?.details?.id)
@@ -111,17 +131,16 @@ const DischargeSummary = (props) => {
           patientId: patientDetails?.details?.id,
           admissionId: patientDetails?.admissionId,
         })
-      ).then((res) => {
-         console.log('INTEL ==> res.payload',res.payload)
-          // If we have a successful response with discharge summary data, populate all stores
+      )
+        .then((res) => {
           if (res.payload && !res.error) {
             populateStoresFromDischargeSummaryAPI(res.payload, dispatch);
           }
-      }).catch((error) => {
-        console.error("Error fetching discharge summary data:", error);
-      });
+        })
+        .catch((error) => {
+          console.error("Error fetching discharge summary data:", error);
+        });
   }, []);
-  console.log("INTEL ==> MAIN", dischargeSummaryState, otNotesData);
 
   const addDataToStore = (data) => {
     if (data) {
@@ -131,6 +150,7 @@ const DischargeSummary = (props) => {
       );
       dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || []));
       dispatch(addObstetricDetails(data?.basicInfo?.obstetricHistory || []));
+      dispatch(setVitalsData(data?.physicalExamination?.vitals || {}));
       dispatch(
         setPhysicalExaminationProvisionalDiagnosisData(
           data?.physicalExamination?.provisionalDiagnosis || []
@@ -198,11 +218,7 @@ const DischargeSummary = (props) => {
           patientId: patientDetails.details.id,
           admissionId: patientDetails.admissionId,
         })
-      ).then((res) => {
-        if (otNotesData.currentOtNoteId) {
-          dispatch(setSingleOtNotesData({ _id: otNotesData.currentOtNoteId }));
-        }
-      });
+      );
     }
   }, [patientDetails?.details?.id, patientDetails?.admissionId]);
 
@@ -230,9 +246,20 @@ const DischargeSummary = (props) => {
     setShowFunctionalAssessmentDrawer((prev) => !prev);
   };
 
-  const handleAddEditOtNotes = (data) => {
-    setSectionData(data);
-    setShowOtNotesDrawer((prev) => !prev);
+  const handleAddEditOtNotes = () => {
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 10);
+    dispatch(resetOtNotesForm());
+    navigate("/ipd/patient-details/ot-notes", {
+      state: {
+        patient_data,
+        patientDetails,
+        isEditable: true,
+        isNew: true,
+        fromDischargeSummary: true,
+      },
+    });
   };
 
   const onSavePhysicalExaminationClick = () => {
@@ -270,13 +297,14 @@ const DischargeSummary = (props) => {
                     {...props}
                     sectionData={data}
                     isDischargeSummary={true}
-                  />
-                  <div onClick={() => handleAddEditPhysicalExamination(data)}>
-                    <GenericCard
-                      icon={defaultIcons.editIcon}
-                      title={"Add/Edit Physical Examination"}
-                    />
-                  </div>
+                  >
+                    <div onClick={() => handleAddEditPhysicalExamination(data)}>
+                      <GenericCard
+                        icon={defaultIcons.editIcon}
+                        title={"Add/Edit Physical Examination"}
+                      />
+                    </div>
+                  </PhysicalExamination>
                 </div>
               );
             case "functionalAssessment":
@@ -307,13 +335,6 @@ const DischargeSummary = (props) => {
             case "otNotes":
               return (
                 <div className="flex-column-gap-16">
-                  {/* <FunctionalAssessment
-                    isEditable={false}
-                    {...props}
-                    sectionData={data}
-                    hideBorder={true}
-                  /> */}
-                  {/* <OtNotes isEditable={false} hideLayoutWithMenu={true} {...props} sectionData={data} /> */}
                   <CollapsibleWrapper
                     title={data?.title}
                     data-testid={data?.id}
@@ -325,14 +346,16 @@ const DischargeSummary = (props) => {
                     }`}
                     defaultOpen
                   >
-                    <OtNotesTimeline isLiteMode={true} />
+                    <div className="flex-column-gap-16">
+                      <OtNotesTimeline isLiteMode={true} />
+                      <div onClick={handleAddEditOtNotes}>
+                        <GenericCard
+                          icon={defaultIcons.editIcon}
+                          title={"Add New OT Notes"}
+                        />
+                      </div>
+                    </div>
                   </CollapsibleWrapper>
-                  <div onClick={() => handleAddEditOtNotes(data)}>
-                    <GenericCard
-                      icon={defaultIcons.editIcon}
-                      title={"Add/Edit Ot Notes"}
-                    />
-                  </div>
                 </div>
               );
             case "dischargeNotes":
@@ -468,57 +491,60 @@ const DischargeSummary = (props) => {
     const reqData = {
       assessmentId: assessmentData.assessmentId || "",
       patientInformation: {
-        patientName:
-          patientDetails?.details?.name ||
-          dischargeSummaryState.dischargeSummaryData?.patientInformation
-            ?.patientName ||
-          "",
-        age:
-          patientDetails?.details?.age ||
-          dischargeSummaryState.dischargeSummaryData?.patientInformation?.age ||
-          0,
-        gender:
-          patientDetails?.details?.gender ||
-          dischargeSummaryState.dischargeSummaryData?.patientInformation
-            ?.gender ||
-          "",
-        contactNumber:
-          patientDetails?.details?.contactNumber ||
-          dischargeSummaryState.dischargeSummaryData?.patientInformation
-            ?.contactNumber ||
-          "",
-        wardBedNo:
-          patientDetails?.wardBedNo ||
-          dischargeSummaryState.dischargeSummaryData?.patientInformation
-            ?.wardBedNo ||
-          "",
-        patientId:
-          patientDetails?.details?.patientId ||
-          dischargeSummaryState.dischargeSummaryData?.patientInformation
-            ?.patientId ||
-          "",
-        admissionId:
-          patientDetails?.admissionId ||
-          dischargeSummaryState.dischargeSummaryData?.patientInformation
-            ?.admissionId ||
-          "",
-        admissionDate:
-          patientDetails?.admissionDate ||
-          dischargeSummaryState.dischargeSummaryData?.patientInformation
-            ?.admissionDate ||
-          "",
-        primaryConsultant: dischargeSummaryState.dischargeSummaryData
-          ?.patientInformation?.primaryConsultant || {
-          id: null,
-          name: "",
-          speciality: "",
-        },
-        address:
-          patientDetails?.details?.address ||
-          dischargeSummaryState.dischargeSummaryData?.patientInformation
-            ?.address ||
-          "",
+        ...dischargeSummaryState.dischargeSummaryData?.patientInformation,
       },
+      //   patientInformation: {
+      //     patientName:
+      //       patientDetails?.details?.name ||
+      //       dischargeSummaryState.dischargeSummaryData?.patientInformation
+      //         ?.patientName ||
+      //       "",
+      //     age:
+      //       patientDetails?.details?.age ||
+      //       dischargeSummaryState.dischargeSummaryData?.patientInformation?.age ||
+      //       0,
+      //     gender:
+      //       patientDetails?.details?.gender ||
+      //       dischargeSummaryState.dischargeSummaryData?.patientInformation
+      //         ?.gender ||
+      //       "",
+      //     contactNumber:
+      //       patientDetails?.details?.contactNumber ||
+      //       dischargeSummaryState.dischargeSummaryData?.patientInformation
+      //         ?.contactNumber ||
+      //       "",
+      //     wardBedNo:
+      //       patientDetails?.wardBedNo ||
+      //       dischargeSummaryState.dischargeSummaryData?.patientInformation
+      //         ?.wardBedNo ||
+      //       "",
+      //     patientId:
+      //       patientDetails?.details?.patientId ||
+      //       dischargeSummaryState.dischargeSummaryData?.patientInformation
+      //         ?.patientId ||
+      //       "",
+      //     admissionId:
+      //       patientDetails?.admissionId ||
+      //       dischargeSummaryState.dischargeSummaryData?.patientInformation
+      //         ?.admissionId ||
+      //       "",
+      //     admissionDate:
+      //       patientDetails?.admissionDate ||
+      //       dischargeSummaryState.dischargeSummaryData?.patientInformation
+      //         ?.admissionDate ||
+      //       "",
+      //     primaryConsultant: dischargeSummaryState.dischargeSummaryData
+      //       ?.patientInformation?.primaryConsultant || {
+      //       id: null,
+      //       name: "",
+      //       speciality: "",
+      //     },
+      //     address:
+      //       patientDetails?.details?.address ||
+      //       dischargeSummaryState.dischargeSummaryData?.patientInformation
+      //         ?.address ||
+      //       "",
+      //   },
       diagnosisAndSurgery: {
         finalDiagnosis:
           assessmentData.physicalExaminationProvisionalDiagnosisData || [],
@@ -566,34 +592,24 @@ const DischargeSummary = (props) => {
         surgeries: formatOtNotesSurgeries(otNotesData.otNotesData),
       },
       dischargeNotes: {
-        dischargeVitals: dischargeSummaryState.dischargeSummaryData
-          ?.vitalsData || {
-          pulse: "",
-          bloodPressure: "",
-          temperature: "",
-          spo2: "",
-          respiratoryRate: "",
-          weight: "",
-          height: "",
-          generalRBS: "",
+        dischargeVitals: {
+          ...dischargeSummaryState.dischargeSummaryData?.vitalsData,
         },
-        patientCondition: [],
+        patientCondition: dischargeSummaryState.dischargeSummaryData?.patientCondition,
         dischargeMedications: prescriptionSlice.medicationData || [],
       },
       dischargeAdvice: {
         diet: dischargeSummaryState.dischargeSummaryData?.diet || [],
         physicalActivities:
           dischargeSummaryState.dischargeSummaryData?.physicalActivities || [],
-        otherAdvice: [],
-        warningSigns: [],
-        emergencyContact: [],
+        otherAdvice: dischargeSummaryState.dischargeSummaryData?.otherAdvice || [],
+        warningSigns: dischargeSummaryState.dischargeSummaryData?.warningSigns || [],
+        emergencyContact: dischargeSummaryState.dischargeSummaryData?.emergencyContact || [],
       },
       followUp: {
         date: dischargeSummaryState.dischargeSummaryData?.followUpDate || "",
-        doctor:
-          [dischargeSummaryState.dischargeSummaryData?.followUpDoctor] || [],
-        additionalNotes:
-          dischargeSummaryState.dischargeSummaryData?.additionalNotes || [],
+        doctor: dischargeSummaryState.dischargeSummaryData?.followUpDoctor,
+        additionalNotes: dischargeSummaryState.dischargeSummaryData?.additionalNotes || [],
       },
       preparedBy:
         dischargeSummaryState.dischargeSummaryData?.preparedBy || null,
@@ -634,18 +650,10 @@ const DischargeSummary = (props) => {
     });
   };
 
-  const renderBottomSection = () => {
-    return (
-      <div className="ipd-custom-module-container">
-        {customModules?.map((customModule) => {
-          return (
-            <CustomModule module={customModule} patient_data={patient_data} />
-          );
-        })}
-        <AddCustomModule />
-      </div>
-    );
-  };
+  console.log(
+    "INTEL ==> dischargeSummaryState",
+    dischargeSummaryState.dischargeSummaryData?.vitalsData
+  );
 
   const renderHeaderSection = () => {
     return (
@@ -806,7 +814,7 @@ const DischargeSummary = (props) => {
       />
       {showPhysicalExaminationDrawer && (
         <DrawerWrapper
-          width={"100%"}
+          width={"70%"}
           open={showPhysicalExaminationDrawer}
           onClose={handleAddEditPhysicalExamination}
           title="Physical Examination"
@@ -817,12 +825,13 @@ const DischargeSummary = (props) => {
             {...props}
             isEditable={true}
             sectionData={sectionData}
+            showCollapsibleWrapper={false}
           />
         </DrawerWrapper>
       )}
       {showFunctionalAssessmentDrawer && (
         <DrawerWrapper
-          width={"100%"}
+          width={"70%"}
           open={showFunctionalAssessmentDrawer}
           onClose={handleAddEditFunctionalAssessment}
           title="Functional Assessment"
@@ -833,22 +842,6 @@ const DischargeSummary = (props) => {
             showCollapsibleWrapper={false}
             {...props}
             isEditable={true}
-            sectionData={sectionData}
-          />
-        </DrawerWrapper>
-      )}
-      {showOtNotesDrawer && (
-        <DrawerWrapper
-          width={"100%"}
-          open={showOtNotesDrawer}
-          onClose={handleAddEditOtNotes}
-          title="Ot Notes"
-          saveButtonText="Save"
-          onSave={onSaveOtNotesClick}
-        >
-          <OtNotes
-            hideLayoutWithMenu={true}
-            {...props}
             sectionData={sectionData}
           />
         </DrawerWrapper>

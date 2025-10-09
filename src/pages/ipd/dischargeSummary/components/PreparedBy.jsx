@@ -30,13 +30,13 @@ const PreparedBy = (props) => {
     }));
     
     return (
-      <div>
+      <div className="flex-column-gap-6">
         <label className="followup-label">
           {data?.title || "Prepared By"}
         </label>
         <Select
           mode="multiple"
-          className="autocomplete-custom w-100 popinput inputheight41"
+          className="autocomplete-custom w-25 popinput inputheight41"
           placeholder="Select Doctors"
           options={options}
           value={dischargeSummaryData?.preparedBy || []}
@@ -87,7 +87,7 @@ const PreparedBy = (props) => {
     ) || { title: "Prepared By" };
 
     return (
-      <div className="prepared-by-container">
+      <div className="prepared-by-container box-with-padding">
         <div className="prepared-by-doctor-section">
           {renderPreparedByDoctor(preparedByItem)}
         </div>
@@ -103,7 +103,7 @@ const PreparedBy = (props) => {
         icon={sectionData?.id ? dischargeSummaryIcons[`${sectionData.id}Dark`] : null}
         collapsible={isEditable}
         width={"100%"}
-        className={`collapsible-wrapper-class ${
+        className={`collapsible-wrapper-class wrapper-class ${
           isEditable ? "" : "collapsible-wrapper-class-readonly"
         }`}
         defaultOpen

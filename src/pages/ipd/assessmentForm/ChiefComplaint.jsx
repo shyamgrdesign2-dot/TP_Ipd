@@ -15,7 +15,7 @@ const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const ChiefComplaint = (props) => {
   // You can pass props as needed, e.g., isEditable, initialValue, etc.
-  const { isEditable = true, sectionData, hideBorder = false } = props || {};
+  const { isEditable = true, sectionData, hideBorder = false, children } = props || {};
   const dispatch = useDispatch();
   const {
     chiefComplaint,
@@ -79,6 +79,7 @@ const ChiefComplaint = (props) => {
   if (!isEditable && isEmptyRichText(chiefComplaint)) return null;
 
   return (
+    <div className="flex-column-gap-16">
     <RichTextEditWrapper
       readOnly={!isEditable}
       showToolbar={isEditable}
@@ -128,7 +129,11 @@ const ChiefComplaint = (props) => {
       newAutoFillTextToAppend={autoFillTextToAppend}
       setNewAutoFillTextToAppend={setAutoFillTextToAppend}
       isShimmeringFromParent={isShimmering}
+      renderFooter={() => {
+        return children && children;
+      }}
     />
+    </div>
   );
 };
 

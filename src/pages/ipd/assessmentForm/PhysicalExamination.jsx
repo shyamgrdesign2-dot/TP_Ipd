@@ -21,7 +21,12 @@ const PhysicalExamination = (props) => {
     physicalExaminationBasicData = {},
     vitalsData,
   } = assessmentData;
-  const { isEditable = true, sectionData, showCollapsibleWrapper= true } = props || {};
+  const {
+    isEditable = true,
+    sectionData,
+    showCollapsibleWrapper = true,
+    children,
+  } = props || {};
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [
@@ -48,7 +53,7 @@ const PhysicalExamination = (props) => {
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`wrapper-class ipdpe-others-section ${
+        containerClass={`ipdpe-others-section ${
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         showMagicPenGif={false}
@@ -95,7 +100,7 @@ const PhysicalExamination = (props) => {
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${
+        containerClass={`${
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
@@ -131,26 +136,31 @@ const PhysicalExamination = (props) => {
   };
 
   const renderChildren = () => {
-    return sectionData?.children?.map((item) => {
-      return (
-        <React.Fragment key={item.id}>
-          {(() => {
-            switch (item?.id) {
-              case "examinations":
-                return <ExaminationSection {...props} sectionData={item} />;
-              case "vitals":
-                return <Vitals {...props} sectionData={item} />;
-              case "others":
-                return renderOthers(item);
-              case "provisionalDiagnosis":
-                return renderProvisionalDiagnosis(item);
-              default:
-                return null;
-            }
-          })()}
-        </React.Fragment>
-      );
-    });
+    return (
+      <div className="flex-column-gap-16">
+        {sectionData?.children?.map((item) => {
+          return (
+            <React.Fragment key={item.id}>
+              {(() => {
+                switch (item?.id) {
+                  case "examinations":
+                    return <ExaminationSection {...props} sectionData={item} />;
+                  case "vitals":
+                    return <Vitals {...props} sectionData={item} />;
+                  case "others":
+                    return renderOthers(item);
+                  case "provisionalDiagnosis":
+                    return renderProvisionalDiagnosis(item);
+                  default:
+                    return null;
+                }
+              })()}
+            </React.Fragment>
+          );
+        })}
+        {children && children}
+      </div>
+    );
   };
   if (
     !isEditable &&

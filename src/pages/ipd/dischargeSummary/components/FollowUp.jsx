@@ -132,7 +132,7 @@ const FollowUp = (props) => {
           dischargeSummaryIcons.additionalNotesPc
         }
         showAutoFill={false}
-        containerClass={`wrapper-class ${
+        containerClass={`${
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"

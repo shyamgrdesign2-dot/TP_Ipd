@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Collapse } from 'antd';
-
-import CashManagerContext from '../context/CashManagerContext';
 import GynecHistoryList from "./GynecHistoryList";
 import { useAccess } from "../pages/vaccination/useAccess";
 import { fetchGynecHistory } from "../redux/prescriptionSlice";
@@ -141,7 +139,7 @@ function MedicalHistoryList(props) {
 
     return (
         <>
-            <div className={`overflow-y-auto ipd-mhl-container ${isDischargeSummary ? "ipd-mhl-container-discharge-summary" : ""}`} style={{ maxHeight: "661px" }}>
+            <div className={`ipd-mhl-container ${isDischargeSummary ? "ipd-mhl-container-discharge-summary" : "overflow-y-auto"}`} style={isDischargeSummary ? {} : { maxHeight: "661px" }}>
                 { (medicalHistoryData.length > 0 || (gynecHistory && Object.keys(filteredGynecHistory).length > 0)) && (
                     <div className="p-10">
                         { isGynaecHistoryAccessable && gynecHistory && Object.keys(filteredGynecHistory).length > 0 &&

@@ -14,8 +14,10 @@ const Vitals = (props) => {
     sectionData,
     formName = "assessment",
   } = props || {};
-  const stateData = useSelector((state) => state[formName]);
-  const vitalsData = formName === 'assessment' ? stateData?.vitalsData : stateData?.dischargeSummaryData?.vitalsData;
+  const assessmentStateData = useSelector((state) => state.assessment);
+  const dischargeSummaryStateData = useSelector((state) => state.dischargeSummary);
+  const vitalsData = formName === 'assessment' ? assessmentStateData?.vitalsData : dischargeSummaryStateData?.dischargeSummaryData?.vitalsData;
+  console.log('INTEL ==> vitalsData', vitalsData, formName)
   const dispatch = useDispatch();
 
   // Check if at least one vital value exists
