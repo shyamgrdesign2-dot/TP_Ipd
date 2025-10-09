@@ -88,7 +88,7 @@ const IPDPatientDetails = () => {
   const { assessmentsData } = useSelector((state) => state.assessment);
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { otNotesData } = useSelector((state) => state.otNotes);
-  const { progressNotes } = useSelector((state) => state.progressNotes);
+  const { progressNotes, filteredProgressNotes } = useSelector((state) => state.progressNotes);
   const { medicalRecords } = useSelector((state) => state.medicalRecords);
   const { crossReferralData } = useSelector((state) => state.crossReferral);
   const { dischargeSummaryData } = useSelector(
@@ -463,6 +463,7 @@ const IPDPatientDetails = () => {
           <div className="ipd-progress-notes-view-container">
             <ProgressNotesView
               progressNotes={progressNotes}
+              filteredProgressNotes={filteredProgressNotes}
               patientDetails={patientDetails}
             />
             <div className="ipd-toolbar-edit-custom-print-download">
@@ -597,9 +598,9 @@ const IPDPatientDetails = () => {
                 filesData={filesData}
                 setFilesData={setFilesData}
                 patientData={patientData}
-                handleUploadDocPopup={() =>
-                  setShowUploadDocPopup((prev) => !prev)
-                }
+                patient_data_naviagte={patient_data}
+                patientDetails={patientDetails}
+                handleUploadDocPopup={() => setShowUploadDocPopup((prev) => !prev)}
                 isAppointmentData={true}
                 isIPDMedicalRecords={true}
                 patientId={patientId}
