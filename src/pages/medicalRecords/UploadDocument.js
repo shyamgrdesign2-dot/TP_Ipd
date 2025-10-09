@@ -223,11 +223,11 @@ const UploadDocument = ({
       handleDrawerUploadDoc();
       // Refresh the notes after saving
       // await dispatch(getProgressNotes({ patientId, admissionId }));
-      getAllPatientDocs( patient_data?.patient_unique_id , patientDetails?.admissionId, "medical_records");
+      await getAllPatientDocs( patient_data_naviagte?.patient_unique_id , patientDetails?.admissionId, "medical_records");
       navigate(`/ipd/patient-details`, {
         replace: true,
         state: {
-          patient_data_naviagte,
+          patient_data : patient_data_naviagte,
           patientDetails,
           isEditable: false,
           activeTab: "records", // This will help identify which tab to show
