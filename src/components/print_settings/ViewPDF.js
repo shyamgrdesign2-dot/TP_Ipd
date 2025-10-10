@@ -6003,9 +6003,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                         }}
                     /> */}
 
-                    {(printSettings?.letterhead_format === 2 && showMode === "first") ? (
-                        null
-                    ) : (
+                    {(
                         <View
                             style={{
                               position: 'absolute',
