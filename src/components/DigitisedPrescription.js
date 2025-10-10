@@ -463,7 +463,7 @@ const DigitisedPrescription = ({ data, setData, loading, showAbsHeaderInsideLoad
   
   const handleLineItemClick = (type, index) => {
     const src = data[type][index];
-    setEditableLineItem(type === "diagnosis" || type === "examination" ? src?.notes : src?.lineItem);
+    setEditableLineItem(type === "diagnosis" || type === "examination" || type === "dynamicFields" ? src?.notes : src?.lineItem);
     setActiveIndex(index);
     setActiveType(`${type}-lineItem`);
   };
