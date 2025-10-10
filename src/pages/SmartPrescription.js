@@ -2494,7 +2494,7 @@ function SmartPrescription() {
     });
     formData.append("doctor_unique_id", tokenData?.doctor_unique_id);
     formData.append("patient_unique_id", patient_data?.patient_unique_id);
-    formData.append("buildNumber", versionNumber);
+    formData.append("buildNumber", versionNumber || "0");
 
     try {
       if (files.length > 0) {
