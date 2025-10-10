@@ -63,6 +63,30 @@ export const updateProgressNotes = createAsyncThunk(
   }
 );
 
+export const filterProgressNotesByDateRange = createAsyncThunk(
+  "progressNotes/filterProgressNotesByDateRange",
+  async ({ patientId, admissionId, filterStartDate, filterEndDate }, { rejectWithValue }) => {
+    try {
+      const result = await ApiProgressNotes.getProgressNotes({
+        patientId,
+        admissionId,
+        filterStartDate,
+        filterEndDate,
+      });
+      if (result?.length) {
+        return result;
+      } else {
+        return rejectWithValue("No Progress notes found for the selected date range");
+      }
+    } catch (error) {
+      console.log("Error fetching filtered progress notes: ", error);
+      return rejectWithValue(
+        error.message || "Failed to fetch filtered progress notes"
+      );
+    }
+  }
+);
+
 const progressNotesSlice = createSlice({
   name: "progressNotes",
   initialState,
@@ -76,36 +100,6 @@ const progressNotesSlice = createSlice({
       state.currentProgressNote = null;
       state.error = null;
       state.success = false;
-    },
-    // New action to filter progress notes by date range
-    filterProgressNotesByDateRange: (state, action) => {
-      const { startDate, endDate } = action.payload;
-      
-      if (!startDate || !endDate) {
-        // If no date range, clear filtered array
-        state.filteredProgressNotes = [];
-        return;
-      }
-      
-      if (!Array.isArray(state.progressNotes)) {
-        state.filteredProgressNotes = [];
-        return;
-      }
-      
-      // Filter progress notes by date range
-      state.filteredProgressNotes = state.progressNotes.filter((entry) => {
-        const pn = entry?.progressNotes || {};
-        const dateIso = pn?.date ? new Date(pn.date) : null;
-        
-        if (!dateIso) return false;
-        
-        const formattedDate = `${dateIso.getFullYear()}-${String(dateIso.getMonth() + 1).padStart(
-          2,
-          "0"
-        )}-${String(dateIso.getDate()).padStart(2, "0")}`;
-        
-        return formattedDate >= startDate && formattedDate <= endDate;
-      });
     },
     // Clear date filter
     clearDateFilter: (state) => {
@@ -166,6 +160,20 @@ const progressNotesSlice = createSlice({
         state.loading = false;
         state.progressNotes = [];
         state.error = action.payload;
+      })
+      .addCase(filterProgressNotesByDateRange.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(filterProgressNotesByDateRange.fulfilled, (state, action) => {
+        state.loading = false;
+        state.filteredProgressNotes = action.payload;
+        state.error = null;
+      })
+      .addCase(filterProgressNotesByDateRange.rejected, (state, action) => {
+        state.loading = false;
+        state.filteredProgressNotes = [];
+        state.error = action.payload;
       });
   },
 });
@@ -175,7 +183,6 @@ export const {
   lastPrescriptionDate,
   lastPrescriptionDataForProgress,
   clearProgressNotes,
-  filterProgressNotesByDateRange, // New action
   clearDateFilter, // New action
   setChiefComplaint,
   setFindings,
