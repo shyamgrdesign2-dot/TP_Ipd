@@ -273,6 +273,16 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
     });
   };
 
+  const onMedicationWithUnitPerDoseFormat = (e, i) => {
+    printSettings.prescription.case_option[i].is_dosage_decimal =
+      e.target.value;
+    setPrintSettings((prev) => {
+      return {
+        ...prev,
+      };
+    });
+  };
+
   const onMedicationOptionChange = (checkedValues, i) => {
     printSettings.prescription.case_option[i].medicine_option = checkedValues;
     setPrintSettings((prev) => {
@@ -352,6 +362,19 @@ function PrescriptionLayout({ todayVaccines, growthChartDetails, obstetricDetail
                 Numeric format (e.g., 1-0-0)
               </Radio>
               <Radio value={false}>Text format (e.g., Morning)</Radio>
+            </Radio.Group>
+          </div>
+          <hr />
+          <div className="fw-medium text-start py-2">UNIT PER DOSE</div>
+          <div className="d-flex align-items-center text-start">
+            <Radio.Group
+              value={!!record?.is_dosage_decimal}
+              onChange={(e) => onMedicationWithUnitPerDoseFormat(e, i)}
+            >
+              <Radio className="mb-2" value={false}>
+                Fractional (e.g., ½ tablet)
+              </Radio>
+              <Radio value={true}>Decimal (e.g., 0.5 tablet)</Radio>
             </Radio.Group>
           </div>
           <hr />

@@ -63,7 +63,8 @@ function Cardiology(props) {
   const dispatch = useDispatch();
 
   const { profile, userId } = useSelector((state) => state.doctors);
-  const { frequencyList, timingList } = useSelector((state) => state.doctors);
+  const { frequencyList, timingList, defaultPrintSettings } = useSelector((state) => state.doctors);
+  const medicationCaseOptions = defaultPrintSettings?.prescription?.case_option?.find((option) => option.id === 4);
 
   const {
     patient_data,
@@ -390,7 +391,7 @@ function Cardiology(props) {
         <>
           <div>{`${
             record.tmm_dosage && record.tmm_unit
-              ? `${medicine_freq_dosage_format(record.tmm_dosage)} ${
+              ? `${medicine_freq_dosage_format(record.tmm_dosage, medicationCaseOptions?.is_dosage_decimal)} ${
                   record?.medicineUnit &&
                   record?.medicineUnit.find(
                     (x) => x.tmu_id == record.tmm_unit
@@ -434,24 +435,24 @@ function Cardiology(props) {
                       record.tcm_tmm_freq_morning
                         ? medicine_freq_dosage_format(
                             record.tcm_tmm_freq_morning
-                          )
+                          , medicationCaseOptions?.is_dosage_decimal)
                         : 0
                     }-${
                       record.tcm_tmm_freq_afternoon
                         ? medicine_freq_dosage_format(
                             record.tcm_tmm_freq_afternoon
-                          )
+                          , medicationCaseOptions?.is_dosage_decimal)
                         : 0
                     }${
                       record.tcm_tmm_freq_evening
                         ? "-" +
                           medicine_freq_dosage_format(
                             record.tcm_tmm_freq_evening
-                          )
+                          , medicationCaseOptions?.is_dosage_decimal)
                         : ""
                     }-${
                       record.tcm_tmm_freq_night
-                        ? medicine_freq_dosage_format(record.tcm_tmm_freq_night)
+                        ? medicine_freq_dosage_format(record.tcm_tmm_freq_night, medicationCaseOptions?.is_dosage_decimal)
                         : 0
                     }`
                   : `-`
@@ -464,7 +465,7 @@ function Cardiology(props) {
                   : ""
               })`}
           <div>
-            {timingList.find((x) => x.tmt_id == record.tmm_time) !== undefined
+            {timingList.find((x) => x.tmt_id == record.tmm_time) !== undefined && timingList.find((x) => x.tmt_id == record.tmm_time)?.tmt_title !== "None"
               ? timingList.find((x) => x.tmt_id == record.tmm_time).tmt_title
               : ""}
           </div>
