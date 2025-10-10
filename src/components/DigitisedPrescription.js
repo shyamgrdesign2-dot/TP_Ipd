@@ -1032,7 +1032,7 @@ const DigitisedPrescription = ({ data, setData, loading, showAbsHeaderInsideLoad
 
           {data?.dynamicFields && hasValidContent("dynamicFields") && (
             <div className="title-digitise-section-wrapper">
-              <div className="title-digitise-section mb-2">Dynamic Fields</div>
+              <div className="title-digitise-section mb-2">Dynamic Modules</div>
               {renderArraySection("dynamicFields")}
             </div>
           )}

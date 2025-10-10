@@ -1785,7 +1785,7 @@ function Cardiology(props) {
                               alt="Dynamic Fields"
                             />
                             <div className="title-digitise-section mb-1">
-                              Dynamic Fields
+                              Dynamic Modules
                             </div>
                           </div>
                           {renderItems("dynamicFields")}
