@@ -622,6 +622,7 @@ const DischargeSummary = (props) => {
         data: reqData,
         patientId: patientDetails?.details?.id,
         admissionId: patientDetails?.admissionId,
+        _id: dischargeSummaryState.dischargeSummaryData?._id || null,
       })
     ).then((res) => {
       if (res?.payload?.error) {
