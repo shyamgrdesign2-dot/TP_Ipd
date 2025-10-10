@@ -65,7 +65,7 @@ function ObsHistoryListView({
       </Text>
 
       {options?.includes("gplae") && (
-        <View>
+        <View style={{marginTop: PX_TO_PT * 15}}>
           <Text style={{ lineHeight: 1.4 }}>
             {(("gravidity" in obsHistoryData &&
               obsHistoryData?.gravidity != null) ||
@@ -446,8 +446,8 @@ function ObsHistoryListView({
       )}
 
       {options?.includes("diagnosis") && (
-        <View>
-          <Text style={{ marginTop: 5, lineHeight: 1.4 }}>
+        <View style={{marginTop: PX_TO_PT * 15}}>
+          <Text style={{ lineHeight: 1.4 }}>
             {(obsHistoryData?.lmp ||
               "edd" in obsHistoryData ||
               "ceed" in obsHistoryData ||
@@ -468,6 +468,7 @@ function ObsHistoryListView({
                     fontFamily: printSettings?.page_format?.font_family,
                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                     fontWeight: 500,
+                    marginTop: 5,
                   }}
                 >
                   &nbsp;{obsListViewCounter++}.&nbsp;Patient Information&nbsp;
@@ -950,7 +951,7 @@ function ObsHistoryListView({
       )}
 
       {options?.includes("history") && (
-        <View>
+        <View style={{marginTop: PX_TO_PT * 15}}>
           <Text style={{ lineHeight: 1.4 }}>
             {pregnancyHistory?.length > 0 && (
               <>
@@ -960,6 +961,7 @@ function ObsHistoryListView({
                     fontFamily: printSettings?.page_format?.font_family,
                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                     fontWeight: 500,
+                    marginTop: 5,
                   }}
                 >
                   &nbsp;{obsListViewCounter++}.&nbsp;Pregnancy history&nbsp;:
