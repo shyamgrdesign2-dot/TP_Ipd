@@ -63,6 +63,8 @@ import {
   resetCrossReferralForm,
 } from "../../../redux/ipd/crossReferralSlice";
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
+import { getDischargeSummaryData } from "../../../redux/ipd/dischargeSummarySlice";
+import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -366,8 +368,14 @@ const IPDPatientDetails = () => {
       //     console.error("Error fetching progress notes:", error);
       //   }
       // );
+    } else if (activeMenuItem === "dischargeSummary") {
+      dispatch(getDischargeSummaryData({ patientId, admissionId })).then(res => {
+        addDischargeDataToStore(res.payload.dischargeSummary, dispatch);
+      }).catch((error) => {
+        console.error("Error fetching discharge summary:", error);
+      });
     }
-  }, [activeMenuItem, admissionId, patientId]);
+  }, [activeMenuItem, admissionId, patientId, dispatch]);
 
   const handleEmptyCtaClick = {
     assessment: () => handleAddAssessmentClick(true),
