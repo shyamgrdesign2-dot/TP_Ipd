@@ -127,6 +127,7 @@ function HeaderPrescription({
   const intervalRef = useRef(null);
   const [tourOpen, setTourOpen] = useState(false);
   const [popOver3, setPopOver3] = useState(false);
+  const [versionNumber, setVersionNumber] = useState("")
 
   const baseUrl = { customBaseUrl: env.rx_digitization };
   const isSmartSyncConnectAccessableFromGB =
@@ -269,7 +270,7 @@ function HeaderPrescription({
 
   const handleSubmitClick = async () => {
     if (!clicked) {
-      onSubmit();
+      onSubmit(versionNumber);
     }
   };
 
@@ -427,6 +428,7 @@ function HeaderPrescription({
       if (!statusMessage) setError("Failed to disconnect device");
     } else if (message.startsWith("AppVersion")) {
       const versionMessage = message.split(":")[1];
+      setVersionNumber(versionMessage);
     }
   };
 

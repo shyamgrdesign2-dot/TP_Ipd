@@ -718,8 +718,9 @@ function Cardiology(props) {
                       {/* Format the key to be human-readable */}
                       {`${key
                         .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
-                        .replace(/^./, (str) => str.toUpperCase())}: `}
+                        .replace(/^./, (str) => str.toUpperCase())}`}
                     </span>
+                    <span className="separator">:</span>
                     <span>{value}</span>
                   </div>
                 </li>
@@ -739,8 +740,23 @@ function Cardiology(props) {
                       ? item.name[0]?.toUpperCase() + item.name?.slice(1)
                       : type === "medications" || type === "tests"
                       ? item?.refinedName
+                      : type === "labResults"
+                      ? item?.testname
+                      : type === "dynamicFields"
+                      ? item?.title
+                      : type === "others"
+                      ? item
                       : item?.name}
                   </span>
+
+                  {/* Lab Results specific rendering */}
+                  {type === "labResults" && (
+                    <>
+                      <span className="separator">:</span>
+                      <span>{item.value}</span>
+                      {/* {item.notes && <span>{` (${item.notes})`}</span>} */}
+                    </>
+                  )}
 
                   {/* Optional rendering for lineItem */}
                   {(type === "medications" ||
@@ -751,7 +767,7 @@ function Cardiology(props) {
                     item.lineItem && <span>{` (${item.lineItem})`}</span>}
 
                   {/* Optional rendering for notes */}
-                  {(type === "examination" || type === "diagnosis") &&
+                  {(type === "examination" || type === "diagnosis" || type === "dynamicFields") &&
                     item.notes && <span>{` (${item.notes})`}</span>}
                 </div>
               </li>
@@ -858,6 +874,9 @@ function Cardiology(props) {
         medicalHistory: ["name", "lineItem"],
         vaccinations: ["name", "lineItem"],
         tests: ["refinedName", "lineItem"],
+        labResults: ["testname", "value", "notes"],
+        dynamicFields: ["title", "notes"],
+        others: ["name"],
       };
 
       const fieldsToCheck = relevantFields[type] || ["name"];
@@ -1471,6 +1490,73 @@ function Cardiology(props) {
                           {renderItems("vaccinations")}
                         </>
                       )}
+
+                    {rxDigitisedData?.editedData?.labResults &&
+                      hasValidContent(rxDigitisedData.editedData, "labResults") && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={Investigationicon}
+                              alt="Lab Results"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Lab Results
+                            </div>
+                          </div>
+                          {renderItems("labResults")}
+                        </>
+                      )}
+
+                    {rxDigitisedData?.editedData?.dynamicFields &&
+                      hasValidContent(rxDigitisedData.editedData, "dynamicFields") && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={customModuleIcon}
+                              alt="Dynamic Fields"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Dynamic Fields
+                            </div>
+                          </div>
+                          {renderItems("dynamicFields")}
+                        </>
+                      )}
+
+                    {rxDigitisedData?.editedData?.others &&
+                      hasValidContent(rxDigitisedData.editedData, "others") && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={notesicon}
+                              alt="Others"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Others
+                            </div>
+                          </div>
+                          {renderItems("others")}
+                        </>
+                      )}
+
+                    {rxDigitisedData?.editedData?.followUp && (
+                      <>
+                        <div className="d-flex align-items-start">
+                          <img
+                            className="me-2"
+                            src={followUp}
+                            alt="Follow Up"
+                          />
+                          <div className="title-digitise-section mb-1">
+                            Follow Up
+                          </div>
+                        </div>
+                        {renderItems("followUp")}
+                      </>
+                    )}
                   </div>
                 ) : (
                   <>
@@ -1670,6 +1756,57 @@ function Cardiology(props) {
                             </div>
                           </div>
                           {renderItems("vaccinations")}
+                        </>
+                      )}
+
+                    {snapRxDigitisedData?.labResults &&
+                      hasValidContent(snapRxDigitisedData, "labResults") && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={Investigationicon}
+                              alt="Lab Results"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Lab Results
+                            </div>
+                          </div>
+                          {renderItems("labResults")}
+                        </>
+                      )}
+
+                    {snapRxDigitisedData?.dynamicFields &&
+                      hasValidContent(snapRxDigitisedData, "dynamicFields") && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={customModuleIcon}
+                              alt="Dynamic Fields"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Dynamic Modules
+                            </div>
+                          </div>
+                          {renderItems("dynamicFields")}
+                        </>
+                      )}
+
+                    {snapRxDigitisedData?.others &&
+                      hasValidContent(snapRxDigitisedData, "others") && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={notesicon}
+                              alt="Others"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Others
+                            </div>
+                          </div>
+                          {renderItems("others")}
                         </>
                       )}
 
