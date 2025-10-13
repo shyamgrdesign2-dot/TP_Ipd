@@ -657,31 +657,35 @@ const AllPatients = () => {
   const fetchAllPatientsForDownload = async () => {
     let allPatients = [];
     let currentPage = 1;
-    let hasMoreData = true;
+    const PAGE_SIZE = 1000; // match API's default/actual page size
 
     try {
-      while (hasMoreData) {
+      // Keep fetching until we reach totalPages
+      while (true) {
         const params = {
           page: currentPage,
-          limit: 1000, // Maximum limit per API call
+          limit: PAGE_SIZE,
           search: searchQuery,
-          startDate: dateRange.startDate,
-          endDate: dateRange.endDate,
         };
+        // Respect the same date filter logic as list view
+        if (dateStatus !== 4) {
+          params.startDate = dateRange.startDate;
+          params.endDate = dateRange.endDate;
+        }
 
         const res = await fetchAllPatients(params);
+        const rows = res?.patients || [];
+        const totalPages = res?.totalPages || 0;
 
-        if (res?.patients?.length > 0) {
-          allPatients = [...allPatients, ...res.patients];
-          currentPage++;
+        if (!rows.length) break;
 
-          // Check if we've received less than 1000 records, meaning this is the last page
-          if (res.patients.length < 1000) {
-            hasMoreData = false;
-          }
-        } else {
-          hasMoreData = false;
-        }
+        allPatients = [...allPatients, ...rows];
+
+        // If totalPages provided, use it to determine completion
+        if (totalPages && currentPage >= totalPages) break;
+        // Fallback: stop if server returns fewer rows than requested
+        if (rows.length < PAGE_SIZE) break;
+        currentPage += 1;
       }
 
       return allPatients;
