@@ -31,6 +31,7 @@ import MessageCreateCampaign from "./pages/MessageCreateCampaign";
 import { store, persistor } from "./redux/store";
 import {
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+  PERSISTANT_STORAGE_KEY_BILL_TOKEN,
   PERSISTANT_STORAGE_KEY_MEDECO_TOKEN,
 } from "./utils/constants";
 import { useLocalStorage } from "./utils/localStorage";
@@ -220,6 +221,7 @@ function App() {
     // Handle authToken in URL
     if (authToken) {
       setToken(authToken);
+      localStorage.removeItem(PERSISTANT_STORAGE_KEY_BILL_TOKEN);
 
       // Clean up URL but preserve other params
       const params = new URLSearchParams(location.search);

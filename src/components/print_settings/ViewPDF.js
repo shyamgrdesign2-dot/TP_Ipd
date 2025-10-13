@@ -384,15 +384,15 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         return value
     }
 
-    const formatFrequency = (morning, afternoon, evening, night) => {
+    const formatFrequency = (morning, afternoon, evening, night, is_dosage_decimal) => {
 
         const { morning: morningLabel, afternoon: afternoonLabel, evening: eveningLabel, night: nightLabel } = getFrequencyLanguageTitles(selectedLang);
 
         const frequencyParts = [
-            morning > 0 ? `${morningLabel}(${medicine_freq_dosage_format(morning)})` : '',
-            afternoon > 0 ? `${afternoonLabel}(${medicine_freq_dosage_format(afternoon)})` : '',
-            evening > 0 ? `${eveningLabel}(${medicine_freq_dosage_format(evening)})` : '',
-            night > 0 ? `${nightLabel}(${medicine_freq_dosage_format(night)})` : ''
+            morning > 0 ? `${morningLabel}(${medicine_freq_dosage_format(morning, is_dosage_decimal)})` : '',
+            afternoon > 0 ? `${afternoonLabel}(${medicine_freq_dosage_format(afternoon, is_dosage_decimal)})` : '',
+            evening > 0 ? `${eveningLabel}(${medicine_freq_dosage_format(evening, is_dosage_decimal)})` : '',
+            night > 0 ? `${nightLabel}(${medicine_freq_dosage_format(night, is_dosage_decimal)})` : ''
         ].filter(Boolean);
         const frequencyInWords = frequencyParts.join(' - ');
         return frequencyInWords;
@@ -451,8 +451,8 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
     }
     const medicationData = caseManagerData.medicine?.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], [])
 
-    const formatUnitPerDose = (tmm_dosage) => {
-        const unitPerDoseFormat = medicine_freq_dosage_format(tmm_dosage);
+    const formatUnitPerDose = (tmm_dosage, is_dosage_decimal) => {
+        const unitPerDoseFormat = medicine_freq_dosage_format(tmm_dosage, is_dosage_decimal);
         return unitPerDoseFormat;
     }
 
@@ -1438,7 +1438,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                                                                                                     modiUnitPerDose: option?.medicine_option?.includes("dose")
                                                                                                         ? item.tmm_dosage && item.tmm_unit
-                                                                                                            ? `${formatUnitPerDose(item.tmm_dosage)} ${
+                                                                                                            ? `${formatUnitPerDose(item.tmm_dosage, option?.is_dosage_decimal)} ${
                                                                                                                 item.medicineUnit?.find((x) => x.tmu_id == item.tmm_unit)?.tmu_title || ""
                                                                                                             }`
                                                                                                             : `${
@@ -1450,19 +1450,20 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                                         ?item.tmf_block === 0 || item.tmf_block === ""
                                                                                                             ? item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night
                                                                                                                 ? option?.numeric_frequency
-                                                                                                                    ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${
-                                                                                                                        item.tcm_tmm_freq_evening ? " - " + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ""
-                                                                                                                    } - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}`
+                                                                                                                    ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning, option?.is_dosage_decimal) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon, option?.is_dosage_decimal) : 0}${
+                                                                                                                        item.tcm_tmm_freq_evening ? " - " + medicine_freq_dosage_format(item.tcm_tmm_freq_evening, option?.is_dosage_decimal) : ""
+                                                                                                                    } - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night, option?.is_dosage_decimal) : 0}`
                                                                                                                     : formatFrequency(
                                                                                                                         item.tcm_tmm_freq_morning,
                                                                                                                         item.tcm_tmm_freq_afternoon,
                                                                                                                         item.tcm_tmm_freq_evening,
-                                                                                                                        item.tcm_tmm_freq_night
+                                                                                                                        item.tcm_tmm_freq_night,
+                                                                                                                        option?.is_dosage_decimal
                                                                                                                     )
                                                                                                                 : ``
                                                                                                             : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.[frequencyLang()] || ""})` : "",
 
-                                                                                                    modiTiming: timingList.find((x) => x.tmt_id === item.tmm_time)?.[timeingLang()] || "",
+                                                                                                    modiTiming: timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined && timingList.find((x) => x.tmt_id === item.tmm_time)?.tmt_title !== "None" ? timingList.find((x) => x.tmt_id === item.tmm_time)?.[timeingLang()] : "",
 
                                                                                                     modiDuration: option?.medicine_option?.includes("duration")
                                                                                                         ? EXTRA_OPTIONS.some((x) => x.value == item.tmm_duration_type)
@@ -1530,7 +1531,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
 
                                                                                                     modiUnitPerDose: option?.medicine_option?.includes("dose")
                                                                                                         ? item.tmm_dosage && item.tmm_unit
-                                                                                                            ? `${formatUnitPerDose(item.tmm_dosage)} ${
+                                                                                                            ? `${formatUnitPerDose(item.tmm_dosage, option?.is_dosage_decimal)} ${
                                                                                                                 item.medicineUnit?.find((x) => x.tmu_id == item.tmm_unit)?.tmu_title || ""
                                                                                                             }`
                                                                                                             : `${
@@ -1542,9 +1543,9 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                                         ?item.tmf_block === 0 || item.tmf_block === ""
                                                                                                             ? item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night
                                                                                                                 ? option?.numeric_frequency
-                                                                                                                    ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${
-                                                                                                                        item.tcm_tmm_freq_evening ? " - " + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ""
-                                                                                                                    } - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}`
+                                                                                                                    ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning, option?.is_dosage_decimal) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon, option?.is_dosage_decimal) : 0}${
+                                                                                                                        item.tcm_tmm_freq_evening ? " - " + medicine_freq_dosage_format(item.tcm_tmm_freq_evening, option?.is_dosage_decimal) : ""
+                                                                                                                    } - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night, option?.is_dosage_decimal) : 0}`
                                                                                                                     : formatFrequency(
                                                                                                                         item.tcm_tmm_freq_morning,
                                                                                                                         item.tcm_tmm_freq_afternoon,
@@ -1554,7 +1555,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                                                 : ``
                                                                                                             : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.[frequencyLang()] || ""})` : "",
 
-                                                                                                    modiTiming: timingList.find((x) => x.tmt_id === item.tmm_time)?.[timeingLang()] || "",
+                                                                                                    modiTiming: timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined && timingList.find((x) => x.tmt_id === item.tmm_time)?.tmt_title !== "None" ? timingList.find((x) => x.tmt_id === item.tmm_time)?.[timeingLang()] : "",
 
                                                                                                     modiDuration: option?.medicine_option?.includes("duration")
                                                                                                         ? EXTRA_OPTIONS.some((x) => x.value == item.tmm_duration_type)
@@ -1655,17 +1656,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                         return (
                                                                             <View style={{ flexGrow: 1, flexDirection: 'row', borderBottom: ii != innerMedication(pItem.index)?.length - 1 ? '1px solid #171725' : '0px' }} key={ii}>
                                                                                 {option?.medicine_option?.includes('dose') && (
-                                                                                    <Text style={[styles.cell, { flex: 0.3, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`${item.tmm_dosage && item.tmm_unit ? `${formatUnitPerDose(item.tmm_dosage)} ${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit).tmu_title : ""}` : `${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit).tmu_title : ""}`}`}</Text>
+                                                                                    <Text style={[styles.cell, { flex: 0.3, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`${item.tmm_dosage && item.tmm_unit ? `${formatUnitPerDose(item.tmm_dosage, option?.is_dosage_decimal)} ${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.tmm_unit).tmu_title : ""}` : `${item?.medicineUnit && item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit) !== undefined ? item?.medicineUnit.find((x) => x.tmu_id == item.default_tmm_unit).tmu_title : ""}`}`}</Text>
                                                                                 )}
                                                                                 {option?.medicine_option?.includes('frequency') && (
-                                                                                    <View style={[styles.cell, {flex: 0.4, flexDirection: 'column', alignItems: 'flex-start' }]}>
-                                                                                        <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>
-                                                                                            {item.tmf_block === 0 || item.tmf_block === "" ? `${(item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night) ? (option?.numeric_frequency) ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon) : 0}${item.tcm_tmm_freq_evening ? ' - ' + medicine_freq_dosage_format(item.tcm_tmm_freq_evening) : ''} - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night) : 0}` : formatFrequency(item.tcm_tmm_freq_morning, item.tcm_tmm_freq_afternoon,item.tcm_tmm_freq_evening,item.tcm_tmm_freq_night) : `-`}` : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.[frequencyLang()] : ''})`}
-                                                                                        </Text>
-                                                                                        <Text style={[{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: (PX_TO_PT * printSettings?.page_format?.font_size) - 2, fontWeight: 400, lineHeight: 2, marginTop: 5 }]}>
-                                                                                            {timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined ? timingList.find((x) => x.tmt_id === item.tmm_time)?.[timeingLang()]: ""}
-                                                                                        </Text>
-                                                                                    </View>
+                                                                                <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: getFont(), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
+                                                                                    {item.tmf_block === 0 || item.tmf_block === "" ? `${(item.tcm_tmm_freq_morning || item.tcm_tmm_freq_afternoon || item.tcm_tmm_freq_evening || item.tcm_tmm_freq_night) ? (option?.numeric_frequency) ? `${item.tcm_tmm_freq_morning ? medicine_freq_dosage_format(item.tcm_tmm_freq_morning, option?.is_dosage_decimal) : 0} - ${item.tcm_tmm_freq_afternoon ? medicine_freq_dosage_format(item.tcm_tmm_freq_afternoon, option?.is_dosage_decimal) : 0}${item.tcm_tmm_freq_evening ? ' - ' + medicine_freq_dosage_format(item.tcm_tmm_freq_evening, option?.is_dosage_decimal) : ''} - ${item.tcm_tmm_freq_night ? medicine_freq_dosage_format(item.tcm_tmm_freq_night, option?.is_dosage_decimal) : 0}` : formatFrequency(item.tcm_tmm_freq_morning, item.tcm_tmm_freq_afternoon,item.tcm_tmm_freq_evening,item.tcm_tmm_freq_night) : `-`}` : `(${frequencyList.find((x) => x.tmf_id === item.tmm_freq_type) !== undefined ? frequencyList.find((x) => x.tmf_id === item.tmm_freq_type)?.[frequencyLang()] : ''})`}{'\n'}{timingList.find((x) => x.tmt_id === item.tmm_time) !== undefined && timingList.find((x) => x.tmt_id === item.tmm_time)?.tmt_title !== "None" ? timingList.find((x) => x.tmt_id === item.tmm_time)?.[timeingLang()] : ''}
+                                                                                </Text>
                                                                                 )}
                                                                                 {option?.medicine_option?.includes('duration') && (
                                                                                     <Text style={[styles.cell, { flex: 0.3, color: '#171725', fontFamily: getFont(), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>
@@ -2344,7 +2340,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                     {item?.tvp_remarks}
                                                                                 </Text>
                                                                             </Text>}
-                                                                        <Text key={i} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')\n'}</Text>
+                                                                        <Text key={i} style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')'}{i !== transformGivenVaccines?.length - 1 ? ', ' : ''}</Text>
                                                                     </Text>
                                                                 )
                                                             })}
@@ -2368,7 +2364,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                                                     {item?.tvd_remarks}
                                                                                 </Text>
                                                                             </Text>}
-                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')\n'}</Text>
+                                                                        <Text style={{ color: '#454551', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{')'}{i !== todayVaccines?.due?.length - 1 ? ', ' : ''}</Text>
                                                                     </Text>
                                                                 )
                                                             })}
