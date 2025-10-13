@@ -1091,7 +1091,7 @@ function MedicationsBox(props) {
                                   <Col lg={5} md={5} sm={5} xs={5} className="border-end border-start">
                                     <AutoComplete
                                       defaultValue={item.tmm_dosage_unit_name}
-                                      value={item.tmm_dosage_unit_name || isEditable ? '' : '-'}
+                                      value={item.tmm_dosage_unit_name}
                                       placeholder="e.g 1 Tablet"
                                       bordered={false}
                                       defaultOpen={false}
@@ -1171,7 +1171,7 @@ function MedicationsBox(props) {
                                       className="notesinput border-0 h-100 align-self-center"
                                       placeholder="Notes"
                                       defaultValue={item.tmm_remarks}
-                                      value={item.tmm_remarks || !isEditable ? "-" : ""}
+                                      value={item?.tmm_remarks}
                                       autoSize={{
                                         minRows: 1,
                                         maxRows: 2,
