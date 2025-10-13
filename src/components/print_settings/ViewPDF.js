@@ -8,6 +8,7 @@ import ObsHistoryListView from './obsHistory/list';
 import ObsHistoryTableView from './obsHistory/table';
 
 const PX_TO_PT = 0.75
+const CM_TO_PT = 28.35;
 
 // Roboto
 Font.register({
@@ -584,7 +585,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     letterheadFormat === 2 ? "margin" : null;
 
         return marginType && headerFooter?.[marginType]?.[position] >= 0
-            ? (headerFooter?.[marginType]?.[position] || defaultValue) * 25
+            ? (headerFooter?.[marginType]?.[position] || defaultValue) * CM_TO_PT
             : PX_TO_PT * 30;
     };
 
@@ -636,8 +637,13 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
        }
      };
 
+     const userBottomMargin = getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 1);
+     const userTopMargin = getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "top", 1);
+     const standardMargin = 0.5 * 25; // 0.5 inches in points
+    const extraTopSpace = Math.max(0, userTopMargin - standardMargin);
+     const isOwnLetterheadFirstPageOnly = printSettings?.letterhead_format === 2 && showMode === 'first';
+     
      const calculatePadding = () => {
-        const userBottomMargin = getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 1);
         const widthOfA4PageInPts = 595;
         const { letterhead_format, header_footer, whatsapp_letterhead_format } = printSettings || {};
         const footer = header_footer?.footer;
@@ -657,7 +663,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             };
         }
 
-        const isOwnLetterheadFirstPageOnly = letterhead_format === 2 && showMode === 'first';
         
         const paddingTop = [0,1,2].includes(letterhead_format)
         ? (isOwnLetterheadFirstPageOnly ? 0.5 * 25 : getMarginByFormat(letterhead_format, header_footer, "top", 0.5))
@@ -818,28 +823,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     wrap={!smartRxData}>
                     
                     {/* Letterhead spacer for Own Letterhead first-page-only mode */}
-                    <View
-                        fixed
-                        render={({ pageNumber }) => {
-                            const isFirstPage = pageNumber === 1;
-                            const isOwnLetterheadFirstPageOnly = printSettings?.letterhead_format === 2 && showMode === 'first';
-                            
-                            if (isOwnLetterheadFirstPageOnly && isFirstPage) {
-                                // On first page, add spacer to match user's intended letterhead margins
-                                const userTopMargin = getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "top", 0.5);
-                                const standardMargin = 0.5 * 25; // 0.5 inches in points
-                                const extraTopSpace = Math.max(0, userTopMargin - standardMargin);
-                                
-                                return (
-                                    <View style={{
-                                        marginTop: extraTopSpace,
-                                        height: 0,
-                                    }} />
-                                );
-                            }
-                            return null;
-                        }}
-                    />
+                    {printSettings?.letterhead_format === 2 && showMode === 'first' && extraTopSpace && (
+                        <View style={{
+                            marginTop: extraTopSpace,
+                            height: 0,
+                        }} />
+                    )}
                     
                     {/* <View style={{flex: 1}}>     */}
                     <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed = {printSettings?.header_footer?.show_header_footer_page !== 'first'}>
