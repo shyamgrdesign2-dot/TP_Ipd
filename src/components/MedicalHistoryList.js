@@ -48,6 +48,8 @@ function MedicalHistoryList(props) {
             value = `Allergies to : `
         } else if (id == 1) {
             value = `Habit : `
+        } else if (id == 5) {
+            value = `Surgery : `
         }
         return value
     }
@@ -73,6 +75,7 @@ function MedicalHistoryList(props) {
                                                                 {(() => {
                                                                     const parts = [];
                                                                     if (e1?.since) parts.push(<><b>Since</b>: {e1.since}</>);
+                                                                    if (e1?.date && e?.tmmhs_id == 5) parts.push(<><b>Date of Surgery</b>: {e1.date}</>);
                                                                     if (e?.tmmhs_id != 3) {
                                                                         if (e1?.status) parts.push(<><b>Status</b>: {e1.status}</>);
                                                                         if (e1?.medication) parts.push(<><b>Medication</b>: {e1.medication}</>);

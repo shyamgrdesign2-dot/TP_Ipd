@@ -37,10 +37,11 @@ import {
   errorMessage,
   getClinic,
   getClinicName,
-  getTokenData,
   sendMessageToParent,
   shouldAppointmentAgentDisabled,
   trackEvent,
+  getTokenData,
+  isMunshiHospital,
 } from "../utils/utils";
 import { getDecodedToken } from "../utils/localStorage";
 import {
@@ -66,6 +67,7 @@ import {
   S_TATVA_PRACTICE,
   TRIAL,
   GB_SNAP_RX_DIGITIZATION,
+  NEO_NATOLOGISTS_DP_ID,
 } from "../utils/constants";
 import api from "../api/services/axiosService";
 import { env } from "../EnvironmentConfig";
@@ -158,7 +160,6 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   const { isLoading } = useSelector((state) => state.uploadDoc);
   const { advancedSettings } = useSelector((state) => state.billing);
   const { isOpdBillingAccessable } = useOpdBilling();
-
   const [searchParams, setSearchParams] = useSearchParams();
   const from = searchParams.get("from");
   const [modalOpen, setModalOpen] = useState(false);
@@ -1212,7 +1213,14 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     ]?.filter((item) => item);
 
     if (selectedTab === TAB_QUEUE) {
-      return items.filter((item) => item.key !== "endvisitreason");
+      const decodedToken = getDecodedToken();
+      const tokenData = decodedToken?.result;
+      const isZydusAccount = tokenData?.hospital_business_id == env.zydus_business_id;
+      if (isZydusAccount) {
+        return items.filter((item) => item.key !== "endvisit" && item.key !== "endvisitreason");
+      } else {
+        return items.filter((item) => item.key !== "endvisitreason");
+      }
     } else if (selectedTab === TAB_FINISHED) {
       return items.filter(
         (item) => item.key !== "endvisit" && item.key !== "cancelappt"
@@ -1421,10 +1429,23 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   };
 
   const onSmartRxClick = async (record) => {
+    const tokenData = getTokenData();
+    const clinic = getClinic(profile?.hospital_data);
     window.Moengage.track_event("patient_search_consult", {
       doctor_id: profile?.doctor_unique_id,
       patient_id: record?.patient_unique_id,
     });
+    window.Moengage.track_event("TP_SmartRx_Started", {
+      patient_id: record?.patient_unique_id || "",
+      patient_name: record.pm_fullname,
+      doctor_id: profile?.doctor_unique_id,
+      doctor_name: profile?.um_name,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      clinic_name: clinic?.hm_name,
+      source: "Appointment Landing Page",
+      device_details: navigator.userAgent
+  });
     navigate("/smart-prescription", { state: { patient_data: record } });
   };
 
@@ -1573,7 +1594,24 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
       );
       const tcm_id = response.data[0]?.tcm_id;
       const smartRxData = await fetchData(tcm_id);
+      const isCustomSSRX = response.data[0]?.isCustomSSRX === "1" ? true : false;
+      const type = isCustomSSRX ? 1 : 0;
       // const ocrData = await fetchRxDigitisedData(tcm_id);
+      const tokenData = getTokenData();
+      const clinic = getClinic(profile?.hospital_data);
+      window.Moengage.track_event("TP_DigitizeSSRx", {
+      patient_id: record?.patient_unique_id || "",
+      patient_name: record.pm_fullname,
+      doctor_id: profile?.doctor_unique_id,
+      doctor_name: profile?.um_name,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      clinic_name: clinic?.hm_name,
+      rx_id: tcm_id || " ",
+      type: type,
+      source: "pending for digitization bar",
+      device_details: navigator.userAgent
+  });
 
       navigate("/smart-rx-digitise", {
         state: {
@@ -1683,7 +1721,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
 
   const genderAge = (patient_data) => {
     var value = `${patient_data?.pm_gender}, `;
-    if (profile?.dp_id === 9) {
+    if (profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) {
       if (patient_data?.ageYears != 0) {
         value += `${patient_data?.ageYears}y`;
       }
@@ -1704,7 +1742,83 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     }
     return value;
   };
+  
+  const getConditionIndicator = (patient_condition_id) => {
+    if (!patient_condition_id) return null;
 
+    const conditionColors = {
+      1: { color: '#FF0000', name: 'HIV' },           
+      2: { color: '#800080', name: 'HbA1c' },       
+      3: { color: '#FF69B4', name: 'HBsAg' },       
+      4: { color: '#FFA500', name: 'Blood Group Negative' } 
+    };
+    const condition = conditionColors[patient_condition_id];
+    if (!condition) return null;
+
+    return (
+      <span 
+        style={{ 
+          display: 'inline-block',
+          width: '8px', 
+          height: '8px', 
+          borderRadius: '50%', 
+          backgroundColor: condition.color,
+          marginLeft: '6px',
+          verticalAlign: 'middle'
+        }}
+        title={condition.name}
+      />
+    );
+  };
+
+  function parseDurationString(s) {
+    if (!s || (typeof s !== 'string' && typeof s !== 'number')) return { h: 0, m: 0, s: 0 };
+    const str = String(s).trim();
+    const colon = str.match(/^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/);
+    if (colon) {
+      return {
+        h: parseInt(colon[1], 10),
+        m: parseInt(colon[2], 10),
+        s: parseInt(colon[3] || '0', 10),
+      };
+    }
+
+    const hoursMatch = str.match(/(\d+)\s*(?:hours?|hrs?|h)\b/i);
+    const minsMatch  = str.match(/(\d+)\s*(?:minutes?|mins?|m)\b/i);
+    const secsMatch  = str.match(/(\d+)\s*(?:seconds?|secs?|s)\b/i);
+  
+    if (hoursMatch || minsMatch || secsMatch) {
+      return {
+        h: hoursMatch ? parseInt(hoursMatch[1], 10) : 0,
+        m: minsMatch  ? parseInt(minsMatch[1], 10) : 0,
+        s: secsMatch  ? parseInt(secsMatch[1], 10) : 0,
+      };
+    }
+    const onlyNumber = str.match(/^(\d+)$/);
+    if (onlyNumber) {
+      const totalMinutes = parseInt(onlyNumber[1], 10);
+      return { h: Math.floor(totalMinutes / 60), m: totalMinutes % 60, s: 0 };
+    }
+    return { h: 0, m: 0, s: 0 };
+  }
+  function formatHMS(duration = {}, { showZeroSeconds = false } = {}) {
+    const h = typeof duration.h !== 'undefined' ? duration.h : (typeof duration.H !== 'undefined' ? duration.H : 0);
+    const m = typeof duration.m !== 'undefined' ? duration.m : 0;
+    const s = typeof duration.s !== 'undefined' ? duration.s : 0;
+  
+    const Hr = `${h}H`;
+    const Min = `${m}m`;
+    const Sec = `${s}s`;
+  
+    if (h > 0) {
+      if (s > 0) return `${Hr} ${Min} ${Sec}`;
+      if (showZeroSeconds) return `${Hr} ${Min} ${Sec}`;
+      return `${Hr} ${Min}`;
+    }
+    if (s > 0) return `${Min} ${Sec}`;
+    if (showZeroSeconds) return `${Min} ${Sec}`;
+    return `${Min}`;
+  }
   const columns = [
     {
       title: "#",
@@ -1747,14 +1861,18 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
             <span className="text-primary">{record.pm_fullname}</span>
           )}
           <br />
-          <small>{genderAge(record)}</small>
+          <small>
+            {genderAge(record)}
+            {getConditionIndicator(record.patient_condition_id)}
+          </small>
         </div>
       ),
     },
     {
       title:
         selectedTab != TAB_ZYDUS_ENCOUNTER &&
-        selectedTab != TAB_ZYDUS_APPOINTMENT
+        selectedTab != TAB_ZYDUS_APPOINTMENT &&
+        selectedTab != TAB_FINISHED
           ? "Contact"
           : "Contact & Mrn",
       dataIndex: "pm_contact_no",
@@ -1762,17 +1880,34 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
       ellipsis: true,
       render: (text, record) => (
         <div>
-          <span>{record.pm_contact_no} </span> <br />{" "}
-          <small>
-            {" "}
-            {record.mrno}{" "}
-            {zydusAappointmentData.some((x) => x.mrno == record.mrno) &&
-              selectedTab == TAB_ZYDUS_ENCOUNTER &&
-              "(A)"}
-          </small>
+          <span>{record.pm_contact_no} </span>
+          {(selectedTab == TAB_ZYDUS_ENCOUNTER || 
+            selectedTab == TAB_ZYDUS_APPOINTMENT || 
+            selectedTab == TAB_FINISHED) && (
+            <>
+              <br />
+              <small>
+                {record.mrno || record.pm_reference_id || record.tpml_refrence_id || record.pm_pid}{" "}
+                {zydusAappointmentData.some((x) => x.mrno == record.mrno) &&
+                  selectedTab == TAB_ZYDUS_ENCOUNTER &&
+                  "(A)"}
+              </small>
+            </>
+          )}
         </div>
       ),
     },
+    ...(isMunshiHospital() ? [{
+      title: "Referred By",
+      dataIndex: "dr_reference_name",
+      key: "dr_reference_name",
+      ellipsis: true,
+      render: (text, record) => (
+        <div>
+          <span>{record.dr_reference_name || "-"}</span>
+        </div>
+      ),
+    }] : []),
     {
       title: selectedTab !== TAB_ZYDUS_APPOINTMENT ? "Visit Type" : "Status",
       dataIndex:
@@ -1840,12 +1975,36 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
           return result;
         }
       },
-      render: (text, record) => (
-        <div>
-          <span className="text-lowercase">{record.apTime} </span> <br />{" "}
-          <small> {record.apDate}</small>
-        </div>
-      ),
+      render: (text, record) => {
+        const getDisplayText = () => {
+          if (!isMunshiHospital()) {
+            return null;
+          }
+          
+          if (selectedTab === TAB_QUEUE && record.arrivedTime) {
+            return `(${record.arrivedTime})`;
+          }
+          
+          if (selectedTab === TAB_FINISHED && record.durationConsultation) {
+            const parsed = parseDurationString(record.durationConsultation);
+            const formatted = formatHMS(parsed, { short: true, showZeroSeconds: false }); // -> "1H 11m"
+            return `(${formatted})`;
+          }
+          
+          return null;
+        };
+        
+        const displayText = getDisplayText();
+        
+        return (
+          <div>
+            <span className="text-lowercase">
+              {record.apTime} {displayText}
+            </span> <br />{" "}
+            <small> {record.apDate}</small>
+          </div>
+        );
+      },
     },
     {
       title: selectedTab != TAB_ZYDUS_APPOINTMENT ? "Action" : "",
@@ -1857,10 +2016,10 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
             size="middle"
             style={{ display: "flex", justifyContent: "space-between" }}
           >
-            {isSnapRxAccessable &&
+            {(isSnapRxAccessable || isSmartSyncAccessableFromGB) &&
             !isMobile &&
             selectedTab != TAB_ZYDUS_ENCOUNTER ? (
-              (isDigitisationTab && isSnapRxDigitizationAccessable) ? (
+              (isDigitisationTab && (isSnapRxDigitizationAccessable || isSmartSyncAccessableFromGB)) ? (
                 isUnreviewedRx(record) ? (
                   <button
                     className="btn btn-outline-primary"
@@ -1893,12 +2052,18 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
                           : "btn-smart-rx"
                       }`}
                       onClick={() =>
-                        selectedTab === TAB_QUEUE
-                          ? handleSnapRxClick(record)
+                        (selectedTab === TAB_QUEUE && isSmartSyncAccessableFromGB) ? 
+                          onSmartRxClick (record) : (selectedTab === TAB_QUEUE  && isSnapRxAccessable) ? handleSnapRxClick(record)
                           : onPrintRxUrlClick(record)
                       }
                     >
-                      {selectedTab === TAB_FINISHED ? "Print Rx" : "Snap Rx"}
+                      {
+                        selectedTab === TAB_FINISHED
+                          ? "PrintRx"
+                          : (isSmartSyncAccessableFromGB && "SmartRx") ||
+                            (isSnapRxAccessable && "SnapRx") ||
+                            ""
+                      }
                     </button>
                   )}
                   {selectedTab === TAB_QUEUE && (
@@ -1923,15 +2088,28 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
                       </span>
                     </button>
                   )}
-                  {openRowIndex === index && (
-                    <button
-                      ref={consultButtonRef}
-                      className="btn-consult"
-                      onClick={() => onConsultClick(record)}
-                    >
-                      Consult
-                    </button>
-                  )}
+                  {openRowIndex === index && 
+                    <div className="rx-btns-grp" style={{width: (isSnapRxAccessable && isSmartSyncAccessableFromGB ? "55%" : "52%")}} ref={consultButtonRef}>
+                      {(isSmartSyncAccessableFromGB && isSnapRxAccessable) && 
+                        <button
+                          // ref={snapRxButtonRef}
+                          className="btn-consult top-br with-divider"
+                          onClick={() => {
+                            handleSnapRxClick(record)}
+                          }
+                        >
+                          SnapRx
+                        </button>
+                      }
+                      <button
+                        // ref={consultButtonRef}
+                        className={`btn-consult ${isSnapRxAccessable && isSmartSyncAccessableFromGB ?  "bottom-br" : "border-radius-all"}`}
+                        onClick={() => onConsultClick(record)}
+                      >
+                        Consult
+                      </button>
+                    </div>
+                  }
                 </div>
               )
             ) : isSmartSyncAccessableFromGB &&
@@ -1963,7 +2141,13 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
                           : onPrintRxUrlClick(record)
                       }
                     >
-                      {selectedTab === TAB_FINISHED ? "PrintRx" : "SmartRx"}
+                      {
+                        selectedTab === TAB_FINISHED
+                          ? "PrintRx"
+                          : (isSmartSyncAccessableFromGB && "SmartRx") ||
+                            (isSnapRxAccessable && "SnapRx") ||
+                            ""
+                      }                    
                     </button>
                   )}
                   {selectedTab === TAB_QUEUE && (

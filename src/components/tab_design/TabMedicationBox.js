@@ -41,6 +41,7 @@ import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
 import tagNew from '../../../src/assets/images/tag-new.svg';
 import Pillup from '../../assets/images/pillup.svg';
+import EazyDoseLogo from '../../assets/images/EazyDose Logo.png';
 
 import CashManagerContext from "../../context/CashManagerContext";
 
@@ -80,7 +81,9 @@ import {
 
 import TabMedicationSearch from "./TabMedicationSearch";
 import TabMedicationMoreModal from "./TabMedicationMoreModal";
-import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, MESSAGE_KEY } from "../../utils/constants";
+import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, MESSAGE_KEY, NEO_NATOLOGISTS_DP_ID } from "../../utils/constants";
+import { getDecodedToken } from "../../utils/localStorage";
+import { env } from "../../EnvironmentConfig";
 import DoseCalculator from "../dose_calculator/doseCalculator";
 import { upsertDoctorSettingFlag } from "../../redux/doctorsSlice";
 import { useLocation } from "react-router-dom";
@@ -373,7 +376,7 @@ function TabMedicationBox(props) {
           let doseCalData = {}
           const objDose = dosesList.find((e1) => e1.medicine_id == e.tmm_id)
           if (objDose !== undefined) {
-            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration)
+            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration, e?.tmm_type)
             doseCalData['tmm_dosage_unit_name'] = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
             doseCalData['tmm_dosage'] = dose ? dose : "";
             doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "";
@@ -712,7 +715,11 @@ function TabMedicationBox(props) {
     );
   }, [isModalOpen]);
 
-  const SortableItem = SortableElement(({ item }) => (
+  const SortableItem = SortableElement(({ item }) => {
+    let tmm_freq_type_name = `${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : "0 |"}${item.tmm_time_name ? item.tmm_time_name : ""}`
+    tmm_freq_type_name = tmm_freq_type_name === `0 -0 -0 -0 |None` || tmm_freq_type_name === `0 -0 -0 |None` ? "" : tmm_freq_type_name;
+
+    return (
     <div
       style={{
         width:
@@ -735,13 +742,7 @@ function TabMedicationBox(props) {
           ) : (
             (item.tmm_dosage || item.tmm_unit_name) ? (
               isNumeric(item.tmf_block) && item.tmf_block == 0 ? (
-                <div className="text-truncate small">{`
-                      ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
-                      ${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
-                      ${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
-                      ${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}
-                      ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : "0 |"}
-                      ${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
+                <div className="text-truncate small">{tmm_freq_type_name}</div>
               ) : (
                 <div className="text-truncate small">{`
                         ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
@@ -763,7 +764,7 @@ function TabMedicationBox(props) {
         <i className="icon-Cross"></i>
       </Button>}
     </div>
-  ));
+  )});
 
   const SortableList = SortableContainer(({ items }) => {
     return (
@@ -2414,7 +2415,7 @@ function TabMedicationBox(props) {
           let doseCalData = {}
           const objDose = dosesList.find((e1) => e1.medicine_id == e.tmm_id)
           if (objDose !== undefined) {
-            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration)
+            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration, e?.tmm_type)
             doseCalData['tmm_dosage_unit_name'] = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
             doseCalData['tmm_dosage'] = dose ? dose : "";
             doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "";
@@ -2658,10 +2659,17 @@ function TabMedicationBox(props) {
   }, [isPillUpAccessableFromGB]);
 
   const PILLUP_CONTENT = useCallback(() => {
+    const decodedToken = getDecodedToken();
+    const tokenData = decodedToken?.result;
+    const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+    
+    const serviceName = isZydusUser ? "eaZY Dose" : "PillUp";
+    const serviceNameTitle = isZydusUser ? "eaZY Dose Fulfilment" : "Pillup Fulfilment";
+    
     return (
       <div className="p-2">
-        <div className="fs-18 fw-semibold text-black">Pillup Fulfilment <img className="img-fluid ms-2" src={tagNew} /></div>
-        <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
+        <div className="fs-18 fw-semibold text-black">{serviceNameTitle} <img className="img-fluid ms-2" src={tagNew} /></div>
+        <div className="pt-1">You can now activate <b>{serviceName}</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
         <Button className="w-100 mt-2 border-0 rounded-3 bg-black h-38" onClick={showHidePillUpPopover}><span className="text-white">Okay</span></Button>
       </div>
     );
@@ -2681,8 +2689,21 @@ function TabMedicationBox(props) {
     {
       description:
         <>
-          <div className="fs-18 fw-semibold pt-3 text-black">Pillup Fulfilment <img className="img-fluid ms-2" src={tagNew} /></div>
-          <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
+          <div className="fs-18 fw-semibold pt-3 text-black">
+            {(() => {
+              const decodedToken = getDecodedToken();
+              const tokenData = decodedToken?.result;
+              const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+              return isZydusUser ? "eaZY Dose Fulfilment" : "Pillup Fulfilment";
+            })()} <img className="img-fluid ms-2" src={tagNew} />
+          </div>
+          <div className="pt-1">You can now activate <b>
+            {(() => {
+              const decodedToken = getDecodedToken();
+              const tokenData = decodedToken?.result;
+              const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+              return isZydusUser ? "eaZY Dose" : "PillUp";
+            })()}</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
         </>,
       target: () => tourRef.current,
       nextButtonProps: {
@@ -2705,7 +2726,12 @@ function TabMedicationBox(props) {
             <div className="title-common">{isPillUpAccessableFromGB ? 'Meds' : 'Medications'} (Rx)</div>
             {isPillUpAccessableFromGB && isEditable &&
               <div ref={tourRef} className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center" style={{ backgroundColor: 'rgb(226, 226, 234, 0.2)' }}>
-                <img src={Pillup} />
+                {(() => {
+                  const decodedToken = getDecodedToken();
+                  const tokenData = decodedToken?.result;
+                  const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+                  return isZydusUser ? <img src={EazyDoseLogo} alt="eaZY Dose" style={{ height: '20px' }} /> : <img src={Pillup} />;
+                })()}
                 <Popover
                   open={popOver3}
                   onOpenChange={showHidePillUpPopover}
@@ -2722,7 +2748,7 @@ function TabMedicationBox(props) {
           </div>
 
           {isEditable && <div className="d-flex align-items-center">
-            {profile?.dp_id === 9 && (
+            {(profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) && (
               <button
                 className="btn d-flex align-items-center btn-text"
                 onClick={handleViewDoseCalcDrawer}

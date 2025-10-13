@@ -7,14 +7,14 @@ import { useSelector } from "react-redux";
 import moment from 'moment';
 import { getDecodedToken } from '../utils/localStorage';
 import config from '../config';
-import { PAEDIATRIC_DP_ID } from '../utils/constants';
+import { NEO_NATOLOGISTS_DP_ID, PAEDIATRIC_DP_ID } from '../utils/constants';
 import { isMobile } from 'react-device-detect';
 
 export const genderAge = (patient_data, profile, shouldShowGender = true) => {
     var value = shouldShowGender
         ? `${patient_data?.pm_gender[0].toUpperCase()}, `
         : "";
-    if (profile?.dp_id === 9) {
+    if (profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) {
         if (patient_data?.ageYears != 0) {
             value += `${patient_data?.ageYears}y`;
         }
@@ -76,6 +76,15 @@ function ProfilePopover(props) {
                     <div className="text-truncate">
                         <div className="fontroboto letterspacing">Patient Id</div>
                         <div className="fontroboto letterspacing fw-medium">{patient_data !== undefined ? patient_data?.pm_pid : "000000"}</div>
+                    </div>
+                </div>
+            )}
+            {tokenData?.hospital_business_id == config.zydus_business_id && (patients_details?.pm_reference_id || patient_data?.pm_reference_id || patient_data?.tpml_refrence_id) && (
+                <div className="align-items-center d-flex medicine-templates border-top-0 without-hover p-0 pb-3">
+                    <div className="round-box bg-body-secondary"><i className="icon-Id fs-21"></i></div>
+                    <div className="text-truncate">
+                        <div className="fontroboto letterspacing">MRN Number</div>
+                        <div className="fontroboto letterspacing fw-medium">{patients_details?.pm_reference_id || patient_data?.pm_reference_id || patient_data?.tpml_refrence_id}</div>
                     </div>
                 </div>
             )}

@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import moment from 'moment';
 
 import { makeDefaultLogo } from "../utils/utils";
+import { NEO_NATOLOGISTS_DP_ID } from '../utils/constants';
 
 function HeaderPrescriptionPrint({ state }) {
     const navigate = useNavigate();
@@ -16,7 +17,7 @@ function HeaderPrescriptionPrint({ state }) {
 
     const genderAge = (patient_data) => {
         var value = `${patient_data?.pm_gender[0].toUpperCase()}, `
-        if (profile?.dp_id === 9) {
+        if (profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) {
             if (patient_data?.ageYears != 0) {
                 value += `${patient_data?.ageYears}y`
             }

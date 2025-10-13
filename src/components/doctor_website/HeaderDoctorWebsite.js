@@ -4,7 +4,7 @@ import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
 import axios from 'axios';
-import { isChrome, isSafari } from 'react-device-detect';
+import { isChrome, isSafari, deviceDetect } from 'react-device-detect';
 
 import Homepage from '../../website/Homepage';
 import stopPublishing from '../../assets/images/stop-publishing.svg';
@@ -14,7 +14,7 @@ import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsCon
 
 import { saveDoctorWebsite, publishDoctorWebsite } from "../../redux/doctorWebsiteSlice";
 import { updateWebsitePublish } from "../../redux/doctorsSlice";
-import { errorMessage, handleCopy, validateEmail } from '../../utils/utils';
+import { errorMessage, handleCopy, validateEmail, trackEvent, getTokenData } from '../../utils/utils';
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
 
@@ -22,6 +22,7 @@ function HeaderDoctorWebsite() {
 
     const dispatch = useDispatch();
     const { profile } = useSelector((state) => state.doctors);
+    const { planDetails } = useSelector((state) => state.subscription);
     const { save_loading, publish_loading } = useSelector((state) => state.doctorWebsite);
 
     const [childDrawer, setChildDrawer] = useState(false);
@@ -49,6 +50,20 @@ function HeaderDoctorWebsite() {
 
 
     async function onSaveWebsiteClick() {
+        // Track mixpanel event for website save and publish
+        const tokenData = getTokenData();
+        const deviceInfo = deviceDetect();
+        
+        trackEvent("TP_MS_Publish", {
+            clinic_id: tokenData?.clinic_id || "",
+            clinic_name: profile?.hospital_data?.find((e) => e.hm_id == tokenData?.clinic_id)?.hm_name || "",
+            um_id: tokenData?.user_id || "",
+            doctor_name: `${personalDetails?.first_name || ""} ${personalDetails?.last_name || ""}`.trim(),
+            specialty: personalDetails?.specialty || "",
+            plan_type: planDetails?.currentPlanStatus === "PAID" ? "Paid" : "Unpaid",
+            device: navigator.userAgent
+        });
+
         setPublishUrl(null)
         setProgress(0);
         setUnpublishStatus(false)
@@ -138,7 +153,39 @@ function HeaderDoctorWebsite() {
         }
     };
 
+    const handleDontPublishClick = () => {
+        // Track mixpanel event for don't publish button
+        const tokenData = getTokenData();
+        const deviceInfo = deviceDetect();
+        
+        trackEvent("TP_MS_DNPublish", {
+            clinic_id: tokenData?.clinic_id || "",
+            clinic_name: profile?.hospital_data?.find((e) => e.hm_id == tokenData?.clinic_id)?.hm_name || "",
+            um_id: tokenData?.user_id || "",
+            doctor_name: `${personalDetails?.first_name || ""} ${personalDetails?.last_name || ""}`.trim(),
+            specialty: personalDetails?.specialty || "",
+            plan_type: planDetails?.currentPlanStatus === "PAID" ? "Paid" : "Unpaid",
+            device: navigator.userAgent
+        });
+
+        setLoaderModal(false);
+    };
+
     async function onPublishWebsiteClick(status) {
+
+        // Track mixpanel event for publish button
+        const tokenData = getTokenData();
+        const deviceInfo = deviceDetect();
+        
+        trackEvent("TP_MS_PublishSite", {
+            clinic_id: tokenData?.clinic_id || "",
+            clinic_name: profile?.hospital_data?.find((e) => e.hm_id == tokenData?.clinic_id)?.hm_name || "",
+            um_id: tokenData?.user_id || "",
+            doctor_name: `${personalDetails?.first_name || ""} ${personalDetails?.last_name || ""}`.trim(),
+            specialty: personalDetails?.specialty || "",
+            plan_type: planDetails?.currentPlanStatus === "PAID" ? "Paid" : "Unpaid",
+            device: navigator.userAgent
+        });
 
         if (!status) {
             showHideModal()
@@ -354,7 +401,7 @@ function HeaderDoctorWebsite() {
                                             <Button
                                                 type="text"
                                                 className="btn btn-primary2 align-items-center justify-content-center d-flex btn-41 w-50"
-                                                onClick={() => setLoaderModal(false)}>
+                                                onClick={handleDontPublishClick}>
                                                 Don't Publish
                                             </Button>
                                             <Button

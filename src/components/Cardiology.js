@@ -23,7 +23,10 @@ import vitalsIcon from "../assets/images/Vitals.svg";
 import medicalHistoryIcon from "../assets/images/Medical-History.svg";
 import vaccinationIcon from "../assets/images/Vaccination.svg";
 import customModuleIcon from "../assets/images/custom-module.svg";
-
+import {
+  getClinic,
+  getTokenData,
+} from "../utils/utils";
 import {
   EXTRA_OPTIONS,
   FETCH_SMART_RX,
@@ -60,7 +63,8 @@ function Cardiology(props) {
   const dispatch = useDispatch();
 
   const { profile, userId } = useSelector((state) => state.doctors);
-  const { frequencyList, timingList } = useSelector((state) => state.doctors);
+  const { frequencyList, timingList, defaultPrintSettings } = useSelector((state) => state.doctors);
+  const medicationCaseOptions = defaultPrintSettings?.prescription?.case_option?.find((option) => option.id === 4);
 
   const {
     patient_data,
@@ -113,13 +117,15 @@ function Cardiology(props) {
       fetchData();
     }
     if (
-      isSnapRxDigitizationAccessable &&
+      isSnapRxAccessableFromGB &&
       viewCaseManagerData?.tcm_id &&
       viewCaseManagerData?.smart_prescription_filename?.includes("snap_rx")
     ) {
       setIsSnapRx(true);
       fetchSnapRxFile();
-      fetchSnapRxDigitisedData(viewCaseManagerData?.tcm_id);
+      if(isSnapRxDigitizationAccessable){
+        fetchSnapRxDigitisedData(viewCaseManagerData?.tcm_id);
+      }
     } else {
       setIsSnapRx(false);
     }
@@ -385,7 +391,7 @@ function Cardiology(props) {
         <>
           <div>{`${
             record.tmm_dosage && record.tmm_unit
-              ? `${medicine_freq_dosage_format(record.tmm_dosage)} ${
+              ? `${medicine_freq_dosage_format(record.tmm_dosage, medicationCaseOptions?.is_dosage_decimal)} ${
                   record?.medicineUnit &&
                   record?.medicineUnit.find(
                     (x) => x.tmu_id == record.tmm_unit
@@ -429,24 +435,24 @@ function Cardiology(props) {
                       record.tcm_tmm_freq_morning
                         ? medicine_freq_dosage_format(
                             record.tcm_tmm_freq_morning
-                          )
+                          , medicationCaseOptions?.is_dosage_decimal)
                         : 0
                     }-${
                       record.tcm_tmm_freq_afternoon
                         ? medicine_freq_dosage_format(
                             record.tcm_tmm_freq_afternoon
-                          )
+                          , medicationCaseOptions?.is_dosage_decimal)
                         : 0
                     }${
                       record.tcm_tmm_freq_evening
                         ? "-" +
                           medicine_freq_dosage_format(
                             record.tcm_tmm_freq_evening
-                          )
+                          , medicationCaseOptions?.is_dosage_decimal)
                         : ""
                     }-${
                       record.tcm_tmm_freq_night
-                        ? medicine_freq_dosage_format(record.tcm_tmm_freq_night)
+                        ? medicine_freq_dosage_format(record.tcm_tmm_freq_night, medicationCaseOptions?.is_dosage_decimal)
                         : 0
                     }`
                   : `-`
@@ -459,7 +465,7 @@ function Cardiology(props) {
                   : ""
               })`}
           <div>
-            {timingList.find((x) => x.tmt_id == record.tmm_time) !== undefined
+            {timingList.find((x) => x.tmt_id == record.tmm_time) !== undefined && timingList.find((x) => x.tmt_id == record.tmm_time)?.tmt_title !== "None"
               ? timingList.find((x) => x.tmt_id == record.tmm_time).tmt_title
               : ""}
           </div>
@@ -509,7 +515,7 @@ function Cardiology(props) {
           Doctor_Unique_Id: profile?.doctor_unique_id,
         });
       await window.open(printUrl);
-    } else if (showDigitalGenRx && !isSmartRxFile) {
+    } else if (showDigitalGenRx && !isSmartRxFile && !isSnapRx) {
       const urlObj = new URL(viewCaseManagerData?.print_url);
       urlObj.searchParams.set("voiceRxDigitize", "true");
       const updatedUrl = urlObj.toString();
@@ -636,6 +642,22 @@ function Cardiology(props) {
   };
 
   const handleDigitiseRx = async (record) => {
+    const type = viewCaseManagerData?.isCustomSSRX === "1" ? 1 : 0;
+    const tokenData = getTokenData();
+    const clinic = getClinic(profile?.hospital_data);
+    window.Moengage.track_event("TP_DigitizeSSRx", {
+    patient_id: patient_data?.patient_unique_id || "",
+    patient_name: patient_data?.pm_fullname || "",
+    doctor_id: profile?.doctor_unique_id,
+    doctor_name: profile?.um_name,
+    doctor_specialty: profile?.dp_name,
+    clinic_id: tokenData?.clinic_id,
+    clinic_name: clinic?.hm_name,
+    rx_id: viewCaseManagerData?.tcm_id || "",
+    source: "Patient Details page",
+    type: type,
+    device_details: navigator.userAgent
+  });
     navigate("/smart-rx-digitise", {
       state: {
         patient_data: patient_data,
@@ -674,9 +696,17 @@ function Cardiology(props) {
       snapRxDigitisedData
         ? snapRxDigitisedData
         : rxDigitisedData?.editedData;
+
     return (
       <div className="digitised-data-section">
         <ul>
+          {type === "followUp" && data?.followUp && (
+            <li>
+              <div className="medicine-item">
+                <span>{data?.followUp}</span>
+              </div>
+            </li>
+          )}
           {/* Handle vitals type separately */}
           {type === "vitals" &&
             Object.entries(data?.vitals || {})
@@ -688,8 +718,9 @@ function Cardiology(props) {
                       {/* Format the key to be human-readable */}
                       {`${key
                         .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
-                        .replace(/^./, (str) => str.toUpperCase())}: `}
+                        .replace(/^./, (str) => str.toUpperCase())}`}
                     </span>
+                    <span className="separator">:</span>
                     <span>{value}</span>
                   </div>
                 </li>
@@ -709,8 +740,23 @@ function Cardiology(props) {
                       ? item.name[0]?.toUpperCase() + item.name?.slice(1)
                       : type === "medications" || type === "tests"
                       ? item?.refinedName
+                      : type === "labResults"
+                      ? item?.testname
+                      : type === "dynamicFields"
+                      ? item?.title
+                      : type === "others"
+                      ? item
                       : item?.name}
                   </span>
+
+                  {/* Lab Results specific rendering */}
+                  {type === "labResults" && (
+                    <>
+                      <span className="separator">:</span>
+                      <span>{item.value}</span>
+                      {/* {item.notes && <span>{` (${item.notes})`}</span>} */}
+                    </>
+                  )}
 
                   {/* Optional rendering for lineItem */}
                   {(type === "medications" ||
@@ -721,7 +767,7 @@ function Cardiology(props) {
                     item.lineItem && <span>{` (${item.lineItem})`}</span>}
 
                   {/* Optional rendering for notes */}
-                  {(type === "examination" || type === "diagnosis") &&
+                  {(type === "examination" || type === "diagnosis" || type === "dynamicFields") &&
                     item.notes && <span>{` (${item.notes})`}</span>}
                 </div>
               </li>
@@ -735,9 +781,11 @@ function Cardiology(props) {
     <div className="digitised-data-section" style={{ marginLeft: 0 }}>
       <ol>
         {type === "followUp" && genRxData?.followUp && (
-          <div className="medicine-item">
-            <span>{genRxData?.followUp}</span>
-          </div>
+          <li>
+            <div className="medicine-item">
+              <span>{genRxData?.followUp}</span>
+            </div>
+          </li>
         )}
         {/* Handle vitals type separately */}
         {type === "vitalsAndBodyComposition" &&
@@ -826,6 +874,9 @@ function Cardiology(props) {
         medicalHistory: ["name", "lineItem"],
         vaccinations: ["name", "lineItem"],
         tests: ["refinedName", "lineItem"],
+        labResults: ["testname", "value", "notes"],
+        dynamicFields: ["title", "notes"],
+        others: ["name"],
       };
 
       const fieldsToCheck = relevantFields[type] || ["name"];
@@ -996,7 +1047,8 @@ function Cardiology(props) {
                     </button>
                   </div>
                 )
-              ))}
+              ))
+            }
 
             {isSnapRxDigitizationAccessable &&
               isSnapRx &&
@@ -1060,7 +1112,8 @@ function Cardiology(props) {
                     Digitise Rx Now
                   </button>
                 </div>
-              ))}
+              ))
+            }
 
             {genRxData &&
               isValidMongoId(
@@ -1090,7 +1143,8 @@ function Cardiology(props) {
                     Transcript
                   </button>
                 </div>
-              )}
+              )
+            }
             <Drawer
               closeIcon={false}
               // placement="right"
@@ -1436,6 +1490,73 @@ function Cardiology(props) {
                           {renderItems("vaccinations")}
                         </>
                       )}
+
+                    {rxDigitisedData?.editedData?.labResults &&
+                      hasValidContent(rxDigitisedData.editedData, "labResults") && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={Investigationicon}
+                              alt="Lab Results"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Lab Results
+                            </div>
+                          </div>
+                          {renderItems("labResults")}
+                        </>
+                      )}
+
+                    {rxDigitisedData?.editedData?.dynamicFields &&
+                      hasValidContent(rxDigitisedData.editedData, "dynamicFields") && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={customModuleIcon}
+                              alt="Dynamic Fields"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Dynamic Fields
+                            </div>
+                          </div>
+                          {renderItems("dynamicFields")}
+                        </>
+                      )}
+
+                    {rxDigitisedData?.editedData?.others &&
+                      hasValidContent(rxDigitisedData.editedData, "others") && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={notesicon}
+                              alt="Others"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Others
+                            </div>
+                          </div>
+                          {renderItems("others")}
+                        </>
+                      )}
+
+                    {rxDigitisedData?.editedData?.followUp && (
+                      <>
+                        <div className="d-flex align-items-start">
+                          <img
+                            className="me-2"
+                            src={followUp}
+                            alt="Follow Up"
+                          />
+                          <div className="title-digitise-section mb-1">
+                            Follow Up
+                          </div>
+                        </div>
+                        {renderItems("followUp")}
+                      </>
+                    )}
                   </div>
                 ) : (
                   <>
@@ -1637,6 +1758,73 @@ function Cardiology(props) {
                           {renderItems("vaccinations")}
                         </>
                       )}
+
+                    {snapRxDigitisedData?.labResults &&
+                      hasValidContent(snapRxDigitisedData, "labResults") && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={Investigationicon}
+                              alt="Lab Results"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Lab Results
+                            </div>
+                          </div>
+                          {renderItems("labResults")}
+                        </>
+                      )}
+
+                    {snapRxDigitisedData?.dynamicFields &&
+                      hasValidContent(snapRxDigitisedData, "dynamicFields") && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={customModuleIcon}
+                              alt="Dynamic Fields"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Dynamic Modules
+                            </div>
+                          </div>
+                          {renderItems("dynamicFields")}
+                        </>
+                      )}
+
+                    {snapRxDigitisedData?.others &&
+                      hasValidContent(snapRxDigitisedData, "others") && (
+                        <>
+                          <div className="d-flex align-items-start">
+                            <img
+                              className="me-2"
+                              src={notesicon}
+                              alt="Others"
+                            />
+                            <div className="title-digitise-section mb-1">
+                              Others
+                            </div>
+                          </div>
+                          {renderItems("others")}
+                        </>
+                      )}
+
+                    {snapRxDigitisedData?.followUp && (
+                      <>
+                        <div className="d-flex align-items-start">
+                          <img
+                            className="me-2"
+                            src={followUp}
+                            alt="Follow Up"
+                          />
+                          <div className="title-digitise-section mb-1">
+                            Follow Up
+                          </div>
+                        </div>
+                        {renderItems("followUp")}
+                      </>
+                    )}
                   </div>
                 ) : (
                   <>
@@ -1929,7 +2117,7 @@ function Cardiology(props) {
                   No visit found for this patient yet
                 </p>
                 <div className="d-flex flex-column align-items-center justify-content-center g-4">
-                  {isSmartSyncAccessableFromGB && !isMobile ? (
+                  {isSmartSyncAccessableFromGB || isSnapRxAccessableFromGB && !isMobile ? (
                     <SmartDropdownButtons
                       profile={profile}
                       patient_data={patient_data}
@@ -1968,6 +2156,10 @@ function Cardiology(props) {
 }
 
 function SmartDropdownButtons({ profile, patient_data, navigate }) {
+  
+  const isSmartSyncAccessableFromGB = useFeatureIsOn(GB_ISCRIBE);
+  const isSnapRxAccessableFromGB = useFeatureIsOn(GB_SNAP_RX);
+  
   const [open, setOpen] = React.useState(false);
   const arrowRef = React.useRef(null);
   const containerRef = React.useRef(null);
@@ -2043,28 +2235,54 @@ function SmartDropdownButtons({ profile, patient_data, navigate }) {
           </span>
         </Button>
       </div>
-      {open && (
-        <div>
-          <Button
-            className="btn btn-primary3 btn-text-white m-2 btn-41"
-            onClick={() => {
-              setOpen(false);
-              window.Moengage.track_event("start_new_SmartRx_click", {
-                doctor_id: profile?.doctor_unique_id,
-                patient_id:
-                  patient_data !== undefined
-                    ? patient_data.patient_unique_id
-                    : 0,
-              });
-              navigate("/smart-prescription", {
-                state: { patient_data: patient_data },
-              });
-            }}
-          >
-            <span style={{ padding: "0 3.4rem" }}>Start New SmartRx</span>
-          </Button>
+      {open && 
+        <div className="smart-rx-buttons-group">
+          {isSmartSyncAccessableFromGB && 
+            <div>
+              <button
+                className={`smart-rx-buttons bottom-border ${isSnapRxAccessableFromGB && isSmartSyncAccessableFromGB ?  "top-br" : "border-radius-all"}`}
+                onClick={() => {
+                  setOpen(false);
+                  window.Moengage.track_event("start_new_SmartRx_click", {
+                    doctor_id: profile?.doctor_unique_id,
+                    patient_id:
+                      patient_data !== undefined
+                        ? patient_data.patient_unique_id
+                        : 0,
+                  });
+                  navigate("/smart-prescription", {
+                    state: { patient_data: patient_data },
+                  });
+                }}
+              >
+                <span style={{ padding: "0 3.4rem" }}>Start New SmartRx</span>
+              </button>
+            </div>
+          }
+          {isSnapRxAccessableFromGB &&
+            <div>
+              <button
+                className={`smart-rx-buttons ${isSnapRxAccessableFromGB && isSmartSyncAccessableFromGB ?  "bottom-br" : "border-radius-all"}`}
+                onClick={() => {
+                  setOpen(false);
+                  window.Moengage.track_event("start_new_SnapRx_click", {
+                    doctor_id: profile?.doctor_unique_id,
+                    patient_id:
+                      patient_data !== undefined
+                        ? patient_data.patient_unique_id
+                        : 0,
+                  });
+                  navigate("/snap-rx", {
+                    state: { patient_data: patient_data },
+                  });
+                }}
+              >
+                <span style={{ padding: "0 3.4rem" }}>Start New SnapRx</span>
+              </button>
+            </div>
+          } 
         </div>
-      )}
+      }
     </div>
   );
 }

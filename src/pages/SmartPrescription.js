@@ -9,6 +9,10 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
+import {
+  getClinic,
+  getTokenData
+} from "../utils/utils";
 
 import {
   ADD,
@@ -18,6 +22,8 @@ import {
   WEBSOCKET_ERROR_MESSAGE,
   PAEDIATRICS,
   GB_ZYDUS_USER,
+  NEO_NATOLOGISTS_DP_ID,
+  GB_CARE_PLAN,
 } from "../utils/constants";
 
 import ReconnectingWebSocket from "reconnectingwebsocket";
@@ -37,6 +43,11 @@ import vitals from "../assets/images/Vitals.svg";
 import MedicalHistory from "../assets/images/Medical-History.svg";
 import privateNotes from "../assets/images/private-notes.svg";
 import SmartRxFollowUpBox from "../components/SmartRxFollowUpBox";
+import CarePlanDropdown from "../components/CarePlanDropdown";
+import CarePlanList from "../components/CarePlanList";
+import { getCarePlanAssignments } from "./smartSync/services/carePlanService";
+import { assignCarePlan } from "./smartSync/services/carePlanService";
+import carePlanIcon from "../assets/images/Care plan_Active.svg";
 
 import {
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
@@ -153,6 +164,7 @@ function SmartPrescription() {
   );
   const dispatch = useDispatch();
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+  const isCarePlanEnabled = useFeatureIsOn(GB_CARE_PLAN);
 
   const { state } = useLocation();
   const { patient_data, send_path, caseManagerData, smartRxFilesData, pam_id } = state;
@@ -172,6 +184,8 @@ function SmartPrescription() {
   const [investigationData, setInvestigationData] = useState([]);
   const [medicationData, setMedicationData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
+  const [selectedCarePlan, setSelectedCarePlan] = useState(null);
+  const [carePlanPlaceholder, setCarePlanPlaceholder] = useState(undefined);
   const [vitalsData, setVitalsData] = useState([]);
   const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
@@ -229,6 +243,27 @@ function SmartPrescription() {
     setKnowMoreDrawer((prev) => !prev);
   }, []);
 
+  // Resolve care plan placeholder from tcm_id for Smart Rx edit
+  useEffect(() => {
+    const resolvePlaceholder = async () => {
+      try {
+        if (!isCarePlanEnabled) return;
+        if (!patient_data?.patient_unique_id) return;
+        if (!tcmId || Number(tcmId) === 0) return;
+
+        const resp = await getCarePlanAssignments(patient_data?.patient_unique_id);
+        const list = Array.isArray(resp) ? resp : [];
+
+        const match = list.find(x => Number(x?.tcm_id) === Number(tcmId));
+        setCarePlanPlaceholder(match?.plan_name || undefined);
+      } catch (e) {
+        setCarePlanPlaceholder(undefined);
+      }
+    };
+
+    resolvePlaceholder();
+  }, [isCarePlanEnabled, patient_data?.patient_unique_id, tcmId]);
+
   // Helper function for unified template/RX selection
   const isTemplateSelected = (templateId) => {
     return templateId && templateId !== 'none';
@@ -270,7 +305,9 @@ function SmartPrescription() {
     pillupSwitch, 
     setPillupSwitch,
     isCustomSSRX,
-    setIsCustomSSRX
+    setIsCustomSSRX,
+    selectedCarePlan,
+    setSelectedCarePlan
   };
 
   const baseUrl = { customBaseUrl: env.casemanager_api_url };
@@ -1206,7 +1243,7 @@ function SmartPrescription() {
       );
 
       if (
-        profile?.dp_name === PAEDIATRICS &&
+        (profile?.dp_name === PAEDIATRICS || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) &&
         patient_data?.ageMonths <= 12 &&
         patient_data?.ageYears === 0
       ) {
@@ -1813,54 +1850,90 @@ function SmartPrescription() {
             />
           </div>
         </>
-      ) : (
-        e.tmdpm_id === 19 &&
-        e.tmdpm_status === 0 && (
-          <>
-            <div className="prescription-box-sm" style={{ overflow: "hidden" }}>
-              <div
-                className="d-flex align-items-center justify-content-between p-14"
-                style={{ borderBottom: "1px solid #ddd" }}
-              >
-                <div className="d-flex align-items-center">
-                  <img
-                    src={labResultImg}
-                    alt="upload-document"
-                    className="me-3"
-                  />
-                  <div className="title-common">Lab Results</div>
-                </div>
-                <button
-                  className="btn d-flex align-items-center btn-text"
-                  style={{
-                    paddingRight: labParamsData?.length > 0 ? 0 : 12,
-                  }}
-                  onClick={
-                    labParamsData?.length > 0
-                      ? handleViewLabParamsDrawer
-                      : handleAddLabParamsDrawer
-                  }
-                >
-                  {labParamsData?.length === 0 && (
-                    <i className="icon-Add me-1 fs-5" />
-                  )}
-                  <span>{`${
-                    labParamsData?.length > 0 ? "View All" : "Add"
-                  }`}</span>
-                  {labParamsData?.length > 0 && (
-                    <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
-                  )}
-                </button>
+      ) : e.tmdpm_id === 19 && e.tmdpm_status === 0 ? (
+        <>
+          <div className="prescription-box-sm" style={{ overflow: "hidden" }}>
+            <div
+              className="d-flex align-items-center justify-content-between p-14"
+              style={{ borderBottom: "1px solid #ddd" }}
+            >
+              <div className="d-flex align-items-center">
+                <img
+                  src={labResultImg}
+                  alt="upload-document"
+                  className="me-3"
+                />
+                <div className="title-common">Lab Results</div>
               </div>
-              <LabParametersList
-                labParamsData={labParamsData}
-                patient_unique_id={patient_data?.patient_unique_id}
-                doc_id={userId}
+              <button
+                className="btn d-flex align-items-center btn-text"
+                style={{
+                  paddingRight: labParamsData?.length > 0 ? 0 : 12,
+                }}
+                onClick={
+                  labParamsData?.length > 0
+                    ? handleViewLabParamsDrawer
+                    : handleAddLabParamsDrawer
+                }
+              >
+                {labParamsData?.length === 0 && (
+                  <i className="icon-Add me-1 fs-5" />
+                )}
+                <span>{`${
+                  labParamsData?.length > 0 ? "View All" : "Add"
+                }`}</span>
+                {labParamsData?.length > 0 && (
+                  <i className="icon-right iconrotate180 ms-auto me-1 fs-5" />
+                )}
+              </button>
+            </div>
+            <LabParametersList
+              labParamsData={labParamsData}
+              patient_unique_id={patient_data?.patient_unique_id}
+              doc_id={userId}
+            />
+          </div>
+        </>
+      ) : e.tmdpm_id === 22 && e.tmdpm_status === 0 && isCarePlanEnabled ? (
+          <div key={i} className="prescription-box-sm p-14">
+            <div className="d-flex align-items-center justify-content-between">
+              <div className="d-flex align-items-center">
+                <img
+                  src={carePlanIcon}
+                  alt="Care Plans"
+                  className="me-3"
+                  style={{ width: '20px', height: '20px' }}
+                />
+                <div className="title-common">Care Plans</div>
+              </div>
+            </div>
+            
+            {/* Care Plan List - Show assigned care plans */}
+            <CarePlanList
+              patientId={patient_data?.patient_unique_id}
+              selectedTcmId={tcmId}
+              readOnly={true}
+              title="Assigned Care Plans"
+              hideWhenEmpty={true}
+              onCarePlanSelect={(plan) => {
+                setSelectedCarePlan(plan);
+              }}
+            />
+            
+            <div className="mt-3">
+              <CarePlanDropdown 
+                onCarePlanSelect={(plan) => {
+                  setSelectedCarePlan(plan);
+                }}
+                selectedCarePlan={selectedCarePlan}
+                patientId={patient_data?.patient_unique_id}
+                doctorId={userId}
+                clinicId={decodedToken?.result?.clinic_id}
+                placeholder={carePlanPlaceholder}
               />
             </div>
-          </>
-        )
-      );
+          </div>
+        ) : null;
     });
   };
 
@@ -2335,12 +2408,28 @@ function SmartPrescription() {
     });
   };
 
-  const handleSubmit = async () => {
+  
+  const handleSubmit = async (versionNumber) => {
+    const type = isCustomSSRX ? 1 : 0;
+    const tokenData = getTokenData();
+    const clinic = getClinic(profile?.hospital_data);
+    window.Moengage.track_event("TP_SmartRx_Submit", {
+      patient_id: patient_data?.patient_unique_id || "",
+      patient_name: patient_data?.pm_fullname,
+      doctor_id: profile?.doctor_unique_id,
+      doctor_name: profile?.um_name,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      clinic_name: clinic?.hm_name,
+      source: "Submit rx button",
+      type: type,
+      device_details: navigator.userAgent,
+    });
     // Only get canvases that correspond to current pages
     const currentCanvasArray = pages.map(pageId => canvasRefs.current[pageId]).filter(
       (canvas) => canvas !== null
     );
-    
+
     let blobs = [];
     let files = [];
 
@@ -2359,7 +2448,7 @@ function SmartPrescription() {
 
         // Check if the file has meaningful content (not just a blank canvas)
         const hasContent = file.size > 5 * 1000; // 5KB threshold for meaningful content
-        
+
         if (!hasContent && vitalsData.length === 0 && !followUpDate) {
           // Only show error if this is the first page and no other data exists
           if (i === 0) {
@@ -2405,6 +2494,7 @@ function SmartPrescription() {
     });
     formData.append("doctor_unique_id", tokenData?.doctor_unique_id);
     formData.append("patient_unique_id", patient_data?.patient_unique_id);
+    formData.append("buildNumber", versionNumber || "0");
 
     try {
       if (files.length > 0) {
@@ -2419,6 +2509,8 @@ function SmartPrescription() {
         });
         dispatch(setSelectAutofill(false));
       }
+
+      // Care plan assignment/update is handled post-submit in HeaderSmartPrescription
     } catch (error) {
       errorMessage("Error Uploading the prescription, Please try again");
       console.error("Error Submitting the prescription:", error);
@@ -3107,6 +3199,7 @@ function SmartPrescription() {
           isCustomSSRX={isCustomSSRX}
           selectedTemplateId={selectedTemplateId}
           prepareMetadataForSubmissionData={prepareMetadataForSubmission()}
+          selectedCarePlan={selectedCarePlan}
         />
         
         {loading && <FullPageLoader />}

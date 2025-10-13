@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
-import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, hasNumber, isAlphabetExit, calculateDose, getClinicName } from "../utils/utils";
+import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, hasNumber, isAlphabetExit, calculateDose, getClinicName, capitalizeFirstWordOnly } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
@@ -18,6 +18,7 @@ import imgCloseVisit from '../assets/images/close-visit.svg';
 import { MenuOutlined } from '@ant-design/icons';
 import tagNew from '../../src/assets/images/tag-new.svg';
 import Pillup from '../assets/images/pillup.svg';
+import EazyDoseLogo from '../assets/images/EazyDose Logo.png';
 
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
@@ -37,7 +38,9 @@ import {
   updateFrequentlyMedication,
   getAllDoses
 } from "../redux/medicationSlice";
-import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, MESSAGE_KEY } from "../utils/constants";
+import { EXTRA_OPTIONS, GB_PILLUP_MEDICINE, MESSAGE_KEY, NEO_NATOLOGISTS_DP_ID } from "../utils/constants";
+import { getDecodedToken } from "../utils/localStorage";
+import { env } from "../EnvironmentConfig";
 
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DoseCalculator from "./dose_calculator/doseCalculator";
@@ -269,7 +272,7 @@ function MedicationsBox(props) {
           let doseCalData = {}
           const objDose = dosesList.find((e1) => e1.medicine_id == e.tmm_id)
           if (objDose !== undefined) {
-            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration)
+            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration, e?.tmm_type)
             doseCalData['tmm_dosage_unit_name'] = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`;
             doseCalData['tmm_dosage'] = dose ? dose : "";
             doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? unitObj.tmu_title : "";
@@ -280,12 +283,7 @@ function MedicationsBox(props) {
             doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? unitObj.tmu_title : "";
           }
 
-          return {
-            ...e,
-            objectID: JSON.parse(item.key).objectID,
-            // tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-            tmm_freq_type_name:
-              e.tmf_block == 0
+          let tmm_freq_type_name = e.tmf_block == 0
                 ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
                   ? e.tcm_tmm_freq_morning + " - "
                   : "0 -"
@@ -300,7 +298,15 @@ function MedicationsBox(props) {
                   : "0"}`
                 : frequencyObj !== undefined
                   ? frequencyObj.tmf_title
-                  : "",
+                  : "";
+
+          tmm_freq_type_name = tmm_freq_type_name === "0 -0 -0" ? "" : tmm_freq_type_name;
+
+          return {
+            ...e,
+            objectID: JSON.parse(item.key).objectID,
+            // tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+            tmm_freq_type_name: tmm_freq_type_name,
             tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
             tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
             // tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
@@ -1105,7 +1111,7 @@ function MedicationsBox(props) {
                                       onClear={() => onSearchUnitPerDoseChid("", item?.index)}
                                       allowClear
                                     />
-                                    {ii === 0 && profile?.dp_id === 9 && (
+                                    {ii === 0 && (profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) && (
                                       dosesList.some((e1) => e1.medicine_id == item.tmm_id) ? (
                                         <div className="badge-tapper position-absolute" style={{ bottom: 0, left: 20 }} onClick={() => handleViewDoseCalcDrawer("1", item?.tmm_id)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Edit Calculation</div>
                                       ) : (
@@ -1133,8 +1139,8 @@ function MedicationsBox(props) {
                                     <Select
                                       className={`autocomplete-custom w-100 h-100 inputborder ${!isEditable ? 'autoselect-medrx-readonly': ''}`}
                                       placeholder="e.g Before Food"
-                                      defaultValue={item.tmm_time_name != "" ? item.tmm_time_name : null}
-                                      value={item.tmm_time_name != "" ? item.tmm_time_name : null}
+                                      defaultValue={item.tmm_time_name != "" && item.tmm_time_name !== "None" ? item.tmm_time_name : null}
+                                      value={item.tmm_time_name != "" && item.tmm_time_name !== "None" ? item.tmm_time_name : null}
                                       onSelect={(data) => onSelectTimingChild(data, item?.index)}
                                       options={timingList.map((e) => {
                                         return {
@@ -1573,7 +1579,8 @@ function MedicationsBox(props) {
 
   const onChangeMedicineName = useCallback(
     (e) => {
-      setAddCustom({ ...addCustom, tmm_medicine_name: e.target.value });
+      const capitalizedName = capitalizeFirstWordOnly(e.target.value);
+      setAddCustom({ ...addCustom, tmm_medicine_name: capitalizedName });
     },
     [addCustom]
   );
@@ -1630,7 +1637,7 @@ function MedicationsBox(props) {
   const onAddEditMedicineClick = async () => {
     var sendData = {
       tmm_id: addCustom?.tmm_id,
-      tmm_medicine_name: addCustom?.tmm_medicine_name,
+      tmm_medicine_name: capitalizeFirstWordOnly(addCustom?.tmm_medicine_name),
       tmm_type: addCustom?.tmy_id,
       tmm_generic: addCustom?.tmm_generic !== undefined ? addCustom?.tmm_generic : '',
       tmm_company: addCustom?.tmm_company !== undefined ? addCustom?.tmm_company : ''
@@ -1686,7 +1693,7 @@ function MedicationsBox(props) {
           let doseCalData = {}
           const objDose = dosesList.find((e1) => e1.medicine_id == e.tmm_id)
           if (objDose !== undefined) {
-            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration)
+            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration, e?.tmm_type)
             doseCalData['tmm_dosage_unit_name'] = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`;
             doseCalData['tmm_dosage'] = dose ? dose : "";
             doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? unitObj.tmu_title : "";
@@ -1792,7 +1799,7 @@ function MedicationsBox(props) {
                   placeholder="Medicine Name"
                   value={addCustom?.tmm_medicine_name}
                   onChange={onChangeMedicineName}
-                  className="inputheight45 text-capitalize" />
+                  className="inputheight45" />
               </Form.Item>
             </div>
             <div>
@@ -1936,11 +1943,18 @@ function MedicationsBox(props) {
   }, [isPillUpAccessableFromGB]);
 
   const PILLUP_CONTENT = useCallback(() => {
-    if (!isEditable)  return null;
+    if (!isEditable) return null;
+    
+    const decodedToken = getDecodedToken();
+    const tokenData = decodedToken?.result;
+    const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+    
+    const serviceName = isZydusUser ? "eaZY Dose" : "PillUp";
+    const serviceNameTitle = isZydusUser ? "eaZY Dose Fulfilment" : "Pillup Fulfilment";
     return (
       <div className="p-2">
-        <div className="fs-18 fw-semibold text-black">Pillup Fulfilment <img className="img-fluid ms-2" src={tagNew} /></div>
-        <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
+        <div className="fs-18 fw-semibold text-black">{serviceNameTitle} <img className="img-fluid ms-2" src={tagNew} /></div>
+        <div className="pt-1">You can now activate <b>{serviceName}</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
       </div>
     );
   }, [popOver3, isEditable]);
@@ -1959,8 +1973,21 @@ function MedicationsBox(props) {
     {
       description:
         <>
-          <div className="fs-18 fw-semibold pt-3 text-black">Pillup Fulfilment <img className="img-fluid ms-2" src={tagNew} /></div>
-          <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
+          <div className="fs-18 fw-semibold pt-3 text-black">
+            {(() => {
+              const decodedToken = getDecodedToken();
+              const tokenData = decodedToken?.result;
+              const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+              return isZydusUser ? "eaZY Dose Fulfilment" : "Pillup Fulfilment";
+            })()} <img className="img-fluid ms-2" src={tagNew} />
+          </div>
+          <div className="pt-1">You can now activate <b>
+            {(() => {
+              const decodedToken = getDecodedToken();
+              const tokenData = decodedToken?.result;
+              const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+              return isZydusUser ? "eaZY Dose" : "PillUp";
+            })()}</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
         </>,
       target: () => tourRef.current,
       nextButtonProps: {
@@ -1983,7 +2010,12 @@ function MedicationsBox(props) {
             <div className="title-common">{isDischargeSummary ? isPillUpAccessableFromGB ? 'Discharge Meds': 'Discharge Medications': isPillUpAccessableFromGB ? 'Meds' : 'Medications'} (Rx)</div>
             {(isPillUpAccessableFromGB && isEditable) &&
               <div ref={tourRef} className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center" style={{ backgroundColor: 'rgb(226, 226, 234, 0.2)' }}>
-                <img src={Pillup} />
+                {(() => {
+                  const decodedToken = getDecodedToken();
+                  const tokenData = decodedToken?.result;
+                  const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+                  return isZydusUser ? <img src={EazyDoseLogo} alt="eaZY Dose" style={{ height: '20px' }} /> : <img src={Pillup} />;
+                })()}
                 <Popover
                   open={popOver3}
                   onOpenChange={showHidePillUpPopover}
@@ -1999,7 +2031,7 @@ function MedicationsBox(props) {
             }
           </div>
           {isEditable && <div className="d-flex align-items-center">
-            {profile?.dp_id === 9 && (
+            {(profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) && (
               <button
                 className="btn d-flex align-items-center btn-text"
                 onClick={handleViewDoseCalcDrawer}

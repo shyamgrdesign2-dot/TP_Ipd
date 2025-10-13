@@ -7,9 +7,11 @@ FROM node:22 as build
 
 # Define a build argument for REACT_APP_ENV
 ARG REACT_APP_ENV
+ARG SENTRY_AUTH_TOKEN
 
 # Set REACT_APP_ENV environment variable
 ENV REACT_APP_ENV $REACT_APP_ENV
+ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
 
 # Set the working directory in the container
 WORKDIR /app

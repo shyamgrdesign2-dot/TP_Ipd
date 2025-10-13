@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useRef } from 'react';
+import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import { Popover, Drawer } from "antd";
 import Button from 'react-bootstrap/Button';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +17,10 @@ import { isAndroid, isBrowser } from 'react-device-detect';
 import { generateUniqueFileName, getCorrectedFileName } from '../pages/medicalRecords/utils/helper';
 import { EVENTS } from '../utils/events';
 import { getDecodedToken } from '../utils/localStorage';
+import {
+  getClinic,
+  getTokenData
+} from "../utils/utils";
 
 function Welcome1(props) {
 
@@ -24,6 +28,7 @@ function Welcome1(props) {
     const [videoLink, setVideoLink] = useState(null);
     const [clickedDownArrow, setClickedDownArrow] = useState(false);
     const fileInputRef = useRef(null);
+    const consultButtonRef = useRef(null);
     const isSmartSyncAccessableFromGB = useFeatureIsOn(
         GB_ISCRIBE
     );
@@ -48,6 +53,19 @@ function Welcome1(props) {
         handleDrawerUploadDoc,
     } = props;
 
+    const handleClickOutside = (event) => {
+        if (!consultButtonRef?.current?.contains(event.target)) {
+          setClickedDownArrow(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+          document.removeEventListener("mousedown", handleClickOutside);
+        };
+      }, []);
+
     const modifyFormat = useMemo(() => {
         if (viewCaseManagerData) {
             const data = moment(viewCaseManagerData.consultation_date).format('Do MMM')
@@ -63,6 +81,19 @@ function Welcome1(props) {
     const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
 
     const onSmartRxClick = async (patient) => {
+        const tokenData = getTokenData();
+        const clinic = getClinic(profile?.hospital_data);
+        window.Moengage.track_event("TP_SmartRx_Started", {
+      patient_id: patient?.patient_unique_id || "",
+      patient_name: patient?.pm_fullname,
+      doctor_id: profile?.doctor_unique_id,
+      doctor_name: profile?.um_name,
+      doctor_specialty: profile?.dp_name,
+      clinic_id: tokenData?.clinic_id,
+      clinic_name: clinic?.hm_name,
+      source: "Appointment Landing Page",
+      device_details: navigator.userAgent
+  });
         navigate("/smart-prescription", { state: { patient_data: patient } });
     };
 
@@ -218,6 +249,7 @@ function Welcome1(props) {
                                             onCancel={() => setVideoLink(null)}
                                         />
                                     )}
+                                    
                                     {!viewCaseManagerData?.smart_prescription_filename?.length &&
                                         <Button variant="outline-primary me-3 d-flex align-items-center mb-lg-0 mb-2" onClick={() => {
                                             window.Moengage.track_event("repeat_rx_click", {
@@ -228,54 +260,138 @@ function Welcome1(props) {
                                             navigate("/prescription", { state: { patient_data: patient_data, send_path: "patient_details", caseManagerData: { ...viewCaseManagerData, tcm_id: 0, consultation_date: moment().format('YYYY-MM-DD HH:mm:ss') } } })
                                         }}> <i className={'icon-reload me-2'}></i>Repeat {modifyFormat && modifyFormat.first}<sup>{modifyFormat && modifyFormat.second}</sup>&nbsp;{modifyFormat && modifyFormat.third} Rx</Button>
                                     }
-                                    {isSnapRxAccessableFromGB && !isMobile ? (
+                                    {(isSnapRxAccessableFromGB || isSmartSyncAccessableFromGB)  && !isMobile ? (
                                         <>
-                                            <div
-                                                style={{
-                                                    background: "#4B4AD5",
-                                                    borderRadius: "10px",
-                                                    color: "white",
-                                                    marginLeft: "1rem",
-                                                    position: "relative",
-                                                }}
-                                            >
-                                                <button
-                                                    // className="btn btn-outline-primary btn-smart-rx"
-                                                    className="btn btn-outline-primary btn-smart-rx"
-                                                    onClick={() => onSnapRxClick(patient_data)}
-                                                    style={{ padding: "9px 2rem 9px 10px" }}
+                                            {isSmartSyncAccessableFromGB  ? (
+                                                <div
+                                                    style={{
+                                                        background: "#4B4AD5",
+                                                        borderRadius: "10px",
+                                                        color: "white",
+                                                        marginLeft: "1rem",
+                                                        position: "relative",
+                                                    }}
                                                 >
-                                                    <span className="btn-span-smartRx">Snap Rx</span>
-                                                </button>
-                                                <button
-                                                    className="btn btn-outline-primary btn-down-arrow"
-                                                    onClick={handleClickDownArrow}
-                                                    style={{ padding: "9.5px 5px" }}
-                                                >
-                                                    <span
-                                                        role="img"
-                                                        aria-label="down"
-                                                        className="anticon anticon-down ant-select-suffix"
-                                                    >
-                                                        <i
-                                                            className="icon-right"
-                                                            style={{
-                                                                display: "block",
-                                                                transform: `rotate(270deg)`,
-                                                                color: "white",
-                                                            }}
-                                                        />
-                                                    </span>
-                                                </button>
-                                                {clickedDownArrow && (
                                                     <button
-                                                        className="btn-consult-patient-details"
-                                                        onClick={() => onConsultClick(patient_data)}
+                                                        // className="btn btn-outline-primary btn-smart-rx"
+                                                        className="btn btn-outline-primary btn-smart-rx"
+                                                        onClick={() => onSmartRxClick(patient_data)}
+                                                        style={{ padding: "9px 2rem 9px 10px" }}
                                                     >
-                                                        Consult
+                                                        <span className="btn-span-smartRx">Smart Rx</span>
                                                     </button>
-                                                )}
-                                            </div>
+                                                    <button
+                                                        className="btn btn-outline-primary btn-down-arrow"
+                                                        onClick={handleClickDownArrow}
+                                                        style={{ padding: "9.5px 5px" }}
+                                                    >
+                                                        <span
+                                                            role="img"
+                                                            aria-label="down"
+                                                            className="anticon anticon-down ant-select-suffix"
+                                                        >
+                                                            <i
+                                                                className="icon-right"
+                                                                style={{
+                                                                    display: "block",
+                                                                    transform: `rotate(270deg)`,
+                                                                    color: "white",
+                                                                }}
+                                                            />
+                                                        </span>
+                                                    </button>
+                                                    {clickedDownArrow && (
+                                                        <div className='ps-rx-btns-grp' ref={consultButtonRef}>
+                                                             {(isSmartSyncAccessableFromGB && isSnapRxAccessableFromGB) && 
+                                                                <button
+                                                                    className="btn-consult-patient-details top-br with-divider"
+                                                                    onClick={() => {
+                                                                        onSnapRxClick(patient_data)}
+                                                                    }
+                                                                >
+                                                                    Snap Rx
+                                                                </button>
+                                                            }
+                                                            <button
+                                                                className={`btn-consult-patient-details ${isSnapRxAccessableFromGB && isSmartSyncAccessableFromGB ?  "bottom-br" : "border-radius-all"}`}
+                                                                onClick={() => onConsultClick(patient_data)}
+                                                            >
+                                                                Consult
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                ) : isSnapRxAccessableFromGB ? (
+                                                    <div
+                                                        style={{
+                                                            background: "#4B4AD5",
+                                                            borderRadius: "10px",
+                                                            color: "white",
+                                                            marginLeft: "1rem",
+                                                            position: "relative",
+                                                        }}
+                                                    >
+                                                        <button
+                                                            // className="btn btn-outline-primary btn-smart-rx"
+                                                            className="btn btn-outline-primary btn-smart-rx"
+                                                            onClick={() => onSnapRxClick(patient_data)}
+                                                            style={{ padding: "9px 2rem 9px 10px" }}
+                                                        >
+                                                            <span className="btn-span-smartRx">Snap Rx</span>
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-outline-primary btn-down-arrow"
+                                                            onClick={handleClickDownArrow}
+                                                            style={{ padding: "9.5px 5px" }}
+                                                        >
+                                                            <span
+                                                                role="img"
+                                                                aria-label="down"
+                                                                className="anticon anticon-down ant-select-suffix"
+                                                            >
+                                                                <i
+                                                                    className="icon-right"
+                                                                    style={{
+                                                                        display: "block",
+                                                                        transform: `rotate(270deg)`,
+                                                                        color: "white",
+                                                                    }}
+                                                                />
+                                                            </span>
+                                                        </button>
+                                                        {clickedDownArrow && (
+                                                            <div className='ps-rx-btns-grp' ref={consultButtonRef}>
+                                                                <button
+                                                                    className={`btn-consult-patient-details ${isSnapRxAccessableFromGB && isSmartSyncAccessableFromGB ?  "bottom-br" : "border-radius-all"}`}
+                                                                    onClick={() => onConsultClick(patient_data)}
+                                                                >
+                                                                    Consult
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div> 
+                                                ) : (
+                                                    <Button variant="primary"
+                                                        className='btn-41 px-4'
+                                                        onClick={() => {
+                                                            window.Moengage.track_event("start_new_visit_click", {
+                                                                "doctor_id": profile?.doctor_unique_id,
+                                                                "patient_id": patient_data !== undefined ? patient_data.patient_unique_id : 0
+                                                            });
+                                                            navigate("/prescription", { state: { patient_data: patient_data, send_path: "patient_details" } })
+                                                        }}>
+                                                        {'Start New Visit'}
+                                                    </Button>
+                                                )
+                                            }
+                                            {/* {clickedDownArrow && (isSnapRxAccessableFromGB || isSmartSyncAccessableFromGB) && (
+                                                <button
+                                                    className="btn-consult-patient-details"
+                                                    onClick={() => onConsultClick(patient_data)}
+                                                >
+                                                    Consult
+                                                </button>
+                                            )} */}
                                         </>
                                     ) :
                                     isSmartSyncAccessableFromGB && !isMobile ? (
@@ -295,7 +411,7 @@ function Welcome1(props) {
                                                     onClick={() => onSmartRxClick(patient_data)}
                                                     style={{ padding: "9px 2rem 9px 10px" }}
                                                 >
-                                                    <span className="btn-span-smartRx">SmartRx</span>
+                                                    <span className="btn-span-smartRx">Smart Rx</span>
                                                 </button>
                                                 <button
                                                     className="btn btn-outline-primary btn-down-arrow"

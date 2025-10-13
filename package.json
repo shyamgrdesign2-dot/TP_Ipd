@@ -1,6 +1,6 @@
 {
   "name": "react-thyrocare",
-  "version": "4.3.7",
+  "version": "4.3.9",
   "private": true,
   "homepage": "/",
   "dependencies": {
@@ -19,6 +19,8 @@
     "@react-pdf/renderer": "^3.4.0",
     "@reduxjs/toolkit": "^1.9.7",
     "@svgr/webpack": "^5.5.0",
+    "@sentry/cli": "^2.53.0",
+    "@sentry/react": "^10.9.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -129,7 +131,8 @@
     "start": "node scripts/start.js",
     "start:dev": "env-cmd -f .env.dev node scripts/start.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "eject": "react-scare-jl --project tatvapractice ./build && sentry-cli sourcemaps upload --org tatvacare-jl --project tatvapractice ./build"
   },
   "browserslist": {
     "production": [

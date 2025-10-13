@@ -7,7 +7,12 @@ import axios from "axios";
 import { saveAs } from "file-saver";
 import { jwtDecode } from "jwt-decode";
 
-import { errorMessage, getClinicName, trackEvent } from "../utils/utils";
+import {
+  errorMessage,
+  getClinicName,
+  isApollo,
+  trackEvent,
+} from "../utils/utils";
 import api from "../api/services/axiosService";
 
 import wtsp from "../assets/images/wtsp.svg";
@@ -295,36 +300,40 @@ function GenRxPrescriptionPrintView() {
                   <i className="icon-right iconrotate180 ms-auto"></i>
                 </Button>
               </div>
-              <div className="bg-body d-flex p-3 rounded-10px border">
-                <img
-                  src={wtsp}
-                  alt="Whatsapp Icon"
-                  className="align-self-baseline me-3"
-                />
-                <div className="fontroboto title-common">
-                  <div className="fw-normal fontroboto mb-2">
-                    {"Send this Rx to Patients"}
+              {!isApollo() && (
+                <>
+                  <div className="bg-body d-flex p-3 rounded-10px border">
+                    <img
+                      src={wtsp}
+                      alt="Whatsapp Icon"
+                      className="align-self-baseline me-3"
+                    />
+                    <div className="fontroboto title-common">
+                      <div className="fw-normal fontroboto mb-2">
+                        {"Send this Rx to Patients"}
+                      </div>
+                      {patient_data !== undefined
+                        ? `WhatsApp +91 ${patient_data.pm_contact_no}`
+                        : "-"}
+                    </div>
                   </div>
-                  {patient_data !== undefined
-                    ? `WhatsApp +91 ${patient_data.pm_contact_no}`
-                    : "-"}
-                </div>
-              </div>
-              <button
-                className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
-                onClick={handleSendToWhatsapp}
-              >
-                {isLoading ? (
-                  <img
-                    src={loadingImg}
-                    alt="Loading..."
-                    width="25px"
-                    height="25px"
-                  />
-                ) : (
-                  buttonText
-                )}
-              </button>
+                  <button
+                    className="btn btn-send-to-wtsap btnicon20 align-items-center d-flex mb-3 btn-41 w-100"
+                    onClick={handleSendToWhatsapp}
+                  >
+                    {isLoading ? (
+                      <img
+                        src={loadingImg}
+                        alt="Loading..."
+                        width="25px"
+                        height="25px"
+                      />
+                    ) : (
+                      buttonText
+                    )}
+                  </button>
+                </>
+              )}
             </div>
           </Col>
           <Col md={17} lg={17} xl={12}>

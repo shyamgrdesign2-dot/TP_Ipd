@@ -32,7 +32,7 @@ import { v4 as uuidv4 } from "uuid";
 import CashManagerContext from "../context/CashManagerContext";
 import { addCaseManager, editCaseManager } from "../redux/caseManagerSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { errorMessage, getClinicName, trackEvent, getTokenData, getDeviceSdkData } from "../utils/utils";
+import { errorMessage, getClinicName, trackEvent, getTokenData, getDeviceSdkData, isVoiceRxFree, getSupportedMimeType } from "../utils/utils";
 import { CheckOutlined, CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import deleteModuleIcon from "../assets/images/delete-icon-blue.svg";
 import alertIcon from "../assets/images/alertIcon.svg";
@@ -71,6 +71,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [prescriptionData, setPrescriptionData] = useState(null);
+  const isAutoFocusShownRef = useRef(false);
   const [symptomsCollectorData, setSymptomsCollectorData] = useState(null);
   const [localModules, setLocalModules] = useState([]);
   const [showInput, setShowInput] = useState(false);
@@ -88,6 +89,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
   const [activeIndex, setActiveIndex] = useState(null);
   const [activeType, setActiveType] = useState(null);
   const [editableLineItem, setEditableLineItem] = useState("");
+  const [editableKey, setEditableKey] = useState("");
   const [queries, setQueries] = useState([]);
   const [isRxEdited, setIsRxEdited] = useState(false);
   const [editingModule, setEditingModule] = useState("");
@@ -104,6 +106,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
   const { TextArea } = Input;
 
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+  const isFreeVoiceRxUser = isVoiceRxFree();
 
   useEffect(() => {
     if (VOICE_RX_planDetails !== undefined && (VOICE_RX_planDetails?.plan_tier === FREE || VOICE_RX_planDetails?.plan_tier === FAILED_VERIFICATION)) {
@@ -152,6 +155,69 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
   useEffect(() => {
     if (caseManagerData?.smart_prescription_filename) getGenRxDetails();
   }, [caseManagerData?.smart_prescription_filename]);
+
+  useEffect(() => {
+    if (isAutoFocusShownRef.current) return;
+    if (!prescriptionData || activeIndex !== null || activeType !== null) return;
+
+    const fieldsToCheck = [
+      { name: 'vitalsAndBodyComposition', type: 'object' },
+      { name: 'medicalHistory', type: 'array' },
+      { name: 'symptoms', type: 'array' },
+      { name: 'examinations', type: 'array' },
+      { name: 'diagnosis', type: 'array' },
+      { name: 'medications', type: 'array' },
+      { name: 'labInvestigation', type: 'array' },
+      { name: 'advice', type: 'array' },
+      { name: 'vaccinations', type: 'array' },
+      { name: 'others', type: 'array' },
+      { name: 'dynamicFields', type: 'object' },
+      { name: 'followUp', type: 'string' }
+    ];
+
+    for (const field of fieldsToCheck) {
+      if (field.type === 'object' && field.name === 'vitalsAndBodyComposition') {
+        const keysWithValue = Object.entries(prescriptionData[field.name] || {})
+          .filter(([_, value]) => value)
+          .map(([key]) => key);
+        if (keysWithValue?.length) {
+          setTimeout(() => {
+            isAutoFocusShownRef.current = true;
+            return handleKeyEditClick(keysWithValue[0]);
+          }, 0);
+          return;
+        }
+      } else if (field.type === 'object' && field.name === 'dynamicFields') {
+        const modules = Object.keys(prescriptionData[field.name] || {});
+        if (modules.length && prescriptionData[field.name][modules[0]]?.length) {
+          setTimeout(() => {
+            isAutoFocusShownRef.current = true;
+            return handleItemClick(modules[0], 0, true);
+          }, 100);
+          return;
+        }
+      } else if (field.type === 'array') {
+        if (prescriptionData[field.name]?.length) {
+          setTimeout(() => {
+            isAutoFocusShownRef.current = true;
+            if (["advice", "others"].includes(field.name)) {
+              return handleItemClick(field.name, 0);
+            }
+            return handleLineItemClick(field.name, 0);
+          }, 100);
+          return;
+        }
+      } else if (field.type === 'string') {
+        if (prescriptionData[field.name]) {
+          setTimeout(() => {
+            isAutoFocusShownRef.current = true;
+            return handleItemClick(field.name);
+          }, 100);
+          return;
+        }
+      }
+    }
+  }, [prescriptionData, activeIndex, activeType]);
 
   useEffect(() => {
     if (symptomCollector && Object.keys(symptomCollector)?.length > 0) {
@@ -255,9 +321,11 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioStreamRef.current = stream;
-      mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: "audio/mp4",
-      });
+      // Find the supported MIME type for this browser
+      const mimeType = getSupportedMimeType();
+      mediaRecorderRef.current = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream);
       audioChunksRef.current = [];
 
       mediaRecorderRef.current.ondataavailable = (event) => {
@@ -267,7 +335,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
       };
 
       mediaRecorderRef.current.onstop = () => {
-        const blob = new Blob(audioChunksRef.current, { type: "audio/wav" });
+        // Use the same MIME type that was detected or fall back to audio/webm
+        const mimeType = mediaRecorderRef.current.mimeType || "audio/webm";
+        const blob = new Blob(audioChunksRef.current, { type: mimeType });
         setAudioBlob(blob);
       };
 
@@ -303,9 +373,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
   };
 
   const handleSend = async () => {
-    if (VOICE_RX_planDetails?.plan_tier === FREE && VOICE_RX_planDetails?.credit_balance <= 0) {
+    if (!isFreeVoiceRxUser && VOICE_RX_planDetails?.plan_tier === FREE && VOICE_RX_planDetails?.credit_balance <= 0) {
       showHideSubModal()
-    } else if (VOICE_RX_planDetails?.plan_tier === FAILED_VERIFICATION) {
+    } else if (!isFreeVoiceRxUser && VOICE_RX_planDetails?.plan_tier === FAILED_VERIFICATION) {
       showHideSubModal()
     } else {
       let sendData = {
@@ -315,12 +385,12 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
       const action = await dispatch(checkCredits(sendData));
       if (action.meta.requestStatus === "fulfilled") {
         if (action?.payload?.hasOwnProperty("service_name")) {
-          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
+          if (!isFreeVoiceRxUser && action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
             if (action?.payload?.credit_balance != VOICE_RX_planDetails?.credit_balance) {
               await dispatch(services(sendData?.b2c_id))
             }
             showHideSubModal()
-          } else if (action?.payload?.plan_tier === FAILED_VERIFICATION) {
+          } else if (!isFreeVoiceRxUser && action?.payload?.plan_tier === FAILED_VERIFICATION) {
             showHideSubModal()
           } else {
             if (!isRecording && !(inputText || editableQuery)) return;
@@ -344,8 +414,10 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                 mediaRecorderRef.current?.stop();
                 await new Promise((resolve) => setTimeout(resolve, 100)); // Ensure audio is processed
 
+                const mimeType =
+                  mediaRecorderRef.current?.mimeType || "audio/webm";
                 const audioBlob = new Blob(audioChunksRef.current, {
-                  type: "audio/webm",
+                  type: mimeType,
                 });
 
                 await handleVoiceDigitize(audioBlob, "");
@@ -634,16 +706,32 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
   };
 
   const inputRefs = useRef({});
+  const inputLineItemRefs = useRef({});
 
-  const handleKeyDown = (e, type, index) => {
+  const handleKeyDown = (e, type, index, isExisting) => {
     if (e.key === "Enter") {
       e.preventDefault(); // Prevent newline in the input field
-
-      const trimmedText = editableText.trim();
+      
+      const trimmedText =  isExisting ? editableLineItem?.trim() : editableText.trim();
       if (trimmedText) {
         setPrescriptionData((prevData) => {
           const updatedData = { ...prevData };
 
+          if (isExisting) {
+            if (!updatedData?.[type]) {
+              updatedData[type] = [];
+            }
+            if (['advice', 'others'].includes(type)) {
+              updatedData[type][index] = trimmedText;
+              updatedData[type].splice(index + 1, 0, "");
+            } else {
+              updatedData[type][index].lineItem = trimmedText;
+              updatedData[type].splice(index + 1, 0, { lineItem: " ", name: " " });
+            }
+            setEditableLineItem(" ");
+            setEditableText("");
+          return updatedData;
+          }
           if (!updatedData.dynamicFields[type]) {
             updatedData.dynamicFields[type] = [];
           }
@@ -658,13 +746,20 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
 
         // Update active index and clear input
         setActiveIndex(index + 1);
-        setActiveType(type);
         setIsRxEdited(true);
-        setEditableText("");
+        if (isExisting && !['advice', 'others'].includes(type)) {
+          setActiveType(`${type}-lineItem`);
+          setEditableLineItem("");
+        } else {
+          setActiveType(type);
+          setEditableText("");
+        }
 
         // Focus on the newly added input
         setTimeout(() => {
           const nextIndex = index + 1;
+          if (isExisting) inputLineItemRefs.current[nextIndex]?.focus();
+          else
           inputRefs.current[nextIndex]?.focus();
         }, 0);
       }
@@ -686,25 +781,11 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
     setIsRxEdited(true);
   };
 
-  const handleLineItemBlur = (type, index) => {
-    setPrescriptionData((prevData) => {
-      const updatedData = { ...prevData };
-
-      updatedData[type][index].lineItem = editableLineItem; // Update lineItem with the new value
-
-      return updatedData;
-    });
-    setActiveIndex(null);
-    setActiveType(null);
-    setIsRxEdited(true);
-  };
-
-  const handleInputBlur = (type, index, isCustom) => {
-    if ((activeIndex !== null && activeType !== null) || isCustom) {
+  const handleInputBlur = (type, index, isCustom, isExisting) => {
+    if ((activeIndex !== null && activeType !== null) || (isCustom || isExisting)) {
       setPrescriptionData((prevData) => {
         const updatedData = { ...prevData };
-        const trimmedText = editableText.trim();
-
+        const trimmedText = isCustom ? editableText.trim() : isExisting ? editableLineItem?.trim() : "";
         if (!trimmedText) {
           if (type === "vitalsAndBodyComposition") {
             updatedData.vitalsAndBodyComposition[index] = "";
@@ -712,7 +793,12 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
             updatedData.dynamicFields[type] = updatedData.dynamicFields[
               type
             ].filter((_, i) => i !== index);
-          } else if (type === "followUp") {
+          } else if (isExisting) {
+            updatedData[type] = updatedData[
+              type
+            ].filter((_, i) => i !== index);
+          }
+           else if (type === "followUp") {
             updatedData.followUp = "";
           } else {
             updatedData[type] = updatedData?.[type]?.filter(
@@ -731,6 +817,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
           type === "vaccinations"
         ) {
           updatedData[type][index].name = trimmedText;
+          updatedData[type][index].lineItem = trimmedText;
         } else if (type === "advice" || type === "others") {
           updatedData[type][index] = trimmedText;
         } else if (type === "vitalsAndBodyComposition") {
@@ -865,7 +952,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
         ...deviceSdkData,
       });
 
-      if (useVoiceRx) {
+      if (!isFreeVoiceRxUser && useVoiceRx) {
         let sendData = {
           b2c_id: profile?.b2c,
           service_name: S_VOICE_RX
@@ -901,6 +988,28 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
     }
   }
 
+  const handleKeyEditClick = (key) => {
+    setActiveIndex(key);
+    setActiveType("vitalsAndBodyComposition-key");
+    setEditableKey(key);
+  };
+
+  const handleKeyEditBlur = (key) => {
+    if (editableKey && editableKey !== key) {
+      setPrescriptionData((prevData) => {
+        const updatedData = { ...prevData };
+        const value = updatedData.vitalsAndBodyComposition[key];
+        delete updatedData.vitalsAndBodyComposition[key];
+        updatedData.vitalsAndBodyComposition[editableKey] = value;
+        return updatedData;
+      });
+      setIsRxEdited(true);
+    }
+    setActiveIndex(null);
+    setActiveType(null);
+    setEditableKey("");
+  };
+
   const renderItems = (type) => {
     if (type === "followUp") {
       // Dynamically calculate input width
@@ -921,23 +1030,27 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
             <div className="shimmer-container">
               <div className="shimmer"></div>
             </div>
-          ) : activeType === "followUp" ? (
-            <input
-              type="text"
-              value={editableText}
-              className="editable-digitised-item"
-              onChange={handleInputChange}
-              onBlur={() => handleInputBlur("followUp")}
-              autoFocus
-            // style={{ width: `${textWidth + 10}px` }}
-            />
           ) : (
-            <span
-              onClick={() => handleItemClick("followUp")}
-              className="digitised-item"
-            >
-              {prescriptionData?.followUp}
-            </span>
+            <div className="medicine-item">
+              {activeType === "followUp" ? (
+                <input
+                  type="text"
+                  value={editableText}
+                  className="editable-digitised-item"
+                  onChange={handleInputChange}
+                  onBlur={() => handleInputBlur("followUp")}
+                  autoFocus
+                  style={{ width: `clamp(12px, ${textWidth + 10}px, 100%)` }}
+                />
+              ) : (
+                <span
+                  onClick={() => handleItemClick("followUp")}
+                  className="digitised-item"
+                >
+                  {prescriptionData?.followUp}
+                </span>
+              )}
+            </div>
           )}
         </div>
       );
@@ -975,9 +1088,28 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                       <div className="medicine-item">
                         <span className="digitised-item">
                           {/* Format the key to be human-readable */}
-                          {`${key
-                            .replace(/([A-Z])/g, " $1")
-                            .replace(/^./, (str) => str.toUpperCase())}: `}
+                          {activeIndex === key && activeType === "vitalsAndBodyComposition-key" ? (
+                            <input
+                              type="text"
+                              value={editableKey || key}
+                              className="editable-digitised-item"
+                              onChange={(e) => setEditableKey(e.target.value)}
+                              onBlur={() => handleKeyEditBlur(key)}
+                              autoFocus
+                              style={{ width: `clamp(12px, ${(editableKey || key).length * 8 + 20}px, 100%)` }}
+                            />
+                          ) : (
+                            <span
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleKeyEditClick(key);
+                              }}
+                              className="digitised-item digitised-key-item"
+                              style={{ cursor: "pointer", fontWeight: 500 }}
+                            >
+                              {`${key}: `}
+                            </span>
+                          )}
                         </span>
                         {activeIndex === key &&
                           activeType === "vitalsAndBodyComposition" ? (
@@ -988,7 +1120,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                             onChange={(e) => setEditableText(e.target.value)}
                             onBlur={() => handleInputBlur(type, key)}
                             autoFocus
-                            style={{ width: `${textWidth + 10}px` }} // Add padding for better UX
+                            style={{ width: `clamp(12px, ${textWidth + 10}px, 100%)` }} // Add padding for better UX
                           />
                         ) : (
                           <span
@@ -1063,8 +1195,9 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                           className="editable-digitised-item"
                           onChange={handleInputChange}
                           onBlur={() => handleInputBlur(type, index)}
+                          onKeyDown={(e) => handleKeyDown(e, type, index, true)}
                           autoFocus
-                          style={{ width: `${textWidth + 10}px` }}
+                          style={{ width: `clamp(12px, ${textWidth + 10}px, 100%)` }}
                         />
                       ) : (
                         ["advice", "others"].includes(type) && (
@@ -1093,9 +1226,11 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                             value={editableLineItem}
                             className="editable-digitised-item"
                             onChange={handleLineItemChange}
-                            onBlur={() => handleLineItemBlur(type, index)}
+                            onBlur={() => handleInputBlur(type, index, false, true)}
+                            onKeyDown={(e) => handleKeyDown(e, type, index, true)}
+                            ref={(el) => (inputLineItemRefs.current[index] = el)}
                             autoFocus
-                            style={{ width: `${lineItemWidth + 10}px` }} // Add padding for better UX
+                            style={{ width: `clamp(12px, ${lineItemWidth + 10}px, 100%)` }}
                           />
                         ) : (
                           <span
@@ -1302,7 +1437,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                                 }
                                 autoFocus
                                 style={{
-                                  width: `${textWidth + 10}px`,
+                                  width: `clamp(12px, ${textWidth + 10}px, 100%)`,
                                 }}
                                 onPaste={(e) => handlePaste(e, module)}
                                 onKeyDown={(e) =>
@@ -1468,7 +1603,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                 </span>
               </button>
 
-              <FreeTrialButton title={S_VOICE_RX} showHideSubModal={showHideSubModal} />
+              {!isFreeVoiceRxUser && <FreeTrialButton title={S_VOICE_RX} showHideSubModal={showHideSubModal} />}
 
               {showPrescription && (
                 <Button
@@ -1761,14 +1896,14 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
                     </div>
                   </div>
                   <div className={styles.prescriptionSection}>
-                    <div>
+                    {!isProcessing && <div>
                       <img src={documentIcon} alt="Document" />
                       <span className={styles.heading}>
                         Generated Digitised Rx
                       </span>
-                    </div>
+                    </div>}
                     {isProcessing ? (
-                      <GenRXLoaders isProcessing={isProcessing} />
+                      <GenRXLoaders isProcessing={isProcessing} showAbsHeaderInsideLoader={true} />
                     ) : (
                       <div
                         className={`${styles.rightSection} ${isProcessing ? styles.gradientBorder : ""
@@ -1975,7 +2110,7 @@ const ConsultationDrawer = ({ visible, onClose, handleGenRxKnowMore, labReportID
         </>
       </Suspense>
 
-      {visible && (
+      {!isFreeVoiceRxUser && visible && (
         <ExpiredSubModal
           title={S_VOICE_RX}
           styles={{

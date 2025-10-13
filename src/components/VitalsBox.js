@@ -14,7 +14,7 @@ import {
     getVitals,
 } from "../redux/vitalsSlice";
 import moment from "moment";
-import { PAEDIATRICS } from "../utils/constants";
+import { NEO_NATOLOGISTS_DP_ID, PAEDIATRICS } from "../utils/constants";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 const dateFormat = 'YYYY-MM-DD'
@@ -72,7 +72,9 @@ function VitalsBox(props) {
                 spo2: '',
                 bmr: cal.bmr,
                 bsa: cal.bsa,
-                general_rbs: m.general_rbs
+                general_rbs: m.general_rbs,
+                fib4: '',
+                waist_circumference: ''
             })));
         }
     }, [selectedVitalsList, measurements]);
@@ -97,11 +99,14 @@ function VitalsBox(props) {
                 spo2: '',
                 height: '',
                 weight: '',
+                fib4: '',
+                waist_circumference: '',
                 ofc: '',
                 bmi: cal.bmi,
                 bmr: cal.bmr,
                 bsa: cal.bsa,
                 general_rbs: ''
+
             });
             setChildVitalsData((prev) => [...prev]);
         }
@@ -132,7 +137,9 @@ function VitalsBox(props) {
                 spo2: "",
                 bmr: cal.bmr,
                 bsa: cal.bsa,
-                general_rbs: ''
+                general_rbs: '',
+                fib4: "",
+                waist_circumference: ""
                 },
             );
             setChildVitalsData([...tempVitals]);
@@ -218,6 +225,10 @@ function VitalsBox(props) {
                 childVitalsData[i].ofc = updateValue;
             } else if (flag === 10) {
                 childVitalsData[i].general_rbs = updateValue;
+            }else if (flag === 11) {
+                childVitalsData[i].fib4 = updateValue;
+            }else if (flag === 12) {
+                childVitalsData[i].waist_circumference= updateValue;
             }
             setChildVitalsData((prev) => [...prev]);
         },
@@ -240,7 +251,7 @@ function VitalsBox(props) {
             data: childVitalsData,
         };
         const action = await dispatch(addUpdateVitals(sendData));
-        if (profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
+        if ((profile?.dp_name === PAEDIATRICS || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
           dispatch(
             getPatientBirthWeight({
               patient_unique_id:
@@ -287,7 +298,13 @@ function VitalsBox(props) {
                         <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.general_rbs} addonAfter={'mg/dl'} onChange={(e) => onChangeInput(e.target.value, i, 10)} />
                         </div>
-                        {profile?.dp_name === PAEDIATRICS || isGowthChartAccessableFromGB ? <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
+                         <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
+                            <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.fib4} addonAfter={<span style={{ width: "24px" }} />}  onChange={(e) => onChangeInput(e.target.value, i, 11)} />
+                        </div>
+                        <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
+                            <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.waist_circumference} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 12)} />
+                        </div>
+                        {profile?.dp_name === PAEDIATRICS || profile?.dp_id === NEO_NATOLOGISTS_DP_ID || isGowthChartAccessableFromGB ? <div className='vitals-row d-flex align-items-center border-bottom px-2 w-100'>
                             <Input className='inputheight41-group' placeholder="Enter" inputMode="numeric" value={item.ofc} addonAfter={'cms'} onChange={(e) => onChangeInput(e.target.value, i, 9)} />
                         </div> : null}
                         <div className='vitals-row vitals-row-60 d-flex align-items-center px-2 w-100'>
@@ -337,7 +354,7 @@ function VitalsBox(props) {
                     </Button>
                 </div>
                 <div className="align-items-center d-flex justify-content-between px-20 py-3">
-                    {profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0 ? (
+                    {(profile?.dp_name === PAEDIATRICS || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0 ? (
                         <div className="vitals-wrapper">
                             <div className='vitals-row d-flex align-items-center px-2'>
                                 Patient’s birth weight
@@ -384,7 +401,13 @@ function VitalsBox(props) {
                                 <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     General RBS
                                 </div>
-                                {profile?.dp_name === PAEDIATRICS || isGowthChartAccessableFromGB? <div className='vitals-row d-flex align-items-center border-bottom px-2'>
+                                 <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>
+                                    FIB4
+                                </div>
+                                 <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>
+                                    Waist Circumference
+                                </div>
+                                {profile?.dp_name === PAEDIATRICS || profile?.dp_id === NEO_NATOLOGISTS_DP_ID || isGowthChartAccessableFromGB ? <div className='vitals-row d-flex align-items-center border-bottom px-2'>
                                     OFC
                                 </div> : null}
                                 <div className='vitals-row vitals-row-60 d-flex align-items-center px-2'>

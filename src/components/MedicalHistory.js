@@ -162,10 +162,13 @@ function MedicalHistory({ loading, medicalHistoryData, doctorId }) {
                                                                 {e.tags.filter(x => x.enable === 'Y').map((e1, i1) => (
                                                                     <div key={i1} className='my-2'>
                                                                         <span>{medical_history_title(e?.tmmhs_id)}</span> <label>{e1.title}</label>
-                                                                        {e1.since && (
+                                                                        {e1.since && e?.tmmhs_id !== 5 && (
                                                                             <> | <span>Since</span> : <label>{e1.since}</label></>
                                                                         )}
-                                                                        {e.tmmhs_id !== 3 && (
+                                                                        {e1.date && e?.tmmhs_id === 5 && (
+                                                                            <> | <span>Date of Surgery</span> : <label>{e1.date}</label></>
+                                                                        )}
+                                                                        {e.tmmhs_id !== 3 && e?.tmmhs_id !== 5 && (
                                                                             <>
                                                                                 {e1.status && (
                                                                                     <> | <span>Status</span> : <label>{e1.status}</label></>
@@ -183,7 +186,7 @@ function MedicalHistory({ loading, medicalHistoryData, doctorId }) {
                                                                 {e.tags.filter(x => x.enable === 'Y').map((e1, i1) => (
                                                                     e1.note && (
                                                                         <div key={i1} className='my-2'>
-                                                                            <span>Note</span> : <label>{e1.note}</label>
+                                                                            <span>{e?.tmmhs_id === 5 ? "Remarks" : "Note"}</span> : <label>{e1.note}</label>
                                                                         </div>
                                                                     )
                                                                 ))}

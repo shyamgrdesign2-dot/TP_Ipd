@@ -654,17 +654,68 @@ body {
         }
     }
 
-    .btn-consult {
+    .rx-btns-grp {
         border: 1px solid rgb(255, 255, 255);
         position: absolute;
         top: 91%;
+        // width: 52%;
         font-size: 15px;
         background-color: white;
         color: rgb(94, 93, 93);
         border-radius: 9px;
-        padding: 7px 40px 7px 9px;
+        // padding: 7px 40px 7px 9px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         z-index: 1;
+    }
+
+    .consult-btns-group {
+        font-size: 15px;
+        color: rgb(94, 93, 93);
+        z-index: 1;
+
+        .ant-dropdown .ant-dropdown-menu {
+            width: 100% !important;
+            right: -2% !important;
+            padding-right: 5rem !important;
+
+            // .ant-dropdown-menu-item{
+            //     padding: 5px 0px !important;
+            // }
+        }
+
+    }
+
+    .btn-consult {
+        width: 100% !important;
+        border: none;
+        font-size: 15px;
+        background-color: white;
+        color: rgb(94, 93, 93);
+        padding: 0.3rem 0 0.3rem 0.5rem;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .btn-consult:hover{
+        background-color: #f0f0f0;
+    }
+
+    .btn-consult.top-br{
+        border-top-left-radius: 9px;
+        border-top-right-radius: 9px;
+    }
+
+    .btn-consult.bottom-br{
+        border-bottom-left-radius: 9px;
+        border-bottom-right-radius: 9px;
+    }
+
+    .btn-consult.border-radius-all{
+        border-radius: 9px;
+    }
+
+    .btn-consult.with-divider {
+        border-bottom: 1px solid #ddd; /* 👈 divider line */
     }
 
     .btn-consult-walkIn {
@@ -682,18 +733,88 @@ body {
         z-index: 2;
     }
 
-    .btn-consult-patient-details {
-        border: 1px solid rgb(255, 255, 255);
+    .ps-rx-btns-grp{
+        border: 1px solid rgb(200, 200, 200);
+        border-radius: 9px;
         position: absolute;
         top: 108%;
         width: 100%;
         right: 0%;
+        z-index: 19999 !important;
+        text-align: left;
+    }
+
+    .btn-consult-patient-details {
+        border: none;
         font-size: 15px;
+        width: 99.9%;
         background-color: white;
         color: rgb(94, 93, 93);
+        padding: 7px 63px 7px 9px;
+        text-align: left;
+
+        &.top-br{
+            border-top-left-radius: 9px !important;
+            border-top-right-radius: 9px !important;
+        }
+
+        &.bottom-br{
+            border-bottom-left-radius: 9px !important;
+            border-bottom-right-radius: 9px !important;
+        }
+
+        &.with-divider {
+            border-bottom: 1px solid #ddd;
+        }
+
+        &.border-radius-all{
+            border-radius: 9px !important;
+        }
+    }
+
+    .smart-rx-buttons-group{
+        border: 1px solid rgb(200, 200, 200);
         border-radius: 9px;
-        padding: 7px 79px 7px 9px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        width: 96%;
+    }
+
+    .smart-rx-buttons-grp{
+        border: 1px solid rgb(200, 200, 200);
+        border-radius: 9px;
+        width: 100%;
+    }
+
+    .smart-rx-buttons{
+        border: none;
+        width: 99%;
+        padding: 0.5rem 0.1rem;
+        margin: 2px;
+        border-radius: 9px;
+        background-color: #ffffff;
+
+        &.top-br{
+            border-top-left-radius: 9px;
+            border-top-right-radius: 9px;
+        }
+    
+        &.bottom-br{
+            border-bottom-left-radius: 9px;
+            border-bottom-right-radius: 9px;
+        }
+
+        &.border-radius-all{
+            border-radius: 9px;
+        }
+
+        &.bottom-border{
+            border-radius: 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        &:hover{
+            border-radius: 9px;
+            background-color: #f0f0f0;
+        }
     }
 
     .btn-span-smartRx {

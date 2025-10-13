@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS, DDX_KNOW_MORE_DATA, FAILED_VERIFICATION, FREE, GB_GYNEC_HISTORY, GB_ZYDUS_USER, GYNAECOLOGY, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_DDX } from "../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, DDX_KNOW_MORE_DATA, FAILED_VERIFICATION, FREE, GB_GYNEC_HISTORY, GB_ZYDUS_USER, GB_CARE_PLAN, GYNAECOLOGY, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_DDX, NEO_NATOLOGISTS_DP_ID } from "../utils/constants";
 
 import { getPatientBirthWeight, getVitals } from "../redux/vitalsSlice";
 import {
@@ -98,6 +98,9 @@ import DDxList from "../components/medical_certificate/DDxList";
 import SurgicalBox from "../components/SurgicalBox";
 import AddCustomModule from "../components/AddCustomModule";
 import CustomModule from "../components/CustomModule";
+import CarePlanDropdown from "../components/CarePlanDropdown";
+import CarePlanList from "../components/CarePlanList";
+import { getCarePlanNames, getCarePlanAssignments } from "./smartSync/services/carePlanService";
 
 import TatvaAiKnowMore from "../components/TatvaAiKnowMore";
 import GenRxBox from "../components/GenRxBox";
@@ -114,6 +117,7 @@ import LabResultsTable from "../components/LabParams";
 import ZydusLabParams from "../components/ZydusLabParams";
 import ZydusLabParametersList from "../components/ZydusLabParametersList";
 import { fetchGynecHistory, getLabParamsData, setGynecHistoryData, setMedicalHistoryData as setMedicalHistory, setMedicationData, setPillupSwitch } from "../redux/prescriptionSlice";
+import carePlanIcon from "../assets/images/Care plan_Active.svg";
 
 function Prescription() {
   const {
@@ -123,6 +127,7 @@ function Prescription() {
     frequencyList,
     timingList,
   } = useSelector((state) => state.doctors);
+
   const { planDetails } = useSelector((state) => state.subscription);
   const { selectedVitalsList, vitalsPastList, patientBirthWeight } =
     useSelector((state) => state.vitals);
@@ -193,6 +198,8 @@ function Prescription() {
   const [zydusTestReportDrawer, setZydusTestReportDrawer] = useState(false);
   const [labReportID, setLabReportID] = useState(null);
   const [zydusSelectedLabParams, setZydusSelectedLabParams] = useState([]);
+  const [selectedCarePlan, setSelectedCarePlan] = useState(null);
+  const [carePlanPlaceholder, setCarePlanPlaceholder] = useState(undefined);
 
   const { servicesList } = useSelector((state) => state.doctors);
 
@@ -265,7 +272,9 @@ function Prescription() {
     useVoiceRx,
     setUseVoiceRx,
     useDDX,
-    setUseDDX
+    setUseDDX,
+    selectedCarePlan,
+    setSelectedCarePlan
   };
 
   const [vitalDrawer, setVitalDrawer] = useState(false);
@@ -299,6 +308,7 @@ function Prescription() {
   const isApexAIAccessable = useFeatureIsOn("cdss");
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
   const isVoiceRxAccessable = useFeatureIsOn("voice-rx");
+  const isCarePlanEnabled = useFeatureIsOn(GB_CARE_PLAN);
   const {
     isVaccinationAccessable,
     isGrowthChartAccessable,
@@ -671,7 +681,7 @@ function Prescription() {
       );
 
       if (
-        profile?.dp_name === PAEDIATRICS &&
+        (profile?.dp_name === PAEDIATRICS || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) &&
         patient_data?.ageMonths <= 12 &&
         patient_data?.ageYears === 0
       ) {
@@ -753,6 +763,33 @@ function Prescription() {
   useEffect(() => {
     getLabParams();
   }, []);
+
+  useEffect(() => {
+    if (isCarePlanEnabled) {
+      fetchCarePlanNames();
+    }
+  }, [isCarePlanEnabled]);
+
+  // Derive placeholder plan name by fetching assignments and matching current tcm_id
+  useEffect(() => {
+    const resolvePlaceholder = async () => {
+      try {
+        if (!isCarePlanEnabled) return;
+        if (!patient_data?.patient_unique_id) return;
+        if (!tcmId || Number(tcmId) === 0) return;
+
+        const resp = await getCarePlanAssignments(patient_data?.patient_unique_id);
+        const list = Array.isArray(resp) ? resp : [];
+
+        const match = list.find(x => Number(x?.tcm_id) === Number(tcmId));
+        setCarePlanPlaceholder(match?.plan_name || undefined);
+      } catch (e) {
+        setCarePlanPlaceholder(undefined);
+      }
+    };
+
+    resolvePlaceholder();
+  }, [isCarePlanEnabled, patient_data?.patient_unique_id, tcmId]);
 
   useEffect(() => {
     getSymptomsCollectorData();
@@ -864,6 +901,17 @@ function Prescription() {
     ).catch((err) => {
           console.error("Error fetching lab params:", err);
       });
+  };
+
+  const fetchCarePlanNames = async () => {
+    try {
+      if (isCarePlanEnabled) {
+        const response = await getCarePlanNames();
+        // The CarePlanDropdown component handles its own data fetching
+      }
+    } catch (error) {
+      console.error("Error fetching care plan names:", error);
+    }
   };
 
   const handleDDxKnowMore = () => {
@@ -1291,6 +1339,45 @@ function Prescription() {
             />
           </div>
         </>
+      ) : e.tmdpm_id === 22 && e.tmdpm_status === 0 && isCarePlanEnabled ? (
+        <div key={i} className="prescription-box-sm p-14">
+          <div className="d-flex align-items-center justify-content-between">
+            <div className="d-flex align-items-center">
+              <img
+                src={carePlanIcon}
+                alt="Care Plans"
+                className="me-3"
+                style={{ width: '20px', height: '20px' }}
+              />
+              <div className="title-common">Care Plans</div>
+            </div>
+          </div>
+          
+          {/* Care Plan List - Show assigned care plans */}
+          <CarePlanList
+            patientId={patient_data?.patient_unique_id}
+            selectedTcmId={tcmId}
+            readOnly={true}
+            title="Assigned Care Plans"
+            hideWhenEmpty={true}
+            onCarePlanSelect={(plan) => {
+              setSelectedCarePlan(plan);
+            }}
+          />
+          
+          <div className="mt-3">
+            <CarePlanDropdown 
+              onCarePlanSelect={(plan) => {
+                setSelectedCarePlan(plan);
+              }}
+              selectedCarePlan={selectedCarePlan}
+              patientId={patient_data?.patient_unique_id}
+              doctorId={userId}
+              clinicId={decodedToken?.result?.clinic_id}
+              placeholder={carePlanPlaceholder}
+            />
+          </div>
+        </div>
       ) : null;
     });
 
@@ -1401,6 +1488,7 @@ function Prescription() {
           zydusSelectedLabParams={zydusSelectedLabParams}
           handleGenRx={handleGenRx}
           labReportID={labReportID}
+          selectedCarePlan={selectedCarePlan}
         />
         <div className="w-100 bg-body wrapper2 prescription-wrapper">
           <img src={hey} alt="vitals" className="me-3 hey" />
