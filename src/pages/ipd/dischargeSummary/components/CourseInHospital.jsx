@@ -10,12 +10,9 @@ import {
   generateChronologicalSummary,
 } from "../../../../redux/ipd/dischargeSummarySlice";
 import TreatmentGiven from "../../../../components/DynamicPickerTable/TreatmentGiven";
-import { Button } from "antd";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
-
-// Removed Slate inline component approach - using DOM-based tooltips instead
 
 const CourseInHospital = (props) => {
   const {
@@ -40,153 +37,11 @@ const CourseInHospital = (props) => {
 
   const handleOthersChange = (data, key) => {
     dispatch(setCourseInHospital({ ...courseInHospital, [key]: data }));
-
-    if (key === "chronologicalSummary") {
-      setTimeout(() => {
-        const richTextContainer = document.querySelector(
-          ".chronological-summary-wrapper .slate-editable-wrapper"
-        );
-        if (richTextContainer) {
-          const event = new CustomEvent("contentChanged");
-          richTextContainer.dispatchEvent(event);
-        }
-      }, 200);
-    }
   };
-
-  useEffect(() => {
-    const addModuleCodeStyling = () => {
-      const richTextContainer = document.querySelector(
-        ".chronological-summary-wrapper .slate-editable-wrapper"
-      );
-      if (!richTextContainer) {
-        return;
-      }
-
-      let tooltip = null;
-
-      const createTooltip = (content, x, y) => {
-        if (tooltip) {
-          tooltip.remove();
-        }
-        tooltip = document.createElement("div");
-        tooltip.className = "module-code-tooltip-overlay";
-        tooltip.textContent = content;
-        tooltip.style.position = "fixed";
-        tooltip.style.left = `${x}px`;
-        tooltip.style.top = `${y - 40}px`;
-        tooltip.style.zIndex = "10000";
-        tooltip.style.backgroundColor = "white";
-        tooltip.style.color = "white";
-        tooltip.style.padding = "8px 12px";
-        tooltip.style.borderRadius = "6px";
-        tooltip.style.fontSize = "12px";
-        tooltip.style.fontWeight = "normal";
-        tooltip.style.whiteSpace = "nowrap";
-        tooltip.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
-        tooltip.style.pointerEvents = "none";
-        tooltip.style.opacity = "0";
-        tooltip.style.transition = "opacity 0.2s ease";
-
-        document.body.appendChild(tooltip);
-
-        setTimeout(() => {
-          if (tooltip) tooltip.style.opacity = "1";
-        }, 10);
-      };
-
-      const hideTooltip = () => {
-        if (tooltip) {
-          tooltip.style.opacity = "0";
-          setTimeout(() => {
-            if (tooltip && tooltip.parentNode) {
-              tooltip.parentNode.removeChild(tooltip);
-              tooltip = null;
-            }
-          }, 200);
-        }
-      };
-
-      const handleMouseMove = (event) => {
-        // Get the element under the mouse
-        const elementUnderMouse = document.elementFromPoint(
-          event.clientX,
-          event.clientY
-        );
-
-        if (
-          elementUnderMouse &&
-          richTextContainer.contains(elementUnderMouse)
-        ) {
-          const text = elementUnderMouse.textContent || "";
-          const moduleRegex = /\[([A-Z]{2,4})\]/g;
-
-          // Check if text contains module codes
-          if (moduleRegex.test(text)) {
-            // Find which module code the mouse is over
-            const matches = [...text.matchAll(/\[([A-Z]{2,4})\]/g)];
-
-            if (matches.length > 0) {
-              // Show tooltip for the first module code found
-              const match = matches[0];
-              const code = match[1];
-              const fullName = getModuleFullName(code);
-              createTooltip(
-                `${code}: ${fullName}`,
-                event.clientX,
-                event.clientY
-              );
-              return;
-            }
-          }
-        }
-
-        hideTooltip();
-      };
-
-      const handleMouseOut = () => {
-        hideTooltip();
-      };
-
-      // Add event listeners to the container (no DOM manipulation)
-      richTextContainer.addEventListener("mousemove", handleMouseMove);
-      richTextContainer.addEventListener("mouseout", handleMouseOut);
-
-      return () => {
-        hideTooltip();
-        richTextContainer.removeEventListener("mousemove", handleMouseMove);
-        richTextContainer.removeEventListener("mouseout", handleMouseOut);
-      };
-    };
-
-    const timeoutId = setTimeout(addModuleCodeStyling, 500);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [chronologicalSummary]);
 
   useEffect(() => {
     handleGenerateChronologicalSummary();
   }, []);
-
-  const getModuleFullName = (code) => {
-    const codeToNameMap = {
-      OT: "OT Notes",
-      PN: "Progress Notes",
-      AF: "Assessment",
-      CN: "Consultant Notes",
-      CR: "Cross Referral",
-      LR: "Laboratory Report",
-      RR: "Radiology Report",
-      NN: "Nursing Notes",
-      MED: "Medication",
-      VS: "Vital Signs",
-      DP: "Discharge Planning",
-    };
-
-    return codeToNameMap[code] || code;
-  };
 
   const handleGenerateChronologicalSummary = async () => {
     if (!patientId || !admissionId) return;
@@ -270,12 +125,7 @@ const CourseInHospital = (props) => {
 
         listItems.push({
           type: "list-item",
-          children: [
-            {
-              type: "paragraph",
-              children: [{ text: fullContent }],
-            },
-          ],
+          children: [{ text: fullContent }],
         });
       }
     });

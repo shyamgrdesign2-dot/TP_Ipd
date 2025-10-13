@@ -27,7 +27,6 @@ const ProvisionalDiagnosis = (props) => {
   const onSaveClick = () => {
     if (diagnosisPickerTableRef.current?.saveRows) {
       const rows = diagnosisPickerTableRef.current.saveRows();
-      console.log("INTEL ==> ROWS", rows);
       dispatch(setProvisionalDiagnosis(rows));
       setAddProvisionalDiagnosisDrawer(false);
     }

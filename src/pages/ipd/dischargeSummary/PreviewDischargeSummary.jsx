@@ -29,7 +29,7 @@ const PreviewDischargeSummary = () => {
   const { patientDetails } = state || {};
   const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
-  const { dischargeSummaryData } = useSelector(
+  const { actualDischargeSummaryData: dischargeSummaryData } = useSelector(
     (state) => state.dischargeSummary
   );
   const { dischargeSummary: currentSettings } = printSettings;
@@ -40,7 +40,6 @@ const PreviewDischargeSummary = () => {
     setDivWidth(divRef.current?.offsetWidth);
   }, [divRef]);
 
-  console.log('INTEL ==> WAIT', dischargeSummaryData)
   useEffect(() => {
     if (patientDetails?.details?.id)
       dispatch(
@@ -50,7 +49,6 @@ const PreviewDischargeSummary = () => {
         })
       )
         .then((res) => {
-          console.log("INTEL ==> okokok", res.payload);
           if (res.payload && !res.error) {
             addDischargeDataToStore(res.payload, dispatch);
           }
@@ -138,7 +136,7 @@ const PreviewDischargeSummary = () => {
         } w-100 bg-body wrapper2 prescription-wrapper`}
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
-          <Col md={7} sm={7} xl={5}>
+          {/* <Col md={7} sm={7} xl={5}>
             {!isMobile && (
               <div
                 className="d-flex align-items-center justify-content-end h-38"
@@ -196,7 +194,7 @@ const PreviewDischargeSummary = () => {
                 </Button>
               </div>
             </div>
-          </Col>
+          </Col> */}
           <Col md={17} sm={17} xl={12}>
             <div className={isMobile ? "p-20" : ""}>
               <div className="d-flex align-items-center justify-content-between">

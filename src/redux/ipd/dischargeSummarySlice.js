@@ -34,6 +34,7 @@ export const initialState = {
   loading: false,
   currentDischargeSummaryId: null,
   dischargeSummaryFormDetails: {},
+  actualDischargeSummaryData: {},
 };
 
 export const getDischargeSummaryData = createAsyncThunk(
@@ -277,26 +278,11 @@ const dischargeSummarySlice = createSlice({
       })
       .addCase(getDischargeSummaryData.fulfilled, (state, action) => {
         state.loading = false;
-        // if (action.payload && typeof action.payload === "object") {
-        //   const { courseInHospital, ...otherData } = action.payload;
-
-        //   state.dischargeSummaryData = {
-        //     surgeriesPerformed:
-        //       state.dischargeSummaryData?.surgeriesPerformed || [],
-        //     ...otherData,
-        //     courseInHospital: {
-        //       ...courseInHospital,
-        //       chronologicalSummary: undefined,
-        //     },
-        //   };
-
-        //   if (courseInHospital?.chronologicalSummary) {
-        //     state.chronologicalSummary = courseInHospital.chronologicalSummary;
-        //   }
-        // }
+        state.actualDischargeSummaryData = action.payload;
       })
       .addCase(getDischargeSummaryData.rejected, (state) => {
         state.dischargeSummaryData = [];
+        state.actualDischargeSummaryData = [];
         state.loading = false;
       })
       .addCase(addDischargeSummaryData.pending, (state) => {
@@ -308,6 +294,7 @@ const dischargeSummarySlice = createSlice({
       })
       .addCase(addDischargeSummaryData.rejected, (state) => {
         state.dischargeSummaryData = [];
+        state.actualDischargeSummaryData = [];
         state.loading = false;
       })
       .addCase(updateDischargeSummaryData.pending, (state) => {

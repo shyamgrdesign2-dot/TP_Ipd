@@ -96,7 +96,6 @@ const PatientInfo = ({
   // if (displaySettings.showPatientInfo === 0) return null;
 
   const visibleFields = getVisiblePatientFields(displaySettings, patientData);
-  console.log('INTEL ==> visibleFields', visibleFields)
 
   if (visibleFields.length === 0) return null;
 

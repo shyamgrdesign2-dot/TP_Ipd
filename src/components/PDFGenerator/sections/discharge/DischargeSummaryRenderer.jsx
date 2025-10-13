@@ -199,7 +199,9 @@ const renderPreparedBy = (data, fontFamily) => {
             Discharge Summary Prepared by:{" "}
           </Text>
           <Text style={{ fontWeight: 400, color: "#454551" }}>
-            {preparedBy.name}
+            {preparedBy.map((doctor, index) => (
+              `${doctor.name}${index < preparedBy.length - 1 ? ", " : ""}`
+            ))}
           </Text>
         </Text>
       </View>
@@ -215,7 +217,6 @@ const renderPreparedBy = (data, fontFamily) => {
  * @returns {Array} Array of section components
  */
 export const renderDischargeSummary = (data, formatSettings, fontFamily) => {
-  console.log('INTEL ==> data', data)
   if (!data || !formatSettings) return [];
 
   // Get sorted sections

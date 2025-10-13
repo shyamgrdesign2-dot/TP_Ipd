@@ -27,6 +27,7 @@ import {
   setDiet,
   setVitalsData,
   setDischargeSummaryDataViaPatch,
+  setFinalDiagnosis,
 } from "../redux/ipd/dischargeSummarySlice";
 
 export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
@@ -38,7 +39,6 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
   }
 
   try {
-    console.log('INTEL ==> dischargeSummaryData?.assessmentId', dischargeSummaryData?.assessmentId)
     if (dischargeSummaryData?.assessmentId) {
       dispatch(setDischargeSummaryDataViaPatch({assessmentId: dischargeSummaryData.assessmentId}));
     }
@@ -102,7 +102,7 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
     if (dischargeSummaryData?.diagnosisAndSurgery) {
       if (dischargeSummaryData.diagnosisAndSurgery.finalDiagnosis) {
         dispatch(
-          setPhysicalExaminationProvisionalDiagnosisData(
+          setFinalDiagnosis(
             dischargeSummaryData.diagnosisAndSurgery.finalDiagnosis
           )
         );

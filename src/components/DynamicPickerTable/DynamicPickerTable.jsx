@@ -25,6 +25,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import "./styles.scss";
 import dayjs from "dayjs";
+import SinceDuration from "./SinceDuration";
 
 const RowDndContext = React.createContext(null);
 
@@ -314,13 +315,11 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
       
       case 'select':
         return (
-          <Select
-            placeholder={column.placeholder || `Select ${column.title}`}
-            value={text || undefined}
-            onChange={(value) => handleRowUpdate(record.key, column.dataIndex, value)}
-            style={{ width: '100%' }}
-            options={column.options || []}
-            {...(column.selectProps || {})}
+          <SinceDuration 
+            value={text}
+            onChange={handleRowUpdate}
+            record={record}
+            column={column}
           />
         );
       

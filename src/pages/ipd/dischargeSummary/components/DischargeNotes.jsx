@@ -27,8 +27,6 @@ const DischargeNotes = (props) => {
     dispatch(setPatientCondition(data));
   };
 
-//   console.log('INTEL ==> DischargeNotes', dischargeSummaryData)
-
   const renderPatientCondition = (data) => {
     if (!isEditable && isEmptyRichText(dischargeSummaryData?.patientCondition))
       return null;

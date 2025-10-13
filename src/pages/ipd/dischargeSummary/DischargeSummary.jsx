@@ -133,7 +133,6 @@ const DischargeSummary = (props) => {
         })
       )
         .then((res) => {
-          console.log("INTEL ==> res.payload", res.payload);
           if (res.payload && !res.error) {
             addDischargeDataToStore(res.payload, dispatch);
           }
@@ -202,12 +201,12 @@ const DischargeSummary = (props) => {
 
   useEffect(() => {
     if (patientDetails?.details?.id && patientDetails?.admissionId) {
-        dispatch(
-          getOtNotesData({
-            patientId: patientDetails.details.id,
-            admissionId: patientDetails.admissionId,
-          })
-        );
+      dispatch(
+        getOtNotesData({
+          patientId: patientDetails.details.id,
+          admissionId: patientDetails.admissionId,
+        })
+      );
     }
   }, [patientDetails?.details?.id, patientDetails?.admissionId]);
 
@@ -270,9 +269,9 @@ const DischargeSummary = (props) => {
               return (
                 <div
                   className="flex-column-gap-16"
-                  key={JSON.stringify(
+                  key={`${JSON.stringify(
                     assessmentData?.physicalExaminationOthersData
-                  )}
+                  )}-${JSON.stringify(assessmentData?.physicalExaminationBasicData)}-${JSON.stringify(assessmentData?.vitalsData)}`}
                 >
                   <PhysicalExamination
                     isEditable={false}
@@ -403,20 +402,22 @@ const DischargeSummary = (props) => {
     };
 
     // Helper function to format chronological summary
-    const formatChronologicalSummary = (chronologicalSummary) => {
-      if (
-        !Array.isArray(chronologicalSummary) ||
-        chronologicalSummary.length === 0
-      ) {
+    const formatChronologicalSummary = (chronologicalSummary, arr) => {
+      if (!Object.keys(chronologicalSummary).length || !Array.isArray(arr) || !arr?.length) {
         return [];
       }
-
-      return chronologicalSummary.map((entry) => ({
-        date: entry.date || "",
-        day: entry.day || "",
-        entry: entry.entry || [],
-        module: entry.module || "",
-      }));
+      const data = [];
+      Object.entries(chronologicalSummary).forEach(([index, entry]) => {
+        if (entry.date && entry.day && arr?.[index] && entry.module) {
+          data.push({
+            date: entry.date || "",
+            day: entry.day || "",
+            entry: arr[index] || [],
+            module: entry.module || "",
+          });
+        }
+      });
+      return data;
     };
 
     // Helper function to format OT Notes surgeries
@@ -473,18 +474,19 @@ const DischargeSummary = (props) => {
       });
     };
 
-    console.log('INTEL ==> assessmentId', dischargeSummaryState?.dischargeSummaryData?.assessmentId)
     const reqData = {
-      assessmentId: dischargeSummaryState?.dischargeSummaryData?.assessmentId || "",
+      assessmentId:
+        dischargeSummaryState?.dischargeSummaryData?.assessmentId || "",
       patientInformation: {
         ...dischargeSummaryState.dischargeSummaryData?.patientInformation,
       },
       diagnosisAndSurgery: {
         finalDiagnosis:
-        dischargeSummaryState?.dischargeSummaryData?.diagnosisAndSurgery?.finalDiagnosis || [],
+          dischargeSummaryState?.dischargeSummaryData?.diagnosisAndSurgery
+            ?.finalDiagnosis || [],
         provisionalDiagnosis:
-          dischargeSummaryState?.dischargeSummaryData?.diagnosisAndSurgery?.provisionalDiagnosis ||
-          [],
+          dischargeSummaryState?.dischargeSummaryData?.diagnosisAndSurgery
+            ?.provisionalDiagnosis || [],
         surgeriesPerformed: formatSurgeriesPerformed(otNotesData.otNotesData),
       },
       patientHistory: {
@@ -507,9 +509,9 @@ const DischargeSummary = (props) => {
         others: assessmentData.functionalAssessmentData.others,
       },
       courseInHospital: {
-        chronologicalSummary: formatChronologicalSummary(
-          dischargeSummaryState.chronologicalSummary
-        ),
+        chronologicalSummary: formatChronologicalSummary(dischargeSummaryState?.chronologicalSummary,
+          dischargeSummaryState.dischargeSummaryData?.courseInHospital
+            ?.chronologicalSummary),
         treatmentGiven: formatTreatmentGiven(
           dischargeSummaryState.treatmentNotes
         ),
@@ -538,15 +540,14 @@ const DischargeSummary = (props) => {
       },
       followUp: {
         date: dischargeSummaryState.dischargeSummaryData?.followUpDate || "",
-        doctor: dischargeSummaryState.dischargeSummaryData?.followUpDoctor || {},
+        doctor:
+          dischargeSummaryState.dischargeSummaryData?.followUpDoctor || {},
         additionalNotes:
           dischargeSummaryState.dischargeSummaryData?.additionalNotes || [],
       },
       preparedBy:
         dischargeSummaryState.dischargeSummaryData?.preparedBy || null,
     };
-
-    console.log("INTEL ==> reqData", reqData);
 
     dispatch(
       updateDischargeSummaryData({

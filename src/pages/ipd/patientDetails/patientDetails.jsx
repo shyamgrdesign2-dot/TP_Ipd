@@ -552,8 +552,18 @@ const IPDPatientDetails = () => {
       case "dischargeSummary":
         return (
           <div className="ipd-adm-assess-container-readable">
-            {/* TODO: SHARATH - Print preview */}
-            {/* <PreviewDischargeSummary /> */}
+            {/* <CrossReferralTimeline /> */}
+            <PreviewDischargeSummary />
+            <div className="ipd-toolbar-edit-custom-print-download">
+              <ToolbarActions
+                showEditForm={true}
+                onEdit={handleDischargeSummaryClick}
+                onPrintPreview={() => console.log("Preview")}
+                onPrint={() => console.log("Print")}
+                onSettings={handleCustomizeClick}
+                onDownload={() => console.log("Download")}
+              />
+            </div>
           </div>
         );
       default:
@@ -585,7 +595,7 @@ const IPDPatientDetails = () => {
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
               renderContent={
-                !isEditable && isDataPresent ? renderContent : null
+                true ? renderContent : null
               }
               showAddCTA={canShowAddCTA}
             />
