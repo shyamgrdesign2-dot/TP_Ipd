@@ -205,6 +205,7 @@ const TreatmentGiven = ({ sectionData }) => {
       searchPlaceholder="Search by treatment name or type..."
       rootClassName="treatment-given-picker"
       loading={treatmentNotesLoading}
+      hideTableWhenEmpty={true}
     />
   );
 

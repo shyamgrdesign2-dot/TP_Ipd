@@ -215,6 +215,7 @@ const renderPreparedBy = (data, fontFamily) => {
  * @returns {Array} Array of section components
  */
 export const renderDischargeSummary = (data, formatSettings, fontFamily) => {
+  console.log('INTEL ==> data', data)
   if (!data || !formatSettings) return [];
 
   // Get sorted sections

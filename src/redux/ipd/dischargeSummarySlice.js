@@ -24,7 +24,7 @@ export const initialState = {
   dischargeSummaryData: {
     patientInformation: {},
     surgeriesPerformed: [],
-    followUpDoctor: null, // Will store the complete doctor object
+    followUpDoctor: {}, // Will store the complete doctor object
   },
   mockValues: {},
   treatmentNotes: [],
@@ -166,6 +166,9 @@ const dischargeSummarySlice = createSlice({
     setDischargeSummaryData: (state, action) => {
       state.dischargeSummaryData = action.payload;
     },
+    setPatientCondition: (state, action) => {
+      state.dischargeSummaryData.patientCondition = action.payload;
+    },
     setDischargeSummaryFormDetails: (state, action) => {
       state.dischargeSummaryFormDetails = action.payload || {};
     },
@@ -197,8 +200,21 @@ const dischargeSummarySlice = createSlice({
       state.dischargeSummaryData.diagnosisAndSurgery.provisionalDiagnosis =
         action.payload;
     },
+    setFinalDiagnosis: (state, action) => {
+      if (!state.dischargeSummaryData.diagnosisAndSurgery) {
+        state.dischargeSummaryData.diagnosisAndSurgery = {};
+      }
+      state.dischargeSummaryData.diagnosisAndSurgery.finalDiagnosis =
+        action.payload;
+    },
     setDiet: (state, action) => {
       state.dischargeSummaryData.diet = action.payload;
+    },
+    setDischargeSummaryDataViaPatch: (state, action) => {
+      state.dischargeSummaryData = {
+        ...state.dischargeSummaryData,
+        ...action.payload,
+      };
     },
     setPhysicalActivities: (state, action) => {
       state.dischargeSummaryData.physicalActivities = action.payload;
@@ -261,23 +277,23 @@ const dischargeSummarySlice = createSlice({
       })
       .addCase(getDischargeSummaryData.fulfilled, (state, action) => {
         state.loading = false;
-        if (action.payload && typeof action.payload === "object") {
-          const { courseInHospital, ...otherData } = action.payload;
+        // if (action.payload && typeof action.payload === "object") {
+        //   const { courseInHospital, ...otherData } = action.payload;
 
-          state.dischargeSummaryData = {
-            surgeriesPerformed:
-              state.dischargeSummaryData?.surgeriesPerformed || [],
-            ...otherData,
-            courseInHospital: {
-              ...courseInHospital,
-              chronologicalSummary: undefined,
-            },
-          };
+        //   state.dischargeSummaryData = {
+        //     surgeriesPerformed:
+        //       state.dischargeSummaryData?.surgeriesPerformed || [],
+        //     ...otherData,
+        //     courseInHospital: {
+        //       ...courseInHospital,
+        //       chronologicalSummary: undefined,
+        //     },
+        //   };
 
-          if (courseInHospital?.chronologicalSummary) {
-            state.chronologicalSummary = courseInHospital.chronologicalSummary;
-          }
-        }
+        //   if (courseInHospital?.chronologicalSummary) {
+        //     state.chronologicalSummary = courseInHospital.chronologicalSummary;
+        //   }
+        // }
       })
       .addCase(getDischargeSummaryData.rejected, (state) => {
         state.dischargeSummaryData = [];
@@ -359,15 +375,18 @@ const dischargeSummarySlice = createSlice({
 
 export const {
   setDischargeSummaryData,
+  setPatientCondition,
   setDischargeSummaryFormDetails,
   setCurrentDischargeSummaryId,
   resetDischargeSummaryForm,
   setDischargeDate,
   setProvisionalDiagnosis,
+  setFinalDiagnosis,
   setCourseInHospital,
   setVitalsData,
   setDiet,
   setPhysicalActivities,
+  setDischargeSummaryDataViaPatch,
   setFollowUpDate,
   setFollowUpDoctor,
   setAdditionalNotes,

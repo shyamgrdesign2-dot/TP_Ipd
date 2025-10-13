@@ -39,6 +39,7 @@ import CustomModule from "../../../components/CustomModule";
 import BackConfirmationModal from "../../../components/BackConfirmationModal";
 import { useAssessmentSectionVisibility } from "../../../hooks/useAssessmentSectionVisibility";
 import { useAssessmentDataStore } from "../../../hooks/useAssessmentDataStore";
+import ProvisionalDiagnosisWrapper from "./provisinalDiagnosisWrapper";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -144,6 +145,8 @@ const AssessmentsForm = (props) => {
         return <PhysicalExamination {...props} sectionData={data} />;
       case "functionalAssessment":
         return <FunctionalAssessment {...props} sectionData={data} />;
+      case "provisionalDiagnosis":
+        return <ProvisionalDiagnosisWrapper {...props} sectionData={data} />;
       case "treatmentPlan":
         return <TreatmentPlan {...props} sectionData={data} />;
       case "additionalNotes":

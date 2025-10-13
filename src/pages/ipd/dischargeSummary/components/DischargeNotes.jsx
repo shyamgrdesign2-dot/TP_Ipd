@@ -8,7 +8,7 @@ import { Select, DatePicker, TimePicker } from "antd";
 import dayjs from "dayjs";
 import Vitals from "../../assessmentForm/Vitals";
 import { isEmptyRichText } from "../../../../utils/utils";
-import { setDischargeSummaryData } from "../../../../redux/ipd/dischargeSummarySlice";
+import { setDischargeSummaryData, setPatientCondition } from "../../../../redux/ipd/dischargeSummarySlice";
 import CurrentMedications from "../../assessmentForm/CurrentMedications";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
@@ -23,8 +23,8 @@ const DischargeNotes = (props) => {
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
-  const handleOthersChange = (data, key) => {
-    dispatch(setDischargeSummaryData({ ...dischargeSummaryData, [key]: data }));
+  const handlePatientConditionChange = (data) => {
+    dispatch(setPatientCondition(data));
   };
 
 //   console.log('INTEL ==> DischargeNotes', dischargeSummaryData)
@@ -48,7 +48,7 @@ const DischargeNotes = (props) => {
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
-        onChange={(data) => handleOthersChange(data, "patientCondition")}
+        onChange={(data) => handlePatientConditionChange(data)}
         initialValue={
           dischargeSummaryData?.patientCondition?.length
             ? dischargeSummaryData?.patientCondition

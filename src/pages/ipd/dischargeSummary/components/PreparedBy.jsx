@@ -26,26 +26,34 @@ const PreparedBy = (props) => {
     const options = (doctorsList || []).map((item) => ({
       key: JSON.stringify(item),
       value: item.name,
-      label: <div key={item.id}>{item.name} {item?.role ? `(${item?.role})` : ""}</div>,
+      label: (
+        <div key={item.id}>
+          {item.name} {item?.role ? `(${item?.role})` : ""}
+        </div>
+      ),
     }));
-    
+
     return (
       <div className="flex-column-gap-6">
-        <label className="followup-label">
-          {data?.title || "Prepared By"}
-        </label>
+        <label className="followup-label">{data?.title || "Prepared By"}</label>
         <Select
           mode="multiple"
           className="autocomplete-custom w-25 popinput inputheight41"
           placeholder="Select Doctors"
           options={options}
-          value={dischargeSummaryData?.preparedBy || []}
+          value={
+            Array.isArray(dischargeSummaryData?.preparedBy)
+              ? dischargeSummaryData?.preparedBy.map(
+                  (item) => item.name || item
+                )
+              : undefined
+          }
           onChange={(values, options) => {
             if (!values || values.length === 0) {
               dispatch(setPreparedBy([]));
               return;
             }
-            
+
             const selectedDoctors = values.map((value, index) => {
               const option = options[index];
               try {
@@ -54,20 +62,20 @@ const PreparedBy = (props) => {
                   return {
                     id: parsed.id,
                     name: parsed.name,
-                    role: parsed.role
+                    role: parsed.role,
                   };
                 } else {
                   return {
-                    name: value
+                    name: value,
                   };
                 }
               } catch (e) {
                 return {
-                  name: value
+                  name: value,
                 };
               }
             });
-            
+
             dispatch(setPreparedBy(selectedDoctors));
           }}
           onSearch={(q) =>
@@ -93,14 +101,18 @@ const PreparedBy = (props) => {
         </div>
       </div>
     );
-  }
+  };
 
   return (
     <>
       <CollapsibleWrapper
         title={sectionData?.title}
         data-testid={sectionData?.id}
-        icon={sectionData?.id ? dischargeSummaryIcons[`${sectionData.id}Dark`] : null}
+        icon={
+          sectionData?.id
+            ? dischargeSummaryIcons[`${sectionData.id}Dark`]
+            : null
+        }
         collapsible={isEditable}
         width={"100%"}
         className={`collapsible-wrapper-class wrapper-class ${

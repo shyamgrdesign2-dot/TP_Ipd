@@ -90,12 +90,13 @@ const PatientInfo = ({
   patientData,
   fontFamily = "Poppins",
 }) => {
-  if (!displaySettings || !patientData) return null;
+  // if (!displaySettings || !patientData) return null;
 
   // Check if patient info should be shown
-  if (displaySettings.showPatientInfo === 0) return null;
+  // if (displaySettings.showPatientInfo === 0) return null;
 
   const visibleFields = getVisiblePatientFields(displaySettings, patientData);
+  console.log('INTEL ==> visibleFields', visibleFields)
 
   if (visibleFields.length === 0) return null;
 

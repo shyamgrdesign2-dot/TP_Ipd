@@ -133,7 +133,7 @@ const DischargeSummary = (props) => {
         })
       )
         .then((res) => {
-            console.log('INTEL ==> res.payload', res.payload)
+          console.log("INTEL ==> res.payload", res.payload);
           if (res.payload && !res.error) {
             addDischargeDataToStore(res.payload, dispatch);
           }
@@ -185,16 +185,6 @@ const DischargeSummary = (props) => {
   };
 
   useEffect(() => {
-    if (isEditable && patientDetails?.details?.id) {
-    //   dispatch(
-    //     getAssessmentsData({
-    //       patientId: patientDetails?.details?.id,
-    //       admissionId: patientDetails?.admissionId,
-    //     })
-    //   ).then((res) => {
-    //     addDataToStore(res.payload.assessment);
-    //   });
-    }
     if (isEditable)
       dispatch(
         getLastPrescriptionDate({ patientId: patientDetails?.patientUniqueId })
@@ -211,14 +201,13 @@ const DischargeSummary = (props) => {
   }, []);
 
   useEffect(() => {
-    // Only fetch OT Notes data if we have the required patient details
     if (patientDetails?.details?.id && patientDetails?.admissionId) {
-    //   dispatch(
-    //     getOtNotesData({
-    //       patientId: patientDetails.details.id,
-    //       admissionId: patientDetails.admissionId,
-    //     })
-    //   );
+        dispatch(
+          getOtNotesData({
+            patientId: patientDetails.details.id,
+            admissionId: patientDetails.admissionId,
+          })
+        );
     }
   }, [patientDetails?.details?.id, patientDetails?.admissionId]);
 
@@ -262,18 +251,6 @@ const DischargeSummary = (props) => {
     });
   };
 
-  const onSavePhysicalExaminationClick = () => {
-    console.log("INTEL ==> CLICKED SAVE");
-  };
-
-  const onSaveFunctionalAssessmentClick = () => {
-    console.log("INTEL ==> CLICKED SAVE");
-  };
-
-  const onSaveOtNotesClick = () => {
-    console.log("INTEL ==> CLICKED SAVE");
-  };
-
   const renderSections = (data) => {
     if (!data || !data.id) {
       return null;
@@ -291,7 +268,12 @@ const DischargeSummary = (props) => {
               return <PatientHistory {...props} sectionData={data} />;
             case "physicalExamination":
               return (
-                <div className="flex-column-gap-16" key={JSON.stringify(assessmentData?.physicalExaminationOthersData)}>
+                <div
+                  className="flex-column-gap-16"
+                  key={JSON.stringify(
+                    assessmentData?.physicalExaminationOthersData
+                  )}
+                >
                   <PhysicalExamination
                     isEditable={false}
                     {...props}
@@ -309,7 +291,10 @@ const DischargeSummary = (props) => {
               );
             case "functionalAssessment":
               return (
-                <div className="flex-column-gap-16" key={JSON.stringify(assessmentData?.functionalAssessmentData)}>
+                <div
+                  className="flex-column-gap-16"
+                  key={JSON.stringify(assessmentData?.functionalAssessmentData)}
+                >
                   <FunctionalAssessment
                     isEditable={false}
                     isCollapsible={true}
@@ -488,45 +473,38 @@ const DischargeSummary = (props) => {
       });
     };
 
+    console.log('INTEL ==> assessmentId', dischargeSummaryState?.dischargeSummaryData?.assessmentId)
     const reqData = {
-      assessmentId: assessmentData.assessmentId || "",
+      assessmentId: dischargeSummaryState?.dischargeSummaryData?.assessmentId || "",
       patientInformation: {
         ...dischargeSummaryState.dischargeSummaryData?.patientInformation,
       },
       diagnosisAndSurgery: {
         finalDiagnosis:
-          assessmentData.physicalExaminationProvisionalDiagnosisData || [],
+        dischargeSummaryState?.dischargeSummaryData?.diagnosisAndSurgery?.finalDiagnosis || [],
+        provisionalDiagnosis:
+          dischargeSummaryState?.dischargeSummaryData?.diagnosisAndSurgery?.provisionalDiagnosis ||
+          [],
         surgeriesPerformed: formatSurgeriesPerformed(otNotesData.otNotesData),
       },
       patientHistory: {
-        pastMedicalHistory: assessmentData.chiefComplaint || [],
+        chiefComplaint: assessmentData.chiefComplaint || [],
+        pastMedicalHistory: prescriptionSlice.medicalHistoryData || [],
         gyneacHistory: assessmentData.gynecHistoryData || {},
         obstetricHistory: obstetricSlice.obstetricDetails || {},
       },
       physicalExamination: {
-        vitals: assessmentData.vitalsData || {
-          pulse: "",
-          bloodPressure: "",
-          temperature: "",
-          spo2: "",
-          respiratoryRate: "",
-          weight: "",
-          height: "",
-          generalRBS: "",
-        },
+        vitals: assessmentData.vitalsData,
         generalExamination: assessmentData.physicalExaminationBasicData || {},
         others: assessmentData.physicalExaminationOthersData || [],
       },
       functionalAssessmentTimeOfAdmission: {
-        assessment: assessmentData.functionalAssessmentData || {
-          bedActivity: "",
-          sitting: "",
-          standing: "",
-          ambulation: "",
-          stairClimbing: "",
-          bedSoreOnAdmission: "",
-        },
-        others: [],
+        assessment: (() => {
+          const data = { ...assessmentData.functionalAssessmentData };
+          delete data.others;
+          return data;
+        })(),
+        others: assessmentData.functionalAssessmentData.others,
       },
       courseInHospital: {
         chronologicalSummary: formatChronologicalSummary(
@@ -543,21 +521,26 @@ const DischargeSummary = (props) => {
         dischargeVitals: {
           ...dischargeSummaryState.dischargeSummaryData?.vitalsData,
         },
-        patientCondition: dischargeSummaryState.dischargeSummaryData?.patientCondition,
+        patientCondition:
+          dischargeSummaryState.dischargeSummaryData?.patientCondition,
         dischargeMedications: prescriptionSlice.medicationData || [],
       },
       dischargeAdvice: {
         diet: dischargeSummaryState.dischargeSummaryData?.diet || [],
         physicalActivities:
           dischargeSummaryState.dischargeSummaryData?.physicalActivities || [],
-        otherAdvice: dischargeSummaryState.dischargeSummaryData?.otherAdvice || [],
-        warningSigns: dischargeSummaryState.dischargeSummaryData?.warningSigns || [],
-        emergencyContact: dischargeSummaryState.dischargeSummaryData?.emergencyContact || [],
+        otherAdvice:
+          dischargeSummaryState.dischargeSummaryData?.otherAdvice || [],
+        warningSigns:
+          dischargeSummaryState.dischargeSummaryData?.warningSigns || [],
+        emergencyContact:
+          dischargeSummaryState.dischargeSummaryData?.emergencyContact || [],
       },
       followUp: {
         date: dischargeSummaryState.dischargeSummaryData?.followUpDate || "",
-        doctor: dischargeSummaryState.dischargeSummaryData?.followUpDoctor,
-        additionalNotes: dischargeSummaryState.dischargeSummaryData?.additionalNotes || [],
+        doctor: dischargeSummaryState.dischargeSummaryData?.followUpDoctor || {},
+        additionalNotes:
+          dischargeSummaryState.dischargeSummaryData?.additionalNotes || [],
       },
       preparedBy:
         dischargeSummaryState.dischargeSummaryData?.preparedBy || null,
@@ -586,7 +569,7 @@ const DischargeSummary = (props) => {
           patientId: patientDetails?.details?.id,
           admissionId: patientDetails?.admissionId,
         })
-      ).then(res => {
+      ).then((res) => {
         addDischargeDataToStore(res.payload.dischargeSummary, dispatch);
       });
       navigate("/ipd/patient-details", {

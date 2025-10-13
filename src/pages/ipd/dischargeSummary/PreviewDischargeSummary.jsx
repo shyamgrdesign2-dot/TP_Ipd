@@ -13,7 +13,9 @@ import {
 
 import { useDispatch, useSelector } from "react-redux";
 import { updatePrintSettings } from "../../../redux/ipd/printSettingsSlice";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getDischargeSummaryData } from "../../../redux/ipd/dischargeSummarySlice";
+import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
 
 const PreviewDischargeSummary = () => {
   const navigate = useNavigate();
@@ -23,6 +25,8 @@ const PreviewDischargeSummary = () => {
   const [numPages, setNumPages] = useState();
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
   const { dischargeSummaryData } = useSelector(
@@ -35,6 +39,26 @@ const PreviewDischargeSummary = () => {
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
   }, [divRef]);
+
+  console.log('INTEL ==> WAIT', dischargeSummaryData)
+  useEffect(() => {
+    if (patientDetails?.details?.id)
+      dispatch(
+        getDischargeSummaryData({
+          patientId: patientDetails?.details?.id,
+          admissionId: patientDetails?.admissionId,
+        })
+      )
+        .then((res) => {
+          console.log("INTEL ==> okokok", res.payload);
+          if (res.payload && !res.error) {
+            addDischargeDataToStore(res.payload, dispatch);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching discharge summary data:", error);
+        });
+  }, []);
 
   useEffect(() => {
     if (currentSettings && dischargeSummaryData) {

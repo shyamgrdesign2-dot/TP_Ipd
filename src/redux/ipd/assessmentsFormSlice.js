@@ -117,6 +117,7 @@ const assessmentSlice = createSlice({
       state.assessmentsData = action.payload;
     },
     setChiefComplaint: (state, action) => {
+      console.log('INTEL ==> IS IT COMING', action.payload)
       state.chiefComplaint = action.payload;
     },
     setHistoryOfPresentIllness: (state, action) => {

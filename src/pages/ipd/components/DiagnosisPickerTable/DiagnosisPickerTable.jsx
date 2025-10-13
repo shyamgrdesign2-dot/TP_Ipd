@@ -27,55 +27,51 @@ import { CSS } from "@dnd-kit/utilities";
 import "./styles.scss";
 import { fetchDiagnosesAPI } from "./utils";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setFinalDiagnosis } from "../../../../redux/ipd/dischargeSummarySlice";
+import { setProvisionalDiagnosis } from "../../../../redux/ipd/dischargeSummarySlice";
 
 export const DiagnosisSummaryList = (props) => {
-  const { dischargeSummaryData} = useSelector(
+  const { itemId } = props || {};
+  const { dischargeSummaryData } = useSelector(
     (state) => state.dischargeSummary
   );
-  const { provisionalDiagnosis = [] } = dischargeSummaryData?.diagnosisAndSurgery || {};
-  if (!provisionalDiagnosis?.length) return null;
+  const { finalDiagnosis = [], provisionalDiagnosis = [] } =
+    dischargeSummaryData?.diagnosisAndSurgery || {};
+  
+  // Get the appropriate diagnosis list based on itemId
+  const diagnosisList = itemId === "finalDiagnosis" ? finalDiagnosis : provisionalDiagnosis;
+  
+  // Return null if no diagnoses to display
+  if (!diagnosisList?.length) {
+    return null;
+  }
+
+  const renderDiagnosisItem = (diagnosis) => {
+    const key = diagnosis.key || diagnosis.id || diagnosis.title;
+    const metaItems = [];
+
+    // Build metadata array
+    if (diagnosis.icdCode?.trim()) {
+      metaItems.push(`ICD Code: ${diagnosis.icdCode}`);
+    }
+    if (diagnosis.notes?.trim()) {
+      metaItems.push(`Notes: ${diagnosis.notes}`);
+    }
+
+    return (
+      <li className="dx-summary-item" key={key}>
+        <span className="dx-summary-title">{diagnosis.title}</span>
+        {metaItems.length > 0 && (
+          <span className="dx-summary-meta"> ({metaItems.join(", ")})</span>
+        )}
+      </li>
+    );
+  };
 
   return (
     <ul className="dx-summary">
-      {provisionalDiagnosis.map((it) => {
-        const key = it.key || it.id || it.title;
-        const parts = [];
-
-        if (it.icdCode?.trim()) {
-          parts.push(
-            <span key="icd">
-              <strong>ICD Code:</strong> {it.icdCode}
-            </span>
-          );
-        }
-        if (it.notes?.trim()) {
-          parts.push(
-            <span key="notes">
-              <strong>Notes:</strong> {it.notes}
-            </span>
-          );
-        }
-
-        return (
-          <li className="dx-summary-item" key={key}>
-            <span className="dx-summary-title">{it.title}</span>
-            {parts.length > 0 && (
-              <>
-                {" "}
-                <span className="dx-summary-meta">
-                  (
-                  {parts.reduce((acc, curr, idx) => {
-                    // Insert comma + space between parts
-                    if (idx === 0) return [curr];
-                    return [...acc, <span key={`sep-${idx}`}>, </span>, curr];
-                  }, [])}
-                  )
-                </span>
-              </>
-            )}
-          </li>
-        );
-      })}
+      {diagnosisList.map(renderDiagnosisItem)}
     </ul>
   );
 };
@@ -134,16 +130,34 @@ function DragHandle() {
 }
 
 export const DiagnosisPickerTable = forwardRef((props, ref) => {
-  const { isEditable = true, rootClassName } = props || {};
-  const { dischargeSummaryData} = useSelector(
+  const { isEditable = true, rootClassName, itemId } = props || {};
+  const { dischargeSummaryData } = useSelector(
     (state) => state.dischargeSummary
   );
-  const { provisionalDiagnosis = [] } = dischargeSummaryData?.diagnosisAndSurgery || {};
+  const { finalDiagnosis = [], provisionalDiagnosis = [] } =
+    dischargeSummaryData?.diagnosisAndSurgery || {};
   const [query, setQuery] = useState("");
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const [rows, setRows] = useState(provisionalDiagnosis);
+  const dispatch = useDispatch();
+  const rows =
+    itemId === "finalDiagnosis" ? finalDiagnosis : provisionalDiagnosis;
+  const setRows = useCallback((newRows) => {
+    if (itemId === "finalDiagnosis") {
+      dispatch(setFinalDiagnosis(newRows));
+    } else {
+      dispatch(setProvisionalDiagnosis(newRows));
+    }
+  }, [itemId]);
+
+  console.log(
+    "INTEL ==> data",
+    itemId,
+    provisionalDiagnosis,
+    finalDiagnosis,
+    rows
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -177,7 +191,6 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
     }
   };
 
-
   const onSearch = (val) => {
     setQuery(val);
     searchDebounced(val);
@@ -187,19 +200,19 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
     const item = option.item;
     if (!item) return;
 
-    setRows((prev) => {
-      if (prev.some((r) => r.id === item.id)) return prev;
-      return [
-        ...prev,
-        {
-          key: `row_${item.id}`,
-          id: item.id,
-          title: item.title,
-          icdCode: item.icdCode || "",
-          notes: "",
-        },
-      ];
-    });
+    if (rows.some((r) => r.id === item.id)) return;
+    
+    const newRows = [
+      ...rows,
+      {
+        key: `row_${item.id}`,
+        id: item.id,
+        title: item.title,
+        icdCode: item.icdCode || "",
+        notes: "",
+      },
+    ];
+    setRows(newRows);
 
     setQuery("");
     setOptions([]);
@@ -208,11 +221,10 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
   const onDragEnd = ({ active, over }) => {
     if (!over || active.id === over.id) return;
 
-    setRows((prev) => {
-      const oldIndex = prev.findIndex((r) => r.key === active.id);
-      const newIndex = prev.findIndex((r) => r.key === over.id);
-      return arrayMove(prev, oldIndex, newIndex);
-    });
+    const oldIndex = rows.findIndex((r) => r.key === active.id);
+    const newIndex = rows.findIndex((r) => r.key === over.id);
+    const newRows = arrayMove(rows, oldIndex, newIndex);
+    setRows(newRows);
   };
 
   const columns = useMemo(
@@ -225,7 +237,10 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
         render: () => <DragHandle />,
       },
       {
-        title: "Final Diagnosis",
+        title:
+          itemId === "finalDiagnosis"
+            ? "Final Diagnosis"
+            : "Provisional Diagnosis",
         dataIndex: "title",
         key: "title",
         ellipsis: true,
@@ -250,9 +265,8 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
             value={record.notes}
             onChange={(e) => {
               const v = e.target.value;
-              setRows((prev) =>
-                prev.map((r) => (r.key === record.key ? { ...r, notes: v } : r))
-              );
+              const newRows = rows.map((r) => (r.key === record.key ? { ...r, notes: v } : r));
+              setRows(newRows);
             }}
           />
         ),
@@ -265,9 +279,10 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
         render: (_, record) => (
           <button
             className="delete-btn"
-            onClick={() =>
-              setRows((prev) => prev.filter((r) => r.key !== record.key))
-            }
+            onClick={() => {
+              const newRows = rows.filter((r) => r.key !== record.key);
+              setRows(newRows);
+            }}
             aria-label="Delete row"
             title="Delete"
           >
@@ -276,7 +291,7 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
         ),
       },
     ],
-    [setRows]
+    [setRows, itemId]
   );
 
   const components = useMemo(
@@ -321,7 +336,7 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
       ) : null}
       {!isEditable ? (
         <div>
-          <DiagnosisSummaryList />
+          <DiagnosisSummaryList itemId={itemId} />
         </div>
       ) : null}
 

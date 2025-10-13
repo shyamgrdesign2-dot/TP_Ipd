@@ -104,7 +104,7 @@ const ChiefComplaint = (props) => {
       }
       icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={isEditable && isLastChiefComplaintPresent}
-      containerClass={`wrapper-class ${hideBorder ? 'ipdchiefcomplaint-hide-border' : ''} ${
+      containerClass={`${hideBorder ? 'ipdchiefcomplaint-hide-border' : ''} ${
         !isEditable ? "ipd-wrapper-class-readonly" : ""
       }`}
       opdDate={formatDateToShortMonthYear(lastRxDate)}

@@ -65,6 +65,7 @@ import {
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
 import { getDischargeSummaryData } from "../../../redux/ipd/dischargeSummarySlice";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
+import PreviewDischargeSummary from "../dischargeSummary/PreviewDischargeSummary";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -88,6 +89,7 @@ const IPDPatientDetails = () => {
   const { hasAnyData: hasAnyAssessmentData } = useAssessmentSectionVisibility();
 
   const { assessmentsData } = useSelector((state) => state.assessment);
+  const prescriptionSlice = useSelector((state) => state.prescription);
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { otNotesData } = useSelector((state) => state.otNotes);
   const { progressNotes, filteredProgressNotes } = useSelector((state) => state.progressNotes);
@@ -370,7 +372,7 @@ const IPDPatientDetails = () => {
       // );
     } else if (activeMenuItem === "dischargeSummary") {
       dispatch(getDischargeSummaryData({ patientId, admissionId })).then(res => {
-        addDischargeDataToStore(res.payload.dischargeSummary, dispatch);
+        addDischargeDataToStore(res.payload, dispatch);
       }).catch((error) => {
         console.error("Error fetching discharge summary:", error);
       });
@@ -551,6 +553,7 @@ const IPDPatientDetails = () => {
         return (
           <div className="ipd-adm-assess-container-readable">
             {/* TODO: SHARATH - Print preview */}
+            {/* <PreviewDischargeSummary /> */}
           </div>
         );
       default:
