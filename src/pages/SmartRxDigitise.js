@@ -155,9 +155,9 @@ function SmartRxDigitise() {
             formData.append('caseId', tcm_id);
 
             // Append ocrModelSelected only if isCustomSSRX is true
-            if (isCustomSSRX) {
-                formData.append('ocrModelSelected', 'zyvelor');
-            }
+            // if (isCustomSSRX) {
+            formData.append('ocrModelSelected', 'zyvelor');
+            // }
     
             const cleanedToken = token.replace(/['"]+/g, '');
             const response = await axios.post(
