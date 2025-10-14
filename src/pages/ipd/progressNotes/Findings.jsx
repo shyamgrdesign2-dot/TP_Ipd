@@ -6,7 +6,7 @@ import { setFindings } from "../../../redux/ipd/progressNotesSlice";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const Findings = (props) => {
-  const { isEditable = true, shouldAutofill = false } = props || {};
+  const { isEditable = true, shouldAutofill = false, sectionData } = props || {};
   const { findings } = useSelector((state) => state.progressNotes);
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
@@ -23,14 +23,16 @@ const Findings = (props) => {
       (!Array.isArray(prevFindings) &&
         typeof prevFindings === "string" &&
         !!prevFindings) ||
-      (Array.isArray(prevFindings) &&
-      prevFindings.some((item) =>
-          item?.children?.some((child) =>
-            child?.children?.some((grandChild) => !!grandChild?.text)
-          )
-        ))
+        (Array.isArray(prevFindings) &&
+        !!prevFindings?.[0]?.children?.[0]?.text)
+      // (Array.isArray(prevFindings) &&
+      // prevFindings.some((item) =>
+      //     item?.children?.some((child) =>
+      //       child?.children?.some((grandChild) => !!grandChild?.text)
+      //     )
+      //   ))
     );
-  }, [prevFindings]);
+  }, [findings,prevFindings]);
 
   const handleAutofill = (e) => {
     if (e?.[0] === "undo") {
@@ -54,7 +56,7 @@ const Findings = (props) => {
       showActionBtns={isEditable}
       title="Findings (Systemic Examination)"
       width="100%"
-      icon={defaultIcons.doc}
+      icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={hasfindingsInLastProgressNote}
       autoFillTitle={
         hasfindingsInLastProgressNote
