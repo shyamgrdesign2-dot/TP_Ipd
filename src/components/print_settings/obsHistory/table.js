@@ -52,12 +52,15 @@ function ObsHistoryTableView({
   return (
     <View style={{ marginTop: PX_TO_PT * 15 }}>
       <Text
-        style={{
+        style={[styles.lineHeight2, {
           color: "#171725",
           fontFamily: printSettings?.page_format?.font_family,
           fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
           fontWeight: 700,
-        }}
+          marginTop: 5,
+          marginBottom: 5,
+          lineHeight: 2,
+        }]}
         fixed
       >
         Obstetric History&nbsp;:&nbsp;
@@ -347,16 +350,15 @@ function ObsHistoryTableView({
           obsHistoryData?.marriageDurationMonths != null)) && (
         <View wrap={false} style={{ break: "avoid" }}>
           <Text
-            style={{
+            style={[styles.lineHeight2, {
               color: "#000",
-              marginTop: PX_TO_PT * 12,
               fontFamily: printSettings?.page_format?.font_family,
               fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
               fontWeight: 500,
               padding: 6,
               border: "1px solid #171725",
               backgroundColor: "#E2E2EA",
-            }}
+            }]}
           >
             Patient Information
           </Text>
@@ -365,6 +367,7 @@ function ObsHistoryTableView({
               style={[
                 styles.row,
                 { alignItems: "center", justifyContent: "center" },
+                styles.minHeight38
               ]}
             >
               <Text
@@ -377,7 +380,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight50,
+                  styles.lineHeight2,
                 ]}
               >
                 LMP
@@ -392,7 +395,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight50,
+                  styles.lineHeight2,
                 ]}
               >
                 E.D.D.
@@ -407,7 +410,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight50,
+                  styles.lineHeight2,
                 ]}
               >
                 C.E.E.D.
@@ -422,7 +425,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight50,
+                  styles.lineHeight2,
                 ]}
               >
                 Gestation
@@ -437,7 +440,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight50,
+                  styles.lineHeight2,
                 ]}
               >
                 Blood group
@@ -452,7 +455,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight50,
+                  styles.lineHeight2,
                 ]}
               >
                 Husband's blood group
@@ -467,7 +470,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight50,
+                  styles.lineHeight2,
                 ]}
               >
                 Consang
@@ -482,7 +485,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight50,
+                  styles.lineHeight2,
                 ]}
               >
                 Marital status
@@ -497,7 +500,7 @@ function ObsHistoryTableView({
                     color: "#000",
                     textAlign: "center",
                   },
-                  styles.minHeight50,
+                  styles.lineHeight2,
                 ]}
               >
                 Marriage duration
