@@ -595,7 +595,7 @@ const IPDPatientDetails = () => {
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
               renderContent={
-                true ? renderContent : null
+                !isEditable && isDataPresent ? renderContent : null
               }
               showAddCTA={canShowAddCTA}
             />
