@@ -8,6 +8,7 @@ import ObsHistoryListView from './obsHistory/list';
 import ObsHistoryTableView from './obsHistory/table';
 
 const PX_TO_PT = 0.75
+const CM_TO_PT = 28.35;
 
 // Roboto
 Font.register({
@@ -233,6 +234,9 @@ const styles = StyleSheet.create({
     },
     minHeight50: {
         minHeight: 50
+    },
+    lineHeight2: {
+        lineHeight: 2
     },
     minHeight38: {
         minHeight: 38
@@ -574,7 +578,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     letterheadFormat === 2 ? "margin" : null;
 
         return marginType && headerFooter?.[marginType]?.[position] >= 0
-            ? (headerFooter?.[marginType]?.[position] || defaultValue) * 25
+            ? (headerFooter?.[marginType]?.[position] || defaultValue) * CM_TO_PT
             : PX_TO_PT * 30;
     };
 
@@ -626,6 +630,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
        }
      };
 
+     const userBottomMargin = getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 1);
+     const userTopMargin = getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "top", 1);
+     const standardMargin = 0.5 * 25; // 0.5 inches in points
+    const extraTopSpace = Math.max(0, userTopMargin - standardMargin);
+     const isOwnLetterheadFirstPageOnly = printSettings?.letterhead_format === 2 && showMode === 'first';
+     
      const calculatePadding = () => {
         const widthOfA4PageInPts = 595;
         const { letterhead_format, header_footer, whatsapp_letterhead_format } = printSettings || {};
@@ -646,7 +656,6 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
             };
         }
 
-        const isOwnLetterheadFirstPageOnly = letterhead_format === 2 && showMode === 'first';
         
         const paddingTop = [0,1,2].includes(letterhead_format)
         ? (isOwnLetterheadFirstPageOnly ? 0.5 * 25 : getMarginByFormat(letterhead_format, header_footer, "top", 0.5))
@@ -661,7 +670,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
         : PX_TO_PT * 30;
 
         const paddingBottom = letterhead_format === 2
-        ? (isOwnLetterheadFirstPageOnly ? (0.5 * 25) + 5 : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5)
+        ? (isOwnLetterheadFirstPageOnly ? userBottomMargin : getMarginByFormat(letterhead_format, header_footer, "bottom", 0.5) + 5)
         : letterhead_format === 1
             ? fileFooter?.imageShow
                 ? ((fileFooter?.footerHeight / fileFooter?.footerWidth) * (widthOfA4PageInPts - (paddingLeft + paddingRight))) + paddingTop
@@ -807,28 +816,12 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     wrap={!smartRxData}>
                     
                     {/* Letterhead spacer for Own Letterhead first-page-only mode */}
-                    <View
-                        fixed
-                        render={({ pageNumber }) => {
-                            const isFirstPage = pageNumber === 1;
-                            const isOwnLetterheadFirstPageOnly = printSettings?.letterhead_format === 2 && showMode === 'first';
-                            
-                            if (isOwnLetterheadFirstPageOnly && isFirstPage) {
-                                // On first page, add spacer to match user's intended letterhead margins
-                                const userTopMargin = getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "top", 0.5);
-                                const standardMargin = 0.5 * 25; // 0.5 inches in points
-                                const extraTopSpace = Math.max(0, userTopMargin - standardMargin);
-                                
-                                return (
-                                    <View style={{
-                                        marginTop: extraTopSpace,
-                                        height: 0,
-                                    }} />
-                                );
-                            }
-                            return null;
-                        }}
-                    />
+                    {printSettings?.letterhead_format === 2 && showMode === 'first' && extraTopSpace && (
+                        <View style={{
+                            marginTop: extraTopSpace,
+                            height: 0,
+                        }} />
+                    )}
                     
                     {/* <View style={{flex: 1}}>     */}
                     <View style={{ marginBottom: PX_TO_PT * (mode == NORMAL ? printSettings?.letterhead_format != 2 ? 15 : 0 : 15) }} fixed = {printSettings?.header_footer?.show_header_footer_page !== 'first'}>
@@ -1170,7 +1163,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                         {caseManagerData.symptoms.length > 0 && (
                                             option?.format === 'inline' ? (
                                                 <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
-                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Symptoms:&nbsp;</Text>
+                                                    <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700, lineHeight: 2, marginTop: 4, }}>Symptoms:&nbsp;</Text>
                                                     {caseManagerData.symptoms.map((item, i) => {
                                                         return (
                                                             <Text key={i}>
@@ -1366,7 +1359,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Diagnosis:&nbsp;</Text>
                                                     {caseManagerData.diagnosis.map((item, i) => {
                                                         return (
-                                                            <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                            <Text key={i} style={{ marginTop: PX_TO_PT * 5, lineHeight: 1.4 }}>
                                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
                                                                 <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.tds_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.tds_name}&nbsp;</Text>
                                                                 {(item.since || item.severity || item.note) &&
@@ -1412,7 +1405,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                     <>
                                         {caseManagerData.medicine.length > 0 && (
                                             option?.format === 'inline' ? (
-                                                <Text style={{ marginTop: PX_TO_PT * 15, lineHeight: 1.4 }}>
+                                                <Text style={{ marginTop: PX_TO_PT * 15, marginBottom: PX_TO_PT * 15, lineHeight: 1.4 }}>
                                                     <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
                                                     {medicationData?.map((pItem, i) => {
                                                         return (
@@ -1508,7 +1501,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Medication (Rx):&nbsp;</Text>
                                                     {medicationData?.map((pItem, i) => {
                                                         return (
-                                                            <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                            <Text key={i} style={{ marginTop: PX_TO_PT * 5, lineHeight: 1.4 }}>
                                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
                                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{pItem.tmm_medicine_name}&nbsp;</Text>
                                                                 {innerMedication(pItem.index).map((item, ii) => {
@@ -1760,7 +1753,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     <Text fixed style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 700 }}>Lab Investigation:&nbsp;</Text>
                                                     {caseManagerData.investigation.map((item, i) => {
                                                         return (
-                                                            <Text key={i} style={{ marginTop: PX_TO_PT * (i == 0 ? 4 : 2), lineHeight: 1.4 }}>
+                                                            <Text key={i} style={{ marginTop: PX_TO_PT * 5, lineHeight: 2 }}>
                                                                 <Text style={{ color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>&nbsp;{i + 1}.&nbsp;</Text>
                                                                 <Text style={{ color: '#171725', fontFamily: getIndianLanguageFont(item.investigation_name, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }}>{item.investigation_name}&nbsp;</Text>
                                                                 {(item.since || item.severity || item.note) &&
@@ -2180,61 +2173,61 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                             option?.medical_history_option?.includes(item.tmmhs_id) && (
                                                                 (item?.no_know_history || item?.tags?.length > 0) && (
                                                                     <>
-                                                                        <Text style={{ color: '#000', marginTop: i === 0 ? PX_TO_PT * 4 : PX_TO_PT * 12, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA' }}>{`${item.title} : `}</Text>
+                                                                        <Text style={{ color: '#000', marginTop: i === 0 ? PX_TO_PT * 4 : PX_TO_PT * 12, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, borderTop: '1px solid #171725', borderLeft: '1px solid #171725', borderRight: '1px solid #171725', backgroundColor: '#E2E2EA', lineHeight: 2 }}>{`${item.title} : `}</Text>
                                                                         {!item?.no_know_history ? (
                                                                             <View key={i} style={[styles.table, { marginTop: 0 }]}>
                                                                                 <View style={styles.headerRow} fixed>
-                                                                                    <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>NAME</Text>
+                                                                                    <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000', lineHeight: 2 }]}>NAME</Text>
                                                                                     {item?.tmmhs_id != 3 && item?.tmmhs_id != 5 && (
                                                                                         <>
-                                                                                            <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>SINCE</Text>
-                                                                                            <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>STATUS</Text>
+                                                                                            <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000', lineHeight: 2 }]}>SINCE</Text>
+                                                                                            <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000', lineHeight: 2 }]}>STATUS</Text>
                                                                                             {item?.tmmhs_id == 2 && (
-                                                                                                <Text style={[styles.headerCell, { flex: 0.25, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>MEDICATION</Text>
+                                                                                                <Text style={[styles.headerCell, { flex: 0.25, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000', lineHeight: 2 }]}>MEDICATION</Text>
                                                                                             )}
                                                                                         </>
                                                                                     )}
                                                                                     {item?.tmmhs_id === 5 && (
-                                                                                        <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>DATE</Text>
+                                                                                        <Text style={[styles.headerCell, { flex: 0.2, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000', lineHeight: 2 }]}>DATE</Text>
                                                                                     )}
                                                                                     {item?.tmmhs_id === 3 && (
-                                                                                        <Text style={[styles.headerCell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>RELATIVE</Text>
+                                                                                        <Text style={[styles.headerCell, { flex: 0.4, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000', lineHeight: 2 }]}>RELATIVE</Text>
                                                                                     )}
-                                                                                    <Text style={[styles.headerCell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000' }]}>{item?.tmmhs_id === 5 ? 'REMARKS' : 'NOTE'}</Text>
+                                                                                    <Text style={[styles.headerCell, { flex: 0.5, fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000', lineHeight: 2 }]}>{item?.tmmhs_id === 5 ? 'REMARKS' : 'NOTE'}</Text>
                                                                                 </View>
                                                                                 {item?.tags?.filter(x => x.enable == 'Y')?.map((item1, i1) => {
                                                                                     return (
                                                                                         <View style={styles.row} key={i1} wrap={false}>
-                                                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{item1.title}</Text>
+                                                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, lineHeight: 2 }]}>{item1.title}</Text>
                                                                                             {item?.tmmhs_id != 3 && item?.tmmhs_id != 5 && (
                                                                                                 <>
-                                                                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.since ? item1.since : '-'}</Text>
-                                                                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.status ? item1.status : '-'}</Text>
+                                                                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, lineHeight: 2 }]}>{item1.since ? item1.since : '-'}</Text>
+                                                                                                    <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, lineHeight: 2 }]}>{item1.status ? item1.status : '-'}</Text>
                                                                                                     {item?.tmmhs_id == 2 && (
-                                                                                                        <Text style={[styles.cell, { flex: 0.25, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.medication ? item1.medication : '-'}</Text>
+                                                                                                        <Text style={[styles.cell, { flex: 0.25, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, lineHeight: 2 }]}>{item1.medication ? item1.medication : '-'}</Text>
                                                                                                     )}
                                                                                                 </>
                                                                                             )}
                                                                                             {item?.tmmhs_id === 5 && (
-                                                                                                <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.date || '-'}</Text>
+                                                                                                <Text style={[styles.cell, { flex: 0.2, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, lineHeight: 2 }]}>{item1.date || '-'}</Text>
                                                                                             )}
                                                                                             {item?.tmmhs_id === 3 && (
-                                                                                                <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.relationship ? item1.relationship : '-'}</Text>
+                                                                                                <Text style={[styles.cell, { flex: 0.4, color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, lineHeight: 2 }]}>{item1.relationship ? item1.relationship : '-'}</Text>
                                                                                             )}
-                                                                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: getIndianLanguageFont(item1?.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400 }]}>{item1.note ? item1.note : '-'}&nbsp;</Text>
+                                                                                            <Text style={[styles.cell, { flex: 0.5, color: '#171725', fontFamily: getIndianLanguageFont(item1?.note, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 400, lineHeight: 2 }]}>{item1.note ? item1.note : '-'}&nbsp;</Text>
                                                                                         </View>
                                                                                     )
                                                                                 })}
                                                                                 {item?.tags?.filter(x => x.enable == 'N')?.map((item1, i1) => {
                                                                                     return (
                                                                                         <View style={styles.row} key={i1}>
-                                                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{`No ${item1.title}`}</Text>
+                                                                                            <Text style={[styles.cell, { color: '#171725', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, lineHeight: 2 }]}>{`No ${item1.title}`}</Text>
                                                                                         </View>
                                                                                     )
                                                                                 })}
                                                                             </View>
                                                                         ) : (
-                                                                            <Text style={{ color: '#000', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, border: 1, borderStyle: 'solid', borderColor: '#171725' }}>{`No known history`}</Text>
+                                                                            <Text style={{ color: '#000', fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, padding: 6, border: 1, borderStyle: 'solid', borderColor: '#171725', lineHeight: 2 }}>{`No known history`}</Text>
 
                                                                         )}
                                                                     </>
@@ -2245,11 +2238,11 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                                                     {caseManagerData?.medical_history?.[0]?.medical_history_remarks &&
                                                         <View style={styles.table}>
                                                             <View style={styles.headerRow} fixed>
-                                                                <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000', backgroundColor: '#E2E2EA' }]}>Additional History :</Text>
+                                                                <Text style={[styles.headerCell, { fontFamily: printSettings?.page_format?.font_family, fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, color: '#000', backgroundColor: '#E2E2EA', lineHeight: 2 }]}>Additional History :</Text>
                                                             </View>
 
                                                             <View style={styles.row} wrap={false}>
-                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500 }]}>{caseManagerData?.medical_history?.[0]?.medical_history_remarks}&nbsp;</Text>
+                                                                <Text style={[styles.cell, { color: '#171725', fontFamily: getIndianLanguageFont(caseManagerData?.medical_history?.[0]?.medical_history_remarks, printSettings?.page_format?.font_family), fontSize: PX_TO_PT * printSettings?.page_format?.font_size, fontWeight: 500, lineHeight: 2 }]}>{caseManagerData?.medical_history?.[0]?.medical_history_remarks}&nbsp;</Text>
                                                             </View>
                                                         </View>
                                                     }
@@ -5965,7 +5958,7 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                     </View>
 
                     {/* Bottom spacer for Own Letterhead first-page-only mode */}
-                    <View
+                    {/* <View
                         fixed
                         render={({ pageNumber }) => {
                             const isFirstPage = pageNumber === 1;
@@ -5986,74 +5979,79 @@ const ViewPDF = ({ mode = NORMAL, ...props }) => {
                             }
                             return null;
                         }}
-                    />
+                    /> */}
 
-                    <View
-                        style={{
-                          position: 'absolute',
-                          bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),
-                          left: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
-                          right: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
-                        }}
-                        fixed
-                        render={({ pageNumber }) => {
-                          if (pageNumber === 1 || (pageNumber > 1 && showMode === 'all')) {
-                            return (
-                              <View>
-                                {mode === NORMAL ? (
-                                  printSettings?.letterhead_format === 0 ? (
-                                    <View>
-                                      {printSettings?.header_footer?.footer?.title && (
-                                        <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />
-                                      )}
-                                      <Text
-                                        style={{
-                                          marginTop: PX_TO_PT * 8,
-                                          color: '#171725',
-                                          fontFamily: 'Roboto',
-                                          fontSize: PX_TO_PT * printSettings?.header_footer?.footer?.font_size,
-                                          fontWeight: 400,
-                                          maxLines: 1,
-                                        }}
-                                      >
-                                        {printSettings?.header_footer?.footer?.title}
-                                      </Text>
-                                    </View>
-                                  ) : printSettings?.letterhead_format === 1 && (
-                                    renderFooterImage()
-                                  )
-                                ) : (
-                                  printSettings?.whatsapp_letterhead_format === 0 ? (
-                                    <View>
-                                      {printSettings?.header_footer?.footer?.title && (
-                                        <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />
-                                      )}
-                                      <Text
-                                        style={{
-                                          marginTop: PX_TO_PT * 8,
-                                          color: '#171725',
-                                          fontFamily: 'Roboto',
-                                          fontSize: PX_TO_PT * printSettings?.header_footer?.footer?.font_size,
-                                          fontWeight: 400,
-                                          maxLines: 1,
-                                        }}
-                                      >
-                                        {printSettings?.header_footer?.footer?.title}
-                                      </Text>
-                                    </View>
-                                  ) : (
-                                    printSettings?.whatsapp_letterhead_format === 1 &&
-                                    fileFooter &&
-                                    fileFooter?.imageShow &&
-                                    renderFooterImage()
-                                  )
-                                )}
-                              </View>
-                            );
-                          }
-                          return null;
-                        }}
-                      />
+                    {(
+                        <View
+                            style={{
+                              position: 'absolute',
+                              backgroundColor: 'yellow',
+                              bottom: getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "bottom", 0.5),
+                              left: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "left", 0.5),
+                              right: mode !== NORMAL ? PX_TO_PT * 30 : getMarginByFormat(printSettings?.letterhead_format, printSettings?.header_footer, "right", 0.5),
+                            }}
+                            fixed
+                            render={({ pageNumber }) => {
+                              if (pageNumber === 1 || (pageNumber > 1 && showMode === 'all')) {
+                                return (
+                                  <View>
+                                    {mode === NORMAL ? (
+                                      printSettings?.letterhead_format === 0 ? (
+                                        <View>
+                                          {printSettings?.header_footer?.footer?.title && (
+                                            <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />
+                                          )}
+                                          <Text
+                                            style={{
+                                              marginTop: PX_TO_PT * 8,
+                                              color: '#171725',
+                                              fontFamily: 'Roboto',
+                                              fontSize: PX_TO_PT * printSettings?.header_footer?.footer?.font_size,
+                                              fontWeight: 400,
+                                              maxLines: 1,
+                                            }}
+                                          >
+                                            {printSettings?.header_footer?.footer?.title}
+                                          </Text>
+                                        </View>
+                                      ) : printSettings?.letterhead_format === 1 && (
+                                        renderFooterImage()
+                                      )
+                                    ) : (
+                                      printSettings?.whatsapp_letterhead_format === 0 ? (
+                                        <View>
+                                          {printSettings?.header_footer?.footer?.title && (
+                                            <View style={{ backgroundColor: '#171725', height: PX_TO_PT * 2, width: '100%' }} />
+                                          )}
+                                          <Text
+                                            style={{
+                                              marginTop: PX_TO_PT * 8,
+                                              color: '#171725',
+                                              fontFamily: 'Roboto',
+                                              fontSize: PX_TO_PT * printSettings?.header_footer?.footer?.font_size,
+                                              fontWeight: 400,
+                                              maxLines: 1,
+                                            }}
+                                          >
+                                            {printSettings?.header_footer?.footer?.title}
+                                          </Text>
+                                        </View>
+                                      ) : (
+                                        printSettings?.whatsapp_letterhead_format === 1 &&
+                                        fileFooter &&
+                                        fileFooter?.imageShow &&
+                                        renderFooterImage()
+                                      )
+                                    )}
+                                  </View>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                    )} 
+                    
+
                                
                       {printSettings?.page_format?.pagination === true && <PageNumberFooter />}
                              
