@@ -1945,7 +1945,7 @@ export const IPD = {
       id: "dischargeSummary",
       name: "Discharge Summary",
       icon: "notepadIcon",
-      showAddCTA: true,
+      showAddCTA: false,
       //  isActive: true
     },
     { id: "logs", name: "Activity Logs", icon: "usersTwoIcon" },

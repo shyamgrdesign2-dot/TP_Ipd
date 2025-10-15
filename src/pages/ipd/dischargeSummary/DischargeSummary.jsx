@@ -493,7 +493,7 @@ const DischargeSummary = (props) => {
         surgeriesPerformed: formatSurgeriesPerformed(otNotesData.otNotesData),
       },
       patientHistory: {
-        chiefComplaint: assessmentData.chiefComplaint || [],
+        presentingComplaints: assessmentData.chiefComplaint || [],
         pastMedicalHistory: prescriptionSlice.medicalHistoryData || [],
         gyneacHistory: assessmentData.gynecHistoryData || {},
         obstetricHistory: obstetricSlice.obstetricDetails || {},

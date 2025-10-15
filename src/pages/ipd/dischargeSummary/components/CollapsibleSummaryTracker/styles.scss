@@ -33,10 +33,10 @@ $radius-md: 10px;
   &__header {
     width: 100%;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
-    padding: 16px 18px;
+    padding: 11px 18px;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -205,11 +205,25 @@ $icon-size: 32px;
   background: white;
   border-radius: 100px;
 }
+.sumtrack-full-container {
+  position: relative;
+  width: 400px;
+  padding: 0 18px;
+  .sumtrack-headings {
+    padding: 18px 0;
+  }
+  .sumtrack-title {
+    @include fs18-bold;
+    margin-bottom: 6px;
+  }
+  .sumtrack-desc {
+    @include fs14-normal;
+  }
+}
 .summary-tracker-container {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-
   &::before {
     content: "";
     position: absolute;

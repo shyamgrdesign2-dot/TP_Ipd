@@ -32,7 +32,7 @@ export const useAssessmentDataStore = () => {
     (data) => {
       if (data) {
         // Basic Info dispatches
-        dispatch(setChiefComplaint(data?.basicInfo?.chiefComplaint || []));
+        dispatch(setChiefComplaint(data?.basicInfo?.presentingComplaints || []));
         dispatch(
           setHistoryOfPresentIllness(
             data?.basicInfo?.historyOfPresentIllness || []

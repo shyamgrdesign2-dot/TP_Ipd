@@ -147,3 +147,49 @@
     margin-top: -10px !important;
   }
 }
+.filled-by-cards-list {
+  box-shadow: 0px 0px 12px 0px #00000003;
+  background: #FFFFFF80;
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  gap: 18px;
+  overflow: auto;
+  flex-wrap: nowrap;
+
+  @include no-scrollbar;
+}
+.ot-filled-by-card {
+  position: relative;
+  overflow: hidden;
+  .ot-filled-abs-icon {
+    position: absolute;
+    bottom: 0px;
+    left: -23px;
+    img {
+      width: 51px;
+      height: 51px;
+      object-fit: contain;
+    }
+  }
+  background: #F3EDFC66;
+  border: 0.3px solid #EEDEFF80;
+  border-radius: 12px;
+  padding: 6px 24px 6px 34px;
+  flex: 0 0 auto;
+  >div {
+    align-items: center;
+    flex: 1;
+  }
+  .ot-filled-left-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .filled-by-label {
+    @include fs10-normal;
+  }
+  .filled-by-value {
+    @include fs14-bold;
+  }
+}

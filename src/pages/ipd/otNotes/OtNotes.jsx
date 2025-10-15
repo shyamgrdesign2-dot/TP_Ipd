@@ -75,6 +75,14 @@ const OtNotes = (props) => {
   }, [otNotes]);
 
   useEffect(() => {
+    const { date, time } = otNotesState?.otNotesData || {};
+    if (date && time) {
+      setFilledDate(new Date(date));
+      setFilledAtTime(new Date(time));
+    }
+  }, [otNotesState?.otNotesData]);
+
+  useEffect(() => {
     if (isNew) {
       dispatch(setCurrentOtNoteId(null));
     }
@@ -161,6 +169,8 @@ const OtNotes = (props) => {
 
   const onSaveOtNotesClick = () => {
     const reqData = {
+      date: filledDate,
+      time: filledAtTime,
       surgeryDetails: {
         ...otNotesState.surgeryDetails,
       },
@@ -285,29 +295,6 @@ const OtNotes = (props) => {
     );
   };
 
-  const renderHeaderSection = () => {
-    return (
-      <div className="ipd-filled-by-card-container">
-        {otNotesState.currentOtNoteFilledByDetails?.createdByName && (
-          <FilledByCard
-            showBeing={!otNotesState.currentOtNoteFilledByDetails?.createdAt}
-            filledBy={
-              otNotesState.currentOtNoteFilledByDetails?.createdByName || ""
-            }
-            role={
-              otNotesState.currentOtNoteFilledByDetails?.createdByRole || ""
-            }
-            showFilledOnDate={true}
-            selectedDate={
-              otNotesState.currentOtNoteFilledByDetails?.createdAt || ""
-            }
-          />
-        )}
-        {/* TODO: INTEL - SHOW EDITABLE ONE INSTEAD OF THIS */}
-      </div>
-    );
-  };
-
   const renderFilledBySection = () => {
     return (
       <div style={{ margin: "24px 24px 0" }}>
@@ -407,7 +394,6 @@ const OtNotes = (props) => {
                   onRequestClose={() => {
                     setIsBackModalOpen(true);
                   }}
-                  renderHeaderSection={renderHeaderSection}
                   headerOffset={72}
                   onMenuItemClick={onMenuItemClick}
                 />

@@ -46,9 +46,9 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
       dispatch(setDischargeSummaryDataViaPatch({patientInformation: dischargeSummaryData.patientInformation}));
     }
     if (dischargeSummaryData?.patientHistory) {
-      if (dischargeSummaryData?.patientHistory?.chiefComplaint) {
+      if (dischargeSummaryData?.patientHistory?.presentingComplaints) {
         dispatch(
-          setChiefComplaint(dischargeSummaryData.patientHistory.chiefComplaint)
+          setChiefComplaint(dischargeSummaryData.patientHistory.presentingComplaints)
         );
       }
 

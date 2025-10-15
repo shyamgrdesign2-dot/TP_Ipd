@@ -87,14 +87,12 @@ const AssessmentsForm = (props) => {
   }, [assessments]);
 
   useEffect(() => {
-    const updates = assessmentData.assessmentsFilledByData?.updates;
-    const latestUpdatedAt = updates?.[updates?.length - 1]?.updatedAt;
-    if (latestUpdatedAt) {
-      setFilledDate(new Date(latestUpdatedAt));
-      // setFilledAtTime(new Date(assessmentData.assessmentsFilledByData.createdAtTime));
+    const { date, time } = assessmentData.assessmentsData || {};
+    if (date && time) {
+      setFilledDate(new Date(date));
+      setFilledAtTime(new Date(time));
     }
-    setSelectedTimePeriod(latestUpdatedAt);
-  }, [assessmentData]);
+  }, [assessmentData.assessmentsData]);
 
   useEffect(() => {
     if (
@@ -184,8 +182,10 @@ const AssessmentsForm = (props) => {
 
   const onSaveAssessmentClick = () => {
     const reqData = {
+      date: filledDate,
+      time: filledAtTime,
       basicInfo: {
-        chiefComplaint: assessmentData.chiefComplaint || [],
+        presentingComplaints: assessmentData.chiefComplaint || [],
         historyOfPresentIllness: assessmentData.historyOfPresentIllness,
         currentMedications: convertMedicationFormat(
           prescriptionData.medicationData || []
@@ -329,16 +329,13 @@ const AssessmentsForm = (props) => {
   };
 
   const renderAllSections = () => {
-    const latestUpdatedAt =
-      assessmentData.assessmentsFilledByData?.updates?.[
-        assessmentData.assessmentsFilledByData?.updates?.length - 1
-      ]?.updatedAt;
+    const latestUpdatedAt = assessmentData.assessmentsData?.date || new Date();
+    const latestUpdatedAtTime = assessmentData.assessmentsData?.time || new Date();
     return (
       <div
         className={`ipd-generic-form-container ${
           !isEditable ? "ipd-assessments-readable-container" : ""
         }`}
-        style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
       >
         {latestUpdatedAt && (
           <FilledByCard
@@ -349,6 +346,7 @@ const AssessmentsForm = (props) => {
             role={assessmentData.assessmentsFilledByData?.createdByRole || ""}
             showFilledOnDate={true}
             selectedDate={latestUpdatedAt}
+            selectedTime={latestUpdatedAtTime}
           />
         )}
         {assessments.length > 0

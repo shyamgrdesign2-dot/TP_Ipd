@@ -34,8 +34,8 @@
 }
 
 @mixin box-with-padding {
-  background: #FAFAFB !important;
-  border: 0.85px solid #F1F1F5 !important;
+  background: #fafafb !important;
+  border: 0.85px solid #f1f1f5 !important;
   padding: 14px;
   border-radius: 16px;
 }
@@ -44,7 +44,7 @@
 }
 
 @mixin big-box-with-shadow {
-  background: #FFFFFF80;
+  background: #ffffff80;
   box-shadow: 0px 0px 12px 0px #00000003;
   border-radius: 16px;
   padding: 16px;
@@ -73,3 +73,17 @@
   @include d-flex-align-center-gap-8;
 }
 // Add other reusable mixins here as needed
+
+@mixin no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for Firefox */
+  scrollbar-width: none;
+  /* Hide scrollbar for IE/Edge */
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar {
+  @include no-scrollbar;
+}

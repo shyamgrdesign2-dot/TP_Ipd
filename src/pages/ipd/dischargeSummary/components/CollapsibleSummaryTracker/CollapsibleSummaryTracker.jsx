@@ -44,7 +44,6 @@ export default function CollapsibleSummaryTracker({ section, onToggle }) {
       className={`asc-card ${!open ? "no-decor" : ""}`}
       aria-labelledby={`${section.id}-title`}
     >
-      {/* Header */}
       <button
         className="asc-card__header"
         type="button"

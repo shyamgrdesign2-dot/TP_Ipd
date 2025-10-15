@@ -12,3 +12,14 @@
     flex-direction: column;
   }
 }
+
+.discharge-summary-print-preview {
+  padding: 18px;
+  margin: 18px;
+  border-radius: 12px;
+  background: #F9F7FD;
+  border: 1.03px solid #E2E2EA;
+  display: flex;
+  flex: 1;
+  justify-content: center;
+}

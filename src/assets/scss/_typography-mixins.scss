@@ -250,6 +250,7 @@
   font-weight: 500;
   line-height: 16px;
   font-family: $font-family-primary, "Poppins", sans-serif;
+  width: fit-content;
 }
 
 @mixin success-info-pill-disabled {

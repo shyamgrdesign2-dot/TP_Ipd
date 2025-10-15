@@ -252,7 +252,7 @@ const IPDPatientDetails = () => {
   const addDataToStore = (data) => {
     if (data) {
       // Chief Complaint
-      dispatch(setChiefComplaint(data?.basicInfo?.chiefComplaint || []));
+      dispatch(setChiefComplaint(data?.basicInfo?.presentingComplaints || []));
 
       // History of Present Illness
       dispatch(

@@ -39,10 +39,18 @@ export const DischargeSummaryTracker = (props) => {
   );
 
   return (
-    <div className="d-flex flex-column summary-tracker-container">
-      {sectionsWithData.map((section) => (
-        <CollapsibleSummaryTracker key={section.id} section={section} />
-      ))}
+    <div className="sumtrack-full-container">
+      <div className="sumtrack-headings">
+        <div className="sumtrack-title">Summary Progress</div>
+        <div className="sumtrack-desc">
+          Track completion status of each section
+        </div>
+      </div>
+      <div className="d-flex flex-column summary-tracker-container">
+        {sectionsWithData.map((section) => (
+          <CollapsibleSummaryTracker key={section.id} section={section} />
+        ))}
+      </div>
     </div>
   );
   // return <CollapsibleSummaryTracker section={demoSection} />;
