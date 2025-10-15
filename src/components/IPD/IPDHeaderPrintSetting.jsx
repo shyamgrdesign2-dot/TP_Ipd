@@ -123,10 +123,13 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
       // Save draft settings to main settings (persist changes)
       dispatch(saveDraftSettings({ moduleType }));
 
+      // Remove server-managed fields before updating
+      const { _id, doctorId, hospitalId, ...settingsPayload } = draftSettings;
+
       // Call update print settings API with the module settings
       await dispatch(
         updatePrintSettings({
-          ...draftSettings,
+          ...settingsPayload,
         })
       );
 
@@ -214,10 +217,14 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
             // Save draft to main settings to persist the defaults
             dispatch(saveDraftSettings({ moduleType }));
 
+            // Remove server-managed fields before updating
+            const { _id, doctorId, hospitalId, ...settingsPayload } =
+              printSettings;
+
             // Call update print settings API with the module settings
             await dispatch(
               updatePrintSettings({
-                ...printSettings,
+                ...settingsPayload,
                 [moduleType]: defaultSettings[moduleType],
               })
             );

@@ -138,7 +138,7 @@ const PreviewDischargeSummary = () => {
         } w-100 bg-body wrapper2 prescription-wrapper`}
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
-          {/* <Col md={7} sm={7} xl={5}>
+          <Col md={7} sm={7} xl={5}>
             {!isMobile && (
               <div
                 className="d-flex align-items-center justify-content-end h-38"
@@ -196,7 +196,7 @@ const PreviewDischargeSummary = () => {
                 </Button>
               </div>
             </div>
-          </Col> */}
+          </Col>
           <Col md={17} sm={17} xl={12}>
             <div className={isMobile ? "p-20" : ""}>
               <div className="d-flex align-items-center justify-content-between">
