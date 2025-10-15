@@ -101,8 +101,9 @@ const renderPresentingComplaints = (complaints, fontFamily) => {
   if (!complaints || complaints.length === 0) return null;
 
   // Handle both old format (simple strings/objects) and new Slate.js format
-  const isSlateFormat = Array.isArray(complaints) && 
-    complaints.some(item => item && typeof item === 'object' && item.type);
+  const isSlateFormat =
+    Array.isArray(complaints) &&
+    complaints.some((item) => item && typeof item === "object" && item.type);
 
   // Custom styles for the SlateToPdf component to match existing styling
   const customStyles = {
@@ -116,7 +117,7 @@ const renderPresentingComplaints = (complaints, fontFamily) => {
     numberedSymbol: {},
     numberedText: {},
     paragraph: {},
-    text: {}
+    text: {},
   };
 
   return (
@@ -127,8 +128,8 @@ const renderPresentingComplaints = (complaints, fontFamily) => {
         </Text>
         {isSlateFormat ? (
           <View style={styles.bulletList}>
-            <SlateToPdf 
-              nodes={complaints} 
+            <SlateToPdf
+              nodes={complaints}
               fontFamily={fontFamily}
               customStyles={customStyles}
             />
@@ -391,26 +392,23 @@ const renderGynecHistory = (gynecData, fontFamily) => {
 const PatientHistory = ({ data, formatSettings, fontFamily = "Poppins" }) => {
   if (!data?.patientHistory) return null;
   const { patientHistory } = data;
-  const subsections = formatSettings?.patientHistory || {};
-  
-  // Sort subsections
-  const sortedSubsections = Object.entries(subsections)
-  .filter(([key]) => key !== "settings")
-  .map(([key, value]) => ({ key, ...value }))
-  .filter((section) => section.visible !== false)
-  .sort((a, b) => (a.order || 0) - (b.order || 0));
-  
-  console.log('INTEL ==> data', data, sortedSubsections)
+
+  // Find patientHistory section in formatSettings array
+  const patientHistorySection = formatSettings.find(
+    (section) => section.key === "patientHistory"
+  );
+  const subsections = patientHistorySection?.subSections || [];
+
+  // Sort subsections (already processed by getSortedSections)
+  const sortedSubsections = subsections;
+
   return (
     <View style={styles.mainContainer}>
       {sortedSubsections.map((subsection) => {
         const key = subsection.key;
 
         // Presenting Complaints
-        if (
-          key === "presentingComplaints" &&
-          patientHistory.chiefComplaint
-        ) {
+        if (key === "presentingComplaints" && patientHistory.chiefComplaint) {
           return renderPresentingComplaints(
             Array.isArray(patientHistory?.chiefComplaint)
               ? patientHistory.chiefComplaint

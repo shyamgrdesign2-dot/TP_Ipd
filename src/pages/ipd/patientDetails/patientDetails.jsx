@@ -1,11 +1,4 @@
-import React, {
-  act,
-  Suspense,
-  useEffect,
-  useMemo,
-  useState,
-  useRef,
-} from "react";
+import React, { Suspense, useEffect, useMemo, useState, useRef } from "react";
 import { IPD } from "../../../utils/locale";
 import {
   formatDateToShortMonthYear,
@@ -18,7 +11,6 @@ import ToolbarActions from "../components/ToolbarActions/ToolbarActions";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { setPatientDetailsInOldFormat } from "../../../redux/ipd/ipdSlice";
 import {
   getAssessmentsData,
   resetAssessmentForm,
@@ -92,7 +84,9 @@ const IPDPatientDetails = () => {
   const prescriptionSlice = useSelector((state) => state.prescription);
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { otNotesData } = useSelector((state) => state.otNotes);
-  const { progressNotes, filteredProgressNotes } = useSelector((state) => state.progressNotes);
+  const { progressNotes, filteredProgressNotes } = useSelector(
+    (state) => state.progressNotes
+  );
   const { medicalRecords } = useSelector((state) => state.medicalRecords);
   const { crossReferralData } = useSelector((state) => state.crossReferral);
   const { dischargeSummaryData } = useSelector(
@@ -366,11 +360,13 @@ const IPDPatientDetails = () => {
       //   }
       // );
     } else if (activeMenuItem === "dischargeSummary") {
-      dispatch(getDischargeSummaryData({ patientId, admissionId })).then(res => {
-        addDischargeDataToStore(res.payload, dispatch);
-      }).catch((error) => {
-        console.error("Error fetching discharge summary:", error);
-      });
+      dispatch(getDischargeSummaryData({ patientId, admissionId }))
+        .then((res) => {
+          addDischargeDataToStore(res.payload, dispatch);
+        })
+        .catch((error) => {
+          console.error("Error fetching discharge summary:", error);
+        });
     }
   }, [activeMenuItem, admissionId, patientId, dispatch]);
 
@@ -409,7 +405,8 @@ const IPDPatientDetails = () => {
     } else if (activeMenuItem === "crossReferral") {
       return !!crossReferralData?.length;
     } else if (activeMenuItem === "dischargeSummary") {
-      return !!dischargeSummaryData && !!dischargeSummaryData.patientInformation && Object.keys(dischargeSummaryData.patientInformation).length > 0;
+      // return !!dischargeSummaryData && !!dischargeSummaryData.patientInformation && Object.keys(dischargeSummaryData.patientInformation).length > 0;
+      return !!Object.keys(dischargeSummaryData || {})?.length;
     } else if (activeMenuItem === "consultantNotes") {
       return !!consultantNotes?.length;
     } else if (activeMenuItem === "progress") {
@@ -442,6 +439,14 @@ const IPDPatientDetails = () => {
   };
   const onHandleSelect = (id) => {
     setActiveMenuItem(id);
+  };
+
+  const handleDischargeSummaryPrintPreview = () => {
+    navigate("/ipd/discharge-summary/preview", {
+      state: {
+        patientDetails,
+      },
+    });
   };
 
   const renderContent = (activeItem) => {
@@ -553,7 +558,7 @@ const IPDPatientDetails = () => {
               <ToolbarActions
                 showEditForm={true}
                 onEdit={handleDischargeSummaryClick}
-                onPrintPreview={() => console.log("Preview")}
+                onPrintPreview={handleDischargeSummaryPrintPreview}
                 onPrint={() => console.log("Print")}
                 onSettings={handleCustomizeClick}
                 onDownload={() => console.log("Download")}
@@ -616,7 +621,9 @@ const IPDPatientDetails = () => {
                 patientData={patientData}
                 patient_data_naviagte={patient_data}
                 patientDetails={patientDetails}
-                handleUploadDocPopup={() => setShowUploadDocPopup((prev) => !prev)}
+                handleUploadDocPopup={() =>
+                  setShowUploadDocPopup((prev) => !prev)
+                }
                 isAppointmentData={true}
                 isIPDMedicalRecords={true}
                 patientId={patientId}
