@@ -6,7 +6,7 @@ import React from "react";
 import { View, Text } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import { isEmptyRichText } from "../../../utils/pdfUtils";
-import { renderRichText } from "../../../utils/richTextRenderer";
+import SlateToPdf from "../../../components/SlateToPdf";
 
 const styles = StyleSheet.create({
   // Main container
@@ -129,11 +129,6 @@ const renderVitals = (vitals, fontFamily) => {
     { label: "General Rbs", value: vitals.generalRBS, unit: "mg/Dl" },
   ];
 
-  const vitalsText = vitalFields
-    .filter((field) => field.value)
-    .map((field) => `${field.label}: ${field.value}${field.unit}`)
-    .join(" | ");
-
   return (
     <Text style={[styles.vitalsText, { fontFamily }]}>
       <Text style={styles.vitalsTitle}>Vitals: </Text>
@@ -177,7 +172,7 @@ const renderGeneralExamination = (examination, fontFamily) => {
               .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
               .join("/");
 
-            const hasNotes = value.notes && !isEmptyRichText(value.notes);
+              const hasNotes = value.notes && !isEmptyRichText(value.notes);
 
             return (
               <View key={key}>
@@ -192,17 +187,31 @@ const renderGeneralExamination = (examination, fontFamily) => {
                   <View style={styles.nestedBulletList}>
                     <View style={styles.bulletItem}>
                       <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                      <Text style={[styles.bulletContent, { fontFamily }]}>
-                        <Text style={styles.notesLabel}>Notes:</Text>
-                        <Text style={styles.regularText}>
-                          {" "}
-                          {typeof value.notes === "string"
-                            ? value.notes
-                            : renderRichText(value.notes, {
-                                text: { fontSize: 10, fontFamily },
-                              })}
-                        </Text>
-                      </Text>
+                      <View style={[styles.bulletContent]}>
+                        <Text style={[styles.notesLabel, { fontFamily }]}>Notes: </Text>
+                        {typeof value.notes === "string" ? (
+                          <Text style={[styles.regularText, { fontFamily }]}>
+                            {value.notes}
+                          </Text>
+                        ) : (
+                          <SlateToPdf 
+                            nodes={Array.isArray(value.notes) ? value.notes : [value.notes]}
+                            fontFamily={fontFamily}
+                            customStyles={{
+                              text: { fontSize: 10, color: "#454551", lineHeight: 1.8 },
+                              paragraph: { marginBottom: 2 },
+                              bulletList: { paddingLeft: 15, marginBottom: 2 },
+                              numberedList: { paddingLeft: 15, marginBottom: 2 },
+                              bulletItem: { marginBottom: 2 },
+                              numberedItem: { marginBottom: 2 },
+                              bulletSymbol: { width: 12, fontSize: 10, color: "#454551", fontWeight: 400, lineHeight: 1.8 },
+                              numberedSymbol: { width: 15, fontSize: 10, color: "#454551", fontWeight: 400, lineHeight: 1.8 },
+                              bulletText: { fontSize: 10, flex: 1, color: "#454551", fontWeight: 400, lineHeight: 1.8, textTransform: "capitalize" },
+                              numberedText: { fontSize: 10, flex: 1, color: "#454551", fontWeight: 400, lineHeight: 1.8, textTransform: "capitalize" }
+                            }}
+                          />
+                        )}
+                      </View>
                     </View>
                   </View>
                 )}
@@ -221,24 +230,72 @@ const renderGeneralExamination = (examination, fontFamily) => {
 const renderOthers = (others, fontFamily) => {
   if (!others || isEmptyRichText(others)) return null;
 
+  // Custom styles for SlateToPdf to match existing styling
+  const customStyles = {
+    text: {
+      fontSize: 10,
+      color: "#454551",
+      lineHeight: 1.8,
+    },
+    paragraph: { 
+      marginBottom: 0 
+    },
+    bulletList: { 
+      paddingLeft: 0 
+    },
+    numberedList: { 
+      paddingLeft: 0 
+    },
+    bulletItem: {
+      flexDirection: "row",
+      marginBottom: 0,
+    },
+    numberedItem: {
+      flexDirection: "row", 
+      marginBottom: 0,
+    },
+    bulletSymbol: {
+      width: 12,
+      fontSize: 10,
+      color: "#454551",
+      fontWeight: 400,
+      lineHeight: 1.8,
+    },
+    numberedSymbol: {
+      width: 15,
+      fontSize: 10,
+      color: "#454551", 
+      fontWeight: 400,
+      lineHeight: 1.8,
+    },
+    bulletText: {
+      fontSize: 10,
+      flex: 1,
+      color: "#454551",
+      fontWeight: 400,
+      lineHeight: 1.8,
+      textTransform: "capitalize",
+    },
+    numberedText: {
+      fontSize: 10,
+      flex: 1,
+      color: "#454551",
+      fontWeight: 400,
+      lineHeight: 1.8,
+      textTransform: "capitalize",
+    }
+  };
+
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
         <Text style={[styles.subsectionTitle, { fontFamily }]}>Others:</Text>
         <View style={styles.bulletList}>
-          {renderRichText(others, {
-            text: {
-              fontSize: 10,
-              fontFamily,
-              color: "#454551",
-              lineHeight: 1.8,
-            },
-            paragraph: { marginBottom: 0 },
-            listItem: {
-              flexDirection: "row",
-              marginBottom: 0,
-            },
-          })}
+          <SlateToPdf 
+            nodes={Array.isArray(others) ? others : [others]}
+            fontFamily={fontFamily}
+            customStyles={customStyles}
+          />
         </View>
       </View>
     </View>
@@ -264,8 +321,8 @@ const PhysicalExamination = ({ data, fontFamily = "Poppins" }) => {
         renderVitals(physicalExamination.vitals, fontFamily)}
 
       {/* General Examination */}
-      {physicalExamination.examination &&
-        renderGeneralExamination(physicalExamination.examination, fontFamily)}
+      {physicalExamination.generalExamination &&
+        renderGeneralExamination(physicalExamination.generalExamination, fontFamily)}
 
       {/* Others */}
       {physicalExamination.others &&

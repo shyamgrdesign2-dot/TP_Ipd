@@ -17,7 +17,7 @@ import {
   uploadDocument,
 } from "./service";
 import { setAllUploadedDocs } from "../../redux/uploadDocSlice";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import { isAndroid, isBrowser } from "react-device-detect";
 import { MESSAGE_KEY } from "../../utils/constants";
@@ -30,6 +30,7 @@ import {
   uploadDocURLtoFile,
 } from "./utils/helper";
 import { putDocument as putIPDDocument } from "../ipd/medicalRecords/utils.js/service";
+import { getAllPatientDocs } from "../ipd/medicalRecords/utils.js/helper";
 
 const UploadDocument = ({
   onClose,
@@ -41,6 +42,8 @@ const UploadDocument = ({
   isEditDocument,
   setIsEditDocument,
   patientData,
+  patient_data_naviagte,
+  patientDetails,
   isAppointmentData,
   handleUploadDocPopup,
   // New optional props for IPD medical records flow
@@ -51,6 +54,7 @@ const UploadDocument = ({
   overrideDocumentOptions,
 }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { userId } = useSelector((state) => state.doctors);
   const { state } = useLocation();
   const patient_data = state?.patient_data || patientData;
@@ -217,6 +221,18 @@ const UploadDocument = ({
       setFilesData([]);
       setRecordData([]);
       handleDrawerUploadDoc();
+      // Refresh the notes after saving
+      // await dispatch(getProgressNotes({ patientId, admissionId }));
+      await getAllPatientDocs( patient_data_naviagte?.patient_unique_id , patientDetails?.admissionId, "medical_records");
+      navigate(`/ipd/patient-details`, {
+        replace: true,
+        state: {
+          patient_data : patient_data_naviagte,
+          patientDetails,
+          isEditable: false,
+          activeTab: "records", // This will help identify which tab to show
+        },
+      });
       return;
     }
 

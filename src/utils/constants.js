@@ -85,9 +85,12 @@ export const GB_APOLLO_DISABLE_FEATURE = "apollo-disable-feature";
 
 export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
+export const NEO_NATOLOGISTS_DP_ID = 122;
+export const PAEDIATRICS_DP_ID = 9;
 export const GB_SNAP_RX = "snap-rx";
 export const GB_SNAP_RX_DIGITIZATION = "snap-rx-digitization";
 export const GB_DISABLE_MSG91_OTP_FLOW = "disable-msg91-otp-flow";
+export const GB_CARE_PLAN = "care-plan-dropdown";
 
 export const FREE = "FREE";
 export const TRIAL = "TRIAL";
@@ -192,6 +195,61 @@ export const FONTS_SIZE_LIST = [
     label: "16",
   },
 ];
+
+export const LANGUAGE_LIST = [
+    {
+        value: 1,
+        label: 'English',
+    },
+    {
+        value: 2,
+        label: 'Gujarati',
+    },
+    {
+        value: 3,
+        label: 'Hindi',
+    },
+    {
+        value: 4,
+        label: 'Marathi',
+    },
+    // {
+    //     value: 5,
+    //     label: 'Telugu',
+    // },
+    {
+        value: 6,
+        label: 'Kannada',
+    },
+    // {
+    //     value: 7,
+    //     label: 'Urdu',
+    // },
+    // {
+    //     value: 8,
+    //     label: 'Punjabi',
+    // },
+    // {
+    //     value: 9,
+    //     label: 'Malayalam',
+    // },
+    {
+        value: 10,
+        label: 'Tamil',
+    },
+    {
+        value: 11,
+        label: 'Assamese',
+    },
+    {
+        value: 12,
+        label: 'Bengali',
+    },
+    {
+        value: 13,
+        label: 'Odia',
+    },
+]
 
 export const PAEDIATRIC_DP_ID = 9;
 
@@ -309,8 +367,8 @@ export const SNAP_RX_KNOW_MORE_DATA = {
     description: "Please watch this video to know how Snap Rx  Works👇",
   },
   videoLink: {
-    link: "https://www.youtube.com/embed/mAZ7Sa86PnQ",
-    thumbnail: "https://i.ytimg.com/vi/mAZ7Sa86PnQ/hqdefault.jpg",
+    link: "https://www.youtube.com/embed/xXPsyTPSNHA",
+    thumbnail: "https://i.ytimg.com/vi/xXPsyTPSNHA/hqdefault.jpg",
   },
   tips: {
     smallTitle: "Tips",

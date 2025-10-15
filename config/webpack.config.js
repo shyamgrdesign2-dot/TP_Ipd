@@ -359,7 +359,11 @@ module.exports = function (webpackEnv) {
         // Handle node_modules packages that contain sourcemaps
         shouldUseSourceMap && {
           enforce: 'pre',
-          exclude: /@babel(?:\/|\\{1,2})runtime/,
+          exclude: [
+            /@babel(?:\/|\\{1,2})runtime/,
+            /node_modules\/html2pdf\.js/,
+            /node_modules\/react-zoom-pan-pinch/,
+          ],
           test: /\.(js|mjs|jsx|ts|tsx|css)$/,
           loader: require.resolve('source-map-loader'),
         },

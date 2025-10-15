@@ -168,11 +168,11 @@ const OtNotes = (props) => {
         {}
       ),
       intraOperativeNotes: {
-        complication:
+        complicationsSeverity:
           otNotesState.intraOperativeNotes.complicationsSeverity?.value || [],
         specimensSent:
           otNotesState.intraOperativeNotes.specimensSent?.value || [],
-        implants: otNotesState.intraOperativeNotes.implantsUsed?.value || [],
+          implantsUsed: otNotesState.intraOperativeNotes.implantsUsed?.value || [],
         estimatedBloodLoss:
           parseInt(
             otNotesState.intraOperativeNotes?.additionalUnits

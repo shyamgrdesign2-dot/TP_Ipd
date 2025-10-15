@@ -73,6 +73,7 @@ const dev = {
   tp_agent_disabled_hospital: [
     4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
   ],
+  munshi_hospital_business_ids: [749611704175237],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-uat-doctor-portal.tatvacare.in",
@@ -159,12 +160,14 @@ const qa_tp = {
   tp_agent_disabled_hospital: [
     4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
   ],
+  munshi_hospital_business_ids: [749611704175237],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
-  ipd_api_url:
-    "https://pm-ipd-uat.tatvacare.in/api/v1",
+  ipd_api_url: "https://pm-ipd-uat.tatvacare.in/api/v1",
+  zydus_voice_rx_expiry_date: "2025-11-01",
+  FREE_VOICE_RX_APOLLO_USER_IDS: [12469, 12475],
 };
 
 const qa = {
@@ -243,6 +246,7 @@ const qa = {
   tp_agent_disabled_hospital: [
     4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
   ],
+  munshi_hospital_business_ids: [749611704175237],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
@@ -332,12 +336,15 @@ const uat = {
   tp_agent_disabled_hospital: [
     4851751290017377, 754811713438773, 912841712741834, 7591750931025038,
   ],
+  munshi_hospital_business_ids: [749611704175237],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-qa.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-uat-doctor-portal.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
   ipd_api_url:
     "https://pm-ipd-uat.tatvacare.in/api/v1",
+  zydus_voice_rx_expiry_date: "2025-11-01",
+  FREE_VOICE_RX_APOLLO_USER_IDS: [12469, 12475],
 };
 
 const prod = {
@@ -427,12 +434,14 @@ const prod = {
     268741731506046, 549821734513388, 628451726551928, 684191731931706,
     879361730721433, 538421739782028, 136841742984591,
   ],
-  medeco_webview_url: "",
+  munshi_hospital_business_ids: [263578419],
+  medeco_webview_url: "https://pm-doctor-tatva-pwa-uat.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://tatvapractice.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
-  ipd_api_url:
-    "https://pm-ipd-prod.tatvacare.in/api/v1",
+  ipd_api_url: "https://pm-ipd-prod.tatvacare.in/api/v1",
+  zydus_voice_rx_expiry_date: "2025-11-01",
+  FREE_VOICE_RX_APOLLO_USER_IDS: [12469, 12475, 12476, 12477],
 };
 
 const ipd = {

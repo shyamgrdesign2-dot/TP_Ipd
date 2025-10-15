@@ -27,7 +27,6 @@ const ProvisionalDiagnosis = (props) => {
   const onSaveClick = () => {
     if (diagnosisPickerTableRef.current?.saveRows) {
       const rows = diagnosisPickerTableRef.current.saveRows();
-      console.log("INTEL ==> ROWS", rows);
       dispatch(setProvisionalDiagnosis(rows));
       setAddProvisionalDiagnosisDrawer(false);
     }
@@ -38,7 +37,7 @@ const ProvisionalDiagnosis = (props) => {
   const renderProvisionalDiagnosis = () => {
     return (
       <div className="ipd-provisional-diagnosis-container">
-        <DiagnosisPickerTable isEditable={false} ref={diagnosisPickerTableRef} />
+        <DiagnosisPickerTable itemId={'provisionalDiagnosis'} isEditable={false} ref={diagnosisPickerTableRef} />
         {isEditable ? (
           <div onClick={handleAddProvisionalDiagnosis}>
             <GenericCard
@@ -57,7 +56,7 @@ const ProvisionalDiagnosis = (props) => {
         ) : null}
         {addProvisionalDiagnosisDrawer && (
           <DrawerWrapper
-            width={"70%"}
+            width={"100%"}
             open={addProvisionalDiagnosisDrawer}
             onClose={handleAddProvisionalDiagnosis}
             title="Provisional Diagnosis"
@@ -78,7 +77,7 @@ const ProvisionalDiagnosis = (props) => {
               showAutoFill={false}
               renderBody={() => {
                 return (
-                    <DiagnosisPickerTable isEditable={true} ref={diagnosisPickerTableRef} />
+                    <DiagnosisPickerTable itemId={'provisionalDiagnosis'} isEditable={true} ref={diagnosisPickerTableRef} />
                 )
               }}
             />

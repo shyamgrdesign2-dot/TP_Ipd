@@ -49,7 +49,7 @@ import noRecordFound from '../../assets/images/no-record-round.svg';
 import calculatorIconBlue from '../../assets/images/calculator-blue.svg';
 import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
-import { EXTRA_OPTIONS, MESSAGE_KEY } from "../../utils/constants";
+import { EXTRA_OPTIONS, MESSAGE_KEY, NEO_NATOLOGISTS_DP_ID } from "../../utils/constants";
 
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import DoseCalculator from "../dose_calculator/doseCalculator";
@@ -291,7 +291,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
           let doseCalData = {}
           const objDose = dosesList.find((e1) => e1.medicine_id == e.tmm_id)
           if (objDose !== undefined) {
-            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration)
+            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration, e?.tmm_type)
             doseCalData['tmm_dosage_unit_name'] = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
             doseCalData['tmm_dosage'] = dose ? dose : "";
             doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "";
@@ -392,7 +392,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   //Child Componet
 
-  const SortableItem = SortableElement(({ item }) => (
+  const SortableItem = SortableElement(({ item }) => {
+    let tmm_freq_type_name = `${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : "0 |"}${item.tmm_time_name ? item.tmm_time_name : ""}`;
+    tmm_freq_type_name = tmm_freq_type_name === `0 -0 -0 |None` ? "" : tmm_freq_type_name;
+    return (
     <div
       style={{
         width:
@@ -427,13 +430,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
           ) : (
             (item.tmm_dosage || item.tmm_unit_name) ? (
               isNumeric(item.tmf_block) && item.tmf_block == 0 ? (
-                <div className="text-truncate small">{`
-              ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
-              ${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
-              ${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
-              ${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}
-              ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : "0 |"}
-              ${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
+                <div className="text-truncate small">{tmm_freq_type_name}</div>
               ) : (
                 <div className="text-truncate small">{`
                 ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
@@ -459,7 +456,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         <i className="icon-Cross"></i>
       </Button>
     </div>
-  ));
+  )});
 
   const SortableList = SortableContainer(({ items }) => {
     return (
@@ -1011,7 +1008,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
 
   // Dose Calc Dropdown
   const items = [
-    profile?.dp_id === 9 && {
+    (profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) && {
       label: dosesList.some((e1) => e1.medicine_id == medicationData[selectedIndex]?.tmm_id) ?
         <div onClick={() => handleViewDoseCalcDrawer("1", medicationData[selectedIndex]?.tmm_id)}>
           <img src={calculatorIconBlue} alt="Dose calcultor" className="me-2" width={16} />Edit Calculation</div>
@@ -1055,7 +1052,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                     medicationData[selectedIndex]?.tmm_generic}
                 </div>
               </div>
-              {(profile?.dp_id === 9 || !medicationData[selectedIndex]?.pms_default) && (
+              {((profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) || !medicationData[selectedIndex]?.pms_default) && (
                 <Dropdown className='btn btn-outline btn-more pe-0' menu={{ items }} trigger={['click']}>
                   <a onClick={(e) => e.preventDefault()}>
                     <i className='icon-More'></i>
@@ -1869,7 +1866,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
           let doseCalData = {}
           const objDose = dosesList.find((e1) => e1.medicine_id == e.tmm_id)
           if (objDose !== undefined) {
-            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration)
+            const dose = calculateDose(objDose?.dosage, todayData?.weight, objDose?.concentration, e?.tmm_type)
             doseCalData['tmm_dosage_unit_name'] = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
             doseCalData['tmm_dosage'] = dose ? dose : "";
             doseCalData['tmm_unit_name'] = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "";

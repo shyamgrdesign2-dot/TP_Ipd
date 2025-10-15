@@ -14,6 +14,7 @@ import { resetObstetricState } from '../redux/obstetricSlice';
 import { updateVisitStatus } from '../api/services/VisitService';
 import { resetUploadDocState } from '../redux/uploadDocSlice';
 import { resetDDxState } from '../redux/ddxSlice';
+import { NEO_NATOLOGISTS_DP_ID } from '../utils/constants';
 
 function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToAppointment, pam_id, isSnapRx }) {
     const navigate = useNavigate();
@@ -58,7 +59,7 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToApp
 
     const genderAge = (patient_data) => {
         var value = `${patient_data?.pm_gender[0].toUpperCase()}, `
-        if (profile?.dp_id === 9) {
+        if (profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) {
             if (patient_data?.ageYears != 0) {
                 value += `${patient_data?.ageYears}y`
             }

@@ -140,13 +140,19 @@ const ZydusLabParametersList = ({ labParamsData, patientGender }) => {
   };
 
   const renderTableData = () => {
-    const recentLabParamsData = labParamsData
-      ?.sort((a, b) => {
-        const dateA = dayjs(a.date, "DD-MM-YYYY");
-        const dateB = dayjs(b.date, "DD-MM-YYYY");
+    // Get unique dates from labParamsData and sort by most recent first
+    const uniqueDates = [...new Set(labParamsData.map(item => item.date))]
+      .sort((a, b) => {
+        const dateA = dayjs(a, "DD-MM-YYYY");
+        const dateB = dayjs(b, "DD-MM-YYYY");
         return dateB.valueOf() - dateA.valueOf();
-      })
-      .slice(0, 2);
+      });
+    // Take only the first 2 most recent dates
+    const recentDates = uniqueDates.slice(0, 2);
+    // Filter labParamsData to only include the recent 2 dates
+    const recentLabParamsData = labParamsData.filter(item => 
+      recentDates.includes(item.date)
+    );
 
     return (
       <>

@@ -22,25 +22,9 @@ const getCodeFromModule = (module) => {
 export const initialState = {
   //   dischargeSummaryData: {},
   dischargeSummaryData: {
-    patientInformation: {
-      dateOfDischarge: "",
-      patientName: "Seema Rao",
-      age: 49,
-      gender: "Male",
-      contactNumber: "+91-9870537392",
-      wardBedNo: "Orthopedics",
-      patientId: "P024",
-      admissionId: "AID-5698",
-      admissionDate: "2025-07-12T17:09:00.000Z",
-      primaryConsultant: {
-        id: 524,
-        name: "Dr. Vivek Prasad",
-        speciality: "Surgeon",
-      },
-      address: "Random Address 21",
-    },
+    patientInformation: {},
     surgeriesPerformed: [],
-    followUpDoctor: null, // Will store the complete doctor object
+    followUpDoctor: {}, // Will store the complete doctor object
   },
   mockValues: {},
   treatmentNotes: [],
@@ -50,6 +34,7 @@ export const initialState = {
   loading: false,
   currentDischargeSummaryId: null,
   dischargeSummaryFormDetails: {},
+  actualDischargeSummaryData: {},
 };
 
 export const getDischargeSummaryData = createAsyncThunk(
@@ -182,6 +167,9 @@ const dischargeSummarySlice = createSlice({
     setDischargeSummaryData: (state, action) => {
       state.dischargeSummaryData = action.payload;
     },
+    setPatientCondition: (state, action) => {
+      state.dischargeSummaryData.patientCondition = action.payload;
+    },
     setDischargeSummaryFormDetails: (state, action) => {
       state.dischargeSummaryFormDetails = action.payload || {};
     },
@@ -213,8 +201,21 @@ const dischargeSummarySlice = createSlice({
       state.dischargeSummaryData.diagnosisAndSurgery.provisionalDiagnosis =
         action.payload;
     },
+    setFinalDiagnosis: (state, action) => {
+      if (!state.dischargeSummaryData.diagnosisAndSurgery) {
+        state.dischargeSummaryData.diagnosisAndSurgery = {};
+      }
+      state.dischargeSummaryData.diagnosisAndSurgery.finalDiagnosis =
+        action.payload;
+    },
     setDiet: (state, action) => {
       state.dischargeSummaryData.diet = action.payload;
+    },
+    setDischargeSummaryDataViaPatch: (state, action) => {
+      state.dischargeSummaryData = {
+        ...state.dischargeSummaryData,
+        ...action.payload,
+      };
     },
     setPhysicalActivities: (state, action) => {
       state.dischargeSummaryData.physicalActivities = action.payload;
@@ -277,28 +278,11 @@ const dischargeSummarySlice = createSlice({
       })
       .addCase(getDischargeSummaryData.fulfilled, (state, action) => {
         state.loading = false;
-        // Store the API response but exclude chronological summary from courseInHospital
-        // to prevent raw data from being passed to Slate
-        if (action.payload && typeof action.payload === 'object') {
-          const { courseInHospital, ...otherData } = action.payload;
-          
-          state.dischargeSummaryData = {
-            ...otherData,
-            courseInHospital: {
-              ...courseInHospital,
-              // Don't store chronologicalSummary here to avoid conflicts
-              chronologicalSummary: undefined
-            }
-          };
-          
-          // Store chronological summary in the separate state
-          if (courseInHospital?.chronologicalSummary) {
-            state.chronologicalSummary = courseInHospital.chronologicalSummary;
-          }
-        }
+        state.actualDischargeSummaryData = action.payload;
       })
       .addCase(getDischargeSummaryData.rejected, (state) => {
         state.dischargeSummaryData = [];
+        state.actualDischargeSummaryData = [];
         state.loading = false;
       })
       .addCase(addDischargeSummaryData.pending, (state) => {
@@ -310,6 +294,7 @@ const dischargeSummarySlice = createSlice({
       })
       .addCase(addDischargeSummaryData.rejected, (state) => {
         state.dischargeSummaryData = [];
+        state.actualDischargeSummaryData = [];
         state.loading = false;
       })
       .addCase(updateDischargeSummaryData.pending, (state) => {
@@ -377,15 +362,18 @@ const dischargeSummarySlice = createSlice({
 
 export const {
   setDischargeSummaryData,
+  setPatientCondition,
   setDischargeSummaryFormDetails,
   setCurrentDischargeSummaryId,
   resetDischargeSummaryForm,
   setDischargeDate,
   setProvisionalDiagnosis,
+  setFinalDiagnosis,
   setCourseInHospital,
   setVitalsData,
   setDiet,
   setPhysicalActivities,
+  setDischargeSummaryDataViaPatch,
   setFollowUpDate,
   setFollowUpDoctor,
   setAdditionalNotes,

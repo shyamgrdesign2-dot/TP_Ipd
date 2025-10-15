@@ -7,7 +7,7 @@ const DrawerWrapper = ({
   children,
   open,
   onClose,
-  width = "100%",
+  width,
   onSave,
   title,
   saveButtonText = "Save",

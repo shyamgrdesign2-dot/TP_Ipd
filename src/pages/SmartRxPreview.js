@@ -35,6 +35,11 @@ import CvtKnowMore from "./smartSync/components/CvtKnowMore";
 import { checkCredits } from "../redux/monetizationSlice";
 import { services } from "../redux/doctorsSlice";
 import ExpiredSubModal from "./monetization/components/ExpiredSubModal";
+import {
+  getClinic,
+  getTokenData,
+} from "../utils/utils";
+
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 
@@ -310,6 +315,7 @@ function SmartRxPreview() {
                 b2c_id: profile?.b2c,
                 service_name: S_RX_DIGITIZATION
             }
+
             const action = await dispatch(checkCredits(sendData));
             if (action.meta.requestStatus === "fulfilled") {
                 if (action?.payload?.hasOwnProperty("service_name")) {
@@ -335,6 +341,22 @@ function SmartRxPreview() {
                                 type: "new",
                                 isCustomSSRX : isCustomSSRX
                             };
+                            const tokenData = getTokenData();
+                            const clinic = getClinic(profile?.hospital_data);
+                            const type = isCustomSSRX ? 1 : 0;
+                            window.Moengage.track_event("TP_DigitizeSSRx", {
+                                patient_id: patient_data?.patient_unique_id || "",
+                                patient_name: patient_data?.pm_fullname || "",
+                                  doctor_id: profile?.doctor_unique_id,
+                                  doctor_name: profile?.um_name,
+                                  doctor_specialty: profile?.dp_name,
+                                  clinic_id: tokenData?.clinic_id,
+                                  clinic_name: clinic?.hm_name,
+                                  rx_id: state.tcm_id || " ",
+                                  type: type,
+                                  source: "print Preview page",
+                                  device_details: navigator.userAgent
+                              });
             
                             navigate(path, { state: navState });
                         } catch (error) {
@@ -390,7 +412,7 @@ function SmartRxPreview() {
         }
         const action = await dispatch(viewCaseManager(sendData));
         if (action.meta.requestStatus === "fulfilled") {
-            navigate('/configure_print_setting', { state: { caseManagerData: action.payload , smartRxFile} })
+            navigate('/configure_print_setting', { state: { ...state, caseManagerData: action.payload , smartRxFile} })
         } else {
             errorMessage(action.error)
         }

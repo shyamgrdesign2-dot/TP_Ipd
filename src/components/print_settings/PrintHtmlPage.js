@@ -485,28 +485,36 @@ function PrintHtmlPage() {
       key: "7",
       name: `General RBS (mg/dl)`,
     },
-    {
+     {
       key: "8",
-      name: `OFC (cms)`,
+      name: `FIB4`,
     },
     {
       key: "9",
-      name: `Height (cms)`,
+      name: `Waist Circumference (cms)`,
     },
     {
       key: "10",
-      name: `Weight (kgs)`,
+      name: `OFC (cms)`,
     },
     {
       key: "11",
-      name: `BMI (kg/m²)`,
+      name: `Height (cms)`,
     },
     {
       key: "12",
-      name: `BMR (kcals)`,
+      name: `Weight (kgs)`,
     },
     {
       key: "13",
+      name: `BMI (kg/m²)`,
+    },
+    {
+      key: "14",
+      name: `BMR (kcals)`,
+    },
+    {
+      key: "15",
       name: `BSA (m²)`,
     },
   ];
@@ -547,12 +555,15 @@ function PrintHtmlPage() {
         : "-";
       initialRows[5][index] = item.spo2 ? item.spo2 : "-";
       initialRows[6][index] = item.general_rbs ? item.general_rbs : "-";
-      initialRows[7][index] = item.ofc ? item.ofc : "-";
-      initialRows[8][index] = item.height ? item.height : "-";
-      initialRows[9][index] = item.weight ? item.weight : "-";
-      initialRows[10][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : "-";
-      initialRows[11][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : "-";
-      initialRows[12][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : "-";
+      initialRows[7][index] = item.fib4 ? item.fib4 : "-";
+      initialRows[8][index] = item.waist_circumference ? item.waist_circumference : "-";
+      initialRows[9][index] = item.ofc ? item.ofc : "-";
+      initialRows[10][index] = item.height ? item.height : "-";
+      initialRows[11][index] = item.weight ? item.weight : "-";
+      initialRows[12][index] = item.bmi ? parseFloat(item.bmi).toFixed(2) : "-";
+      initialRows[13][index] = item.bmr ? parseFloat(item.bmr).toFixed(2) : "-";
+      initialRows[14][index] = item.bsa ? parseFloat(item.bsa).toFixed(2) : "-";
+     
     });
 
   const patientDataShow = (id) => {
@@ -598,6 +609,7 @@ function PrintHtmlPage() {
     } else if (id == 11) {
       value = `${caseManagerData?.patient_data?.patinet_reference_id}`;
     }
+    
     return value;
   };
 
@@ -907,6 +919,8 @@ function PrintHtmlPage() {
                                             spo2,
                                             height,
                                             weight,
+                                            fib4,
+                                            waist_circumference,
                                             bmi,
                                             bmr,
                                             bsa,
@@ -938,6 +952,10 @@ function PrintHtmlPage() {
                                               : "",
                                             weight: weight
                                               ? `Weight (${weight}kgs)`
+                                              : "",
+                                            fib4: fib4 ? `FIB4 (${fib4})` : "",
+                                            waist_circumference: waist_circumference
+                                              ? `Waist Circumference (${waist_circumference}cms)`
                                               : "",
                                             bmi: bmi
                                               ? `BMI (${parseFloat(bmi).toFixed(
@@ -1017,6 +1035,8 @@ function PrintHtmlPage() {
                                               spo2,
                                               height,
                                               weight,
+                                              fib4,
+                                              waist_circumference,
                                               bmi,
                                               bmr,
                                               bsa,
@@ -1050,6 +1070,10 @@ function PrintHtmlPage() {
                                                 : "",
                                               weight: weight
                                                 ? `Weight (${weight}kgs)`
+                                                : "",
+                                              fib4: fib4 ? `FIB4 (${fib4})` : "",
+                                              waist_circumference: waist_circumference
+                                                ? `Waist Circumference (${waist_circumference}cms)`
                                                 : "",
                                               bmi: bmi
                                                 ? `BMI (${parseFloat(

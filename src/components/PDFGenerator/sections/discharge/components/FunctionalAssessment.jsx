@@ -208,7 +208,7 @@ const FunctionalAssessment = ({ data, fontFamily = "Poppins" }) => {
   return (
     <View style={styles.mainContainer}>
       {/* Functional Assessment - Inline format */}
-      {renderFunctionalAssessmentInline(assessment, fontFamily)}
+      {renderFunctionalAssessmentInline(assessment?.assessment, fontFamily)}
 
       {/* Others */}
       {assessment.others && renderOthers(assessment.others, fontFamily)}

@@ -21,15 +21,13 @@ const showDateFormat = "DD-MM-YYYY";
 
 function ProgressNotesView({
   progressNotes,
+  filteredProgressNotes,
   patientDetails,
   isProgressNotesSummary = false,
 }) {
   const [events, setEvents] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  // Get filtered progress notes from store
-  const { filteredProgressNotes } = useSelector((state) => state.progressNotes);
 
   // Local state
   const [dateStatus, setDateStatus] = useState(null);
@@ -76,11 +74,11 @@ function ProgressNotesView({
   }, []);
 
   const handleDateRangeChange = useCallback(
-    (dates, dateStrings) => {
+    async (dates, dateStrings) => {
       // Call the existing onRangeChange to update local state
       onRangeChange(dates, dateStrings);
-
-      // Dispatch filter action to Redux store
+      
+      // Call API with date range if dates are selected
       if (dates && dateStrings && dateStrings.length === 2) {
         const startDate = moment(dateStrings[0], showDateFormat).format(
           dateFormat
@@ -89,18 +87,23 @@ function ProgressNotesView({
           dateFormat
         );
 
-        dispatch(
-          filterProgressNotesByDateRange({
-            startDate,
-            endDate,
-          })
-        );
+        // Call API to fetch filtered progress notes
+        try {
+          await dispatch(filterProgressNotesByDateRange({
+            patientId: patientDetails?.details?.id,
+            admissionId: patientDetails?.admissionId || patientDetails?.admission_id,
+            filterStartDate: startDate,
+            filterEndDate: endDate,
+          }));
+        } catch (error) {
+          console.error("Error fetching filtered progress notes:", error);
+        }
       } else {
         // Clear filter if no dates selected
         dispatch(clearDateFilter());
       }
     },
-    [onRangeChange, dispatch]
+    [onRangeChange, dispatch, patientDetails]
   );
 
   const handlePickerModal = useCallback(() => {
@@ -117,7 +120,7 @@ function ProgressNotesView({
 
   // Use filtered data if available, otherwise use original data
   const dataToMap =
-    filteredProgressNotes.length > 0 ? filteredProgressNotes : progressNotes;
+  dateRange && dateRange.startDate && dateRange.endDate ? filteredProgressNotes : progressNotes;
 
   const mappedData = useMemo(() => {
     if (!Array.isArray(dataToMap)) return [];

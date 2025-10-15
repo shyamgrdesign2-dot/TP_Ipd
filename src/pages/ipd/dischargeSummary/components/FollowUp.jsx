@@ -97,11 +97,9 @@ const FollowUp = (props) => {
               if (parsed) {
                 dispatch(setFollowUpDoctor(parsed));
               } else {
-                // Fallback: create a minimal doctor object with just the name
                 dispatch(setFollowUpDoctor({ name: value }));
               }
             } catch (e) {
-              // Fallback: create a minimal doctor object with just the name
               dispatch(setFollowUpDoctor({ name: value }));
             }
           }}
@@ -132,7 +130,7 @@ const FollowUp = (props) => {
           dischargeSummaryIcons.additionalNotesPc
         }
         showAutoFill={false}
-        containerClass={`wrapper-class ${
+        containerClass={`${
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"

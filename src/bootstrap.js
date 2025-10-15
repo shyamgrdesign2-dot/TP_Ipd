@@ -8,6 +8,18 @@ import reportWebVitals from './reportWebVitals';
 import './index.css';
 import './assets/scss/app.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import * as Sentry from "@sentry/react";
+
+Sentry.init({
+  dsn: "https://e217b496cfe26ddc7d834f74ad8ff89c@o4509909105508352.ingest.us.sentry.io/4509910041231360",
+  sendDefaultPii: true,
+  environment: process.env.REACT_APP_ENV,
+  beforeSend(event) {
+    // Filter out development errors or specific error types
+    if (event.environment === "dev") return null;
+    return event;
+  },
+});
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

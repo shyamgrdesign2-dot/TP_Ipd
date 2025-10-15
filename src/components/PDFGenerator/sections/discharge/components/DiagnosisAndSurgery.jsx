@@ -92,7 +92,7 @@ const DiagnosisAndSurgery = ({ data, fontFamily = "Poppins" }) => {
                   <View key={`final-dx-${index}`} style={styles.bulletItem}>
                     <Text style={[styles.bullet, { fontFamily }]}>•</Text>
                     <Text style={[styles.bulletContent, { fontFamily }]}>
-                      {dx.title} (ICD Code: {dx.icdCode}
+                      {dx.tds_name} (ICD Code: {dx.icd_code}
                       {dx.notes ? `, Note: ${dx.notes}` : ""})
                     </Text>
                   </View>
@@ -115,7 +115,7 @@ const DiagnosisAndSurgery = ({ data, fontFamily = "Poppins" }) => {
                   <View key={`prov-dx-${index}`} style={styles.bulletItem}>
                     <Text style={[styles.bullet, { fontFamily }]}>•</Text>
                     <Text style={[styles.bulletContent, { fontFamily }]}>
-                      {dx.title} (ICD Code: {dx.icdCode}
+                      {dx.tds_name} (ICD Code: {dx.icd_code}
                       {dx.notes ? `, Note: ${dx.notes}` : ""})
                     </Text>
                   </View>

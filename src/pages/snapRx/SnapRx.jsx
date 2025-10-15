@@ -1,4 +1,3 @@
-// TODO: INTEL - ZOOM functionality pending
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import CashManagerContext from "../../context/CashManagerContext";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -50,7 +49,7 @@ function SnapRxContent() {
   const [isUploading, setIsUploading] = useState(false);
   const [showKnowMore, setShowKnowMore] = useState(false);
   const [isUploadMoreDrawerOpen, setIsUploadMoreDrawerOpen] = useState(false);
-  const [isAddMoreClicked, setIsAddMoreClicked] = useState(false); // TODO: INTEL - CHECK
+  const [isAddMoreClicked, setIsAddMoreClicked] = useState(false);
   const previewDrawerRef = useRef(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isWaitingForFiles, setIsWaitingForFiles] = useState(false);
@@ -154,6 +153,7 @@ function SnapRxContent() {
       console.log(err);
     }
   };
+
   const fetchImages = async (toDeleteFile = null) => {
     if (uploadedFilesFromStore?.length === 0) {
       setUploadedFiles([]);
@@ -319,13 +319,11 @@ function SnapRxContent() {
       handleEditSnapRx();
       return;
     }
-    // Check if there are uploaded files to process
     if (!uploadedFilesFromStore?.length) {
       message.warning("Please upload prescription images before submitting");
       return;
     }
 
-    // Validate patient data exists
     if (!patient_data?.patient_unique_id) {
       message.error("Patient information is missing. Please try again.");
       return;
@@ -334,10 +332,8 @@ function SnapRxContent() {
     setIsUploading(true);
 
     try {
-      // Extract file names from uploaded files
       const fileNames = uploadedFilesFromStore.map((file) => file.filename);
 
-      // Call create snap rx API
       const response = await createSnapRx(
         patient_data.patient_unique_id,
         fileNames,
@@ -347,7 +343,6 @@ function SnapRxContent() {
       if (response && response.status) {
         dispatch(setFileUploadToken(null));
         refreshSessionId();
-        // Navigate to digitization or next step if needed
         navigate("/snap-rx/preview", {
           replace: true,
           state: { ...state, ...response?.data, files: uploadedFilesFromStore },
@@ -461,16 +456,16 @@ function SnapRxContent() {
               <UploadedFilesPreview
                 uploadedFiles={uploadedFilesFromStore}
                 onEdit={handleFileEdit}
-                loading={false} // TODO: INTEL - CHANGE
-                onDelete={handlePreviewDelete} // TODO: INTEL - CHANGE
+                loading={false}
+                onDelete={handlePreviewDelete}
               />
             ) : null}
             <UploadWrittenRx
               isOpen={!uploadedFilesFromStore?.length}
               ref={uploadWrittenRxRef}
-              showBackButton={false} // TODO: INTEL - CHANGE
-              onBack={() => {}} // TODO: INTEL - CHANGE
-              fetchUploadedFiles={handleRefreshForMobileUploadedFiles} // TODO: INTEL - CHANGE
+              showBackButton={false}
+              onBack={() => {}}
+              fetchUploadedFiles={handleRefreshForMobileUploadedFiles}
               handlePreviewOpen={setIsPreviewOpen}
               handleUpdatedFiles={setUploadedFiles}
               uploadedFiles={uploadedFiles}
@@ -494,7 +489,7 @@ function SnapRxContent() {
               onRotate={handleRotateClick}
               handleGoBackToMainFiles={handleGoBackToMainFiles}
               onAddMore={handleAddMore}
-              isUploadMoreDrawer={false} // TODO: INTEL - CHANGE
+              isUploadMoreDrawer={false}
             />
           </ErrorBoundary>
         </div>
@@ -510,14 +505,14 @@ function SnapRxContent() {
         fetchUploadedFiles={fetchUploadedFilesOnUploadMoreDrawer}
         tcmId={tcmId}
         sessionId={sessionId}
-        onFileUpload={() => {}} // TODO: INTEL - CHANGE
+        onFileUpload={() => {}}
       />
 
       <FileUploadErrorModal
         isFileSizeError={false}
         isFileLimitError={false}
         isFileTypeError={false}
-        onRetry={() => {}} // TODO: INTEL - CHANGE
+        onRetry={() => {}}
       />
 
       {showKnowMore && (

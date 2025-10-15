@@ -172,7 +172,7 @@ const ExaminationSection = (props) => {
       showMagicPenGif={false}
       showMicrophone={false}
       placeholder={"Additional notes if any"}
-      containerClass={`wrapper-class examination-rich-container ${!isEditable ? 'examination-rich-readonly-container': ''}`}
+      containerClass={`examination-rich-container ${!isEditable ? 'examination-rich-readonly-container': ''}`}
       renderBody={renderExaminationSection}
     />
   );

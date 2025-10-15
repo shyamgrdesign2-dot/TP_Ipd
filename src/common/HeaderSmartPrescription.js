@@ -42,6 +42,7 @@ import smartSyncConnected from "../assets/images/smart-sync-connected.svg";
 import smartSyncDisconnected from "../assets/images/smart-sync-disconnected.svg";
 import tagNew from '../assets/images/tag-new.svg';
 import Pillup from '../assets/images/pillup.svg';
+import EazyDoseLogo from '../assets/images/EazyDose Logo.png';
 
 import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 
@@ -63,6 +64,7 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_SMARTSYNC_CONNECT } from "../utils/constants";
 import { upsertDoctorSettingFlag } from "../redux/doctorsSlice";
 import { setDefaultCustomSyncPadTemplate } from "../pages/smartSync/services/uploadService";
+import { assignCarePlan, updateCarePlanName, getCarePlanAssignments } from "../pages/smartSync/services/carePlanService";
 
 function HeaderPrescription({
   prescription,
@@ -75,7 +77,8 @@ function HeaderPrescription({
   caseManagerData,
   isCustomSSRX,
   selectedTemplateId,
-  prepareMetadataForSubmissionData
+  prepareMetadataForSubmissionData,
+  selectedCarePlan
 }) {
   const { templates, loading } = useSelector((state) => state.caseManager);
   const { profile, videoList } = useSelector((state) => state.doctors);
@@ -124,6 +127,7 @@ function HeaderPrescription({
   const intervalRef = useRef(null);
   const [tourOpen, setTourOpen] = useState(false);
   const [popOver3, setPopOver3] = useState(false);
+  const [versionNumber, setVersionNumber] = useState("")
 
   const baseUrl = { customBaseUrl: env.rx_digitization };
   const isSmartSyncConnectAccessableFromGB =
@@ -266,7 +270,7 @@ function HeaderPrescription({
 
   const handleSubmitClick = async () => {
     if (!clicked) {
-      onSubmit();
+      onSubmit(versionNumber);
     }
   };
 
@@ -424,6 +428,7 @@ function HeaderPrescription({
       if (!statusMessage) setError("Failed to disconnect device");
     } else if (message.startsWith("AppVersion")) {
       const versionMessage = message.split(":")[1];
+      setVersionNumber(versionMessage);
     }
   };
 
@@ -522,6 +527,48 @@ function HeaderPrescription({
         : await dispatch(editCaseManager(sendData));
 
     if (action.meta.requestStatus === "fulfilled") {
+      // After we have a confirmed consultation, ensure care plan is synced with the generated tcm_id
+      try {
+        const decodedToken = getDecodedToken();
+        const tokenData = decodedToken?.result;
+        const generatedTcmId = action?.payload?.tcm_id ?? tcmId;
+
+        if (generatedTcmId > 0 && selectedCarePlan) {
+          if (tcmId !== 0 && selectedCarePlan?.plan_name) {
+            // Editing existing consultation: update care plan name against tcm_id
+            await updateCarePlanName(parseInt(generatedTcmId), selectedCarePlan.plan_name);
+          } else if (
+            tcmId === 0 &&
+            selectedCarePlan?.plan_id &&
+            patient_data?.patient_unique_id &&
+            tokenData?.user_id &&
+            tokenData?.clinic_id
+          ) {
+            // New consultation: assign care plan with tcm_id
+            await assignCarePlan({
+              plan_id: selectedCarePlan.plan_id,
+              um_id: tokenData.user_id,
+              patient_unique_id: patient_data.patient_unique_id,
+              hm_id: tokenData.clinic_id,
+              tcm_id: parseInt(generatedTcmId),
+            });
+          }
+        }
+      } catch (cpErr) {
+        console.error('Care plan sync (assign/update) after SmartRx submit failed:', cpErr);
+      }
+
+      // Fetch care plan assignments to include in print state
+      let carePlanAssignments = [];
+      try {
+        if (patient_data?.patient_unique_id) {
+          const assignmentsResp = await getCarePlanAssignments(patient_data.patient_unique_id);
+          carePlanAssignments = Array.isArray(assignmentsResp?.data) ? assignmentsResp.data : (Array.isArray(assignmentsResp) ? assignmentsResp : (assignmentsResp?.assignments || []));
+        }
+      } catch (cpFetchErr) {
+        console.error('Failed to fetch care plan assignments for smart rx print state:', cpFetchErr);
+      }
+
       navigate("/print-smart-rx", {
         replace: true,
         state: {
@@ -529,6 +576,7 @@ function HeaderPrescription({
           patient_data: patient_data,
           smartRxFile: smartRxFiles,
           page: "prescription",
+          carePlanAssignments,
         },
       });
     } else {
@@ -566,10 +614,17 @@ function HeaderPrescription({
 
     
   const PILLUP_CONTENT = useCallback(() => {
+    const decodedToken = getDecodedToken();
+    const tokenData = decodedToken?.result;
+    const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+    
+    const serviceName = isZydusUser ? "eaZY Dose" : "PillUp";
+    const serviceNameTitle = isZydusUser ? "eaZY Dose Fulfilment" : "Pillup Fulfilment";
+    
     return (
       <div className="p-2">
-        <div className="fs-18 fw-semibold text-black">Pillup Fulfilment <img className="img-fluid ms-2" src={tagNew} /></div>
-        <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
+        <div className="fs-18 fw-semibold text-black">{serviceNameTitle} <img className="img-fluid ms-2" src={tagNew} /></div>
+        <div className="pt-1">You can now activate <b>{serviceName}</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
       </div>
     );
   }, [popOver3]);
@@ -588,8 +643,21 @@ function HeaderPrescription({
       {
         description:
           <>
-            <div className="fs-18 fw-semibold pt-3 text-black">Pillup Fulfilment <img className="img-fluid ms-2" src={tagNew} /></div>
-            <div className="pt-1">You can now activate <b>PillUp</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
+            <div className="fs-18 fw-semibold pt-3 text-black">
+              {(() => {
+                const decodedToken = getDecodedToken();
+                const tokenData = decodedToken?.result;
+                const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+                return isZydusUser ? "eaZY Dose Fulfilment" : "Pillup Fulfilment";
+              })()} <img className="img-fluid ms-2" src={tagNew} />
+            </div>
+            <div className="pt-1">You can now activate <b>
+              {(() => {
+                const decodedToken = getDecodedToken();
+                const tokenData = decodedToken?.result;
+                const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+                return isZydusUser ? "eaZY Dose" : "PillUp";
+              })()}</b> medicine <br /> fulfilment for the patient by enabling <br /> the toggle</div>
           </>,
         target: () => tourRef.current,
         nextButtonProps: {
@@ -774,7 +842,12 @@ function HeaderPrescription({
                   className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center"
                   style={{ backgroundColor: "rgb(226, 226, 234, 0.2)" }}
                 >
-                  <img src={Pillup} />
+                  {(() => {
+                    const decodedToken = getDecodedToken();
+                    const tokenData = decodedToken?.result;
+                    const isZydusUser = tokenData?.hospital_business_id == env.zydus_business_id;
+                    return isZydusUser ? <img src={EazyDoseLogo} alt="eaZY Dose" style={{ height: '20px' }} /> : <img src={Pillup} />;
+                  })()}
                   <Popover
                     open={popOver3}
                     onOpenChange={showHidePillUpPopover}

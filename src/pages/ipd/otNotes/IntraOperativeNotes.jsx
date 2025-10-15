@@ -4,6 +4,7 @@ import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setIntraOperativeNotes } from "../../../redux/ipd/otNotesSlice";
 import "./styles.scss";
+import { isEmptyRichText } from "../../../utils/utils";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const UnitInput = createRemoteComponent("UnitInput");
@@ -46,7 +47,7 @@ const IntraOperativeNotes = (props) => {
     dispatch(setIntraOperativeNotes({ key, value, parentId }));
   };
   const renderRichTextEditorSection = (data) => {
-    if (!isEditable && !intraOperativeNotes?.[data?.id]) return null;
+    if (!isEditable && isEmptyRichText(intraOperativeNotes?.[data?.id])) return null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -146,6 +147,7 @@ const IntraOperativeNotes = (props) => {
                 );
               }
             }
+            if (!isEditable && isEmptyRichText(intraOperativeNotes?.[item?.id])) return null;
             return <li key={item.id}>{renderRichTextEditorSection(item)}</li>;
           })}
         </ul>

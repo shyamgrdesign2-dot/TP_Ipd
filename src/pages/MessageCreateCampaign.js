@@ -465,10 +465,10 @@ function MessageCreateCampaign() {
 
     // Automatically set WhatsApp as selected if category is ai-receptionist or 6
     useEffect(() => {
-        if (selectedCategory === 6 || state?.category === 'ai-receptionist') {
+        if (selectedCategory === 6 || state?.category === 'ai-receptionist' || template?.id === 29 || template?.id === 25) {
             setSendOn(2);
         }
-    }, [selectedCategory, state?.category]);
+    }, [selectedCategory, state?.category, template]);
 
     useEffect(() => {
         const decodedToken = getDecodedToken();
@@ -1693,13 +1693,13 @@ function MessageCreateCampaign() {
                                         <div className="mt-3">
                                             <div className="radio-group-with-info" style={{ position: 'relative' }}>
                                                 <Radio.Group className="d-flex" onChange={handleSendOn} value={send_on}>
-                                                    {selectedCategory === 6 || state?.category === 'ai-receptionist' ? (
+                                                    {selectedCategory === 6 || state?.category === 'ai-receptionist' || template?.id === 29 || template?.id === 25 ? (
                                                         <>
                                                             <Radio className="col me-30" value={2}>WhatsApp</Radio>
                                                             <Radio
                                                                 className="col me-0 radio-disabled"
                                                                 value={1}
-                                                                disabled={selectedCategory === 6 || state?.category === 'ai-receptionist'}
+                                                                disabled={selectedCategory === 6 || state?.category === 'ai-receptionist' || template?.id === 29 || template?.id === 25}
                                                             >
                                                                 SMS
                                                             </Radio>
@@ -1711,7 +1711,7 @@ function MessageCreateCampaign() {
                                                         </>
                                                     )}
                                                 </Radio.Group>
-                                                {(selectedCategory === 6 || state?.category === 'ai-receptionist') && (
+                                                {(selectedCategory === 6 || state?.category === 'ai-receptionist' || template?.id === 29 || template?.id === 25) && (
                                                     <Tooltip title="SMS is not available for AI Receptionist campaigns.">
                                                         <InfoCircleOutlined className="radio-group-info-icon" />
                                                     </Tooltip>

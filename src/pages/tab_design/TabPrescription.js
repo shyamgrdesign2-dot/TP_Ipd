@@ -9,7 +9,7 @@ import { env } from "../../EnvironmentConfig";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import { ADD, EDIT, EXTRA_OPTIONS, FAILED_VERIFICATION, FREE, GB_ZYDUS_USER, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_DDX } from "../../utils/constants";
+import { ADD, EDIT, EXTRA_OPTIONS, FAILED_VERIFICATION, FREE, GB_ZYDUS_USER, GB_CARE_PLAN, NEO_NATOLOGISTS_DP_ID, PAEDIATRICS, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_DDX } from "../../utils/constants";
 
 import { getPatientBirthWeight, getVitals } from "../../redux/vitalsSlice";
 import { getPatientLastHistory, listPrivateNotes } from "../../redux/medicalhistorySlice";
@@ -57,6 +57,8 @@ import medicalRecordsDark from "../../assets/images/upload-doc-dark.svg";
 import labParamsWhite from "../../assets/images/lab-parameters-white.svg";
 import labParamsDark from "../../assets/images/Lab-Parameters.svg";
 import genRxBg from "../../assets/images/gen-rx-bg.gif";
+import carePlanIcon from "../../assets/images/Care plan.svg";
+import carePlanIconDark from "../../assets/images/Care plan_Active_solid.svg";
 // import labParametersWhite from '../../assets/images/lab-parameters-white.svg';
 // import notesWhite from '../../assets/images/notes-white.svg';
 // import docsWhite from '../../assets/images/docs-white.svg';
@@ -108,6 +110,10 @@ import SCPopup from "../../components/SCPopup";
 import { fetchSymptomsCollectorData } from "../../api/services/ApiGenRx";
 import SCBanner from "../../components/SCBanner";
 import { getLabParamsData, setMedicationData, setPillupSwitch } from "../../redux/prescriptionSlice";
+import CarePlanDropdown from "../../components/CarePlanDropdown";
+import CarePlanList from "../../components/CarePlanList";
+import { getCarePlanNames, getCarePlanAssignments } from "../smartSync/services/carePlanService";
+import TabCarePlanList from "../../components/tab_design/TabCarePlanList";
 
 function TabPrescription() {
   const {
@@ -130,6 +136,7 @@ function TabPrescription() {
     useSelector((state) => state.obstetric);
   const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const { examinationHistory = [] } = obstetricDetails || [];
+  const isCarePlanEnabled = useFeatureIsOn(GB_CARE_PLAN);
   const shouldShowAncHistory = obstetricDetails?.ancHistory?.find(
     (item) =>
       !item?.deleted &&
@@ -207,6 +214,8 @@ function TabPrescription() {
   const [subModalData, setSubModalData] = useState(null);
   const [useVoiceRx, setUseVoiceRx] = useState(false);
   const [useDDX, setUseDDX] = useState(false);
+  const [selectedCarePlan, setSelectedCarePlan] = useState(null);
+  const [carePlanPlaceholder, setCarePlanPlaceholder] = useState(undefined);
 
   const showHideSubModal = (object) => {
     object && setSubModalData(object)
@@ -247,7 +256,9 @@ function TabPrescription() {
     useVoiceRx,
     setUseVoiceRx,
     useDDX,
-    setUseDDX
+    setUseDDX,
+    selectedCarePlan,
+    setSelectedCarePlan
   };
 
   const [collapsed, setCollapsed] = useState(false);
@@ -348,6 +359,12 @@ function TabPrescription() {
       getAllObstetricDetails();
     }
   }, [isObstetricDetailsFetched, isGynaecHistoryAccessable]);
+
+  useEffect(() => {
+    if (isCarePlanEnabled) {
+      fetchCarePlanNames();
+    }
+  }, [isCarePlanEnabled]);
 
   useEffect(() => {
     if (caseManagerData !== undefined) {
@@ -697,6 +714,8 @@ function TabPrescription() {
         handleDrawerUploadDoc();
       } else if (flag === 8) {
         handleAddLabParamsDrawer();
+      } else if (flag === 11) {
+        // Care plan is handled by openCollapsed, no additional action needed
       }
     },
     [
@@ -727,7 +746,7 @@ function TabPrescription() {
       );
 
       if (
-        profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 &&
+        (profile?.dp_name === PAEDIATRICS || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) && patient_data?.ageMonths <= 12 &&
         patient_data?.ageYears === 0
       ) {
         dispatch(
@@ -938,6 +957,38 @@ function TabPrescription() {
     });
   }
 
+  const fetchCarePlanNames = async () => {
+    try {
+      if (isCarePlanEnabled) {
+        const response = await getCarePlanNames();
+        // The CarePlanDropdown component handles its own data fetching
+      }
+    } catch (error) {
+      console.error("Error fetching care plan names:", error);
+    }
+  };
+  
+  // Derive placeholder plan name by fetching assignments and matching current tcm_id
+  useEffect(() => {
+    const resolvePlaceholder = async () => {
+      try {
+        if (!isCarePlanEnabled) return;
+        if (!patient_data?.patient_unique_id) return;
+        if (!tcmId || Number(tcmId) === 0) return;
+  
+        const resp = await getCarePlanAssignments(patient_data?.patient_unique_id);
+        const list = Array.isArray(resp) ? resp : [];
+  
+        const match = list.find(x => Number(x?.tcm_id) === Number(tcmId));
+        setCarePlanPlaceholder(match?.plan_name || undefined);
+      } catch (e) {
+        setCarePlanPlaceholder(undefined);
+      }
+    };
+  
+    resolvePlaceholder();
+  }, [isCarePlanEnabled, patient_data?.patient_unique_id, tcmId]);
+
   const handleApexAIClose = () => {
     dispatch(setIsApexAISelected(false));
     setCollapsedFlag(null);
@@ -970,7 +1021,7 @@ function TabPrescription() {
   return (
     <CashManagerContext.Provider value={contextApi}>
       <>
-        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData} handleGenRx={() => setIsGenRxDrawerVisible(true)} />
+        <HeaderPrescription isVaccinationEnabled={isVaccinationAccessable} isGrowthChartEnabled={isGrowthChartAccessable} gynecHistory={updatedGynecHistory} labParamsData={labParamsData} handleGenRx={() => setIsGenRxDrawerVisible(true)} selectedCarePlan={selectedCarePlan} />
         <div className="w-100 bg-body wrapper2 prescription-wrapper p-0">
           <Layout>
             <div
@@ -1288,36 +1339,55 @@ function TabPrescription() {
                         </div>
                         <label className="text-white mt-1">Records</label>
                       </button>
-                    ) : (
-                      e.tmdpm_id === 19 &&
-                      e.tmdpm_status === 0 && (
-                        <button
-                          type="button"
-                          className="mb-3 text-center btn btn-action"
-                          style={{ padding: "0px" }}
-                          onClick={() =>
-                            labParamsData?.length === 0
-                              ? handleAddLabParamsDrawer()
-                              : openCollapsed(8)
-                          }
+                    ) : e.tmdpm_id === 19 &&
+                      e.tmdpm_status === 0 ? (
+                      <button
+                        type="button"
+                        className="mb-3 text-center btn btn-action"
+                        style={{ padding: "0px" }}
+                        onClick={() =>
+                          labParamsData?.length === 0
+                            ? handleAddLabParamsDrawer()
+                            : openCollapsed(8)
+                        }
+                      >
+                        <div
+                          className={`prescription-tab-button rounded-10px ${collapsedFlag === 8 && "active"
+                            }`}
                         >
-                          <div
-                            className={`prescription-tab-button rounded-10px ${collapsedFlag === 8 && "active"
-                              }`}
-                          >
-                            <img
-                              src={
-                                collapsedFlag === 8
-                                  ? labParamsDark
-                                  : labParamsWhite
-                              }
-                              alt="lab"
-                            />
-                          </div>
-                          <label className="text-white mt-1">Lab</label>
-                        </button>
-                      )
-                    );
+                          <img
+                            src={
+                              collapsedFlag === 8
+                                ? labParamsDark
+                                : labParamsWhite
+                            }
+                            alt="lab"
+                          />
+                        </div>
+                        <label className="text-white mt-1">Lab</label>
+                      </button>
+                    ) : e.tmdpm_id === 22 &&
+                      e.tmdpm_status === 0 &&
+                      isCarePlanEnabled ? (
+                      <button
+                        type="button"
+                        className="mb-3 text-center btn btn-action"
+                        style={{ padding: "0px" }}
+                        onClick={() => openCollapsed(11)}
+                      >
+                        <div
+                          className={`prescription-tab-button rounded-10px ${collapsedFlag === 11 && "active"
+                            }`}
+                        >
+                          <img
+                            src={collapsedFlag === 11 ? carePlanIconDark : carePlanIcon}
+                            alt="Care Plan"
+                            style={{ width: '24px', height: '24px' }}
+                          />
+                        </div>
+                        <label className="text-white mt-1">Care Plan</label>
+                      </button>
+                    ) : null;
                   })}
                 </>
               )}
@@ -1413,14 +1483,23 @@ function TabPrescription() {
                     getGenerateDDx={getGenerateDDx}
                     isDDxGenerated={isDDxGenerated}
                   />
-                ) :
-                  collapsedFlag === 10 && (isVoiceRxAccessable || tp_monetization_enable) && (
+                ) : collapsedFlag === 10 && (isVoiceRxAccessable || tp_monetization_enable) ? (
                     <TabVoiceRx
                       handleGenRxKnowMore={handleGenRxKnowMore}
                       setIsGenRxDrawerVisible={setIsGenRxDrawerVisible}
                     />
-                  )
-              }
+                  ) : collapsedFlag === 11 && isCarePlanEnabled ? (
+                    <TabCarePlanList
+                        handleCollapsed={() => setCollapsed(!collapsed)}
+                        patientId={patient_data?.patient_unique_id}
+                        selectedTcmId={tcmId}
+                        selectedCarePlan={selectedCarePlan}
+                        setSelectedCarePlan={setSelectedCarePlan}
+                        userId={userId}
+                        clinicId={decodedToken?.result?.clinic_id}
+                        carePlanPlaceholder={carePlanPlaceholder}
+                    />
+                  ) : null}
             </Sider>
             <div
               className="p-20 w-100 overflow-y-auto"

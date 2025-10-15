@@ -50,8 +50,15 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_SMARTSYNC_CONNECT } from "../utils/constants";
 import FreeTrialButton from "../pages/monetization/components/FreeTrialButton";
 import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
+import {
+  getClinic,
+  getTokenData,
+} from "../utils/utils";
 
-function HeaderSmartRxDigitise({ onSave, patient_data, isSnapRx = false, isDigitiseRxLoading = false }) {
+function HeaderSmartRxDigitise({ onSave, patient_data, isSnapRx = false, isDigitiseRxLoading = false, tcm_id }) {
+  const { profile } = useSelector(
+      (state) => state.doctors
+    );
   const { templates, loading } = useSelector((state) => state.caseManager);
   const { videoList } = useSelector((state) => state.doctors);
   const [videoLink, setVideoLink] = useState(null);
@@ -67,8 +74,21 @@ function HeaderSmartRxDigitise({ onSave, patient_data, isSnapRx = false, isDigit
   const showHideBackModal = useCallback(() => {
     setIsBackModalOpen(!isBackModalOpen);
   }, [isBackModalOpen]);
-
   const handleSaveDigitiseRx = async () => {
+        const tokenData = getTokenData();
+        const clinic = getClinic(profile?.hospital_data);
+        window.Moengage.track_event("TP_SubmitDigitizedRx", {
+        patient_id: patient_data?.patient_unique_id || "",
+        patient_name: patient_data?.pm_fullname || "",
+        doctor_id: profile?.doctor_unique_id,
+        doctor_name: profile?.um_name,
+        doctor_specialty: profile?.dp_name,
+        clinic_id: tokenData?.clinic_id,
+        clinic_name: clinic?.hm_name,
+        rx_id: tcm_id || patient_data?.tcm_id || "",
+        source: "Patient Details page",
+        device_details: navigator.userAgent
+      });
     onSave();
   };
 
