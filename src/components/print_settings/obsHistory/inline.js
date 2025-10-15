@@ -54,7 +54,6 @@ function ObsHistoryInlineView({
           fontFamily: printSettings?.page_format?.font_family,
           fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
           fontWeight: 700,
-          marginTop: 5,
         }}
         fixed
       >
@@ -963,7 +962,6 @@ function ObsHistoryInlineView({
                     fontFamily: printSettings?.page_format?.font_family,
                     fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                     fontWeight: 500,
-                    marginTop: 5,
                   }}
                 >
                   Pregnancy history

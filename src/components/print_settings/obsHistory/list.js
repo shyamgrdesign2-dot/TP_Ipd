@@ -57,7 +57,6 @@ function ObsHistoryListView({
           fontFamily: printSettings?.page_format?.font_family,
           fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
           fontWeight: 700,
-          marginTop: 5,
         }}
         fixed
       >
@@ -65,7 +64,7 @@ function ObsHistoryListView({
       </Text>
 
       {options?.includes("gplae") && (
-        <View style={{marginTop: PX_TO_PT * 15}}>
+        <View>
           <Text style={{ lineHeight: 1.4 }}>
             {(("gravidity" in obsHistoryData &&
               obsHistoryData?.gravidity != null) ||
@@ -446,8 +445,8 @@ function ObsHistoryListView({
       )}
 
       {options?.includes("diagnosis") && (
-        <View style={{marginTop: PX_TO_PT * 15}}>
-          <Text style={{ lineHeight: 1.4 }}>
+        <View>
+          <Text style={{ marginTop: 5, lineHeight: 1.4 }}>
             {(obsHistoryData?.lmp ||
               "edd" in obsHistoryData ||
               "ceed" in obsHistoryData ||
@@ -950,9 +949,7 @@ function ObsHistoryListView({
       )}
 
       {options?.includes("history") && (
-        <View 
-        // style={{marginTop: PX_TO_PT * 15}}
-        >
+        <View>
           <Text style={{ lineHeight: 1.4 }}>
             {pregnancyHistory?.length > 0 && (
               <>
@@ -1740,7 +1737,7 @@ function ObsHistoryListView({
       )}
 
       {options?.includes("examination") && obsHistoryData?.examinationHistory?.length > 0 && (
-        <View style={{marginTop: PX_TO_PT * 15}}>
+        <View>
           <Text style={{ lineHeight: 1.4 }}>
             <Text
               style={{
@@ -2326,7 +2323,7 @@ function ObsHistoryListView({
       )}
 
       {options?.includes("ancHistory") && ancPrintEnabled?.length > 0 && (
-        <View style={{marginTop: PX_TO_PT * 15}}>
+        <View>
           <Text style={{ lineHeight: 1.4 }}>
             {ancPrintEnabled?.length > 0 && (
               <>
