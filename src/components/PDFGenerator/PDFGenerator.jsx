@@ -48,8 +48,8 @@ const PDFGenerator = ({ settings, data, documentType }) => {
   // Extract patient data
   const patientData = data.patientInformation || data.patient || {};
 
-  // Get format settings
-  const formatSettings = settings.formatStyle || {};
+  // Get format settings - formatStyle is now always an array
+  const formatSettings = settings.formatStyle || [];
   const fontFamily = settings.pageFormat?.fontFamily || "Arial";
 
   // Render content based on document type

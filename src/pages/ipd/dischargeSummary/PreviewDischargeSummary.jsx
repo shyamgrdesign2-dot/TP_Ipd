@@ -1,4 +1,4 @@
-import { Button, Col, Drawer, Row, Spin } from "antd";
+import { Button, Col, Row, Spin } from "antd";
 import { isMobile } from "react-device-detect";
 import React, { useEffect, useRef, useState } from "react";
 import { Document, Page } from "react-pdf";
@@ -11,19 +11,16 @@ import {
   printDischargeSummary,
 } from "./utils/helper";
 
-import { useDispatch, useSelector } from "react-redux";
-import { updatePrintSettings } from "../../../redux/ipd/printSettingsSlice";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const PreviewDischargeSummary = () => {
   const navigate = useNavigate();
   const divRef = useRef(null);
   const [divWidth, setDivWidth] = useState(0);
-  const [showConfigureSettings, setShowConfigureSettings] = useState(false);
   const [numPages, setNumPages] = useState();
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
-  const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
   const { dischargeSummaryData } = useSelector(
     (state) => state.dischargeSummary
@@ -58,7 +55,15 @@ const PreviewDischargeSummary = () => {
   };
 
   const handleDrawerConfigureSettings = () => {
-    setShowConfigureSettings(!showConfigureSettings);
+    // Navigate to IPD Configure Print Settings page
+    navigate("/ipd/discharge-summary/configure-print-settings", {
+      state: {
+        moduleType: "dischargeSummary",
+        data: dischargeSummaryData,
+        printSettings: currentSettings,
+        returnPath: "/ipd/discharge-summary/preview", // Add return path for navigation back
+      },
+    });
   };
 
   async function onDocumentLoadSuccess(successEvent) {
@@ -76,12 +81,8 @@ const PreviewDischargeSummary = () => {
     handleDownloadDischargeSummary(pdfUrl, printBlob, patientData);
   };
 
-  const handleSettingsUpdate = (newSettings) => {
-    dispatch(updatePrintSettings(newSettings));
-  };
-
   const handleBackToSummary = () => {
-    navigate("/ipd/discharge-summary");
+    navigate("/ipd/patient-details/discharge-summary");
   };
 
   return (

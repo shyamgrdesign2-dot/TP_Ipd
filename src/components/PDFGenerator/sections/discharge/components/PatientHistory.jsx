@@ -361,14 +361,15 @@ const PatientHistory = ({ data, formatSettings, fontFamily = "Poppins" }) => {
   if (!data?.patientHistory) return null;
 
   const { patientHistory } = data;
-  const subsections = formatSettings?.patientHistory || {};
 
-  // Sort subsections
-  const sortedSubsections = Object.entries(subsections)
-    .filter(([key]) => key !== "settings")
-    .map(([key, value]) => ({ key, ...value }))
-    .filter((section) => section.visible !== false)
-    .sort((a, b) => (a.order || 0) - (b.order || 0));
+  // Find patientHistory section in formatSettings array
+  const patientHistorySection = formatSettings.find(
+    (section) => section.key === "patientHistory"
+  );
+  const subsections = patientHistorySection?.subSections || [];
+
+  // Sort subsections (already processed by getSortedSections)
+  const sortedSubsections = subsections;
 
   return (
     <View style={styles.mainContainer}>
