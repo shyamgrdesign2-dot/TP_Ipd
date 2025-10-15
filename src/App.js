@@ -79,6 +79,7 @@ import CrossReferral from "./pages/ipd/crossReferral/CrossReferral";
 import CrossReferralConsultantNotes from "./pages/ipd/crossReferral/CrossReferralConsultantNotes";
 import DischargeSummary from "./pages/ipd/dischargeSummary/DischargeSummary";
 import PreviewDischargeSummary from "./pages/ipd/dischargeSummary/PreviewDischargeSummary";
+import ConfigurePrintSettings from "./pages/ipd/dischargeSummary/ConfigurePrintSettings";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -420,18 +421,42 @@ function App() {
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>
                 <Route path="/*" element={<AppointmentList />} />
-                <Route path={`/ipd/patient-details`} element={<IPDPatientDetails />}/>
-                <Route path="/ipd/patient-details/assessment-form" element={<AssessmentsForm />} />
-                <Route path="/ipd/patient-details/ot-notes" element={<OtNotes />} />
-                <Route path="/ipd/patient-details/cross-referral" element={<CrossReferral />} />
-                <Route path="/ipd/patient-details/cross-referral/consultant-notes" element={<CrossReferralConsultantNotes />} />
-                <Route path="/ipd/patient-details/discharge-summary" element={<DischargeSummary />} />
-                <Route path="/ipd/patient-details/progress-notes" element={<ProgressNotes />} />
+                <Route
+                  path={`/ipd/patient-details`}
+                  element={<IPDPatientDetails />}
+                />
+                <Route
+                  path="/ipd/patient-details/assessment-form"
+                  element={<AssessmentsForm />}
+                />
+                <Route
+                  path="/ipd/patient-details/ot-notes"
+                  element={<OtNotes />}
+                />
+                <Route
+                  path="/ipd/patient-details/cross-referral"
+                  element={<CrossReferral />}
+                />
+                <Route
+                  path="/ipd/patient-details/cross-referral/consultant-notes"
+                  element={<CrossReferralConsultantNotes />}
+                />
+                <Route
+                  path="/ipd/patient-details/discharge-summary"
+                  element={<DischargeSummary />}
+                />
+                <Route
+                  path="/ipd/patient-details/progress-notes"
+                  element={<ProgressNotes />}
+                />
                 <Route
                   path="/ipd/patient-details/consultant-notes"
                   element={<ConsultantNotes />}
                 />
-                <Route path="/ipd/patient-details/lab-results" element={<LabResults />} />
+                <Route
+                  path="/ipd/patient-details/lab-results"
+                  element={<LabResults />}
+                />
                 {/* <Route
                   path="/ipd/patient-details/medical-records"
                   element={<IPDMedicalRecords />}
@@ -522,7 +547,14 @@ function App() {
                 <Route path="ipd" element={<HomePageLayout />}>
                   <Route path="inPatients" element={<InPatients />} />
                 </Route>
-              <Route path="ipd/discharge-summary/preview" element={<PreviewDischargeSummary />} />
+                <Route
+                  path="ipd/discharge-summary/preview"
+                  element={<PreviewDischargeSummary />}
+                />
+                <Route
+                  path="ipd/discharge-summary/configure-print-settings"
+                  element={<ConfigurePrintSettings />}
+                />
               </Route>
               <Route path="opd-bill" element={<OpdBill />} />
             </Routes>

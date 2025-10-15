@@ -21,4 +21,8 @@ ApiPrintSettings.updatePrintSettings = function ({ printSettings }) {
   return api.put(`/print-settings`, printSettings, baseUrl);
 };
 
+ApiPrintSettings.getDefaultPrintsettings = function () {
+  return api.get(`/print-settings/default`, baseUrl);
+};
+
 export default ApiPrintSettings;

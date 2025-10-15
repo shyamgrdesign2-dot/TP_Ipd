@@ -1,4 +1,4 @@
-import { Button, Col, Drawer, Row, Spin } from "antd";
+import { Button, Col, Row, Spin } from "antd";
 import { isMobile } from "react-device-detect";
 import React, { useEffect, useRef, useState } from "react";
 import { Document, Page } from "react-pdf";
@@ -12,7 +12,6 @@ import {
 } from "./utils/helper";
 
 import { useDispatch, useSelector } from "react-redux";
-import { updatePrintSettings } from "../../../redux/ipd/printSettingsSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getDischargeSummaryData } from "../../../redux/ipd/dischargeSummarySlice";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
@@ -21,7 +20,6 @@ const PreviewDischargeSummary = () => {
   const navigate = useNavigate();
   const divRef = useRef(null);
   const [divWidth, setDivWidth] = useState(0);
-  const [showConfigureSettings, setShowConfigureSettings] = useState(false);
   const [numPages, setNumPages] = useState();
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -80,7 +78,15 @@ const PreviewDischargeSummary = () => {
   };
 
   const handleDrawerConfigureSettings = () => {
-    setShowConfigureSettings(!showConfigureSettings);
+    // Navigate to IPD Configure Print Settings page
+    navigate("/ipd/discharge-summary/configure-print-settings", {
+      state: {
+        moduleType: "dischargeSummary",
+        data: dischargeSummaryData,
+        printSettings: currentSettings,
+        returnPath: "/ipd/discharge-summary/preview", // Add return path for navigation back
+      },
+    });
   };
 
   async function onDocumentLoadSuccess(successEvent) {
@@ -98,12 +104,8 @@ const PreviewDischargeSummary = () => {
     handleDownloadDischargeSummary(pdfUrl, printBlob, patientData);
   };
 
-  const handleSettingsUpdate = (newSettings) => {
-    dispatch(updatePrintSettings(newSettings));
-  };
-
   const handleBackToSummary = () => {
-    navigate("/ipd/discharge-summary");
+    navigate("/ipd/patient-details/discharge-summary");
   };
 
   return (
@@ -136,7 +138,7 @@ const PreviewDischargeSummary = () => {
         } w-100 bg-body wrapper2 prescription-wrapper`}
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
-          {/* <Col md={7} sm={7} xl={5}>
+          <Col md={7} sm={7} xl={5}>
             {!isMobile && (
               <div
                 className="d-flex align-items-center justify-content-end h-38"
@@ -194,7 +196,7 @@ const PreviewDischargeSummary = () => {
                 </Button>
               </div>
             </div>
-          </Col> */}
+          </Col>
           <Col md={17} sm={17} xl={12}>
             <div className={isMobile ? "p-20" : ""}>
               <div className="d-flex align-items-center justify-content-between">

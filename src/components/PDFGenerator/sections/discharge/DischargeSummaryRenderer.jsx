@@ -16,7 +16,7 @@ import DischargeNote from "./components/DischargeNote";
 import DischargeAdvice from "./components/DischargeAdvice";
 import FollowUp from "./components/FollowUp";
 import { renderSimpleText } from "../ListViewRenderer";
-import { getSortedSections } from "../../utils/pdfUtils";
+import { getAllVisibleSections } from "../../utils/pdfUtils";
 
 const styles = StyleSheet.create({
   sectionContainer: {
@@ -220,12 +220,12 @@ export const renderDischargeSummary = (data, formatSettings, fontFamily) => {
   if (!data || !formatSettings) return [];
 
   // Get sorted sections
-  const sortedSections = getSortedSections(formatSettings);
+  const sortedSections = getAllVisibleSections(formatSettings);
 
-  // Map section keys to render functions
+  // Map section keys to render functions (using new array format IDs)
   const sectionRenderers = {
-    primaryConsultant: () => renderPrimaryConsultant(data, fontFamily),
-    dignosisAndSurgery: () => renderDiagnosisAndSurgery(data, fontFamily),
+    admittingConsultant: () => renderPrimaryConsultant(data, fontFamily),
+    diagnosisAndSurgery: () => renderDiagnosisAndSurgery(data, fontFamily),
     patientHistory: () =>
       renderPatientHistory(data, fontFamily, formatSettings),
     physicalExamination: () => renderPhysicalExamination(data, fontFamily),
@@ -235,6 +235,9 @@ export const renderDischargeSummary = (data, formatSettings, fontFamily) => {
     dischargeNotes: () => renderDischargeNotes(data, fontFamily),
     dischargeAdvice: () => renderDischargeAdvice(data, fontFamily),
     followUp: () => renderFollowUp(data, fontFamily),
+    // Backward compatibility with old keys
+    primaryConsultant: () => renderPrimaryConsultant(data, fontFamily),
+    dignosisAndSurgery: () => renderDiagnosisAndSurgery(data, fontFamily),
   };
 
   // Render sections in order
