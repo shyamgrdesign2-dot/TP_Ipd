@@ -16,6 +16,8 @@ import { updatePrintSettings } from "../../../redux/ipd/printSettingsSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getDischargeSummaryData } from "../../../redux/ipd/dischargeSummarySlice";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
+// import DischargeSummaryTracker from "../../../components/CollapsibleSection/DischargeSummaryTracker";
+import DischargeSummaryTracker from "./components/CollapsibleSummaryTracker/DischargeSummaryTracker";
 
 const PreviewDischargeSummary = () => {
   const navigate = useNavigate();
@@ -135,7 +137,11 @@ const PreviewDischargeSummary = () => {
           isMobile ? "p-0" : ""
         } w-100 bg-body wrapper2 prescription-wrapper`}
       >
-        <Row gutter={{ xl: 40, lg: 0 }} justify="center">
+        <div
+          //  gutter={{ xl: 40, lg: 0 }}
+          justify="center"
+          className="d-flex"
+        >
           {/* <Col md={7} sm={7} xl={5}>
             {!isMobile && (
               <div
@@ -195,7 +201,11 @@ const PreviewDischargeSummary = () => {
               </div>
             </div>
           </Col> */}
-          <Col md={17} sm={17} xl={12}>
+          <div>
+            {/* <ExampleUsage /> */}
+            <DischargeSummaryTracker />
+          </div>
+          <div>
             <div className={isMobile ? "p-20" : ""}>
               <div className="d-flex align-items-center justify-content-between">
                 <div className="titleprint">Preview</div>
@@ -262,8 +272,8 @@ const PreviewDischargeSummary = () => {
                 </div>
               </div>
             </div>
-          </Col>
-        </Row>
+          </div>
+        </div>
       </div>
     </div>
   );

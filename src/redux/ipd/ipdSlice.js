@@ -74,7 +74,7 @@ export const updateCustomization = createAsyncThunk(
       let result = {};
       result = await ApiIpdService.updateCustomization({progressNotes: [], crossReferral: [], otNotes: [], dischargeSummary: [], ...data});
       if (result.message === 'form customization updated successfully.') {
-        return result.data;
+        return data;
       } else {
         throw Error(result.error);
       }
@@ -130,6 +130,7 @@ const ipdSlice = createSlice({
       })
       .addCase(updateCustomization.fulfilled, (state, action) => {
         state.loading = false;
+        state.customization = action.payload;
       })
       .addCase(updateCustomization.rejected, (state, action) => {
         state.loading = false;

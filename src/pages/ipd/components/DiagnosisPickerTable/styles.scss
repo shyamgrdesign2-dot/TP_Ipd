@@ -15,6 +15,9 @@
   overflow: hidden;
   .ant-table {
     border-radius: 12px;
+    .ant-table-row-expand-icon {
+      display: none !important;
+    }
     th.ant-table-cell {
       border-bottom-left-radius: 0 !important;
       border-bottom-right-radius: 0 !important;

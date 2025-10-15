@@ -119,8 +119,8 @@
         .activity-name-cell {
           .diet-name,
           .activity-name {
-            font-weight: 500;
             color: #2c3e50;
+            @include fs12-semibold;
           }
         }
 
@@ -372,4 +372,8 @@
   color: #454551;
   margin-bottom: 6px;
   display: block;
+}
+.activity-name, .diet-name {
+  color: #2c3e50;
+  @include fs14-semibold;
 }

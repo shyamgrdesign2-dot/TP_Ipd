@@ -188,21 +188,24 @@ const dischargeSummarySlice = createSlice({
       state.currentDischargeSummaryId = null;
     },
     setDischargeDate: (state, action) => {
-      if (!state.dischargeSummaryData.patientInformation) {
+      if (!state.dischargeSummaryData?.patientInformation) {
         state.dischargeSummaryData.patientInformation = {};
       }
       state.dischargeSummaryData.patientInformation.dateOfDischarge =
         action.payload;
     },
     setProvisionalDiagnosis: (state, action) => {
-      if (!state.dischargeSummaryData.diagnosisAndSurgery) {
+      if (!state.dischargeSummaryData) {
+        state.dischargeSummaryData = {};
+      }
+      if (!state.dischargeSummaryData?.diagnosisAndSurgery) {
         state.dischargeSummaryData.diagnosisAndSurgery = {};
       }
       state.dischargeSummaryData.diagnosisAndSurgery.provisionalDiagnosis =
         action.payload;
     },
     setFinalDiagnosis: (state, action) => {
-      if (!state.dischargeSummaryData.diagnosisAndSurgery) {
+      if (!state.dischargeSummaryData?.diagnosisAndSurgery) {
         state.dischargeSummaryData.diagnosisAndSurgery = {};
       }
       state.dischargeSummaryData.diagnosisAndSurgery.finalDiagnosis =

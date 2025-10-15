@@ -2,7 +2,6 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
   useContext,
   forwardRef,
@@ -26,13 +25,11 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import "./styles.scss";
-import { fetchDiagnosesAPI } from "./utils";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { setFinalDiagnosis } from "../../../../redux/ipd/dischargeSummarySlice";
 import { setProvisionalDiagnosis } from "../../../../redux/ipd/dischargeSummarySlice";
 import { getDiagnosisTemplates, getFrequentlySearchedDiagnosis, searchDiagnosis } from "../../../../redux/diagnosisSlice";
-import ApiDiagnosis from "../../../../api/services/ApiDiagnosis";
 import { removeBeforeWhiteSpace } from "../../../../utils/utils";
 
 export const DiagnosisSummaryList = (props) => {
@@ -154,6 +151,7 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
       ...row,
       type: "paragraph",
       children: [{ text: "" }],
+      key: row.key || row.unique_id || row.objectID || uuidv4(),
     }));
     if (isFinalDiagnosis) {
       dispatch(setFinalDiagnosis(updatedRows));
@@ -162,12 +160,12 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
     }
     setSearchParentQuery("");
     setQuery("");
-  }, [isFinalDiagnosis]);
+  }, [isFinalDiagnosis, dispatch]);
 
   useEffect(() => {
     dispatch(getDiagnosisTemplates());
     dispatch(getFrequentlySearchedDiagnosis());
-}, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (searchParentQuery) {
@@ -181,10 +179,16 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
         clearTimeout(timeOutId);
       };
     }
-  }, [searchParentQuery]);
+  }, [searchParentQuery, dispatch]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(PointerSensor, { 
+      activationConstraint: { 
+        distance: 8,
+        delay: 100,
+        tolerance: 5
+      } 
+    }),
     useSensor(KeyboardSensor)
   );
 
@@ -213,7 +217,7 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
         ),
       });
     } else {
-      searchParentQuery && parentOptionsList.findIndex(e => e.tds_name?.toLowerCase()?.trim() == searchParentQuery?.toLowerCase()?.trim()) === -1 &&
+      searchParentQuery && parentOptionsList.findIndex(e => e.tds_name?.toLowerCase()?.trim() === searchParentQuery?.toLowerCase()?.trim()) === -1 &&
         data.push({
           key: JSON.stringify({
             unique_id: uuidv4(),
@@ -225,38 +229,40 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
           value: searchParentQuery,
           label: (
             <>
-              <div>{searchParentQuery}<i className="icon-Add mx-1 text-primary fs-6"></i> <a className="fw-medium text-decoration-underline text-primary"> Add Custom</a></div>
+              <div>{searchParentQuery}<i className="icon-Add mx-1 text-primary fs-6"></i> <button className="fw-medium text-decoration-underline text-primary bg-transparent border-0 p-0"> Add Custom</button></div>
             </>
           ),
         });
     }
     setParentSearchOptions(data);
-  }, [parentOptionsList]);
+  }, [parentOptionsList, searchParentQuery]);
 
   const onSearchParent = useCallback(
     (query) => {
       setSearchParentQuery(removeBeforeWhiteSpace(query));
     },
-    [searchParentQuery]
+    []
   );
 
   const onSelectParent = useCallback(
     (data, e) => {
       const newData = [...rows]
+      const parsedData = JSON.parse(e.key);
       newData.push({
-        ...JSON.parse(e.key),
+        ...parsedData,
         notes: "",
+        key: parsedData.unique_id || parsedData.objectID || uuidv4(),
       });
       setRows(newData);
     },
-    [searchParentQuery, rows]
+    [rows, setRows]
   );
 
   const onDragEnd = ({ active, over }) => {
-    if (!over || active.objectID === over.objectID) return;
+    if (!over || active.id === over.id) return;
 
-    const oldIndex = rows.findIndex((r) => r.key === active.objectID);
-    const newIndex = rows.findIndex((r) => r.key === over.objectID);
+    const oldIndex = rows.findIndex((r) => r.key === active.id);
+    const newIndex = rows.findIndex((r) => r.key === over.id);
     const newRows = arrayMove(rows, oldIndex, newIndex);
     setRows(newRows);
   };
@@ -299,7 +305,7 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
             value={record.notes}
             onChange={(e) => {
               const v = e.target.value;
-              const newRows = rows.map((r) => (r.objectID === record.objectID ? { ...r, notes: v } : r));
+              const newRows = rows.map((r) => (r.key === record.key ? { ...r, notes: v } : r));
               setRows(newRows);
             }}
           />
@@ -314,7 +320,7 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
           <button
             className="delete-btn"
             onClick={() => {
-              const newRows = rows.filter((r) => r.objectID !== record.objectID);
+              const newRows = rows.filter((r) => r.key !== record.key);
               setRows(newRows);
             }}
             aria-label="Delete row"

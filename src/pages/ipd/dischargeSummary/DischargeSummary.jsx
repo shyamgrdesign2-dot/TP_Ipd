@@ -225,6 +225,9 @@ const DischargeSummary = (props) => {
   };
 
   const handleAddEditPhysicalExamination = (data) => {
+    setPhysicalExaminationBasicData({...assessmentData?.physicalExaminationBasicData})
+    setVitalsData({...assessmentData?.vitalsData});
+    setPhysicalExaminationOthersData({...assessmentData?.physicalExaminationOthersData});
     setSectionData(data);
     setShowPhysicalExaminationDrawer((prev) => !prev);
   };
@@ -412,7 +415,7 @@ const DischargeSummary = (props) => {
           data.push({
             date: entry.date || "",
             day: entry.day || "",
-            entry: arr[index] || [],
+            entry: [arr[index]] || [],
             module: entry.module || "",
           });
         }

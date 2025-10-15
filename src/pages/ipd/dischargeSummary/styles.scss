@@ -5,3 +5,10 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+.ipd-editable-discharge-summary-with-readonly-elements {
+  .cw__bodyInner {
+    gap: 14px !important;
+    display: flex;
+    flex-direction: column;
+  }
+}

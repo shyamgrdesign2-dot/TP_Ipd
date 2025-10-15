@@ -26,7 +26,7 @@ const ProvisionalDiagnosisWrapper = (props) => {
     <CollapsibleWrapper
           title={sectionData?.title}
           data-testid={sectionData?.id}
-          icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
+          icon={assessmentsIcons.provisionalDiagnosisPcDark}
           collapsible={isEditable}
           width={"100%"}
           className={`collapsible-wrapper-class ${

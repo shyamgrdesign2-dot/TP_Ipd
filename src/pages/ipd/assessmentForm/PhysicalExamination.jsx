@@ -29,26 +29,17 @@ const PhysicalExamination = (props) => {
   } = props || {};
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
-  const [
-    autoFillTextToAppendProvisionalDiagnosis,
-    setAutoFillTextToAppendProvisionalDiagnosis,
-  ] = useState([]);
+  
   const handleOthersChange = (data) => {
     dispatch(setPhysicalExaminationOthersData(data));
   };
 
-  const handleProvisionalDiagnosisChange = (data) => {
-    dispatch(setPhysicalExaminationProvisionalDiagnosisData(data));
-  };
 
   const renderOthers = (data) => {
     if (!isEditable && isEmptyRichText(physicalExaminationOthersData))
       return null;
     return (
       <div
-        // key={`physical-examination-others-${JSON.stringify(
-        //   physicalExaminationOthersData
-        // )}`}
       >
         <RichTextEditWrapper
           readOnly={!isEditable}
@@ -79,6 +70,12 @@ const PhysicalExamination = (props) => {
             console.log("save");
           }}
           onErase={() => {
+            handleOthersChange([
+              {
+                type: "paragraph",
+                children: [{ text: "" }],
+              },
+            ]);
             setAutoFillTextToAppend(["clear"]);
           }}
           onTemplate={() => {
@@ -88,54 +85,6 @@ const PhysicalExamination = (props) => {
           setNewAutoFillTextToAppend={setAutoFillTextToAppend}
         />
       </div>
-    );
-  };
-
-  const renderProvisionalDiagnosis = (data) => {
-    if (
-      !isEditable &&
-      isEmptyRichText(physicalExaminationProvisionalDiagnosisData)
-    )
-      return null;
-    return (
-      <RichTextEditWrapper
-        readOnly={!isEditable}
-        showToolbar={isEditable}
-        showActionBtns={isEditable}
-        title={data?.title}
-        width={isEditable ? "100%" : "fit-content"}
-        icon={assessmentsIcons[`${data?.id}Pc`]}
-        showAutoFill={false}
-        containerClass={`${!isEditable ? "ipd-wrapper-class-readonly" : ""}`}
-        opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        onChange={handleProvisionalDiagnosisChange}
-        showMicrophone={false}
-        initialValue={
-          physicalExaminationProvisionalDiagnosisData?.length
-            ? physicalExaminationProvisionalDiagnosisData
-            : [
-                {
-                  type: "paragraph",
-                  children: [{ text: "" }],
-                },
-              ]
-        }
-        placeholder={
-          "Enter provisional diagnosis like suspected condition or working diagnosis"
-        }
-        onSave={() => {
-          console.log("save");
-        }}
-        onErase={() => {
-          setAutoFillTextToAppendProvisionalDiagnosis(["clear"]);
-        }}
-        onTemplate={() => {
-          console.log("template");
-        }}
-        newAutoFillTextToAppend={autoFillTextToAppendProvisionalDiagnosis}
-        setNewAutoFillTextToAppend={setAutoFillTextToAppendProvisionalDiagnosis}
-      />
     );
   };
 
@@ -153,8 +102,6 @@ const PhysicalExamination = (props) => {
                     return <Vitals {...props} sectionData={item} />;
                   case "others":
                     return renderOthers(item);
-                  case "provisionalDiagnosis":
-                    return renderProvisionalDiagnosis(item);
                   default:
                     return null;
                 }
@@ -165,7 +112,7 @@ const PhysicalExamination = (props) => {
         {children && children}
       </div>
     );
-  }, [physicalExaminationOthersData, vitalsData, physicalExaminationBasicData]);
+  }, [physicalExaminationOthersData, vitalsData, physicalExaminationBasicData, sectionData]);
   if (
     !isEditable &&
     !Object.keys(physicalExaminationBasicData)?.length &&

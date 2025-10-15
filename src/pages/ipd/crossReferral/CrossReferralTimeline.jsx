@@ -376,7 +376,7 @@ const CrossReferralTimeline = () => {
             } = entry?.crossReferral["referralInformation"] || {};
             const isCurrentDoctorReferee =
               informedByDoctor?.id !== referringTo?.id;
-
+              console.log('INTEL ==> isCurrentDoctorReferee', isCurrentDoctorReferee)
             return (
               <div className="collapsible-wrapper">
                 <div
@@ -392,6 +392,7 @@ const CrossReferralTimeline = () => {
                             <ReferralInformationView
                               data={entry?.crossReferral[crossReferralEntry]}
                               uniqueId={entry?._id}
+                              isEditable={!entry?.crossReferral["consultantNotesData"]?.length > 0}
                             />
                           );
                         case "consultantNotesData":
@@ -448,7 +449,7 @@ const CrossReferralTimeline = () => {
                       </span>
                     </div>
                   )}
-                  {!entry?.crossReferral["consultantNotesData"] && (
+                  {!isCurrentDoctorReferee && !entry?.crossReferral["consultantNotesData"] && (
                     <div
                       onClick={() =>
                         handleAddConsultantNotesClick(

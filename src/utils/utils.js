@@ -2005,3 +2005,49 @@ export const getPlatformName = () => {
 export const getWelcomePlatformName = () => {
   return shouldUseTatvaCare() ? "Tatva Care Platform" : "TatvaPractice";
 };
+
+
+// mapper.js
+export function mapSectionsWithData(structure, apiResponse) {
+  return structure.map((section) => {
+    // top-level data object for this section
+    const sectionData = apiResponse[section.id] || {};
+
+    let total = 0;
+    let filled = 0;
+
+    const children = (section.children || []).map((child) => {
+      total++;
+
+      let hasData = false;
+
+      // Check if nested object/array exists in API response
+      if (Array.isArray(sectionData[child.id])) {
+        hasData = sectionData[child.id].length > 0;
+      } else if (typeof sectionData[child.id] === "object" && sectionData[child.id] !== null) {
+        hasData = Object.keys(sectionData[child.id]).some(
+          (key) => !!sectionData[child.id][key]
+        );
+      } else {
+        hasData = !!sectionData[child.id];
+      }
+
+      if (hasData) filled++;
+
+      return {
+        ...child,
+        isDataFilled: hasData,
+      };
+    });
+
+    return {
+      ...section,
+      children,
+      total,
+      filled,
+      isDataFilled: filled > 0,
+      isFullyFilled: filled === total,
+      isPartiallyFilled: filled > 0 && filled < total,
+    };
+  });
+}

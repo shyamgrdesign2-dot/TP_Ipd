@@ -141,6 +141,7 @@ export const IPD = {
       enabled: true,
       expanded: false,
       children: [
+        VITALS_CONFIG,
         {
           placeholder: "",
           id: "examinations",
@@ -270,20 +271,12 @@ export const IPD = {
             },
           ],
         },
-        VITALS_CONFIG,
         {
           placeholder: "",
           id: "others",
           title: "Others",
           enabled: true,
           icon: "galaxy",
-        },
-        {
-          placeholder: "",
-          id: "provisionalDiagnosis",
-          title: "Provisional Diagnosis",
-          enabled: true,
-          icon: "ddx",
         },
       ],
     },

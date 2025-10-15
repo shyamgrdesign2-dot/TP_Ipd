@@ -63,7 +63,7 @@ import {
   resetCrossReferralForm,
 } from "../../../redux/ipd/crossReferralSlice";
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
-import { getDischargeSummaryData } from "../../../redux/ipd/dischargeSummarySlice";
+import { getDischargeSummaryData, setProvisionalDiagnosis } from "../../../redux/ipd/dischargeSummarySlice";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
 import PreviewDischargeSummary from "../dischargeSummary/PreviewDischargeSummary";
 
@@ -287,12 +287,7 @@ const IPDPatientDetails = () => {
       // Physical Examination Vitals Data
       dispatch(setVitalsData(data?.physicalExamination?.vitals || {}));
 
-      // Physical Examination Provisional Diagnosis
-      dispatch(
-        setPhysicalExaminationProvisionalDiagnosisData(
-          data?.physicalExamination?.provisionalDiagnosis || []
-        )
-      );
+      dispatch(setProvisionalDiagnosis(data?.provisionalDiagnosis || []));
 
       // Physical Examination Others Data
       dispatch(
@@ -414,7 +409,7 @@ const IPDPatientDetails = () => {
     } else if (activeMenuItem === "crossReferral") {
       return !!crossReferralData?.length;
     } else if (activeMenuItem === "dischargeSummary") {
-      return !!dischargeSummaryData?.length;
+      return !!dischargeSummaryData && !!dischargeSummaryData.patientInformation && Object.keys(dischargeSummaryData.patientInformation).length > 0;
     } else if (activeMenuItem === "consultantNotes") {
       return !!consultantNotes?.length;
     } else if (activeMenuItem === "progress") {
@@ -595,7 +590,7 @@ const IPDPatientDetails = () => {
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
               renderContent={
-                !isEditable && isDataPresent ? renderContent : null
+                 isDataPresent ? renderContent : null
               }
               showAddCTA={canShowAddCTA}
             />

@@ -27,6 +27,7 @@ import {
 } from "../../../redux/ipd/otNotesSlice.js";
 import BackConfirmationModal from "../../../components/BackConfirmationModal.js";
 import FullPageLoader from "../../vaccination/components/Loader.js";
+import dayjs from "dayjs";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -60,7 +61,13 @@ const OtNotes = (props) => {
   const [modelData, setModelData] = useState(
     otNotes.length > 0 ? otNotes : IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE
   );
-
+  const { profile } = useSelector((state) => state.doctors);
+  const [filledDate, setFilledDate] = useState(new Date());
+  const [filledAtTime, setFilledAtTime] = useState(new Date());
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
+  const handleTimePeriodChange = (value) => {
+    setSelectedTimePeriod(value);
+  };
   useEffect(() => {
     if (otNotes.length > 0) {
       setModelData(otNotes);
@@ -172,7 +179,8 @@ const OtNotes = (props) => {
           otNotesState.intraOperativeNotes.complicationsSeverity?.value || [],
         specimensSent:
           otNotesState.intraOperativeNotes.specimensSent?.value || [],
-          implantsUsed: otNotesState.intraOperativeNotes.implantsUsed?.value || [],
+        implantsUsed:
+          otNotesState.intraOperativeNotes.implantsUsed?.value || [],
         estimatedBloodLoss:
           parseInt(
             otNotesState.intraOperativeNotes?.additionalUnits
@@ -300,6 +308,33 @@ const OtNotes = (props) => {
     );
   };
 
+  const renderFilledBySection = () => {
+    return (
+      <div style={{ margin: "24px 24px 0" }}>
+        <FilledByCard
+          filledBy={profile?.um_name}
+          role="Doctor"
+          selectedDate={dayjs(filledDate)}
+          selectedTime={dayjs(filledAtTime)}
+          dateFormat="DD MMM YYYY"
+          timeFormat="HH:mm A"
+          selectedTimePeriod={selectedTimePeriod}
+          timePeriodOptions={[
+            { label: "Morning", value: "Morning" },
+            { label: "Afternoon", value: "Afternoon" },
+            { label: "Evening", value: "Evening" },
+            { label: "Night", value: "Night" },
+          ]}
+          onDateChange={(date) => setFilledDate(date)}
+          onTimeChange={(time) => setFilledAtTime(time)}
+          onTimePeriodChange={handleTimePeriodChange}
+          editable
+          showTimePeriod={true}
+        />
+      </div>
+    );
+  };
+
   const renderAllSections = () => {
     return (
       <div
@@ -368,6 +403,7 @@ const OtNotes = (props) => {
                   }}
                   items={modelData}
                   renderSection={renderSections}
+                  renderTopSection={renderFilledBySection}
                   onRequestClose={() => {
                     setIsBackModalOpen(true);
                   }}
