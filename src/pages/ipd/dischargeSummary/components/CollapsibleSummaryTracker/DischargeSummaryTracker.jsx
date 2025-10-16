@@ -35,7 +35,7 @@ export const DischargeSummaryTracker = (props) => {
 
   const sectionsWithData = mapSectionsWithData(
     IPD.DEFAULT_DISCHARGE_SUMMARY_FORM_STRUCTURE,
-    dischargeSummaryState.dischargeSummaryData
+    dischargeSummaryState.actualDischargeSummaryData
   );
 
   return (

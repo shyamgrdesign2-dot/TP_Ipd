@@ -973,6 +973,7 @@ export const IPD = {
   DEFAULT_DISCHARGE_SUMMARY_FORM_STRUCTURE: [
     {
       id: "patientInformation",
+      field: "patientInformation",
       title: "Patient Information",
       icon: "surgeryDetails",
       enabled: true,
@@ -980,51 +981,61 @@ export const IPD = {
       children: [
         {
           id: "patientName",
+          field: "patientName",
           title: "Patient Name",
           enabled: true,
         },
         {
           id: "patientAgeGender",
+          field: "age",
           title: "Age/Gender",
           enabled: true,
         },
         {
           id: "contactNumber",
+          field: "contactNumber",
           title: "Contact No",
           enabled: true,
         },
         {
           id: "wardBedNumber",
+          field: "wardBedNo",
           title: "War/ Bed no",
           enabled: true,
         },
         {
           id: "patientId",
+          field: "patientId",
           title: "Patient ID",
           enabled: true,
         },
         {
           id: "admissionId",
+          field: "admissionId",
           title: "Admission ID",
           enabled: true,
         },
         {
           id: "admittedOn",
+          field: "admissionDate",
           title: "Admitted On",
           enabled: true,
         },
         {
           id: "primaryConsultant",
+          field: "primaryConsultant",
           title: "Primary Consultant",
           enabled: true,
         },
         {
           id: "admitSpeciality",
+          field: "primaryConsultant.speciality",
           title: "Admit Speciality",
           enabled: true,
         },
         {
           id: "address",
+          field: "address",
           title: "Address",
           enabled: true,
         },
@@ -1032,6 +1043,7 @@ export const IPD = {
     },
     {
       id: "diagnosisAndSurgery",
+      field: "diagnosisAndSurgery",
       title: "Diagnosis & Surgery",
       icon: "surgeryDetails",
       enabled: true,
@@ -1039,16 +1051,19 @@ export const IPD = {
       children: [
         {
           id: "finalDiagnosis",
+          field: "finalDiagnosis",
           title: "Final Diagnosis",
           enabled: true,
         },
         {
           id: "provisionalDiagnosis",
+          field: "provisionalDiagnosis",
           title: "Provisional Diagnosis (at the Time of Admission)",
           enabled: true,
         },
         {
           id: "surgeriesPerformed",
+          field: "surgeriesPerformed",
           title: "Surgeries Performed",
           enabled: true,
         },
@@ -1056,6 +1071,7 @@ export const IPD = {
     },
     {
       id: "patientHistory",
+      field: "patientHistory",
       title: "Patient History",
       icon: "surgeryDetails",
       enabled: true,
@@ -1063,21 +1079,25 @@ export const IPD = {
       children: [
         {
           id: "chiefComplaint",
+          field: "presentingComplaints",
           title: "Presenting Complaints (at the time of admission)",
           enabled: true,
         },
         {
           id: "pastMedicalHistory",
+          field: "pastMedicalHistory",
           title: "Past Medical History",
           enabled: true,
         },
         {
           id: "gynecHistory",
+          field: "gyneacHistory",
           title: "Gynec History",
           enabled: true,
         },
         {
           id: "obstetricHistory",
+          field: "obstetricHistory",
           title: "Obstetric History",
           enabled: true,
         },
@@ -1085,6 +1105,7 @@ export const IPD = {
     },
     {
       id: "physicalExamination",
+      field: "physicalExamination",
       title: "Physical Examination at the Time of Admission",
       icon: "physical",
       menuIcon: "physicalExam",
@@ -1094,6 +1115,7 @@ export const IPD = {
         {
           placeholder: "",
           id: "examinations",
+          field: "generalExamination",
           title: "General Examination",
           enabled: true,
           icon: "aidKit",
@@ -1102,6 +1124,7 @@ export const IPD = {
               title: "Pallor",
               enabled: true,
               id: "pallor",
+              field: "pallor",
               description: "",
               options: [
                 { label: "Present", value: 1, name: "present" },
@@ -1112,6 +1135,7 @@ export const IPD = {
               title: "Clubbing",
               enabled: true,
               id: "clubbing",
+              field: "clubbing",
               description: "",
               options: [
                 { label: "Present", value: 1, name: "present" },
@@ -1122,6 +1146,7 @@ export const IPD = {
               title: "Cyanosis",
               enabled: true,
               id: "cynosis",
+              field: "cynosis",
               description: "",
               options: [
                 { label: "Present", value: 1, name: "present" },
@@ -1132,6 +1157,7 @@ export const IPD = {
               title: "Lymphadenopathy",
               enabled: true,
               id: "lymphadenopathy",
+              field: "lymphadenopathy",
               description: "",
               options: [
                 { label: "Present", value: 1, name: "present" },
@@ -1142,6 +1168,7 @@ export const IPD = {
               title: "Edema",
               enabled: true,
               id: "edema",
+              field: "edema",
               description: "",
               options: [
                 { label: "Present", value: 1, name: "present" },
@@ -1152,6 +1179,7 @@ export const IPD = {
               title: "Hydration",
               enabled: true,
               id: "hydration",
+              field: "hydration",
               description: "",
               options: [
                 { label: "Normal", value: 1, name: "normal" },
@@ -1162,6 +1190,7 @@ export const IPD = {
               title: "CVS",
               enabled: true,
               id: "cvs",
+              field: "cvs",
               description: "",
               options: [
                 { label: "WNL", value: 1, name: "wnl" },
@@ -1172,6 +1201,7 @@ export const IPD = {
               title: "Breast/Chest",
               enabled: true,
               id: "breast_chest",
+              field: "breast_chest",
               description: "",
               options: [
                 { label: "WNL", value: 1, name: "wnl" },
@@ -1182,6 +1212,7 @@ export const IPD = {
               title: "Abdomen",
               enabled: true,
               id: "abdomen",
+              field: "abdomen",
               description: "",
               options: [
                 { label: "WNL", value: 1, name: "wnl" },
@@ -1192,6 +1223,7 @@ export const IPD = {
               title: "Neurological/Psychosocial",
               enabled: true,
               id: "neurological_psychosocial",
+              field: "neurological_psychosocial",
               description: "",
               options: [
                 { label: "WNL", value: 1, name: "wnl" },
@@ -1202,6 +1234,7 @@ export const IPD = {
               title: "Back",
               enabled: true,
               id: "back",
+              field: "back",
               description: "",
               options: [
                 { label: "WNL", value: 1, name: "wnl" },
@@ -1212,6 +1245,7 @@ export const IPD = {
               title: "HEENT",
               enabled: true,
               id: "heent",
+              field: "heent",
               description: "",
               options: [
                 { label: "WNL", value: 1, name: "wnl" },
@@ -1222,6 +1256,7 @@ export const IPD = {
         },
         {
           id: "vitals",
+          field: "vitals",
           title: "Vitals",
           enabled: true,
           icon: "vitals",
@@ -1229,6 +1264,7 @@ export const IPD = {
             {
               name: "pulse",
               id: "pulse",
+              field: "pulse",
               label: "Pulse",
               title: "Pulse",
               enabled: true,
@@ -1238,6 +1274,7 @@ export const IPD = {
             {
               name: "bloodPressure",
               id: "bloodPressure",
+              field: "bloodPressure",
               label: "Blood Pressure",
               title: "Blood Pressure",
               enabled: true,
@@ -1247,6 +1284,7 @@ export const IPD = {
             {
               name: "temperature",
               id: "temperature",
+              field: "temperature",
               label: "Temperature",
               title: "Temperature",
               enabled: true,
@@ -1256,6 +1294,7 @@ export const IPD = {
             {
               name: "spo2",
               id: "spo2",
+              field: "spo2",
               label: "SpO2",
               title: "SpO2",
               enabled: true,
@@ -1265,6 +1304,7 @@ export const IPD = {
             {
               name: "respiratoryRate",
               id: "respiratoryRate",
+              field: "respiratoryRate",
               label: "Respiratory Rate",
               title: "Respiratory Rate",
               enabled: true,
@@ -1274,6 +1314,7 @@ export const IPD = {
             {
               name: "weight",
               id: "weight",
+              field: "weight",
               label: "Weight",
               title: "Weight",
               enabled: true,
@@ -1283,6 +1324,7 @@ export const IPD = {
             {
               name: "height",
               id: "height",
+              field: "height",
               label: "Height",
               title: "Height",
               enabled: true,
@@ -1292,6 +1334,7 @@ export const IPD = {
             {
               name: "generalRbs",
               id: "generalRbs",
+              field: "generalRbs",
               label: "General RBS",
               title: "General RBS",
               enabled: true,
@@ -1303,6 +1346,7 @@ export const IPD = {
         {
           placeholder: "",
           id: "others",
+          field: "others",
           title: "Others",
           enabled: true,
           icon: "galaxy",
@@ -1311,6 +1355,7 @@ export const IPD = {
     },
     {
       id: "functionalAssessment",
+      field: "functionalAssessmentTimeOfAdmission",
       title: "Functional Assessment at the Time of Admission",
       icon: "functional",
       menuIcon: "funcAssess",
@@ -1320,12 +1365,14 @@ export const IPD = {
         {
           placeholder: "",
           id: "assessment",
+          field: "assessment",
           title: "Assessment",
           enabled: true,
           children: [
             {
               key: "bedActivity",
               id: "bedActivity",
+              field: "bedActivity",
               enabled: true,
               title: "Bed Activity",
               options: [
@@ -1341,6 +1388,7 @@ export const IPD = {
             {
               key: "sitting",
               id: "sitting",
+              field: "sitting",
               enabled: true,
               title: "Sitting",
               options: [
@@ -1356,6 +1404,7 @@ export const IPD = {
             {
               key: "standing",
               id: "standing",
+              field: "standing",
               enabled: true,
               title: "Standing",
               options: [
@@ -1371,6 +1420,7 @@ export const IPD = {
             {
               key: "ambulation",
               id: "ambulation",
+              field: "ambulation",
               enabled: true,
               title: "Ambulation",
               options: [
@@ -1386,6 +1436,7 @@ export const IPD = {
             {
               key: "stairClimbing",
               id: "stairClimbing",
+              field: "stairClimbing",
               enabled: true,
               title: "Stair Climbing",
               options: [
@@ -1401,6 +1452,7 @@ export const IPD = {
             {
               key: "bedSoreOnAdmission",
               id: "bedSoreOnAdmission",
+              field: "bedSoreOnAdmission",
               enabled: true,
               title: "Bed Sore on Admission",
               options: [
@@ -1413,6 +1465,7 @@ export const IPD = {
         {
           placeholder: "",
           id: "others",
+          field: "others",
           title: "Others",
           enabled: true,
           icon: "galaxy",
@@ -1420,6 +1473,7 @@ export const IPD = {
         {
           placeholder: "",
           id: "referredToPhysiotherapy",
+          field: "referredToPhysiotherapy",
           title: "Referred To Physiotherapy for Review",
           enabled: true,
           icon: "referDoctors",
@@ -1429,6 +1483,7 @@ export const IPD = {
     {
       placeholder: "",
       id: "courseInHospital",
+      field: "courseInHospital",
       title: "Course in Hospital",
       enabled: true,
       icon: "hospital",
@@ -1436,6 +1491,7 @@ export const IPD = {
         {
           placeholder: "",
           id: "chronologicalSummary",
+          field: "chronologicalSummary",
           title: "Chronological Summary",
           enabled: true,
           icon: "timeline",
@@ -1443,6 +1499,7 @@ export const IPD = {
         {
           placeholder: "",
           id: "treatmentsGiven",
+          field: "treatmentGiven",
           title: "Treatments Given",
           enabled: true,
           icon: "treatment",
@@ -1452,243 +1509,23 @@ export const IPD = {
     {
       placeholder: "",
       id: "otNotes",
+      field: "otNotes",
       title: "OT Notes",
       enabled: true,
       icon: "healthIcon",
       children: [
         {
           id: "surgeryDetails",
+          field: "surgeries",
           title: "Surgery Details",
-          icon: "surgeryDetails",
-          menuIcon: "basicInfoBg",
           enabled: true,
           expanded: false,
-          children: [
-            {
-              placeholder: "Enter Surgery Procedure Name",
-              id: "procedureName",
-              title: "Surgery Procedure Name",
-              enabled: true,
-              icon: "surgeryDetails",
-            },
-            {
-              placeholder: "Enter Anaesthesia Type",
-              id: "anaesthesiaType",
-              title: "Anaesthesia Type",
-              enabled: true,
-              icon: "surgeryDetails",
-            },
-            {
-              placeholder: "Enter Surgery Date",
-              id: "surgeryDate",
-              title: "Surgery Date",
-              enabled: true,
-              icon: "surgeryDetails",
-            },
-            {
-              placeholder: "Enter Surgery Start Time",
-              id: "surgeryStartTime",
-              title: "Surgery Start Time",
-              enabled: true,
-              icon: "surgeryDetails",
-            },
-            {
-              placeholder: "Enter Surgery End Time",
-              id: "surgeryEndTime",
-              title: "Surgery End Time",
-              enabled: true,
-              icon: "surgeryDetails",
-            },
-            {
-              placeholder: "Enter Diagnosis",
-              id: "diagnosis",
-              title: "Diagnosis",
-              enabled: true,
-              icon: "surgeryDetails",
-            },
-          ],
-        },
-        {
-          id: "surgeryTeam",
-          title: "Surgery Team",
-          icon: "surgeryTeam",
-          menuIcon: "basicInfoBg",
-          enabled: true,
-          expanded: false,
-          children: [
-            {
-              id: "primarySurgeon",
-              name: "Primary Surgeon",
-              title: "Primary Surgeon",
-              enabled: true,
-            },
-            {
-              id: "secondarySurgeon",
-              name: "Secondary Surgeon",
-              title: "Secondary Surgeon",
-              enabled: true,
-            },
-            {
-              id: "assistant",
-              name: "Assistant",
-              title: "Assistant",
-              enabled: true,
-            },
-            {
-              id: "anaesthesiologist",
-              name: "Anaesthesiologist",
-              title: "Anaesthesiologist",
-              enabled: true,
-            },
-            {
-              id: "scrubNurse",
-              name: "Scrub Nurse",
-              title: "Scrub Nurse",
-              enabled: true,
-            },
-            {
-              id: "floorCirculatingNurse",
-              name: "Floor/ Circulating Nurse",
-              title: "Floor/ Circulating Nurse",
-              enabled: true,
-            },
-          ],
-        },
-        {
-          id: "operativeNotes",
-          title: "Operative Notes",
-          icon: "operativeNotes",
-          menuIcon: "basicInfoBg",
-          enabled: true,
-          expanded: false,
-          children: [
-            {
-              placeholder:
-                "Describe intra-operative findings: anatomy, abnormalities, unexpected observations etc.",
-              id: "operativeFindings",
-              title: "Operative Findings",
-              enabled: true,
-              icon: "lab",
-            },
-            {
-              placeholder:
-                "Enter a detailed step-by-step description of the surgical procedure performed",
-              id: "procedures",
-              title: "Procedures",
-              enabled: true,
-              icon: "recordPad",
-            },
-            {
-              placeholder: "Enter additional notes if any",
-              id: "additionalNotes",
-              title: "Additional Notes",
-              enabled: true,
-              icon: "obstetrics",
-            },
-          ],
-        },
-        {
-          id: "intraOperativeNotes",
-          title: "Intra Operative Notes",
-          icon: "intraOperativeNotes",
-          menuIcon: "basicInfoBg",
-          enabled: true,
-          expanded: false,
-          children: [
-            {
-              placeholder:
-                "Document any intra-operative complications and their severity (e.g., bleeding, hypotension).",
-              id: "complicationsSeverity",
-              title: "Complication & Severity",
-              enabled: true,
-              icon: "alert",
-            },
-            {
-              placeholder: "Enter specimens sent for laboratory if any",
-              id: "specimensSent",
-              title: "Specimens Sent",
-              enabled: true,
-              icon: "lab",
-            },
-            {
-              placeholder:
-                "Enter implants or prosthetics used, with batch/lot numbers if available.",
-              id: "implantsUsed",
-              title:
-                "Implants / Prosthetics Used (Please provide Batch No if any)",
-              enabled: true,
-              icon: "implant",
-            },
-            {
-              id: "additionalUnits",
-              title: "",
-              enabled: true,
-              icon: null,
-              children: [
-                {
-                  placeholder: "Enter Estimated Blood Loss",
-                  id: "estimatedBloodLoss",
-                  title: "Estimated Blood Loss",
-                  enabled: true,
-                  icon: "blood",
-                  unit: "ml",
-                },
-                {
-                  placeholder: "Enter Swab Count",
-                  id: "swabCount",
-                  title: "Swab Count",
-                  enabled: true,
-                  icon: "swab",
-                  unit: "Swabs",
-                },
-                {
-                  placeholder:
-                    "Enter swab/sponge counts at closure (e.g., 10 used, 10 retrieved)",
-                  id: "fluidCount",
-                  title: "Fluid Count",
-                  enabled: true,
-                  icon: "droplet",
-                },
-                {
-                  placeholder:
-                    "Enter type and count of sutures used (e.g., Vicryl 3-0 × 2)",
-                  id: "sutureTypeCount",
-                  title: "Suture Type/Count",
-                  enabled: true,
-                  icon: "suture",
-                },
-              ],
-            },
-          ],
-        },
-        {
-          id: "postOperativeNotes",
-          title: "Post Operative Notes",
-          menuIcon: "basicInfoBg",
-          icon: "postOperativeNotes",
-          enabled: true,
-          expanded: false,
-          children: [
-            {
-              placeholder: "Select Post-op Destination",
-              id: "postOpDestination",
-              title: "Post-op Destination",
-              enabled: true,
-              icon: "surgeryDetails",
-            },
-            {
-              placeholder: "Enter Additional Instructions",
-              id: "additionalInstructions",
-              title: "Additional Instructions",
-              enabled: true,
-              icon: "surgeryDetails",
-            },
-          ],
-        },
+        }
       ],
     },
     {
       id: "dischargeNotes",
+      field: "dischargeNotes",
       title: "Discharge Notes",
       menuIcon: "basicInfoBg",
       icon: "dischargeNotes",
@@ -1698,6 +1535,7 @@ export const IPD = {
         {
           placeholder: "Enter Discharge Vitals",
           id: "dischargeVitals",
+          field: "dischargeVitals",
           title: "Discharge Vitals",
           enabled: true,
           icon: "vitals",
@@ -1705,6 +1543,7 @@ export const IPD = {
             {
               name: "pulse",
               id: "pulse",
+              field: "pulse",
               label: "Pulse",
               title: "Pulse",
               enabled: true,
@@ -1714,6 +1553,7 @@ export const IPD = {
             {
               name: "bloodPressure",
               id: "bloodPressure",
+              field: "bloodPressure",
               label: "Blood Pressure",
               title: "Blood Pressure",
               enabled: true,
@@ -1723,6 +1563,7 @@ export const IPD = {
             {
               name: "temperature",
               id: "temperature",
+              field: "temperature",
               label: "Temperature",
               title: "Temperature",
               enabled: true,
@@ -1732,6 +1573,7 @@ export const IPD = {
             {
               name: "spo2",
               id: "spo2",
+              field: "spo2",
               label: "SpO2",
               title: "SpO2",
               enabled: true,
@@ -1741,6 +1583,7 @@ export const IPD = {
             {
               name: "respiratoryRate",
               id: "respiratoryRate",
+              field: "respiratoryRate",
               label: "Respiratory Rate",
               title: "Respiratory Rate",
               enabled: true,
@@ -1750,6 +1593,7 @@ export const IPD = {
             {
               name: "weight",
               id: "weight",
+              field: "weight",
               label: "Weight",
               title: "Weight",
               enabled: true,
@@ -1759,6 +1603,7 @@ export const IPD = {
             {
               name: "height",
               id: "height",
+              field: "height",
               label: "Height",
               title: "Height",
               enabled: true,
@@ -1768,6 +1613,7 @@ export const IPD = {
             {
               name: "generalRbs",
               id: "generalRbs",
+              field: "generalRbs",
               label: "General RBS",
               title: "General RBS",
               enabled: true,
@@ -1779,6 +1625,7 @@ export const IPD = {
         {
           placeholder: "Enter Patient Condition",
           id: "patientCondition",
+          field: "patientCondition",
           title: "Patient Condition During Discharge",
           enabled: true,
           icon: "condition",
@@ -1786,6 +1633,7 @@ export const IPD = {
         {
           placeholder: "Enter Discharge Medications",
           id: "dischargeMedications",
+          field: "dischargeMedications",
           title: "Discharge Medications (Rx)",
           enabled: true,
           icon: "medication",
@@ -1794,6 +1642,7 @@ export const IPD = {
     },
     {
       id: "dischargeAdvice",
+      field: "dischargeAdvice",
       title: "Discharge Advice",
       menuIcon: "basicInfoBg",
       icon: "advice",
@@ -1803,6 +1652,7 @@ export const IPD = {
         {
           placeholder: "Enter Diet Instructions",
           id: "diet",
+          field: "diet",
           title: "Diet",
           enabled: true,
           icon: "diet",
@@ -1810,6 +1660,7 @@ export const IPD = {
         {
           placeholder: "Enter Physical Activity Instructions",
           id: "physicalActivities",
+          field: "physicalActivities",
           title: "Physical Activities",
           enabled: true,
           icon: "activity",
@@ -1817,6 +1668,7 @@ export const IPD = {
         {
           placeholder: "Enter Other Advice",
           id: "otherAdvice",
+          field: "otherAdvice",
           title: "Other Advice",
           enabled: true,
           icon: "advice",
@@ -1824,6 +1676,7 @@ export const IPD = {
         {
           placeholder: "Enter Warning Signs",
           id: "warningSigns",
+          field: "warningSigns",
           title: "Warning Signs",
           enabled: true,
           icon: "warning",
@@ -1831,6 +1684,7 @@ export const IPD = {
         {
           placeholder: "Enter Emergency Contact",
           id: "emergencyContact",
+          field: "emergencyContact",
           title: "Emergency Contact",
           enabled: true,
           icon: "contact",
@@ -1839,6 +1693,7 @@ export const IPD = {
     },
     {
       id: "followUp",
+      field: "followUp",
       title: "Follow Up",
       menuIcon: "basicInfoBg",
       icon: "followUp",
@@ -1848,6 +1703,7 @@ export const IPD = {
         {
           placeholder: "Enter Follow Up Date",
           id: "followUpDate",
+          field: "date",
           title: "Follow Up Date",
           enabled: true,
           icon: "calendar",
@@ -1855,6 +1711,7 @@ export const IPD = {
         {
           placeholder: "Enter Doctor Name",
           id: "followUpDoctor",
+          field: "doctor",
           title: "Follow Up Doctor Name",
           enabled: true,
           icon: "doctor",
@@ -1862,6 +1719,7 @@ export const IPD = {
         {
           placeholder: "Enter Additional Notes",
           id: "additionalNotes",
+          field: "additionalNotes",
           title: "Additional Notes",
           enabled: true,
           icon: "note",
@@ -1870,6 +1728,7 @@ export const IPD = {
     },
     {
       id: "preparedBy",
+      field: "preparedBy",
       title: "Prepared By",
       menuIcon: "basicInfoBg",
       icon: "preparedBy",
@@ -1878,7 +1737,9 @@ export const IPD = {
       children: [
         {
           placeholder: "Enter Name of Person who Prepared",
+          isRedundant: true,
           id: "preparedByPerson",
+          field: "preparedByPerson",
           title: "Discharge Summary Prepared By",
           enabled: true,
           icon: "person",

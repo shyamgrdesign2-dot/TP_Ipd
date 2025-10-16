@@ -55,9 +55,13 @@ import {
   resetCrossReferralForm,
 } from "../../../redux/ipd/crossReferralSlice";
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
-import { getDischargeSummaryData, setProvisionalDiagnosis } from "../../../redux/ipd/dischargeSummarySlice";
+import {
+  getDischargeSummaryData,
+  setProvisionalDiagnosis,
+} from "../../../redux/ipd/dischargeSummarySlice";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
 import PreviewDischargeSummary from "../dischargeSummary/PreviewDischargeSummary";
+import DischargeSummaryReadonly from "../dischargeSummary/DischargeSummaryReadonly";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -89,7 +93,7 @@ const IPDPatientDetails = () => {
   );
   const { medicalRecords } = useSelector((state) => state.medicalRecords);
   const { crossReferralData } = useSelector((state) => state.crossReferral);
-  const { dischargeSummaryData } = useSelector(
+  const { dischargeSummaryData, actualDischargeSummaryData } = useSelector(
     (state) => state.dischargeSummary
   );
   const { printSettings } = useSelector((state) => state.printSettings);
@@ -435,10 +439,27 @@ const IPDPatientDetails = () => {
     navigate(`/ipd/inPatients`);
   };
   const handleCustomizeClick = () => {
-    console.log("INTEL ==> CUSTOMMM print settings");
+    if (activeMenuItem === "dischargeSummary") {
+      navigate("/ipd/discharge-summary/configure-print-settings", {
+        state: {
+          patientDetails,
+          moduleType: "dischargeSummary",
+          data: actualDischargeSummaryData,
+        },
+      });
+    }
   };
   const onHandleSelect = (id) => {
     setActiveMenuItem(id);
+    navigate("/ipd/patient-details", {
+      state: {
+        patientDetails,
+        patient_data,
+        isEditable: false,
+        activeTab: id
+      },
+      replace: true,
+    });
   };
 
   const handleDischargeSummaryPrintPreview = () => {
@@ -552,8 +573,7 @@ const IPDPatientDetails = () => {
       case "dischargeSummary":
         return (
           <div className="ipd-adm-assess-container-readable">
-            {/* <CrossReferralTimeline /> */}
-            <PreviewDischargeSummary />
+            <DischargeSummaryReadonly />
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
                 showEditForm={true}
@@ -594,9 +614,7 @@ const IPDPatientDetails = () => {
               wardBedNumber={patientData.wardBedNumber}
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
-              renderContent={
-                 isDataPresent ? renderContent : null
-              }
+              renderContent={isDataPresent ? renderContent : null}
               showAddCTA={canShowAddCTA}
             />
           )}

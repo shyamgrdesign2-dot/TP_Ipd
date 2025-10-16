@@ -3,7 +3,7 @@ import { isMobile } from "react-device-detect";
 import React, { useEffect, useRef, useState } from "react";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
-import "./styles.scss";
+
 import { Container, Navbar } from "react-bootstrap";
 import { PDFGenerator } from "../../../components/PDFGenerator";
 import {
@@ -15,8 +15,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getDischargeSummaryData } from "../../../redux/ipd/dischargeSummarySlice";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
-// import DischargeSummaryTracker from "../../../components/CollapsibleSection/DischargeSummaryTracker";
-import DischargeSummaryTracker from "./components/CollapsibleSummaryTracker/DischargeSummaryTracker";
 
 const PreviewDischargeSummary = () => {
   const navigate = useNavigate();
@@ -112,73 +110,162 @@ const PreviewDischargeSummary = () => {
 
   return (
     <div>
+      <Navbar className="headerprescription p-0">
+        <Container fluid className="h-100 gx-0 w-100">
+          <Row className="h-100 align-items-center w-100 justify-content-between">
+            <Col sm="auto" md="auto" lg="auto" className="h-100 w-auto">
+              <div className="align-items-center d-flex h-100 gap-2">
+                <div className="border-end h-100 text-center">
+                  <div
+                    onClick={handleBackToSummary}
+                    className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
+                  >
+                    <i className="icon-right" />
+                  </div>
+                </div>
+                <span className="title-digitise-card">
+                  Print Preview (Discharge Summary)
+                </span>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </Navbar>
+
       <div
-        className={`${isMobile ? "p-0" : ""}  rounded-4 no-scrollbar d-flex`}
+        className={`${
+          isMobile ? "p-0" : ""
+        } w-100 bg-body wrapper2 prescription-wrapper`}
       >
-        <DischargeSummaryTracker />
-        <div className="discharge-summary-print-preview">
-          <div className="rounded-20px bg-white overflow-hidden no-scrollbar">
-            <div ref={divRef} className="printheight  no-scrollbar">
-              <div className="position-relative h-100">
-                <Document
-                  loading={
-                    <Spin
-                      style={{
-                        position: "absolute",
-                        zIndex: 0,
-                        left: "50%",
-                        top: "50%",
-                      }}
-                      tip="Loading PDF..."
-                    />
-                  }
-                  error={
-                    <Spin
-                      style={{
-                        position: "absolute",
-                        zIndex: 0,
-                        left: "50%",
-                        top: "50%",
-                      }}
-                      tip="Loading PDF..."
-                    />
-                  }
-                  noData={
-                    <Spin
-                      style={{
-                        position: "absolute",
-                        zIndex: 0,
-                        left: "50%",
-                        top: "50%",
-                      }}
-                      tip="Loading PDF..."
-                    />
-                  }
-                  file={pdfUrl}
-                  onLoadSuccess={onDocumentLoadSuccess}
+        <Row gutter={{ xl: 40, lg: 0 }} justify="center">
+          <Col md={7} sm={7} xl={5}>
+            {!isMobile && (
+              <div
+                className="d-flex align-items-center justify-content-end h-38"
+                onClick={handleDrawerConfigureSettings}
+              >
+                <i className="icon-setting me-2"></i>
+                <span className="text-decoration-underline fw-medium cursor-pointer">
+                  Configure Print Setting
+                </span>
+              </div>
+            )}
+            <div
+              className={`${
+                !isMobile
+                  ? "rounded-20px mt-20"
+                  : "border-top-0 border-start-0 border-bottom-0"
+              } border p-20 bg-white d-flex justify-content-between flex-column`}
+              style={{
+                height: !isMobile
+                  ? "calc(100vh - 160px)"
+                  : "calc(100vh - 60px)",
+              }}
+            >
+              <div>
+                {isMobile && (
+                  <div
+                    className="d-flex align-items-center mb-14 h-38"
+                    onClick={handleDrawerConfigureSettings}
+                  >
+                    <i className="icon-setting me-2"></i>
+                    <span className="text-decoration-underline fw-medium cursor-pointer">
+                      Configure Print Setting
+                    </span>
+                  </div>
+                )}
+                <Button
+                  type="text"
+                  className="btn btnicon20 align-items-center d-flex mb-3 btn-41 w-100 btn-input"
+                  icon={<i className="icon-Print" />}
+                  onClick={handlePrintClick}
+                  disabled={!printBlob}
                 >
-                  {Array.apply(null, Array(numPages))
-                    .map((x, i) => i + 1)
-                    .map((page) => {
-                      return (
-                        <Page
-                          key={Math.random()}
-                          className={
-                            printBlob ? "react-pdf__Page_afterload" : null
-                          }
-                          loading={null}
-                          width={divWidth}
-                          pageNumber={page}
-                          renderTextLayer={false}
-                          renderAnnotationLayer={false}
-                        />
-                      );
-                    })}
-                </Document>
+                  <span className="fw-semibold">Print</span>
+                  <i className="icon-right iconrotate180 ms-auto"></i>
+                </Button>
+                <Button
+                  type="text"
+                  className="btn btnicon20 align-items-center d-flex mb-3 btn-41 w-100 btn-input"
+                  icon={<i className="icon-download" />}
+                  onClick={handleDownloadClick}
+                  disabled={!pdfUrl}
+                >
+                  <span className="fw-semibold">Download</span>
+                  <i className="icon-right iconrotate180 ms-auto"></i>
+                </Button>
               </div>
             </div>
-          </div>
-        </div>
+          </Col>
+          <Col md={17} sm={17} xl={12}>
+            <div className={isMobile ? "p-20" : ""}>
+              <div className="d-flex align-items-center justify-content-between">
+                <div className="titleprint">Preview</div>
+              </div>
+              <div className="rounded-20px bg-white mt-20 overflow-hidden">
+                <div ref={divRef} className="printheight">
+                  <div className="position-relative h-100">
+                    <Document
+                      loading={
+                        <Spin
+                          style={{
+                            position: "absolute",
+                            zIndex: 0,
+                            left: "50%",
+                            top: "50%",
+                          }}
+                          tip="Loading PDF..."
+                        />
+                      }
+                      error={
+                        <Spin
+                          style={{
+                            position: "absolute",
+                            zIndex: 0,
+                            left: "50%",
+                            top: "50%",
+                          }}
+                          tip="Loading PDF..."
+                        />
+                      }
+                      noData={
+                        <Spin
+                          style={{
+                            position: "absolute",
+                            zIndex: 0,
+                            left: "50%",
+                            top: "50%",
+                          }}
+                          tip="Loading PDF..."
+                        />
+                      }
+                      file={pdfUrl}
+                      onLoadSuccess={onDocumentLoadSuccess}
+                    >
+                      {Array.apply(null, Array(numPages))
+                        .map((x, i) => i + 1)
+                        .map((page) => {
+                          return (
+                            <Page
+                              key={Math.random()}
+                              className={
+                                printBlob ? "react-pdf__Page_afterload" : null
+                              }
+                              loading={null}
+                              width={divWidth}
+                              pageNumber={page}
+                              renderTextLayer={false}
+                              renderAnnotationLayer={false}
+                            />
+                          );
+                        })}
+                    </Document>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Col>
+        </Row>
       </div>
     </div>
   );

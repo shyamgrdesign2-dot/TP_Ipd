@@ -158,7 +158,11 @@ const CourseInHospital = (props) => {
         (Array.isArray(chronologicalSummary) ||
           Object.keys(chronologicalSummary).length > 0)
       ) {
-        const transformed = transformChronologicalData(chronologicalSummary);
+        console.log('INTEL ==> chronologicalSummary', chronologicalSummary)
+        const transformed = Array.isArray(chronologicalSummary) && !chronologicalSummary?.[0]?.entry
+          ? chronologicalSummary
+          : transformChronologicalData(chronologicalSummary);
+
         // Ensure we return a valid Slate structure
         return Array.isArray(transformed) && transformed.length > 0
           ? transformed

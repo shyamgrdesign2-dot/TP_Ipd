@@ -91,6 +91,10 @@ const ExaminationSection = (props) => {
   }
 
   const renderEditableExamination = () => {
+    console.log(
+      "INTEL ==> physicalExaminationBasicData",
+      physicalExaminationBasicData
+    );
     return (
       <div className="examinations-parent-container">
         {sectionData?.children?.filter((item) => item.enabled).map((item) => {

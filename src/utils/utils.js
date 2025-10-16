@@ -2007,11 +2007,9 @@ export const getWelcomePlatformName = () => {
 };
 
 
-// mapper.js
 export function mapSectionsWithData(structure, apiResponse) {
   return structure.map((section) => {
-    // top-level data object for this section
-    const sectionData = apiResponse[section.id] || {};
+    const sectionData = apiResponse[section.field] || {};
 
     let total = 0;
     let filled = 0;
@@ -2022,14 +2020,26 @@ export function mapSectionsWithData(structure, apiResponse) {
       let hasData = false;
 
       // Check if nested object/array exists in API response
-      if (Array.isArray(sectionData[child.id])) {
-        hasData = sectionData[child.id].length > 0;
-      } else if (typeof sectionData[child.id] === "object" && sectionData[child.id] !== null) {
-        hasData = Object.keys(sectionData[child.id]).some(
-          (key) => !!sectionData[child.id][key]
-        );
+      if (child?.isRedundant) {
+        if (Array.isArray(sectionData)) {
+          hasData = sectionData?.length > 0;
+        } else if (typeof sectionData === "object" && sectionData !== null) {
+          hasData = Object.keys(sectionData).some(
+            (key) => !!sectionData[key]
+          );
+        } else {
+          hasData = !!sectionData;
+        }
       } else {
-        hasData = !!sectionData[child.id];
+        if (Array.isArray(sectionData[child.field])) {
+          hasData = sectionData[child.field].length > 0;
+        } else if (typeof sectionData[child.field] === "object" && sectionData[child.field] !== null) {
+          hasData = Object.keys(sectionData[child.field]).some(
+            (key) => !!sectionData[child.field][key]
+          );
+        } else {
+          hasData = !!sectionData[child.field];
+        }
       }
 
       if (hasData) filled++;

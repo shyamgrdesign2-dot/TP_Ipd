@@ -40,7 +40,7 @@ const GynecHistory = (props) => {
   const renderAutoFillButton = useCallback(() => {
     const { gyneacHistory: lastGyneacHistory = {} } =
       lastPrescriptionDataForAssessment || {};
-    if (!lastRxDate) return null;
+    if (!lastRxDate || !lastGyneacHistory) return null;
     return (
       <AutoFillButton
         refCallback={setAutoFillButtonRef}
@@ -51,7 +51,7 @@ const GynecHistory = (props) => {
             dispatch(setGynecHistoryData(gyneacHistoryBackup));
             return;
           }
-          if (lastGyneacHistory.length && !gynecHistoryData?.length) {
+          if (lastGyneacHistory?.length && !gynecHistoryData?.length) {
             dispatch(setGynecHistoryData(lastGyneacHistory));
           } else {
             dispatch(setGyneacHistoryBackup(gynecHistoryData));

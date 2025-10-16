@@ -142,47 +142,6 @@ const DischargeSummary = (props) => {
         });
   }, []);
 
-  const addDataToStore = (data) => {
-    if (data) {
-      dispatch(setChiefComplaint(data?.basicInfo?.chiefComplaint || []));
-      dispatch(
-        setMedicalHistoryData(data?.basicInfo?.pastMedicalHistory || [])
-      );
-      dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || []));
-      dispatch(addObstetricDetails(data?.basicInfo?.obstetricHistory || []));
-      dispatch(setVitalsData(data?.physicalExamination?.vitals || {}));
-      dispatch(
-        setPhysicalExaminationProvisionalDiagnosisData(
-          data?.physicalExamination?.provisionalDiagnosis || []
-        )
-      );
-      dispatch(
-        setPhysicalExaminationOthersData(
-          data?.physicalExamination?.others || []
-        )
-      );
-      dispatch(
-        setPhysicalExaminationBasicData(
-          data?.physicalExamination?.examination || {}
-        )
-      );
-      const functionalAssessmentWithoutReferredDoc = {
-        ...data?.functionalAssessment,
-      };
-      delete functionalAssessmentWithoutReferredDoc.referredToPhysiotherapyForReview;
-      dispatch(
-        setFunctionalAssessmentData(
-          functionalAssessmentWithoutReferredDoc || {}
-        )
-      );
-      dispatch(
-        setReferredDocForReview(
-          data?.functionalAssessment?.referredToPhysiotherapyForReview || null
-        )
-      );
-    }
-  };
-
   useEffect(() => {
     if (isEditable)
       dispatch(
@@ -225,9 +184,6 @@ const DischargeSummary = (props) => {
   };
 
   const handleAddEditPhysicalExamination = (data) => {
-    setPhysicalExaminationBasicData({...assessmentData?.physicalExaminationBasicData})
-    setVitalsData({...assessmentData?.vitalsData});
-    setPhysicalExaminationOthersData({...assessmentData?.physicalExaminationOthersData});
     setSectionData(data);
     setShowPhysicalExaminationDrawer((prev) => !prev);
   };
@@ -274,13 +230,16 @@ const DischargeSummary = (props) => {
                   className="flex-column-gap-16"
                   key={`${JSON.stringify(
                     assessmentData?.physicalExaminationOthersData
-                  )}-${JSON.stringify(assessmentData?.physicalExaminationBasicData)}-${JSON.stringify(assessmentData?.vitalsData)}`}
+                  )}-${JSON.stringify(
+                    assessmentData?.physicalExaminationBasicData
+                  )}-${JSON.stringify(assessmentData?.vitalsData)}`}
                 >
                   <PhysicalExamination
                     isEditable={false}
                     {...props}
                     sectionData={data}
                     isDischargeSummary={true}
+                    isCollapsible={true}
                   >
                     <div onClick={() => handleAddEditPhysicalExamination(data)}>
                       <GenericCard
@@ -406,21 +365,7 @@ const DischargeSummary = (props) => {
 
     // Helper function to format chronological summary
     const formatChronologicalSummary = (chronologicalSummary, arr) => {
-      if (!Object.keys(chronologicalSummary).length || !Array.isArray(arr) || !arr?.length) {
-        return [];
-      }
-      const data = [];
-      Object.entries(chronologicalSummary).forEach(([index, entry]) => {
-        if (entry.date && entry.day && arr?.[index] && entry.module) {
-          data.push({
-            date: entry.date || "",
-            day: entry.day || "",
-            entry: [arr[index]] || [],
-            module: entry.module || "",
-          });
-        }
-      });
-      return data;
+      return arr || chronologicalSummary;
     };
 
     // Helper function to format OT Notes surgeries
@@ -500,7 +445,132 @@ const DischargeSummary = (props) => {
       },
       physicalExamination: {
         vitals: assessmentData.vitalsData,
-        generalExamination: assessmentData.physicalExaminationBasicData || {},
+        generalExamination: {
+          "pallor": {
+              "title": "Present",
+              "notes": [
+                  {
+                      "type": "paragraph",
+                      "children": [
+                          {
+                              "text": "okoksadfsdf"
+                          }
+                      ]
+                  }
+              ],
+              "value": 1
+          },
+          "clubbing": {
+              "title": "Absent",
+              "notes": [
+                  {
+                      "type": "paragraph",
+                      "children": [
+                          {
+                              "text": "gjhklasdf"
+                          }
+                      ]
+                  }
+              ],
+              "value": 2
+          },
+          "cyanosis": {
+              "title": "",
+              "notes": [],
+              "value": 0
+          },
+          "lymphadenopathy": {
+              "title": "Present",
+              "notes": [],
+              "value": 1
+          },
+          "edema": {
+              "title": "Absent",
+              "notes": [],
+              "value": 0
+          },
+          "hydration": {
+              "title": "Normal",
+              "notes": [
+                  {
+                      "type": "paragraph",
+                      "children": [
+                          {
+                              "text": "tyuon "
+                          }
+                      ]
+                  }
+              ],
+              "value": 0
+          },
+          "cvs": {
+              "title": "Abnormal",
+              "notes": [
+                  {
+                      "type": "paragraph",
+                      "children": [
+                          {
+                              "text": "g"
+                          }
+                      ]
+                  }
+              ],
+              "value": 0
+          },
+          "breast_chest": {
+              "title": "WNL",
+              "notes": [
+                  {
+                      "type": "paragraph",
+                      "children": [
+                          {
+                              "text": "fgh"
+                          }
+                      ]
+                  }
+              ],
+              "value": 0
+          },
+          "abdomen": {
+              "title": "Abnormal",
+              "notes": [],
+              "value": 2
+          },
+          "neurological_psychosocial": {
+              "title": "WNL",
+              "notes": [],
+              "value": 1
+          },
+          "back": {
+              "title": "Abnormal",
+              "notes": [
+                  {
+                      "type": "paragraph",
+                      "children": [
+                          {
+                              "text": "qqq"
+                          }
+                      ]
+                  }
+              ],
+              "value": 2
+          },
+          "heent": {
+              "title": "WNL",
+              "notes": [
+                  {
+                      "type": "paragraph",
+                      "children": [
+                          {
+                              "text": "3336"
+                          }
+                      ]
+                  }
+              ],
+              "value": 1
+          },
+      }, 
+      // assessmentData.physicalExaminationBasicData || {},
         others: assessmentData.physicalExaminationOthersData || [],
       },
       functionalAssessmentTimeOfAdmission: {
@@ -512,9 +582,11 @@ const DischargeSummary = (props) => {
         others: assessmentData.functionalAssessmentData.others,
       },
       courseInHospital: {
-        chronologicalSummary: formatChronologicalSummary(dischargeSummaryState?.chronologicalSummary,
+        chronologicalSummary: formatChronologicalSummary(
+          dischargeSummaryState?.chronologicalSummary,
           dischargeSummaryState.dischargeSummaryData?.courseInHospital
-            ?.chronologicalSummary),
+            ?.chronologicalSummary
+        ),
         treatmentGiven: formatTreatmentGiven(
           dischargeSummaryState.treatmentNotes
         ),

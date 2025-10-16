@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, current } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiDischargeSummary from "../../api/services/ipd/ApiDischargeSummary";
 
 // Helper function to map module to code
@@ -198,18 +198,28 @@ const dischargeSummarySlice = createSlice({
       if (!state.dischargeSummaryData) {
         state.dischargeSummaryData = {};
       }
-      if (!state.dischargeSummaryData?.diagnosisAndSurgery) {
-        state.dischargeSummaryData.diagnosisAndSurgery = {};
+      if (!state.dischargeSummaryData.diagnosisAndSurgery) {
+        state.dischargeSummaryData = {
+          ...state.dischargeSummaryData,
+          diagnosisAndSurgery: {}
+        };
       }
-      state.dischargeSummaryData.diagnosisAndSurgery.provisionalDiagnosis =
-        action.payload;
+      state.dischargeSummaryData.diagnosisAndSurgery = {
+        ...state.dischargeSummaryData.diagnosisAndSurgery,
+        provisionalDiagnosis: action.payload
+      };
     },
     setFinalDiagnosis: (state, action) => {
-      if (!state.dischargeSummaryData?.diagnosisAndSurgery) {
+      if (!state.dischargeSummaryData) {
+        state.dischargeSummaryData = {};
+      }
+      if (!state.dischargeSummaryData.diagnosisAndSurgery) {
         state.dischargeSummaryData.diagnosisAndSurgery = {};
       }
-      state.dischargeSummaryData.diagnosisAndSurgery.finalDiagnosis =
-        action.payload;
+      state.dischargeSummaryData.diagnosisAndSurgery = {
+        ...state.dischargeSummaryData.diagnosisAndSurgery,
+        finalDiagnosis: action.payload
+      };
     },
     setDiet: (state, action) => {
       state.dischargeSummaryData.diet = action.payload;

@@ -26,21 +26,20 @@ const PhysicalExamination = (props) => {
     sectionData,
     showCollapsibleWrapper = true,
     children,
+    isCollapsible,
   } = props || {};
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
-  
+
   const handleOthersChange = (data) => {
     dispatch(setPhysicalExaminationOthersData(data));
   };
-
 
   const renderOthers = (data) => {
     if (!isEditable && isEmptyRichText(physicalExaminationOthersData))
       return null;
     return (
-      <div
-      >
+      <div>
         <RichTextEditWrapper
           readOnly={!isEditable}
           showToolbar={isEditable}
@@ -88,7 +87,7 @@ const PhysicalExamination = (props) => {
     );
   };
 
-  const renderChildren = useCallback(() => {
+  const renderChildren = () => {
     return (
       <div className="flex-column-gap-16">
         {sectionData?.children?.map((item) => {
@@ -112,7 +111,7 @@ const PhysicalExamination = (props) => {
         {children && children}
       </div>
     );
-  }, [physicalExaminationOthersData, vitalsData, physicalExaminationBasicData, sectionData]);
+  };
   if (
     !isEditable &&
     !Object.keys(physicalExaminationBasicData)?.length &&
@@ -127,7 +126,7 @@ const PhysicalExamination = (props) => {
           title={sectionData?.title}
           data-testid={sectionData?.id}
           icon={assessmentsIcons[`${sectionData?.id}PcDark`]}
-          collapsible={isEditable}
+          collapsible={isCollapsible || isEditable}
           width={"100%"}
           className={`collapsible-wrapper-class ${
             isEditable ? "" : "collapsible-wrapper-class-readonly"

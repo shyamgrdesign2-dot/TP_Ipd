@@ -262,7 +262,7 @@ const renderDischargeMedicationTable = (medications, fontFamily) => {
 
         <View style={styles.table}>
           {/* Table Header */}
-          <View style={styles.tableHeader}>
+          <View fixed style={styles.tableHeader}>
             <View style={[styles.cellBase, styles.cellMedicineName]}>
               <Text style={[styles.headerText, { fontFamily }]}>
                 MEDICINE NAME

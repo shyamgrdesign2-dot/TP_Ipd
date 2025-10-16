@@ -86,13 +86,13 @@ const AssessmentsForm = (props) => {
     }
   }, [assessments]);
 
-  useEffect(() => {
-    const { date, time } = assessmentData.assessmentsData || {};
-    if (date && time) {
-      setFilledDate(new Date(date));
-      setFilledAtTime(new Date(time));
-    }
-  }, [assessmentData.assessmentsData]);
+  // useEffect(() => {
+  //   const { date, time } = assessmentData.assessmentsData || {};
+  //   if (date && time) {
+  //     setFilledDate(new Date(date));
+  //     setFilledAtTime(new Date(time));
+  //   }
+  // }, [assessmentData.assessmentsData]);
 
   useEffect(() => {
     if (
