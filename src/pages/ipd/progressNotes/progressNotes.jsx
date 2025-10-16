@@ -508,7 +508,7 @@ const ProgressNotes = (props) => {
               }}
               headerOffset={72}
               renderTopSection={renderFilledBySection}
-              renderBottomSection={renderCustomModuleSection}
+              // renderBottomSection={renderCustomModuleSection}
               showAutoFill={!!progressNotes?.length}
               autoFillTitle={
                 progressNotes && progressNotes.length > 0
