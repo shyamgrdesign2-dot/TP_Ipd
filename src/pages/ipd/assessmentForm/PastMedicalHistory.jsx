@@ -11,6 +11,7 @@ import {
   formatDateToShortMonthYear,
   mergeArraysOfObjects,
 } from "../../../utils/utils";
+import { useDischargeSummaryData } from "../dischargeSummary/utils/useDischargeSummaryData";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const GenericCard = createRemoteComponent("GenericCard");
@@ -22,6 +23,7 @@ const PastMedicalHistory = (props) => {
     sectionData,
     isDischargeSummary = false,
   } = props || {};
+  const { showLastUpdatedAt } = useDischargeSummaryData();
   let { medicalHistoryData } = useSelector((state) => state.prescription);
   const { lastPrescriptionDataForAssessment, lastPrescriptionDate } =
     useSelector((state) => state.assessment);
@@ -125,6 +127,7 @@ const PastMedicalHistory = (props) => {
           console.log("save");
         }}
         renderBody={renderMedicalHistory}
+        headerComponent={showLastUpdatedAt}
       />
       {addMedicalHistoryDrawer && (
         <Drawer

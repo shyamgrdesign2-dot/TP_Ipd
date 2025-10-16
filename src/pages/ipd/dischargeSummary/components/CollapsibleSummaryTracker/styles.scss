@@ -175,7 +175,8 @@ $radius-md: 10px;
   }
 
   &__text {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 4px;
     min-width: 0;
   }
@@ -208,8 +209,11 @@ $icon-size: 32px;
 .sumtrack-full-container {
   position: relative;
   width: 400px;
-  padding: 0 18px;
-  margin-bottom: 100px;
+  padding: 0 0 0 18px;
+  padding-bottom: 100px;
+  max-height: calc(100vh - 148px);
+  min-height: 0;
+  overflow: auto;
   .sumtrack-headings {
     padding: 18px 0;
   }
@@ -237,8 +241,8 @@ $icon-size: 32px;
     width: 1px;
     background: repeating-linear-gradient(
       to bottom,
-      #a461d8,
-      #a461d8 5px,
+      hsla(278, 56%, 61%, 0.3),
+      hsla(278, 56%, 61%, 0.3) 5px,
       transparent 5px,
       transparent 10px
     );

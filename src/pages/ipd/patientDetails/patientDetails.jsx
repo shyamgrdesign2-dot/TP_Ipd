@@ -110,6 +110,7 @@ const IPDPatientDetails = () => {
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
   const fileInputRef = useRef(null);
+  const dischargeSummaryReadonlyRef = useRef(null);
 
   const dispatch = useDispatch();
 
@@ -171,6 +172,7 @@ const IPDPatientDetails = () => {
         patient_data,
         patientDetails,
         isEditable: true,
+        activeMenuItem
       },
     });
   };
@@ -572,14 +574,16 @@ const IPDPatientDetails = () => {
         );
       case "dischargeSummary":
         return (
-          <div className="ipd-adm-assess-container-readable">
-            <DischargeSummaryReadonly />
+          <div className="ipd-adm-assess-container-readable ipd-discharge-summary-container-readable">
+            <DischargeSummaryReadonly  ref={dischargeSummaryReadonlyRef} />
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
                 showEditForm={true}
                 onEdit={handleDischargeSummaryClick}
                 onPrintPreview={handleDischargeSummaryPrintPreview}
-                onPrint={() => console.log("Print")}
+                onPrint={() => {
+                  dischargeSummaryReadonlyRef?.current?.handlePrintClick();
+                }}
                 onSettings={handleCustomizeClick}
                 onDownload={() => console.log("Download")}
               />

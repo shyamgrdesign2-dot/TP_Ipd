@@ -2,7 +2,7 @@
 // =============================================================================
 // Comprehensive mixins for typography combinations that can be used without imports
 
-@import 'themeVariables';
+@import "themeVariables";
 
 // Base Typography Mixin
 // =============================================================================
@@ -15,190 +15,594 @@
 
 // Font Size Mixins
 // =============================================================================
-@mixin font-size-10 { font-size: $font-size-10; }
-@mixin font-size-12 { font-size: $font-size-12; }
-@mixin font-size-14 { font-size: $font-size-14; }
-@mixin font-size-16 { font-size: $font-size-16; }
-@mixin font-size-18 { font-size: $font-size-18; }
-@mixin font-size-20 { font-size: $font-size-20; }
-@mixin font-size-24 { font-size: $font-size-24; }
+@mixin font-size-10 {
+  font-size: $font-size-10;
+}
+@mixin font-size-12 {
+  font-size: $font-size-12;
+}
+@mixin font-size-14 {
+  font-size: $font-size-14;
+}
+@mixin font-size-16 {
+  font-size: $font-size-16;
+}
+@mixin font-size-18 {
+  font-size: $font-size-18;
+}
+@mixin font-size-20 {
+  font-size: $font-size-20;
+}
+@mixin font-size-24 {
+  font-size: $font-size-24;
+}
 
 // Font Weight Mixins
 // =============================================================================
-@mixin font-weight-normal { font-weight: $font-weight-normal; }
-@mixin font-weight-semibold { font-weight: $font-weight-semibold; }
-@mixin font-weight-bold { font-weight: $font-weight-bold; }
-@mixin font-weight-bigbold { font-weight: $font-weight-bigbold; }
+@mixin font-weight-normal {
+  font-weight: $font-weight-normal;
+}
+@mixin font-weight-semibold {
+  font-weight: $font-weight-semibold;
+}
+@mixin font-weight-bold {
+  font-weight: $font-weight-bold;
+}
+@mixin font-weight-bigbold {
+  font-weight: $font-weight-bigbold;
+}
 
 // Color Mixins
 // =============================================================================
-@mixin text-color { color: $text-color !important; }
-@mixin text-light { color: $text-light !important; }
-@mixin text-primary { color: $text-primary !important; }
-@mixin text-primary-dark { color: $text-primary-dark !important; }
-@mixin text-secondary { color: $text-secondary !important; }
-@mixin text-tertiary { color: $text-tertiary !important; }
-@mixin text-light-gray { color: $text-light-gray !important; }
+@mixin text-color {
+  color: $text-color !important;
+}
+@mixin text-light {
+  color: $text-light !important;
+}
+@mixin text-primary {
+  color: $text-primary !important;
+}
+@mixin text-primary-dark {
+  color: $text-primary-dark !important;
+}
+@mixin text-secondary {
+  color: $text-secondary !important;
+}
+@mixin text-tertiary {
+  color: $text-tertiary !important;
+}
+@mixin text-light-gray {
+  color: $text-light-gray !important;
+}
 // Background Color Mixins
 // =============================================================================
-@mixin bg-primary { background-color: $bg-primary !important; }
-@mixin bg-tertiary { background-color: $bg-tertiary !important; }
+@mixin bg-primary {
+  background-color: $bg-primary !important;
+}
+@mixin bg-tertiary {
+  background-color: $bg-tertiary !important;
+}
 
 // Combined Typography Mixins (Size + Weight)
 // =============================================================================
 
 // Font Size 10px combinations
-@mixin fs10-normal { @include typography-base; @include font-size-10; @include font-weight-normal; }
-@mixin fs10-semibold { @include typography-base; @include font-size-10; @include font-weight-semibold; }
-@mixin fs10-bold { @include typography-base; @include font-size-10; @include font-weight-bold; }
-@mixin fs10-bigbold { @include typography-base; @include font-size-10; @include font-weight-bigbold; }
+@mixin fs10-normal {
+  @include typography-base;
+  @include font-size-10;
+  @include font-weight-normal;
+}
+@mixin fs10-semibold {
+  @include typography-base;
+  @include font-size-10;
+  @include font-weight-semibold;
+}
+@mixin fs10-bold {
+  @include typography-base;
+  @include font-size-10;
+  @include font-weight-bold;
+}
+@mixin fs10-bigbold {
+  @include typography-base;
+  @include font-size-10;
+  @include font-weight-bigbold;
+}
 
 // Font Size 12px combinations
-@mixin fs12-normal { @include typography-base; @include font-size-12; @include font-weight-normal; }
-@mixin fs12-semibold { @include typography-base; @include font-size-12; @include font-weight-semibold; }
-@mixin fs12-bold { @include typography-base; @include font-size-12; @include font-weight-bold; }
-@mixin fs12-bigbold { @include typography-base; @include font-size-12; @include font-weight-bigbold; }
+@mixin fs12-normal {
+  @include typography-base;
+  @include font-size-12;
+  @include font-weight-normal;
+}
+@mixin fs12-semibold {
+  @include typography-base;
+  @include font-size-12;
+  @include font-weight-semibold;
+}
+@mixin fs12-bold {
+  @include typography-base;
+  @include font-size-12;
+  @include font-weight-bold;
+}
+@mixin fs12-bigbold {
+  @include typography-base;
+  @include font-size-12;
+  @include font-weight-bigbold;
+}
 
 // Font Size 14px combinations
-@mixin fs14-normal { @include typography-base; @include font-size-14; @include font-weight-normal; }
-@mixin fs14-semibold { @include typography-base; @include font-size-14; @include font-weight-semibold; }
-@mixin fs14-bold { @include typography-base; @include font-size-14; @include font-weight-bold; }
-@mixin fs14-bigbold { @include typography-base; @include font-size-14; @include font-weight-bigbold; }
+@mixin fs14-normal {
+  @include typography-base;
+  @include font-size-14;
+  @include font-weight-normal;
+}
+@mixin fs14-semibold {
+  @include typography-base;
+  @include font-size-14;
+  @include font-weight-semibold;
+}
+@mixin fs14-bold {
+  @include typography-base;
+  @include font-size-14;
+  @include font-weight-bold;
+}
+@mixin fs14-bigbold {
+  @include typography-base;
+  @include font-size-14;
+  @include font-weight-bigbold;
+}
 
 // Font Size 16px combinations
-@mixin fs16-normal { @include typography-base; @include font-size-16; @include font-weight-normal; }
-@mixin fs16-semibold { @include typography-base; @include font-size-16; @include font-weight-semibold; }
-@mixin fs16-bold { @include typography-base; @include font-size-16; @include font-weight-bold; }
-@mixin fs16-bigbold { @include typography-base; @include font-size-16; @include font-weight-bigbold; }
+@mixin fs16-normal {
+  @include typography-base;
+  @include font-size-16;
+  @include font-weight-normal;
+}
+@mixin fs16-semibold {
+  @include typography-base;
+  @include font-size-16;
+  @include font-weight-semibold;
+}
+@mixin fs16-bold {
+  @include typography-base;
+  @include font-size-16;
+  @include font-weight-bold;
+}
+@mixin fs16-bigbold {
+  @include typography-base;
+  @include font-size-16;
+  @include font-weight-bigbold;
+}
 
 // Font Size 18px combinations
-@mixin fs18-normal { @include typography-base; @include font-size-18; @include font-weight-normal; }
-@mixin fs18-semibold { @include typography-base; @include font-size-18; @include font-weight-semibold; }
-@mixin fs18-bold { @include typography-base; @include font-size-18; @include font-weight-bold; }
-@mixin fs18-bigbold { @include typography-base; @include font-size-18; @include font-weight-bigbold; }
+@mixin fs18-normal {
+  @include typography-base;
+  @include font-size-18;
+  @include font-weight-normal;
+}
+@mixin fs18-semibold {
+  @include typography-base;
+  @include font-size-18;
+  @include font-weight-semibold;
+}
+@mixin fs18-bold {
+  @include typography-base;
+  @include font-size-18;
+  @include font-weight-bold;
+}
+@mixin fs18-bigbold {
+  @include typography-base;
+  @include font-size-18;
+  @include font-weight-bigbold;
+}
 
 // Font Size 20px combinations
-@mixin fs20-normal { @include typography-base; @include font-size-20; @include font-weight-normal; }
-@mixin fs20-semibold { @include typography-base; @include font-size-20; @include font-weight-semibold; }
-@mixin fs20-bold { @include typography-base; @include font-size-20; @include font-weight-bold; }
-@mixin fs20-bigbold { @include typography-base; @include font-size-20; @include font-weight-bigbold; }
+@mixin fs20-normal {
+  @include typography-base;
+  @include font-size-20;
+  @include font-weight-normal;
+}
+@mixin fs20-semibold {
+  @include typography-base;
+  @include font-size-20;
+  @include font-weight-semibold;
+}
+@mixin fs20-bold {
+  @include typography-base;
+  @include font-size-20;
+  @include font-weight-bold;
+}
+@mixin fs20-bigbold {
+  @include typography-base;
+  @include font-size-20;
+  @include font-weight-bigbold;
+}
 
 // Font Size 24px combinations
-@mixin fs24-normal { @include typography-base; @include font-size-24; @include font-weight-normal; }
-@mixin fs24-semibold { @include typography-base; @include font-size-24; @include font-weight-semibold; }
-@mixin fs24-bold { @include typography-base; @include font-size-24; @include font-weight-bold; }
-@mixin fs24-bigbold { @include typography-base; @include font-size-24; @include font-weight-bigbold; }
+@mixin fs24-normal {
+  @include typography-base;
+  @include font-size-24;
+  @include font-weight-normal;
+}
+@mixin fs24-semibold {
+  @include typography-base;
+  @include font-size-24;
+  @include font-weight-semibold;
+}
+@mixin fs24-bold {
+  @include typography-base;
+  @include font-size-24;
+  @include font-weight-bold;
+}
+@mixin fs24-bigbold {
+  @include typography-base;
+  @include font-size-24;
+  @include font-weight-bigbold;
+}
 
 // Combined Typography + Color Mixins
 // =============================================================================
 
 // Default text color combinations
-@mixin fs10-normal-text { @include fs10-normal; @include text-color; }
-@mixin fs10-semibold-text { @include fs10-semibold; @include text-color; }
-@mixin fs10-bold-text { @include fs10-bold; @include text-color; }
-@mixin fs10-bigbold-text { @include fs10-bigbold; @include text-color; }
+@mixin fs10-normal-text {
+  @include fs10-normal;
+  @include text-color;
+}
+@mixin fs10-semibold-text {
+  @include fs10-semibold;
+  @include text-color;
+}
+@mixin fs10-bold-text {
+  @include fs10-bold;
+  @include text-color;
+}
+@mixin fs10-bigbold-text {
+  @include fs10-bigbold;
+  @include text-color;
+}
 
-@mixin fs12-normal-text { @include fs12-normal; @include text-color; }
-@mixin fs12-semibold-text { @include fs12-semibold; @include text-color; }
-@mixin fs12-bold-text { @include fs12-bold; @include text-color; }
-@mixin fs12-bigbold-text { @include fs12-bigbold; @include text-color; }
+@mixin fs12-normal-text {
+  @include fs12-normal;
+  @include text-color;
+}
+@mixin fs12-semibold-text {
+  @include fs12-semibold;
+  @include text-color;
+}
+@mixin fs12-bold-text {
+  @include fs12-bold;
+  @include text-color;
+}
+@mixin fs12-bigbold-text {
+  @include fs12-bigbold;
+  @include text-color;
+}
 
-@mixin fs14-normal-text { @include fs14-normal; @include text-color; }
-@mixin fs14-semibold-text { @include fs14-semibold; @include text-color; }
-@mixin fs14-bold-text { @include fs14-bold; @include text-color; }
-@mixin fs14-bigbold-text { @include fs14-bigbold; @include text-color; }
+@mixin fs14-normal-text {
+  @include fs14-normal;
+  @include text-color;
+}
+@mixin fs14-semibold-text {
+  @include fs14-semibold;
+  @include text-color;
+}
+@mixin fs14-bold-text {
+  @include fs14-bold;
+  @include text-color;
+}
+@mixin fs14-bigbold-text {
+  @include fs14-bigbold;
+  @include text-color;
+}
 
-@mixin fs16-normal-text { @include fs16-normal; @include text-color; }
-@mixin fs16-semibold-text { @include fs16-semibold; @include text-color; }
-@mixin fs16-bold-text { @include fs16-bold; @include text-color; }
-@mixin fs16-bigbold-text { @include fs16-bigbold; @include text-color; }
+@mixin fs16-normal-text {
+  @include fs16-normal;
+  @include text-color;
+}
+@mixin fs16-semibold-text {
+  @include fs16-semibold;
+  @include text-color;
+}
+@mixin fs16-bold-text {
+  @include fs16-bold;
+  @include text-color;
+}
+@mixin fs16-bigbold-text {
+  @include fs16-bigbold;
+  @include text-color;
+}
 
-@mixin fs18-normal-text { @include fs18-normal; @include text-color; }
-@mixin fs18-semibold-text { @include fs18-semibold; @include text-color; }
-@mixin fs18-bold-text { @include fs18-bold; @include text-color; }
-@mixin fs18-bigbold-text { @include fs18-bigbold; @include text-color; }
+@mixin fs18-normal-text {
+  @include fs18-normal;
+  @include text-color;
+}
+@mixin fs18-semibold-text {
+  @include fs18-semibold;
+  @include text-color;
+}
+@mixin fs18-bold-text {
+  @include fs18-bold;
+  @include text-color;
+}
+@mixin fs18-bigbold-text {
+  @include fs18-bigbold;
+  @include text-color;
+}
 
-@mixin fs20-normal-text { @include fs20-normal; @include text-color; }
-@mixin fs20-semibold-text { @include fs20-semibold; @include text-color; }
-@mixin fs20-bold-text { @include fs20-bold; @include text-color; }
-@mixin fs20-bigbold-text { @include fs20-bigbold; @include text-color; }
+@mixin fs20-normal-text {
+  @include fs20-normal;
+  @include text-color;
+}
+@mixin fs20-semibold-text {
+  @include fs20-semibold;
+  @include text-color;
+}
+@mixin fs20-bold-text {
+  @include fs20-bold;
+  @include text-color;
+}
+@mixin fs20-bigbold-text {
+  @include fs20-bigbold;
+  @include text-color;
+}
 
-@mixin fs24-normal-text { @include fs24-normal; @include text-color; }
-@mixin fs24-semibold-text { @include fs24-semibold; @include text-color; }
-@mixin fs24-bold-text { @include fs24-bold; @include text-color; }
-@mixin fs24-bigbold-text { @include fs24-bigbold; @include text-color; }
+@mixin fs24-normal-text {
+  @include fs24-normal;
+  @include text-color;
+}
+@mixin fs24-semibold-text {
+  @include fs24-semibold;
+  @include text-color;
+}
+@mixin fs24-bold-text {
+  @include fs24-bold;
+  @include text-color;
+}
+@mixin fs24-bigbold-text {
+  @include fs24-bigbold;
+  @include text-color;
+}
 
 // Primary text color combinations
-@mixin fs10-normal-primary { @include fs10-normal; @include text-primary; }
-@mixin fs10-semibold-primary { @include fs10-semibold; @include text-primary; }
-@mixin fs10-bold-primary { @include fs10-bold; @include text-primary; }
-@mixin fs10-bigbold-primary { @include fs10-bigbold; @include text-primary; }
+@mixin fs10-normal-primary {
+  @include fs10-normal;
+  @include text-primary;
+}
+@mixin fs10-semibold-primary {
+  @include fs10-semibold;
+  @include text-primary;
+}
+@mixin fs10-bold-primary {
+  @include fs10-bold;
+  @include text-primary;
+}
+@mixin fs10-bigbold-primary {
+  @include fs10-bigbold;
+  @include text-primary;
+}
 
-@mixin fs12-normal-primary { @include fs12-normal; @include text-primary; }
-@mixin fs12-semibold-primary { @include fs12-semibold; @include text-primary; }
-@mixin fs12-bold-primary { @include fs12-bold; @include text-primary; }
-@mixin fs12-bigbold-primary { @include fs12-bigbold; @include text-primary; }
+@mixin fs12-normal-primary {
+  @include fs12-normal;
+  @include text-primary;
+}
+@mixin fs12-semibold-primary {
+  @include fs12-semibold;
+  @include text-primary;
+}
+@mixin fs12-bold-primary {
+  @include fs12-bold;
+  @include text-primary;
+}
+@mixin fs12-bigbold-primary {
+  @include fs12-bigbold;
+  @include text-primary;
+}
 
-@mixin fs14-normal-primary { @include fs14-normal; @include text-primary; }
-@mixin fs14-semibold-primary { @include fs14-semibold; @include text-primary; }
-@mixin fs14-bold-primary { @include fs14-bold; @include text-primary; }
-@mixin fs14-bigbold-primary { @include fs14-bigbold; @include text-primary; }
+@mixin fs14-normal-primary {
+  @include fs14-normal;
+  @include text-primary;
+}
+@mixin fs14-semibold-primary {
+  @include fs14-semibold;
+  @include text-primary;
+}
+@mixin fs14-bold-primary {
+  @include fs14-bold;
+  @include text-primary;
+}
+@mixin fs14-bigbold-primary {
+  @include fs14-bigbold;
+  @include text-primary;
+}
 
-@mixin fs16-normal-primary { @include fs16-normal; @include text-primary; }
-@mixin fs16-semibold-primary { @include fs16-semibold; @include text-primary; }
-@mixin fs16-bold-primary { @include fs16-bold; @include text-primary; }
-@mixin fs16-bigbold-primary { @include fs16-bigbold; @include text-primary; }
+@mixin fs16-normal-primary {
+  @include fs16-normal;
+  @include text-primary;
+}
+@mixin fs16-semibold-primary {
+  @include fs16-semibold;
+  @include text-primary;
+}
+@mixin fs16-bold-primary {
+  @include fs16-bold;
+  @include text-primary;
+}
+@mixin fs16-bigbold-primary {
+  @include fs16-bigbold;
+  @include text-primary;
+}
 
-@mixin fs18-normal-primary { @include fs18-normal; @include text-primary; }
-@mixin fs18-semibold-primary { @include fs18-semibold; @include text-primary; }
-@mixin fs18-bold-primary { @include fs18-bold; @include text-primary; }
-@mixin fs18-bigbold-primary { @include fs18-bigbold; @include text-primary; }
+@mixin fs18-normal-primary {
+  @include fs18-normal;
+  @include text-primary;
+}
+@mixin fs18-semibold-primary {
+  @include fs18-semibold;
+  @include text-primary;
+}
+@mixin fs18-bold-primary {
+  @include fs18-bold;
+  @include text-primary;
+}
+@mixin fs18-bigbold-primary {
+  @include fs18-bigbold;
+  @include text-primary;
+}
 
-@mixin fs20-normal-primary { @include fs20-normal; @include text-primary; }
-@mixin fs20-semibold-primary { @include fs20-semibold; @include text-primary; }
-@mixin fs20-bold-primary { @include fs20-bold; @include text-primary; }
-@mixin fs20-bigbold-primary { @include fs20-bigbold; @include text-primary; }
+@mixin fs20-normal-primary {
+  @include fs20-normal;
+  @include text-primary;
+}
+@mixin fs20-semibold-primary {
+  @include fs20-semibold;
+  @include text-primary;
+}
+@mixin fs20-bold-primary {
+  @include fs20-bold;
+  @include text-primary;
+}
+@mixin fs20-bigbold-primary {
+  @include fs20-bigbold;
+  @include text-primary;
+}
 
-@mixin fs24-normal-primary { @include fs24-normal; @include text-primary; }
-@mixin fs24-semibold-primary { @include fs24-semibold; @include text-primary; }
-@mixin fs24-bold-primary { @include fs24-bold; @include text-primary; }
-@mixin fs24-bigbold-primary { @include fs24-bigbold; @include text-primary; }
+@mixin fs24-normal-primary {
+  @include fs24-normal;
+  @include text-primary;
+}
+@mixin fs24-semibold-primary {
+  @include fs24-semibold;
+  @include text-primary;
+}
+@mixin fs24-bold-primary {
+  @include fs24-bold;
+  @include text-primary;
+}
+@mixin fs24-bigbold-primary {
+  @include fs24-bigbold;
+  @include text-primary;
+}
 
 // Light text color combinations
-@mixin fs10-normal-light { @include fs10-normal; @include text-light; }
-@mixin fs10-semibold-light { @include fs10-semibold; @include text-light; }
-@mixin fs10-bold-light { @include fs10-bold; @include text-light; }
-@mixin fs10-bigbold-light { @include fs10-bigbold; @include text-light; }
+@mixin fs10-normal-light {
+  @include fs10-normal;
+  @include text-light;
+}
+@mixin fs10-semibold-light {
+  @include fs10-semibold;
+  @include text-light;
+}
+@mixin fs10-bold-light {
+  @include fs10-bold;
+  @include text-light;
+}
+@mixin fs10-bigbold-light {
+  @include fs10-bigbold;
+  @include text-light;
+}
 
-@mixin fs12-normal-light { @include fs12-normal; @include text-light; }
-@mixin fs12-semibold-light { @include fs12-semibold; @include text-light; }
-@mixin fs12-bold-light { @include fs12-bold; @include text-light; }
-@mixin fs12-bigbold-light { @include fs12-bigbold; @include text-light; }
+@mixin fs12-normal-light {
+  @include fs12-normal;
+  @include text-light;
+}
+@mixin fs12-semibold-light {
+  @include fs12-semibold;
+  @include text-light;
+}
+@mixin fs12-bold-light {
+  @include fs12-bold;
+  @include text-light;
+}
+@mixin fs12-bigbold-light {
+  @include fs12-bigbold;
+  @include text-light;
+}
 
-@mixin fs14-normal-light { @include fs14-normal; @include text-light; }
-@mixin fs14-semibold-light { @include fs14-semibold; @include text-light; }
-@mixin fs14-bold-light { @include fs14-bold; @include text-light; }
-@mixin fs14-bigbold-light { @include fs14-bigbold; @include text-light; }
+@mixin fs14-normal-light {
+  @include fs14-normal;
+  @include text-light;
+}
+@mixin fs14-semibold-light {
+  @include fs14-semibold;
+  @include text-light;
+}
+@mixin fs14-bold-light {
+  @include fs14-bold;
+  @include text-light;
+}
+@mixin fs14-bigbold-light {
+  @include fs14-bigbold;
+  @include text-light;
+}
 
-@mixin fs16-normal-light { @include fs16-normal; @include text-light; }
-@mixin fs16-semibold-light { @include fs16-semibold; @include text-light; }
-@mixin fs16-bold-light { @include fs16-bold; @include text-light; }
-@mixin fs16-bigbold-light { @include fs16-bigbold; @include text-light; }
+@mixin fs16-normal-light {
+  @include fs16-normal;
+  @include text-light;
+}
+@mixin fs16-semibold-light {
+  @include fs16-semibold;
+  @include text-light;
+}
+@mixin fs16-bold-light {
+  @include fs16-bold;
+  @include text-light;
+}
+@mixin fs16-bigbold-light {
+  @include fs16-bigbold;
+  @include text-light;
+}
 
-@mixin fs18-normal-light { @include fs18-normal; @include text-light; }
-@mixin fs18-semibold-light { @include fs18-semibold; @include text-light; }
-@mixin fs18-bold-light { @include fs18-bold; @include text-light; }
-@mixin fs18-bigbold-light { @include fs18-bigbold; @include text-light; }
+@mixin fs18-normal-light {
+  @include fs18-normal;
+  @include text-light;
+}
+@mixin fs18-semibold-light {
+  @include fs18-semibold;
+  @include text-light;
+}
+@mixin fs18-bold-light {
+  @include fs18-bold;
+  @include text-light;
+}
+@mixin fs18-bigbold-light {
+  @include fs18-bigbold;
+  @include text-light;
+}
 
-@mixin fs20-normal-light { @include fs20-normal; @include text-light; }
-@mixin fs20-semibold-light { @include fs20-semibold; @include text-light; }
-@mixin fs20-bold-light { @include fs20-bold; @include text-light; }
-@mixin fs20-bigbold-light { @include fs20-bigbold; @include text-light; }
+@mixin fs20-normal-light {
+  @include fs20-normal;
+  @include text-light;
+}
+@mixin fs20-semibold-light {
+  @include fs20-semibold;
+  @include text-light;
+}
+@mixin fs20-bold-light {
+  @include fs20-bold;
+  @include text-light;
+}
+@mixin fs20-bigbold-light {
+  @include fs20-bigbold;
+  @include text-light;
+}
 
-@mixin fs24-normal-light { @include fs24-normal; @include text-light; }
-@mixin fs24-semibold-light { @include fs24-semibold; @include text-light; }
-@mixin fs24-bold-light { @include fs24-bold; @include text-light; }
-@mixin fs24-bigbold-light { @include fs24-bigbold; @include text-light; }
+@mixin fs24-normal-light {
+  @include fs24-normal;
+  @include text-light;
+}
+@mixin fs24-semibold-light {
+  @include fs24-semibold;
+  @include text-light;
+}
+@mixin fs24-bold-light {
+  @include fs24-bold;
+  @include text-light;
+}
+@mixin fs24-bigbold-light {
+  @include fs24-bigbold;
+  @include text-light;
+}
 
 // Dynamic Typography Mixin
 // =============================================================================
@@ -212,12 +616,17 @@
 
 // Responsive Typography Mixin
 // =============================================================================
-@mixin responsive-typography($mobile-size: 14px, $desktop-size: 16px, $weight: 400, $color: $text-color) {
+@mixin responsive-typography(
+  $mobile-size: 14px,
+  $desktop-size: 16px,
+  $weight: 400,
+  $color: $text-color
+) {
   @include typography-base;
   font-size: $mobile-size;
   font-weight: $weight;
   color: $color;
-  
+
   @media (min-width: 768px) {
     font-size: $desktop-size;
   }
@@ -225,25 +634,34 @@
 // Success Gradient Border Mixin
 // =============================================================================
 @mixin success-gradient-pill {
-  border: 0.5px solid;
-  border-image-source: linear-gradient(90.73deg, rgba(62, 155, 75, 0.48) 1.93%, rgba(62, 155, 75, 0.6) 50.32%, rgba(62, 155, 75, 0.6) 100%);
-  background: linear-gradient(91.08deg, rgba(62, 155, 75, 0.5) -32.75%, rgba(153, 203, 160, 0.25) 47.57%, rgba(62, 155, 75, 0.5) 127.89%);
+  background: linear-gradient(
+    90deg,
+    rgba(62, 155, 75, 0.1) 0%,
+    rgba(62, 155, 75, 0.18) 100%
+  );
+  border: 0.5px solid rgba(62, 155, 75, 0.4);
+
   padding: 4px 8px;
   border-radius: 100px;
-  color: #3D8C40 !important;
+  color: #3d8c40 !important;
   font-size: $font-size-12;
   line-height: 16px;
   font-weight: $font-weight-semibold;
   font-family: $font-family-primary;
+  img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+  }
 }
 
 .success-gradient-pill {
   @include success-gradient-pill;
 }
 @mixin success-info-pill {
-  color: #3D8C40 !important;
-  border: 1px solid #BBF7D0;
-  background: #F0FDF4;
+  color: #3d8c40 !important;
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
   border-radius: 100px;
   padding: 3px 9px;
   font-size: $font-size-10;
@@ -258,7 +676,7 @@
   @include success-info-pill;
 
   // Disabled overrides
-  color: #5A6774 !important;
+  color: #5a6774 !important;
   border: 1px solid #45455126;
   background: #45455108;
 }

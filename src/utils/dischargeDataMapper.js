@@ -28,7 +28,6 @@ import {
   setDischargeSummaryDataViaPatch,
   setFinalDiagnosis,
 } from "../redux/ipd/dischargeSummarySlice";
-import { IPD } from "./locale";
 
 export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
   if (!dischargeSummaryData || !dispatch) {

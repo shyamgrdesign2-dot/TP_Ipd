@@ -18,3 +18,9 @@
     // overflow: auto;
     // height: calc(100dvh - 161px);
 }
+.pd-ipd-right-content {
+    
+}
+.pd-ipd-right-content:has(.ipd-discharge-summary-container-readable) {
+    overflow: hidden !important;
+  }

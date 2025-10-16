@@ -125,7 +125,13 @@ const DischargeSummary = (props) => {
   }, [otNotesData?.otNotesData]);
 
   useEffect(() => {
-    if (patientDetails?.details?.id)
+    if (
+      patientDetails?.details?.id &&
+      (!dischargeSummaryState?.actualDischargeSummaryData ||
+        (dischargeSummaryState?.actualDischargeSummaryData &&
+          !Object.keys(dischargeSummaryState.actualDischargeSummaryData)
+            .length))
+    )
       dispatch(
         getDischargeSummaryData({
           patientId: patientDetails?.details?.id,
@@ -445,132 +451,7 @@ const DischargeSummary = (props) => {
       },
       physicalExamination: {
         vitals: assessmentData.vitalsData,
-        generalExamination: {
-          "pallor": {
-              "title": "Present",
-              "notes": [
-                  {
-                      "type": "paragraph",
-                      "children": [
-                          {
-                              "text": "okoksadfsdf"
-                          }
-                      ]
-                  }
-              ],
-              "value": 1
-          },
-          "clubbing": {
-              "title": "Absent",
-              "notes": [
-                  {
-                      "type": "paragraph",
-                      "children": [
-                          {
-                              "text": "gjhklasdf"
-                          }
-                      ]
-                  }
-              ],
-              "value": 2
-          },
-          "cyanosis": {
-              "title": "",
-              "notes": [],
-              "value": 0
-          },
-          "lymphadenopathy": {
-              "title": "Present",
-              "notes": [],
-              "value": 1
-          },
-          "edema": {
-              "title": "Absent",
-              "notes": [],
-              "value": 0
-          },
-          "hydration": {
-              "title": "Normal",
-              "notes": [
-                  {
-                      "type": "paragraph",
-                      "children": [
-                          {
-                              "text": "tyuon "
-                          }
-                      ]
-                  }
-              ],
-              "value": 0
-          },
-          "cvs": {
-              "title": "Abnormal",
-              "notes": [
-                  {
-                      "type": "paragraph",
-                      "children": [
-                          {
-                              "text": "g"
-                          }
-                      ]
-                  }
-              ],
-              "value": 0
-          },
-          "breast_chest": {
-              "title": "WNL",
-              "notes": [
-                  {
-                      "type": "paragraph",
-                      "children": [
-                          {
-                              "text": "fgh"
-                          }
-                      ]
-                  }
-              ],
-              "value": 0
-          },
-          "abdomen": {
-              "title": "Abnormal",
-              "notes": [],
-              "value": 2
-          },
-          "neurological_psychosocial": {
-              "title": "WNL",
-              "notes": [],
-              "value": 1
-          },
-          "back": {
-              "title": "Abnormal",
-              "notes": [
-                  {
-                      "type": "paragraph",
-                      "children": [
-                          {
-                              "text": "qqq"
-                          }
-                      ]
-                  }
-              ],
-              "value": 2
-          },
-          "heent": {
-              "title": "WNL",
-              "notes": [
-                  {
-                      "type": "paragraph",
-                      "children": [
-                          {
-                              "text": "3336"
-                          }
-                      ]
-                  }
-              ],
-              "value": 1
-          },
-      }, 
-      // assessmentData.physicalExaminationBasicData || {},
+        generalExamination: assessmentData.physicalExaminationBasicData || {},
         others: assessmentData.physicalExaminationOthersData || [],
       },
       functionalAssessmentTimeOfAdmission: {
@@ -640,14 +521,6 @@ const DischargeSummary = (props) => {
         );
         return;
       }
-      dispatch(
-        getDischargeSummaryData({
-          patientId: patientDetails?.details?.id,
-          admissionId: patientDetails?.admissionId,
-        })
-      ).then((res) => {
-        addDischargeDataToStore(res.payload.dischargeSummary, dispatch);
-      });
       navigate("/ipd/patient-details", {
         state: {
           isEditable: false,
@@ -734,7 +607,7 @@ const DischargeSummary = (props) => {
             }`}
             style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
           >
-            {open && modelData && (
+            {open && dischargeSummary && (
               <LayoutWithMenu
                 onCustomiseClick={() => setShowCustomisationDrawer(true)}
                 key="dischargeSummary"
@@ -743,7 +616,7 @@ const DischargeSummary = (props) => {
                   handler: onSaveDischargeSummaryClick,
                   title: "Save",
                 }}
-                items={modelData}
+                items={dischargeSummary}
                 renderSection={renderSections}
                 onRequestClose={() => {
                   setIsBackModalOpen(true);
@@ -764,7 +637,15 @@ const DischargeSummary = (props) => {
           className="customise-form-ipd-container"
           title="Customise Your Form"
           open={showCustomisationDrawer}
-          onClose={() => setShowCustomisationDrawer(false)}
+          onClose={() => {
+            dispatch(
+              updateCustomization({
+                ...customization,
+                dischargeSummary: modelData,
+              })
+            );
+            return setShowCustomisationDrawer(false);
+          }}
           extra={
             <>
               <Button

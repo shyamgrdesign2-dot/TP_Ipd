@@ -101,12 +101,6 @@ export default function CollapsibleSummaryTracker({ section, onToggle }) {
                     alt=""
                     aria-hidden="true"
                   />
-                  <img
-                    className="asc-list__icon"
-                    src={defaultIcons[`${item?.id}Pc`]}
-                    alt=""
-                    aria-hidden="true"
-                  />
                   <div className="asc-list__text">
                     <div className="asc-list__title">{item.title}</div>
                     {item.hint ? (
@@ -114,15 +108,14 @@ export default function CollapsibleSummaryTracker({ section, onToggle }) {
                         <Chip kind="muted">{item.hint}</Chip>
                       </div>
                     ) : null}
+                    <div className="asc-list__row-right">
+                      {filled ? (
+                        <Chip kind="added">Information Added</Chip>
+                      ) : (
+                        <Chip kind="empty">Not Filled Yet</Chip>
+                      )}
+                    </div>
                   </div>
-                </div>
-
-                <div className="asc-list__row-right">
-                  {filled ? (
-                    <Chip kind="added">Information Added</Chip>
-                  ) : (
-                    <Chip kind="empty">Not Filled Yet</Chip>
-                  )}
                 </div>
               </li>
             );

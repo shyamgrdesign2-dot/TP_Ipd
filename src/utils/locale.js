@@ -1768,7 +1768,7 @@ export const IPD = {
   PATIENT_DETAILS_MENU: [
     {
       id: "assessment",
-      name: "Assessment",
+      name: "Admission Assessment",
       mainHeading: "Admission Assessment",
       icon: "cardiogramColouredIcon",
       isActive: true,
@@ -1809,8 +1809,8 @@ export const IPD = {
       showAddCTA: false,
       //  isActive: true
     },
-    { id: "logs", name: "Activity Logs", icon: "usersTwoIcon" },
-    { id: "opd", name: "OPD Visit History", icon: "layerIcon" },
+    // { id: "logs", name: "Activity Logs", icon: "usersTwoIcon" },
+    // { id: "opd", name: "OPD Visit History", icon: "layerIcon" },
   ],
   VITALS: [
     {

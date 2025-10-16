@@ -66,6 +66,7 @@ import vitalsPc from './vitals-pc.svg';
 import wardBedNumber from './wardBedNumber.svg';
 import warningSignsPc from './warningSigns-pc.svg';
 import trackArrow from './track-arrow.svg';
+import greenTick from './green-tick.svg';
 
 export const defaultIcons = {
   address,
@@ -134,7 +135,8 @@ export const defaultIcons = {
   vitalsPc,
   wardBedNumber,
   warningSignsPc,
-  trackArrow
+  trackArrow,
+  greenTick,
 };
 
 export {
@@ -204,5 +206,6 @@ export {
   vitalsPc,
   wardBedNumber,
   warningSignsPc,
-  trackArrow
+  trackArrow,
+  greenTick
 };

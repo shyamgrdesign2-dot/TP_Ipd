@@ -11,6 +11,7 @@ import {
   setGynecHistoryData,
 } from "../../../redux/ipd/assessmentsFormSlice";
 import { formatDateToShortMonthYear } from "../../../utils/utils";
+import { useDischargeSummaryData } from "../dischargeSummary/utils/useDischargeSummaryData";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const GenericCard = createRemoteComponent("GenericCard");
@@ -29,6 +30,7 @@ const GynecHistory = (props) => {
     lastPrescriptionDate,
     gyneacHistoryBackup,
   } = useSelector((state) => state.assessment);
+  const { showLastUpdatedAt } = useDischargeSummaryData();
   const { lastRxDate } = lastPrescriptionDate || {};
   const dispatch = useDispatch();
   const [addGynecHistoryDrawer, setAddGynecHistoryDrawer] = useState(false);
@@ -140,6 +142,7 @@ const GynecHistory = (props) => {
             autoFillButtonRef.click(e);
           }
         }}
+        headerComponent={showLastUpdatedAt}
       />
       {addGynecHistoryDrawer && (
         <Drawer

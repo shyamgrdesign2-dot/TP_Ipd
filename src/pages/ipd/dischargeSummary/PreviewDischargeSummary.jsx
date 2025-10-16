@@ -15,6 +15,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getDischargeSummaryData } from "../../../redux/ipd/dischargeSummarySlice";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
+import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
+import PrintPreviewShimmer from "./components/PrintPreviewShimmer/PrintPreviewShimmer";
 
 const PreviewDischargeSummary = () => {
   const navigate = useNavigate();
@@ -39,7 +41,18 @@ const PreviewDischargeSummary = () => {
   }, [divRef]);
 
   useEffect(() => {
-    if (patientDetails?.details?.id)
+    if (!printSettings || Object.keys(printSettings).length === 0) {
+      dispatch(getPrintSettings());
+    }
+  }, []);
+
+  useEffect(() => {
+    if (
+      patientDetails?.details?.id
+      &&
+      (!dischargeSummaryData ||
+        (dischargeSummaryData && !Object.keys(dischargeSummaryData).length))
+    )
       dispatch(
         getDischargeSummaryData({
           patientId: patientDetails?.details?.id,
@@ -57,7 +70,7 @@ const PreviewDischargeSummary = () => {
   }, []);
 
   useEffect(() => {
-    if (currentSettings && dischargeSummaryData) {
+    if (currentSettings && Object.keys(dischargeSummaryData).length) {
       makePDFUrl();
     }
   }, [currentSettings, dischargeSummaryData]);
@@ -78,13 +91,12 @@ const PreviewDischargeSummary = () => {
   };
 
   const handleDrawerConfigureSettings = () => {
-    // Navigate to IPD Configure Print Settings page
     navigate("/ipd/discharge-summary/configure-print-settings", {
       state: {
         moduleType: "dischargeSummary",
         data: dischargeSummaryData,
         printSettings: currentSettings,
-        returnPath: "/ipd/discharge-summary/preview", // Add return path for navigation back
+        returnPath: "/ipd/discharge-summary/preview",
       },
     });
   };
@@ -107,6 +119,7 @@ const PreviewDischargeSummary = () => {
   const handleBackToSummary = () => {
     navigate("/ipd/patient-details/discharge-summary");
   };
+
 
   return (
     <div>

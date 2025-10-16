@@ -192,6 +192,7 @@ const DischargeAdvice = (props) => {
                       containerClass="wrapper-class ipd-pmh-wrapper-class"
                       icon={defaultIcons[`${item?.id}Pc`]}
                       showAutoFill={isEditable}
+                      // isDataPresent={} // TODO: INTEL
                       opdDate="15 Jun 2025"
                       onAutoFill={() => {
                         console.log("auto fill");

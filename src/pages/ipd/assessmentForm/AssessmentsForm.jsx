@@ -405,7 +405,6 @@ const AssessmentsForm = (props) => {
           title="Customise Your Form"
           open={showCustomisationDrawer}
           onClose={() => {
-            console.log("INTEL ==> CLOSE");
             dispatch(
               updateCustomization({
                 ...customization,

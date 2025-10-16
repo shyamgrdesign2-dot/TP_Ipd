@@ -39,7 +39,7 @@ export const DischargeSummaryTracker = (props) => {
   );
 
   return (
-    <div className="sumtrack-full-container">
+    <div className="sumtrack-full-container no-scrollbar">
       <div className="sumtrack-headings">
         <div className="sumtrack-title">Summary Progress</div>
         <div className="sumtrack-desc">
