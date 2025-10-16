@@ -17,6 +17,7 @@ import { errorMessage, getClinicName } from "../utils/utils";
 
 import TabHeader from "../components/tab_design/TabHeader";
 import PersonalDetails from "../components/PersonalDetails";
+import SecondaryDetails from "../components/SecondaryDetails";
 import AddressDetails from "../components/AddressDetails";
 import UploadProfile from "../components/UploadProfile";
 import { viewPatient, addPatient, editPatient } from "../redux/appointmentsSlice";
@@ -87,6 +88,11 @@ function PatientForm({ mode = ADD, patient_data }) {
                 pm_city: values.pm_city !== undefined ? values.pm_city : '',
                 pm_state: values.pm_state !== undefined ? values.pm_state : '',
                 pm_address: values.pm_address !== undefined ? values.pm_address : '',
+                pm_blood_group: values.pm_blood_group !== undefined ? values.pm_blood_group : '',
+                pm_marital_status: values.pm_marital_status !== undefined ? values.pm_marital_status : '',
+                pm_occupation: values.pm_occupation !== undefined ? values.pm_occupation : '',
+                pm_email: values.pm_email !== undefined ? values.pm_email : '',
+                pm_aadhaar: values.pm_aadhaar !== undefined ? values.pm_aadhaar : '',
             };
             delete finalValues['pm_dob_show'];
 
@@ -196,7 +202,10 @@ function PatientForm({ mode = ADD, patient_data }) {
                                             <TabPane tab="Personal Details" key="1">
                                                 <PersonalDetails form={form} mode={mode} patient_data={patient_data} />
                                             </TabPane>
-                                            <TabPane tab="Address Details" key="2">
+                                            <TabPane tab="Secondary Details" key="2">
+                                                <SecondaryDetails form={form} mode={mode} patient_data={patient_data} />
+                                            </TabPane>
+                                            <TabPane tab="Address Details" key="3">
                                                 <AddressDetails form={form} />
                                             </TabPane>
                                         </Tabs>
@@ -204,7 +213,9 @@ function PatientForm({ mode = ADD, patient_data }) {
                                 ) : (
                                     <>
                                         <PersonalDetails form={form} mode={mode} patient_data={patient_data} />
-                                        <hr className="mb-3 mt-1" />
+                                        <hr className="mb-3 mt-3" />
+                                        <SecondaryDetails form={form} mode={mode} patient_data={patient_data} />
+                                        <hr className="mb-3 mt-3" />
                                         <AddressDetails form={form} />
                                     </>
                                 )}

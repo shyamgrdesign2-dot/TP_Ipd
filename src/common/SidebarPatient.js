@@ -15,8 +15,9 @@ import { checkToShowOpdBilling } from '../pages/opdBilling/service';
 import { useDispatch } from 'react-redux';
 import moment from 'moment';
 import { NEO_NATOLOGISTS_DP_ID, PAEDIATRIC_DP_ID } from '../utils/constants';
+import BloodIcon from '../assets/images/blood.svg';
 
-function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHandle }) {
+function SidebarPatient({ collapsed, patient_data, viewCaseManagerData, sidebarKey, onClickSidebarHandle }) {
     const dispatch = useDispatch();
     const { profile } = useSelector((state) => state.doctors);
     const { patients_details } = useSelector((state) => state.records);
@@ -85,13 +86,22 @@ function SidebarPatient({ collapsed, patient_data, sidebarKey, onClickSidebarHan
                     </div>
                 </div>
             )}
-            <div className="align-items-center d-flex medicine-templates border-top-0 without-hover p-0">
+            <div className="align-items-center d-flex medicine-templates border-top-0 without-hover p-0 pb-3">
                 <div className="round-box bg-body-secondary"><i className="icon-phone fs-21"></i></div>
                 <div className="text-truncate">
                     <div className="fontroboto letterspacing">Mobile Number</div>
                     <div className="fontroboto letterspacing fw-medium">{patient_data !== undefined ? patient_data.pm_contact_no : "000000"}</div>
                 </div>
             </div>
+            {tokenData?.hospital_business_id != config.zydus_business_id && (patient_data?.pm_blood_group || patient_data?.patient_blood_group || viewCaseManagerData?.patient_data?.patient_blood_group || patients_details?.pm_blood_group) && (
+                <div className="align-items-center d-flex medicine-templates border-top-0 without-hover p-0">
+                    <div className="round-box bg-body-secondary"><img src={BloodIcon} alt="blood" style={{ width: '21px', height: '21px' }} /></div>
+                    <div className="text-truncate">
+                        <div className="fontroboto letterspacing">Blood Group</div>
+                        <div className="fontroboto letterspacing fw-medium">{patient_data?.pm_blood_group || patient_data?.patient_blood_group || viewCaseManagerData?.patient_data?.patient_blood_group || patients_details?.pm_blood_group}</div>
+                    </div>
+                </div>
+            )}
             <div>
                 {tokenData?.hospital_business_id != config.zydus_business_id && (
                     <Link to="/edit_patient" replace={true} state={{ patient_data: patient_data }}>
