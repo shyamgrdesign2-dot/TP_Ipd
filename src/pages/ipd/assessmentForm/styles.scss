@@ -204,19 +204,7 @@ $muted: #6f6b88;
     }
   }
 
-  .ipdaf-vitals-main-container {
-    padding: 20px !important;
-    border-radius: 16px;
-    margin-top: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0px 0px 6px 0px #00000005;
-    background-color: var(--backgroundColor, #fff);
-    &-readonly {
-      margin-left: 20px;
-      margin-right: 20px;
-      background-color: #fbfafd !important
-    }
-  }
+  
   .ipd-custom-module-container {
     background-color: #fff;
     padding: 0 24px 18px;
@@ -322,9 +310,6 @@ $muted: #6f6b88;
   font-weight: normal;
   line-height: 1.5;
   padding: 0 34px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 
   .vital-label {
     font-weight: 600;
@@ -695,5 +680,19 @@ $muted: #6f6b88;
   textarea.ant-input.css-kbg4zp.ant-input-outlined.notesinput {
     background: #fbfafd !important;
     background-color: #fbfafd !important;
+  }
+}
+
+.ipdaf-vitals-main-container {
+  padding: 20px !important;
+  border-radius: 16px;
+  // margin-top: 24px;
+  // margin-bottom: 24px;
+  box-shadow: 0px 0px 6px 0px #00000005;
+  background-color: var(--backgroundColor, #fff);
+  &-readonly {
+    margin-left: 20px;
+    margin-right: 20px;
+    background-color: #fbfafd !important
   }
 }

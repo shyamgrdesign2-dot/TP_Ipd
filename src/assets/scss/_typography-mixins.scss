@@ -222,3 +222,50 @@
     font-size: $desktop-size;
   }
 }
+// Success Gradient Border Mixin
+// =============================================================================
+@mixin success-gradient-pill {
+  border: 0.5px solid;
+  border-image-source: linear-gradient(90.73deg, rgba(62, 155, 75, 0.48) 1.93%, rgba(62, 155, 75, 0.6) 50.32%, rgba(62, 155, 75, 0.6) 100%);
+  background: linear-gradient(91.08deg, rgba(62, 155, 75, 0.5) -32.75%, rgba(153, 203, 160, 0.25) 47.57%, rgba(62, 155, 75, 0.5) 127.89%);
+  padding: 4px 8px;
+  border-radius: 100px;
+  color: #3D8C40 !important;
+  font-size: $font-size-12;
+  line-height: 16px;
+  font-weight: $font-weight-semibold;
+  font-family: $font-family-primary;
+}
+
+.success-gradient-pill {
+  @include success-gradient-pill;
+}
+@mixin success-info-pill {
+  color: #3D8C40 !important;
+  border: 1px solid #BBF7D0;
+  background: #F0FDF4;
+  border-radius: 100px;
+  padding: 3px 9px;
+  font-size: $font-size-10;
+  font-weight: 500;
+  line-height: 16px;
+  font-family: $font-family-primary, "Poppins", sans-serif;
+  width: fit-content;
+}
+
+@mixin success-info-pill-disabled {
+  // Base styles from success-info-pill
+  @include success-info-pill;
+
+  // Disabled overrides
+  color: #5A6774 !important;
+  border: 1px solid #45455126;
+  background: #45455108;
+}
+
+.success-info-pill {
+  @include success-info-pill;
+  &.disabled {
+    @include success-info-pill-disabled;
+  }
+}

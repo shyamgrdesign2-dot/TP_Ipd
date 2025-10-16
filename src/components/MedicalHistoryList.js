@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { Collapse } from 'antd';
-
-import CashManagerContext from '../context/CashManagerContext';
 import GynecHistoryList from "./GynecHistoryList";
 import { useAccess } from "../pages/vaccination/useAccess";
 import { fetchGynecHistory } from "../redux/prescriptionSlice";
@@ -50,6 +48,8 @@ function MedicalHistoryList(props) {
             value = `Allergies to : `
         } else if (id == 1) {
             value = `Habit : `
+        } else if (id == 5) {
+            value = `Surgery : `
         }
         return value
     }
@@ -75,6 +75,7 @@ function MedicalHistoryList(props) {
                                                                 {(() => {
                                                                     const parts = [];
                                                                     if (e1?.since) parts.push(<><b>Since</b>: {e1.since}</>);
+                                                                    if (e1?.date && e?.tmmhs_id == 5) parts.push(<><b>Date of Surgery</b>: {e1.date}</>);
                                                                     if (e?.tmmhs_id != 3) {
                                                                         if (e1?.status) parts.push(<><b>Status</b>: {e1.status}</>);
                                                                         if (e1?.medication) parts.push(<><b>Medication</b>: {e1.medication}</>);
@@ -141,7 +142,7 @@ function MedicalHistoryList(props) {
 
     return (
         <>
-            <div className={`overflow-y-auto ipd-mhl-container ${isDischargeSummary ? "ipd-mhl-container-discharge-summary" : ""}`} style={{ maxHeight: "661px" }}>
+            <div className={`ipd-mhl-container ${isDischargeSummary ? "ipd-mhl-container-discharge-summary" : "overflow-y-auto"}`} style={isDischargeSummary ? {} : { maxHeight: "661px" }}>
                 { (medicalHistoryData.length > 0 || (gynecHistory && Object.keys(filteredGynecHistory).length > 0)) && (
                     <div className="p-10">
                         { isGynaecHistoryAccessable && gynecHistory && Object.keys(filteredGynecHistory).length > 0 &&

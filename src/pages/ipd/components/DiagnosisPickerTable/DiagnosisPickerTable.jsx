@@ -2,12 +2,12 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
   useContext,
   forwardRef,
   useImperativeHandle,
 } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { AutoComplete, Table, Input, Typography, Empty } from "antd";
 import { MenuOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
@@ -25,57 +25,52 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import "./styles.scss";
-import { fetchDiagnosesAPI } from "./utils";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setFinalDiagnosis } from "../../../../redux/ipd/dischargeSummarySlice";
+import { setProvisionalDiagnosis } from "../../../../redux/ipd/dischargeSummarySlice";
+import { getDiagnosisTemplates, getFrequentlySearchedDiagnosis, searchDiagnosis } from "../../../../redux/diagnosisSlice";
+import { removeBeforeWhiteSpace } from "../../../../utils/utils";
 
 export const DiagnosisSummaryList = (props) => {
-  const { dischargeSummaryData} = useSelector(
+  const { itemId } = props || {};
+  const { dischargeSummaryData } = useSelector(
     (state) => state.dischargeSummary
   );
-  const { provisionalDiagnosis = [] } = dischargeSummaryData?.diagnosisAndSurgery || {};
-  if (!provisionalDiagnosis?.length) return null;
+  const { finalDiagnosis = [], provisionalDiagnosis = [] } =
+    dischargeSummaryData?.diagnosisAndSurgery || {};
+  const isFinalDiagnosis = itemId === "finalDiagnosis";
+
+  const diagnosisList = isFinalDiagnosis ? finalDiagnosis : provisionalDiagnosis;
+
+  if (!diagnosisList?.length) {
+    return null;
+  }
+
+  const renderDiagnosisItem = (diagnosis) => {
+    const key = diagnosis.key || diagnosis.objectID || diagnosis.tds_name;
+    const metaItems = [];
+
+    if (diagnosis.icd_code?.trim()) {
+      metaItems.push(`ICD Code: ${diagnosis.icd_code}`);
+    }
+    if (diagnosis.notes?.trim()) {
+      metaItems.push(`Notes: ${diagnosis.notes}`);
+    }
+
+    return (
+      <li className="dx-summary-item" key={key}>
+        <span className="dx-summary-title">{diagnosis.tds_name}</span>
+        {metaItems.length > 0 && (
+          <span className="dx-summary-meta"> ({metaItems.join(", ")})</span>
+        )}
+      </li>
+    );
+  };
 
   return (
     <ul className="dx-summary">
-      {provisionalDiagnosis.map((it) => {
-        const key = it.key || it.id || it.title;
-        const parts = [];
-
-        if (it.icdCode?.trim()) {
-          parts.push(
-            <span key="icd">
-              <strong>ICD Code:</strong> {it.icdCode}
-            </span>
-          );
-        }
-        if (it.notes?.trim()) {
-          parts.push(
-            <span key="notes">
-              <strong>Notes:</strong> {it.notes}
-            </span>
-          );
-        }
-
-        return (
-          <li className="dx-summary-item" key={key}>
-            <span className="dx-summary-title">{it.title}</span>
-            {parts.length > 0 && (
-              <>
-                {" "}
-                <span className="dx-summary-meta">
-                  (
-                  {parts.reduce((acc, curr, idx) => {
-                    // Insert comma + space between parts
-                    if (idx === 0) return [curr];
-                    return [...acc, <span key={`sep-${idx}`}>, </span>, curr];
-                  }, [])}
-                  )
-                </span>
-              </>
-            )}
-          </li>
-        );
-      })}
+      {diagnosisList.map(renderDiagnosisItem)}
     </ul>
   );
 };
@@ -134,19 +129,66 @@ function DragHandle() {
 }
 
 export const DiagnosisPickerTable = forwardRef((props, ref) => {
-  const { isEditable = true, rootClassName } = props || {};
-  const { dischargeSummaryData} = useSelector(
+  const { isEditable = true, rootClassName, itemId } = props || {};
+  const { dischargeSummaryData } = useSelector(
     (state) => state.dischargeSummary
   );
-  const { provisionalDiagnosis = [] } = dischargeSummaryData?.diagnosisAndSurgery || {};
+  const { parentOptionsList } = useSelector(
+    (state) => state.diagnosis
+  );
+  const { finalDiagnosis = [], provisionalDiagnosis = [] } =
+    dischargeSummaryData?.diagnosisAndSurgery || {};
+  const [parentSearchOptions, setParentSearchOptions] = useState([]);
+  const [searchParentQuery, setSearchParentQuery] = useState("");
   const [query, setQuery] = useState("");
-  const [options, setOptions] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
-  const [rows, setRows] = useState(provisionalDiagnosis);
+  const isFinalDiagnosis = itemId === "finalDiagnosis";
+  const rows =
+    isFinalDiagnosis ? finalDiagnosis : provisionalDiagnosis;
+  const setRows = useCallback((newRows) => {
+    const updatedRows = newRows.map((row, rowIndex) => ({
+      ...row,
+      type: "paragraph",
+      children: [{ text: "" }],
+      key: row.key || row.unique_id || row.objectID || uuidv4(),
+    }));
+    if (isFinalDiagnosis) {
+      dispatch(setFinalDiagnosis(updatedRows));
+    } else {
+      dispatch(setProvisionalDiagnosis(updatedRows));
+    }
+    setSearchParentQuery("");
+    setQuery("");
+  }, [isFinalDiagnosis, dispatch]);
+
+  useEffect(() => {
+    dispatch(getDiagnosisTemplates());
+    dispatch(getFrequentlySearchedDiagnosis());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (searchParentQuery) {
+      const timeOutId = setTimeout(() => {
+        dispatch(
+          searchDiagnosis({ searchQuery: searchParentQuery, type: "parent" })
+        );
+      }, 500);
+
+      return () => {
+        clearTimeout(timeOutId);
+      };
+    }
+  }, [searchParentQuery, dispatch]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(PointerSensor, { 
+      activationConstraint: { 
+        distance: 8,
+        delay: 100,
+        tolerance: 5
+      } 
+    }),
     useSensor(KeyboardSensor)
   );
 
@@ -156,63 +198,73 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
     },
   }));
 
-  const searchDebounced = async (val) => {
-    setLoading(true);
-    try {
-      const results = await fetchDiagnosesAPI(val);
-      setOptions(
-        results.map((item) => ({
-          value: item.title,
-          label: (
-            <div className="option-row">
-              <span className="option-title">{item.title}</span>
-              <span className="option-icd">{item.icdCode}</span>
-            </div>
-          ),
-          item,
-        }))
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  const onSearch = (val) => {
-    setQuery(val);
-    searchDebounced(val);
-  };
-
-  const onSelect = (_label, option) => {
-    const item = option.item;
-    if (!item) return;
-
-    setRows((prev) => {
-      if (prev.some((r) => r.id === item.id)) return prev;
-      return [
-        ...prev,
-        {
-          key: `row_${item.id}`,
-          id: item.id,
-          title: item.title,
-          icdCode: item.icdCode || "",
-          notes: "",
-        },
-      ];
+  useEffect(() => {
+    const data = [];
+    parentOptionsList.map((e) => {
+      return data.push({
+        key: JSON.stringify({ ...e, unique_id: uuidv4() }),
+        value: e.tds_name,
+        label: <div>{`${e.tds_name} ${e?.icd_code ? `(${e?.icd_code})` : ''}`}</div>,
+      });
     });
+    if (searchParentQuery.length === 0) {
+      data.unshift({
+        key: -1,
+        label: (
+          <>
+            <div>FREQUENTLY USED</div>
+          </>
+        ),
+      });
+    } else {
+      searchParentQuery && parentOptionsList.findIndex(e => e.tds_name?.toLowerCase()?.trim() === searchParentQuery?.toLowerCase()?.trim()) === -1 &&
+        data.push({
+          key: JSON.stringify({
+            unique_id: uuidv4(),
+            change: 1,
+            tds_id: 0,
+            tds_name: searchParentQuery,
+            pms_default: 0,
+          }),
+          value: searchParentQuery,
+          label: (
+            <>
+              <div>{searchParentQuery}<i className="icon-Add mx-1 text-primary fs-6"></i> <button className="fw-medium text-decoration-underline text-primary bg-transparent border-0 p-0"> Add Custom</button></div>
+            </>
+          ),
+        });
+    }
+    setParentSearchOptions(data);
+  }, [parentOptionsList, searchParentQuery]);
 
-    setQuery("");
-    setOptions([]);
-  };
+  const onSearchParent = useCallback(
+    (query) => {
+      setSearchParentQuery(removeBeforeWhiteSpace(query));
+    },
+    []
+  );
+
+  const onSelectParent = useCallback(
+    (data, e) => {
+      const newData = [...rows]
+      const parsedData = JSON.parse(e.key);
+      newData.push({
+        ...parsedData,
+        notes: "",
+        key: parsedData.unique_id || parsedData.objectID || uuidv4(),
+      });
+      setRows(newData);
+    },
+    [rows, setRows]
+  );
 
   const onDragEnd = ({ active, over }) => {
     if (!over || active.id === over.id) return;
 
-    setRows((prev) => {
-      const oldIndex = prev.findIndex((r) => r.key === active.id);
-      const newIndex = prev.findIndex((r) => r.key === over.id);
-      return arrayMove(prev, oldIndex, newIndex);
-    });
+    const oldIndex = rows.findIndex((r) => r.key === active.id);
+    const newIndex = rows.findIndex((r) => r.key === over.id);
+    const newRows = arrayMove(rows, oldIndex, newIndex);
+    setRows(newRows);
   };
 
   const columns = useMemo(
@@ -225,9 +277,12 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
         render: () => <DragHandle />,
       },
       {
-        title: "Final Diagnosis",
-        dataIndex: "title",
-        key: "title",
+        title:
+          isFinalDiagnosis
+            ? "Final Diagnosis"
+            : "Provisional Diagnosis",
+        dataIndex: "tds_name",
+        key: "tds_name",
         ellipsis: true,
         render: (text) => (
           <Typography.Text className="title-cell">{text}</Typography.Text>
@@ -235,8 +290,8 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
       },
       {
         title: "ICD 10 Code",
-        dataIndex: "icdCode",
-        key: "icdCode",
+        dataIndex: "icd_code",
+        key: "icd_code",
         width: 160,
         render: (text) => <span className="icd-cell">{text || "-"}</span>,
       },
@@ -250,9 +305,8 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
             value={record.notes}
             onChange={(e) => {
               const v = e.target.value;
-              setRows((prev) =>
-                prev.map((r) => (r.key === record.key ? { ...r, notes: v } : r))
-              );
+              const newRows = rows.map((r) => (r.key === record.key ? { ...r, notes: v } : r));
+              setRows(newRows);
             }}
           />
         ),
@@ -265,9 +319,10 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
         render: (_, record) => (
           <button
             className="delete-btn"
-            onClick={() =>
-              setRows((prev) => prev.filter((r) => r.key !== record.key))
-            }
+            onClick={() => {
+              const newRows = rows.filter((r) => r.key !== record.key);
+              setRows(newRows);
+            }}
             aria-label="Delete row"
             title="Delete"
           >
@@ -276,7 +331,7 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
         ),
       },
     ],
-    [setRows]
+    [setRows, isFinalDiagnosis, rows]
   );
 
   const components = useMemo(
@@ -321,7 +376,7 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
       ) : null}
       {!isEditable ? (
         <div>
-          <DiagnosisSummaryList />
+          <DiagnosisSummaryList itemId={itemId} />
         </div>
       ) : null}
 
@@ -329,9 +384,9 @@ export const DiagnosisPickerTable = forwardRef((props, ref) => {
         <div className="dx-search">
           <AutoComplete
             value={query}
-            options={options}
-            onSearch={onSearch}
-            onSelect={onSelect}
+            options={parentSearchOptions}
+            onSearch={onSearchParent}
+            onSelect={onSelectParent}
             onChange={setQuery}
             defaultActiveFirstOption={true}
             placeholder="Search by Diagnosis Name"

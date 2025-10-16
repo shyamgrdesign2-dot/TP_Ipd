@@ -8,7 +8,10 @@ import { Select, DatePicker, TimePicker } from "antd";
 import dayjs from "dayjs";
 import Vitals from "../../assessmentForm/Vitals";
 import { isEmptyRichText } from "../../../../utils/utils";
-import { setDischargeSummaryData } from "../../../../redux/ipd/dischargeSummarySlice";
+import {
+  setDischargeSummaryData,
+  setPatientCondition,
+} from "../../../../redux/ipd/dischargeSummarySlice";
 import CurrentMedications from "../../assessmentForm/CurrentMedications";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
@@ -16,18 +19,15 @@ const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const DischargeNotes = (props) => {
   const { isEditable = true, sectionData } = props || {};
-  const { surgeryDetails, surgeryProcedureOptions, dischargeSummaryData } = useSelector(
-    (state) => state.dischargeSummary
-  );
+  const { surgeryDetails, surgeryProcedureOptions, dischargeSummaryData } =
+    useSelector((state) => state.dischargeSummary);
   const initialValue = useMemo(() => surgeryDetails || {}, [surgeryDetails]);
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
-  const handleOthersChange = (data, key) => {
-    dispatch(setDischargeSummaryData({ ...dischargeSummaryData, [key]: data }));
+  const handlePatientConditionChange = (data) => {
+    dispatch(setPatientCondition(data));
   };
-
-//   console.log('INTEL ==> DischargeNotes', dischargeSummaryData)
 
   const renderPatientCondition = (data) => {
     if (!isEditable && isEmptyRichText(dischargeSummaryData?.patientCondition))
@@ -42,13 +42,11 @@ const DischargeNotes = (props) => {
         width={isEditable ? "100%" : "fit-content"}
         icon={dischargeSummaryIcons[`${data?.id}Pc`]}
         showAutoFill={false}
-        containerClass={`wrapper-class ${
-          !isEditable ? "ipd-wrapper-class-readonly" : ""
-        }`}
+        containerClass={` ${!isEditable ? "ipd-wrapper-class-readonly" : ""}`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
-        onChange={(data) => handleOthersChange(data, "patientCondition")}
+        onChange={(data) => handlePatientConditionChange(data)}
         initialValue={
           dischargeSummaryData?.patientCondition?.length
             ? dischargeSummaryData?.patientCondition
@@ -59,10 +57,7 @@ const DischargeNotes = (props) => {
                 },
               ]
         }
-        placeholder={
-          data?.placeholder ||
-          "Enter Patient Condition"
-        }
+        placeholder={data?.placeholder || "Enter Patient Condition"}
         onSave={() => {
           console.log("save");
         }}
@@ -85,11 +80,24 @@ const DischargeNotes = (props) => {
           {(() => {
             switch (item?.id) {
               case "dischargeVitals":
-                return <Vitals isEditable={true} {...props} formName="dischargeSummary" sectionData={item} />;
+                return (
+                  <Vitals
+                    isEditable={true}
+                    {...props}
+                    formName="dischargeSummary"
+                    sectionData={item}
+                  />
+                );
               case "patientCondition":
                 return renderPatientCondition(item);
               case "dischargeMedications":
-                return <CurrentMedications isDischargeSummary={true} {...props} sectionData={item} />;
+                return (
+                  <CurrentMedications
+                    isDischargeSummary={true}
+                    {...props}
+                    sectionData={item}
+                  />
+                );
               default:
                 return null;
             }
@@ -104,7 +112,11 @@ const DischargeNotes = (props) => {
       <CollapsibleWrapper
         title={sectionData?.title}
         data-testid={sectionData?.id}
-        icon={sectionData?.id ? dischargeSummaryIcons[`${sectionData.id}Dark`] : null}
+        icon={
+          sectionData?.id
+            ? dischargeSummaryIcons[`${sectionData.id}Dark`]
+            : null
+        }
         collapsible={isEditable}
         width={"100%"}
         className={`collapsible-wrapper-class ${

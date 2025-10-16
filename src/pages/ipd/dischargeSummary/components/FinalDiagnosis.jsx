@@ -29,11 +29,9 @@ const FinalDiagnosis = (props) => {
       title={sectionData?.title}
       placeholder="Enter final diagnosis"
       renderBody={() => (
-        <DiagnosisPickerTable />
+        <DiagnosisPickerTable itemId={"finalDiagnosis"} />
       )}
-    >
-      {/* <DiagnosisPickerTable /> */}
-    </RichTextEditWrapper>
+    />
   );
 };
 

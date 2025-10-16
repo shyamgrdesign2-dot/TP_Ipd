@@ -141,6 +141,7 @@ export const IPD = {
       enabled: true,
       expanded: false,
       children: [
+        VITALS_CONFIG,
         {
           placeholder: "",
           id: "examinations",
@@ -270,7 +271,6 @@ export const IPD = {
             },
           ],
         },
-        VITALS_CONFIG,
         {
           placeholder: "",
           id: "others",
@@ -278,13 +278,6 @@ export const IPD = {
           enabled: true,
           icon: "galaxy",
         },
-        // {
-        //   placeholder: "",
-        //   id: "provisionalDiagnosis",
-        //   title: "Provisional Diagnosis",
-        //   enabled: true,
-        //   icon: "ddx",
-        // },
       ],
     },
     {
@@ -403,6 +396,23 @@ export const IPD = {
           icon: "referDoctors",
         },
       ],
+    },
+    {
+      id: "provisionalDiagnosis",
+      title: "Provisional Diagnosis",
+      icon: "functional",
+      menuIcon: "funcAssess",
+      enabled: true,
+      expanded: false,
+      children: [
+        {
+          placeholder: "",
+          id: "provisionalDiagnosis",
+          title: "Provisional Diagnosis",
+          enabled: true,
+          icon: "ddx",
+        },
+      ]
     },
     {
       id: "treatmentPlan",
@@ -1034,7 +1044,7 @@ export const IPD = {
         },
         {
           id: "provisionalDiagnosis",
-          title: "Provisional Diagnosis",
+          title: "Provisional Diagnosis (at the Time of Admission)",
           enabled: true,
         },
         {
@@ -1935,7 +1945,7 @@ export const IPD = {
       id: "dischargeSummary",
       name: "Discharge Summary",
       icon: "notepadIcon",
-      showAddCTA: true,
+      showAddCTA: false,
       //  isActive: true
     },
     { id: "logs", name: "Activity Logs", icon: "usersTwoIcon" },

@@ -74,7 +74,7 @@ const TreatmentGiven = ({ sectionData }) => {
         ...medicationResults.map((med) => ({
           id: med.tmm_id,
           name: med.tmm_medicine_name,
-          code: "CN", // Default to CN for medications
+          code: "DS", // Default to CN for medications
           type: med.tmm_type || "Medication",
           strength: med.tmm_strength || "",
           manufacturer: med.tmm_company || "",
@@ -169,7 +169,7 @@ const TreatmentGiven = ({ sectionData }) => {
     renderOption: (item) => (
       <div className="option-row">
         <span className="option-title">{item.name}</span>
-        <span className="option-subtitle">[{item.code}]</span>
+        {/* <span className="option-subtitle">[{item.code}]</span> */}
       </div>
     ),
   };
@@ -205,6 +205,7 @@ const TreatmentGiven = ({ sectionData }) => {
       searchPlaceholder="Search by treatment name or type..."
       rootClassName="treatment-given-picker"
       loading={treatmentNotesLoading}
+      hideTableWhenEmpty={true}
     />
   );
 

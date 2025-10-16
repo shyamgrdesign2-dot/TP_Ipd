@@ -119,8 +119,8 @@
         .activity-name-cell {
           .diet-name,
           .activity-name {
-            font-weight: 500;
             color: #2c3e50;
+            @include fs12-semibold;
           }
         }
 
@@ -170,12 +170,17 @@
 }
 
 .followup-container {
+  @include box-with-padding;
   @include flex-column-gap-16;
+  background: #ffffffcc !important;
+  .rich-text-editor-wrapper {
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
 
   .followup-fields-row {
     display: flex;
     gap: 24px;
-    margin-bottom: 24px;
 
     @media (max-width: 991px) {
       flex-direction: column;
@@ -188,14 +193,6 @@
 
     @media (max-width: 991px) {
       flex: 1;
-    }
-
-    .followup-label {
-      font-size: 14px;
-      font-weight: 500;
-      color: #454551;
-      margin-bottom: 12px;
-      display: block;
     }
 
     .ant-picker {
@@ -358,17 +355,6 @@
   }
 }
 
-// Tooltip overlay styling (created outside Slate's DOM to avoid conflicts)
-.module-code-tooltip-overlay {
-  // Styles are applied inline by JavaScript for better control
-}
-
-// Removed module-code-wrapper since we're not using it anymore
-
-// Removed old tooltip styling - now using Ant Design Tooltip component
-
-// Removed old CSS rules - now using JavaScript-based tooltips
-
 @keyframes tooltipFadeIn {
   from {
     opacity: 0;
@@ -378,4 +364,16 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
+}
+
+.followup-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #454551;
+  margin-bottom: 6px;
+  display: block;
+}
+.activity-name, .diet-name {
+  color: #2c3e50;
+  @include fs14-semibold;
 }

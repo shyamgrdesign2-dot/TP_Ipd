@@ -219,9 +219,9 @@ const otNotesSlice = createSlice({
       if (selectedOtNote.intraOperativeNotes) {
         const intraOp = selectedOtNote.intraOperativeNotes;
         state.intraOperativeNotes = {
-          complicationsSeverity: { value: intraOp.complication || [] },
+          complicationsSeverity: { value: intraOp.complicationsSeverity || [] },
           specimensSent: { value: intraOp.specimensSent || [] },
-          implantsUsed: { value: intraOp.implants || [] },
+          implantsUsed: { value: intraOp.implantsUsed || [] },
           additionalUnits: {
             estimatedBloodLoss: (intraOp.estimatedBloodLoss || 0).toString(),
             swabCount: (intraOp.swabCount || 0).toString(),

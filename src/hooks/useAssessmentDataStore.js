@@ -19,6 +19,7 @@ import {
   setMedicationData,
 } from "../redux/prescriptionSlice";
 import { addObstetricDetails } from "../redux/obstetricSlice";
+import { setProvisionalDiagnosis } from "../redux/ipd/dischargeSummarySlice";
 
 /**
  * Custom hook to handle adding assessment data to Redux store
@@ -27,64 +28,63 @@ import { addObstetricDetails } from "../redux/obstetricSlice";
 export const useAssessmentDataStore = () => {
   const dispatch = useDispatch();
 
-  const addDataToStore = useCallback((data) => {
-    if (data) {
-      // Basic Info dispatches
-      dispatch(setChiefComplaint(data?.basicInfo?.chiefComplaint || []));
-      dispatch(
-        setHistoryOfPresentIllness(
-          data?.basicInfo?.historyOfPresentIllness || []
-        )
-      );
-      dispatch(setMedicationData(data?.basicInfo?.medications || []));
-      dispatch(setLabResults(data?.basicInfo?.labResults || []));
-      dispatch(
-        setMedicalHistoryData(data?.basicInfo?.pastMedicalHistory || [])
-      );
-      dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || []));
-      dispatch(addObstetricDetails(data?.basicInfo?.obstetricHistory || []));
+  const addDataToStore = useCallback(
+    (data) => {
+      if (data) {
+        // Basic Info dispatches
+        dispatch(setChiefComplaint(data?.basicInfo?.presentingComplaints || []));
+        dispatch(
+          setHistoryOfPresentIllness(
+            data?.basicInfo?.historyOfPresentIllness || []
+          )
+        );
+        dispatch(setMedicationData(data?.basicInfo?.medications || []));
+        dispatch(setLabResults(data?.basicInfo?.labResults || []));
+        dispatch(
+          setMedicalHistoryData(data?.basicInfo?.pastMedicalHistory || [])
+        );
+        dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || []));
+        dispatch(addObstetricDetails(data?.basicInfo?.obstetricHistory || []));
 
-      // Physical Examination dispatches
-      dispatch(setVitalsData(data?.physicalExamination?.vitals || {}));
-      dispatch(
-        setPhysicalExaminationProvisionalDiagnosisData(
-          data?.physicalExamination?.provisionalDiagnosis || []
-        )
-      );
-      dispatch(
-        setPhysicalExaminationOthersData(
-          data?.physicalExamination?.others || []
-        )
-      );
-      dispatch(
-        setPhysicalExaminationBasicData(
-          data?.physicalExamination?.examination || {}
-        )
-      );
+        // Physical Examination dispatches
+        dispatch(setVitalsData(data?.physicalExamination?.vitals || {}));
+        dispatch(setProvisionalDiagnosis(data?.provisionalDiagnosis || []));
+        dispatch(
+          setPhysicalExaminationOthersData(
+            data?.physicalExamination?.others || []
+          )
+        );
+        dispatch(
+          setPhysicalExaminationBasicData(
+            data?.physicalExamination?.examination || {}
+          )
+        );
 
-      // Functional Assessment dispatches
-      const functionalAssessmentWithoutReferredDoc = {
-        ...data?.functionalAssessment,
-      };
-      delete functionalAssessmentWithoutReferredDoc.referredToPhysiotherapyForReview;
-      dispatch(
-        setFunctionalAssessmentData(
-          functionalAssessmentWithoutReferredDoc || {}
-        )
-      );
+        // Functional Assessment dispatches
+        const functionalAssessmentWithoutReferredDoc = {
+          ...data?.functionalAssessment,
+        };
+        delete functionalAssessmentWithoutReferredDoc.referredToPhysiotherapyForReview;
+        dispatch(
+          setFunctionalAssessmentData(
+            functionalAssessmentWithoutReferredDoc || {}
+          )
+        );
 
-      // Treatment Plan and Additional Notes dispatches
-      dispatch(setTreatmentPlanData(data?.treatmentPlan || {}));
-      dispatch(setAdditionalNotesData(data?.additionalNotes || {}));
+        // Treatment Plan and Additional Notes dispatches
+        dispatch(setTreatmentPlanData(data?.treatmentPlan || {}));
+        dispatch(setAdditionalNotesData(data?.additionalNotes || {}));
 
-      // Referred Doc for Review dispatch
-      dispatch(
-        setReferredDocForReview(
-          data?.functionalAssessment?.referredToPhysiotherapyForReview || null
-        )
-      );
-    }
-  }, [dispatch]);
+        // Referred Doc for Review dispatch
+        dispatch(
+          setReferredDocForReview(
+            data?.functionalAssessment?.referredToPhysiotherapyForReview || null
+          )
+        );
+      }
+    },
+    [dispatch]
+  );
 
   return { addDataToStore };
 };

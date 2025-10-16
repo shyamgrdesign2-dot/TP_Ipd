@@ -19,6 +19,7 @@ import { getCustomization } from "../../../redux/ipd/ipdSlice.js";
 import { convertSurgeryDataToDisplayFormat } from "../../../utils/utils.js";
 import { isEmptyRichText } from "../../../utils/utils.js";
 import { dischargeSummaryIcons } from "../../../assets/images/indices/index.js";
+import FilledByCards from "./components/FilledByCards.jsx";
 const ReusableStepper = createRemoteComponent("ReusableStepper");
 const GenericCard = createRemoteComponent("GenericCard");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -252,6 +253,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
     if (!Array.isArray(otNotesState.otNotesData)) return [];
     return otNotesState?.otNotesData?.map((entry, index) => {
       const dateIso = entry?.createdAt ? new Date(entry?.createdAt) : null;
+      const updates = entry?.updates;
       return {
         date: dateIso?.toISOString(),
         originalEntry: entry,
@@ -372,6 +374,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
                             return null;
                         }
                       })}
+                      <FilledByCards updates={updates} createdByRole={entry?.createdByRole} createdByName={entry?.createdByName} />
                     </>
                   )}
                 </div>
@@ -445,7 +448,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
 
   if (isLiteMode) {
     return (
-      <div className="ot-notes-timeline-container flex-column-gap-16">
+      <div className="ot-notes-timeline-container no-margin-bottom flex-column-gap-16">
         {filteredMappedData?.map((section, sectionIndex) => {
           return (
             <div className="otnotelite-section-container big-box-with-shadow flex-column-gap-16">

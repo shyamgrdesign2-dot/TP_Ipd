@@ -32,13 +32,13 @@ import { getInvestigationTemplates } from "../../../redux/investigationSlice";
 import { getAdviceTemplates } from "../../../redux/adviceSlice";
 import AddCustomModule from "../../../components/AddCustomModule";
 import { useSelector } from "react-redux";
-import {
-  convertMedicationFormat,
-} from "../../../utils/utils";
+import { convertMedicationFormat } from "../../../utils/utils";
 import CustomModule from "../../../components/CustomModule";
 import BackConfirmationModal from "../../../components/BackConfirmationModal";
 import { useAssessmentSectionVisibility } from "../../../hooks/useAssessmentSectionVisibility";
 import { useAssessmentDataStore } from "../../../hooks/useAssessmentDataStore";
+import ProvisionalDiagnosisWrapper from "./provisinalDiagnosisWrapper";
+import dayjs from "dayjs";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -57,11 +57,23 @@ const AssessmentsForm = (props) => {
   const { obstetricDetails: allObstetricDetails } = useSelector(
     (state) => state.obstetric
   );
+  const { dischargeSummaryData } = useSelector(
+    (state) => state.dischargeSummary
+  );
+  const { provisionalDiagnosis = [] } =
+    dischargeSummaryData?.diagnosisAndSurgery || {};
   const { customization = {} } = useSelector((state) => state.ipd);
   const { customModules } = useSelector((state) => state.customModules);
   const assessmentData = useSelector((state) => state.assessment);
   const prescriptionData = useSelector((state) => state.prescription);
   const { assessments = [] } = customization;
+  const { profile } = useSelector((state) => state.doctors);
+  const [filledDate, setFilledDate] = useState(new Date());
+  const [filledAtTime, setFilledAtTime] = useState(new Date());
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
+  const handleTimePeriodChange = (value) => {
+    setSelectedTimePeriod(value);
+  };
   const [modelData, setModelData] = useState(
     assessments.length > 0
       ? assessments
@@ -74,6 +86,13 @@ const AssessmentsForm = (props) => {
     }
   }, [assessments]);
 
+  useEffect(() => {
+    const { date, time } = assessmentData.assessmentsData || {};
+    if (date && time) {
+      setFilledDate(new Date(date));
+      setFilledAtTime(new Date(time));
+    }
+  }, [assessmentData.assessmentsData]);
 
   useEffect(() => {
     if (
@@ -144,6 +163,8 @@ const AssessmentsForm = (props) => {
         return <PhysicalExamination {...props} sectionData={data} />;
       case "functionalAssessment":
         return <FunctionalAssessment {...props} sectionData={data} />;
+      case "provisionalDiagnosis":
+        return <ProvisionalDiagnosisWrapper {...props} sectionData={data} />;
       case "treatmentPlan":
         return <TreatmentPlan {...props} sectionData={data} />;
       case "additionalNotes":
@@ -161,8 +182,10 @@ const AssessmentsForm = (props) => {
 
   const onSaveAssessmentClick = () => {
     const reqData = {
+      date: filledDate,
+      time: filledAtTime,
       basicInfo: {
-        chiefComplaint: assessmentData.chiefComplaint || [],
+        presentingComplaints: assessmentData.chiefComplaint || [],
         historyOfPresentIllness: assessmentData.historyOfPresentIllness,
         currentMedications: convertMedicationFormat(
           prescriptionData.medicationData || []
@@ -189,9 +212,8 @@ const AssessmentsForm = (props) => {
           return acc;
         }, {}),
         others: assessmentData.physicalExaminationOthersData || [],
-        provisionalDiagnosis:
-          assessmentData.physicalExaminationProvisionalDiagnosisData || [],
       },
+      provisionalDiagnosis: provisionalDiagnosis || [],
       functionalAssessment:
         {
           ...assessmentData.functionalAssessmentData,
@@ -265,7 +287,10 @@ const AssessmentsForm = (props) => {
         })
       ).then((res) => {
         addDataToStore(res.payload.assessment);
-        navigate(`/ipd/patient-details`, {state: {...state, activeTab: "assessment", isEditable: false}, replace: true});
+        navigate(`/ipd/patient-details`, {
+          state: { ...state, activeTab: "assessment", isEditable: false },
+          replace: true,
+        });
         setIsBackModalOpen(false);
         setOpen(false);
       });
@@ -275,39 +300,53 @@ const AssessmentsForm = (props) => {
       setOpen(false);
     }
   };
-  console.log('INTEL ==> DATA', assessmentData, prescriptionData, allObstetricDetails)
 
-  const renderBottomSection = () => {
+  const renderFilledBySection = () => {
     return (
-      <div className="ipd-custom-module-container">
-        {customModules?.map((customModule) => {
-          return (
-            <CustomModule module={customModule} patient_data={patient_data} />
-          );
-        })}
-        <AddCustomModule />
+      <div style={{ margin: "24px 24px 0" }}>
+        <FilledByCard
+          filledBy={profile?.um_name}
+          role="Doctor"
+          selectedDate={dayjs(filledDate)}
+          selectedTime={dayjs(filledAtTime)}
+          dateFormat="DD MMM YYYY"
+          timeFormat="HH:mm A"
+          selectedTimePeriod={selectedTimePeriod}
+          timePeriodOptions={[
+            { label: "Morning", value: "Morning" },
+            { label: "Afternoon", value: "Afternoon" },
+            { label: "Evening", value: "Evening" },
+            { label: "Night", value: "Night" },
+          ]}
+          onDateChange={(date) => setFilledDate(date)}
+          onTimeChange={(time) => setFilledAtTime(time)}
+          onTimePeriodChange={handleTimePeriodChange}
+          editable
+          showTimePeriod={true}
+        />
       </div>
     );
   };
 
   const renderAllSections = () => {
+    const latestUpdatedAt = assessmentData.assessmentsData?.date || new Date();
+    const latestUpdatedAtTime = assessmentData.assessmentsData?.time || new Date();
     return (
       <div
         className={`ipd-generic-form-container ${
           !isEditable ? "ipd-assessments-readable-container" : ""
         }`}
-        style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
       >
-        {assessmentData.assessmentsFilledByData?.createdByName && (
+        {latestUpdatedAt && (
           <FilledByCard
+            showBeing={!latestUpdatedAt}
             filledBy={
               assessmentData.assessmentsFilledByData?.createdByName || ""
             }
             role={assessmentData.assessmentsFilledByData?.createdByRole || ""}
             showFilledOnDate={true}
-            selectedDate={
-              assessmentData.assessmentsFilledByData?.createdAt || ""
-            }
+            selectedDate={latestUpdatedAt}
+            selectedTime={latestUpdatedAtTime}
           />
         )}
         {assessments.length > 0
@@ -334,9 +373,8 @@ const AssessmentsForm = (props) => {
             className={`ipd-generic-form-container ${
               !isEditable ? "ipd-assessments-readable-container" : ""
             }`}
-            style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
           >
-            {open && modelData && (
+            {open && assessments && (
               <LayoutWithMenu
                 onCustomiseClick={() => setShowCustomisationDrawer(true)}
                 key="assessment"
@@ -345,8 +383,9 @@ const AssessmentsForm = (props) => {
                   handler: onSaveAssessmentClick,
                   title: "Save",
                 }}
-                items={modelData}
+                items={assessments}
                 renderSection={renderSections}
+                renderTopSection={renderFilledBySection}
                 onRequestClose={() => {
                   setIsBackModalOpen(true);
                 }}
@@ -365,7 +404,16 @@ const AssessmentsForm = (props) => {
           className="customise-form-ipd-container"
           title="Customise Your Form"
           open={showCustomisationDrawer}
-          onClose={() => setShowCustomisationDrawer(false)}
+          onClose={() => {
+            console.log("INTEL ==> CLOSE");
+            dispatch(
+              updateCustomization({
+                ...customization,
+                assessments: modelData,
+              })
+            );
+            return setShowCustomisationDrawer(false);
+          }}
           extra={
             <>
               <Button

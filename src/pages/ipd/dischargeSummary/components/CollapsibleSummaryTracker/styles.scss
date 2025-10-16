@@ -1,0 +1,259 @@
+/* Variables (tweak freely) */
+$ink: #1f2430;
+$ink-weak: #5f5f68;
+$brand: #5d5fee;
+$bg-soft: #a461d80a;
+$chip-green-bg: #e7f6ec;
+$chip-green-text: #1f7a3a;
+$chip-gray-bg: #eef0f3;
+$chip-gray-text: #6a6f76;
+$chip-muted-bg: #e6f7ee;
+$border: #e5e0ff;
+$panel-border: #d7cdfc;
+$row-border: #eee9ff;
+$radius-xl: 16px;
+$radius-lg: 12px;
+$radius-md: 10px;
+
+.asc-card {
+  border: 1px solid $border;
+  border-radius: $radius-xl;
+  background: #fff;
+  overflow: hidden;
+  background: linear-gradient(0deg, #ffffff, #ffffff),
+    linear-gradient(0deg, rgba(164, 97, 216, 0.04), rgba(164, 97, 216, 0.04));
+
+  border: 1px solid #a461d866;
+
+  &.no-decor {
+    border: none;
+    background: transparent;
+  }
+
+  &__header {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+
+    &:focus-visible {
+      outline: 2px solid $brand;
+      outline-offset: 2px;
+      border-radius: calc($radius-xl - 2px);
+    }
+  }
+
+  &__leading {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  &__icon {
+    border-radius: 100px;
+    background: #a461d81a;
+    padding: 4px;
+    z-index: 2;
+    position: relative;
+    width: 28px;
+    height: 28px;
+  }
+
+  &__title {
+    @include fs14-bold;
+    color: $ink;
+    margin: 0 6px 0 0;
+  }
+
+  &__trailing {
+    display: grid;
+    place-items: center;
+  }
+
+  &__caret {
+    width: 18px;
+    height: 18px;
+  }
+
+  &__panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 220ms ease, padding 220ms ease, background 220ms ease;
+    padding: 0 0;
+
+    &.is-open {
+      /* large max-height so CSS-only animation works without JS measuring */
+      max-height: 1200px;
+
+      background: $bg-soft;
+    }
+  }
+}
+
+/* Reusable chips */
+.asc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1;
+  padding: 8px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  user-select: none;
+
+  &--added {
+    background: $chip-green-bg;
+    color: $chip-green-text;
+    font-weight: 600;
+  }
+
+  &--empty {
+    background: $chip-gray-bg;
+    color: $chip-gray-text;
+    font-weight: 600;
+  }
+
+  &--muted {
+    background: #eaf7ea;
+    color: #2d6f4f;
+    font-weight: 600;
+  }
+}
+
+/* List panel */
+.asc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 !important;
+
+  &__row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+
+    border-radius: $radius-lg;
+    padding: 14px 14px 14px 24px;
+    margin: 12px 0px;
+
+    /* subtle shadow like the screenshot’s tiles inside */
+  }
+
+  &__row-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  &__branch {
+    width: 16px;
+    height: 16px;
+    border-left: 2px solid #d7d7f8;
+    border-bottom: 2px solid #d7d7f8;
+    border-radius: 0 0 0 6px;
+    margin-right: 2px;
+  }
+
+  &__icon {
+    border-radius: 100px;
+    background: #a461d81a;
+    padding: 4px;
+    z-index: 2;
+    position: relative;
+    width: 28px;
+    height: 28px;
+    flex: 0 0 auto;
+  }
+
+  &__text {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  &__title {
+    @include fs14-semibold;
+    color: $ink;
+  }
+
+  &__hint {
+    font-size: 12px;
+  }
+
+  &__row-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+  }
+}
+
+$rail-left: 16px;
+$icon-size: 32px;
+
+.asc-card__icon-container {
+  position: relative;
+  background: white;
+  border-radius: 100px;
+}
+.sumtrack-full-container {
+  position: relative;
+  width: 400px;
+  padding: 0 18px;
+  .sumtrack-headings {
+    padding: 18px 0;
+  }
+  .sumtrack-title {
+    @include fs18-bold;
+    margin-bottom: 6px;
+  }
+  .sumtrack-desc {
+    @include fs14-normal;
+  }
+}
+.summary-tracker-container {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  &::before {
+    content: "";
+    position: absolute;
+    top: 18px;
+    bottom: 0;
+    left: calc(#{$rail-left} + #{$icon-size} / 2);
+    width: 0;
+    height: calc(100% - 59px);
+    left: 32px;
+    width: 1px;
+    background: repeating-linear-gradient(
+      to bottom,
+      #a461d8,
+      #a461d8 5px,
+      transparent 5px,
+      transparent 10px
+    );
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.asc-card__icon {
+  position: relative;
+  z-index: 2;
+  border-radius: 999px;
+  background: #a461d81a;
+}

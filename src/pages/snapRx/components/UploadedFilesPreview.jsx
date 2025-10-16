@@ -90,9 +90,9 @@ const UploadedFilesPreview = ({ uploadedFiles, onEdit, loading, onDelete }) => {
           <div key={index} className="file-preview-card">
             <div className="file-header">
               <div className="page-info">
-                <div className="page-icon">
+                {/* <div className="page-icon">
                   <PageIcon />
-                </div>
+                </div> */}
                 <span className="page-text">Page {index + 1}</span>
               </div>
               <div className="file-actions">

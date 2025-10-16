@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import ExaminationSection from "./ExaminationSection";
 import Vitals from "./Vitals";
@@ -21,137 +21,98 @@ const PhysicalExamination = (props) => {
     physicalExaminationBasicData = {},
     vitalsData,
   } = assessmentData;
-  const { isEditable = true, sectionData, showCollapsibleWrapper= true } = props || {};
+  const {
+    isEditable = true,
+    sectionData,
+    showCollapsibleWrapper = true,
+    children,
+  } = props || {};
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
-  const [
-    autoFillTextToAppendProvisionalDiagnosis,
-    setAutoFillTextToAppendProvisionalDiagnosis,
-  ] = useState([]);
+  
   const handleOthersChange = (data) => {
     dispatch(setPhysicalExaminationOthersData(data));
   };
 
-  const handleProvisionalDiagnosisChange = (data) => {
-    dispatch(setPhysicalExaminationProvisionalDiagnosisData(data));
-  };
 
   const renderOthers = (data) => {
     if (!isEditable && isEmptyRichText(physicalExaminationOthersData))
       return null;
     return (
-      <RichTextEditWrapper
-        readOnly={!isEditable}
-        showToolbar={isEditable}
-        showActionBtns={isEditable}
-        title={data?.title}
-        width={isEditable ? "100%" : "fit-content"}
-        icon={assessmentsIcons[`${data?.id}Pc`]}
-        showAutoFill={false}
-        containerClass={`wrapper-class ipdpe-others-section ${
-          !isEditable ? "ipd-wrapper-class-readonly" : ""
-        }`}
-        showMagicPenGif={false}
-        showMicrophone={false}
-        onChange={handleOthersChange}
-        initialValue={
-          physicalExaminationOthersData?.length
-            ? physicalExaminationOthersData
-            : [
-                {
-                  type: "paragraph",
-                  children: [{ text: "" }],
-                },
-              ]
-        }
-        placeholder={"Enter any other examination findings not covered above"}
-        onSave={() => {
-          console.log("save");
-        }}
-        onErase={() => {
-          setAutoFillTextToAppend(["clear"]);
-        }}
-        onTemplate={() => {
-          console.log("template");
-        }}
-        newAutoFillTextToAppend={autoFillTextToAppend}
-        setNewAutoFillTextToAppend={setAutoFillTextToAppend}
-      />
+      <div
+      >
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
+          title={data?.title}
+          width={isEditable ? "100%" : "fit-content"}
+          icon={assessmentsIcons[`${data?.id}Pc`]}
+          showAutoFill={false}
+          containerClass={`ipdpe-others-section ${
+            !isEditable ? "ipd-wrapper-class-readonly" : ""
+          }`}
+          showMagicPenGif={false}
+          showMicrophone={false}
+          onChange={handleOthersChange}
+          initialValue={
+            physicalExaminationOthersData?.length
+              ? physicalExaminationOthersData
+              : [
+                  {
+                    type: "paragraph",
+                    children: [{ text: "" }],
+                  },
+                ]
+          }
+          placeholder={"Enter any other examination findings not covered above"}
+          onSave={() => {
+            console.log("save");
+          }}
+          onErase={() => {
+            handleOthersChange([
+              {
+                type: "paragraph",
+                children: [{ text: "" }],
+              },
+            ]);
+            setAutoFillTextToAppend(["clear"]);
+          }}
+          onTemplate={() => {
+            console.log("template");
+          }}
+          newAutoFillTextToAppend={autoFillTextToAppend}
+          setNewAutoFillTextToAppend={setAutoFillTextToAppend}
+        />
+      </div>
     );
   };
 
-  const renderProvisionalDiagnosis = (data) => {
-    if (
-      !isEditable &&
-      isEmptyRichText(physicalExaminationProvisionalDiagnosisData)
-    )
-      return null;
+  const renderChildren = useCallback(() => {
     return (
-      <RichTextEditWrapper
-        readOnly={!isEditable}
-        showToolbar={isEditable}
-        showActionBtns={isEditable}
-        title={data?.title}
-        width={isEditable ? "100%" : "fit-content"}
-        icon={assessmentsIcons[`${data?.id}Pc`]}
-        showAutoFill={false}
-        containerClass={`wrapper-class ${
-          !isEditable ? "ipd-wrapper-class-readonly" : ""
-        }`}
-        opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        onChange={handleProvisionalDiagnosisChange}
-        showMicrophone={false}
-        initialValue={
-          physicalExaminationProvisionalDiagnosisData?.length
-            ? physicalExaminationProvisionalDiagnosisData
-            : [
-                {
-                  type: "paragraph",
-                  children: [{ text: "" }],
-                },
-              ]
-        }
-        placeholder={
-          "Enter provisional diagnosis like suspected condition or working diagnosis"
-        }
-        onSave={() => {
-          console.log("save");
-        }}
-        onErase={() => {
-          setAutoFillTextToAppendProvisionalDiagnosis(["clear"]);
-        }}
-        onTemplate={() => {
-          console.log("template");
-        }}
-        newAutoFillTextToAppend={autoFillTextToAppendProvisionalDiagnosis}
-        setNewAutoFillTextToAppend={setAutoFillTextToAppendProvisionalDiagnosis}
-      />
+      <div className="flex-column-gap-16">
+        {sectionData?.children?.map((item) => {
+          return (
+            <React.Fragment key={item.id}>
+              {(() => {
+                switch (item?.id) {
+                  case "examinations":
+                    return <ExaminationSection {...props} sectionData={item} />;
+                  case "vitals":
+                    return <Vitals {...props} sectionData={item} />;
+                  case "others":
+                    return renderOthers(item);
+                  default:
+                    return null;
+                }
+              })()}
+            </React.Fragment>
+          );
+        })}
+        {children && children}
+      </div>
     );
-  };
-
-  const renderChildren = () => {
-    return sectionData?.children?.map((item) => {
-      return (
-        <React.Fragment key={item.id}>
-          {(() => {
-            switch (item?.id) {
-              case "examinations":
-                return <ExaminationSection {...props} sectionData={item} />;
-              case "vitals":
-                return <Vitals {...props} sectionData={item} />;
-              case "others":
-                return renderOthers(item);
-              case "provisionalDiagnosis":
-                return renderProvisionalDiagnosis(item);
-              default:
-                return null;
-            }
-          })()}
-        </React.Fragment>
-      );
-    });
-  };
+  }, [physicalExaminationOthersData, vitalsData, physicalExaminationBasicData, sectionData]);
   if (
     !isEditable &&
     !Object.keys(physicalExaminationBasicData)?.length &&

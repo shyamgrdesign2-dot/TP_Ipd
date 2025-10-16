@@ -24,6 +24,8 @@ import physicalExaminationGray from './physicalExamination-gray.svg';
 import physicalExaminationPcDark from './physicalExamination-pc-dark.svg';
 import physicalExaminationPc from './physicalExamination-pc.svg';
 import provisionalDiagnosisPc from './provisionalDiagnosis-pc.svg';
+import provisionalDiagnosisGray from './provisionalDiagnosis-gray.svg';
+import provisionalDiagnosisPcDark from './provisionalDiagnosis-pc-dark.svg';
 import referredToPhysiotherapyPc from './referredToPhysiotherapy-pc.svg';
 import specialInstructionsPc from './specialInstructions-pc.svg';
 import treatmentPlanGray from './treatmentPlan-gray.svg';
@@ -57,6 +59,8 @@ export const defaultIcons = {
   physicalExaminationPcDark,
   physicalExaminationPc,
   provisionalDiagnosisPc,
+  provisionalDiagnosisGray,
+  provisionalDiagnosisPcDark,
   referredToPhysiotherapyPc,
   specialInstructionsPc,
   treatmentPlanGray,
@@ -91,6 +95,8 @@ export {
   physicalExaminationPcDark,
   physicalExaminationPc,
   provisionalDiagnosisPc,
+  provisionalDiagnosisGray,
+  provisionalDiagnosisPcDark,
   referredToPhysiotherapyPc,
   specialInstructionsPc,
   treatmentPlanGray,

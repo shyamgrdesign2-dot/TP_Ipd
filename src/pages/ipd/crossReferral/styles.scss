@@ -338,67 +338,6 @@
   gap: 8px;
   flex-wrap: wrap;
 }
-.team-member-chip {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 5px 20px 5px 12px;
-  gap: 24px;
-  font-size: 14px;
-  overflow: hidden;
-  position: relative;
-  border: 0.3px solid rgba(238, 222, 255, 0.5);
-  background: rgba(243, 237, 252, 0.4);
-  max-width: fit-content;
-  .chip-role {
-    box-shadow: 0px 0.88px 1.77px 0px rgba(0, 0, 0, 0.05);
-
-    border: 0.88px solid rgba(167, 243, 208, 1);
-    border-radius: 12px;
-    padding: 2px 8px;
-    font-size: 12px;
-    font-weight: 500;
-    color: rgba(61, 140, 64, 1) !important;
-    background: rgba(236, 253, 245, 1);
-  }
-  .chip-content {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-
-  .team-member-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    position: absolute;
-    left: 2px;
-    bottom: -2px;
-  }
-
-  .team-member-label {
-    color: var(--label);
-    font-weight: 400;
-    white-space: nowrap;
-    font-size: 12px;
-    margin-left: 14px;
-    line-height: 16px;
-  }
-
-  .team-member-value {
-    margin-left: 14px;
-
-    color: var(--label);
-    font-weight: 600;
-    font-size: 14px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 16px;
-  }
-}
 
 .ipdrf-reason-container {
   .ipdrf-heading {

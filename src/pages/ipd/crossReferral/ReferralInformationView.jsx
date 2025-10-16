@@ -15,7 +15,12 @@ import MemberChip from "../components/MemberChip";
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
 const ReferralInformationView = (props) => {
-  const { data, uniqueId: _id, isCollapsible = true } = props || {};
+  const {
+    data,
+    uniqueId: _id,
+    isCollapsible = true,
+    isEditable = false,
+  } = props || {};
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { state } = useLocation();
@@ -64,7 +69,7 @@ const ReferralInformationView = (props) => {
           <img src={newIcons.basicInfoPcDark} alt="x" />
           <span>Referral Information</span>
         </div>
-        {isCurrentDoctorReferee && isCollapsible && (
+        {isEditable && isCurrentDoctorReferee && isCollapsible && (
           <div>
             <img
               className="medical-progress__content-calendar-icon"

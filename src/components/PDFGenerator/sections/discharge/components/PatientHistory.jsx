@@ -5,6 +5,7 @@
 import React from "react";
 import { View, Text } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
+import SlateToPdf from "../../../components/SlateToPdf";
 
 const styles = StyleSheet.create({
   // Main container
@@ -99,22 +100,53 @@ const styles = StyleSheet.create({
 const renderPresentingComplaints = (complaints, fontFamily) => {
   if (!complaints || complaints.length === 0) return null;
 
+  // Handle both old format (simple strings/objects) and new Slate.js format
+  const isSlateFormat =
+    Array.isArray(complaints) &&
+    complaints.some((item) => item && typeof item === "object" && item.type);
+
+  // Custom styles for the SlateToPdf component to match existing styling
+  const customStyles = {
+    bulletList: styles.bulletList,
+    bulletItem: styles.bulletItem,
+    bulletSymbol: styles.bullet,
+    bulletText: styles.bulletContent,
+    // Use default styles from SlateToPdf for numbered lists and paragraphs
+    numberedList: {},
+    numberedItem: {},
+    numberedSymbol: {},
+    numberedText: {},
+    paragraph: {},
+    text: {},
+  };
+
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
         <Text style={[styles.subsectionTitle, { fontFamily }]}>
           Presenting Complaints:
         </Text>
-        <View style={styles.bulletList}>
-          {complaints.map((complaint, index) => (
-            <View key={`complaint-${index}`} style={styles.bulletItem}>
-              <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-              <Text style={[styles.bulletContent, { fontFamily }]}>
-                {typeof complaint === "string" ? complaint : complaint.text}
-              </Text>
-            </View>
-          ))}
-        </View>
+        {isSlateFormat ? (
+          <View style={styles.bulletList}>
+            <SlateToPdf
+              nodes={complaints}
+              fontFamily={fontFamily}
+              customStyles={customStyles}
+            />
+          </View>
+        ) : (
+          // Fallback for old format
+          <View style={styles.bulletList}>
+            {complaints.map((complaint, index) => (
+              <View key={`complaint-${index}`} style={styles.bulletItem}>
+                <Text style={[styles.bullet, { fontFamily }]}>•</Text>
+                <Text style={[styles.bulletContent, { fontFamily }]}>
+                  {typeof complaint === "string" ? complaint : complaint.text}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
       </View>
     </View>
   );
@@ -359,16 +391,16 @@ const renderGynecHistory = (gynecData, fontFamily) => {
  */
 const PatientHistory = ({ data, formatSettings, fontFamily = "Poppins" }) => {
   if (!data?.patientHistory) return null;
-
   const { patientHistory } = data;
-  const subsections = formatSettings?.patientHistory || {};
 
-  // Sort subsections
-  const sortedSubsections = Object.entries(subsections)
-    .filter(([key]) => key !== "settings")
-    .map(([key, value]) => ({ key, ...value }))
-    .filter((section) => section.visible !== false)
-    .sort((a, b) => (a.order || 0) - (b.order || 0));
+  // Find patientHistory section in formatSettings array
+  const patientHistorySection = formatSettings.find(
+    (section) => section.key === "patientHistory"
+  );
+  const subsections = patientHistorySection?.subSections || [];
+
+  // Sort subsections (already processed by getSortedSections)
+  const sortedSubsections = subsections;
 
   return (
     <View style={styles.mainContainer}>
@@ -376,14 +408,11 @@ const PatientHistory = ({ data, formatSettings, fontFamily = "Poppins" }) => {
         const key = subsection.key;
 
         // Presenting Complaints
-        if (
-          key === "presentingComplaints" &&
-          patientHistory.presentingComplaints
-        ) {
+        if (key === "presentingComplaints" && patientHistory.chiefComplaint) {
           return renderPresentingComplaints(
-            Array.isArray(patientHistory.presentingComplaints)
-              ? patientHistory.presentingComplaints
-              : [patientHistory.presentingComplaints],
+            Array.isArray(patientHistory?.chiefComplaint)
+              ? patientHistory.chiefComplaint
+              : [patientHistory.chiefComplaint],
             fontFamily
           );
         }

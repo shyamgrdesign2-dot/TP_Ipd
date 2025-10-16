@@ -31,6 +31,7 @@ import MessageCreateCampaign from "./pages/MessageCreateCampaign";
 import { store, persistor } from "./redux/store";
 import {
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+  PERSISTANT_STORAGE_KEY_BILL_TOKEN,
   PERSISTANT_STORAGE_KEY_MEDECO_TOKEN,
 } from "./utils/constants";
 import { useLocalStorage } from "./utils/localStorage";
@@ -56,6 +57,7 @@ import GetUnlimitedAccess from "./pages/monetization/GetUnlimitedAccess";
 import UpgradeServicesModal from "./pages/monetization/components/UpgradeServicesModal";
 import Onboarding from "./pages/onBoarding/components/Onboarding";
 import FinalSetup from "./pages/FinalSetup";
+import OurOffering from "./pages/ourOffering/OurOffering";
 import SnapRx from "./pages/snapRx/SnapRx";
 import UploadRx from "./pages/uploadRx";
 import BottomSheetManager from "./components/bottomSheetManager";
@@ -78,6 +80,7 @@ import CrossReferralConsultantNotes from "./pages/ipd/crossReferral/CrossReferra
 import DischargeSummary from "./pages/ipd/dischargeSummary/DischargeSummary";
 import PreviewDischargeSummary from "./pages/ipd/dischargeSummary/PreviewDischargeSummary";
 import PreviewProgressNotes from "./pages/ipd/progressNotes/previewProgressNotes";
+import ConfigurePrintSettings from "./pages/ipd/dischargeSummary/ConfigurePrintSettings";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -233,19 +236,22 @@ function App() {
     // Handle authToken in URL
     if (authToken) {
       setToken(authToken);
+      localStorage.removeItem(PERSISTANT_STORAGE_KEY_BILL_TOKEN);
 
       // Clean up URL but preserve other params
       const params = new URLSearchParams(location.search);
       if (!isReceptionist) {
         params.delete("authToken");
         // Navigate to appointment list
-        navigate(
-          {
-            pathname: "/",
-            search: params.toString(),
-          },
-          { replace: true }
-        );
+        // add condition for user comming from Medeco to practice offering page
+        if (location.pathname !== "/our-offerings")
+          navigate(
+            {
+              pathname: "/",
+              search: params.toString(),
+            },
+            { replace: true }
+          );
       }
     }
   }, [authToken, setToken, navigate]);
@@ -407,6 +413,7 @@ function App() {
               {/* Public route */}
               {/* <Route path="/login" element={<AuthContainer />} /> */}
               <Route path="/login" element={<Onboarding />} />
+              <Route path="/our-offerings" element={<OurOffering />} />
               <Route path="/final-setup" element={<FinalSetup />} />
 
               {/* Restricted route - authorized only to get/upload snapRx files */}
@@ -415,18 +422,42 @@ function App() {
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>
                 <Route path="/*" element={<AppointmentList />} />
-                <Route path={`/ipd/patient-details`} element={<IPDPatientDetails />}/>
-                <Route path="/ipd/patient-details/assessment-form" element={<AssessmentsForm />} />
-                <Route path="/ipd/patient-details/ot-notes" element={<OtNotes />} />
-                <Route path="/ipd/patient-details/cross-referral" element={<CrossReferral />} />
-                <Route path="/ipd/patient-details/cross-referral/consultant-notes" element={<CrossReferralConsultantNotes />} />
-                <Route path="/ipd/patient-details/discharge-summary" element={<DischargeSummary />} />
-                <Route path="/ipd/patient-details/progress-notes" element={<ProgressNotes />} />
+                <Route
+                  path={`/ipd/patient-details`}
+                  element={<IPDPatientDetails />}
+                />
+                <Route
+                  path="/ipd/patient-details/assessment-form"
+                  element={<AssessmentsForm />}
+                />
+                <Route
+                  path="/ipd/patient-details/ot-notes"
+                  element={<OtNotes />}
+                />
+                <Route
+                  path="/ipd/patient-details/cross-referral"
+                  element={<CrossReferral />}
+                />
+                <Route
+                  path="/ipd/patient-details/cross-referral/consultant-notes"
+                  element={<CrossReferralConsultantNotes />}
+                />
+                <Route
+                  path="/ipd/patient-details/discharge-summary"
+                  element={<DischargeSummary />}
+                />
+                <Route
+                  path="/ipd/patient-details/progress-notes"
+                  element={<ProgressNotes />}
+                />
                 <Route
                   path="/ipd/patient-details/consultant-notes"
                   element={<ConsultantNotes />}
                 />
-                <Route path="/ipd/patient-details/lab-results" element={<LabResults />} />
+                <Route
+                  path="/ipd/patient-details/lab-results"
+                  element={<LabResults />}
+                />
                 {/* <Route
                   path="/ipd/patient-details/medical-records"
                   element={<IPDMedicalRecords />}
@@ -517,8 +548,15 @@ function App() {
                 <Route path="ipd" element={<HomePageLayout />}>
                   <Route path="inPatients" element={<InPatients />} />
                 </Route>
-              <Route path="ipd/discharge-summary/preview" element={<PreviewDischargeSummary />} />
-              <Route path="ipd/progress-notes/preview" element={<PreviewProgressNotes />} />
+                <Route
+                  path="ipd/discharge-summary/preview"
+                  element={<PreviewDischargeSummary />}
+                />
+                <Route
+                  path="ipd/discharge-summary/configure-print-settings"
+                  element={<ConfigurePrintSettings />}
+                />
+                <Route path="ipd/progress-notes/preview" element={<PreviewProgressNotes />} />
               </Route>
               <Route path="opd-bill" element={<OpdBill />} />
             </Routes>

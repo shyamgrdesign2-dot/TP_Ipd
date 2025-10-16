@@ -832,6 +832,30 @@ function HeaderFooterLayout({ todayVaccines, growthChartDetails, obstetricDetail
 
                 {headerFooterShowHide && (
                     <div className="mt-4">
+                       <div className="my-4">
+                          <div className="my-2">Print Header &amp; Footer</div>
+                          <Radio.Group
+                             value={printSettings?.header_footer?.show_header_footer_page || 'all'}
+                             onChange={e => {
+                             const next = e.target.value; // allow both 'first' and 'all'
+                            setPrintSettings(prev => ({
+                             ...prev,
+                             header_footer: {
+                             ...prev.header_footer,
+                             show_header_footer_page: next,
+                            },
+                        }));
+                       }}
+                       style={{ width: '100%', display: 'flex' }}
+                        >
+                       <Radio.Button value="first" style={{ flex: 1, textAlign: 'center' }}>
+                        Only on First Page
+                        </Radio.Button>
+                        <Radio.Button value="all" style={{ flex: 1, textAlign: 'center' }}>
+                         On All Pages
+                        </Radio.Button>
+                        </Radio.Group>
+                        </div>
                         <div className="mt-3">
                             <Form.Item className="mb-0">
                                 <label className="mb-1 title-common">Select Letterhead Format</label>

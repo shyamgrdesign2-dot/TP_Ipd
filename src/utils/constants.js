@@ -18,7 +18,8 @@ export const PERSISTANT_STORAGE_KEY_EXTRA = "persistant.storage.key.extra";
 export const SNAP_RX_TOKENS_STORAGE_KEY = "snapRxFileUploadTokensV2";
 export const FROM_NATIVE_APP = "from_native_app";
 export const MESSAGE_KEY = "message_key";
-export const PERSISTANT_STORAGE_KEY_BILL_TOKEN = 'persistant.storage.key.bill-token';
+export const PERSISTANT_STORAGE_KEY_BILL_TOKEN =
+  "persistant.storage.key.bill-token";
 export const IS_DEV = true;
 export const PAGE_SIZE = 10;
 
@@ -35,6 +36,11 @@ export const TAB_PURCHASE = 2;
 export const TAB_PRESCRIPTION = 1;
 export const TAB_HEADER_FOOTER = 2;
 export const TAB_PAGE_FORMAT = 3;
+
+// IPD Print Settings Tabs
+export const TAB_FORMAT_STYLE = "formatStyle";
+export const TAB_HEADER_FOOTER_IPD = "headerFooter";
+export const TAB_PAGE_FORMAT_IPD = "pageFormat";
 
 export const TAB_ADDRESS = "1";
 export const TAB_TIMINGS = "2";
@@ -65,7 +71,8 @@ export const WTSAP_ERR_MESSAGE =
 
 export const AISENSY_SCRIPT_ID = "aisensy-wa-widget";
 export const AISENSY_SCRIPT_CONTAINER = ".aisensy-widget-container";
-export const AISENSY_SCRIPT_SRC = "https://d3mkw6s8thqya7.cloudfront.net/integration-plugin.js";
+export const AISENSY_SCRIPT_SRC =
+  "https://d3mkw6s8thqya7.cloudfront.net/integration-plugin.js";
 
 export const GB_ISCRIBE = "iscribe";
 export const GB_SMARTSYNC_CONNECT = "smartsync-connect";
@@ -78,9 +85,12 @@ export const GB_APOLLO_DISABLE_FEATURE = "apollo-disable-feature";
 
 export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
+export const NEO_NATOLOGISTS_DP_ID = 122;
+export const PAEDIATRICS_DP_ID = 9;
 export const GB_SNAP_RX = "snap-rx";
 export const GB_SNAP_RX_DIGITIZATION = "snap-rx-digitization";
 export const GB_DISABLE_MSG91_OTP_FLOW = "disable-msg91-otp-flow";
+export const GB_CARE_PLAN = "care-plan-dropdown";
 
 export const FREE = "FREE";
 export const TRIAL = "TRIAL";
@@ -185,6 +195,61 @@ export const FONTS_SIZE_LIST = [
     label: "16",
   },
 ];
+
+export const LANGUAGE_LIST = [
+    {
+        value: 1,
+        label: 'English',
+    },
+    {
+        value: 2,
+        label: 'Gujarati',
+    },
+    {
+        value: 3,
+        label: 'Hindi',
+    },
+    {
+        value: 4,
+        label: 'Marathi',
+    },
+    // {
+    //     value: 5,
+    //     label: 'Telugu',
+    // },
+    {
+        value: 6,
+        label: 'Kannada',
+    },
+    // {
+    //     value: 7,
+    //     label: 'Urdu',
+    // },
+    // {
+    //     value: 8,
+    //     label: 'Punjabi',
+    // },
+    // {
+    //     value: 9,
+    //     label: 'Malayalam',
+    // },
+    {
+        value: 10,
+        label: 'Tamil',
+    },
+    {
+        value: 11,
+        label: 'Assamese',
+    },
+    {
+        value: 12,
+        label: 'Bengali',
+    },
+    {
+        value: 13,
+        label: 'Odia',
+    },
+]
 
 export const PAEDIATRIC_DP_ID = 9;
 
@@ -302,8 +367,8 @@ export const SNAP_RX_KNOW_MORE_DATA = {
     description: "Please watch this video to know how Snap Rx  Works👇",
   },
   videoLink: {
-    link: "https://www.youtube.com/embed/mAZ7Sa86PnQ",
-    thumbnail: "https://i.ytimg.com/vi/mAZ7Sa86PnQ/hqdefault.jpg",
+    link: "https://www.youtube.com/embed/xXPsyTPSNHA",
+    thumbnail: "https://i.ytimg.com/vi/xXPsyTPSNHA/hqdefault.jpg",
   },
   tips: {
     smallTitle: "Tips",
@@ -345,7 +410,7 @@ export const HIDE_ROUTES = {
 // WhatsApp enabled doctors for Zydus Hospital
 export const ZYDUS_WHATSAPP_ENABLED_DOCTORS = [
   "9825181439",
-  "9925179799", 
+  "9925179799",
   "9537045169",
-  "9925560870"
+  "9925560870",
 ];

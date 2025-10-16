@@ -317,7 +317,6 @@ const FunctionalAssessment = (props) => {
     isEmptyRichText(functionalAssessmentData?.others)
   )
     return null;
-  console.log("INTEL ==> showCollapsibleWrapper", showCollapsibleWrapper);
   return (
     <>
       {showCollapsibleWrapper ? (

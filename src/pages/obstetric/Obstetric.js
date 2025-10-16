@@ -418,7 +418,6 @@ const Obstetric = ({
       dispatch(addObstetricDetails(payload));
       dispatch(resetUpdatedPatientDiagnosis());
       setLoader(true);
-      console.log('INTEL ==> payload', payload)
       if (handleObstetricHistory) {
         setLoader(false);
         trackUpdateEvent();

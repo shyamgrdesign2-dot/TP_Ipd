@@ -44,6 +44,10 @@
   :where(.css-dev-only-do-not-override-1okl62o).ant-tabs {
     line-height: 2.571429;
   }
+
+  .border-none {
+    border-color: transparent !important;
+  }
 }
 .print-tabs {
   .ant-tabs-tab {
@@ -1677,6 +1681,17 @@ body {
   background: #fff;
 }
 
+.loading-digitised-container {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  > div {
+    position: relative !important;
+    height: 100% !important;
+  }
+}
+
 .digitised-container {
   padding: 20px;
   gap: 10px;
@@ -1693,7 +1708,8 @@ body {
   letter-spacing: 0.1px;
 }
 
-.digitised-section {
+.digitised-section,
+.digitised-section-rx {
   display: flex;
   padding: 16px;
   align-items: center;
@@ -1701,7 +1717,6 @@ body {
   align-self: stretch;
   border-radius: 10px;
   border: 1px solid var(--T-Text-10, #e2e2ea);
-  background: #fcfcfc;
   margin-bottom: 1.5rem;
 
   .no-bullets {
@@ -1750,6 +1765,10 @@ body {
       background: #f5f5f5;
     }
   }
+}
+
+.digitised-section-rx {
+  background: #fff;
 }
 
 .digitised-data-section {
@@ -1812,6 +1831,7 @@ body {
   position: relative;
   margin-bottom: 5px;
   transition: background-color 0.3s ease;
+  max-width: 100%;
 }
 
 .medicine-item input:focus {
@@ -1822,7 +1842,21 @@ body {
   width: auto;
 }
 
+.medicine-item {
+  span.separator {
+    margin: 0 4px; /* adds 4px space on both sides */
+  }
+}
+
 .title-digitise-card {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.title-digitise-card-inside-loader {
+  position: absolute;
+  top: 20px;
+  left: 20px;
   font-size: 1rem;
   font-weight: 500;
 }
@@ -1834,6 +1868,10 @@ body {
   border-radius: 6px;
   border: 1px solid #eddff7;
   background: #fafafb;
+  box-sizing: border-box;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .know-more-cvt {
@@ -2979,6 +3017,70 @@ body {
   border-radius: 16px;
 }
 
+.title-digitise-section-wrapper {
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 8px;
+  transition: border-color 160ms ease;
+}
+
+.highlight-blue {
+  border-color: #3b82f6;
+}
+
+.editable-digitised-item {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0 2px;
+  font: inherit;
+}
+
+.drx-h-full {
+  height: calc(100dvh - 170px);
+  position: relative;
+  overflow: hidden;
+  .card {
+    position: relative;
+    height: 100%;
+    overflow: auto;
+  }
+}
+
+.drx-written-container, .drx-digitize-container {
+  .digitize-rx {
+    overflow: hidden;
+    padding-bottom: 20px !important;
+    > div {
+      overflow: auto;
+      height: calc(100dvh - 250px);
+    }
+  }
+  .written-rx {
+    height: calc(100dvh - 230px);
+    overflow: auto;
+    padding-bottom: 20px !important;
+    > div {
+      overflow: hidden;
+      height: unset;
+    }
+  }
+  .digitize-rx {
+    .digitised-section-rx {
+      .digitised-rx-follow-up-item, ul, li {
+        position: relative;
+        width: 100%;
+      }
+    }
+  }
+}
+
+.srx-drx-container {
+  .card {
+    margin-bottom: 0 !important;
+  }
+}
+
 .newpage-btn {
   width: "40px";
   height: "40px";
@@ -3102,7 +3204,7 @@ body.sticky-search-open {
 }
 .ipd-wrapper-class-medbox-readonly {
   width: 100%;
-  padding: 10px 0 10px 0 !important;
+  padding: 10px !important;
 }
 
 .ipd-wrapper-class-readonly {

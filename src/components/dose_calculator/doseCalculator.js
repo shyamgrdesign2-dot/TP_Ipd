@@ -24,7 +24,7 @@ import { isMobile } from "react-device-detect";
 import { calculateDose, errorMessage, onlyDecimalFormat, removeBeforeWhiteSpace } from "../../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import CashManagerContext from "../../context/CashManagerContext";
-import { MESSAGE_KEY, PAEDIATRICS } from "../../utils/constants";
+import { MESSAGE_KEY, NEO_NATOLOGISTS_DP_ID, PAEDIATRICS } from "../../utils/constants";
 import {
   createDose,
   updateDose,
@@ -212,7 +212,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
           const findTmmId = medicationData.findIndex(e1 => e1.tmm_id == e.medicine_id)
           // if (!medicationData[findTmmId].tmm_dosage) {
           const tmm_unit = medicationData[findTmmId]?.tmm_unit;
-          const dose = calculateDose(e.dosage, todayWeight, e.concentration)
+          const dose = calculateDose(e.dosage, todayWeight, e.concentration, medicationData[findTmmId]?.tmm_type)
           if (isMobile) {
             const unitObj = medicationData[findTmmId]?.medicineUnit.find((x) => x.value == tmm_unit) !== undefined ?
               medicationData[findTmmId]?.medicineUnit.find((x) => x.value == tmm_unit) :
@@ -299,6 +299,8 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         height: '',
         weight: todayWeight || '',
         ofc: '',
+        fib4:'',
+        waist_circumference:'',
         bmi: cal.bmi,
         bmr: cal.bmr,
         bsa: cal.bsa,
@@ -314,7 +316,7 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         data: updateVitals,
       };
       const action = await dispatch(addUpdateVitals(sendData));
-      if (profile?.dp_name === PAEDIATRICS && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
+      if ((profile?.dp_name === PAEDIATRICS || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) && patient_data?.ageMonths <= 12 && patient_data?.ageYears === 0) {
         dispatch(
           getPatientBirthWeight({
             patient_unique_id:

@@ -44,20 +44,57 @@ export const getMargins = (margins = {}) => {
 };
 
 /**
- * Sort sections by order property
- * @param {Object} sections - Sections object
- * @returns {Array} Sorted sections array
+ * Sort sections by order property and handle nested subsections
+ * formatStyle is now always an array
+ * @param {Array} sections - Sections array
+ * @returns {Array} Sorted sections array with processed subsections
  */
 export const getSortedSections = (sections) => {
-  if (!sections) return [];
+  if (!Array.isArray(sections)) return [];
 
-  return Object.entries(sections)
-    .map(([key, value]) => ({
-      key,
-      ...value,
+  return sections
+    .map((section) => ({
+      key: section.id,
+      ...section,
+      // Recursively process subsections if they exist
+      subSections:
+        section.subSections && Array.isArray(section.subSections)
+          ? getSortedSections(section.subSections)
+          : section.subSections,
     }))
     .filter((section) => section.visible !== false)
     .sort((a, b) => (a.order || 0) - (b.order || 0));
+};
+
+/**
+ * Get all visible sections as a flat array (including nested subsections)
+ * Useful for renderers that need to process all sections at once
+ * @param {Array} sections - Sections array
+ * @returns {Array} Flat array of all visible sections
+ */
+export const getAllVisibleSections = (sections) => {
+  if (!Array.isArray(sections)) return [];
+
+  const result = [];
+
+  const processSections = (sectionsArray) => {
+    sectionsArray.forEach((section) => {
+      if (section.visible !== false) {
+        result.push({
+          key: section.id,
+          ...section,
+        });
+
+        // Recursively process subsections
+        if (section.subSections && Array.isArray(section.subSections)) {
+          processSections(section.subSections);
+        }
+      }
+    });
+  };
+
+  processSections(sections);
+  return result.sort((a, b) => (a.order || 0) - (b.order || 0));
 };
 
 /**
@@ -119,6 +156,8 @@ export const formatDate = (date, format = "DD MMM YYYY") => {
  */
 export const getVisiblePatientFields = (displayPatientInfo, patientData) => {
   if (!displayPatientInfo?.fields || !patientData) return [];
+
+  const { fields } = displayPatientInfo;
 
   // Define all fields in the exact order they appear in the image
   // Left column, Right column, Left column, Right column pattern
@@ -237,11 +276,29 @@ export const getVisiblePatientFields = (displayPatientInfo, patientData) => {
       label: "Date & Time",
       value: formatDate(new Date()),
     },
+    {
+      key: "preparedOn",
+      label: "Prepared On",
+      value: formatDate(patientData.preparedOn),
+    },
   ];
+
+  // Helper function to check if a field is enabled
+  const isFieldEnabled = (fieldKey) => {
+    if (Array.isArray(fields)) {
+      // New array-based structure
+      const field = fields.find((f) => f.id === fieldKey);
+      return field?.enabled === true;
+    } else if (fields && typeof fields === "object") {
+      // Legacy object-based structure (backward compatibility)
+      return fields[fieldKey] === true;
+    }
+    return false;
+  };
 
   // Filter only visible fields with values, maintaining exact order
   const orderedFields = fieldOrder.filter((field) => {
-    const isEnabled = displayPatientInfo.fields[field.key];
+    const isEnabled = isFieldEnabled(field.key);
     const hasValue = field.value && field.value.trim() !== "";
     return isEnabled && hasValue;
   });

@@ -156,9 +156,6 @@ const ObstetricHistory = (props) => {
         >
           <Obstetric
             obstetricDetails={obstetricDetails}
-            handleObstetricHistory={(data) => {
-              console.log("INTEL ==> DATA", data);
-            }}
             obstetricDrawer={"pregnancyHistory"}
             isIPD={true}
             handleDrawerObstetric={handleObstetricHistory}

@@ -46,13 +46,14 @@ const PatientHistory = (props) => {
                     isEditable={false}
                     // {...props}
                     sectionData={item}
-                  />
+                  >
                   <div onClick={() => handleAddEditPresentingComplaints(item)}>
                     <GenericCard
                       icon={defaultIcons.editIcon}
                       title={"Add/Edit Presenting Complaints"}
                     />
                   </div>
+                  </ChiefComplaint>
                 </div>
               );
             case "pastMedicalHistory":

@@ -67,7 +67,7 @@ function TabDiagnosisSearch({ passIndex, onClose, ddxOptionsList }) {
         childOptionsList.map((e) => {
             return data.push({
                 key: JSON.stringify({ ...e, unique_id: uuidv4() }),
-                value: e.tds_name
+                value: `${e.tds_name} ${e?.icd_code ? `(${e?.icd_code})` : ''}`
             });
         });
         if (searchChildQuery.length > 0) {

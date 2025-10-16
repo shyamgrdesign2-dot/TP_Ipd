@@ -1,5 +1,8 @@
 .ot-notes-timeline-container {
   margin-bottom: 50px;
+  &.no-margin-bottom {
+    margin-bottom: 0 !important;
+  }
   .ot-notes-content-lite {
     margin-bottom: 0 !important;
   }

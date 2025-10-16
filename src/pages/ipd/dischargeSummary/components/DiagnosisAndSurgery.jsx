@@ -15,12 +15,6 @@ const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const DiagnosisAndSurgery = (props) => {
   const { isEditable = true, sectionData } = props || {};
-  const { surgeryDetails, surgeryProcedureOptions } = useSelector(
-    (state) => state.dischargeSummary
-  );
-  const initialValue = useMemo(() => surgeryDetails || {}, [surgeryDetails]);
-  const dispatch = useDispatch();
-  const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
   const renderSection = () => {
     return (

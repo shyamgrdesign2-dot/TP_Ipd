@@ -27,13 +27,22 @@ const PDFDocument = ({ settings, patientData, children }) => {
 
   const { pageSize = "A4", fontFamily = "Arial", fontSize = 9 } = pageFormat;
 
-  const { header = {}, footer = {}, displayPatientInfo = {} } = headerFooter;
+  const {
+    header = {},
+    footer = {},
+    displayPatientInfo = {},
+    letterHeadFormat = 0,
+    margins: formatMargins = {},
+  } = headerFooter;
 
   // Get page dimensions
   const pageDimensions = PAGE_SIZES[pageSize] || PAGE_SIZES.A4;
 
-  // Get margins from footer settings
-  const margins = getMargins(footer.margins);
+  // Get margins based on current letterhead format
+  // Use format-specific margins if available, otherwise fall back to footer margins (legacy)
+  const currentMargins =
+    formatMargins[letterHeadFormat] || footer.margins || {};
+  const margins = getMargins(currentMargins);
 
   // Create styles
   const commonStyles = createCommonStyles(fontSize, fontFamily);

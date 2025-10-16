@@ -22,7 +22,7 @@ const SurgeriesPerformed = (props) => {
       title={sectionData?.title}
       data-testid={sectionData?.id}
       width="100%"
-      containerClass={`wrapper-class ipd-provisional-diagnosis-wrapper ${
+      containerClass={`ipd-provisional-diagnosis-wrapper ${
         !isEditable ? "ipd-wrapper-class-readonly" : ""
       }`}
       showAutoFill={false}
@@ -31,11 +31,10 @@ const SurgeriesPerformed = (props) => {
           return (
             <ul className="dx-summary">
               {surgeriesPerformed?.map((surgery) => {
-                console.log("INTEL ==> surgery", surgery);
                 return (
-                  <li className="dx-summary-item" key={surgery.key}>
+                  <li className="dx-summary-item" key={surgery.otNoteId}>
                     <span className="dx-summary-title lightweight">
-                      {surgery.text}
+                      {surgery.procedureName} ({surgery.surgeryDate})
                     </span>
                   </li>
                 );
