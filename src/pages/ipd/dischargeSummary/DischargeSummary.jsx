@@ -18,6 +18,7 @@ import FullPageLoader from "../../vaccination/components/Loader.js";
 import {
   getDischargeSummaryData,
   resetActualDischargeSummaryData,
+  resetDischargeSummaryData,
   resetDischargeSummaryForm,
   setSurgeriesPerformed,
   updateDischargeSummaryData,
@@ -533,6 +534,7 @@ const DischargeSummary = (props) => {
         return;
       }
       dispatch(resetActualDischargeSummaryData());
+      dispatch(resetDischargeSummaryData());
       navigate("/ipd/patient-details", {
         state: {
           isEditable: false,

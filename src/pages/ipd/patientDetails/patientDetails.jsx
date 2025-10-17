@@ -57,6 +57,8 @@ import {
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
 import {
   getDischargeSummaryData,
+  resetActualDischargeSummaryData,
+  resetDischargeSummaryData,
   setProvisionalDiagnosis,
 } from "../../../redux/ipd/dischargeSummarySlice";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
@@ -413,7 +415,7 @@ const IPDPatientDetails = () => {
       return !!crossReferralData?.length;
     } else if (activeMenuItem === "dischargeSummary") {
       // return !!dischargeSummaryData && !!dischargeSummaryData.patientInformation && Object.keys(dischargeSummaryData.patientInformation).length > 0;
-      return !!Object.keys(dischargeSummaryData || {})?.length;
+      return true;
     } else if (activeMenuItem === "consultantNotes") {
       return !!consultantNotes?.length;
     } else if (activeMenuItem === "progress") {
@@ -439,6 +441,8 @@ const IPDPatientDetails = () => {
   const onRequestClose = () => {
     dispatch(resetOtNotesForm());
     dispatch(resetCrossReferralForm());
+    dispatch(resetActualDischargeSummaryData());
+    dispatch(resetDischargeSummaryData());
     navigate(`/ipd/inPatients`);
   };
   const handleCustomizeClick = () => {

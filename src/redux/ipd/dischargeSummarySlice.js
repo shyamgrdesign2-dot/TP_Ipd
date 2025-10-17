@@ -158,6 +158,9 @@ const dischargeSummarySlice = createSlice({
         provisionalDiagnosis: action.payload,
       };
     },
+    resetDischargeSummaryData: (state, action) => {
+      state.dischargeSummaryData = {};
+    },
     setFinalDiagnosis: (state, action) => {
       if (!state.dischargeSummaryData) {
         state.dischargeSummaryData = {};
@@ -325,6 +328,7 @@ export const {
   setSurgeriesPerformed,
   setOTSurgeries,
   resetActualDischargeSummaryData,
+  resetDischargeSummaryData,
 } = dischargeSummarySlice.actions;
 
 export default dischargeSummarySlice.reducer;
