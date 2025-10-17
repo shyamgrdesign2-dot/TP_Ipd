@@ -8,6 +8,7 @@ import {
   Button,
   Dropdown,
   message,
+  Radio,
 } from "antd";
 import moment from "moment";
 import dayjs from "dayjs";
@@ -17,8 +18,10 @@ import {
   fetchBillingDashboard,
   fetchBillsByPatient,
   listAdvancedDepositByPatient,
+  fetchItemizedBillData,
 } from "../../../service.js";
 import BillTable from "./BillTable.js";
+import ItemizedBillChart from "../ItemizedBillChart/ItemizedBillChart.js";
 import { listDoctor } from "../../../../../redux/bulkMessagesSlice.js";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
@@ -27,6 +30,8 @@ import { setLoadingStatus } from "../../../../../redux/uploadDocSlice.js";
 import { handleDownload } from "../../../utils/helper.js";
 import html2pdf from "html2pdf.js";
 import { getClinic, trackEvent } from "../../../../../utils/utils.js";
+import { MESSAGE_KEY } from "../../../../../utils/constants.js";
+import imgCloseVisit from "../../../../../assets/images/close-visit.svg";
 const { RangePicker } = DatePicker;
 
 const { Option } = Select;
@@ -81,7 +86,7 @@ export default function BillingTable({
   setSelectedDoctors,
   createBillDrawer,
   totalAdvanceBalance,
-  showHideSubModal
+  showHideSubModal,
 }) {
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
@@ -90,8 +95,15 @@ export default function BillingTable({
   const [searchQuery, setSearchQuery] = useState("");
   const [pickerModal, setPickerModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState(1);
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState([
+    "FullyPaid",
+    "Due",
+    "Refunded",
+  ]);
+  const [selectedSummaryType, setSelectedSummaryType] =
+    useState("patient-level");
   const [downloadData, setDownloadData] = useState([]);
+  const [itemizedBillData, setItemizedBillData] = useState(null);
   const printableRef = useRef(null);
   const [tabLoader, setTabLoader] = useState(false);
 
@@ -211,32 +223,103 @@ export default function BillingTable({
     setSortConfig({ field, order }); // Update state
   };
 
-  const handleDownloadData = () => {
-    const element = printableRef.current;
-    const options = {
-      filename: `billing_${userId || "report"}.pdf`,
-      image: { type: "jpeg", quality: 0.8 },
-      html2canvas: { scale: 1 },
-      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-    };
-
-    html2pdf()
-      ?.from(element)
-      ?.set(options)
-      ?.output("blob")
-      ?.then((blob) => {
-        const url = URL.createObjectURL(blob);
-        handleDownload(
-          url,
-          blob,
-          patientData ? patientData.patient_unique_id : userId,
-          setStartLoader,
-          !patientData
+  const handleDownloadData = async () => {
+    if (selectedSummaryType === "item-level") {
+      // Call fetchItemizedBillData API for Item-Level Bill Summary
+      try {
+        setStartLoader();
+        const response = await fetchItemizedBillData(
+          dateRange.startDate,
+          dateRange.endDate
         );
-      })
-      .catch((err) => {
-        console.error("Error generating PDF:", err);
-      });
+
+        if (response?.totalPaidAmount > 0) {
+          // Handle the itemized bill data response
+          setItemizedBillData(response);
+
+          // Wait for state update and then generate PDF
+          setTimeout(() => {
+            const element = printableRef.current;
+            const options = {
+              filename: `billing_item_level_${userId || "report"}.pdf`,
+              image: { type: "jpeg", quality: 0.8 },
+              html2canvas: { scale: 1 },
+              jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+            };
+
+            html2pdf()
+              ?.from(element)
+              ?.set(options)
+              ?.output("blob")
+              ?.then((blob) => {
+                const url = URL.createObjectURL(blob);
+                handleDownload(
+                  url,
+                  blob,
+                  patientData ? patientData.patient_unique_id : userId,
+                  setStartLoader,
+                  !patientData
+                );
+              })
+              .catch((err) => {
+                console.error("Error generating PDF:", err);
+                dispatch(setLoadingStatus(false));
+              });
+          }, 100);
+        } else {
+          message.open({
+            key: MESSAGE_KEY,
+            type: "",
+            className: "message-appointment",
+            content: (
+              <div className="d-flex align-items-center">
+                <div className="title-common text-start fontroboto">
+                  {"No Data available"}
+                </div>
+                <img
+                  src={imgCloseVisit}
+                  alt="close-visit"
+                  className="ms-3"
+                  onClick={() => message.destroy()}
+                />
+              </div>
+            ),
+            duration: 5,
+          });
+          dispatch(setLoadingStatus(false));
+        }
+      } catch (error) {
+        console.error("Error fetching itemized bill data:", error);
+        dispatch(setLoadingStatus(false));
+      }
+    } else {
+      // Handle Patient-Level Bill Summary (existing logic)
+      const element = printableRef.current;
+      const options = {
+        filename: `billing_patient_level_${userId || "report"}.pdf`,
+        image: { type: "jpeg", quality: 0.8 },
+        html2canvas: { scale: 1 },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+      };
+
+      html2pdf()
+        ?.from(element)
+        ?.set(options)
+        ?.output("blob")
+        ?.then((blob) => {
+          const url = URL.createObjectURL(blob);
+          handleDownload(
+            url,
+            blob,
+            patientData ? patientData.patient_unique_id : userId,
+            setStartLoader,
+            !patientData
+          );
+        })
+        .catch((err) => {
+          console.error("Error generating PDF:", err);
+        });
+    }
   };
 
   const setStartLoader = () => {
@@ -359,73 +442,99 @@ export default function BillingTable({
         background: "#fff",
         borderRadius: "8px",
         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+        padding: "20px",
+        width: "320px",
       }}
     >
-      {/* Download All Sections */}
-      <Button
-        type="link"
-        className="download-all-status ant-btn-all-section mt-3"
-        onClick={() => {
-          setSelectedOptions([
-            "FullyPaid",
-            "CarriedForward",
-            "Due",
-            "Refunded",
-          ]);
-          handleDownloadAll();
+      {/* Patient-Level Bill Summary */}
+      <div style={{ marginBottom: "20px" }}>
+        <Radio
+          value="patient-level"
+          checked={selectedSummaryType === "patient-level"}
+          onChange={(e) => setSelectedSummaryType(e.target.value)}
+          style={{ fontSize: "16px", fontWeight: "500" }}
+        >
+          Patient-Level Bill Summary
+        </Radio>
+
+        {selectedSummaryType === "patient-level" && (
+          <div style={{ marginLeft: "24px", marginTop: "15px" }}>
+            <div
+              style={{
+                fontSize: "14px",
+                color: "#666",
+                marginBottom: "10px",
+                fontWeight: "400",
+              }}
+            >
+              Selected Specific Status
+            </div>
+            <Checkbox.Group
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+              }}
+              value={selectedOptions}
+              onChange={handleCheckboxChange}
+            >
+              <Checkbox value="FullyPaid">
+                <span className="color-paid">Fully Paid</span>
+              </Checkbox>
+              <Checkbox value="Due">
+                <span className="color-due">Due</span>
+              </Checkbox>
+              <Checkbox value="Refunded">
+                <span className="color-refunded">Refunded</span>
+              </Checkbox>
+            </Checkbox.Group>
+          </div>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          margin: "20px 0",
+          color: "#999",
         }}
       >
-        Download All Status
-      </Button>
-
-      <div className="doctor-select-divider">
-        <span>or</span>
+        <div style={{ flex: 1, height: "1px", background: "#e8e8e8" }}></div>
+        <span style={{ margin: "0 15px", fontSize: "14px" }}>or</span>
+        <div style={{ flex: 1, height: "1px", background: "#e8e8e8" }}></div>
       </div>
 
-      <div
-        className="custom-doctors-section"
-        style={{ margin: "20px 15px", paddingBottom: "15px" }}
+      {/* Item-Level Bill Summary */}
+      <div style={{ marginBottom: "25px" }}>
+        <Radio
+          value="item-level"
+          checked={selectedSummaryType === "item-level"}
+          onChange={(e) => setSelectedSummaryType(e.target.value)}
+          style={{ fontSize: "16px", fontWeight: "500" }}
+        >
+          Item-Level Bill Summary
+        </Radio>
+      </div>
+
+      {/* Download Button */}
+      <Button
+        type="primary"
+        className="ant-btn-download"
+        style={{
+          width: "100%",
+          display: `${
+            selectedSummaryType === "item-level" || selectedOptions.length > 0
+              ? ""
+              : "none"
+          }`,
+        }}
+        onClick={handleDownloadData}
       >
-        <div className="section-title mb-2 fs-16 section-title-color">
-          Select specific status
-        </div>
-        {/* Checkboxes */}
-        <Checkbox.Group
-          className="bil"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            marginBottom: "10px",
-            gap: "10px",
-          }}
-          value={selectedOptions} // Bind selected checkboxes to state
-          onChange={handleCheckboxChange}
-        >
-          <Checkbox value="FullyPaid">
-            <span className="color-paid">Fully Paid</span>
-          </Checkbox>
-          <Checkbox value="Due">
-            <span className="color-due">Due</span>
-          </Checkbox>
-          <Checkbox value="Refunded">
-            <span className="color-refunded">Refunded</span>
-          </Checkbox>
-        </Checkbox.Group>
-
-        {/* Download Now Button */}
-        <Button
-          type="primary"
-          className="ant-btn-download"
-          style={{
-            width: "100%",
-            display: `${selectedOptions.length > 0 ? "" : "none"}`,
-          }}
-          onClick={handleDownloadData}
-        >
-          Download
-          <i class="icon-download fs-18" style={{ padding: "10px 6px" }} />
-        </Button>
-      </div>
+        Download
+        <i className="icon-download fs-18" style={{ paddingLeft: "8px" }} />
+      </Button>
     </div>
   );
 
@@ -904,6 +1013,19 @@ export default function BillingTable({
             </div>
           </div>
         }
+
+        {/* Hidden div for Itemized Bill Chart PDF generation */}
+        {selectedSummaryType === "item-level" && itemizedBillData && (
+          <div style={{ display: "none" }}>
+            <div ref={printableRef}>
+              <ItemizedBillChart
+                billData={itemizedBillData}
+                profile={profile}
+                dateRange={dateRange}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
