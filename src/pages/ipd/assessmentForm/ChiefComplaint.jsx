@@ -21,6 +21,7 @@ const ChiefComplaint = (props) => {
     sectionData,
     hideBorder = false,
     children,
+    isDischargeSummary = false,
   } = props || {};
   const dispatch = useDispatch();
   const { showLastUpdatedAt } = useDischargeSummaryData();
@@ -85,8 +86,9 @@ const ChiefComplaint = (props) => {
     );
   }, [chiefComplaint, chiefComplaintFromLastPrescription]);
 
-  if (!isEditable && isEmptyRichText(chiefComplaint)) return null;
-
+  console.log('INTEL ==> isEditable', isEditable)
+  console.log('INTEL ==> chiefComplaint', chiefComplaint)
+  if (!isEditable && !isDischargeSummary && isEmptyRichText(chiefComplaint)) return null;
   return (
     <div className="flex-column-gap-16">
       <RichTextEditWrapper

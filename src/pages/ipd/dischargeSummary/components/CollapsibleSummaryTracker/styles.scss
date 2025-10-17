@@ -58,12 +58,11 @@ $radius-md: 10px;
 
   &__icon {
     border-radius: 100px;
-    background: #a461d81a;
-    padding: 4px;
+
     z-index: 2;
     position: relative;
-    width: 28px;
-    height: 28px;
+    width: 16px;
+    height: 16px;
   }
 
   &__title {
@@ -203,8 +202,18 @@ $icon-size: 32px;
 
 .asc-card__icon-container {
   position: relative;
-  background: white;
   border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #a461d81a;
+  z-index: 2;
+}
+.asc-card__icon-container-white {
+  background: white;
+  z-index: 2;
 }
 .sumtrack-full-container {
   position: relative;
@@ -260,5 +269,5 @@ $icon-size: 32px;
   position: relative;
   z-index: 2;
   border-radius: 999px;
-  background: #a461d81a;
+  // background: #a461d81a;
 }

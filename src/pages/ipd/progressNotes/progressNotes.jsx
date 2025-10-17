@@ -34,6 +34,7 @@ import AdditionalRemarks from "./AdditionalRemarks.jsx";
 import ChiefComplaint from "./ChiefComplaint.jsx";
 import Vitals from "./Vitals.jsx";
 import BackConfirmationModal from "../../../components/BackConfirmationModal.js";
+import FullPageLoader from "../../vaccination/components/Loader.js";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -42,7 +43,12 @@ const FilledByCard = createRemoteComponent("FilledByCard");
 const ProgressNotes = (props) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
-  const { progressNotesData, patient_data, patientDetails, isEditable = true } = state || {};
+  const {
+    progressNotesData,
+    patient_data,
+    patientDetails,
+    isEditable = true,
+  } = state || {};
   const patientId = patientDetails?.details?.id;
   const { admissionId } = patientDetails || {};
 
@@ -70,10 +76,11 @@ const ProgressNotes = (props) => {
   const { customModules } = useSelector((state) => state.customModules);
   const { profile } = useSelector((state) => state.doctors);
 
-  const { progressNotes: progressNotesCustomization = [] } =
-  customization;
+  const { progressNotes: progressNotesCustomization = [] } = customization;
   const [modelData, setModelData] = useState(
-    progressNotesCustomization.length > 0 ? progressNotesCustomization : IPD.DEFAULT_PROGRESS_NOTES_FORM_STRUCTURE
+    progressNotesCustomization.length > 0
+      ? progressNotesCustomization
+      : IPD.DEFAULT_PROGRESS_NOTES_FORM_STRUCTURE
   );
 
   // Preload from navigation state when user clicked Edit from the timeline
@@ -82,10 +89,13 @@ const ProgressNotes = (props) => {
       const raw = progressNotesData.raw;
       const pn = raw.progressNotes || {};
       dispatch(setCurrentProgressNote(raw));
-      if (Array.isArray(pn.chiefComplaint)) dispatch(setChiefComplaint(pn.chiefComplaint));
+      if (Array.isArray(pn.chiefComplaint))
+        dispatch(setChiefComplaint(pn.chiefComplaint));
       if (Array.isArray(pn.findings)) dispatch(setFindings(pn.findings));
-      if (pn.vitals && typeof pn.vitals === 'object') dispatch(setVitals(pn.vitals));
-      if (Array.isArray(pn.additionalRemarks)) dispatch(setAdditionalRemarks(pn.additionalRemarks));
+      if (pn.vitals && typeof pn.vitals === "object")
+        dispatch(setVitals(pn.vitals));
+      if (Array.isArray(pn.additionalRemarks))
+        dispatch(setAdditionalRemarks(pn.additionalRemarks));
       if (pn.date) setFilledDate(new Date(pn.date));
       // prefer explicit time field, fallback to timestamp
       if (pn.time) setFilledAtTime(new Date(pn.time));
@@ -125,17 +135,19 @@ const ProgressNotes = (props) => {
       };
 
       // Validate that there's actual data to save
-      const hasVitalsData = vitals && Object.values(vitals).some(value => 
-        value !== null && value !== undefined && value !== ""
-      );
+      const hasVitalsData =
+        vitals &&
+        Object.values(vitals).some(
+          (value) => value !== null && value !== undefined && value !== ""
+        );
 
       // Helper function to check if rich text editor data has meaningful content
       const hasRichTextContent = (data) => {
         if (!Array.isArray(data) || data.length === 0) return false;
-        
-        return data.some(item => {
+
+        return data.some((item) => {
           if (item && item.children && Array.isArray(item.children)) {
-            return item.children.some(child => {
+            return item.children.some((child) => {
               if (child && child.text) {
                 return child.text.trim() !== "";
               }
@@ -146,15 +158,23 @@ const ProgressNotes = (props) => {
         });
       };
 
-      const hasChiefComplaint = chiefComplaint && chiefComplaint.length > 0 && 
+      const hasChiefComplaint =
+        chiefComplaint &&
+        chiefComplaint.length > 0 &&
         hasRichTextContent(chiefComplaint);
-      const hasFindings = findings && findings.length > 0 && 
-        hasRichTextContent(findings);
-      const hasAdditionalRemarks = additionalRemarks && additionalRemarks.length > 0 && 
+      const hasFindings =
+        findings && findings.length > 0 && hasRichTextContent(findings);
+      const hasAdditionalRemarks =
+        additionalRemarks &&
+        additionalRemarks.length > 0 &&
         hasRichTextContent(additionalRemarks);
 
       // Check if any field has meaningful data
-      const hasAnyData = hasVitalsData || hasChiefComplaint || hasFindings || hasAdditionalRemarks;
+      const hasAnyData =
+        hasVitalsData ||
+        hasChiefComplaint ||
+        hasFindings ||
+        hasAdditionalRemarks;
 
       if (!hasAnyData) {
         message.open({
@@ -249,20 +269,14 @@ const ProgressNotes = (props) => {
       const latestNote = progressNotes[progressNotes?.length - 1];
       if (latestNote.progressNotes?.findings) {
         dispatch(setFindings(latestNote.progressNotes.findings));
-        console.log(
-          "Autofilled Findings:",
-          latestNote.progressNotes.findings
-        );
+        console.log("Autofilled Findings:", latestNote.progressNotes.findings);
       }
     }
   };
 
   // Main autofill function that calls all individual autofill functions
   const handleAutofillAll = () => {
-    console.log(
-      "handleAutofillAll called with progressNotes:",
-      progressNotes
-    );
+    console.log("handleAutofillAll called with progressNotes:", progressNotes);
     setShouldAutofill(true);
     if (progressNotes && progressNotes.length > 0) {
       const latestNote = progressNotes[progressNotes?.length - 1];
@@ -416,7 +430,10 @@ const ProgressNotes = (props) => {
   const handleBackConfirmation = () => {
     if (!patientDetails?.details?.id && !patientDetails?.admissionId) {
       setIsBackModalOpen(false);
-      navigate(`/ipd/patient-details`, {state: {...state, activeTab: "progress", isEditable: false}, replace: true});
+      navigate(`/ipd/patient-details`, {
+        state: { ...state, activeTab: "progress", isEditable: false },
+        replace: true,
+      });
       setOpen(false);
     }
     try {
@@ -426,11 +443,14 @@ const ProgressNotes = (props) => {
       //     admissionId: patientDetails?.admissionId,
       //   })
       // ).then((res) => {
-        // addDataToStore(res.payload.assessment);
-        dispatch(resetProgressNotes());
-        navigate(`/ipd/patient-details`, {state: {...state, activeTab: "progress", isEditable: false}, replace: true});
-        setIsBackModalOpen(false);
-        setOpen(false);
+      // addDataToStore(res.payload.assessment);
+      dispatch(resetProgressNotes());
+      navigate(`/ipd/patient-details`, {
+        state: { ...state, activeTab: "progress", isEditable: false },
+        replace: true,
+      });
+      setIsBackModalOpen(false);
+      setOpen(false);
       // });
     } catch (err) {
       console.error(err, "error");
@@ -441,7 +461,13 @@ const ProgressNotes = (props) => {
 
   return (
     <div className="afipd-assessments-form-container afipd-progress-notes-form-container">
-      <Suspense fallback={<>Loading ...</>}>
+      <Suspense
+        fallback={
+          <>
+            <FullPageLoader />
+          </>
+        }
+      >
         <div
           className={`ipd-assessments-form-container ${
             !isEditable ? "ipd-assessments-readable-container" : ""
@@ -460,7 +486,6 @@ const ProgressNotes = (props) => {
               }}
               items={modelData}
               renderSection={renderSections}
-
               // onRequestClose={() => {
               //   dispatch(resetProgressNotes());
               //   navigate(-1);
@@ -476,7 +501,7 @@ const ProgressNotes = (props) => {
               autoFillTitle={
                 progressNotes && progressNotes.length > 0
                   ? `Autofill From Prev. Progress Notes (${new Date(
-                    progressNotes[progressNotes?.length - 1].createdAt
+                      progressNotes[progressNotes?.length - 1].createdAt
                     ).toLocaleDateString()}, ${new Date(
                       progressNotes[progressNotes?.length - 1].createdAt
                     ).toLocaleTimeString()})`

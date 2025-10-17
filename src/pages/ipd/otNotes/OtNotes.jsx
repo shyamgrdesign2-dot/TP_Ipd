@@ -356,7 +356,13 @@ const OtNotes = (props) => {
         isEditable ? "" : "ipd-otnotes-form-container-readonly"
       }`}
     >
-      <Suspense fallback={<>Loading ...</>}>
+      <Suspense
+        fallback={
+          <>
+            <FullPageLoader />
+          </>
+        }
+      >
         {!isEditable ? (
           <div>{renderAllSections()}</div>
         ) : (

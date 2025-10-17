@@ -36,6 +36,7 @@ import imgCloseVisit from "../../../assets/images/close-visit.svg";
 import ProgressSummary from "./ProgressSummary";
 import AgentAlex from "./AgentAlex";
 import { getProgressNotes } from "../../../redux/ipd/progressNotesSlice";
+import FullPageLoader from "../../vaccination/components/Loader";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -431,7 +432,13 @@ const ConsultantNotes = (props) => {
 
   return (
     <div className="afipd-assessments-form-container">
-      <Suspense fallback={<>Loading ...</>}>
+      <Suspense
+        fallback={
+          <>
+            <FullPageLoader />
+          </>
+        }
+      >
         <div className={`ipd-assessments-form-container `}>
           {open && modelData && (
             <LayoutWithMenu

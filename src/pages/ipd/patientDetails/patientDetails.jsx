@@ -62,6 +62,7 @@ import {
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
 import PreviewDischargeSummary from "../dischargeSummary/PreviewDischargeSummary";
 import DischargeSummaryReadonly from "../dischargeSummary/DischargeSummaryReadonly";
+import FullPageLoader from "../../vaccination/components/Loader";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -606,7 +607,13 @@ const IPDPatientDetails = () => {
 
   return (
     <div>
-      <Suspense fallback={<>Loading ...</>}>
+      <Suspense
+        fallback={
+          <>
+            <FullPageLoader />
+          </>
+        }
+      >
         <AnimatePresence mode="wait">
           {open && !!patientData && (
             <PatientDetailsLayout

@@ -45,6 +45,7 @@ const PatientHistory = (props) => {
                     hideBorder={true}
                     isEditable={false}
                     // {...props}
+                    isDischargeSummary={true}
                     sectionData={item}
                   >
                   <div onClick={() => handleAddEditPresentingComplaints(item)}>

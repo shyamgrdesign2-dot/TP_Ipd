@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { createRemoteComponent } from "../../../../shared/remoteComponents";
 import { useSelector, useDispatch } from "react-redux";
 import "./styles.scss";
-import { formatDateToShortMonthYear } from "../../../../utils/utils";
+import { formatDateToShortMonthYear, isEmptyRichText } from "../../../../utils/utils";
 import DiagnosisPickerTable from "../../components/DiagnosisPickerTable/DiagnosisPickerTable";
 import { dischargeSummaryIcons } from "../../../../assets/images/indices";
 import { setProvisionalDiagnosis } from "../../../../redux/ipd/dischargeSummarySlice";

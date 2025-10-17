@@ -2062,11 +2062,6 @@ export function mapSectionsWithData(structure, apiResponse) {
           hasData = !!sectionData;
         }
       } else {
-        console.log(
-          "INTEL ==> sectionData[child.field]",
-          child.field,
-          sectionData[child.field]
-        );
         let childFieldValue;
         if (child.field && child.field.includes(".")) {
           const parts = child.field.split(".");

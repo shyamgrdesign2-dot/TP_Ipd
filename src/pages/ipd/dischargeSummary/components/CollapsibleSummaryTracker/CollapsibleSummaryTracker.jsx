@@ -52,17 +52,19 @@ export default function CollapsibleSummaryTracker({
         aria-controls={`${section.id}-panel`}
       >
         <div className="asc-card__leading">
+          <div className="asc-card__icon-container-white">
           <div className="asc-card__icon-container">
             <img
               className="asc-card__icon"
-              src={defaultIcons[`${section?.id}Pc`]}
+              src={defaultIcons[`${section?.id}Outline`]}
               alt=""
               aria-hidden="true"
             />
           </div>
+          </div>
           <div className="flex-column">
             <h3 id={`${section.id}-title`} className="asc-card__title">
-              {section.title}
+              {section.heading || section.title}
             </h3>
             {String(stats.filled).padStart(2, "0") !== "00" ? (
               <Chip kind="added">

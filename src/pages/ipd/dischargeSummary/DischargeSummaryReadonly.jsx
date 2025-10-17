@@ -85,7 +85,7 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
         <DischargeSummaryTracker />
         <div className="discharge-summary-print-preview no-scrollbar">
           <div className="rounded-20px bg-white">
-            {!Object.keys(dischargeSummaryData).length ? (
+            {(!Object.keys(dischargeSummaryData).length || !pdfUrl) ? (
               <PrintPreviewShimmer />
             ) : (
               <div ref={divRef} className="printheight">
