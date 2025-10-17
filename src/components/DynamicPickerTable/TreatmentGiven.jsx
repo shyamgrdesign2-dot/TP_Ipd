@@ -10,12 +10,14 @@ import {
   removeTreatmentNote,
 } from "../../redux/ipd/dischargeSummarySlice";
 import {
+  formatDateToShortMonthYear,
   removeBeforeWhiteSpace,
   replaceCommasAndSemicolons,
 } from "../../utils/utils";
 import { useLocation } from "react-router-dom";
 import { dischargeSummaryIcons } from "../../assets/images/indices";
 import "./styles.scss";
+import { greenTick } from "../../assets/images/dischargeSummaryIcons";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -25,9 +27,8 @@ const TreatmentGiven = ({ sectionData }) => {
   const tableRef = useRef();
   const dispatch = useDispatch();
 
-  const { treatmentNotes, treatmentNotesLoading } = useSelector(
-    (state) => state.dischargeSummary
-  );
+  const { treatmentNotes, treatmentNotesLoading, actualDischargeSummaryData } =
+    useSelector((state) => state.dischargeSummary);
 
   const handleSearch = async (query) => {
     if (!query) return [];
@@ -135,7 +136,6 @@ const TreatmentGiven = ({ sectionData }) => {
     },
   ];
 
-  // Search configuration
   const searchConfig = {
     valueField: "name",
     titleField: "name",
@@ -145,27 +145,22 @@ const TreatmentGiven = ({ sectionData }) => {
     renderOption: (item) => (
       <div className="option-row">
         <span className="option-title">{item.name}</span>
-        {/* <span className="option-subtitle">[{item.code}]</span> */}
       </div>
     ),
   };
 
-  // Event handlers
   const handleRowChange = (row, field, value) => {
     dispatch(
       updateTreatmentNote({ key: row.key, updates: { [field]: value } })
     );
-    // message.success(`Updated ${field} for ${row.name}`);
   };
 
   const handleRowAdd = (row) => {
     dispatch(addTreatmentNote(row));
-    // message.success(`Added ${row.name} to the list`);
   };
 
   const handleRowDelete = (row) => {
     dispatch(removeTreatmentNote(row.key));
-    // message.success(`Removed ${row.name} from the list`);
   };
 
   const renderTreatmentTable = () => (
@@ -187,6 +182,18 @@ const TreatmentGiven = ({ sectionData }) => {
     />
   );
 
+  const showLastUpdatedAt = () => {
+    if (!actualDischargeSummaryData?.date) return null;
+    return (
+      <div className="success-gradient-pill">
+        <img src={greenTick} alt="." />
+        {`Last Updated on ${formatDateToShortMonthYear(
+          actualDischargeSummaryData?.date
+        )}`}
+      </div>
+    );
+  };
+
   return (
     <RichTextEditWrapper
       readOnly={!isEditable}
@@ -205,6 +212,7 @@ const TreatmentGiven = ({ sectionData }) => {
       showMicrophone={false}
       placeholder="Treatment given details"
       renderBody={renderTreatmentTable}
+      headerComponent={showLastUpdatedAt}
     />
   );
 };

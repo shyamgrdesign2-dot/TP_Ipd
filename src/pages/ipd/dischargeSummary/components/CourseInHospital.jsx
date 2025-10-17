@@ -4,20 +4,24 @@ import { defaultIcons as dischargeSummaryIcons } from "../../../../assets/images
 import "./styles.scss";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
-import { isEmptyRichText } from "../../../../utils/utils";
 import {
-  setCourseInHospital,
-} from "../../../../redux/ipd/dischargeSummarySlice";
+  formatDateToShortMonthYear,
+  isEmptyRichText,
+} from "../../../../utils/utils";
+import { setCourseInHospital } from "../../../../redux/ipd/dischargeSummarySlice";
 import TreatmentGiven from "../../../../components/DynamicPickerTable/TreatmentGiven";
+import { greenTick } from "../../../../assets/images/dischargeSummaryIcons";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const CourseInHospital = (props) => {
   const { isEditable = true, sectionData } = props || {};
+
   const {
     dischargeSummaryData: { courseInHospital } = {},
     chronologicalSummary,
+    actualDischargeSummaryData,
   } = useSelector((state) => state.dischargeSummary);
 
   const dispatch = useDispatch();
@@ -87,15 +91,33 @@ const CourseInHospital = (props) => {
         });
 
         dayContent = dayContent.trim();
-        if (moduleCode) {
-          dayContent += ` [${moduleCode}]`;
-        }
 
         const fullContent = dayPrefix + dayContent;
+        const childrenOfList = [{ text: fullContent }];
+
+        if (moduleCode) {
+          childrenOfList.push({
+            type: "link",
+            url: null,
+            tooltip: () => (
+              <div className="chrosum-tooltip-container">
+                <div className="chrotol-source">
+                  <span>Source:</span>
+                  {dayData.module} - {dayData.subModule}
+                </div>
+                <div className="chrotol-source">
+                  <span>Date:</span>
+                  {dayData.date}
+                </div>
+              </div>
+            ),
+            children: [{ text: `[${moduleCode}]` }],
+          });
+        }
 
         listItems.push({
           type: "list-item",
-          children: [{ text: fullContent }],
+          children: childrenOfList,
         });
       }
     });
@@ -115,6 +137,18 @@ const CourseInHospital = (props) => {
             children: [{ text: "" }],
           },
         ];
+  };
+
+  const showLastUpdatedAt = () => {
+    if (!actualDischargeSummaryData?.date) return null;
+    return (
+      <div className="success-gradient-pill">
+        <img src={greenTick} alt="." />
+        {`Last Updated on ${formatDateToShortMonthYear(
+          actualDischargeSummaryData?.date
+        )}`}
+      </div>
+    );
   };
 
   const renderChronologicalSummary = (data) => {
@@ -184,6 +218,7 @@ const CourseInHospital = (props) => {
           }}
           newAutoFillTextToAppend={autoFillTextToAppend}
           setNewAutoFillTextToAppend={setAutoFillTextToAppend}
+          headerComponent={showLastUpdatedAt}
         />
       </div>
     );

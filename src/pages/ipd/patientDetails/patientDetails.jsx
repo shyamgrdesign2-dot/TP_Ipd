@@ -172,7 +172,7 @@ const IPDPatientDetails = () => {
         patient_data,
         patientDetails,
         isEditable: true,
-        activeMenuItem
+        activeMenuItem,
       },
     });
   };
@@ -458,7 +458,7 @@ const IPDPatientDetails = () => {
         patientDetails,
         patient_data,
         isEditable: false,
-        activeTab: id
+        activeTab: id,
       },
       replace: true,
     });
@@ -575,19 +575,21 @@ const IPDPatientDetails = () => {
       case "dischargeSummary":
         return (
           <div className="ipd-adm-assess-container-readable ipd-discharge-summary-container-readable">
-            <DischargeSummaryReadonly  ref={dischargeSummaryReadonlyRef} />
-            <div className="ipd-toolbar-edit-custom-print-download">
-              <ToolbarActions
-                showEditForm={true}
-                onEdit={handleDischargeSummaryClick}
-                onPrintPreview={handleDischargeSummaryPrintPreview}
-                onPrint={() => {
-                  dischargeSummaryReadonlyRef?.current?.handlePrintClick();
-                }}
-                onSettings={handleCustomizeClick}
-                onDownload={() => console.log("Download")}
-              />
-            </div>
+            <DischargeSummaryReadonly ref={dischargeSummaryReadonlyRef} />
+            {Object.keys(actualDischargeSummaryData)?.length && (
+              <div className="ipd-toolbar-edit-custom-print-download">
+                <ToolbarActions
+                  showEditForm={true}
+                  onEdit={handleDischargeSummaryClick}
+                  onPrintPreview={handleDischargeSummaryPrintPreview}
+                  onPrint={() => {
+                    dischargeSummaryReadonlyRef?.current?.handlePrintClick();
+                  }}
+                  onSettings={handleCustomizeClick}
+                  onDownload={() => console.log("Download")}
+                />
+              </div>
+            )}
           </div>
         );
       default:

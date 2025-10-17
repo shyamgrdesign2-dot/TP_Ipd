@@ -150,12 +150,12 @@ const dischargeSummarySlice = createSlice({
       if (!state.dischargeSummaryData.diagnosisAndSurgery) {
         state.dischargeSummaryData = {
           ...state.dischargeSummaryData,
-          diagnosisAndSurgery: {}
+          diagnosisAndSurgery: {},
         };
       }
       state.dischargeSummaryData.diagnosisAndSurgery = {
         ...state.dischargeSummaryData.diagnosisAndSurgery,
-        provisionalDiagnosis: action.payload
+        provisionalDiagnosis: action.payload,
       };
     },
     setFinalDiagnosis: (state, action) => {
@@ -167,7 +167,7 @@ const dischargeSummarySlice = createSlice({
       }
       state.dischargeSummaryData.diagnosisAndSurgery = {
         ...state.dischargeSummaryData.diagnosisAndSurgery,
-        finalDiagnosis: action.payload
+        finalDiagnosis: action.payload,
       };
     },
     setDiet: (state, action) => {
@@ -225,12 +225,27 @@ const dischargeSummarySlice = createSlice({
         ? action.payload
         : [];
     },
+    setOTSurgeries: (state, action) => {
+      if (!state.dischargeSummaryData) {
+        state.dischargeSummaryData = {};
+      }
+      if (!state.dischargeSummaryData.otSurgeries) {
+        state.dischargeSummaryData = {
+          ...state.dischargeSummaryData,
+          otSurgeries: {},
+        };
+      }
+      state.dischargeSummaryData.otSurgeries = action.payload;
+    },
     setSurgeriesPerformed: (state, action) => {
       state.dischargeSummaryData.surgeriesPerformed = Array.isArray(
         action.payload
       )
         ? action.payload
         : [];
+    },
+    resetActualDischargeSummaryData: (state, action) => {
+      state.actualDischargeSummaryData = {};
     },
   },
   extraReducers: (builder) => {
@@ -280,7 +295,7 @@ const dischargeSummarySlice = createSlice({
       .addCase(getMockValues.rejected, (state) => {
         state.mockValues = {};
         state.loading = false;
-      })
+      });
   },
 });
 
@@ -308,6 +323,8 @@ export const {
   removeTreatmentNote,
   setChronologicalSummary,
   setSurgeriesPerformed,
+  setOTSurgeries,
+  resetActualDischargeSummaryData,
 } = dischargeSummarySlice.actions;
 
 export default dischargeSummarySlice.reducer;

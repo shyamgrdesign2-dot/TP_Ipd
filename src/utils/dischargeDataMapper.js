@@ -27,6 +27,7 @@ import {
   setVitalsData,
   setDischargeSummaryDataViaPatch,
   setFinalDiagnosis,
+  setOTSurgeries,
 } from "../redux/ipd/dischargeSummarySlice";
 
 export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
@@ -150,6 +151,12 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
           dischargeSummaryData.dischargeNotes.dischargeMedications || []
         )
       );
+    }
+    if (
+      dischargeSummaryData?.otNotes &&
+      dischargeSummaryData?.otNotes?.surgeries
+    ) {
+      dispatch(setOTSurgeries(dischargeSummaryData?.otNotes?.surgeries || []));
     }
     if (
       dischargeSummaryData?.dischargeNotes &&

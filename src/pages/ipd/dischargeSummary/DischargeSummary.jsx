@@ -17,6 +17,7 @@ import BackConfirmationModal from "../../../components/BackConfirmationModal.js"
 import FullPageLoader from "../../vaccination/components/Loader.js";
 import {
   getDischargeSummaryData,
+  resetActualDischargeSummaryData,
   resetDischargeSummaryForm,
   setSurgeriesPerformed,
   updateDischargeSummaryData,
@@ -77,7 +78,6 @@ const DischargeSummary = (props) => {
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const navigate = useNavigate();
   const [showAutoFillLocal, setShowAutoFillLocal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [autoFillTitleLocal, setAutoFillTitleLocal] = useState("");
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
@@ -462,6 +462,17 @@ const DischargeSummary = (props) => {
         })(),
         others: assessmentData.functionalAssessmentData.others,
       },
+      date:
+        (
+          JSON.stringify(
+            dischargeSummaryState.dischargeSummaryData?.courseInHospital?.chronologicalSummary
+          ) !== JSON.stringify(dischargeSummaryState?.chronologicalSummary) ||
+          JSON.stringify(
+            dischargeSummaryState.dischargeSummaryData?.courseInHospital?.treatmentGiven
+          ) !== JSON.stringify(dischargeSummaryState?.treatmentNotes)
+        )
+          ? new Date()
+          : null,
       courseInHospital: {
         chronologicalSummary: formatChronologicalSummary(
           dischargeSummaryState?.chronologicalSummary,
@@ -521,6 +532,7 @@ const DischargeSummary = (props) => {
         );
         return;
       }
+      dispatch(resetActualDischargeSummaryData());
       navigate("/ipd/patient-details", {
         state: {
           isEditable: false,
@@ -583,7 +595,10 @@ const DischargeSummary = (props) => {
     console.log("INTEL ==> activeId", activeId);
   };
 
-  if (isLoading) {
+  if (
+    !Object.keys(dischargeSummaryState?.actualDischargeSummaryData || {})
+      ?.length
+  ) {
     return <FullPageLoader />;
   }
   // Early return if essential data is missing to prevent undefined errors

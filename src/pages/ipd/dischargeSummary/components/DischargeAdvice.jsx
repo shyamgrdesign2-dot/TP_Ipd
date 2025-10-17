@@ -19,10 +19,17 @@ const DischargeAdvice = (props) => {
   const { dischargeSummaryData } = useSelector(
     (state) => state.dischargeSummary
   );
-  const [autoFillTextToAppendWarningSigns, setAutoFillTextToAppendWarningSigns] = useState([]);
-  const [autoFillTextToAppendEmergencyContact, setAutoFillTextToAppendEmergencyContact] = useState([]);
+  const [
+    autoFillTextToAppendWarningSigns,
+    setAutoFillTextToAppendWarningSigns,
+  ] = useState([]);
+  const [
+    autoFillTextToAppendEmergencyContact,
+    setAutoFillTextToAppendEmergencyContact,
+  ] = useState([]);
   const dispatch = useDispatch();
-  const [autoFillTextToAppendOtherAdvice, setAutoFillTextToAppendOtherAdvice] = useState([]);
+  const [autoFillTextToAppendOtherAdvice, setAutoFillTextToAppendOtherAdvice] =
+    useState([]);
   const handleOthersChange = (data, key) => {
     dispatch(setDischargeSummaryData({ ...dischargeSummaryData, [key]: data }));
   };
@@ -127,51 +134,56 @@ const DischargeAdvice = (props) => {
     if (!isEditable && isEmptyRichText(dischargeSummaryData?.otherAdvice))
       return null;
 
+    console.log(
+      "INTEL ==> dischargeSummaryData?.otherAdvice",
+      dischargeSummaryData?.otherAdvice
+    );
     return (
-      <RichTextEditWrapper
-        readOnly={!isEditable}
-        showToolbar={isEditable}
-        showActionBtns={isEditable}
-        title={data?.title}
-        width={isEditable ? "100%" : "fit-content"}
-        icon={dischargeSummaryIcons[`${data?.id}Pc`]}
-        showAutoFill={false}
-        containerClass={`wrapper-class ${
-          !isEditable ? "ipd-wrapper-class-readonly" : ""
-        }`}
-        opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
-        onChange={(data) => handleOthersChange(data, "otherAdvice")}
-        initialValue={
-          dischargeSummaryData?.otherAdvice
-            ? dischargeSummaryData?.otherAdvice
-            : [
-                {
-                  type: "paragraph",
-                  children: [{ text: "" }],
-                },
-              ]
-        }
-        placeholder={
-          data?.placeholder ||
-          "Enter details like onset, duration, progression, and associated symptoms"
-        }
-        onSave={() => {
-          console.log("save");
-        }}
-        onErase={() => {
-          setAutoFillTextToAppendOtherAdvice(["clear"]);
-        }}
-        onTemplate={() => {
-          console.log("template");
-        }}
-        newAutoFillTextToAppend={autoFillTextToAppendOtherAdvice}
-        setNewAutoFillTextToAppend={setAutoFillTextToAppendOtherAdvice}
-      />
+      <div >
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
+          title={data?.title}
+          width={isEditable ? "100%" : "fit-content"}
+          icon={dischargeSummaryIcons[`${data?.id}Pc`]}
+          showAutoFill={false}
+          containerClass={`wrapper-class ${
+            !isEditable ? "ipd-wrapper-class-readonly" : ""
+          }`}
+          opdDate="15 Jun 2025"
+          showMagicPenGif={false}
+          showMicrophone={false}
+          onChange={(data) => handleOthersChange(data, "otherAdvice")}
+          initialValue={
+            !isEmptyRichText(dischargeSummaryData?.otherAdvice)
+              ? dischargeSummaryData?.otherAdvice
+              : [
+                  {
+                    type: "paragraph",
+                    children: [{ text: "" }],
+                  },
+                ]
+          }
+          placeholder={
+            data?.placeholder ||
+            "Enter details like onset, duration, progression, and associated symptoms"
+          }
+          onSave={() => {
+            console.log("save");
+          }}
+          onErase={() => {
+            setAutoFillTextToAppendOtherAdvice(["clear"]);
+          }}
+          onTemplate={() => {
+            console.log("template");
+          }}
+          newAutoFillTextToAppend={autoFillTextToAppendOtherAdvice}
+          setNewAutoFillTextToAppend={setAutoFillTextToAppendOtherAdvice}
+        />
+      </div>
     );
   };
-
 
   const renderSection = () => {
     return sectionData?.children?.map((item) => {

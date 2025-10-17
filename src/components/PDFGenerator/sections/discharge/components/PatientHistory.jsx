@@ -397,7 +397,6 @@ const PatientHistory = ({ data, formatSettings, fontFamily = "Poppins" }) => {
   const patientHistorySection = formatSettings.find(
     (section) => section.id === "patientHistory"
   );
-  console.log('INTEL ==> patientHistory', data?.patientHistory, formatSettings, patientHistorySection)
   const subsections = patientHistorySection?.subSections || [];
 
   // Sort subsections (already processed by getSortedSections)
