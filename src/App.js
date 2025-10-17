@@ -556,7 +556,10 @@ function App() {
                   path="ipd/discharge-summary/configure-print-settings"
                   element={<ConfigurePrintSettings />}
                 />
-                <Route path="ipd/progress-notes/preview" element={<PreviewProgressNotes />} />
+                <Route
+                  path="ipd/progress-notes/preview"
+                  element={<PreviewProgressNotes />}
+                />
               </Route>
               <Route path="opd-bill" element={<OpdBill />} />
             </Routes>

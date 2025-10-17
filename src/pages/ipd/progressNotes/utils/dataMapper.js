@@ -13,12 +13,28 @@ const extractTextFromRichText = (richTextArray) => {
   
   return richTextArray
     .map(item => {
-      if (item.children && Array.isArray(item.children)) {
+      if (item.type === "paragraph" && item.children && Array.isArray(item.children)) {
+        // Handle paragraph text
+        return item.children.map(child => child.text || "").join("");
+      } else if (item.type === "bulleted-list" && item.children && Array.isArray(item.children)) {
+        // Handle bulleted list
+        return item.children
+          .map(listItem => {
+            if (listItem.type === "list-item" && listItem.children && Array.isArray(listItem.children)) {
+              return "• " + listItem.children.map(child => child.text || "").join("");
+            }
+            return "";
+          })
+          .filter(text => text.trim() !== "")
+          .join("\n");
+      } else if (item.children && Array.isArray(item.children)) {
+        // Fallback for other types with children
         return item.children.map(child => child.text || "").join("");
       }
       return item.text || "";
     })
-    .join(" ");
+    .filter(text => text.trim() !== "")
+    .join("\n");
 };
 
 /**
@@ -75,20 +91,21 @@ export const transformProgressNotesData = (apiData, patientData = {}) => {
     return null;
   }
 
-  // Handle different possible data structures
+  // Check if apiData is an array (multiple progress notes)
+  if (Array.isArray(apiData) && apiData.length > 0) {
+    console.log("✅ API data is an array with", apiData.length, "entries");
+    return transformMultipleProgressNotesData(apiData, patientData);
+  }
+
+  // Handle single progress note object
   let progressNotesData = null;
   
-  // Case 1: Direct progress notes object (your current structure)
+  // Case 1: Direct progress notes object
   if (apiData.progressNotes) {
     progressNotesData = apiData.progressNotes;
     console.log("Found progressNotes in API data");
   }
-  // Case 2: Array of progress notes
-  else if (Array.isArray(apiData) && apiData.length > 0) {
-    console.log("API data is an array, using first entry");
-    progressNotesData = apiData[0].progressNotes || apiData[0];
-  }
-  // Case 3: Direct progress notes data (if the whole object is progress notes)
+  // Case 2: Direct progress notes data (if the whole object is progress notes)
   else if (apiData.vitals || apiData.chiefComplaint || apiData.findings) {
     console.log("API data appears to be direct progress notes data");
     progressNotesData = apiData;
@@ -156,17 +173,22 @@ export const transformProgressNotesData = (apiData, patientData = {}) => {
  */
 export const transformMultipleProgressNotesData = (apiDataArray, patientData = {}) => {
   if (!Array.isArray(apiDataArray) || apiDataArray.length === 0) {
+    console.log("❌ No array data or empty array provided");
     return null;
   }
 
+  console.log("🔄 Processing", apiDataArray.length, "progress notes entries");
+  
   // Use the first entry for patient and physician info
   const firstEntry = apiDataArray[0];
+  console.log("📋 First entry for patient info:", firstEntry);
   
   // Transform all entries
-  const transformedEntries = apiDataArray.map(entry => {
+  const transformedEntries = apiDataArray.map((entry, index) => {
     const progressNotesData = entry.progressNotes || {};
+    console.log(`📝 Processing entry ${index + 1}:`, entry);
     
-    return {
+    const transformedEntry = {
       timeOfDay: mapPeriodToTimeOfDay(progressNotesData.period),
       dateTime: progressNotesData.date || progressNotesData.time || entry.createdAt,
       filledBy: entry.createdByName || "Unknown Doctor",
@@ -175,15 +197,19 @@ export const transformMultipleProgressNotesData = (apiDataArray, patientData = {
       vitals: formatVitals(progressNotesData.vitals),
       additionalRemarks: extractTextFromRichText(progressNotesData.additionalRemarks)
     };
+    
+    console.log(`✅ Transformed entry ${index + 1}:`, transformedEntry);
+    return transformedEntry;
   });
 
-  // Sort entries by date/time
-  transformedEntries.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+  // Sort entries by date/time (newest first)
+  transformedEntries.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
+  console.log("📅 Sorted entries:", transformedEntries);
 
   // Build the complete data structure
   const transformedData = {
     patientInformation: {
-      name: patientData.patientName || patientData.name || "Unknown Patient",
+      name: patientData.patientName || patientData.name || `Patient ${firstEntry.patientId}` || "Unknown Patient",
       patientId: firstEntry.patientId || patientData.patientId || "N/A",
       age: patientData.age || "N/A",
       gender: patientData.gender || "N/A",
@@ -203,7 +229,7 @@ export const transformMultipleProgressNotesData = (apiDataArray, patientData = {
     },
     
     progressNotesSummary: {
-      summary: `Progress notes covering ${transformedEntries.length} entries from ${new Date(transformedEntries[0].dateTime).toLocaleDateString()} to ${new Date(transformedEntries[transformedEntries.length - 1].dateTime).toLocaleDateString()}.`,
+      summary: `Progress notes covering ${transformedEntries.length} entries from ${new Date(transformedEntries[transformedEntries.length - 1].dateTime).toLocaleDateString()} to ${new Date(transformedEntries[0].dateTime).toLocaleDateString()}.`,
       keyFindings: "See individual entries for detailed findings.",
       recommendations: "Continue monitoring and follow treatment plan."
     },
@@ -211,5 +237,6 @@ export const transformMultipleProgressNotesData = (apiDataArray, patientData = {
     progressNotes: transformedEntries
   };
 
+  console.log("🎯 Final transformed data for multiple entries:", transformedData);
   return transformedData;
 };

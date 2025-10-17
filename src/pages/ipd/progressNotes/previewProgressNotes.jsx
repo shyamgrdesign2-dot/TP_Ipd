@@ -79,16 +79,37 @@ const PreviewProgressNotes = () => {
   }, [divRef]);
 
   useEffect(() => {
-    if (currentSettings && progressNotesData) {
-      makePDFUrl();
+    // Create fallback settings if currentSettings is not available
+    const settings = currentSettings || {
+      formatStyle: {
+        patientInfo: { visible: true, order: 1 },
+        attendingPhysician: { visible: true, order: 2 },
+        progressNotesSummary: { visible: true, order: 3 },
+        progressNotesByDate: { visible: true, order: 4 }
+      },
+      pageFormat: {
+        fontFamily: "Arial",
+        fontSize: 10,
+        // margin: {
+        //   top: 20,
+        //   bottom: 20,
+        //   left: 20,
+        //   right: 20
+        // }
+      }
+    };
+
+    if (settings && progressNotesData) {
+      makePDFUrl(settings);
     }
   }, [currentSettings, progressNotesData]);
 
-  const makePDFUrl = async () => {
+
+  const makePDFUrl = async (settings = currentSettings) => {
     try {
       const blob = await pdf(
         <PDFGenerator
-          settings={currentSettings}
+          settings={settings}
           data={progressNotesData}
           documentType="progressNotes"
         />
