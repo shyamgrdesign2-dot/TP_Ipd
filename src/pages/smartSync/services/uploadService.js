@@ -29,44 +29,7 @@ export const getCustomSyncPadTemplates = async () => {
   }
 };
 
-// Helper function to compress image data
-const compressImage = (dataUrl, quality = 0.7, maxWidth = 1200) => {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
-      // Calculate new dimensions maintaining aspect ratio
-      let { width, height } = img;
-      if (width > maxWidth) {
-        height = (height * maxWidth) / width;
-        width = maxWidth;
-      }
-      
-      canvas.width = width;
-      canvas.height = height;
-      
-      ctx.drawImage(img, 0, 0, width, height);
-      const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-      resolve(compressedDataUrl);
-    };
-    img.src = dataUrl;
-  });
-};
-
-// Helper function to calculate total payload size
-const calculatePayloadSize = (files) => {
-  let totalSize = 0;
-  files.forEach(file => {
-    if (file.uploadFile && file.uploadFile.size) {
-      totalSize += file.uploadFile.size;
-    }
-  });
-  return totalSize;
-};
-
-// Upload new custom smart sync pad template with chunked upload support
+// Upload new custom smart sync pad template
 export const uploadCustomSyncPadTemplate = async (templateData, onProgress) => {
   try {
     
@@ -87,16 +50,6 @@ export const uploadCustomSyncPadTemplate = async (templateData, onProgress) => {
       throw new Error('No files provided for upload');
     }
 
-    // Calculate total payload size
-    const totalSize = calculatePayloadSize(templateData.files);
-    const MAX_PAYLOAD_SIZE = 10 * 1024 * 1024; // 10MB limit
-    
-    // If payload is too large, use chunked upload
-    if (totalSize > MAX_PAYLOAD_SIZE) {
-      return await uploadInChunks(templateData, onProgress);
-    }
-
-    // Original single request upload for smaller payloads
     const formData = new FormData();
     formData.append('title', templateData.title);
     
@@ -178,142 +131,6 @@ export const uploadCustomSyncPadTemplate = async (templateData, onProgress) => {
     if (error.response?.data?.message) errorMessage = error.response.data.message;
     else if (error.message) errorMessage = error.message;
     return { success: false, error: errorMessage };
-  }
-};
-
-// Chunked upload implementation for large files with retry mechanism
-const uploadInChunks = async (templateData, onProgress) => {
-  const CHUNK_SIZE = 5; // Upload 5 files at a time
-  const MAX_RETRIES = 3; // Maximum retry attempts per chunk
-  const files = templateData.files;
-  const chunks = [];
-  
-  // Split files into chunks
-  for (let i = 0; i < files.length; i += CHUNK_SIZE) {
-    chunks.push(files.slice(i, i + CHUNK_SIZE));
-  }
-  
-  let uploadedFiles = [];
-  let totalProgress = 0;
-  
-  try {
-    // Upload each chunk with retry mechanism
-    for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
-      const chunk = chunks[chunkIndex];
-      let chunkUploaded = false;
-      let retryCount = 0;
-      
-      while (!chunkUploaded && retryCount < MAX_RETRIES) {
-        try {
-          // Compress images in this chunk to reduce size
-          const compressedChunk = await Promise.all(
-            chunk.map(async (file, index) => {
-              if (file.uploadFile && file.uploadFile.type.startsWith('image/')) {
-                try {
-                  // Convert file to data URL for compression
-                  const dataUrl = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.readAsDataURL(file.uploadFile);
-                  });
-                  
-                  // Compress the image
-                  const compressedDataUrl = await compressImage(dataUrl, 0.6, 1000);
-                  
-                  // Convert back to File
-                  const response = await fetch(compressedDataUrl);
-                  const buffer = await response.arrayBuffer();
-                  const compressedFile = new File([buffer], file.uploadFile.name, { 
-                    type: 'image/jpeg' 
-                  });
-                  
-                  return {
-                    ...file,
-                    uploadFile: compressedFile
-                  };
-                } catch (error) {
-                  console.warn(`Failed to compress file ${index}, using original:`, error);
-                  return file;
-                }
-              }
-              return file;
-            })
-          );
-          
-          // Create form data for this chunk
-          const formData = new FormData();
-          formData.append('title', templateData.title);
-          formData.append('chunk_index', chunkIndex);
-          formData.append('total_chunks', chunks.length);
-          
-          compressedChunk.forEach((file, index) => {
-            formData.append('uploaded_files', file.uploadFile);
-          });
-          
-          const metadata = compressedChunk.map((file, index) => ({
-            fileName: file.uploadFile.name,
-            order: file.order || (chunkIndex * CHUNK_SIZE + index + 1)
-          }));
-          
-          formData.append('metadata', JSON.stringify(metadata));
-          
-          const requestConfig = {
-            headers: { 
-              'Content-Type': 'multipart/form-data', 
-              Authorization: `Bearer ${cleanedToken}`
-            },
-            onUploadProgress: (progressEvent) => {
-              if (onProgress && progressEvent.lengthComputable) {
-                const chunkProgress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                const overallProgress = Math.round(
-                  ((chunkIndex * 100 + chunkProgress) / chunks.length)
-                );
-                onProgress(overallProgress);
-              }
-            },
-            ...baseUrl
-          };
-          
-          // Upload this chunk
-          const responseData = await api.post('/api/v1/custom-smart-sync-pad/upload-files', formData, requestConfig);
-          
-          if (responseData && responseData.id) {
-            uploadedFiles.push(...compressedChunk);
-            totalProgress = Math.round(((chunkIndex + 1) / chunks.length) * 100);
-            onProgress && onProgress(totalProgress);
-            chunkUploaded = true;
-          } else {
-            throw new Error(`Invalid response for chunk ${chunkIndex + 1}`);
-          }
-          
-        } catch (chunkError) {
-          retryCount++;
-          console.warn(`Chunk ${chunkIndex + 1} upload failed (attempt ${retryCount}/${MAX_RETRIES}):`, chunkError);
-          
-          if (retryCount >= MAX_RETRIES) {
-            throw new Error(`Failed to upload chunk ${chunkIndex + 1} after ${MAX_RETRIES} attempts: ${chunkError.message}`);
-          }
-          
-          // Wait before retry (exponential backoff)
-          await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
-        }
-      }
-    }
-    
-    // Return success with the final response
-    return {
-      success: true,
-      data: {
-        id: `chunked_upload_${Date.now()}`,
-        title: templateData.title,
-        uploaded_files: uploadedFiles,
-        total_files: uploadedFiles.length
-      }
-    };
-    
-  } catch (error) {
-    console.error('Chunked upload failed:', error);
-    throw error;
   }
 };
 
