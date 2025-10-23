@@ -191,11 +191,9 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       }
       
       // ✅ Limit number of pages to prevent memory issues
-      const docID = getDecodedToken()?.user_id
-      const isCustomCanvasMaxEnabled = CUSTOM_CANVAS_DOCTORS_USER_ID.includes(docID);
+      // const docID = getDecodedToken()?.user_id
+      // const isCustomCanvasMaxEnabled = CUSTOM_CANVAS_DOCTORS_USER_ID.includes(docID);
       // const MAX_PAGES = isCustomCanvasMaxEnabled ? 20 : 5;
-      console.log(isCustomCanvasMaxEnabled,"isCustomCanvasMaxEnabled")
-      console.log(MAX_PAGES,"MAX_PAGES")
       if (pdf.numPages > MAX_PAGES) {
         throw new Error(`PDF has too many pages (${pdf.numPages}). Maximum allowed is ${MAX_PAGES}.`);
       }
