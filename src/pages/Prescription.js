@@ -1294,7 +1294,7 @@ function Prescription() {
                   multiple
                   ref={fileInputRef}
                   onChange={handleFileUpload}
-                  accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf"
+                  accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf, video/mp4, video/quicktime, video/x-msvideo"
                   style={{ display: "none" }}
                 />
                 {allUploadedDocs.length === 0 && (
