@@ -72,6 +72,14 @@ ApiAppointments.listSalutation = function () {
   return api.get(`/api/v1/appointment/showSalutation`, baseUrl);
 };
 
+ApiAppointments.listBloodGroup = function () {
+  return api.get(`/api/v1/appointment/showBloodGroup`, baseUrl);
+};
+
+ApiAppointments.editBloodGroup = function (body) {
+  return api.post(`/api/v1/appointment/editBloodGroup`, body, baseUrl);
+};
+
 ApiAppointments.searchPincode = function (body) {
   return api.post(`/api/v1/appointment/searchPincode`, body, baseUrl);
 };
