@@ -53,10 +53,11 @@ export const fetchPatients = createAsyncThunk(
 // Async thunk for fetching filters
 export const fetchFilters = createAsyncThunk(
   "ipd/fetchFilters",
-  async ({ field }, { rejectWithValue }) => {
+  async ({ field, search }, { rejectWithValue }) => {
     try {
       const response = await IpdService.getFilters({
         field,
+        search
       });
 
       return { field, data: response };

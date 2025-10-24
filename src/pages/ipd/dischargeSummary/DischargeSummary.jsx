@@ -431,7 +431,10 @@ const DischargeSummary = (props) => {
 
     const reqData = {
       assessmentId:
-        dischargeSummaryState?.dischargeSummaryData?.assessmentId || "",
+        dischargeSummaryState?.dischargeSummaryData?.assessmentId !==
+        "undefined"
+          ? dischargeSummaryState?.dischargeSummaryData?.assessmentId
+          : "",
       patientInformation: {
         ...dischargeSummaryState.dischargeSummaryData?.patientInformation,
       },
@@ -464,14 +467,14 @@ const DischargeSummary = (props) => {
         others: assessmentData.functionalAssessmentData.others,
       },
       date:
-        (
-          JSON.stringify(
-            dischargeSummaryState.dischargeSummaryData?.courseInHospital?.chronologicalSummary
-          ) !== JSON.stringify(dischargeSummaryState?.chronologicalSummary) ||
-          JSON.stringify(
-            dischargeSummaryState.dischargeSummaryData?.courseInHospital?.treatmentGiven
-          ) !== JSON.stringify(dischargeSummaryState?.treatmentNotes)
-        )
+        JSON.stringify(
+          dischargeSummaryState.dischargeSummaryData?.courseInHospital
+            ?.chronologicalSummary
+        ) !== JSON.stringify(dischargeSummaryState?.chronologicalSummary) ||
+        JSON.stringify(
+          dischargeSummaryState.dischargeSummaryData?.courseInHospital
+            ?.treatmentGiven
+        ) !== JSON.stringify(dischargeSummaryState?.treatmentNotes)
           ? new Date()
           : null,
       courseInHospital: {
@@ -525,6 +528,14 @@ const DischargeSummary = (props) => {
         _id: dischargeSummaryState.dischargeSummaryData?._id || null,
       })
     ).then((res) => {
+      if (
+        !res?.payload?.error &&
+        res?.payload?.type ===
+          "dischargeSummary/updateDischargeSummaryData/rejected"
+      ) {
+        message.warning("Something went wrong, Please try again.");
+        return;
+      }
       if (res?.payload?.error) {
         message.warning(
           `${res.payload.error} - ${
@@ -605,7 +616,7 @@ const DischargeSummary = (props) => {
   }
   // Early return if essential data is missing to prevent undefined errors
   if (!patientDetails && isEditable) {
-    return <div>Loading patient details...</div>;
+    return <FullPageLoader />;
   }
 
   return (

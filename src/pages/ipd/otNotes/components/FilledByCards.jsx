@@ -20,7 +20,7 @@ const FilledByCards = ({ updates, createdByName, createdByRole }) => {
               <div className="ot-filled-left-section">
                 <span className="filled-by-label">{idx === updates?.length-1 ? "" : "Last "}Filled By: </span>
                 <span className="filled-by-value">
-                  {update?.updatedBy || createdByName || "-"}
+                  {update?.updatedByName || update?.updatedBy || createdByName || "-"}
                 </span>
                 <span className="filled-by-label">
                   {update?.updatedBy

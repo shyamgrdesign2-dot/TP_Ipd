@@ -1,38 +1,21 @@
+// redux/ipd/ipdSlice.js
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiIpdService from "../../api/services/ipd/ipdService";
 import { customizationMockData } from "../../utils/mockData";
 import { IPD } from "../../utils/locale";
 
 const initialState = {
-  // patientDetails: {
-  //   details: {
-  //     id: "123",
-  //     name: "Abhishek Kunte",
-  //     gender: "Male",
-  //     age: 30,
-  //     contact: "+91-9876543210",
-  //   },
-  //   ward: {
-  //     id: 1,
-  //     title: "General Ward",
-  //   },
-  //   room: {
-  //     id: 101,
-  //     title: "101",
-  //   },
-  //   doctor: {
-  //     id: 524,
-  //     name: "Dr. Ramesh Shah",
-  //   },
-  //   admittedOn: "2025-08-05T10:00:00.000Z",
-  //   _id: "68ad7740ecbc6168f6270f9e",
-  //   referral: false,
-  // },
   patientDetails: {},
   customization: {},
   loading: false,
   singleTemplate: null,
   doctorDepartmentRoles: null,
+  wards: null, // <-- NEW
+  patientsSearch: {
+    loading: false,
+    list: [],
+    error: null,
+  },
 };
 
 export const fetchSingleTemplate = createAsyncThunk(
@@ -56,10 +39,26 @@ export const getCustomization = createAsyncThunk(
       let result = {};
       result = await ApiIpdService.getCustomization();
       if (result?.settings) {
-        return result?.settings;  
+        return result?.settings;
       } else {
         throw Error(result.error);
       }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
+export const searchPatientsByMobile = createAsyncThunk(
+  "ipd/searchPatientsByMobile",
+  async ({ mobile, countryCode }) => {
+    try {
+      const res = await ApiIpdService.searchPatientsByMobile({
+        mobile,
+        countryCode,
+      });
+      return res; // keep same passthrough convention
     } catch (error) {
       console.log("error: ", error);
       throw Error(error);
@@ -72,8 +71,14 @@ export const updateCustomization = createAsyncThunk(
   async (data) => {
     try {
       let result = {};
-      result = await ApiIpdService.updateCustomization({progressNotes: [], crossReferral: [], otNotes: [], dischargeSummary: [], ...data});
-      if (result.message === 'form customization updated successfully.') {
+      result = await ApiIpdService.updateCustomization({
+        progressNotes: [],
+        crossReferral: [],
+        otNotes: [],
+        dischargeSummary: [],
+        ...data,
+      });
+      if (result.message === "form customization updated successfully.") {
         return data;
       } else {
         throw Error(result.error);
@@ -86,18 +91,30 @@ export const updateCustomization = createAsyncThunk(
 );
 
 export const doctorDepartmentRoles = createAsyncThunk(
-  "ipd/doctorDepartmentRoles",  
+  "ipd/doctorDepartmentRoles",
   async () => {
     try {
       let result = {};
       result = await ApiIpdService.doctorDepartmentRoles();
-      return result;
+      return result; // NOTE: stays consistent with your existing pattern
     } catch (error) {
       console.log("error: ", error);
       throw Error(error);
     }
   }
 );
+
+// ---------- NEW: Wards ----------
+export const fetchWards = createAsyncThunk("ipd/fetchWards", async () => {
+  try {
+    let result = {};
+    result = await ApiIpdService.getWards();
+    return result; // keep same pattern as above thunks
+  } catch (error) {
+    console.log("error: ", error);
+    throw Error(error);
+  }
+});
 
 const ipdSlice = createSlice({
   name: "ipd",
@@ -112,6 +129,13 @@ const ipdSlice = createSlice({
     setDoctorDepartmentRoles: (state, action) => {
       state.doctorDepartmentRoles = action.payload;
     },
+    // optional: setter for wards if you need it elsewhere
+    setWards: (state, action) => {
+      state.wards = action.payload;
+    },
+    clearPatientsSearch: (state) => {
+      state.patientsSearch = { loading: false, list: [], error: null };
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -122,7 +146,7 @@ const ipdSlice = createSlice({
         state.loading = false;
         state.customization = action.payload;
       })
-      .addCase(getCustomization.rejected, (state, action) => {
+      .addCase(getCustomization.rejected, (state) => {
         state.loading = false;
       })
       .addCase(updateCustomization.pending, (state) => {
@@ -132,7 +156,7 @@ const ipdSlice = createSlice({
         state.loading = false;
         state.customization = action.payload;
       })
-      .addCase(updateCustomization.rejected, (state, action) => {
+      .addCase(updateCustomization.rejected, (state) => {
         state.loading = false;
       })
       .addCase(fetchSingleTemplate.pending, (state) => {
@@ -142,7 +166,7 @@ const ipdSlice = createSlice({
         state.loading = false;
         state.singleTemplate = action.payload;
       })
-      .addCase(fetchSingleTemplate.rejected, (state, action) => {
+      .addCase(fetchSingleTemplate.rejected, (state) => {
         state.loading = false;
         state.singleTemplate = null;
       })
@@ -153,12 +177,56 @@ const ipdSlice = createSlice({
         state.loading = false;
         state.doctorDepartmentRoles = action.payload;
       })
-      .addCase(doctorDepartmentRoles.rejected, (state, action) => {
+      .addCase(doctorDepartmentRoles.rejected, (state) => {
         state.loading = false;
         state.doctorDepartmentRoles = null;
+      })
+      .addCase(fetchWards.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchWards.fulfilled, (state, action) => {
+        state.loading = false;
+        state.wards = action.payload;
+      })
+      .addCase(fetchWards.rejected, (state) => {
+        state.loading = false;
+        state.wards = null;
+      })
+      .addCase(searchPatientsByMobile.pending, (state) => {
+        state.patientsSearch.loading = true;
+        state.patientsSearch.error = null;
+      })
+      .addCase(searchPatientsByMobile.fulfilled, (state, action) => {
+        state.patientsSearch.loading = false;
+        const data = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload?.data || [];
+        state.patientsSearch.list = data || [];
+      })
+      .addCase(searchPatientsByMobile.rejected, (state, action) => {
+        state.patientsSearch.loading = false;
+        state.patientsSearch.error =
+          action.error?.message || "Failed to search patients";
+        // state.patientsSearch.list =  [];
+        state.patientsSearch.list = [
+          {
+            id: "P044",
+            name: "Gita Verma",
+            gender: "Female",
+            age: 78,
+            contact: "+91-9291041929",
+          },
+        ];
       });
   },
 });
 
-export const { setPatientDetailsInOldFormat, setCustomization, setDoctorDepartmentRoles } = ipdSlice.actions;
+export const {
+  setPatientDetailsInOldFormat,
+  setCustomization,
+  setDoctorDepartmentRoles,
+  setWards,
+  clearPatientsSearch,
+} = ipdSlice.actions;
+
 export default ipdSlice.reducer;

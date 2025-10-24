@@ -15,9 +15,10 @@ export const MetricsList = ({ sectionData, data }) => {
       <div className="ipdot-ion-metrics-title">{"Metrics"}</div>
       <ul className="ipdot-ion-metrics-list">
         {sectionData?.map((section) => {
+          console.log('INTEL ==> ', data?.[section.id], section.title)
           return (
             <>
-              {data?.[section.id] && (
+              {data?.[section.id] ? (
                 <li>
                   <span className="ipdot-ion-metrics-list-label">
                     {section.title}
@@ -27,7 +28,7 @@ export const MetricsList = ({ sectionData, data }) => {
                     {data?.[section.id]}
                   </span>
                 </li>
-              )}
+              ): null}
             </>
           );
         })}
@@ -136,7 +137,8 @@ const IntraOperativeNotes = (props) => {
               const enabledChildItems = item?.children?.filter(
                 (item) => item.enabled
               );
-              if (enabledChildItems?.length > 0) {
+              console.log('INTEL ==> item', enabledChildItems, intraOperativeNotes)
+              if (enabledChildItems?.length > 0 && enabledChildItems?.some(item => item.id && !!intraOperativeNotes?.[item.id])) {
                 return (
                   <li key={item.id}>
                     <MetricsList

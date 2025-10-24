@@ -80,6 +80,8 @@ import CrossReferralConsultantNotes from "./pages/ipd/crossReferral/CrossReferra
 import DischargeSummary from "./pages/ipd/dischargeSummary/DischargeSummary";
 import PreviewDischargeSummary from "./pages/ipd/dischargeSummary/PreviewDischargeSummary";
 import ConfigurePrintSettings from "./pages/ipd/dischargeSummary/ConfigurePrintSettings";
+import PatientAdmission from "./pages/ipd/patientAdmission/PatientAdmission";
+import AddAdmission from "./pages/ipd/patientAdmission/AddAdmission";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -546,6 +548,8 @@ function App() {
                 />
                 <Route path="ipd" element={<HomePageLayout />}>
                   <Route path="inPatients" element={<InPatients />} />
+                  <Route path="add-admission" element={<AddAdmission />} />
+                  <Route path="patient-admission" element={<PatientAdmission />} />
                 </Route>
                 <Route
                   path="ipd/discharge-summary/preview"

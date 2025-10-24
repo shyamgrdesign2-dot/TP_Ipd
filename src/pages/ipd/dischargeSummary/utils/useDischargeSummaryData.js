@@ -39,7 +39,7 @@ export const useDischargeSummaryData = (
       date = formatDateToShortMonthYear(assessmentLastUpdateAt);
     }
 
-    if (!label || !date) return null;
+    if (!label || !date || date === "Invalid date") return null;
 
     return (
       <div className="success-gradient-pill">

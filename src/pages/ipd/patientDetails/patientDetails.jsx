@@ -337,6 +337,7 @@ const IPDPatientDetails = () => {
 
     if (activeMenuItem === "assessment") {
       dispatch(getAssessmentsData({ patientId, admissionId })).then((res) => {
+        if (!res?.payload?.assessment) return;
         addDataToStore(res.payload.assessment);
       });
     } else if (activeMenuItem === "consultantNotes") {
