@@ -9,8 +9,8 @@ import edit from "./../../../../assets/images/document-edit.svg";
 import trash from "./../../../../assets/images/trash.svg";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
 import { deleteDocById, fetchAllPatientDocs } from "../../service";
-// IPD services
-import { deleteDocument as deleteIPDDocument, getDocuments as getIPDDocuments } from "../../../ipd/medicalRecords/utils.js/service";
+// IPD services - Updated to use Redux
+import { deleteMedicalRecordDocument, getMedicalRecordsDocuments } from "../../../../redux/ipd/medicalRecordsSlice";
 import { setAllUploadedDocs } from "../../../../redux/uploadDocSlice";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -127,11 +127,17 @@ const RecordCard = ({
   const handleDelete = async () => {
     try {
       if (isIPDFlow && patientId && admissionId && id) {
-        // Delete via IPD API
-        await deleteIPDDocument({ patientId, admissionId, id });
-        // Optimistically update UI
-        if (typeof onIpdRecordDeleted === "function") {
-          onIpdRecordDeleted(id);
+        // Delete via IPD API using Redux
+        const result = await dispatch(deleteMedicalRecordDocument({ patientId, admissionId, id }));
+        
+        // Check if deletion was successful
+        if (result.type === 'medicalRecords/deleteMedicalRecordDocument/fulfilled') {
+          // Optimistically update UI
+          if (typeof onIpdRecordDeleted === "function") {
+            onIpdRecordDeleted(id);
+          }
+        } else {
+          console.error('Failed to delete document:', result.payload);
         }
       } else {
         // Existing non-IPD flow

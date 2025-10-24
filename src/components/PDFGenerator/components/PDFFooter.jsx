@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
  */
 const PDFFooter = ({
   footerSettings,
-  fontFamily = "Arial",
+  fontFamily,
   showPageNumbers = true,
 }) => {
   if (!footerSettings) return null;

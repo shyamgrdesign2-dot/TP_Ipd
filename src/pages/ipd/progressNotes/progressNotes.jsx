@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { IPD } from "../../../utils/locale";
 import "../assessmentForm/styles.scss";
 import "./styles.scss";
@@ -274,13 +274,38 @@ const ProgressNotes = (props) => {
     }
   };
 
+  const handleAutofillChiefComplaint = () => {
+    if (progressNotes && progressNotes.length > 0) {
+      const latestNote = progressNotes[progressNotes?.length - 1];
+      if (latestNote.progressNotes?.chiefComplaint) {
+        dispatch(setChiefComplaint(latestNote.progressNotes.chiefComplaint));
+        console.log(
+          "Autofilled Chief Complaint:",
+          latestNote.progressNotes.chiefComplaint
+        );
+      }
+    }
+  };
+
+  const handleAutofillAdditionalRemarks = () => {
+    if (progressNotes && progressNotes.length > 0) {
+      const latestNote = progressNotes[progressNotes?.length - 1];
+      if (latestNote.progressNotes?.additionalRemarks) {
+        dispatch(setAdditionalRemarks(latestNote.progressNotes.additionalRemarks));
+        console.log(
+          "Autofilled Additional Remarks:",
+          latestNote.progressNotes.additionalRemarks
+        );
+      }
+    }
+  };
+
   // Main autofill function that calls all individual autofill functions
   const handleAutofillAll = () => {
     console.log("handleAutofillAll called with progressNotes:", progressNotes);
     setShouldAutofill(true);
     if (progressNotes && progressNotes.length > 0) {
       const latestNote = progressNotes[progressNotes?.length - 1];
-      console.log("Latest note:", latestNote);
       if (latestNote.progressNotes) {
         console.log(
           "Dispatching Redux actions with data:",
@@ -288,8 +313,10 @@ const ProgressNotes = (props) => {
         );
 
         // Call all individual autofill functions
-        handleAutofillVitals();
+        handleAutofillChiefComplaint();
         handleAutofillFindings();
+        handleAutofillVitals();
+        handleAutofillAdditionalRemarks();
 
         console.log(
           "Autofilled all sections from latest progress note:",
@@ -304,36 +331,46 @@ const ProgressNotes = (props) => {
     }, 100);
   };
 
-  const renderSections = (data) => {
+  const renderSections = useCallback(
+    (data) => {
     switch (data?.id) {
       case "chiefComplaint":
         return (
           <div className="ipd-pn-section-container">
-            <ChiefComplaint {...props} sectionData={data} />
+            <ChiefComplaint {...props} sectionData={data} shouldAutofill={shouldAutofill} />
           </div>
         );
       case "findings":
         return (
           <div className="ipd-pn-section-container">
-            <Findings {...props} sectionData={data} />
+            <Findings {...props} sectionData={data} shouldAutofill={shouldAutofill} />
           </div>
         );
       case "vitals":
         return (
           <div className="ipd-pn-section-container">
-            <Vitals {...props} sectionData={data} />
+            <Vitals {...props} sectionData={data} shouldAutofill={shouldAutofill} />
           </div>
         );
       case "additionalRemarks":
         return (
           <div className="ipd-pn-section-container">
-            <AdditionalRemarks {...props} sectionData={data} />
+            <AdditionalRemarks {...props} sectionData={data} shouldAutofill={shouldAutofill} />
           </div>
         );
       default:
         return null;
     }
-  };
+  },
+  [
+    props,
+    handleAutofillVitals,
+    handleAutofillFindings,
+    handleAutofillChiefComplaint,
+    handleAutofillAdditionalRemarks,
+    shouldAutofill,
+  ]
+);
 
   const renderBottomSection = () => {
     return (
@@ -496,7 +533,7 @@ const ProgressNotes = (props) => {
               }}
               headerOffset={72}
               renderTopSection={renderFilledBySection}
-              renderBottomSection={renderCustomModuleSection}
+              // renderBottomSection={renderCustomModuleSection}
               showAutoFill={!!progressNotes?.length}
               autoFillTitle={
                 progressNotes && progressNotes.length > 0

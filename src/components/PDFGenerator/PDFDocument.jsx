@@ -25,7 +25,7 @@ const PDFDocument = ({ settings, patientData, children }) => {
 
   const { pageFormat = {}, headerFooter = {} } = settings;
 
-  const { pageSize = "A4", fontFamily = "Arial", fontSize = 9 } = pageFormat;
+  const { pageSize = "A4", fontFamily, fontSize = 9 } = pageFormat;
 
   const {
     header = {},

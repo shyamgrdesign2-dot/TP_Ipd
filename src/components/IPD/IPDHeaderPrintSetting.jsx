@@ -120,24 +120,28 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
     }
 
     try {
-      // Save draft settings to main settings (persist changes)
-      dispatch(saveDraftSettings({ moduleType }));
-
       // Remove server-managed fields before updating
       const { _id, doctorId, hospitalId, ...settingsPayload } = draftSettings;
 
       // Call update print settings API with the module settings
-      await dispatch(
+      const action = await dispatch(
         updatePrintSettings({
           ...settingsPayload,
         })
       );
 
-      // Navigate back to return path if provided, otherwise go back in history
-      if (returnPath) {
-        navigate(returnPath);
+      if (action.meta.requestStatus === "fulfilled") {
+        // Save draft settings to main settings (persist changes)
+        dispatch(saveDraftSettings({ moduleType }));
+        // Navigate back to return path if provided, otherwise go back in history
+        if (returnPath) {
+          navigate(returnPath);
+        } else {
+          navigate(-1);
+        }
       } else {
-        navigate(-1);
+        showHideBackModal();
+        errorMessage("Failed to save print settings");
       }
     } catch (error) {
       errorMessage("Failed to save print settings");
