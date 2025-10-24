@@ -29,8 +29,8 @@ import {
   shortenText,
   uploadDocURLtoFile,
 } from "./utils/helper";
-import { putDocument as putIPDDocument } from "../ipd/medicalRecords/utils.js/service";
-import { getAllPatientDocs } from "../ipd/medicalRecords/utils.js/helper";
+// Updated to use Redux
+import { uploadMedicalRecordDocument, getMedicalRecordsDocuments } from "../../redux/ipd/medicalRecordsSlice";
 
 const UploadDocument = ({
   onClose,
@@ -188,14 +188,14 @@ const UploadDocument = ({
           const subCategory = (selectedOption?.label || "other").toLowerCase();
           const name = meta?.name || fileBlob?.name;
 
-          await putIPDDocument({
+          await dispatch(uploadMedicalRecordDocument({
             patientId: ipdPatientId,
             admissionId: ipdAdmissionId,
             category: "medical_records",
             subCategory,
             file: fileBlob,
             name,
-          });
+          }));
         }
         message.open({
           key: MESSAGE_KEY,
@@ -223,7 +223,11 @@ const UploadDocument = ({
       handleDrawerUploadDoc();
       // Refresh the notes after saving
       // await dispatch(getProgressNotes({ patientId, admissionId }));
-      await getAllPatientDocs( patient_data_naviagte?.patient_unique_id , patientDetails?.admissionId, "medical_records");
+      await dispatch(getMedicalRecordsDocuments({ 
+        patientId: patient_data_naviagte?.patient_unique_id, 
+        admissionId: patientDetails?.admissionId, 
+        category: "medical_records" 
+      }));
       navigate(`/ipd/patient-details`, {
         replace: true,
         state: {
@@ -542,7 +546,7 @@ const UploadDocument = ({
           className="d-flex justify-content-center align-items-center flex-column"
           style={{ gap: "24px", padding: "0 24px 24px" }}
         >
-          {filesData.map((item, index) => (
+          {filesData?.map((item, index) => (
             <div
               key={index}
               style={{

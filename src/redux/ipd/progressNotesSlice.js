@@ -4,8 +4,6 @@ import ApiProgressNotes from "../../api/services/ipd/ApiProgressNotes";
 const initialState = {
   progressNotes: {},
   filteredProgressNotes: [], // New array for filtered results
-  lastPrescriptionDate: null,
-  lastPrescriptionDataForProgress: {},
   chiefComplaint: [],
   findings: [],
   vitals: {},
@@ -180,8 +178,6 @@ const progressNotesSlice = createSlice({
 
 export const {
   setCurrentProgressNote,
-  lastPrescriptionDate,
-  lastPrescriptionDataForProgress,
   clearProgressNotes,
   clearDateFilter, // New action
   setChiefComplaint,

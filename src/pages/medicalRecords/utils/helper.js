@@ -73,7 +73,7 @@ export function shortenText(
   firstPartLength = 18,
   lastPartLength = -7
 ) {
-  if (text.length > length) {
+  if (text?.length > length) {
     const firstPart = text.slice(0, firstPartLength);
     const lastPart = text.slice(lastPartLength);
     return `${firstPart}...${lastPart}`;

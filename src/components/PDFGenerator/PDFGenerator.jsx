@@ -13,6 +13,7 @@ import React from "react";
 import PDFDocument from "./PDFDocument";
 import { registerFonts } from "./utils/fontRegistration";
 import { renderDischargeSummary } from "./sections/discharge/DischargeSummaryRenderer";
+import { renderProgressNotes } from "./sections/progressNotes/ProgressNotesRenderer";
 
 // Register fonts once
 let fontsRegistered = false;
@@ -70,8 +71,11 @@ const PDFGenerator = ({ settings, data, documentType }) => {
       break;
 
     case "progressNotes":
-      // TODO: Implement progress notes renderer
-      console.warn("Progress notes renderer not yet implemented");
+      contentSections = renderProgressNotes(
+        data,
+        formatSettings,
+        fontFamily
+      );
       break;
 
     case "consultationNotes":
