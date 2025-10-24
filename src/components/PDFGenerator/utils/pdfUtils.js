@@ -109,8 +109,12 @@ export const isEmptyRichText = (content) => {
   // Check if all paragraphs are empty
   return content.every((node) => {
     if (!node.children || node.children.length === 0) return true;
-    return node.children.every(
-      (child) => !child.text || child.text.trim() === ""
+    return node.children.every((child) =>
+      child.children && Array.isArray(child.children)
+        ? child.children.every(
+            (child) => !child.text || child.text.trim() === ""
+          )
+        : !child.text || child.text.trim() === ""
     );
   });
 };
@@ -164,7 +168,7 @@ export const getVisiblePatientFields = (displayPatientInfo, patientData) => {
   const fieldOrder = [
     // Row 1
     {
-      key: "patientNameId",
+      key: "patientName",
       label: "Patient Name",
       value: patientData.patientName || "",
       column: "left",
@@ -240,6 +244,7 @@ export const getVisiblePatientFields = (displayPatientInfo, patientData) => {
       key: "bloodGroup",
       label: "Blood Group",
       value: patientData.bloodGroup || "",
+      column: "right",
     },
     {
       key: "heightWeight",
@@ -286,7 +291,6 @@ export const getVisiblePatientFields = (displayPatientInfo, patientData) => {
   // Helper function to check if a field is enabled
   const isFieldEnabled = (fieldKey) => {
     if (Array.isArray(fields)) {
-      // New array-based structure
       const field = fields.find((f) => f.id === fieldKey);
       return field?.enabled === true;
     } else if (fields && typeof fields === "object") {

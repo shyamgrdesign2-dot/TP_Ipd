@@ -2,6 +2,7 @@ import React, { Suspense, useEffect, useMemo, useState, useRef } from "react";
 import { IPD } from "../../../utils/locale";
 import {
   formatDateToShortMonthYear,
+  getPatientInformation,
   normalizeToDefault,
 } from "../../../utils/utils";
 import { AnimatePresence } from "framer-motion";
@@ -454,6 +455,25 @@ const IPDPatientDetails = () => {
           data: actualDischargeSummaryData,
         },
       });
+    } else if (activeMenuItem === "consultantNotes") {
+      navigate("/ipd/consultant-notes/configure-print-settings", {
+        state: {
+          patientDetails,
+          moduleType: "consultationNotes",
+          data: {
+            patientInformation: getPatientInformation(patientDetails),
+            consultantNotes: consultantNotes?.slice()?.sort((a, b) => {
+              const dateA = new Date(
+                a?.consultationNotes?.date || a?.createdAt || 0
+              );
+              const dateB = new Date(
+                b?.consultationNotes?.date || b?.createdAt || 0
+              );
+              return dateB - dateA;
+            }),
+          },
+        },
+      });
     }
   };
   const onHandleSelect = (id) => {
@@ -471,6 +491,14 @@ const IPDPatientDetails = () => {
 
   const handleDischargeSummaryPrintPreview = () => {
     navigate("/ipd/discharge-summary/preview", {
+      state: {
+        patientDetails,
+      },
+    });
+  };
+
+  const handleConsultantNotesPrintPreview = () => {
+    navigate("/ipd/consultant-notes/preview", {
       state: {
         patientDetails,
       },
@@ -520,6 +548,15 @@ const IPDPatientDetails = () => {
         return (
           <div className="ipd-adm-assess-container-readable">
             <ConsultantNotesTimeline />
+            <div className="ipd-toolbar-edit-custom-print-download">
+              <ToolbarActions
+                showEditForm={false}
+                onPrintPreview={handleConsultantNotesPrintPreview}
+                onPrint={() => console.log("Print")}
+                onSettings={handleCustomizeClick}
+                onDownload={() => console.log("Download")}
+              />
+            </div>
           </div>
         );
       case "labResults":

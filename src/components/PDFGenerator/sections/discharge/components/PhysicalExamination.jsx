@@ -7,37 +7,13 @@ import { View, Text } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import { isEmptyRichText } from "../../../utils/pdfUtils";
 import SlateToPdf from "../../../components/SlateToPdf";
+import Vitals from "../../../components/Vitals";
 
 const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
     marginBottom: 8,
-  },
-
-  // Vitals inline text
-  vitalsText: {
-    fontSize: 10,
-    color: "#454551",
-    lineHeight: 1.8,
-    textTransform: "capitalize",
-  },
-
-  vitalsTitle: {
-    fontWeight: 600, // SemiBold
-    color: "#171725",
-  },
-
-  vitalLabel: {
-    fontWeight: 500, // Medium
-  },
-
-  vitalValue: {
-    fontWeight: 400, // Regular
-  },
-
-  separator: {
-    color: "#A2A2A8",
   },
 
   // Subsection container
@@ -113,44 +89,6 @@ const styles = StyleSheet.create({
 });
 
 /**
- * Render Vitals inline
- */
-const renderVitals = (vitals, fontFamily) => {
-  if (!vitals) return null;
-
-  const vitalFields = [
-    { label: "Pulse", value: vitals.pulse, unit: "T" },
-    { label: "BP", value: vitals.bloodPressure, unit: "" },
-    { label: "Temperature", value: vitals.temperature, unit: "Frh" },
-    { label: "Spo2", value: vitals.spo2, unit: "%" },
-    { label: "RR", value: vitals.respiratoryRate, unit: "/min" },
-    { label: "Weight", value: vitals.weight, unit: "Kg" },
-    { label: "Height", value: vitals.height, unit: "cms" },
-    { label: "General Rbs", value: vitals.generalRBS, unit: "mg/Dl" },
-  ];
-
-  return (
-    <Text style={[styles.vitalsText, { fontFamily }]}>
-      <Text style={styles.vitalsTitle}>Vitals: </Text>
-      {vitalFields.map((field, index) => {
-        if (!field.value) return null;
-        return (
-          <React.Fragment key={`vital-${index}`}>
-            {index > 0 && <Text style={styles.separator}> | </Text>}
-            <Text style={styles.vitalLabel}>{field.label}:</Text>
-            <Text style={styles.vitalValue}>
-              {" "}
-              {field.value}
-              {field.unit}{" "}
-            </Text>
-          </React.Fragment>
-        );
-      })}
-    </Text>
-  );
-};
-
-/**
  * Render General Examination
  */
 const renderGeneralExamination = (examination, fontFamily) => {
@@ -172,7 +110,7 @@ const renderGeneralExamination = (examination, fontFamily) => {
               .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
               .join("/");
 
-              const hasNotes = value.notes && !isEmptyRichText(value.notes);
+            const hasNotes = value.notes && !isEmptyRichText(value.notes);
 
             return (
               <View key={key}>
@@ -188,26 +126,65 @@ const renderGeneralExamination = (examination, fontFamily) => {
                     <View style={styles.bulletItem}>
                       <Text style={[styles.bullet, { fontFamily }]}>•</Text>
                       <View style={[styles.bulletContent]}>
-                        <Text style={[styles.notesLabel, { fontFamily }]}>Notes: </Text>
+                        <Text style={[styles.notesLabel, { fontFamily }]}>
+                          Notes:{" "}
+                        </Text>
                         {typeof value.notes === "string" ? (
                           <Text style={[styles.regularText, { fontFamily }]}>
                             {value.notes}
                           </Text>
                         ) : (
-                          <SlateToPdf 
-                            nodes={Array.isArray(value.notes) ? value.notes : [value.notes]}
+                          <SlateToPdf
+                            nodes={
+                              Array.isArray(value.notes)
+                                ? value.notes
+                                : [value.notes]
+                            }
                             fontFamily={fontFamily}
                             customStyles={{
-                              text: { fontSize: 10, color: "#454551", lineHeight: 1.8 },
+                              text: {
+                                fontSize: 10,
+                                color: "#454551",
+                                lineHeight: 1.8,
+                              },
                               paragraph: { marginBottom: 2 },
                               bulletList: { paddingLeft: 15, marginBottom: 2 },
-                              numberedList: { paddingLeft: 15, marginBottom: 2 },
+                              numberedList: {
+                                paddingLeft: 15,
+                                marginBottom: 2,
+                              },
                               bulletItem: { marginBottom: 2 },
                               numberedItem: { marginBottom: 2 },
-                              bulletSymbol: { width: 12, fontSize: 10, color: "#454551", fontWeight: 400, lineHeight: 1.8 },
-                              numberedSymbol: { width: 15, fontSize: 10, color: "#454551", fontWeight: 400, lineHeight: 1.8 },
-                              bulletText: { fontSize: 10, flex: 1, color: "#454551", fontWeight: 400, lineHeight: 1.8, textTransform: "capitalize" },
-                              numberedText: { fontSize: 10, flex: 1, color: "#454551", fontWeight: 400, lineHeight: 1.8, textTransform: "capitalize" }
+                              bulletSymbol: {
+                                width: 12,
+                                fontSize: 10,
+                                color: "#454551",
+                                fontWeight: 400,
+                                lineHeight: 1.8,
+                              },
+                              numberedSymbol: {
+                                width: 15,
+                                fontSize: 10,
+                                color: "#454551",
+                                fontWeight: 400,
+                                lineHeight: 1.8,
+                              },
+                              bulletText: {
+                                fontSize: 10,
+                                flex: 1,
+                                color: "#454551",
+                                fontWeight: 400,
+                                lineHeight: 1.8,
+                                textTransform: "capitalize",
+                              },
+                              numberedText: {
+                                fontSize: 10,
+                                flex: 1,
+                                color: "#454551",
+                                fontWeight: 400,
+                                lineHeight: 1.8,
+                                textTransform: "capitalize",
+                              },
                             }}
                           />
                         )}
@@ -237,21 +214,21 @@ const renderOthers = (others, fontFamily) => {
       color: "#454551",
       lineHeight: 1.8,
     },
-    paragraph: { 
-      marginBottom: 0 
+    paragraph: {
+      marginBottom: 0,
     },
-    bulletList: { 
-      paddingLeft: 0 
+    bulletList: {
+      paddingLeft: 0,
     },
-    numberedList: { 
-      paddingLeft: 0 
+    numberedList: {
+      paddingLeft: 0,
     },
     bulletItem: {
       flexDirection: "row",
       marginBottom: 0,
     },
     numberedItem: {
-      flexDirection: "row", 
+      flexDirection: "row",
       marginBottom: 0,
     },
     bulletSymbol: {
@@ -264,7 +241,7 @@ const renderOthers = (others, fontFamily) => {
     numberedSymbol: {
       width: 15,
       fontSize: 10,
-      color: "#454551", 
+      color: "#454551",
       fontWeight: 400,
       lineHeight: 1.8,
     },
@@ -283,7 +260,7 @@ const renderOthers = (others, fontFamily) => {
       fontWeight: 400,
       lineHeight: 1.8,
       textTransform: "capitalize",
-    }
+    },
   };
 
   return (
@@ -291,7 +268,7 @@ const renderOthers = (others, fontFamily) => {
       <View style={styles.contentContainer}>
         <Text style={[styles.subsectionTitle, { fontFamily }]}>Others:</Text>
         <View style={styles.bulletList}>
-          <SlateToPdf 
+          <SlateToPdf
             nodes={Array.isArray(others) ? others : [others]}
             fontFamily={fontFamily}
             customStyles={customStyles}
@@ -317,12 +294,18 @@ const PhysicalExamination = ({ data, fontFamily = "Poppins" }) => {
   return (
     <View style={styles.mainContainer}>
       {/* Vitals - Inline format */}
-      {physicalExamination.vitals &&
-        renderVitals(physicalExamination.vitals, fontFamily)}
+      <Vitals
+        vitals={physicalExamination.vitals}
+        fontFamily={fontFamily}
+        title="Vitals"
+      />
 
       {/* General Examination */}
       {physicalExamination.generalExamination &&
-        renderGeneralExamination(physicalExamination.generalExamination, fontFamily)}
+        renderGeneralExamination(
+          physicalExamination.generalExamination,
+          fontFamily
+        )}
 
       {/* Others */}
       {physicalExamination.others &&

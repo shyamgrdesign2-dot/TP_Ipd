@@ -2117,3 +2117,21 @@ export function mapSectionsWithData(structure, apiResponse) {
     };
   });
 }
+
+export const getPatientInformation = (patientDetails) => {
+  return {
+    patientName: patientDetails?.details?.name || "",
+    patientId: patientDetails?.details?.id || "",
+    age: patientDetails?.details?.age || "",
+    contactNumber: patientDetails?.details?.contact || "",
+    gender: patientDetails?.details?.gender || "",
+    admissionId: patientDetails?.admissionId || "",
+    admissionDate: patientDetails?.admittedOn || "",
+    wardBedNo:
+      patientDetails?.ward?.title && patientDetails?.room?.title
+        ? `${patientDetails?.ward?.title} - ${patientDetails?.room?.title}`
+        : "",
+    address: patientDetails?.details?.address || "",
+    bloodGroup: patientDetails?.details?.bloodGroup || "",
+  };
+};

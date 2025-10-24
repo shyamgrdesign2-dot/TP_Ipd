@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
  * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Section Title
  */
-const SectionTitle = ({ title, fontFamily = "Arial" }) => {
+const SectionTitle = ({ title, fontFamily }) => {
   if (!title) return null;
 
   return (

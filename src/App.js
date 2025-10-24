@@ -80,6 +80,8 @@ import CrossReferralConsultantNotes from "./pages/ipd/crossReferral/CrossReferra
 import DischargeSummary from "./pages/ipd/dischargeSummary/DischargeSummary";
 import PreviewDischargeSummary from "./pages/ipd/dischargeSummary/PreviewDischargeSummary";
 import ConfigurePrintSettings from "./pages/ipd/dischargeSummary/ConfigurePrintSettings";
+import PrintPreview from "./pages/ipd/consultantNotes/PrintPreview";
+import PrintSettings from "./pages/ipd/consultantNotes/PrintSettings";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -554,6 +556,14 @@ function App() {
                 <Route
                   path="ipd/discharge-summary/configure-print-settings"
                   element={<ConfigurePrintSettings />}
+                />
+                <Route
+                  path="ipd/consultant-notes/preview"
+                  element={<PrintPreview />}
+                />
+                <Route
+                  path="ipd/consultant-notes/configure-print-settings"
+                  element={<PrintSettings />}
                 />
               </Route>
               <Route path="opd-bill" element={<OpdBill />} />
