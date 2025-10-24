@@ -1,14 +1,18 @@
 import { db } from "../../../../firebase";
 import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
-import html2pdf from "html2pdf.js";
 import { browserName } from "react-device-detect";
 
 /**
- * Print discharge summary
+ * Print document (generic function for all document types)
  * @param {Blob} printBlob - PDF blob to print
  * @param {string} patientId - Patient ID
+ * @param {string} documentType - Type of document (dischargeSummary, assessment, progressNotes, etc.)
  */
-export const printDischargeSummary = (printBlob, patientId) => {
+export const printDocument = (
+  printBlob,
+  patientId,
+  documentType = "dischargeSummary"
+) => {
   if (!printBlob) {
     console.error("No print blob available");
     return;
@@ -16,7 +20,7 @@ export const printDischargeSummary = (printBlob, patientId) => {
 
   if (browserName === "Chrome WebView" || browserName === "WebKit") {
     // For Android WebView
-    handleWebViewPrint(printBlob, patientId);
+    handleWebViewPrint(printBlob, patientId, documentType);
   } else {
     // For regular browsers
     const url = URL.createObjectURL(printBlob);
@@ -43,11 +47,25 @@ export const printDischargeSummary = (printBlob, patientId) => {
 };
 
 /**
+ * Print discharge summary (backward compatibility)
+ * @param {Blob} printBlob - PDF blob to print
+ * @param {string} patientId - Patient ID
+ */
+export const printDischargeSummary = (printBlob, patientId) => {
+  return printDocument(printBlob, patientId, "dischargeSummary");
+};
+
+/**
  * Handle print for WebView
  * @param {Blob} blob - PDF blob
  * @param {string} patientId - Patient ID
+ * @param {string} documentType - Type of document
  */
-const handleWebViewPrint = async (blob, patientId) => {
+const handleWebViewPrint = async (
+  blob,
+  patientId,
+  documentType = "dischargeSummary"
+) => {
   const deviceUid = localStorage.getItem("app_device_unique_id");
   if (!deviceUid) {
     console.error("Device UID not found");
@@ -60,7 +78,7 @@ const handleWebViewPrint = async (blob, patientId) => {
     reader.onloadend = async () => {
       const base64string = reader.result.split(",")[1];
 
-      const docRef = doc(db, "dischargeSummary", deviceUid);
+      const docRef = doc(db, documentType, deviceUid);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -82,27 +100,32 @@ const handleWebViewPrint = async (blob, patientId) => {
 };
 
 /**
- * Download discharge summary
+ * Download document (generic function for all document types)
  * @param {string} pdfUrl - PDF URL
  * @param {Blob} printBlob - PDF blob
  * @param {Object} patientData - Patient data
+ * @param {string} documentType - Type of document (dischargeSummary, assessment, progressNotes, etc.)
  */
-export const handleDownloadDischargeSummary = (
+export const downloadDocument = (
   pdfUrl,
   printBlob,
-  patientData
+  patientData,
+  documentType = "dischargeSummary"
 ) => {
   if (!pdfUrl && !printBlob) {
     console.error("No PDF available for download");
     return;
   }
 
-  const patientName = patientData?.patientName || "patient";
-  const fileName = `Discharge-Summary-${patientName.replace(/\s+/g, "-")}.pdf`;
+  const patientName = patientData?.details?.name || "patient";
+  const fileName = `${getDocumentTypeTitle(documentType)}-${patientName.replace(
+    /\s+/g,
+    "-"
+  )}.pdf`;
 
   if (browserName === "Chrome WebView" || browserName === "WebKit") {
     // For Android WebView
-    handleWebViewDownload(printBlob, patientData);
+    handleWebViewDownload(printBlob, patientData, documentType);
   } else {
     // For regular browsers
     const link = document.createElement("a");
@@ -115,11 +138,30 @@ export const handleDownloadDischargeSummary = (
 };
 
 /**
+ * Download discharge summary (backward compatibility)
+ * @param {string} pdfUrl - PDF URL
+ * @param {Blob} printBlob - PDF blob
+ * @param {Object} patientData - Patient data
+ */
+export const handleDownloadDischargeSummary = (
+  pdfUrl,
+  printBlob,
+  patientData
+) => {
+  return downloadDocument(pdfUrl, printBlob, patientData, "dischargeSummary");
+};
+
+/**
  * Handle download for WebView
  * @param {Blob} blob - PDF blob
  * @param {Object} patientData - Patient data
+ * @param {string} documentType - Type of document
  */
-const handleWebViewDownload = async (blob, patientData) => {
+const handleWebViewDownload = async (
+  blob,
+  patientData,
+  documentType = "dischargeSummary"
+) => {
   const deviceUid = localStorage.getItem("app_device_unique_id");
   if (!deviceUid) {
     console.error("Device UID not found");
@@ -132,13 +174,13 @@ const handleWebViewDownload = async (blob, patientData) => {
     reader.onloadend = async () => {
       const base64string = reader.result.split(",")[1];
 
-      const docRef = doc(db, "dischargeSummaryDownload", deviceUid);
+      const docRef = doc(db, `${documentType}Download`, deviceUid);
       await setDoc(docRef, {
         base64string,
-        patientId: patientData?.patientId,
-        patientName: patientData?.patientName,
-        fileName: `Discharge-Summary-${
-          patientData?.patientName || "patient"
+        patientId: patientData?.details?.id,
+        patientName: patientData?.details?.name,
+        fileName: `${getDocumentTypeTitle(documentType)}-${
+          patientData?.details?.name || "patient"
         }.pdf`,
       });
     };
@@ -148,34 +190,19 @@ const handleWebViewDownload = async (blob, patientData) => {
 };
 
 /**
- * Generate PDF from HTML element (fallback)
- * @param {HTMLElement} element - HTML element to convert
- * @param {Function} setLoader - Loading state setter
+ * Get document type title for file naming
+ * @param {string} documentType - Type of document
+ * @returns {string} Formatted document title
  */
-export const generatePDFFromHTML = (element, setLoader) => {
-  if (!element) {
-    console.error("Element not found");
-    return;
-  }
-
-  const options = {
-    filename: "discharge-summary.pdf",
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+const getDocumentTypeTitle = (documentType) => {
+  const titleMapping = {
+    dischargeSummary: "Discharge-Summary",
+    assessment: "Assessment-Form",
+    progressNotes: "Progress-Notes",
+    consultantNotes: "Consultant-Notes",
+    otNotes: "Operation-Notes",
+    crossReferral: "Cross-Referral",
   };
 
-  if (setLoader) setLoader(true);
-
-  html2pdf()
-    .from(element)
-    .set(options)
-    .save()
-    .then(() => {
-      if (setLoader) setLoader(false);
-    })
-    .catch((err) => {
-      console.error("Error generating PDF", err);
-      if (setLoader) setLoader(false);
-    });
+  return titleMapping[documentType] || "Document";
 };

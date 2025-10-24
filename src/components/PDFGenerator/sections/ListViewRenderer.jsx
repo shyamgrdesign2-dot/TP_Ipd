@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
  * @param {string} fontFamily - Font family
  * @returns {JSX.Element} Simple text
  */
-export const renderSimpleText = (text, fontFamily = "Arial") => {
+export const renderSimpleText = (text, fontFamily) => {
   if (!text) return null;
 
   return (
@@ -132,7 +132,7 @@ export const renderSimpleText = (text, fontFamily = "Arial") => {
 export const renderListItem = (
   label,
   value,
-  fontFamily = "Arial",
+  fontFamily,
   fullWidthLabel = false
 ) => {
   if (!value && value !== 0 && value !== false) return null;
@@ -218,7 +218,7 @@ export const renderListItem = (
  * @param {string} fontFamily - Font family
  * @returns {JSX.Element} Nested list
  */
-export const renderNestedList = (title, items, fontFamily = "Arial") => {
+export const renderNestedList = (title, items, fontFamily) => {
   if (!items || items.length === 0) return null;
 
   return (
@@ -269,7 +269,7 @@ export const renderNestedList = (title, items, fontFamily = "Arial") => {
  * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} List view
  */
-const ListViewRenderer = ({ items, fontFamily = "Arial" }) => {
+const ListViewRenderer = ({ items, fontFamily }) => {
   if (!items || items.length === 0) return null;
 
   return (

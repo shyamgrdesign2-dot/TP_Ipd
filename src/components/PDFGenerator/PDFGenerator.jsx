@@ -13,6 +13,7 @@ import React from "react";
 import PDFDocument from "./PDFDocument";
 import { registerFonts } from "./utils/fontRegistration";
 import { renderDischargeSummary } from "./sections/discharge/DischargeSummaryRenderer";
+import { renderConsultantNotes } from "./sections/consultation/ConsultantNotesRenderer";
 import { renderProgressNotes } from "./sections/progressNotes/ProgressNotesRenderer";
 
 // Register fonts once
@@ -51,7 +52,7 @@ const PDFGenerator = ({ settings, data, documentType }) => {
 
   // Get format settings - formatStyle is now always an array
   const formatSettings = settings.formatStyle || [];
-  const fontFamily = settings.pageFormat?.fontFamily || "Arial";
+  const fontFamily = settings.pageFormat?.fontFamily;
 
   // Render content based on document type
   let contentSections = [];
@@ -79,8 +80,7 @@ const PDFGenerator = ({ settings, data, documentType }) => {
       break;
 
     case "consultationNotes":
-      // TODO: Implement consultation notes renderer
-      console.warn("Consultation notes renderer not yet implemented");
+      contentSections = renderConsultantNotes(data, formatSettings, fontFamily);
       break;
 
     case "otNotes":
