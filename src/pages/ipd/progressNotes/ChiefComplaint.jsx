@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {useMemo, useState, useEffect } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,7 +13,7 @@ const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const ChiefComplaint = (props) => {
   // You can pass props as needed, e.g., isEditable, initialValue, etc.
-  const { isEditable = true, sectionData } = props || {};
+  const { isEditable = true,shouldAutofill = false, sectionData } = props || {};
   const dispatch = useDispatch();
   const {
     chiefComplaint,
@@ -24,9 +24,14 @@ const ChiefComplaint = (props) => {
     (state) => state.symptoms
   );
 
-  const { chiefComplaint: chiefComplaintFromLastPrescription = [] } =
-    lastPrescriptionDataForProgress;
-  const { lastRxDate } = lastPrescriptionDate || {};
+  const { progressNotes } = useSelector((state) => state.progressNotes);
+  const prevProgressNote = useMemo(() => {
+    return progressNotes[progressNotes?.length - 1];
+  }, [progressNotes]);
+  const prevChiefComplaint = useMemo(() => {
+    return prevProgressNote?.progressNotes?.chiefComplaint;
+  }, [prevProgressNote]);
+
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [isShimmering, setIsShimmering] = useState(false);
 
@@ -51,30 +56,47 @@ const ChiefComplaint = (props) => {
       return;
     }
     if (
-      !Array.isArray(chiefComplaintFromLastPrescription) ||
-      !chiefComplaintFromLastPrescription?.[0]?.children
+      !Array.isArray(prevChiefComplaint) ||
+      !prevChiefComplaint?.[0]?.children
     ) {
       const convertedData = convertTemplateDataToRichText(
-        chiefComplaintFromLastPrescription,
+        prevChiefComplaint,
         "symptoms"
       );
       setAutoFillTextToAppend(convertedData);
     } else {
-      setAutoFillTextToAppend(chiefComplaintFromLastPrescription);
+      setAutoFillTextToAppend(prevChiefComplaint);
     }
   };
 
-  const isLastChiefComplaintPresent = useMemo(() => {
+  const handleAutofill = (e) => {
+    if (e?.[0] === "undo") {
+      setAutoFillTextToAppend(e);
+      return;
+    }
+
+    setAutoFillTextToAppend(prevChiefComplaint);
+  };
+
+  useEffect(() => {
+    if (shouldAutofill) {
+      handleAutofill();
+    }
+  }, [shouldAutofill]);
+
+  const hasChiefComplaintInLastProgressNote = useMemo(() => {
+
     return (
-      (!Array.isArray(chiefComplaintFromLastPrescription) &&
-        typeof chiefComplaintFromLastPrescription === "string" &&
-        !!chiefComplaintFromLastPrescription) ||
-      (Array.isArray(chiefComplaintFromLastPrescription) &&
-        !!chiefComplaintFromLastPrescription?.[0]?.children?.[0]?.text)
+      (!Array.isArray(prevChiefComplaint) &&
+        typeof prevChiefComplaint === "string" &&
+        !!prevChiefComplaint) ||
+      (Array.isArray(prevChiefComplaint) &&
+        !!prevChiefComplaint?.[0]?.children?.[0]?.text)
     );
-  }, [chiefComplaint, chiefComplaintFromLastPrescription]);
+  }, [chiefComplaint, prevChiefComplaint]);
 
   if (!isEditable && !chiefComplaint?.length) return null;
+  console.log( prevProgressNote,"prevProgressNote")
 
   return (
     <RichTextEditWrapper
@@ -99,10 +121,19 @@ const ChiefComplaint = (props) => {
       placeholder={
         "Enter chief complaint like patient’s main symptoms or presenting problem"
       }
-      icon={defaultIcons.roundDotted}
-      showAutoFill={isEditable && isLastChiefComplaintPresent}
+      icon={defaultIcons[`${sectionData?.id}Pc`]}
+      showAutoFill={isEditable && hasChiefComplaintInLastProgressNote}
+      autoFillTitle={
+        hasChiefComplaintInLastProgressNote
+          ? `Autofill From Prev. Progress Notes (${new Date(
+              prevProgressNote.createdAt
+            ).toLocaleDateString()}, ${new Date(
+              prevProgressNote.createdAt
+            ).toLocaleTimeString()})`
+          : "No previous profress notes available"
+      }
       containerClass={`${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
-      opdDate={formatDateToShortMonthYear(lastRxDate)}
+      opdDate={formatDateToShortMonthYear(prevProgressNote.createdAt)}
       onSave={() => {
         console.log("save");
       }}

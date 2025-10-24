@@ -535,8 +535,8 @@ const IPDPatientDetails = () => {
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
                 showEditForm={false}
-                onEdit={handleAddAssessmentClick}
-                onPrintPreview={() => console.log("Preview")}
+                // onEdit={handleAddAssessmentClick}
+                onPrintPreview={() => navigate("/ipd/progress-notes/preview")}
                 onPrint={() => console.log("Print")}
                 onSettings={handleCustomizeClick}
                 onDownload={() => console.log("Download")}
