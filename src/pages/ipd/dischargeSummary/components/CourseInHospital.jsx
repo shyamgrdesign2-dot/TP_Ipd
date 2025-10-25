@@ -4,55 +4,31 @@ import { defaultIcons as dischargeSummaryIcons } from "../../../../assets/images
 import "./styles.scss";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
-import { isEmptyRichText } from "../../../../utils/utils";
 import {
-  setCourseInHospital,
-  generateChronologicalSummary,
-} from "../../../../redux/ipd/dischargeSummarySlice";
+  formatDateToShortMonthYear,
+  isEmptyRichText,
+} from "../../../../utils/utils";
+import { setCourseInHospital } from "../../../../redux/ipd/dischargeSummarySlice";
 import TreatmentGiven from "../../../../components/DynamicPickerTable/TreatmentGiven";
+import { greenTick } from "../../../../assets/images/dischargeSummaryIcons";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const CourseInHospital = (props) => {
+  const { isEditable = true, sectionData } = props || {};
+
   const {
-    isEditable = true,
-    sectionData,
-    patientId,
-    admissionId,
-  } = props || {};
-  const {
-    dischargeSummaryData: {
-      courseInHospital,
-      //   chronologicalSummary,
-      treatmentNotes,
-    } = {},
+    dischargeSummaryData: { courseInHospital } = {},
     chronologicalSummary,
-    chronologicalSummaryLoading,
+    actualDischargeSummaryData,
   } = useSelector((state) => state.dischargeSummary);
-  const dataa = useSelector((state) => state.dischargeSummary);
 
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
   const handleOthersChange = (data, key) => {
     dispatch(setCourseInHospital({ ...courseInHospital, [key]: data }));
-  };
-
-  useEffect(() => {
-    handleGenerateChronologicalSummary();
-  }, []);
-
-  const handleGenerateChronologicalSummary = async () => {
-    if (!patientId || !admissionId) return;
-
-    try {
-      await dispatch(
-        generateChronologicalSummary({ patientId, admissionId })
-      ).unwrap();
-    } catch (error) {
-      console.error("Failed to generate chronological summary:", error);
-    }
   };
 
   const getModuleCode = (module) => {
@@ -89,7 +65,7 @@ const CourseInHospital = (props) => {
       : Object.values(apiData);
 
     dataToProcess.forEach((dayData) => {
-      if (dayData && dayData.date && dayData.day && dayData.entry) {
+      if (dayData && dayData.date && dayData.day) {
         const formattedDate = dayjs(dayData.date).format("DD MMM YYYY");
         const dayPrefix = `${dayData.day} (${formattedDate}): `;
 
@@ -98,9 +74,7 @@ const CourseInHospital = (props) => {
         let dayContent = "";
 
         // Handle both array and single entry formats
-        const entries = Array.isArray(dayData.entry)
-          ? dayData.entry
-          : [dayData.entry];
+        const entries = Array.isArray(dayData) ? dayData : [dayData];
 
         entries.forEach((entryItem) => {
           if (
@@ -117,15 +91,33 @@ const CourseInHospital = (props) => {
         });
 
         dayContent = dayContent.trim();
-        if (moduleCode) {
-          dayContent += ` [${moduleCode}]`;
-        }
 
         const fullContent = dayPrefix + dayContent;
+        const childrenOfList = [{ text: fullContent }];
+
+        if (moduleCode) {
+          childrenOfList.push({
+            type: "link",
+            url: null,
+            tooltip: () => (
+              <div className="chrosum-tooltip-container">
+                <div className="chrotol-source">
+                  <span>Source:</span>
+                  {dayData.module} - {dayData.subModule}
+                </div>
+                <div className="chrotol-source">
+                  <span>Date:</span>
+                  {dayData.date}
+                </div>
+              </div>
+            ),
+            children: [{ text: `[${moduleCode}]` }],
+          });
+        }
 
         listItems.push({
           type: "list-item",
-          children: [{ text: fullContent }],
+          children: childrenOfList,
         });
       }
     });
@@ -147,33 +139,41 @@ const CourseInHospital = (props) => {
         ];
   };
 
+  const showLastUpdatedAt = () => {
+    if (!actualDischargeSummaryData?.date) return null;
+    return (
+      <div className="success-gradient-pill">
+        <img src={greenTick} alt="." />
+        {`Last Updated on ${formatDateToShortMonthYear(
+          actualDischargeSummaryData?.date
+        )}`}
+      </div>
+    );
+  };
+
   const renderChronologicalSummary = (data) => {
     if (!isEditable && isEmptyRichText(courseInHospital?.chronologicalSummary))
       return null;
 
     const getInitialValue = () => {
-      // Handle chronological summary from API
       if (
         chronologicalSummary &&
         (Array.isArray(chronologicalSummary) ||
           Object.keys(chronologicalSummary).length > 0)
       ) {
         const transformed = transformChronologicalData(chronologicalSummary);
-        // Ensure we return a valid Slate structure
+
         return Array.isArray(transformed) && transformed.length > 0
           ? transformed
           : [{ type: "paragraph", children: [{ text: "" }] }];
       }
 
-      // Handle existing courseInHospital data
       if (courseInHospital?.chronologicalSummary) {
-        // Ensure it's a valid Slate structure
         if (Array.isArray(courseInHospital.chronologicalSummary)) {
           return courseInHospital.chronologicalSummary;
         }
       }
 
-      // Default empty state
       return [
         {
           type: "paragraph",
@@ -184,22 +184,6 @@ const CourseInHospital = (props) => {
 
     return (
       <div className="chronological-summary-wrapper">
-        {/* {isEditable && (
-          <div
-            className="chronological-summary-actions"
-            style={{ marginBottom: "16px", textAlign: "right" }}
-          >
-            <Button
-              type="primary"
-              onClick={handleGenerateChronologicalSummary}
-              loading={chronologicalSummaryLoading}
-              size="small"
-            >
-              Generate Chronological Summary
-            </Button>
-          </div>
-        )} */}
-
         <RichTextEditWrapper
           key={`chronological-summary-${
             Object.keys(chronologicalSummary || {}).length
@@ -234,6 +218,7 @@ const CourseInHospital = (props) => {
           }}
           newAutoFillTextToAppend={autoFillTextToAppend}
           setNewAutoFillTextToAppend={setAutoFillTextToAppend}
+          headerComponent={showLastUpdatedAt}
         />
       </div>
     );

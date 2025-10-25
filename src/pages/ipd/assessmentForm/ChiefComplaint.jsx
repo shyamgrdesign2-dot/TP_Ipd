@@ -10,13 +10,21 @@ import {
 } from "../../../utils/utils";
 import { fetchSingleTemplate } from "../../../redux/ipd/ipdSlice";
 import { addTemplate } from "../../../redux/symptomsSlice";
+import { useDischargeSummaryData } from "../dischargeSummary/utils/useDischargeSummaryData";
 // import { errorMessage } from "../../../utils/toast";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const ChiefComplaint = (props) => {
   // You can pass props as needed, e.g., isEditable, initialValue, etc.
-  const { isEditable = true, sectionData, hideBorder = false, children } = props || {};
+  const {
+    isEditable = true,
+    sectionData,
+    hideBorder = false,
+    children,
+    isDischargeSummary = false,
+  } = props || {};
   const dispatch = useDispatch();
+  const { showLastUpdatedAt } = useDischargeSummaryData();
   const {
     chiefComplaint,
     lastPrescriptionDataForAssessment,
@@ -25,9 +33,9 @@ const ChiefComplaint = (props) => {
   const { templates: symptomsTemplates } = useSelector(
     (state) => state.symptoms
   );
-  
+
   const { chiefComplaint: chiefComplaintFromLastPrescription = [] } =
-  lastPrescriptionDataForAssessment;
+    lastPrescriptionDataForAssessment;
   const { lastRxDate } = lastPrescriptionDate || {};
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [isShimmering, setIsShimmering] = useState(false);
@@ -72,67 +80,71 @@ const ChiefComplaint = (props) => {
         typeof chiefComplaintFromLastPrescription === "string" &&
         !!chiefComplaintFromLastPrescription) ||
       (Array.isArray(chiefComplaintFromLastPrescription) &&
-        !!chiefComplaintFromLastPrescription?.[0]?.children?.[0]?.text) || Array.isArray(chiefComplaintFromLastPrescription) && !!chiefComplaintFromLastPrescription?.[0]?.title
+        !!chiefComplaintFromLastPrescription?.[0]?.children?.[0]?.text) ||
+      (Array.isArray(chiefComplaintFromLastPrescription) &&
+        !!chiefComplaintFromLastPrescription?.[0]?.title)
     );
   }, [chiefComplaint, chiefComplaintFromLastPrescription]);
 
-  if (!isEditable && isEmptyRichText(chiefComplaint)) return null;
-
+  console.log('INTEL ==> isEditable', isEditable)
+  console.log('INTEL ==> chiefComplaint', chiefComplaint)
+  if (!isEditable && !isDischargeSummary && isEmptyRichText(chiefComplaint)) return null;
   return (
     <div className="flex-column-gap-16">
-    <RichTextEditWrapper
-      readOnly={!isEditable}
-      showToolbar={isEditable}
-      showActionBtns={isEditable}
-      templates={symptomsTemplates}
-      templateType="symptoms"
-      title={sectionData?.title}
-      data-testid={sectionData?.id}
-      width={isEditable ? "100%": 'fit-content'}
-      initialValue={
-        !isEmptyRichText(chiefComplaint)
-          ? chiefComplaint
-          : [
-              {
-                type: "paragraph",
-                children: [{ text: "" }],
-              },
-            ]
-      }
-      placeholder={
-        "Enter chief complaint like patient’s main symptoms or presenting problem"
-      }
-      icon={defaultIcons[`${sectionData?.id}Pc`]}
-      showAutoFill={isEditable && isLastChiefComplaintPresent}
-      containerClass={`${hideBorder ? 'ipdchiefcomplaint-hide-border' : ''} ${
-        !isEditable ? "ipd-wrapper-class-readonly" : ""
-      }`}
-      opdDate={formatDateToShortMonthYear(lastRxDate)}
-      onSave={() => {
-        console.log("save");
-      }}
-      addTemplate={(templateData, callback) => {
-        dispatch(addTemplate(templateData)).then((res) => {
-          callback();
-        });
-      }}
-      onErase={(e) => {
-        setAutoFillTextToAppend(["clear"]);
-      }}
-      onTemplate={() => {
-        console.log("template");
-      }}
-      onTemplateSelected={handleTempleteSelection}
-      shimmerFromParent={true}
-      onChange={(e) => dispatch(setChiefComplaint(e))}
-      onAutoFill={handleAutoFill}
-      newAutoFillTextToAppend={autoFillTextToAppend}
-      setNewAutoFillTextToAppend={setAutoFillTextToAppend}
-      isShimmeringFromParent={isShimmering}
-      renderFooter={() => {
-        return children && children;
-      }}
-    />
+      <RichTextEditWrapper
+        readOnly={!isEditable}
+        showToolbar={isEditable}
+        showActionBtns={isEditable}
+        templates={symptomsTemplates}
+        templateType="symptoms"
+        title={sectionData?.title}
+        data-testid={sectionData?.id}
+        width={isEditable ? "100%" : "fit-content"}
+        initialValue={
+          !isEmptyRichText(chiefComplaint)
+            ? chiefComplaint
+            : [
+                {
+                  type: "paragraph",
+                  children: [{ text: "" }],
+                },
+              ]
+        }
+        placeholder={
+          "Enter chief complaint like patient’s main symptoms or presenting problem"
+        }
+        icon={defaultIcons[`${sectionData?.id}Pc`]}
+        showAutoFill={isEditable && isLastChiefComplaintPresent}
+        containerClass={`${hideBorder ? "ipdchiefcomplaint-hide-border" : ""} ${
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
+        opdDate={formatDateToShortMonthYear(lastRxDate)}
+        onSave={() => {
+          console.log("save");
+        }}
+        addTemplate={(templateData, callback) => {
+          dispatch(addTemplate(templateData)).then((res) => {
+            callback();
+          });
+        }}
+        onErase={(e) => {
+          setAutoFillTextToAppend(["clear"]);
+        }}
+        onTemplate={() => {
+          console.log("template");
+        }}
+        onTemplateSelected={handleTempleteSelection}
+        shimmerFromParent={true}
+        onChange={(e) => dispatch(setChiefComplaint(e))}
+        onAutoFill={handleAutoFill}
+        newAutoFillTextToAppend={autoFillTextToAppend}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppend}
+        isShimmeringFromParent={isShimmering}
+        renderFooter={() => {
+          return children && children;
+        }}
+        headerComponent={showLastUpdatedAt}
+      />
     </div>
   );
 };

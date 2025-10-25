@@ -2,20 +2,19 @@ import React, { useState, useRef } from "react";
 import { createRemoteComponent } from "../../../../shared/remoteComponents";
 import { useSelector, useDispatch } from "react-redux";
 import "./styles.scss";
-import { isEmptyRichText } from "../../../../utils/utils";
+import { formatDateToShortMonthYear, isEmptyRichText } from "../../../../utils/utils";
 import DiagnosisPickerTable from "../../components/DiagnosisPickerTable/DiagnosisPickerTable";
 import { dischargeSummaryIcons } from "../../../../assets/images/indices";
-import DrawerWrapper from "../../components/DrawerWrapper/DrawerWrapper";
 import { setProvisionalDiagnosis } from "../../../../redux/ipd/dischargeSummarySlice";
+import { greenTick } from "../../../../assets/images/dischargeSummaryIcons";
+import { useDischargeSummaryData } from "../utils/useDischargeSummaryData";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
-const GenericCard = createRemoteComponent("GenericCard");
 
 const ProvisionalDiagnosis = (props) => {
   const { isEditable = true, sectionData } = props || {};
-  const [addProvisionalDiagnosisDrawer, setAddProvisionalDiagnosisDrawer] =
-    useState(false);
   const dispatch = useDispatch();
+  const { showLastUpdatedAt } = useDischargeSummaryData();
   const { dischargeSummaryData } = useSelector(
     (state) => state.dischargeSummary
   );
@@ -28,12 +27,20 @@ const ProvisionalDiagnosis = (props) => {
   const renderProvisionalDiagnosis = () => {
     if (!isEditable) {
       return (
-        <DiagnosisPickerTable itemId={'provisionalDiagnosis'} isEditable={false} ref={diagnosisPickerTableRef} />
-      )
+        <DiagnosisPickerTable
+          itemId={"provisionalDiagnosis"}
+          isEditable={false}
+          ref={diagnosisPickerTableRef}
+        />
+      );
     }
     return (
       <div className="ipd-provisional-diagnosis-container">
-        <DiagnosisPickerTable itemId={'provisionalDiagnosis'} isEditable={true} ref={diagnosisPickerTableRef} />
+        <DiagnosisPickerTable
+          itemId={"provisionalDiagnosis"}
+          isEditable={true}
+          ref={diagnosisPickerTableRef}
+        />
       </div>
     );
   };
@@ -47,7 +54,7 @@ const ProvisionalDiagnosis = (props) => {
       title={sectionData?.title}
       icon={dischargeSummaryIcons[`${sectionData?.id}Pc`]}
       showOnlyClear={isEditable}
-      isDataPresent={(provisionalDiagnosis)?.length}  
+      isDataPresent={provisionalDiagnosis?.length}
       onErase={(e) => {
         dispatch(setProvisionalDiagnosis([]));
       }}
@@ -60,6 +67,7 @@ const ProvisionalDiagnosis = (props) => {
         ]
       }
       placeholder="Enter provisional diagnosis"
+      headerComponent={showLastUpdatedAt}
       renderBody={renderProvisionalDiagnosis}
     />
   );

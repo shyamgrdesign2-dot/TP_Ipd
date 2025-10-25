@@ -58,12 +58,11 @@ $radius-md: 10px;
 
   &__icon {
     border-radius: 100px;
-    background: #a461d81a;
-    padding: 4px;
+
     z-index: 2;
     position: relative;
-    width: 28px;
-    height: 28px;
+    width: 16px;
+    height: 16px;
   }
 
   &__title {
@@ -175,7 +174,8 @@ $radius-md: 10px;
   }
 
   &__text {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 4px;
     min-width: 0;
   }
@@ -202,13 +202,27 @@ $icon-size: 32px;
 
 .asc-card__icon-container {
   position: relative;
-  background: white;
   border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #a461d81a;
+  z-index: 2;
+}
+.asc-card__icon-container-white {
+  background: white;
+  z-index: 2;
 }
 .sumtrack-full-container {
   position: relative;
   width: 400px;
-  padding: 0 18px;
+  padding: 0 0 0 18px;
+  padding-bottom: 100px;
+  max-height: calc(100vh - 148px);
+  min-height: 0;
+  overflow: auto;
   .sumtrack-headings {
     padding: 18px 0;
   }
@@ -236,8 +250,8 @@ $icon-size: 32px;
     width: 1px;
     background: repeating-linear-gradient(
       to bottom,
-      #a461d8,
-      #a461d8 5px,
+      hsla(278, 56%, 61%, 0.3),
+      hsla(278, 56%, 61%, 0.3) 5px,
       transparent 5px,
       transparent 10px
     );
@@ -255,5 +269,5 @@ $icon-size: 32px;
   position: relative;
   z-index: 2;
   border-radius: 999px;
-  background: #a461d81a;
+  // background: #a461d81a;
 }

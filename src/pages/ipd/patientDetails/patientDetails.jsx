@@ -2,6 +2,7 @@ import React, { Suspense, useEffect, useMemo, useState, useRef } from "react";
 import { IPD } from "../../../utils/locale";
 import {
   formatDateToShortMonthYear,
+  getPatientInformation,
   normalizeToDefault,
 } from "../../../utils/utils";
 import { AnimatePresence } from "framer-motion";
@@ -55,9 +56,16 @@ import {
   resetCrossReferralForm,
 } from "../../../redux/ipd/crossReferralSlice";
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
-import { getDischargeSummaryData, setProvisionalDiagnosis } from "../../../redux/ipd/dischargeSummarySlice";
+import {
+  getDischargeSummaryData,
+  resetActualDischargeSummaryData,
+  resetDischargeSummaryData,
+  setProvisionalDiagnosis,
+} from "../../../redux/ipd/dischargeSummarySlice";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
 import PreviewDischargeSummary from "../dischargeSummary/PreviewDischargeSummary";
+import DischargeSummaryReadonly from "../dischargeSummary/DischargeSummaryReadonly";
+import FullPageLoader from "../../vaccination/components/Loader";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -89,7 +97,7 @@ const IPDPatientDetails = () => {
   );
   const { medicalRecords } = useSelector((state) => state.medicalRecords);
   const { crossReferralData } = useSelector((state) => state.crossReferral);
-  const { dischargeSummaryData } = useSelector(
+  const { dischargeSummaryData, actualDischargeSummaryData } = useSelector(
     (state) => state.dischargeSummary
   );
   const { printSettings } = useSelector((state) => state.printSettings);
@@ -106,6 +114,7 @@ const IPDPatientDetails = () => {
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
   const fileInputRef = useRef(null);
+  const dischargeSummaryReadonlyRef = useRef(null);
 
   const dispatch = useDispatch();
 
@@ -167,6 +176,7 @@ const IPDPatientDetails = () => {
         patient_data,
         patientDetails,
         isEditable: true,
+        activeMenuItem,
       },
     });
   };
@@ -328,6 +338,7 @@ const IPDPatientDetails = () => {
 
     if (activeMenuItem === "assessment") {
       dispatch(getAssessmentsData({ patientId, admissionId })).then((res) => {
+        if (!res?.payload?.assessment) return;
         addDataToStore(res.payload.assessment);
       });
     } else if (activeMenuItem === "consultantNotes") {
@@ -406,7 +417,7 @@ const IPDPatientDetails = () => {
       return !!crossReferralData?.length;
     } else if (activeMenuItem === "dischargeSummary") {
       // return !!dischargeSummaryData && !!dischargeSummaryData.patientInformation && Object.keys(dischargeSummaryData.patientInformation).length > 0;
-      return !!Object.keys(dischargeSummaryData || {})?.length;
+      return true;
     } else if (activeMenuItem === "consultantNotes") {
       return !!consultantNotes?.length;
     } else if (activeMenuItem === "progress") {
@@ -432,17 +443,63 @@ const IPDPatientDetails = () => {
   const onRequestClose = () => {
     dispatch(resetOtNotesForm());
     dispatch(resetCrossReferralForm());
+    dispatch(resetActualDischargeSummaryData());
+    dispatch(resetDischargeSummaryData());
     navigate(`/ipd/inPatients`);
   };
   const handleCustomizeClick = () => {
-    console.log("INTEL ==> CUSTOMMM print settings");
+    if (activeMenuItem === "dischargeSummary") {
+      navigate("/ipd/discharge-summary/configure-print-settings", {
+        state: {
+          patientDetails,
+          moduleType: "dischargeSummary",
+          data: actualDischargeSummaryData,
+        },
+      });
+    } else if (activeMenuItem === "consultantNotes") {
+      navigate("/ipd/consultant-notes/configure-print-settings", {
+        state: {
+          patientDetails,
+          moduleType: "consultationNotes",
+          data: {
+            patientInformation: getPatientInformation(patientDetails),
+            consultantNotes: consultantNotes?.slice()?.sort((a, b) => {
+              const dateA = new Date(
+                a?.consultationNotes?.date || a?.createdAt || 0
+              );
+              const dateB = new Date(
+                b?.consultationNotes?.date || b?.createdAt || 0
+              );
+              return dateB - dateA;
+            }),
+          },
+        },
+      });
+    }
   };
   const onHandleSelect = (id) => {
     setActiveMenuItem(id);
+    navigate("/ipd/patient-details", {
+      state: {
+        patientDetails,
+        patient_data,
+        isEditable: false,
+        activeTab: id,
+      },
+      replace: true,
+    });
   };
 
   const handleDischargeSummaryPrintPreview = () => {
     navigate("/ipd/discharge-summary/preview", {
+      state: {
+        patientDetails,
+      },
+    });
+  };
+
+  const handleConsultantNotesPrintPreview = () => {
+    navigate("/ipd/consultant-notes/preview", {
       state: {
         patientDetails,
       },
@@ -492,6 +549,15 @@ const IPDPatientDetails = () => {
         return (
           <div className="ipd-adm-assess-container-readable">
             <ConsultantNotesTimeline />
+            <div className="ipd-toolbar-edit-custom-print-download">
+              <ToolbarActions
+                showEditForm={false}
+                onPrintPreview={handleConsultantNotesPrintPreview}
+                onPrint={() => console.log("Print")}
+                onSettings={handleCustomizeClick}
+                onDownload={() => console.log("Download")}
+              />
+            </div>
           </div>
         );
       case "labResults":
@@ -551,19 +617,22 @@ const IPDPatientDetails = () => {
         );
       case "dischargeSummary":
         return (
-          <div className="ipd-adm-assess-container-readable">
-            {/* <CrossReferralTimeline /> */}
-            <PreviewDischargeSummary />
-            <div className="ipd-toolbar-edit-custom-print-download">
-              <ToolbarActions
-                showEditForm={true}
-                onEdit={handleDischargeSummaryClick}
-                onPrintPreview={handleDischargeSummaryPrintPreview}
-                onPrint={() => console.log("Print")}
-                onSettings={handleCustomizeClick}
-                onDownload={() => console.log("Download")}
-              />
-            </div>
+          <div className="ipd-adm-assess-container-readable ipd-discharge-summary-container-readable">
+            <DischargeSummaryReadonly ref={dischargeSummaryReadonlyRef} />
+            {Object.keys(actualDischargeSummaryData)?.length && (
+              <div className="ipd-toolbar-edit-custom-print-download">
+                <ToolbarActions
+                  showEditForm={true}
+                  onEdit={handleDischargeSummaryClick}
+                  onPrintPreview={handleDischargeSummaryPrintPreview}
+                  onPrint={() => {
+                    dischargeSummaryReadonlyRef?.current?.handlePrintClick();
+                  }}
+                  onSettings={handleCustomizeClick}
+                  onDownload={() => console.log("Download")}
+                />
+              </div>
+            )}
           </div>
         );
       default:
@@ -580,7 +649,13 @@ const IPDPatientDetails = () => {
 
   return (
     <div>
-      <Suspense fallback={<>Loading ...</>}>
+      <Suspense
+        fallback={
+          <>
+            <FullPageLoader />
+          </>
+        }
+      >
         <AnimatePresence mode="wait">
           {open && !!patientData && (
             <PatientDetailsLayout
@@ -594,9 +669,7 @@ const IPDPatientDetails = () => {
               wardBedNumber={patientData.wardBedNumber}
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
-              renderContent={
-                 isDataPresent ? renderContent : null
-              }
+              renderContent={isDataPresent ? renderContent : null}
               showAddCTA={canShowAddCTA}
             />
           )}

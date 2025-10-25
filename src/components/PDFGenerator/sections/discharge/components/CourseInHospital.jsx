@@ -92,14 +92,10 @@ const renderChronologicalSummary = (summary, fontFamily) => {
           {summary.map((entry, index) => {
             // Extract text from rich text format
             let entryText = "";
-            if (Array.isArray(entry.entry)) {
-              entryText = entry.entry
-                .map((node) =>
-                  node.children?.map((child) => child.text).join("")
-                )
-                .join(" ");
-            } else if (typeof entry.entry === "string") {
-              entryText = entry.entry;
+            if (entry && entry.children && Array.isArray(entry.children)) {
+              entryText = entry.children?.map((child) => child.text).join("");
+            } else if (typeof entry === "string") {
+              entryText = entry;
             }
 
             return (

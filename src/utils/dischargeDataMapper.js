@@ -2,10 +2,10 @@ import { useDispatch } from "react-redux";
 import {
   setChiefComplaint,
   setPhysicalExaminationOthersData,
-  setPhysicalExaminationProvisionalDiagnosisData,
   setPhysicalExaminationBasicData,
   setFunctionalAssessmentData,
   setGynecHistoryData,
+  setVitalsData as setAssessmentFormVitalsData,
 } from "../redux/ipd/assessmentsFormSlice";
 
 import {
@@ -14,7 +14,6 @@ import {
 } from "../redux/prescriptionSlice";
 
 import { addObstetricDetails } from "../redux/obstetricSlice";
-
 import {
   setTreatmentNotes,
   setChronologicalSummary,
@@ -28,6 +27,7 @@ import {
   setVitalsData,
   setDischargeSummaryDataViaPatch,
   setFinalDiagnosis,
+  setOTSurgeries,
 } from "../redux/ipd/dischargeSummarySlice";
 
 export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
@@ -40,15 +40,25 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
 
   try {
     if (dischargeSummaryData?.assessmentId) {
-      dispatch(setDischargeSummaryDataViaPatch({assessmentId: dischargeSummaryData.assessmentId}));
+      dispatch(
+        setDischargeSummaryDataViaPatch({
+          assessmentId: dischargeSummaryData.assessmentId,
+        })
+      );
     }
     if (dischargeSummaryData?.patientInformation) {
-      dispatch(setDischargeSummaryDataViaPatch({patientInformation: dischargeSummaryData.patientInformation}));
+      dispatch(
+        setDischargeSummaryDataViaPatch({
+          patientInformation: dischargeSummaryData.patientInformation,
+        })
+      );
     }
     if (dischargeSummaryData?.patientHistory) {
       if (dischargeSummaryData?.patientHistory?.presentingComplaints) {
         dispatch(
-          setChiefComplaint(dischargeSummaryData.patientHistory.presentingComplaints)
+          setChiefComplaint(
+            dischargeSummaryData.patientHistory.presentingComplaints
+          )
         );
       }
 
@@ -78,10 +88,11 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
     if (dischargeSummaryData?.physicalExamination) {
       if (dischargeSummaryData?.physicalExamination?.vitals) {
         dispatch(
-          setVitalsData(dischargeSummaryData.physicalExamination.vitals)
+          setAssessmentFormVitalsData(
+            dischargeSummaryData.physicalExamination.vitals
+          )
         );
       }
-
       if (dischargeSummaryData?.physicalExamination?.generalExamination) {
         dispatch(
           setPhysicalExaminationBasicData(
@@ -140,6 +151,12 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
           dischargeSummaryData.dischargeNotes.dischargeMedications || []
         )
       );
+    }
+    if (
+      dischargeSummaryData?.otNotes &&
+      dischargeSummaryData?.otNotes?.surgeries
+    ) {
+      dispatch(setOTSurgeries(dischargeSummaryData?.otNotes?.surgeries || []));
     }
     if (
       dischargeSummaryData?.dischargeNotes &&

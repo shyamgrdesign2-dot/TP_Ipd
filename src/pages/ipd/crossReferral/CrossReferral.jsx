@@ -13,11 +13,18 @@ import {
 import AddCustomModule from "../../../components/AddCustomModule.js";
 import { useSelector } from "react-redux";
 import CustomModule from "../../../components/CustomModule.js";
-import { resetCrossReferralForm, updateCrossReferralData } from "../../../redux/ipd/crossReferralSlice.js";
+import {
+  resetCrossReferralForm,
+  updateCrossReferralData,
+} from "../../../redux/ipd/crossReferralSlice.js";
 import BackConfirmationModal from "../../../components/BackConfirmationModal.js";
-import { getCrossReferralData, setSingleCrossReferralData } from "../../../redux/ipd/crossReferralSlice.js";
+import {
+  getCrossReferralData,
+  setSingleCrossReferralData,
+} from "../../../redux/ipd/crossReferralSlice.js";
 import ReferralInformation from "./ReferralInformation.jsx";
 import dayjs from "dayjs";
+import FullPageLoader from "../../vaccination/components/Loader.js";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -40,7 +47,11 @@ const CrossReferral = (props) => {
   const crossReferralData = useSelector((state) => state.crossReferral);
   const { profile } = useSelector((state) => state.doctors);
   const { crossReferral = [] } = customization;
-  const [modelData, setModelData] = useState( crossReferral.length > 0 ? crossReferral : IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE );
+  const [modelData, setModelData] = useState(
+    crossReferral.length > 0
+      ? crossReferral
+      : IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE
+  );
 
   useEffect(() => {
     if (crossReferral.length > 0) {
@@ -50,7 +61,7 @@ const CrossReferral = (props) => {
 
   useEffect(() => {
     dispatch(getCustomization());
-    
+
     // Only fetch Cross Referral data if we have the required patient details
     if (patientDetails?.details?.id && patientDetails?.admissionId) {
       dispatch(
@@ -58,9 +69,13 @@ const CrossReferral = (props) => {
           patientId: patientDetails.details.id,
           admissionId: patientDetails.admissionId,
         })
-      ).then(res => {
+      ).then((res) => {
         if (crossReferralData.currentCrossReferralId) {
-          dispatch(setSingleCrossReferralData({_id: crossReferralData.currentCrossReferralId}));
+          dispatch(
+            setSingleCrossReferralData({
+              _id: crossReferralData.currentCrossReferralId,
+            })
+          );
         }
       });
     }
@@ -81,7 +96,7 @@ const CrossReferral = (props) => {
     if (!data || !data.id) {
       return null;
     }
-    
+
     return (
       <div className="ipd-otnotes-editable-section-container">
         {(() => {
@@ -102,12 +117,11 @@ const CrossReferral = (props) => {
     dispatch(updateCustomization(newData));
   };
 
-const onAddReferralClick = () => {
+  const onAddReferralClick = () => {
     const reqData = {
       ...crossReferralState.crossReferralFormDetails,
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
     };
-
 
     dispatch(
       updateCrossReferralData({
@@ -162,33 +176,49 @@ const onAddReferralClick = () => {
   const renderHeaderSection = () => {
     return (
       <div className="ipd-filled-by-card-container">
-        {crossReferralState.currentCrossReferralFilledByDetails?.createdByName ? <FilledByCard
-          showBeing={!(crossReferralState.currentCrossReferralFilledByDetails?.createdAt)}
-          filledBy={crossReferralState.currentCrossReferralFilledByDetails?.createdByName || ""}
-          role={crossReferralState.currentCrossReferralFilledByDetails?.createdByRole || ""}
-          showFilledOnDate={true}
-          selectedDate={crossReferralState.currentCrossReferralFilledByDetails?.createdAt || ""}
-        /> : <FilledByCard
-        filledBy={profile?.um_name}
-        role="Doctor"
-        selectedDate={dayjs(filledDate)}
-        selectedTime={dayjs(filledAtTime)}
-        // showRole={false}
-        dateFormat="DD MMM YYYY"
-        timeFormat="HH:mm A"
-        selectedTimePeriod={selectedTimePeriod}
-        timePeriodOptions={[
-          { label: "Morning", value: "Morning" },
-          { label: "Afternoon", value: "Afternoon" },
-          { label: "Evening", value: "Evening" },
-          { label: "Night", value: "Night" },
-        ]}
-        onDateChange={(date) => setFilledDate(date)}
-        onTimeChange={(time) => setFilledAtTime(time)}
-        onTimePeriodChange={handleTimePeriodChange}
-        editable
-        showTimePeriod={true}
-      />}
+        {crossReferralState.currentCrossReferralFilledByDetails
+          ?.createdByName ? (
+          <FilledByCard
+            showBeing={
+              !crossReferralState.currentCrossReferralFilledByDetails?.createdAt
+            }
+            filledBy={
+              crossReferralState.currentCrossReferralFilledByDetails
+                ?.createdByName || ""
+            }
+            role={
+              crossReferralState.currentCrossReferralFilledByDetails
+                ?.createdByRole || ""
+            }
+            showFilledOnDate={true}
+            selectedDate={
+              crossReferralState.currentCrossReferralFilledByDetails
+                ?.createdAt || ""
+            }
+          />
+        ) : (
+          <FilledByCard
+            filledBy={profile?.um_name}
+            role="Doctor"
+            selectedDate={dayjs(filledDate)}
+            selectedTime={dayjs(filledAtTime)}
+            // showRole={false}
+            dateFormat="DD MMM YYYY"
+            timeFormat="HH:mm A"
+            selectedTimePeriod={selectedTimePeriod}
+            timePeriodOptions={[
+              { label: "Morning", value: "Morning" },
+              { label: "Afternoon", value: "Afternoon" },
+              { label: "Evening", value: "Evening" },
+              { label: "Night", value: "Night" },
+            ]}
+            onDateChange={(date) => setFilledDate(date)}
+            onTimeChange={(time) => setFilledAtTime(time)}
+            onTimePeriodChange={handleTimePeriodChange}
+            editable
+            showTimePeriod={true}
+          />
+        )}
         {/* TODO: INTEL - SHOW EDITABLE ONE INSTEAD OF THIS */}
       </div>
     );
@@ -216,7 +246,11 @@ const onAddReferralClick = () => {
 
   // Early return if essential data is missing to prevent undefined errors
   if (!patientDetails && isEditable) {
-    return <div>Loading patient details...</div>;
+    return (
+      <>
+        <FullPageLoader />
+      </>
+    );
   }
 
   return (
@@ -225,7 +259,13 @@ const onAddReferralClick = () => {
         isEditable ? "" : "ipd-otnotes-form-container-readonly"
       }`}
     >
-      <Suspense fallback={<>Loading ...</>}>
+      <Suspense
+        fallback={
+          <>
+            <FullPageLoader />
+          </>
+        }
+      >
         {!isEditable ? (
           <div>{renderAllSections()}</div>
         ) : (
@@ -305,7 +345,10 @@ const onAddReferralClick = () => {
         onCancel={() => setIsBackModalOpen(false)}
         onConfirm={() => {
           setIsBackModalOpen(false);
-          navigate(`/ipd/patient-details`, {state: {...state, activeTab: "crossReferral", isEditable: false}, replace: true});
+          navigate(`/ipd/patient-details`, {
+            state: { ...state, activeTab: "crossReferral", isEditable: false },
+            replace: true,
+          });
           dispatch(resetCrossReferralForm());
           setOpen(false);
         }}

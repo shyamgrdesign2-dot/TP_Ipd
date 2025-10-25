@@ -14,6 +14,7 @@ import {
   deepMergePreserveFirst,
   formatDateToShortMonthYear,
 } from "../../../utils/utils";
+import { useDischargeSummaryData } from "../dischargeSummary/utils/useDischargeSummaryData";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const GenericCard = createRemoteComponent("GenericCard");
@@ -21,6 +22,7 @@ const AutoFillButton = createRemoteComponent("AutoFillButton");
 
 const ObstetricHistory = (props) => {
   const { sectionData, isEditable = true, patientDataForOPDComponents } = props;
+  const { showLastUpdatedAt } = useDischargeSummaryData();
   const { obstetricDetailsBackup, obstetricDetails: allObstetricDetails } =
     useSelector((state) => state.obstetric);
   const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
@@ -143,6 +145,7 @@ const ObstetricHistory = (props) => {
           console.log("auto fill");
         }}
         renderBody={renderObstetricHistory}
+        headerComponent={showLastUpdatedAt}
       />
       {addObstetricHistoryDrawer && (
         <Drawer

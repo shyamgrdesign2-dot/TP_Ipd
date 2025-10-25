@@ -74,13 +74,13 @@ const OtNotes = (props) => {
     }
   }, [otNotes]);
 
-  useEffect(() => {
-    const { date, time } = otNotesState?.otNotesData || {};
-    if (date && time) {
-      setFilledDate(new Date(date));
-      setFilledAtTime(new Date(time));
-    }
-  }, [otNotesState?.otNotesData]);
+  // useEffect(() => {
+  //   const { date, time } = otNotesState?.otNotesData || {};
+  //   if (date && time) {
+  //     setFilledDate(new Date(date));
+  //     setFilledAtTime(new Date(time));
+  //   }
+  // }, [otNotesState?.otNotesData]);
 
   useEffect(() => {
     if (isNew) {
@@ -356,7 +356,13 @@ const OtNotes = (props) => {
         isEditable ? "" : "ipd-otnotes-form-container-readonly"
       }`}
     >
-      <Suspense fallback={<>Loading ...</>}>
+      <Suspense
+        fallback={
+          <>
+            <FullPageLoader />
+          </>
+        }
+      >
         {!isEditable ? (
           <div>{renderAllSections()}</div>
         ) : (

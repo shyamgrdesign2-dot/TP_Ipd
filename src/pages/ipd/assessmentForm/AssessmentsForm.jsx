@@ -39,6 +39,7 @@ import { useAssessmentSectionVisibility } from "../../../hooks/useAssessmentSect
 import { useAssessmentDataStore } from "../../../hooks/useAssessmentDataStore";
 import ProvisionalDiagnosisWrapper from "./provisinalDiagnosisWrapper";
 import dayjs from "dayjs";
+import FullPageLoader from "../../vaccination/components/Loader";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -86,13 +87,13 @@ const AssessmentsForm = (props) => {
     }
   }, [assessments]);
 
-  useEffect(() => {
-    const { date, time } = assessmentData.assessmentsData || {};
-    if (date && time) {
-      setFilledDate(new Date(date));
-      setFilledAtTime(new Date(time));
-    }
-  }, [assessmentData.assessmentsData]);
+  // useEffect(() => {
+  //   const { date, time } = assessmentData.assessmentsData || {};
+  //   if (date && time) {
+  //     setFilledDate(new Date(date));
+  //     setFilledAtTime(new Date(time));
+  //   }
+  // }, [assessmentData.assessmentsData]);
 
   useEffect(() => {
     if (
@@ -330,7 +331,8 @@ const AssessmentsForm = (props) => {
 
   const renderAllSections = () => {
     const latestUpdatedAt = assessmentData.assessmentsData?.date || new Date();
-    const latestUpdatedAtTime = assessmentData.assessmentsData?.time || new Date();
+    const latestUpdatedAtTime =
+      assessmentData.assessmentsData?.time || new Date();
     return (
       <div
         className={`ipd-generic-form-container ${
@@ -365,7 +367,13 @@ const AssessmentsForm = (props) => {
 
   return (
     <div className="afipd-generic-form-container">
-      <Suspense fallback={<>Loading ...</>}>
+      <Suspense
+        fallback={
+          <>
+            <FullPageLoader />
+          </>
+        }
+      >
         {!isEditable ? (
           <div>{renderAllSections()}</div>
         ) : (
@@ -405,7 +413,6 @@ const AssessmentsForm = (props) => {
           title="Customise Your Form"
           open={showCustomisationDrawer}
           onClose={() => {
-            console.log("INTEL ==> CLOSE");
             dispatch(
               updateCustomization({
                 ...customization,

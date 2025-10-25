@@ -10,32 +10,28 @@ const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 
 const ProvisionalDiagnosisWrapper = (props) => {
   const { sectionData, isEditable = true } = props || {};
-  const dispatch = useDispatch();
-  const { physicalExaminationProvisionalDiagnosisData = [] } = useSelector(
-    (state) => state.assessment
+  const { dischargeSummaryData } = useSelector(
+    (state) => state.dischargeSummary
   );
-  const [autoFillTextToAppendProvisionalDiagnosis, setAutoFillTextToAppendProvisionalDiagnosis] = React.useState([]);
+  const { provisionalDiagnosis = [] } =
+    dischargeSummaryData?.diagnosisAndSurgery || {};
 
-  const handleProvisionalDiagnosisChange = (value) => {
-    // Handle provisional diagnosis changes here
-    console.log("Provisional diagnosis changed:", value);
-    dispatch(setPhysicalExaminationProvisionalDiagnosisData(value));
-  };
+  if (!isEditable && provisionalDiagnosis.length === 0) return null;
 
   return (
     <CollapsibleWrapper
-          title={sectionData?.title}
-          data-testid={sectionData?.id}
-          icon={assessmentsIcons.provisionalDiagnosisPcDark}
-          collapsible={isEditable}
-          width={"100%"}
-          className={`collapsible-wrapper-class ${
-            isEditable ? "" : "collapsible-wrapper-class-readonly"
-          }`}
-          defaultOpen
-        >
-            <ProvisionalDiagnosis {...props} sectionData={sectionData?.children[0]} />
-        </CollapsibleWrapper>
+      title={sectionData?.title}
+      data-testid={sectionData?.id}
+      icon={assessmentsIcons.provisionalDiagnosisPcDark}
+      collapsible={isEditable}
+      width={"100%"}
+      className={`collapsible-wrapper-class ${
+        isEditable ? "" : "collapsible-wrapper-class-readonly"
+      }`}
+      defaultOpen
+    >
+      <ProvisionalDiagnosis {...props} sectionData={sectionData?.children[0]} />
+    </CollapsibleWrapper>
   );
 };
 

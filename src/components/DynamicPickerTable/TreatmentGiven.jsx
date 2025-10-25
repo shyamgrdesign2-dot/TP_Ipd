@@ -5,55 +5,35 @@ import { createRemoteComponent } from "../../shared/remoteComponents";
 import DynamicPickerTable from "./DynamicPickerTable";
 import { searchMedication, searchGeneric } from "../../redux/medicationSlice";
 import {
-  generateTreatmentNotes,
   addTreatmentNote,
   updateTreatmentNote,
   removeTreatmentNote,
 } from "../../redux/ipd/dischargeSummarySlice";
 import {
+  formatDateToShortMonthYear,
   removeBeforeWhiteSpace,
   replaceCommasAndSemicolons,
 } from "../../utils/utils";
 import { useLocation } from "react-router-dom";
 import { dischargeSummaryIcons } from "../../assets/images/indices";
-import './styles.scss';
+import "./styles.scss";
+import { greenTick } from "../../assets/images/dischargeSummaryIcons";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const TreatmentGiven = ({ sectionData }) => {
   const { state } = useLocation();
-  const { patientDetails, isEditable = true } = state || {};
+  const { isEditable = true } = state || {};
   const tableRef = useRef();
   const dispatch = useDispatch();
-  
-  // Get treatment notes from Redux store
-  const { treatmentNotes, treatmentNotesLoading } = useSelector(
-    (state) => state.dischargeSummary
-  );
 
-  // Fetch treatment notes using Redux
-  const fetchTreatmentNotes = useCallback(() => {
-    if (patientDetails?.details?.id && patientDetails?.admissionId) {
-      dispatch(
-        generateTreatmentNotes({
-          patientId: patientDetails.details.id,
-          admissionId: patientDetails.admissionId,
-        })
-      );
-    }
-  }, [dispatch, patientDetails?.details?.id, patientDetails?.admissionId]);
+  const { treatmentNotes, treatmentNotesLoading, actualDischargeSummaryData } =
+    useSelector((state) => state.dischargeSummary);
 
-  // Load data on component mount
-  useEffect(() => {
-    fetchTreatmentNotes();
-  }, [fetchTreatmentNotes]);
-
-  // Search medications using redux
   const handleSearch = async (query) => {
     if (!query) return [];
 
     try {
-      // Search both medications and generics
       const medicationAction = await dispatch(
         searchMedication({
           searchQuery: removeBeforeWhiteSpace(query),
@@ -65,16 +45,14 @@ const TreatmentGiven = ({ sectionData }) => {
         searchGeneric(replaceCommasAndSemicolons(removeBeforeWhiteSpace(query)))
       );
 
-      // Combine results from both searches
       const medicationResults = medicationAction.payload || [];
       const genericResults = genericAction.payload || [];
 
-      // Format results for the picker
       const formattedResults = [
         ...medicationResults.map((med) => ({
           id: med.tmm_id,
           name: med.tmm_medicine_name,
-          code: "DS", // Default to CN for medications
+          code: "DS",
           type: med.tmm_type || "Medication",
           strength: med.tmm_strength || "",
           manufacturer: med.tmm_company || "",
@@ -82,7 +60,7 @@ const TreatmentGiven = ({ sectionData }) => {
         ...genericResults.map((gen) => ({
           id: `gen_${gen.id || Date.now()}`,
           name: gen.tmm_generic || gen.name,
-          code: "CN", // Default to CN for generics
+          code: "CN",
           type: "Generic",
           strength: "",
           manufacturer: "",
@@ -96,7 +74,6 @@ const TreatmentGiven = ({ sectionData }) => {
     }
   };
 
-  // Column configuration
   const columns = [
     {
       title: "NAME",
@@ -159,7 +136,6 @@ const TreatmentGiven = ({ sectionData }) => {
     },
   ];
 
-  // Search configuration
   const searchConfig = {
     valueField: "name",
     titleField: "name",
@@ -169,25 +145,22 @@ const TreatmentGiven = ({ sectionData }) => {
     renderOption: (item) => (
       <div className="option-row">
         <span className="option-title">{item.name}</span>
-        {/* <span className="option-subtitle">[{item.code}]</span> */}
       </div>
     ),
   };
 
-  // Event handlers
   const handleRowChange = (row, field, value) => {
-    dispatch(updateTreatmentNote({ key: row.key, updates: { [field]: value } }));
-    // message.success(`Updated ${field} for ${row.name}`);
+    dispatch(
+      updateTreatmentNote({ key: row.key, updates: { [field]: value } })
+    );
   };
 
   const handleRowAdd = (row) => {
     dispatch(addTreatmentNote(row));
-    // message.success(`Added ${row.name} to the list`);
   };
 
   const handleRowDelete = (row) => {
     dispatch(removeTreatmentNote(row.key));
-    // message.success(`Removed ${row.name} from the list`);
   };
 
   const renderTreatmentTable = () => (
@@ -209,6 +182,18 @@ const TreatmentGiven = ({ sectionData }) => {
     />
   );
 
+  const showLastUpdatedAt = () => {
+    if (!actualDischargeSummaryData?.date) return null;
+    return (
+      <div className="success-gradient-pill">
+        <img src={greenTick} alt="." />
+        {`Last Updated on ${formatDateToShortMonthYear(
+          actualDischargeSummaryData?.date
+        )}`}
+      </div>
+    );
+  };
+
   return (
     <RichTextEditWrapper
       readOnly={!isEditable}
@@ -227,6 +212,7 @@ const TreatmentGiven = ({ sectionData }) => {
       showMicrophone={false}
       placeholder="Treatment given details"
       renderBody={renderTreatmentTable}
+      headerComponent={showLastUpdatedAt}
     />
   );
 };

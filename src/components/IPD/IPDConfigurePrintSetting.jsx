@@ -21,6 +21,7 @@ import {
 } from "../../utils/constants";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
+import { getPrintSettings } from "../../redux/ipd/printSettingsSlice";
 
 // Document type mapping for PDF generation
 const DOCUMENT_TYPE_MAPPING = {
@@ -42,10 +43,10 @@ const MODULE_TITLE_MAPPING = {
   dischargeSummary: "Discharge Summary",
 };
 
-function IPDConfigurePrintSetting({ printSettings, moduleType, data }) {
+function IPDConfigurePrintSetting({ moduleType, data }) {
   const divRef = useRef(null);
   const dispatch = useDispatch();
-  const { draftSettings, fileStates } = useSelector(
+  const { draftSettings, fileStates, printSettings } = useSelector(
     (state) => state.printSettings
   );
 
@@ -93,7 +94,7 @@ function IPDConfigurePrintSetting({ printSettings, moduleType, data }) {
 
   // Get document type for PDF generation
   const getDocumentType = () => {
-    return DOCUMENT_TYPE_MAPPING[moduleType] || "dischargeSummary";
+    return DOCUMENT_TYPE_MAPPING[moduleType];
   };
 
   // Get module title
@@ -104,6 +105,12 @@ function IPDConfigurePrintSetting({ printSettings, moduleType, data }) {
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
   }, [divRef]);
+
+  useEffect(() => {
+    if (!printSettings || Object.keys(printSettings).length === 0) {
+      dispatch(getPrintSettings());
+    }
+  }, [dispatch, printSettings]);
 
   useEffect(() => {
     const initializePrintSettings = async () => {
@@ -304,6 +311,7 @@ function IPDConfigurePrintSetting({ printSettings, moduleType, data }) {
   const makePDFUrl = useCallback(async () => {
     try {
       const currentSettings = getCurrentModuleSettings();
+
       if (!currentSettings || !data) return;
 
       const blob = await pdf(

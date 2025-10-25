@@ -106,6 +106,9 @@
   .ipdchiefcomplaint-hide-border {
     margin: 0;
   }
+  .slate-editable-wrapper {
+    max-height: fit-content !important;
+  }
 }
 
 .discharge-advice-section {
@@ -373,7 +376,23 @@
   margin-bottom: 6px;
   display: block;
 }
-.activity-name, .diet-name {
+.activity-name,
+.diet-name {
   color: #2c3e50;
   @include fs14-semibold;
+}
+.chrosum-tooltip-container {
+  background: #171725;
+  box-shadow: 0px 0px 24px 0px #00000029;
+  font-size: 14px;
+  line-height: 20px;
+  padding: 16px !important;
+  div {
+    color: white !important;
+  }
+  span {
+    font-weight: 600;
+    margin-right: 4px;
+    color: white !important;
+  }
 }

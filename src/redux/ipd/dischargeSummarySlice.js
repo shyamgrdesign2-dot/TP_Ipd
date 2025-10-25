@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, current } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiDischargeSummary from "../../api/services/ipd/ApiDischargeSummary";
 
 // Helper function to map module to code
@@ -20,11 +20,10 @@ const getCodeFromModule = (module) => {
 };
 
 export const initialState = {
-  //   dischargeSummaryData: {},
   dischargeSummaryData: {
     patientInformation: {},
     surgeriesPerformed: [],
-    followUpDoctor: {}, // Will store the complete doctor object
+    followUpDoctor: {},
   },
   mockValues: {},
   treatmentNotes: [],
@@ -110,56 +109,6 @@ export const getMockValues = createAsyncThunk(
   }
 );
 
-export const generateTreatmentNotes = createAsyncThunk(
-  "dischargeSummary/generateTreatmentNotes",
-  async ({ patientId, admissionId }, { rejectWithValue }) => {
-    try {
-      const result = await ApiDischargeSummary.generateTreatmentNotes({
-        patientId,
-        admissionId,
-      });
-      //   console.log
-      if (result) {
-        return result;
-      } else {
-        throw Error(result.error || "Failed to fetch treatment notes");
-      }
-    } catch (error) {
-      console.log("error: ", error);
-      return rejectWithValue({
-        visible: false,
-        message:
-          error.response?.data?.message || "Failed to fetch treatment notes",
-      });
-    }
-  }
-);
-
-export const generateChronologicalSummary = createAsyncThunk(
-  "dischargeSummary/generateChronologicalSummary",
-  async ({ patientId, admissionId }, { rejectWithValue }) => {
-    try {
-      const result = await ApiDischargeSummary.generateChronologicalSummary({
-        patientId,
-        admissionId,
-      });
-      if (result) {
-        return result;
-      } else {
-        throw Error(result.error || "Failed to fetch chronological summary");
-      }
-    } catch (error) {
-      console.log("error: ", error);
-      return rejectWithValue({
-        visible: false,
-        message:
-          error.response?.data?.message ||
-          "Failed to fetch chronological summary",
-      });
-    }
-  }
-);
-
 const dischargeSummarySlice = createSlice({
   name: "dischargeSummary",
   initialState,
@@ -198,18 +147,31 @@ const dischargeSummarySlice = createSlice({
       if (!state.dischargeSummaryData) {
         state.dischargeSummaryData = {};
       }
-      if (!state.dischargeSummaryData?.diagnosisAndSurgery) {
-        state.dischargeSummaryData.diagnosisAndSurgery = {};
+      if (!state.dischargeSummaryData.diagnosisAndSurgery) {
+        state.dischargeSummaryData = {
+          ...state.dischargeSummaryData,
+          diagnosisAndSurgery: {},
+        };
       }
-      state.dischargeSummaryData.diagnosisAndSurgery.provisionalDiagnosis =
-        action.payload;
+      state.dischargeSummaryData.diagnosisAndSurgery = {
+        ...state.dischargeSummaryData.diagnosisAndSurgery,
+        provisionalDiagnosis: action.payload,
+      };
+    },
+    resetDischargeSummaryData: (state, action) => {
+      state.dischargeSummaryData = {};
     },
     setFinalDiagnosis: (state, action) => {
-      if (!state.dischargeSummaryData?.diagnosisAndSurgery) {
+      if (!state.dischargeSummaryData) {
+        state.dischargeSummaryData = {};
+      }
+      if (!state.dischargeSummaryData.diagnosisAndSurgery) {
         state.dischargeSummaryData.diagnosisAndSurgery = {};
       }
-      state.dischargeSummaryData.diagnosisAndSurgery.finalDiagnosis =
-        action.payload;
+      state.dischargeSummaryData.diagnosisAndSurgery = {
+        ...state.dischargeSummaryData.diagnosisAndSurgery,
+        finalDiagnosis: action.payload,
+      };
     },
     setDiet: (state, action) => {
       state.dischargeSummaryData.diet = action.payload;
@@ -266,12 +228,27 @@ const dischargeSummarySlice = createSlice({
         ? action.payload
         : [];
     },
+    setOTSurgeries: (state, action) => {
+      if (!state.dischargeSummaryData) {
+        state.dischargeSummaryData = {};
+      }
+      if (!state.dischargeSummaryData.otSurgeries) {
+        state.dischargeSummaryData = {
+          ...state.dischargeSummaryData,
+          otSurgeries: {},
+        };
+      }
+      state.dischargeSummaryData.otSurgeries = action.payload;
+    },
     setSurgeriesPerformed: (state, action) => {
       state.dischargeSummaryData.surgeriesPerformed = Array.isArray(
         action.payload
       )
         ? action.payload
         : [];
+    },
+    resetActualDischargeSummaryData: (state, action) => {
+      state.actualDischargeSummaryData = {};
     },
   },
   extraReducers: (builder) => {
@@ -321,44 +298,6 @@ const dischargeSummarySlice = createSlice({
       .addCase(getMockValues.rejected, (state) => {
         state.mockValues = {};
         state.loading = false;
-      })
-      .addCase(generateTreatmentNotes.pending, (state) => {
-        state.treatmentNotesLoading = true;
-      })
-      .addCase(generateTreatmentNotes.fulfilled, (state, action) => {
-        state.treatmentNotesLoading = false;
-        // Transform the API response to the required format
-        const formattedData = Object.entries(action.payload).map(
-          ([key, item]) => ({
-            key: `row_${key}`,
-            id: parseInt(key),
-            name: item.name,
-            code: getCodeFromModule(item.module),
-            givenDate: item.givenDate || "",
-            duration: item.duration || "",
-            notes: item.notes || "",
-            module: item.module,
-          })
-        );
-        state.treatmentNotes = formattedData;
-      })
-      .addCase(generateTreatmentNotes.rejected, (state) => {
-        state.treatmentNotes = [];
-        state.treatmentNotesLoading = false;
-      })
-      .addCase(generateChronologicalSummary.pending, (state) => {
-        state.chronologicalSummaryLoading = true;
-      })
-      .addCase(generateChronologicalSummary.fulfilled, (state, action) => {
-        state.chronologicalSummaryLoading = false;
-        state.chronologicalSummary = action.payload;
-      })
-      .addCase(generateChronologicalSummary.rejected, (state) => {
-        state.chronologicalSummary = [];
-        state.chronologicalSummaryLoading = false;
-        if (state.dischargeSummaryData) {
-          state.dischargeSummaryData.chronologicalSummary = [];
-        }
       });
   },
 });
@@ -387,6 +326,9 @@ export const {
   removeTreatmentNote,
   setChronologicalSummary,
   setSurgeriesPerformed,
+  setOTSurgeries,
+  resetActualDischargeSummaryData,
+  resetDischargeSummaryData,
 } = dischargeSummarySlice.actions;
 
 export default dischargeSummarySlice.reducer;

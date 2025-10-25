@@ -3,6 +3,7 @@ import { createRemoteComponent } from "../../../../shared/remoteComponents";
 import { useSelector } from "react-redux";
 import { isEmptyRichText } from "../../../../utils/utils";
 import DiagnosisPickerTable from "../../components/DiagnosisPickerTable/DiagnosisPickerTable";
+import defaultIcons from "../../../../assets/images/indices";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -26,6 +27,7 @@ const FinalDiagnosis = (props) => {
           },
         ]
       }
+      icon={defaultIcons?.[`${sectionData?.id}Pc`]}
       title={sectionData?.title}
       placeholder="Enter final diagnosis"
       renderBody={() => (

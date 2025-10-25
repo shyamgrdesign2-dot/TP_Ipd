@@ -17,9 +17,14 @@
   padding: 18px;
   margin: 18px;
   border-radius: 12px;
-  background: #F9F7FD;
-  border: 1.03px solid #E2E2EA;
+  background: #f9f7fd;
+  border: 1.03px solid #e2e2ea;
   display: flex;
-  flex: 1;
   justify-content: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  max-height: calc(100vh - 148px);
+  padding-bottom: 100px;
 }

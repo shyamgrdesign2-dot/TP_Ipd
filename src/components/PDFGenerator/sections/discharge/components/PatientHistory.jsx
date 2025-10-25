@@ -392,10 +392,10 @@ const renderGynecHistory = (gynecData, fontFamily) => {
 const PatientHistory = ({ data, formatSettings, fontFamily = "Poppins" }) => {
   if (!data?.patientHistory) return null;
   const { patientHistory } = data;
-
+  
   // Find patientHistory section in formatSettings array
   const patientHistorySection = formatSettings.find(
-    (section) => section.key === "patientHistory"
+    (section) => section.id === "patientHistory"
   );
   const subsections = patientHistorySection?.subSections || [];
 
@@ -405,14 +405,14 @@ const PatientHistory = ({ data, formatSettings, fontFamily = "Poppins" }) => {
   return (
     <View style={styles.mainContainer}>
       {sortedSubsections.map((subsection) => {
-        const key = subsection.key;
+        const key = subsection.id;
 
         // Presenting Complaints
-        if (key === "presentingComplaints" && patientHistory.chiefComplaint) {
+        if (key === "presentingComplaints" && patientHistory.presentingComplaints) {
           return renderPresentingComplaints(
-            Array.isArray(patientHistory?.chiefComplaint)
-              ? patientHistory.chiefComplaint
-              : [patientHistory.chiefComplaint],
+            Array.isArray(patientHistory?.presentingComplaints)
+              ? patientHistory.presentingComplaints
+              : [patientHistory.presentingComplaints],
             fontFamily
           );
         }
@@ -426,7 +426,7 @@ const PatientHistory = ({ data, formatSettings, fontFamily = "Poppins" }) => {
         }
 
         // Gynec History
-        if (key === "gyneacHistory" && patientHistory.gyneacHistory) {
+        if (key === "gynecHistory" && patientHistory.gyneacHistory) {
           return renderGynecHistory(patientHistory.gyneacHistory, fontFamily);
         }
 

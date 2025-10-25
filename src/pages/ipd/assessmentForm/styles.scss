@@ -226,6 +226,7 @@ $muted: #6f6b88;
       margin-bottom: 0;
       min-height: auto;
       margin-top: 0;
+      max-height: fit-content;
       p:has([data-slate-length="0"]) {
         display: none !important;
       }

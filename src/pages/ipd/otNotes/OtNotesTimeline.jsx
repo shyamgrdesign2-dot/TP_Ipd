@@ -20,6 +20,7 @@ import { convertSurgeryDataToDisplayFormat } from "../../../utils/utils.js";
 import { isEmptyRichText } from "../../../utils/utils.js";
 import { dischargeSummaryIcons } from "../../../assets/images/indices/index.js";
 import FilledByCards from "./components/FilledByCards.jsx";
+import { useDischargeSummaryData } from "../dischargeSummary/utils/useDischargeSummaryData.js";
 const ReusableStepper = createRemoteComponent("ReusableStepper");
 const GenericCard = createRemoteComponent("GenericCard");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -29,6 +30,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
   const showDateFormat = "DD-MM-YYYY";
   const dispatch = useDispatch();
   const otNotesState = useSelector((state) => state.otNotes);
+  const { showLastUpdatedAt } = useDischargeSummaryData(true, true);
   const { customization = {} } = useSelector((state) => state.ipd);
   const [dateStatus, setDateStatus] = useState(null);
   const [dateRange, setDateRange] = useState(null);
@@ -374,7 +376,11 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
                             return null;
                         }
                       })}
-                      <FilledByCards updates={updates} createdByRole={entry?.createdByRole} createdByName={entry?.createdByName} />
+                      <FilledByCards
+                        updates={updates}
+                        createdByRole={entry?.createdByRole}
+                        createdByName={entry?.createdByName}
+                      />
                     </>
                   )}
                 </div>
@@ -453,8 +459,12 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
           return (
             <div className="otnotelite-section-container big-box-with-shadow flex-column-gap-16">
               <div className="d-flex-align-center-gap-8">
-                <img src={dischargeSummaryIcons.surgeryDetailsPc} alt="Surgery" />
+                <img
+                  src={dischargeSummaryIcons.surgeryDetailsPc}
+                  alt="Surgery"
+                />
                 <div className="fs16-bold">Surgery {sectionIndex + 1}</div>
+                {showLastUpdatedAt(section?.originalEntry?._id)}
               </div>
               <div className="otnotelite-section-content box-with-padding padding-0">
                 {section?.renderStepItem(true)}
