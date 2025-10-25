@@ -65,13 +65,13 @@ const AdditionalRemarks = (props) => {
       width="100%"
       icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={isEditable && hasAdditionalRemarksInLastProgressNote}
-      opdDate={formatDateToShortMonthYear(prevProgressNote.createdAt)}
+      opdDate={formatDateToShortMonthYear(prevProgressNote?.createdAt)}
       autoFillTitle={
         hasAdditionalRemarksInLastProgressNote
           ? `Autofill From Prev. Progress Notes (${new Date(
-              prevProgressNote.createdAt
+              prevProgressNote?.createdAt
             ).toLocaleDateString()}, ${new Date(
-              prevProgressNote.createdAt
+              prevProgressNote?.createdAt
             ).toLocaleTimeString()})`
           : "No previous profress notes available"
       }

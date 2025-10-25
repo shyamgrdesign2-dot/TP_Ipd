@@ -285,20 +285,20 @@ export const renderProgressNotes = (data, formatSettings, fontFamily) => {
 
   let sectionsToRender = defaultSections;
 
-  // Try to get sections from formatSettings if it's properly structured
-  if (formatSettings && Array.isArray(formatSettings)) {
-    sectionsToRender = getSortedSections(formatSettings);
-  } else if (formatSettings && formatSettings.formatStyle) {
-    // Convert formatStyle object to array format
-    const sectionsArray = Object.entries(formatSettings.formatStyle).map(([key, value]) => ({
-      id: key,
-      order: value.order || 1,
-      visible: value.visible !== false,
-    }));
-    sectionsToRender = getSortedSections(sectionsArray);
-  } else {
-    console.log("Using default sections:", defaultSections);
-  }
+  // // Try to get sections from formatSettings if it's properly structured
+  // if (formatSettings && Array.isArray(formatSettings)) {
+  //   sectionsToRender = getSortedSections(formatSettings);
+  // } else if (formatSettings && formatSettings.formatStyle) {
+  //   // Convert formatStyle object to array format
+  //   const sectionsArray = Object.entries(formatSettings.formatStyle).map(([key, value]) => ({
+  //     id: key,
+  //     order: value.order || 1,
+  //     visible: value.visible !== false,
+  //   }));
+  //   sectionsToRender = getSortedSections(sectionsArray);
+  // } else {
+  //   console.log("Using default sections:", defaultSections);
+  // }
 
   // Map section keys to render functions
   const sectionRenderers = {

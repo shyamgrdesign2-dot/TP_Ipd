@@ -61,9 +61,9 @@ const Findings = (props) => {
       autoFillTitle={
         hasfindingsInLastProgressNote
           ? `Autofill From Prev. Progress Notes (${new Date(
-              prevProgressNote.createdAt
+              prevProgressNote?.createdAt
             ).toLocaleDateString()}, ${new Date(
-              prevProgressNote.createdAt
+              prevProgressNote?.createdAt
             ).toLocaleTimeString()})`
           : "No previous progress notes available"
       }
