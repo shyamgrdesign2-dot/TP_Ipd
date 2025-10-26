@@ -36,6 +36,9 @@ import CommonModal from "../../common/CommonModal";
 
 import defaultprofile from "../../assets/images/default-profile.svg";
 import rxDisplayArea from "../../assets/images/rx-display-area.svg";
+import { LETTERHEAD_FORMATS } from "../PDFGenerator";
+import { Cropper } from "react-cropper";
+import "cropperjs/dist/cropper.css";
 
 const RowContext = React.createContext({});
 
@@ -129,6 +132,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
   const fileSignature = moduleFileStates.fileSignature || null;
   const fileHeader = moduleFileStates.fileHeader || null;
   const fileFooter = moduleFileStates.fileFooter || null;
+  const cropperHeaderRef = React.createRef();
 
   // Helper functions to update files in Redux
   const setFileLogo = useCallback(
@@ -202,6 +206,8 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
   const inputWatermarkFile = React.createRef();
   const inputSignatureFile = React.createRef();
   const signatureRef = React.createRef();
+  const [isFooterModalOpen, setIsFooterModalOpen] = useState(false);
+  const [isHeaderModalOpen, setIsHeaderModalOpen] = useState(false);
 
   const [isSignatureDrawerOpen, setIsSignatureDrawerOpen] = useState(false);
   const [signatureMode, setSignatureMode] = useState("draw");
@@ -306,10 +312,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
   const onLetterheadFormatChange = useCallback(
     (e) => {
       updateHeaderFooter({
-        header: {
-          ...headerFooterSettings.header,
-          letterHeadFormat: e.target.value,
-        },
+        letterHeadFormat: e.target.value,
       });
     },
     [updateHeaderFooter, headerFooterSettings]
@@ -511,37 +514,20 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
           file.type === "image/jpg")
       ) {
         try {
-          // Show preview immediately
+          // Show preview immediately with originalFile for cropping
           const previewUrl = URL.createObjectURL(file);
           setFileHeader({
-            imageShow: true,
+            imageShow: false,
             showFile: previewUrl,
             uploadFile: file,
             uploading: true,
+            originalFile: file,
+            crop: true,
           });
-
-          // Upload file to API using FormData
-          const formData = new FormData();
-          formData.append("file", file);
-
-          const uploadResult = await dispatch(uploadFile(formData)).unwrap();
-          const filename = uploadResult.filename || uploadResult;
-
-          // Get the file URL from the filename
-          const fileUrlResult = await dispatch(
-            getFileUrlByFilename(filename)
-          ).unwrap();
-          const fileUrl = fileUrlResult.fileUrl || fileUrlResult;
-
-          setFileHeader({
-            imageShow: true,
-            showFile: fileUrl,
-            uploadFile: file,
-            uploading: false,
-          });
+          showHideHeaderModal();
         } catch (error) {
-          console.error("Error uploading header:", error);
-          errorMessage("Failed to upload header image. Please try again.");
+          console.error("Error handling header:", error);
+          errorMessage("Failed to load header image. Please try again.");
           setFileHeader(null);
         }
       } else {
@@ -563,42 +549,20 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
           file.type === "image/jpg")
       ) {
         try {
-          // Show preview immediately
+          // Show preview immediately with originalFile for cropping
           const previewUrl = URL.createObjectURL(file);
           setFileFooter({
-            imageShow: true,
+            imageShow: false,
             showFile: previewUrl,
             uploadFile: file,
             uploading: true,
+            originalFile: file,
+            crop: true,
           });
-
-          // Upload file to API using FormData
-          const formData = new FormData();
-          formData.append("file", file);
-
-          const uploadResult = await dispatch(uploadFile(formData)).unwrap();
-          const filename = uploadResult.filename || uploadResult;
-
-          // Get the file URL from the filename
-          const fileUrlResult = await dispatch(
-            getFileUrlByFilename(filename)
-          ).unwrap();
-          const fileUrl = fileUrlResult.fileUrl || fileUrlResult;
-
-          setFileFooter({
-            imageShow: true,
-            showFile: fileUrl,
-            uploadFile: file,
-            uploading: false,
-          });
-
-          // Update footer image height if function is provided
-          if (typeof updateFooterImageHeight === "function") {
-            updateFooterImageHeight({ showFile: fileUrl }, true);
-          }
+          showHideFooterModal();
         } catch (error) {
-          console.error("Error uploading footer:", error);
-          errorMessage("Failed to upload footer image. Please try again.");
+          console.error("Error handling footer:", error);
+          errorMessage("Failed to load footer image. Please try again.");
           setFileFooter(null);
         }
       } else {
@@ -946,6 +910,157 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
   const footerSettings = currentSettings.footer || {};
   const displayPatientInfo = currentSettings.displayPatientInfo || {};
   const otherSettings = currentSettings.otherSettings || {};
+  const cropperFooterRef = React.createRef();
+
+  const showHideFooterModal = useCallback(() => {
+    setIsFooterModalOpen(!isFooterModalOpen);
+  }, [isFooterModalOpen]);
+
+  const getFooterCropData = async () => {
+    if (typeof cropperFooterRef.current?.cropper !== "undefined") {
+      const trimData = cropperFooterRef.current?.cropper
+        .getCroppedCanvas()
+        .toDataURL(fileFooter.originalFile.type);
+      const uploadFile = await dataUrlToFileUsingFetch(
+        trimData,
+        "footer.png",
+        "image/png"
+      );
+      setFileFooter({
+        ...fileFooter,
+        crop: false,
+        showFile: trimData,
+        uploadFile: uploadFile,
+      });
+    }
+  };
+
+  const getFooterCropChangeData = () => {
+    if (fileFooter && !fileFooter?.crop) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setFileFooter({
+          ...fileFooter,
+          imageShow: false,
+          crop: true,
+          showFile: reader.result,
+        });
+      };
+      reader.readAsDataURL(fileFooter.originalFile);
+    }
+  };
+
+  const onFooterImageSubmit = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("file", fileFooter.uploadFile);
+
+      const uploadResult = await dispatch(uploadFile(formData)).unwrap();
+      const filename = uploadResult.filename || uploadResult;
+
+      const fileUrlResult = await dispatch(
+        getFileUrlByFilename(filename)
+      ).unwrap();
+      const fileUrl = fileUrlResult.fileUrl || fileUrlResult;
+
+      updateHeaderFooter({
+        footer: {
+          ...headerFooterSettings.footer,
+          footerImg: fileUrl,
+        },
+      });
+
+      setFileFooter({
+        ...fileFooter,
+        crop: false,
+        imageShow: true,
+        showFile: fileUrl,
+        uploadFile: fileFooter.uploadFile,
+      });
+
+      if (typeof updateFooterImageHeight === "function") {
+        updateFooterImageHeight({ showFile: fileUrl }, true);
+      }
+    } catch (error) {
+      console.error("Error uploading cropped footer:", error);
+      errorMessage("Failed to upload footer image. Please try again.");
+    }
+
+    showHideFooterModal();
+  };
+
+  const showHideHeaderModal = useCallback(() => {
+    setIsHeaderModalOpen(!isHeaderModalOpen);
+  }, [isHeaderModalOpen]);
+
+  const getHeaderCropData = async () => {
+    if (typeof cropperHeaderRef.current?.cropper !== "undefined") {
+      const trimData = cropperHeaderRef.current?.cropper
+        .getCroppedCanvas()
+        .toDataURL(fileHeader.originalFile.type);
+      const uploadFile = await dataUrlToFileUsingFetch(
+        trimData,
+        "header.png",
+        "image/png"
+      );
+      setFileHeader({
+        ...fileHeader,
+        crop: false,
+        showFile: trimData,
+        uploadFile: uploadFile,
+      });
+    }
+  };
+
+  const getHeaderCropChangeData = () => {
+    if (fileHeader && !fileHeader?.crop) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setFileHeader({
+          ...fileHeader,
+          imageShow: false,
+          crop: true,
+          showFile: reader.result,
+        });
+      };
+      reader.readAsDataURL(fileHeader?.originalFile);
+    }
+  };
+
+  const onHeaderImageSubmit = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("file", fileHeader.uploadFile);
+
+      const uploadResult = await dispatch(uploadFile(formData)).unwrap();
+      const filename = uploadResult.filename || uploadResult;
+
+      const fileUrlResult = await dispatch(
+        getFileUrlByFilename(filename)
+      ).unwrap();
+      const fileUrl = fileUrlResult.fileUrl || fileUrlResult;
+
+      updateHeaderFooter({
+        header: {
+          ...headerFooterSettings.header,
+          headerImg: fileUrl,
+        },
+      });
+
+      setFileHeader({
+        ...fileHeader,
+        crop: false,
+        imageShow: true,
+        showFile: fileUrl,
+        uploadFile: fileHeader.uploadFile,
+      });
+    } catch (error) {
+      console.error("Error uploading cropped header:", error);
+      errorMessage("Failed to upload header image. Please try again.");
+    }
+
+    showHideHeaderModal();
+  };
 
   return (
     <div className="px-3 form_addnewpatient">
@@ -987,20 +1102,29 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                   onChange={onLetterheadFormatChange}
                   value={currentSettings.letterHeadFormat}
                 >
-                  <Radio.Button className="w-100 text-center" value={0}>
+                  <Radio.Button
+                    className="w-100 text-center"
+                    value={LETTERHEAD_FORMATS.CUSTOM}
+                  >
                     Custom
                   </Radio.Button>
-                  <Radio.Button className="w-100 text-center" value={1}>
+                  <Radio.Button
+                    className="w-100 text-center"
+                    value={LETTERHEAD_FORMATS.UPLOAD}
+                  >
                     Upload Letterhead
                   </Radio.Button>
-                  <Radio.Button className="w-100 text-center" value={2}>
+                  <Radio.Button
+                    className="w-100 text-center"
+                    value={LETTERHEAD_FORMATS.OWN}
+                  >
                     Own Letterhead
                   </Radio.Button>
                 </Radio.Group>
               </Form.Item>
             </div>
 
-            {currentSettings.letterHeadFormat === 0 && (
+            {currentSettings.letterHeadFormat === LETTERHEAD_FORMATS.CUSTOM && (
               <div className="mt-5">
                 <Row
                   justify="space-between"
@@ -1165,7 +1289,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
             )}
 
             {/* Upload Letterhead Format */}
-            {currentSettings.letterHeadFormat === 1 && (
+            {currentSettings.letterHeadFormat === LETTERHEAD_FORMATS.UPLOAD && (
               <div className="mt-5">
                 <Row
                   justify="space-between"
@@ -1218,6 +1342,95 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                     accept="image/*"
                     onChange={handleHeaderChange}
                   />
+                  <CommonModal
+                    handleCancel={true}
+                    isModalOpen={isHeaderModalOpen}
+                    onCancel={showHideHeaderModal}
+                    modalWidth={744}
+                    // title={"Crop Image"}
+                    title={
+                      <div className="d-flex">
+                        <div className="align-items-center d-flex w-100">
+                          <div className="text-truncate-twolines">
+                            {"Crop Image"}
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          disabled={
+                            fileHeader && !fileHeader?.crop ? false : true
+                          }
+                          className="btn-41 btn px-4 btn-primary3 me-4"
+                          onClick={onHeaderImageSubmit}
+                        >
+                          Submit
+                        </Button>
+                      </div>
+                    }
+                    modalBody={
+                      <>
+                        <div className="d-flex image-crop bg-dark justify-content-center align-items-center">
+                          {fileHeader && fileHeader.crop ? (
+                            <Cropper
+                              ref={cropperHeaderRef}
+                              // zoomTo={0.5}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "contain",
+                              }}
+                              // initialAspectRatio={1}
+                              preview=".img-preview"
+                              src={
+                                fileHeader
+                                  ? fileHeader?.showFile
+                                  : defaultprofile
+                              }
+                              viewMode={3}
+                              background={false}
+                              autoCropArea={0.3}
+                              guides={false}
+                            />
+                          ) : (
+                            <img
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "contain",
+                              }}
+                              src={
+                                fileHeader
+                                  ? fileHeader?.showFile
+                                  : defaultprofile
+                              }
+                            />
+                          )}
+                        </div>
+                        <div className="mt-4">
+                          <div className="d-flex align-items-center mt-2 justify-content-between">
+                            <div
+                              className="fw-normal text-decoration-underline btn p-0 text-main"
+                              onClick={showHideHeaderModal}
+                            >
+                              {fileHeader && !fileHeader?.crop ? "" : "Discard"}
+                            </div>
+                            <div
+                              className="fw-normal text-decoration-underline btn p-0 text-main"
+                              onClick={() =>
+                                fileHeader && !fileHeader?.crop
+                                  ? getHeaderCropChangeData()
+                                  : getHeaderCropData()
+                              }
+                            >
+                              {fileHeader && !fileHeader?.crop
+                                ? "Change"
+                                : "Save"}
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    }
+                  />
                 </div>
 
                 <div className="upload-headfoot mt-3">
@@ -1259,6 +1472,93 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                     type="file"
                     accept="image/*"
                     onChange={handleFooterChange}
+                  />
+                  <CommonModal
+                    handleCancel={true}
+                    isModalOpen={isFooterModalOpen}
+                    onCancel={showHideFooterModal}
+                    modalWidth={744}
+                    // title={"Crop Image"}
+                    title={
+                      <div className="d-flex">
+                        <div className="align-items-center d-flex w-100">
+                          <div className="text-truncate-twolines">
+                            {"Crop Image"}
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          disabled={
+                            fileFooter && !fileFooter?.crop ? false : true
+                          }
+                          className="btn-41 btn px-4 btn-primary3 me-4"
+                          onClick={onFooterImageSubmit}
+                        >
+                          Submit
+                        </Button>
+                      </div>
+                    }
+                    modalBody={
+                      <>
+                        <div className="d-flex image-crop bg-dark justify-content-center align-items-center">
+                          {fileFooter && fileFooter.crop ? (
+                            <Cropper
+                              ref={cropperFooterRef}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "contain",
+                              }}
+                              preview=".img-preview"
+                              src={
+                                fileFooter
+                                  ? fileFooter?.showFile
+                                  : defaultprofile
+                              }
+                              viewMode={3}
+                              background={false}
+                              autoCropArea={0.3}
+                              guides={false}
+                            />
+                          ) : (
+                            <img
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "contain",
+                              }}
+                              src={
+                                fileFooter
+                                  ? fileFooter?.showFile
+                                  : defaultprofile
+                              }
+                            />
+                          )}
+                        </div>
+                        <div className="mt-4">
+                          <div className="d-flex align-items-center mt-2 justify-content-between">
+                            <div
+                              className="fw-normal text-decoration-underline btn p-0 text-main"
+                              onClick={showHideFooterModal}
+                            >
+                              {fileFooter && !fileFooter?.crop ? "" : "Discard"}
+                            </div>
+                            <div
+                              className="fw-normal text-decoration-underline btn p-0 text-main"
+                              onClick={() =>
+                                fileFooter && !fileFooter?.crop
+                                  ? getFooterCropChangeData()
+                                  : getFooterCropData()
+                              }
+                            >
+                              {fileFooter && !fileFooter?.crop
+                                ? "Change"
+                                : "Save"}
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    }
                   />
                 </div>
               </div>

@@ -396,7 +396,7 @@ const ProgressNotes = (props) => {
         <FilledByCard
           filledBy={profile?.um_name}
           role="Doctor"
-          selectedDate={dayjs(filledDate)}
+          selectedDate={filledDate ? dayjs(filledDate) : ""}
           selectedTime={dayjs(filledAtTime)}
           // showRole={false}
           dateFormat="DD MMM YYYY"

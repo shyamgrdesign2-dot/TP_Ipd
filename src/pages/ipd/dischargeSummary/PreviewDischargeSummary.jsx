@@ -48,8 +48,7 @@ const PreviewDischargeSummary = () => {
 
   useEffect(() => {
     if (
-      patientDetails?.details?.id
-      &&
+      patientDetails?.details?.id &&
       (!dischargeSummaryData ||
         (dischargeSummaryData && !Object.keys(dischargeSummaryData).length))
     )
@@ -117,9 +116,13 @@ const PreviewDischargeSummary = () => {
   };
 
   const handleBackToSummary = () => {
-    navigate("/ipd/patient-details/discharge-summary");
+    navigate("/ipd/patient-details", {
+      state: {
+        patientDetails,
+        activeTab: "dischargeSummary",
+      },
+    });
   };
-
 
   return (
     <div>

@@ -101,8 +101,6 @@ const ConsultantNotesTimeline = () => {
 
   // Handle edit button click
   const handleEditNote = (note) => {
-    console.log("Editing note:", note);
-
     // Set the current consultant note
     dispatch(setCurrentConsultantNote(note));
 
@@ -154,7 +152,6 @@ const ConsultantNotesTimeline = () => {
 
   // Event handlers for group header actions (download, print)
   const handleGroupHeaderAction = (action, groupKey, groupData) => {
-    console.log(`Group Header ${action}:`, { groupKey, groupData });
     addEvent(`Group Header - ${action}`, { groupKey, groupData });
   };
 
@@ -235,47 +232,72 @@ const ConsultantNotesTimeline = () => {
   };
 
   const renderCustomItem = (item, itemIndex, groupKey, items, emit) => {
-    const value = item.period || item.timeOfDay || "";
-    const formattedTimeOfDay = value.charAt(0).toUpperCase() + value.slice(1);
-
     return (
       <ReusableProgressCard
         record={{
           id: "1",
           sections: [
-            {
-              key: "clinicalAssessmentPlan",
-              title: "Clinical Assessment & Plan",
-              data: item.clinicalAssessmentPlan,
-              type: "richtext",
-            },
-            {
-              key: "vitals",
-              title: "Vitals",
-              data: item.vitals,
-              type: "richtext",
-            },
-            {
-              key: "medication",
-              title: "Medication(Rx)",
-              data: item.currentMedication,
-              type: "table",
-            },
-            {
-              key: "labInvestigation",
-              title: "Lab Investigation",
-              data: item.labInvestigation,
-              type: "lab-table",
-            },
-            {
-              key: "additionalRemarks",
-              title: "Additional Remarks",
-              data: item.additionalRemarks,
-              type: "richtext",
-            },
+            ...(item.clinicalAssessmentPlan?.some((item) =>
+              item?.children?.some((child) =>
+                child?.children?.some((grandChild) => grandChild?.text)
+              )
+            )
+              ? [
+                  {
+                    key: "clinicalAssessmentPlan",
+                    title: "Clinical Assessment & Plan",
+                    data: item.clinicalAssessmentPlan,
+                    type: "richtext",
+                  },
+                ]
+              : []),
+            ...(Object.values(item.vitals).some((item) => !!item)
+              ? [
+                  {
+                    key: "vitals",
+                    title: "Vitals",
+                    data: item.vitals,
+                    type: "richtext",
+                  },
+                ]
+              : []),
+            ...(item.currentMedication?.some((item) => !!item.name)
+              ? [
+                  {
+                    key: "medication",
+                    title: "Medication(Rx)",
+                    data: item.currentMedication,
+                    type: "table",
+                  },
+                ]
+              : []),
+            ...(item.labInvestigation?.some((item) => !!item.name)
+              ? [
+                  {
+                    key: "labInvestigation",
+                    title: "Lab Investigation",
+                    data: item.labInvestigation,
+                    type: "lab-table",
+                  },
+                ]
+              : []),
+            ...(item.additionalRemarks?.some((item) =>
+              item?.children?.some((child) =>
+                child?.children?.some((grandChild) => grandChild?.text)
+              )
+            )
+              ? [
+                  {
+                    key: "additionalRemarks",
+                    title: "Additional Remarks",
+                    data: item.additionalRemarks,
+                    type: "richtext",
+                  },
+                ]
+              : []),
           ],
           filledBy: item.filledBy,
-          role: "Consultant",
+          role: item.role,
         }}
         components={{
           RichTextEditor,
@@ -328,8 +350,8 @@ const ConsultantNotesTimeline = () => {
         currentMedication: pn?.currentMedication,
         labInvestigation: pn?.labInvestigation,
         additionalRemarks: pn?.additionalRemarks,
-        filledBy: entry?.createdBy ? `Dr. ${entry.createdBy}` : undefined,
-        role: undefined,
+        filledBy: entry?.createdByName ? `${entry.createdByName}` : undefined,
+        role: entry?.createdByRole ? `${entry.createdByRole}` : undefined,
       };
     });
   }, [consultantNotes]);

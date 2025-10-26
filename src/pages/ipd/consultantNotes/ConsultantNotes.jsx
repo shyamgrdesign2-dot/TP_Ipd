@@ -1,7 +1,10 @@
 import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { IPD } from "../../../utils/locale";
 import "./styles.scss";
-import { convertMedicationFormat } from "../../../utils/utils";
+import {
+  convertMedicationFormat,
+  formatDateWithTime,
+} from "../../../utils/utils";
 import MedicationsBox from "../../../components/MedicationsBox";
 import { Button, Drawer, message } from "antd";
 import { useDispatch } from "react-redux";
@@ -140,10 +143,6 @@ const ConsultantNotes = (props) => {
         date: filledDate,
         time: filledAtTime,
       };
-
-      console.log("Saving consultant notes with data:", consultantNotesData);
-      console.log("Filled Date:", filledDate);
-      console.log("Filled At Time:", filledAtTime);
 
       // Update existing note
       const result = await dispatch(
@@ -351,7 +350,7 @@ const ConsultantNotes = (props) => {
         <FilledByCard
           filledBy={profile?.um_name}
           role="Doctor"
-          selectedDate={dayjs(filledDate)}
+          selectedDate={filledDate ? dayjs(filledDate) : ""}
           selectedTime={dayjs(filledAtTime)}
           dateFormat="DD MMM YYYY"
           timeFormat="HH:mm A"
@@ -458,11 +457,9 @@ const ConsultantNotes = (props) => {
               showAutoFill={!!consultantNotes?.length}
               autoFillTitle={
                 consultantNotes && consultantNotes.length > 0
-                  ? `Autofill From Prev. Consultant Notes (${new Date(
+                  ? `Autofill From Prev. Consultant Notes (${formatDateWithTime(
                       consultantNotes[consultantNotes?.length - 1].createdAt
-                    ).toLocaleDateString()}, ${new Date(
-                      consultantNotes[consultantNotes?.length - 1].createdAt
-                    ).toLocaleTimeString()})`
+                    )})`
                   : "No previous consultant notes available"
               }
               onAutoFill={handleAutofillAll}
