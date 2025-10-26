@@ -1860,7 +1860,9 @@ export const convertSurgeryDataToDisplayFormat = (surgeryData) => {
     if (details.procedureName?.length) {
       displayData.push({
         key: "Surgery/Procedure Name",
-        value: details.procedureName.join(", "),
+        value: Array.isArray(details.procedureName)
+          ? details.procedureName?.join(", ")
+          : details.procedureName,
       });
     }
 
@@ -2090,8 +2092,10 @@ export function mapSectionsWithData(structure, apiResponse) {
           typeof sectionData[child.field] === "object" &&
           sectionData[child.field] !== null
         ) {
-          hasData = Object.keys(sectionData[child.field]).some(
-            (key) => !!sectionData[child.field][key]
+          hasData = Object.keys(sectionData[child.field]).some((key) =>
+            child.field === "generalExamination"
+              ? sectionData[child.field][key]?.value !== undefined
+              : !!sectionData[child.field][key]
           );
         } else {
           hasData = !!sectionData[child.field];
