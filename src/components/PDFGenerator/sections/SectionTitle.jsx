@@ -36,7 +36,7 @@ const SectionTitle = ({ title, fontFamily }) => {
   if (!title) return null;
 
   return (
-    <View style={styles.container}>
+    <View wrap={false} style={styles.container}>
       <Text style={[styles.title, { fontFamily }]}>{title}</Text>
     </View>
   );

@@ -498,6 +498,22 @@ const IPDPatientDetails = () => {
     });
   };
 
+  const handleAssessmentPrintPreview = () => {
+    navigate("/ipd/admission-assessment/preview", {
+      state: {
+        patientDetails,
+      },
+    });
+  };
+
+  const handleOTNotesPrintPreview = () => {
+    navigate("/ipd/ot-notes/preview", {
+      state: {
+        patientDetails,
+      },
+    });
+  };
+
   const handleConsultantNotesPrintPreview = () => {
     navigate("/ipd/consultant-notes/preview", {
       state: {
@@ -517,7 +533,7 @@ const IPDPatientDetails = () => {
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
                 onEdit={() => handleAddAssessmentClick(false)}
-                onPrintPreview={() => console.log("Preview")}
+                onPrintPreview={handleAssessmentPrintPreview}
                 onPrint={() => console.log("Print")}
                 onSettings={handleCustomizeClick}
                 onDownload={() => console.log("Download")}
@@ -591,7 +607,7 @@ const IPDPatientDetails = () => {
               <ToolbarActions
                 showEditForm={false}
                 onEdit={handleAddOtNotesClick}
-                onPrintPreview={() => console.log("Preview")}
+                onPrintPreview={handleOTNotesPrintPreview}
                 onPrint={() => console.log("Print")}
                 onSettings={handleCustomizeClick}
                 onDownload={() => console.log("Download")}

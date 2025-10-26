@@ -510,6 +510,7 @@ const Obstetric = ({
             loader={loader}
             isPregnancyCompleted={isPregnancyCompleted}
             isObstetric={true}
+            isIPD={isIPD}
           />
         )}
         {isPregnancyCompleted ? (

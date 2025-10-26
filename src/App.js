@@ -85,6 +85,8 @@ import PatientAdmission from "./pages/ipd/patientAdmission/PatientAdmission";
 import AddAdmission from "./pages/ipd/patientAdmission/AddAdmission";
 import PrintPreview from "./pages/ipd/consultantNotes/PrintPreview";
 import PrintSettings from "./pages/ipd/consultantNotes/PrintSettings";
+import PreviewAdmissionAssessment from "./pages/ipd/assessmentForm/PreviewAdmissionAssessment";
+import PrintPreviewOTNotes from "./pages/ipd/assessmentForm/PrintPreviewOTNotes";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -559,6 +561,14 @@ function App() {
                   element={<PreviewDischargeSummary />}
                 />
                 <Route
+                  path="ipd/admission-assessment/preview"
+                  element={<PreviewAdmissionAssessment />}
+                />
+                <Route
+                  path="ipd/ot-notes/preview"
+                  element={<PrintPreviewOTNotes />}
+                />
+                <Route
                   path="ipd/discharge-summary/configure-print-settings"
                   element={<ConfigurePrintSettings />}
                 />
@@ -568,6 +578,14 @@ function App() {
                 />
                 <Route
                   path="ipd/consultant-notes/configure-print-settings"
+                  element={<PrintSettings />}
+                />
+                <Route
+                  path="ipd/ot-notes/configure-print-settings"
+                  element={<PrintSettings />}
+                />
+                <Route
+                  path="ipd/admission-assessment/configure-print-settings"
                   element={<PrintSettings />}
                 />
                 <Route

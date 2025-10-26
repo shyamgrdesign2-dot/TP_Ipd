@@ -32,6 +32,7 @@ function VaccineHeader({
   isObstetric,
   isGrowthChart,
   isPregnancyCompleted,
+  isIPD
 }) {
   const vaccinationVideo = {
     link: "https://www.youtube.com/embed/o6ALwX9hPMM",
@@ -243,10 +244,17 @@ function VaccineHeader({
                     }
                   />
                 </div>
-                <ProfilePopover
-                  patient_data={patient_data}
-                  locationPath={"/vaccine"}
-                />
+                {
+                  isIPD ? (
+                    <div className="px-2 fw-semibold">Obstetric History</div>
+                  ): (
+                    <ProfilePopover
+                      patient_data={patient_data}
+                      locationPath={"/vaccine"}
+                    />
+                    
+                  )
+                }
               </div>
             </Col>
             <Col sm="auto" md="auto" lg="auto" className="h-100  w-auto">

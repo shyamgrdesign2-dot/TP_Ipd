@@ -5,7 +5,10 @@
 import React from "react";
 import { View, Text } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
-import { isEmptyRichText } from "../../../utils/pdfUtils";
+import {
+  getAllVisibleSections,
+  isEmptyRichText,
+} from "../../../utils/pdfUtils";
 import SlateToPdf from "../../../components/SlateToPdf";
 import Vitals from "../../../components/Vitals";
 
@@ -286,30 +289,54 @@ const renderOthers = (others, fontFamily) => {
  * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Physical Examination Section
  */
-const PhysicalExamination = ({ data, fontFamily = "Poppins" }) => {
+const PhysicalExamination = ({
+  data,
+  fontFamily = "Poppins",
+  isAssessment = false,
+  formatSettings,
+}) => {
   if (!data?.physicalExamination) return null;
 
   const { physicalExamination } = data;
 
+  const physicalExaminationSection = formatSettings?.find(
+    (section) => section.id === "physicalExamination"
+  );
+  const subsections = physicalExaminationSection?.subSections || [];
+
+  const sortedSubsections = getAllVisibleSections(subsections);
+
   return (
     <View style={styles.mainContainer}>
-      {/* Vitals - Inline format */}
-      <Vitals
-        vitals={physicalExamination.vitals}
-        fontFamily={fontFamily}
-        title="Vitals"
-      />
+      {sortedSubsections.map((subsection) => {
+        const key = subsection.id;
 
-      {/* General Examination */}
-      {physicalExamination.generalExamination &&
-        renderGeneralExamination(
-          physicalExamination.generalExamination,
-          fontFamily
-        )}
-
-      {/* Others */}
-      {physicalExamination.others &&
-        renderOthers(physicalExamination.others, fontFamily)}
+        if (key === "vitals" && physicalExamination?.vitals) {
+          return (
+            <Vitals
+              vitals={physicalExamination.vitals}
+              fontFamily={fontFamily}
+              title={subsection.label}
+            />
+          );
+        }
+        if (
+          key === "generalExamination" &&
+          ((isAssessment && physicalExamination?.examination) ||
+            (!isAssessment && physicalExamination?.generalExamination))
+        ) {
+          return renderGeneralExamination(
+            isAssessment
+              ? physicalExamination.examination
+              : physicalExamination.generalExamination,
+            fontFamily
+          );
+        }
+        if (key === "others" && physicalExamination?.others) {
+          return renderOthers(physicalExamination.others, fontFamily);
+        }
+        return null;
+      })}
     </View>
   );
 };

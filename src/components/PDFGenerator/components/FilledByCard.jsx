@@ -97,7 +97,7 @@ const FilledByCard = ({ filledBy, filledOn, fontFamily = "Poppins" }) => {
   const { dateStr, timeStr } = formatDateTime(filledOn);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} wrap={false}>
       {/* Left side - Date and Time */}
       <View style={styles.dateTimeContainer}>
         <Text style={[styles.dateText, { fontFamily }]}>{dateStr}</Text>

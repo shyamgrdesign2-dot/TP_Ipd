@@ -6,6 +6,13 @@ import React from "react";
 import { View, Text } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import SlateToPdf from "../../../components/SlateToPdf";
+import MedicationTable from "../../../components/MedicationTable";
+import ObsHistoryListView from "../../../../print_settings/obsHistory/list";
+import { PX_TO_PT } from "../../../constants";
+import { IPD } from "../../../../../utils/locale";
+import moment from "moment";
+import { getIndianLanguageFont } from "../../../../../utils/utils";
+import { getAllVisibleSections } from "../../../utils/pdfUtils";
 
 const styles = StyleSheet.create({
   // Main container
@@ -91,6 +98,94 @@ const styles = StyleSheet.create({
   // Separator pipe
   separator: {
     color: "#A2A2A8",
+  },
+});
+
+const obsStyles = StyleSheet.create({
+  mainTitle: {
+    fontSize: PX_TO_PT * 18,
+    color: "#A461D8",
+    fontFamily: "Roboto",
+    fontWeight: 700,
+  },
+  subTitle: {
+    fontSize: PX_TO_PT * 14,
+    color: "#454551",
+    fontFamily: "Roboto",
+    fontWeight: 500,
+    lineHeight: 1.4,
+  },
+  displayPatient: {
+    color: "#171725",
+    fontFamily: "Roboto",
+  },
+  mainCasemanager: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  extraText: {
+    fontSize: PX_TO_PT * 12,
+    color: "#171725",
+    fontFamily: "Roboto",
+  },
+  directionCasemanager: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  table: {
+    marginTop: PX_TO_PT * 4,
+  },
+  row: {
+    flexDirection: "row",
+    borderBottom: "1px solid #171725",
+    borderLeft: "1px solid #171725",
+    minHeight: PX_TO_PT * 10,
+  },
+  cell: {
+    flex: 1,
+    padding: 6,
+    borderRight: "1px solid #171725",
+    height: "100%",
+  },
+  dynamicModuleCell: {
+    padding: 6,
+    borderRight: "1px solid #171725",
+    height: "100%",
+  },
+  headerRow: {
+    flexDirection: "row",
+    borderBottom: "1px solid #171725",
+    borderLeft: "1px solid #171725",
+    borderTop: "1px solid #171725",
+  },
+  headerRowFixed: {
+    flexDirection: "row",
+    borderBottom: "1px solid #171725",
+    borderLeft: "1px solid #171725",
+  },
+  headerCell: {
+    flex: 1,
+    padding: 6,
+    borderRight: "1px solid #171725",
+    fontWeight: 700,
+  },
+  minHeight50: {
+    minHeight: 50,
+  },
+  lineHeight2: {
+    lineHeight: 2,
+  },
+  minHeight38: {
+    minHeight: 38,
+  },
+  pageNumber: {
+    position: "absolute",
+    fontSize: 10,
+    fontWeight: 400,
+    bottom: 10,
+    right: 10,
+    textAlign: "center",
+    color: "#454551",
   },
 });
 
@@ -381,6 +476,242 @@ const renderGynecHistory = (gynecData, fontFamily) => {
   );
 };
 
+const renderLabResults = (labResults, printSettings) => {
+  const groupByReportNameForAll = (data) => {
+    return data.map((item) => {
+      const groupedInputs = item.inputs.reduce((acc, input) => {
+        if (!acc[input.reportName]) {
+          acc[input.reportName] = [];
+        }
+        acc[input.reportName].push(input);
+        return acc;
+      }, {});
+
+      return {
+        date: item.date,
+        groupedInputs,
+      };
+    });
+  };
+
+  const syncLabResultsData = (labResults) => {
+    const allReportNames = new Set();
+    const allTestNamesByReport = {};
+
+    labResults.forEach((result) => {
+      Object.keys(result.groupedInputs).forEach((reportName) => {
+        allReportNames.add(reportName);
+        if (!allTestNamesByReport[reportName]) {
+          allTestNamesByReport[reportName] = new Set();
+        }
+        result.groupedInputs[reportName].forEach((test) => {
+          allTestNamesByReport[reportName].add(test.testName);
+        });
+      });
+    });
+
+    const allReportNamesArray = Array.from(allReportNames);
+    const allTestNamesByReportArray = {};
+    Object.keys(allTestNamesByReport).forEach((reportName) => {
+      allTestNamesByReportArray[reportName] = Array.from(
+        allTestNamesByReport[reportName]
+      );
+    });
+
+    return labResults.map((result) => {
+      const transformedGroupedInputs = {};
+
+      allReportNamesArray.forEach((reportName) => {
+        if (!result.groupedInputs[reportName]) {
+          transformedGroupedInputs[reportName] = allTestNamesByReportArray[
+            reportName
+          ].map((testName) => ({
+            reportName,
+            testName,
+            value: "-",
+            arrowDirection: "",
+            units: "",
+          }));
+        } else {
+          const existingTests = result.groupedInputs[reportName];
+
+          const updatedTests = allTestNamesByReportArray[reportName].map(
+            (testName) => {
+              const existingTest = existingTests.find(
+                (test) => test.testName === testName
+              );
+              return (
+                existingTest || {
+                  reportName,
+                  testName,
+                  value: "-",
+                  arrowDirection: "",
+                  units: "",
+                }
+              );
+            }
+          );
+
+          transformedGroupedInputs[reportName] = updatedTests;
+        }
+      });
+
+      return {
+        ...result,
+        groupedInputs: transformedGroupedInputs,
+      };
+    });
+  };
+
+  const labParamsPatchData = labResults
+    ? groupByReportNameForAll(labResults)
+    : null;
+  const labParamsPatchTableData = labParamsPatchData
+    ? syncLabResultsData(labParamsPatchData)
+    : null;
+
+  if (!labResults) return null;
+  return (
+    <View style={{ marginTop: PX_TO_PT * 15 }}>
+      <Text
+        style={{
+          color: "#171725",
+          fontFamily: printSettings?.page_format?.font_family,
+          fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+          fontWeight: 700,
+          marginBottom: PX_TO_PT * 6,
+        }}
+        fixed
+      >
+        Lab Results:&nbsp;
+      </Text>
+
+      <View style={{ marginTop: PX_TO_PT * 6 }}>
+        <View style={[obsStyles.table, { marginTop: 0 }]}>
+          <View style={[obsStyles.headerRow]} fixed>
+            <Text
+              style={[
+                obsStyles.headerCell,
+                {
+                  flex: 1,
+                  fontFamily: printSettings?.page_format?.font_family,
+                  fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                  fontWeight: 500,
+                  color: "#000",
+                },
+              ]}
+            >
+              {"NAME"}
+            </Text>
+            {labParamsPatchTableData.map((entry, i) => (
+              <Text
+                key={i}
+                style={[
+                  obsStyles.headerCell,
+                  {
+                    flex: 1,
+                    fontFamily: printSettings?.page_format?.font_family,
+                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
+                    fontWeight: 500,
+                    color: "#000",
+                  },
+                ]}
+              >
+                {moment(entry.date).format("Do MMM YY")}
+              </Text>
+            ))}
+          </View>
+
+          {Object.keys(labParamsPatchTableData[0].groupedInputs).map(
+            (reportName, j) => (
+              <View key={j} style={{ marginTop: PX_TO_PT * 0 }}>
+                <View style={[obsStyles.row]} wrap={false}>
+                  <Text
+                    style={[
+                      obsStyles.cell,
+                      {
+                        flex: 1,
+                        fontFamily: printSettings?.page_format?.font_family,
+                        fontSize:
+                          PX_TO_PT * printSettings?.page_format?.font_size,
+                        fontWeight: 500,
+                        color: "#000",
+                      },
+                    ]}
+                  >
+                    {reportName}
+                  </Text>
+                </View>
+
+                {labParamsPatchTableData[0].groupedInputs[reportName].map(
+                  (test, idx) => (
+                    <View key={idx} style={{ marginTop: PX_TO_PT * 0 }}>
+                      <View style={[obsStyles.row]} wrap={false}>
+                        <Text
+                          style={[
+                            obsStyles.cell,
+                            {
+                              flex: 1,
+                              fontFamily:
+                                printSettings?.page_format?.font_family,
+                              fontSize:
+                                PX_TO_PT *
+                                printSettings?.page_format?.font_size,
+                              fontWeight: 500,
+                              color: "#000",
+                            },
+                          ]}
+                        >
+                          {test.testName}
+                        </Text>
+
+                        {labParamsPatchTableData.map((entry, k) => {
+                          const testResult = entry.groupedInputs[
+                            reportName
+                          ]?.find((input) => input.testName === test.testName);
+                          return (
+                            <Text
+                              key={k}
+                              style={[
+                                obsStyles.cell,
+                                {
+                                  flex: 1,
+                                  fontFamily: getIndianLanguageFont(
+                                    testResult.value,
+                                    printSettings?.page_format?.font_family
+                                  ),
+                                  fontSize:
+                                    PX_TO_PT *
+                                    printSettings?.page_format?.font_size,
+                                  fontWeight: 400,
+                                  color: "#000",
+                                },
+                              ]}
+                            >
+                              {testResult
+                                ? testResult.value +
+                                  " " +
+                                  (testResult.testName !== "Remarks"
+                                    ? testResult.units
+                                    : "")
+                                : "-"}
+                              &nbsp;
+                            </Text>
+                          );
+                        })}
+                      </View>
+                    </View>
+                  )
+                )}
+              </View>
+            )
+          )}
+        </View>
+      </View>
+    </View>
+  );
+};
+
 /**
  * PatientHistory Component
  * @param {Object} props - Component props
@@ -389,18 +720,24 @@ const renderGynecHistory = (gynecData, fontFamily) => {
  * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Patient History Section
  */
-const PatientHistory = ({ data, formatSettings, fontFamily = "Poppins" }) => {
-  if (!data?.patientHistory) return null;
-  const { patientHistory } = data;
-  
-  // Find patientHistory section in formatSettings array
+const PatientHistory = ({
+  data,
+  formatSettings,
+  fontFamily = "Poppins",
+  isAssessment = false,
+}) => {
+  const hasAssessmentData = isAssessment
+    ? !!data?.basicInfo
+    : !!data?.patientHistory;
+  if (!hasAssessmentData) return null;
+  const finalData = isAssessment ? data?.basicInfo : data?.patientHistory;
+
   const patientHistorySection = formatSettings.find(
-    (section) => section.id === "patientHistory"
+    (section) => section.id === (isAssessment ? "basicInfo" : "patientHistory")
   );
   const subsections = patientHistorySection?.subSections || [];
 
-  // Sort subsections (already processed by getSortedSections)
-  const sortedSubsections = subsections;
+  const sortedSubsections = getAllVisibleSections(subsections);
 
   return (
     <View style={styles.mainContainer}>
@@ -408,26 +745,76 @@ const PatientHistory = ({ data, formatSettings, fontFamily = "Poppins" }) => {
         const key = subsection.id;
 
         // Presenting Complaints
-        if (key === "presentingComplaints" && patientHistory.presentingComplaints) {
+        if (key === "presentingComplaints" && finalData.presentingComplaints) {
           return renderPresentingComplaints(
-            Array.isArray(patientHistory?.presentingComplaints)
-              ? patientHistory.presentingComplaints
-              : [patientHistory.presentingComplaints],
+            Array.isArray(finalData?.presentingComplaints)
+              ? finalData.presentingComplaints
+              : [finalData.presentingComplaints],
             fontFamily
           );
         }
 
         // Past Medical History
-        if (key === "pastMedicalHistory" && patientHistory.pastMedicalHistory) {
+        if (key === "pastMedicalHistory" && finalData.pastMedicalHistory) {
           return renderPastMedicalHistory(
-            patientHistory.pastMedicalHistory,
+            finalData.pastMedicalHistory,
             fontFamily
           );
         }
 
         // Gynec History
-        if (key === "gynecHistory" && patientHistory.gyneacHistory) {
-          return renderGynecHistory(patientHistory.gyneacHistory, fontFamily);
+        if (
+          ((isAssessment && key === "gyneacHistory") ||
+            (!isAssessment && key === "gynecHistory")) &&
+          finalData.gyneacHistory
+        ) {
+          return renderGynecHistory(finalData.gyneacHistory, fontFamily);
+        }
+
+        // Medications
+
+        if (isAssessment && key === "medications" && finalData.medications) {
+          // return renderGynecHistory(finalData.medications, fontFamily);
+          return (
+            <MedicationTable
+              medications={finalData.medications || finalData.currentMedication}
+              fontFamily={fontFamily}
+              title="Medication (Rx)"
+            />
+          );
+        }
+
+        // Obstetric History
+        if (
+          key === "obstetricHistory" &&
+          Object.keys(finalData?.obstetricHistory)?.length
+        ) {
+          return (
+            <ObsHistoryListView
+              PX_TO_PT={0.75}
+              styles={obsStyles}
+              printSettings={{
+                page_format: {
+                  font_family: fontFamily,
+                  font_size: 12,
+                  pagination: true,
+                },
+              }}
+              options={IPD.OBSTETRIC_HISTORY_PRINT_FORMAT_STRUCTURE}
+              obsHistoryData={finalData?.obstetricHistory}
+            />
+          );
+        }
+
+        // Lab Results
+        if (key === "labResults" && finalData.labResults) {
+          return renderLabResults(finalData.labResults, {
+            page_format: {
+              font_family: fontFamily,
+              font_size: 12,
+              pagination: true,
+            },
+          });
         }
 
         return null;

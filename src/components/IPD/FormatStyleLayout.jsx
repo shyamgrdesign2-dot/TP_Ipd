@@ -17,6 +17,7 @@ import {
   updateDraftFormatStyle,
   updateDraftParameter,
 } from "../../redux/ipd/printSettingsSlice";
+import { defaultIcons } from "../../assets/images/icons";
 
 const RowContext = React.createContext({});
 
@@ -317,7 +318,7 @@ function FormatStyleLayout({ moduleType, formatSettings }) {
             <div className="d-flex align-items-center gap-3">
               <Button
                 type="text"
-                icon={isExpanded ? <UpOutlined /> : <DownOutlined />}
+                icon={<img style={{transform: isExpanded ? "rotate(90deg)" : "rotate(-90deg)"}} src={defaultIcons.leftArrowIcon} alt="..." />}
                 onClick={() => toggleSectionExpansion(section.id)}
                 style={{ padding: "4px" }}
               />

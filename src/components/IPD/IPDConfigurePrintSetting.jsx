@@ -22,10 +22,11 @@ import {
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 import { getPrintSettings } from "../../redux/ipd/printSettingsSlice";
+import { getPatientInformation } from "../../utils/utils";
 
 // Document type mapping for PDF generation
 const DOCUMENT_TYPE_MAPPING = {
-  assessments: "assessment",
+  assessment: "assessment",
   progressNotes: "progressNotes",
   consultationNotes: "consultationNotes",
   otNotes: "otNotes",
@@ -35,7 +36,7 @@ const DOCUMENT_TYPE_MAPPING = {
 
 // Module title mapping
 const MODULE_TITLE_MAPPING = {
-  assessments: "Assessment Form",
+  assessment: "Assessment Form",
   progressNotes: "Progress Notes",
   consultationNotes: "Consultant Notes",
   otNotes: "Operation Notes",
@@ -50,7 +51,10 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
     (state) => state.printSettings
   );
 
-  const { returnPath } = useLocation();
+  const {
+    returnPath,
+    state: { patientDetails },
+  } = useLocation();
 
   const [divWidth, setDivWidth] = useState(0);
   const [selectedTab, setSelectedTab] = useState(TAB_FORMAT_STYLE);
@@ -319,12 +323,12 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
       const currentSettings = getCurrentModuleSettings();
 
       if (!currentSettings || !data) return;
-
       const blob = await pdf(
         <PDFGenerator
           settings={currentSettings}
           data={data}
           documentType={documentType}
+          patientData={getPatientInformation(patientDetails)}
         />
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));
@@ -345,11 +349,11 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
         moduleTitle={getModuleTitle()}
         returnPath={returnPath}
       />
-      <div className={"w-100 bg-body wrapper2"}>
+      <div className={"w-100 bg-body wrapper2 over-flow-y-hidden"}>
         <Row justify="space-between">
           <Col xl={8} sm={10} className="pe-3">
             <div
-              className="bg-white overflow-y-auto"
+              className="bg-white overflow-y-auto pb-4"
               style={{ height: "calc(100vh - 60px)" }}
             >
               <Tabs
@@ -375,7 +379,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
               )}
             </div>
           </Col>
-          <Col xl={16} sm={14}>
+          <Col xl={16} sm={14} className="overflow-scroll-with-height">
             <div
               className="mx-auto overflow-y-auto"
               style={{ width: isMobile ? 580 : 900 }}

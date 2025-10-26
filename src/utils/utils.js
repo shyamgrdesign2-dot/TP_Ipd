@@ -2167,3 +2167,9 @@ export const formatDateWithTime = (dateString) => {
   hours = hours ? hours : 12; // the hour '0' should be '12'
   return `${day} ${month}, ${hours}:${minutes}${ampm}`;
 };
+export const camelToCapitalized = (text) => {
+  return text
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase())
+    .trim();
+};

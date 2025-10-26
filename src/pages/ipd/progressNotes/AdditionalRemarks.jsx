@@ -10,7 +10,11 @@ import { formatDateToShortMonthYear } from "../../../utils/utils";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const AdditionalRemarks = (props) => {
-  const { isEditable = true, shouldAutofill = false, sectionData } = props || {};
+  const {
+    isEditable = true,
+    shouldAutofill = false,
+    sectionData,
+  } = props || {};
   const { additionalRemarks } = useSelector((state) => state.progressNotes);
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
@@ -22,14 +26,14 @@ const AdditionalRemarks = (props) => {
   const prevAdditionalRemarks = useMemo(() => {
     return prevProgressNote?.progressNotes?.additionalRemarks;
   }, [prevProgressNote]);
-  console.log(additionalRemarks,"additionalRemarks")
-  console.log(prevAdditionalRemarks,"prevAdditionalRemarks")
+  console.log(additionalRemarks, "additionalRemarks");
+  console.log(prevAdditionalRemarks, "prevAdditionalRemarks");
   const hasAdditionalRemarksInLastProgressNote = useMemo(() => {
     return (
       (!Array.isArray(prevAdditionalRemarks) &&
         typeof prevAdditionalRemarks === "string" &&
         !!prevAdditionalRemarks) ||
-        (Array.isArray(prevAdditionalRemarks) &&
+      (Array.isArray(prevAdditionalRemarks) &&
         !!prevAdditionalRemarks?.[0]?.children?.[0]?.text)
       // (Array.isArray(prevAdditionalRemarks) &&
       //   prevAdditionalRemarks.some((item) =>
@@ -38,8 +42,11 @@ const AdditionalRemarks = (props) => {
       //     )
       //   ))
     );
-  }, [additionalRemarks,prevAdditionalRemarks]);
-  console.log(hasAdditionalRemarksInLastProgressNote,"hasAdditionalRemarksInLastProgressNotex")
+  }, [additionalRemarks, prevAdditionalRemarks]);
+  console.log(
+    hasAdditionalRemarksInLastProgressNote,
+    "hasAdditionalRemarksInLastProgressNotex"
+  );
 
   const handleAutofill = (e) => {
     if (e?.[0] === "undo") {
@@ -65,7 +72,11 @@ const AdditionalRemarks = (props) => {
       width="100%"
       icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={isEditable && hasAdditionalRemarksInLastProgressNote}
-      opdDate={formatDateToShortMonthYear(prevProgressNote.createdAt)}
+      opdDate={
+        prevProgressNote?.createdAt
+          ? formatDateToShortMonthYear(prevProgressNote?.createdAt || "")
+          : null
+      }
       autoFillTitle={
         hasAdditionalRemarksInLastProgressNote
           ? `Autofill From Prev. Progress Notes (${new Date(
@@ -76,7 +87,7 @@ const AdditionalRemarks = (props) => {
           : "No previous profress notes available"
       }
       onAutoFill={handleAutofill}
-      containerClass={`${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
+      containerClass={`${!isEditable ? "ipd-wrapper-class-readonly" : ""}`}
       showMagicPenGif={false}
       showMicrophone={false}
       initialValue={

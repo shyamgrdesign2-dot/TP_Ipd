@@ -126,14 +126,14 @@ const ChiefComplaint = (props) => {
       autoFillTitle={
         hasChiefComplaintInLastProgressNote
           ? `Autofill From Prev. Progress Notes (${new Date(
-              prevProgressNote.createdAt
+              prevProgressNote?.createdAt
             ).toLocaleDateString()}, ${new Date(
-              prevProgressNote.createdAt
+              prevProgressNote?.createdAt
             ).toLocaleTimeString()})`
           : "No previous profress notes available"
       }
       containerClass={`${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
-      opdDate={formatDateToShortMonthYear(prevProgressNote.createdAt)}
+      opdDate={prevProgressNote?.createdAt ? formatDateToShortMonthYear(prevProgressNote?.createdAt || ""): null}
       onSave={() => {
         console.log("save");
       }}

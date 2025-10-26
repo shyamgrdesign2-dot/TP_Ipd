@@ -14,6 +14,7 @@ function ObsHistoryListView({
   obsHistoryData,
   consultationDate
 }) {
+  console.log('INTEL ==> obsHistoryData', obsHistoryData)
   const pregnancyHistory = obsHistoryData?.pregnancyHistory || [];
   obsHistoryData = obsHistoryData?.currentPregnancy || {};
   let obsListViewCounter = 1;
