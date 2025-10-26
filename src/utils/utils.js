@@ -2139,3 +2139,31 @@ export const getPatientInformation = (patientDetails) => {
     bloodGroup: patientDetails?.details?.bloodGroup || "",
   };
 };
+
+export const formatDateWithTime = (dateString) => {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, "0");
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const month = monthNames[date.getMonth()];
+  let hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  return `${day} ${month}, ${hours}:${minutes}${ampm}`;
+};

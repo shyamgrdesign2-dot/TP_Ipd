@@ -218,7 +218,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
     initializePrintSettings();
   }, [printSettings, moduleType, dispatch]);
 
-  const updateFooterImageHeight = (footerFile, initialUpdate) => {
+  const updateFooterImageHeight = useCallback((footerFile, initialUpdate) => {
     const getImageDimensions = (url) => {
       return new Promise((resolve, reject) => {
         const img = new Image();
@@ -268,17 +268,23 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
           });
         }
       });
-  };
+  }, [setFileFooter]);
 
   useEffect(() => {
     if (!fileFooter?.showFile) return;
-    updateFooterImageHeight(fileFooter);
-  }, [printSettings, fileFooter]);
+    // Only update if dimensions haven't been calculated yet
+    if (!fileFooter.renderedFooterImageHeight) {
+      updateFooterImageHeight(fileFooter);
+    }
+  }, [printSettings, fileFooter?.showFile, updateFooterImageHeight]);
 
   const onTabChange = useCallback((key) => {
     setSelectedTab(key);
-    updateFooterImageHeight();
-  }, []);
+    // Only update footer height if fileFooter exists
+    if (fileFooter?.showFile && !fileFooter.renderedFooterImageHeight) {
+      updateFooterImageHeight(fileFooter);
+    }
+  }, [fileFooter, updateFooterImageHeight]);
 
   const TabsPrintSetting = [
     {

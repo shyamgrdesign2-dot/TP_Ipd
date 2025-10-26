@@ -11,6 +11,7 @@ import { getMargins } from "./utils/pdfUtils";
 import { createCommonStyles } from "./styles/commonStyles";
 import PDFHeader from "./components/PDFHeader";
 import PatientInfo from "./components/PatientInfo";
+import PDFFooter from "./components/PDFFooter";
 
 /**
  * PDFDocument Component
@@ -65,7 +66,11 @@ const PDFDocument = ({ settings, patientData, children }) => {
     <Document>
       <Page size={pageSize} style={documentStyles.page}>
         {/* Header */}
-        <PDFHeader headerSettings={header} fontFamily={fontFamily} />
+        <PDFHeader
+          headerSettings={header}
+          fontFamily={fontFamily}
+          letterHeadFormat={letterHeadFormat}
+        />
 
         {/* Patient Information */}
         <PatientInfo
@@ -76,6 +81,14 @@ const PDFDocument = ({ settings, patientData, children }) => {
 
         {/* Content */}
         <View style={documentStyles.content}>{children}</View>
+
+        {/* Footer */}
+        <PDFFooter
+          footerSettings={footer}
+          fontFamily={fontFamily}
+          letterHeadFormat={letterHeadFormat}
+          showPageNumbers={pageFormat?.pagination}
+        />
       </Page>
     </Document>
   );

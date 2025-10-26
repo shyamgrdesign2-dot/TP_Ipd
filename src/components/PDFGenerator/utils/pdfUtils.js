@@ -218,6 +218,12 @@ export const getVisiblePatientFields = (displayPatientInfo, patientData) => {
       value: patientData.preparedBy || "",
       column: "right",
     },
+    {
+      key: "preparedOn",
+      label: "Prepared On",
+      value: formatDate(patientData.preparedOn),
+      column: "right",
+    },
     // Row 5 - Address stays in left column, wraps if needed
     {
       key: "address",
@@ -281,11 +287,6 @@ export const getVisiblePatientFields = (displayPatientInfo, patientData) => {
       label: "Date & Time",
       value: formatDate(new Date()),
     },
-    {
-      key: "preparedOn",
-      label: "Prepared On",
-      value: formatDate(patientData.preparedOn),
-    },
   ];
 
   // Helper function to check if a field is enabled
@@ -303,8 +304,7 @@ export const getVisiblePatientFields = (displayPatientInfo, patientData) => {
   // Filter only visible fields with values, maintaining exact order
   const orderedFields = fieldOrder.filter((field) => {
     const isEnabled = isFieldEnabled(field.key);
-    const hasValue = field.value && field.value.trim() !== "";
-    return isEnabled && hasValue;
+    return isEnabled;
   });
 
   return orderedFields;

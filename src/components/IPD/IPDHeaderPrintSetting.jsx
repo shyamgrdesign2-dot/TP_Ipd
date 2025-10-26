@@ -320,22 +320,6 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
           </div>
         </div>
         <div className="d-flex align-items-center justify-content-end w-100">
-          <Popover
-            open={popOverVideo}
-            onOpenChange={showHideVideoListPopover}
-            content={VIDEO_CONTENT}
-            trigger="click"
-            overlayClassName="pop-430 pp-0 videoTutorial"
-            placement="bottom"
-          >
-            <button className="btn d-flex align-items-center btn-text me-10 tutorial">
-              <span className="text-decoration-none rounded-5 pe-3 bg-white shadow2">
-                <img height={42} src={tutorial} alt="tutorial" />
-                Tutorial
-              </span>
-            </button>
-          </Popover>
-
           <button
             className="btn btn-text me-14"
             onClick={onDefaultPrintsettings}
@@ -356,9 +340,6 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
           </Button>
         </div>
       </div>
-      {videoLink && (
-        <VideoModal videoLink={videoLink} onCancel={() => setVideoLink(null)} />
-      )}
     </Navbar>
   );
 }

@@ -3,8 +3,9 @@
  */
 
 import React from "react";
-import { View, Text } from "@react-pdf/renderer";
+import { View, Text, Image } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
+import { LETTERHEAD_FORMATS } from "../constants";
 
 const styles = StyleSheet.create({
   footer: {
@@ -21,11 +22,28 @@ const styles = StyleSheet.create({
     color: "#000000",
   },
 
+  logo: {
+    objectFit: "cover",
+  },
+
   pageNumber: {
-    fontSize: 9,
-    color: "#000000",
+    position: "absolute",
+    fontSize: 10,
+    fontWeight: 400,
+    bottom: 10,
+    right: 10,
+    textAlign: "center",
+    color: "#454551",
   },
 });
+
+const PageNumber = () => (
+  <Text
+    fixed
+    style={styles.pageNumber}
+    render={({ pageNumber, totalPages }) => `Page ${pageNumber}/${totalPages}`}
+  />
+);
 
 /**
  * PDFFooter Component
@@ -38,24 +56,31 @@ const styles = StyleSheet.create({
 const PDFFooter = ({
   footerSettings,
   fontFamily,
+  letterHeadFormat,
   showPageNumbers = true,
 }) => {
   if (!footerSettings) return null;
 
-  const { title = "", fontSize = 9 } = footerSettings;
+  const { title = "", fontSize = 9, footerImg = "" } = footerSettings;
+
+  if (letterHeadFormat === LETTERHEAD_FORMATS.OWN) {
+    return null;
+  }
+
+  if (letterHeadFormat === LETTERHEAD_FORMATS.UPLOAD && footerImg) {
+    return (
+      <View style={styles.footer} fixed>
+        <Image src={footerImg} style={styles.logo} />
+        {showPageNumbers && <PageNumber />}
+      </View>
+    );
+  }
 
   return (
     <View style={styles.footer} fixed>
       <Text style={[styles.footerText, { fontFamily, fontSize }]}>{title}</Text>
 
-      {showPageNumbers && (
-        <Text
-          style={[styles.pageNumber, { fontFamily, fontSize }]}
-          render={({ pageNumber, totalPages }) =>
-            `Page ${pageNumber} of ${totalPages}`
-          }
-        />
-      )}
+      {showPageNumbers && <PageNumber />}
     </View>
   );
 };

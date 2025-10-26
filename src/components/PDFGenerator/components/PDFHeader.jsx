@@ -70,26 +70,38 @@ const styles = StyleSheet.create({
  * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} PDF Header
  */
-const PDFHeader = ({ headerSettings, fontFamily = "Roboto" }) => {
+const PDFHeader = ({
+  headerSettings,
+  fontFamily = "Roboto",
+  letterHeadFormat,
+}) => {
   if (!headerSettings) return null;
 
   const {
-    letterHeadFormat = "0",
     title = "Discharge Summary",
     logo = "",
+    headerImg = "",
   } = headerSettings;
 
   // Use default Zydus logo if no logo provided
   const logoSrc = logo || DEFAULT_LOGO;
 
   // No header format
-  if (letterHeadFormat === LETTERHEAD_FORMATS.NO_HEADER) {
+  if (letterHeadFormat === LETTERHEAD_FORMATS.OWN) {
     return null;
+  }
+
+  if (letterHeadFormat === LETTERHEAD_FORMATS.UPLOAD && headerImg) {
+    return (
+      <View style={styles.headerContainer} fixed>
+        <Image src={headerImg} />
+      </View>
+    );
   }
 
   // Logo with title
   return (
-    <View style={styles.headerContainer}>
+    <View style={styles.headerContainer} fixed>
       {/* Logo on left */}
       <View style={styles.logoContainer}>
         <Image src={logoSrc} style={styles.logo} />

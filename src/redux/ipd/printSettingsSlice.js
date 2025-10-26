@@ -55,11 +55,7 @@ export const updatePrintSettings = createAsyncThunk(
       const result = await ApiPrintSettings.updatePrintSettings({
         printSettings,
       });
-      if (result.data) {
-        return result.data;
-      } else {
-        throw Error(result.error || "Failed to update print settings");
-      }
+      return result;
     } catch (error) {
       console.log("error: ", error);
       return rejectWithValue({
