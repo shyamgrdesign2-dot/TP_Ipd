@@ -5,7 +5,10 @@
 import React from "react";
 import { View, Text } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
-import { isEmptyRichText } from "../../../utils/pdfUtils";
+import {
+  getAllVisibleSections,
+  isEmptyRichText,
+} from "../../../utils/pdfUtils";
 import { renderRichText } from "../../../utils/richTextRenderer";
 
 const styles = StyleSheet.create({
@@ -122,9 +125,6 @@ const renderFunctionalAssessmentInline = (assessment, fontFamily) => {
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>
-          Functional Assessment:
-        </Text>
         <Text style={[styles.assessmentText, { fontFamily }]}>
           {fields.map((field, index) => {
             if (!field.value) return null;
@@ -200,22 +200,62 @@ const renderReferral = (referralDoctor, fontFamily) => {
  * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Functional Assessment Section
  */
-const FunctionalAssessment = ({ data, fontFamily = "Poppins" }) => {
-  if (!data?.functionalAssessmentTimeOfAdmission) return null;
 
-  const assessment = data.functionalAssessmentTimeOfAdmission;
+function convertToAssessmentStructure(input = {}) {
+  const { others = [], ...assessment } = input;
+  return { assessment, others };
+}
+
+const FunctionalAssessment = ({
+  data,
+  fontFamily = "Poppins",
+  isAssessment = false,
+  formatSettings,
+}) => {
+  const hasAssessmentData = isAssessment
+    ? !!data?.functionalAssessment
+    : !!data?.functionalAssessmentTimeOfAdmission;
+  if (!hasAssessmentData) return null;
+
+  const assessment = isAssessment
+    ? convertToAssessmentStructure(data.functionalAssessment)
+    : data.functionalAssessmentTimeOfAdmission;
+
+  const functionalAssessmentSection = formatSettings.find(
+    (section) => section.id === "functionalAssessment"
+  );
+  const subsections = functionalAssessmentSection?.subSections || [];
+
+  const sortedSubsections = getAllVisibleSections(subsections);
 
   return (
     <View style={styles.mainContainer}>
-      {/* Functional Assessment - Inline format */}
-      {renderFunctionalAssessmentInline(assessment?.assessment, fontFamily)}
-
-      {/* Others */}
-      {assessment.others && renderOthers(assessment.others, fontFamily)}
-
-      {/* Referral */}
-      {assessment.referralDoctor &&
-        renderReferral(assessment.referralDoctor, fontFamily)}
+      {sortedSubsections.map((subsection) => {
+        const key = subsection.id;
+        if (key === "assessment" && assessment?.assessment) {
+          return renderFunctionalAssessmentInline(
+            assessment?.assessment || {},
+            fontFamily
+          );
+        }
+        if (key === "func-others" && assessment?.others) {
+          return renderOthers(assessment.others, fontFamily);
+        }
+        if (
+          key === "referredToPhysiotherapyForReview" &&
+          ((isAssessment &&
+            assessment?.assessment.referredToPhysiotherapyForReview) ||
+            (!isAssessment && data?.referralDoctor))
+        ) {
+          return renderReferral(
+            isAssessment
+              ? assessment?.assessment.referredToPhysiotherapyForReview?.name
+              : data?.referralDoctor,
+            fontFamily
+          );
+        }
+        return null;
+      })}
     </View>
   );
 };

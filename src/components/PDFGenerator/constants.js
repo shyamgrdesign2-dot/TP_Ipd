@@ -24,10 +24,9 @@ export const VIEW_MODES = {
 
 // Letterhead formats
 export const LETTERHEAD_FORMATS = {
-  NO_HEADER: "3",
-  LOGO_LEFT_INFO_RIGHT: "1",
-  LOGO_CENTER: "2",
-  CUSTOM: "3",
+  CUSTOM: 0,
+  UPLOAD: 1,
+  OWN: 2,
 };
 
 // Signature positions

@@ -23,6 +23,9 @@ export const useDischargeSummaryData = (
     activeMenuItem === "dischargeSummary" ? assessmentLastUpdateAt : undefined;
 
   const showLastUpdatedAt = (surgeryId = null) => {
+    if (location.pathname !== "/ipd/patient-details/discharge-summary") {
+      return null;
+    }
     if (!isEditable) return null;
 
     let label = "";

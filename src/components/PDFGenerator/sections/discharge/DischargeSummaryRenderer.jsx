@@ -17,6 +17,7 @@ import DischargeAdvice from "./components/DischargeAdvice";
 import FollowUp from "./components/FollowUp";
 import { renderSimpleText } from "../ListViewRenderer";
 import { getAllVisibleSections } from "../../utils/pdfUtils";
+import { IPD } from "../../../../utils/locale";
 
 const styles = StyleSheet.create({
   sectionContainer: {
@@ -86,14 +87,14 @@ const renderPatientHistory = (data, fontFamily, formatSettings) => {
 /**
  * Physical Examination Section
  */
-const renderPhysicalExamination = (data, fontFamily) => {
+const renderPhysicalExamination = (data, fontFamily, formatSettings) => {
   return (
     <View style={styles.sectionContainer}>
       <SectionTitle
         title="Physical Examination at the Time of Admission"
         fontFamily={fontFamily}
       />
-      <PhysicalExamination data={data} fontFamily={fontFamily} />
+      <PhysicalExamination data={data} fontFamily={fontFamily} formatSettings={formatSettings} />
     </View>
   );
 };
@@ -101,14 +102,14 @@ const renderPhysicalExamination = (data, fontFamily) => {
 /**
  * Functional Assessment Section
  */
-const renderFunctionalAssessment = (data, fontFamily) => {
+const renderFunctionalAssessment = (data, fontFamily, formatSettings) => {
   return (
     <View style={styles.sectionContainer}>
       <SectionTitle
         title="Functional Assessment at the Time of Admission"
         fontFamily={fontFamily}
       />
-      <FunctionalAssessment data={data} fontFamily={fontFamily} />
+      <FunctionalAssessment data={data} fontFamily={fontFamily} formatSettings={formatSettings} />
     </View>
   );
 };
@@ -228,8 +229,8 @@ export const renderDischargeSummary = (data, formatSettings, fontFamily) => {
     diagnosisAndSurgery: () => renderDiagnosisAndSurgery(data, fontFamily),
     patientHistory: () =>
       renderPatientHistory(data, fontFamily, formatSettings),
-    physicalExamination: () => renderPhysicalExamination(data, fontFamily),
-    functionalAssessment: () => renderFunctionalAssessment(data, fontFamily),
+    physicalExamination: () => renderPhysicalExamination(data, fontFamily, formatSettings),
+    functionalAssessment: () => renderFunctionalAssessment(data, fontFamily, formatSettings),
     courseInHospital: () => renderCourseInHospital(data, fontFamily),
     otNotes: () => renderOTNotes(data, fontFamily),
     dischargeNotes: () => renderDischargeNotes(data, fontFamily),

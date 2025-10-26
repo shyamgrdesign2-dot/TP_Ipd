@@ -72,7 +72,11 @@ const styles = StyleSheet.create({
  * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Diagnosis and Surgery Section
  */
-const DiagnosisAndSurgery = ({ data, fontFamily = "Poppins" }) => {
+const DiagnosisAndSurgery = ({
+  data,
+  fontFamily = "Poppins",
+  isAssessment = false,
+}) => {
   if (!data?.diagnosisAndSurgery) return null;
 
   const { diagnosisAndSurgery } = data;
@@ -107,9 +111,11 @@ const DiagnosisAndSurgery = ({ data, fontFamily = "Poppins" }) => {
         diagnosisAndSurgery.provisionalDiagnosis.length > 0 && (
           <View style={styles.subsectionContainer}>
             <View style={styles.contentContainer}>
-              <Text style={[styles.subsectionTitle, { fontFamily }]}>
-                Provisional Diagnosis:
-              </Text>
+              {!isAssessment ? (
+                <Text style={[styles.subsectionTitle, { fontFamily }]}>
+                  Provisional Diagnosis:
+                </Text>
+              ) : null}
               <View style={styles.bulletList}>
                 {diagnosisAndSurgery.provisionalDiagnosis.map((dx, index) => (
                   <View key={`prov-dx-${index}`} style={styles.bulletItem}>

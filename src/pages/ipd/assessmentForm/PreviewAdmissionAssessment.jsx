@@ -6,19 +6,22 @@ import { pdf } from "@react-pdf/renderer";
 
 import { Container, Navbar } from "react-bootstrap";
 import { PDFGenerator } from "../../../components/PDFGenerator";
-import {
-  handleDownloadDischargeSummary,
-  printDischargeSummary,
-} from "./utils/helper";
+// import {
+//   handleDownloadDischargeSummary,
+//   printDischargeSummary,
+// } from "./utils/helper";
 
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getDischargeSummaryData } from "../../../redux/ipd/dischargeSummarySlice";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
-import PrintPreviewShimmer from "./components/PrintPreviewShimmer/PrintPreviewShimmer";
+// import PrintPreviewShimmer from "./components/PrintPreviewShimmer/PrintPreviewShimmer";
+import { getAssessmentsData } from "../../../redux/ipd/assessmentsFormSlice";
+import { handleDownloadDischargeSummary, printDischargeSummary } from "../dischargeSummary/utils/helper";
+import { getPatientInformation } from "../../../utils/utils";
 
-const PreviewDischargeSummary = () => {
+const PreviewAdmissionAssessment = () => {
   const navigate = useNavigate();
   const divRef = useRef(null);
   const [divWidth, setDivWidth] = useState(0);
@@ -29,12 +32,10 @@ const PreviewDischargeSummary = () => {
   const { patientDetails } = state || {};
   const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
-  const { actualDischargeSummaryData: dischargeSummaryData } = useSelector(
-    (state) => state.dischargeSummary
-  );
-  const { dischargeSummary: currentSettings } = printSettings;
+  const { assessmentsData } = useSelector((state) => state.assessment);
+  const { assessment: currentSettings } = printSettings;
 
-  const patientData = dischargeSummaryData?.patientInformation || {};
+  //   const patientData = dischargeSummaryData?.patientInformation || {};
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -49,11 +50,11 @@ const PreviewDischargeSummary = () => {
   useEffect(() => {
     if (
       patientDetails?.details?.id &&
-      (!dischargeSummaryData ||
-        (dischargeSummaryData && !Object.keys(dischargeSummaryData).length))
+      (!assessmentsData ||
+        (assessmentsData && !Object.keys(assessmentsData).length))
     )
       dispatch(
-        getDischargeSummaryData({
+        getAssessmentsData({
           patientId: patientDetails?.details?.id,
           admissionId: patientDetails?.admissionId,
         })
@@ -69,18 +70,19 @@ const PreviewDischargeSummary = () => {
   }, []);
 
   useEffect(() => {
-    if (currentSettings && Object.keys(dischargeSummaryData).length) {
+    if (currentSettings && Object.keys(assessmentsData).length) {
       makePDFUrl();
     }
-  }, [currentSettings, dischargeSummaryData]);
+  }, [currentSettings, assessmentsData]);
 
   const makePDFUrl = async () => {
     try {
       const blob = await pdf(
         <PDFGenerator
           settings={currentSettings}
-          data={dischargeSummaryData}
-          documentType="dischargeSummary"
+          data={assessmentsData}
+          documentType="assessment"
+          patientData={getPatientInformation(patientDetails)}
         />
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));
@@ -90,12 +92,13 @@ const PreviewDischargeSummary = () => {
   };
 
   const handleDrawerConfigureSettings = () => {
-    navigate("/ipd/discharge-summary/configure-print-settings", {
+    navigate("/ipd/admission-assessment/configure-print-settings", {
       state: {
-        moduleType: "dischargeSummary",
-        data: dischargeSummaryData,
+        moduleType: "assessment",
+        data: assessmentsData,
         printSettings: currentSettings,
-        returnPath: "/ipd/discharge-summary/preview",
+        returnPath: "/ipd/admission-assessment/preview",
+        patientDetails
       },
     });
   };
@@ -108,20 +111,19 @@ const PreviewDischargeSummary = () => {
   }
 
   const handlePrintClick = () => {
-    printDischargeSummary(printBlob, patientData.patientId);
+    printDischargeSummary(printBlob, patientDetails?.details?.id);
   };
 
   const handleDownloadClick = () => {
-    handleDownloadDischargeSummary(pdfUrl, printBlob, patientData);
+    handleDownloadDischargeSummary(
+      pdfUrl,
+      printBlob,
+      patientDetails?.details?.id
+    );
   };
 
   const handleBackToSummary = () => {
-    navigate("/ipd/patient-details", {
-      state: {
-        patientDetails,
-        activeTab: "dischargeSummary",
-      },
-    });
+    navigate(-1);
   };
 
   return (
@@ -140,7 +142,7 @@ const PreviewDischargeSummary = () => {
                   </div>
                 </div>
                 <span className="title-digitise-card">
-                  Print Preview (Discharge Summary)
+                  Print Preview (Admission Assessment)
                 </span>
               </div>
             </Col>
@@ -151,7 +153,7 @@ const PreviewDischargeSummary = () => {
       <div
         className={`${
           isMobile ? "p-0" : ""
-        } w-100 bg-body wrapper2 prescription-wrapper`}
+        } w-100 bg-body wrapper2 over-flow-y-hidden prescription-wrapper`}
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
           <Col md={7} sm={7} xl={5}>
@@ -213,7 +215,7 @@ const PreviewDischargeSummary = () => {
               </div>
             </div>
           </Col>
-          <Col md={17} sm={17} xl={12}>
+          <Col md={17} sm={17} xl={12} className="overflow-scroll-with-height">
             <div className={isMobile ? "p-20" : ""}>
               <div className="d-flex align-items-center justify-content-between">
                 <div className="titleprint">Preview</div>
@@ -287,4 +289,4 @@ const PreviewDischargeSummary = () => {
   );
 };
 
-export default React.memo(PreviewDischargeSummary);
+export default React.memo(PreviewAdmissionAssessment);

@@ -67,7 +67,13 @@ const DateRangeFilter = ({
       },
       {
         label: (
-          <div className={dateStatus === 3 ? "active" : ""}>Last Month</div>
+          <div className={dateStatus === 3 ? "active" : ""}>Last 7 Days</div>
+        ),
+        value: [dayjs().add(-7, "d"), dayjs()],
+      },
+      {
+        label: (
+          <div className={dateStatus === 4 ? "active" : ""}>Last Month</div>
         ),
         value: [dayjs().add(-1, "M"), dayjs()],
       },
@@ -88,14 +94,15 @@ const DateRangeFilter = ({
 
   // Helper function - kept simple and inline
   const formatDateRange = () => {
-    if (!dateRange){
+    if (!dateRange) {
       if (placeholder) return placeholder;
-    };
+    }
 
     const statusLabels = {
       1: "Today",
       2: "Yesterday",
-      3: "Last month",
+      3: "Last 7 Days",
+      4: "Last month",
     };
 
     return (
@@ -119,7 +126,10 @@ const DateRangeFilter = ({
   }, [dateRange]);
 
   return (
-    <div ref={containerRef} className={`massage-date-wrapper ms-3 ${wrapperClassName}`}>
+    <div
+      ref={containerRef}
+      className={`massage-date-wrapper ms-3 ${wrapperClassName}`}
+    >
       <div
         className={`fs-14 h-100 w-100 d-flex align-items-center justify-content-center ${className}`}
         onClick={onToggleModal}

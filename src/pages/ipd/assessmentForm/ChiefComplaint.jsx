@@ -15,7 +15,6 @@ import { useDischargeSummaryData } from "../dischargeSummary/utils/useDischargeS
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const ChiefComplaint = (props) => {
-  // You can pass props as needed, e.g., isEditable, initialValue, etc.
   const {
     isEditable = true,
     sectionData,
@@ -86,8 +85,6 @@ const ChiefComplaint = (props) => {
     );
   }, [chiefComplaint, chiefComplaintFromLastPrescription]);
 
-  console.log('INTEL ==> isEditable', isEditable)
-  console.log('INTEL ==> chiefComplaint', chiefComplaint)
   if (!isEditable && !isDischargeSummary && isEmptyRichText(chiefComplaint)) return null;
   return (
     <div className="flex-column-gap-16">

@@ -133,7 +133,7 @@ const ChiefComplaint = (props) => {
           : "No previous profress notes available"
       }
       containerClass={`${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
-      opdDate={formatDateToShortMonthYear(prevProgressNote?.createdAt)}
+      opdDate={prevProgressNote?.createdAt ? formatDateToShortMonthYear(prevProgressNote?.createdAt || ""): null}
       onSave={() => {
         console.log("save");
       }}

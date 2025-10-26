@@ -15,6 +15,9 @@ import { registerFonts } from "./utils/fontRegistration";
 import { renderDischargeSummary } from "./sections/discharge/DischargeSummaryRenderer";
 import { renderConsultantNotes } from "./sections/consultation/ConsultantNotesRenderer";
 import { renderProgressNotes } from "./sections/progressNotes/ProgressNotesRenderer";
+import { renderAdmissionAssessment } from "./sections/discharge/AdmissionAssessmentRenderer";
+import { IPD } from "../../utils/locale";
+import { renderOTNotes } from "./sections/discharge/OTNotesRenderer";
 
 // Register fonts once
 let fontsRegistered = false;
@@ -35,7 +38,12 @@ if (!fontsRegistered) {
  * @param {Object} props.documentType - Document type
  * @returns {JSX.Element} PDF Document
  */
-const PDFGenerator = ({ settings, data, documentType }) => {
+const PDFGenerator = ({
+  settings,
+  data,
+  documentType,
+  patientData: patientDataFromProps,
+}) => {
   // Validate props
   if (!settings) {
     console.error("PDFGenerator: settings prop is required");
@@ -48,7 +56,8 @@ const PDFGenerator = ({ settings, data, documentType }) => {
   }
 
   // Extract patient data
-  const patientData = data.patientInformation || data.patient || {};
+  const patientData =
+    patientDataFromProps || data.patientInformation || data.patient || {};
 
   // Get format settings - formatStyle is now always an array
   const formatSettings = settings.formatStyle || [];
@@ -67,16 +76,15 @@ const PDFGenerator = ({ settings, data, documentType }) => {
       break;
 
     case "assessment":
-      // TODO: Implement assessment renderer
-      console.warn("Assessment renderer not yet implemented");
-      break;
-
-    case "progressNotes":
-      contentSections = renderProgressNotes(
+      contentSections = renderAdmissionAssessment(
         data,
         formatSettings,
         fontFamily
       );
+      break;
+
+    case "progressNotes":
+      contentSections = renderProgressNotes(data, formatSettings, fontFamily);
       break;
 
     case "consultationNotes":
@@ -84,8 +92,7 @@ const PDFGenerator = ({ settings, data, documentType }) => {
       break;
 
     case "otNotes":
-      // TODO: Implement OT notes renderer
-      console.warn("OT notes renderer not yet implemented");
+      contentSections = renderOTNotes(data, formatSettings, fontFamily);
       break;
 
     case "crossReferral":
@@ -95,6 +102,7 @@ const PDFGenerator = ({ settings, data, documentType }) => {
 
     default:
       console.error(`Unknown document type: ${documentType}`);
+      break;
   }
 
   return (
