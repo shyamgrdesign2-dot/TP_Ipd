@@ -18,7 +18,7 @@ ApiMedicalRecords.getDocuments = function ({ patientId, admissionId, category = 
 
 // PUT: Upload/Update a document via multipart form
 // Maps to: PUT /api/v1/docs?patientId=...&admissionId=...
-// Form fields: category, subCategory, file, name
+// Form fields: category, subCategory, file, name, thumbnail
 ApiMedicalRecords.putDocument = function ({
   patientId,
   admissionId,
@@ -26,6 +26,8 @@ ApiMedicalRecords.putDocument = function ({
   subCategory,
   file,
   name,
+  thumbnail,
+  notes,
 }) {
   const query = new URLSearchParams();
   if (patientId) query.append("patientId", patientId);
@@ -39,6 +41,11 @@ ApiMedicalRecords.putDocument = function ({
     formData.append("file", file, file.name || "upload.bin");
   }
   if (name) formData.append("name", name);
+  if (thumbnail) {
+    console.log("putDocument thumbnail:", { name: thumbnail?.name, type: thumbnail?.type, size: thumbnail?.size });
+    formData.append("thumbnail", thumbnail, thumbnail.name || "thumbnail.bin");
+  }
+  if (notes) formData.append("notes", notes);
 
   return api.put(
     `/docs?${query.toString()}`,

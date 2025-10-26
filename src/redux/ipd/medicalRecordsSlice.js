@@ -14,55 +14,56 @@ const initialState = {
   isLoading: false,
 };
 
-export const zydusDocsList = createAsyncThunk(
-  "medicalRecords/zydusDocsList",
-  async ({ mrno, um_id }, { dispatch }) => {
-    try {
-      const result = await ApiAppointments.zydusDocsList(mrno);
-      if (result.status == 'success') {
-        return result.data;
-      } else {
-        throw Error(result.error);
-      }
-    } catch (error) {
-      if (error.response.status === 401) {
-        const action = await dispatch(ictAuthToken())
-        if (action.meta.requestStatus === "fulfilled") {
-          await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.tokenNo))
-          dispatch(zydusDocsList({ mrno }))
-        }
-      }
-      // console.log("error: ", error);
-      throw Error(error);
-    }
-  }
-);
+// export const zydusDocsList = createAsyncThunk(
+//   "medicalRecords/zydusDocsList",
+//   async ({ mrno, um_id }, { dispatch }) => {
+//     try {
+//       const result = await ApiAppointments.zydusDocsList(mrno);
+//       if (result.status == 'success') {
+//         return result.data;
+//       } else {
+//         throw Error(result.error);
+//       }
+//     } catch (error) {
+//       if (error.response.status === 401) {
+//         const action = await dispatch(ictAuthToken())
+//         if (action.meta.requestStatus === "fulfilled") {
+//           await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.tokenNo))
+//           dispatch(zydusDocsList({ mrno }))
+//         }
+//       }
+//       // console.log("error: ", error);
+//       throw Error(error);
+//     }
+//   }
+// );
 
-export const zydusRadioList = createAsyncThunk(
-  "medicalRecords/zydusRadioList",
-  async ({ mrno, um_id }, { dispatch }) => {
-    try {
-      const result = await ApiAppointments.zydusRadioList(mrno);
-      if (result.status == 'success') {
-        return result.data;
-      } else {
-        throw Error(result.error);
-      }
-    } catch (error) {
-      if (error.response.status === 401) {
-        const action = await dispatch(ictAuthToken())
-        if (action.meta.requestStatus === "fulfilled") {
-          await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.tokenNo))
-          dispatch(zydusRadioList({ mrno }))
-        }
-      }
-      // console.log("error: ", error);
-      throw Error(error);
-    }
-  }
-);
+// export const zydusRadioList = createAsyncThunk(
+//   "medicalRecords/zydusRadioList",
+//   async ({ mrno, um_id }, { dispatch }) => {
+//     try {
+//       const result = await ApiAppointments.zydusRadioList(mrno);
+//       if (result.status == 'success') {
+//         return result.data;
+//       } else {
+//         throw Error(result.error);
+//       }
+//     } catch (error) {
+//       if (error.response.status === 401) {
+//         const action = await dispatch(ictAuthToken())
+//         if (action.meta.requestStatus === "fulfilled") {
+//           await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.tokenNo))
+//           dispatch(zydusRadioList({ mrno }))
+//         }
+//       }
+//       // console.log("error: ", error);
+//       throw Error(error);
+//     }
+//   }
+// );
 
 // Async thunk for getting medical records documents
+
 export const getMedicalRecordsDocuments = createAsyncThunk(
   "medicalRecords/getMedicalRecordsDocuments",
   async ({ patientId, admissionId, category = "medical_records" }, { rejectWithValue }) => {
@@ -79,7 +80,7 @@ export const getMedicalRecordsDocuments = createAsyncThunk(
 // Async thunk for uploading/updating a document
 export const uploadMedicalRecordDocument = createAsyncThunk(
   "medicalRecords/uploadMedicalRecordDocument",
-  async ({ patientId, admissionId, category, subCategory, file, name }, { rejectWithValue }) => {
+  async ({ patientId, admissionId, category, subCategory, file, name, thumbnail, notes }, { rejectWithValue }) => {
     try {
       const result = await ApiMedicalRecords.putDocument({
         patientId,
@@ -88,6 +89,8 @@ export const uploadMedicalRecordDocument = createAsyncThunk(
         subCategory,
         file,
         name,
+        thumbnail,
+        notes,
       });
       return result;
     } catch (error) {
@@ -148,40 +151,40 @@ const medicalRecordsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Zydus API responses
-      .addCase(zydusDocsList.fulfilled, (state, action) => {
-        const updatedData = action.payload.map(e => {
-          return {
-            id: e?.labResultId,
-            category_id: -2,
-            name: e?.serviceName,
-            display_name: e?.serviceName,
-            url: `${config.zydus_proxy_url}/ictApiProxy/emr/lab/report/print?sampleId=${e?.sampleId}&labResultId=${e?.labResultId}`,
-            um_id: action.meta.arg.um_id,
-            thumbnail_url: '',
-            created_date: moment(e?.certifiedDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-            investigation_date: moment(e?.certifiedDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
-            notes: ''
-          }
-        })
-        state.medicalRecords.unshift(...updatedData)
-      })
-      .addCase(zydusRadioList.fulfilled, (state, action) => {
-        const updatedData = action.payload.map(e => {
-          return {
-            id: e?.orderId,
-            category_id: -3,
-            name: `${e?.serviceName}-${e?.orderStatus}`,
-            display_name: `${e?.serviceName}-${e?.orderStatus}`,
-            url: null,
-            um_id: action.meta.arg.um_id,
-            thumbnail_url: '',
-            created_date: moment(e?.orderConformedDate).format('YYYY-MM-DD'),
-            investigation_date: moment(e?.orderConformedDate).format('YYYY-MM-DD'),
-            notes: ''
-          }
-        })
-        state.medicalRecords.unshift(...updatedData)
-      })
+      // .addCase(zydusDocsList.fulfilled, (state, action) => {
+      //   const updatedData = action.payload.map(e => {
+      //     return {
+      //       id: e?.labResultId,
+      //       category_id: -2,
+      //       name: e?.serviceName,
+      //       display_name: e?.serviceName,
+      //       url: `${config.zydus_proxy_url}/ictApiProxy/emr/lab/report/print?sampleId=${e?.sampleId}&labResultId=${e?.labResultId}`,
+      //       um_id: action.meta.arg.um_id,
+      //       thumbnail_url: '',
+      //       created_date: moment(e?.certifiedDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+      //       investigation_date: moment(e?.certifiedDate, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+      //       notes: ''
+      //     }
+      //   })
+      //   state.medicalRecords.unshift(...updatedData)
+      // })
+      // .addCase(zydusRadioList.fulfilled, (state, action) => {
+      //   const updatedData = action.payload.map(e => {
+      //     return {
+      //       id: e?.orderId,
+      //       category_id: -3,
+      //       name: `${e?.serviceName}-${e?.orderStatus}`,
+      //       display_name: `${e?.serviceName}-${e?.orderStatus}`,
+      //       url: null,
+      //       um_id: action.meta.arg.um_id,
+      //       thumbnail_url: '',
+      //       created_date: moment(e?.orderConformedDate).format('YYYY-MM-DD'),
+      //       investigation_date: moment(e?.orderConformedDate).format('YYYY-MM-DD'),
+      //       notes: ''
+      //     }
+      //   })
+      //   state.medicalRecords.unshift(...updatedData)
+      // })
       // Medical Records API responses
       .addCase(getMedicalRecordsDocuments.pending, (state) => {
         state.isLoading = true;

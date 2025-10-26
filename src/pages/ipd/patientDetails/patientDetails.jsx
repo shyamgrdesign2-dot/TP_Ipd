@@ -691,13 +691,15 @@ const IPDPatientDetails = () => {
                 setShowDeletePopup={setShowDeletePopup}
                 filesData={filesData}
                 setFilesData={setFilesData}
+                isEditDocument={isEditDocument}
+                setIsEditDocument={setIsEditDocument}
                 patientData={patientData}
                 patient_data_naviagte={patient_data}
                 patientDetails={patientDetails}
                 handleUploadDocPopup={() =>
                   setShowUploadDocPopup((prev) => !prev)
                 }
-                isAppointmentData={true}
+                // isAppointmentData={true}
                 isIPDMedicalRecords={true}
                 patientId={patientId}
                 admissionId={admissionId}
