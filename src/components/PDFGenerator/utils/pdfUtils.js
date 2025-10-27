@@ -153,161 +153,60 @@ export const formatDate = (date, format = "DD MMM YYYY") => {
 };
 
 /**
- * Get visible patient info fields - Exact order matching Figma image
+ * Get the value from patient data based on field key
+ * @param {string} key - Field key
+ * @param {Object} patientData - Patient data
+ * @returns {string} Field value
+ */
+const getFieldValue = (key, patientData) => {
+  const fieldValueMap = {
+    patientName: () => patientData.patientName || "",
+    patientId: () => patientData.patientId || "",
+    ageGender: () =>
+      `${patientData.age || ""} Years, ${patientData.gender || ""}`,
+    admissionId: () => patientData.admissionId || "",
+    mobileNo: () => patientData.contactNumber || "",
+    admissionDate: () => formatDate(patientData.admissionDate),
+    wardBedNo: () => patientData.wardBedNo || "",
+    preparedBy: () => patientData.preparedBy || "",
+    preparedOn: () => formatDate(patientData.preparedOn),
+    address: () => patientData.address || "",
+    dischargeSummaryNo: () => patientData.dischargeSummaryNo || "",
+    dischargeDate: () => formatDate(patientData.dischargeDate),
+    bloodGroup: () => patientData.bloodGroup || "",
+    heightWeight: () =>
+      `${patientData.height || ""} cm / ${patientData.weight || ""} kg`,
+    dob: () => formatDate(patientData.dob),
+  };
+
+  const getter = fieldValueMap[key];
+  return getter ? getter() : "";
+};
+
+/**
+ * Get visible patient info fields - now uses settings fields directly
  * @param {Object} displayPatientInfo - Display patient info settings
  * @param {Object} patientData - Patient data
- * @returns {Array} Array of visible fields with labels and values (in exact order from image)
+ * @returns {Array} Array of visible fields with labels and values (sorted by order)
  */
 export const getVisiblePatientFields = (displayPatientInfo, patientData) => {
   if (!displayPatientInfo?.fields || !patientData) return [];
 
   const { fields } = displayPatientInfo;
 
-  // Define all fields in the exact order they appear in the image
-  // Left column, Right column, Left column, Right column pattern
-  const fieldOrder = [
-    // Row 1
-    {
-      key: "patientName",
-      label: "Patient Name",
-      value: patientData.patientName || "",
-      column: "left",
-    },
-    {
-      key: "patientId",
-      label: "Patient ID",
-      value: patientData.patientId || "",
-      column: "right",
-    },
-    // Row 2
-    {
-      key: "ageGender",
-      label: "Age/Gender",
-      value: `${patientData.age || ""} Years, ${patientData.gender || ""}`,
-      column: "left",
-    },
-    {
-      key: "admissionId",
-      label: "Admission ID",
-      value: patientData.admissionId || "",
-      column: "right",
-    },
-    // Row 3
-    {
-      key: "mobileNo",
-      label: "Contact No",
-      value: patientData.contactNumber || "",
-      column: "left",
-    },
-    {
-      key: "admissionDate",
-      label: "Admission Date",
-      value: formatDate(patientData.admissionDate),
-      column: "right",
-    },
-    // Row 4
-    {
-      key: "wardBedNo",
-      label: "Ward/Bed no",
-      value: patientData.wardBedNo || "",
-      column: "left",
-    },
-    {
-      key: "preparedBy",
-      label: "Prepared by",
-      value: patientData.preparedBy || "",
-      column: "right",
-    },
-    {
-      key: "preparedOn",
-      label: "Prepared On",
-      value: formatDate(patientData.preparedOn),
-      column: "right",
-    },
-    // Row 5 - Address stays in left column, wraps if needed
-    {
-      key: "address",
-      label: "Address",
-      value: patientData.address || "",
-      column: "left",
-      leftOnly: true, // Special flag for left-only fields
-    },
-    {
-      key: "dischargeSummaryNo",
-      label: "Discharge Summary No",
-      value: patientData.dischargeSummaryNo || "",
-      column: "right",
-    },
-    // Row 6 (right column only)
-    {
-      key: "dischargeDate",
-      label: "Discharge Date",
-      value: formatDate(patientData.dischargeDate),
-      column: "right",
-    },
-    // Additional fields (if enabled)
-    {
-      key: "bloodGroup",
-      label: "Blood Group",
-      value: patientData.bloodGroup || "",
-      column: "right",
-    },
-    {
-      key: "heightWeight",
-      label: "Height/Weight",
-      value: `${patientData.height || ""} cm / ${patientData.weight || ""} kg`,
-    },
-    {
-      key: "dob",
-      label: "DOB",
-      value: formatDate(patientData.dob),
-    },
-    {
-      key: "consultationType",
-      label: "Consultation Type",
-      value: patientData.consultationType || "",
-    },
-    {
-      key: "email",
-      label: "Email",
-      value: patientData.email || "",
-    },
-    {
-      key: "estimatedDateOfDelivery",
-      label: "EDD",
-      value: formatDate(patientData.estimatedDateOfDelivery),
-    },
-    {
-      key: "refMrnId",
-      label: "Ref MRN ID",
-      value: patientData.refMrnId || "",
-    },
-    {
-      key: "dateTime",
-      label: "Date & Time",
-      value: formatDate(new Date()),
-    },
-  ];
+  // Filter enabled fields and sort by order
+  const sortedFields = fields
+    .filter((field) => field.enabled !== false)
+    .sort((a, b) => (a.order || 999) - (b.order || 999));
 
-  // Helper function to check if a field is enabled
-  const isFieldEnabled = (fieldKey) => {
-    if (Array.isArray(fields)) {
-      const field = fields.find((f) => f.id === fieldKey);
-      return field?.enabled === true;
-    } else if (fields && typeof fields === "object") {
-      // Legacy object-based structure (backward compatibility)
-      return fields[fieldKey] === true;
-    }
-    return false;
-  };
+  // Map to include values from patient data
+  const fieldsWithValues = sortedFields.map((field) => ({
+    key: field.id,
+    label: field.label,
+    value: getFieldValue(field.id, patientData),
+  }));
 
-  // Filter only visible fields with values, maintaining exact order
-  const orderedFields = fieldOrder.filter((field) => {
-    const isEnabled = isFieldEnabled(field.key);
-    return isEnabled;
-  });
-
-  return orderedFields;
+  return fieldsWithValues;
 };
 
 /**

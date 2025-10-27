@@ -9,8 +9,6 @@ import { LETTERHEAD_FORMATS } from "../constants";
 
 const styles = StyleSheet.create({
   footer: {
-    borderTopWidth: 1,
-    borderTopColor: "#000000",
     paddingTop: 8,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -25,25 +23,7 @@ const styles = StyleSheet.create({
   logo: {
     objectFit: "cover",
   },
-
-  pageNumber: {
-    position: "absolute",
-    fontSize: 10,
-    fontWeight: 400,
-    bottom: 10,
-    right: 10,
-    textAlign: "center",
-    color: "#454551",
-  },
 });
-
-const PageNumber = () => (
-  <Text
-    fixed
-    style={styles.pageNumber}
-    render={({ pageNumber, totalPages }) => `Page ${pageNumber}/${totalPages}`}
-  />
-);
 
 /**
  * PDFFooter Component
@@ -71,16 +51,16 @@ const PDFFooter = ({
     return (
       <View style={styles.footer} fixed>
         <Image src={footerImg} style={styles.logo} />
-        {showPageNumbers && <PageNumber />}
       </View>
     );
   }
 
   return (
-    <View style={styles.footer} fixed>
+    <View
+      style={[styles.footer, { borderTopWidth: 1, borderTopColor: "#000000" }]}
+      fixed
+    >
       <Text style={[styles.footerText, { fontFamily, fontSize }]}>{title}</Text>
-
-      {showPageNumbers && <PageNumber />}
     </View>
   );
 };

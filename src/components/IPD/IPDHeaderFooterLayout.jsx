@@ -133,6 +133,8 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
   const fileHeader = moduleFileStates.fileHeader || null;
   const fileFooter = moduleFileStates.fileFooter || null;
   const cropperHeaderRef = React.createRef();
+  const { headerFooter } = draftSettings[moduleType] || {};
+  const { header, footer } = headerFooter || {};
 
   // Helper functions to update files in Redux
   const setFileLogo = useCallback(
@@ -1303,7 +1305,8 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                 </Row>
 
                 <div className="upload-headfoot">
-                  {fileHeader && fileHeader?.imageShow ? (
+                  {(fileHeader && fileHeader?.imageShow) ||
+                  header?.headerImg ? (
                     <>
                       <img
                         style={{
@@ -1311,7 +1314,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                           objectFit: "contain",
                           overflow: "hidden",
                         }}
-                        src={fileHeader?.showFile}
+                        src={fileHeader?.showFile || header?.headerImg}
                         alt="Header"
                       />
                       <Button
@@ -1434,7 +1437,8 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                 </div>
 
                 <div className="upload-headfoot mt-3">
-                  {fileFooter && fileFooter?.imageShow ? (
+                  {(fileFooter && fileFooter?.imageShow) ||
+                  footer?.footerImg ? (
                     <>
                       <img
                         style={{
@@ -1442,7 +1446,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                           objectFit: "contain",
                           overflow: "hidden",
                         }}
-                        src={fileFooter?.showFile}
+                        src={fileFooter?.showFile || footer?.footerImg}
                         alt="Footer"
                       />
                       <Button

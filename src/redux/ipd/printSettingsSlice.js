@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiPrintSettings from "../../api/services/ipd/ApiPrintSettings";
-import { IPD } from "../../utils/locale";
 
 export const initialState = {
   printSettings: {},
@@ -478,11 +477,7 @@ const printSettingsSlice = createSlice({
       })
       .addCase(getPrintSettings.fulfilled, (state, action) => {
         state.loading = false;
-        state.printSettings = {...action.payload, 
-          otNotes: {...action.payload.otNotes, formatStyle: IPD.DEFAULT_OT_NOTES_PRINT_FORMAT_STRUCTURE},
-          assessment: {...action.payload.assessments, formatStyle: IPD.DEFAULT_ADMISSION_ASSESSMENT_PRINT_FORMAT_STRUCTURE},
-          dischargeSummary: {...action.payload.dischargeSummary, formatStyle: IPD.DEFAULT_DISCHARGE_SUMMARY_PRINT_FORMAT_STRUCTURE}
-        };
+        state.printSettings = action.payload;
         state.draftSettings = action.payload;
       })
       .addCase(getPrintSettings.rejected, (state, action) => {

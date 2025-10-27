@@ -8,14 +8,11 @@ import { StyleSheet } from "@react-pdf/renderer";
 import { getVisiblePatientFields } from "../utils/pdfUtils";
 
 const styles = StyleSheet.create({
-  // Outer container with top/bottom borders
   outerContainer: {
     gap: 10,
-    alignItems: "center",
     margin: "16px 0",
   },
 
-  // Top border line
   topBorder: {
     height: 0,
     width: "100%",
@@ -23,52 +20,36 @@ const styles = StyleSheet.create({
     borderTopColor: "#A2A2A8",
   },
 
-  // Patient info container
   container: {
-    padding: "0 14px", // padding: 0 14px from Figma
+    padding: "0 14px",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
     width: "100%",
   },
 
-  // Left column
-  leftColumn: {
-    width: 273,
-    gap: 4,
-  },
-
-  // Right column
-  rightColumn: {
-    width: 204,
-    gap: 4,
-  },
-
-  // Individual field text
   fieldText: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     fontSize: 10,
-    lineHeight: 1.8, // 18px
+    lineHeight: 1.8,
     color: "#171725",
   },
 
-  // Address field with different line-height
   addressText: {
     fontSize: 10,
-    lineHeight: 2, // 20px for address
+    lineHeight: 2,
     color: "#171725",
   },
 
-  // Label (SemiBold)
   label: {
-    fontWeight: 600, // SemiBold
+    fontWeight: 600,
   },
 
-  // Value (Regular)
   value: {
-    fontWeight: 400, // Regular
+    fontWeight: 400,
   },
 
-  // Bottom border line
   bottomBorder: {
     height: 0,
     width: "100%",
@@ -92,66 +73,50 @@ const PatientInfo = ({
 }) => {
   // if (!displaySettings || !patientData) return null;
 
-  // Check if patient info should be shown
-  // if (displaySettings.showPatientInfo === 0) return null;
-
   const visibleFields = getVisiblePatientFields(displaySettings, patientData);
 
   if (visibleFields.length === 0) return null;
 
-  // Separate fields by column based on order
-  const leftColumnFields = [];
-  const rightColumnFields = [];
-
-  visibleFields.forEach((field) => {
-    if (field.column === "left") {
-      leftColumnFields.push(field);
-    } else if (field.column === "right") {
-      rightColumnFields.push(field);
-    }
-  });
-
   return (
-    <View style={styles.outerContainer}>
-      {/* Top Border */}
+    <View
+      style={styles.outerContainer}
+      fixed={displaySettings?.showPatientInfo === 1}
+    >
       <View style={styles.topBorder} />
 
-      {/* Patient Info Content */}
       <View style={styles.container}>
-        {/* Left Column */}
-        <View style={styles.leftColumn}>
-          {leftColumnFields.map((field, index) => {
-            const isAddress = field.label === "Address";
+        <View style={{ flex: 0.7 }}>
+          {visibleFields.map((item, i) => {
             return (
-              <Text
-                key={`left-${index}`}
-                style={[
-                  isAddress ? styles.addressText : styles.fieldText,
-                  { fontFamily },
-                ]}
-              >
-                <Text style={styles.label}>{field.label}:</Text>
-                <Text style={styles.value}> {field.value}</Text>
-              </Text>
+              i % 2 === 0 && (
+                <Text
+                  key={`left-${i}`}
+                  style={[styles.fieldText, { fontFamily }]}
+                >
+                  <Text style={styles.label}>{item.label}:</Text>
+                  <Text style={styles.value}> {item.value}</Text>
+                </Text>
+              )
             );
           })}
         </View>
-
-        {/* Right Column */}
-        <View style={styles.rightColumn}>
-          {rightColumnFields.map((field, index) => (
-            <Text
-              key={`right-${index}`}
-              style={[styles.fieldText, { fontFamily }]}
-            >
-              <Text style={styles.label}>{field.label}:</Text>
-              <Text style={styles.value}> {field.value}</Text>
-            </Text>
-          ))}
+        <View style={{ flex: 0.4 }}>
+          {visibleFields.map((item, i) => {
+            return (
+              i % 2 === 1 && (
+                <Text
+                  key={`right-${i}`}
+                  style={[styles.fieldText, { fontFamily }]}
+                >
+                  <Text style={styles.label}>{item.label}:</Text>
+                  <Text style={styles.value}> {item.value}</Text>
+                </Text>
+              )
+            );
+          })}
         </View>
       </View>
 
-      {/* Bottom Border */}
       <View style={styles.bottomBorder} />
     </View>
   );
