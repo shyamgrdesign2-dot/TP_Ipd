@@ -19,11 +19,15 @@ import {
 import { useSelector } from "react-redux";
 import DischargeSummaryTracker from "./components/CollapsibleSummaryTracker/DischargeSummaryTracker";
 import PrintPreviewShimmer from "./components/PrintPreviewShimmer/PrintPreviewShimmer";
+import { getPatientInformation } from "../../../utils/utils";
+import { useLocation } from "react-router-dom";
 
 const DischargeSummaryReadonly = forwardRef((props, ref) => {
   const divRef = useRef(null);
   const [divWidth, setDivWidth] = useState(0);
   const [numPages, setNumPages] = useState();
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const { printSettings } = useSelector((state) => state.printSettings);
@@ -51,6 +55,7 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
           settings={currentSettings}
           data={dischargeSummaryData}
           documentType="dischargeSummary"
+          patientData={getPatientInformation(patientDetails)}
         />
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));

@@ -14,7 +14,6 @@ function ObsHistoryListView({
   obsHistoryData,
   consultationDate
 }) {
-  console.log('INTEL ==> obsHistoryData', obsHistoryData)
   const pregnancyHistory = obsHistoryData?.pregnancyHistory || [];
   obsHistoryData = obsHistoryData?.currentPregnancy || {};
   let obsListViewCounter = 1;
@@ -62,7 +61,9 @@ function ObsHistoryListView({
         }}
         fixed
       >
-        Obstetric History&nbsp;:&nbsp;
+        Obstetric History
+        &nbsp;:
+        {/* &nbsp; */}
       </Text>
 
       {options?.includes("gplae") && (

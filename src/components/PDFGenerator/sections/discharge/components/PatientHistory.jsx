@@ -786,6 +786,7 @@ const PatientHistory = ({
 
         // Obstetric History
         if (
+          isAssessment &&
           key === "obstetricHistory" &&
           Object.keys(finalData?.obstetricHistory)?.length
         ) {
