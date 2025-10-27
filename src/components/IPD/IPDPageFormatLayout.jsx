@@ -76,7 +76,7 @@ function IPDPageFormatLayout({ moduleType }) {
           className="autocomplete-custom"
           placeholder="Select font family"
           options={FONTS_FAMILY_LIST}
-          value={pageFormatSettings.fontFamily}
+          value={pageFormatSettings.fontFamily || "Roboto"}
           onSelect={onSelectFontFamily}
           allowClear
         />

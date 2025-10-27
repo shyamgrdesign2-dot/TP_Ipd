@@ -12,6 +12,7 @@ import { createCommonStyles } from "./styles/commonStyles";
 import PDFHeader from "./components/PDFHeader";
 import PatientInfo from "./components/PatientInfo";
 import PDFFooter from "./components/PDFFooter";
+import PageNumber from "./components/PageNumber";
 
 /**
  * PDFDocument Component
@@ -26,7 +27,12 @@ const PDFDocument = ({ settings, patientData, children }) => {
 
   const { pageFormat = {}, headerFooter = {} } = settings;
 
-  const { pageSize = "A4", fontFamily, fontSize = 9 } = pageFormat;
+  const {
+    pageSize = "A4",
+    fontFamily,
+    fontSize = 9,
+    pagination = false,
+  } = pageFormat;
 
   const {
     header = {},
@@ -89,6 +95,8 @@ const PDFDocument = ({ settings, patientData, children }) => {
           letterHeadFormat={letterHeadFormat}
           showPageNumbers={pageFormat?.pagination}
         />
+
+        {pagination && <PageNumber />}
       </Page>
     </Document>
   );
