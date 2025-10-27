@@ -17,6 +17,7 @@ import { getDischargeSummaryData } from "../../../redux/ipd/dischargeSummarySlic
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
 import PrintPreviewShimmer from "./components/PrintPreviewShimmer/PrintPreviewShimmer";
+import { getPatientInformation } from "../../../utils/utils";
 
 const PreviewDischargeSummary = () => {
   const navigate = useNavigate();
@@ -81,6 +82,7 @@ const PreviewDischargeSummary = () => {
           settings={currentSettings}
           data={dischargeSummaryData}
           documentType="dischargeSummary"
+          patientData={getPatientInformation(patientDetails)}
         />
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));
@@ -96,6 +98,7 @@ const PreviewDischargeSummary = () => {
         data: dischargeSummaryData,
         printSettings: currentSettings,
         returnPath: "/ipd/discharge-summary/preview",
+        patientDetails,
       },
     });
   };
@@ -151,7 +154,7 @@ const PreviewDischargeSummary = () => {
       <div
         className={`${
           isMobile ? "p-0" : ""
-        } w-100 bg-body wrapper2 prescription-wrapper`}
+        } w-100 bg-body wrapper2 over-flow-y-hidden prescription-wrapper`}
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
           <Col md={7} sm={7} xl={5}>
@@ -213,7 +216,7 @@ const PreviewDischargeSummary = () => {
               </div>
             </div>
           </Col>
-          <Col md={17} sm={17} xl={12}>
+          <Col md={17} sm={17} xl={12} className="overflow-scroll-with-height">
             <div className={isMobile ? "p-20" : ""}>
               <div className="d-flex align-items-center justify-content-between">
                 <div className="titleprint">Preview</div>

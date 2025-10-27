@@ -481,7 +481,7 @@ const printSettingsSlice = createSlice({
         state.printSettings = {...action.payload, 
           otNotes: {...action.payload.otNotes, formatStyle: IPD.DEFAULT_OT_NOTES_PRINT_FORMAT_STRUCTURE},
           assessment: {...action.payload.assessments, formatStyle: IPD.DEFAULT_ADMISSION_ASSESSMENT_PRINT_FORMAT_STRUCTURE},
-          dischargeSummary: {...action.payload.dischargeSummarys, formatStyle: IPD.DEFAULT_DISCHARGE_SUMMARY_PRINT_FORMAT_STRUCTURE}
+          dischargeSummary: {...action.payload.dischargeSummary, formatStyle: IPD.DEFAULT_DISCHARGE_SUMMARY_PRINT_FORMAT_STRUCTURE}
         };
         state.draftSettings = action.payload;
       })
