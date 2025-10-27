@@ -69,8 +69,6 @@ function MedicationsBox(props) {
 
   let { medicationData : medicationDataFromStore, pillupSwitch } = useSelector((state) => state.prescription);
   const medicationData = medicationDataFromStore ? structuredClone(medicationDataFromStore) : [];
-  console.log(medicationData,"medicationData")
-
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -731,8 +729,6 @@ function MedicationsBox(props) {
     setDurationMoreOptionsVisible(!durationMoreOptionsVisible);
   }
 
-  console.log(childDrawerData,"childDrawerData");
-
   // Child drawer input handlers (simplified versions)
   const onChangeDosageChild = useCallback(
     (e) => {
@@ -799,7 +795,6 @@ function MedicationsBox(props) {
 
   const onChangeInputNoteChild = useCallback(
     (e) => {
-      console.log("this is getting called", e.target.value)
       childDrawerData[childIndex].tmm_remarks = e.target.value;
       setChildDrawerData((prev) => [...prev]);
     },
@@ -959,7 +954,6 @@ function MedicationsBox(props) {
 
   const onChangeNoteChild = useCallback(
     (e, i) => {
-      console.log("this is getting called ")
       medicationData[i].tmm_remarks = e.target.value;
       dispatch(setMedicationData(medicationData));
     },
@@ -1439,7 +1433,6 @@ function MedicationsBox(props) {
                             >
                             </MenuOutlined>
                           </Col> : null}
-                          {console.log(item,item)}
                           <Col lg={5} md={5} sm={5} xs={5}>
                             <div className="fontroboto fw-medium">
                               <label>{item.originalItem.tmm_medicine_name}</label>
@@ -1557,7 +1550,6 @@ function MedicationsBox(props) {
                                       <div className="badge-autofill" onClick={() => onAutoFillDuration(item?.index)}><i className="icon-copyIcon fs-12-1" />Autofill to all meds</div>
                                     )} */}
                                   </Col>
-                                  {console.log(subItem,"subItem")}
                                   <Col {...noteProps} className="border-end">
                                     <TextArea
                                       disabled

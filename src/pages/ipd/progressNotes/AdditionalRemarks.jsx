@@ -80,9 +80,9 @@ const AdditionalRemarks = (props) => {
       autoFillTitle={
         hasAdditionalRemarksInLastProgressNote
           ? `Autofill From Prev. Progress Notes (${new Date(
-              prevProgressNote.createdAt
+              prevProgressNote?.createdAt
             ).toLocaleDateString()}, ${new Date(
-              prevProgressNote.createdAt
+              prevProgressNote?.createdAt
             ).toLocaleTimeString()})`
           : "No previous profress notes available"
       }

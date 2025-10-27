@@ -96,7 +96,6 @@ const ChiefComplaint = (props) => {
   }, [chiefComplaint, prevChiefComplaint]);
 
   if (!isEditable && !chiefComplaint?.length) return null;
-  console.log( prevProgressNote,"prevProgressNote")
 
   return (
     <RichTextEditWrapper

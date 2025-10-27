@@ -173,7 +173,6 @@ function ProgressNotesView({
 
   // Event handlers for group header actions (download, print)
   const handleGroupHeaderAction = (action, groupKey, groupData) => {
-    console.log(`Group Header ${action}:`, { groupKey, groupData });
     addEvent(`Group Header - ${action}`, { groupKey, groupData });
   };
 

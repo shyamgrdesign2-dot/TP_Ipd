@@ -195,6 +195,8 @@ const UploadDocument = ({
             subCategory,
             file: fileBlob,
             name,
+            thumbnail: meta?.thumbnailFile,
+            notes: meta?.notes,
           }));
         }
         message.open({
@@ -461,6 +463,7 @@ const UploadDocument = ({
       fileInputRef.current.value = "";
     }
     handleDrawerUploadDoc();
+    setIsEditDocument(false)
     toggleDeletePopup();
     setFilesData([]);
     setRecordData([]);

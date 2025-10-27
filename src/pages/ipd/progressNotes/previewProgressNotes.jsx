@@ -14,7 +14,9 @@ import { transformProgressNotesData } from "./utils/dataMapper";
 
 import { useDispatch, useSelector } from "react-redux";
 import { updatePrintSettings } from "../../../redux/ipd/printSettingsSlice";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getPatientInformation } from "../../../utils/utils";
+import { downloadDocument, printDocument } from "../dischargeSummary/utils/helper";
 
 const PreviewProgressNotes = () => {
   const navigate = useNavigate();
@@ -24,6 +26,8 @@ const PreviewProgressNotes = () => {
   const [numPages, setNumPages] = useState();
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
   const { progressNotes: rawProgressNotesData } = useSelector(
@@ -33,46 +37,23 @@ const PreviewProgressNotes = () => {
 
   // Memoize the data transformation to prevent infinite loops
   const progressNotesData = useMemo(() => {
-    console.log("Transforming progress notes data:", rawProgressNotesData);
+    // console.log("Transforming progress notes data:", rawProgressNotesData);
     
     const transformed = transformProgressNotesData(rawProgressNotesData);
     
     if (transformed) {
-      console.log("Transformation successful:", transformed);
+      // console.log("Transformation successful:", transformed);
       return transformed;
     }
     
     // Fallback data structure
-    console.log("Using fallback data structure");
     return {
-      patientInformation: {
-        name: "Unknown Patient",
-        patientId: "N/A",
-        age: "N/A",
-        gender: "N/A",
-        admissionDate: "N/A",
-        roomBed: "N/A",
-        ward: "N/A",
-        admissionDiagnosis: "N/A"
-      },
-      attendingPhysician: {
-        name: "Unknown Doctor",
-        specialty: "General Medicine",
-        department: "General",
-        contact: "N/A",
-        email: "N/A",
-        licenseNumber: "N/A"
-      },
-      progressNotesSummary: {
-        summary: "No progress notes data available.",
-        keyFindings: "No findings recorded.",
-        recommendations: "No recommendations available."
-      },
       progressNotes: []
     };
   }, [rawProgressNotesData]);
 
-  const patientData = progressNotesData?.patientInformation || {};
+  // const patientData = progressNotesData?.patientInformation || {};
+  const patientInformation = getPatientInformation(patientDetails);
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -110,7 +91,7 @@ const PreviewProgressNotes = () => {
       const blob = await pdf(
         <PDFGenerator
           settings={settings}
-          data={progressNotesData}
+          data={{ patientInformation, progressNotesData }}
           documentType="progressNotes"
         />
       ).toBlob();
@@ -121,7 +102,14 @@ const PreviewProgressNotes = () => {
   };
 
   const handleDrawerConfigureSettings = () => {
-    setShowConfigureSettings(!showConfigureSettings);
+    navigate("/ipd/progress-notes/configure-print-settings", {
+      state: {
+        moduleType: "progressNotes",
+        data: { patientInformation, progressNotesData },
+        printSettings: currentSettings,
+        returnPath: "/ipd/progress-notes/preview",
+      },
+    });
   };
 
   async function onDocumentLoadSuccess(successEvent) {
@@ -132,11 +120,11 @@ const PreviewProgressNotes = () => {
   }
 
   const handlePrintClick = () => {
-    printProgressNotes(printBlob, patientData.patientId);
+    printDocument(printBlob, patientDetails?.details?.id, "progressNotes");
   };
 
   const handleDownloadClick = () => {
-    handleDownloadProgressNotes(pdfUrl, printBlob, patientData);
+    downloadDocument(pdfUrl, printBlob, patientDetails, "progressNotes");
   };
 
   const handleSettingsUpdate = (newSettings) => {
@@ -145,6 +133,7 @@ const PreviewProgressNotes = () => {
 
   const handleBackToProgressNotes = () => {
     // navigate(`/ipd/patient-details`, {state: {activeTab: "progress", isEditable: false}, replace: true});
+    navigate(-1);
   };
 
   return (

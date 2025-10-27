@@ -233,7 +233,7 @@ const ProgressNotes = (props) => {
           ),
           duration: 3,
         });
-        console.log("Consultant notes updated successfully");
+        // console.log("Consultant notes updated successfully");
       } else {
         console.error("Failed to update consultant notes");
       }

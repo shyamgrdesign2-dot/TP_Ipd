@@ -522,6 +522,14 @@ const IPDPatientDetails = () => {
     });
   };
 
+  const handleProgressNotesPrintPreview = () => {
+    navigate("/ipd/progress-notes/preview", {
+      state: {
+        patientDetails,
+      },
+    });
+  };
+
   const renderContent = (activeItem) => {
     switch (activeItem?.id) {
       case "assessment":
@@ -553,7 +561,7 @@ const IPDPatientDetails = () => {
               <ToolbarActions
                 showEditForm={false}
                 // onEdit={handleAddAssessmentClick}
-                onPrintPreview={() => navigate("/ipd/progress-notes/preview")}
+                onPrintPreview={handleProgressNotesPrintPreview}
                 onPrint={() => console.log("Print")}
                 onSettings={handleCustomizeClick}
                 onDownload={() => console.log("Download")}
@@ -707,13 +715,15 @@ const IPDPatientDetails = () => {
                 setShowDeletePopup={setShowDeletePopup}
                 filesData={filesData}
                 setFilesData={setFilesData}
+                isEditDocument={isEditDocument}
+                setIsEditDocument={setIsEditDocument}
                 patientData={patientData}
                 patient_data_naviagte={patient_data}
                 patientDetails={patientDetails}
                 handleUploadDocPopup={() =>
                   setShowUploadDocPopup((prev) => !prev)
                 }
-                isAppointmentData={true}
+                // isAppointmentData={true}
                 isIPDMedicalRecords={true}
                 patientId={patientId}
                 admissionId={admissionId}
