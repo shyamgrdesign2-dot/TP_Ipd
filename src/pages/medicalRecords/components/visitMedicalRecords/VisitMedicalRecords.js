@@ -71,7 +71,6 @@ const VisitMedicalRecords = ({
     });
   }, [isIPDFlow, ipdRecords, uploadDocCategories]);
 
-  console.log(mappedIpdDocs,"mappedIpdDocs")
   // Choose data source
   const sourceDocs = isIPDFlow
     ? mappedIpdDocs
@@ -151,8 +150,6 @@ const VisitMedicalRecords = ({
       fileInputRef.current.click();
     }
   };
-
-  console.log(sourceDocs,"sourceDocs")
 
   return (
     <div className="appointment-wrap PatientDetailswrap m-0">

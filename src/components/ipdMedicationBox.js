@@ -778,7 +778,6 @@ function TabMedicationBox(props) {
   };
 
   const TABLE_MEDICATION = useMemo(() => {
-    console.log(medicationData,"medicationData")
     const rows = (medicationData || []).map((item, index) => ({
       originalItem: item,
       index,
@@ -794,7 +793,6 @@ function TabMedicationBox(props) {
       note: item?.tmm_remarks || "--",
     }));
 
-    console.log(rows,"rows")
 
     const handleEditClick = (item) => {
       try {
@@ -1560,7 +1558,6 @@ function TabMedicationBox(props) {
                     className="inputheight38 rounded-10px"
                   />
                 </Col>
-                {console.log("childDrawerData[childIndex]:", childDrawerData?.[childIndex])}
                 <Col md={12}>
                   <Select
                     className="autocomplete-custom w-100 popinput inputheight38"

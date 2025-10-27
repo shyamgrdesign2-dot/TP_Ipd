@@ -522,6 +522,14 @@ const IPDPatientDetails = () => {
     });
   };
 
+  const handleProgressNotesPrintPreview = () => {
+    navigate("/ipd/progress-notes/preview", {
+      state: {
+        patientDetails,
+      },
+    });
+  };
+
   const renderContent = (activeItem) => {
     switch (activeItem?.id) {
       case "assessment":
@@ -553,7 +561,7 @@ const IPDPatientDetails = () => {
               <ToolbarActions
                 showEditForm={false}
                 // onEdit={handleAddAssessmentClick}
-                onPrintPreview={() => navigate("/ipd/progress-notes/preview")}
+                onPrintPreview={handleProgressNotesPrintPreview}
                 onPrint={() => console.log("Print")}
                 onSettings={handleCustomizeClick}
                 onDownload={() => console.log("Download")}

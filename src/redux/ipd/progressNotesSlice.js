@@ -31,7 +31,7 @@ export const getProgressNotes = createAsyncThunk(
         return rejectWithValue("No Progress notes found");
       }
     } catch (error) {
-      console.log("Error fetching progress notes: ", error);
+      console.error("Error fetching progress notes: ", error);
       return rejectWithValue(
         error.message || "Failed to fetch progress notes"
       );
@@ -43,7 +43,6 @@ export const updateProgressNotes = createAsyncThunk(
   "progressNotes/updateProgressNotes",
   async ({ patientId, admissionId, _id, data }, { rejectWithValue }) => {
 
-    console.log({ patientId, admissionId, _id, data },"{ patientId, admissionId, _id, data }")
     try {
       const result = await ApiProgressNotes.updateProgressNotes({
         patientId,
@@ -53,7 +52,7 @@ export const updateProgressNotes = createAsyncThunk(
       });
       return { result, data, _id };
     } catch (error) {
-      console.log("Error updating progress notes: ", error);
+      console.error("Error updating progress notes: ", error);
       return rejectWithValue(
         error.message || "Failed to update progress notes"
       );
@@ -77,7 +76,7 @@ export const filterProgressNotesByDateRange = createAsyncThunk(
         return rejectWithValue("No Progress notes found for the selected date range");
       }
     } catch (error) {
-      console.log("Error fetching filtered progress notes: ", error);
+      console.error("Error fetching filtered progress notes: ", error);
       return rejectWithValue(
         error.message || "Failed to fetch filtered progress notes"
       );

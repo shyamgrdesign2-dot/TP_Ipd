@@ -7,7 +7,6 @@ const ApiMedicalRecords = {};
 // GET: List documents
 // Maps to: GET /api/v1/docs?patientId=...&admissionId=...&category=...
 ApiMedicalRecords.getDocuments = function ({ patientId, admissionId, category = "medical_records" }) {
-  console.log("getDocuments params:", { patientId, admissionId, category });
   const query = new URLSearchParams();
   if (patientId) query.append("patientId", patientId);
   if (admissionId) query.append("admissionId", admissionId);

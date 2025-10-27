@@ -14,56 +14,7 @@ const initialState = {
   isLoading: false,
 };
 
-// export const zydusDocsList = createAsyncThunk(
-//   "medicalRecords/zydusDocsList",
-//   async ({ mrno, um_id }, { dispatch }) => {
-//     try {
-//       const result = await ApiAppointments.zydusDocsList(mrno);
-//       if (result.status == 'success') {
-//         return result.data;
-//       } else {
-//         throw Error(result.error);
-//       }
-//     } catch (error) {
-//       if (error.response.status === 401) {
-//         const action = await dispatch(ictAuthToken())
-//         if (action.meta.requestStatus === "fulfilled") {
-//           await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.tokenNo))
-//           dispatch(zydusDocsList({ mrno }))
-//         }
-//       }
-//       // console.log("error: ", error);
-//       throw Error(error);
-//     }
-//   }
-// );
-
-// export const zydusRadioList = createAsyncThunk(
-//   "medicalRecords/zydusRadioList",
-//   async ({ mrno, um_id }, { dispatch }) => {
-//     try {
-//       const result = await ApiAppointments.zydusRadioList(mrno);
-//       if (result.status == 'success') {
-//         return result.data;
-//       } else {
-//         throw Error(result.error);
-//       }
-//     } catch (error) {
-//       if (error.response.status === 401) {
-//         const action = await dispatch(ictAuthToken())
-//         if (action.meta.requestStatus === "fulfilled") {
-//           await localStorage.setItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN, JSON.stringify(action.payload.tokenNo))
-//           dispatch(zydusRadioList({ mrno }))
-//         }
-//       }
-//       // console.log("error: ", error);
-//       throw Error(error);
-//     }
-//   }
-// );
-
 // Async thunk for getting medical records documents
-
 export const getMedicalRecordsDocuments = createAsyncThunk(
   "medicalRecords/getMedicalRecordsDocuments",
   async ({ patientId, admissionId, category = "medical_records" }, { rejectWithValue }) => {

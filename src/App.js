@@ -569,6 +569,10 @@ function App() {
                   element={<PrintPreviewOTNotes />}
                 />
                 <Route
+                  path="ipd/progress-notes/preview"
+                  element={<PreviewProgressNotes />}
+                />
+                <Route
                   path="ipd/discharge-summary/configure-print-settings"
                   element={<ConfigurePrintSettings />}
                 />
@@ -589,8 +593,8 @@ function App() {
                   element={<PrintSettings />}
                 />
                 <Route
-                  path="ipd/progress-notes/preview"
-                  element={<PreviewProgressNotes />}
+                  path="ipd/progress-notes/configure-print-settings"
+                  element={<PrintSettings />}
                 />
               </Route>
               <Route path="opd-bill" element={<OpdBill />} />

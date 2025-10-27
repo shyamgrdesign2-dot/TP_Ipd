@@ -116,10 +116,11 @@ const renderProgressNoteEntry = (entry, fontFamily) => {
  * Render progress notes by date
  */
 const renderProgressNotesByDate = (data, fontFamily) => {
-  if (!data?.progressNotes || !Array.isArray(data.progressNotes)) return null;
+  const progressNotes = data?.progressNotesData?.progressNotes
+  if (!progressNotes || !Array.isArray(progressNotes)) return null;
 
   // Group progress notes by date
-  const notesByDate = data.progressNotes.reduce((acc, note) => {
+  const notesByDate = progressNotes.reduce((acc, note) => {
     const date = new Date(note.dateTime).toDateString();
     if (!acc[date]) {
       acc[date] = [];
@@ -137,15 +138,6 @@ const renderProgressNotesByDate = (data, fontFamily) => {
     <View style={styles.sectionContainer}>
       {sortedDates.map((date) => (
         <View key={`date-${date}`}>
-          {/* Date Header */}
-          {/* <Text style={[styles.dateHeader, { fontFamily }]}>
-            {new Date(date).toLocaleDateString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </Text> */}
           
           {/* Progress Notes Cards for this date */}
           {notesByDate[date]
@@ -312,7 +304,6 @@ export const renderProgressNotes = (data, formatSettings, fontFamily) => {
   const sections = sectionsToRender
     .map((section) => {
       const renderer = sectionRenderers[section.id || section.key];
-      
       if (renderer) {
         const renderedSection = renderer();
         return renderedSection;
