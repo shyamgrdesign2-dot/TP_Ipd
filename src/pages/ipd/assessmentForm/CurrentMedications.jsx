@@ -29,10 +29,7 @@ const CurrentMedications = (props) => {
       ) : (
         <InteractionGate disabled={true}>
           {isMobile ? (
-            <TabMedicationBox
-              hideFrequentlyUsedMeds={true}
-              isEditable={isEditable}
-            />
+            <MedicationBoxIpd isEditable={isEditable} />
           ) : (
             <MedicationsBox isEditable={isEditable} isDischargeSummary={isDischargeSummary} />
           )}
