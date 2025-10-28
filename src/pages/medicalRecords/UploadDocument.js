@@ -620,8 +620,28 @@ const UploadDocument = ({
                         }
                         options={documentOptions}
                         placeholder="Select"
-                        className="w-100"
-                        value={recordData?.[index]?.recordType}
+                        className="w-100"                        value={
+                          // For IPD Medical Records edit mode, convert category_id to appropriate value
+                          isIPDMedicalRecords && isEditDocument
+                            ? (() => {
+                                const catId = recordData?.[index]?.recordType;
+                                // If category_id is a number, find the corresponding value in documentOptions
+                                if (typeof catId === 'number') {
+                                  const found = documentOptions.find(
+                                    (opt) => {
+                                      // Map the category_id to the correct option
+                                      const categoryName = uploadDocCategories.find(
+                                        (c) => c?.category_id === catId
+                                      )?.category_name;
+                                      return opt?.label === categoryName;
+                                    }
+                                  );
+                                  return found?.value;
+                                }
+                                return catId;
+                              })()
+                            : recordData?.[index]?.recordType
+                        }
                         allowClear
                       />
                     </div>
