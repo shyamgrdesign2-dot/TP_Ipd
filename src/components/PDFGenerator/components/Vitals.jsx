@@ -4,16 +4,17 @@
  */
 
 import React from "react";
-import { Text } from "@react-pdf/renderer";
+import { Text, View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
   // Vitals inline text
   vitalsText: {
-    fontSize: 10,
     color: "#454551",
     lineHeight: 1.8,
     textTransform: "capitalize",
+    paddingVertical: 6,
+    gap: 4,
   },
 
   vitalsTitle: {
@@ -32,17 +33,30 @@ const styles = StyleSheet.create({
   separator: {
     color: "#A2A2A8",
   },
+
+  bulletItem: {
+    flexDirection: "row",
+    marginBottom: 3,
+    marginLeft: 14,
+  },
+
+  // Symbol styles
+  bulletSymbol: {
+    width: 12,
+    color: "#454551",
+    fontWeight: 400,
+    lineHeight: 1.8,
+  },
 });
 
 /**
  * Vitals Component
  * @param {Object} props - Component props
  * @param {Object} props.vitals - Vitals data
- * @param {string} props.fontFamily - Font family
  * @param {string} props.title - Title for vitals section (e.g., "Vitals", "Discharge Vitals")
  * @returns {JSX.Element} Vitals inline display
  */
-const Vitals = ({ vitals, fontFamily = "Poppins", title = "Vitals" }) => {
+const Vitals = ({ vitals, title = "Vitals" }) => {
   if (!vitals) return null;
 
   const vitalFields = [
@@ -63,20 +77,23 @@ const Vitals = ({ vitals, fontFamily = "Poppins", title = "Vitals" }) => {
   if (activeFields.length === 0) return null;
 
   return (
-    <Text style={[styles.vitalsText, { fontFamily }]}>
+    <View style={[styles.vitalsText]}>
       <Text style={styles.vitalsTitle}>{title}: </Text>
-      {activeFields.map((field, index) => (
-        <React.Fragment key={`vital-${field.label}`}>
-          {index > 0 && <Text style={styles.separator}> | </Text>}
-          <Text style={styles.vitalLabel}>{field.label}:</Text>
-          <Text style={styles.vitalValue}>
-            {" "}
-            {field.value}
-            {field.unit}{" "}
-          </Text>
-        </React.Fragment>
-      ))}
-    </Text>
+      <View style={[styles.bulletItem]}>
+        <Text style={[styles.bulletSymbol]}>{"•"}</Text>
+        {activeFields.map((field, index) => (
+          <React.Fragment key={`vital-${field.label}`}>
+            {index > 0 && <Text style={styles.separator}> | </Text>}
+            <Text style={styles.vitalLabel}>{field.label}:</Text>
+            <Text style={styles.vitalValue}>
+              {" "}
+              {field.value}
+              {field.unit}{" "}
+            </Text>
+          </React.Fragment>
+        ))}
+      </View>
+    </View>
   );
 };
 

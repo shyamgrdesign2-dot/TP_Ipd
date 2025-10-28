@@ -11,7 +11,6 @@ import ObsHistoryListView from "../../../../print_settings/obsHistory/list";
 import { PX_TO_PT } from "../../../constants";
 import { IPD } from "../../../../../utils/locale";
 import moment from "moment";
-import { getIndianLanguageFont } from "../../../../../utils/utils";
 import { getAllVisibleSections } from "../../../utils/pdfUtils";
 import SectionTitle from "../../SectionTitle";
 
@@ -19,7 +18,7 @@ const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
-    marginBottom: 8,
+    // marginBottom: 8,
   },
 
   sectionContainer: {
@@ -40,7 +39,6 @@ const styles = StyleSheet.create({
   // Subsection title
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
     lineHeight: 1.8, // 18px for 10px font
     textTransform: "capitalize",
@@ -66,7 +64,7 @@ const styles = StyleSheet.create({
   // Bullet marker
   bullet: {
     width: 12,
-    fontSize: 10,
+
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -75,7 +73,7 @@ const styles = StyleSheet.create({
   // Bullet content
   bulletContent: {
     flex: 1,
-    fontSize: 10,
+
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8, // 18px for 10px font
@@ -84,7 +82,6 @@ const styles = StyleSheet.create({
 
   // Category name (Medium weight)
   categoryName: {
-    fontSize: 10,
     fontWeight: 500, // Medium
     color: "#454551",
     lineHeight: 1.8,
@@ -108,30 +105,24 @@ const styles = StyleSheet.create({
 
 const obsStyles = StyleSheet.create({
   mainTitle: {
-    fontSize: PX_TO_PT * 18,
     color: "#A461D8",
-    fontFamily: "Roboto",
     fontWeight: 700,
   },
   subTitle: {
-    fontSize: PX_TO_PT * 14,
     color: "#454551",
-    fontFamily: "Roboto",
+
     fontWeight: 500,
     lineHeight: 1.4,
   },
   displayPatient: {
     color: "#171725",
-    fontFamily: "Roboto",
   },
   mainCasemanager: {
     flexDirection: "row",
     flexWrap: "wrap",
   },
   extraText: {
-    fontSize: PX_TO_PT * 12,
     color: "#171725",
-    fontFamily: "Roboto",
   },
   directionCasemanager: {
     flexDirection: "row",
@@ -183,21 +174,12 @@ const obsStyles = StyleSheet.create({
   minHeight38: {
     minHeight: 38,
   },
-  pageNumber: {
-    position: "absolute",
-    fontSize: 10,
-    fontWeight: 400,
-    bottom: 10,
-    right: 10,
-    textAlign: "center",
-    color: "#454551",
-  },
 });
 
 /**
  * Render Presenting Complaints
  */
-const renderPresentingComplaints = (complaints, fontFamily) => {
+const renderPresentingComplaints = (complaints) => {
   if (!complaints || complaints.length === 0) return null;
 
   // Handle both old format (simple strings/objects) and new Slate.js format
@@ -223,24 +205,18 @@ const renderPresentingComplaints = (complaints, fontFamily) => {
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>
-          Presenting Complaints:
-        </Text>
+        <Text style={[styles.subsectionTitle]}>Presenting Complaints:</Text>
         {isSlateFormat ? (
           <View style={styles.bulletList}>
-            <SlateToPdf
-              nodes={complaints}
-              fontFamily={fontFamily}
-              customStyles={customStyles}
-            />
+            <SlateToPdf nodes={complaints} customStyles={customStyles} />
           </View>
         ) : (
           // Fallback for old format
           <View style={styles.bulletList}>
             {complaints.map((complaint, index) => (
               <View key={`complaint-${index}`} style={styles.bulletItem}>
-                <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                <Text style={[styles.bulletContent, { fontFamily }]}>
+                <Text style={[styles.bullet]}>•</Text>
+                <Text style={[styles.bulletContent]}>
                   {typeof complaint === "string" ? complaint : complaint.text}
                 </Text>
               </View>
@@ -255,15 +231,13 @@ const renderPresentingComplaints = (complaints, fontFamily) => {
 /**
  * Render Past Medical History with nested structure
  */
-const renderPastMedicalHistory = (history, fontFamily) => {
+const renderPastMedicalHistory = (history) => {
   if (!history || history.length === 0) return null;
 
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>
-          Past Medical History:
-        </Text>
+        <Text style={[styles.subsectionTitle]}>Past Medical History:</Text>
         <View style={styles.bulletList}>
           {history.map((historyGroup, idx) => {
             const tags = historyGroup.tags?.filter((tag) => tag.enable === "Y");
@@ -273,8 +247,8 @@ const renderPastMedicalHistory = (history, fontFamily) => {
               <View key={`history-${idx}`}>
                 {/* Category name */}
                 <View style={styles.bulletItem}>
-                  <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                  <Text style={[styles.categoryName, { fontFamily }]}>
+                  <Text style={[styles.bullet]}>•</Text>
+                  <Text style={[styles.categoryName]}>
                     {historyGroup.title}:
                   </Text>
                 </View>
@@ -283,8 +257,8 @@ const renderPastMedicalHistory = (history, fontFamily) => {
                 <View style={styles.nestedBulletList}>
                   {tags.map((tag, tagIdx) => (
                     <View key={`tag-${tagIdx}`} style={styles.bulletItem}>
-                      <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                      <Text style={[styles.bulletContent, { fontFamily }]}>
+                      <Text style={[styles.bullet]}>•</Text>
+                      <Text style={[styles.bulletContent]}>
                         <Text style={styles.itemLabel}>{tag.title}</Text>
                         {(tag.since || tag.status || tag.note) && (
                           <Text style={styles.regularText}> (</Text>
@@ -335,7 +309,7 @@ const renderPastMedicalHistory = (history, fontFamily) => {
 /**
  * Render Gynec History
  */
-const renderGynecHistory = (gynecData, fontFamily) => {
+const renderGynecHistory = (gynecData) => {
   if (!gynecData) return null;
 
   const items = [];
@@ -446,14 +420,12 @@ const renderGynecHistory = (gynecData, fontFamily) => {
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>
-          Gynec History:
-        </Text>
+        <Text style={[styles.subsectionTitle]}>Gynec History:</Text>
         <View style={styles.bulletList}>
           {items.map((item, index) => (
             <View key={`gynec-${index}`} style={styles.bulletItem}>
-              <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-              <Text style={[styles.bulletContent, { fontFamily }]}>
+              <Text style={[styles.bullet]}>•</Text>
+              <Text style={[styles.bulletContent]}>
                 <Text style={styles.itemLabel}>{item.label}</Text>
                 {item.singleValue ? (
                   <Text style={styles.regularText}> ({item.singleValue})</Text>
@@ -581,8 +553,6 @@ const renderLabResults = (labResults, printSettings) => {
       <Text
         style={{
           color: "#171725",
-          fontFamily: printSettings?.page_format?.font_family,
-          fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
           fontWeight: 700,
           marginBottom: PX_TO_PT * 6,
         }}
@@ -599,8 +569,6 @@ const renderLabResults = (labResults, printSettings) => {
                 obsStyles.headerCell,
                 {
                   flex: 1,
-                  fontFamily: printSettings?.page_format?.font_family,
-                  fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                   fontWeight: 500,
                   color: "#000",
                 },
@@ -615,8 +583,6 @@ const renderLabResults = (labResults, printSettings) => {
                   obsStyles.headerCell,
                   {
                     flex: 1,
-                    fontFamily: printSettings?.page_format?.font_family,
-                    fontSize: PX_TO_PT * printSettings?.page_format?.font_size,
                     fontWeight: 500,
                     color: "#000",
                   },
@@ -636,9 +602,6 @@ const renderLabResults = (labResults, printSettings) => {
                       obsStyles.cell,
                       {
                         flex: 1,
-                        fontFamily: printSettings?.page_format?.font_family,
-                        fontSize:
-                          PX_TO_PT * printSettings?.page_format?.font_size,
                         fontWeight: 500,
                         color: "#000",
                       },
@@ -657,11 +620,6 @@ const renderLabResults = (labResults, printSettings) => {
                             obsStyles.cell,
                             {
                               flex: 1,
-                              fontFamily:
-                                printSettings?.page_format?.font_family,
-                              fontSize:
-                                PX_TO_PT *
-                                printSettings?.page_format?.font_size,
                               fontWeight: 500,
                               color: "#000",
                             },
@@ -681,13 +639,6 @@ const renderLabResults = (labResults, printSettings) => {
                                 obsStyles.cell,
                                 {
                                   flex: 1,
-                                  fontFamily: getIndianLanguageFont(
-                                    testResult.value,
-                                    printSettings?.page_format?.font_family
-                                  ),
-                                  fontSize:
-                                    PX_TO_PT *
-                                    printSettings?.page_format?.font_size,
                                   fontWeight: 400,
                                   color: "#000",
                                 },
@@ -722,13 +673,11 @@ const renderLabResults = (labResults, printSettings) => {
  * @param {Object} props - Component props
  * @param {Object} props.data - Patient history data
  * @param {Object} props.formatSettings - Format settings for subsections
- * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Patient History Section
  */
 const PatientHistory = ({
   data,
   formatSettings,
-  fontFamily = "Poppins",
   isAssessment = false,
   title,
 }) => {
@@ -794,7 +743,7 @@ const PatientHistory = ({
 
   return (
     <View style={styles.sectionContainer}>
-      {title && <SectionTitle title={title} fontFamily={fontFamily} />}
+      {title && <SectionTitle title={title} />}
       <View style={styles.mainContainer}>
         {sortedSubsections.map((subsection) => {
           const key = subsection.id;
@@ -807,17 +756,13 @@ const PatientHistory = ({
             return renderPresentingComplaints(
               Array.isArray(finalData?.presentingComplaints)
                 ? finalData.presentingComplaints
-                : [finalData.presentingComplaints],
-              fontFamily
+                : [finalData.presentingComplaints]
             );
           }
 
           // Past Medical History
           if (key === "pastMedicalHistory" && finalData.pastMedicalHistory) {
-            return renderPastMedicalHistory(
-              finalData.pastMedicalHistory,
-              fontFamily
-            );
+            return renderPastMedicalHistory(finalData.pastMedicalHistory);
           }
 
           // Gynec History
@@ -826,7 +771,7 @@ const PatientHistory = ({
               (!isAssessment && key === "gynecHistory")) &&
             Object.keys(finalData.gyneacHistory)?.length
           ) {
-            return renderGynecHistory(finalData.gyneacHistory, fontFamily);
+            return renderGynecHistory(finalData.gyneacHistory);
           }
 
           // Medications
@@ -838,7 +783,6 @@ const PatientHistory = ({
                 medications={
                   finalData.medications || finalData.currentMedication
                 }
-                fontFamily={fontFamily}
                 title="Medication (Rx)"
               />
             );
@@ -856,8 +800,6 @@ const PatientHistory = ({
                 styles={obsStyles}
                 printSettings={{
                   page_format: {
-                    font_family: fontFamily,
-                    font_size: 12,
                     pagination: true,
                   },
                 }}
@@ -871,8 +813,6 @@ const PatientHistory = ({
           if (key === "labResults" && finalData.labResults) {
             return renderLabResults(finalData.labResults, {
               page_format: {
-                font_family: fontFamily,
-                font_size: 12,
                 pagination: true,
               },
             });

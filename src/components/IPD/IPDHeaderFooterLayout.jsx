@@ -377,7 +377,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
       updateHeaderFooter({
         header: {
           ...headerFooterSettings.header,
-          logo: checked ? "enabled" : "",
+          logoVisible: checked,
         },
       });
     },
@@ -1150,32 +1150,30 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                   </Col>
                 </Row>
 
-                {headerSettings.informationAlignmentVisible && (
-                  <>
-                    <div className="mt-3">
-                      <Form.Item>
-                        <label className="mb-1">Header</label>
-                        <Input
-                          className="inputheight41-group"
-                          placeholder="Enter Header"
-                          onChange={onHeaderTitleChange}
-                          value={headerSettings.title || getModuleTitle()}
-                        />
-                      </Form.Item>
-                    </div>
-                    <div className="mt-3">
-                      <Form.Item>
-                        <label className="mb-1">Subheader</label>
-                        <Input
-                          className="inputheight41-group"
-                          placeholder="Enter Information"
-                          onChange={onSubTitleChange}
-                          value={headerSettings.subTitle || ""}
-                        />
-                      </Form.Item>
-                    </div>
-                  </>
-                )}
+                <>
+                  <div className="mt-3">
+                    <Form.Item>
+                      <label className="mb-1">Header</label>
+                      <Input
+                        className="inputheight41-group"
+                        placeholder="Enter Header"
+                        onChange={onHeaderTitleChange}
+                        value={headerSettings.title || getModuleTitle()}
+                      />
+                    </Form.Item>
+                  </div>
+                  <div className="mt-3">
+                    <Form.Item>
+                      <label className="mb-1">Subheader</label>
+                      <Input
+                        className="inputheight41-group"
+                        placeholder="Enter Information"
+                        onChange={onSubTitleChange}
+                        value={headerSettings.subTitle || ""}
+                      />
+                    </Form.Item>
+                  </div>
+                </>
 
                 <Row
                   justify="space-between"
@@ -1186,11 +1184,11 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                   </Col>
                   <Col lg="6">
                     <span className="fw-medium me-2 text-greycolor fs-16">
-                      {headerSettings.logo ? "Show" : "Hide"}
+                      {headerSettings.logoVisible ? "Show" : "Hide"}
                     </span>
                     <Switch
                       onChange={onLogoSwitchChange}
-                      checked={!!headerSettings.logo}
+                      checked={!!headerSettings.logoVisible}
                     />
                   </Col>
                 </Row>

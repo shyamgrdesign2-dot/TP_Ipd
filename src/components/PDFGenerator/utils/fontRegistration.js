@@ -48,25 +48,6 @@ export const registerFonts = () => {
     ],
   });
 
-  // OpenSans
-  Font.register({
-    family: "OpenSans",
-    fonts: [
-      {
-        src: require("../../../assets/fonts/print-fonts/OpenSans-Regular.ttf"),
-        fontWeight: 400,
-      },
-      {
-        src: require("../../../assets/fonts/print-fonts/OpenSans-Medium.ttf"),
-        fontWeight: 500,
-      },
-      {
-        src: require("../../../assets/fonts/print-fonts/OpenSans-Bold.ttf"),
-        fontWeight: 700,
-      },
-    ],
-  });
-
   // Poppins (using OpenSans as alternative since Poppins is similar)
   Font.register({
     family: "Poppins",
@@ -87,6 +68,82 @@ export const registerFonts = () => {
         src: require("../../../assets/fonts/print-fonts/OpenSans-Bold.ttf"),
         fontWeight: 700,
       },
+    ],
+  });
+
+  // Times Roman
+  Font.register({
+    family: "Times-Roman",
+    fonts: [
+      {
+        src: require("../../../assets/fonts/print-fonts/EBGaramond-Regular.ttf"),
+        fontWeight: 400,
+      }, // Regular
+      {
+        src: require("../../../assets/fonts/print-fonts/EBGaramond-Medium.ttf"),
+        fontWeight: 500,
+      }, // Medium
+      {
+        src: require("../../../assets/fonts/print-fonts/EBGaramond-Bold.ttf"),
+        fontWeight: 700,
+      }, // Bold
+    ],
+  });
+
+  // Verdana
+  Font.register({
+    family: "Verdana",
+    fonts: [
+      {
+        src: require("../../../assets/fonts/print-fonts/Jost-Regular.ttf"),
+        fontWeight: 400,
+      }, // Regular
+      {
+        src: require("../../../assets/fonts/print-fonts/Jost-Medium.ttf"),
+        fontWeight: 500,
+      }, // Medium
+      {
+        src: require("../../../assets/fonts/print-fonts/Jost-Bold.ttf"),
+        fontWeight: 700,
+      }, // Bold
+    ],
+  });
+
+  // Calibri
+  Font.register({
+    family: "Calibri",
+    fonts: [
+      {
+        src: require("../../../assets/fonts/print-fonts/OpenSans-Regular.ttf"),
+        fontWeight: 400,
+      }, // Regular
+      {
+        src: require("../../../assets/fonts/print-fonts/OpenSans-Medium.ttf"),
+        fontWeight: 500,
+      }, // Medium
+      {
+        src: require("../../../assets/fonts/print-fonts/OpenSans-Bold.ttf"),
+        fontWeight: 700,
+      }, // Bold
+    ],
+  });
+
+  // Tahoma
+  Font.register({
+    family: "Tahoma",
+    fonts: [
+      {
+        src: require("../../../assets/fonts/print-fonts/Vazirmatn-Regular.ttf"),
+        fontWeight: 400,
+      }, // Regular
+      {
+        src: require("../../../assets/fonts/print-fonts/Vazirmatn-Medium.ttf"),
+        fontWeight: 500,
+      }, // Medium
+      {
+        src: require("../../../assets/fonts/print-fonts/Vazirmatn-Bold.ttf"),
+        fontWeight: 700,
+      }, // Bold
     ],
   });
 };

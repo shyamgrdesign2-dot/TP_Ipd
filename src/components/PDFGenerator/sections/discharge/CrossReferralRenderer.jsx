@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { View, Text, StyleSheet } from "@react-pdf/renderer";
+import { View, StyleSheet } from "@react-pdf/renderer";
 import { getAllVisibleSections } from "../../utils/pdfUtils";
 import FilledByCard from "../../components/FilledByCard";
 import ReferralInformation from "./components/ReferralInformation";
@@ -16,18 +16,17 @@ const styles = StyleSheet.create({
   },
 });
 
-const renderReferralInformation = (data, fontFamily, formatSettings) => {
+const renderReferralInformation = (data, formatSettings) => {
   return (
     <ReferralInformation
       title="Referral Information"
       data={data}
-      fontFamily={fontFamily}
       formatSettings={formatSettings}
     />
   );
 };
 
-const renderConsultantNotes = (data, fontFamily, formatSettings) => {
+const renderConsultantNotes = (data, formatSettings) => {
   return (
     <View style={styles.sectionContainer}>
       {data.map((consultantNote, consultantNoteIndex) => {
@@ -38,11 +37,9 @@ const renderConsultantNotes = (data, fontFamily, formatSettings) => {
               title={`Consultant Notes ${
                 data.length > 1 ? consultantNoteIndex + 1 : ""
               }`}
-              fontFamily={fontFamily}
             />
             <RichTextPrintRendererSection
               data={{ consultantNotes: consultantNote || [] }}
-              fontFamily={fontFamily}
               formatSettings={formatSettings || null}
               id="consultantNotes"
             />
@@ -53,7 +50,7 @@ const renderConsultantNotes = (data, fontFamily, formatSettings) => {
   );
 };
 
-export const renderCrossReferral = (data, formatSettings, fontFamily) => {
+export const renderCrossReferral = (data, formatSettings) => {
   const sortedSections = getAllVisibleSections(formatSettings || null);
   if (!data || !formatSettings) return [];
 
@@ -63,13 +60,11 @@ export const renderCrossReferral = (data, formatSettings, fontFamily) => {
       referralInformation: () =>
         renderReferralInformation(
           crossReferralData?.referralInformation,
-          fontFamily,
           formatSettings
         ),
       consultantNotes: () =>
         renderConsultantNotes(
           crossReferralData?.consultantNotes,
-          fontFamily,
           formatSettings
         ),
     };
@@ -90,7 +85,6 @@ export const renderCrossReferral = (data, formatSettings, fontFamily) => {
         <FilledByCard
           filledBy={note.createdByName}
           filledOn={note.createdAt}
-          fontFamily={fontFamily}
         />
         {/* Content */}
         {sections}

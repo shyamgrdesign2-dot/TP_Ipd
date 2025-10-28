@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
-    marginBottom: 8,
+    // marginBottom: 8,
   },
 
   sectionContainer: {
@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
   // Subsection title
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -64,7 +63,6 @@ const styles = StyleSheet.create({
   // Bullet marker
   bullet: {
     width: 12,
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -73,7 +71,6 @@ const styles = StyleSheet.create({
   // Bullet content
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8,
@@ -99,15 +96,13 @@ const styles = StyleSheet.create({
 /**
  * Render General Examination
  */
-const renderGeneralExamination = (examination, fontFamily, subsection) => {
+const renderGeneralExamination = (examination, subsection) => {
   if (!examination || Object.keys(examination).length === 0) return null;
 
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>
-          {subsection.label}
-        </Text>
+        <Text style={[styles.subsectionTitle]}>{subsection.label}</Text>
         <View style={styles.bulletList}>
           {Object.entries(examination).map(([key, value]) => {
             if (!value || !value.title) return null;
@@ -123,8 +118,8 @@ const renderGeneralExamination = (examination, fontFamily, subsection) => {
             return (
               <View key={key}>
                 <View style={styles.bulletItem}>
-                  <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                  <Text style={[styles.bulletContent, { fontFamily }]}>
+                  <Text style={[styles.bullet]}>•</Text>
+                  <Text style={[styles.bulletContent]}>
                     <Text style={styles.examinationLabel}>{label}:</Text>
                     <Text style={styles.regularText}> {value.title}</Text>
                   </Text>
@@ -132,13 +127,11 @@ const renderGeneralExamination = (examination, fontFamily, subsection) => {
                 {hasNotes && (
                   <View style={styles.nestedBulletList}>
                     <View style={styles.bulletItem}>
-                      <Text style={[styles.bullet, { fontFamily }]}>•</Text>
+                      <Text style={[styles.bullet]}>•</Text>
                       <View style={[styles.bulletContent]}>
-                        <Text style={[styles.notesLabel, { fontFamily }]}>
-                          Notes:{" "}
-                        </Text>
+                        <Text style={[styles.notesLabel]}>Notes: </Text>
                         {typeof value.notes === "string" ? (
-                          <Text style={[styles.regularText, { fontFamily }]}>
+                          <Text style={[styles.regularText]}>
                             {value.notes}
                           </Text>
                         ) : (
@@ -148,10 +141,8 @@ const renderGeneralExamination = (examination, fontFamily, subsection) => {
                                 ? value.notes
                                 : [value.notes]
                             }
-                            fontFamily={fontFamily}
                             customStyles={{
                               text: {
-                                fontSize: 10,
                                 color: "#454551",
                                 lineHeight: 1.8,
                               },
@@ -165,20 +156,17 @@ const renderGeneralExamination = (examination, fontFamily, subsection) => {
                               numberedItem: { marginBottom: 2 },
                               bulletSymbol: {
                                 width: 12,
-                                fontSize: 10,
                                 color: "#454551",
                                 fontWeight: 400,
                                 lineHeight: 1.8,
                               },
                               numberedSymbol: {
                                 width: 15,
-                                fontSize: 10,
                                 color: "#454551",
                                 fontWeight: 400,
                                 lineHeight: 1.8,
                               },
                               bulletText: {
-                                fontSize: 10,
                                 flex: 1,
                                 color: "#454551",
                                 fontWeight: 400,
@@ -186,7 +174,6 @@ const renderGeneralExamination = (examination, fontFamily, subsection) => {
                                 textTransform: "capitalize",
                               },
                               numberedText: {
-                                fontSize: 10,
                                 flex: 1,
                                 color: "#454551",
                                 fontWeight: 400,
@@ -212,13 +199,12 @@ const renderGeneralExamination = (examination, fontFamily, subsection) => {
 /**
  * Render Others section
  */
-const renderOthers = (others, fontFamily) => {
+const renderOthers = (others) => {
   if (!others || isEmptyRichText(others)) return null;
 
   // Custom styles for SlateToPdf to match existing styling
   const customStyles = {
     text: {
-      fontSize: 10,
       color: "#454551",
       lineHeight: 1.8,
     },
@@ -241,20 +227,17 @@ const renderOthers = (others, fontFamily) => {
     },
     bulletSymbol: {
       width: 12,
-      fontSize: 10,
       color: "#454551",
       fontWeight: 400,
       lineHeight: 1.8,
     },
     numberedSymbol: {
       width: 15,
-      fontSize: 10,
       color: "#454551",
       fontWeight: 400,
       lineHeight: 1.8,
     },
     bulletText: {
-      fontSize: 10,
       flex: 1,
       color: "#454551",
       fontWeight: 400,
@@ -262,7 +245,6 @@ const renderOthers = (others, fontFamily) => {
       textTransform: "capitalize",
     },
     numberedText: {
-      fontSize: 10,
       flex: 1,
       color: "#454551",
       fontWeight: 400,
@@ -274,11 +256,10 @@ const renderOthers = (others, fontFamily) => {
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>Others:</Text>
+        <Text style={styles.subsectionTitle}>Others:</Text>
         <View style={styles.bulletList}>
           <SlateToPdf
             nodes={Array.isArray(others) ? others : [others]}
-            fontFamily={fontFamily}
             customStyles={customStyles}
           />
         </View>
@@ -291,12 +272,10 @@ const renderOthers = (others, fontFamily) => {
  * PhysicalExamination Component
  * @param {Object} props - Component props
  * @param {Object} props.data - Physical examination data
- * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Physical Examination Section
  */
 const PhysicalExamination = ({
   data,
-  fontFamily = "Poppins",
   isAssessment = false,
   formatSettings,
   title,
@@ -352,7 +331,7 @@ const PhysicalExamination = ({
 
   return (
     <View style={styles.sectionContainer}>
-      {title && <SectionTitle title={title} fontFamily={fontFamily} />}
+      {title && <SectionTitle title={title} />}
       <View style={styles.mainContainer}>
         {sortedSubsections.map((subsection) => {
           const key = subsection.id;
@@ -361,7 +340,6 @@ const PhysicalExamination = ({
             return (
               <Vitals
                 vitals={physicalExamination.vitals}
-                fontFamily={fontFamily}
                 title={subsection.label}
               />
             );
@@ -375,12 +353,11 @@ const PhysicalExamination = ({
               isAssessment
                 ? physicalExamination.examination
                 : physicalExamination.generalExamination,
-              fontFamily,
               subsection
             );
           }
           if (key === "others" && physicalExamination?.others) {
-            return renderOthers(physicalExamination.others, fontFamily);
+            return renderOthers(physicalExamination.others);
           }
           return null;
         })}

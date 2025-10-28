@@ -21,7 +21,6 @@ const styles = StyleSheet.create({
   // Subsection title
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -34,13 +33,12 @@ const styles = StyleSheet.create({
   },
 });
 
-const renderRichText = (data, fontFamily, title) => {
+const renderRichText = (data, title) => {
   if (!data || isEmptyRichText(data)) return null;
 
   // Custom styles for SlateToPdf to match existing styling
   const customStyles = {
     text: {
-      fontSize: 10,
       color: "#454551",
       lineHeight: 1.8,
     },
@@ -63,20 +61,19 @@ const renderRichText = (data, fontFamily, title) => {
     },
     bulletSymbol: {
       width: 12,
-      fontSize: 10,
+
       color: "#454551",
       fontWeight: 400,
       lineHeight: 1.8,
     },
     numberedSymbol: {
       width: 15,
-      fontSize: 10,
+
       color: "#454551",
       fontWeight: 400,
       lineHeight: 1.8,
     },
     bulletText: {
-      fontSize: 10,
       flex: 1,
       color: "#454551",
       fontWeight: 400,
@@ -84,7 +81,6 @@ const renderRichText = (data, fontFamily, title) => {
       textTransform: "capitalize",
     },
     numberedText: {
-      fontSize: 10,
       flex: 1,
       color: "#454551",
       fontWeight: 400,
@@ -96,11 +92,10 @@ const renderRichText = (data, fontFamily, title) => {
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>{title}:</Text>
+        <Text style={[styles.subsectionTitle]}>{title}:</Text>
         <View style={styles.bulletList}>
           <SlateToPdf
             nodes={Array.isArray(data) ? data : [data]}
-            fontFamily={fontFamily}
             customStyles={customStyles}
           />
         </View>
@@ -109,7 +104,7 @@ const renderRichText = (data, fontFamily, title) => {
   );
 };
 
-export const renderConsultantNotes = (data, formatSettings, fontFamily) => {
+export const renderConsultantNotes = (data, formatSettings) => {
   if (!data || !formatSettings || !data.consultantNotes) return [];
 
   // Check if data is an array (multiple consultant notes) or single object
@@ -129,36 +124,26 @@ export const renderConsultantNotes = (data, formatSettings, fontFamily) => {
       clinicalAssessmentPlan: () =>
         renderRichText(
           consultationData.clinicalAssessmentPlan,
-          fontFamily,
           "Clinical Assessment & Plan"
         ),
-      vitals: () => (
-        <Vitals
-          vitals={consultationData.vitals}
-          fontFamily={fontFamily}
-          title="Vitals"
-        />
-      ),
+      vitals: () => <Vitals vitals={consultationData.vitals} title="Vitals" />,
       medication: () => (
         <MedicationTable
           medications={
             consultationData.medication || consultationData.currentMedication
           }
-          fontFamily={fontFamily}
           title="Medication (Rx)"
         />
       ),
       labInvestigation: () => (
         <LabInvestigationTable
           investigations={consultationData.labInvestigation}
-          fontFamily={fontFamily}
           title="Lab Investigation"
         />
       ),
       additionalRemarks: () =>
         renderRichText(
           consultationData.additionalRemarks,
-          fontFamily,
           "Additional Remarks"
         ),
     };
@@ -177,11 +162,7 @@ export const renderConsultantNotes = (data, formatSettings, fontFamily) => {
 
     return (
       <View key={note._id || noteIndex}>
-        <FilledByCard
-          filledBy={note.createdByName}
-          filledOn={note.createdAt}
-          fontFamily={fontFamily}
-        />
+        <FilledByCard filledBy={note.createdByName} filledOn={note.createdAt} />
         {/* Content */}
         {noteSections}
       </View>

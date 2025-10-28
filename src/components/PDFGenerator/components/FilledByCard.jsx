@@ -25,14 +25,12 @@ const styles = StyleSheet.create({
   },
 
   dateText: {
-    fontSize: 10,
     fontWeight: 700,
     color: "#454551",
     marginRight: 4,
   },
 
   timeText: {
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
   },
@@ -44,14 +42,12 @@ const styles = StyleSheet.create({
   },
 
   filledByLabel: {
-    fontSize: 10,
     fontWeight: 700,
     color: "#454551",
     marginRight: 4,
   },
 
   filledByName: {
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
   },
@@ -62,10 +58,9 @@ const styles = StyleSheet.create({
  * @param {Object} props - Component props
  * @param {string} props.filledBy - Name of the person who filled the form
  * @param {string|Date} props.filledOn - Date when the form was filled
- * @param {string} props.fontFamily - Font family (default: "Poppins")
  * @returns {JSX.Element} Filled By Card
  */
-const FilledByCard = ({ filledBy, filledOn, fontFamily = "Poppins" }) => {
+const FilledByCard = ({ filledBy, filledOn }) => {
   if (!filledBy || !filledOn) return null;
 
   // Format the date and time
@@ -100,14 +95,14 @@ const FilledByCard = ({ filledBy, filledOn, fontFamily = "Poppins" }) => {
     <View style={styles.container} wrap={false}>
       {/* Left side - Date and Time */}
       <View style={styles.dateTimeContainer}>
-        <Text style={[styles.dateText, { fontFamily }]}>{dateStr}</Text>
-        <Text style={[styles.timeText, { fontFamily }]}>({timeStr})</Text>
+        <Text style={[styles.dateText]}>{dateStr}</Text>
+        <Text style={[styles.timeText]}>({timeStr})</Text>
       </View>
 
       {/* Right side - Filled By */}
       <View style={styles.filledByContainer}>
-        <Text style={[styles.filledByLabel, { fontFamily }]}>Filled By:</Text>
-        <Text style={[styles.filledByName, { fontFamily }]}>{filledBy}</Text>
+        <Text style={[styles.filledByLabel]}>Filled By:</Text>
+        <Text style={[styles.filledByName]}>{filledBy}</Text>
       </View>
     </View>
   );

@@ -215,7 +215,7 @@ const PrintPreview = () => {
               </div>
             </div>
           </Col>
-          <Col md={17} sm={17} xl={12}>
+          <Col md={17} sm={17} xl={12} className="overflow-scroll-with-height">
             <div className={isMobile ? "p-20" : ""}>
               <div className="d-flex align-items-center justify-content-between">
                 <div className="titleprint">Preview</div>
