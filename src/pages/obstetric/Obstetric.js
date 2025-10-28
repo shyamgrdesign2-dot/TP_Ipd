@@ -45,7 +45,7 @@ import "./Obstetric.scss";
 const { TabPane } = Tabs;
 
 const Obstetric = ({
-  obstetricDetails : obstetricDetailsFromProps,
+  obstetricDetails: obstetricDetailsFromProps,
   obstetricDrawer,
   handleDrawerObstetric,
   handleCollapsed,
@@ -67,7 +67,8 @@ const Obstetric = ({
     immunisationDoctorList,
     obstetricDetails: allObstetricDetails,
   } = useSelector((state) => state.obstetric);
-  const obstetricDetails = obstetricDetailsFromProps || allObstetricDetails?.currentPregnancy || {};
+  const obstetricDetails =
+    obstetricDetailsFromProps || allObstetricDetails?.currentPregnancy || {};
   const isPregnancyCompleted =
     Object.keys(obstetricDetails)?.length === 0 &&
     allObstetricDetails &&
@@ -127,9 +128,7 @@ const Obstetric = ({
       40 * 7 -
       Math.ceil(
         Math.abs(
-          moment(ceed)
-            .startOf("day")
-            .diff(moment(today).startOf("day"), "days")
+          moment(ceed).startOf("day").diff(moment(today).startOf("day"), "days")
         )
       );
 
@@ -251,9 +250,11 @@ const Obstetric = ({
     }
     if (immunisationDoctorList?.length === 0) {
       let immunisationDoctorListResponse = await fetchImmunisationDoctorList();
-      immunisationDoctorListResponse = Array.isArray(immunisationDoctorListResponse) ? immunisationDoctorListResponse?.filter(
-        (item) => !item?.deleted
-      ) : [];
+      immunisationDoctorListResponse = Array.isArray(
+        immunisationDoctorListResponse
+      )
+        ? immunisationDoctorListResponse?.filter((item) => !item?.deleted)
+        : [];
       if (immunisationDoctorListResponse) {
         dispatch(setImmunisationDoctorList(immunisationDoctorListResponse));
       }
@@ -574,46 +575,54 @@ const Obstetric = ({
                   />
                 </TabPane>
               )}
-              {obstetricDetails?.examinationHistory?.length && <TabPane
-                tab={
-                  isPreviousPregnancyOverview
-                    ? "Examination History"
-                    : "Current Examination"
-                }
-                key="examination"
-              >
-                <Examination
-                  examinationHistory={obstetricDetails?.examinationHistory}
-                  handleExaminationDrawer={handleExaminationDrawer}
-                  handlePastPregnancyDrawer={() => {
-                    handlePastPregnancyDrawer();
-                    setIsCompletePregnancy(true);
-                  }}
-                  setEditIndex={setExaminationEditIndex}
-                  bottomRef={examinationRef}
-                  isPreviousPregnancyOverview={isPreviousPregnancyOverview}
-                />
-              </TabPane>}
-              <TabPane
-                tab={
-                  isPreviousPregnancyOverview ? "ANC History" : "ANC Scheduler"
-                }
-                key="ancScheduler"
-              >
-                <AncScheduler
-                  ancHistory={obstetricDetails?.ancHistory}
-                  handleDrawerMedicalReport={handleDrawerMedicalReport}
-                  isPreviousPregnancyOverview={isPreviousPregnancyOverview}
-                />
-              </TabPane>
-              <TabPane tab="Immunisation History" key="immunisationHistory">
-                <ImmunisationHistory
-                  immunisationHistoryData={
-                    obstetricDetails?.immunisationHistory
+              {obstetricDetails?.examinationHistory?.length && (
+                <TabPane
+                  tab={
+                    isPreviousPregnancyOverview
+                      ? "Examination History"
+                      : "Current Examination"
                   }
-                  isPreviousPregnancyOverview={isPreviousPregnancyOverview}
-                />
-              </TabPane>
+                  key="examination"
+                >
+                  <Examination
+                    examinationHistory={obstetricDetails?.examinationHistory}
+                    handleExaminationDrawer={handleExaminationDrawer}
+                    handlePastPregnancyDrawer={() => {
+                      handlePastPregnancyDrawer();
+                      setIsCompletePregnancy(true);
+                    }}
+                    setEditIndex={setExaminationEditIndex}
+                    bottomRef={examinationRef}
+                    isPreviousPregnancyOverview={isPreviousPregnancyOverview}
+                  />
+                </TabPane>
+              )}
+              {!isIPD ? (
+                <TabPane
+                  tab={
+                    isPreviousPregnancyOverview
+                      ? "ANC History"
+                      : "ANC Scheduler"
+                  }
+                  key="ancScheduler"
+                >
+                  <AncScheduler
+                    ancHistory={obstetricDetails?.ancHistory}
+                    handleDrawerMedicalReport={handleDrawerMedicalReport}
+                    isPreviousPregnancyOverview={isPreviousPregnancyOverview}
+                  />
+                </TabPane>
+              ) : null}
+              {!isIPD ? (
+                <TabPane tab="Immunisation History" key="immunisationHistory">
+                  <ImmunisationHistory
+                    immunisationHistoryData={
+                      obstetricDetails?.immunisationHistory
+                    }
+                    isPreviousPregnancyOverview={isPreviousPregnancyOverview}
+                  />
+                </TabPane>
+              ) : null}
             </Tabs>
           </div>
         )}

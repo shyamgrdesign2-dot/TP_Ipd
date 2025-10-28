@@ -142,7 +142,7 @@ const GynecHistory = (props) => {
             autoFillButtonRef.click(e);
           }
         }}
-        headerComponent={showLastUpdatedAt}
+        headerComponent={isGynecHistoryDataExists ? showLastUpdatedAt: null}
       />
       {addGynecHistoryDrawer && (
         <Drawer

@@ -153,7 +153,7 @@ const AssessmentsForm = (props) => {
     };
     dispatch(updateCustomization(newData));
   };
-
+  
   const renderSections = (data) => {
     switch (data?.id) {
       case "basicInfo":

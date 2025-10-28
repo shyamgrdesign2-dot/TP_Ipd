@@ -1,48 +1,43 @@
-/**
- * Follow-up Section
- */
-
 import React from "react";
 import { View, Text } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
-import { isEmptyRichText } from "../../../utils/pdfUtils";
-import { renderRichText } from "../../../utils/richTextRenderer";
+import {
+  getAllVisibleSections,
+  isEmptyRichText,
+} from "../../../utils/pdfUtils";
+import SectionTitle from "../../SectionTitle";
+import RichTextPrintRenderer from "./richTextPrintRenderer";
 
 const styles = StyleSheet.create({
-  // Main container
   mainContainer: {
     padding: "0 6px",
     // marginBottom: 8,
   },
 
-  // Subsection container
   subsectionContainer: {
     paddingVertical: 6,
     paddingHorizontal: 0,
   },
 
-  // Content container (gap: 2px)
   contentContainer: {
     gap: 2,
   },
 
-  // Inline label-value text
   inlineText: {
     lineHeight: 1.8,
     textTransform: "capitalize",
   },
 
   inlineLabel: {
-    fontWeight: 600, // SemiBold
+    fontWeight: 600,
     color: "#171725",
   },
 
   inlineValue: {
-    fontWeight: 400, // Regular
+    fontWeight: 400,
     color: "#454551",
   },
 
-  // Subsection title
   subsectionTitle: {
     color: "#171725",
     fontWeight: 600,
@@ -51,18 +46,15 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
 
-  // Bullet list container
   bulletList: {
     paddingLeft: 15,
   },
 
-  // Bullet list item
   bulletItem: {
     flexDirection: "row",
     marginBottom: 0,
   },
 
-  // Bullet marker
   bullet: {
     width: 12,
     color: "#454551",
@@ -70,7 +62,6 @@ const styles = StyleSheet.create({
     lineHeight: 1.8,
   },
 
-  // Bullet content
   bulletContent: {
     flex: 1,
     fontWeight: 400,
@@ -80,64 +71,79 @@ const styles = StyleSheet.create({
   },
 });
 
-/**
- * FollowUp Component
- * @param {Object} props - Component props
- * @param {Object} props.data - Follow-up data
- * @returns {JSX.Element} Follow-up Section
- */
-const FollowUp = ({ data }) => {
+const FollowUp = ({ data, title, formatSettings }) => {
   if (!data?.followUp) return null;
 
   const followUp = data.followUp;
 
+  const followUpSection = formatSettings.find(
+    (section) => section.id === "followUp"
+  );
+  const subsections = followUpSection?.subSections || [];
+
+  const sortedSubsections = getAllVisibleSections(subsections);
+
+  if (
+    (!sortedSubsections.some((s) => s.id === "followUpDate") ||
+      !followUp.date) &&
+    (!sortedSubsections.some((s) => s.id === "followUpDoctor") ||
+      !followUp.doctor?.name) &&
+    (!sortedSubsections.some((s) => s.id === "additionalNotes") ||
+      isEmptyRichText(followUp.additionalNotes))
+  )
+    return null;
+
   return (
-    <View style={styles.mainContainer}>
-      {/* Follow-up On */}
-      {followUp.date && (
-        <View style={styles.subsectionContainer}>
-          <View style={styles.contentContainer}>
-            <Text style={[styles.inlineText]}>
-              <Text style={styles.inlineLabel}>Follow-up on: </Text>
-              <Text style={styles.inlineValue}>{followUp.date}</Text>
-            </Text>
-          </View>
-        </View>
-      )}
-
-      {/* Follow-up Doctor */}
-      {followUp.doctor && (
-        <View style={styles.subsectionContainer}>
-          <View style={styles.contentContainer}>
-            <Text style={[styles.inlineText]}>
-              <Text style={styles.inlineLabel}>Follow-up Doctor: </Text>
-              <Text style={styles.inlineValue}>
-                {followUp.doctor.name}
-                {followUp.doctor.role ? ` (${followUp.doctor.role})` : ""}
-              </Text>
-            </Text>
-          </View>
-        </View>
-      )}
-
-      {/* Additional Notes */}
-      {followUp.additionalNotes &&
-        !isEmptyRichText(followUp.additionalNotes) && (
-          <View style={styles.subsectionContainer}>
-            <View style={styles.contentContainer}>
-              <Text style={[styles.subsectionTitle]}>Additional Notes</Text>
-              <View style={styles.bulletList}>
-                {renderRichText(followUp.additionalNotes, {
-                  text: {
-                    color: "#454551",
-                    lineHeight: 1.8,
-                  },
-                  paragraph: { marginBottom: 0 },
-                })}
+    <View style={styles.sectionContainer}>
+      <SectionTitle title={title} />
+      <View style={styles.mainContainer}>
+        {/* Follow-up On */}
+        {sortedSubsections.map((subSection) => {
+          const key = subSection?.id;
+          const label = subSection?.label;
+          if (key === "followUpDate" && followUp.date) {
+            return (
+              <View style={styles.subsectionContainer}>
+                <View style={styles.contentContainer}>
+                  <Text style={styles.inlineText}>
+                    <Text style={styles.inlineLabel}>{label}: </Text>
+                    <Text style={styles.inlineValue}>{followUp.date}</Text>
+                  </Text>
+                </View>
               </View>
-            </View>
-          </View>
-        )}
+            );
+          }
+          if (key === "followUpDoctor" && followUp.doctor?.name) {
+            return (
+              <View style={styles.subsectionContainer}>
+                <View style={styles.contentContainer}>
+                  <Text style={styles.inlineText}>
+                    <Text style={styles.inlineLabel}>{label}: </Text>
+                    <Text style={styles.inlineValue}>
+                      {followUp.doctor?.name}
+                      {followUp.doctor?.role
+                        ? ` (${followUp.doctor?.role})`
+                        : ""}
+                    </Text>
+                  </Text>
+                </View>
+              </View>
+            );
+          }
+          if (
+            key === "additionalNotes" &&
+            !isEmptyRichText(followUp.additionalNotes)
+          ) {
+            return (
+              <RichTextPrintRenderer
+                data={followUp.additionalNotes}
+                title={label}
+              />
+            );
+          }
+          return null;
+        })}
+      </View>
     </View>
   );
 };

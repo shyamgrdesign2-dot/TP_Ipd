@@ -59,12 +59,14 @@ const renderPrimaryConsultant = (data) => {
 /**
  * Diagnosis and Surgery Section
  */
-const renderDiagnosisAndSurgery = (data) => {
+const renderDiagnosisAndSurgery = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Provisional Diagnosis" />
-      <DiagnosisAndSurgery data={data} isAssessment={true} />
-    </View>
+    <DiagnosisAndSurgery
+      title="Provisional Diagnosis"
+      data={data}
+      formatSettings={formatSettings}
+      isAssessment={true}
+    />
   );
 };
 
@@ -73,14 +75,12 @@ const renderDiagnosisAndSurgery = (data) => {
  */
 const renderBasicInfo = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Basic Info" />
-      <PatientHistory
-        data={data}
-        formatSettings={formatSettings}
-        isAssessment={true}
-      />
-    </View>
+    <PatientHistory
+      data={data}
+      formatSettings={formatSettings}
+      isAssessment={true}
+      title="Basic Info"
+    />
   );
 };
 
@@ -89,14 +89,12 @@ const renderBasicInfo = (data, formatSettings) => {
  */
 const renderPhysicalExamination = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Physical Examination" />
-      <PhysicalExamination
-        data={data}
-        isAssessment={true}
-        formatSettings={formatSettings}
-      />
-    </View>
+    <PhysicalExamination
+      data={data}
+      isAssessment={true}
+      formatSettings={formatSettings}
+      title="Physical Examination"
+    />
   );
 };
 
@@ -105,14 +103,12 @@ const renderPhysicalExamination = (data, formatSettings) => {
  */
 const renderFunctionalAssessment = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Functional Assessment" />
-      <FunctionalAssessment
-        isAssessment={true}
-        data={data}
-        formatSettings={formatSettings}
-      />
-    </View>
+    <FunctionalAssessment
+      isAssessment={true}
+      data={data}
+      formatSettings={formatSettings}
+      title="Functional Assessment"
+    />
   );
 };
 

@@ -54,7 +54,7 @@ const BasicInfo = (props) => {
         <React.Fragment key={item.id}>
           {(() => {
             switch (item?.id) {
-              case "chiefComplaint":
+              case "presentingComplaints":
                 return <ChiefComplaint {...props} sectionData={item} />;
               case "historyPresentIllness":
                 return (

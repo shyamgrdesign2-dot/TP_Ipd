@@ -58,12 +58,13 @@ const renderPrimaryConsultant = (data) => {
 /**
  * Diagnosis and Surgery Section
  */
-const renderDiagnosisAndSurgery = (data) => {
+const renderDiagnosisAndSurgery = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Diagnosis & Surgery" />
-      <DiagnosisAndSurgery data={data} />
-    </View>
+    <DiagnosisAndSurgery
+      title="Diagnosis & Surgery"
+      formatSettings={formatSettings}
+      data={data}
+    />
   );
 };
 
@@ -72,10 +73,11 @@ const renderDiagnosisAndSurgery = (data) => {
  */
 const renderPatientHistory = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Patient History" />
-      <PatientHistory data={data} formatSettings={formatSettings} />
-    </View>
+    <PatientHistory
+      data={data}
+      formatSettings={formatSettings}
+      title="Patient History"
+    />
   );
 };
 
@@ -84,10 +86,11 @@ const renderPatientHistory = (data, formatSettings) => {
  */
 const renderPhysicalExamination = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Physical Examination at the Time of Admission" />
-      <PhysicalExamination data={data} formatSettings={formatSettings} />
-    </View>
+    <PhysicalExamination
+      data={data}
+      formatSettings={formatSettings}
+      title="Physical Examination at the Time of Admission"
+    />
   );
 };
 
@@ -96,70 +99,68 @@ const renderPhysicalExamination = (data, formatSettings) => {
  */
 const renderFunctionalAssessment = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Functional Assessment at the Time of Admission" />
-      <FunctionalAssessment data={data} formatSettings={formatSettings} />
-    </View>
+    <FunctionalAssessment
+      data={data}
+      formatSettings={formatSettings}
+      title="Functional Assessment at the Time of Admission"
+    />
   );
 };
 
 /**
  * Course in Hospital Section
  */
-const renderCourseInHospital = (data) => {
+const renderCourseInHospital = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Course in Hospital" />
-      <CourseInHospital data={data} />
-    </View>
+    <CourseInHospital
+      title="Course in Hospital"
+      data={data}
+      formatSettings={formatSettings}
+    />
   );
 };
 
 /**
  * OT Notes Section
  */
-const renderOTNotes = (data) => {
+const renderOTNotes = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="OT Notes" />
-      <OTNotes data={data} />
-    </View>
+    <OTNotes title="OT Notes" data={data} formatSettings={formatSettings} />
   );
 };
 
 /**
  * Discharge Notes Section
  */
-const renderDischargeNotes = (data) => {
+const renderDischargeNotes = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Discharge Note" />
-      <DischargeNote data={data} />
-    </View>
+    <DischargeNote
+      title="Discharge Note"
+      data={data}
+      formatSettings={formatSettings}
+    />
   );
 };
 
 /**
  * Discharge Advice Section
  */
-const renderDischargeAdvice = (data) => {
+const renderDischargeAdvice = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Discharge Advice" />
-      <DischargeAdvice data={data} />
-    </View>
+    <DischargeAdvice
+      title="Discharge Advice"
+      data={data}
+      formatSettings={formatSettings}
+    />
   );
 };
 
 /**
  * Follow-up Section
  */
-const renderFollowUp = (data) => {
+const renderFollowUp = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Follow-up" />
-      <FollowUp data={data} />
-    </View>
+    <FollowUp title="Follow-up" data={data} formatSettings={formatSettings} />
   );
 };
 
@@ -170,6 +171,8 @@ const renderPreparedBy = (data) => {
   if (!data?.preparedBy) return null;
 
   const { preparedBy } = data;
+
+  if (!preparedBy?.length || preparedBy.some((item) => !item.name)) return null;
 
   return (
     <View style={styles.sectionContainer}>
@@ -212,20 +215,20 @@ export const renderDischargeSummary = (data, formatSettings) => {
 
   // Map section keys to render functions (using new array format IDs)
   const sectionRenderers = {
-    admittingConsultant: () => renderPrimaryConsultant(data),
-    diagnosisAndSurgery: () => renderDiagnosisAndSurgery(data),
+    admittingConsultant: () => renderPrimaryConsultant(data, formatSettings),
+    diagnosisAndSurgery: () => renderDiagnosisAndSurgery(data, formatSettings),
     patientHistory: () => renderPatientHistory(data, formatSettings),
     physicalExamination: () => renderPhysicalExamination(data, formatSettings),
     functionalAssessment: () =>
       renderFunctionalAssessment(data, formatSettings),
-    courseInHospital: () => renderCourseInHospital(data),
-    otNotes: () => renderOTNotes(data),
-    dischargeNotes: () => renderDischargeNotes(data),
-    dischargeAdvice: () => renderDischargeAdvice(data),
-    followUp: () => renderFollowUp(data),
+    courseInHospital: () => renderCourseInHospital(data, formatSettings),
+    otNotes: () => renderOTNotes(data, formatSettings),
+    dischargeNotes: () => renderDischargeNotes(data, formatSettings),
+    dischargeAdvice: () => renderDischargeAdvice(data, formatSettings),
+    followUp: () => renderFollowUp(data, formatSettings),
     // Backward compatibility with old keys
-    primaryConsultant: () => renderPrimaryConsultant(data),
-    dignosisAndSurgery: () => renderDiagnosisAndSurgery(data),
+    primaryConsultant: () => renderPrimaryConsultant(data, formatSettings),
+    dignosisAndSurgery: () => renderDiagnosisAndSurgery(data, formatSettings),
   };
 
   // Render sections in order

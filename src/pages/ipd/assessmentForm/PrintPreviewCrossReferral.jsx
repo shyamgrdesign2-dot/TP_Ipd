@@ -1,23 +1,23 @@
 import { Button, Col, Row, Spin } from "antd";
 import { isMobile } from "react-device-detect";
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 
 import { Container, Navbar } from "react-bootstrap";
 import { PDFGenerator } from "../../../components/PDFGenerator";
-import {
-  downloadDocument,
-  printDocument,
-} from "../dischargeSummary/utils/helper";
 
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getConsultantNotes } from "../../../redux/ipd/consultantNotesSlice";
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
+import { getCrossReferralData } from "../../../redux/ipd/crossReferralSlice";
+import {
+  handleDownloadDischargeSummary,
+  printDischargeSummary,
+} from "../dischargeSummary/utils/helper";
 import { getPatientInformation } from "../../../utils/utils";
 
-const PrintPreview = () => {
+const PrintPreviewCrossReferral = () => {
   const navigate = useNavigate();
   const divRef = useRef(null);
   const [divWidth, setDivWidth] = useState(0);
@@ -26,11 +26,11 @@ const PrintPreview = () => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const { state } = useLocation();
   const { patientDetails } = state || {};
-
   const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
-  const { consultantNotes } = useSelector((state) => state.consultantNotes);
-  const { consultationNotes: currentSettings } = printSettings;
+  const { crossReferralData } = useSelector((state) => state.crossReferral);
+
+  const { crossReferral: currentSettings } = printSettings;
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -40,64 +40,60 @@ const PrintPreview = () => {
     if (!printSettings || Object.keys(printSettings).length === 0) {
       dispatch(getPrintSettings());
     }
-  }, [dispatch, printSettings]);
+  }, []);
 
   useEffect(() => {
     if (
       patientDetails?.details?.id &&
-      (!consultantNotes || (consultantNotes && consultantNotes.length === 0))
+      (!crossReferralData ||
+        (crossReferralData && !Object.keys(crossReferralData).length))
     )
       dispatch(
-        getConsultantNotes({
+        getCrossReferralData({
           patientId: patientDetails?.details?.id,
           admissionId: patientDetails?.admissionId,
         })
-      ).catch((error) => {
-        console.error("Error fetching consultant notes data:", error);
-      });
-  }, [
-    dispatch,
-    consultantNotes,
-    patientDetails?.admissionId,
-    patientDetails?.details?.id,
-  ]);
+      )
+        .then((res) => {
+          // if (res.payload && !res.error) {
+          //   addDischargeDataToStore(res.payload, dispatch);
+          // }
+        })
+        .catch((error) => {
+          console.error("Error fetching discharge summary data:", error);
+        });
+  }, []);
 
-  const patientInformation = getPatientInformation(patientDetails);
+  useEffect(() => {
+    if (currentSettings && Object.keys(crossReferralData).length) {
+      makePDFUrl();
+    }
+  }, [currentSettings, crossReferralData]);
 
-  const sortedConsultantNotes = consultantNotes?.slice()?.sort((a, b) => {
-    const dateA = new Date(a?.consultationNotes?.date || a?.createdAt || 0);
-    const dateB = new Date(b?.consultationNotes?.date || b?.createdAt || 0);
-    return dateB - dateA; // Most recent first
-  });
-
-  const makePDFUrl = useCallback(async () => {
+  const makePDFUrl = async () => {
     try {
       const blob = await pdf(
         <PDFGenerator
           settings={currentSettings}
-          data={{ patientInformation, consultantNotes: sortedConsultantNotes }}
-          documentType="consultationNotes"
+          data={crossReferralData}
+          documentType="crossReferral"
+          patientData={getPatientInformation(patientDetails)}
         />
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));
     } catch (error) {
       console.error("Error generating PDF:", error);
     }
-  }, [consultantNotes, currentSettings]);
-
-  useEffect(() => {
-    if (currentSettings && consultantNotes.length > 0) {
-      makePDFUrl();
-    }
-  }, [currentSettings, consultantNotes, makePDFUrl]);
+  };
 
   const handleDrawerConfigureSettings = () => {
-    navigate("/ipd/consultant-notes/configure-print-settings", {
+    navigate("/ipd/cross-referral/configure-print-settings", {
       state: {
-        moduleType: "consultationNotes",
-        data: { patientInformation, consultantNotes: sortedConsultantNotes },
+        moduleType: "crossReferral",
+        data: crossReferralData,
         printSettings: currentSettings,
-        returnPath: "/ipd/consultant-notes/preview",
+        returnPath: "/ipd/cross-referral/preview",
+        patientDetails,
       },
     });
   };
@@ -110,20 +106,19 @@ const PrintPreview = () => {
   }
 
   const handlePrintClick = () => {
-    printDocument(printBlob, patientDetails?.details?.id, "consultantNotes");
+    printDischargeSummary(printBlob, patientDetails?.details?.id);
   };
 
   const handleDownloadClick = () => {
-    downloadDocument(pdfUrl, printBlob, patientDetails, "consultantNotes");
+    handleDownloadDischargeSummary(
+      pdfUrl,
+      printBlob,
+      patientDetails?.details?.id
+    );
   };
 
   const handleBackToSummary = () => {
-    navigate("/ipd/patient-details", {
-      state: {
-        patientDetails,
-        activeTab: "consultantNotes",
-      },
-    });
+    navigate(-1);
   };
 
   return (
@@ -142,7 +137,7 @@ const PrintPreview = () => {
                   </div>
                 </div>
                 <span className="title-digitise-card">
-                  Print Preview (Consultant Notes)
+                  Print Preview (Cross Referral)
                 </span>
               </div>
             </Col>
@@ -153,7 +148,7 @@ const PrintPreview = () => {
       <div
         className={`${
           isMobile ? "p-0" : ""
-        } w-100 bg-body wrapper2 prescription-wrapper`}
+        } w-100 bg-body wrapper2 over-flow-y-hidden prescription-wrapper`}
       >
         <Row gutter={{ xl: 40, lg: 0 }} justify="center">
           <Col md={7} sm={7} xl={5}>
@@ -289,4 +284,4 @@ const PrintPreview = () => {
   );
 };
 
-export default React.memo(PrintPreview);
+export default React.memo(PrintPreviewCrossReferral);

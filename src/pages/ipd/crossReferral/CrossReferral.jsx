@@ -158,18 +158,6 @@ const CrossReferral = (props) => {
     });
   };
 
-  const renderBottomSection = () => {
-    return (
-      <div className="ipd-custom-module-container">
-        {customModules?.map((customModule) => {
-          return (
-            <CustomModule module={customModule} patient_data={patient_data} />
-          );
-        })}
-        <AddCustomModule />
-      </div>
-    );
-  };
   const handleTimePeriodChange = (value) => {
     setSelectedTimePeriod(value);
   };

@@ -12,12 +12,17 @@ import { PX_TO_PT } from "../../../constants";
 import { IPD } from "../../../../../utils/locale";
 import moment from "moment";
 import { getAllVisibleSections } from "../../../utils/pdfUtils";
+import SectionTitle from "../../SectionTitle";
 
 const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
     // marginBottom: 8,
+  },
+
+  sectionContainer: {
+    marginBottom: 12,
   },
 
   // Subsection container
@@ -100,12 +105,10 @@ const styles = StyleSheet.create({
 
 const obsStyles = StyleSheet.create({
   mainTitle: {
-    fontSize: PX_TO_PT * 18,
     color: "#A461D8",
     fontWeight: 700,
   },
   subTitle: {
-    fontSize: PX_TO_PT * 14,
     color: "#454551",
 
     fontWeight: 500,
@@ -119,7 +122,6 @@ const obsStyles = StyleSheet.create({
     flexWrap: "wrap",
   },
   extraText: {
-    fontSize: PX_TO_PT * 12,
     color: "#171725",
   },
   directionCasemanager: {
@@ -673,7 +675,12 @@ const renderLabResults = (labResults, printSettings) => {
  * @param {Object} props.formatSettings - Format settings for subsections
  * @returns {JSX.Element} Patient History Section
  */
-const PatientHistory = ({ data, formatSettings, isAssessment = false }) => {
+const PatientHistory = ({
+  data,
+  formatSettings,
+  isAssessment = false,
+  title,
+}) => {
   const hasAssessmentData = isAssessment
     ? !!data?.basicInfo
     : !!data?.patientHistory;
@@ -687,78 +694,133 @@ const PatientHistory = ({ data, formatSettings, isAssessment = false }) => {
 
   const sortedSubsections = getAllVisibleSections(subsections);
 
+  const hasRenderableSubsection = sortedSubsections.some((subsection) => {
+    const key = subsection.id;
+
+    // Presenting Complaints
+    if (key === "presentingComplaints" && finalData.presentingComplaints) {
+      return true;
+    }
+
+    // Past Medical History
+    if (key === "pastMedicalHistory" && finalData.pastMedicalHistory) {
+      return true;
+    }
+
+    // Gynec History
+    if (
+      ((isAssessment && key === "gyneacHistory") ||
+        (!isAssessment && key === "gynecHistory")) &&
+      Object.keys(finalData.gyneacHistory)?.length
+    ) {
+      return true;
+    }
+
+    // Medications
+    if (isAssessment && key === "medications" && finalData.medications) {
+      return true;
+    }
+
+    // Lab Results
+    if (key === "labResults" && finalData.labResults) {
+      return true;
+    }
+
+    // Obstetric History
+    if (
+      isAssessment &&
+      key === "obstetricHistory" &&
+      finalData?.obstetricHistory &&
+      Object.keys(finalData.obstetricHistory).length
+    ) {
+      return true;
+    }
+
+    return false;
+  });
+
+  if (!hasRenderableSubsection) return null;
+
   return (
-    <View style={styles.mainContainer}>
-      {sortedSubsections.map((subsection) => {
-        const key = subsection.id;
+    <View style={styles.sectionContainer}>
+      {title && <SectionTitle title={title} />}
+      <View style={styles.mainContainer}>
+        {sortedSubsections.map((subsection) => {
+          const key = subsection.id;
 
-        // Presenting Complaints
-        if (key === "presentingComplaints" && finalData.presentingComplaints) {
-          return renderPresentingComplaints(
-            Array.isArray(finalData?.presentingComplaints)
-              ? finalData.presentingComplaints
-              : [finalData.presentingComplaints]
-          );
-        }
+          // Presenting Complaints
+          if (
+            key === "presentingComplaints" &&
+            finalData.presentingComplaints
+          ) {
+            return renderPresentingComplaints(
+              Array.isArray(finalData?.presentingComplaints)
+                ? finalData.presentingComplaints
+                : [finalData.presentingComplaints]
+            );
+          }
 
-        // Past Medical History
-        if (key === "pastMedicalHistory" && finalData.pastMedicalHistory) {
-          return renderPastMedicalHistory(finalData.pastMedicalHistory);
-        }
+          // Past Medical History
+          if (key === "pastMedicalHistory" && finalData.pastMedicalHistory) {
+            return renderPastMedicalHistory(finalData.pastMedicalHistory);
+          }
 
-        // Gynec History
-        if (
-          ((isAssessment && key === "gyneacHistory") ||
-            (!isAssessment && key === "gynecHistory")) &&
-          finalData.gyneacHistory
-        ) {
-          return renderGynecHistory(finalData.gyneacHistory);
-        }
+          // Gynec History
+          if (
+            ((isAssessment && key === "gyneacHistory") ||
+              (!isAssessment && key === "gynecHistory")) &&
+            Object.keys(finalData.gyneacHistory)?.length
+          ) {
+            return renderGynecHistory(finalData.gyneacHistory);
+          }
 
-        // Medications
+          // Medications
 
-        if (isAssessment && key === "medications" && finalData.medications) {
-          // return renderGynecHistory(finalData.medications, fontFamily);
-          return (
-            <MedicationTable
-              medications={finalData.medications || finalData.currentMedication}
-              title="Medication (Rx)"
-            />
-          );
-        }
+          if (isAssessment && key === "medications" && finalData.medications) {
+            // return renderGynecHistory(finalData.medications, fontFamily);
+            return (
+              <MedicationTable
+                medications={
+                  finalData.medications || finalData.currentMedication
+                }
+                title="Medication (Rx)"
+              />
+            );
+          }
 
-        // Obstetric History
-        if (
-          isAssessment &&
-          key === "obstetricHistory" &&
-          Object.keys(finalData?.obstetricHistory)?.length
-        ) {
-          return (
-            <ObsHistoryListView
-              PX_TO_PT={0.75}
-              styles={obsStyles}
-              printSettings={{
-                page_format: {
-                  pagination: true,
-                },
-              }}
-              options={IPD.OBSTETRIC_HISTORY_PRINT_FORMAT_STRUCTURE}
-              obsHistoryData={finalData?.obstetricHistory}
-            />
-          );
-        }
+          // Obstetric History
+          if (
+            isAssessment &&
+            key === "obstetricHistory" &&
+            Object.keys(finalData?.obstetricHistory)?.length
+          ) {
+            return (
+              <ObsHistoryListView
+                PX_TO_PT={0.75}
+                styles={obsStyles}
+                printSettings={{
+                  page_format: {
+                    pagination: true,
+                  },
+                }}
+                options={IPD.OBSTETRIC_HISTORY_PRINT_FORMAT_STRUCTURE}
+                obsHistoryData={finalData?.obstetricHistory}
+              />
+            );
+          }
 
-        // Lab Results
-        if (key === "labResults" && finalData.labResults) {
-          return renderLabResults(finalData.labResults, {
-            page_format: {
-              pagination: true,
-            },
-          });
-        }
+          // Lab Results
+          if (key === "labResults" && finalData.labResults) {
+            return renderLabResults(finalData.labResults, {
+              page_format: {
+                pagination: true,
+              },
+            });
+          }
 
-        return null;
-      })}
+          return null;
+        })}
+      </View>
     </View>
   );
 };

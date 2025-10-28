@@ -11,6 +11,11 @@ import { isEmptyRichText } from "../utils/utils";
 export const useAssessmentSectionVisibility = (isEditable) => {
   // Assessment form data
   const assessmentData = useSelector((state) => state.assessment);
+  const { dischargeSummaryData } = useSelector(
+    (state) => state.dischargeSummary
+  );
+  const { provisionalDiagnosis = [] } =
+    dischargeSummaryData?.diagnosisAndSurgery || {};
   const prescriptionData = useSelector((state) => state.prescription);
   const { obstetricDetails } = useSelector((state) => state.obstetric);
 
@@ -57,8 +62,7 @@ export const useAssessmentSectionVisibility = (isEditable) => {
     isEditable ||
     !(
       !Object.keys(physicalExaminationBasicData || {})?.length &&
-      isEmptyRichText(physicalExaminationOthersData) &&
-      isEmptyRichText(physicalExaminationProvisionalDiagnosisData)
+      isEmptyRichText(physicalExaminationOthersData)
     );
 
   // FunctionalAssessment section visibility condition
@@ -80,6 +84,8 @@ export const useAssessmentSectionVisibility = (isEditable) => {
       isEmptyRichText(treatmentPlanData?.immediateManagement)
     );
 
+  const showProvisionalDiagnosis = provisionalDiagnosis.length;
+
   // NoteSection (AdditionalNotes) section visibility condition
   const showNoteSection =
     isEditable ||
@@ -94,6 +100,7 @@ export const useAssessmentSectionVisibility = (isEditable) => {
     showPhysicalExamination ||
     showFunctionalAssessment ||
     showTreatmentPlan ||
+    showProvisionalDiagnosis ||
     showNoteSection;
 
   return {
@@ -102,6 +109,7 @@ export const useAssessmentSectionVisibility = (isEditable) => {
     showFunctionalAssessment,
     showTreatmentPlan,
     showNoteSection,
+    showProvisionalDiagnosis,
     hasAnyData,
   };
 };

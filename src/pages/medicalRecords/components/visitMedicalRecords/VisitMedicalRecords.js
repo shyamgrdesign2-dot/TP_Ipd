@@ -64,9 +64,9 @@ const VisitMedicalRecords = ({
         category_id: getCategoryId(subCategory),
         display_name: rec?.docs?.name || rec?.docs?.filename || "Document",
         url: rec?.docs?.fileUrl || "",
-        thumbnail_url: undefined,
+        thumbnail_url: rec?.docs?.thubmnailFileUrl || "",
         investigation_date: rec?.createdAt || "",
-        notes: "",
+        notes: rec?.docs?.notes || "",
       };
     });
   }, [isIPDFlow, ipdRecords, uploadDocCategories]);

@@ -32,6 +32,7 @@ import {
   setMedicalHistoryData,
   setMedicationData,
   clearMedicationData,
+  resetPrescriptionData,
 } from "../../../redux/prescriptionSlice";
 import { addObstetricDetails } from "../../../redux/obstetricSlice";
 import { getConsultantNotes } from "../../../redux/ipd/consultantNotesSlice";
@@ -42,6 +43,7 @@ import { getProgressNotes } from "../../../redux/ipd/progressNotesSlice";
 import {
   getOtNotesData,
   resetOtNotesForm,
+  resetOtNotesToInitialState,
 } from "../../../redux/ipd/otNotesSlice";
 import MedicalRecords from "../medicalRecords/IPDMedicalRecords";
 import { Drawer } from "antd";
@@ -60,6 +62,7 @@ import {
   getDischargeSummaryData,
   resetActualDischargeSummaryData,
   resetDischargeSummaryData,
+  resetDischargeSummaryToInitialState,
   setProvisionalDiagnosis,
 } from "../../../redux/ipd/dischargeSummarySlice";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
@@ -475,10 +478,40 @@ const IPDPatientDetails = () => {
           },
         },
       });
+    } else if (activeMenuItem === "crossReferral") {
+      navigate("/ipd/cross-referral/configure-print-settings", {
+        state: {
+          patientDetails,
+          moduleType: "crossReferral",
+          data: crossReferralData,
+        },
+      });
+    } else if (activeMenuItem === "otNotes") {
+      navigate("/ipd/ot-notes/configure-print-settings", {
+        state: {
+          patientDetails,
+          moduleType: "otNotes",
+          data: otNotesData,
+        },
+      });
+    } else if (activeMenuItem === "assessment") {
+      navigate("/ipd/admission-assessment/configure-print-settings", {
+        state: {
+          patientDetails,
+          moduleType: "assessment",
+          data: assessmentsData,
+        },
+      });
     }
   };
   const onHandleSelect = (id) => {
     setActiveMenuItem(id);
+    if (id === "dischargeSummary") {
+      dispatch(resetAssessmentForm());
+      dispatch(resetDischargeSummaryToInitialState());
+      dispatch(resetPrescriptionData());
+      dispatch(resetOtNotesToInitialState());
+    }
     navigate("/ipd/patient-details", {
       state: {
         patientDetails,
@@ -492,6 +525,14 @@ const IPDPatientDetails = () => {
 
   const handleDischargeSummaryPrintPreview = () => {
     navigate("/ipd/discharge-summary/preview", {
+      state: {
+        patientDetails,
+      },
+    });
+  };
+
+  const handleCrossReferralPrintPreview = () => {
+    navigate("/ipd/cross-referral/preview", {
       state: {
         patientDetails,
       },
@@ -631,7 +672,7 @@ const IPDPatientDetails = () => {
               <ToolbarActions
                 showEditForm={false}
                 onEdit={handleAddCrossReferralClick}
-                onPrintPreview={() => console.log("Preview")}
+                onPrintPreview={handleCrossReferralPrintPreview}
                 onPrint={() => console.log("Print")}
                 onSettings={handleCustomizeClick}
                 onDownload={() => console.log("Download")}

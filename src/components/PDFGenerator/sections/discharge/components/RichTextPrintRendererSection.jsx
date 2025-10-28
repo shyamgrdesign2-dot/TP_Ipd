@@ -95,7 +95,7 @@ const RichTextPrintRendererSection = ({
   if (!mainSection) return null;
 
   return (
-    <View style={styles.mainContainer}>
+    <View style={styles.mainContainer} wrap={false}>
       {subsections.map((subsection) => {
         const key = subsection.id;
         if (
@@ -127,6 +127,7 @@ const RichTextPrintRendererSection = ({
             </View>
           );
         } else if (data?.[id]?.[key]) {
+          // console.log('INTEL ==> data inside subsection', data?.[id]?.[key])
           return (
             <RichTextPrintRenderer
               key={key}

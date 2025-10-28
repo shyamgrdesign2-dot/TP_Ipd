@@ -91,7 +91,7 @@ export const IPD = {
       children: [
         {
           placeholder: "",
-          id: "chiefComplaint",
+          id: "presentingComplaints",
           title: "Presenting Complaints",
           enabled: true,
           icon: "roundDotted",
@@ -593,6 +593,15 @@ export const IPD = {
       order: 4,
       visible: true,
       view: 1,
+      subSections: [
+        {
+          id: "provisionalDiagnosis",
+          label: "Provisional Diagnosis",
+          order: 1,
+          visible: true,
+          view: 1,
+        },
+      ],
     },
     {
       id: "treatmentPlan",
@@ -1159,8 +1168,8 @@ export const IPD = {
       ],
     },
     {
-      id: "consultantNotes",
-      title: "Consultant Notes",
+      id: "clinicalAssessment",
+      title: "Clinical Assessment",
       icon: "surgeryDetails",
       enabled: true,
       expanded: false,
@@ -1323,7 +1332,7 @@ export const IPD = {
       expanded: false,
       children: [
         {
-          id: "consultantNotes",
+          id: "clinicalAssessment",
           title: "Clinical Assessment",
           icon: "surgeryDetails",
           enabled: true,
@@ -1359,6 +1368,89 @@ export const IPD = {
       ],
     },
   ],
+  DEFAULT_CROSS_REFERRAL_PRINT_FORMAT_STRUCTURE: [
+    {
+      id: "referralInformation",
+      label: "Referral Information",
+      order: 1,
+      visible: true,
+      view: 1,
+      subSections: [
+        {
+          id: "referredBy",
+          label: "Referred By",
+          order: 1,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "referringTo",
+          label: "Referred To",
+          order: 2,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "referringDepartment",
+          label: "Referring Department",
+          order: 3,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "reasonForReferral",
+          label: "Reason for Referral",
+          order: 4,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "informedToRelativesAt",
+          label: "Informed to Relatives",
+          order: 5,
+          visible: true,
+          view: 1,
+        },
+      ],
+    },
+    {
+      id: "consultantNotes",
+      label: "Consultant Notes",
+      order: 2,
+      visible: true,
+      view: 1,
+      subSections: [
+        {
+          id: "clinicalAssessment",
+          label: "Clinical Assessment",
+          order: 1,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "impression",
+          label: "Impression & Advise",
+          order: 2,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "additionalRemarks",
+          label: "Additional Remarks",
+          order: 3,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "followUp",
+          label: "Follow Up",
+          order: 4,
+          visible: true,
+          view: 1,
+        },
+      ],
+    },
+  ],
   DEFAULT_DISCHARGE_SUMMARY_PRINT_FORMAT_STRUCTURE: [
     {
       id: "admittingConsultant",
@@ -1374,7 +1466,29 @@ export const IPD = {
       order: 2,
       visible: true,
       view: 1,
-      subSections: [],
+      subSections: [
+        {
+          id: "finalDiagnosis",
+          label: "Final Diagnosis",
+          order: 1,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "provisionalDiagnosis",
+          label: "Provisional Diagnosis",
+          order: 2,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "surgeriesPerformed",
+          label: "Surgeries Performed",
+          order: 3,
+          visible: true,
+          view: 1,
+        },
+      ],
     },
     {
       id: "patientHistory",
@@ -1513,7 +1627,92 @@ export const IPD = {
       order: 7,
       visible: true,
       view: 1,
-      subSections: [],
+      subSections: [
+        {
+          id: "procedureName",
+          label: "Surgery/Procedure Name",
+          order: 1,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "dateOfSurgery",
+          label: "Date Of Surgery",
+          order: 2,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "duration",
+          label: "Duration",
+          order: 3,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "primarySurgeon",
+          label: "Primary Surgeon",
+          order: 4,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "secondarySurgeon",
+          label: "Secondary Surgeon",
+          order: 5,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "assistant",
+          label: "Assistant",
+          order: 6,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "anaesthetist",
+          label: "Anaesthesiologist",
+          order: 7,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "anaesthetistType",
+          label: "Anaesthetist Type",
+          order: 8,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "scrubNurse",
+          label: "Scrub Nurse",
+          order: 9,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "circulatingNurse",
+          label: "Floor/ Circulating Nurse",
+          order: 10,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "operativeFindings",
+          label: "Operative Findings",
+          order: 11,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "procedure",
+          label: "Procedure",
+          order: 12,
+          visible: true,
+          view: 1,
+        },
+      ],
     },
     {
       id: "dischargeNotes",
@@ -1614,6 +1813,22 @@ export const IPD = {
           id: "additionalNotes",
           label: "Additional Notes",
           order: 3,
+          visible: true,
+          view: 1,
+        },
+      ],
+    },
+    {
+      id: "preparedBy",
+      label: "Prepared By",
+      order: 11,
+      visible: true,
+      view: 1,
+      subSections: [
+        {
+          id: "preparedByPerson",
+          label: "Discharge Summary Prepared By",
+          order: 1,
           visible: true,
           view: 1,
         },
@@ -1731,7 +1946,7 @@ export const IPD = {
       expanded: false,
       children: [
         {
-          id: "chiefComplaint",
+          id: "presentingComplaints",
           field: "presentingComplaints",
           title: "Presenting Complaints (at the time of admission)",
           enabled: true,
@@ -2465,7 +2680,7 @@ export const IPD = {
       //  isActive: true
     },
     // { id: "logs", name: "Activity Logs", icon: "usersTwoIcon" },
-    // { id: "opd", name: "OPD Visit History", icon: "layerIcon" },
+    { id: "opd", name: "OPD Visit History", icon: "layerIcon" },
   ],
   VITALS: [
     {

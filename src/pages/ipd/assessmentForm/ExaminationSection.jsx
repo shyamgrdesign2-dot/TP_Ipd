@@ -58,9 +58,9 @@ const ExaminationSection = (props) => {
             .map((item) => {
               const data = physicalExaminationBasicData[item.id];
               if (
-                !data?.title ||
+                !data?.title &&
                 ((data?.value === undefined || data?.value == null) &&
-                isEmptyRichText(data?.notes))
+                  isEmptyRichText(data?.notes))
               )
                 return null;
 
@@ -173,8 +173,19 @@ const ExaminationSection = (props) => {
       : renderReadOnlyExamination();
   };
 
-  if (!isEditable && !Object.keys(physicalExaminationBasicData)?.length)
-    return null;
+  const checkExaminationDataPresent =
+    physicalExaminationBasicData &&
+    typeof physicalExaminationBasicData === "object" &&
+    !Array.isArray(physicalExaminationBasicData) &&
+    Object.values(physicalExaminationBasicData).some(
+      (item) =>
+        item &&
+        typeof item === "object" &&
+        item.title &&
+        `${item.title}`.trim() !== ""
+    );
+    console.log('INTEL ==> checkExaminationDataPresent', isEditable, checkExaminationDataPresent, physicalExaminationBasicData)
+  if (!isEditable && !checkExaminationDataPresent) return null;
   return (
     <RichTextEditWrapper
       readOnly={!isEditable}

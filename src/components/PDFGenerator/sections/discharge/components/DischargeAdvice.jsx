@@ -5,14 +5,22 @@
 import React from "react";
 import { View, Text } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
-import { isEmptyRichText } from "../../../utils/pdfUtils";
+import {
+  getAllVisibleSections,
+  isEmptyRichText,
+} from "../../../utils/pdfUtils";
 import { renderRichText } from "../../../utils/richTextRenderer";
+import SectionTitle from "../../SectionTitle";
 
 const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
     // marginBottom: 8,
+  },
+
+  sectionContainer: {
+    marginBottom: 12,
   },
 
   // Subsection container
@@ -222,29 +230,57 @@ const renderEmergencyContact = (emergencyContact) => {
  * @param {Object} props.data - Discharge advice data
  * @returns {JSX.Element} Discharge Advice Section
  */
-const DischargeAdvice = ({ data }) => {
+const DischargeAdvice = ({ data, title, formatSettings }) => {
   if (!data?.dischargeAdvice) return null;
 
   const advice = data.dischargeAdvice;
 
+  const dischargeAdviceSection = formatSettings.find(
+    (section) => section.id === "dischargeAdvice"
+  );
+  const subsections = dischargeAdviceSection?.subSections || [];
+
+  const sortedSubsections = getAllVisibleSections(subsections);
+
+  if (
+    (!advice.diet?.length || !sortedSubsections.some((s) => s.id === "diet")) &&
+    (!advice.physicalActivities?.length ||
+      !sortedSubsections.some((s) => s.id === "physicalActivities")) &&
+    (isEmptyRichText(advice.otherAdvice) ||
+      !sortedSubsections.some((s) => s.id === "otherAdvice")) &&
+    (isEmptyRichText(advice.warningSigns) ||
+      !sortedSubsections.some((s) => s.id === "warningSigns")) &&
+    (isEmptyRichText(advice.emergencyContact) ||
+      !sortedSubsections.some((s) => s.id === "emergencyContact"))
+  )
+    return null;
+
   return (
-    <View style={styles.mainContainer}>
-      {/* Diet */}
-      {advice.diet && renderDiet(advice.diet)}
-
-      {/* Physical Activity */}
-      {advice.physicalActivities &&
-        renderPhysicalActivity(advice.physicalActivities)}
-
-      {/* Other Advice */}
-      {advice.otherAdvice && renderOtherAdvice(advice.otherAdvice)}
-
-      {/* Warning Signs */}
-      {advice.warningSigns && renderWarningSigns(advice.warningSigns)}
-
-      {/* Emergency Contact */}
-      {advice.emergencyContact &&
-        renderEmergencyContact(advice.emergencyContact)}
+    <View style={styles.sectionContainer}>
+      <SectionTitle title={title} />
+      <View style={styles.mainContainer}>
+        {sortedSubsections.map((subSection) => {
+          return (
+            <View key={subSection.id}>
+              {subSection.id === "diet" &&
+                advice.diet.length &&
+                renderDiet(advice.diet)}
+              {subSection.id === "physicalActivities" &&
+                advice.physicalActivities?.length &&
+                renderPhysicalActivity(advice.physicalActivities)}
+              {subSection.id === "otherAdvice" &&
+                !isEmptyRichText(advice.otherAdvice) &&
+                renderOtherAdvice(advice.otherAdvice)}
+              {subSection.id === "warningSigns" &&
+                !isEmptyRichText(advice.warningSigns) &&
+                renderWarningSigns(advice.warningSigns)}
+              {subSection.id === "emergencyContact" &&
+                !isEmptyRichText(advice.emergencyContact) &&
+                renderEmergencyContact(advice.emergencyContact)}
+            </View>
+          );
+        })}
+      </View>
     </View>
   );
 };

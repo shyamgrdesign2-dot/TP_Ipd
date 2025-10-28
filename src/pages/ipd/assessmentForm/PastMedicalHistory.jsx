@@ -127,7 +127,7 @@ const PastMedicalHistory = (props) => {
           console.log("save");
         }}
         renderBody={renderMedicalHistory}
-        headerComponent={showLastUpdatedAt}
+        headerComponent={medicalHistoryData?.length ? showLastUpdatedAt: null}
       />
       {addMedicalHistoryDrawer && (
         <Drawer

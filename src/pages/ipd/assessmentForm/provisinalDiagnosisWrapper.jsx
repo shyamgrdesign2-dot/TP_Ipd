@@ -1,11 +1,9 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
-import { setPhysicalExaminationProvisionalDiagnosisData } from "../../../redux/ipd/assessmentsFormSlice";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import ProvisionalDiagnosis from "../dischargeSummary/components/ProvisionalDiagnosis";
 
-const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 
 const ProvisionalDiagnosisWrapper = (props) => {
@@ -16,6 +14,7 @@ const ProvisionalDiagnosisWrapper = (props) => {
   const { provisionalDiagnosis = [] } =
     dischargeSummaryData?.diagnosisAndSurgery || {};
 
+    console.log('INTEL ==> provisionalDiagnosis', provisionalDiagnosis, isEditable)
   if (!isEditable && provisionalDiagnosis.length === 0) return null;
 
   return (

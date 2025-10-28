@@ -5,7 +5,7 @@ import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 
 import { Container, Navbar } from "react-bootstrap";
-import { PDFGenerator } from "../../../components/PDFGenerator";
+import { getSortedSections, PDFGenerator } from "../../../components/PDFGenerator";
 import {
   handleDownloadProgressNotes,
   printProgressNotes,
@@ -30,68 +30,39 @@ const PreviewProgressNotes = () => {
   const { patientDetails } = state || {};
   const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
-  const { progressNotes: rawProgressNotesData } = useSelector(
+  const { progressNotes } = useSelector(
     (state) => state.progressNotes
   );
   const { progressNotes: currentSettings } = printSettings;
 
-  // Memoize the data transformation to prevent infinite loops
-  const progressNotesData = useMemo(() => {
-    // console.log("Transforming progress notes data:", rawProgressNotesData);
-    
-    const transformed = transformProgressNotesData(rawProgressNotesData);
-    
-    if (transformed) {
-      // console.log("Transformation successful:", transformed);
-      return transformed;
-    }
-    
-    // Fallback data structure
-    return {
-      progressNotes: []
-    };
-  }, [rawProgressNotesData]);
+
 
   // const patientData = progressNotesData?.patientInformation || {};
   const patientInformation = getPatientInformation(patientDetails);
+
+  // const sortedProgressNotes = rawProgressNotesData?.slice()?.sort((a, b) => {
+  //   const dateA = new Date(a?.rawProgressNotesData?.date || a?.createdAt || 0);
+  //   const dateB = new Date(b?.rawProgressNotesData?.date || b?.createdAt || 0);
+  //   return dateB - dateA; // Most recent first
+  // });
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
   }, [divRef]);
 
   useEffect(() => {
-    // Create fallback settings if currentSettings is not available
-    const settings = currentSettings || {
-      formatStyle: {
-        patientInfo: { visible: true, order: 1 },
-        attendingPhysician: { visible: true, order: 2 },
-        progressNotesSummary: { visible: true, order: 3 },
-        progressNotesByDate: { visible: true, order: 4 }
-      },
-      pageFormat: {
-        fontFamily: "Arial",
-        fontSize: 10,
-        // margin: {
-        //   top: 20,
-        //   bottom: 20,
-        //   left: 20,
-        //   right: 20
-        // }
-      }
-    };
-
-    if (settings && progressNotesData) {
-      makePDFUrl(settings);
+    if (currentSettings && progressNotes.length > 0) {
+      makePDFUrl(currentSettings);
     }
-  }, [currentSettings, progressNotesData]);
+  }, [currentSettings, progressNotes]);
 
 
-  const makePDFUrl = async (settings = currentSettings) => {
+  const makePDFUrl = async () => {
     try {
       const blob = await pdf(
         <PDFGenerator
-          settings={settings}
-          data={{ patientInformation, progressNotesData }}
+          settings={currentSettings}
+          data={{ patientInformation, progressNotes }}
           documentType="progressNotes"
         />
       ).toBlob();
@@ -105,7 +76,7 @@ const PreviewProgressNotes = () => {
     navigate("/ipd/progress-notes/configure-print-settings", {
       state: {
         moduleType: "progressNotes",
-        data: { patientInformation, progressNotesData },
+        data: { patientInformation, progressNotes },
         printSettings: currentSettings,
         returnPath: "/ipd/progress-notes/preview",
       },

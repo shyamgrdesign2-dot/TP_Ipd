@@ -134,10 +134,6 @@ const DischargeAdvice = (props) => {
     if (!isEditable && isEmptyRichText(dischargeSummaryData?.otherAdvice))
       return null;
 
-    console.log(
-      "INTEL ==> dischargeSummaryData?.otherAdvice",
-      dischargeSummaryData?.otherAdvice
-    );
     return (
       <div >
         <RichTextEditWrapper
