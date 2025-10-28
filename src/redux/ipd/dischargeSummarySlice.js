@@ -136,6 +136,7 @@ const dischargeSummarySlice = createSlice({
         initialState.dischargeSummaryFormDetails;
       state.currentDischargeSummaryId = null;
     },
+    resetDischargeSummaryToInitialState: () => initialState,
     setDischargeDate: (state, action) => {
       if (!state.dischargeSummaryData?.patientInformation) {
         state.dischargeSummaryData.patientInformation = {};
@@ -328,6 +329,7 @@ export const {
   setSurgeriesPerformed,
   setOTSurgeries,
   resetActualDischargeSummaryData,
+  resetDischargeSummaryToInitialState,
   resetDischargeSummaryData,
 } = dischargeSummarySlice.actions;
 

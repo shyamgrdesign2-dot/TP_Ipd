@@ -204,7 +204,6 @@ const renderRelativesInformed = (relativesInformed, fontFamily) => {
 
   const { informedByDoctor, informedTo, informedOnDate } = relativesInformed;
 
-  console.log('INTEL ==> COMING', relativesInformed)
   if (!informedByDoctor || !informedTo || !informedOnDate) return null;
 
   const formattedDate = moment(informedOnDate).format("DD MMM YYYY , hh:mmA");
@@ -244,7 +243,6 @@ const ReferralInformation = ({
   title,
   formatSettings,
 }) => {
-  console.log("INTEL ==> DATA", data);
   //   if (!data?.referralInformation) return null;
 
   const referralInfo = data;

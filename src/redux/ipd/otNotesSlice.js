@@ -280,6 +280,7 @@ const otNotesSlice = createSlice({
       state.currentOtNoteId = null;
       state.currentOtNoteFilledByDetails = null;
     },
+    resetOtNotesToInitialState: () => initialState,
   },
   extraReducers: (builder) => {
     builder
@@ -347,5 +348,6 @@ export const {
   setCurrentOtNoteId,
   setCurrentOtNoteFilledByDetails,
   resetOtNotesForm,
+  resetOtNotesToInitialState,
 } = otNotesSlice.actions;
 export default otNotesSlice.reducer;

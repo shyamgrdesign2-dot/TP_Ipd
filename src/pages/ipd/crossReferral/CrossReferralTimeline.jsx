@@ -392,10 +392,10 @@ const CrossReferralTimeline = () => {
                             <ReferralInformationView
                               data={entry?.crossReferral[crossReferralEntry]}
                               uniqueId={entry?._id}
-                              isEditable={!entry?.crossReferral["consultantNotesData"]?.length > 0}
+                              isEditable={!entry?.crossReferral["consultantNotes"]?.length > 0}
                             />
                           );
-                        case "consultantNotesData":
+                        case "consultantNotes":
                           return (
                             <div className="ipdf-all-consultant-notes-container">
                               {entry?.crossReferral[crossReferralEntry]?.map(
@@ -412,7 +412,8 @@ const CrossReferralTimeline = () => {
                                   );
                                 }
                               )}
-                              {true && (
+                              {!isCurrentDoctorReferee && (
+                              // {true && (
                                 <div
                                   onClick={() =>
                                     handleAddConsultantNotesClick(
@@ -449,13 +450,14 @@ const CrossReferralTimeline = () => {
                       </span>
                     </div>
                   )}
-                  {true && (
+                  {!isCurrentDoctorReferee && !entry?.crossReferral["consultantNotes"] && (
+                  // {true && (
                     <div
                       onClick={() =>
                         handleAddConsultantNotesClick(
                           entry?.crossReferral["referralInformation"],
                           entry?._id,
-                          // entry?.crossReferral["consultantNotesData"]?.length
+                          // entry?.crossReferral["consultantNotes"]?.length
                           0,
                           entry?.crossReferral
                         )

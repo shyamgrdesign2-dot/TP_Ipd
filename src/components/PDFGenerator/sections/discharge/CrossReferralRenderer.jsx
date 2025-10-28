@@ -30,13 +30,25 @@ const renderReferralInformation = (data, fontFamily, formatSettings) => {
 const renderConsultantNotes = (data, fontFamily, formatSettings) => {
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Consultant Notes" fontFamily={fontFamily} />
-      <RichTextPrintRendererSection
-        data={data}
-        fontFamily={fontFamily}
-        formatSettings={formatSettings || null}
-        id="consultantNotes"
-      />
+      {data.map((consultantNote, consultantNoteIndex) => {
+        if (Object.keys(consultantNote)?.length === 0) return null;
+        return (
+          <View>
+            <SectionTitle
+              title={`Consultant Notes ${
+                data.length > 1 ? consultantNoteIndex + 1 : ""
+              }`}
+              fontFamily={fontFamily}
+            />
+            <RichTextPrintRendererSection
+              data={{ consultantNotes: consultantNote || [] }}
+              fontFamily={fontFamily}
+              formatSettings={formatSettings || null}
+              id="consultantNotes"
+            />
+          </View>
+        );
+      })}
     </View>
   );
 };
@@ -56,7 +68,7 @@ export const renderCrossReferral = (data, formatSettings, fontFamily) => {
         ),
       consultantNotes: () =>
         renderConsultantNotes(
-          crossReferralData?.consultantNotesData,
+          crossReferralData?.consultantNotes,
           fontFamily,
           formatSettings
         ),

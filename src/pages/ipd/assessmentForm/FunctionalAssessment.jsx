@@ -125,12 +125,22 @@ const FunctionalAssessment = (props) => {
           !!functionalAssessmentData.others)
       )
         return null;
-      const assessmentComponents = Object.entries(functionalAssessmentData)
-        .filter(
-          ([key, value]) =>
-            value !== null && value !== undefined && typeof value === "string"
-        )
-        .map(([key, value]) => {
+      const { others, ...functionalAssessmentWithouOthers } =
+        functionalAssessmentData;
+
+      const isFunctionAssessmentValuesPresent = Object.values(
+        functionalAssessmentWithouOthers
+      ).some((item) => !!item && item !== "");
+      if (!isFunctionAssessmentValuesPresent) return null;
+
+      const functionalAssessmentFinalData = Object.entries(
+        functionalAssessmentData
+      ).filter(
+        ([key, value]) =>
+          value !== null && value !== undefined && typeof value === "string"
+      );
+      const assessmentComponents = functionalAssessmentFinalData.map(
+        ([key, value]) => {
           return (
             <AssessmentDisplay
               key={key}
@@ -138,7 +148,8 @@ const FunctionalAssessment = (props) => {
               value={value}
             />
           );
-        });
+        }
+      );
       const renderReadOnlyBody = () => {
         return (
           <div className="ipdaf-assessment-readonly">

@@ -4,6 +4,8 @@ import additionalRemarksAndFollowUpPc from "./additionalRemarksAndFollowUp-pc.sv
 import additionalRemarksPc from "./additionalRemarksAndFollowUp-pc.svg";
 import consultantNotesGray from "./consultantNotes-gray.svg";
 import consultantNotesPc from "./consultantNotes-pc.svg";
+import clinicalAssessmentGray from "./consultantNotes-gray.svg";
+import clinicalAssessmentPc from "./consultantNotes-pc.svg";
 import consultantNotesDataDark from "./consultantNotesData-dark.svg";
 import impressionGray from "./impression-gray.svg";
 import impressionPc from "./impression-pc.svg";
@@ -37,6 +39,8 @@ export const defaultIcons = {
   referringDepartment,
   referringTo,
   relativesInformedPc,
+  clinicalAssessmentPc,
+  clinicalAssessmentGray,
 };
 
 export {
@@ -58,4 +62,6 @@ export {
   referringTo,
   relativesInformedPc,
   additionalRemarksPc,
+  clinicalAssessmentPc,
+  clinicalAssessmentGray,
 };

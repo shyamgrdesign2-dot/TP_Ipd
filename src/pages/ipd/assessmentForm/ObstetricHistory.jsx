@@ -145,7 +145,11 @@ const ObstetricHistory = (props) => {
           console.log("auto fill");
         }}
         renderBody={renderObstetricHistory}
-        headerComponent={showLastUpdatedAt}
+        headerComponent={
+          Object.keys(obstetricDetails)?.length || pregnancyHistory?.length
+            ? showLastUpdatedAt
+            : null
+        }
       />
       {addObstetricHistoryDrawer && (
         <Drawer

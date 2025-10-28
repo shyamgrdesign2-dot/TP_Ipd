@@ -6,6 +6,7 @@ import basicInfoGray from './basicInfo-gray.svg';
 import basicInfoPcDark from './basicInfo-pc-dark.svg';
 import basicInfoPc from './basicInfo-pc.svg';
 import chiefComplaintPc from './chiefComplaint-pc.svg';
+import presentingComplaintsPc from './chiefComplaint-pc.svg';
 import currentMedicationsPc from './currentMedications-pc.svg';
 import dischargeCriteriaPc from './dischargeCriteria-pc.svg';
 import examinationsPc from './examinations-pc.svg';
@@ -41,6 +42,7 @@ export const defaultIcons = {
   basicInfoPcDark,
   basicInfoPc,
   chiefComplaintPc,
+  presentingComplaintsPc,
   currentMedicationsPc,
   dischargeCriteriaPc,
   examinationsPc,
@@ -77,6 +79,7 @@ export {
   basicInfoPcDark,
   basicInfoPc,
   chiefComplaintPc,
+  presentingComplaintsPc,
   currentMedicationsPc,
   dischargeCriteriaPc,
   examinationsPc,

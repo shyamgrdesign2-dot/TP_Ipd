@@ -35,7 +35,7 @@ const PatientHistory = (props) => {
       <div className="ipdph-patient-history-container">
         {sectionData?.children?.map((item) => {
           switch (item?.id) {
-            case "chiefComplaint":
+            case "presentingComplaints":
               return (
                 <div
                   key={`chief-complaint-${JSON.stringify(chiefComplaint)}`}

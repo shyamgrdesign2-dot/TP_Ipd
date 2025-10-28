@@ -91,7 +91,7 @@ export const IPD = {
       children: [
         {
           placeholder: "",
-          id: "chiefComplaint",
+          id: "presentingComplaints",
           title: "Presenting Complaints",
           enabled: true,
           icon: "roundDotted",
@@ -1168,8 +1168,8 @@ export const IPD = {
       ],
     },
     {
-      id: "consultantNotes",
-      title: "Consultant Notes",
+      id: "clinicalAssessment",
+      title: "Clinical Assessment",
       icon: "surgeryDetails",
       enabled: true,
       expanded: false,
@@ -1332,7 +1332,7 @@ export const IPD = {
       expanded: false,
       children: [
         {
-          id: "consultantNotes",
+          id: "clinicalAssessment",
           title: "Clinical Assessment",
           icon: "surgeryDetails",
           enabled: true,
@@ -1946,7 +1946,7 @@ export const IPD = {
       expanded: false,
       children: [
         {
-          id: "chiefComplaint",
+          id: "presentingComplaints",
           field: "presentingComplaints",
           title: "Presenting Complaints (at the time of admission)",
           enabled: true,
@@ -2680,7 +2680,7 @@ export const IPD = {
       //  isActive: true
     },
     // { id: "logs", name: "Activity Logs", icon: "usersTwoIcon" },
-    // { id: "opd", name: "OPD Visit History", icon: "layerIcon" },
+    { id: "opd", name: "OPD Visit History", icon: "layerIcon" },
   ],
   VITALS: [
     {

@@ -224,7 +224,7 @@ const CrossReferralConsultantNotes = (props) => {
                   isCollapsible={false}
                 />
               );
-            case "consultantNotes":
+            case "clinicalAssessment":
               return renderRichTextEditorSection(data, false);
             case "additionalRemarksAndFollowUp":
               return (
@@ -301,9 +301,13 @@ const CrossReferralConsultantNotes = (props) => {
   const onAddReferralClick = () => {
     const reqData = {
       ...crossReferralState.crossReferralFormDetails,
-      consultantNotes: crossReferralState.crossReferralFormDetails.consultantNotesData,
+      consultantNotes:
+        crossReferralState.crossReferralFormDetails.consultantNotesData,
+      consultantNotesData: [],
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
     };
+
+    console.log("cross referral ==> REQ", reqData);
 
     dispatch(
       updateCrossReferralData({
