@@ -100,7 +100,6 @@ const RichTextPrintRendererSection = ({
 }) => {
   const mainSection = formatSettings?.find((section) => section?.id === id);
   const subsections = getAllVisibleSections(mainSection?.subSections || []);
-  console.log("INTEL ==> data inside main", data, id, subsections);
 
   if (!mainSection) return null;
 
@@ -108,14 +107,6 @@ const RichTextPrintRendererSection = ({
     <View style={styles.mainContainer}  wrap={false}>
       {subsections.map((subsection) => {
         const key = subsection.id;
-        console.log(
-          "INTEL ==> data inside subsection",
-          data?.[id]?.[key],
-          data?.[id]?.[key] &&
-            typeof data[id][key] === "object" &&
-            !Array.isArray(data[id][key]) &&
-            Object.keys(data[id][key]).length > 0
-        );
         if (
           data?.[id]?.[key] &&
           typeof data[id][key] === "object" &&
