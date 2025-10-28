@@ -26,7 +26,6 @@ const styles = StyleSheet.create({
 
   bullet: {
     width: 12,
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -35,7 +34,6 @@ const styles = StyleSheet.create({
   // Bullet content
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8, // 18px for 10px font
@@ -44,7 +42,6 @@ const styles = StyleSheet.create({
 
   // Category name (Medium weight)
   categoryName: {
-    fontSize: 10,
     fontWeight: 500, // Medium
     color: "#454551",
     lineHeight: 1.8,
@@ -52,23 +49,19 @@ const styles = StyleSheet.create({
 
   // Item label (Medium weight for bold parts)
   itemLabel: {
-    fontSize: 10,
     lineHeight: 1.8, // 18px for 10px font
     textTransform: "capitalize",
     fontWeight: 500, // Medium
     color: "#171725",
-    fontFamily: "Poppins",
   },
 
   // Regular text
   regularText: {
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8, // 18px for 10px font
     textTransform: "capitalize",
     paddingLeft: 5,
-    fontFamily: "Poppins",
   },
 
   // Separator pipe
@@ -91,7 +84,6 @@ const styles = StyleSheet.create({
   },
 
   subsectionTitle: {
-    fontSize: 11,
     fontWeight: 600,
     color: "#000000",
     marginBottom: 6,
@@ -102,7 +94,7 @@ const styles = StyleSheet.create({
 /**
  * Primary Consultant Section (Admitting Consultant)
  */
-const renderPrimaryConsultant = (data, fontFamily) => {
+const renderPrimaryConsultant = (data) => {
   if (!data?.patientInformation?.primaryConsultant) return null;
 
   const { primaryConsultant } = data.patientInformation;
@@ -110,22 +102,21 @@ const renderPrimaryConsultant = (data, fontFamily) => {
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Admitting Consultant" fontFamily={fontFamily} />
+      <SectionTitle title="Admitting Consultant" />
       <View style={{ padding: "6px 0px" }}>
-        {renderSimpleText(consultantText, fontFamily)}
+        {renderSimpleText(consultantText)}
       </View>
     </View>
   );
 };
 
-const renderOperativeNotes = (data, fontFamily, formatSettings) => {
+const renderOperativeNotes = (data, formatSettings) => {
   const finalData = data?.otNotes;
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Operative Notes" fontFamily={fontFamily} />
+      <SectionTitle title="Operative Notes" />
       <RichTextPrintRendererSection
         data={finalData}
-        fontFamily={fontFamily}
         formatSettings={formatSettings || null}
         id="operativeNotes"
       />
@@ -133,7 +124,7 @@ const renderOperativeNotes = (data, fontFamily, formatSettings) => {
   );
 };
 
-const renderIntraOperativeNotes = (data, fontFamily, formatSettings) => {
+const renderIntraOperativeNotes = (data, formatSettings) => {
   const originalData = data?.otNotes;
 
   const transformedData = {
@@ -159,10 +150,9 @@ const renderIntraOperativeNotes = (data, fontFamily, formatSettings) => {
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Intra Operative Notes" fontFamily={fontFamily} />
+      <SectionTitle title="Intra Operative Notes" />
       <RichTextPrintRendererSection
         data={transformedData}
-        fontFamily={fontFamily}
         formatSettings={formatSettings || null}
         id="intraOperativeNotes"
       />
@@ -170,14 +160,13 @@ const renderIntraOperativeNotes = (data, fontFamily, formatSettings) => {
   );
 };
 
-const renderPostOperativeNotes = (data, fontFamily, formatSettings) => {
+const renderPostOperativeNotes = (data, formatSettings) => {
   const finalData = data?.otNotes;
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Post Operative Notes" fontFamily={fontFamily} />
+      <SectionTitle title="Post Operative Notes" />
       <RichTextPrintRendererSection
         data={finalData}
-        fontFamily={fontFamily}
         formatSettings={formatSettings || null}
         id="postOperativeNotes"
       />
@@ -219,7 +208,7 @@ const calculateDuration = (startTime, endTime, surgeryDate) => {
 /**
  * Render Surgery Details
  */
-const renderSurgeryDetails = (data, fontFamily, formatSettings) => {
+const renderSurgeryDetails = (data, formatSettings) => {
   const surgeryData = data?.otNotes?.surgeryDetails;
   if (!surgeryData) return null;
 
@@ -250,14 +239,14 @@ const renderSurgeryDetails = (data, fontFamily, formatSettings) => {
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Surgery Details" fontFamily={fontFamily} />
+      <SectionTitle title="Surgery Details" />
       <View style={styles.contentContainer}>
         {subsections.map((subSection) => {
           if (subSection.id === "procedureName") {
             return (
               <View style={styles.bulletItem}>
-                <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                <Text style={[styles.bulletContent, { fontFamily }]}>
+                <Text style={[styles.bullet]}>•</Text>
+                <Text style={[styles.bulletContent]}>
                   <Text style={styles.itemLabel}>{subSection.label}:</Text>
                   <Text style={styles.regularText}>
                     {" "}
@@ -270,8 +259,8 @@ const renderSurgeryDetails = (data, fontFamily, formatSettings) => {
           if (subSection.id === "dateOfSurgery" && formattedDate) {
             return (
               <View style={styles.bulletItem}>
-                <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                <Text style={[styles.bulletContent, { fontFamily }]}>
+                <Text style={[styles.bullet]}>•</Text>
+                <Text style={[styles.bulletContent]}>
                   <Text style={styles.itemLabel}>{subSection.label}:</Text>
                   <Text style={styles.regularText}> {formattedDate}</Text>
                 </Text>
@@ -285,8 +274,8 @@ const renderSurgeryDetails = (data, fontFamily, formatSettings) => {
           ) {
             return (
               <View style={styles.bulletItem}>
-                <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                <Text style={[styles.bulletContent, { fontFamily }]}>
+                <Text style={[styles.bullet]}>•</Text>
+                <Text style={[styles.bulletContent]}>
                   <Text style={styles.itemLabel}>{subSection.label}:</Text>
                   <Text style={styles.regularText}>
                     {" "}
@@ -302,8 +291,8 @@ const renderSurgeryDetails = (data, fontFamily, formatSettings) => {
           if (subSection.id === "anaesthesiaType" && anaesthesiaType) {
             return (
               <View style={styles.bulletItem}>
-                <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                <Text style={[styles.bulletContent, { fontFamily }]}>
+                <Text style={[styles.bullet]}>•</Text>
+                <Text style={[styles.bulletContent]}>
                   <Text style={styles.itemLabel}>{subSection.label}:</Text>
                   <Text style={styles.regularText}> {anaesthesiaType}</Text>
                 </Text>
@@ -317,18 +306,15 @@ const renderSurgeryDetails = (data, fontFamily, formatSettings) => {
           ) {
             return (
               <View style={styles.bulletItem}>
-                <Text style={[styles.bullet, { fontFamily }]}>•</Text>
+                <Text style={[styles.bullet]}>•</Text>
                 <View style={{ flex: 1 }}>
-                  <Text style={[styles.bulletContent, { fontFamily }]}>
+                  <Text style={[styles.bulletContent]}>
                     <Text style={[styles.itemLabel]}>{subSection.label}:</Text>
                   </Text>
                   <View
                     style={{ lineHeight: 1.8, marginTop: 10, marginBottom: 10 }}
                   >
-                    <RichTextPrintRenderer
-                      data={diagnosis}
-                      fontFamily={fontFamily}
-                    />
+                    <RichTextPrintRenderer data={diagnosis} />
                   </View>
                 </View>
               </View>
@@ -341,7 +327,7 @@ const renderSurgeryDetails = (data, fontFamily, formatSettings) => {
   );
 };
 
-const renderSurgeryTeam = (data, fontFamily, formatSettings) => {
+const renderSurgeryTeam = (data, formatSettings) => {
   const surgeryTeam = data?.otNotes?.surgeryTeam;
   const mainSection = formatSettings?.find(
     (section) => section?.id === "surgeryTeam"
@@ -350,7 +336,7 @@ const renderSurgeryTeam = (data, fontFamily, formatSettings) => {
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title={mainSection.label} fontFamily={fontFamily} />
+      <SectionTitle title={mainSection.label} />
       {subsections.map(({ id, label }) => {
         const value = surgeryTeam?.[id];
         const valueText = Array.isArray(value)
@@ -362,11 +348,9 @@ const renderSurgeryTeam = (data, fontFamily, formatSettings) => {
         if (!valueText) return null;
         return (
           <View style={styles.bulletItem}>
-            <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-            <Text style={[styles.itemLabel, { fontFamily }]}>{label}:</Text>
-            <Text style={[styles.regularText, { fontFamily }]}>
-              {valueText}
-            </Text>
+            <Text style={[styles.bullet]}>•</Text>
+            <Text style={[styles.itemLabel]}>{label}:</Text>
+            <Text style={[styles.regularText]}>{valueText}</Text>
           </View>
         );
       })}
@@ -378,24 +362,20 @@ const renderSurgeryTeam = (data, fontFamily, formatSettings) => {
  * Main Discharge Summary Renderer
  * @param {Object} data - Discharge summary data
  * @param {Object} formatSettings - Format settings
- * @param {string} fontFamily - Font family
  * @returns {Array} Array of section components
  */
-export const renderOTNotes = (data, formatSettings, fontFamily) => {
+export const renderOTNotes = (data, formatSettings) => {
   const sortedSections = getAllVisibleSections(formatSettings || null);
   if (!data || !formatSettings) return [];
 
   const allSections = data.map((note, noteIndex) => {
     const sectionRenderers = {
-      surgeryDetails: () =>
-        renderSurgeryDetails(note, fontFamily, formatSettings),
-      surgeryTeam: () => renderSurgeryTeam(note, fontFamily, formatSettings),
-      operativeNotes: () =>
-        renderOperativeNotes(note, fontFamily, formatSettings),
+      surgeryDetails: () => renderSurgeryDetails(note, formatSettings),
+      surgeryTeam: () => renderSurgeryTeam(note, formatSettings),
+      operativeNotes: () => renderOperativeNotes(note, formatSettings),
       intraOperativeNotes: () =>
-        renderIntraOperativeNotes(note, fontFamily, formatSettings),
-      postOperativeNotes: () =>
-        renderPostOperativeNotes(note, fontFamily, formatSettings),
+        renderIntraOperativeNotes(note, formatSettings),
+      postOperativeNotes: () => renderPostOperativeNotes(note, formatSettings),
     };
 
     // Render sections in order
@@ -411,11 +391,7 @@ export const renderOTNotes = (data, formatSettings, fontFamily) => {
 
     return (
       <View key={note._id || noteIndex}>
-        <FilledByCard
-          filledBy={note.createdByName}
-          filledOn={note.createdAt}
-          fontFamily={fontFamily}
-        />
+        <FilledByCard filledBy={note.createdByName} filledOn={note.createdAt} />
         {/* Content */}
         {sections}
       </View>

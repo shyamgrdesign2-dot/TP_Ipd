@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
-    marginBottom: 8,
+    // marginBottom: 8,
   },
 
   // Subsection container
@@ -28,7 +28,6 @@ const styles = StyleSheet.create({
 
   bullet: {
     width: 12,
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -37,7 +36,6 @@ const styles = StyleSheet.create({
   // Bullet content
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8, // 18px for 10px font
@@ -46,7 +44,6 @@ const styles = StyleSheet.create({
 
   // Category name (Medium weight)
   categoryName: {
-    fontSize: 10,
     fontWeight: 500, // Medium
     color: "#454551",
     lineHeight: 1.8,
@@ -54,23 +51,19 @@ const styles = StyleSheet.create({
 
   // Item label (Medium weight for bold parts)
   itemLabel: {
-    fontSize: 10,
     lineHeight: 1.8, // 18px for 10px font
     textTransform: "capitalize",
     fontWeight: 500, // Medium
     color: "#171725",
-    fontFamily: "Poppins",
   },
 
   // Regular text
   regularText: {
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8, // 18px for 10px font
     textTransform: "capitalize",
     paddingLeft: 5,
-    fontFamily: "Poppins",
   },
 
   // Separator pipe
@@ -84,7 +77,6 @@ const styles = StyleSheet.create({
   },
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -95,7 +87,6 @@ const styles = StyleSheet.create({
 const RichTextPrintRendererSection = ({
   data,
   formatSettings,
-  fontFamily,
   id = "treatmentPlan",
 }) => {
   const mainSection = formatSettings?.find((section) => section?.id === id);
@@ -116,14 +107,14 @@ const RichTextPrintRendererSection = ({
           const finalData = data?.[id]?.[key];
           return (
             <View>
-              <Text style={[styles.subsectionTitle, { fontFamily }]}>{subsection.label}</Text>
+              <Text style={[styles.subsectionTitle]}>{subsection.label}</Text>
               {Object.entries(finalData).map(([key, value]) => (
                 <View style={styles.bulletItem}>
-                  <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                  <Text style={[styles.itemLabel, { fontFamily }]}>
+                  <Text style={[styles.bullet]}>•</Text>
+                  <Text style={[styles.itemLabel]}>
                     {camelToCapitalized(key)}:
                   </Text>
-                  <Text style={[styles.regularText, { fontFamily }]}>
+                  <Text style={[styles.regularText]}>
                     {Array.isArray(value)
                       ? value
                           .map((item) => item.name)
@@ -141,7 +132,6 @@ const RichTextPrintRendererSection = ({
               key={key}
               data={data?.[id]?.[key]}
               title={subsection.label}
-              fontFamily={fontFamily}
             />
           );
         }

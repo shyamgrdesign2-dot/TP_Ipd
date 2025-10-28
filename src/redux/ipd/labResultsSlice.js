@@ -7,9 +7,10 @@ export const getPathologyResults = createAsyncThunk(
   async (data) => {
     try {
       let result = {};
-      result = await ApiLabResults.getPathologyResults(data);
+      result = await ApiLabResults.getZydusLabResults(data);
+      console.log({ result });
       if (!result.error) {
-        return result;
+        return result.data;
       } else {
         throw Error(result.error);
       }
@@ -58,8 +59,63 @@ export const getScanResults = createAsyncThunk(
   }
 );
 
-// Helper function to transform API data to component format
+// Helper function to parse reference range string to object
+const parseReferenceRange = (refRangeString) => {
+  if (!refRangeString || refRangeString === "-" || refRangeString === "") {
+    return { min: null, max: null };
+  }
+
+  // Match patterns like "1.0-30.0", "28.0-217.0", etc.
+  const rangeMatch = refRangeString.match(/^([\d.]+)\s*-\s*([\d.]+)$/);
+
+  if (rangeMatch) {
+    return {
+      min: parseFloat(rangeMatch[1]),
+      max: parseFloat(rangeMatch[2]),
+    };
+  }
+
+  // If it doesn't match the range pattern, return as is
+  return { min: null, max: null };
+};
+
+// Helper function to transform new API data format to component format
+const transformNewApiDataToComponentFormat = (apiResponse) => {
+  if (!apiResponse || !Array.isArray(apiResponse)) return [];
+
+  return apiResponse.map((labResult, index) => ({
+    key: (index + 1).toString(),
+    category: `${labResult.serviceName} (${
+      labResult.labResultParameters?.length || 0
+    })`,
+    sampleId: labResult.sampleId,
+    certifiedDate: labResult.certifiedDate,
+    serviceCode: labResult.serviceCode,
+    labResultId: labResult.labResultId,
+    tests:
+      labResult.labResultParameters?.map((param, paramIndex) => ({
+        key: `${index + 1}-${paramIndex + 1}`,
+        name: param.parameterName,
+        values: {
+          [labResult.certifiedDate]: {
+            value: `${param.resultValue || "-"}`,
+          },
+        },
+        refRange: parseReferenceRange(param.referenceRange),
+        selected: false,
+        labResultParameterId: param.labResultParameterId,
+      })) || [],
+  }));
+};
+
+// Helper function to transform API data to component format (legacy format)
 const transformApiDataToComponentFormat = (apiResponse) => {
+  // Check if this is the new format (array of lab results)
+  if (Array.isArray(apiResponse)) {
+    return transformNewApiDataToComponentFormat(apiResponse);
+  }
+
+  // Legacy format with labParams
   if (
     !apiResponse ||
     !apiResponse.labParams ||
@@ -111,12 +167,21 @@ const transformComponentDataToApiFormat = (
   const result = [];
 
   componentData.forEach((category) => {
-    if (selectedCategories.includes(category.key)) {
-      // Entire category is selected
+    // Check if this category or any of its tests are selected
+    const isCategorySelected = selectedCategories.includes(category.key);
+    const selectedTestsInCategory = category.tests.filter((test) =>
+      selectedTests.includes(test.key)
+    );
+
+    if (isCategorySelected || selectedTestsInCategory.length > 0) {
+      const testsToInclude = isCategorySelected
+        ? category.tests
+        : selectedTestsInCategory;
+
       const categoryData = {
         reportName: category.category.split(" (")[0], // Remove count from name
-        testCount: category.tests.length,
-        tests: category.tests.map((test) => ({
+        testCount: testsToInclude.length,
+        tests: testsToInclude.map((test) => ({
           testName: test.name,
           values: transformValuesBackToApi(test.values),
           refRange: test.refRange,
@@ -124,25 +189,6 @@ const transformComponentDataToApiFormat = (
         })),
       };
       result.push(categoryData);
-    } else {
-      // Check for individually selected tests
-      const selectedTestsInCategory = category.tests.filter((test) =>
-        selectedTests.includes(test.key)
-      );
-
-      if (selectedTestsInCategory.length > 0) {
-        const categoryData = {
-          reportName: category.category.split(" (")[0],
-          testCount: selectedTestsInCategory.length,
-          tests: selectedTestsInCategory.map((test) => ({
-            testName: test.name,
-            values: transformValuesBackToApi(test.values),
-            refRange: test.refRange,
-            selected: true,
-          })),
-        };
-        result.push(categoryData);
-      }
     }
   });
 
@@ -169,7 +215,21 @@ const transformValuesBackToApi = (values) => {
 
 // Helper function to convert display date to API format
 const convertDisplayDateToApiFormat = (displayDate) => {
-  // Convert "06 Aug, 2025" to "2025-08-06"
+  // Handle different date formats
+  // "06 Aug, 2025" or "08-07-2025" (DD-MM-YYYY) to "2025-08-06" (YYYY-MM-DD)
+
+  // Check if it's already in YYYY-MM-DD format
+  if (/^\d{4}-\d{2}-\d{2}$/.test(displayDate)) {
+    return displayDate;
+  }
+
+  // Check if it's in DD-MM-YYYY format (from new API)
+  if (/^\d{2}-\d{2}-\d{4}$/.test(displayDate)) {
+    const [day, month, year] = displayDate.split("-");
+    return `${year}-${month}-${day}`;
+  }
+
+  // Otherwise, parse as standard date format
   const date = new Date(displayDate);
   return date.toISOString().split("T")[0];
 };
@@ -335,27 +395,39 @@ const labResultsSlice = createSlice({
         state.pathologyResults = transformApiDataToComponentFormat(
           action.payload
         );
+        console.log(action.payload);
 
         // Extract available dates from the API response
         const dates = new Set();
 
-        // Use testDates from API response if available
-        if (
-          action.payload?.testDates &&
-          Array.isArray(action.payload.testDates)
-        ) {
-          action.payload.testDates.forEach((date) => {
-            dates.add(formatDateForDisplay(date));
+        // Check if this is the new format (array of lab results)
+        if (Array.isArray(action.payload)) {
+          // Extract dates from certifiedDate field
+          action.payload.forEach((labResult) => {
+            if (labResult.certifiedDate) {
+              dates.add(labResult.certifiedDate);
+            }
           });
         } else {
-          // Fallback: extract from test values
-          action.payload?.labParams?.forEach((category) => {
-            category.tests?.forEach((test) => {
-              Object.keys(test.values || {}).forEach((date) => {
-                dates.add(formatDateForDisplay(date));
+          // Legacy format handling
+          // Use testDates from API response if available
+          if (
+            action.payload?.testDates &&
+            Array.isArray(action.payload.testDates)
+          ) {
+            action.payload.testDates.forEach((date) => {
+              dates.add(formatDateForDisplay(date));
+            });
+          } else {
+            // Fallback: extract from test values
+            action.payload?.labParams?.forEach((category) => {
+              category.tests?.forEach((test) => {
+                Object.keys(test.values || {}).forEach((date) => {
+                  dates.add(formatDateForDisplay(date));
+                });
               });
             });
-          });
+          }
         }
 
         state.availableDates = Array.from(dates).sort();
@@ -402,7 +474,6 @@ const labResultsSlice = createSlice({
   },
 });
 
-// Export actions
 export const {
   setActiveTab,
   setSearchText,
@@ -421,83 +492,153 @@ export const {
   clearError,
 } = labResultsSlice.actions;
 
-// Selectors
-export const selectLabResultsState = (state) => state.labResults;
 export const selectPathologyResults = (state) =>
   state.labResults.pathologyResults;
 export const selectScanResults = (state) => state.labResults.scanResults;
 export const selectScanLoading = (state) => state.labResults.scanLoading;
 export const selectScanError = (state) => state.labResults.scanError;
-export const selectActiveScanCategory = (state) =>
-  state.labResults.activeScanCategory;
-export const selectScanDateStatus = (state) => state.labResults.scanDateStatus;
 export const selectAvailableDates = (state) => state.labResults.availableDates;
 export const selectSelectedTests = (state) => state.labResults.selectedTests;
 export const selectSelectedCategories = (state) =>
   state.labResults.selectedCategories;
 export const selectIsLoading = (state) => state.labResults.loading;
-export const selectIsUpdating = (state) => state.labResults.updating;
 export const selectError = (state) => state.labResults.error;
 export const selectUpdateError = (state) => state.labResults.updateError;
 export const selectActiveTab = (state) => state.labResults.activeTab;
 export const selectSearchText = (state) => state.labResults.searchText;
+export const selectSelectedDateRange = (state) =>
+  state.labResults.selectedDateRange;
 export const selectExpandedCategories = (state) =>
   state.labResults.expandedCategories;
 
-// Complex selectors
-export const selectTotalSelectionCount = (state) => {
-  return (
-    state.labResults.selectedTests.length +
-    state.labResults.selectedCategories.length
-  );
+// Helper function to check if a date is within a date range
+const isDateInRange = (dateStr, dateRange) => {
+  if (!dateRange || !dateRange[0] || !dateRange[1]) return true;
+
+  // Parse date string - handle both "DD-MM-YYYY" and other formats
+  let testDate;
+  if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+    const [day, month, year] = dateStr.split("-");
+    testDate = new Date(`${year}-${month}-${day}`);
+  } else {
+    testDate = new Date(dateStr);
+  }
+
+  const startDate = new Date(dateRange[0]);
+  const endDate = new Date(dateRange[1]);
+
+  // Set time to start/end of day for proper comparison
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(23, 59, 59, 999);
+  testDate.setHours(0, 0, 0, 0);
+
+  return testDate >= startDate && testDate <= endDate;
 };
 
+// Selector for filtered pathology results based on search and date range
+export const selectFilteredPathologyResults = (state) => {
+  const results = state.labResults.pathologyResults;
+  const searchText = state.labResults.searchText?.toLowerCase().trim() || "";
+  const dateRange = state.labResults.selectedDateRange;
+
+  // If no filters applied, return all results
+  if (!searchText && !dateRange) {
+    return results;
+  }
+
+  return results
+    .map((category) => {
+      // Filter tests within each category
+      const filteredTests = category.tests.filter((test) => {
+        // Search filter - check test name
+        const matchesSearch =
+          !searchText ||
+          test.name.toLowerCase().includes(searchText) ||
+          category.category.toLowerCase().includes(searchText);
+
+        // Date filter - check if any value date is within range
+        const matchesDate =
+          !dateRange ||
+          Object.keys(test.values || {}).some((dateKey) =>
+            isDateInRange(dateKey, dateRange)
+          );
+
+        return matchesSearch && matchesDate;
+      });
+
+      // Return category with filtered tests
+      return {
+        ...category,
+        tests: filteredTests,
+        category: `${category.category.split(" (")[0]} (${
+          filteredTests.length
+        })`,
+      };
+    })
+    .filter((category) => category.tests.length > 0); // Remove empty categories
+};
+
+// Selector for filtered available dates based on search
+export const selectFilteredAvailableDates = (state) => {
+  const dates = state.labResults.availableDates;
+  const searchText = state.labResults.searchText?.toLowerCase().trim() || "";
+
+  // If no search, return all dates
+  if (!searchText) {
+    return dates;
+  }
+
+  // Get all dates that have matching tests
+  const results = state.labResults.pathologyResults;
+  const matchingDates = new Set();
+
+  results.forEach((category) => {
+    category.tests.forEach((test) => {
+      const matchesSearch =
+        test.name.toLowerCase().includes(searchText) ||
+        category.category.toLowerCase().includes(searchText);
+
+      if (matchesSearch) {
+        Object.keys(test.values || {}).forEach((dateKey) => {
+          matchingDates.add(dateKey);
+        });
+      }
+    });
+  });
+
+  return dates.filter((date) => matchingDates.has(date));
+};
+
+// Selector for total selection count
+export const selectTotalSelectionCount = (state) => {
+  return state.labResults.selectedTests.length;
+};
+
+// Selector for total item count (based on filtered results)
 export const selectTotalItemCount = (state) => {
-  const testCount = state.labResults.pathologyResults.reduce(
+  const filteredResults = selectFilteredPathologyResults(state);
+  const testCount = filteredResults.reduce(
     (total, category) => total + category.tests.length,
     0
   );
-  const categoryCount = state.labResults.pathologyResults.length;
-  return testCount + categoryCount;
+  return testCount;
 };
 
+// Selector to check if all visible items are selected
 export const selectIsAllSelected = (state) => {
-  const allTestKeys = state.labResults.pathologyResults.flatMap((category) =>
+  const filteredResults = selectFilteredPathologyResults(state);
+  const allTestKeys = filteredResults.flatMap((category) =>
     category.tests.map((test) => test.key)
   );
-  const allCategoryKeys = state.labResults.pathologyResults.map(
-    (category) => category.key
-  );
 
-  return (
-    allTestKeys.every((key) => state.labResults.selectedTests.includes(key)) &&
-    allCategoryKeys.every((key) =>
-      state.labResults.selectedCategories.includes(key)
-    )
-  );
-};
+  if (allTestKeys.length === 0) return false;
 
-export const selectIsCategorySelected = (categoryKey) => (state) => {
-  return state.labResults.selectedCategories.includes(categoryKey);
-};
-
-export const selectIsCategoryIndeterminate = (categoryKey) => (state) => {
-  const category = state.labResults.pathologyResults.find(
-    (cat) => cat.key === categoryKey
-  );
-  if (!category) return false;
-
-  const categoryTestKeys = category.tests.map((test) => test.key);
-  const selectedCategoryTests = categoryTestKeys.filter((key) =>
+  return allTestKeys.every((key) =>
     state.labResults.selectedTests.includes(key)
   );
-
-  return (
-    selectedCategoryTests.length > 0 &&
-    selectedCategoryTests.length < categoryTestKeys.length
-  );
 };
 
+// Selector for main checkbox indeterminate state
 export const selectIsMainCheckboxIndeterminate = (state) => {
   const totalSelected = selectTotalSelectionCount(state);
   const totalItems = selectTotalItemCount(state);

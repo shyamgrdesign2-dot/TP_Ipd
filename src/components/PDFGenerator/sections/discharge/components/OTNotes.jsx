@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
-    marginBottom: 8,
+    // marginBottom: 8,
   },
 
   // Surgery subsection container
@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
   // Surgery number title
   surgeryTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600, // SemiBold
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -48,7 +47,6 @@ const styles = StyleSheet.create({
   // Bullet marker
   bullet: {
     width: 12,
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 2.2, // 22px for 10px font (different from other sections)
@@ -57,7 +55,6 @@ const styles = StyleSheet.create({
   // Bullet content
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 2.2, // 22px for 10px font
@@ -93,10 +90,9 @@ const extractRichText = (content) => {
  * OTNotes Component
  * @param {Object} props - Component props
  * @param {Object} props.data - OT notes data
- * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} OT Notes Section
  */
-const OTNotes = ({ data, fontFamily = "Poppins" }) => {
+const OTNotes = ({ data }) => {
   if (!data?.otNotes?.surgeries || data.otNotes.surgeries.length === 0)
     return null;
 
@@ -113,17 +109,15 @@ const OTNotes = ({ data, fontFamily = "Poppins" }) => {
           <View key={`surgery-${index}`} style={styles.surgeryContainer}>
             <View style={styles.contentContainer}>
               {/* Surgery number title */}
-              <Text style={[styles.surgeryTitle, { fontFamily }]}>
-                Surgery {index + 1}:
-              </Text>
+              <Text style={[styles.surgeryTitle]}>Surgery {index + 1}:</Text>
 
               {/* Surgery details as bullet list */}
               <View style={styles.bulletList}>
                 {/* Surgery/Procedure Name */}
                 {surgery.procedureName && (
                   <View style={styles.bulletItem}>
-                    <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                    <Text style={[styles.bulletContent, { fontFamily }]}>
+                    <Text style={[styles.bullet]}>•</Text>
+                    <Text style={[styles.bulletContent]}>
                       <Text style={styles.fieldLabel}>
                         Surgery/Procedure Name:{" "}
                       </Text>
@@ -139,8 +133,8 @@ const OTNotes = ({ data, fontFamily = "Poppins" }) => {
                 {/* Date Of Surgery */}
                 {surgery.dateOfSurgery && (
                   <View style={styles.bulletItem}>
-                    <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                    <Text style={[styles.bulletContent, { fontFamily }]}>
+                    <Text style={[styles.bullet]}>•</Text>
+                    <Text style={[styles.bulletContent]}>
                       <Text style={styles.fieldLabel}>Date Of Surgery: </Text>
                       <Text style={styles.regularText}>
                         {surgery.dateOfSurgery}
@@ -152,8 +146,8 @@ const OTNotes = ({ data, fontFamily = "Poppins" }) => {
                 {/* Duration */}
                 {surgery.surgeryStartTime && surgery.surgeryEndTime && (
                   <View style={styles.bulletItem}>
-                    <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                    <Text style={[styles.bulletContent, { fontFamily }]}>
+                    <Text style={[styles.bullet]}>•</Text>
+                    <Text style={[styles.bulletContent]}>
                       <Text style={styles.fieldLabel}>Duration: </Text>
                       <Text style={styles.regularText}>
                         {surgery.surgeryStartTime} - {surgery.surgeryEndTime}
@@ -166,8 +160,8 @@ const OTNotes = ({ data, fontFamily = "Poppins" }) => {
                 {/* Primary Surgeon */}
                 {surgery.surgeon && surgery.surgeon.length > 0 && (
                   <View style={styles.bulletItem}>
-                    <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                    <Text style={[styles.bulletContent, { fontFamily }]}>
+                    <Text style={[styles.bullet]}>•</Text>
+                    <Text style={[styles.bulletContent]}>
                       <Text style={styles.fieldLabel}>Primary Surgeon: </Text>
                       <Text style={styles.regularText}>
                         {surgery.surgeon[0]?.name || surgery.surgeon[0]}
@@ -179,8 +173,8 @@ const OTNotes = ({ data, fontFamily = "Poppins" }) => {
                 {/* Secondary Surgeon */}
                 {surgery.surgeon && surgery.surgeon.length > 1 && (
                   <View style={styles.bulletItem}>
-                    <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                    <Text style={[styles.bulletContent, { fontFamily }]}>
+                    <Text style={[styles.bullet]}>•</Text>
+                    <Text style={[styles.bulletContent]}>
                       <Text style={styles.fieldLabel}>Secondary Surgeon: </Text>
                       <Text style={styles.regularText}>
                         {surgery.surgeon
@@ -195,8 +189,8 @@ const OTNotes = ({ data, fontFamily = "Poppins" }) => {
                 {/* Assistant */}
                 {surgery.assistant && (
                   <View style={styles.bulletItem}>
-                    <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                    <Text style={[styles.bulletContent, { fontFamily }]}>
+                    <Text style={[styles.bullet]}>•</Text>
+                    <Text style={[styles.bulletContent]}>
                       <Text style={styles.fieldLabel}>Assistant: </Text>
                       <Text style={styles.regularText}>
                         {surgery.assistant}
@@ -208,8 +202,8 @@ const OTNotes = ({ data, fontFamily = "Poppins" }) => {
                 {/* Anaesthetist */}
                 {surgery.anaesthetist && surgery.anaesthetist.length > 0 && (
                   <View style={styles.bulletItem}>
-                    <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                    <Text style={[styles.bulletContent, { fontFamily }]}>
+                    <Text style={[styles.bullet]}>•</Text>
+                    <Text style={[styles.bulletContent]}>
                       <Text style={styles.fieldLabel}>Anaesthetist: </Text>
                       <Text style={styles.regularText}>
                         {surgery.anaesthetist
@@ -223,8 +217,8 @@ const OTNotes = ({ data, fontFamily = "Poppins" }) => {
                 {/* Scrub Nurse */}
                 {surgery.scrubNurse && (
                   <View style={styles.bulletItem}>
-                    <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                    <Text style={[styles.bulletContent, { fontFamily }]}>
+                    <Text style={[styles.bullet]}>•</Text>
+                    <Text style={[styles.bulletContent]}>
                       <Text style={styles.fieldLabel}>Scrub Nurse: </Text>
                       <Text style={styles.regularText}>
                         {surgery.scrubNurse}
@@ -236,8 +230,8 @@ const OTNotes = ({ data, fontFamily = "Poppins" }) => {
                 {/* Floor/Circulating Nurse */}
                 {surgery.circulatingNurse && (
                   <View style={styles.bulletItem}>
-                    <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                    <Text style={[styles.bulletContent, { fontFamily }]}>
+                    <Text style={[styles.bullet]}>•</Text>
+                    <Text style={[styles.bulletContent]}>
                       <Text style={styles.fieldLabel}>
                         Floor/ Circulating Nurse:{" "}
                       </Text>
@@ -251,8 +245,8 @@ const OTNotes = ({ data, fontFamily = "Poppins" }) => {
                 {/* Operative Findings */}
                 {operativeFindings && (
                   <View style={styles.bulletItem}>
-                    <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                    <Text style={[styles.bulletContent, { fontFamily }]}>
+                    <Text style={[styles.bullet]}>•</Text>
+                    <Text style={[styles.bulletContent]}>
                       <Text style={styles.fieldLabel}>
                         Operative Findings:{" "}
                       </Text>
@@ -266,8 +260,8 @@ const OTNotes = ({ data, fontFamily = "Poppins" }) => {
                 {/* Procedure */}
                 {procedure && (
                   <View style={styles.bulletItem}>
-                    <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                    <Text style={[styles.bulletContent, { fontFamily }]}>
+                    <Text style={[styles.bullet]}>•</Text>
+                    <Text style={[styles.bulletContent]}>
                       <Text style={styles.fieldLabel}>Procedure: </Text>
                       <Text style={styles.regularText}>{procedure}</Text>
                     </Text>

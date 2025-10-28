@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
-    marginBottom: 8,
+    // marginBottom: 8,
   },
 
   // Subsection container
@@ -27,9 +27,8 @@ const styles = StyleSheet.create({
   // Subsection title
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
-    lineHeight: 1.8, // 18px for 10px font
+    lineHeight: 1.8,
     textTransform: "capitalize",
     marginBottom: 4,
   },
@@ -48,7 +47,6 @@ const styles = StyleSheet.create({
   // Bullet marker
   bullet: {
     width: 12,
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -57,10 +55,9 @@ const styles = StyleSheet.create({
   // Bullet content
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
-    lineHeight: 1.8, // 18px for 10px font
+    lineHeight: 1.8,
     textTransform: "capitalize",
   },
 });
@@ -69,14 +66,9 @@ const styles = StyleSheet.create({
  * DiagnosisAndSurgery Component
  * @param {Object} props - Component props
  * @param {Object} props.data - Diagnosis and surgery data
- * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Diagnosis and Surgery Section
  */
-const DiagnosisAndSurgery = ({
-  data,
-  fontFamily = "Poppins",
-  isAssessment = false,
-}) => {
+const DiagnosisAndSurgery = ({ data, isAssessment = false }) => {
   if (!data?.diagnosisAndSurgery) return null;
 
   const { diagnosisAndSurgery } = data;
@@ -88,14 +80,12 @@ const DiagnosisAndSurgery = ({
         diagnosisAndSurgery.finalDiagnosis.length > 0 && (
           <View style={styles.subsectionContainer}>
             <View style={styles.contentContainer}>
-              <Text style={[styles.subsectionTitle, { fontFamily }]}>
-                Final Diagnosis:
-              </Text>
+              <Text style={styles.subsectionTitle}>Final Diagnosis:</Text>
               <View style={styles.bulletList}>
                 {diagnosisAndSurgery.finalDiagnosis.map((dx, index) => (
                   <View key={`final-dx-${index}`} style={styles.bulletItem}>
-                    <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                    <Text style={[styles.bulletContent, { fontFamily }]}>
+                    <Text style={styles.bullet}>•</Text>
+                    <Text style={styles.bulletContent}>
                       {dx.tds_name} (ICD Code: {dx.icd_code}
                       {dx.notes ? `, Note: ${dx.notes}` : ""})
                     </Text>
@@ -112,15 +102,15 @@ const DiagnosisAndSurgery = ({
           <View style={styles.subsectionContainer}>
             <View style={styles.contentContainer}>
               {!isAssessment ? (
-                <Text style={[styles.subsectionTitle, { fontFamily }]}>
+                <Text style={styles.subsectionTitle}>
                   Provisional Diagnosis:
                 </Text>
               ) : null}
               <View style={styles.bulletList}>
                 {diagnosisAndSurgery.provisionalDiagnosis.map((dx, index) => (
                   <View key={`prov-dx-${index}`} style={styles.bulletItem}>
-                    <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                    <Text style={[styles.bulletContent, { fontFamily }]}>
+                    <Text style={styles.bullet}>•</Text>
+                    <Text style={styles.bulletContent}>
                       {dx.tds_name} (ICD Code: {dx.icd_code}
                       {dx.notes ? `, Note: ${dx.notes}` : ""})
                     </Text>
@@ -136,15 +126,13 @@ const DiagnosisAndSurgery = ({
         diagnosisAndSurgery.surgeriesPerformed.length > 0 && (
           <View style={styles.subsectionContainer}>
             <View style={styles.contentContainer}>
-              <Text style={[styles.subsectionTitle, { fontFamily }]}>
-                Surgeries Performed:
-              </Text>
+              <Text style={styles.subsectionTitle}>Surgeries Performed:</Text>
               <View style={styles.bulletList}>
                 {diagnosisAndSurgery.surgeriesPerformed.map(
                   (surgery, index) => (
                     <View key={`surgery-${index}`} style={styles.bulletItem}>
-                      <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                      <Text style={[styles.bulletContent, { fontFamily }]}>
+                      <Text style={styles.bullet}>•</Text>
+                      <Text style={styles.bulletContent}>
                         {surgery.procedureName} ({surgery.surgeryDate})
                       </Text>
                     </View>

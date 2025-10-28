@@ -29,7 +29,6 @@ const styles = StyleSheet.create({
   },
 
   subsectionTitle: {
-    fontSize: 11,
     fontWeight: 700,
     color: "#000000",
     marginBottom: 6,
@@ -40,7 +39,7 @@ const styles = StyleSheet.create({
 /**
  * Primary Consultant Section (Admitting Consultant)
  */
-const renderPrimaryConsultant = (data, fontFamily) => {
+const renderPrimaryConsultant = (data) => {
   if (!data?.patientInformation?.primaryConsultant) return null;
 
   const { primaryConsultant } = data.patientInformation;
@@ -48,9 +47,9 @@ const renderPrimaryConsultant = (data, fontFamily) => {
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Admitting Consultant" fontFamily={fontFamily} />
+      <SectionTitle title="Admitting Consultant" />
       <View style={{ padding: "6px 0px" }}>
-        {renderSimpleText(consultantText, fontFamily)}
+        {renderSimpleText(consultantText)}
       </View>
     </View>
   );
@@ -59,11 +58,11 @@ const renderPrimaryConsultant = (data, fontFamily) => {
 /**
  * Diagnosis and Surgery Section
  */
-const renderDiagnosisAndSurgery = (data, fontFamily) => {
+const renderDiagnosisAndSurgery = (data) => {
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Diagnosis & Surgery" fontFamily={fontFamily} />
-      <DiagnosisAndSurgery data={data} fontFamily={fontFamily} />
+      <SectionTitle title="Diagnosis & Surgery" />
+      <DiagnosisAndSurgery data={data} />
     </View>
   );
 };
@@ -71,15 +70,11 @@ const renderDiagnosisAndSurgery = (data, fontFamily) => {
 /**
  * Patient History Section
  */
-const renderPatientHistory = (data, fontFamily, formatSettings) => {
+const renderPatientHistory = (data, formatSettings) => {
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Patient History" fontFamily={fontFamily} />
-      <PatientHistory
-        data={data}
-        formatSettings={formatSettings}
-        fontFamily={fontFamily}
-      />
+      <SectionTitle title="Patient History" />
+      <PatientHistory data={data} formatSettings={formatSettings} />
     </View>
   );
 };
@@ -87,14 +82,11 @@ const renderPatientHistory = (data, fontFamily, formatSettings) => {
 /**
  * Physical Examination Section
  */
-const renderPhysicalExamination = (data, fontFamily, formatSettings) => {
+const renderPhysicalExamination = (data, formatSettings) => {
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle
-        title="Physical Examination at the Time of Admission"
-        fontFamily={fontFamily}
-      />
-      <PhysicalExamination data={data} fontFamily={fontFamily} formatSettings={formatSettings} />
+      <SectionTitle title="Physical Examination at the Time of Admission" />
+      <PhysicalExamination data={data} formatSettings={formatSettings} />
     </View>
   );
 };
@@ -102,14 +94,11 @@ const renderPhysicalExamination = (data, fontFamily, formatSettings) => {
 /**
  * Functional Assessment Section
  */
-const renderFunctionalAssessment = (data, fontFamily, formatSettings) => {
+const renderFunctionalAssessment = (data, formatSettings) => {
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle
-        title="Functional Assessment at the Time of Admission"
-        fontFamily={fontFamily}
-      />
-      <FunctionalAssessment data={data} fontFamily={fontFamily} formatSettings={formatSettings} />
+      <SectionTitle title="Functional Assessment at the Time of Admission" />
+      <FunctionalAssessment data={data} formatSettings={formatSettings} />
     </View>
   );
 };
@@ -117,11 +106,11 @@ const renderFunctionalAssessment = (data, fontFamily, formatSettings) => {
 /**
  * Course in Hospital Section
  */
-const renderCourseInHospital = (data, fontFamily) => {
+const renderCourseInHospital = (data) => {
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Course in Hospital" fontFamily={fontFamily} />
-      <CourseInHospital data={data} fontFamily={fontFamily} />
+      <SectionTitle title="Course in Hospital" />
+      <CourseInHospital data={data} />
     </View>
   );
 };
@@ -129,11 +118,11 @@ const renderCourseInHospital = (data, fontFamily) => {
 /**
  * OT Notes Section
  */
-const renderOTNotes = (data, fontFamily) => {
+const renderOTNotes = (data) => {
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="OT Notes" fontFamily={fontFamily} />
-      <OTNotes data={data} fontFamily={fontFamily} />
+      <SectionTitle title="OT Notes" />
+      <OTNotes data={data} />
     </View>
   );
 };
@@ -141,11 +130,11 @@ const renderOTNotes = (data, fontFamily) => {
 /**
  * Discharge Notes Section
  */
-const renderDischargeNotes = (data, fontFamily) => {
+const renderDischargeNotes = (data) => {
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Discharge Note" fontFamily={fontFamily} />
-      <DischargeNote data={data} fontFamily={fontFamily} />
+      <SectionTitle title="Discharge Note" />
+      <DischargeNote data={data} />
     </View>
   );
 };
@@ -153,11 +142,11 @@ const renderDischargeNotes = (data, fontFamily) => {
 /**
  * Discharge Advice Section
  */
-const renderDischargeAdvice = (data, fontFamily) => {
+const renderDischargeAdvice = (data) => {
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Discharge Advice" fontFamily={fontFamily} />
-      <DischargeAdvice data={data} fontFamily={fontFamily} />
+      <SectionTitle title="Discharge Advice" />
+      <DischargeAdvice data={data} />
     </View>
   );
 };
@@ -165,11 +154,11 @@ const renderDischargeAdvice = (data, fontFamily) => {
 /**
  * Follow-up Section
  */
-const renderFollowUp = (data, fontFamily) => {
+const renderFollowUp = (data) => {
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Follow-up" fontFamily={fontFamily} />
-      <FollowUp data={data} fontFamily={fontFamily} />
+      <SectionTitle title="Follow-up" />
+      <FollowUp data={data} />
     </View>
   );
 };
@@ -177,32 +166,31 @@ const renderFollowUp = (data, fontFamily) => {
 /**
  * Prepared By Section
  */
-const renderPreparedBy = (data, fontFamily) => {
+const renderPreparedBy = (data) => {
   if (!data?.preparedBy) return null;
 
   const { preparedBy } = data;
 
   return (
-    <View style={{ gap: 4 }}>
-      <SectionTitle title="Prepared by" fontFamily={fontFamily} />
+    <View style={styles.sectionContainer}>
+      <SectionTitle title="Prepared by" />
 
       {/* Inline label-value */}
       <View style={{ padding: "6px 6px 0 6px" }}>
         <Text
           style={{
-            fontSize: 10,
             lineHeight: 1.8,
             textTransform: "capitalize",
-            fontFamily,
           }}
         >
           <Text style={{ fontWeight: 600, color: "#171725" }}>
             Discharge Summary Prepared by:{" "}
           </Text>
           <Text style={{ fontWeight: 400, color: "#454551" }}>
-            {preparedBy.map((doctor, index) => (
-              `${doctor.name}${index < preparedBy.length - 1 ? ", " : ""}`
-            ))}
+            {preparedBy.map(
+              (doctor, index) =>
+                `${doctor.name}${index < preparedBy.length - 1 ? ", " : ""}`
+            )}
           </Text>
         </Text>
       </View>
@@ -214,10 +202,9 @@ const renderPreparedBy = (data, fontFamily) => {
  * Main Discharge Summary Renderer
  * @param {Object} data - Discharge summary data
  * @param {Object} formatSettings - Format settings
- * @param {string} fontFamily - Font family
  * @returns {Array} Array of section components
  */
-export const renderDischargeSummary = (data, formatSettings, fontFamily) => {
+export const renderDischargeSummary = (data, formatSettings) => {
   if (!data || !formatSettings) return [];
 
   // Get sorted sections
@@ -225,20 +212,20 @@ export const renderDischargeSummary = (data, formatSettings, fontFamily) => {
 
   // Map section keys to render functions (using new array format IDs)
   const sectionRenderers = {
-    admittingConsultant: () => renderPrimaryConsultant(data, fontFamily),
-    diagnosisAndSurgery: () => renderDiagnosisAndSurgery(data, fontFamily),
-    patientHistory: () =>
-      renderPatientHistory(data, fontFamily, formatSettings),
-    physicalExamination: () => renderPhysicalExamination(data, fontFamily, formatSettings),
-    functionalAssessment: () => renderFunctionalAssessment(data, fontFamily, formatSettings),
-    courseInHospital: () => renderCourseInHospital(data, fontFamily),
-    otNotes: () => renderOTNotes(data, fontFamily),
-    dischargeNotes: () => renderDischargeNotes(data, fontFamily),
-    dischargeAdvice: () => renderDischargeAdvice(data, fontFamily),
-    followUp: () => renderFollowUp(data, fontFamily),
+    admittingConsultant: () => renderPrimaryConsultant(data),
+    diagnosisAndSurgery: () => renderDiagnosisAndSurgery(data),
+    patientHistory: () => renderPatientHistory(data, formatSettings),
+    physicalExamination: () => renderPhysicalExamination(data, formatSettings),
+    functionalAssessment: () =>
+      renderFunctionalAssessment(data, formatSettings),
+    courseInHospital: () => renderCourseInHospital(data),
+    otNotes: () => renderOTNotes(data),
+    dischargeNotes: () => renderDischargeNotes(data),
+    dischargeAdvice: () => renderDischargeAdvice(data),
+    followUp: () => renderFollowUp(data),
     // Backward compatibility with old keys
-    primaryConsultant: () => renderPrimaryConsultant(data, fontFamily),
-    dignosisAndSurgery: () => renderDiagnosisAndSurgery(data, fontFamily),
+    primaryConsultant: () => renderPrimaryConsultant(data),
+    dignosisAndSurgery: () => renderDiagnosisAndSurgery(data),
   };
 
   // Render sections in order
@@ -254,7 +241,7 @@ export const renderDischargeSummary = (data, formatSettings, fontFamily) => {
 
   // Add prepared by at the end
   if (data.preparedBy) {
-    sections.push(renderPreparedBy(data, fontFamily));
+    sections.push(renderPreparedBy(data));
   }
 
   return sections;

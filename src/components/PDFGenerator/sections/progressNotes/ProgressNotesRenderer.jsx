@@ -19,7 +19,6 @@ const styles = StyleSheet.create({
   },
 
   dateHeader: {
-    fontSize: 14,
     fontWeight: 700,
     color: "#000000",
     marginBottom: 12,
@@ -42,13 +41,11 @@ const styles = StyleSheet.create({
   },
 
   timeInfo: {
-    fontSize: 11,
     fontWeight: 700,
     color: "#333333",
   },
 
   doctorInfo: {
-    fontSize: 10,
     fontWeight: 450,
     color: "#666666",
   },
@@ -59,7 +56,6 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 10,
     fontWeight: 700,
     color: "#000000",
     marginBottom: 4,
@@ -67,14 +63,12 @@ const styles = StyleSheet.create({
   },
 
   sectionContent: {
-    fontSize: 9,
     color: "#000000",
     marginLeft: 8,
     lineHeight: 1.4,
   },
 
   bulletPoint: {
-    fontSize: 9,
     color: "#333333",
     marginLeft: 4,
   },
@@ -85,7 +79,7 @@ const styles = StyleSheet.create({
  */
 const formatDateTime = (dateTime) => {
   if (!dateTime) return "";
-  
+
   try {
     const date = new Date(dateTime);
     const timeStr = date.toLocaleTimeString("en-US", {
@@ -107,16 +101,16 @@ const formatDateTime = (dateTime) => {
 /**
  * Render a single progress note entry
  */
-const renderProgressNoteEntry = (entry, fontFamily) => {
+const renderProgressNoteEntry = (entry) => {
   if (!entry) return null;
-  return <ProgressNoteEntry key={`entry-${entry.dateTime}`} entry={entry} fontFamily={fontFamily} />;
+  return <ProgressNoteEntry key={`entry-${entry.dateTime}`} entry={entry} />;
 };
 
 /**
  * Render progress notes by date
  */
-const renderProgressNotesByDate = (data, fontFamily) => {
-  const progressNotes = data?.progressNotesData?.progressNotes
+const renderProgressNotesByDate = (data) => {
+  const progressNotes = data?.progressNotesData?.progressNotes;
   if (!progressNotes || !Array.isArray(progressNotes)) return null;
 
   // Group progress notes by date
@@ -130,15 +124,14 @@ const renderProgressNotesByDate = (data, fontFamily) => {
   }, {});
 
   // Sort dates in descending order (newest first)
-  const sortedDates = Object.keys(notesByDate).sort((a, b) => 
-    new Date(b) - new Date(a)
+  const sortedDates = Object.keys(notesByDate).sort(
+    (a, b) => new Date(b) - new Date(a)
   );
 
   return (
     <View style={styles.sectionContainer}>
       {sortedDates.map((date) => (
         <View key={`date-${date}`}>
-          
           {/* Progress Notes Cards for this date */}
           {notesByDate[date]
             .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime))
@@ -146,59 +139,53 @@ const renderProgressNotesByDate = (data, fontFamily) => {
               <View key={`note-${note.dateTime}`} style={styles.noteCard}>
                 {/* Card Header */}
                 <View style={styles.cardHeader}>
-                  <Text style={[styles.timeInfo, { fontFamily }]}>
+                  <Text style={[styles.timeInfo]}>
                     {note.timeOfDay} - {formatDateTime(note.dateTime)}
                   </Text>
-                  <Text style={[styles.doctorInfo, { fontFamily }]}>
+                  <Text style={[styles.doctorInfo]}>
                     Filled By: {note.filledBy}
                   </Text>
                 </View>
-                
+
                 {/* Card Content */}
                 <View style={styles.cardContent}>
                   {/* Chief Complaint */}
                   {note.chiefComplaint && note.chiefComplaint.trim() && (
                     <View>
-                      <Text style={[styles.sectionTitle, { fontFamily }]}>
+                      <Text style={[styles.sectionTitle]}>
                         Chief Complaint:
                       </Text>
-                      <Text style={[styles.sectionContent, { fontFamily }]}>
+                      <Text style={[styles.sectionContent]}>
                         {note.chiefComplaint}
                       </Text>
                     </View>
                   )}
-                  
+
                   {/* Findings */}
                   {note.findings && note.findings.trim() && (
                     <View>
-                      <Text style={[styles.sectionTitle, { fontFamily }]}>
-                        Findings:
-                      </Text>
-                      <Text style={[styles.sectionContent, { fontFamily }]}>
+                      <Text style={[styles.sectionTitle]}>Findings:</Text>
+                      <Text style={[styles.sectionContent]}>
                         {note.findings}
                       </Text>
                     </View>
                   )}
-                  
+
                   {/* Vitals */}
                   {note.vitals && note.vitals.trim() && (
                     <View>
-                      <Text style={[styles.sectionTitle, { fontFamily }]}>
-                        Vitals:
-                      </Text>
-                      <Text style={[styles.sectionContent, { fontFamily }]}>
-                        {note.vitals}
-                      </Text>
+                      <Text style={[styles.sectionTitle]}>Vitals:</Text>
+                      <Text style={[styles.sectionContent]}>{note.vitals}</Text>
                     </View>
                   )}
-                  
+
                   {/* Additional Remarks */}
                   {note.additionalRemarks && note.additionalRemarks.trim() && (
                     <View>
-                      <Text style={[styles.sectionTitle, { fontFamily }]}>
+                      <Text style={[styles.sectionTitle]}>
                         Additional Remarks:
                       </Text>
-                      <Text style={[styles.sectionContent, { fontFamily }]}>
+                      <Text style={[styles.sectionContent]}>
                         {note.additionalRemarks}
                       </Text>
                     </View>
@@ -215,13 +202,13 @@ const renderProgressNotesByDate = (data, fontFamily) => {
 /**
  * Render progress notes summary
  */
-const renderProgressNotesSummary = (data, fontFamily) => {
+const renderProgressNotesSummary = (data) => {
   if (!data?.progressNotesSummary) return null;
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Progress Notes Summary" fontFamily={fontFamily} />
-      <ProgressNotesSummary data={data} fontFamily={fontFamily} />
+      <SectionTitle title="Progress Notes Summary" />
+      <ProgressNotesSummary data={data} />
     </View>
   );
 };
@@ -229,13 +216,13 @@ const renderProgressNotesSummary = (data, fontFamily) => {
 /**
  * Render patient information section
  */
-const renderPatientInfo = (data, fontFamily) => {
+const renderPatientInfo = (data) => {
   if (!data?.patientInformation) return null;
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Patient Information" fontFamily={fontFamily} />
-      <PatientInfo data={data} fontFamily={fontFamily} />
+      <SectionTitle title="Patient Information" />
+      <PatientInfo data={data} />
     </View>
   );
 };
@@ -243,13 +230,13 @@ const renderPatientInfo = (data, fontFamily) => {
 /**
  * Render attending physician information
  */
-const renderAttendingPhysician = (data, fontFamily) => {
+const renderAttendingPhysician = (data) => {
   if (!data?.attendingPhysician) return null;
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Attending Physician" fontFamily={fontFamily} />
-      <AttendingPhysician data={data} fontFamily={fontFamily} />
+      <SectionTitle title="Attending Physician" />
+      <AttendingPhysician data={data} />
     </View>
   );
 };
@@ -258,11 +245,9 @@ const renderAttendingPhysician = (data, fontFamily) => {
  * Main Progress Notes Renderer
  * @param {Object} data - Progress notes data
  * @param {Object} formatSettings - Format settings
- * @param {string} fontFamily - Font family
  * @returns {Array} Array of section components
  */
-export const renderProgressNotes = (data, formatSettings, fontFamily) => {
-
+export const renderProgressNotes = (data, formatSettings) => {
   if (!data) {
     return [];
   }
@@ -297,7 +282,7 @@ export const renderProgressNotes = (data, formatSettings, fontFamily) => {
     // patientInfo: () => renderPatientInfo(data, fontFamily),
     // attendingPhysician: () => renderAttendingPhysician(data, fontFamily),
     // progressNotesSummary: () => renderProgressNotesSummary(data, fontFamily),
-    progressNotesByDate: () => renderProgressNotesByDate(data, fontFamily),
+    progressNotesByDate: () => renderProgressNotesByDate(data),
   };
 
   // Render sections in order

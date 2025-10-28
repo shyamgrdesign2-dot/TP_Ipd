@@ -30,7 +30,8 @@ const PDFDocument = ({ settings, patientData, children }) => {
   const {
     pageSize = "A4",
     fontFamily,
-    fontSize = 9,
+    fontSize = 10,
+    patientInfoFontSize = 10,
     pagination = false,
   } = pageFormat;
 
@@ -74,7 +75,6 @@ const PDFDocument = ({ settings, patientData, children }) => {
         {/* Header */}
         <PDFHeader
           headerSettings={header}
-          fontFamily={fontFamily}
           letterHeadFormat={letterHeadFormat}
         />
 
@@ -82,7 +82,7 @@ const PDFDocument = ({ settings, patientData, children }) => {
         <PatientInfo
           displaySettings={displayPatientInfo}
           patientData={patientData}
-          fontFamily={fontFamily}
+          patientInfoFontSize={patientInfoFontSize}
         />
 
         {/* Content */}

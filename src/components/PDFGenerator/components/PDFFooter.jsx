@@ -29,19 +29,12 @@ const styles = StyleSheet.create({
  * PDFFooter Component
  * @param {Object} props - Component props
  * @param {Object} props.footerSettings - Footer configuration
- * @param {string} props.fontFamily - Font family
- * @param {boolean} props.showPageNumbers - Show page numbers
  * @returns {JSX.Element} PDF Footer
  */
-const PDFFooter = ({
-  footerSettings,
-  fontFamily,
-  letterHeadFormat,
-  showPageNumbers = true,
-}) => {
+const PDFFooter = ({ footerSettings, letterHeadFormat }) => {
   if (!footerSettings) return null;
 
-  const { title = "", fontSize = 9, footerImg = "" } = footerSettings;
+  const { title = "", fontSize = 10, footerImg = "" } = footerSettings;
 
   if (letterHeadFormat === LETTERHEAD_FORMATS.OWN) {
     return null;
@@ -60,7 +53,7 @@ const PDFFooter = ({
       style={[styles.footer, { borderTopWidth: 1, borderTopColor: "#000000" }]}
       fixed
     >
-      <Text style={[styles.footerText, { fontFamily, fontSize }]}>{title}</Text>
+      <Text style={[styles.footerText, { fontSize }]}>{title}</Text>
     </View>
   );
 };

@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
-    marginBottom: 8,
+    // marginBottom: 8,
   },
 
   // Subsection container
@@ -28,7 +28,6 @@ const styles = StyleSheet.create({
 
   // Inline label-value text
   inlineText: {
-    fontSize: 10,
     lineHeight: 1.8,
     textTransform: "capitalize",
   },
@@ -46,7 +45,6 @@ const styles = StyleSheet.create({
   // Subsection title
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -67,7 +65,6 @@ const styles = StyleSheet.create({
   // Bullet marker
   bullet: {
     width: 12,
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -76,7 +73,6 @@ const styles = StyleSheet.create({
   // Bullet content
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8,
@@ -88,10 +84,9 @@ const styles = StyleSheet.create({
  * FollowUp Component
  * @param {Object} props - Component props
  * @param {Object} props.data - Follow-up data
- * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Follow-up Section
  */
-const FollowUp = ({ data, fontFamily = "Poppins" }) => {
+const FollowUp = ({ data }) => {
   if (!data?.followUp) return null;
 
   const followUp = data.followUp;
@@ -102,7 +97,7 @@ const FollowUp = ({ data, fontFamily = "Poppins" }) => {
       {followUp.date && (
         <View style={styles.subsectionContainer}>
           <View style={styles.contentContainer}>
-            <Text style={[styles.inlineText, { fontFamily }]}>
+            <Text style={[styles.inlineText]}>
               <Text style={styles.inlineLabel}>Follow-up on: </Text>
               <Text style={styles.inlineValue}>{followUp.date}</Text>
             </Text>
@@ -114,7 +109,7 @@ const FollowUp = ({ data, fontFamily = "Poppins" }) => {
       {followUp.doctor && (
         <View style={styles.subsectionContainer}>
           <View style={styles.contentContainer}>
-            <Text style={[styles.inlineText, { fontFamily }]}>
+            <Text style={[styles.inlineText]}>
               <Text style={styles.inlineLabel}>Follow-up Doctor: </Text>
               <Text style={styles.inlineValue}>
                 {followUp.doctor.name}
@@ -130,14 +125,10 @@ const FollowUp = ({ data, fontFamily = "Poppins" }) => {
         !isEmptyRichText(followUp.additionalNotes) && (
           <View style={styles.subsectionContainer}>
             <View style={styles.contentContainer}>
-              <Text style={[styles.subsectionTitle, { fontFamily }]}>
-                Additional Notes
-              </Text>
+              <Text style={[styles.subsectionTitle]}>Additional Notes</Text>
               <View style={styles.bulletList}>
                 {renderRichText(followUp.additionalNotes, {
                   text: {
-                    fontSize: 10,
-                    fontFamily,
                     color: "#454551",
                     lineHeight: 1.8,
                   },

@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
-    marginBottom: 8,
+    // marginBottom: 8,
   },
 
   // Subsection container
@@ -32,7 +32,6 @@ const styles = StyleSheet.create({
   // Subsection title
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -41,7 +40,6 @@ const styles = StyleSheet.create({
 
   // Inline assessment text
   assessmentText: {
-    fontSize: 10,
     color: "#454551",
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -73,7 +71,6 @@ const styles = StyleSheet.create({
   // Bullet marker
   bullet: {
     width: 12,
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -82,7 +79,6 @@ const styles = StyleSheet.create({
   // Bullet content
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8,
@@ -91,7 +87,6 @@ const styles = StyleSheet.create({
 
   // Referral text
   referralText: {
-    fontSize: 10,
     lineHeight: 1.8,
     textTransform: "capitalize",
   },
@@ -110,7 +105,7 @@ const styles = StyleSheet.create({
 /**
  * Render Functional Assessment inline
  */
-const renderFunctionalAssessmentInline = (assessment, fontFamily) => {
+const renderFunctionalAssessmentInline = (assessment) => {
   if (!assessment) return null;
 
   const fields = [
@@ -125,7 +120,7 @@ const renderFunctionalAssessmentInline = (assessment, fontFamily) => {
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.assessmentText, { fontFamily }]}>
+        <Text style={[styles.assessmentText]}>
           {fields.map((field, index) => {
             if (!field.value) return null;
             return (
@@ -145,18 +140,16 @@ const renderFunctionalAssessmentInline = (assessment, fontFamily) => {
 /**
  * Render Others section
  */
-const renderOthers = (others, fontFamily) => {
+const renderOthers = (others) => {
   if (!others || isEmptyRichText(others)) return null;
 
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>Others:</Text>
+        <Text style={[styles.subsectionTitle]}>Others:</Text>
         <View style={styles.bulletList}>
           {renderRichText(others, {
             text: {
-              fontSize: 10,
-              fontFamily,
               color: "#454551",
               lineHeight: 1.8,
             },
@@ -175,13 +168,13 @@ const renderOthers = (others, fontFamily) => {
 /**
  * Render Referral
  */
-const renderReferral = (referralDoctor, fontFamily) => {
+const renderReferral = (referralDoctor) => {
   if (!referralDoctor) return null;
 
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.referralText, { fontFamily }]}>
+        <Text style={[styles.referralText]}>
           <Text style={styles.referralLabel}>
             Referred to Physiotherapy for Review
           </Text>
@@ -197,7 +190,6 @@ const renderReferral = (referralDoctor, fontFamily) => {
  * FunctionalAssessment Component
  * @param {Object} props - Component props
  * @param {Object} props.data - Functional assessment data
- * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Functional Assessment Section
  */
 
@@ -208,7 +200,6 @@ function convertToAssessmentStructure(input = {}) {
 
 const FunctionalAssessment = ({
   data,
-  fontFamily = "Poppins",
   isAssessment = false,
   formatSettings,
 }) => {
@@ -233,13 +224,10 @@ const FunctionalAssessment = ({
       {sortedSubsections.map((subsection) => {
         const key = subsection.id;
         if (key === "assessment" && assessment?.assessment) {
-          return renderFunctionalAssessmentInline(
-            assessment?.assessment || {},
-            fontFamily
-          );
+          return renderFunctionalAssessmentInline(assessment?.assessment || {});
         }
         if (key === "func-others" && assessment?.others) {
-          return renderOthers(assessment.others, fontFamily);
+          return renderOthers(assessment.others);
         }
         if (
           key === "referredToPhysiotherapyForReview" &&
@@ -250,8 +238,7 @@ const FunctionalAssessment = ({
           return renderReferral(
             isAssessment
               ? assessment?.assessment.referredToPhysiotherapyForReview?.name
-              : data?.referralDoctor,
-            fontFamily
+              : data?.referralDoctor
           );
         }
         return null;

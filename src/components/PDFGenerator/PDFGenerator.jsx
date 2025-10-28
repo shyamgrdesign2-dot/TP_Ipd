@@ -61,38 +61,29 @@ const PDFGenerator = ({
 
   // Get format settings - formatStyle is now always an array
   const formatSettings = settings.formatStyle || [];
-  const fontFamily = settings.pageFormat?.fontFamily;
 
   // Render content based on document type
   let contentSections = [];
 
   switch (documentType) {
     case "dischargeSummary":
-      contentSections = renderDischargeSummary(
-        data,
-        formatSettings,
-        fontFamily
-      );
+      contentSections = renderDischargeSummary(data, formatSettings);
       break;
 
     case "assessment":
-      contentSections = renderAdmissionAssessment(
-        data,
-        formatSettings,
-        fontFamily
-      );
+      contentSections = renderAdmissionAssessment(data, formatSettings);
       break;
 
     case "progressNotes":
-      contentSections = renderProgressNotes(data, formatSettings, fontFamily);
+      contentSections = renderProgressNotes(data, formatSettings);
       break;
 
     case "consultationNotes":
-      contentSections = renderConsultantNotes(data, formatSettings, fontFamily);
+      contentSections = renderConsultantNotes(data, formatSettings);
       break;
 
     case "otNotes":
-      contentSections = renderOTNotes(data, formatSettings, fontFamily);
+      contentSections = renderOTNotes(data, formatSettings);
       break;
 
     case "crossReferral":

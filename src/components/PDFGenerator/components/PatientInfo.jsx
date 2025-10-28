@@ -10,7 +10,7 @@ import { getVisiblePatientFields } from "../utils/pdfUtils";
 const styles = StyleSheet.create({
   outerContainer: {
     gap: 10,
-    margin: "16px 0",
+    marginBottom: 16,
   },
 
   topBorder: {
@@ -31,13 +31,11 @@ const styles = StyleSheet.create({
   fieldText: {
     flexDirection: "row",
     flexWrap: "wrap",
-    fontSize: 10,
     lineHeight: 1.8,
     color: "#171725",
   },
 
   addressText: {
-    fontSize: 10,
     lineHeight: 2,
     color: "#171725",
   },
@@ -63,14 +61,9 @@ const styles = StyleSheet.create({
  * @param {Object} props - Component props
  * @param {Object} props.displaySettings - Display patient info settings
  * @param {Object} props.patientData - Patient data
- * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Patient Info
  */
-const PatientInfo = ({
-  displaySettings,
-  patientData,
-  fontFamily = "Poppins",
-}) => {
+const PatientInfo = ({ displaySettings, patientData, patientInfoFontSize }) => {
   // if (!displaySettings || !patientData) return null;
 
   const visibleFields = getVisiblePatientFields(displaySettings, patientData);
@@ -84,15 +77,12 @@ const PatientInfo = ({
     >
       <View style={styles.topBorder} />
 
-      <View style={styles.container}>
+      <View style={[styles.container, { fontSize: patientInfoFontSize }]}>
         <View style={{ flex: 0.7 }}>
           {visibleFields.map((item, i) => {
             return (
               i % 2 === 0 && (
-                <Text
-                  key={`left-${i}`}
-                  style={[styles.fieldText, { fontFamily }]}
-                >
+                <Text key={`left-${i}`} style={[styles.fieldText]}>
                   <Text style={styles.label}>{item.label}:</Text>
                   <Text style={styles.value}> {item.value}</Text>
                 </Text>
@@ -104,10 +94,7 @@ const PatientInfo = ({
           {visibleFields.map((item, i) => {
             return (
               i % 2 === 1 && (
-                <Text
-                  key={`right-${i}`}
-                  style={[styles.fieldText, { fontFamily }]}
-                >
+                <Text key={`right-${i}`} style={[styles.fieldText]}>
                   <Text style={styles.label}>{item.label}:</Text>
                   <Text style={styles.value}> {item.value}</Text>
                 </Text>

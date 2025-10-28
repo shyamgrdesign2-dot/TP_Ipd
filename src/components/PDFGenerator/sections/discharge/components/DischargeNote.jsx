@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
-    marginBottom: 8,
+    // marginBottom: 8,
   },
 
   // Subsection container
@@ -31,7 +31,6 @@ const styles = StyleSheet.create({
   // Subsection title
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -50,7 +49,6 @@ const styles = StyleSheet.create({
 
   bullet: {
     width: 12,
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -58,7 +56,6 @@ const styles = StyleSheet.create({
 
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8,
@@ -69,20 +66,18 @@ const styles = StyleSheet.create({
 /**
  * Render Patient Condition
  */
-const renderPatientCondition = (condition, fontFamily) => {
+const renderPatientCondition = (condition) => {
   if (!condition || isEmptyRichText(condition)) return null;
 
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>
+        <Text style={[styles.subsectionTitle]}>
           Patient's Condition During Discharge:
         </Text>
         <View style={styles.bulletList}>
           {renderRichText(condition, {
             text: {
-              fontSize: 10,
-              fontFamily,
               color: "#454551",
               lineHeight: 1.8,
             },
@@ -98,10 +93,9 @@ const renderPatientCondition = (condition, fontFamily) => {
  * DischargeNote Component - Exact Figma Match
  * @param {Object} props - Component props
  * @param {Object} props.data - Discharge note data
- * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Discharge Note Section
  */
-const DischargeNote = ({ data, fontFamily = "Poppins" }) => {
+const DischargeNote = ({ data }) => {
   if (!data?.dischargeNotes) return null;
 
   const notes = data.dischargeNotes;
@@ -109,20 +103,14 @@ const DischargeNote = ({ data, fontFamily = "Poppins" }) => {
   return (
     <View style={styles.mainContainer}>
       {/* Discharge Vitals - Inline */}
-      <Vitals
-        vitals={notes.dischargeVitals}
-        fontFamily={fontFamily}
-        title="Discharge Vitals"
-      />
+      <Vitals vitals={notes.dischargeVitals} title="Discharge Vitals" />
 
       {/* Patient Condition */}
-      {notes.patientCondition &&
-        renderPatientCondition(notes.patientCondition, fontFamily)}
+      {notes.patientCondition && renderPatientCondition(notes.patientCondition)}
 
       {/* Discharge Medication Table */}
       <MedicationTable
         medications={notes.dischargeMedications}
-        fontFamily={fontFamily}
         title="Discharge Medication"
         showContainer={true}
       />
