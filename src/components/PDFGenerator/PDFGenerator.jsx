@@ -18,6 +18,7 @@ import { renderProgressNotes } from "./sections/progressNotes/ProgressNotesRende
 import { renderAdmissionAssessment } from "./sections/discharge/AdmissionAssessmentRenderer";
 import { IPD } from "../../utils/locale";
 import { renderOTNotes } from "./sections/discharge/OTNotesRenderer";
+import { renderCrossReferral } from "./sections/discharge/CrossReferralRenderer";
 
 // Register fonts once
 let fontsRegistered = false;
@@ -96,8 +97,7 @@ const PDFGenerator = ({
       break;
 
     case "crossReferral":
-      // TODO: Implement cross referral renderer
-      console.warn("Cross referral renderer not yet implemented");
+      contentSections = renderCrossReferral(data, formatSettings, fontFamily);
       break;
 
     default:

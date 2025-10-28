@@ -5,16 +5,23 @@
 import React from "react";
 import { View, Text } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
-import { isEmptyRichText } from "../../../utils/pdfUtils";
+import {
+  getAllVisibleSections,
+  isEmptyRichText,
+} from "../../../utils/pdfUtils";
 import { renderRichText } from "../../../utils/richTextRenderer";
 import Vitals from "../../../components/Vitals";
 import MedicationTable from "../../../components/MedicationTable";
+import SectionTitle from "../../SectionTitle";
 
 const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
     marginBottom: 8,
+  },
+  sectionContainer: {
+    marginBottom: 12,
   },
 
   // Subsection container
@@ -101,31 +108,66 @@ const renderPatientCondition = (condition, fontFamily) => {
  * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Discharge Note Section
  */
-const DischargeNote = ({ data, fontFamily = "Poppins" }) => {
+const DischargeNote = ({
+  data,
+  fontFamily = "Poppins",
+  title,
+  formatSettings,
+}) => {
   if (!data?.dischargeNotes) return null;
 
   const notes = data.dischargeNotes;
 
+  const otNotesSection = formatSettings.find(
+    (section) => section.id === "dischargeNotes"
+  );
+  const subsections = otNotesSection?.subSections || [];
+
+  const sortedSubsections = getAllVisibleSections(subsections);
+
+  if (
+    (!sortedSubsections.some((s) => s.id === "patientCondition") ||
+      isEmptyRichText(notes.patientCondition)) &&
+    (!sortedSubsections.some((s) => s.id === "dischargeVitals") ||
+      !Object.keys(notes.dischargeVitals)?.length ||
+      !Object.values(notes.dischargeVitals)?.some((item) => !!item)) &&
+    (!sortedSubsections.some((s) => s.id === "dischargeMedications") ||
+      !notes.dischargeMedications?.length)
+  )
+    return null;
+
   return (
-    <View style={styles.mainContainer}>
-      {/* Discharge Vitals - Inline */}
-      <Vitals
-        vitals={notes.dischargeVitals}
-        fontFamily={fontFamily}
-        title="Discharge Vitals"
-      />
-
-      {/* Patient Condition */}
-      {notes.patientCondition &&
-        renderPatientCondition(notes.patientCondition, fontFamily)}
-
-      {/* Discharge Medication Table */}
-      <MedicationTable
-        medications={notes.dischargeMedications}
-        fontFamily={fontFamily}
-        title="Discharge Medication"
-        showContainer={true}
-      />
+    <View style={styles.sectionContainer}>
+      <SectionTitle title={title} fontFamily={fontFamily} />
+      <View style={styles.mainContainer}>
+        {sortedSubsections.map((subSection) => {
+          return (
+            <View key={subSection.id}>
+              {subSection.id === "patientCondition" &&
+                renderPatientCondition(notes.patientCondition, fontFamily)}
+              {subSection.id === "dischargeVitals" &&
+                Object.values(notes.dischargeVitals)?.some(
+                  (item) => !!item
+                ) && (
+                  <Vitals
+                    vitals={notes.dischargeVitals}
+                    fontFamily={fontFamily}
+                    title={subSection.label}
+                  />
+                )}
+              {subSection.id === "dischargeMedications" &&
+                notes.dischargeMedications?.length > 0 && (
+                  <MedicationTable
+                    medications={notes.dischargeMedications}
+                    fontFamily={fontFamily}
+                    title={subSection.label}
+                    showContainer={true}
+                  />
+                )}
+            </View>
+          );
+        })}
+      </View>
     </View>
   );
 };

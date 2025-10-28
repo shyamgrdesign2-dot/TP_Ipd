@@ -382,6 +382,10 @@ const DischargeSummary = (props) => {
       }
 
       return otNotesData.map((otNote) => {
+        console.log(
+          "INTEL ==> otNote?.otNotes?.operativeNotes",
+          otNote?.otNotes?.operativeNotes
+        );
         const surgeryDetails = otNote?.otNotes?.surgeryDetails || {};
         const surgeryTeam = otNote?.otNotes?.surgeryTeam || {};
 
@@ -394,37 +398,17 @@ const DischargeSummary = (props) => {
             : [],
           dateOfSurgery: surgeryDetails.surgeryDate || "",
           surgeon: surgeryTeam.primarySurgeon || [],
+          secondarySurgeon: surgeryTeam.secondarySurgeon || [],
+          assistant: surgeryTeam.assistant || [],
           anaesthetist: surgeryTeam.anaesthesiologist || [],
+          scrubNurse: surgeryTeam.scrubNurse || [],
+          floorCirculatingNurse: surgeryTeam.floorCirculatingNurse || [],
           anaesthetistType: surgeryDetails.anaesthesiaType || "",
-          operativeFindings: otNote?.otNotes?.operativeNotes?.operativeFindings
-            ?.value
-            ? [
-                {
-                  type: "paragraph",
-                  children: [
-                    {
-                      text: otNote.otNotes.operativeNotes.operativeFindings
-                        .value,
-                    },
-                  ],
-                },
-              ]
-            : [],
-          procedure: [],
-          additionalNotes: otNote?.otNotes?.postOperativeNotes?.additionalNotes
-            ?.value
-            ? [
-                {
-                  type: "paragraph",
-                  children: [
-                    {
-                      text: otNote.otNotes.postOperativeNotes.additionalNotes
-                        .value,
-                    },
-                  ],
-                },
-              ]
-            : [],
+          operativeFindings:
+            otNote?.otNotes?.operativeNotes?.operativeFindings || [],
+          procedure: otNote?.otNotes?.operativeNotes?.procedures || [],
+          additionalNotes:
+            otNote?.otNotes?.postOperativeNotes?.additionalNotes || [],
         };
       });
     };

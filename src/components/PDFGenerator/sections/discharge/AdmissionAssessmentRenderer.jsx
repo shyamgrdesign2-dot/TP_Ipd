@@ -60,16 +60,15 @@ const renderPrimaryConsultant = (data, fontFamily) => {
 /**
  * Diagnosis and Surgery Section
  */
-const renderDiagnosisAndSurgery = (data, fontFamily) => {
+const renderDiagnosisAndSurgery = (data, fontFamily, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Provisional Diagnosis" fontFamily={fontFamily} />
-      <DiagnosisAndSurgery
-        data={data}
-        fontFamily={fontFamily}
-        isAssessment={true}
-      />
-    </View>
+    <DiagnosisAndSurgery
+      title="Provisional Diagnosis"
+      data={data}
+      fontFamily={fontFamily}
+      formatSettings={formatSettings}
+      isAssessment={true}
+    />
   );
 };
 
@@ -78,15 +77,13 @@ const renderDiagnosisAndSurgery = (data, fontFamily) => {
  */
 const renderBasicInfo = (data, fontFamily, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Basic Info" fontFamily={fontFamily} />
-      <PatientHistory
-        data={data}
-        formatSettings={formatSettings}
-        fontFamily={fontFamily}
-        isAssessment={true}
-      />
-    </View>
+    <PatientHistory
+      data={data}
+      formatSettings={formatSettings}
+      fontFamily={fontFamily}
+      isAssessment={true}
+      title="Basic Info"
+    />
   );
 };
 
@@ -95,18 +92,13 @@ const renderBasicInfo = (data, fontFamily, formatSettings) => {
  */
 const renderPhysicalExamination = (data, fontFamily, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle
-        title="Physical Examination"
-        fontFamily={fontFamily}
-      />
-      <PhysicalExamination
-        data={data}
-        fontFamily={fontFamily}
-        isAssessment={true}
-        formatSettings={formatSettings}
-      />
-    </View>
+    <PhysicalExamination
+      data={data}
+      fontFamily={fontFamily}
+      isAssessment={true}
+      formatSettings={formatSettings}
+      title="Physical Examination"
+    />
   );
 };
 
@@ -115,18 +107,13 @@ const renderPhysicalExamination = (data, fontFamily, formatSettings) => {
  */
 const renderFunctionalAssessment = (data, fontFamily, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle
-        title="Functional Assessment"
-        fontFamily={fontFamily}
-      />
-      <FunctionalAssessment
-        isAssessment={true}
-        data={data}
-        fontFamily={fontFamily}
-        formatSettings={formatSettings}
-      />
-    </View>
+    <FunctionalAssessment
+      isAssessment={true}
+      data={data}
+      fontFamily={fontFamily}
+      formatSettings={formatSettings}
+      title="Functional Assessment"
+    />
   );
 };
 

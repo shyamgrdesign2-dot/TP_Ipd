@@ -301,6 +301,7 @@ const CrossReferralConsultantNotes = (props) => {
   const onAddReferralClick = () => {
     const reqData = {
       ...crossReferralState.crossReferralFormDetails,
+      consultantNotes: crossReferralState.crossReferralFormDetails.consultantNotesData,
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
     };
 

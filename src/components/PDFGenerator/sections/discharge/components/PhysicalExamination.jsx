@@ -11,12 +11,17 @@ import {
 } from "../../../utils/pdfUtils";
 import SlateToPdf from "../../../components/SlateToPdf";
 import Vitals from "../../../components/Vitals";
+import SectionTitle from "../../SectionTitle";
 
 const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
     marginBottom: 8,
+  },
+
+  sectionContainer: {
+    marginBottom: 12,
   },
 
   // Subsection container
@@ -94,14 +99,14 @@ const styles = StyleSheet.create({
 /**
  * Render General Examination
  */
-const renderGeneralExamination = (examination, fontFamily) => {
-  if (!examination) return null;
+const renderGeneralExamination = (examination, fontFamily, subsection) => {
+  if (!examination || Object.keys(examination).length === 0) return null;
 
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
         <Text style={[styles.subsectionTitle, { fontFamily }]}>
-          General Examination:
+          {subsection.label}
         </Text>
         <View style={styles.bulletList}>
           {Object.entries(examination).map(([key, value]) => {
@@ -294,6 +299,7 @@ const PhysicalExamination = ({
   fontFamily = "Poppins",
   isAssessment = false,
   formatSettings,
+  title,
 }) => {
   if (!data?.physicalExamination) return null;
 
@@ -306,37 +312,79 @@ const PhysicalExamination = ({
 
   const sortedSubsections = getAllVisibleSections(subsections);
 
-  return (
-    <View style={styles.mainContainer}>
-      {sortedSubsections.map((subsection) => {
-        const key = subsection.id;
+  // Check if either "vitals", "generalExamination", or "others" subsection is present and populated
+  const isVitalsPresent =
+    physicalExamination?.vitals &&
+    Object.values(physicalExamination?.vitals)?.some(
+      (item) => item !== null && item !== "" && item !== undefined
+    );
 
-        if (key === "vitals" && physicalExamination?.vitals) {
-          return (
-            <Vitals
-              vitals={physicalExamination.vitals}
-              fontFamily={fontFamily}
-              title={subsection.label}
-            />
-          );
-        }
-        if (
-          key === "generalExamination" &&
-          ((isAssessment && physicalExamination?.examination) ||
-            (!isAssessment && physicalExamination?.generalExamination))
-        ) {
-          return renderGeneralExamination(
-            isAssessment
-              ? physicalExamination.examination
-              : physicalExamination.generalExamination,
-            fontFamily
-          );
-        }
-        if (key === "others" && physicalExamination?.others) {
-          return renderOthers(physicalExamination.others, fontFamily);
-        }
-        return null;
-      })}
+  const hasVitals = sortedSubsections.some(
+    (sub) => sub.id === "vitals" && isVitalsPresent
+  );
+  const isExaminationPresent = isAssessment
+    ? physicalExamination?.examination
+    : physicalExamination?.generalExamination;
+  const checkExamination =
+    isExaminationPresent &&
+    typeof isExaminationPresent === "object" &&
+    !Array.isArray(isExaminationPresent) &&
+    Object.values(isExaminationPresent).some(
+      (item) =>
+        item &&
+        typeof item === "object" &&
+        item.title &&
+        `${item.title}`.trim() !== ""
+    );
+  const hasGeneralExamination = sortedSubsections.some(
+    (sub) => sub.id === "generalExamination" && checkExamination
+  );
+  const hasOthers = sortedSubsections.some(
+    (sub) =>
+      sub.id === "others" &&
+      physicalExamination?.others &&
+      !isEmptyRichText(physicalExamination?.others)
+  );
+
+  if (!hasVitals && !hasGeneralExamination && !hasOthers) {
+    return null;
+  }
+
+  return (
+    <View style={styles.sectionContainer}>
+      {title && <SectionTitle title={title} fontFamily={fontFamily} />}
+      <View style={styles.mainContainer}>
+        {sortedSubsections.map((subsection) => {
+          const key = subsection.id;
+
+          if (key === "vitals" && physicalExamination?.vitals) {
+            return (
+              <Vitals
+                vitals={physicalExamination.vitals}
+                fontFamily={fontFamily}
+                title={subsection.label}
+              />
+            );
+          }
+          if (
+            key === "generalExamination" &&
+            ((isAssessment && physicalExamination?.examination) ||
+              (!isAssessment && physicalExamination?.generalExamination))
+          ) {
+            return renderGeneralExamination(
+              isAssessment
+                ? physicalExamination.examination
+                : physicalExamination.generalExamination,
+              fontFamily,
+              subsection
+            );
+          }
+          if (key === "others" && physicalExamination?.others) {
+            return renderOthers(physicalExamination.others, fontFamily);
+          }
+          return null;
+        })}
+      </View>
     </View>
   );
 };

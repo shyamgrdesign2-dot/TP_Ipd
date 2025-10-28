@@ -412,7 +412,7 @@ const CrossReferralTimeline = () => {
                                   );
                                 }
                               )}
-                              {!isCurrentDoctorReferee && (
+                              {true && (
                                 <div
                                   onClick={() =>
                                     handleAddConsultantNotesClick(
@@ -449,7 +449,7 @@ const CrossReferralTimeline = () => {
                       </span>
                     </div>
                   )}
-                  {!isCurrentDoctorReferee && !entry?.crossReferral["consultantNotesData"] && (
+                  {true && (
                     <div
                       onClick={() =>
                         handleAddConsultantNotesClick(

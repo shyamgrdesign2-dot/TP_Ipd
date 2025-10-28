@@ -475,6 +475,30 @@ const IPDPatientDetails = () => {
           },
         },
       });
+    } else if (activeMenuItem === "crossReferral") {
+      navigate("/ipd/cross-referral/configure-print-settings", {
+        state: {
+          patientDetails,
+          moduleType: "crossReferral",
+          data: crossReferralData,
+        },
+      });
+    } else if (activeMenuItem === "otNotes") {
+      navigate("/ipd/ot-notes/configure-print-settings", {
+        state: {
+          patientDetails,
+          moduleType: "otNotes",
+          data: otNotesData,
+        },
+      });
+    } else if (activeMenuItem === "assessment") {
+      navigate("/ipd/admission-assessment/configure-print-settings", {
+        state: {
+          patientDetails,
+          moduleType: "assessment",
+          data: assessmentsData,
+        },
+      });
     }
   };
   const onHandleSelect = (id) => {
@@ -492,6 +516,14 @@ const IPDPatientDetails = () => {
 
   const handleDischargeSummaryPrintPreview = () => {
     navigate("/ipd/discharge-summary/preview", {
+      state: {
+        patientDetails,
+      },
+    });
+  };
+
+  const handleCrossReferralPrintPreview = () => {
+    navigate("/ipd/cross-referral/preview", {
       state: {
         patientDetails,
       },
@@ -631,7 +663,7 @@ const IPDPatientDetails = () => {
               <ToolbarActions
                 showEditForm={false}
                 onEdit={handleAddCrossReferralClick}
-                onPrintPreview={() => console.log("Preview")}
+                onPrintPreview={handleCrossReferralPrintPreview}
                 onPrint={() => console.log("Print")}
                 onSettings={handleCustomizeClick}
                 onDownload={() => console.log("Download")}

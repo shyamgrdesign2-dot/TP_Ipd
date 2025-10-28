@@ -6,12 +6,18 @@ import React from "react";
 import { View, Text } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import { formatDate } from "../../../utils/pdfUtils";
+import SectionTitle from "../../SectionTitle";
+import { getAllVisibleSections } from "../../../utils/pdfUtils";
 
 const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
     marginBottom: 8,
+  },
+
+  sectionContainer: {
+    marginBottom: 12,
   },
 
   // Subsection container
@@ -150,20 +156,65 @@ const renderTreatmentGiven = (treatments, fontFamily) => {
  * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Course in Hospital Section
  */
-const CourseInHospital = ({ data, fontFamily = "Poppins" }) => {
+const CourseInHospital = ({
+  data,
+  fontFamily = "Poppins",
+  title,
+  formatSettings,
+}) => {
   if (!data?.courseInHospital) return null;
 
   const course = data.courseInHospital;
 
-  return (
-    <View style={styles.mainContainer}>
-      {/* Chronological Summary */}
-      {course.chronologicalSummary &&
-        renderChronologicalSummary(course.chronologicalSummary, fontFamily)}
+  const courseInHospitalSection = formatSettings.find(
+    (section) => section.id === "courseInHospital"
+  );
+  const subsections = courseInHospitalSection?.subSections || [];
 
-      {/* Treatment Given */}
-      {course.treatmentGiven &&
-        renderTreatmentGiven(course.treatmentGiven, fontFamily)}
+  const sortedSubsections = getAllVisibleSections(subsections);
+
+  const hasChronologicalSummary = sortedSubsections.some(
+    (sub) =>
+      sub.id === "chronologicalSummary" &&
+      course.chronologicalSummary &&
+      course.chronologicalSummary.length > 0
+  );
+  const hasTreatmentGiven = sortedSubsections.some(
+    (sub) =>
+      sub.id === "treatmentsGiven" &&
+      course.treatmentGiven &&
+      course.treatmentGiven.length > 0
+  );
+
+  if (!hasChronologicalSummary && !hasTreatmentGiven) {
+    return null;
+  }
+
+  return (
+    <View style={styles.sectionContainer}>
+      <SectionTitle title={title} fontFamily={fontFamily} />
+      <View style={styles.mainContainer}>
+        {sortedSubsections.map((subsection) => {
+          const key = subsection.id;
+          if (
+            key === "chronologicalSummary" &&
+            course.chronologicalSummary &&
+            course.chronologicalSummary.length > 0
+          ) {
+            return renderChronologicalSummary(
+              course.chronologicalSummary,
+              fontFamily
+            );
+          }
+          if (
+            key === "treatmentsGiven" &&
+            course.treatmentGiven &&
+            course.treatmentGiven.length > 0
+          ) {
+            return renderTreatmentGiven(course.treatmentGiven, fontFamily);
+          }
+        })}
+      </View>
     </View>
   );
 };

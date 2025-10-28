@@ -18,7 +18,7 @@ const MemberChip = ({ icon, role, label, value }) => {
         <span className="team-member-value">{value}</span>
       </div>
       {role && (
-        <div className="chip-role">{role}</div>
+        <div className="chip-role success-info-pill">{role}</div>
       )}
     </div>
   );

@@ -10,12 +10,17 @@ import {
   isEmptyRichText,
 } from "../../../utils/pdfUtils";
 import { renderRichText } from "../../../utils/richTextRenderer";
+import SectionTitle from "../../SectionTitle";
 
 const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
     marginBottom: 8,
+  },
+
+  sectionContainer: {
+    marginBottom: 12,
   },
 
   // Subsection container
@@ -211,6 +216,7 @@ const FunctionalAssessment = ({
   fontFamily = "Poppins",
   isAssessment = false,
   formatSettings,
+  title,
 }) => {
   const hasAssessmentData = isAssessment
     ? !!data?.functionalAssessment
@@ -228,34 +234,65 @@ const FunctionalAssessment = ({
 
   const sortedSubsections = getAllVisibleSections(subsections);
 
+  // Check if any of the key sections have data to render; else return null
+  const hasAssessmentSection = sortedSubsections.some(
+    (sub) =>
+      sub.id === "assessment" &&
+      assessment?.assessment &&
+      Object.values(assessment?.assessment)?.some(
+        (item) => item !== null && item !== "" && item !== undefined
+      )
+  );
+  const hasOthersSection = sortedSubsections.some(
+    (sub) =>
+      sub.id === "func-others" &&
+      assessment?.others &&
+      !isEmptyRichText(assessment?.others)
+  );
+  const hasReferralSection = sortedSubsections.some(
+    (sub) =>
+      sub.id === "referredToPhysiotherapyForReview" &&
+      ((isAssessment &&
+        assessment?.assessment?.referredToPhysiotherapyForReview &&
+        assessment?.assessment?.referredToPhysiotherapyForReview?.name) ||
+        (!isAssessment && data?.referralDoctor && data?.referralDoctor?.name))
+  );
+
+  if (!hasAssessmentSection && !hasOthersSection && !hasReferralSection) {
+    return null;
+  }
+
   return (
-    <View style={styles.mainContainer}>
-      {sortedSubsections.map((subsection) => {
-        const key = subsection.id;
-        if (key === "assessment" && assessment?.assessment) {
-          return renderFunctionalAssessmentInline(
-            assessment?.assessment || {},
-            fontFamily
-          );
-        }
-        if (key === "func-others" && assessment?.others) {
-          return renderOthers(assessment.others, fontFamily);
-        }
-        if (
-          key === "referredToPhysiotherapyForReview" &&
-          ((isAssessment &&
-            assessment?.assessment.referredToPhysiotherapyForReview) ||
-            (!isAssessment && data?.referralDoctor))
-        ) {
-          return renderReferral(
-            isAssessment
-              ? assessment?.assessment.referredToPhysiotherapyForReview?.name
-              : data?.referralDoctor,
-            fontFamily
-          );
-        }
-        return null;
-      })}
+    <View style={styles.sectionContainer}>
+      <SectionTitle title={title} fontFamily={fontFamily} />
+      <View style={styles.mainContainer}>
+        {sortedSubsections.map((subsection) => {
+          const key = subsection.id;
+          if (key === "assessment" && assessment?.assessment) {
+            return renderFunctionalAssessmentInline(
+              assessment?.assessment || {},
+              fontFamily
+            );
+          }
+          if (key === "func-others" && assessment?.others) {
+            return renderOthers(assessment.others, fontFamily);
+          }
+          if (
+            key === "referredToPhysiotherapyForReview" &&
+            ((isAssessment &&
+              assessment?.assessment.referredToPhysiotherapyForReview) ||
+              (!isAssessment && data?.referralDoctor))
+          ) {
+            return renderReferral(
+              isAssessment
+                ? assessment?.assessment.referredToPhysiotherapyForReview?.name
+                : data?.referralDoctor,
+              fontFamily
+            );
+          }
+          return null;
+        })}
+      </View>
     </View>
   );
 };
