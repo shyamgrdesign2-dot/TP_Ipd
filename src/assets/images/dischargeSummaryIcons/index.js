@@ -77,6 +77,9 @@ import wardBedNumber from "./wardBedNumber.svg";
 import warningSignsPc from "./warningSigns-pc.svg";
 import trackArrow from "./track-arrow.svg";
 import greenTick from "./green-tick.svg";
+import dischargedPatientsOutline from "./dischargedPatients-outline.svg";
+import dischargedPatientsPc from "./dischargedPatients-pc.svg";
+import dischargedPatientsSc from "./dischargedPatients-sc.svg";
 
 export const defaultIcons = {
   address,
@@ -156,7 +159,10 @@ export const defaultIcons = {
   physicalExaminationOutline,
   functionalAssessmentOutline,
   followUpOutline,
-  dischargeNotesOutline
+  dischargeNotesOutline,
+  dischargedPatientsOutline,
+  dischargedPatientsPc,
+  dischargedPatientsSc
 };
 
 export {
@@ -237,5 +243,8 @@ export {
   physicalExaminationOutline,
   functionalAssessmentOutline,
   followUpOutline,
-  dischargeNotesOutline
+  dischargeNotesOutline,
+  dischargedPatientsOutline,
+  dischargedPatientsPc,
+  dischargedPatientsSc
 };

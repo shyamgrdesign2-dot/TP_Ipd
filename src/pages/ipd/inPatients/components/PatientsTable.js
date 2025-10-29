@@ -1,9 +1,25 @@
-import React from "react";
-import { Table, Spin } from "antd";
+import React, { useState } from "react";
+import { Table, Spin, Popover } from "antd";
 import moment from "moment";
+import { useDispatch, useSelector } from "react-redux";
 import noData from "../../../../assets/images/nodata-found.svg";
 import Referral from "./Referral";
 import "../InPatients.scss";
+import { defaultIcons } from "../../../../assets/images/icons";
+import { defaultIcons as newIcons } from "../../../../assets/images/indices";
+import { markPatientAsDischarged } from "../../../../redux/ipd/ipdSlice";
+
+const MoreActionsContent = ({ handleMarkPatientAsDischarged, record }) => {
+  return (
+    <div
+      onClick={() => handleMarkPatientAsDischarged(record)}
+      className="more-actions-content cursor-pointer"
+    >
+      <img src={newIcons.dischargedPatientsSc} alt="dischargedPatientsSc" />
+      <div className="fs16-semibold-primary">Discharge Patient</div>
+    </div>
+  );
+};
 
 const PatientsTable = ({
   data,
@@ -15,7 +31,21 @@ const PatientsTable = ({
   hasMore,
   lastElementRef,
   filterParams,
+  isDischargedPatients = false,
 }) => {
+  const dispatch = useDispatch();
+
+  const [openMoreActionsPopover, setOpenMoreActionsPopover] = useState(null);
+
+  const showHideMoreActionPopover = (recordId) => {
+    setOpenMoreActionsPopover((prev) => (prev === recordId ? null : recordId));
+  };
+
+  const handleMarkPatientAsDischarged = (record) => {
+    console.log("INTEL ==> record", record);
+    dispatch(markPatientAsDischarged({ admissionId: record?.admissionId }));
+  };
+
   const columns = [
     {
       title: "#",
@@ -108,6 +138,22 @@ const PatientsTable = ({
         return <div>{dateTime.format("DD-MM-YYYY")}</div>;
       },
     },
+    ...(isDischargedPatients ? [{
+      title: "Discharged On",
+      dataIndex: "dischargedAt",
+      key: "dischargedAt",
+      sortDirections: ["descend", "ascend", "descend"],
+      defaultSortOrder: "descend",
+      sorter: (a, b) => {
+        const aDate = moment(a.dischargedAt).valueOf();
+        const bDate = moment(b.dischargedAt).valueOf();
+        return aDate - bDate;
+      },
+      render: (text, record) => {
+        const dateTime = moment(record.dischargedAt);
+        return <div>{dateTime.format("DD-MM-YYYY")}</div>;
+      },
+    }] : []),
     {
       title: "Action",
       key: "action",
@@ -126,6 +172,36 @@ const PatientsTable = ({
           >
             View Details
           </button>
+          {!isDischargedPatients && !record?.isDischarged ? (
+            <Popover
+              open={openMoreActionsPopover === record?.patientData?._id}
+              onOpenChange={(open) => {
+                if (!open) {
+                  setOpenMoreActionsPopover(null);
+                }
+              }}
+              content={
+                <MoreActionsContent
+                  handleMarkPatientAsDischarged={handleMarkPatientAsDischarged}
+                  record={record?.patientData}
+                />
+              }
+              trigger="click"
+              overlayClassName="pop-200 pp-0 videoTutorial"
+              placement="bottomLeft"
+            >
+              <img
+                onClick={() =>
+                  showHideMoreActionPopover(
+                    !openMoreActionsPopover ? record?.patientData?._id : null
+                  )
+                }
+                className="cursor-pointer"
+                src={defaultIcons.moreIcon}
+                alt={":"}
+              />
+            </Popover>
+          ) : null}
         </div>
       ),
     },

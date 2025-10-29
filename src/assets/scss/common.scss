@@ -1194,3 +1194,8 @@ body {
   //   background: transparent;
   // }
 }
+
+.pop-200 {
+  max-width: 200px;
+  z-index: 1000 !important;
+}

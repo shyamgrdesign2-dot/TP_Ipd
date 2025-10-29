@@ -90,6 +90,12 @@ export default function SectionedTable({ title = '', sections }) {
                 <span className='st__remarksText'>{section.remarks}</span>
               </div>
             ) : null}
+            {section.diagnosisNotes ? (
+              <div className='st__remarks'>
+                <span className='st__remarksLabel'>Diagnosis Notes :</span>{' '}
+                <span className='st__remarksText'>{section.diagnosisNotes}</span>
+              </div>
+            ) : null}
 
             {idx < sections.length - 1 ? <div className='ipd-obs-st__divider' /> : null}
           </div>

@@ -41,11 +41,8 @@ ApiIpdService.getDepartments = function () {
   return api.get(`/patients/departments`, baseUrl);
 };
 
-ApiIpdService.searchPatientsByMobile = function ({ mobile, countryCode }) {
-  return api.get(`/api/v1/patients/search`, {
-    ...baseUrl,
-    params: { mobile, countryCode },
-  });
+ApiIpdService.markPatientAsDischarged = function ({ admissionId }) {
+  return api.put(`/patients/mark-discharged`, { admissionId }, baseUrl);
 };
 
 export default ApiIpdService;

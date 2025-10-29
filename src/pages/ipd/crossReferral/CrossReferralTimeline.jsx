@@ -13,7 +13,7 @@ import {
 import DateRangeFilter from "../components/DateRangeFilter.js";
 import { getCustomization } from "../../../redux/ipd/ipdSlice.js";
 import { defaultIcons } from "../../../assets/images/icons/index.js";
-import { isEmptyRichText } from "../../../utils/utils.js";
+import { getTokenData, isEmptyRichText } from "../../../utils/utils.js";
 import ReferralInformationView from "./ReferralInformationView.jsx";
 import { IPD } from "../../../utils/locale.js";
 // import { MetricsList } from "../otNotes/IntraOperativeNotes.jsx";
@@ -40,19 +40,6 @@ const CrossReferralTimeline = () => {
   useEffect(() => {
     dispatch(getCustomization());
   }, []);
-
-  const handleEditCrossReferral = (id) => {
-    dispatch(setCurrentCrossReferralId(id));
-    dispatch(setSingleCrossReferralData({ _id: id }));
-    navigate("/ipd/patient-details/cross-referral", {
-      state: {
-        patient_data,
-        patientDetails,
-        isEditable: true,
-        activeCrossReferralId: id,
-      },
-    });
-  };
 
   const handlePickerModal = useCallback(() => {
     setPickerModal(!pickerModal);
@@ -222,7 +209,8 @@ const CrossReferralTimeline = () => {
     consultantNotes,
     _id,
     consultantNoteIndex,
-    fullData
+    fullData,
+    isCurrentDoctorReferee
   ) => {
     return (
       <div className="ipdcrt-section-container">
@@ -231,122 +219,115 @@ const CrossReferralTimeline = () => {
             <img src={newIcons.consultantNotesDataDark} alt="x" />
             <span>Consultant Notes</span>
           </div>
-          <div className="right-section">
-            <img
-              className="medical-progress__content-calendar-icon"
-              style={{ fill: "#581C87", cursor: "pointer" }}
-              src={defaultIcons.editDarkIcon}
-              alt="Edit"
-              onClick={() =>
-                handleAddConsultantNotesClick(
-                  consultantNotes,
-                  _id,
-                  consultantNoteIndex,
-                  fullData
-                )
-              }
-              title="Edit this date's cross referral"
-            />
-          </div>
+          {isCurrentDoctorReferee ? (
+            <div className="right-section">
+              <img
+                className="medical-progress__content-calendar-icon"
+                style={{ fill: "#581C87", cursor: "pointer" }}
+                src={defaultIcons.editDarkIcon}
+                alt="Edit"
+                onClick={() =>
+                  handleAddConsultantNotesClick(
+                    consultantNotes,
+                    _id,
+                    consultantNoteIndex,
+                    fullData
+                  )
+                }
+                title="Edit this date's cross referral"
+              />
+            </div>
+          ) : null}
         </div>
         <ul className="">
-          {IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE_VIEW_DETAILS
-            ?.find((item) => item.id !== "referralInformation" && item.enabled)
-            ?.children?.map((item) => {
-              if (
-                item.id !== "additionalRemarksAndFollowUp" &&
-                isEmptyRichText(consultantNotes[item.id]) &&
-                item.enabled
-              ) {
-                return null;
-              }
-              const value =
-                item.id === "additionalRemarksAndFollowUp"
-                  ? consultantNotes["additionalRemarks"]
-                  : consultantNotes[item.id];
-              if (item.id === "additionalRemarksAndFollowUp") {
-                return (
-                  <>
-                    {item.children.map((child) => {
-                      if (
-                        child.id === "followUp" &&
-                        consultantNotes[child.id]
-                      ) {
-                        return (
-                          <div className="surgery-card__item__padding">
-                            <div className="d-flex align-items-center gap-1">
-                              <img
-                                src={newIcons[`${item.id}Pc`]}
-                                alt="notepad"
-                              />
-                              <div className="surgery-card__label">
-                                {child.title}
-                              </div>
-                            </div>
-                            {/* <img className src={defaultIcons.}> */}
-                            <div className="">
-                              <span className="surgery-card__label">
-                                {consultantNotes[child.id]}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      }
-                      if (isEmptyRichText(consultantNotes[child.id]))
-                        return null;
+          {IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE_VIEW_DETAILS?.find(
+            (item) => item.id !== "referralInformation" && item.enabled
+          )?.children?.map((item) => {
+            if (
+              item.id !== "additionalRemarksAndFollowUp" &&
+              isEmptyRichText(consultantNotes[item.id]) &&
+              item.enabled
+            ) {
+              return null;
+            }
+            const value =
+              item.id === "additionalRemarksAndFollowUp"
+                ? consultantNotes["additionalRemarks"]
+                : consultantNotes[item.id];
+            if (item.id === "additionalRemarksAndFollowUp") {
+              return (
+                <>
+                  {item.children.map((child) => {
+                    if (child.id === "followUp" && consultantNotes[child.id]) {
                       return (
                         <div className="surgery-card__item__padding">
-                          <div>
-                            <div className="d-flex align-items-center gap-1">
-                              <img
-                                src={newIcons.additionalRemarksAndFollowUpPc}
-                                alt="notepad"
-                              />
-                              <div className="surgery-card__label">
-                                {child.title}
-                              </div>{" "}
+                          <div className="d-flex align-items-center gap-1">
+                            <img src={newIcons[`${item.id}Pc`]} alt="notepad" />
+                            <div className="surgery-card__label">
+                              {child.title}
                             </div>
-                            <RichTextEditor
-                              showActionBtns={false}
-                              showAutoFill={false}
-                              showMagicPenGif={false}
-                              showMicrophone={false}
-                              showToolbar={false}
-                              readOnly={true}
-                              className={"rich-text-editor-container-readonly"}
-                              initialValue={consultantNotes[child.id]}
-                            />
+                          </div>
+                          {/* <img className src={defaultIcons.}> */}
+                          <div className="">
+                            <span className="surgery-card__label">
+                              {consultantNotes[child.id]}
+                            </span>
                           </div>
                         </div>
                       );
-                    })}
-                  </>
-                );
-              }
-              if (isEmptyRichText(value)) return null;
-              return (
-                <div className="surgery-card__item__padding">
-                  <div>
-                    <div className="d-flex align-items-center gap-1">
-                      <img src={newIcons[`${item.id}Pc`]} alt="notepad" />
-                      <div className="surgery-card__label">
-                        {item.title}
-                      </div>{" "}
-                    </div>
-                    <RichTextEditor
-                      showActionBtns={false}
-                      showAutoFill={false}
-                      showMagicPenGif={false}
-                      showMicrophone={false}
-                      showToolbar={false}
-                      readOnly={true}
-                      className={"rich-text-editor-container-readonly"}
-                      initialValue={value}
-                    />
-                  </div>
-                </div>
+                    }
+                    if (isEmptyRichText(consultantNotes[child.id])) return null;
+                    return (
+                      <div className="surgery-card__item__padding">
+                        <div>
+                          <div className="d-flex align-items-center gap-1">
+                            <img
+                              src={newIcons.additionalRemarksAndFollowUpPc}
+                              alt="notepad"
+                            />
+                            <div className="surgery-card__label">
+                              {child.title}
+                            </div>{" "}
+                          </div>
+                          <RichTextEditor
+                            showActionBtns={false}
+                            showAutoFill={false}
+                            showMagicPenGif={false}
+                            showMicrophone={false}
+                            showToolbar={false}
+                            readOnly={true}
+                            className={"rich-text-editor-container-readonly"}
+                            initialValue={consultantNotes[child.id]}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
               );
-            })}
+            }
+            if (isEmptyRichText(value)) return null;
+            return (
+              <div className="surgery-card__item__padding">
+                <div>
+                  <div className="d-flex align-items-center gap-1">
+                    <img src={newIcons[`${item.id}Pc`]} alt="notepad" />
+                    <div className="surgery-card__label">{item.title}</div>{" "}
+                  </div>
+                  <RichTextEditor
+                    showActionBtns={false}
+                    showAutoFill={false}
+                    showMagicPenGif={false}
+                    showMicrophone={false}
+                    showToolbar={false}
+                    readOnly={true}
+                    className={"rich-text-editor-container-readonly"}
+                    initialValue={value}
+                  />
+                </div>
+              </div>
+            );
+          })}
         </ul>
       </div>
     );
@@ -361,6 +342,7 @@ const CrossReferralTimeline = () => {
   };
 
   const mappedData = useMemo(() => {
+    const { user_id } = getTokenData();
     if (!Array.isArray(crossReferralState.crossReferralData)) return [];
     return crossReferralState?.crossReferralData?.map((entry, index) => {
       const dateIso = entry?.createdAt ? new Date(entry?.createdAt) : null;
@@ -374,9 +356,13 @@ const CrossReferralTimeline = () => {
               relativesInformed: { informedByDoctor } = {},
               referringTo,
             } = entry?.crossReferral["referralInformation"] || {};
-            const isCurrentDoctorReferee =
-              informedByDoctor?.id !== referringTo?.id;
-              console.log('INTEL ==> isCurrentDoctorReferee', isCurrentDoctorReferee)
+            const isCurrentDoctorReferee = user_id === referringTo?.id;
+            console.log(
+              "INTEL ==> isCurrentDoctorReferee",
+              user_id,
+              referringTo?.id,
+              isCurrentDoctorReferee
+            );
             return (
               <div className="collapsible-wrapper">
                 <div
@@ -390,9 +376,13 @@ const CrossReferralTimeline = () => {
                         case "referralInformation":
                           return (
                             <ReferralInformationView
+                              isCurrentDoctorReferee={isCurrentDoctorReferee}
                               data={entry?.crossReferral[crossReferralEntry]}
                               uniqueId={entry?._id}
-                              isEditable={!entry?.crossReferral["consultantNotes"]?.length > 0}
+                              isEditable={
+                                !entry?.crossReferral["consultantNotes"]
+                                  ?.length > 0
+                              }
                             />
                           );
                         case "consultantNotes":
@@ -406,14 +396,15 @@ const CrossReferralTimeline = () => {
                                         consultantNote,
                                         entry?._id,
                                         consultantNoteIndex,
-                                        entry?.crossReferral
+                                        entry?.crossReferral,
+                                        isCurrentDoctorReferee
                                       )}
                                     </div>
                                   );
                                 }
                               )}
-                              {!isCurrentDoctorReferee && (
-                              // {true && (
+                              {isCurrentDoctorReferee && (
+                                // {true && (
                                 <div
                                   onClick={() =>
                                     handleAddConsultantNotesClick(
@@ -440,7 +431,7 @@ const CrossReferralTimeline = () => {
                       }
                     }
                   )}
-                  {isCurrentDoctorReferee && (
+                  {!isCurrentDoctorReferee && (
                     <div className="empty-consultant-notes-section">
                       <div className="dot">
                         <div></div>
@@ -450,25 +441,26 @@ const CrossReferralTimeline = () => {
                       </span>
                     </div>
                   )}
-                  {!isCurrentDoctorReferee && !entry?.crossReferral["consultantNotes"] && (
-                  // {true && (
-                    <div
-                      onClick={() =>
-                        handleAddConsultantNotesClick(
-                          entry?.crossReferral["referralInformation"],
-                          entry?._id,
-                          // entry?.crossReferral["consultantNotes"]?.length
-                          0,
-                          entry?.crossReferral
-                        )
-                      }
-                    >
-                      <GenericCard
-                        icon={defaultIcons.plusIconColoured}
-                        title={"Add Consultant Notes"}
-                      ></GenericCard>
-                    </div>
-                  )}
+                  {isCurrentDoctorReferee &&
+                    !entry?.crossReferral["consultantNotes"] && (
+                      // {true && (
+                      <div
+                        onClick={() =>
+                          handleAddConsultantNotesClick(
+                            entry?.crossReferral["referralInformation"],
+                            entry?._id,
+                            // entry?.crossReferral["consultantNotes"]?.length
+                            0,
+                            entry?.crossReferral
+                          )
+                        }
+                      >
+                        <GenericCard
+                          icon={defaultIcons.plusIconColoured}
+                          title={"Add Consultant Notes"}
+                        ></GenericCard>
+                      </div>
+                    )}
                 </div>
 
                 {/* {!isExpanded && (

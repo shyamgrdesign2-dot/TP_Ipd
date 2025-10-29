@@ -504,20 +504,24 @@ export const staticDoctors = [
 
 // Format patient data for the table
 export const formatPatientsForTable = (patients) => {
-  return patients?.map((patient) => ({
-    id: patient._id,
-    patientId: patient.details.id,
-    patientName: patient.details.name,
-    gender: patient.details.gender,
-    age: patient.details.age,
-    contactNumber: patient.details.contact,
-    ward: patient.ward.title,
-    room: patient.room.title,
-    bedNumber: patient.room.title,
-    doctorName: patient.doctor.name,
-    doctorId: patient.doctor.id,
-    admittedOn: patient.admittedOn,
-    referral: patient.referral,
-    patientData: patient,
-  }));
+  return patients?.map((patient) => {
+    return ({
+      id: patient._id,
+      isDischarged: patient.isDischarged,
+      dischargedAt: patient.dischargedAt,
+      patientId: patient.details.id,
+      patientName: patient.details.name,
+      gender: patient.details.gender,
+      age: patient.details.age,
+      contactNumber: patient.details.contact,
+      ward: patient.ward.title,
+      room: patient.room.title,
+      bedNumber: patient.room.title,
+      doctorName: patient.doctor.name,
+      doctorId: patient.doctor.id,
+      admittedOn: patient.admittedOn,
+      referral: patient.referral,
+      patientData: patient,
+    });
+  });
 };

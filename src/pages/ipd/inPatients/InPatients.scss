@@ -1,59 +1,65 @@
 .date-placeholder {
-    color: #A2A2A8 !important;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 22px;
+  color: #a2a2a8 !important;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
 }
 
 .clear-filter-button {
-    color: #4B4AD5 !important;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 22px;
-    text-decoration: underline;
-    background: none;
-    border: none;
-    padding: 0;
+  color: #4b4ad5 !important;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  padding: 0;
 }
 
 // Ensure table cells don't truncate content - scoped to InPatients component
 .inpatients-table-container {
-    .ant-table-wrapper {
-        .ant-table {
-            table {
-                width: 100%;
-                table-layout: auto;
-            }
+  .ant-table-wrapper {
+    .ant-table {
+      table {
+        width: 100%;
+        table-layout: auto;
+      }
 
-            .ant-table-tbody > tr > td {
-                white-space: normal;
-                word-break: break-word;
-                overflow-wrap: break-word;
-                min-width: 100px;
-                padding: 16px;
-                
-                // Ensure content is properly aligned
-                &.ant-table-cell {
-                    vertical-align: middle;
-                }
-            }
-            
-            // Ensure the first column (serial number) doesn't take too much space
-            .ant-table-thead > tr > th:first-child,
-            .ant-table-tbody > tr > td:first-child {
-                min-width: 60px;
-                width: 60px;
-            }
-            
-            // Ensure action column has enough space
-            .ant-table-thead > tr > th:last-child,
-            .ant-table-tbody > tr > td:last-child {
-                min-width: 150px;
-            }
+      .ant-table-tbody > tr > td {
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        min-width: 100px;
+        padding: 16px;
+
+        // Ensure content is properly aligned
+        &.ant-table-cell {
+          vertical-align: middle;
         }
+      }
+
+      // Ensure the first column (serial number) doesn't take too much space
+      .ant-table-thead > tr > th:first-child,
+      .ant-table-tbody > tr > td:first-child {
+        min-width: 60px;
+        width: 60px;
+      }
+
+      // Ensure action column has enough space
+      .ant-table-thead > tr > th:last-child,
+      .ant-table-tbody > tr > td:last-child {
+        min-width: 150px;
+      }
     }
+  }
 }
 
 .appointment-data .ant-table table thead {
-    z-index: 1 !important;
+  z-index: 1 !important;
+}
+.more-actions-content {
+  padding: 20px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
 }

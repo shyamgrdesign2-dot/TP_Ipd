@@ -21,6 +21,7 @@ import { isEmptyRichText } from "../../../utils/utils.js";
 import { dischargeSummaryIcons } from "../../../assets/images/indices/index.js";
 import FilledByCards from "./components/FilledByCards.jsx";
 import { useDischargeSummaryData } from "../dischargeSummary/utils/useDischargeSummaryData.js";
+import useOnlyViewMode from "../../../hooks/useOnlyViewMode";
 const ReusableStepper = createRemoteComponent("ReusableStepper");
 const GenericCard = createRemoteComponent("GenericCard");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -30,6 +31,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
   const showDateFormat = "DD-MM-YYYY";
   const dispatch = useDispatch();
   const otNotesState = useSelector((state) => state.otNotes);
+  const isOnlyViewMode = useOnlyViewMode();
   const { showLastUpdatedAt } = useDischargeSummaryData(true, true);
   const { customization = {} } = useSelector((state) => state.ipd);
   const [dateStatus, setDateStatus] = useState(null);
@@ -227,16 +229,18 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
               }}
               title="Print this date's OT notes"
             />
-            <img
-              className="medical-progress__content-calendar-icon"
-              style={{ fill: "#581C87", cursor: "pointer" }}
-              src={defaultIcons.editDarkIcon}
-              alt="Edit"
-              onClick={() =>
-                handleEditOtNotes(groupData?.[0]?.originalEntry?._id)
-              }
-              title="Edit this date's OT notes"
-            />
+            {!isOnlyViewMode ? (
+              <img
+                className="medical-progress__content-calendar-icon"
+                style={{ fill: "#581C87", cursor: "pointer" }}
+                src={defaultIcons.editDarkIcon}
+                alt="Edit"
+                onClick={() =>
+                  handleEditOtNotes(groupData?.[0]?.originalEntry?._id)
+                }
+                title="Edit this date's OT notes"
+              />
+            ) : null}
           </div>
         </div>
       </>

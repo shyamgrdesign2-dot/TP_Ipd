@@ -2643,6 +2643,13 @@ export const IPD = {
       icon: "cardiogramColouredIcon",
       isActive: true,
       isEditable: false,
+      emptyStateText: (
+        <>
+          <span> such as</span>
+          <br />
+          <span>Chief complaints, Findings, Vital parameters etc.</span>
+        </>
+      ),
     },
     {
       id: "progress",
@@ -2651,26 +2658,74 @@ export const IPD = {
       icon: "noteIcon",
       isEditable: false,
       showAddCTA: true,
+      emptyStateText: (
+        <>
+          <span> such as</span>
+          <br />
+          <span>Symptoms, Findings, Vital parameter, Specific Event etc</span>
+        </>
+      ),
     },
     {
       id: "consultantNotes",
       name: "Consultant Notes",
       icon: "notepadIcon",
       showAddCTA: true,
+      emptyStateText: (
+        <>
+          <span> such as</span>
+          <br />
+          <span>Assessment, Medication, Lab investigation etc</span>
+        </>
+      ),
     },
-    { id: "otNotes", name: "OT Notes", icon: "healthIcon", showAddCTA: true },
+    {
+      id: "otNotes",
+      name: "OT Notes",
+      icon: "healthIcon",
+      showAddCTA: true,
+      emptyStateText: (
+        <>
+          <span> such as</span>
+          <br />
+          <span>surgical procedures & operational documentation etc</span>
+        </>
+      ),
+    },
     {
       id: "crossReferral",
       name: "Cross Referral",
       icon: "crossReferralIcon",
       showAddCTA: true,
+      emptyStateText: (
+        <>
+          for inter-departmental <br /> referrals and specialist consultations
+          etc.
+        </>
+      ),
     },
-    { id: "labResults", name: "Lab Results", icon: "glassIcon" },
+    {
+      id: "labResults",
+      name: "Lab Results",
+      icon: "glassIcon",
+      emptyStateText: (
+        <>
+          <br />
+          <span>No Lab Results available yet</span>
+        </>
+      ),
+    },
     {
       id: "records",
       name: "Medical Records",
       icon: "notesIcon",
       showAddCTA: true,
+      emptyStateText: (
+        <>
+          <br />
+          <span>You haven’t added any medical records yet!</span>
+        </>
+      ),
     },
     {
       id: "dischargeSummary",
@@ -2678,9 +2733,25 @@ export const IPD = {
       icon: "notepadIcon",
       showAddCTA: false,
       //  isActive: true
+      emptyStateText: (
+        <>
+          <span> such as</span>
+          <br />
+          <span>Chief complaints, Findings, Vital parameters etc.</span>
+        </>
+      ),
     },
     // { id: "logs", name: "Activity Logs", icon: "usersTwoIcon" },
-    { id: "opd", name: "OPD Visit History", icon: "layerIcon" },
+    {
+      id: "opd",
+      name: "OPD Visit History",
+      icon: "layerIcon",
+      emptyStateText: (
+        <>
+          <span>No OPD Visit History available</span>
+        </>
+      ),
+    },
   ],
   VITALS: [
     {

@@ -14,7 +14,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import {
-  searchPatientsByMobile,
   clearPatientsSearch,
 } from "../../../redux/ipd/ipdSlice";
 import "./styles.scss";

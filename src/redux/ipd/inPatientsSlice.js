@@ -17,6 +17,7 @@ export const fetchPatients = createAsyncThunk(
       endDate = "",
       doctorIdsFilter = "",
       sort = "admittedOn:desc",
+      isDischarged = false
     },
     { rejectWithValue }
   ) => {
@@ -31,6 +32,7 @@ export const fetchPatients = createAsyncThunk(
         endDate,
         doctorIdsFilter,
         sort,
+        isDischarged
       });
 
       return response;

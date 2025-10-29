@@ -8,7 +8,19 @@ import axios from "axios";
 
 import config from "../config";
 import { useLocalStorage } from "../utils/localStorage";
-import { FREE, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_ASK_TATVA, S_IPD, S_PHARMACY, S_OPD_BILLING, S_BILLING, TRIAL, S_TATVA_PRACTICE, PERSISTANT_STORAGE_KEY_EXTRA, FAILED_VERIFICATION } from "../utils/constants";
+import {
+  FREE,
+  PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
+  S_ASK_TATVA,
+  S_IPD,
+  S_PHARMACY,
+  S_OPD_BILLING,
+  S_BILLING,
+  TRIAL,
+  S_TATVA_PRACTICE,
+  PERSISTANT_STORAGE_KEY_EXTRA,
+  FAILED_VERIFICATION,
+} from "../utils/constants";
 import newGif from "../assets/images/new-gif.gif";
 import ipdIcon from "../assets/images/ipd.svg";
 import patientsIcon from "../assets/images/all-patients.svg";
@@ -26,7 +38,12 @@ import followUpActiveIcon from "../assets/images/follow-up-active.svg";
 import LockIcon from "../assets/images/lock-icon.svg";
 import tatvaAiActiveIcon from "../assets/images/website-images/tatvaAiActiveIcon.svg";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { errorMessage, getClinicName, shouldMonetizationDisabled, trackEvent } from "../utils/utils";
+import {
+  errorMessage,
+  getClinicName,
+  shouldMonetizationDisabled,
+  trackEvent,
+} from "../utils/utils";
 import FullPageLoader from "../pages/vaccination/components/Loader";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 import moment from "moment";
@@ -40,14 +57,24 @@ import AskTatvaKnowMore from "../pages/monetization/components/AskTatvaKnowMore"
 function SidebarDoctor() {
   const dispatch = useDispatch();
   const { servicesList } = useSelector((state) => state.doctors);
-  const ASK_TATVA_planDetails = servicesList?.find(e => e.service_name === S_ASK_TATVA)
+  const ASK_TATVA_planDetails = servicesList?.find(
+    (e) => e.service_name === S_ASK_TATVA
+  );
 
   const { planDetails } = useSelector((state) => state.subscription);
   const { service_mappings } = planDetails || {};
-  const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
-  const PHARMACY_planDetails = service_mappings?.find(e => e.service_name === S_PHARMACY)
-  const IPD_planDetails = service_mappings?.find(e => e.service_name === S_IPD)
-  const BILLING_planDetails = service_mappings?.find(e => e.service_name === S_BILLING)
+  const EMR_planDetails = service_mappings?.find(
+    (e) => e.service_name === S_TATVA_PRACTICE
+  );
+  const PHARMACY_planDetails = service_mappings?.find(
+    (e) => e.service_name === S_PHARMACY
+  );
+  const IPD_planDetails = service_mappings?.find(
+    (e) => e.service_name === S_IPD
+  );
+  const BILLING_planDetails = service_mappings?.find(
+    (e) => e.service_name === S_BILLING
+  );
 
   const tp_monetization_enable = !shouldMonetizationDisabled();
 
@@ -115,15 +142,22 @@ function SidebarDoctor() {
 
   const showHideSubModal = () => {
     setIsSubModalOpen(!isSubModalOpen);
-  }
+  };
 
   const isFirstClickOfDay = (key) => {
-    const localStorageExtraData = localStorage.getItem(PERSISTANT_STORAGE_KEY_EXTRA);
-    const jsonData = localStorageExtraData ? JSON.parse(localStorageExtraData) : {};
-    const today = moment().format('YYYY-MM-DD');
+    const localStorageExtraData = localStorage.getItem(
+      PERSISTANT_STORAGE_KEY_EXTRA
+    );
+    const jsonData = localStorageExtraData
+      ? JSON.parse(localStorageExtraData)
+      : {};
+    const today = moment().format("YYYY-MM-DD");
     if (jsonData[`${key}_date`] !== today) {
       jsonData[`${key}_date`] = today;
-      localStorage.setItem(PERSISTANT_STORAGE_KEY_EXTRA, JSON.stringify(jsonData));
+      localStorage.setItem(
+        PERSISTANT_STORAGE_KEY_EXTRA,
+        JSON.stringify(jsonData)
+      );
       return true;
     } else {
       return false;
@@ -131,45 +165,71 @@ function SidebarDoctor() {
   };
 
   const clickOldModule = async (moduleName) => {
-      if(moduleName === "ipd") {
-          navigate("/ipd/inPatients");
+    if (moduleName === "ipd") {
+      navigate("/ipd/inPatients");
 
-        return check_SSO(moduleName);
-      }
+      return check_SSO(moduleName);
+    }
 
     // if (moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') > 0) {
-      if (tp_monetization_enable && (moduleName === S_PHARMACY || moduleName === S_IPD)) {
-        setSubModalData({ service_name: moduleName })
-        if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier === TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) {
-          if (isFirstClickOfDay(moduleName)) {
-            handlePharmacyKnowMore();
-          } else {
-            check_SSO(moduleName);
-          }
-        } else if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier !== TRIAL) {
-          check_SSO(moduleName);
-        } else if (moduleName === S_PHARMACY && EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) {
+    if (
+      tp_monetization_enable &&
+      (moduleName === S_PHARMACY || moduleName === S_IPD)
+    ) {
+      setSubModalData({ service_name: moduleName });
+      if (
+        moduleName === S_PHARMACY &&
+        EMR_planDetails?.plan_tier === TRIAL &&
+        PHARMACY_planDetails?.plan_tier === TRIAL
+      ) {
+        if (isFirstClickOfDay(moduleName)) {
           handlePharmacyKnowMore();
-        } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier === TRIAL && IPD_planDetails?.plan_tier === TRIAL) {
-          if (isFirstClickOfDay(moduleName)) {
-            handleIPDKnowMore();
-          } else {
-            check_SSO(moduleName);
-          }
-        } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier !== TRIAL) {
+        } else {
           check_SSO(moduleName);
-        } else if (moduleName === S_IPD && EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier === TRIAL) {
+        }
+      } else if (
+        moduleName === S_PHARMACY &&
+        EMR_planDetails?.plan_tier !== TRIAL &&
+        PHARMACY_planDetails?.plan_tier !== TRIAL
+      ) {
+        check_SSO(moduleName);
+      } else if (
+        moduleName === S_PHARMACY &&
+        EMR_planDetails?.plan_tier !== TRIAL &&
+        PHARMACY_planDetails?.plan_tier === TRIAL
+      ) {
+        handlePharmacyKnowMore();
+      } else if (
+        moduleName === S_IPD &&
+        EMR_planDetails?.plan_tier === TRIAL &&
+        IPD_planDetails?.plan_tier === TRIAL
+      ) {
+        if (isFirstClickOfDay(moduleName)) {
           handleIPDKnowMore();
         } else {
           check_SSO(moduleName);
         }
+      } else if (
+        moduleName === S_IPD &&
+        EMR_planDetails?.plan_tier !== TRIAL &&
+        IPD_planDetails?.plan_tier !== TRIAL
+      ) {
+        check_SSO(moduleName);
+      } else if (
+        moduleName === S_IPD &&
+        EMR_planDetails?.plan_tier !== TRIAL &&
+        IPD_planDetails?.plan_tier === TRIAL
+      ) {
+        handleIPDKnowMore();
       } else {
         check_SSO(moduleName);
       }
+    } else {
+      check_SSO(moduleName);
+    }
     // } else {
     //   check_SSO(moduleName);
     // }
-
 
     // if (tp_monetization_enable && (moduleName === S_PHARMACY || moduleName === S_IPD)) {
     //   setSubModalData({ service_name: moduleName })
@@ -202,10 +262,14 @@ function SidebarDoctor() {
 
   async function check_SSO(moduleName) {
     SSO_TO_PM().then(async (data) => {
-      if(moduleName === "ipd") {
+      console.log("INTEL ==> browser", `${data.url}&module=${moduleName}`);
+      console.log(
+        "INTEL ==> inapp",
+        `/patient_details/?url=${data.url}&module=${moduleName}&key=print`
+      );
+      if (moduleName === "ipd") {
         navigate("/ipd/inPatients");
-      }
-      else if (moduleName === "opd_billing" && isOpdBillingAccessable) {
+      } else if (moduleName === "opd_billing" && isOpdBillingAccessable) {
         navigate("/billing-dashboard");
       } else if (moduleName === "all_patients") {
         navigate("/all_patients");
@@ -349,46 +413,56 @@ function SidebarDoctor() {
     }
   };
 
-
   const checkTatvaAiPurchased = async () => {
-    setSubModalData({ service_name: S_ASK_TATVA })
-    if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
-      showHideSubModal()
+    setSubModalData({ service_name: S_ASK_TATVA });
+    if (
+      ASK_TATVA_planDetails?.plan_tier === FREE &&
+      ASK_TATVA_planDetails?.credit_balance <= 0
+    ) {
+      showHideSubModal();
     } else if (ASK_TATVA_planDetails?.plan_tier === FAILED_VERIFICATION) {
-      showHideSubModal()
+      showHideSubModal();
     } else {
       let sendData = {
         b2c_id: profile?.b2c,
-        service_name: S_ASK_TATVA
-      }
+        service_name: S_ASK_TATVA,
+      };
       const action = await dispatch(checkCredits(sendData));
       if (action.meta.requestStatus === "fulfilled") {
         if (action?.payload?.hasOwnProperty("service_name")) {
-          if (action?.payload?.plan_tier === FREE && action?.payload?.credit_balance <= 0) {
-            if (action?.payload?.credit_balance != ASK_TATVA_planDetails?.credit_balance) {
-              await dispatch(services(sendData?.b2c_id))
+          if (
+            action?.payload?.plan_tier === FREE &&
+            action?.payload?.credit_balance <= 0
+          ) {
+            if (
+              action?.payload?.credit_balance !=
+              ASK_TATVA_planDetails?.credit_balance
+            ) {
+              await dispatch(services(sendData?.b2c_id));
             }
-            showHideSubModal()
+            showHideSubModal();
           } else if (action?.payload?.plan_tier === FAILED_VERIFICATION) {
-            showHideSubModal()
+            showHideSubModal();
           } else {
             handleTatvaAi();
           }
         } else {
-          typeof action?.payload?.data?.error === 'object' ?
-            errorMessage(action?.payload?.data?.error?.description)
-            :
-            errorMessage(action?.payload?.data?.message)
+          typeof action?.payload?.data?.error === "object"
+            ? errorMessage(action?.payload?.data?.error?.description)
+            : errorMessage(action?.payload?.data?.message);
         }
       } else {
-        errorMessage(action.payload.message)
+        errorMessage(action.payload.message);
       }
     }
-  }
+  };
 
   const tatvaAiRedirectOrDrawer = () => {
     if (tp_monetization_enable) {
-      if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance > 0) {
+      if (
+        ASK_TATVA_planDetails?.plan_tier === FREE &&
+        ASK_TATVA_planDetails?.credit_balance > 0
+      ) {
         if (isFirstClickOfDay(S_ASK_TATVA)) {
           handleAskTatvaKnowMore();
         } else {
@@ -396,13 +470,16 @@ function SidebarDoctor() {
         }
       } else if (ASK_TATVA_planDetails?.plan_tier !== FREE) {
         checkTatvaAiPurchased();
-      } else if (ASK_TATVA_planDetails?.plan_tier === FREE && ASK_TATVA_planDetails?.credit_balance <= 0) {
+      } else if (
+        ASK_TATVA_planDetails?.plan_tier === FREE &&
+        ASK_TATVA_planDetails?.credit_balance <= 0
+      ) {
         handleAskTatvaKnowMore();
       }
     } else {
       handleTatvaAi();
     }
-  }
+  };
 
   const handleHover = (data) => {
     if (data) {
@@ -441,8 +518,9 @@ function SidebarDoctor() {
             }
           >
             <div
-              className={`d-flex align-items-center flex-column ${tatvaHovered ? "hoveredColor" : ""
-                }`}
+              className={`d-flex align-items-center flex-column ${
+                tatvaHovered ? "hoveredColor" : ""
+              }`}
               onMouseEnter={() => handleHover(true)} // Set the hovered item
               onMouseLeave={() => handleHover(false)} // Clear the hovered item
               onClick={tatvaAiRedirectOrDrawer}
@@ -486,15 +564,15 @@ function SidebarDoctor() {
                       replace={true}
                       className={({ isActive, isPending }) =>
                         item.type === "opd_billing" &&
-                          window.location.pathname === "/billing-dashboard"
+                        window.location.pathname === "/billing-dashboard"
                           ? "active"
                           : isHovered
-                            ? ""
-                            : isPending
-                              ? "pending"
-                              : isActive
-                                ? ""
-                                : "active"
+                          ? ""
+                          : isPending
+                          ? "pending"
+                          : isActive
+                          ? ""
+                          : "active"
                       }
                       onMouseEnter={() => setHoveredItem(i)} // Set the hovered item
                       onMouseLeave={() => setHoveredItem(null)} // Clear the hovered item
@@ -506,33 +584,46 @@ function SidebarDoctor() {
                       <div className="mt-1 px-2">{item.title}</div>
                     </NavLink>
                     {/* {moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') > 0 && */}
-                      {tp_monetization_enable && (
-                        item.type === S_PHARMACY ? (
-                          <div className="trial-sidebar">
-                            {(EMR_planDetails?.plan_tier === TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) ? (
-                              <span>Trial</span>
-                            ) : (EMR_planDetails?.plan_tier !== TRIAL && PHARMACY_planDetails?.plan_tier === TRIAL) && (
+                    {tp_monetization_enable &&
+                      (item.type === S_PHARMACY ? (
+                        <div className="trial-sidebar">
+                          {EMR_planDetails?.plan_tier === TRIAL &&
+                          PHARMACY_planDetails?.plan_tier === TRIAL ? (
+                            <span>Trial</span>
+                          ) : (
+                            EMR_planDetails?.plan_tier !== TRIAL &&
+                            PHARMACY_planDetails?.plan_tier === TRIAL && (
                               <img src={LockIcon} alt="Trial" />
-                            )}
-                          </div>
-                        ) : item.type === S_IPD ? (
-                          <div className="trial-sidebar">
-                            {(EMR_planDetails?.plan_tier === TRIAL && IPD_planDetails?.plan_tier === TRIAL) ? (
-                              <span>Trial</span>
-                            ) : (EMR_planDetails?.plan_tier !== TRIAL && IPD_planDetails?.plan_tier === TRIAL) && (
+                            )
+                          )}
+                        </div>
+                      ) : item.type === S_IPD ? (
+                        <div className="trial-sidebar">
+                          {EMR_planDetails?.plan_tier === TRIAL &&
+                          IPD_planDetails?.plan_tier === TRIAL ? (
+                            <span>Trial</span>
+                          ) : (
+                            EMR_planDetails?.plan_tier !== TRIAL &&
+                            IPD_planDetails?.plan_tier === TRIAL && (
                               <img src={LockIcon} alt="Trial" />
-                            )}
-                          </div>
-                        ) : item.type === S_OPD_BILLING && (
+                            )
+                          )}
+                        </div>
+                      ) : (
+                        item.type === S_OPD_BILLING && (
                           <div className="trial-sidebar">
-                            {(EMR_planDetails?.plan_tier === TRIAL && BILLING_planDetails?.plan_tier === TRIAL) ? (
+                            {EMR_planDetails?.plan_tier === TRIAL &&
+                            BILLING_planDetails?.plan_tier === TRIAL ? (
                               <span>Trial</span>
-                            ) : (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) && (
-                              <img src={LockIcon} alt="Trial" />
+                            ) : (
+                              EMR_planDetails?.plan_tier !== TRIAL &&
+                              BILLING_planDetails?.plan_tier === TRIAL && (
+                                <img src={LockIcon} alt="Trial" />
+                              )
                             )}
                           </div>
                         )
-                      )}
+                      ))}
                   </div>
                 );
               })}
@@ -617,7 +708,10 @@ function SidebarDoctor() {
         className=".modalWidth-800"
         width={600}
       >
-        <AskTatvaKnowMore handleAskTatvaKnowMore={handleAskTatvaKnowMore} onRedirect={checkTatvaAiPurchased} />
+        <AskTatvaKnowMore
+          handleAskTatvaKnowMore={handleAskTatvaKnowMore}
+          onRedirect={checkTatvaAiPurchased}
+        />
       </Drawer>
 
       <Drawer
@@ -628,7 +722,10 @@ function SidebarDoctor() {
         className=".modalWidth-800"
         width={600}
       >
-        <IPDKnowMore handleIPDKnowMore={handleIPDKnowMore} onRedirect={() => check_SSO(subModalData?.service_name)} />
+        <IPDKnowMore
+          handleIPDKnowMore={handleIPDKnowMore}
+          onRedirect={() => check_SSO(subModalData?.service_name)}
+        />
       </Drawer>
 
       <Drawer
@@ -639,13 +736,21 @@ function SidebarDoctor() {
         className=".modalWidth-800"
         width={600}
       >
-        <PharmacyKnowMore handlePharmacyKnowMore={handlePharmacyKnowMore} onRedirect={() => check_SSO(subModalData?.service_name)} />
+        <PharmacyKnowMore
+          handlePharmacyKnowMore={handlePharmacyKnowMore}
+          onRedirect={() => check_SSO(subModalData?.service_name)}
+        />
       </Drawer>
 
       <ExpiredSubModal
-        title={subModalData && subModalData?.hasOwnProperty('service_name') && subModalData?.service_name}
+        title={
+          subModalData &&
+          subModalData?.hasOwnProperty("service_name") &&
+          subModalData?.service_name
+        }
         isSubModalOpen={isSubModalOpen}
-        showHideSubModal={showHideSubModal} />
+        showHideSubModal={showHideSubModal}
+      />
     </>
   );
 }
