@@ -36,9 +36,9 @@ const FilterDropdown = ({
 
   const toggleDropdown = () => {
     if (isMobile && showSearchBar) {
-      setDrawerVisible(!drawerVisible);
+      setDrawerVisible(true);
     } else {
-      setIsOpen(!isOpen);
+      setIsOpen(true);
     }
     setTempSelectedItems([...selectedItems]);
   };
@@ -196,7 +196,7 @@ const FilterDropdown = ({
       </div>
 
       {/* Regular dropdown for desktop or mobile without search */}
-      {isOpen && !isMobile && (
+      {isOpen && (
         <div className="dropdown-content">
           <div className="filter-header">{title}</div>
 

@@ -7,11 +7,7 @@ import { View, Text, Image } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import { LETTERHEAD_FORMATS } from "../constants";
 
-// Default Zydus logo (PNG format - SVG not supported in react-pdf)
-const DEFAULT_LOGO = require("../../../assets/images/zydus.png");
-
 const styles = StyleSheet.create({
-  // Header container
   headerContainer: {
     display: "flex",
     flexDirection: "row",
@@ -27,7 +23,6 @@ const styles = StyleSheet.create({
     objectFit: "contain",
   },
 
-  // Logo positioned on left
   logoContainer: {
     width: 89.001,
     height: 57.244,
