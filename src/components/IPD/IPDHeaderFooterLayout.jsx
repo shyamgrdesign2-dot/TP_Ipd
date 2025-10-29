@@ -128,6 +128,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
   // Get file states from Redux for this module
   const moduleFileStates = fileStates[moduleType] || {};
   const fileLogo = moduleFileStates.fileLogo || null;
+
   const fileWatermark = moduleFileStates.fileWatermark || null;
   const fileSignature = moduleFileStates.fileSignature || null;
   const fileHeader = moduleFileStates.fileHeader || null;
@@ -218,34 +219,6 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
   const [patientInfoShowHide, setPatientInfoShowHide] = useState(false);
   const [settingsShowHide, setSettingsShowHide] = useState(false);
 
-  // Load logo from settings if exists
-  React.useEffect(() => {
-    const loadLogoFromSettings = async () => {
-      const logoFilename = headerFooterSettings.header?.logo;
-
-      // If there's a logo filename and it's not already loaded
-      if (logoFilename && (!fileLogo || fileLogo.filename !== logoFilename)) {
-        try {
-          // Get the file URL from the filename
-          const fileUrlResult = await dispatch(
-            getFileUrlByFilename(logoFilename)
-          ).unwrap();
-          const fileUrl = fileUrlResult.url || fileUrlResult;
-
-          setFileLogo({
-            imageShow: true,
-            showFile: fileUrl,
-            filename: logoFilename,
-          });
-        } catch (error) {
-          console.error("Error loading logo:", error);
-        }
-      }
-    };
-
-    loadLogoFromSettings();
-  }, [headerFooterSettings.header?.logo, dispatch, fileLogo, setFileLogo]);
-
   // Load watermark from settings if exists
   React.useEffect(() => {
     const loadWatermarkFromSettings = async () => {
@@ -329,24 +302,24 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
   }, [settingsShowHide]);
 
   // Header Information
-  const onInformationAlignmentVisibleChange = useCallback(
+  const onInformationVisibleChange = useCallback(
     (checked) => {
       updateHeaderFooter({
         header: {
           ...headerFooterSettings.header,
-          informationAlignmentVisible: checked,
+          informationVisible: checked,
         },
       });
     },
     [updateHeaderFooter, headerFooterSettings]
   );
 
-  const onInformationAlignmentChange = useCallback(
+  const onlogoPositionChange = useCallback(
     (e) => {
       updateHeaderFooter({
         header: {
           ...headerFooterSettings.header,
-          informationAlignment: e.target.value,
+          logoPosition: e.target.value,
         },
       });
     },
@@ -377,7 +350,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
       updateHeaderFooter({
         header: {
           ...headerFooterSettings.header,
-          logoVisible: checked,
+          showLogo: checked,
         },
       });
     },
@@ -1137,43 +1110,37 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                   </Col>
                   <Col lg="6">
                     <span className="fw-medium me-2 text-greycolor fs-16">
-                      {headerSettings.informationAlignmentVisible
-                        ? "Show"
-                        : "Hide"}
+                      {headerSettings.informationVisible ? "Show" : "Hide"}
                     </span>
                     <Switch
-                      onChange={onInformationAlignmentVisibleChange}
-                      checked={
-                        headerSettings.informationAlignmentVisible || false
-                      }
+                      onChange={onInformationVisibleChange}
+                      checked={headerSettings.informationVisible || false}
                     />
                   </Col>
                 </Row>
 
-                <>
-                  <div className="mt-3">
-                    <Form.Item>
-                      <label className="mb-1">Header</label>
-                      <Input
-                        className="inputheight41-group"
-                        placeholder="Enter Header"
-                        onChange={onHeaderTitleChange}
-                        value={headerSettings.title || getModuleTitle()}
-                      />
-                    </Form.Item>
-                  </div>
-                  <div className="mt-3">
-                    <Form.Item>
-                      <label className="mb-1">Subheader</label>
-                      <Input
-                        className="inputheight41-group"
-                        placeholder="Enter Information"
-                        onChange={onSubTitleChange}
-                        value={headerSettings.subTitle || ""}
-                      />
-                    </Form.Item>
-                  </div>
-                </>
+                <div className="mt-3">
+                  <Form.Item>
+                    <label className="mb-1">Header</label>
+                    <Input
+                      className="inputheight41-group"
+                      placeholder="Enter Header"
+                      onChange={onHeaderTitleChange}
+                      value={headerSettings.title || getModuleTitle()}
+                    />
+                  </Form.Item>
+                </div>
+                <div className="mt-3">
+                  <Form.Item>
+                    <label className="mb-1">Subheader</label>
+                    <Input
+                      className="inputheight41-group"
+                      placeholder="Enter Information"
+                      onChange={onSubTitleChange}
+                      value={headerSettings.subTitle || ""}
+                    />
+                  </Form.Item>
+                </div>
 
                 <Row
                   justify="space-between"
@@ -1184,53 +1151,43 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                   </Col>
                   <Col lg="6">
                     <span className="fw-medium me-2 text-greycolor fs-16">
-                      {headerSettings.logoVisible ? "Show" : "Hide"}
+                      {headerSettings.showLogo ? "Show" : "Hide"}
                     </span>
                     <Switch
                       onChange={onLogoSwitchChange}
-                      checked={!!headerSettings.logoVisible}
+                      checked={!!headerSettings.showLogo}
                     />
                   </Col>
                 </Row>
 
-                {headerSettings.informationAlignmentVisible && (
-                  <>
-                    <Form.Item>
-                      <Radio.Group
-                        className={`d-flex gender-radio ${
-                          isMobile ? "segmented-radio-mobile" : ""
-                        }`}
-                        onChange={onInformationAlignmentChange}
-                        value={headerSettings.informationAlignment || "right"}
-                      >
-                        <Radio.Button
-                          className="w-100 text-center"
-                          value="left"
-                        >
-                          Left
-                        </Radio.Button>
-                        <Radio.Button
-                          className="w-100 text-center"
-                          value="right"
-                        >
-                          Right
-                        </Radio.Button>
-                      </Radio.Group>
-                    </Form.Item>
-                  </>
-                )}
+                <Form.Item>
+                  <Radio.Group
+                    className={`d-flex gender-radio ${
+                      isMobile ? "segmented-radio-mobile" : ""
+                    }`}
+                    onChange={onlogoPositionChange}
+                    value={headerSettings.logoPosition || "left"}
+                  >
+                    <Radio.Button className="w-100 text-center" value="left">
+                      Left
+                    </Radio.Button>
+                    <Radio.Button className="w-100 text-center" value="right">
+                      Right
+                    </Radio.Button>
+                  </Radio.Group>
+                </Form.Item>
 
-                {/* {headerSettings.logo && ( */}
                 <div className="upload-headfoot upload-headfoot2 p-3">
                   <div className="d-flex align-items-center justify-content-between">
-                    {fileLogo && fileLogo?.imageShow ? (
+                    {(fileLogo && fileLogo?.imageShow) ||
+                    headerSettings.logo ? (
                       <img
                         style={{
                           height: 62,
                           objectFit: "contain",
                           overflow: "hidden",
                         }}
-                        src={fileLogo?.showFile}
+                        src={fileLogo?.showFile || headerSettings.logo}
                         alt="Logo"
                       />
                     ) : (
@@ -1253,12 +1210,14 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                       />
                       <span>
                         <i className="icon-upload me-2"></i>
-                        {fileLogo && fileLogo?.imageShow ? "Change" : "Upload"}
+                        {(fileLogo && fileLogo?.imageShow) ||
+                        headerSettings.logo
+                          ? "Change"
+                          : "Upload"}
                       </span>
                     </div>
                   </div>
                 </div>
-                {/* )} */}
 
                 <div className="mt-3">
                   <Form.Item>
@@ -1404,6 +1363,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                                   ? fileHeader?.showFile
                                   : defaultprofile
                               }
+                              alt="Header"
                             />
                           )}
                         </div>
@@ -1534,6 +1494,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                                   ? fileFooter?.showFile
                                   : defaultprofile
                               }
+                              alt="Footer"
                             />
                           )}
                         </div>
