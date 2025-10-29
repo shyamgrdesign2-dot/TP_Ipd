@@ -42,7 +42,7 @@ ApiIpdService.getDepartments = function () {
 };
 
 ApiIpdService.markPatientAsDischarged = function ({ admissionId }) {
-  return api.put(`/patients/mark-discharged`, { admissionId }, baseUrl);
+  return api.put(`/patients/mark-discharged?admissionId=${admissionId}`, {}, baseUrl);
 };
 
 export default ApiIpdService;

@@ -321,6 +321,7 @@ function InPatients() {
             hasMore={hasMore}
             lastElementRef={lastElementRef}
             filterParams={filterParams}
+            fetchParams={fetchParams}
           />
         </div>
       </div>
