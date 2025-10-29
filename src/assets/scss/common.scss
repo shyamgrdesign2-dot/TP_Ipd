@@ -464,7 +464,6 @@ body {
     &:hover {
       background-color: #f1f1f5;
     }
-
     &:first-child {
       border-top: none;
     }
@@ -478,13 +477,11 @@ body {
         font-weight: 400 !important;
       }
     }
-
     .all-change-radio {
       .ant-radio-button-wrapper {
         padding-inline: 13px;
         white-space: nowrap;
       }
-    }
     }
     &:last-child {
       &:hover {
