@@ -74,14 +74,19 @@ const ItemizedBillChart = ({ billData, profile, dateRange }) => {
       </div>
 
       {/* Bill Summary Sections */}
-      <div style={{ borderBottom: "1px solid black" }}>
+      <div
+        style={{
+          borderBottom:
+            additionalDiscountSummary?.length > 0 ? "1px solid black" : "none",
+        }}
+      >
         {billSummary.map((service, serviceIndex) => (
           <div
             key={serviceIndex}
             className={`service-section ${
               serviceIndex > 0 ? "new-page-content" : ""
             }`}
-            style={serviceIndex > 0 ? { paddingTop: "30px" } : {}}
+            style={serviceIndex > 0 ? { paddingTop: "15px" } : {}}
           >
             <h2 className="service-title">{service.serviceName}</h2>
 
