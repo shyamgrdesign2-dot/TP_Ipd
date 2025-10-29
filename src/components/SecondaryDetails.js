@@ -40,10 +40,10 @@ function SecondaryDetails({ form, mode = "ADD", patient_data }) {
         if (patients_details && mode === "EDIT") {
             form.setFieldsValue({
                 pm_blood_group: patients_details.pm_blood_group,
-                pm_marital_status: patients_details.pm_marital_status,
+                pm_married_status: patients_details.pm_married_status,
                 pm_occupation: patients_details.pm_occupation,
                 pm_email: patients_details.pm_email,
-                pm_aadhaar: patients_details.pm_aadhaar,
+                pm_aadhar_card_number: patients_details.pm_aadhar_card_number,
             });
         }
     }, [patients_details, patient_data]);
@@ -91,7 +91,7 @@ function SecondaryDetails({ form, mode = "ADD", patient_data }) {
                         )}
                         <Col xs={24} sm={24} md={12} lg={12}>
                             <Form.Item
-                                name="pm_marital_status"
+                                name="pm_married_status"
                                 label="Marital Status">
                                 <Select placeholder="Select patient's marital status" allowClear>
                                     <Option value="single">Single</Option>
@@ -122,7 +122,7 @@ function SecondaryDetails({ form, mode = "ADD", patient_data }) {
                     <Row gutter={{ xs: 8, sm: 18, md: 40, lg: 94 }}>
                         <Col xs={24} sm={24} md={12} lg={12}>
                             <Form.Item
-                                name="pm_aadhaar"
+                                name="pm_aadhar_card_number"
                                 label="Aadhaar Card number">
                                 <Input placeholder="Enter patient's aadhaar card number" type="number" maxLength={12} />
                             </Form.Item>
