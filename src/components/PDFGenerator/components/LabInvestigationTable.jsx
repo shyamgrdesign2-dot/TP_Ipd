@@ -51,34 +51,31 @@ const styles = StyleSheet.create({
 
   // Header text
   headerText: {
-    fontSize: 8.503,
-    fontWeight: 600, // SemiBold
+    fontWeight: 600,
     color: "#171725",
-    lineHeight: 1.286, // 10.932 / 8.503
+    lineHeight: 1.286,
     letterSpacing: 0.0607,
     textTransform: "uppercase",
   },
 
   investigationName: {
-    fontSize: 10,
-    fontWeight: 500, // Medium
+    fontWeight: 500,
     color: "#454551",
-    lineHeight: 1.2754, // 12.754 / 10
+    lineHeight: 1.2754,
     letterSpacing: 0.0607,
   },
 
   cellTextSmall: {
-    fontSize: 8.503,
+    fontSize: 8,
     fontWeight: 400,
     color: "#454551",
-    lineHeight: 2.14, // 18.22 / 8.503
+    lineHeight: 2.14,
     opacity: 0.9,
   },
 
   // Title
   title: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -94,7 +91,6 @@ const styles = StyleSheet.create({
 
 const LabInvestigationTable = ({
   investigations,
-  fontFamily = "Poppins",
   title = "Lab Investigation",
   showContainer = true,
 }) => {
@@ -102,18 +98,18 @@ const LabInvestigationTable = ({
 
   const tableContent = (
     <View style={styles.labInvestigationTableContainer}>
-      {title && <Text style={[styles.title, { fontFamily }]}>{title}:</Text>}
+      {title && <Text style={[styles.title]}>{title}:</Text>}
 
       <View style={styles.table}>
         {/* Table Header */}
         <View fixed style={styles.tableHeader}>
           <View style={[styles.cellBase, styles.cellInvestigationName]}>
-            <Text style={[styles.headerText, { fontFamily }]}>NAME</Text>
+            <Text style={[styles.headerText]}>NAME</Text>
           </View>
           <View
             style={[styles.cellBase, styles.cellNote, { borderRightWidth: 0 }]}
           >
-            <Text style={[styles.headerText, { fontFamily }]}>NOTE</Text>
+            <Text style={[styles.headerText]}>NOTE</Text>
           </View>
         </View>
 
@@ -128,7 +124,7 @@ const LabInvestigationTable = ({
           >
             {/* Medicine Name with Generic */}
             <View style={[styles.cellBase, styles.cellInvestigationName]}>
-              <Text style={[styles.investigationName, { fontFamily }]}>
+              <Text style={[styles.investigationName]}>
                 {investigation.name || investigation.investigationName || "-"}
               </Text>
             </View>
@@ -141,7 +137,7 @@ const LabInvestigationTable = ({
                 { borderRightWidth: 0 },
               ]}
             >
-              <Text style={[styles.cellTextSmall, { fontFamily }]}>
+              <Text style={[styles.cellTextSmall]}>
                 {investigation.note || investigation.remarks || "-"}
               </Text>
             </View>

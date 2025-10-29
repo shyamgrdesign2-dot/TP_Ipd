@@ -7,11 +7,15 @@ import { View, Text } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import SectionTitle from "../SectionTitle";
 import { renderSimpleText, renderListItem } from "../ListViewRenderer";
-import { getSortedSections } from "../../utils/pdfUtils";
+import { getAllVisibleSections, getSortedSections } from "../../utils/pdfUtils";
 import ProgressNoteEntry from "./components/ProgressNoteEntry";
 import PatientInfo from "./components/PatientInfo";
 import AttendingPhysician from "./components/AttendingPhysician";
 import ProgressNotesSummary from "./components/ProgressNotesSummary";
+import { renderRichText as renderRichTextUtil } from "../../utils/richTextRenderer";
+import Vitals from "../../components/Vitals";
+import FilledByCard from "../../components/FilledByCard";
+import SlateToPdf from "../../components/SlateToPdf";
 
 const styles = StyleSheet.create({
   sectionContainer: {
@@ -19,7 +23,6 @@ const styles = StyleSheet.create({
   },
 
   dateHeader: {
-    fontSize: 14,
     fontWeight: 700,
     color: "#000000",
     marginBottom: 12,
@@ -42,13 +45,11 @@ const styles = StyleSheet.create({
   },
 
   timeInfo: {
-    fontSize: 11,
     fontWeight: 700,
     color: "#333333",
   },
 
   doctorInfo: {
-    fontSize: 10,
     fontWeight: 450,
     color: "#666666",
   },
@@ -59,7 +60,6 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 10,
     fontWeight: 700,
     color: "#000000",
     marginBottom: 4,
@@ -67,189 +67,111 @@ const styles = StyleSheet.create({
   },
 
   sectionContent: {
-    fontSize: 9,
     color: "#000000",
     marginLeft: 8,
     lineHeight: 1.4,
   },
 
   bulletPoint: {
-    fontSize: 9,
     color: "#333333",
     marginLeft: 4,
+  },
+
+  // Subsection container
+  subsectionContainer: {
+    paddingVertical: 6,
+    paddingHorizontal: 0,
+  },
+
+  // Content container
+  contentContainer: {
+    gap: 4,
+  },
+
+  // Subsection title
+  subsectionTitle: {
+    color: "#171725",
+    fontWeight: 600,
+    lineHeight: 1.8,
+    textTransform: "capitalize",
+    marginBottom: 4,
+  },
+
+  // Bullet list container
+  bulletList: {
+    paddingLeft: 15,
   },
 });
 
 /**
- * Format date and time for display
+ * Render rich text with title
  */
-const formatDateTime = (dateTime) => {
-  if (!dateTime) return "";
-  
-  try {
-    const date = new Date(dateTime);
-    const timeStr = date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-    const dateStr = date.toLocaleDateString("en-US", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-    return `${dateStr} (${timeStr})`;
-  } catch (error) {
-    return dateTime;
-  }
-};
+const renderRichText = (data, title) => {
+  console.log(data, title, "renderRichTextData");
+  if (!data || !data?.length) return null;
 
-/**
- * Render a single progress note entry
- */
-const renderProgressNoteEntry = (entry, fontFamily) => {
-  if (!entry) return null;
-  return <ProgressNoteEntry key={`entry-${entry.dateTime}`} entry={entry} fontFamily={fontFamily} />;
-};
-
-/**
- * Render progress notes by date
- */
-const renderProgressNotesByDate = (data, fontFamily) => {
-  const progressNotes = data?.progressNotesData?.progressNotes
-  if (!progressNotes || !Array.isArray(progressNotes)) return null;
-
-  // Group progress notes by date
-  const notesByDate = progressNotes.reduce((acc, note) => {
-    const date = new Date(note.dateTime).toDateString();
-    if (!acc[date]) {
-      acc[date] = [];
-    }
-    acc[date].push(note);
-    return acc;
-  }, {});
-
-  // Sort dates in descending order (newest first)
-  const sortedDates = Object.keys(notesByDate).sort((a, b) => 
-    new Date(b) - new Date(a)
-  );
+  // Custom styles for SlateToPdf to match existing styling
+  const customStyles = {
+    text: {
+      color: "#454551",
+      lineHeight: 1.8,
+    },
+    paragraph: {
+      marginBottom: 0,
+    },
+    bulletList: {
+      paddingLeft: 0,
+    },
+    numberedList: {
+      paddingLeft: 0,
+    },
+    bulletItem: {
+      flexDirection: "row",
+      marginBottom: 0,
+    },
+    numberedItem: {
+      flexDirection: "row",
+      marginBottom: 0,
+    },
+    bulletSymbol: {
+      width: 12,
+      color: "#454551",
+      fontWeight: 400,
+      lineHeight: 1.8,
+    },
+    numberedSymbol: {
+      width: 15,
+      color: "#454551",
+      fontWeight: 400,
+      lineHeight: 1.8,
+    },
+    bulletText: {
+      flex: 1,
+      color: "#454551",
+      fontWeight: 400,
+      lineHeight: 1.8,
+      textTransform: "capitalize",
+    },
+    numberedText: {
+      flex: 1,
+      color: "#454551",
+      fontWeight: 400,
+      lineHeight: 1.8,
+      textTransform: "capitalize",
+    },
+  };
 
   return (
-    <View style={styles.sectionContainer}>
-      {sortedDates.map((date) => (
-        <View key={`date-${date}`}>
-          
-          {/* Progress Notes Cards for this date */}
-          {notesByDate[date]
-            .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime))
-            .map((note) => (
-              <View key={`note-${note.dateTime}`} style={styles.noteCard}>
-                {/* Card Header */}
-                <View style={styles.cardHeader}>
-                  <Text style={[styles.timeInfo, { fontFamily }]}>
-                    {note.timeOfDay} - {formatDateTime(note.dateTime)}
-                  </Text>
-                  <Text style={[styles.doctorInfo, { fontFamily }]}>
-                    Filled By: {note.filledBy}
-                  </Text>
-                </View>
-                
-                {/* Card Content */}
-                <View style={styles.cardContent}>
-                  {/* Chief Complaint */}
-                  {note.chiefComplaint && note.chiefComplaint.trim() && (
-                    <View>
-                      <Text style={[styles.sectionTitle, { fontFamily }]}>
-                        Chief Complaint:
-                      </Text>
-                      <Text style={[styles.sectionContent, { fontFamily }]}>
-                        {note.chiefComplaint}
-                      </Text>
-                    </View>
-                  )}
-                  
-                  {/* Findings */}
-                  {note.findings && note.findings.trim() && (
-                    <View>
-                      <Text style={[styles.sectionTitle, { fontFamily }]}>
-                        Findings:
-                      </Text>
-                      <Text style={[styles.sectionContent, { fontFamily }]}>
-                        {note.findings}
-                      </Text>
-                    </View>
-                  )}
-                  
-                  {/* Vitals */}
-                  {note.vitals && note.vitals.trim() && (
-                    <View>
-                      <Text style={[styles.sectionTitle, { fontFamily }]}>
-                        Vitals:
-                      </Text>
-                      <Text style={[styles.sectionContent, { fontFamily }]}>
-                        {note.vitals}
-                      </Text>
-                    </View>
-                  )}
-                  
-                  {/* Additional Remarks */}
-                  {note.additionalRemarks && note.additionalRemarks.trim() && (
-                    <View>
-                      <Text style={[styles.sectionTitle, { fontFamily }]}>
-                        Additional Remarks:
-                      </Text>
-                      <Text style={[styles.sectionContent, { fontFamily }]}>
-                        {note.additionalRemarks}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              </View>
-            ))}
+    <View style={styles.subsectionContainer}>
+      <View style={styles.contentContainer}>
+        <Text style={[styles.subsectionTitle]}>{title}:</Text>
+        <View style={styles.bulletList}>
+          <SlateToPdf
+            nodes={Array.isArray(data) ? data : [data]}
+            customStyles={customStyles}
+          />
         </View>
-      ))}
-    </View>
-  );
-};
-
-/**
- * Render progress notes summary
- */
-const renderProgressNotesSummary = (data, fontFamily) => {
-  if (!data?.progressNotesSummary) return null;
-
-  return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Progress Notes Summary" fontFamily={fontFamily} />
-      <ProgressNotesSummary data={data} fontFamily={fontFamily} />
-    </View>
-  );
-};
-
-/**
- * Render patient information section
- */
-const renderPatientInfo = (data, fontFamily) => {
-  if (!data?.patientInformation) return null;
-
-  return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Patient Information" fontFamily={fontFamily} />
-      <PatientInfo data={data} fontFamily={fontFamily} />
-    </View>
-  );
-};
-
-/**
- * Render attending physician information
- */
-const renderAttendingPhysician = (data, fontFamily) => {
-  if (!data?.attendingPhysician) return null;
-
-  return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Attending Physician" fontFamily={fontFamily} />
-      <AttendingPhysician data={data} fontFamily={fontFamily} />
+      </View>
     </View>
   );
 };
@@ -258,59 +180,64 @@ const renderAttendingPhysician = (data, fontFamily) => {
  * Main Progress Notes Renderer
  * @param {Object} data - Progress notes data
  * @param {Object} formatSettings - Format settings
- * @param {string} fontFamily - Font family
  * @returns {Array} Array of section components
  */
-export const renderProgressNotes = (data, formatSettings, fontFamily) => {
+export const renderProgressNotes = (data, formatSettings) => {
+  if (!data || !formatSettings || !data?.progressNotes) return [];
 
-  if (!data) {
-    return [];
-  }
+  // Check if data is an array (multiple consultant notes) or single object
+  const progressNotesArray = Array.isArray(data?.progressNotes)
+    ? data?.progressNotes
+    : [data?.progressNotes];
 
-  // Create default sections if formatSettings is not properly structured
-  const defaultSections = [
-    { id: "patientInfo", order: 1, visible: true },
-    { id: "attendingPhysician", order: 2, visible: true },
-    { id: "progressNotesSummary", order: 3, visible: true },
-    { id: "progressNotesByDate", order: 4, visible: true },
-  ];
+  // Get sorted sections
+  const sortedSections = getAllVisibleSections(formatSettings);
+  console.log(sortedSections, "sortedSections");
 
-  let sectionsToRender = defaultSections;
+  // Render all consultant notes on the same page
+  const allSections = progressNotesArray.map((note, noteIndex) => {
+    const progressNotesData = note?.progressNotes || note;
+    console.log(progressNotesData, "progressNotesData");
 
-  // // Try to get sections from formatSettings if it's properly structured
-  // if (formatSettings && Array.isArray(formatSettings)) {
-  //   sectionsToRender = getSortedSections(formatSettings);
-  // } else if (formatSettings && formatSettings.formatStyle) {
-  //   // Convert formatStyle object to array format
-  //   const sectionsArray = Object.entries(formatSettings.formatStyle).map(([key, value]) => ({
-  //     id: key,
-  //     order: value.order || 1,
-  //     visible: value.visible !== false,
-  //   }));
-  //   sectionsToRender = getSortedSections(sectionsArray);
-  // } else {
-  //   console.log("Using default sections:", defaultSections);
-  // }
+    // Map section keys to render functions (using new array format IDs)
+    const sectionRenderers = {
+      chiefComplaint: () =>
+        renderRichText(progressNotesData.chiefComplaint, "Chief Complaint"),
+      findings: () =>
+        renderRichText(
+          progressNotesData.findings,
 
-  // Map section keys to render functions
-  const sectionRenderers = {
-    // patientInfo: () => renderPatientInfo(data, fontFamily),
-    // attendingPhysician: () => renderAttendingPhysician(data, fontFamily),
-    // progressNotesSummary: () => renderProgressNotesSummary(data, fontFamily),
-    progressNotesByDate: () => renderProgressNotesByDate(data, fontFamily),
-  };
+          "Findings"
+        ),
+      vitals: () => <Vitals vitals={progressNotesData.vitals} title="Vitals" />,
+      additionalRemarks: () =>
+        renderRichText(
+          progressNotesData.additionalRemarks,
 
-  // Render sections in order
-  const sections = sectionsToRender
-    .map((section) => {
-      const renderer = sectionRenderers[section.id || section.key];
-      if (renderer) {
-        const renderedSection = renderer();
-        return renderedSection;
-      }
-      return null;
-    })
-    .filter(Boolean);
+          "Additional Remarks"
+        ),
+    };
 
-  return sections;
+    // Render sections in order for this note
+    const noteSections = sortedSections
+      .map((section) => {
+        const renderer = sectionRenderers[section.key];
+        if (renderer) {
+          console.log(renderer, "renderer");
+          return renderer();
+        }
+        return null;
+      })
+      .filter(Boolean);
+
+    return (
+      <View key={note._id || noteIndex}>
+        <FilledByCard filledBy={note.createdByName} filledOn={note.createdAt} />
+        {/* Content */}
+        {noteSections}
+      </View>
+    );
+  });
+  console.log(allSections, "allSections");
+  return allSections;
 };

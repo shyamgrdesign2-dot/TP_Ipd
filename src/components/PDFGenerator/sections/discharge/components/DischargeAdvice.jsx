@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
-    marginBottom: 8,
+    // marginBottom: 8,
   },
 
   sectionContainer: {
@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
   // Subsection title
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -58,7 +57,6 @@ const styles = StyleSheet.create({
   // Bullet marker
   bullet: {
     width: 12,
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -67,7 +65,6 @@ const styles = StyleSheet.create({
   // Bullet content
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8,
@@ -78,18 +75,18 @@ const styles = StyleSheet.create({
 /**
  * Render Diet subsection
  */
-const renderDiet = (diet, fontFamily) => {
+const renderDiet = (diet) => {
   if (!diet || diet.length === 0) return null;
 
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>Diet:</Text>
+        <Text style={[styles.subsectionTitle]}>Diet:</Text>
         <View style={styles.bulletList}>
           {diet.map((item, index) => (
             <View key={`diet-${index}`} style={styles.bulletItem}>
-              <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-              <Text style={[styles.bulletContent, { fontFamily }]}>
+              <Text style={[styles.bullet]}>•</Text>
+              <Text style={[styles.bulletContent]}>
                 {item.name}
                 {item.note ? ` (Notes: ${item.note})` : ""}
               </Text>
@@ -104,20 +101,18 @@ const renderDiet = (diet, fontFamily) => {
 /**
  * Render Physical Activity subsection
  */
-const renderPhysicalActivity = (activities, fontFamily) => {
+const renderPhysicalActivity = (activities) => {
   if (!activities || activities.length === 0) return null;
 
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>
-          Physical Activity:
-        </Text>
+        <Text style={[styles.subsectionTitle]}>Physical Activity:</Text>
         <View style={styles.bulletList}>
           {activities.map((item, index) => (
             <View key={`activity-${index}`} style={styles.bulletItem}>
-              <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-              <Text style={[styles.bulletContent, { fontFamily }]}>
+              <Text style={[styles.bullet]}>•</Text>
+              <Text style={[styles.bulletContent]}>
                 {item.name}
                 {item.note ? ` (Notes: ${item.note})` : ""}
               </Text>
@@ -132,20 +127,16 @@ const renderPhysicalActivity = (activities, fontFamily) => {
 /**
  * Render Other Advice subsection
  */
-const renderOtherAdvice = (otherAdvice, fontFamily) => {
+const renderOtherAdvice = (otherAdvice) => {
   if (!otherAdvice || isEmptyRichText(otherAdvice)) return null;
 
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>
-          Other Advice:
-        </Text>
+        <Text style={[styles.subsectionTitle]}>Other Advice:</Text>
         <View style={styles.bulletList}>
           {renderRichText(otherAdvice, {
             text: {
-              fontSize: 10,
-              fontFamily,
               color: "#454551",
               lineHeight: 1.8,
             },
@@ -160,7 +151,7 @@ const renderOtherAdvice = (otherAdvice, fontFamily) => {
 /**
  * Render Warning Signs subsection
  */
-const renderWarningSigns = (warningSigns, fontFamily) => {
+const renderWarningSigns = (warningSigns) => {
   if (!warningSigns) return null;
 
   // Handle both rich text and array formats
@@ -180,14 +171,14 @@ const renderWarningSigns = (warningSigns, fontFamily) => {
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>
+        <Text style={[styles.subsectionTitle]}>
           When to Obtain Urgent Care:
         </Text>
         <View style={styles.bulletList}>
           {items.map((item, index) => (
             <View key={`warning-${index}`} style={styles.bulletItem}>
-              <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-              <Text style={[styles.bulletContent, { fontFamily }]}>{item}</Text>
+              <Text style={[styles.bullet]}>•</Text>
+              <Text style={[styles.bulletContent]}>{item}</Text>
             </View>
           ))}
         </View>
@@ -199,7 +190,7 @@ const renderWarningSigns = (warningSigns, fontFamily) => {
 /**
  * Render Emergency Contact subsection
  */
-const renderEmergencyContact = (emergencyContact, fontFamily) => {
+const renderEmergencyContact = (emergencyContact) => {
   if (!emergencyContact) return null;
 
   // Handle both rich text and array formats
@@ -219,16 +210,12 @@ const renderEmergencyContact = (emergencyContact, fontFamily) => {
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>
-          Emergency Contact:
-        </Text>
+        <Text style={[styles.subsectionTitle]}>Emergency Contact:</Text>
         <View style={styles.bulletList}>
           {contacts.map((contact, index) => (
             <View key={`contact-${index}`} style={styles.bulletItem}>
-              <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-              <Text style={[styles.bulletContent, { fontFamily }]}>
-                {contact}
-              </Text>
+              <Text style={[styles.bullet]}>•</Text>
+              <Text style={[styles.bulletContent]}>{contact}</Text>
             </View>
           ))}
         </View>
@@ -241,15 +228,9 @@ const renderEmergencyContact = (emergencyContact, fontFamily) => {
  * DischargeAdvice Component
  * @param {Object} props - Component props
  * @param {Object} props.data - Discharge advice data
- * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Discharge Advice Section
  */
-const DischargeAdvice = ({
-  data,
-  fontFamily = "Poppins",
-  title,
-  formatSettings,
-}) => {
+const DischargeAdvice = ({ data, title, formatSettings }) => {
   if (!data?.dischargeAdvice) return null;
 
   const advice = data.dischargeAdvice;
@@ -276,26 +257,26 @@ const DischargeAdvice = ({
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title={title} fontFamily={fontFamily} />
+      <SectionTitle title={title} />
       <View style={styles.mainContainer}>
         {sortedSubsections.map((subSection) => {
           return (
             <View key={subSection.id}>
               {subSection.id === "diet" &&
                 advice.diet.length &&
-                renderDiet(advice.diet, fontFamily)}
+                renderDiet(advice.diet)}
               {subSection.id === "physicalActivities" &&
                 advice.physicalActivities?.length &&
-                renderPhysicalActivity(advice.physicalActivities, fontFamily)}
+                renderPhysicalActivity(advice.physicalActivities)}
               {subSection.id === "otherAdvice" &&
                 !isEmptyRichText(advice.otherAdvice) &&
-                renderOtherAdvice(advice.otherAdvice, fontFamily)}
+                renderOtherAdvice(advice.otherAdvice)}
               {subSection.id === "warningSigns" &&
                 !isEmptyRichText(advice.warningSigns) &&
-                renderWarningSigns(advice.warningSigns, fontFamily)}
+                renderWarningSigns(advice.warningSigns)}
               {subSection.id === "emergencyContact" &&
                 !isEmptyRichText(advice.emergencyContact) &&
-                renderEmergencyContact(advice.emergencyContact, fontFamily)}
+                renderEmergencyContact(advice.emergencyContact)}
             </View>
           );
         })}

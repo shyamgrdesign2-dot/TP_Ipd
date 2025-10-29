@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
-    marginBottom: 8,
+    // marginBottom: 8,
   },
 
   // Surgery subsection container
@@ -33,7 +33,6 @@ const styles = StyleSheet.create({
   // Surgery number title
   surgeryTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600, // SemiBold
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -54,7 +53,6 @@ const styles = StyleSheet.create({
   // Bullet marker
   bullet: {
     width: 12,
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 2.2, // 22px for 10px font (different from other sections)
@@ -63,7 +61,6 @@ const styles = StyleSheet.create({
   // Bullet content
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 2.2, // 22px for 10px font
@@ -81,7 +78,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const OTNotes = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
+const OTNotes = ({ data, title, formatSettings }) => {
   if (!data?.otNotes?.surgeries || data.otNotes.surgeries.length === 0)
     return null;
 
@@ -98,16 +95,14 @@ const OTNotes = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title={title} fontFamily={fontFamily} />
+      <SectionTitle title={title} />
       <View style={styles.mainContainer}>
         {surgeries.map((surgery, index) => {
           return (
             <View key={`surgery-${index}`} style={styles.surgeryContainer}>
               <View style={styles.contentContainer}>
                 {/* Surgery number title */}
-                <Text style={[styles.surgeryTitle, { fontFamily }]}>
-                  Surgery {index + 1}:
-                </Text>
+                <Text style={[styles.surgeryTitle]}>Surgery {index + 1}:</Text>
 
                 {sortedSubsections.map((subSection) => {
                   const key = subSection.id;
@@ -119,8 +114,8 @@ const OTNotes = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
                   ) {
                     return (
                       <View style={styles.bulletItem}>
-                        <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                        <Text style={[styles.bulletContent, { fontFamily }]}>
+                        <Text style={[styles.bullet]}>•</Text>
+                        <Text style={[styles.bulletContent]}>
                           <Text style={styles.fieldLabel}>{label}: </Text>
                           <Text style={styles.regularText}>
                             {Array.isArray(surgery.procedureName)
@@ -134,8 +129,8 @@ const OTNotes = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
                   if (key === "dateOfSurgery" && surgery.dateOfSurgery) {
                     return (
                       <View style={styles.bulletItem}>
-                        <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                        <Text style={[styles.bulletContent, { fontFamily }]}>
+                        <Text style={[styles.bullet]}>•</Text>
+                        <Text style={[styles.bulletContent]}>
                           <Text style={styles.fieldLabel}>{label}: </Text>
                           <Text style={styles.regularText}>
                             {surgery.dateOfSurgery}
@@ -151,8 +146,8 @@ const OTNotes = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
                   ) {
                     return (
                       <View style={styles.bulletItem}>
-                        <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                        <Text style={[styles.bulletContent, { fontFamily }]}>
+                        <Text style={[styles.bullet]}>•</Text>
+                        <Text style={[styles.bulletContent]}>
                           <Text style={styles.fieldLabel}>{label}: </Text>
                           <Text style={styles.regularText}>
                             {surgery.surgeryStartTime} -{" "}
@@ -170,8 +165,8 @@ const OTNotes = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
                   ) {
                     return (
                       <View style={styles.bulletItem}>
-                        <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                        <Text style={[styles.bulletContent, { fontFamily }]}>
+                        <Text style={[styles.bullet]}>•</Text>
+                        <Text style={[styles.bulletContent]}>
                           <Text style={styles.fieldLabel}>{label}: </Text>
                           <Text style={styles.regularText}>
                             {surgery.surgeon
@@ -189,8 +184,8 @@ const OTNotes = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
                   ) {
                     return (
                       <View style={styles.bulletItem}>
-                        <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                        <Text style={[styles.bulletContent, { fontFamily }]}>
+                        <Text style={[styles.bullet]}>•</Text>
+                        <Text style={[styles.bulletContent]}>
                           <Text style={styles.fieldLabel}>{label}: </Text>
                           <Text style={styles.regularText}>
                             {surgery.secondarySurgeon
@@ -208,8 +203,8 @@ const OTNotes = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
                   ) {
                     return (
                       <View style={styles.bulletItem}>
-                        <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                        <Text style={[styles.bulletContent, { fontFamily }]}>
+                        <Text style={[styles.bullet]}>•</Text>
+                        <Text style={[styles.bulletContent]}>
                           <Text style={styles.fieldLabel}>{label}: </Text>
                           <Text style={styles.regularText}>
                             {surgery.assistant
@@ -227,8 +222,8 @@ const OTNotes = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
                   ) {
                     return (
                       <View style={styles.bulletItem}>
-                        <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                        <Text style={[styles.bulletContent, { fontFamily }]}>
+                        <Text style={[styles.bullet]}>•</Text>
+                        <Text style={[styles.bulletContent]}>
                           <Text style={styles.fieldLabel}>{label}: </Text>
                           <Text style={styles.regularText}>
                             {surgery.anaesthetist
@@ -242,8 +237,8 @@ const OTNotes = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
                   if (key === "anaesthetistType" && surgery.anaesthetistType) {
                     return (
                       <View style={styles.bulletItem}>
-                        <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                        <Text style={[styles.bulletContent, { fontFamily }]}>
+                        <Text style={[styles.bullet]}>•</Text>
+                        <Text style={[styles.bulletContent]}>
                           <Text style={styles.fieldLabel}>{label}: </Text>
                           <Text style={styles.regularText}>
                             {surgery.anaesthetistType}
@@ -259,8 +254,8 @@ const OTNotes = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
                   ) {
                     return (
                       <View style={styles.bulletItem}>
-                        <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                        <Text style={[styles.bulletContent, { fontFamily }]}>
+                        <Text style={[styles.bullet]}>•</Text>
+                        <Text style={[styles.bulletContent]}>
                           <Text style={styles.fieldLabel}>{label}: </Text>
                           <Text style={styles.regularText}>
                             {surgery.scrubNurse
@@ -278,8 +273,8 @@ const OTNotes = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
                   ) {
                     return (
                       <View style={styles.bulletItem}>
-                        <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                        <Text style={[styles.bulletContent, { fontFamily }]}>
+                        <Text style={[styles.bullet]}>•</Text>
+                        <Text style={[styles.bulletContent]}>
                           <Text style={styles.fieldLabel}>{label}: </Text>
                           <Text style={styles.regularText}>
                             {surgery.floorCirculatingNurse
@@ -299,7 +294,6 @@ const OTNotes = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
                       <RichTextPrintRenderer
                         data={surgery.operativeFindings}
                         title={label}
-                        fontFamily={fontFamily}
                       />
                     );
                   }
@@ -312,7 +306,6 @@ const OTNotes = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
                       <RichTextPrintRenderer
                         data={surgery.procedure}
                         title={label}
-                        fontFamily={fontFamily}
                       />
                     );
                   }
