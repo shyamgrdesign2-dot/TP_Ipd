@@ -506,6 +506,7 @@ export const staticDoctors = [
 export const formatPatientsForTable = (patients) => {
   return patients?.map((patient) => {
     return ({
+      ...patient,
       id: patient._id,
       isDischarged: patient.isDischarged,
       dischargedAt: patient.dischargedAt,

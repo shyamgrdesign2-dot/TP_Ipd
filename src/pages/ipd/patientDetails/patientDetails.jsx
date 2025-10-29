@@ -691,7 +691,8 @@ const IPDPatientDetails = () => {
             {Object.keys(actualDischargeSummaryData)?.length && (
               <div className="ipd-toolbar-edit-custom-print-download">
                 <ToolbarActions
-                  showEditForm={true}
+                  editBtnText={"Edit Summary"}
+                  showEditForm={!isOnlyViewMode}
                   onEdit={handleDischargeSummaryClick}
                   onPrintPreview={handleDischargeSummaryPrintPreview}
                   onPrint={() => {

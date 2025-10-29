@@ -9,7 +9,7 @@ export default function HomePageLayout() {
       <IPDHeader />
       <div className="d-flex">
         <IPDNavBar />
-        <IPDNavBarDupe />
+        {/* <IPDNavBarDupe /> */}
         <div className={"w-100 bg-body vh-100"}>
           <Outlet />
         </div>
