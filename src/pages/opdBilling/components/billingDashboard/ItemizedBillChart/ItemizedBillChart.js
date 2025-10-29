@@ -86,7 +86,6 @@ const ItemizedBillChart = ({ billData, profile, dateRange }) => {
             className={`service-section ${
               serviceIndex > 0 ? "new-page-content" : ""
             }`}
-            style={serviceIndex > 0 ? { paddingTop: "15px" } : {}}
           >
             <h2 className="service-title">{service.serviceName}</h2>
 

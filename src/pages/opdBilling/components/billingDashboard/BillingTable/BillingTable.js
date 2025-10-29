@@ -242,8 +242,9 @@ export default function BillingTable({
             const element = printableRef.current;
             const options = {
               filename: `billing_item_level_${userId || "report"}.pdf`,
-              image: { type: "jpeg", quality: 0.8 },
-              html2canvas: { scale: 1 },
+              image: { type: "jpeg", quality: 0.98 },
+              html2canvas: { scale: 3, useCORS: true, letterRendering: true },
+              margin: [0.3, 0.3, 0.1, 0.3],
               jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
             };
 
@@ -297,8 +298,9 @@ export default function BillingTable({
       const element = printableRef.current;
       const options = {
         filename: `billing_patient_level_${userId || "report"}.pdf`,
-        image: { type: "jpeg", quality: 0.8 },
-        html2canvas: { scale: 1 },
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 3, useCORS: true, letterRendering: true },
+        margin: [0.3, 0.3, 0.1, 0.3],
         jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
       };
 
