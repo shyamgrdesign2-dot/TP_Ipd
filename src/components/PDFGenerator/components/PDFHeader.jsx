@@ -81,13 +81,21 @@ const PDFHeader = ({ headerSettings, letterHeadFormat }) => {
     logo = "",
     headerImg = "",
     subTitle = "",
-    informationAlignmentVisible,
-    logoVisible,
-    informationAlignment,
+    informationVisible,
+    showLogo,
+    logoPosition,
   } = headerSettings;
 
-  // Use default Zydus logo if no logo provided
-  const logoSrc = logo || DEFAULT_LOGO;
+  const Logo = () => {
+    if (showLogo && logo) {
+      return (
+        <View style={styles.logoContainer}>
+          <Image src={logo} style={styles.logo} alt="Header Logo" />
+        </View>
+      );
+    }
+    return null;
+  };
 
   // No header format
   if (letterHeadFormat === LETTERHEAD_FORMATS.OWN) {
@@ -103,7 +111,7 @@ const PDFHeader = ({ headerSettings, letterHeadFormat }) => {
         ]}
         fixed
       >
-        <Image src={headerImg} />
+        <Image src={headerImg} alt="Header Image" />
       </View>
     );
   }
@@ -113,31 +121,23 @@ const PDFHeader = ({ headerSettings, letterHeadFormat }) => {
     <View
       style={[
         styles.headerContainer,
-        { justifyContent: !logoVisible ? "center" : "flex-start" },
+        { justifyContent: showLogo && logo ? "flex-start" : "center" },
       ]}
       fixed
     >
-      {informationAlignmentVisible && informationAlignment === "right" && (
-        <View style={styles.titlesContainer}>
-          {title && <Text style={styles.title}>{title}</Text>}
-          {subTitle && <Text style={styles.subTitle}>{subTitle}</Text>}
-        </View>
-      )}
-
       {/* Logo on left */}
-      {logoVisible && (
-        <View style={styles.logoContainer}>
-          <Image src={logoSrc} style={styles.logo} />
-        </View>
-      )}
+      {logoPosition === "left" && <Logo />}
 
       {/* Title center-right */}
-      {informationAlignmentVisible && informationAlignment === "left" && (
+      {informationVisible && (
         <View style={styles.titlesContainer}>
           {title && <Text style={styles.title}>{title}</Text>}
           {subTitle && <Text style={styles.subTitle}>{subTitle}</Text>}
         </View>
       )}
+
+      {/* Logo on right */}
+      {logoPosition === "right" && <Logo />}
     </View>
   );
 };
