@@ -37,6 +37,8 @@ import CommonModal from "../../../common/CommonModal";
 import './RxTemplateUploadDrawer.scss';
 import tutorialIcon from '../../../assets/images/tutorial.svg';
 import { useSelector } from 'react-redux';
+import { getDecodedToken } from '../../../utils/localStorage';
+import { CUSTOM_CANVAS_DOCTORS_USER_ID } from '../../../utils/constants';
 
 const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
   const [file, setFile] = useState(null);
@@ -58,6 +60,10 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
   const {
     profile,
   } = useSelector((state) => state.doctors);
+
+  const docID = getDecodedToken()?.result?.user_id;
+  const isCustomCanvasMaxEnabled = CUSTOM_CANVAS_DOCTORS_USER_ID.includes(docID);
+  const MAX_PAGES = isCustomCanvasMaxEnabled ? 20 : 5;
 
   // Drag and drop sensors for page reordering
   const sensors = useSensors(
@@ -185,7 +191,9 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       }
       
       // ✅ Limit number of pages to prevent memory issues
-      const MAX_PAGES = 5;
+      // const docID = getDecodedToken()?.user_id
+      // const isCustomCanvasMaxEnabled = CUSTOM_CANVAS_DOCTORS_USER_ID.includes(docID);
+      // const MAX_PAGES = isCustomCanvasMaxEnabled ? 20 : 5;
       if (pdf.numPages > MAX_PAGES) {
         throw new Error(`PDF has too many pages (${pdf.numPages}). Maximum allowed is ${MAX_PAGES}.`);
       }
@@ -196,7 +204,8 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       for (let i = 1; i <= numPages; i++) {
         try {
           const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 2 });
+          // ✅ Reduce scale to 1.5 for smaller file sizes while maintaining quality
+          const viewport = page.getViewport({ scale: 1.5 });
           
           // ✅ Validate page dimensions
           if (viewport.width <= 0 || viewport.height <= 0) {
@@ -222,7 +231,8 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
             )
           ]);
           
-          const imageDataUrl = canvas.toDataURL('image/png', 0.9);
+          // ✅ Use JPEG with lower quality for smaller file sizes
+          const imageDataUrl = canvas.toDataURL('image/jpeg', 0.7);
           
           // ✅ Validate generated image
           if (!imageDataUrl || imageDataUrl === 'data:,') {
@@ -549,20 +559,35 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
     setIsProcessing(true);
     
     try {
-      message.loading('Uploading template...', 0);
+      // Calculate total file size for better progress messaging
+      const totalSize = templateData.files.reduce((sum, file) => {
+        return sum + (file.uploadFile?.size || 0);
+      }, 0);
+      
+      const isLargeUpload = totalSize > 10 * 1024 * 1024; // 10MB
+      const initialMessage = isLargeUpload 
+        ? 'Preparing large upload...' 
+        : 'Uploading template...';
+      
+      message.loading(initialMessage, 0);
       
       const result = await uploadCustomSyncPadTemplate(
         templateData,
         (progress) => {
-          // Update progress
+          // Update progress with more detailed messaging
           message.destroy();
-          message.loading(`Uploading... ${progress}%`, 0);
+          if (isLargeUpload) {
+            message.loading(`Uploading large template... ${progress}%`, 0);
+          } else {
+            message.loading(`Uploading... ${progress}%`, 0);
+          }
         }
       );
       
       message.destroy();
       
       if (result.success) {
+        message.success('Template uploaded successfully!');
         
         // Call the onSave callback with the response data
         if (onSave) {
@@ -586,7 +611,18 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       message.destroy();
       console.error('Exception in handleApiUpload:', error);
       console.error('Error stack:', error.stack);
-      message.error('Failed to save template. Please try again.');
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to save template. Please try again.';
+      if (error.message?.includes('413')) {
+        errorMessage = 'File too large. Please try with fewer pages or compress your PDF.';
+      } else if (error.message?.includes('timeout')) {
+        errorMessage = 'Upload timed out. Please check your connection and try again.';
+      } else if (error.message?.includes('Network Error')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      }
+      
+      message.error(errorMessage);
       setIsProcessing(false);
     }
   };
@@ -890,9 +926,9 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
       }
       
       // ✅ Validate total page limit
-      const MAX_TOTAL_PAGES = 5;
-      if (file.pages.length >= MAX_TOTAL_PAGES) {
-        message.error(`Maximum ${MAX_TOTAL_PAGES} pages allowed. Please remove some pages before adding more.`);
+      // const MAX_TOTAL_PAGES = 5;
+      if (file.pages.length >= MAX_PAGES) {
+        message.error(`Maximum ${MAX_PAGES} pages allowed. Please remove some pages before adding more.`);
         return;
       }
       
@@ -947,9 +983,9 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
         const newImages = await convertPdfToImages(fileUrl);
         
         // ✅ Validate that adding new pages won't exceed the 5-page limit
-        const MAX_TOTAL_PAGES = 5;
-        if (file.pages.length + newImages.length > MAX_TOTAL_PAGES) {
-          message.error(`Cannot add ${newImages.length} page(s). Maximum ${MAX_TOTAL_PAGES} pages allowed. Current: ${file.pages.length}, Adding: ${newImages.length}`);
+        // const MAX_PAGES = 5;
+        if (file.pages.length + newImages.length > MAX_PAGES) {
+          message.error(`Cannot add ${newImages.length} page(s). Maximum ${MAX_PAGES} pages allowed. Current: ${file.pages.length}, Adding: ${newImages.length}`);
           setIsValidating(false);
           setIsAddingMore(false);
           return;
@@ -1100,7 +1136,7 @@ const RxTemplateUploadDrawer = ({ visible, onClose, onSave }) => {
                 <div className='d-flex'>
                   <img src={alertIcon} alt="Warning" className="rx-upload-warning-icon" />
                   <span>
-                    Please ensure that the uploaded Rx canvas is in <b>A4 size</b>, <b>PDF format</b>, under <b>8MB</b> file size & maximum <b>5 pages</b>
+                    Please ensure that the uploaded Rx canvas is in <b>A4 size</b>, <b>PDF format</b>, under <b>8MB</b> file size & maximum <b>{MAX_PAGES} pages</b>
                   </span>
                 </div>
                 <div className='upload-note'>

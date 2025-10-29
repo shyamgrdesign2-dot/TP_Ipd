@@ -20,17 +20,29 @@ import { setAllUploadedDocs } from "../../redux/uploadDocSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import { isAndroid, isBrowser } from "react-device-detect";
-import { MESSAGE_KEY } from "../../utils/constants";
 import {
   generateUniqueFileName,
   getCorrectedFileName,
   loadPdf,
+  loadVideoThumbnail,
   mergeDocuments,
   shortenText,
   uploadDocURLtoFile,
+  isVideoFile,
+  isPdfFile,
+  isImageFile,
 } from "./utils/helper";
 // Updated to use Redux
 import { uploadMedicalRecordDocument, getMedicalRecordsDocuments } from "../../redux/ipd/medicalRecordsSlice";
+import {
+  SUPPORTED_IMAGE_TYPES,
+  SUPPORTED_VIDEO_TYPES,
+  SUPPORTED_DOCUMENT_TYPES,
+  MAX_DOCUMENT_FILE_SIZE,
+  MAX_VIDEO_FILE_SIZE,
+  VIDEO_THUMBNAIL_TIME,
+  MESSAGE_KEY
+} from "../../utils/constants";
 
 const UploadDocument = ({
   onClose,
@@ -83,23 +95,68 @@ const UploadDocument = ({
         let thumbnailUrl;
         let fileData;
         if (!isEditDocument) {
-          if (item && item.type === "application/pdf") {
-            thumbnailUrl = await loadPdf(URL.createObjectURL(item));
-            fileData = uploadDocURLtoFile(
-              thumbnailUrl,
-              "thumbnail_" +
-                item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-                ".png"
-            );
-          } else {
-            thumbnailUrl = URL.createObjectURL(item);
-            fileData = new File(
-              [item],
-              "thumbnail_" +
-                item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-                ".png",
-              { type: "image/png" }
-            );
+          if (item && isPdfFile(item.type)) {
+            // Generate PDF thumbnail from first page
+            const pdfObjectURL = URL.createObjectURL(item);
+            try {
+              thumbnailUrl = await loadPdf(pdfObjectURL);
+              fileData = uploadDocURLtoFile(
+                thumbnailUrl,
+                "thumbnail_" +
+                  item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+                  ".png"
+              );
+            } finally {
+              // Revoke PDF object URL after processing
+              URL.revokeObjectURL(pdfObjectURL);
+            }
+          } else if (item && isVideoFile(item.type)) {
+            // Generate video thumbnail from first frame
+            try {
+              thumbnailUrl = await loadVideoThumbnail(item, VIDEO_THUMBNAIL_TIME);
+              fileData = uploadDocURLtoFile(
+                thumbnailUrl,
+                "thumbnail_" +
+                  item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+                  ".png"
+              );
+            } catch (error) {
+              console.error("Error generating video thumbnail:", error);
+              // Create a placeholder or use file as-is
+              console.warn("Using fallback for video thumbnail");
+              thumbnailUrl = null;
+              fileData = null;
+            }
+          } else if (item && isImageFile(item.type)) {
+            // Use image file as thumbnail - convert to data URL to avoid memory leak
+            const imageObjectURL = URL.createObjectURL(item);
+            try {
+              // Convert to data URL to avoid keeping object URL in memory
+              const img = new Image();
+              img.src = imageObjectURL;
+              await new Promise((resolve, reject) => {
+                img.onload = () => resolve();
+                img.onerror = reject;
+              });
+              
+              const canvas = document.createElement("canvas");
+              canvas.width = img.width;
+              canvas.height = img.height;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0);
+              thumbnailUrl = canvas.toDataURL("image/png");
+              
+              fileData = new File(
+                [item],
+                "thumbnail_" +
+                  item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+                  ".png",
+                { type: "image/png" }
+              );
+            } finally {
+              // Revoke image object URL after conversion
+              URL.revokeObjectURL(imageObjectURL);
+            }
           }
         }
         return {
@@ -126,19 +183,44 @@ const UploadDocument = ({
 
   useEffect(() => {
     const supportedTypes = [
-      "image/png",
-      "image/jpeg",
-      "image/jpg",
-      "application/pdf",
+      ...SUPPORTED_IMAGE_TYPES,
+      ...SUPPORTED_VIDEO_TYPES,
+      ...SUPPORTED_DOCUMENT_TYPES,
     ];
+    
+    // Helper function to check if file is supported by extension (fallback for incorrect MIME types)
+    const isSupportedByExtension = (fileName) => {
+      if (!fileName) return false;
+      const extension = fileName.toLowerCase().split('.').pop();
+      const supportedExtensions = [
+        'pdf', 'png', 'jpg', 'jpeg', 'gif', 
+        'mp4', 'mov', 'avi'
+      ];
+      return supportedExtensions.includes(extension);
+    };
+    
     if (filesData?.length > 0) {
       filesData.forEach((item) => {
-        // 15728640 = 15 MB (maximum file size to upload)
-        if (item?.size > 15728640) {
+        // Check if file is video by MIME type OR extension (for mobile uploads)
+        const isVideoByMimeType = isVideoFile(item?.type);
+        const isVideoByExtension = item?.name && /\.(mp4|mov|avi)$/i.test(item?.name);
+        const isVideoType = isVideoByMimeType || isVideoByExtension;
+        
+        // Check file size based on type
+        const maxSize = isVideoType 
+          ? MAX_VIDEO_FILE_SIZE 
+          : MAX_DOCUMENT_FILE_SIZE;
+        
+        if (item?.size > maxSize) {
           setIsFileSizeError(true);
         }
-        if (!supportedTypes?.includes(item?.type)) {
-          setIsFileTypeError(item?.type);
+        
+        // Check file type - use MIME type OR file extension as fallback
+        const isSupportedMimeType = supportedTypes?.includes(item?.type);
+        const isSupportedExtension = isSupportedByExtension(item?.name);
+        
+        if (!isSupportedMimeType && !isSupportedExtension) {
+          setIsFileTypeError(item?.type || item?.name);
         }
       });
       if (filesData.length > 5) {
@@ -299,12 +381,19 @@ const UploadDocument = ({
       const formData = new FormData();
       filesData.forEach((item, index) => {
         formData.append(item?.name, item);
-        formData.append(
-          "thumbnail_" +
-            item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-            ".png",
-          recordData?.[index]?.thumbnailFile
-        );
+        
+        // Only append thumbnail if it exists (skip if thumbnail generation failed)
+        const thumbnailFile = recordData?.[index]?.thumbnailFile;
+        if (thumbnailFile) {
+          formData.append(
+            "thumbnail_" +
+              item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+              ".png",
+            thumbnailFile
+          );
+        } else {
+          console.warn(`No thumbnail available for ${item?.name}, skipping thumbnail upload`);
+        }
       });
       formData.append(
         "pm_id",
@@ -413,23 +502,61 @@ const UploadDocument = ({
           updatedFiles.map(async (item) => {
             let thumbnailUrl;
             let fileData;
-            if (item && item.type === "application/pdf") {
-              thumbnailUrl = await loadPdf(URL.createObjectURL(item));
-              fileData = uploadDocURLtoFile(
-                thumbnailUrl,
-                "thumbnail_" +
-                  item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-                  ".png"
-              );
-            } else {
-              thumbnailUrl = URL.createObjectURL(item);
-              fileData = new File(
-                [item],
-                "thumbnail_" +
-                  item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
-                  ".png",
-                { type: "image/png" }
-              );
+            if (item && isPdfFile(item.type)) {
+              const pdfObjectURL = URL.createObjectURL(item);
+              try {
+                thumbnailUrl = await loadPdf(pdfObjectURL);
+                fileData = uploadDocURLtoFile(
+                  thumbnailUrl,
+                  "thumbnail_" +
+                    item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+                    ".png"
+                );
+              } finally {
+                URL.revokeObjectURL(pdfObjectURL);
+              }
+            } else if (item && isVideoFile(item.type)) {
+              try {
+                thumbnailUrl = await loadVideoThumbnail(item, VIDEO_THUMBNAIL_TIME);
+                fileData = uploadDocURLtoFile(
+                  thumbnailUrl,
+                  "thumbnail_" +
+                    item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+                    ".png"
+                );
+              } catch (error) {
+                console.error("Error generating video thumbnail:", error);
+                thumbnailUrl = null;
+                fileData = null;
+              }
+            } else if (item && isImageFile(item.type)) {
+              const imageObjectURL = URL.createObjectURL(item);
+              try {
+                // Convert to data URL to avoid memory leak
+                const img = new Image();
+                img.src = imageObjectURL;
+                await new Promise((resolve, reject) => {
+                  img.onload = () => resolve();
+                  img.onerror = reject;
+                });
+                
+                const canvas = document.createElement("canvas");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+                thumbnailUrl = canvas.toDataURL("image/png");
+                
+                fileData = new File(
+                  [item],
+                  "thumbnail_" +
+                    item?.name?.substring(0, item?.name?.lastIndexOf(".")) +
+                    ".png",
+                  { type: "image/png" }
+                );
+              } finally {
+                URL.revokeObjectURL(imageObjectURL);
+              }
             }
             return {
               id: item?.id,
@@ -534,7 +661,7 @@ const UploadDocument = ({
                   multiple
                   ref={fileInputRef}
                   onChange={handleFileUpload}
-                  accept="image/png, image/jpeg, image/jpg, application/pdf"
+                  accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf, video/mp4, video/quicktime, video/x-msvideo"
                   style={{ display: "none" }}
                   disabled={filesData.length >= 5}
                 />
@@ -745,9 +872,10 @@ const UploadDocument = ({
                   <span>
                     {isFileSizeError ? (
                       <>
-                        The file size exceeded{" "}
-                        <span style={{ fontWeight: 700 }}>15MB.</span> Please
-                        upload a file smaller than 15MB
+                        The file size exceeded the limit.{" "}
+                        <span style={{ fontWeight: 700 }}>
+                          Please upload documents smaller than 15MB or videos smaller than 30MB.
+                        </span>
                       </>
                     ) : isFileLimitError ? (
                       <>
@@ -762,7 +890,7 @@ const UploadDocument = ({
                           {" "}
                           {isFileTypeError}
                         </span>{" "}
-                        file. Only PDF, JPG, JPEG, and PNG formats are accepted.
+                        file. Only PDF, JPG, JPEG, PNG, GIF, MP4, MOV, and AVI formats are accepted.
                       </>
                     ) : (
                       "Are you sure you want to leave ?"

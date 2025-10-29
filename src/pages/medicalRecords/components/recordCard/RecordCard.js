@@ -22,7 +22,8 @@ import DocumentPreview from "../documentPreview/DocumentPreview";
 import dayjs from "dayjs";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../firebase";
-import { loadPdf, mergeDocuments, shortenText } from "../../utils/helper";
+import { loadPdf, loadVideoThumbnail, mergeDocuments, shortenText, isVideoFile } from "../../utils/helper";
+import { VIDEO_THUMBNAIL_TIME } from "../../../../utils/constants";
 import config from "../../../../config";
 import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN } from "../../../../utils/constants";
 import { getDecodedToken } from "../../../../utils/localStorage";
@@ -206,32 +207,81 @@ const RecordCard = ({
 
   const handleDownload = async () => {
     try {
-      const payload = {
-        url: url,
-        method: "GET",
-        responseType: "blob",
-      };
-
+      console.log("Starting download for:", display_name);
+      console.log("URL:", url);
+      
+      // For Zydus proxy URLs, use axios with auth headers
       if (url?.startsWith(config.zydus_proxy_url)) {
-        payload.headers = {
-          Authorization: `Bearer ${
-            localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN) == null
-              ? null
-              : JSON.parse(
-                localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN)
-              )
-            }`,
+        const payload = {
+          url: url,
+          method: "GET",
+          responseType: "blob",
+          headers: {
+            Authorization: `Bearer ${
+              localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN) == null
+                ? null
+                : JSON.parse(
+                  localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN)
+                )
+              }`,
+          },
         };
+
+        const response = await axios(payload);
+        console.log("Download response received:", response.headers);
+
+        const blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
+        console.log("Blob created:", blob.type, blob.size);
+        
+        saveAs(blob, display_name);
+        console.log("File download initiated");
+        return;
       }
 
-      const response = await axios(payload);
+      // For regular URLs (S3, Firebase Storage, etc.), try fetch first
+      try {
+        console.log("Attempting fetch download...");
+        const response = await fetch(url, {
+          method: "GET",
+          mode: "cors",
+        });
 
-      const blob = new Blob([response.data], {
-        type: response.headers["content-type"],
-      });
-      saveAs(blob, display_name);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        console.log("Fetch download successful:", blob.type, blob.size);
+        
+        saveAs(blob, display_name);
+        console.log("File download initiated via fetch");
+        return;
+      } catch (fetchError) {
+        console.log("Fetch failed, trying direct link fallback:", fetchError.message);
+        
+        // Fallback: Use direct link download (opens in new tab or triggers browser download)
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = display_name;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log("File download initiated via direct link");
+      }
     } catch (error) {
       console.error("Error downloading file: ", error);
+      console.error("Error details:", error.response || error.message);
+      
+      // Final fallback: Open in new tab
+      console.log("All download methods failed, opening in new tab");
+      window.open(url, "_blank");
     }
   };
 

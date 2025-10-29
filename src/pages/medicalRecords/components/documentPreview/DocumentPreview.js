@@ -51,8 +51,12 @@ const DocumentPreview = ({
   const pageNavigationPluginInstance = pageNavigationPlugin();
   const { ZoomIn, ZoomOut } = zoomPluginInstance;
   const [isPdf, setIsPdf] = useState(true);
+  const [isVideo, setIsVideo] = useState(false);
   const imgRef = useRef(null);
+  const videoRef = useRef(null);
   const [angle, setAngle] = useState(0);
+  const [videoError, setVideoError] = useState(false);
+  const [isAviFile, setIsAviFile] = useState(false);
 
   const resetControlsTimeout = () => {
     if (controlsTimeoutRef.current) {
@@ -82,9 +86,25 @@ const DocumentPreview = ({
       cardData?.url?.includes(".pdf")
     ) {
       setIsPdf(true);
-    } else {
+      setIsVideo(false);
+      setIsAviFile(false);
+    } else if (
+      cardData?.url?.includes(".mp4") ||
+      cardData?.url?.includes(".mov") ||
+      cardData?.url?.includes(".avi") ||
+      cardData?.url?.includes(".webm")
+    ) {
+      setIsVideo(true);
       setIsPdf(false);
       setNumberOfPages(1);
+      setVideoError(false);
+      // Detect if it's an AVI file
+      setIsAviFile(cardData?.url?.includes(".avi"));
+    } else {
+      setIsPdf(false);
+      setIsVideo(false);
+      setNumberOfPages(1);
+      setIsAviFile(false);
     }
   }, [cardData]);
 
@@ -369,6 +389,115 @@ const DocumentPreview = ({
                 }
               />
             </Worker>
+          ) : isVideo ? (
+            <div
+              style={{
+                width: "100%",
+                maxWidth: "900px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "12px",
+                gap: "20px",
+              }}
+            >
+              {isAviFile && !videoError && (
+                <div
+                  style={{
+                    width: "100%",
+                    padding: "15px",
+                    backgroundColor: "#fff3cd",
+                    border: "1px solid #ffc107",
+                    borderRadius: "8px",
+                    color: "#856404",
+                    fontSize: "14px",
+                    textAlign: "center",
+                  }}
+                >
+                  <strong>Note:</strong> AVI files may have limited playback support in browsers. If the video doesn't play, please download it to view on your device.
+                </div>
+              )}
+              
+              {videoError ? (
+                <div
+                  style={{
+                    width: "100%",
+                    padding: "40px",
+                    backgroundColor: "#f8d7da",
+                    border: "1px solid #f5c6cb",
+                    borderRadius: "12px",
+                    textAlign: "center",
+                  }}
+                >
+                  <i
+                    className="icon-video"
+                    style={{ fontSize: "48px", color: "#721c24", marginBottom: "15px" }}
+                  />
+                  <h3 style={{ color: "#721c24", marginBottom: "10px" }}>
+                    Unable to Play Video
+                  </h3>
+                  <p style={{ color: "#721c24", marginBottom: "20px" }}>
+                    Your browser cannot play this video format. Please download the file to view it on your device.
+                  </p>
+                  <Button
+                    className="btn btn-primary3"
+                    onClick={() => !isBrowser ? handleInAppDownload() : handleDownload()}
+                  >
+                    <i className="icon-download" style={{ marginRight: "8px" }} />
+                    Download Video
+                  </Button>
+                </div>
+              ) : (
+                <video
+                  ref={videoRef}
+                  src={cardData?.url}
+                  controls
+                  controlsList="nodownload"
+                  preload="metadata"
+                  playsInline
+                  onError={(e) => {
+                    console.error("Video playback error:", e);
+                    console.error("Video URL:", cardData?.url);
+                    if (e.target.error) {
+                      console.error("Error code:", e.target.error.code);
+                      console.error("Error message:", e.target.error.message);
+                      
+                      // Error codes:
+                      // 1 = MEDIA_ERR_ABORTED
+                      // 2 = MEDIA_ERR_NETWORK  
+                      // 3 = MEDIA_ERR_DECODE
+                      // 4 = MEDIA_ERR_SRC_NOT_SUPPORTED
+                      
+                      if (e.target.error.code === 4) {
+                        console.error("Video format/codec not supported by browser");
+                      } else if (e.target.error.code === 2) {
+                        console.error("Network error loading video");
+                      }
+                    }
+                    setVideoError(true);
+                  }}
+                  onLoadedMetadata={() => {
+                    console.log("Video metadata loaded successfully");
+                  }}
+                  onCanPlay={() => {
+                    console.log("Video can play - ready for playback");
+                  }}
+                  onLoadStart={() => {
+                    console.log("Video loading started");
+                  }}
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    maxHeight: "80vh",
+                    borderRadius: "12px",
+                    backgroundColor: "#000",
+                  }}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              )}
+            </div>
           ) : (
             <TransformWrapper
               initialScale={1}
