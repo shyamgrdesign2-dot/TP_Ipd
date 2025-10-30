@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback } from "react";
-import { message } from "antd";
+import { message, Tooltip } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { createRemoteComponent } from "../../shared/remoteComponents";
 import DynamicPickerTable from "./DynamicPickerTable";
@@ -73,6 +73,42 @@ const TreatmentGiven = ({ sectionData }) => {
       return [];
     }
   };
+  const getModuleCode = (module) => {
+    if (!module) return "";
+
+    const moduleMap = {
+      "OT Note": "OT",
+      "OT Notes": "OT",
+      "Progress Note": "PN",
+      "Progress Notes": "PN",
+      Assessment: "AF",
+      "Consultant Notes": "CN",
+      "Cross Referral": "CR",
+      "Laboratory Report": "LR",
+      "Radiology Report": "RR",
+      "Nursing Notes": "NN",
+      Medication: "MED",
+      "Vital Signs": "VS",
+      "Discharge Planning": "DP",
+    };
+
+    return moduleMap[module] || module.substring(0, 2).toUpperCase();
+  };
+
+  const ToolTipContent = (record) => {
+    return (
+      <div className="chrosum-tooltip-container">
+        <div className="chrotol-source">
+          <span>Source:</span>
+          {record.module} - {record.subModule}
+        </div>
+        <div className="chrotol-source">
+          <span>Date:</span>
+          {record.givenDate}
+        </div>
+      </div>
+    );
+  };
 
   const columns = [
     {
@@ -80,16 +116,23 @@ const TreatmentGiven = ({ sectionData }) => {
       dataIndex: "name",
       key: "name",
       ellipsis: true,
-      render: (text, record) => (
-        <div className="medication-name-cell">
-          <span className="medication-name">{text}</span>
-          <span
-            className={`badge badge-${record.code?.toLowerCase() || "default"}`}
-          >
-            [{record.code || "N/A"}]
-          </span>
-        </div>
-      ),
+      render: (text, record) => {
+        const code = getModuleCode(record.module);
+        return (
+          <div className="medication-name-cell">
+            <span className="medication-name">{text}</span>
+            <Tooltip title={ToolTipContent(record)}>
+              <span
+                className={`badge badge-${
+                  record.code?.toLowerCase() || "default"
+                }`}
+              >
+                {code ? `[${code}]` : null}
+              </span>
+            </Tooltip>
+          </div>
+        );
+      },
     },
     {
       title: "GIVEN DATE",

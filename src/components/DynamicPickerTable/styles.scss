@@ -123,31 +123,14 @@
   // Badge styles for different types
   .badge {
     display: inline-block;
-    padding: 4px 8px;
+    padding: 4px;
     border-radius: 4px;
     font-size: 12px;
     font-weight: 500;
     text-transform: uppercase;
-
-    // &.badge-pn {
-    //   background-color: #f3e8ff;
-    //   color: #7c3aed;
-    // }
-
-    // &.badge-cn {
-    //   background-color: #dbeafe;
-    //   color: #2563eb;
-    // }
-
-    // &.badge-ot {
-    //   background-color: #fef3c7;
-    //   color: #d97706;
-    // }
-
-    // &.badge-default {
-    //   background-color: #f1f5f9;
-    //   color: #64748b;
-    // }
+    // color: #4b4ad5 !important;
+    @include text-secondary;
+    background: #f1f1f5;
   }
 }
 
@@ -156,17 +139,16 @@
     width: 100%;
     height: 52px;
     padding: 0 2px;
-
+    .ant-input::placeholder,
+    .ant-select-selection-placeholder {
+      @include text-light-gray;
+    }
     .ant-input,
     .ant-select-selector {
       border-radius: 12px !important;
       padding: 0 16px;
       border-color: #e5e6ee;
       background-color: #fff !important;
-    }
-
-    .ant-input::placeholder {
-      color: var(--muted);
     }
   }
 }

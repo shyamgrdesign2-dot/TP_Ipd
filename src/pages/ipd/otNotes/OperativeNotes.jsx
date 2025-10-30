@@ -3,7 +3,7 @@ import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setOperativeNotes } from "../../../redux/ipd/otNotesSlice";
-import { isEmptyRichText } from "../../../utils/utils";
+import { isEmptyRichText, hasNoData } from "../../../utils/utils";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -79,8 +79,9 @@ const OperativeNotes = (props) => {
     });
   };
   if (!sectionData) return null;
-  if (!isEditable && !Object.values(operativeNotes).some((value) => value))
+  if (!isEditable && hasNoData(operativeNotes)) {
     return null;
+  }
   return (
     <div>
       <CollapsibleWrapper

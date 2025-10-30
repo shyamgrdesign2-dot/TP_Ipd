@@ -145,7 +145,11 @@ const crossReferralSlice = createSlice({
         return;
       }
       if (selectedCrossReferral.referralInformation) {
-        state.crossReferralFormDetails = selectedCrossReferral;
+        const consultantNotesData = selectedCrossReferral.consultantNotes || [];
+        state.crossReferralFormDetails = {
+          ...selectedCrossReferral,
+          consultantNotesData: consultantNotesData,
+        };
       }
     },
     setCurrentCrossReferralId: (state, action) => {
@@ -173,8 +177,10 @@ const crossReferralSlice = createSlice({
             informedOnTime: "",
           },
         },
+        consultantNotesData: [],
       };
       state.currentCrossReferralId = null;
+      state.selectedConsultantNoteId = 0;
     },
   },
   extraReducers: (builder) => {
