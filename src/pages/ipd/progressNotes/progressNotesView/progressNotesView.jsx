@@ -11,6 +11,7 @@ import {
   filterProgressNotesByDateRange,
   clearDateFilter,
 } from "../../../../redux/ipd/progressNotesSlice";
+import useOnlyViewMode from "../../../../hooks/useOnlyViewMode";
 
 const { Title, Text } = Typography;
 const { ReusableStepper, ReusableProgressCard, RichTextEditor } =
@@ -33,7 +34,7 @@ function ProgressNotesView({
   const [dateStatus, setDateStatus] = useState(null);
   const [dateRange, setDateRange] = useState(null);
   const [pickerModal, setPickerModal] = useState(false);
-
+  const isOnlyViewMode = useOnlyViewMode();
   const disabledDate = useCallback((current) => {
     return current && current >= moment().add(1, "days").startOf("day");
   }, []);
@@ -55,10 +56,15 @@ function ProgressNotesView({
       ) {
         setDateStatus(2);
       } else if (
-        startDate === moment().add(-1, "M").format(dateFormat) &&
+        startDate === moment().add(-7, "d").format(dateFormat) &&
         endDate === today
       ) {
         setDateStatus(3);
+      } else if (
+        startDate === moment().add(-1, "M").format(dateFormat) &&
+        endDate === today
+      ) {
+        setDateStatus(4);
       } else {
         setDateStatus(null);
       }
@@ -288,6 +294,7 @@ function ProgressNotesView({
           RichTextEditor,
         }}
         actions={
+          !isOnlyViewMode &&
           !isProgressNotesSummary &&
           new Date(item?.timestamp).toISOString().split("T")[0] ===
             new Date().toISOString().split("T")[0]

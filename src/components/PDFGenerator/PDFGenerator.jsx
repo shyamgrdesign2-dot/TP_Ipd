@@ -16,7 +16,6 @@ import { renderDischargeSummary } from "./sections/discharge/DischargeSummaryRen
 import { renderConsultantNotes } from "./sections/consultation/ConsultantNotesRenderer";
 import { renderProgressNotes } from "./sections/progressNotes/ProgressNotesRenderer";
 import { renderAdmissionAssessment } from "./sections/discharge/AdmissionAssessmentRenderer";
-import { IPD } from "../../utils/locale";
 import { renderOTNotes } from "./sections/discharge/OTNotesRenderer";
 import { renderCrossReferral } from "./sections/discharge/CrossReferralRenderer";
 
@@ -62,42 +61,33 @@ const PDFGenerator = ({
 
   // Get format settings - formatStyle is now always an array
   const formatSettings = settings.formatStyle || [];
-  const fontFamily = settings.pageFormat?.fontFamily;
 
   // Render content based on document type
   let contentSections = [];
 
   switch (documentType) {
     case "dischargeSummary":
-      contentSections = renderDischargeSummary(
-        data,
-        formatSettings,
-        fontFamily
-      );
+      contentSections = renderDischargeSummary(data, formatSettings);
       break;
 
     case "assessment":
-      contentSections = renderAdmissionAssessment(
-        data,
-        formatSettings,
-        fontFamily
-      );
+      contentSections = renderAdmissionAssessment(data, formatSettings);
       break;
 
     case "progressNotes":
-      contentSections = renderProgressNotes(data, formatSettings, fontFamily);
+      contentSections = renderProgressNotes(data, formatSettings);
       break;
 
     case "consultationNotes":
-      contentSections = renderConsultantNotes(data, formatSettings, fontFamily);
+      contentSections = renderConsultantNotes(data, formatSettings);
       break;
 
     case "otNotes":
-      contentSections = renderOTNotes(data, formatSettings, fontFamily);
+      contentSections = renderOTNotes(data, formatSettings);
       break;
 
     case "crossReferral":
-      contentSections = renderCrossReferral(data, formatSettings, fontFamily);
+      contentSections = renderCrossReferral(data, formatSettings);
       break;
 
     default:

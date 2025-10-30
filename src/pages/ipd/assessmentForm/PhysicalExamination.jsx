@@ -9,6 +9,7 @@ import {
 } from "../../../redux/ipd/assessmentsFormSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { isEmptyRichText } from "../../../utils/utils";
+import useCheckExaminationData from "../../../hooks/useCheckExaminationData";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 
@@ -21,6 +22,8 @@ const PhysicalExamination = (props) => {
     physicalExaminationBasicData = {},
     vitalsData,
   } = assessmentData;
+  const checkExaminationDataPresent = useCheckExaminationData(physicalExaminationBasicData);
+
   const {
     isEditable = true,
     sectionData,
@@ -112,9 +115,13 @@ const PhysicalExamination = (props) => {
       </div>
     );
   };
+  const hasAnyVitalValue = !!vitalsData && Object.values(vitalsData).some(
+    (value) => value !== null && value !== undefined && value !== ""
+  );
   if (
     !isEditable &&
-    !Object.keys(physicalExaminationBasicData)?.length &&
+    !checkExaminationDataPresent &&
+    !hasAnyVitalValue &&
     isEmptyRichText(physicalExaminationOthersData) &&
     isEmptyRichText(physicalExaminationProvisionalDiagnosisData)
   )

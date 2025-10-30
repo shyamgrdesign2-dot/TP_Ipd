@@ -20,6 +20,7 @@ const ReferralInformationView = (props) => {
     uniqueId: _id,
     isCollapsible = true,
     isEditable = false,
+    isCurrentDoctorReferee,
   } = props || {};
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -34,7 +35,6 @@ const ReferralInformationView = (props) => {
 
   const { informedByDoctor, informedTo, informedOnDate, informedOnTime } =
     relativesInformed;
-  const isCurrentDoctorReferee = informedByDoctor?.id !== referringTo?.id;
   const handleEditCrossReferral = (id) => {
     dispatch(setCurrentCrossReferralId(id));
     dispatch(setSingleCrossReferralData({ _id: id }));
@@ -69,7 +69,7 @@ const ReferralInformationView = (props) => {
           <img src={newIcons.basicInfoPcDark} alt="x" />
           <span>Referral Information</span>
         </div>
-        {isEditable && isCurrentDoctorReferee && isCollapsible && (
+        {isEditable && !isCurrentDoctorReferee && isCollapsible && (
           <div>
             <img
               className="medical-progress__content-calendar-icon"
@@ -92,7 +92,7 @@ const ReferralInformationView = (props) => {
           />
           <MemberChip
             icon={newIcons.referringTo}
-            label="Referring To"
+            label="Referred To"
             value={referringTo?.name}
             role={referringTo?.role}
           />

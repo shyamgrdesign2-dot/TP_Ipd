@@ -112,6 +112,15 @@ export const S_IPD = "ipd";
 export const S_OPD_BILLING = "opd_billing";
 export const S_RECEPTIONIST_AGENT = "receptionist_agent";
 
+// Medical Records - Document Upload Configuration
+export const SUPPORTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/jpg", "image/gif"];
+export const SUPPORTED_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/x-msvideo"]; 
+export const SUPPORTED_DOCUMENT_TYPES = ["application/pdf"];
+export const MAX_DOCUMENT_FILE_SIZE = 15728640; // 15 MB
+export const MAX_VIDEO_FILE_SIZE = 31457280; // 30 MB
+export const MAX_FILES_PER_UPLOAD = 5;
+export const VIDEO_THUMBNAIL_TIME = 1; // Extract thumbnail at 1 second
+
 export const EXTRA_OPTIONS = [
   {
     key: JSON.stringify({
@@ -413,4 +422,9 @@ export const ZYDUS_WHATSAPP_ENABLED_DOCTORS = [
   "9925179799",
   "9537045169",
   "9925560870",
+];
+
+// Custom Canvas Size Increased upto 20 
+export const CUSTOM_CANVAS_DOCTORS_USER_ID = [
+  524,25734
 ];

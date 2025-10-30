@@ -11,7 +11,7 @@ import RichTextPrintRenderer from "./richTextPrintRenderer";
 const styles = StyleSheet.create({
   mainContainer: {
     padding: "0 6px",
-    marginBottom: 8,
+    // marginBottom: 8,
   },
 
   subsectionContainer: {
@@ -24,7 +24,6 @@ const styles = StyleSheet.create({
   },
 
   inlineText: {
-    fontSize: 10,
     lineHeight: 1.8,
     textTransform: "capitalize",
   },
@@ -41,7 +40,6 @@ const styles = StyleSheet.create({
 
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -59,7 +57,6 @@ const styles = StyleSheet.create({
 
   bullet: {
     width: 12,
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -67,7 +64,6 @@ const styles = StyleSheet.create({
 
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8,
@@ -75,7 +71,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const FollowUp = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
+const FollowUp = ({ data, title, formatSettings }) => {
   if (!data?.followUp) return null;
 
   const followUp = data.followUp;
@@ -99,7 +95,7 @@ const FollowUp = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title={title} fontFamily={fontFamily} />
+      <SectionTitle title={title} />
       <View style={styles.mainContainer}>
         {/* Follow-up On */}
         {sortedSubsections.map((subSection) => {
@@ -109,7 +105,7 @@ const FollowUp = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
             return (
               <View style={styles.subsectionContainer}>
                 <View style={styles.contentContainer}>
-                  <Text style={[styles.inlineText, { fontFamily }]}>
+                  <Text style={styles.inlineText}>
                     <Text style={styles.inlineLabel}>{label}: </Text>
                     <Text style={styles.inlineValue}>{followUp.date}</Text>
                   </Text>
@@ -121,7 +117,7 @@ const FollowUp = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
             return (
               <View style={styles.subsectionContainer}>
                 <View style={styles.contentContainer}>
-                  <Text style={[styles.inlineText, { fontFamily }]}>
+                  <Text style={styles.inlineText}>
                     <Text style={styles.inlineLabel}>{label}: </Text>
                     <Text style={styles.inlineValue}>
                       {followUp.doctor?.name}
@@ -142,7 +138,6 @@ const FollowUp = ({ data, fontFamily = "Poppins", title, formatSettings }) => {
               <RichTextPrintRenderer
                 data={followUp.additionalNotes}
                 title={label}
-                fontFamily={fontFamily}
               />
             );
           }

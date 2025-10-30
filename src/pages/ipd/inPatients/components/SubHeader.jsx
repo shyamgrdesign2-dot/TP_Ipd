@@ -1,6 +1,6 @@
 import { Button } from "antd";
 import "./SubHeader.scss";
-import {defaultIcons} from "../../../../assets/images/icons";
+import { defaultIcons } from "../../../../assets/images/icons";
 import { useNavigate } from "react-router-dom";
 
 const SubHeader = ({ headerTitle }) => {

@@ -100,11 +100,7 @@ function IPDPageFormatLayout({ moduleType }) {
           className="autocomplete-custom"
           placeholder="Select font size"
           options={FONTS_SIZE_LIST}
-          value={
-            pageFormatSettings.patientInfoFontSize ||
-            pageFormatSettings.fontSize ||
-            8
-          }
+          value={pageFormatSettings.patientInfoFontSize || 8}
           onSelect={onSelectPatientInfoFontSize}
           allowClear
         />

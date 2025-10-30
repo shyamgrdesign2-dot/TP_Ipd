@@ -29,7 +29,6 @@ const styles = StyleSheet.create({
   },
 
   subsectionTitle: {
-    fontSize: 11,
     fontWeight: 700,
     color: "#000000",
     marginBottom: 6,
@@ -40,7 +39,7 @@ const styles = StyleSheet.create({
 /**
  * Primary Consultant Section (Admitting Consultant)
  */
-const renderPrimaryConsultant = (data, fontFamily, formatSettings) => {
+const renderPrimaryConsultant = (data) => {
   if (!data?.patientInformation?.primaryConsultant) return null;
 
   const { primaryConsultant } = data.patientInformation;
@@ -48,9 +47,9 @@ const renderPrimaryConsultant = (data, fontFamily, formatSettings) => {
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Admitting Consultant" fontFamily={fontFamily} />
+      <SectionTitle title="Admitting Consultant" />
       <View style={{ padding: "6px 0px" }}>
-        {renderSimpleText(consultantText, fontFamily)}
+        {renderSimpleText(consultantText)}
       </View>
     </View>
   );
@@ -59,13 +58,12 @@ const renderPrimaryConsultant = (data, fontFamily, formatSettings) => {
 /**
  * Diagnosis and Surgery Section
  */
-const renderDiagnosisAndSurgery = (data, fontFamily, formatSettings) => {
+const renderDiagnosisAndSurgery = (data, formatSettings) => {
   return (
     <DiagnosisAndSurgery
       title="Diagnosis & Surgery"
       formatSettings={formatSettings}
       data={data}
-      fontFamily={fontFamily}
     />
   );
 };
@@ -73,12 +71,11 @@ const renderDiagnosisAndSurgery = (data, fontFamily, formatSettings) => {
 /**
  * Patient History Section
  */
-const renderPatientHistory = (data, fontFamily, formatSettings) => {
+const renderPatientHistory = (data, formatSettings) => {
   return (
     <PatientHistory
       data={data}
       formatSettings={formatSettings}
-      fontFamily={fontFamily}
       title="Patient History"
     />
   );
@@ -87,11 +84,10 @@ const renderPatientHistory = (data, fontFamily, formatSettings) => {
 /**
  * Physical Examination Section
  */
-const renderPhysicalExamination = (data, fontFamily, formatSettings) => {
+const renderPhysicalExamination = (data, formatSettings) => {
   return (
     <PhysicalExamination
       data={data}
-      fontFamily={fontFamily}
       formatSettings={formatSettings}
       title="Physical Examination at the Time of Admission"
     />
@@ -101,11 +97,10 @@ const renderPhysicalExamination = (data, fontFamily, formatSettings) => {
 /**
  * Functional Assessment Section
  */
-const renderFunctionalAssessment = (data, fontFamily, formatSettings) => {
+const renderFunctionalAssessment = (data, formatSettings) => {
   return (
     <FunctionalAssessment
       data={data}
-      fontFamily={fontFamily}
       formatSettings={formatSettings}
       title="Functional Assessment at the Time of Admission"
     />
@@ -115,12 +110,11 @@ const renderFunctionalAssessment = (data, fontFamily, formatSettings) => {
 /**
  * Course in Hospital Section
  */
-const renderCourseInHospital = (data, fontFamily, formatSettings) => {
+const renderCourseInHospital = (data, formatSettings) => {
   return (
     <CourseInHospital
       title="Course in Hospital"
       data={data}
-      fontFamily={fontFamily}
       formatSettings={formatSettings}
     />
   );
@@ -129,26 +123,20 @@ const renderCourseInHospital = (data, fontFamily, formatSettings) => {
 /**
  * OT Notes Section
  */
-const renderOTNotes = (data, fontFamily, formatSettings) => {
+const renderOTNotes = (data, formatSettings) => {
   return (
-    <OTNotes
-      title="OT Notes"
-      data={data}
-      fontFamily={fontFamily}
-      formatSettings={formatSettings}
-    />
+    <OTNotes title="OT Notes" data={data} formatSettings={formatSettings} />
   );
 };
 
 /**
  * Discharge Notes Section
  */
-const renderDischargeNotes = (data, fontFamily, formatSettings) => {
+const renderDischargeNotes = (data, formatSettings) => {
   return (
     <DischargeNote
       title="Discharge Note"
       data={data}
-      fontFamily={fontFamily}
       formatSettings={formatSettings}
     />
   );
@@ -157,12 +145,11 @@ const renderDischargeNotes = (data, fontFamily, formatSettings) => {
 /**
  * Discharge Advice Section
  */
-const renderDischargeAdvice = (data, fontFamily, formatSettings) => {
+const renderDischargeAdvice = (data, formatSettings) => {
   return (
     <DischargeAdvice
       title="Discharge Advice"
       data={data}
-      fontFamily={fontFamily}
       formatSettings={formatSettings}
     />
   );
@@ -171,21 +158,16 @@ const renderDischargeAdvice = (data, fontFamily, formatSettings) => {
 /**
  * Follow-up Section
  */
-const renderFollowUp = (data, fontFamily, formatSettings) => {
+const renderFollowUp = (data, formatSettings) => {
   return (
-    <FollowUp
-      title="Follow-up"
-      data={data}
-      fontFamily={fontFamily}
-      formatSettings={formatSettings}
-    />
+    <FollowUp title="Follow-up" data={data} formatSettings={formatSettings} />
   );
 };
 
 /**
  * Prepared By Section
  */
-const renderPreparedBy = (data, fontFamily) => {
+const renderPreparedBy = (data) => {
   if (!data?.preparedBy) return null;
 
   const { preparedBy } = data;
@@ -193,17 +175,15 @@ const renderPreparedBy = (data, fontFamily) => {
   if (!preparedBy?.length || preparedBy.some((item) => !item.name)) return null;
 
   return (
-    <View style={{ gap: 4 }}>
-      <SectionTitle title="Prepared by" fontFamily={fontFamily} />
+    <View style={styles.sectionContainer}>
+      <SectionTitle title="Prepared by" />
 
       {/* Inline label-value */}
       <View style={{ padding: "6px 6px 0 6px" }}>
         <Text
           style={{
-            fontSize: 10,
             lineHeight: 1.8,
             textTransform: "capitalize",
-            fontFamily,
           }}
         >
           <Text style={{ fontWeight: 600, color: "#171725" }}>
@@ -225,10 +205,9 @@ const renderPreparedBy = (data, fontFamily) => {
  * Main Discharge Summary Renderer
  * @param {Object} data - Discharge summary data
  * @param {Object} formatSettings - Format settings
- * @param {string} fontFamily - Font family
  * @returns {Array} Array of section components
  */
-export const renderDischargeSummary = (data, formatSettings, fontFamily) => {
+export const renderDischargeSummary = (data, formatSettings) => {
   if (!data || !formatSettings) return [];
 
   // Get sorted sections
@@ -236,29 +215,20 @@ export const renderDischargeSummary = (data, formatSettings, fontFamily) => {
 
   // Map section keys to render functions (using new array format IDs)
   const sectionRenderers = {
-    admittingConsultant: () =>
-      renderPrimaryConsultant(data, fontFamily, formatSettings),
-    diagnosisAndSurgery: () =>
-      renderDiagnosisAndSurgery(data, fontFamily, formatSettings),
-    patientHistory: () =>
-      renderPatientHistory(data, fontFamily, formatSettings),
-    physicalExamination: () =>
-      renderPhysicalExamination(data, fontFamily, formatSettings),
+    admittingConsultant: () => renderPrimaryConsultant(data, formatSettings),
+    diagnosisAndSurgery: () => renderDiagnosisAndSurgery(data, formatSettings),
+    patientHistory: () => renderPatientHistory(data, formatSettings),
+    physicalExamination: () => renderPhysicalExamination(data, formatSettings),
     functionalAssessment: () =>
-      renderFunctionalAssessment(data, fontFamily, formatSettings),
-    courseInHospital: () =>
-      renderCourseInHospital(data, fontFamily, formatSettings),
-    otNotes: () => renderOTNotes(data, fontFamily, formatSettings),
-    dischargeNotes: () =>
-      renderDischargeNotes(data, fontFamily, formatSettings),
-    dischargeAdvice: () =>
-      renderDischargeAdvice(data, fontFamily, formatSettings),
-    followUp: () => renderFollowUp(data, fontFamily, formatSettings),
+      renderFunctionalAssessment(data, formatSettings),
+    courseInHospital: () => renderCourseInHospital(data, formatSettings),
+    otNotes: () => renderOTNotes(data, formatSettings),
+    dischargeNotes: () => renderDischargeNotes(data, formatSettings),
+    dischargeAdvice: () => renderDischargeAdvice(data, formatSettings),
+    followUp: () => renderFollowUp(data, formatSettings),
     // Backward compatibility with old keys
-    primaryConsultant: () =>
-      renderPrimaryConsultant(data, fontFamily, formatSettings),
-    dignosisAndSurgery: () =>
-      renderDiagnosisAndSurgery(data, fontFamily, formatSettings),
+    primaryConsultant: () => renderPrimaryConsultant(data, formatSettings),
+    dignosisAndSurgery: () => renderDiagnosisAndSurgery(data, formatSettings),
   };
 
   // Render sections in order
@@ -274,7 +244,7 @@ export const renderDischargeSummary = (data, formatSettings, fontFamily) => {
 
   // Add prepared by at the end
   if (data.preparedBy) {
-    sections.push(renderPreparedBy(data, fontFamily));
+    sections.push(renderPreparedBy(data));
   }
 
   return sections;

@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
-  selectPathologyResults,
+  selectFilteredPathologyResults,
   selectScanError,
   selectSelectedTests,
   selectSelectedCategories,
@@ -30,8 +30,10 @@ import {
   clearError,
   addToDischargeSummary,
   setSearchText,
-  selectAvailableDates,
+  setSelectedDateRange,
+  selectFilteredAvailableDates,
   selectIsLoading,
+  selectSelectedDateRange,
 } from "../../../redux/ipd/labResultsSlice";
 import { useLocation } from "react-router-dom";
 import moment from "moment";
@@ -50,8 +52,9 @@ const { Text } = Typography;
 const Pathologyresults = () => {
   const { state } = useLocation();
   const { patientDetails } = state || {};
+
   const patientId = patientDetails?.details?.id;
-  const { admissionId } = patientDetails;
+  const { admissionId, mrno } = patientDetails;
   const dispatch = useDispatch();
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -64,7 +67,7 @@ const Pathologyresults = () => {
   );
 
   // Redux state
-  const pathologyResults = useSelector(selectPathologyResults);
+  const pathologyResults = useSelector(selectFilteredPathologyResults);
   const scanError = useSelector(selectScanError);
   const selectedTests = useSelector(selectSelectedTests);
   const selectedCategories = useSelector(selectSelectedCategories);
@@ -76,10 +79,10 @@ const Pathologyresults = () => {
   const totalItemCount = useSelector(selectTotalItemCount);
   const isAllSelected = useSelector(selectIsAllSelected);
   const isMainIndeterminate = useSelector(selectIsMainCheckboxIndeterminate);
-  const availableDates = useSelector(selectAvailableDates);
+  const availableDates = useSelector(selectFilteredAvailableDates);
   const isLoading = useSelector(selectIsLoading);
-  // Local state for date filtering
-  const [selectedDateRange, setSelectedDateRange] = useState(null);
+  const selectedDateRange = useSelector(selectSelectedDateRange);
+  // Local state for date filtering UI
   const [dateStatus, setDateStatus] = useState("closed");
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
@@ -90,26 +93,24 @@ const Pathologyresults = () => {
   const headerScrollRef = useRef(null);
   const rowScrollRefs = useRef([]);
 
+  const pathologyResultsNoOfDays = 6000;
+
   // Sync local search text with Redux state
   useEffect(() => {
     setLocalSearchText(searchText);
   }, [searchText]);
 
-  // Load data on component mount
+  // Load data on component mount only (not on search/date changes)
   useEffect(() => {
     if (patientId && admissionId) {
       dispatch(
         getPathologyResults({
-          patientId,
-          admissionId,
-          filterStartDate: selectedDateRange?.startDate,
-          filterEndDate: selectedDateRange?.endDate,
-          search: searchText,
-          selected: selectedTests.length > 0,
+          mrno,
+          noOfDays: pathologyResultsNoOfDays,
         })
       );
     }
-  }, [dispatch, patientId, admissionId, selectedDateRange, searchText]);
+  }, [dispatch, patientId, admissionId, mrno]);
 
   // Handle errors
   useEffect(() => {
@@ -203,43 +204,51 @@ const Pathologyresults = () => {
   const onDateCancel = () => {
     setDateStatus(null);
     setIsDatePickerOpen(!isDatePickerOpen);
-    setSelectedDateRange(null);
+    dispatch(setSelectedDateRange(null));
   };
 
-  const onDateRangeChange = useCallback((dates, dateStrings) => {
-    if (dates) {
-      // Determine date status based on selected dates
-      const today = moment().format("YYYY-MM-DD");
-      const startDate = moment(dateStrings[0], "DD-MM-YYYY").format(
-        "YYYY-MM-DD"
-      );
-      const endDate = moment(dateStrings[1], "DD-MM-YYYY").format("YYYY-MM-DD");
+  const onDateRangeChange = useCallback(
+    (dates, dateStrings) => {
+      if (dates) {
+        // Determine date status based on selected dates
+        const today = moment().format("YYYY-MM-DD");
+        const startDate = moment(dateStrings[0], "DD-MM-YYYY").format(
+          "YYYY-MM-DD"
+        );
+        const endDate = moment(dateStrings[1], "DD-MM-YYYY").format(
+          "YYYY-MM-DD"
+        );
 
-      if (startDate === today && endDate === today) {
-        setDateStatus(1);
-      } else if (
-        startDate === moment().add(-1, "d").format("YYYY-MM-DD") &&
-        endDate === today
-      ) {
-        setDateStatus(2);
-      } else if (
-        startDate === moment().add(-1, "M").format("YYYY-MM-DD") &&
-        endDate === today
-      ) {
-        setDateStatus(3);
+        if (startDate === today && endDate === today) {
+          setDateStatus(1);
+        } else if (
+          startDate === moment().add(-1, "d").format("YYYY-MM-DD") &&
+          endDate === today
+        ) {
+          setDateStatus(2);
+        } else if (
+          startDate === moment().add(-7, "d").format("YYYY-MM-DD") &&
+          endDate === today
+        ) {
+          setDateStatus(3);
+        } else if (
+          startDate === moment().add(-1, "M").format("YYYY-MM-DD") &&
+          endDate === today
+        ) {
+          setDateStatus(4);
+        } else {
+          setDateStatus(null);
+        }
+
+        // Dispatch to Redux instead of local state
+        dispatch(setSelectedDateRange([startDate, endDate]));
       } else {
         setDateStatus(null);
+        dispatch(setSelectedDateRange(null));
       }
-
-      setSelectedDateRange({
-        startDate: startDate,
-        endDate: endDate,
-      });
-    } else {
-      setDateStatus(null);
-      setSelectedDateRange(null);
-    }
-  }, []);
+    },
+    [dispatch]
+  );
 
   // Handle main checkbox (select all)
   const handleMainCheckboxChange = (checked) => {
@@ -348,7 +357,7 @@ const Pathologyresults = () => {
           className: "message-appointment",
           content: (
             <div className="d-flex align-items-center">
-              <img src={visitEnd} className="me-3" />
+              <img src={visitEnd} className="me-3" alt="end" />
               <div>
                 <div className="title-common text-start fontroboto">
                   Selected Lab Results Added to Discharge Summary
@@ -358,6 +367,7 @@ const Pathologyresults = () => {
                 src={imgCloseVisit}
                 className="ms-3"
                 onClick={() => message.destroy()}
+                alt="Close"
               />
             </div>
           ),
@@ -365,11 +375,8 @@ const Pathologyresults = () => {
         });
         await dispatch(
           getPathologyResults({
-            patientId,
-            admissionId,
-            filterStartDate: selectedDateRange?.startDate,
-            filterEndDate: selectedDateRange?.endDate,
-            search: searchText,
+            mrno,
+            noOfDays: pathologyResultsNoOfDays,
           })
         );
       } else {
@@ -464,7 +471,7 @@ const Pathologyresults = () => {
           <Spin size="large" />
         </div>
       )}
-      {pathologyResults.length > 0 ? (
+      {pathologyResults.length > 0 && !isLoading ? (
         <div className="lab-results-content">
           {/* Global Table Header */}
           <div className="table-header-container">

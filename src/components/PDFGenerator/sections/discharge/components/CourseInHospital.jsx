@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
-    marginBottom: 8,
+    // marginBottom: 8,
   },
 
   sectionContainer: {
@@ -34,7 +34,6 @@ const styles = StyleSheet.create({
   // Subsection title
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -55,7 +54,6 @@ const styles = StyleSheet.create({
   // Bullet marker
   bullet: {
     width: 12,
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -64,7 +62,6 @@ const styles = StyleSheet.create({
   // Bullet content
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8,
@@ -85,15 +82,13 @@ const styles = StyleSheet.create({
 /**
  * Render Chronological Summary
  */
-const renderChronologicalSummary = (summary, fontFamily) => {
+const renderChronologicalSummary = (summary) => {
   if (!summary || summary.length === 0) return null;
 
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>
-          Chronological Summary:
-        </Text>
+        <Text style={[styles.subsectionTitle]}>Chronological Summary:</Text>
         <View style={styles.bulletList}>
           {summary.map((entry, index) => {
             // Extract text from rich text format
@@ -106,8 +101,8 @@ const renderChronologicalSummary = (summary, fontFamily) => {
 
             return (
               <View key={`chron-${index}`} style={styles.bulletItem}>
-                <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                <Text style={[styles.bulletContent, { fontFamily }]}>
+                <Text style={[styles.bullet]}>•</Text>
+                <Text style={[styles.bulletContent]}>
                   <Text style={styles.dayLabel}>
                     {entry.day} ({formatDate(entry.date)})
                   </Text>
@@ -125,22 +120,18 @@ const renderChronologicalSummary = (summary, fontFamily) => {
 /**
  * Render Treatment Given
  */
-const renderTreatmentGiven = (treatments, fontFamily) => {
+const renderTreatmentGiven = (treatments) => {
   if (!treatments || treatments.length === 0) return null;
 
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>
-          Treatment Given:
-        </Text>
+        <Text style={[styles.subsectionTitle]}>Treatment Given:</Text>
         <View style={styles.bulletList}>
           {treatments.map((treatment, index) => (
             <View key={`treatment-${index}`} style={styles.bulletItem}>
-              <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-              <Text style={[styles.bulletContent, { fontFamily }]}>
-                {treatment.name}
-              </Text>
+              <Text style={[styles.bullet]}>•</Text>
+              <Text style={[styles.bulletContent]}>{treatment.name}</Text>
             </View>
           ))}
         </View>
@@ -153,15 +144,9 @@ const renderTreatmentGiven = (treatments, fontFamily) => {
  * CourseInHospital Component
  * @param {Object} props - Component props
  * @param {Object} props.data - Course in hospital data
- * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Course in Hospital Section
  */
-const CourseInHospital = ({
-  data,
-  fontFamily = "Poppins",
-  title,
-  formatSettings,
-}) => {
+const CourseInHospital = ({ data, title, formatSettings }) => {
   if (!data?.courseInHospital) return null;
 
   const course = data.courseInHospital;
@@ -192,7 +177,7 @@ const CourseInHospital = ({
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title={title} fontFamily={fontFamily} />
+      <SectionTitle title={title} />
       <View style={styles.mainContainer}>
         {sortedSubsections.map((subsection) => {
           const key = subsection.id;
@@ -201,17 +186,14 @@ const CourseInHospital = ({
             course.chronologicalSummary &&
             course.chronologicalSummary.length > 0
           ) {
-            return renderChronologicalSummary(
-              course.chronologicalSummary,
-              fontFamily
-            );
+            return renderChronologicalSummary(course.chronologicalSummary);
           }
           if (
             key === "treatmentsGiven" &&
             course.treatmentGiven &&
             course.treatmentGiven.length > 0
           ) {
-            return renderTreatmentGiven(course.treatmentGiven, fontFamily);
+            return renderTreatmentGiven(course.treatmentGiven);
           }
         })}
       </View>

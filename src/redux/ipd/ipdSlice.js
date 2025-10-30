@@ -50,22 +50,6 @@ export const getCustomization = createAsyncThunk(
   }
 );
 
-export const searchPatientsByMobile = createAsyncThunk(
-  "ipd/searchPatientsByMobile",
-  async ({ mobile, countryCode }) => {
-    try {
-      const res = await ApiIpdService.searchPatientsByMobile({
-        mobile,
-        countryCode,
-      });
-      return res; // keep same passthrough convention
-    } catch (error) {
-      console.log("error: ", error);
-      throw Error(error);
-    }
-  }
-);
-
 export const updateCustomization = createAsyncThunk(
   "ipd/updateCustomization",
   async (data) => {
@@ -115,6 +99,20 @@ export const fetchWards = createAsyncThunk("ipd/fetchWards", async () => {
     throw Error(error);
   }
 });
+
+export const markPatientAsDischarged = createAsyncThunk(
+  "ipd/markPatientAsDischarged",
+  async (data) => {
+    try {
+      let result = {};
+      result = await ApiIpdService.markPatientAsDischarged(data);
+      return result;
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
 
 const ipdSlice = createSlice({
   name: "ipd",
@@ -192,31 +190,14 @@ const ipdSlice = createSlice({
         state.loading = false;
         state.wards = null;
       })
-      .addCase(searchPatientsByMobile.pending, (state) => {
-        state.patientsSearch.loading = true;
-        state.patientsSearch.error = null;
+      .addCase(markPatientAsDischarged.pending, (state) => {
+        state.loading = true;
       })
-      .addCase(searchPatientsByMobile.fulfilled, (state, action) => {
-        state.patientsSearch.loading = false;
-        const data = Array.isArray(action.payload)
-          ? action.payload
-          : action.payload?.data || [];
-        state.patientsSearch.list = data || [];
+      .addCase(markPatientAsDischarged.fulfilled, (state, action) => {
+        state.loading = false;
       })
-      .addCase(searchPatientsByMobile.rejected, (state, action) => {
-        state.patientsSearch.loading = false;
-        state.patientsSearch.error =
-          action.error?.message || "Failed to search patients";
-        // state.patientsSearch.list =  [];
-        state.patientsSearch.list = [
-          {
-            id: "P044",
-            name: "Gita Verma",
-            gender: "Female",
-            age: 78,
-            contact: "+91-9291041929",
-          },
-        ];
+      .addCase(markPatientAsDischarged.rejected, (state) => {
+        state.loading = false;
       });
   },
 });

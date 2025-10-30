@@ -14,7 +14,6 @@ const ProvisionalDiagnosisWrapper = (props) => {
   const { provisionalDiagnosis = [] } =
     dischargeSummaryData?.diagnosisAndSurgery || {};
 
-    console.log('INTEL ==> provisionalDiagnosis', provisionalDiagnosis, isEditable)
   if (!isEditable && provisionalDiagnosis.length === 0) return null;
 
   return (

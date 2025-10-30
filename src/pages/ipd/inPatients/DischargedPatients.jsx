@@ -26,7 +26,7 @@ import "./InPatients.scss";
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD-MM-YYYY";
 
-function InPatients() {
+function DischargedPatients() {
   const navigate = useNavigate();
 
   // Initialize state from session storage
@@ -138,7 +138,7 @@ function InPatients() {
       doctorIdsFilter:
         selectedDoctors.length > 0 ? selectedDoctors.join(",") : allDoctorIds,
       ward: selectedWards.length > 0 ? selectedWards.join(",") : "",
-      isDischarged: false
+      isDischarged: true
     }),
     [filterParams, dateRange, selectedDoctors, selectedWards, allDoctorIds]
   );
@@ -176,7 +176,6 @@ function InPatients() {
           patientDetails: patientData,
           patient_data,
           isEditable: false,
-          activeTab: patientData?.referral ? "crossReferral" : "assessment",
         },
       });
     },
@@ -284,7 +283,7 @@ function InPatients() {
 
   return (
     <>
-      <SubHeader headerTitle={"InPatients"} />
+      <SubHeader headerTitle={"Discharged Patients"} />
       <div className="border rounded-4 appointment-wrap dateborder">
         <div className="appointment-data">
           <Row className="justify-content-between align-items-center my-3 px-4">
@@ -321,7 +320,7 @@ function InPatients() {
             hasMore={hasMore}
             lastElementRef={lastElementRef}
             filterParams={filterParams}
-            fetchParams={fetchParams}
+            isDischargedPatients={true}
           />
         </div>
       </div>
@@ -329,4 +328,4 @@ function InPatients() {
   );
 }
 
-export default React.memo(InPatients);
+export default React.memo(DischargedPatients);

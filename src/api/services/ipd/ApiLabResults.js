@@ -1,6 +1,7 @@
 import config from "../../../config";
 import api from "../axiosService";
 const baseUrl = { customBaseUrl: config.ipd_api_url };
+const zydusProxyUrl = { customBaseUrl: config.zydus_proxy_url };
 
 const ApiLabResults = {};
 
@@ -48,6 +49,13 @@ ApiLabResults.getScanResults = function ({
       filterEndDate ? `&filterEndDate=${filterEndDate}` : ""
     }`,
     baseUrl
+  );
+};
+
+ApiLabResults.getZydusLabResults = function ({ mrno, noOfDays }) {
+  return api.get(
+    `/ictApiProxy/emr/lab/result/list?mrno=${mrno}&noOfDays=${noOfDays}`,
+    zydusProxyUrl
   );
 };
 

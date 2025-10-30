@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
-    marginBottom: 8,
+    // marginBottom: 8,
   },
   sectionContainer: {
     marginBottom: 12,
@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
   // Subsection title
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -57,7 +56,6 @@ const styles = StyleSheet.create({
 
   bullet: {
     width: 12,
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -65,7 +63,6 @@ const styles = StyleSheet.create({
 
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8,
@@ -76,20 +73,18 @@ const styles = StyleSheet.create({
 /**
  * Render Patient Condition
  */
-const renderPatientCondition = (condition, fontFamily) => {
+const renderPatientCondition = (condition) => {
   if (!condition || isEmptyRichText(condition)) return null;
 
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>
+        <Text style={[styles.subsectionTitle]}>
           Patient's Condition During Discharge:
         </Text>
         <View style={styles.bulletList}>
           {renderRichText(condition, {
             text: {
-              fontSize: 10,
-              fontFamily,
               color: "#454551",
               lineHeight: 1.8,
             },
@@ -105,15 +100,9 @@ const renderPatientCondition = (condition, fontFamily) => {
  * DischargeNote Component - Exact Figma Match
  * @param {Object} props - Component props
  * @param {Object} props.data - Discharge note data
- * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Discharge Note Section
  */
-const DischargeNote = ({
-  data,
-  fontFamily = "Poppins",
-  title,
-  formatSettings,
-}) => {
+const DischargeNote = ({ data, title, formatSettings }) => {
   if (!data?.dischargeNotes) return null;
 
   const notes = data.dischargeNotes;
@@ -138,20 +127,19 @@ const DischargeNote = ({
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title={title} fontFamily={fontFamily} />
+      <SectionTitle title={title} />
       <View style={styles.mainContainer}>
         {sortedSubsections.map((subSection) => {
           return (
             <View key={subSection.id}>
               {subSection.id === "patientCondition" &&
-                renderPatientCondition(notes.patientCondition, fontFamily)}
+                renderPatientCondition(notes.patientCondition)}
               {subSection.id === "dischargeVitals" &&
                 Object.values(notes.dischargeVitals)?.some(
                   (item) => !!item
                 ) && (
                   <Vitals
                     vitals={notes.dischargeVitals}
-                    fontFamily={fontFamily}
                     title={subSection.label}
                   />
                 )}
@@ -159,7 +147,6 @@ const DischargeNote = ({
                 notes.dischargeMedications?.length > 0 && (
                   <MedicationTable
                     medications={notes.dischargeMedications}
-                    fontFamily={fontFamily}
                     title={subSection.label}
                     showContainer={true}
                   />

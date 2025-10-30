@@ -6,7 +6,7 @@ const styles = StyleSheet.create({
   // Main container
   mainContainer: {
     padding: "0 6px",
-    marginBottom: 8,
+    // marginBottom: 8,
   },
 
   // Subsection container
@@ -22,7 +22,6 @@ const styles = StyleSheet.create({
   // Subsection title
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
     // lineHeight: 1.8,
     textTransform: "capitalize",
@@ -48,7 +47,6 @@ const styles = StyleSheet.create({
   // Bullet marker
   bullet: {
     width: 12,
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -57,7 +55,6 @@ const styles = StyleSheet.create({
   // Bullet content
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8, // 18px for 10px font
@@ -69,7 +66,6 @@ const styles = StyleSheet.create({
 
   // Category name (Medium weight)
   categoryName: {
-    fontSize: 10,
     fontWeight: 500, // Medium
     color: "#454551",
     lineHeight: 1.8,
@@ -91,7 +87,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const RichTextPrintRenderer = ({ data, fontFamily, title }) => {
+const RichTextPrintRenderer = ({ data, title }) => {
   const isSlateFormat =
     Array.isArray(data) &&
     data.some((item) => item && typeof item === "object" && item.type);
@@ -113,13 +109,12 @@ const RichTextPrintRenderer = ({ data, fontFamily, title }) => {
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
         {title && (
-          <Text style={[styles.subsectionTitle, { fontFamily }]}>{title}</Text>
+          <Text style={[styles.subsectionTitle]}>{title}</Text>
         )}
         {isSlateFormat ? (
           <View style={styles.bulletList}>
             <SlateToPdf
               nodes={data}
-              fontFamily={fontFamily}
               customStyles={customStyles}
             />
           </View>
@@ -128,15 +123,15 @@ const RichTextPrintRenderer = ({ data, fontFamily, title }) => {
           <View style={styles.bulletList}>
             {Array.isArray(data) ? data.map((item, index) => (
               <View key={`item-${index}`} style={styles.bulletItem}>
-                <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                <Text style={[styles.bulletContent, { fontFamily }]}>
+                <Text style={[styles.bullet]}>•</Text>
+                <Text style={[styles.bulletContent]}>
                   {typeof item === "string" ? item : item.text}
                 </Text>
               </View>
             )) : (
               <View style={styles.bulletItem}>
-                <Text style={[styles.bullet, { fontFamily }]}>•</Text>
-                <Text style={[styles.bulletContent, { fontFamily }]}>
+                <Text style={[styles.bullet]}>•</Text>
+                <Text style={[styles.bulletContent]}>
                   {typeof data === "string" ? data : data?.text || ""}
                 </Text>
               </View>

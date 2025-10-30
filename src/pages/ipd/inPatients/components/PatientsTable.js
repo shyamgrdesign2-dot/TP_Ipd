@@ -1,9 +1,26 @@
-import React from "react";
-import { Table, Spin } from "antd";
+import React, { useState } from "react";
+import { Table, Spin, Popover, message } from "antd";
 import moment from "moment";
+import { useDispatch, useSelector } from "react-redux";
 import noData from "../../../../assets/images/nodata-found.svg";
 import Referral from "./Referral";
 import "../InPatients.scss";
+import { defaultIcons } from "../../../../assets/images/icons";
+import { defaultIcons as newIcons } from "../../../../assets/images/indices";
+import { markPatientAsDischarged } from "../../../../redux/ipd/ipdSlice";
+import { usePatientsData } from "../hooks/usePatientsData";
+
+const MoreActionsContent = ({ handleMarkPatientAsDischarged, record }) => {
+  return (
+    <div
+      onClick={() => handleMarkPatientAsDischarged(record)}
+      className="more-actions-content cursor-pointer"
+    >
+      <img src={newIcons.dischargedPatientsSc} alt="dischargedPatientsSc" />
+      <div className="fs16-semibold-primary">Discharge Patient</div>
+    </div>
+  );
+};
 
 const PatientsTable = ({
   data,
@@ -15,7 +32,32 @@ const PatientsTable = ({
   hasMore,
   lastElementRef,
   filterParams,
+  isDischargedPatients = false,
+  fetchParams = {},
 }) => {
+  const dispatch = useDispatch();
+
+  const {
+    fetchData,
+  } = usePatientsData();
+  const [openMoreActionsPopover, setOpenMoreActionsPopover] = useState(null);
+
+  const showHideMoreActionPopover = (recordId) => {
+    setOpenMoreActionsPopover((prev) => (prev === recordId ? null : recordId));
+  };
+
+  const handleMarkPatientAsDischarged = (record) => {
+    dispatch(markPatientAsDischarged({ admissionId: record?.admissionId })).then((res) => {
+      if (res?.payload?.status === 400) {
+        message.warning(res?.payload?.data?.message || "Patient discharged failed")
+      } else {
+        message.success("Patient discharged successfully");
+        setOpenMoreActionsPopover(null);
+        fetchData(fetchParams)
+      }
+    });
+  };
+
   const columns = [
     {
       title: "#",
@@ -108,6 +150,26 @@ const PatientsTable = ({
         return <div>{dateTime.format("DD-MM-YYYY")}</div>;
       },
     },
+    ...(isDischargedPatients
+      ? [
+          {
+            title: "Discharged On",
+            dataIndex: "dischargedAt",
+            key: "dischargedAt",
+            sortDirections: ["descend", "ascend", "descend"],
+            defaultSortOrder: "descend",
+            sorter: (a, b) => {
+              const aDate = moment(a.dischargedAt).valueOf();
+              const bDate = moment(b.dischargedAt).valueOf();
+              return aDate - bDate;
+            },
+            render: (text, record) => {
+              const dateTime = moment(record.dischargedAt);
+              return <div>{dateTime.format("DD-MM-YYYY")}</div>;
+            },
+          },
+        ]
+      : []),
     {
       title: "Action",
       key: "action",
@@ -126,6 +188,37 @@ const PatientsTable = ({
           >
             View Details
           </button>
+          {!isDischargedPatients && !record?.isDischarged ? (
+            <Popover
+              open={openMoreActionsPopover === record?.patientData?._id}
+              onOpenChange={(open) => {
+                if (!open) {
+                  setOpenMoreActionsPopover(null);
+                }
+              }}
+              content={
+                <MoreActionsContent
+                  handleMarkPatientAsDischarged={handleMarkPatientAsDischarged}
+                  record={record?.patientData}
+                />
+              }
+              trigger="click"
+              overlayClassName="pop-200 pp-0 videoTutorial"
+              placement="bottomRight"
+              arrow={false}
+            >
+              <img
+                onClick={() =>
+                  showHideMoreActionPopover(
+                    !openMoreActionsPopover ? record?.patientData?._id : null
+                  )
+                }
+                className="cursor-pointer"
+                src={defaultIcons.moreIcon}
+                alt={":"}
+              />
+            </Popover>
+          ) : null}
         </div>
       ),
     },

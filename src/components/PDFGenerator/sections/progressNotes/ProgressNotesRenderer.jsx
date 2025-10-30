@@ -23,7 +23,6 @@ const styles = StyleSheet.create({
   },
 
   dateHeader: {
-    fontSize: 14,
     fontWeight: 700,
     color: "#000000",
     marginBottom: 12,
@@ -46,13 +45,11 @@ const styles = StyleSheet.create({
   },
 
   timeInfo: {
-    fontSize: 11,
     fontWeight: 700,
     color: "#333333",
   },
 
   doctorInfo: {
-    fontSize: 10,
     fontWeight: 450,
     color: "#666666",
   },
@@ -63,7 +60,6 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 10,
     fontWeight: 700,
     color: "#000000",
     marginBottom: 4,
@@ -71,14 +67,12 @@ const styles = StyleSheet.create({
   },
 
   sectionContent: {
-    fontSize: 9,
     color: "#000000",
     marginLeft: 8,
     lineHeight: 1.4,
   },
 
   bulletPoint: {
-    fontSize: 9,
     color: "#333333",
     marginLeft: 4,
   },
@@ -97,7 +91,6 @@ const styles = StyleSheet.create({
   // Subsection title
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -113,14 +106,13 @@ const styles = StyleSheet.create({
 /**
  * Render rich text with title
  */
-const renderRichText = (data, fontFamily, title) => {
-  console.log(data, fontFamily, title, "renderRichTextData");
+const renderRichText = (data, title) => {
+  console.log(data, title, "renderRichTextData");
   if (!data || !data?.length) return null;
 
   // Custom styles for SlateToPdf to match existing styling
   const customStyles = {
     text: {
-      fontSize: 10,
       color: "#454551",
       lineHeight: 1.8,
     },
@@ -143,20 +135,17 @@ const renderRichText = (data, fontFamily, title) => {
     },
     bulletSymbol: {
       width: 12,
-      fontSize: 10,
       color: "#454551",
       fontWeight: 400,
       lineHeight: 1.8,
     },
     numberedSymbol: {
       width: 15,
-      fontSize: 10,
       color: "#454551",
       fontWeight: 400,
       lineHeight: 1.8,
     },
     bulletText: {
-      fontSize: 10,
       flex: 1,
       color: "#454551",
       fontWeight: 400,
@@ -164,7 +153,6 @@ const renderRichText = (data, fontFamily, title) => {
       textTransform: "capitalize",
     },
     numberedText: {
-      fontSize: 10,
       flex: 1,
       color: "#454551",
       fontWeight: 400,
@@ -176,11 +164,10 @@ const renderRichText = (data, fontFamily, title) => {
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle, { fontFamily }]}>{title}:</Text>
+        <Text style={[styles.subsectionTitle]}>{title}:</Text>
         <View style={styles.bulletList}>
           <SlateToPdf
             nodes={Array.isArray(data) ? data : [data]}
-            fontFamily={fontFamily}
             customStyles={customStyles}
           />
         </View>
@@ -193,54 +180,40 @@ const renderRichText = (data, fontFamily, title) => {
  * Main Progress Notes Renderer
  * @param {Object} data - Progress notes data
  * @param {Object} formatSettings - Format settings
- * @param {string} fontFamily - Font family
  * @returns {Array} Array of section components
  */
-export const renderProgressNotes = (data, formatSettings, fontFamily) => {
-  if (!data || !formatSettings || !data?.progressNotes)
-    return [];
+export const renderProgressNotes = (data, formatSettings) => {
+  if (!data || !formatSettings || !data?.progressNotes) return [];
 
   // Check if data is an array (multiple consultant notes) or single object
-  const progressNotesArray = Array.isArray(
-    data?.progressNotes
-  )
+  const progressNotesArray = Array.isArray(data?.progressNotes)
     ? data?.progressNotes
     : [data?.progressNotes];
 
   // Get sorted sections
   const sortedSections = getAllVisibleSections(formatSettings);
-  console.log(sortedSections,"sortedSections")
+  console.log(sortedSections, "sortedSections");
 
   // Render all consultant notes on the same page
   const allSections = progressNotesArray.map((note, noteIndex) => {
     const progressNotesData = note?.progressNotes || note;
-    console.log(progressNotesData,"progressNotesData")
+    console.log(progressNotesData, "progressNotesData");
 
     // Map section keys to render functions (using new array format IDs)
     const sectionRenderers = {
       chiefComplaint: () =>
-        renderRichText(
-          progressNotesData.chiefComplaint,
-          fontFamily,
-          "Chief Complaint"
-        ),
-      findings: () => 
+        renderRichText(progressNotesData.chiefComplaint, "Chief Complaint"),
+      findings: () =>
         renderRichText(
           progressNotesData.findings,
-          fontFamily,
+
           "Findings"
-      ),
-      vitals: () => (
-        <Vitals
-          vitals={progressNotesData.vitals}
-          fontFamily={fontFamily}
-          title="Vitals"
-        />
-      ),
+        ),
+      vitals: () => <Vitals vitals={progressNotesData.vitals} title="Vitals" />,
       additionalRemarks: () =>
         renderRichText(
           progressNotesData.additionalRemarks,
-          fontFamily,
+
           "Additional Remarks"
         ),
     };
@@ -250,27 +223,21 @@ export const renderProgressNotes = (data, formatSettings, fontFamily) => {
       .map((section) => {
         const renderer = sectionRenderers[section.key];
         if (renderer) {
-          console.log(renderer,"renderer")
+          console.log(renderer, "renderer");
           return renderer();
         }
         return null;
       })
       .filter(Boolean);
 
-
     return (
       <View key={note._id || noteIndex}>
-        <FilledByCard
-          filledBy={note.createdByName}
-          filledOn={note.createdAt}
-          fontFamily={fontFamily}
-        />
+        <FilledByCard filledBy={note.createdByName} filledOn={note.createdAt} />
         {/* Content */}
         {noteSections}
       </View>
     );
   });
-  console.log(allSections,"allSections")
+  console.log(allSections, "allSections");
   return allSections;
-
 };

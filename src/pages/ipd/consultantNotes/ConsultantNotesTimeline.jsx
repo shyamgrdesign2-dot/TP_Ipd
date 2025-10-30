@@ -67,10 +67,15 @@ const ConsultantNotesTimeline = () => {
       ) {
         setDateStatus(2);
       } else if (
-        startDate === moment().add(-1, "M").format("YYYY-MM-DD") &&
+        startDate === moment().add(-7, "d").format("YYYY-MM-DD") &&
         endDate === today
       ) {
         setDateStatus(3);
+      } else if (
+        startDate === moment().add(-1, "M").format("YYYY-MM-DD") &&
+        endDate === today
+      ) {
+        setDateStatus(4);
       } else {
         setDateStatus(null);
       }

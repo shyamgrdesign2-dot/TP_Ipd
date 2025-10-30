@@ -24,6 +24,7 @@ const initialState = {
   zydusAappointmentData: [],
   caseTypes: [],
   salutationData: [],
+  bloodGroupData: [],
   pincodeInfo: {},
   patients: null,
   patients_details: null,
@@ -156,6 +157,43 @@ export const listSalutation = createAsyncThunk(
     } catch (error) {
       console.log("error: ", error);
       throw Error(error);
+    }
+  }
+);
+
+export const listBloodGroup = createAsyncThunk(
+  "records/listBloodGroup",
+  async () => {
+    try {
+      const result = await ApiAppointments.listBloodGroup();
+      if (result.status || result.statuds) {
+        return result.data;
+      } else {
+        throw Error(result.error || "Failed to fetch blood group data");
+      }
+    } catch (error) {
+      console.error("Blood Group API error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
+export const editBloodGroup = createAsyncThunk(
+  "records/editBloodGroup",
+  async ({ patient_unique_id, pm_blood_group }, { rejectWithValue }) => {
+    try {
+      const result = await ApiAppointments.editBloodGroup({
+        patient_unique_id,
+        pm_blood_group
+      });
+      if (result.status || result.statuds) {
+        return { patient_unique_id, pm_blood_group };
+      } else {
+        return rejectWithValue(result.error || "Failed to update blood group");
+      }
+    } catch (error) {
+      console.error("Edit Blood Group API error: ", error);
+      return rejectWithValue(error.message || "Failed to update blood group");
     }
   }
 );
@@ -478,6 +516,35 @@ const appointmentsSlice = createSlice({
       .addCase(listSalutation.rejected, (state) => {
         state.loading = false;
       })
+      .addCase(listBloodGroup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(listBloodGroup.fulfilled, (state, action) => {
+        state.loading = false;
+        state.bloodGroupData = action.payload || [];
+        state.error = null;
+      })
+      .addCase(listBloodGroup.rejected, (state, action) => {
+        state.loading = false;
+        state.bloodGroupData = [];
+        state.error = action.error.message;
+      })
+      .addCase(editBloodGroup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(editBloodGroup.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.patients_details) {
+          state.patients_details.pm_blood_group = action.payload.pm_blood_group;
+        }
+        state.error = null;
+      })
+      .addCase(editBloodGroup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message;
+      })
       .addCase(searchPincode.fulfilled, (state, action) => {
         state.pincodeInfo = action.payload;
       })
@@ -508,7 +575,6 @@ const appointmentsSlice = createSlice({
       })
       .addCase(viewPatient.pending, (state) => {
         state.loading = true;
-        state.patients_details = null;
       })
       .addCase(viewPatient.fulfilled, (state, action) => {
         state.loading = false;
@@ -516,7 +582,6 @@ const appointmentsSlice = createSlice({
       })
       .addCase(viewPatient.rejected, (state) => {
         state.loading = false;
-        state.patients_details = null;
       })
       .addCase(zydusConsultAppoint.pending, (state) => {
         state.loading = true;

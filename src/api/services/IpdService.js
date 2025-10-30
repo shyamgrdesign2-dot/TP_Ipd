@@ -6,7 +6,7 @@ const IpdService = {};
 
 IpdService.getPatients = function (params = {}) {
   return api.get(
-    `/patients?page=${params.page}&limit=${params.limit}&search=${params.search}&ward=${params.ward}&patientId=${params.patientId}&startDate=${params.startDate}&endDate=${params.endDate}&doctorIdsFilter=${params.doctorIdsFilter}&sort=${params.sort}`,
+    `/patients?page=${params.page}&limit=${params.limit}&search=${params.search}&ward=${params.ward}&patientId=${params.patientId}&startDate=${params.startDate}&endDate=${params.endDate}&doctorIdsFilter=${params.doctorIdsFilter}&sort=${params.sort}&isDischarged=${params.isDischarged}`,
     baseUrl
   );
 };

@@ -467,6 +467,22 @@ body {
     &:first-child {
       border-top: none;
     }
+
+    // Ensure normal font weight for inputs/selects in Add/Edit Patient form only
+    .patient-form {
+      .ant-input {
+        font-weight: 400 !important;
+      }
+      .ant-select-selection-item {
+        font-weight: 400 !important;
+      }
+    }
+    .all-change-radio {
+      .ant-radio-button-wrapper {
+        padding-inline: 13px;
+        white-space: nowrap;
+      }
+    }
     &:last-child {
       &:hover {
         border-bottom-left-radius: 20px;
@@ -1193,4 +1209,9 @@ body {
   // &::-webkit-scrollbar-thumb:focus {
   //   background: transparent;
   // }
+}
+
+.pop-200 {
+  max-width: 200px;
+  z-index: 1000 !important;
 }

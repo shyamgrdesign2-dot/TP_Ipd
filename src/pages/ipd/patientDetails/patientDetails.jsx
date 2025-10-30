@@ -69,6 +69,7 @@ import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
 import PreviewDischargeSummary from "../dischargeSummary/PreviewDischargeSummary";
 import DischargeSummaryReadonly from "../dischargeSummary/DischargeSummaryReadonly";
 import FullPageLoader from "../../vaccination/components/Loader";
+import useOnlyViewMode from "../../../hooks/useOnlyViewMode";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -107,6 +108,7 @@ const IPDPatientDetails = () => {
   const [open, setOpen] = useState(true);
   const [activeMenuItem, setActiveMenuItem] = useState("assessment");
   const [patientData, setPatientData] = useState(null);
+  const isOnlyViewMode = useOnlyViewMode();
 
   // Medical records states
   const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
@@ -400,6 +402,7 @@ const IPDPatientDetails = () => {
         ...item,
         ctaClick: handleEmptyCtaClick?.[item.id],
         isActive: item.id === activeTab,
+        showAddOption: !isOnlyViewMode,
       };
     });
   };
@@ -581,6 +584,7 @@ const IPDPatientDetails = () => {
             </div>
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
+                showEditForm={!isOnlyViewMode}
                 onEdit={() => handleAddAssessmentClick(false)}
                 onPrintPreview={handleAssessmentPrintPreview}
                 onPrint={() => console.log("Print")}
@@ -706,6 +710,7 @@ const IPDPatientDetails = () => {
   };
 
   const canShowAddCTA = useMemo(() => {
+    if (isOnlyViewMode) return false;
     return (
       IPD.PATIENT_DETAILS_MENU.find((item) => item.id === activeMenuItem)
         ?.showAddCTA && isDataPresent

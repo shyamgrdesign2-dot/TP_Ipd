@@ -13,13 +13,12 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
     borderRadius: 4,
     backgroundColor: "#F1F1F5",
-    marginBottom: 8,
+    marginBottom: 4,
   },
 
   // Main section title text
   title: {
     color: "#171725",
-    fontSize: 12,
     fontWeight: 600,
     textTransform: "capitalize",
   },
@@ -29,15 +28,14 @@ const styles = StyleSheet.create({
  * SectionTitle Component
  * @param {Object} props - Component props
  * @param {string} props.title - Section title
- * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} Section Title
  */
-const SectionTitle = ({ title, fontFamily }) => {
+const SectionTitle = ({ title }) => {
   if (!title) return null;
 
   return (
     <View wrap={false} style={styles.container}>
-      <Text style={[styles.title, { fontFamily }]}>{title}</Text>
+      <Text style={styles.title}>{title}</Text>
     </View>
   );
 };

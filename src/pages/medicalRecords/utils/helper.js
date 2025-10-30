@@ -80,3 +80,110 @@ export function shortenText(
   }
   return text;
 }
+
+export const loadVideoThumbnail = (videoFile, seekTime = 1, timeout = 10000) => {
+  return new Promise((resolve, reject) => {
+    let video = null;
+    let canvas = null;
+    let videoURL = null;
+    let timeoutId = null;
+
+    const cleanup = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (videoURL) URL.revokeObjectURL(videoURL);
+      if (video) {
+        video.onloadedmetadata = null;
+        video.onseeked = null;
+        video.onerror = null;
+        video.src = "";
+        video.load();
+        video.remove();
+        video = null;
+      }
+      if (canvas) {
+        canvas.width = 0;
+        canvas.height = 0;
+        canvas = null;
+      }
+    };
+
+    try {
+      videoURL = URL.createObjectURL(videoFile);
+      video = document.createElement("video");
+      canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+
+      video.preload = "metadata";
+      video.muted = true;
+      video.playsInline = true;
+
+      // Timeout protection - prevent infinite hang
+      timeoutId = setTimeout(() => {
+        cleanup();
+        reject(new Error("Video thumbnail generation timeout - file may be corrupted"));
+      }, timeout);
+
+      video.onloadedmetadata = () => {
+        try {
+          // Validate video has valid duration
+          if (!video.duration || isNaN(video.duration) || video.duration === 0) {
+            cleanup();
+            reject(new Error("Invalid video duration"));
+            return;
+          }
+
+          // Seek to safe position (not beyond video duration)
+          const safeSeekTime = Math.min(seekTime, video.duration * 0.1); // 10% into video or seekTime
+          video.currentTime = safeSeekTime;
+        } catch (err) {
+          cleanup();
+          reject(err);
+        }
+      };
+
+      video.onseeked = () => {
+        try {
+          // Validate video dimensions
+          if (!video.videoWidth || !video.videoHeight || video.videoWidth === 0 || video.videoHeight === 0) {
+            cleanup();
+            reject(new Error("Invalid video dimensions"));
+            return;
+          }
+
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const dataURL = canvas.toDataURL("image/png");
+          
+          cleanup();
+          resolve(dataURL);
+        } catch (err) {
+          cleanup();
+          reject(err);
+        }
+      };
+
+      video.onerror = (err) => {
+        cleanup();
+        reject(new Error("Failed to load video - " + (err?.message || "unknown error")));
+      };
+
+      video.src = videoURL;
+    } catch (error) {
+      cleanup();
+      reject(error);
+    }
+  });
+};
+
+export const isVideoFile = (fileType) => {
+  return fileType && fileType.startsWith("video/");
+};
+
+export const isImageFile = (fileType) => {
+  return fileType && fileType.startsWith("image/");
+};
+
+export const isPdfFile = (fileType) => {
+  return fileType === "application/pdf";
+};

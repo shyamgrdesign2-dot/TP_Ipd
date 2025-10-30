@@ -117,6 +117,13 @@ const FunctionalAssessment = (props) => {
     );
   };
 
+  const { others, ...functionalAssessmentWithouOthers } =
+        functionalAssessmentData;
+
+      const isFunctionAssessmentValuesPresent = Object.values(
+        functionalAssessmentWithouOthers
+      ).some((item) => !!item && item !== "");
+
   const renderAssessment = () => {
     if (!isEditable) {
       if (
@@ -125,12 +132,7 @@ const FunctionalAssessment = (props) => {
           !!functionalAssessmentData.others)
       )
         return null;
-      const { others, ...functionalAssessmentWithouOthers } =
-        functionalAssessmentData;
-
-      const isFunctionAssessmentValuesPresent = Object.values(
-        functionalAssessmentWithouOthers
-      ).some((item) => !!item && item !== "");
+      
       if (!isFunctionAssessmentValuesPresent) return null;
 
       const functionalAssessmentFinalData = Object.entries(
@@ -141,6 +143,7 @@ const FunctionalAssessment = (props) => {
       );
       const assessmentComponents = functionalAssessmentFinalData.map(
         ([key, value]) => {
+          if (!value) return null;
           return (
             <AssessmentDisplay
               key={key}
@@ -155,7 +158,7 @@ const FunctionalAssessment = (props) => {
           <div className="ipdaf-assessment-readonly">
             {assessmentComponents?.map((component, i) => (
               <React.Fragment key={i}>
-                {i > 0 && <span className="separator">|</span>}
+                {i > 0 && component && <span className="separator">|</span>}
                 {component}
               </React.Fragment>
             ))}
@@ -302,11 +305,6 @@ const FunctionalAssessment = (props) => {
       }
     });
   };
-  const functionalAssessmentDataOnlyBasics = useMemo(() => {
-    const filtered = { ...functionalAssessmentData };
-    delete filtered.others;
-    return filtered;
-  }, [functionalAssessmentData]);
 
   const renderGenericCard = () => {
     return (
@@ -321,9 +319,7 @@ const FunctionalAssessment = (props) => {
 
   if (
     !isEditable &&
-    (!Object.keys(functionalAssessmentData)?.length ||
-      (Object.keys(functionalAssessmentData)?.length === 1 &&
-        !!functionalAssessmentData.others)) &&
+    !isFunctionAssessmentValuesPresent &&
     !referredDocForReview?.name &&
     isEmptyRichText(functionalAssessmentData?.others)
   )

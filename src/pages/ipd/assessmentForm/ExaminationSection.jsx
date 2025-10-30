@@ -5,7 +5,8 @@ import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { setPhysicalExaminationBasicData } from "../../../redux/ipd/assessmentsFormSlice";
-import { isEmptyRichText } from "../../../utils/utils";
+import useCheckExaminationData from "../../../hooks/useCheckExaminationData";
+import { isEmptyRichText } from "../../../components/PDFGenerator";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -19,6 +20,7 @@ const ExaminationSection = (props) => {
     (state) => state.assessment
   );
   const dispatch = useDispatch();
+  const checkExaminationDataPresent = useCheckExaminationData(physicalExaminationBasicData);
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [disableFocusEffect, setDisableFocusEffect] = useState({});
   const onExaminationRadioChange = (e, item) => {
@@ -68,7 +70,7 @@ const ExaminationSection = (props) => {
                 <li key={item.id} className="examination-item">
                   <span className="examination-label">{item.title}:</span>{" "}
                   {data.title}
-                  {data.notes?.[0]?.children?.[0].text && (
+                  {!isEmptyRichText(data?.notes) && (
                     <div className="ipdaf-exam-read-notes-container">
                       <li className="ipdaf-exam-read-notes-heading">Notes:</li>
                       <RichTextEditor
@@ -173,18 +175,6 @@ const ExaminationSection = (props) => {
       : renderReadOnlyExamination();
   };
 
-  const checkExaminationDataPresent =
-    physicalExaminationBasicData &&
-    typeof physicalExaminationBasicData === "object" &&
-    !Array.isArray(physicalExaminationBasicData) &&
-    Object.values(physicalExaminationBasicData).some(
-      (item) =>
-        item &&
-        typeof item === "object" &&
-        item.title &&
-        `${item.title}`.trim() !== ""
-    );
-    console.log('INTEL ==> checkExaminationDataPresent', isEditable, checkExaminationDataPresent, physicalExaminationBasicData)
   if (!isEditable && !checkExaminationDataPresent) return null;
   return (
     <RichTextEditWrapper

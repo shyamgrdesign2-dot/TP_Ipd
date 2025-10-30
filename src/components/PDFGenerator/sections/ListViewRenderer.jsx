@@ -11,7 +11,6 @@ import { isEmptyRichText } from "../utils/pdfUtils";
 const styles = StyleSheet.create({
   // Simple text item (like Admitting Consultant)
   simpleText: {
-    fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -26,7 +25,6 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    fontSize: 10,
     fontWeight: 700,
     color: "#000000",
     minWidth: 120,
@@ -34,14 +32,12 @@ const styles = StyleSheet.create({
   },
 
   colon: {
-    fontSize: 10,
     fontWeight: 700,
     color: "#000000",
     marginRight: 8,
   },
 
   value: {
-    fontSize: 10,
     color: "#000000",
     flex: 1,
     lineHeight: 1.5,
@@ -53,14 +49,12 @@ const styles = StyleSheet.create({
   },
 
   labelFullWidth: {
-    fontSize: 10,
     fontWeight: 700,
     color: "#000000",
     marginBottom: 4,
   },
 
   valueFullWidth: {
-    fontSize: 10,
     color: "#000000",
     lineHeight: 1.5,
   },
@@ -71,7 +65,6 @@ const styles = StyleSheet.create({
   },
 
   bulletListTitle: {
-    fontSize: 10,
     fontWeight: 700,
     color: "#000000",
     marginBottom: 6,
@@ -85,13 +78,11 @@ const styles = StyleSheet.create({
 
   bulletMarker: {
     width: 12,
-    fontSize: 10,
     color: "#000000",
   },
 
   bulletContent: {
     flex: 1,
-    fontSize: 10,
     color: "#000000",
     lineHeight: 1.5,
   },
@@ -108,14 +99,13 @@ const styles = StyleSheet.create({
 /**
  * Render a simple text (no label)
  * @param {string} text - Text to render
- * @param {string} fontFamily - Font family
  * @returns {JSX.Element} Simple text
  */
-export const renderSimpleText = (text, fontFamily) => {
+export const renderSimpleText = (text) => {
   if (!text) return null;
 
   return (
-    <Text key={Math.random()} style={[styles.simpleText, { fontFamily }]}>
+    <Text key={Math.random()} style={styles.simpleText}>
       {text}
     </Text>
   );
@@ -125,16 +115,10 @@ export const renderSimpleText = (text, fontFamily) => {
  * Render a simple list item
  * @param {string} label - Item label
  * @param {*} value - Item value
- * @param {string} fontFamily - Font family
  * @param {boolean} fullWidthLabel - Use full width for label
  * @returns {JSX.Element} List item
  */
-export const renderListItem = (
-  label,
-  value,
-  fontFamily,
-  fullWidthLabel = false
-) => {
+export const renderListItem = (label, value, fullWidthLabel = false) => {
   if (!value && value !== 0 && value !== false) return null;
 
   // Handle rich text content
@@ -142,19 +126,17 @@ export const renderListItem = (
     if (fullWidthLabel) {
       return (
         <View key={`item-${label}`} style={styles.listItemFullWidth}>
-          <Text style={[styles.labelFullWidth, { fontFamily }]}>{label}:</Text>
-          {renderRichText(value, { text: { fontSize: 10, fontFamily } })}
+          <Text style={styles.labelFullWidth}>{label}:</Text>
+          {renderRichText(value)}
         </View>
       );
     }
 
     return (
       <View key={`item-${label}`} style={styles.listItemRow}>
-        <Text style={[styles.label, { fontFamily }]}>{label}</Text>
-        <Text style={[styles.colon, { fontFamily }]}>:</Text>
-        <View style={styles.valueContainer}>
-          {renderRichText(value, { text: { fontSize: 10, fontFamily } })}
-        </View>
+        <Text style={styles.label}>{label}</Text>
+        <Text style={styles.colon}>:</Text>
+        <View style={styles.valueContainer}>{renderRichText(value)}</View>
       </View>
     );
   }
@@ -163,11 +145,11 @@ export const renderListItem = (
   if (Array.isArray(value)) {
     return (
       <View key={`item-${label}`} style={styles.bulletListContainer}>
-        <Text style={[styles.bulletListTitle, { fontFamily }]}>{label}:</Text>
+        <Text style={styles.bulletListTitle}>{label}:</Text>
         {value.map((item, index) => (
           <View key={`val-${index}`} style={styles.bulletListItem}>
-            <Text style={[styles.bulletMarker, { fontFamily }]}>•</Text>
-            <Text style={[styles.bulletContent, { fontFamily }]}>
+            <Text style={styles.bulletMarker}>•</Text>
+            <Text style={styles.bulletContent}>
               {typeof item === "object"
                 ? item.title || item.name || JSON.stringify(item)
                 : item}
@@ -182,9 +164,9 @@ export const renderListItem = (
   if (typeof value === "object" && value !== null) {
     return (
       <View key={`item-${label}`} style={styles.listItemRow}>
-        <Text style={[styles.label, { fontFamily }]}>{label}</Text>
-        <Text style={[styles.colon, { fontFamily }]}>:</Text>
-        <Text style={[styles.value, { fontFamily }]}>
+        <Text style={styles.label}>{label}</Text>
+        <Text style={styles.colon}>:</Text>
+        <Text style={styles.value}>
           {value.title || value.name || JSON.stringify(value)}
         </Text>
       </View>
@@ -195,19 +177,17 @@ export const renderListItem = (
   if (fullWidthLabel) {
     return (
       <View key={`item-${label}`} style={styles.listItemFullWidth}>
-        <Text style={[styles.labelFullWidth, { fontFamily }]}>{label}:</Text>
-        <Text style={[styles.valueFullWidth, { fontFamily }]}>
-          {String(value)}
-        </Text>
+        <Text style={styles.labelFullWidth}>{label}:</Text>
+        <Text style={styles.valueFullWidth}>{String(value)}</Text>
       </View>
     );
   }
 
   return (
     <View key={`item-${label}`} style={styles.listItemRow}>
-      <Text style={[styles.label, { fontFamily }]}>{label}</Text>
-      <Text style={[styles.colon, { fontFamily }]}>:</Text>
-      <Text style={[styles.value, { fontFamily }]}>{String(value)}</Text>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.colon}>:</Text>
+      <Text style={styles.value}>{String(value)}</Text>
     </View>
   );
 };
@@ -215,32 +195,26 @@ export const renderListItem = (
 /**
  * @param {string} title - List title
  * @param {Array} items - List items
- * @param {string} fontFamily - Font family
  * @returns {JSX.Element} Nested list
  */
-export const renderNestedList = (title, items, fontFamily) => {
+export const renderNestedList = (title, items) => {
   if (!items || items.length === 0) return null;
 
   return (
     <View key={`nested-${title}`} style={styles.bulletListContainer}>
-      <Text style={[styles.bulletListTitle, { fontFamily }]}>{title}:</Text>
+      <Text style={styles.bulletListTitle}>{title}:</Text>
       <View style={styles.nestedList}>
         {items.map((item, index) => {
           if (typeof item === "object") {
             return (
               <View key={`nested-item-${index}`} style={styles.bulletListItem}>
-                <Text style={[styles.bulletMarker, { fontFamily }]}>•</Text>
+                <Text style={styles.bulletMarker}>•</Text>
                 <View style={styles.valueContainer}>
-                  <Text style={[styles.bulletContent, { fontFamily }]}>
+                  <Text style={styles.bulletContent}>
                     {item.title || item.name || JSON.stringify(item)}
                   </Text>
                   {item.notes && (
-                    <Text
-                      style={[
-                        styles.bulletContent,
-                        { fontFamily, fontSize: 9, marginLeft: 12 },
-                      ]}
-                    >
+                    <Text style={[styles.bulletContent, { marginLeft: 12 }]}>
                       {item.notes}
                     </Text>
                   )}
@@ -250,10 +224,8 @@ export const renderNestedList = (title, items, fontFamily) => {
           }
           return (
             <View key={`nested-item-${index}`} style={styles.bulletListItem}>
-              <Text style={[styles.bulletMarker, { fontFamily }]}>•</Text>
-              <Text style={[styles.bulletContent, { fontFamily }]}>
-                {String(item)}
-              </Text>
+              <Text style={styles.bulletMarker}>•</Text>
+              <Text style={styles.bulletContent}>{String(item)}</Text>
             </View>
           );
         })}
@@ -266,24 +238,18 @@ export const renderNestedList = (title, items, fontFamily) => {
  * ListViewRenderer Component
  * @param {Object} props - Component props
  * @param {Array} props.items - Items to render
- * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} List view
  */
-const ListViewRenderer = ({ items, fontFamily }) => {
+const ListViewRenderer = ({ items }) => {
   if (!items || items.length === 0) return null;
 
   return (
     <View>
       {items.map((item, index) => {
         if (item.type === "nested") {
-          return renderNestedList(item.label, item.value, fontFamily);
+          return renderNestedList(item.label, item.value);
         }
-        return renderListItem(
-          item.label,
-          item.value,
-          fontFamily,
-          item.fullWidth
-        );
+        return renderListItem(item.label, item.value, item.fullWidth);
       })}
     </View>
   );

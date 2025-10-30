@@ -1,6 +1,5 @@
 /**
  * PDF Header Component
-
  */
 
 import React from "react";
@@ -8,24 +7,26 @@ import { View, Text, Image } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import { LETTERHEAD_FORMATS } from "../constants";
 
-// Default Zydus logo (PNG format - SVG not supported in react-pdf)
-const DEFAULT_LOGO = require("../../../assets/images/zydus.png");
-
 const styles = StyleSheet.create({
-  // Header container
   headerContainer: {
-    position: "relative",
-    height: 80,
-    marginBottom: 0,
+    display: "flex",
+    flexDirection: "row",
+    paddingLeft: "20.717px",
+    alignItems: "flex-start",
+    gap: 48.938,
+    alignSelf: "stretch",
+    marginBottom: 16,
   },
 
-  // Logo positioned on left
+  headerImgContainer: {
+    width: "100%",
+    objectFit: "contain",
+  },
+
   logoContainer: {
-    position: "absolute",
-    left: 20.72,
-    top: 11.38,
-    width: 89,
+    width: 89.001,
     height: 57.244,
+    aspectRatio: "89.00/57.24",
   },
 
   logo: {
@@ -34,32 +35,30 @@ const styles = StyleSheet.create({
     objectFit: "contain",
   },
 
-  // Title positioned center-right
+  titlesContainer: {
+    display: "flex",
+    width: 305,
+    height: 57.244,
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   title: {
-    position: "absolute",
-    left: 198.13,
-    top: 22.367,
     fontSize: 24,
     fontWeight: 900,
     color: "#454551",
+    textAlign: "center",
     letterSpacing: 0.2,
     lineHeight: 1.75,
     textTransform: "uppercase",
   },
 
-  // Simple centered header (no logo) - Fallback
-  centeredHeader: {
-    paddingVertical: 20,
-    alignItems: "center",
-  },
-
-  centeredTitle: {
-    fontSize: 24,
-    fontWeight: 900,
-    textAlign: "center",
+  subTitle: {
     color: "#454551",
-    letterSpacing: 0.2,
-    textTransform: "uppercase",
+    fontSize: 12,
+    fontWeight: 400,
+    textAlign: "center",
   },
 });
 
@@ -67,24 +66,31 @@ const styles = StyleSheet.create({
  * PDFHeader Component
  * @param {Object} props - Component props
  * @param {Object} props.headerSettings - Header configuration
- * @param {string} props.fontFamily - Font family
  * @returns {JSX.Element} PDF Header
  */
-const PDFHeader = ({
-  headerSettings,
-  fontFamily = "Roboto",
-  letterHeadFormat,
-}) => {
+const PDFHeader = ({ headerSettings, letterHeadFormat }) => {
   if (!headerSettings) return null;
 
   const {
-    title = "Discharge Summary",
+    title = "",
     logo = "",
     headerImg = "",
+    subTitle = "",
+    informationVisible,
+    showLogo,
+    logoPosition,
   } = headerSettings;
 
-  // Use default Zydus logo if no logo provided
-  const logoSrc = logo || DEFAULT_LOGO;
+  const Logo = () => {
+    if (showLogo && logo) {
+      return (
+        <View style={styles.logoContainer}>
+          <Image src={logo} style={styles.logo} alt="Header Logo" />
+        </View>
+      );
+    }
+    return null;
+  };
 
   // No header format
   if (letterHeadFormat === LETTERHEAD_FORMATS.OWN) {
@@ -93,22 +99,40 @@ const PDFHeader = ({
 
   if (letterHeadFormat === LETTERHEAD_FORMATS.UPLOAD && headerImg) {
     return (
-      <View style={styles.headerContainer} fixed>
-        <Image src={headerImg} />
+      <View
+        style={[
+          styles.headerImgContainer,
+          { marginBottom: letterHeadFormat !== 0 ? 15 : 0 },
+        ]}
+        fixed
+      >
+        <Image src={headerImg} alt="Header Image" />
       </View>
     );
   }
 
   // Logo with title
   return (
-    <View style={styles.headerContainer} fixed>
+    <View
+      style={[
+        styles.headerContainer,
+        { justifyContent: showLogo && logo ? "flex-start" : "center" },
+      ]}
+      fixed
+    >
       {/* Logo on left */}
-      <View style={styles.logoContainer}>
-        <Image src={logoSrc} style={styles.logo} />
-      </View>
+      {logoPosition === "left" && <Logo />}
 
       {/* Title center-right */}
-      {title && <Text style={[styles.title, { fontFamily }]}>{title}</Text>}
+      {informationVisible && (
+        <View style={styles.titlesContainer}>
+          {title && <Text style={styles.title}>{title}</Text>}
+          {subTitle && <Text style={styles.subTitle}>{subTitle}</Text>}
+        </View>
+      )}
+
+      {/* Logo on right */}
+      {logoPosition === "right" && <Logo />}
     </View>
   );
 };

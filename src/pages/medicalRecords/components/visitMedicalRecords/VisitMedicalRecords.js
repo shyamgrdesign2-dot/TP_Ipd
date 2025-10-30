@@ -180,8 +180,8 @@ const VisitMedicalRecords = ({
                   You haven’t added any medical records yet!
                 </div>
                 <div>
-                  Only PDF, JPG, JPEG, or PNG files are allowed. Maximum file
-                  size: 15MB, up to 5 files.
+                  PDF, JPG, JPEG, PNG, GIF, MP4, MOV, and AVI files are allowed. 
+                  Maximum size: 15MB for documents, 30MB for videos, up to 5 files.
                 </div>
               </div>
               <Button
@@ -206,7 +206,7 @@ const VisitMedicalRecords = ({
                     multiple
                     ref={fileInputRef}
                     onChange={handleFileUpload}
-                    accept="image/png, image/jpeg, image/jpg, application/pdf"
+                    accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf, video/mp4, video/quicktime, video/x-msvideo"
                     style={{ display: "none" }}
                     disabled={(filesData?.length || 0) >= 5}
                   />

@@ -191,7 +191,7 @@ function PatientDetails() {
                         </button>
                         {!isMobile && (<Button className={collapsed ? 'collapseborder border rounded-10px' : ''} style={collapsed && { marginRight: -12, backgroundColor: 'white', zIndex: 1, }} type="text" icon={collapsed ? <i className='icon-Expand fs-21'></i> : <i className='icon-Contract fs-21'></i>} onClick={() => setCollapsed(!collapsed)} />)}
                     </div>
-                    <SidebarPatient collapsed={collapsed} patient_data={patient_data} sidebarKey={sidebarKey} onClickSidebarHandle={onClickSidebarHandle} />
+                    <SidebarPatient collapsed={collapsed} patient_data={patient_data} viewCaseManagerData={viewCaseManagerData} sidebarKey={sidebarKey} onClickSidebarHandle={onClickSidebarHandle} />
                 </Sider>
 
                 <Content>
