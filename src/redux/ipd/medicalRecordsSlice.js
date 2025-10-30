@@ -31,9 +31,10 @@ export const getMedicalRecordsDocuments = createAsyncThunk(
 // Async thunk for uploading/updating a document
 export const uploadMedicalRecordDocument = createAsyncThunk(
   "medicalRecords/uploadMedicalRecordDocument",
-  async ({ patientId, admissionId, category, subCategory, file, name, thumbnail, notes }, { rejectWithValue }) => {
+  async ({ _id, patientId, admissionId, category, subCategory, file, name, thumbnail, notes }, { rejectWithValue }) => {
     try {
       const result = await ApiMedicalRecords.putDocument({
+        _id,
         patientId,
         admissionId,
         category,

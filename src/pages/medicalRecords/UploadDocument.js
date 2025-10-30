@@ -181,6 +181,7 @@ const UploadDocument = ({
         for (let i = 0; i < filesData.length; i++) {
           const fileBlob = filesData[i];
           const meta = recordData?.[i];
+          
           // Derive subCategory from selected document option label if available
           const selectedOption = documentOptions.find(
             (opt) => opt.value === meta?.recordType
@@ -188,7 +189,8 @@ const UploadDocument = ({
           const subCategory = (selectedOption?.label || "other").toLowerCase();
           const name = meta?.name || fileBlob?.name;
 
-          await dispatch(uploadMedicalRecordDocument({
+          // Prepare payload (add _id if editing existing document)
+          const payload = {
             patientId: ipdPatientId,
             admissionId: ipdAdmissionId,
             category: "medical_records",
@@ -197,8 +199,17 @@ const UploadDocument = ({
             name,
             thumbnail: meta?.thumbnailFile,
             notes: meta?.notes,
-          }));
+          };
+
+          // 🆕 If editing an existing document, include its _id
+          if (meta?.id && isEditDocument) {
+            payload._id = meta.id;
+          }
+
+          await dispatch(uploadMedicalRecordDocument(payload));
         }
+
+        // Success message
         message.open({
           key: MESSAGE_KEY,
           type: "",
@@ -208,7 +219,7 @@ const UploadDocument = ({
               <img src={visitEnd} className="me-3" />
               <div>
                 <div className="fontroboto text-start fw-normal mt-1">
-                  Medical Records added successfully
+                  Medical Records {recordData.some(d => d?._id) ? "updated" : "added"} successfully
                 </div>
               </div>
               <img src={imgCloseVisit} className="ms-3" onClick={() => message.destroy()} />
@@ -223,13 +234,14 @@ const UploadDocument = ({
       setFilesData([]);
       setRecordData([]);
       handleDrawerUploadDoc();
-      // Refresh the notes after saving
-      // await dispatch(getProgressNotes({ patientId, admissionId }));
+
+      // Refresh the documents after saving
       await dispatch(getMedicalRecordsDocuments({ 
         patientId: patient_data_naviagte?.patient_unique_id, 
         admissionId: patientDetails?.admissionId, 
         category: "medical_records" 
       }));
+
       navigate(`/ipd/patient-details`, {
         replace: true,
         state: {
