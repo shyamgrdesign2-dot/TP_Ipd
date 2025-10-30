@@ -59,4 +59,14 @@ ApiLabResults.getZydusLabResults = function ({ mrno, noOfDays }) {
   );
 };
 
+ApiLabResults.getAddedToDischargeSummaryTests = function ({
+  patientId,
+  admissionId,
+}) {
+  return api.get(
+    `/lab-results/pathology-results?patientId=${patientId}&admissionId=${admissionId}`,
+    baseUrl
+  );
+};
+
 export default ApiLabResults;

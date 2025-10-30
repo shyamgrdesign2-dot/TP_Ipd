@@ -193,9 +193,8 @@ function ProgressNotesView({
       <Card className="medical-progress__date-header-card">
         <div className="medical-progress__content-date">
           <img
-            className="medical-progress__content-calendar-icon"
             style={{ fill: "#581C87" }}
-            src={defaultIcons.calendarIcon}
+            src={defaultIcons.calendarDarkIcon}
             alt=""
           />
           <span className="medical-progress__content-date-text">

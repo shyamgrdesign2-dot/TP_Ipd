@@ -1,5 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiConsultantNotes from "../../api/services/ipd/ApiConsultantNotes";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
 
 const initialState = {
   consultantNotes: [],
@@ -10,6 +13,7 @@ const initialState = {
   additionalRemarks: [],
   currentConsultantNote: null,
   loading: false,
+  isUpdating: false,
   error: null,
   success: false,
 };
@@ -106,7 +110,32 @@ const consultantNotesSlice = createSlice({
       })
       .addCase(getConsultantNotes.fulfilled, (state, action) => {
         state.loading = false;
-        state.consultantNotes = action.payload;
+
+        const notes = Array.isArray(action.payload) ? action.payload : [];
+        const sorted = [...notes].sort((a, b) => {
+          const ad = a?.consultationNotes || {};
+          const bd = b?.consultationNotes || {};
+          const aDT = dayjs(
+            `${ad.date || ""} ${ad.time || ""}`.trim(),
+            "YYYY-MM-DD HH:mm:ss",
+            true
+          );
+          const bDT = dayjs(
+            `${bd.date || ""} ${bd.time || ""}`.trim(),
+            "YYYY-MM-DD HH:mm:ss",
+            true
+          );
+
+          if (aDT.isValid() && bDT.isValid()) {
+            return bDT.valueOf() - aDT.valueOf();
+          }
+
+          const aCreated = dayjs(a?.createdAt);
+          const bCreated = dayjs(b?.createdAt);
+          return bCreated.valueOf() - aCreated.valueOf(); // descending
+        });
+
+        state.consultantNotes = sorted;
         state.error = null;
       })
       .addCase(getConsultantNotes.rejected, (state, action) => {
@@ -116,13 +145,13 @@ const consultantNotesSlice = createSlice({
       })
       // Update consultant notes
       .addCase(updateConsultantNotes.pending, (state) => {
-        state.loading = true;
+        state.isUpdating = true;
         state.error = null;
         state.success = false;
       })
       .addCase(updateConsultantNotes.fulfilled, (state, action) => {
-        state.loading = false;
         state.success = true;
+        state.isUpdating = false;
         state.error = null;
 
         // Update the specific note in the list
@@ -137,21 +166,9 @@ const consultantNotesSlice = createSlice({
             updatedAt: new Date().toISOString(),
           };
         }
-
-        // Update current note if it's the same one
-        if (
-          state.currentConsultantNote &&
-          state.currentConsultantNote._id === _id
-        ) {
-          state.currentConsultantNote = {
-            ...state.currentConsultantNote,
-            consultationNotes: data,
-            updatedAt: new Date().toISOString(),
-          };
-        }
       })
       .addCase(updateConsultantNotes.rejected, (state, action) => {
-        state.loading = false;
+        state.isUpdating = false;
         state.success = false;
         state.error = action.payload;
       });

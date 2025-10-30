@@ -1,36 +1,30 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/consultantNotesIcons";
 import { useSelector, useDispatch } from "react-redux";
 import { setAdditionalRemarks } from "../../../redux/ipd/consultantNotesSlice";
+import { isEmptyRichText } from "../../../components/PDFGenerator";
+import dayjs from "dayjs";
+
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const AdditionalRemarks = (props) => {
-  const { isEditable = true, shouldAutofill = false, sectionData } = props || {};
+  const {
+    isEditable = true,
+    shouldAutofill = false,
+    sectionData,
+  } = props || {};
   const { additionalRemarks } = useSelector((state) => state.consultantNotes);
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
-  const prevConsultantNote = useMemo(() => {
-    return consultantNotes[consultantNotes?.length - 1];
-  }, [consultantNotes]);
-  const prevAdditionalRemarks = useMemo(() => {
-    return prevConsultantNote?.consultationNotes?.additionalRemarks;
-  }, [prevConsultantNote]);
-  const hasAdditionalRemarksInLastConsultantNote = useMemo(() => {
-    return (
-      (!Array.isArray(prevAdditionalRemarks) &&
-        typeof prevAdditionalRemarks === "string" &&
-        !!prevAdditionalRemarks) ||
-      (Array.isArray(prevAdditionalRemarks) &&
-        prevAdditionalRemarks.some((item) =>
-          item?.children?.some((child) =>
-            child?.children?.some((grandChild) => !!grandChild?.text)
-          )
-        ))
-    );
-  }, [prevAdditionalRemarks]);
+  const prevConsultantNote = consultantNotes[0];
+  const prevAdditionalRemarks =
+    prevConsultantNote?.consultationNotes?.additionalRemarks;
+  const hasAdditionalRemarksInLastConsultantNote = !isEmptyRichText(
+    prevAdditionalRemarks
+  );
 
   const handleAutofill = (e) => {
     if (e?.[0] === "undo") {
@@ -58,11 +52,12 @@ const AdditionalRemarks = (props) => {
       showAutoFill={hasAdditionalRemarksInLastConsultantNote}
       autoFillTitle={
         hasAdditionalRemarksInLastConsultantNote
-          ? `Autofill From Prev. Consultant Notes (${new Date(
-              prevConsultantNote.createdAt
-            ).toLocaleDateString()}, ${new Date(
-              prevConsultantNote.createdAt
-            ).toLocaleTimeString()})`
+          ? `Autofill From Prev. Consultant Notes (${dayjs(
+              prevConsultantNote?.consultationNotes?.date
+            ).format("DD MMM YYYY")}, ${dayjs(
+              prevConsultantNote?.consultationNotes?.time,
+              "HH:mm:ss"
+            ).format("hh:mm A")})`
           : "No previous consultant notes available"
       }
       onAutoFill={handleAutofill}

@@ -10,6 +10,7 @@ const initialState = {
   additionalRemarks: [],
   currentProgressNote: null,
   loading: false,
+  isUpdating: false,
   error: null,
   success: false,
   isFetched: false
@@ -144,17 +145,17 @@ const progressNotesSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(updateProgressNotes.pending, (state) => {
-        state.loading = true;
+        state.isUpdating = true;
         state.error = null;
         state.success = false;
       })
       .addCase(updateProgressNotes.fulfilled, (state, action) => {
-        state.loading = false;
+        state.isUpdating = false;
         state.progressNotes = action.payload;
         state.error = null;
       })
       .addCase(updateProgressNotes.rejected, (state, action) => {
-        state.loading = false;
+        state.isUpdating = false;
         state.progressNotes = [];
         state.error = action.payload;
       })

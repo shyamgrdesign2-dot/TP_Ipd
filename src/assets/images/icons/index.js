@@ -46,6 +46,7 @@ import hospitalIcon from "./hospital.svg";
 import doctorIcon from "./doctor.svg";
 import calendarIcon from "./calendar-icon.svg";
 import calendarPlainIcon from "./calendar-plain.svg";
+import calendarDarkIcon from "./calendar-dark-solid.svg";
 import clockIcon from "./clock.svg";
 import tutotialsIcon from "./tutorials.svg";
 import vitalsDarkColoured from "./vitals-dark.svg";
@@ -145,5 +146,6 @@ export const defaultIcons = {
   downArrowPcIcon,
   editDarkIcon,
   infoIconWarningColoured,
-  crossIcon
+  crossIcon,
+  calendarDarkIcon,
 };

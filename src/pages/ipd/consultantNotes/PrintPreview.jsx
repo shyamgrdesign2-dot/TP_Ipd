@@ -62,21 +62,14 @@ const PrintPreview = () => {
     patientDetails?.details?.id,
   ]);
 
-  const patientInformation = getPatientInformation(patientDetails);
-
-  const sortedConsultantNotes = consultantNotes?.slice()?.sort((a, b) => {
-    const dateA = new Date(a?.consultationNotes?.date || a?.createdAt || 0);
-    const dateB = new Date(b?.consultationNotes?.date || b?.createdAt || 0);
-    return dateB - dateA; // Most recent first
-  });
-
   const makePDFUrl = useCallback(async () => {
     try {
       const blob = await pdf(
         <PDFGenerator
           settings={currentSettings}
-          data={{ patientInformation, consultantNotes: sortedConsultantNotes }}
+          data={consultantNotes}
           documentType="consultationNotes"
+          patientData={getPatientInformation(patientDetails)}
         />
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));
@@ -95,9 +88,10 @@ const PrintPreview = () => {
     navigate("/ipd/consultant-notes/configure-print-settings", {
       state: {
         moduleType: "consultationNotes",
-        data: { patientInformation, consultantNotes: sortedConsultantNotes },
+        data: consultantNotes,
         printSettings: currentSettings,
         returnPath: "/ipd/consultant-notes/preview",
+        patientDetails,
       },
     });
   };
