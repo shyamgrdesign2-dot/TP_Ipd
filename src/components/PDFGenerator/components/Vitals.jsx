@@ -8,7 +8,6 @@ import { Text, View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
-  // Vitals inline text
   vitalsText: {
     color: "#454551",
     lineHeight: 1.8,
@@ -18,16 +17,16 @@ const styles = StyleSheet.create({
   },
 
   vitalsTitle: {
-    fontWeight: 600, // SemiBold
+    fontWeight: 600,
     color: "#171725",
   },
 
   vitalLabel: {
-    fontWeight: 500, // Medium
+    fontWeight: 500,
   },
 
   vitalValue: {
-    fontWeight: 400, // Regular
+    fontWeight: 400,
   },
 
   separator: {
@@ -35,12 +34,13 @@ const styles = StyleSheet.create({
   },
 
   bulletItem: {
+    display: "flex",
+    flexWrap: "wrap",
     flexDirection: "row",
     marginBottom: 3,
     marginLeft: 14,
   },
 
-  // Symbol styles
   bulletSymbol: {
     width: 12,
     color: "#454551",
@@ -60,20 +60,18 @@ const Vitals = ({ vitals, title = "Vitals" }) => {
   if (!vitals) return null;
 
   const vitalFields = [
-    { label: "Pulse", value: vitals.pulse, unit: "T" },
-    { label: "BP", value: vitals.bloodPressure, unit: "" },
-    { label: "Temperature", value: vitals.temperature, unit: "Frh" },
+    { label: "Pulse", value: vitals.pulse, unit: "/min" },
+    { label: "BP", value: vitals.bloodPressure, unit: "mmHg" },
+    { label: "Temperature", value: vitals.temperature, unit: "F" },
     { label: "Spo2", value: vitals.spo2, unit: "%" },
     { label: "RR", value: vitals.respiratoryRate, unit: "/min" },
-    { label: "Weight", value: vitals.weight, unit: "Kg" },
+    { label: "Weight", value: vitals.weight, unit: "kg" },
     { label: "Height", value: vitals.height, unit: "cms" },
-    { label: "General Rbs", value: vitals.generalRBS, unit: "mg/Dl" },
+    { label: "General Rbs", value: vitals.generalRBS, unit: "mg/dl" },
   ];
 
-  // Filter out fields with no value
   const activeFields = vitalFields.filter((field) => field.value);
 
-  // Don't render if no vitals have values
   if (activeFields.length === 0) return null;
 
   return (
