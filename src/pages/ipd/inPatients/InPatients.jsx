@@ -22,6 +22,8 @@ import {
   clearIPDFilters,
 } from "../../../utils/localStorage";
 import "./InPatients.scss";
+import { fetchPatientUniqueId } from "../../../redux/ipd/ipdSlice";
+import { useDispatch } from "react-redux";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD-MM-YYYY";
@@ -112,6 +114,7 @@ function InPatients() {
   } = usePatientsData();
 
   const { doctors, wards } = useFiltersData();
+  const dispatch = useDispatch();
 
   const { lastElementRef } = useInfiniteScroll({
     hasMore,
@@ -138,7 +141,7 @@ function InPatients() {
       doctorIdsFilter:
         selectedDoctors.length > 0 ? selectedDoctors.join(",") : allDoctorIds,
       ward: selectedWards.length > 0 ? selectedWards.join(",") : "",
-      isDischarged: false
+      isDischarged: false,
     }),
     [filterParams, dateRange, selectedDoctors, selectedWards, allDoctorIds]
   );
@@ -171,14 +174,28 @@ function InPatients() {
         pm_gender: patientData?.details?.gender,
         patient_unique_id: patientData?.details?.id,
       };
-      navigate(`/ipd/patient-details`, {
-        state: {
-          patientDetails: patientData,
-          patient_data,
-          isEditable: false,
-          activeTab: patientData?.referral ? "crossReferral" : "assessment",
-        },
-      });
+      dispatch(fetchPatientUniqueId({ mrno: patientData?.mrno })).then(
+        (res) => {
+          navigate(`/ipd/patient-details`, {
+            state: {
+              patientDetails: {
+                ...patientData,
+                ...(res?.payload?.patientUniqueId && {
+                  patient_unique_id: res?.payload?.patientUniqueId,
+                }),
+              },
+              patient_data: {
+                ...patient_data,
+                ...(res?.payload?.patientUniqueId && {
+                  patient_unique_id: res?.payload?.patientUniqueId,
+                }),
+              },
+              isEditable: false,
+              activeTab: patientData?.referral ? "crossReferral" : "assessment",
+            },
+          });
+        }
+      );
     },
     [navigate]
   );

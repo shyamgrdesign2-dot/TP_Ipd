@@ -512,10 +512,8 @@ const IPDPatientDetails = () => {
       });
     }
   };
-  console.log("INTEL ==> patientData", patientData);
-  console.log("INTEL ==> patientDetails", patientDetails);
-  console.log("INTEL ==> patient_data", patient_data);
-  console.log('INTEL ==> TRANSFORMED PATIENT DETAILS', transformAdmissionToPatient(patientDetails))
+  // console.log("INTEL ==> patientDetails", patientDetails);
+  // console.log('INTEL ==> TRANSFORMED PATIENT DETAILS', transformAdmissionToPatient(patientDetails))
   const onHandleSelect = (id) => {
     setActiveMenuItem(id);
     if (id === "dischargeSummary" || id === "opd") {

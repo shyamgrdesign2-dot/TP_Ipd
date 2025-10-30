@@ -593,7 +593,7 @@ const renderLabResults = (labResults, printSettings) => {
             ))}
           </View>
 
-          {Object.keys(labParamsPatchTableData[0].groupedInputs).map(
+          {labParamsPatchTableData && Object.keys(labParamsPatchTableData[0]?.groupedInputs || {}).map(
             (reportName, j) => (
               <View key={j} style={{ marginTop: PX_TO_PT * 0 }}>
                 <View style={[obsStyles.row]} wrap={false}>
@@ -611,7 +611,7 @@ const renderLabResults = (labResults, printSettings) => {
                   </Text>
                 </View>
 
-                {labParamsPatchTableData[0].groupedInputs[reportName].map(
+                {labParamsPatchTableData[0]?.groupedInputs[reportName]?.map(
                   (test, idx) => (
                     <View key={idx} style={{ marginTop: PX_TO_PT * 0 }}>
                       <View style={[obsStyles.row]} wrap={false}>
@@ -629,9 +629,9 @@ const renderLabResults = (labResults, printSettings) => {
                         </Text>
 
                         {labParamsPatchTableData.map((entry, k) => {
-                          const testResult = entry.groupedInputs[
+                          const testResult = entry?.groupedInputs[
                             reportName
-                          ]?.find((input) => input.testName === test.testName);
+                          ]?.find((input) => input?.testName === test?.testName);
                           return (
                             <Text
                               key={k}

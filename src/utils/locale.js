@@ -1866,7 +1866,7 @@ export const IPD = {
         {
           id: "wardBedNumber",
           field: "wardBedNo",
-          title: "War/ Bed no",
+          title: "Ward/ Bed no",
           enabled: true,
         },
         {

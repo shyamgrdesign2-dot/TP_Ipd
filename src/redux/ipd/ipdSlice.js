@@ -93,12 +93,26 @@ export const fetchWards = createAsyncThunk("ipd/fetchWards", async () => {
   try {
     let result = {};
     result = await ApiIpdService.getWards();
-    return result; // keep same pattern as above thunks
+    return result;
   } catch (error) {
     console.log("error: ", error);
     throw Error(error);
   }
 });
+
+export const fetchPatientUniqueId = createAsyncThunk(
+  "ipd/fetchPatientUniqueId",
+  async (data) => {
+    try {
+      let result = {};
+      result = await ApiIpdService.getPatientUniqueId(data);
+      return result;
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
 
 export const markPatientAsDischarged = createAsyncThunk(
   "ipd/markPatientAsDischarged",

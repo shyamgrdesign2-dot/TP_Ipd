@@ -41,6 +41,11 @@ ApiIpdService.getDepartments = function () {
   return api.get(`/patients/departments`, baseUrl);
 };
 
+ApiIpdService.getPatientUniqueId = function ({mrno}) {
+  // GET /patients/get-patient-unique-id?mrno={mrno}
+  return api.get(`/patients/patient-unique-id?mrno=${mrno}`, baseUrl);
+};
+
 ApiIpdService.markPatientAsDischarged = function ({ admissionId }) {
   return api.put(`/patients/mark-discharged?admissionId=${admissionId}`, {}, baseUrl);
 };

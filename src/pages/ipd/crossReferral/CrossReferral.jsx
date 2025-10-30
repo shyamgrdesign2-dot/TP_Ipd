@@ -146,6 +146,7 @@ const CrossReferral = (props) => {
           _id: crossReferralState.currentCrossReferralId,
         })
       );
+      message.success('Cross Referral Added Successfully');
       navigate("/ipd/patient-details", {
         state: {
           isEditable: false,
