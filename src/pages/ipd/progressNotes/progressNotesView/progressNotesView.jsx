@@ -7,6 +7,7 @@ import { defaultIcons } from "../../../../assets/images/icons/index.js";
 import "./progressNotesView.scss";
 import DateRangeFilter from "../../components/DateRangeFilter.js";
 import { useDispatch, useSelector } from "react-redux";
+import { downloadModule, printModule } from "../../utils/printDownload";
 import {
   filterProgressNotesByDateRange,
   clearDateFilter,
@@ -29,6 +30,7 @@ function ProgressNotesView({
   const [events, setEvents] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { printSettings } = useSelector((state) => state.printSettings);
 
   // Local state
   const [dateStatus, setDateStatus] = useState(null);
@@ -178,8 +180,41 @@ function ProgressNotesView({
   };
 
   // Event handlers for group header actions (download, print)
-  const handleGroupHeaderAction = (action, groupKey, groupData) => {
+  const handleGroupHeaderAction = async (action, groupKey, groupData) => {
     addEvent(`Group Header - ${action}`, { groupKey, groupData });
+
+    const normalizedAction = typeof action === "string" ? action.toLowerCase() : "";
+    const entries = Array.isArray(groupData)
+      ? groupData
+          .map((item) => item?.raw)
+          .filter((item) => item && typeof item === "object")
+      : [];
+
+    if (!entries.length) {
+      console.warn("No progress notes found for the selected date", {
+        action,
+        groupKey,
+        groupData,
+      });
+      return;
+    }
+
+    try {
+      if (normalizedAction === "download") {
+        await downloadModule("progressNotes", printSettings, patientDetails, entries);
+        addEvent("Group Header - download success", { groupKey, count: entries.length });
+      } else if (normalizedAction === "print") {
+        await printModule("progressNotes", printSettings, patientDetails, entries);
+        addEvent("Group Header - print success", { groupKey, count: entries.length });
+      }
+    } catch (error) {
+      console.error(`Error handling ${action} for progress notes`, error);
+      addEvent("Group Header - action error", {
+        action,
+        groupKey,
+        error: error?.message || error,
+      });
+    }
   };
 
   // Custom render functions for ReusableStepper
@@ -361,12 +396,6 @@ function ProgressNotesView({
             stepDirection: "vertical",
             currentStep: -1,
           }}
-          // toolbar={{
-          //   show: true,
-          //   label: 'All Dates',
-          //   icon: <span className="medical-progress__calendar-icon">📅</span>,
-          //   onClick: handleReusableAllDatesClick,
-          // }}
           cardsDisplay={isProgressNotesSummary ? "column" : "row"}
           sidebarClassName={isProgressNotesSummary ? "agent-alex-sidebar" : ""}
           contentClassName={
