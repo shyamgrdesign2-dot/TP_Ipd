@@ -73,6 +73,7 @@ function Cardiology(props) {
     viewCaseManagerData,
     nextPress,
     prevPress,
+    isIPD
   } = props;
 
   const [customModulesRxData, setCustomModulesRxData] = useState([]);
@@ -2122,6 +2123,7 @@ function Cardiology(props) {
                       profile={profile}
                       patient_data={patient_data}
                       navigate={navigate}
+                      isIPD={isIPD}
                     />
                   ) : (
                     <Button
@@ -2155,7 +2157,7 @@ function Cardiology(props) {
   );
 }
 
-function SmartDropdownButtons({ profile, patient_data, navigate }) {
+function SmartDropdownButtons({ profile, patient_data, navigate, isIPD }) {
   
   const isSmartSyncAccessableFromGB = useFeatureIsOn(GB_ISCRIBE);
   const isSnapRxAccessableFromGB = useFeatureIsOn(GB_SNAP_RX);
@@ -2189,7 +2191,7 @@ function SmartDropdownButtons({ profile, patient_data, navigate }) {
       style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
     >
       <div>
-        <Button
+        {!isIPD ? <Button
           className="btn btn-primary3 btn-text-white px-5 m-2 btn-41"
           onClick={() => {
             window.Moengage.track_event("start_new_visit_click", {
@@ -2233,7 +2235,7 @@ function SmartDropdownButtons({ profile, patient_data, navigate }) {
               }}
             ></i>
           </span>
-        </Button>
+        </Button>: null}
       </div>
       {open && 
         <div className="smart-rx-buttons-group">

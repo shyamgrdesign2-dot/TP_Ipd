@@ -2188,7 +2188,7 @@ export const transformAdmissionToPatient = (source = {}) => {
     pm_id: Number(details.id) || null, // safely parse to number
     pm_pid: source.admissionId || "", // fallback: using admissionId
     pm_contact_no: details.contact || "",
-    patient_unique_id: source._id || null,
+    patient_unique_id: details.id || null,
     pm_gender: details.gender ? details.gender.charAt(0) + details.gender.slice(1).toLowerCase() : "",
     ageDays: 0, // not available, fallback
     ageMonths: 0, // not available, fallback
