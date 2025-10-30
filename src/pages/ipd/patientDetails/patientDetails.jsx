@@ -4,6 +4,7 @@ import {
   formatDateToShortMonthYear,
   getPatientInformation,
   normalizeToDefault,
+  transformAdmissionToPatient,
 } from "../../../utils/utils";
 import { AnimatePresence } from "framer-motion";
 import "./styles.scss";
@@ -70,6 +71,7 @@ import PreviewDischargeSummary from "../dischargeSummary/PreviewDischargeSummary
 import DischargeSummaryReadonly from "../dischargeSummary/DischargeSummaryReadonly";
 import FullPageLoader from "../../vaccination/components/Loader";
 import useOnlyViewMode from "../../../hooks/useOnlyViewMode";
+import PatientDetails from "../../PatientDetails";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -383,6 +385,7 @@ const IPDPatientDetails = () => {
         .catch((error) => {
           console.error("Error fetching discharge summary:", error);
         });
+    } else if (activeMenuItem === "opd") {
     }
   }, [activeMenuItem, admissionId, patientId, dispatch]);
 
@@ -431,6 +434,8 @@ const IPDPatientDetails = () => {
     } else if (activeMenuItem === "records") {
       return !!medicalRecords?.length;
     } else if (activeMenuItem === "labResults") {
+      return true;
+    } else if (activeMenuItem === "opd") {
       return true;
     }
     return false;
@@ -507,9 +512,13 @@ const IPDPatientDetails = () => {
       });
     }
   };
+  console.log("INTEL ==> patientData", patientData);
+  console.log("INTEL ==> patientDetails", patientDetails);
+  console.log("INTEL ==> patient_data", patient_data);
+  console.log('INTEL ==> TRANSFORMED PATIENT DETAILS', transformAdmissionToPatient(patientDetails))
   const onHandleSelect = (id) => {
     setActiveMenuItem(id);
-    if (id === "dischargeSummary") {
+    if (id === "dischargeSummary" || id === "opd") {
       dispatch(resetAssessmentForm());
       dispatch(resetDischargeSummaryToInitialState());
       dispatch(resetPrescriptionData());
@@ -518,7 +527,33 @@ const IPDPatientDetails = () => {
     navigate("/ipd/patient-details", {
       state: {
         patientDetails,
-        patient_data,
+        patient_data:
+          id === "opd"
+            ? transformAdmissionToPatient(patientDetails)
+            : patient_data,
+        // patient_data: {
+        //   pm_salutation: "",
+        //   pm_fullname: "Neel",
+        //   pm_id: 74954,
+        //   pm_pid: "PAT0729",
+        //   pm_contact_no: "1760506186",
+        //   patient_unique_id: 424553645634,
+        //   pm_gender: "Male",
+        //   ageDays: 28,
+        //   ageMonths: 0,
+        //   ageYears: 26,
+        //   pm_dob: "1999-10-02",
+        //   tpml_refrence_id: "EXT1001012399",
+        //   pm_address: "",
+        //   pm_area: "",
+        //   pm_city: "",
+        //   pm_state: "",
+        //   pm_pincode: "",
+        //   pm_blood_group: "A+",
+        //   category: null,
+        //   lastVisitDate: "2025-10-17",
+        //   pm_first_name: "Neel",
+        // },
         isEditable: false,
         activeTab: id,
       },
@@ -704,6 +739,29 @@ const IPDPatientDetails = () => {
               </div>
             )}
           </div>
+        );
+      case "opd":
+        return (
+          // <div className="ipd-adm-assess-container-readable ipd-discharge-summary-container-readable">
+          //   <DischargeSummaryReadonly ref={dischargeSummaryReadonlyRef} />
+          //   {Object.keys(actualDischargeSummaryData)?.length && (
+          //     <div className="ipd-toolbar-edit-custom-print-download">
+          //       <ToolbarActions
+          //         editBtnText={"Edit Summary"}
+          //         showEditForm={!isOnlyViewMode}
+          //         onEdit={handleDischargeSummaryClick}
+          //         onPrintPreview={handleDischargeSummaryPrintPreview}
+          //         onPrint={() => {
+          //           dischargeSummaryReadonlyRef?.current?.handlePrintClick();
+          //         }}
+          //         onSettings={handleCustomizeClick}
+          //         onDownload={() => console.log("Download")}
+          //       />
+          //     </div>
+          //   )}
+          // </div>
+          <PatientDetails isIPD={true} />
+          // <div>hello</div>
         );
       default:
         return null;

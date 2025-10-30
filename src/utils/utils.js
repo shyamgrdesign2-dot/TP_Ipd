@@ -2173,3 +2173,36 @@ export const camelToCapitalized = (text) => {
     .replace(/^./, (str) => str.toUpperCase())
     .trim();
 };
+
+
+
+export const transformAdmissionToPatient = (source = {}) => {
+  if (!source || typeof source !== "object") return {};
+
+  const details = source.details || {};
+  const metadata = source.metadata || {};
+
+  return {
+    pm_salutation: "", // not available in source
+    pm_fullname: details.name ? details.name.charAt(0).toUpperCase() + details.name.slice(1).toLowerCase() : "",
+    pm_id: Number(details.id) || null, // safely parse to number
+    pm_pid: source.admissionId || "", // fallback: using admissionId
+    pm_contact_no: details.contact || "",
+    patient_unique_id: source._id || null,
+    pm_gender: details.gender ? details.gender.charAt(0) + details.gender.slice(1).toLowerCase() : "",
+    ageDays: 0, // not available, fallback
+    ageMonths: 0, // not available, fallback
+    ageYears: Number(details.age) || null,
+    pm_dob: null, // not in source (needs DOB if available)
+    tpml_refrence_id: source.mrno || "",
+    pm_address: details.address || "",
+    pm_area: "",
+    pm_city: "",
+    pm_state: "",
+    pm_pincode: "",
+    pm_blood_group: "", // not in source
+    category: metadata.category || null,
+    lastVisitDate: source.dischargedAt ? source.dischargedAt.split("T")[0] : null,
+    pm_first_name: details.name || ""
+  };
+};
