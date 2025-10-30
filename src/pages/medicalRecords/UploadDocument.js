@@ -281,6 +281,7 @@ const UploadDocument = ({
             name,
             thumbnail: meta?.thumbnailFile,
             notes: meta?.notes,
+            date: meta?.recordUploadDate
           };
 
           // 🆕 If editing an existing document, include its _id
@@ -319,7 +320,7 @@ const UploadDocument = ({
 
       // Refresh the documents after saving
       await dispatch(getMedicalRecordsDocuments({ 
-        patientId: patient_data_naviagte?.patient_unique_id, 
+        patientId: ipdPatientId, 
         admissionId: patientDetails?.admissionId, 
         category: "medical_records" 
       }));

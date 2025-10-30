@@ -475,6 +475,17 @@ const IPDPatientDetails = () => {
           data: consultantNotes,
         },
       });
+    } else if (activeMenuItem === "progress") {
+      navigate("/ipd/progress-notes/configure-print-settings", {
+        state: {
+          patientDetails,
+          moduleType: "progressNotes",
+          data: { 
+            patientInformation: getPatientInformation(patientDetails),
+            progressNotes: progressNotes,
+          },
+        },
+      });  
     } else if (activeMenuItem === "crossReferral") {
       navigate("/ipd/cross-referral/configure-print-settings", {
         state: {

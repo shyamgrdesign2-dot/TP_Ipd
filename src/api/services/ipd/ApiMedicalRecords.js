@@ -28,13 +28,16 @@ ApiMedicalRecords.putDocument = function ({
   name,
   thumbnail,
   notes,
+  date
 }) {
   const query = new URLSearchParams();
+
+  console.log(patientId,"patientIdafdfdfsd")
   if (patientId) query.append("patientId", patientId);
   if (admissionId) query.append("admissionId", admissionId);
+  if (_id) query.append("_id", _id);
 
   const formData = new FormData();
-  if (_id) formData.append("_id", _id);
   if (category) formData.append("category", category);
   if (subCategory) formData.append("subCategory", subCategory);
   if (!_id && file) {
@@ -47,6 +50,7 @@ ApiMedicalRecords.putDocument = function ({
     formData.append("thumbnail", thumbnail, thumbnail.name || "thumbnail.bin");
   }
   if (notes) formData.append("notes", notes);
+  if (date) formData.append("date", date);
 
   return api.put(
     `/docs?${query.toString()}`,
