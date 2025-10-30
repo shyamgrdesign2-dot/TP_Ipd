@@ -58,20 +58,6 @@ export const buildPdfData = (documentType, patientDetails, rawData) => {
     const patientInformation = patientDetails ? getPatientInformation(patientDetails) : undefined;
     return { patientInformation, progressNotes: rawData };
   }
-  if (documentType === "consultationNotes") {
-    const patientInformation = patientDetails ? getPatientInformation(patientDetails) : undefined;
-    const notesArray = Array.isArray(rawData)
-      ? rawData
-      : Array.isArray(rawData?.consultantNotes)
-      ? rawData.consultantNotes
-      : [];
-    const sorted = notesArray.slice().sort((a, b) => {
-          const dateA = new Date(a?.consultationNotes?.date || a?.createdAt || 0);
-          const dateB = new Date(b?.consultationNotes?.date || b?.createdAt || 0);
-          return dateB - dateA;
-        });
-    return { patientInformation, consultantNotes: sorted };
-  }
   // For other types, pass through rawData
   return rawData;
 };

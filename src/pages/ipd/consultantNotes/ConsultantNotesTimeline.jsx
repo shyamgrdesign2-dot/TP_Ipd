@@ -18,6 +18,7 @@ import ConsultantNotesPreview from "./ConsultantNotesPreview.jsx";
 import ConsultantNotesPreviewHeader from "./components/ConsultantNotesPreviewHeader.jsx";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import { downloadModule, printModule } from "../utils/printDownload.js";
 dayjs.extend(customParseFormat);
 
 const ReusableStepper = createRemoteComponent("ReusableStepper");
@@ -31,6 +32,7 @@ const ConsultantNotesTimeline = () => {
   const [dateRange, setDateRange] = useState(null);
   const [dateStatus, setDateStatus] = useState(null);
   const [pickerModal, setPickerModal] = useState(false);
+  const { printSettings } = useSelector((state) => state.printSettings);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -146,13 +148,22 @@ const ConsultantNotesTimeline = () => {
     });
   };
 
-  const handleReusableItemEvent = (eventName, payload) => {
-    // Handle item events if needed
+  const handlePrint = async (groupData) => {
+    await printModule(
+      "consultationNotes",
+      printSettings,
+      patientDetails,
+      groupData?.[0]?.originalEntry
+    );
   };
 
-  // Event handlers for group header actions (download, print)
-  const handleGroupHeaderAction = (action, groupKey, groupData) => {
-    addEvent(`Group Header - ${action}`, { groupKey, groupData });
+  const handleDownload = async (groupData) => {
+    await downloadModule(
+      "consultationNotes",
+      printSettings,
+      patientDetails,
+      groupData?.[0]?.originalEntry
+    );
   };
 
   // Custom render functions for ReusableStepper
@@ -171,37 +182,16 @@ const ConsultantNotesTimeline = () => {
         dateText={formattedDate}
         timeText={formattedTime}
         onDownload={(e) => {
-          e?.preventDefault?.();
-          e?.stopPropagation?.();
-          handleGroupHeaderAction("Download", groupKey, groupData);
-          if (emit) {
-            emit("groupHeaderAction", {
-              action: "download",
-              groupKey,
-              groupData,
-            });
-          }
+          handleDownload(groupData);
         }}
         onPrint={(e) => {
-          e?.preventDefault?.();
-          e?.stopPropagation?.();
-          handleGroupHeaderAction("Print", groupKey, groupData);
-          if (emit) {
-            emit("groupHeaderAction", { action: "print", groupKey, groupData });
-          }
+          handlePrint(groupData);
         }}
         onEdit={(e) => {
-          e?.preventDefault?.();
-          e?.stopPropagation?.();
           handleEditNote(groupData?.[0]?.raw);
         }}
       />
     );
-  };
-
-  // Helper function to add events to the log
-  const addEvent = (eventType, data) => {
-    // Handle events if needed
   };
 
   const mappedData = useMemo(() => {
@@ -263,7 +253,6 @@ const ConsultantNotesTimeline = () => {
         }
         sortGroups={(a, b) => new Date(b) - new Date(a)}
         renderGroupHeader={renderCustomGroupHeader}
-        onItemEvent={handleReusableItemEvent}
         layout={{
           stepDirection: "vertical",
           currentStep: -1,
