@@ -8,9 +8,27 @@ export const getPathologyResults = createAsyncThunk(
     try {
       let result = {};
       result = await ApiLabResults.getZydusLabResults(data);
-      console.log({ result });
       if (!result.error) {
         return result.data;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
+export const getAddedToDischargeSummaryTests = createAsyncThunk(
+  "labResults/getAddedToDischargeSummaryTests",
+  async (data) => {
+    try {
+      let result = {};
+      result = await ApiLabResults.getAddedToDischargeSummaryTests(data);
+
+      if (!result.error) {
+        return result.labParams;
       } else {
         throw Error(result.error);
       }
@@ -395,7 +413,6 @@ const labResultsSlice = createSlice({
         state.pathologyResults = transformApiDataToComponentFormat(
           action.payload
         );
-        console.log(action.payload);
 
         // Extract available dates from the API response
         const dates = new Set();
@@ -665,12 +682,25 @@ export const addToDischargeSummary = createAsyncThunk(
         selectedCategories
       );
 
+      const addedToDischargeSummaryTests = await dispatch(
+        getAddedToDischargeSummaryTests({
+          patientId,
+          admissionId,
+        })
+      ).unwrap();
+
+      const merged = [...addedToDischargeSummaryTests, ...apiData];
+
+      const uniqueByReportName = [
+        ...new Map(merged.map((item) => [item.reportName, item])).values(),
+      ];
+
       // Call the update API
       const result = await dispatch(
         updatePathologyResults({
           patientId,
           admissionId,
-          data: apiData,
+          data: uniqueByReportName,
         })
       ).unwrap();
 

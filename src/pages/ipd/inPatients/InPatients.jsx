@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import moment from "moment";
 import { Row } from "react-bootstrap";
-import { notification } from "antd";
 import { useNavigate } from "react-router-dom";
 import SubHeader from "./components/SubHeader";
 import FilterControls from "./components/FilterControls";
@@ -103,7 +102,6 @@ function InPatients() {
     patientsError,
     hasMore,
     filterParams,
-    fetchAttempted,
     loadingMore,
     fetchData,
     resetData,

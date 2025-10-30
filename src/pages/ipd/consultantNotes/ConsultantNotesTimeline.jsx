@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Card } from "antd";
 import moment from "moment";
 import {
   setCurrentConsultantNote,
@@ -14,16 +13,14 @@ import {
 import { setMedicationData } from "../../../redux/prescriptionSlice";
 import "./styles.scss";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import {
-  MedicineTable,
-  LabInvestigationTable,
-} from "../../../components/ReusableTable";
 import DateRangeFilter from "../components/DateRangeFilter.js";
-import { defaultIcons as icons } from "../../../assets/images/icons/index.js";
+import ConsultantNotesPreview from "./ConsultantNotesPreview.jsx";
+import ConsultantNotesPreviewHeader from "./components/ConsultantNotesPreviewHeader.jsx";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
 
-const ReusableProgressCard = createRemoteComponent("ReusableProgressCard");
 const ReusableStepper = createRemoteComponent("ReusableStepper");
-const RichTextEditor = createRemoteComponent("RichTextEditor");
 
 const ConsultantNotesTimeline = () => {
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
@@ -150,9 +147,7 @@ const ConsultantNotesTimeline = () => {
   };
 
   const handleReusableItemEvent = (eventName, payload) => {
-    if (eventName === "edit") {
-      const note = payload?.data;
-    }
+    // Handle item events if needed
   };
 
   // Event handlers for group header actions (download, print)
@@ -162,172 +157,51 @@ const ConsultantNotesTimeline = () => {
 
   // Custom render functions for ReusableStepper
   const renderCustomGroupHeader = (groupKey, groupData, emit) => {
-    const date = new Date(groupKey);
+    const date = new Date(
+      groupData?.[0]?.originalEntry?.consultationNotes?.date
+    );
     const formattedDate = `${date.getDate()} ${date.toLocaleString("default", {
       month: "short",
     })}, ${date.getFullYear()}`;
+    const time = groupData?.[0]?.originalEntry?.consultationNotes?.time;
+    const formattedTime = dayjs(time, "HH:mm:ss").format("hh:mm A");
 
     return (
-      <Card className="medical-progress__date-header-card">
-        <div className="d-flex justify-content-between align-items-center">
-          <div className="medical-progress__content-date">
-            <img
-              className="medical-progress__content-calendar-icon"
-              style={{ fill: "#581C87" }}
-              src={icons.calendarIcon}
-              alt=""
-            />
-            <span className="medical-progress__content-date-text">
-              {formattedDate}
-            </span>
-          </div>
-          <div className="d-flex align-items-center gap-2">
-            <img
-              className="medical-progress__content-download-icon"
-              style={{ fill: "#581C87", cursor: "pointer" }}
-              src={icons.downloadIcon}
-              alt="Download"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleGroupHeaderAction("Download", groupKey, groupData);
-                // Also emit the event for the stepper
-                if (emit) {
-                  emit("groupHeaderAction", {
-                    action: "download",
-                    groupKey,
-                    groupData,
-                  });
-                }
-              }}
-              title="Download this date's consultant notes"
-            />
-            <img
-              className="medical-progress__content-print-icon"
-              style={{ fill: "#581C87", cursor: "pointer" }}
-              src={icons.printerIcon}
-              alt="Print"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleGroupHeaderAction("Print", groupKey, groupData);
-                // Also emit the event for the stepper
-                if (emit) {
-                  emit("groupHeaderAction", {
-                    action: "print",
-                    groupKey,
-                    groupData,
-                  });
-                }
-              }}
-              title="Print this date's consultant notes"
-            />
-            <img
-              className="medical-progress__content-calendar-icon"
-              style={{ fill: "#581C87", cursor: "pointer" }}
-              src={icons.editIcon}
-              alt="Edit"
-              onClick={() => handleEditNote(groupData?.[0]?.raw)}
-              title="Edit this date's consultant notes"
-            />
-          </div>
-        </div>
-      </Card>
-    );
-  };
-
-  const renderCustomItem = (item, itemIndex, groupKey, items, emit) => {
-    return (
-      <ReusableProgressCard
-        record={{
-          id: "1",
-          sections: [
-            ...(item.clinicalAssessmentPlan?.some((item) =>
-              item?.children?.some((child) =>
-                child?.children?.some((grandChild) => grandChild?.text)
-              )
-            )
-              ? [
-                  {
-                    key: "clinicalAssessmentPlan",
-                    title: "Clinical Assessment & Plan",
-                    data: item.clinicalAssessmentPlan,
-                    type: "richtext",
-                  },
-                ]
-              : []),
-            ...(Object.values(item.vitals).some((item) => !!item)
-              ? [
-                  {
-                    key: "vitals",
-                    title: "Vitals",
-                    data: item.vitals,
-                    type: "richtext",
-                  },
-                ]
-              : []),
-            ...(item.currentMedication?.some((item) => !!item.name)
-              ? [
-                  {
-                    key: "medication",
-                    title: "Medication(Rx)",
-                    data: item.currentMedication,
-                    type: "table",
-                  },
-                ]
-              : []),
-            ...(item.labInvestigation?.some((item) => !!item.name)
-              ? [
-                  {
-                    key: "labInvestigation",
-                    title: "Lab Investigation",
-                    data: item.labInvestigation,
-                    type: "lab-table",
-                  },
-                ]
-              : []),
-            ...(item.additionalRemarks?.some((item) =>
-              item?.children?.some((child) =>
-                child?.children?.some((grandChild) => grandChild?.text)
-              )
-            )
-              ? [
-                  {
-                    key: "additionalRemarks",
-                    title: "Additional Remarks",
-                    data: item.additionalRemarks,
-                    type: "richtext",
-                  },
-                ]
-              : []),
-          ],
-          filledBy: item.filledBy,
-          role: item.role,
+      <ConsultantNotesPreviewHeader
+        dateText={formattedDate}
+        timeText={formattedTime}
+        onDownload={(e) => {
+          e?.preventDefault?.();
+          e?.stopPropagation?.();
+          handleGroupHeaderAction("Download", groupKey, groupData);
+          if (emit) {
+            emit("groupHeaderAction", {
+              action: "download",
+              groupKey,
+              groupData,
+            });
+          }
         }}
-        components={{
-          RichTextEditor,
-          MedicineTable,
-          LabInvestigationTable,
+        onPrint={(e) => {
+          e?.preventDefault?.();
+          e?.stopPropagation?.();
+          handleGroupHeaderAction("Print", groupKey, groupData);
+          if (emit) {
+            emit("groupHeaderAction", { action: "print", groupKey, groupData });
+          }
         }}
-        actions={[]}
-        showHeader={false} // No time header
-        className="detailed-medical-card"
-        onAction={(eventName, payload) =>
-          emit(eventName, { ...payload, data: item })
-        }
+        onEdit={(e) => {
+          e?.preventDefault?.();
+          e?.stopPropagation?.();
+          handleEditNote(groupData?.[0]?.raw);
+        }}
       />
     );
   };
 
   // Helper function to add events to the log
   const addEvent = (eventType, data) => {
-    const newEvent = {
-      id: Date.now(),
-      timestamp: new Date().toLocaleTimeString(),
-      type: eventType,
-      data: data,
-    };
-    // setEvents((prev) => [newEvent, ...prev.slice(0, 9)]); // Keep last 10 events
+    // Handle events if needed
   };
 
   const mappedData = useMemo(() => {
@@ -357,6 +231,10 @@ const ConsultantNotesTimeline = () => {
         additionalRemarks: pn?.additionalRemarks,
         filledBy: entry?.createdByName ? `${entry.createdByName}` : undefined,
         role: entry?.createdByRole ? `${entry.createdByRole}` : undefined,
+        originalEntry: entry,
+        renderStepItem: (data) => {
+          return <ConsultantNotesPreview entry={entry} />;
+        },
       };
     });
   }, [consultantNotes]);
@@ -381,19 +259,24 @@ const ConsultantNotesTimeline = () => {
       <ReusableStepper
         data={mappedData}
         groupBy={(item) =>
-          item.date || item.timestamp?.split(" ")[0] || "Unknown"
+          item._id || item.timestamp?.split(" ")[0] || "Unknown"
         }
         sortGroups={(a, b) => new Date(b) - new Date(a)}
         renderGroupHeader={renderCustomGroupHeader}
-        renderItem={renderCustomItem}
         onItemEvent={handleReusableItemEvent}
         layout={{
-          gridGutter: [16, 16],
-          colProps: { xs: 24, sm: 12, lg: 8 },
           stepDirection: "vertical",
           currentStep: -1,
         }}
-        toolbar={{ show: false }}
+        showShadow={true}
+        toolbar={{
+          show: true,
+          label: dateRange
+            ? `Filtered: ${moment(dateRange.startDate).format(
+                "DD-MM-YYYY"
+              )} - ${moment(dateRange.endDate).format("DD-MM-YYYY")}`
+            : "All dates",
+        }}
       />
     </div>
   );

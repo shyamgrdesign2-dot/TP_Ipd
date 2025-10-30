@@ -351,7 +351,6 @@ $muted: #6f6b88;
 .consultant-notes-timeline {
     min-height: calc(100vh - 200px);
     max-height: calc(100vh - 200px);
-    overflow-y: auto;
     box-sizing: border-box;
     position: relative;
 
@@ -374,12 +373,8 @@ $muted: #6f6b88;
         background: #7c3aed;
     }
 
-    // Fallback for Firefox
-    scrollbar-width: thin;
-    // scrollbar-color: #8b5cf6 #f1f1f1;
-
     .timeline-filter {
-        padding: 24px 24px 0;
+        padding-top: 24px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -742,4 +737,66 @@ $muted: #6f6b88;
 .with-aux {
     width: calc(100% - 404px);
     transition: width 0.3s ease;
+}
+
+.consultant-notes-time {
+    display: flex;
+    padding: 6px 12px;
+    align-items: center;
+    gap: 4px;
+    border-radius: 100px;
+    background: rgba(88, 28, 135, 0.06);
+    color: #581C87 !important;
+    font-family: "Poppins";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.cnp-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border-radius: 12px;
+
+    .cnp-gh-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 1 !important;
+
+        .cnp-gh-calendar {
+            width: 32px;
+            height: 32px;
+        }
+        .cnp-gh-date {
+            color: #581C87 !important;
+            font-weight: 600;
+            font-size: 24px;
+        }
+        .cnp-gh-time {
+            display: inline-flex;
+            padding: 6px 12px;
+            border-radius: 100px;
+            background: rgba(88, 28, 135, 0.06);
+            color: #581C87 !important;
+            font-size: 12px;
+            font-weight: 500;
+        }
+    }
+
+    .cnp-gh-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        z-index: 1;
+
+        .cnp-gh-action {
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+        }
+    }
 }

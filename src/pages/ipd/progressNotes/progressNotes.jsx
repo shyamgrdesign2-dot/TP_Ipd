@@ -1,4 +1,10 @@
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { IPD } from "../../../utils/locale";
 import "../assessmentForm/styles.scss";
 import "./styles.scss";
@@ -35,6 +41,8 @@ import ChiefComplaint from "./ChiefComplaint.jsx";
 import Vitals from "./Vitals.jsx";
 import BackConfirmationModal from "../../../components/BackConfirmationModal.js";
 import FullPageLoader from "../../vaccination/components/Loader.js";
+import { formatDateWithTime } from "../../../utils/utils.js";
+import { isEmptyRichText } from "../../../components/PDFGenerator/index.js";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -65,7 +73,7 @@ const ProgressNotes = (props) => {
   const {
     progressNotes,
     currentProgressNote,
-    loading,
+    isUpdating,
     chiefComplaint,
     findings,
     vitals,
@@ -121,6 +129,15 @@ const ProgressNotes = (props) => {
       }
     }
   }, [currentProgressNote]);
+
+  const isDataPresent = useMemo(() => {
+    return (
+      Object.values(vitals).some((item) => !!item) ||
+      !isEmptyRichText(chiefComplaint) ||
+      !isEmptyRichText(findings) ||
+      !isEmptyRichText(additionalRemarks)
+    );
+  }, [vitals, chiefComplaint, findings, additionalRemarks]);
 
   const saveProgressNotes = async () => {
     try {
@@ -233,9 +250,9 @@ const ProgressNotes = (props) => {
           ),
           duration: 3,
         });
-        // console.log("Consultant notes updated successfully");
+        dispatch(resetProgressNotes());
       } else {
-        console.error("Failed to update consultant notes");
+        console.error("Failed to update progress notes");
       }
 
       // Refresh the notes after saving
@@ -291,7 +308,9 @@ const ProgressNotes = (props) => {
     if (progressNotes && progressNotes.length > 0) {
       const latestNote = progressNotes[progressNotes?.length - 1];
       if (latestNote.progressNotes?.additionalRemarks) {
-        dispatch(setAdditionalRemarks(latestNote.progressNotes.additionalRemarks));
+        dispatch(
+          setAdditionalRemarks(latestNote.progressNotes.additionalRemarks)
+        );
         console.log(
           "Autofilled Additional Remarks:",
           latestNote.progressNotes.additionalRemarks
@@ -333,44 +352,60 @@ const ProgressNotes = (props) => {
 
   const renderSections = useCallback(
     (data) => {
-    switch (data?.id) {
-      case "chiefComplaint":
-        return (
-          <div className="ipd-pn-section-container">
-            <ChiefComplaint {...props} sectionData={data} shouldAutofill={shouldAutofill} />
-          </div>
-        );
-      case "findings":
-        return (
-          <div className="ipd-pn-section-container">
-            <Findings {...props} sectionData={data} shouldAutofill={shouldAutofill} />
-          </div>
-        );
-      case "vitals":
-        return (
-          <div className="ipd-pn-section-container">
-            <Vitals {...props} sectionData={data} shouldAutofill={shouldAutofill} />
-          </div>
-        );
-      case "additionalRemarks":
-        return (
-          <div className="ipd-pn-section-container">
-            <AdditionalRemarks {...props} sectionData={data} shouldAutofill={shouldAutofill} />
-          </div>
-        );
-      default:
-        return null;
-    }
-  },
-  [
-    props,
-    handleAutofillVitals,
-    handleAutofillFindings,
-    handleAutofillChiefComplaint,
-    handleAutofillAdditionalRemarks,
-    shouldAutofill,
-  ]
-);
+      switch (data?.id) {
+        case "chiefComplaint":
+          return (
+            <div className="ipd-pn-section-container">
+              <ChiefComplaint
+                {...props}
+                sectionData={data}
+                shouldAutofill={shouldAutofill}
+              />
+            </div>
+          );
+        case "findings":
+          return (
+            <div className="ipd-pn-section-container">
+              <Findings
+                {...props}
+                sectionData={data}
+                shouldAutofill={shouldAutofill}
+              />
+            </div>
+          );
+        case "vitals":
+          return (
+            <div className="ipd-pn-section-container">
+              <Vitals
+                {...props}
+                sectionData={data}
+                shouldAutofill={shouldAutofill}
+              />
+            </div>
+          );
+        case "additionalRemarks":
+          return (
+            <div className="ipd-pn-section-container">
+              <AdditionalRemarks
+                {...props}
+                sectionData={data}
+                shouldAutofill={shouldAutofill}
+              />
+            </div>
+          );
+        default:
+          return null;
+      }
+    },
+    [
+      props,
+      handleAutofillVitals,
+      handleAutofillFindings,
+      handleAutofillChiefComplaint,
+      handleAutofillAdditionalRemarks,
+      shouldAutofill,
+    ]
+  );
 
   const renderBottomSection = () => {
     return (
@@ -517,9 +552,9 @@ const ProgressNotes = (props) => {
               key="progressNotes"
               title={"Progress Notes"}
               mainCta={{
-                title: loading ? "Saving..." : "Save",
+                title: isUpdating ? "Saving..." : "Save",
                 handler: saveProgressNotes,
-                disabled: loading,
+                disabled: isUpdating || !isDataPresent,
               }}
               items={modelData}
               renderSection={renderSections}
@@ -537,11 +572,9 @@ const ProgressNotes = (props) => {
               showAutoFill={!!progressNotes?.length}
               autoFillTitle={
                 progressNotes && progressNotes.length > 0
-                  ? `Autofill From Prev. Progress Notes (${new Date(
+                  ? `Autofill From Prev. Progress Notes (${formatDateWithTime(
                       progressNotes[progressNotes?.length - 1].createdAt
-                    ).toLocaleDateString()}, ${new Date(
-                      progressNotes[progressNotes?.length - 1].createdAt
-                    ).toLocaleTimeString()})`
+                    )})`
                   : "No previous progress notes available"
               }
               onAutoFill={handleAutofillAll}

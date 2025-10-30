@@ -145,7 +145,6 @@ const IPDPatientDetails = () => {
       state: {
         patient_data,
         patientDetails,
-        isEditable: true,
       },
     });
   };
@@ -467,18 +466,7 @@ const IPDPatientDetails = () => {
         state: {
           patientDetails,
           moduleType: "consultationNotes",
-          data: {
-            patientInformation: getPatientInformation(patientDetails),
-            consultantNotes: consultantNotes?.slice()?.sort((a, b) => {
-              const dateA = new Date(
-                a?.consultationNotes?.date || a?.createdAt || 0
-              );
-              const dateB = new Date(
-                b?.consultationNotes?.date || b?.createdAt || 0
-              );
-              return dateB - dateA;
-            }),
-          },
+          data: consultantNotes,
         },
       });
     } else if (activeMenuItem === "crossReferral") {
