@@ -186,7 +186,7 @@ const PatientsTable = ({
               onViewDetails(record?.patientData);
             }}
           >
-            View Details
+            {"View Details"}
           </button>
           {!isDischargedPatients && !record?.isDischarged ? (
             <Popover
