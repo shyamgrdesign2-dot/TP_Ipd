@@ -49,6 +49,7 @@ import { env } from '../EnvironmentConfig';
 import { updateCredits } from '../redux/monetizationSlice';
 import { setAddToRx } from '../api/services/ApiGenRx';
 import { setSelectAutofill } from '../redux/ddxSlice';
+import { clearMedicationData, setMedicationData } from "../redux/prescriptionSlice";
 
 var oneClickCosultationTemplateId = 0
 
@@ -72,7 +73,8 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
     const {customModules} = useSelector((state) => state.customModules);
 
     const navigate = useNavigate();
-    const { patient_data, send_path, tcmId, pamId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, surgeriesData, setSurgeriesData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, medicationData, setMedicationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, privateNotesData, setPrivateNotesData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime, customModuleContents, setCustomModuleContents, pillupSwitch, useVoiceRx, useDDX } = useContext(CashManagerContext);
+    const { patient_data, send_path, tcmId, pamId, consultationDate, symptomsData, setSymptomsData, examinationData, setExaminationData, surgeriesData, setSurgeriesData, diagnosisData, setDiagnosisData, adviceData, setAdviceData, investigationData, setInvestigationData, vitalsData, setVitalsData, medicalHistoryData, setMedicalHistoryData, privateNotesData, setPrivateNotesData, followUpDate, setFollowUpDate, additionalNote, setAdditionalNote, startTime, customModuleContents, setCustomModuleContents, useVoiceRx, useDDX } = useContext(CashManagerContext);
+    let { medicationData , pillupSwitch } = useSelector((state) => state.prescription);
     const { isAutofillSelected, selectedSymptomsCollector, symptomCollector } = useSelector(
         (state) => state.ddx
     );
@@ -230,7 +232,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
         setDiagnosisData([])
         setAdviceData([])
         setInvestigationData([])
-        setMedicationData([])
+        dispatch(clearMedicationData())
         // setVitalsData([])
         // setMedicalHistoryData([])
         setPrivateNotesData(null)
@@ -1245,7 +1247,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
     }
 
     const checkDataFillOrNot = () => {
-        if (symptomsData.length > 0 || examinationData.length > 0 || surgeriesData.length > 0 || diagnosisData.length > 0 || medicationData.length > 0 || adviceData.length > 0 || investigationData.length > 0 || vitalsData.length > 0 || medicalHistoryData.length > 0 || privateNotesData || (gynecHistory && Object.keys(gynecHistory).length > 0) || isObstetricDetailsUpdated) {
+        if (symptomsData?.length > 0 || examinationData?.length > 0 || surgeriesData?.length > 0 || diagnosisData?.length > 0 || medicationData?.length > 0 || adviceData?.length > 0 || investigationData?.length > 0 || vitalsData?.length > 0 || medicalHistoryData?.length > 0 || privateNotesData || (gynecHistory && Object.keys(gynecHistory).length > 0) || isObstetricDetailsUpdated) {
             showHideBackModal()
         } else {
             if (send_path !== undefined) {
@@ -1303,139 +1305,248 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
         );
     }, [popOverVideo]);
     return (
-        <Navbar className="justify-content-between headerprescription p-0">
-            <Container fluid className='h-100 gx-0 w-100'>
-                <Row className='h-100 align-items-center w-100 justify-content-between'>
-                    <Col sm="auto" className='h-100'>
-                        <div className='align-items-center d-flex h-100'>
-                            <div className='border-end h-100 text-center'>
-                                <div onClick={checkDataFillOrNot} className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
-                                    <i className='icon-right'></i>
-                                </div>
-                                <CommonModal
-                                    isModalOpen={isBackModalOpen}
-                                    onCancel={showHideBackModal}
-                                    modalWidth={500}
-                                    title={"You may lose your data"}
-                                    modalBody={
-                                        <>
-                                            <div className="alert-warning rounded-10px p-2 patient-details">
-                                                <div className="d-flex align-items-center">
-                                                    <img className='me-3' src={alertIcon} alt="Warning" />
-                                                    <span>
-                                                        Are you sure you want to leave? <br />
-                                                        You will permanently lose your data.
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className="mt-4">
-                                                <div className="d-flex align-items-center mt-2 justify-content-end">
-                                                    <div onClick={() => send_path !== undefined ? navigate(-1) : navigate('/', { replace: true })} className="me-4 text-decoration-underline btn p-0 text-main">
-                                                        Yes Leave
-                                                    </div>
-                                                    <Button onClick={showHideBackModal} className="lh-lg btn btn-primary3 btn-41 px-4">
-                                                        <span>No, Stay</span>
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </>
-                                    }
-                                />
-                            </div>
-                            <ProfilePopover patient_data={patient_data} isPrescriptionPage />
+      <Navbar className="justify-content-between headerprescription p-0">
+        <Container fluid className="h-100 gx-0 w-100">
+          <Row className="h-100 align-items-center w-100 justify-content-between">
+            <Col sm="auto" className="h-100">
+              <div className="align-items-center d-flex h-100">
+                <div className="border-end h-100 text-center">
+                  <div
+                    onClick={checkDataFillOrNot}
+                    className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
+                  >
+                    <i className="icon-right"></i>
+                  </div>
+                  <CommonModal
+                    isModalOpen={isBackModalOpen}
+                    onCancel={showHideBackModal}
+                    modalWidth={500}
+                    title={"You may lose your data"}
+                    modalBody={
+                      <>
+                        <div className="alert-warning rounded-10px p-2 patient-details">
+                          <div className="d-flex align-items-center">
+                            <img
+                              className="me-3"
+                              src={alertIcon}
+                              alt="Warning"
+                            />
+                            <span>
+                              Are you sure you want to leave? <br />
+                              You will permanently lose your data.
+                            </span>
+                          </div>
                         </div>
-                    </Col>
-                    <Col sm="auto">
-                        <div className='align-items-center d-flex h-100'>
-                            {!isMobile ? (
-                                <div className="d-flex align-items-center">
-                                    <Popover
-                                        open={popOver1}
-                                        onOpenChange={showHideTemplatesListPopover}
-                                        content={TEMPLATE_CONTENT_WEB}
-                                        trigger="click"
-                                        overlayClassName="pop-350 pp-0"
-                                        placement="bottom"
-                                    >
-                                        <button className="btn d-flex align-items-center btn-text">
-                                            {" "}
-                                            <i className="icon-template me-2"></i> <span>Templates</span>
-                                        </button>
-                                    </Popover>
-                                    <Tooltip placement="bottom" title={(symptomsData?.length > 0 || examinationData?.length > 0 || surgeriesData?.length > 0 || diagnosisData?.length > 0 || adviceData?.length > 0 || investigationData?.length > 0 || medicationData?.length > 0 || customModuleContents?.some((e) => {return e?.content?.some(c => c.title || c.notes)})) ? "" : "Please enter some data to save a template"}>
-                                        <Popover
-                                            open={popOver2}
-                                            onOpenChange={() => (symptomsData?.length > 0 || examinationData?.length > 0 || surgeriesData?.length > 0 || diagnosisData?.length > 0 || adviceData?.length > 0 || investigationData?.length > 0 || medicationData?.length > 0 || customModuleContents?.some((e) => {return e?.content?.some(c => c.title || c.notes)})) && showHideSaveTemplatePopOver()}
-                                            content={SAVE_CONTENT_WEB}
-                                            trigger="click"
-                                            overlayClassName="pop-450 pp-0"
-                                            placement="bottom"
-                                        >
-                                            <button className="btn d-flex align-items-center btn-text">
-                                                {" "}
-                                                <i className="icon-save me-2"></i> <span>Save</span>
-                                            </button>
+                        <div className="mt-4">
+                          <div className="d-flex align-items-center mt-2 justify-content-end">
+                            <div
+                              onClick={() => {
+                                dispatch(clearMedicationData());
+                                send_path !== undefined
+                                  ? navigate(-1)
+                                  : navigate("/", { replace: true });
+                              }}
+                              className="me-4 text-decoration-underline btn p-0 text-main"
+                            >
+                              Yes Leave
+                            </div>
+                            <Button
+                              onClick={showHideBackModal}
+                              className="lh-lg btn btn-primary3 btn-41 px-4"
+                            >
+                              <span>No, Stay</span>
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    }
+                  />
+                </div>
+                <ProfilePopover
+                  patient_data={patient_data}
+                  isPrescriptionPage
+                />
+              </div>
+            </Col>
+            <Col sm="auto">
+              <div className="align-items-center d-flex h-100">
+                {!isMobile ? (
+                  <div className="d-flex align-items-center">
+                    <Popover
+                      open={popOver1}
+                      onOpenChange={showHideTemplatesListPopover}
+                      content={TEMPLATE_CONTENT_WEB}
+                      trigger="click"
+                      overlayClassName="pop-350 pp-0"
+                      placement="bottom"
+                    >
+                      <button className="btn d-flex align-items-center btn-text">
+                        {" "}
+                        <i className="icon-template me-2"></i>{" "}
+                        <span>Templates</span>
+                      </button>
+                    </Popover>
+                    <Tooltip
+                      placement="bottom"
+                      title={
+                        symptomsData?.length > 0 ||
+                        examinationData?.length > 0 ||
+                        surgeriesData?.length > 0 ||
+                        diagnosisData?.length > 0 ||
+                        adviceData?.length > 0 ||
+                        investigationData?.length > 0 ||
+                        medicationData?.length > 0 ||
+                        customModuleContents?.some((e) => {
+                          return e?.content?.some((c) => c.title || c.notes);
+                        })
+                          ? ""
+                          : "Please enter some data to save a template"
+                      }
+                    >
+                      <Popover
+                        open={popOver2}
+                        onOpenChange={() =>
+                          (symptomsData?.length > 0 ||
+                            examinationData?.length > 0 ||
+                            surgeriesData?.length > 0 ||
+                            diagnosisData?.length > 0 ||
+                            adviceData?.length > 0 ||
+                            investigationData?.length > 0 ||
+                            medicationData?.length > 0 ||
+                            customModuleContents?.some((e) => {
+                              return e?.content?.some(
+                                (c) => c.title || c.notes
+                              );
+                            })) &&
+                          showHideSaveTemplatePopOver()
+                        }
+                        content={SAVE_CONTENT_WEB}
+                        trigger="click"
+                        overlayClassName="pop-450 pp-0"
+                        placement="bottom"
+                      >
+                        <button className="btn d-flex align-items-center btn-text">
+                          {" "}
+                          <i className="icon-save me-2"></i> <span>Save</span>
+                        </button>
+                      </Popover>
+                    </Tooltip>
+                  </div>
+                ) : (
+                  <div className="d-flex align-items-center">
+                    <button
+                      className="btn d-flex align-items-center btn-text"
+                      onClick={handleDrawerTemplate}
+                    >
+                      <i className="icon-template me-2"></i>{" "}
+                      <span>Templates</span>
+                    </button>
+                    <Tooltip
+                      placement="bottom"
+                      title={
+                        symptomsData?.length > 0 ||
+                        examinationData?.length > 0 ||
+                        surgeriesData?.length > 0 ||
+                        diagnosisData?.length > 0 ||
+                        adviceData?.length > 0 ||
+                        investigationData?.length > 0 ||
+                        medicationData?.length > 0
+                          ? ""
+                          : "Please enter some data to save a template"
+                      }
+                    >
+                      <button
+                        className="btn d-flex align-items-center btn-text"
+                        onClick={() =>
+                          (symptomsData?.length > 0 ||
+                            examinationData?.length > 0 ||
+                            surgeriesData?.length > 0 ||
+                            diagnosisData?.length > 0 ||
+                            adviceData?.length > 0 ||
+                            investigationData?.length > 0 ||
+                            medicationData?.length > 0) &&
+                          handleDrawerSave()
+                        }
+                      >
+                        {" "}
+                        <i className="icon-save me-2"></i> <span>Save</span>
+                      </button>
+                    </Tooltip>
+                  </div>
+                )}
 
-                                        </Popover>
-                                    </Tooltip>
-                                </div>
-                            ) : (
-                                <div className="d-flex align-items-center">
-                                    <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerTemplate}>
-                                        <i className="icon-template me-2"></i> <span>Templates</span>
-                                    </button>
-                                    <Tooltip placement="bottom" title={(symptomsData?.length > 0 || examinationData?.length > 0 || surgeriesData?.length > 0 || diagnosisData?.length > 0 || adviceData?.length > 0 || investigationData?.length > 0 || medicationData?.length > 0) ? "" : "Please enter some data to save a template"}>
-                                        <button className='btn d-flex align-items-center btn-text' onClick={() => (symptomsData?.length > 0 || examinationData?.length > 0 || surgeriesData?.length > 0 || diagnosisData?.length > 0 || adviceData?.length > 0 || investigationData?.length > 0 || medicationData?.length > 0) && handleDrawerSave()} > <i className="icon-save me-2"></i> <span>Save</span></button>
-                                    </Tooltip>
-                                </div>
-                            )}
+                {DELETE_MODAL}
 
-                            {DELETE_MODAL}
+                <button
+                  className="btn d-flex align-items-center btn-text"
+                  onClick={handleDrawerCustomize}
+                >
+                  <i className="icon-setting me-2"></i> <span>Customize</span>
+                </button>
 
-                            <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerCustomize}>
-                                <i className="icon-setting me-2"></i> <span>Customize</span>
-                            </button>
-
-                            {/* <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerCustomize}>
+                {/* <button className='btn d-flex align-items-center btn-text' onClick={handleDrawerCustomize}>
                                <span><img height={42} src={tutorial} /></span>
                             </button> */}
 
-                            <Popover
-                                open={popOverVideo}
-                                onOpenChange={showHideVideoListPopover}
-                                content={VIDEO_CONTENT}
-                                trigger="click"
-                                overlayClassName="pop-430 pp-0 videoTutorial"
-                                placement="bottom"
-                            >
-                                <button className="btn d-flex align-items-center btn-text p-0 me-20">
-                                    {/* onClick={showHideVideoListPopover} */}
-                                    <span><img src={tutorial2} /></span>
-                                </button>
-                            </Popover>
+                <Popover
+                  open={popOverVideo}
+                  onOpenChange={showHideVideoListPopover}
+                  content={VIDEO_CONTENT}
+                  trigger="click"
+                  overlayClassName="pop-430 pp-0 videoTutorial"
+                  placement="bottom"
+                >
+                  <button className="btn d-flex align-items-center btn-text p-0 me-20">
+                    {/* onClick={showHideVideoListPopover} */}
+                    <span>
+                      <img src={tutorial2} />
+                    </span>
+                  </button>
+                </Popover>
 
-                            <Drawer title="One Click Rx Templates" placement="right" onClose={handleDrawerTemplate} open={templateDrawer} className="modalWidth-563" width="auto">
-                                {TEMPLATE_CONTENT_TAB}
-                            </Drawer>
-                            <Drawer title="Save Template" placement="right" onClose={handleDrawerSave} open={saveDrawer} className="modalWidth-563" width="auto">
-                                {SAVE_CONTENT_TAB}
-                            </Drawer>
-                            <Drawer placement="right" closeIcon={false} onClose={handleDrawerCustomize} open={customizeDrawer} className="modalWidth-900" width="auto">
-                                {CUSTOMIZE_CONTENT_TAB}
-                            </Drawer>
+                <Drawer
+                  title="One Click Rx Templates"
+                  placement="right"
+                  onClose={handleDrawerTemplate}
+                  open={templateDrawer}
+                  className="modalWidth-563"
+                  width="auto"
+                >
+                  {TEMPLATE_CONTENT_TAB}
+                </Drawer>
+                <Drawer
+                  title="Save Template"
+                  placement="right"
+                  onClose={handleDrawerSave}
+                  open={saveDrawer}
+                  className="modalWidth-563"
+                  width="auto"
+                >
+                  {SAVE_CONTENT_TAB}
+                </Drawer>
+                <Drawer
+                  placement="right"
+                  closeIcon={false}
+                  onClose={handleDrawerCustomize}
+                  open={customizeDrawer}
+                  className="modalWidth-900"
+                  width="auto"
+                >
+                  {CUSTOMIZE_CONTENT_TAB}
+                </Drawer>
 
-                            {videoLink && (
-                                <VideoModal
-                                    videoLink={videoLink}
-                                    onCancel={() => setVideoLink(null)}
-                                />
-                            )}
+                {videoLink && (
+                  <VideoModal
+                    videoLink={videoLink}
+                    onCancel={() => setVideoLink(null)}
+                  />
+                )}
 
-                            {/* <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
+                {/* <Link className='text-main align-items-center d-flex fw-medium text14 me-30'>
                                 <i className='icon-setting me-2'></i> <span className='text-decoration-underline'>Customize</span>
                             </Link> */}
 
-                            {/* <Dropdown
+                {/* <Dropdown
                                 menu={{
                                     items
                                 }}
@@ -1447,7 +1558,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                                     <i className='icon-right iconrotate270 ms-1'></i>
                                 </a>
                             </Dropdown> */}
-                            {/* <Tooltip placement="bottom" title="Ready to print? Please enter your prescription details.">
+                {/* <Tooltip placement="bottom" title="Ready to print? Please enter your prescription details.">
                                 <div onClick={() => window.print()}>
                                     <Button className='btn align-items-center d-flex btn-41 btn-input me-20'>
                                         <i className='icon-Print me-2'></i>
@@ -1455,26 +1566,94 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                                     </Button>
                                 </div>
                             </Tooltip> */}
-                            {(tp_monetization_enable || isFreeVoiceRxUser) && (
-                                <GenRxButton onClick={handleGenRx} />
-                            )}
-                            <Tooltip placement="bottom" title={(symptomsData?.length > 0 || examinationData?.length > 0 || surgeriesData?.length > 0 || diagnosisData?.length > 0 || adviceData?.length > 0 || investigationData?.length > 0 || medicationData?.length > 0 || vitalsData?.length > 0 || medicalHistoryData?.length > 0 || privateNotesData || followUpDate || additionalNote || givenVaccines.length > 0 || updatedDueVaccines?.length > 0 || measurements.length > 0 || (gynecHistory && Object.keys(gynecHistory).length > 0) || isObstetricDetailsUpdated || labParamsData?.length > 0 || zydusSelectedLabParams?.length > 0 || customModuleContents?.some((e) => {return e?.content?.length && e?.content?.some(c => c.title || c.notes)})) ? "" : "Please fill your prescription to end visit."}>
-                                <Button type='button' className='btn align-items-center d-flex btn-41 btn-primary3 me-20' onClick={() => (symptomsData?.length > 0 || examinationData?.length > 0 || surgeriesData?.length > 0 || diagnosisData?.length > 0 || adviceData?.length > 0 || investigationData?.length > 0 || medicationData?.length > 0 || vitalsData?.length > 0 || medicalHistoryData?.length > 0 || privateNotesData || followUpDate || additionalNote || givenVaccines.length > 0 || updatedDueVaccines?.length > 0 || measurements.length > 0 || (gynecHistory && Object.keys(gynecHistory).length > 0) || isObstetricDetailsUpdated || labParamsData?.length > 0 || zydusSelectedLabParams?.length > 0 || customModuleContents?.some((e) => {return e?.content?.length && e?.content?.some(c => c.title || c.notes)})) && onEndVisitClick()} loading={loading}>
-                                    <i className='icon-exit me-2'></i>
-                                    End Visit
-                                </Button>
-                            </Tooltip>
+                {(tp_monetization_enable || isFreeVoiceRxUser) && (
+                  <GenRxButton onClick={handleGenRx} />
+                )}
+                <Tooltip
+                  placement="bottom"
+                  title={
+                    symptomsData?.length > 0 ||
+                    examinationData?.length > 0 ||
+                    surgeriesData?.length > 0 ||
+                    diagnosisData?.length > 0 ||
+                    adviceData?.length > 0 ||
+                    investigationData?.length > 0 ||
+                    medicationData?.length > 0 ||
+                    vitalsData?.length > 0 ||
+                    medicalHistoryData?.length > 0 ||
+                    privateNotesData ||
+                    followUpDate ||
+                    additionalNote ||
+                    givenVaccines.length > 0 ||
+                    updatedDueVaccines?.length > 0 ||
+                    measurements.length > 0 ||
+                    (gynecHistory && Object.keys(gynecHistory).length > 0) ||
+                    isObstetricDetailsUpdated ||
+                    labParamsData?.length > 0 ||
+                    zydusSelectedLabParams?.length > 0 ||
+                    customModuleContents?.some((e) => {
+                      return (
+                        e?.content?.length &&
+                        e?.content?.some((c) => c.title || c.notes)
+                      );
+                    })
+                      ? ""
+                      : "Please fill your prescription to end visit."
+                  }
+                >
+                  <Button
+                    type="button"
+                    className="btn align-items-center d-flex btn-41 btn-primary3 me-20"
+                    onClick={() =>
+                      (symptomsData?.length > 0 ||
+                        examinationData?.length > 0 ||
+                        surgeriesData?.length > 0 ||
+                        diagnosisData?.length > 0 ||
+                        adviceData?.length > 0 ||
+                        investigationData?.length > 0 ||
+                        medicationData?.length > 0 ||
+                        vitalsData?.length > 0 ||
+                        medicalHistoryData?.length > 0 ||
+                        privateNotesData ||
+                        followUpDate ||
+                        additionalNote ||
+                        givenVaccines.length > 0 ||
+                        updatedDueVaccines?.length > 0 ||
+                        measurements.length > 0 ||
+                        (gynecHistory &&
+                          Object.keys(gynecHistory).length > 0) ||
+                        isObstetricDetailsUpdated ||
+                        labParamsData?.length > 0 ||
+                        zydusSelectedLabParams?.length > 0 ||
+                        customModuleContents?.some((e) => {
+                          return (
+                            e?.content?.length &&
+                            e?.content?.some((c) => c.title || c.notes)
+                          );
+                        })) &&
+                      onEndVisitClick()
+                    }
+                    loading={loading}
+                  >
+                    <i className="icon-exit me-2"></i>
+                    End Visit
+                  </Button>
+                </Tooltip>
 
-                            <Dropdown className='btn btn-outline btn-more p-0' menu={{ items }} trigger={['click']}>
-                                <a onClick={(e) => e.preventDefault()}>
-                                    <i className='icon-More'></i>
-                                </a>
-                            </Dropdown>
-                        </div>
-                    </Col>
-                </Row>
-            </Container>
-        </Navbar>
+                <Dropdown
+                  className="btn btn-outline btn-more p-0"
+                  menu={{ items }}
+                  trigger={["click"]}
+                >
+                  <a onClick={(e) => e.preventDefault()}>
+                    <i className="icon-More"></i>
+                  </a>
+                </Dropdown>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </Navbar>
     );
 }
 

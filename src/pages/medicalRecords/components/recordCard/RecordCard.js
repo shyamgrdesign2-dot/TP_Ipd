@@ -182,34 +182,32 @@ const RecordCard = ({
   };
 
   const handleInAppDownload = async () => {
+      sendMessageToParent(EVENTS.DOWNLOAD, { url });
     // sendMessageToParent(EVENTS.DOWNLOAD, { url });
-    const deviceUid = localStorage.getItem("app_device_unique_id");
-    if (deviceUid) {
-      const docRef = doc(db, "fileDownload", deviceUid);
-      try {
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          await updateDoc(docRef, {
-            canDownload: "yes",
-            pdfURL: url,
-          });
-        } else {
-          await setDoc(doc(db, "fileDownload", deviceUid), {
-            canDownload: "yes",
-            pdfURL: url,
-          });
-        }
-      } catch (error) {
-        console.error("Error updating document:", error);
-      }
-    }
+    // const deviceUid = localStorage.getItem("app_device_unique_id");
+    // if (deviceUid) {
+    //   const docRef = doc(db, "fileDownload", deviceUid);
+    //   try {
+    //     const docSnap = await getDoc(docRef);
+    //     if (docSnap.exists()) {
+    //       await updateDoc(docRef, {
+    //         canDownload: "yes",
+    //         pdfURL: url,
+    //       });
+    //     } else {
+    //       await setDoc(doc(db, "fileDownload", deviceUid), {
+    //         canDownload: "yes",
+    //         pdfURL: url,
+    //       });
+    //     }
+    //   } catch (error) {
+    //     console.error("Error updating document:", error);
+    //   }
+    // }
   };
 
   const handleDownload = async () => {
     try {
-      console.log("Starting download for:", display_name);
-      console.log("URL:", url);
-      
       // For Zydus proxy URLs, use axios with auth headers
       if (url?.startsWith(config.zydus_proxy_url)) {
         const payload = {
@@ -228,21 +226,17 @@ const RecordCard = ({
         };
 
         const response = await axios(payload);
-        console.log("Download response received:", response.headers);
 
         const blob = new Blob([response.data], {
           type: response.headers["content-type"],
         });
-        console.log("Blob created:", blob.type, blob.size);
         
         saveAs(blob, display_name);
-        console.log("File download initiated");
         return;
       }
 
       // For regular URLs (S3, Firebase Storage, etc.), try fetch first
       try {
-        console.log("Attempting fetch download...");
         const response = await fetch(url, {
           method: "GET",
           mode: "cors",
@@ -253,13 +247,10 @@ const RecordCard = ({
         }
 
         const blob = await response.blob();
-        console.log("Fetch download successful:", blob.type, blob.size);
         
         saveAs(blob, display_name);
-        console.log("File download initiated via fetch");
         return;
       } catch (fetchError) {
-        console.log("Fetch failed, trying direct link fallback:", fetchError.message);
         
         // Fallback: Use direct link download (opens in new tab or triggers browser download)
         const link = document.createElement("a");
@@ -273,14 +264,9 @@ const RecordCard = ({
         link.click();
         document.body.removeChild(link);
         
-        console.log("File download initiated via direct link");
       }
     } catch (error) {
-      console.error("Error downloading file: ", error);
-      console.error("Error details:", error.response || error.message);
-      
-      // Final fallback: Open in new tab
-      console.log("All download methods failed, opening in new tab");
+      console.error("Error downloading file:", error.response || error.message);
       window.open(url, "_blank");
     }
   };
