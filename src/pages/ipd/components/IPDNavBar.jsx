@@ -11,20 +11,17 @@ function IPDNavbar() {
     setShowIframe(true);
   };
 
-  const closeIframe = () => {
-    setShowIframe(false);
-  };
-
   if (showIframe) {
     let token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
     return (
       <div>
         <iframe
-          src={`http://localhost:3000/login_tatvacare_dr.php?type=1&token=${token}&module=ipd&key=print`}
+          // src={`http://localhost:3000/login_tatvacare_dr.php?type=1&token=${token}&module=ipd&key=print`}
+          src={`https://pm-uat-dhspl-2.tatvacare.in/login_tatvacare_dr.php?type=1&token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkb2N0b3JfdW5pcXVlX2lkIjoiMmNBS2U5RlVidkdSSnROIiwibW9iaWxlX25vIjoiOTc0MjYzOTk1OCIsInBhdGllbnRfdW5pcXVlX2lkIjoiIiwiYXBwb2ludG1lbnRfaWQiOiIiLCJjbGluaWNfaWQiOiIzNjgiLCJobV9idXNpbmVzc19pZCI6Ijc1NDgxMTcxMzQzODc3MyIsImV4cCI6MTc2MTgyNTg5MX0.AXt1L7u7CTPeF43VzcRkvwSpZRFamDyRO19so7trRFY&module=ipd`}
           width="100%"
           height="100%"
-          frameBorder="0"
-          title="Wikipedia"
+          frameBorder="10"
+          title="TatvaCare"
           style={{
             display: "block",
             width: "100%",
@@ -43,7 +40,7 @@ function IPDNavbar() {
   return (
     <div className="SidebarDoctor">
       <div>
-        <NavLink onClick={closeIframe} to="/ipd/inPatients" replace={true}>
+        <NavLink to="/ipd/inPatients" replace={true}>
           {({ isActive }) => (
             <>
               <img
@@ -63,7 +60,6 @@ function IPDNavbar() {
 
       <div>
         <NavLink
-          onClick={closeIframe}
           to="/ipd/dischargedPatients"
           replace={true}
         >
@@ -86,7 +82,7 @@ function IPDNavbar() {
           )}
         </NavLink>
       </div>
-      <div>
+      {/* <div>
         <NavLink onClick={handleTestingIframe} to="#" replace={true}>
           {({ isActive }) => (
             <>
@@ -100,13 +96,13 @@ function IPDNavbar() {
               />
               <div className="mt-1 px-2">
                 <div className={isActive ? "text-primary" : ""}>
-                  TESTING IFRAME
+                  WIP
                 </div>
               </div>
             </>
           )}
         </NavLink>
-      </div>
+      </div> */}
     </div>
   );
 }

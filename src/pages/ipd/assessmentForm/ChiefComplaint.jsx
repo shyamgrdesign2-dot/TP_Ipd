@@ -85,7 +85,7 @@ const ChiefComplaint = (props) => {
     );
   }, [chiefComplaint, chiefComplaintFromLastPrescription]);
 
-  if (!isEditable && isEmptyRichText(chiefComplaint)) return null;
+  if ((!isEditable && isEmptyRichText(chiefComplaint)) && !isDischargeSummary) return null;
   return (
     <div className="flex-column-gap-16">
       <RichTextEditWrapper

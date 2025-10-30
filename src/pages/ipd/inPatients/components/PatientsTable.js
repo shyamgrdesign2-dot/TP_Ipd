@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Table, Spin, Popover } from "antd";
+import { Table, Spin, Popover, message } from "antd";
 import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import noData from "../../../../assets/images/nodata-found.svg";
@@ -8,6 +8,7 @@ import "../InPatients.scss";
 import { defaultIcons } from "../../../../assets/images/icons";
 import { defaultIcons as newIcons } from "../../../../assets/images/indices";
 import { markPatientAsDischarged } from "../../../../redux/ipd/ipdSlice";
+import { usePatientsData } from "../hooks/usePatientsData";
 
 const MoreActionsContent = ({ handleMarkPatientAsDischarged, record }) => {
   return (
@@ -32,9 +33,13 @@ const PatientsTable = ({
   lastElementRef,
   filterParams,
   isDischargedPatients = false,
+  fetchParams = {},
 }) => {
   const dispatch = useDispatch();
 
+  const {
+    fetchData,
+  } = usePatientsData();
   const [openMoreActionsPopover, setOpenMoreActionsPopover] = useState(null);
 
   const showHideMoreActionPopover = (recordId) => {
@@ -42,8 +47,15 @@ const PatientsTable = ({
   };
 
   const handleMarkPatientAsDischarged = (record) => {
-    console.log("INTEL ==> record", record);
-    dispatch(markPatientAsDischarged({ admissionId: record?.admissionId }));
+    dispatch(markPatientAsDischarged({ admissionId: record?.admissionId })).then((res) => {
+      if (res?.payload?.status === 400) {
+        message.warning(res?.payload?.data?.message || "Patient discharged failed")
+      } else {
+        message.success("Patient discharged successfully");
+        setOpenMoreActionsPopover(null);
+        fetchData(fetchParams)
+      }
+    });
   };
 
   const columns = [
@@ -138,22 +150,26 @@ const PatientsTable = ({
         return <div>{dateTime.format("DD-MM-YYYY")}</div>;
       },
     },
-    ...(isDischargedPatients ? [{
-      title: "Discharged On",
-      dataIndex: "dischargedAt",
-      key: "dischargedAt",
-      sortDirections: ["descend", "ascend", "descend"],
-      defaultSortOrder: "descend",
-      sorter: (a, b) => {
-        const aDate = moment(a.dischargedAt).valueOf();
-        const bDate = moment(b.dischargedAt).valueOf();
-        return aDate - bDate;
-      },
-      render: (text, record) => {
-        const dateTime = moment(record.dischargedAt);
-        return <div>{dateTime.format("DD-MM-YYYY")}</div>;
-      },
-    }] : []),
+    ...(isDischargedPatients
+      ? [
+          {
+            title: "Discharged On",
+            dataIndex: "dischargedAt",
+            key: "dischargedAt",
+            sortDirections: ["descend", "ascend", "descend"],
+            defaultSortOrder: "descend",
+            sorter: (a, b) => {
+              const aDate = moment(a.dischargedAt).valueOf();
+              const bDate = moment(b.dischargedAt).valueOf();
+              return aDate - bDate;
+            },
+            render: (text, record) => {
+              const dateTime = moment(record.dischargedAt);
+              return <div>{dateTime.format("DD-MM-YYYY")}</div>;
+            },
+          },
+        ]
+      : []),
     {
       title: "Action",
       key: "action",
@@ -170,7 +186,7 @@ const PatientsTable = ({
               onViewDetails(record?.patientData);
             }}
           >
-            View Details
+            {"View Details"}
           </button>
           {!isDischargedPatients && !record?.isDischarged ? (
             <Popover
@@ -188,7 +204,8 @@ const PatientsTable = ({
               }
               trigger="click"
               overlayClassName="pop-200 pp-0 videoTutorial"
-              placement="bottomLeft"
+              placement="bottomRight"
+              arrow={false}
             >
               <img
                 onClick={() =>

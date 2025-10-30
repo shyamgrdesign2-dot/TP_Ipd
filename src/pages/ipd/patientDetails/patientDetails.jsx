@@ -4,6 +4,7 @@ import {
   formatDateToShortMonthYear,
   getPatientInformation,
   normalizeToDefault,
+  transformAdmissionToPatient,
 } from "../../../utils/utils";
 import { AnimatePresence } from "framer-motion";
 import "./styles.scss";
@@ -70,6 +71,8 @@ import PreviewDischargeSummary from "../dischargeSummary/PreviewDischargeSummary
 import DischargeSummaryReadonly from "../dischargeSummary/DischargeSummaryReadonly";
 import FullPageLoader from "../../vaccination/components/Loader";
 import useOnlyViewMode from "../../../hooks/useOnlyViewMode";
+import PatientDetails from "../../PatientDetails";
+import { downloadModule, printModule } from "../utils/printDownload";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -382,6 +385,7 @@ const IPDPatientDetails = () => {
         .catch((error) => {
           console.error("Error fetching discharge summary:", error);
         });
+    } else if (activeMenuItem === "opd") {
     }
   }, [activeMenuItem, admissionId, patientId, dispatch]);
 
@@ -430,6 +434,8 @@ const IPDPatientDetails = () => {
     } else if (activeMenuItem === "records") {
       return !!medicalRecords?.length;
     } else if (activeMenuItem === "labResults") {
+      return true;
+    } else if (activeMenuItem === "opd") {
       return true;
     }
     return false;
@@ -495,9 +501,11 @@ const IPDPatientDetails = () => {
       });
     }
   };
+  // console.log("INTEL ==> patientDetails", patientDetails);
+  // console.log('INTEL ==> TRANSFORMED PATIENT DETAILS', transformAdmissionToPatient(patientDetails))
   const onHandleSelect = (id) => {
     setActiveMenuItem(id);
-    if (id === "dischargeSummary") {
+    if (id === "dischargeSummary" || id === "opd") {
       dispatch(resetAssessmentForm());
       dispatch(resetDischargeSummaryToInitialState());
       dispatch(resetPrescriptionData());
@@ -506,7 +514,33 @@ const IPDPatientDetails = () => {
     navigate("/ipd/patient-details", {
       state: {
         patientDetails,
-        patient_data,
+        patient_data:
+          id === "opd"
+            ? transformAdmissionToPatient(patientDetails)
+            : patient_data,
+        // patient_data: {
+        //   pm_salutation: "",
+        //   pm_fullname: "Neel",
+        //   pm_id: 74954,
+        //   pm_pid: "PAT0729",
+        //   pm_contact_no: "1760506186",
+        //   patient_unique_id: 424553645634,
+        //   pm_gender: "Male",
+        //   ageDays: 28,
+        //   ageMonths: 0,
+        //   ageYears: 26,
+        //   pm_dob: "1999-10-02",
+        //   tpml_refrence_id: "EXT1001012399",
+        //   pm_address: "",
+        //   pm_area: "",
+        //   pm_city: "",
+        //   pm_state: "",
+        //   pm_pincode: "",
+        //   pm_blood_group: "A+",
+        //   category: null,
+        //   lastVisitDate: "2025-10-17",
+        //   pm_first_name: "Neel",
+        // },
         isEditable: false,
         activeTab: id,
       },
@@ -562,6 +596,108 @@ const IPDPatientDetails = () => {
     });
   };
 
+  const handleProgressNotesPrint = async () => {
+    try {
+      await printModule("progressNotes", printSettings, patientDetails, progressNotes);
+    } catch (error) {
+      console.error("Error printing progress notes:", error);
+    }
+  };
+
+  const handleProgressNotesDownload = async () => {
+    try {
+      await downloadModule("progressNotes", printSettings, patientDetails, progressNotes);
+    } catch (error) {
+      console.error("Error downloading progress notes:", error);
+    }
+  };
+
+  // Assessment: print & download
+  const handleAssessmentPrint = async () => {
+    try {
+      await printModule("assessment", printSettings, patientDetails, assessmentsData);
+    } catch (error) {
+      console.error("Error printing assessment:", error);
+    }
+  };
+
+  const handleAssessmentDownload = async () => {
+    try {
+      await downloadModule("assessment", printSettings, patientDetails, assessmentsData);
+    } catch (error) {
+      console.error("Error downloading assessment:", error);
+    }
+  };
+
+  // Consultant Notes: print & download
+  const handleConsultantNotesPrint = async () => {
+    try {
+      let notes = consultantNotes;
+      if (!Array.isArray(notes) || notes.length === 0) {
+        try {
+          const res = await dispatch(getConsultantNotes({ patientId, admissionId }));
+          notes = res?.payload || notes;
+        } catch (e) {
+          console.error("Error fetching consultant notes before print:", e);
+        }
+      }
+      await printModule("consultationNotes", printSettings, patientDetails, notes);
+    } catch (error) {
+      console.error("Error printing consultant notes:", error);
+    }
+  };
+
+  const handleConsultantNotesDownload = async () => {
+    try {
+      let notes = consultantNotes;
+      if (!Array.isArray(notes) || notes.length === 0) {
+        try {
+          const res = await dispatch(getConsultantNotes({ patientId, admissionId }));
+          notes = res?.payload || notes;
+        } catch (e) {
+          console.error("Error fetching consultant notes before download:", e);
+        }
+      }
+      await downloadModule("consultationNotes", printSettings, patientDetails, notes);
+    } catch (error) {
+      console.error("Error downloading consultant notes:", error);
+    }
+  };
+
+  // OT Notes: print & download
+  const handleOTNotesPrint = async () => {
+    try {
+      await printModule("otNotes", printSettings, patientDetails, otNotesData);
+    } catch (error) {
+      console.error("Error printing OT notes:", error);
+    }
+  };
+
+  const handleOTNotesDownload = async () => {
+    try {
+      await downloadModule("otNotes", printSettings, patientDetails, otNotesData);
+    } catch (error) {
+      console.error("Error downloading OT notes:", error);
+    }
+  };
+
+  // Cross Referral: print & download
+  const handleCrossReferralPrint = async () => {
+    try {
+      await printModule("crossReferral", printSettings, patientDetails, crossReferralData);
+    } catch (error) {
+      console.error("Error printing cross referral:", error);
+    }
+  };
+
+  const handleCrossReferralDownload = async () => {
+    try {
+      await downloadModule("crossReferral", printSettings, patientDetails, crossReferralData);
+    } catch (error) {
+      console.error("Error downloading cross referral:", error);
+    }
+  };
+
   const renderContent = (activeItem) => {
     switch (activeItem?.id) {
       case "assessment":
@@ -575,9 +711,9 @@ const IPDPatientDetails = () => {
                 showEditForm={!isOnlyViewMode}
                 onEdit={() => handleAddAssessmentClick(false)}
                 onPrintPreview={handleAssessmentPrintPreview}
-                onPrint={() => console.log("Print")}
+                onPrint={handleAssessmentPrint}
                 onSettings={handleCustomizeClick}
-                onDownload={() => console.log("Download")}
+                onDownload={handleAssessmentDownload}
               />
             </div>
           </>
@@ -595,9 +731,9 @@ const IPDPatientDetails = () => {
                 showEditForm={false}
                 // onEdit={handleAddAssessmentClick}
                 onPrintPreview={handleProgressNotesPrintPreview}
-                onPrint={() => console.log("Print")}
+                onPrint={handleProgressNotesPrint}
                 onSettings={handleCustomizeClick}
-                onDownload={() => console.log("Download")}
+                onDownload={handleProgressNotesDownload}
               />
             </div>
           </div>
@@ -610,9 +746,9 @@ const IPDPatientDetails = () => {
               <ToolbarActions
                 showEditForm={false}
                 onPrintPreview={handleConsultantNotesPrintPreview}
-                onPrint={() => console.log("Print")}
+                onPrint={handleConsultantNotesPrint}
                 onSettings={handleCustomizeClick}
-                onDownload={() => console.log("Download")}
+                onDownload={handleConsultantNotesDownload}
               />
             </div>
           </div>
@@ -649,9 +785,9 @@ const IPDPatientDetails = () => {
                 showEditForm={false}
                 onEdit={handleAddOtNotesClick}
                 onPrintPreview={handleOTNotesPrintPreview}
-                onPrint={() => console.log("Print")}
+                onPrint={handleOTNotesPrint}
                 onSettings={handleCustomizeClick}
-                onDownload={() => console.log("Download")}
+                onDownload={handleOTNotesDownload}
               />
             </div>
           </div>
@@ -665,9 +801,9 @@ const IPDPatientDetails = () => {
                 showEditForm={false}
                 onEdit={handleAddCrossReferralClick}
                 onPrintPreview={handleCrossReferralPrintPreview}
-                onPrint={() => console.log("Print")}
+                onPrint={handleCrossReferralPrint}
                 onSettings={handleCustomizeClick}
-                onDownload={() => console.log("Download")}
+                onDownload={handleCrossReferralDownload}
               />
             </div>
           </div>
@@ -679,18 +815,51 @@ const IPDPatientDetails = () => {
             {Object.keys(actualDischargeSummaryData)?.length && (
               <div className="ipd-toolbar-edit-custom-print-download">
                 <ToolbarActions
-                  showEditForm={true}
+                  editBtnText={"Edit Summary"}
+                  showEditForm={!isOnlyViewMode}
                   onEdit={handleDischargeSummaryClick}
                   onPrintPreview={handleDischargeSummaryPrintPreview}
                   onPrint={() => {
                     dischargeSummaryReadonlyRef?.current?.handlePrintClick();
                   }}
                   onSettings={handleCustomizeClick}
-                  onDownload={() => console.log("Download")}
+                  onDownload={async () => {
+                    try {
+                      const currentSettings = printSettings?.dischargeSummary;
+                      if (!currentSettings) return;
+                      await downloadModule(
+                        "dischargeSummary", printSettings, patientDetails, actualDischargeSummaryData);
+                    } catch (e) {
+                      console.error("Error downloading discharge summary:", e);
+                    }
+                  }}
                 />
               </div>
             )}
           </div>
+        );
+      case "opd":
+        return (
+          // <div className="ipd-adm-assess-container-readable ipd-discharge-summary-container-readable">
+          //   <DischargeSummaryReadonly ref={dischargeSummaryReadonlyRef} />
+          //   {Object.keys(actualDischargeSummaryData)?.length && (
+          //     <div className="ipd-toolbar-edit-custom-print-download">
+          //       <ToolbarActions
+          //         editBtnText={"Edit Summary"}
+          //         showEditForm={!isOnlyViewMode}
+          //         onEdit={handleDischargeSummaryClick}
+          //         onPrintPreview={handleDischargeSummaryPrintPreview}
+          //         onPrint={() => {
+          //           dischargeSummaryReadonlyRef?.current?.handlePrintClick();
+          //         }}
+          //         onSettings={handleCustomizeClick}
+          //         onDownload={() => console.log("Download")}
+          //       />
+          //     </div>
+          //   )}
+          // </div>
+          <PatientDetails isIPD={true} />
+          // <div>hello</div>
         );
       default:
         return null;

@@ -2,7 +2,6 @@ import React, { useState, useRef } from "react";
 import { createRemoteComponent } from "../../../../shared/remoteComponents";
 import { useSelector, useDispatch } from "react-redux";
 import "./styles.scss";
-import { formatDateToShortMonthYear, isEmptyRichText } from "../../../../utils/utils";
 import DiagnosisPickerTable from "../../components/DiagnosisPickerTable/DiagnosisPickerTable";
 import { dischargeSummaryIcons } from "../../../../assets/images/indices";
 import { setProvisionalDiagnosis } from "../../../../redux/ipd/dischargeSummarySlice";
@@ -67,7 +66,7 @@ const ProvisionalDiagnosis = (props) => {
         ]
       }
       placeholder="Enter provisional diagnosis"
-      headerComponent={showLastUpdatedAt}
+      headerComponent={!!provisionalDiagnosis.length && showLastUpdatedAt}
       renderBody={renderProvisionalDiagnosis}
     />
   );

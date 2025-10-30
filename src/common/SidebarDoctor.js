@@ -262,6 +262,7 @@ function SidebarDoctor() {
 
   async function check_SSO(moduleName) {
     SSO_TO_PM().then(async (data) => {
+      // TODO : INTEL - REMOVE - IPD
       console.log("INTEL ==> browser", `${data.url}&module=${moduleName}`);
       console.log(
         "INTEL ==> inapp",

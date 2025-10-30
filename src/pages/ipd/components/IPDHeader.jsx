@@ -207,7 +207,7 @@ function IPDHeader({ locationPath }) {
           <div className="fw-semibold">IPD</div>
 
           <Nav className="ms-auto align-items-center d-flex">
-            <Popover
+            {/* <Popover
               open={popOverVideo}
               onOpenChange={showHideVideoListPopover}
               content={VIDEO_CONTENT(3)}
@@ -216,13 +216,13 @@ function IPDHeader({ locationPath }) {
               placement="bottom"
             >
               <button className="btn d-flex align-items-center btn-text mx-3 tutorial p-0">
-                {/* onClick={showHideVideoListPopover} */}
+                onClick={showHideVideoListPopover}
                 <span className="text-decoration-none rounded-5 pe-3 bg-white shadow2">
                   <img height={42} src={tutorial} alt="tutorial" />
                   Tutorial
                 </span>
               </button>
-            </Popover>
+            </Popover> */}
             {HOSPITAL_DATA}
 
             <Drawer

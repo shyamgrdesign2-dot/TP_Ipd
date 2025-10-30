@@ -19,6 +19,7 @@ ApiMedicalRecords.getDocuments = function ({ patientId, admissionId, category = 
 // Maps to: PUT /api/v1/docs?patientId=...&admissionId=...
 // Form fields: category, subCategory, file, name, thumbnail
 ApiMedicalRecords.putDocument = function ({
+  _id,
   patientId,
   admissionId,
   category,
@@ -33,14 +34,15 @@ ApiMedicalRecords.putDocument = function ({
   if (admissionId) query.append("admissionId", admissionId);
 
   const formData = new FormData();
+  if (_id) formData.append("_id", _id);
   if (category) formData.append("category", category);
   if (subCategory) formData.append("subCategory", subCategory);
-  if (file) {
+  if (!_id && file) {
     console.log("putDocument file:", { name: file?.name, type: file?.type, size: file?.size });
     formData.append("file", file, file.name || "upload.bin");
   }
-  if (name) formData.append("name", name);
-  if (thumbnail) {
+  if (!_id && name) formData.append("name", name);
+  if (!_id && thumbnail) {
     console.log("putDocument thumbnail:", { name: thumbnail?.name, type: thumbnail?.type, size: thumbnail?.size });
     formData.append("thumbnail", thumbnail, thumbnail.name || "thumbnail.bin");
   }

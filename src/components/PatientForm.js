@@ -17,6 +17,7 @@ import { errorMessage, getClinicName } from "../utils/utils";
 
 import TabHeader from "../components/tab_design/TabHeader";
 import PersonalDetails from "../components/PersonalDetails";
+import SecondaryDetails from "../components/SecondaryDetails";
 import AddressDetails from "../components/AddressDetails";
 import UploadProfile from "../components/UploadProfile";
 import { viewPatient, addPatient, editPatient } from "../redux/appointmentsSlice";
@@ -87,7 +88,20 @@ function PatientForm({ mode = ADD, patient_data }) {
                 pm_city: values.pm_city !== undefined ? values.pm_city : '',
                 pm_state: values.pm_state !== undefined ? values.pm_state : '',
                 pm_address: values.pm_address !== undefined ? values.pm_address : '',
+                pm_blood_group: values.pm_blood_group !== undefined && values.pm_blood_group !== null ? values.pm_blood_group : '',
+                pm_married_status: values.pm_married_status !== undefined && values.pm_married_status !== null ? values.pm_married_status : '',
+                pm_occupation: values.pm_occupation !== undefined && values.pm_occupation !== null ? values.pm_occupation : '',
+                pm_email: values.pm_email !== undefined && values.pm_email !== null ? values.pm_email : '',
+                pm_aadhar_card_number: values.pm_aadhar_card_number !== undefined && values.pm_aadhar_card_number !== null ? values.pm_aadhar_card_number : '',
             };
+            
+            // Remove null values to avoid sending them to backend
+            Object.keys(finalValues).forEach(key => {
+                if (finalValues[key] === null) {
+                    delete finalValues[key];
+                }
+            });
+            
             delete finalValues['pm_dob_show'];
 
             if (mode === EDIT) {
@@ -185,7 +199,7 @@ function PatientForm({ mode = ADD, patient_data }) {
             <Form
                 form={form}
                 layout="vertical"
-                className="form_addnewpatient">
+                className="form_addnewpatient patient-form">
                 <div className={isMobile ? "" : "border rounded-4 appointment-wrap"}>
                     <div className={isMobile ? "p-30 pt-0" : "p-30 overflow-y-auto"} style={{ height: 'calc(100vh - 242px)' }}>
                         <Row className="justify-content-between">
@@ -196,7 +210,10 @@ function PatientForm({ mode = ADD, patient_data }) {
                                             <TabPane tab="Personal Details" key="1">
                                                 <PersonalDetails form={form} mode={mode} patient_data={patient_data} />
                                             </TabPane>
-                                            <TabPane tab="Address Details" key="2">
+                                            <TabPane tab="Secondary Details" key="2">
+                                                <SecondaryDetails form={form} mode={mode} patient_data={patient_data} />
+                                            </TabPane>
+                                            <TabPane tab="Address Details" key="3">
                                                 <AddressDetails form={form} />
                                             </TabPane>
                                         </Tabs>
@@ -204,7 +221,9 @@ function PatientForm({ mode = ADD, patient_data }) {
                                 ) : (
                                     <>
                                         <PersonalDetails form={form} mode={mode} patient_data={patient_data} />
-                                        <hr className="mb-3 mt-1" />
+                                        <hr className="mb-3 mt-3" />
+                                        <SecondaryDetails form={form} mode={mode} patient_data={patient_data} />
+                                        <hr className="mb-3 mt-3" />
                                         <AddressDetails form={form} />
                                     </>
                                 )}

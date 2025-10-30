@@ -332,6 +332,7 @@ const CrossReferralConsultantNotes = (props) => {
           _id: crossReferralState.currentCrossReferralId,
         })
       );
+      message.success('Cross Referral Consultant Notes Added Successfully');
       navigate("/ipd/patient-details", {
         state: {
           isEditable: false,

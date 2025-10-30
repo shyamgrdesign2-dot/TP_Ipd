@@ -14,6 +14,7 @@ export default function ToolbarActions({
   onPrint = () => {},
   onSettings = () => {},
   onDownload = () => {},
+  editBtnText = null,
 }) {
   const BTN = {
     BIG: "big",
@@ -23,7 +24,7 @@ export default function ToolbarActions({
   const actions = [
     {
       id: "edit",
-      label: "Edit Form",
+      label: editBtnText || "Edit Form",
       alt: "edit",
       type: BTN.BIG,
       onClick: onEdit,

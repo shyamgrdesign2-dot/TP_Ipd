@@ -34,12 +34,53 @@ export const printDocument = (
     iframe.src = url;
 
     iframe.onload = () => {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-      setTimeout(() => {
-        document.body.removeChild(iframe);
-        URL.revokeObjectURL(url);
-      }, 1000);
+      const iw = iframe.contentWindow;
+      if (!iw) return;
+
+      const cleanup = () => {
+        try {
+          if (iframe.parentNode) document.body.removeChild(iframe);
+        } catch (_) {}
+        try {
+          URL.revokeObjectURL(url);
+        } catch (_) {}
+      };
+
+      try {
+        iw.focus();
+
+        // Prefer afterprint event to know when printing is done
+        const handleAfterPrint = () => {
+          iw.removeEventListener("afterprint", handleAfterPrint);
+          cleanup();
+        };
+        iw.addEventListener("afterprint", handleAfterPrint);
+
+        // Fallback for browsers using matchMedia('print')
+        if (typeof iw.matchMedia === "function") {
+          const mql = iw.matchMedia("print");
+          const onChange = (e) => {
+            if (!e.matches) {
+              mql.removeEventListener("change", onChange);
+              cleanup();
+            }
+          };
+          try {
+            mql.addEventListener("change", onChange);
+          } catch (_) {
+            // Older browsers: ignore
+          }
+        }
+
+        iw.print();
+
+        // Safety fallback cleanup in case events do not fire
+        setTimeout(cleanup, 20000);
+      } catch (e) {
+        // As a last resort, attempt print and cleanup later
+        try { iw.print(); } catch (_) {}
+        setTimeout(cleanup, 20000);
+      }
     };
 
     document.body.appendChild(iframe);

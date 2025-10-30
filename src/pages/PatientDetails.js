@@ -39,7 +39,7 @@ import { setBillPrintSettings } from "../redux/billingSlice";
 
 const { Sider, Content } = Layout;
 
-function PatientDetails() {
+function PatientDetails({ isIPD = false }) {
 
     const { profile, userId } = useSelector((state) => state.doctors);
     const { isLoading } = useSelector((state) => state.uploadDoc);
@@ -56,7 +56,9 @@ function PatientDetails() {
     const dispatch = useDispatch();
 
     const { state } = useLocation();
-    const { patient_data } = state
+    const { patient_data, patientData } = state
+    console.log('INTEL ==> patient_data', patient_data)
+    console.log('INTEL ==> patientData', patientData)
 
     let location = useLocation();
     const navigate = useNavigate();
@@ -178,25 +180,27 @@ function PatientDetails() {
 
     return (
         <>
-            <Layout>
-                <Sider trigger={null} collapsible collapsed={collapsed} className={collapsed ? 'ant-layout-sider1' : 'ant-layout-sider'}>
-                    <div className='d-flex align-items-center justify-content-between'>
-                        <button type='button' className={`${isMobile ? 'px-1' : ''} btn btn-action d-flex align-items-center`} onClick={() => navigate(-1)}>
-                            {isMobile ? (
-                                <><i className="icon-right"></i> <div>{'\u00A0Back'}</div></>
-                            ) : (
-                                <><i className="icon-right text-main" style={{ color: !collapsed && variables.grayColor }}></i> <div className="backbar text-main">{!collapsed && '\u00A0Back'}</div></>
-                            )}
+            <Layout className={`${isIPD ? 'ipd-patient-details-layout' : ''}`}>
+                {!isIPD ? (
+                    <Sider trigger={null} collapsible collapsed={collapsed} className={collapsed ? 'ant-layout-sider1' : 'ant-layout-sider'}>
+                        <div className='d-flex align-items-center justify-content-between'>
+                            <button type='button' className={`${isMobile ? 'px-1' : ''} btn btn-action d-flex align-items-center`} onClick={() => navigate(-1)}>
+                                {isMobile ? (
+                                    <><i className="icon-right"></i> <div>{'\u00A0Back'}</div></>
+                                ) : (
+                                    <><i className="icon-right text-main" style={{ color: !collapsed && variables.grayColor }}></i> <div className="backbar text-main">{!collapsed && '\u00A0Back'}</div></>
+                                )}
 
-                        </button>
-                        {!isMobile && (<Button className={collapsed ? 'collapseborder border rounded-10px' : ''} style={collapsed && { marginRight: -12, backgroundColor: 'white', zIndex: 1, }} type="text" icon={collapsed ? <i className='icon-Expand fs-21'></i> : <i className='icon-Contract fs-21'></i>} onClick={() => setCollapsed(!collapsed)} />)}
-                    </div>
-                    <SidebarPatient collapsed={collapsed} patient_data={patient_data} sidebarKey={sidebarKey} onClickSidebarHandle={onClickSidebarHandle} />
-                </Sider>
+                            </button>
+                            {!isMobile && (<Button className={collapsed ? 'collapseborder border rounded-10px' : ''} style={collapsed && { marginRight: -12, backgroundColor: 'white', zIndex: 1, }} type="text" icon={collapsed ? <i className='icon-Expand fs-21'></i> : <i className='icon-Contract fs-21'></i>} onClick={() => setCollapsed(!collapsed)} />)}
+                        </div>
+                        <SidebarPatient collapsed={collapsed} patient_data={patient_data} viewCaseManagerData={viewCaseManagerData} sidebarKey={sidebarKey} onClickSidebarHandle={onClickSidebarHandle} />
+                    </Sider>
+                ): null}
 
                 <Content>
                     <div className='w-100 vh-100 overflow-y-auto'>
-                        { sidebarKey !== 4 &&
+                        { sidebarKey !== 4 && !isIPD && 
                             <Welcome1
                                 locationPath={locationPath}
                                 isMobile={isMobile}
@@ -210,7 +214,7 @@ function PatientDetails() {
                             />
                         }
                         {sidebarKey === 1 ? (
-                            <div className="appointment-wrap PatientDetailsPageWrap">
+                            <div className={`appointment-wrap PatientDetailsPageWrap ${isIPD ? 'ipd-patient-details-page-wrap' : ''}`}>
                                 <div className='row'>
                                     <div className='col-lg-5 col-md-12 col-12'>
                                         {viewCaseManagerData && (viewCaseManagerData?.vitals?.length > 0 || viewCaseManagerData?.patient_birth_weight) && (
@@ -235,7 +239,7 @@ function PatientDetails() {
                                             <Vaccination /> */}
                                     </div>
                                     <div className='col-lg-7 col-md-12 col-12'>
-                                        <Cardiology patient_data={patient_data} tcmData={tcmData} loading={loading} viewCaseManagerData={viewCaseManagerData} nextPress={nextPress} prevPress={prevPress} />
+                                        <Cardiology isIPD={isIPD} patient_data={patient_data} tcmData={tcmData} loading={loading} viewCaseManagerData={viewCaseManagerData} nextPress={nextPress} prevPress={prevPress} />
                                     </div>
                                 </div>
                             </div>

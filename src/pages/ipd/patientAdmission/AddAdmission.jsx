@@ -121,17 +121,17 @@ export default function AddAdmission() {
 
       <Card className="aadm-search-card" bordered>
         <div className="aadm-input-row">
-          <Select
+          {/* <Select
             className="aadm-cc"
             value={countryCode}
             onChange={setCountryCode}
             options={COUNTRY_CODES.map((c) => ({ value: c, label: c }))}
             showSearch
             popupMatchSelectWidth={false}
-          />
+          /> */}
           <Input
             className="aadm-mobile"
-            placeholder="Enter Patient's Mobile Number"
+            placeholder="Enter Patient's Name / Mobile Number"
             value={mobile}
             onChange={onMobileChange}
             allowClear

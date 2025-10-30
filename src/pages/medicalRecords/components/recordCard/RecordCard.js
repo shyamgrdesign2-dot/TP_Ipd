@@ -22,7 +22,8 @@ import DocumentPreview from "../documentPreview/DocumentPreview";
 import dayjs from "dayjs";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../firebase";
-import { loadPdf, mergeDocuments, shortenText } from "../../utils/helper";
+import { loadPdf, loadVideoThumbnail, mergeDocuments, shortenText, isVideoFile } from "../../utils/helper";
+import { VIDEO_THUMBNAIL_TIME } from "../../../../utils/constants";
 import config from "../../../../config";
 import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN } from "../../../../utils/constants";
 import { getDecodedToken } from "../../../../utils/localStorage";
@@ -181,57 +182,92 @@ const RecordCard = ({
   };
 
   const handleInAppDownload = async () => {
+      sendMessageToParent(EVENTS.DOWNLOAD, { url });
     // sendMessageToParent(EVENTS.DOWNLOAD, { url });
-    const deviceUid = localStorage.getItem("app_device_unique_id");
-    if (deviceUid) {
-      const docRef = doc(db, "fileDownload", deviceUid);
-      try {
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          await updateDoc(docRef, {
-            canDownload: "yes",
-            pdfURL: url,
-          });
-        } else {
-          await setDoc(doc(db, "fileDownload", deviceUid), {
-            canDownload: "yes",
-            pdfURL: url,
-          });
-        }
-      } catch (error) {
-        console.error("Error updating document:", error);
-      }
-    }
+    // const deviceUid = localStorage.getItem("app_device_unique_id");
+    // if (deviceUid) {
+    //   const docRef = doc(db, "fileDownload", deviceUid);
+    //   try {
+    //     const docSnap = await getDoc(docRef);
+    //     if (docSnap.exists()) {
+    //       await updateDoc(docRef, {
+    //         canDownload: "yes",
+    //         pdfURL: url,
+    //       });
+    //     } else {
+    //       await setDoc(doc(db, "fileDownload", deviceUid), {
+    //         canDownload: "yes",
+    //         pdfURL: url,
+    //       });
+    //     }
+    //   } catch (error) {
+    //     console.error("Error updating document:", error);
+    //   }
+    // }
   };
 
   const handleDownload = async () => {
     try {
-      const payload = {
-        url: url,
-        method: "GET",
-        responseType: "blob",
-      };
-
+      // For Zydus proxy URLs, use axios with auth headers
       if (url?.startsWith(config.zydus_proxy_url)) {
-        payload.headers = {
-          Authorization: `Bearer ${
-            localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN) == null
-              ? null
-              : JSON.parse(
-                localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN)
-              )
-            }`,
+        const payload = {
+          url: url,
+          method: "GET",
+          responseType: "blob",
+          headers: {
+            Authorization: `Bearer ${
+              localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN) == null
+                ? null
+                : JSON.parse(
+                  localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN)
+                )
+              }`,
+          },
         };
+
+        const response = await axios(payload);
+
+        const blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
+        
+        saveAs(blob, display_name);
+        return;
       }
 
-      const response = await axios(payload);
+      // For regular URLs (S3, Firebase Storage, etc.), try fetch first
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          mode: "cors",
+        });
 
-      const blob = new Blob([response.data], {
-        type: response.headers["content-type"],
-      });
-      saveAs(blob, display_name);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        
+        saveAs(blob, display_name);
+        return;
+      } catch (fetchError) {
+        
+        // Fallback: Use direct link download (opens in new tab or triggers browser download)
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = display_name;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+      }
     } catch (error) {
-      console.error("Error downloading file: ", error);
+      console.error("Error downloading file:", error.response || error.message);
+      window.open(url, "_blank");
     }
   };
 
