@@ -47,7 +47,7 @@ export default function ToolbarActions({
       type: BTN.BIG,
       onClick: onPrintPreview,
       icon: defaultIcons.eyeIcon,
-      show: true,
+      show: !showAddToDischarge,
     },
     {
       id: "print",
@@ -56,7 +56,7 @@ export default function ToolbarActions({
       type: BTN.SQUARE,
       onClick: onPrint,
       icon: defaultIcons.printerIcon,
-      show: true,
+      show: !showAddToDischarge,
     },
     {
       id: "settings",
@@ -65,7 +65,7 @@ export default function ToolbarActions({
       type: BTN.SQUARE,
       onClick: onSettings,
       icon: defaultIcons.settingsPrimaryIcon,
-      show: true,
+      show: !showAddToDischarge,
     },
     {
       id: "download",
@@ -74,7 +74,7 @@ export default function ToolbarActions({
       type: BTN.SQUARE,
       onClick: onDownload,
       icon: defaultIcons.downloadIcon,
-      show: true,
+      show: !showAddToDischarge,
     },
   ];
 
@@ -121,7 +121,7 @@ export default function ToolbarActions({
         {showAddToDischarge && (
           <>
             {renderAction(actions[1])}
-            <span className="toolbar__divider" aria-hidden="true" />
+            {/* <span className="toolbar__divider" aria-hidden="true" /> */}
           </>
         )}
 
@@ -129,12 +129,16 @@ export default function ToolbarActions({
         {renderAction(actions[2])}
 
         {/* Action Cluster */}
-        <div className="toolbar__cluster">
-          {renderAction(actions[3])}
-          {renderAction(actions[4])}
-        </div>
+        {!showAddToDischarge && (
+          <>
+            <div className="toolbar__cluster">
+              {renderAction(actions[3])}
+              {renderAction(actions[4])}
+            </div>
 
-        <span className="toolbar__divider" aria-hidden="true" />
+            <span className="toolbar__divider" aria-hidden="true" />
+          </>
+        )}
 
         {/* Download Button */}
         {renderAction(actions[5])}
