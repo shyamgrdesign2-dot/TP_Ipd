@@ -301,10 +301,9 @@ function InPatients() {
     <>
       <SubHeader headerTitle={"InPatients"} />
       <div className="border rounded-4 appointment-wrap ipd-inpatients-page-wrap dateborder">
-        <div style={{ padding: "18px" }}>
+        <div className="inpatients-main">
           <Row
-            className="justify-content-between align-items-center"
-            style={{ marginBottom: "6px" }}
+            className="justify-content-between align-items-center filters"
           >
             <FilterControls
               searchQuery={inputSearchQuery}

@@ -229,6 +229,14 @@
   }
 }
 
+.inpatients-main {
+  padding: 18px;
+
+  .filters {
+    margin-bottom: 6px;
+  }
+}
+
 .appointment-data .ant-table table thead {
   z-index: 1 !important;
 }
