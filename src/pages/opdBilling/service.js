@@ -564,3 +564,16 @@ export const createShortLink = async function (targetUrl) {
     return null;
   }
 };
+
+export const fetchItemizedBillData = async function (startDate, endDate) {
+  let res = {};
+  try {
+    res = await api.get(
+      `/api/v1/billing/bill/itemized-bill-data?startDate=${startDate}&endDate=${endDate}`,
+      baseUrl
+    );
+  } catch (e) {
+    console.error("Error while fetching Print settings details: ", e);
+  }
+  return res;
+};
