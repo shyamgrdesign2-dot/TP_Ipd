@@ -17,14 +17,14 @@ const styles = StyleSheet.create({
   tableHeader: {
     flexDirection: "row",
     backgroundColor: "#FAFAFB",
-    height: 30,
+    minHeight: 30,
     borderBottomWidth: 0.607,
     borderBottomColor: "#F1F1F5",
   },
 
   tableRow: {
     flexDirection: "row",
-    height: 48,
+    minHeight: 48,
     borderBottomWidth: 0.607,
     borderBottomColor: "#F1F1F5",
   },
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   // Table cells
   cellBase: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingHorizontal: 6.681,
     paddingVertical: 9.11,
     borderRightWidth: 0.607,
@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     lineHeight: 1.286,
     letterSpacing: 0.0607,
     textTransform: "uppercase",
+    flexWrap: "wrap",
   },
 
   investigationName: {
@@ -63,6 +64,7 @@ const styles = StyleSheet.create({
     color: "#454551",
     lineHeight: 1.2754,
     letterSpacing: 0.0607,
+    flexWrap: "wrap",
   },
 
   cellTextSmall: {
@@ -71,6 +73,7 @@ const styles = StyleSheet.create({
     color: "#454551",
     lineHeight: 2.14,
     opacity: 0.9,
+    flexWrap: "wrap",
   },
 
   // Title

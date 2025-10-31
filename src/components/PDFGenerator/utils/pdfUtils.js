@@ -32,14 +32,14 @@ export const inchesToPt = (inches) => inches * INCH_TO_PT;
  * @returns {Object} Margins in points
  */
 export const getMargins = (margins = {}) => {
-  const defaultMargins = { top: 3, right: 2, bottom: 2.5, left: 2 };
+  const defaultMargins = { top: 1, right: 1, bottom: 1, left: 1 };
   const finalMargins = { ...defaultMargins, ...margins };
 
   return {
-    top: cmToPt(finalMargins.top),
-    right: cmToPt(finalMargins.right),
-    bottom: cmToPt(finalMargins.bottom),
-    left: cmToPt(finalMargins.left),
+    top: cmToPt(+finalMargins.top || 1),
+    right: cmToPt(+finalMargins.right || 1),
+    bottom: cmToPt(+finalMargins.bottom || 1),
+    left: cmToPt(+finalMargins.left || 1),
   };
 };
 
