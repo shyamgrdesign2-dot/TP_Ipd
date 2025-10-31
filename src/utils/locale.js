@@ -46,7 +46,7 @@ const VITALS_CONFIG = {
       label: "Respiratory Rate",
       title: "Respiratory Rate",
       enabled: true,
-      unit: "/min",
+      unit: "breaths/min",
       placeholder: "Enter",
     },
     {
@@ -2177,7 +2177,7 @@ export const IPD = {
               label: "Respiratory Rate",
               title: "Respiratory Rate",
               enabled: true,
-              unit: "/min",
+              unit: "breaths/min",
               placeholder: "Enter",
             },
             {
@@ -2457,7 +2457,7 @@ export const IPD = {
               label: "Respiratory Rate",
               title: "Respiratory Rate",
               enabled: true,
-              unit: "/min",
+              unit: "breaths/min",
               placeholder: "Enter",
             },
             {
@@ -2777,7 +2777,7 @@ export const IPD = {
     {
       name: "respiratoryRate",
       label: "Respiratory Rate",
-      unit: "mmHg",
+      unit: "breaths/min",
     },
     {
       name: "weight",
@@ -3019,7 +3019,7 @@ export const IPD = {
     {
       name: "respiratoryRate",
       label: "Respiratory Rate",
-      unit: "mmHg",
+      unit: "breaths/min",
       placeholder: "Enter respiratory rate",
     },
   ],
@@ -3131,7 +3131,7 @@ export const IPD = {
       label: "Respiratory Rate",
       title: "Respiratory Rate",
       enabled: true,
-      unit: "/min",
+      unit: "breaths/min",
     },
     {
       name: "weight",

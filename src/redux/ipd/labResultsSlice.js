@@ -28,7 +28,7 @@ export const getAddedToDischargeSummaryTests = createAsyncThunk(
       result = await ApiLabResults.getAddedToDischargeSummaryTests(data);
 
       if (!result.error) {
-        return result.labParams;
+        return result.labParams || [];
       } else {
         throw Error(result.error);
       }
