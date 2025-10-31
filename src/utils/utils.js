@@ -2245,3 +2245,26 @@ export const transformAdmissionToPatient = (source = {}) => {
     pm_first_name: details.name || "",
   };
 };
+
+
+export const getModuleCode = (module) => {
+  if (!module) return "";
+
+  const moduleMap = {
+    "OT Note": "OT",
+    "OT Notes": "OT",
+    "Progress Note": "PN",
+    "Progress Notes": "PN",
+    Assessment: "AF",
+    "Consultant Notes": "CN",
+    "Cross Referral": "CR",
+    "Laboratory Report": "LR",
+    "Radiology Report": "RR",
+    "Nursing Notes": "NN",
+    Medication: "MED",
+    "Vital Signs": "VS",
+    "Discharge Planning": "DP",
+  };
+
+  return moduleMap[module] || module.substring(0, 2).toUpperCase();
+};

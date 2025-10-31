@@ -24,8 +24,7 @@ import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import {
   doctorDepartmentRoles as fetchDoctorDeptRoles,
   fetchWards,
-} from "../../../redux/ipd/ipdSlice"; // <-- NEW import
-// import ApiIpdService from "../../services/api/ApiIpdService";
+} from "../../../redux/ipd/ipdSlice";
 import "./styles.scss";
 import ApiIpdService from "../../../api/services/ipd/ipdService";
 import { getTokenData } from "../../../utils/utils";
@@ -151,6 +150,47 @@ function FieldRenderer({
       {...extraProps}
     />
   );
+
+  if (field.id === "contactNo") {
+    return (
+      <Controller
+        name="contactNo"
+        control={control}
+        rules={{
+          validate: {
+            digitsOnly: (v) =>
+              v == null ||
+              v === "" ||
+              /^\d*$/.test(v) ||
+              "Only numbers are allowed",
+            maxTen: (v) =>
+              v == null ||
+              v === "" ||
+              v.length <= 10 ||
+              "Contact number cannot exceed 10 digits",
+          },
+        }}
+        render={({ field: rhf }) => (
+          <Input
+            placeholder="Contact No"
+            inputMode="numeric"
+            pattern="\d*"
+            value={rhf.value ?? ""}
+            onChange={(e) => {
+              const onlyDigits = e.target.value.replace(/\D/g, "");
+              rhf.onChange(onlyDigits);
+            }}
+            onPaste={(e) => {
+              const text = e.clipboardData.getData("text");
+              const onlyDigits = text.replace(/\D/g, "");
+              e.preventDefault();
+              rhf.onChange(`${rhf.value ?? ""}${onlyDigits}`);
+            }}
+          />
+        )}
+      />
+    );
+  }
 
   switch (field.type) {
     case "select-departments":
@@ -380,14 +420,11 @@ export default function PatientAdmission() {
   const departmentsRoles = useSelector(
     (s) => s.ipd?.doctorDepartmentRoles || []
   );
-  const wardsState = useSelector((s) => s.ipd?.wards); // could be array OR wrapped
+  const wardsState = useSelector((s) => s.ipd?.wards);
 
-  // If your thunk returns the array directly, keep as is.
-  // If it returns { data: [...] }, then do: const wards = wardsState?.data || [];
   const wards = Array.isArray(wardsState)
     ? wardsState
     : wardsState?.data || wardsState || [];
-  console.log("INTEL ==> patientDetails", patientDetails);
 
   const ageFromDOB = calcAgeFromDOB(patientDetails?.dob);
   const ageYears =
@@ -405,8 +442,13 @@ export default function PatientAdmission() {
 
   const [loadingInitial, setLoadingInitial] = useState(true);
 
-  const { handleSubmit, control, setValue } = useForm({
-    mode: "onBlur",
+  const {
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
     defaultValues: {
       admissionDate: dayjs().toISOString(),
       admissionTime: dayjs().toISOString(),
@@ -416,6 +458,7 @@ export default function PatientAdmission() {
       roomId: undefined,
       admittingDoctorId: undefined,
       attendingDoctor: undefined,
+      contactNo: "",
     },
   });
 
@@ -426,11 +469,10 @@ export default function PatientAdmission() {
     let mounted = true;
     (async () => {
       try {
-        // Redux loads
         await Promise.all([
           dispatch(fetchDoctorDeptRoles()),
           dispatch(fetchFilters({ field: "doctor" })),
-          dispatch(fetchWards()), // <-- NEW
+          dispatch(fetchWards()),
         ]);
       } finally {
         if (mounted) setLoadingInitial(false);
@@ -557,6 +599,8 @@ export default function PatientAdmission() {
                       label={f.label.replace("*", "")}
                       required={/\*/.test(f.label)}
                       className="field-item"
+                      validateStatus={errors[f.id] ? "error" : undefined}
+                      help={errors[f.id]?.message}
                     >
                       <FieldRenderer
                         field={f}

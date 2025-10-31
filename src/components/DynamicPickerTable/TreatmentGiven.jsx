@@ -11,6 +11,7 @@ import {
 } from "../../redux/ipd/dischargeSummarySlice";
 import {
   formatDateToShortMonthYear,
+  getModuleCode,
   removeBeforeWhiteSpace,
   replaceCommasAndSemicolons,
 } from "../../utils/utils";
@@ -73,27 +74,6 @@ const TreatmentGiven = ({ sectionData }) => {
       return [];
     }
   };
-  const getModuleCode = (module) => {
-    if (!module) return "";
-
-    const moduleMap = {
-      "OT Note": "OT",
-      "OT Notes": "OT",
-      "Progress Note": "PN",
-      "Progress Notes": "PN",
-      Assessment: "AF",
-      "Consultant Notes": "CN",
-      "Cross Referral": "CR",
-      "Laboratory Report": "LR",
-      "Radiology Report": "RR",
-      "Nursing Notes": "NN",
-      Medication: "MED",
-      "Vital Signs": "VS",
-      "Discharge Planning": "DP",
-    };
-
-    return moduleMap[module] || module.substring(0, 2).toUpperCase();
-  };
 
   const ToolTipContent = (record) => {
     return (
@@ -117,7 +97,10 @@ const TreatmentGiven = ({ sectionData }) => {
       key: "name",
       ellipsis: true,
       render: (text, record) => {
-        const code = getModuleCode(record.module);
+        let code = getModuleCode(record.module);
+        if ((record.module === "OT Note" || record.module === "OT Notes") && record.subModule === "Surgery Details") {
+          code = null;
+        }
         return (
           <div className="medication-name-cell">
             <span className="medication-name">{text}</span>

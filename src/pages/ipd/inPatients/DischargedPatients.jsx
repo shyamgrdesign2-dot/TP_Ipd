@@ -284,7 +284,7 @@ function DischargedPatients() {
 
   return (
     <>
-      <SubHeader headerTitle={"Discharged Patients"} />
+      <SubHeader showAddAdmission={false} headerTitle={"Discharged Patients"} />
       <div className="border rounded-4 appointment-wrap dateborder">
         <div className="appointment-data">
           <Row className="justify-content-between align-items-center my-3 px-4">
