@@ -105,12 +105,10 @@ const renderRichText = (data, title) => {
 };
 
 export const renderConsultantNotes = (data, formatSettings) => {
-  if (!data || !formatSettings || !data.consultantNotes) return [];
+  if (!data || !formatSettings) return [];
 
   // Check if data is an array (multiple consultant notes) or single object
-  const consultantNotesArray = Array.isArray(data.consultantNotes)
-    ? data.consultantNotes
-    : [data.consultantNotes];
+  const consultantNotesArray = Array.isArray(data) ? data : [data];
 
   // Get sorted sections
   const sortedSections = getAllVisibleSections(formatSettings);

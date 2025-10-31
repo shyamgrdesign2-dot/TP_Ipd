@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Checkbox, Space, message, Typography, Popover, Spin } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import DateRangeFilter from "../components/DateRangeFilter";
@@ -373,12 +374,6 @@ const Pathologyresults = () => {
           ),
           duration: 3,
         });
-        await dispatch(
-          getPathologyResults({
-            mrno,
-            noOfDays: pathologyResultsNoOfDays,
-          })
-        );
       } else {
         console.error("Failed to add items to discharge summary");
       }

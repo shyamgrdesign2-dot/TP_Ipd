@@ -148,7 +148,6 @@ const IPDPatientDetails = () => {
       state: {
         patient_data,
         patientDetails,
-        isEditable: true,
       },
     });
   };
@@ -473,20 +472,20 @@ const IPDPatientDetails = () => {
         state: {
           patientDetails,
           moduleType: "consultationNotes",
-          data: {
-            patientInformation: getPatientInformation(patientDetails),
-            consultantNotes: consultantNotes?.slice()?.sort((a, b) => {
-              const dateA = new Date(
-                a?.consultationNotes?.date || a?.createdAt || 0
-              );
-              const dateB = new Date(
-                b?.consultationNotes?.date || b?.createdAt || 0
-              );
-              return dateB - dateA;
-            }),
-          },
+          data: consultantNotes,
         },
       });
+    } else if (activeMenuItem === "progress") {
+      navigate("/ipd/progress-notes/configure-print-settings", {
+        state: {
+          patientDetails,
+          moduleType: "progressNotes",
+          data: { 
+            patientInformation: getPatientInformation(patientDetails),
+            progressNotes: progressNotes,
+          },
+        },
+      });  
     } else if (activeMenuItem === "crossReferral") {
       navigate("/ipd/cross-referral/configure-print-settings", {
         state: {

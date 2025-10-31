@@ -1,12 +1,19 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/consultantNotesIcons";
 import { useSelector, useDispatch } from "react-redux";
 import { setClinicalAssessmentPlan } from "../../../redux/ipd/consultantNotesSlice";
+import { isEmptyRichText } from "../../../components/PDFGenerator";
+import dayjs from "dayjs";
+
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const ClinicalAssessment = (props) => {
-  const { isEditable = true, shouldAutofill = false, sectionData } = props || {};
+  const {
+    isEditable = true,
+    shouldAutofill = false,
+    sectionData,
+  } = props || {};
   const { clinicalAssessmentPlan } = useSelector(
     (state) => state.consultantNotes
   );
@@ -15,26 +22,14 @@ const ClinicalAssessment = (props) => {
   const dispatch = useDispatch();
 
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
-  const prevConsultantNote = useMemo(() => {
-    return consultantNotes[consultantNotes?.length - 1];
-  }, [consultantNotes]);
-  const prevClinicalAssessmentPlan = useMemo(() => {
-    return prevConsultantNote?.consultationNotes?.clinicalAssessmentPlan;
-  }, [prevConsultantNote]);
+  const prevConsultantNote = consultantNotes[0];
 
-  const hasClinicalAssessmentPlanInLastConsultantNote = useMemo(() => {
-    return (
-      (!Array.isArray(prevClinicalAssessmentPlan) &&
-        typeof prevClinicalAssessmentPlan === "string" &&
-        !!prevClinicalAssessmentPlan) ||
-      (Array.isArray(prevClinicalAssessmentPlan) &&
-        prevClinicalAssessmentPlan.some((item) =>
-          item?.children?.some((child) =>
-            child?.children?.some((grandChild) => !!grandChild?.text)
-          )
-        ))
-    );
-  }, [prevClinicalAssessmentPlan]);
+  const prevClinicalAssessmentPlan =
+    prevConsultantNote?.consultationNotes?.clinicalAssessmentPlan;
+
+  const hasClinicalAssessmentPlanInLastConsultantNote = !isEmptyRichText(
+    prevClinicalAssessmentPlan
+  );
 
   const handleAutofill = (e) => {
     if (e?.[0] === "undo") {
@@ -64,16 +59,17 @@ const ClinicalAssessment = (props) => {
       showAutoFill={hasClinicalAssessmentPlanInLastConsultantNote}
       autoFillTitle={
         hasClinicalAssessmentPlanInLastConsultantNote
-          ? `Autofill From Prev. Consultant Notes (${new Date(
-              prevConsultantNote.createdAt
-            ).toLocaleDateString()}, ${new Date(
-              prevConsultantNote.createdAt
-            ).toLocaleTimeString()})`
+          ? `Autofill From Prev. Consultant Notes (${dayjs(
+              prevConsultantNote?.consultationNotes?.date
+            ).format("DD MMM YYYY")}, ${dayjs(
+              prevConsultantNote?.consultationNotes?.time,
+              "HH:mm:ss"
+            ).format("hh:mm A")})`
           : "No previous consultant notes available"
       }
       onAutoFill={handleAutofill}
       initialValue={
-        clinicalAssessmentPlan?.length > 0
+        !isEmptyRichText(clinicalAssessmentPlan)
           ? clinicalAssessmentPlan
           : [
               {

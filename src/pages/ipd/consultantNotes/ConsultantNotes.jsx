@@ -1,4 +1,10 @@
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { IPD } from "../../../utils/locale";
 import "./styles.scss";
 import {
@@ -25,8 +31,6 @@ import InvestigationBox from "../../../components/InvestigationBox";
 import Vitals from "../../ipd/consultantNotes/Vitals";
 import ClinicalAssessment from "../../ipd/consultantNotes/ClinicalAssessment";
 import AdditionalRemarks from "../../ipd/consultantNotes/AdditionalRemarks";
-import CustomModule from "../../../components/CustomModule";
-import AddCustomModule from "../../../components/AddCustomModule";
 import dayjs from "dayjs";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { updateCustomization } from "../../../redux/ipd/ipdSlice";
@@ -40,10 +44,18 @@ import ProgressSummary from "./ProgressSummary";
 import AgentAlex from "./AgentAlex";
 import { getProgressNotes } from "../../../redux/ipd/progressNotesSlice";
 import FullPageLoader from "../../vaccination/components/Loader";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import { isEmptyRichText } from "../../../components/PDFGenerator";
+dayjs.extend(customParseFormat);
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
 const FilledByCard = createRemoteComponent("FilledByCard");
+
+const DATE_FORMAT = "DD MMM YYYY";
+const TIME_FORMAT = "hh:mm A";
+const API_DATE_FORMAT = "YYYY-MM-DD";
+const API_TIME_FORMAT = "HH:mm:ss";
 
 const ConsultantNotes = (props) => {
   const { state } = useLocation();
@@ -51,19 +63,18 @@ const ConsultantNotes = (props) => {
   const patientId = patientDetails?.details?.id;
   const { admissionId } = patientDetails;
 
-  const { isEditable = true } = props; // Default patientId for testing
+  const { isEditable = true } = props;
   const dispatch = useDispatch();
 
   const {
     consultantNotes,
     currentConsultantNote,
-    loading,
+    isUpdating,
     clinicalAssessmentPlan,
     vitals,
     additionalRemarks,
   } = useSelector((state) => state.consultantNotes);
   const { medicationData } = useSelector((state) => state.prescription);
-  const { customModules } = useSelector((state) => state.customModules);
   const { customization = {} } = useSelector((state) => state.ipd);
   const { profile } = useSelector((state) => state.doctors);
   const { progressNotes, isFetched: isProgressNotesFetched } = useSelector(
@@ -76,20 +87,24 @@ const ConsultantNotes = (props) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
-  const [filledDate, setFilledDate] = useState(new Date());
-  const [filledAtTime, setFilledAtTime] = useState(new Date());
+  const [filledDate, setFilledDate] = useState(dayjs());
+  const [filledAtTime, setFilledAtTime] = useState(dayjs());
   const [investigationData, setInvestigationData] = useState([]);
   const [shouldAutofill, setShouldAutofill] = useState(false);
   const [showAgentAlex, setShowAgentAlex] = useState(false);
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
 
   // Load filledDate and filledAtTime from current consultant note
   useEffect(() => {
     if (currentConsultantNote && currentConsultantNote.consultationNotes) {
       if (currentConsultantNote.consultationNotes.date) {
-        setFilledDate(new Date(currentConsultantNote.consultationNotes.date));
+        setFilledDate(dayjs(currentConsultantNote.consultationNotes.date));
       }
+
       if (currentConsultantNote.consultationNotes.time) {
-        setFilledAtTime(new Date(currentConsultantNote.consultationNotes.time));
+        setFilledAtTime(
+          dayjs(currentConsultantNote.consultationNotes.time, API_TIME_FORMAT)
+        );
       }
       if (currentConsultantNote.consultationNotes.labInvestigation) {
         setInvestigationData(
@@ -110,10 +125,8 @@ const ConsultantNotes = (props) => {
     }
   }, [consultantNotesCustomization]);
 
-  // Fetch consultant notes on component mount and clear medication data
   useEffect(() => {
     if (patientId && admissionId) {
-      // Clear medication data to ensure clean state for consultant notes
       if (!currentConsultantNote?._id) dispatch(clearMedicationData());
       dispatch(getConsultantNotes({ patientId, admissionId }));
     }
@@ -125,10 +138,25 @@ const ConsultantNotes = (props) => {
     }
   }, [dispatch, isProgressNotesFetched, patientId, admissionId]);
 
+  const isDataPresent = useMemo(() => {
+    return (
+      !isEmptyRichText(clinicalAssessmentPlan) ||
+      Object.values(vitals)?.some((item) => !!item) ||
+      medicationData?.length > 0 ||
+      investigationData?.length > 0 ||
+      !isEmptyRichText(additionalRemarks)
+    );
+  }, [
+    clinicalAssessmentPlan,
+    vitals,
+    medicationData,
+    investigationData,
+    additionalRemarks,
+  ]);
+
   // Save consultant notes
   const saveConsultantNotes = async () => {
     try {
-      // Collect data from Redux state
       const consultantNotesData = {
         clinicalAssessmentPlan: clinicalAssessmentPlan || [],
         vitals: vitals || {},
@@ -140,11 +168,10 @@ const ConsultantNotes = (props) => {
             notes: e.note,
           })) || [],
         additionalRemarks: additionalRemarks || [],
-        date: filledDate,
-        time: filledAtTime,
+        date: filledDate ? dayjs(filledDate).format(API_DATE_FORMAT) : "",
+        time: filledAtTime ? dayjs(filledAtTime).format(API_TIME_FORMAT) : "",
       };
 
-      // Update existing note
       const result = await dispatch(
         updateConsultantNotes({
           patientId,
@@ -161,7 +188,7 @@ const ConsultantNotes = (props) => {
           className: "message-appointment",
           content: (
             <div className="d-flex align-items-center">
-              <img src={visitEnd} className="me-3" />
+              <img src={visitEnd} className="me-3" alt="Visit End" />
               <div>
                 <div className="title-common text-start fontroboto">
                   Consultant Notes Saved Successfully!
@@ -171,25 +198,24 @@ const ConsultantNotes = (props) => {
                 src={imgCloseVisit}
                 className="ms-3"
                 onClick={() => message.destroy()}
+                alt="Close Visit"
               />
             </div>
           ),
           duration: 3,
         });
-        console.log("Consultant notes updated successfully");
+        await dispatch(resetConsultantNotes());
       } else {
         console.error("Failed to update consultant notes");
       }
 
-      // Refresh the notes after saving
-      await dispatch(getConsultantNotes({ patientId, admissionId }));
       navigate(`/ipd/patient-details`, {
         replace: true,
         state: {
           patient_data,
           patientDetails,
           isEditable: false,
-          activeTab: "consultantNotes", // This will help identify which tab to show
+          activeTab: "consultantNotes",
         },
       });
     } catch (error) {
@@ -197,63 +223,36 @@ const ConsultantNotes = (props) => {
     }
   };
 
-  const handleAutofillVitals = () => {
-    if (consultantNotes && consultantNotes.length > 0) {
-      const latestNote = consultantNotes[consultantNotes?.length - 1];
-      if (latestNote.consultationNotes?.vitals) {
-        dispatch(setVitals(latestNote.consultationNotes.vitals));
-        console.log("Autofilled Vitals:", latestNote.consultationNotes.vitals);
-      }
-    }
-  };
+  const latestNote = consultantNotes[0];
 
-  const handleAutofillMedication = () => {
-    if (consultantNotes && consultantNotes.length > 0) {
-      const latestNote = consultantNotes[consultantNotes?.length - 1];
-      if (latestNote.consultationNotes?.medication) {
-        dispatch(setMedicationData(latestNote.consultationNotes.medication));
-        console.log(
-          "Autofilled Medication:",
-          latestNote.consultationNotes.medication
-        );
-      }
+  const handleAutofillVitals = useCallback(() => {
+    if (latestNote?.consultationNotes?.vitals) {
+      dispatch(setVitals(latestNote?.consultationNotes?.vitals));
     }
-  };
+  }, [latestNote, dispatch]);
 
-  const handleAutofillLabInvestigation = () => {
-    if (consultantNotes && consultantNotes.length > 0) {
-      const latestNote = consultantNotes[consultantNotes?.length - 1];
-      if (latestNote.consultationNotes?.labInvestigation) {
-        setInvestigationData(
-          latestNote.consultationNotes.labInvestigation?.map((e) => ({
-            investigation_name: e.name,
-            note: e.notes,
-          }))
-        );
-        dispatch(
-          setLabInvestigation(latestNote.consultationNotes.labInvestigation)
-        );
-        console.log(
-          "Autofilled Lab Investigation:",
-          latestNote.consultationNotes.labInvestigation
-        );
-      }
+  const handleAutofillMedication = useCallback(() => {
+    if (latestNote?.consultationNotes?.medication) {
+      dispatch(setMedicationData(latestNote?.consultationNotes?.medication));
     }
-  };
+  }, [latestNote, dispatch]);
 
-  // Main autofill function that calls all individual autofill functions
+  const handleAutofillLabInvestigation = useCallback(() => {
+    if (latestNote?.consultationNotes?.labInvestigation) {
+      setInvestigationData(
+        latestNote?.consultationNotes?.labInvestigation?.map((e) => ({
+          investigation_name: e.name,
+          note: e.notes,
+        }))
+      );
+    }
+  }, [latestNote, dispatch]);
+
   const handleAutofillAll = () => {
     setShouldAutofill(true);
-    if (consultantNotes && consultantNotes.length > 0) {
-      const latestNote = consultantNotes[consultantNotes?.length - 1];
-
-      if (latestNote.consultationNotes) {
-        // Call all individual autofill functions
-        handleAutofillMedication();
-        handleAutofillLabInvestigation();
-      }
-    } else {
-      console.log("No previous consultant notes found for autofill");
+    if (latestNote?.consultationNotes) {
+      handleAutofillMedication();
+      handleAutofillLabInvestigation();
     }
     setTimeout(() => {
       setShouldAutofill(false);
@@ -334,26 +333,30 @@ const ConsultantNotes = (props) => {
     },
     [
       props,
-      handleAutofillVitals,
-      handleAutofillMedication,
-      handleAutofillLabInvestigation,
       shouldAutofill,
+      handleAutofillVitals,
+      handleAutofillLabInvestigation,
+      isEditable,
+      medicationData,
+      investigationData,
+      dispatch,
     ]
   );
-  const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
+
   const handleTimePeriodChange = (value) => {
     setSelectedTimePeriod(value);
   };
+
   const renderFilledBySection = () => {
     return (
       <div style={{ margin: "24px 24px 0" }}>
         <FilledByCard
           filledBy={profile?.um_name}
           role="Doctor"
-          selectedDate={filledDate ? dayjs(filledDate) : ""}
-          selectedTime={dayjs(filledAtTime)}
-          dateFormat="DD MMM YYYY"
-          timeFormat="HH:mm A"
+          selectedDate={filledDate ? dayjs(filledDate, DATE_FORMAT) : ""}
+          selectedTime={dayjs(filledAtTime, TIME_FORMAT)}
+          dateFormat={DATE_FORMAT}
+          timeFormat={TIME_FORMAT}
           selectedTimePeriod={selectedTimePeriod}
           timePeriodOptions={[
             { label: "Morning", value: "Morning" },
@@ -362,24 +365,13 @@ const ConsultantNotes = (props) => {
             { label: "Night", value: "Night" },
           ]}
           onDateChange={(date) => setFilledDate(date)}
-          onTimeChange={(time) => setFilledAtTime(time)}
+          onTimeChange={(time) => {
+            setFilledAtTime(time);
+          }}
           onTimePeriodChange={handleTimePeriodChange}
           editable
           showTimePeriod={false}
         />
-      </div>
-    );
-  };
-
-  const renderCustomModuleSection = () => {
-    return (
-      <div className="ipd-custom-module-container">
-        {customModules?.map((customModule) => {
-          return (
-            <CustomModule module={customModule} patient_data={patient_data} />
-          );
-        })}
-        <AddCustomModule />
       </div>
     );
   };
@@ -410,12 +402,10 @@ const ConsultantNotes = (props) => {
   };
 
   const handleProgressSummaryClick = () => {
-    console.log("Progress Summary clicked - Opening Agent Alex");
     setShowAgentAlex(true);
   };
 
   const handleAgentAlexClose = () => {
-    console.log("Agent Alex closed");
     setShowAgentAlex(false);
   };
 
@@ -428,6 +418,17 @@ const ConsultantNotes = (props) => {
       )}
     </>
   );
+
+  const autoFillTitle = useMemo(() => {
+    return latestNote
+      ? `Autofill From Prev. Consultant Notes (${dayjs(
+          latestNote?.consultationNotes?.date
+        ).format(DATE_FORMAT)}, ${dayjs(
+          latestNote?.consultationNotes?.time,
+          API_TIME_FORMAT
+        ).format(TIME_FORMAT)})`
+      : "";
+  }, [latestNote]);
 
   return (
     <div className="afipd-assessments-form-container">
@@ -455,18 +456,12 @@ const ConsultantNotes = (props) => {
               renderTopSection={renderFilledBySection}
               renderBottomSection={renderBottomSection}
               showAutoFill={!!consultantNotes?.length}
-              autoFillTitle={
-                consultantNotes && consultantNotes.length > 0
-                  ? `Autofill From Prev. Consultant Notes (${formatDateWithTime(
-                      consultantNotes[consultantNotes?.length - 1].createdAt
-                    )})`
-                  : "No previous consultant notes available"
-              }
+              autoFillTitle={autoFillTitle}
               onAutoFill={handleAutofillAll}
               mainCta={{
-                title: loading ? "Saving..." : "Save",
+                title: isUpdating ? "Saving..." : "Save",
                 handler: saveConsultantNotes,
-                disabled: loading,
+                disabled: isUpdating || !isDataPresent,
               }}
               isAuxPanelOpen={showAgentAlex}
               auxPanel={<AgentAlex onClose={handleAgentAlexClose} />}

@@ -2137,6 +2137,8 @@ export const getPatientInformation = (patientDetails) => {
         : "",
     address: patientDetails?.details?.address || "",
     bloodGroup: patientDetails?.details?.bloodGroup || "",
+    dischargeSummaryNo: patientDetails?.dischargeNo || "",
+    dischargedAt: patientDetails?.dischargedAt || "",
   };
 };
 

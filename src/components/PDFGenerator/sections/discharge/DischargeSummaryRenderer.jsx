@@ -17,7 +17,6 @@ import DischargeAdvice from "./components/DischargeAdvice";
 import FollowUp from "./components/FollowUp";
 import { renderSimpleText } from "../ListViewRenderer";
 import { getAllVisibleSections } from "../../utils/pdfUtils";
-import { IPD } from "../../../../utils/locale";
 
 const styles = StyleSheet.create({
   sectionContainer: {

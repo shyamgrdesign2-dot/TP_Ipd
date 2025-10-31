@@ -22,6 +22,7 @@ import { dischargeSummaryIcons } from "../../../assets/images/indices/index.js";
 import FilledByCards from "./components/FilledByCards.jsx";
 import { useDischargeSummaryData } from "../dischargeSummary/utils/useDischargeSummaryData.js";
 import useOnlyViewMode from "../../../hooks/useOnlyViewMode";
+import { Empty } from "antd";
 const ReusableStepper = createRemoteComponent("ReusableStepper");
 const GenericCard = createRemoteComponent("GenericCard");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -506,7 +507,8 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
           disabledDate={disabledDate}
         />
       </div>
-      <ReusableStepper
+
+      { filteredMappedData.length > 0 ? <ReusableStepper
         data={filteredMappedData}
         groupBy={(item) =>
           item.date || item.timestamp?.split(" ")[0] || "Unknown"
@@ -528,7 +530,11 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
               )} - ${moment(dateRange.endDate).format(showDateFormat)}`
             : "All dates",
         }}
-      />
+      /> : (
+        <div className="no-data-container">
+          <Empty description="No OT notes found for the selected date range" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        </div>
+      )}
     </div>
   );
 };

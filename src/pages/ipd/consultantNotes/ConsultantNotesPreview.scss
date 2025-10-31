@@ -1,0 +1,226 @@
+.consultant-notes-preview-wrapper {
+  position: relative;
+  width: 100%;
+  padding: 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.50);
+  box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.01);
+
+  .consultant-notes-preview-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+
+    &.collapsed {
+      max-height: 60dvh;
+    }
+
+    &.expanded {
+      max-height: none;
+    }
+  }
+}
+
+.cnp-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  align-self: stretch;
+  box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01);
+
+  .cnp-section-header {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    align-self: stretch;
+    
+    .cnp-section-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .cnp-section-title {
+      color: #171725;
+      font-family: "Poppins", sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: normal;
+      white-space: nowrap;
+    }
+  }
+
+  .cnp-section-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 26px;
+    width: 100%;
+    box-sizing: border-box;
+
+    &.cnp-no-left-pad {
+      padding-left: 0 !important;
+    }
+
+    // Rich text editor readonly styling
+    .rich-text-editor-container-readonly {
+      width: 100% !important;
+      
+      .slate-editor {
+        ul {
+          list-style-type: disc;
+          padding-left: 21px;
+          
+          li {
+            color: #454551;
+            font-family: "Poppins", sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 26px;
+            opacity: 0.9;
+            margin-bottom: 0;
+            
+            &:first-child {
+              margin-bottom: 0;
+            }
+            
+            // Style bold text in list items
+            strong {
+              font-weight: 600;
+            }
+          }
+        }
+        
+        // Handle paragraph text
+        p {
+          color: #454551;
+          font-family: "Poppins", sans-serif;
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 26px;
+          opacity: 0.9;
+          white-space: pre-wrap;
+        }
+      }
+    }
+
+    // Vitals inline styling
+    .cnp-vitals-inline {
+      color: #454551;
+      font-family: "Poppins", sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 26px;
+      opacity: 0.9;
+      width: 100%;
+      white-space: normal;
+      word-wrap: break-word;
+
+      .cnp-vitals-label {
+        font-weight: 600; // Bold for labels
+        color: #454551;
+      }
+
+      .cnp-vitals-value {
+        font-weight: 400; // Regular for values
+        color: #454551;
+      }
+
+      .cnp-vitals-separator {
+        font-weight: 400;
+        color: #454551;
+      }
+    }
+
+    // Table styling - ensure medicine and lab tables are styled correctly
+    .medicine-table,
+    .lab-investigation-table {
+      width: 100%;
+      border-radius: 10px;
+    }
+  }
+}
+
+// Filled By Card styling
+.cnp-filled-by-card {
+  background: rgba(243, 237, 252, 0.4);
+  border: 0.3px solid rgba(238, 222, 255, 0.5);
+  border-radius: 12px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: fit-content;
+  min-width: 363px;
+  position: relative;
+  overflow: hidden;
+
+  .cnp-filled-by-icon {
+    width: 55.875px;
+    height: 55.875px;
+    position: absolute;
+    left: -20px;
+    top: 11.07px;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .cnp-filled-by-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 22px;
+    width: 100%;
+    z-index: 1;
+
+    .cnp-filled-by-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+
+      .cnp-filled-by-label {
+        color: #454551;
+        font-family: "Poppins", sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 24px;
+      }
+
+      .cnp-filled-by-name {
+        color: #454551;
+        font-family: "Poppins", sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 24px;
+      }
+    }
+
+    .cnp-filled-by-role-badge {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 8825.75px;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .cnp-filled-by-role-text {
+        color: #3d8c40;
+        font-family: "Poppins", sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 17.653px;
+      }
+    }
+  }
+}
+
