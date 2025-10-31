@@ -138,7 +138,7 @@ function DischargedPatients() {
       doctorIdsFilter:
         selectedDoctors.length > 0 ? selectedDoctors.join(",") : allDoctorIds,
       ward: selectedWards.length > 0 ? selectedWards.join(",") : "",
-      isDischarged: true
+      isDischarged: true,
     }),
     [filterParams, dateRange, selectedDoctors, selectedWards, allDoctorIds]
   );
@@ -285,9 +285,9 @@ function DischargedPatients() {
   return (
     <>
       <SubHeader showAddAdmission={false} headerTitle={"Discharged Patients"} />
-      <div className="border rounded-4 appointment-wrap dateborder">
-        <div className="appointment-data">
-          <Row className="justify-content-between align-items-center my-3 px-4">
+      <div className="border rounded-4 appointment-wrap ipd-inpatients-page-wrap dateborder">
+        <div className="inpatients-main">
+          <Row className="justify-content-between align-items-center filters">
             <FilterControls
               searchQuery={inputSearchQuery}
               onSearchChange={onSearch}
