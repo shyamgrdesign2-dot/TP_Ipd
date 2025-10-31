@@ -2953,6 +2953,11 @@ body {
   border-radius: 0;
 }
 
+.symptoms-table-cell .ant-select .ant-select-selector,
+.border-end .ant-select .ant-select-selector {
+  border: none !important;
+}
+
 /* Remove default ant-design borders */
 .symptoms-select-box {
   .ant-select-selector,

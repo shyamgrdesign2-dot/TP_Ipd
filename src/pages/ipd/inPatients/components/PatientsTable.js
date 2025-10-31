@@ -137,7 +137,6 @@ const PatientsTable = ({
       render: (text, record) => (
         <div>
           <span>{record.doctorName || "N/A"}</span>
-          hhkejrbjekrbferjkbrghekrjbmgfjekrbmrjk
         </div>
       ),
     },
