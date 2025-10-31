@@ -8,7 +8,7 @@ module.exports = function (app) {
       createProxyMiddleware({
         target:
           'https://pm-storybook-ui-uat.kindmushroom-6f77b425.centralindia.azurecontainerapps.io',
-        changeOrigin: true,
+                  changeOrigin: true,
         secure: true,
         ws: false,
         pathRewrite: {
@@ -17,6 +17,25 @@ module.exports = function (app) {
         headers: {
           Host:
             'pm-storybook-ui-uat.kindmushroom-6f77b425.centralindia.azurecontainerapps.io',
+        },
+      })
+    );
+  } else if (process.env.REACT_APP_ENV === 'prod') {
+    app.use(
+      '/shared-ui',
+      createProxyMiddleware({
+        target:
+          // 'https://pm-storybook-ui-uat.kindmushroom-6f77b425.centralindia.azurecontainerapps.io',
+          "https://pm-storybook-ui-prod.tatvacare.in",
+        changeOrigin: true,
+        secure: true,
+        ws: false,
+        pathRewrite: {
+          '^/shared-ui': '/',
+        },
+        headers: {
+          Host:
+            'pm-storybook-ui-prod.tatvacare.in',
         },
       })
     );
