@@ -19,9 +19,8 @@ import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 
 
-const LabResultsTable = ({ existingDataFromProps, handleAddLabParamsDrawer, patient_unique_id, onSave = () => {}, isBackModalOpen, showHideBackModal, patientGender, isIPD = false  }) => {
+const LabResultsTable = ({ existingDataFromProps, handleAddLabParamsDrawer, patient_unique_id, onSave = null, isBackModalOpen, showHideBackModal, patientGender, isIPD = false  }) => {
 
-  console.log('TEJA ==> existingDataFromProps', existingDataFromProps)
   const [token, setToken] = useState(null);
     const searchRef = useRef(null);
     const [tokenData, setTokenData] = useState(null);
@@ -773,7 +772,6 @@ const LabResultsTable = ({ existingDataFromProps, handleAddLabParamsDrawer, pati
         setFilledData([])
 
         if (isIPD) {
-          
           onSave?.(data);
           return;
         }
@@ -790,8 +788,9 @@ const LabResultsTable = ({ existingDataFromProps, handleAddLabParamsDrawer, pati
               payload,
               baseUrl
             );
-            if(response){
-              getLabParams();
+            if (response) {
+              onSave?.();
+              handleAddLabParamsDrawer();
             }
           } catch (error) {
             console.error("Error:", error);
