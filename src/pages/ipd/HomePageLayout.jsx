@@ -10,7 +10,7 @@ export default function HomePageLayout() {
       <div className="d-flex">
         <IPDNavBar />
         {/* <IPDNavBarDupe /> */}
-        <div className={"w-100 bg-body vh-100"}>
+        <div className={"w-100 bg-body vh-100"} style={{ overflow: "auto" }}>
           <Outlet />
         </div>
       </div>

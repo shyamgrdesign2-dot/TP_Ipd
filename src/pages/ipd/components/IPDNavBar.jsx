@@ -38,7 +38,7 @@ function IPDNavbar() {
     );
   }
   return (
-    <div className="SidebarDoctor">
+    <div className="SidebarDoctor ipd-sidebar">
       <div>
         <NavLink to="/ipd/inPatients" replace={true}>
           {({ isActive }) => (
@@ -59,10 +59,7 @@ function IPDNavbar() {
       </div>
 
       <div>
-        <NavLink
-          to="/ipd/dischargedPatients"
-          replace={true}
-        >
+        <NavLink to="/ipd/dischargedPatients" replace={true}>
           {({ isActive }) => (
             <>
               <img

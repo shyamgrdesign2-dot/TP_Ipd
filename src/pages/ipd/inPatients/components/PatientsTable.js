@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Table, Spin, Popover, message } from "antd";
 import moment from "moment";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import noData from "../../../../assets/images/nodata-found.svg";
 import Referral from "./Referral";
 import "../InPatients.scss";
@@ -9,6 +9,7 @@ import { defaultIcons } from "../../../../assets/images/icons";
 import { defaultIcons as newIcons } from "../../../../assets/images/indices";
 import { markPatientAsDischarged } from "../../../../redux/ipd/ipdSlice";
 import { usePatientsData } from "../hooks/usePatientsData";
+import { isMobile } from "react-device-detect";
 
 const MoreActionsContent = ({ handleMarkPatientAsDischarged, record }) => {
   return (
@@ -37,9 +38,7 @@ const PatientsTable = ({
 }) => {
   const dispatch = useDispatch();
 
-  const {
-    fetchData,
-  } = usePatientsData();
+  const { fetchData } = usePatientsData();
   const [openMoreActionsPopover, setOpenMoreActionsPopover] = useState(null);
 
   const showHideMoreActionPopover = (recordId) => {
@@ -47,13 +46,17 @@ const PatientsTable = ({
   };
 
   const handleMarkPatientAsDischarged = (record) => {
-    dispatch(markPatientAsDischarged({ admissionId: record?.admissionId })).then((res) => {
+    dispatch(
+      markPatientAsDischarged({ admissionId: record?.admissionId })
+    ).then((res) => {
       if (res?.payload?.status === 400) {
-        message.warning(res?.payload?.data?.message || "Patient discharged failed")
+        message.warning(
+          res?.payload?.data?.message || "Patient discharged failed"
+        );
       } else {
         message.success("Patient discharged successfully");
         setOpenMoreActionsPopover(null);
-        fetchData(fetchParams)
+        fetchData(fetchParams);
       }
     });
   };
@@ -63,7 +66,7 @@ const PatientsTable = ({
       title: "#",
       dataIndex: "srno",
       key: "srno",
-      className: "fs-14",
+      className: "col-sno fs-14",
       fixed: "left",
       render: (text, record, index) => (
         <div>
@@ -75,7 +78,7 @@ const PatientsTable = ({
       title: "PATIENT DETAILS",
       dataIndex: "patientName",
       key: "patientName",
-      fixed: "left",
+      className: "col-patient-details",
       render: (text, record) => (
         <div>
           <span
@@ -84,7 +87,6 @@ const PatientsTable = ({
           >
             {record?.patientName}
           </span>
-          <br />
           <small>
             {record?.gender}, {`${record?.age}y`}
           </small>
@@ -92,13 +94,25 @@ const PatientsTable = ({
       ),
     },
     {
+      title: "Contact",
+      dataIndex: "contactNumber",
+      key: "contactNumber",
+      className: "col-contact",
+      render: (text, record) => (
+        <div className="contact-cell">
+          <span>{record.contactNumber || "N/A"}</span>
+          {record?.referral ? <Referral /> : null}
+        </div>
+      ),
+    },
+    {
       title: "Patient ID",
       dataIndex: "patientId",
       key: "patientId",
+      className: "col-patient-id",
       render: (text, record) => (
         <div className="d-flex align-items-center gap-2">
           <span>{record?.patientId || ""}</span>
-          {record?.referral && <Referral />}
         </div>
       ),
     },
@@ -106,6 +120,7 @@ const PatientsTable = ({
       title: "Ward/Bed No",
       dataIndex: "ward",
       key: "ward",
+      className: "col-ward-bed",
       render: (text, record) => (
         <div>
           <span>
@@ -115,22 +130,14 @@ const PatientsTable = ({
       ),
     },
     {
-      title: "Contact",
-      dataIndex: "contactNumber",
-      key: "contactNumber",
-      render: (text, record) => (
-        <div>
-          <span>{record.contactNumber || "N/A"}</span>
-        </div>
-      ),
-    },
-    {
       title: "Admitting Doctor",
       dataIndex: "doctorName",
       key: "doctorName",
+      className: "col-admitting-doctor",
       render: (text, record) => (
         <div>
           <span>{record.doctorName || "N/A"}</span>
+          hhkejrbjekrbferjkbrghekrjbmgfjekrbmrjk
         </div>
       ),
     },
@@ -138,6 +145,7 @@ const PatientsTable = ({
       title: "Admitted On",
       dataIndex: "admittedOn",
       key: "admittedOn",
+      className: "col-admitted-on",
       sortDirections: ["descend", "ascend", "descend"],
       defaultSortOrder: "descend",
       sorter: (a, b) => {
@@ -156,6 +164,7 @@ const PatientsTable = ({
             title: "Discharged On",
             dataIndex: "dischargedAt",
             key: "dischargedAt",
+            className: "col-discharged-on",
             sortDirections: ["descend", "ascend", "descend"],
             defaultSortOrder: "descend",
             sorter: (a, b) => {
@@ -174,19 +183,19 @@ const PatientsTable = ({
       title: "Action",
       key: "action",
       fixed: "right",
+      className: "col-action",
       render: (_, record) => (
         <div
           size="middle"
           style={{ display: "flex", justifyContent: "space-between" }}
         >
           <button
-            className="btn btn-outline-primary"
-            style={{ fontSize: "13px !important" }}
+            className="view-details-btn"
             onClick={() => {
               onViewDetails(record?.patientData);
             }}
           >
-            {"View Details"}
+            {isMobile ? "View" : "View Details"}
           </button>
           {!isDischargedPatients && !record?.isDischarged ? (
             <Popover
@@ -242,7 +251,6 @@ const PatientsTable = ({
     <div>
       <div className="inpatients-table-container">
         <Table
-          className="px-xl-4 px-0"
           columns={columns}
           dataSource={data}
           onChange={onChange}
@@ -250,7 +258,7 @@ const PatientsTable = ({
           loading={loading && filterParams.page === 1}
           locale={{ emptyText }}
           rowKey="id"
-          scroll={{ x: "calc(700px + 30%)" }}
+          scroll={{ x: 1300 }}
         />
       </div>
 

@@ -179,20 +179,27 @@ const FilterDropdown = ({
 
   return (
     <div className="filter-dropdown" ref={dropdownRef}>
-      <div className="filter-select" onClick={toggleDropdown}>
+      <div
+        className={`filter-select ${
+          selectedItems.length > 0 ? "filter-active" : ""
+        }`}
+        onClick={toggleDropdown}
+      >
         <span className="select-placeholder">
-          {getDisplayText()}
+          <span className="filter-text">{getDisplayText()}</span>
           {selectedItems.length > 1 && (
             <span className="count-badge">{selectedItems.length}</span>
           )}
         </span>
-        <i
-          className={`icon-right ${isOpen ? "open" : ""}`}
-          style={{
-            display: "block",
-            transform: `rotate(270deg)`,
-          }}
-        />
+        <div style={{ width: "16px", height: "16px" }}>
+          <i
+            className={`icon-right ${isOpen ? "open" : ""}`}
+            style={{
+              display: "block",
+              transform: `rotate(270deg)`,
+            }}
+          />
+        </div>
       </div>
 
       {/* Regular dropdown for desktop or mobile without search */}
