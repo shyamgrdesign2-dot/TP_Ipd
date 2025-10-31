@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback, useMemo } from "react";
 import { message, Tooltip } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { createRemoteComponent } from "../../shared/remoteComponents";
@@ -30,6 +30,21 @@ const TreatmentGiven = ({ sectionData }) => {
 
   const { treatmentNotes, treatmentNotesLoading, actualDischargeSummaryData } =
     useSelector((state) => state.dischargeSummary);
+
+  const filteredTreatmentNotes = useMemo(() => {
+    if (!treatmentNotes) return [];
+
+    return treatmentNotes.filter((record) => {
+      const isOTNote =
+        record.module === "OT Note" || record.module === "OT Notes";
+      // const isSurgeryDetails = record.subModule === "Surgery Details";
+
+      return !(
+        isOTNote
+        //  && isSurgeryDetails
+      );
+    });
+  }, [treatmentNotes]);
 
   const handleSearch = async (query) => {
     if (!query) return [];
@@ -98,7 +113,10 @@ const TreatmentGiven = ({ sectionData }) => {
       ellipsis: true,
       render: (text, record) => {
         let code = getModuleCode(record.module);
-        if ((record.module === "OT Note" || record.module === "OT Notes") && record.subModule === "Surgery Details") {
+        if (
+          (record.module === "OT Note" || record.module === "OT Notes") &&
+          record.subModule === "Surgery Details"
+        ) {
           code = null;
         }
         return (
@@ -194,7 +212,7 @@ const TreatmentGiven = ({ sectionData }) => {
       ref={tableRef}
       isEditable={isEditable}
       columns={columns}
-      initialData={treatmentNotes}
+      initialData={filteredTreatmentNotes}
       searchConfig={searchConfig}
       onSearch={handleSearch}
       onRowChange={handleRowChange}
