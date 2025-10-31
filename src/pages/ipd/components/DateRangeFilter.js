@@ -4,7 +4,6 @@ import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
 
-// Constants - reasonable extraction
 const DATE_FORMAT = "YYYY-MM-DD";
 const DISPLAY_FORMAT = "DD-MM-YYYY";
 
@@ -128,10 +127,12 @@ const DateRangeFilter = ({
   return (
     <div
       ref={containerRef}
-      className={`massage-date-wrapper ms-3 ${wrapperClassName}`}
+      className={`massage-date-wrapper ${wrapperClassName}`}
     >
       <div
-        className={`fs-14 h-100 w-100 d-flex align-items-center justify-content-center ${className}`}
+        className={`fs-14 h-100 w-100 d-flex align-items-center justify-content-center ${className} ${
+          dateRange ? "filter-active" : ""
+        }`}
         onClick={onToggleModal}
         role="button"
         tabIndex={0}

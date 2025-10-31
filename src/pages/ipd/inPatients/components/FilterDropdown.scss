@@ -187,9 +187,9 @@
   .filter-select {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 4px;
-    padding: 16px 14px;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px;
     border-radius: 10px;
     border: 1px solid #DCE4E8;
     background-color: #fff;
@@ -202,6 +202,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      overflow: hidden;
       
       .count-badge {
         display: flex;
@@ -220,6 +221,30 @@
         font-style: normal;
         font-weight: 600;
         line-height: 16px;
+        flex-shrink: 0;
+      }
+    }
+
+    // Constrain text width when filter is active
+    &.filter-active {
+      .select-placeholder {
+        .filter-text {
+          max-width: 140px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: inline-block;
+        }
+      }
+    }
+
+    @media screen and (min-width: 768px) and (max-width: 1024px) {
+      &.filter-active {
+        .select-placeholder {
+          .filter-text {
+            max-width: 100px;
+          }
+        }
       }
     }
     

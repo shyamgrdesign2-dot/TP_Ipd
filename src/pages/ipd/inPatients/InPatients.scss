@@ -3,6 +3,11 @@
   font-size: 14px;
   font-weight: 400;
   line-height: 22px;
+
+  @media screen and (min-width: 768px) and (max-width: 1024px) {
+    font-size: 12px;
+    line-height: normal;
+  }
 }
 
 .clear-filter-button {
@@ -16,39 +21,209 @@
   padding: 0;
 }
 
-// Ensure table cells don't truncate content - scoped to InPatients component
 .inpatients-table-container {
+
+  // Table wrapper
   .ant-table-wrapper {
     .ant-table {
+      background: transparent;
+      // Create 12px vertical gap between rows
       table {
-        width: 100%;
-        table-layout: auto;
+        border-collapse: separate;
+        border-spacing: 0 12px;
       }
 
-      .ant-table-tbody > tr > td {
-        white-space: normal;
-        word-break: break-word;
-        overflow-wrap: break-word;
-        min-width: 100px;
-        padding: 16px;
+      // Header styles
+      .ant-table-thead {
+        tr {
+          border-radius: 12px;
 
-        // Ensure content is properly aligned
-        &.ant-table-cell {
-          vertical-align: middle;
+          th {
+            background: #f1f1f5;
+            color: #454551 !important;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 4px 10px;
+            height: 38px;
+            line-height: 18px;
+            border-bottom: none;
+          }
         }
       }
 
-      // Ensure the first column (serial number) doesn't take too much space
-      .ant-table-thead > tr > th:first-child,
-      .ant-table-tbody > tr > td:first-child {
-        min-width: 60px;
-        width: 60px;
+      // Body styles
+      .ant-table-tbody {
+        // Pull body up to remove extra gap under header introduced by border-spacing
+        transform: translateY(-12px);
+        padding-bottom: 12px; // preserve bottom spacing
+        tr {
+          td {
+            background: #ffffff;
+            color: #454551 !important;
+            font-family: "Poppins", sans-serif;
+            font-weight: 500; // Medium
+            font-size: 14px;
+            padding: 4px 12px;
+            height: 58px;
+            border-bottom: none;
+            vertical-align: middle;
+          }
+
+          &:hover td {
+            background: #ffffff; // no hover color in design
+          }
+        }
       }
 
-      // Ensure action column has enough space
-      .ant-table-thead > tr > th:last-child,
-      .ant-table-tbody > tr > td:last-child {
-        min-width: 150px;
+      .col-sno {
+        text-align: center;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        width: 50px !important;
+        min-width: 50px !important;
+      }
+
+      .col-patient-details {
+        width: 200px !important;
+        min-width: 200px !important;
+        .text-primary {
+          color: #4b4ad5;
+          font-weight: 600;
+          font-size: 14px;
+          display: block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          max-width: 100%;
+          margin-bottom: 5px;
+        }
+        small {
+          font-weight: 500;
+          font-size: 12px;
+          color: #454551 !important;
+        }
+      }
+
+      .col-contact,
+      .col-patient-id,
+      .col-admitted-on,
+      .col-discharged-on {
+        width: 180px !important;
+        min-width: 180px !important;
+
+        .ant-table-cell-content,
+        span,
+        div {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+
+      .col-ward-bed,
+      .col-admitting-doctor {
+        width: 180px !important;
+        min-width: 180px !important;
+
+        .ant-table-cell {
+          height: 58px;
+          overflow: hidden;
+        }
+
+        .ant-table-cell-content {
+          overflow: hidden;
+        }
+
+        div {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          line-height: 1.4;
+          max-height: calc(1.4em * 2.8);
+          word-wrap: break-word;
+          word-break: break-word;
+          white-space: normal;
+          width: 100%;
+        }
+
+        span {
+          display: inline;
+          line-height: 1.4;
+        }
+      }
+
+      // Referral placement: inline on desktop, stacked below on iPad widths
+      .col-contact {
+        .contact-cell {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+      }
+
+      @media screen and (min-width: 768px) and (max-width: 1024px) {
+        .col-contact {
+          .contact-cell {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+          }
+        }
+
+        // Tablet specific column widths to match Figma
+        .col-sno { width: 30px !important; min-width: 30px !important; }
+        .col-patient-details { width: 180px !important; min-width: 180px !important; }
+        .col-contact { width: 145px !important; min-width: 145px !important; }
+        .col-patient-id { width: 180px !important; min-width: 180px !important; }
+        .col-ward-bed { width: 145px !important; min-width: 145px !important; }
+        .col-admitting-doctor { width: 145px !important; min-width: 145px !important; }
+        .col-admitted-on { width: 145px !important; min-width: 145px !important; }
+        .col-discharged-on { width: 145px !important; min-width: 145px !important; }
+        .col-action { width: 120px !important; min-width: 120px !important; }
+
+        // Button label short on iPad
+        .col-action {
+          .view-details-btn {
+            color: transparent;
+            position: relative;
+            padding: 10px 24px !important;
+          }
+
+          .view-details-btn::after {
+            color: #4b4ad5;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+      }
+
+      // Action column button as per design
+      .col-action {
+        width: 180px;
+        min-width: 180px;
+        .view-details-btn {
+          background: #ffffff;
+          color: #4b4ad5;
+          border: 1px solid #4b4ad5;
+          border-radius: 10px;
+          padding: 10px 15px;
+          font-family: "Poppins", sans-serif;
+          font-weight: 600;
+          font-size: 14px;
+        }
+      }
+
+      // Rounded corners at bottom via table container
+      .ant-table-container {
+        border-radius: 12px;
+        overflow: hidden;
       }
     }
   }
@@ -62,4 +237,54 @@
   display: flex;
   gap: 6px;
   align-items: center;
+}
+
+.ipd-search-input {
+  display: flex;
+  max-width: 320px !important;
+  font-size: 12px !important;
+  text-overflow: ellipsis;
+  color: var(--T-Text-40, #A2A2A8);
+  height: 38px;
+  padding: 7px 13px;
+  align-items: center;
+}
+
+// Search input responsive width for tablet view
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .ipd-search-input {
+    width: 250px !important;
+    transition: max-width 0.3s ease;
+    display: flex;
+    padding: 7px 12px;
+    align-items: center;
+    border-radius: 10px;
+    border: 1px solid var(--T-Text-10, #E2E2EA);
+    background: var(--T-White-100, #FFF);
+
+    &.search-input-active {
+      max-width: 280px !important;
+      width: 280px !important;
+    }
+  }
+}
+
+// DateRangeFilter text width constraints when filter is active
+.massage-date-wrapper {
+  .filter-active {
+    span {
+      max-width: 140px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  @media screen and (min-width: 768px) and (max-width: 1024px) {
+    .filter-active {
+      span {
+        max-width: 100px;
+      }
+    }
+  }
 }
