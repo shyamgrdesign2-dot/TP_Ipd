@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import moment from "moment";
-import { Card, Button, Divider, Space, Typography } from "antd";
+import { Card, Button, Divider, Space, Typography, Empty } from "antd";
 import { useNavigate } from "react-router-dom";
 import { RemoteComponents } from "../../../../shared/remoteComponents";
 import { defaultIcons } from "../../../../assets/images/icons/index.js";
@@ -380,6 +380,7 @@ function ProgressNotesView({
           />
         )}
       </div>
+      { mappedData.length > 0 ? (
       <div>
         <ReusableStepper
           data={mappedData}
@@ -403,6 +404,11 @@ function ProgressNotesView({
           }
         />
       </div>
+      ) : (
+        <div className="no-data-container">
+          <Empty description="No progress notes found for the selected date range" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        </div>
+      )}
     </div>
   );
 }
