@@ -82,7 +82,7 @@ function IPDNavbar() {
           )}
         </NavLink>
       </div>
-      <div>
+      {/* <div>
         <NavLink onClick={handleTestingIframe} to="#" replace={true}>
           {({ isActive }) => (
             <>
@@ -102,7 +102,7 @@ function IPDNavbar() {
             </>
           )}
         </NavLink>
-      </div>
+      </div> */}
     </div>
   );
 }
