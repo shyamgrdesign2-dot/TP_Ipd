@@ -32,22 +32,30 @@ ApiIpdService.createAdmission = function (data) {
 };
 
 ApiIpdService.getWards = function () {
-  // GET /patients/wards
   return api.get(`/patients/wards`, baseUrl);
 };
 
 ApiIpdService.getDepartments = function () {
-  // GET /patients/departments
   return api.get(`/patients/departments`, baseUrl);
 };
 
-ApiIpdService.getPatientUniqueId = function ({mrno}) {
-  // GET /patients/get-patient-unique-id?mrno={mrno}
+ApiIpdService.getPatientUniqueId = function ({ mrno }) {
   return api.get(`/patients/patient-unique-id?mrno=${mrno}`, baseUrl);
 };
 
+ApiIpdService.checkPatientAdmitted = function ({ patientId }) {
+  return api.get(
+    `/patients/check-patient-admitted?patientId=${patientId}`,
+    baseUrl
+  );
+};
+
 ApiIpdService.markPatientAsDischarged = function ({ admissionId }) {
-  return api.put(`/patients/mark-discharged?admissionId=${admissionId}`, {}, baseUrl);
+  return api.put(
+    `/patients/mark-discharged?admissionId=${admissionId}`,
+    {},
+    baseUrl
+  );
 };
 
 export default ApiIpdService;

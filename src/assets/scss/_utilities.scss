@@ -234,7 +234,7 @@
 
 // Link styles
 .link-primary { @include fs14-normal-primary; text-decoration: none; }
-.link-secondary { @include fs14-normal-secondary; text-decoration: none; }
+.link-secondary { @include fs14-normal; @include text-secondary; text-decoration: none; }
 
 // Button text styles
 .btn-text-large { @include fs16-semibold-light; }
@@ -242,7 +242,7 @@
 .btn-text-small { @include fs12-semibold-light; }
 
 // Status text styles
-.status-success { @include fs14-semibold-tertiary; }
+.status-success { @include fs14-semibold; @include text-tertiary; }
 .status-warning { color: #f59e0b; @include fs14-semibold; @include typography-base; }
 .status-error { color: #ef4444; @include fs14-semibold; @include typography-base; }
 

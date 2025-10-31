@@ -3264,3 +3264,7 @@ nav.portal-header-ipd {
     margin-left: 0 !important;
   }
 }
+
+.ant-dropdown-menu.ant-dropdown-menu-root.ant-dropdown-menu-vertical.ant-dropdown-menu-light {
+  overflow-y: unset !important;
+}

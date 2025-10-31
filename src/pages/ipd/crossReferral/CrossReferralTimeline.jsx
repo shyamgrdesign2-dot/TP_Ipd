@@ -448,13 +448,11 @@ const CrossReferralTimeline = () => {
                   )}
                   {isCurrentDoctorReferee &&
                     !entry?.crossReferral["consultantNotes"] && (
-                      // {true && (
                       <div
                         onClick={() =>
                           handleAddConsultantNotesClick(
                             entry?.crossReferral["referralInformation"],
                             entry?._id,
-                            // entry?.crossReferral["consultantNotes"]?.length
                             0,
                             entry?.crossReferral
                           )
@@ -467,35 +465,6 @@ const CrossReferralTimeline = () => {
                       </div>
                     )}
                 </div>
-
-                {/* {!isExpanded && (
-                  <div className="gradient-overlay">
-                    <button
-                      className="view-more-btn"
-                      onClick={() => setIsExpanded(true)}
-                    >
-                      View more
-                      <img
-                        src={defaultIcons.downArrowPcIcon}
-                        alt="arrow down"
-                        className="arrow-down"
-                      />
-                    </button>
-                  </div>
-                )}
-                {isExpanded && (
-                  <button
-                    className="view-less-btn"
-                    onClick={() => setIsExpanded(false)}
-                  >
-                    View less
-                    <img
-                      src={defaultIcons.downArrowPcIcon}
-                      alt="arrow up"
-                      className="arrow-up"
-                    />
-                  </button>
-                )} */}
               </div>
             );
           };

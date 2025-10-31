@@ -24,6 +24,7 @@ import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import {
   doctorDepartmentRoles as fetchDoctorDeptRoles,
   fetchWards,
+  checkPatientAdmitted,
 } from "../../../redux/ipd/ipdSlice";
 import "./styles.scss";
 import ApiIpdService from "../../../api/services/ipd/ipdService";
@@ -45,7 +46,7 @@ const FIELD_SCHEMA = [
   }, // from filters.doctor
   { id: "admissionDate", label: "Admission Date*", type: "date" },
   { id: "admissionTime", label: "Admission Time*", type: "time" },
-  { id: "referralInfo", label: "Referral Info", type: "searchWithAdd" },
+  // { id: "referralInfo", label: "Referral Info", type: "searchWithAdd" },
   {
     id: "patientCategory",
     label: "Patient Category",
@@ -541,7 +542,7 @@ export default function PatientAdmission() {
           0,
         hospitalId: hospitalId || 0,
         admittedOn,
-        referral: !!formData.referralInfo,
+        // referral: !!formData.referralInfo,
         admissionId: patientDetails?.admissionId || "",
         isDischarged: false,
         mrno: patientDetails?.mrno || patientDetails?.mrNo || "",
@@ -561,6 +562,15 @@ export default function PatientAdmission() {
         },
       };
 
+      const checkIfAdmitted = await dispatch(
+        checkPatientAdmitted({
+          patientId: patientDetails?.id ?? patientDetails?.patientId ?? "",
+        })
+      );
+      if (!!checkIfAdmitted.payload.alreadyAdmitted) {
+        message.error("Patient is already admitted");
+        return;
+      }
       await ApiIpdService.createAdmission(payload);
       message.success("Admission created successfully");
       navigate(`/ipd/inPatients`, {
@@ -579,7 +589,9 @@ export default function PatientAdmission() {
     <ConfigProvider theme={{ token: { borderRadius: 12, controlHeight: 40 } }}>
       <div className="ipd-patient-admission-form-container">
         <Card
-          title={<strong>Add Admission Details</strong>}
+          title={
+            <div className="fs24-semibold-text">Add Admission Details</div>
+          }
           bordered
           className="admission-card"
         >
@@ -589,6 +601,12 @@ export default function PatientAdmission() {
               <div className="patient-meta">
                 {gender || "-"} • {metaAge}
               </div>
+              {(patientDetails?.mrno || patientDetails?.mrNo) && (
+                <div className="patient-mrno">
+                  <span className="text-uppercase fw-semibold">mrno:</span>{" "}
+                  {patientDetails?.mrno || patientDetails?.mrNo || "-"}
+                </div>
+              )}
             </div>
 
             <Spin spinning={loadingInitial}>

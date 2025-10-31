@@ -41,15 +41,19 @@
 // =============================================================================
 @mixin font-weight-normal {
   font-weight: $font-weight-normal;
+  font-family: $font-family-primary;
 }
 @mixin font-weight-semibold {
   font-weight: $font-weight-semibold;
+  font-family: $font-family-primary;
 }
 @mixin font-weight-bold {
   font-weight: $font-weight-bold;
+  font-family: $font-family-primary;
 }
 @mixin font-weight-bigbold {
   font-weight: $font-weight-bigbold;
+  font-family: $font-family-primary;
 }
 
 // Color Mixins

@@ -557,6 +557,7 @@ const renderLabResults = (labResults, printSettings) => {
           marginBottom: PX_TO_PT * 6,
         }}
         fixed
+        wrap={false}
       >
         Lab Results:&nbsp;
       </Text>
