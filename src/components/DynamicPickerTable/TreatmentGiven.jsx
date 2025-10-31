@@ -37,9 +37,12 @@ const TreatmentGiven = ({ sectionData }) => {
     return treatmentNotes.filter((record) => {
       const isOTNote =
         record.module === "OT Note" || record.module === "OT Notes";
-      const isSurgeryDetails = record.subModule === "Surgery Details";
+      // const isSurgeryDetails = record.subModule === "Surgery Details";
 
-      return !(isOTNote && isSurgeryDetails);
+      return !(
+        isOTNote
+        //  && isSurgeryDetails
+      );
     });
   }, [treatmentNotes]);
 
