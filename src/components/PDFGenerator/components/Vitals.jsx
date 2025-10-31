@@ -64,7 +64,7 @@ const Vitals = ({ vitals, title = "Vitals" }) => {
     { label: "BP", value: vitals.bloodPressure, unit: "mmHg" },
     { label: "Temperature", value: vitals.temperature, unit: "F" },
     { label: "Spo2", value: vitals.spo2, unit: "%" },
-    { label: "RR", value: vitals.respiratoryRate, unit: "/min" },
+    { label: "RR", value: vitals.respiratoryRate, unit: "breaths/min" },
     { label: "Weight", value: vitals.weight, unit: "kg" },
     { label: "Height", value: vitals.height, unit: "cms" },
     { label: "General Rbs", value: vitals.generalRBS, unit: "mg/dl" },
