@@ -268,7 +268,7 @@ const CrossReferralConsultantNotes = (props) => {
                                 )
                               }
                               suffixIcon={
-                                <img src={defaultIcons.calendarPlainIcon} />
+                                <img src={defaultIcons.calendarPlainIcon} alt="calendar" />
                               }
                               prefix={null}
                               allowClear
@@ -299,13 +299,15 @@ const CrossReferralConsultantNotes = (props) => {
   };
 
   const onAddReferralClick = () => {
+    const consultantNotesData = crossReferralState.crossReferralFormDetails.consultantNotesData || [];
+    
     const reqData = {
       ...crossReferralState.crossReferralFormDetails,
-      consultantNotes:
-        crossReferralState.crossReferralFormDetails.consultantNotesData,
-      consultantNotesData: [],
-      customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
+      consultantNotes: consultantNotesData,
+      customModule: [],
     };
+
+    delete reqData.consultantNotesData;
 
     console.log("cross referral ==> REQ", reqData);
 

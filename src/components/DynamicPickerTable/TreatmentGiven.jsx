@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback } from "react";
-import { message } from "antd";
+import { message, Tooltip } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { createRemoteComponent } from "../../shared/remoteComponents";
 import DynamicPickerTable from "./DynamicPickerTable";
@@ -11,6 +11,7 @@ import {
 } from "../../redux/ipd/dischargeSummarySlice";
 import {
   formatDateToShortMonthYear,
+  getModuleCode,
   removeBeforeWhiteSpace,
   replaceCommasAndSemicolons,
 } from "../../utils/utils";
@@ -74,22 +75,47 @@ const TreatmentGiven = ({ sectionData }) => {
     }
   };
 
+  const ToolTipContent = (record) => {
+    return (
+      <div className="chrosum-tooltip-container">
+        <div className="chrotol-source">
+          <span>Source:</span>
+          {record.module} - {record.subModule}
+        </div>
+        <div className="chrotol-source">
+          <span>Date:</span>
+          {record.givenDate}
+        </div>
+      </div>
+    );
+  };
+
   const columns = [
     {
       title: "NAME",
       dataIndex: "name",
       key: "name",
       ellipsis: true,
-      render: (text, record) => (
-        <div className="medication-name-cell">
-          <span className="medication-name">{text}</span>
-          <span
-            className={`badge badge-${record.code?.toLowerCase() || "default"}`}
-          >
-            [{record.code || "N/A"}]
-          </span>
-        </div>
-      ),
+      render: (text, record) => {
+        let code = getModuleCode(record.module);
+        if ((record.module === "OT Note" || record.module === "OT Notes") && record.subModule === "Surgery Details") {
+          code = null;
+        }
+        return (
+          <div className="medication-name-cell">
+            <span className="medication-name">{text}</span>
+            <Tooltip title={ToolTipContent(record)}>
+              <span
+                className={`badge badge-${
+                  record.code?.toLowerCase() || "default"
+                }`}
+              >
+                {code ? `[${code}]` : null}
+              </span>
+            </Tooltip>
+          </div>
+        );
+      },
     },
     {
       title: "GIVEN DATE",

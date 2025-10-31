@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
 import {
   formatDateToShortMonthYear,
+  getModuleCode,
   isEmptyRichText,
 } from "../../../../utils/utils";
 import { setCourseInHospital } from "../../../../redux/ipd/dischargeSummarySlice";
@@ -31,27 +32,6 @@ const CourseInHospital = (props) => {
     dispatch(setCourseInHospital({ ...courseInHospital, [key]: data }));
   };
 
-  const getModuleCode = (module) => {
-    if (!module) return "";
-
-    const moduleMap = {
-      "OT Note": "OT",
-      "OT Notes": "OT",
-      "Progress Note": "PN",
-      "Progress Notes": "PN",
-      Assessment: "AF",
-      "Consultant Notes": "CN",
-      "Cross Referral": "CR",
-      "Laboratory Report": "LR",
-      "Radiology Report": "RR",
-      "Nursing Notes": "NN",
-      Medication: "MED",
-      "Vital Signs": "VS",
-      "Discharge Planning": "DP",
-    };
-
-    return moduleMap[module] || module.substring(0, 2).toUpperCase();
-  };
 
   const transformChronologicalData = (apiData) => {
     if (!apiData) return [];

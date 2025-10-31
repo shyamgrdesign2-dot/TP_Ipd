@@ -2176,7 +2176,37 @@ export const camelToCapitalized = (text) => {
     .trim();
 };
 
+export const hasNoData = (data) => {
+  const values = Object.values(data);
 
+  return !values.some((value) => {
+    if (value === null || value === undefined) {
+      return false;
+    }
+
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+    if (typeof value === "number") {
+      return value > 0;
+    }
+
+    if (typeof value === "string") {
+      return value.trim() !== "";
+    }
+
+    if (typeof value === "object") {
+      return Object.keys(value).length > 0;
+    }
+
+    if (typeof value === "boolean") {
+      return value;
+    }
+
+    return !!value;
+  });
+};
 
 export const transformAdmissionToPatient = (source = {}) => {
   if (!source || typeof source !== "object") return {};
@@ -2186,12 +2216,17 @@ export const transformAdmissionToPatient = (source = {}) => {
 
   return {
     pm_salutation: "", // not available in source
-    pm_fullname: details.name ? details.name.charAt(0).toUpperCase() + details.name.slice(1).toLowerCase() : "",
+    pm_fullname: details.name
+      ? details.name.charAt(0).toUpperCase() +
+        details.name.slice(1).toLowerCase()
+      : "",
     pm_id: Number(details.id) || null, // safely parse to number
     pm_pid: source.admissionId || "", // fallback: using admissionId
     pm_contact_no: details.contact || "",
     patient_unique_id: source?.patient_unique_id || null,
-    pm_gender: details.gender ? details.gender.charAt(0) + details.gender.slice(1).toLowerCase() : "",
+    pm_gender: details.gender
+      ? details.gender.charAt(0) + details.gender.slice(1).toLowerCase()
+      : "",
     ageDays: 0, // not available, fallback
     ageMonths: 0, // not available, fallback
     ageYears: Number(details.age) || null,
@@ -2204,7 +2239,32 @@ export const transformAdmissionToPatient = (source = {}) => {
     pm_pincode: "",
     pm_blood_group: "", // not in source
     category: metadata.category || null,
-    lastVisitDate: source.dischargedAt ? source.dischargedAt.split("T")[0] : null,
-    pm_first_name: details.name || ""
+    lastVisitDate: source.dischargedAt
+      ? source.dischargedAt.split("T")[0]
+      : null,
+    pm_first_name: details.name || "",
   };
+};
+
+
+export const getModuleCode = (module) => {
+  if (!module) return "";
+
+  const moduleMap = {
+    "OT Note": "OT",
+    "OT Notes": "OT",
+    "Progress Note": "PN",
+    "Progress Notes": "PN",
+    Assessment: "AF",
+    "Consultant Notes": "CN",
+    "Cross Referral": "CR",
+    "Laboratory Report": "LR",
+    "Radiology Report": "RR",
+    "Nursing Notes": "NN",
+    Medication: "MED",
+    "Vital Signs": "VS",
+    "Discharge Planning": "DP",
+  };
+
+  return moduleMap[module] || module.substring(0, 2).toUpperCase();
 };

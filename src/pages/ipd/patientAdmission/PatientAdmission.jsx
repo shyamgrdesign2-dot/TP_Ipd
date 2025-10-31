@@ -24,8 +24,8 @@ import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import {
   doctorDepartmentRoles as fetchDoctorDeptRoles,
   fetchWards,
-} from "../../../redux/ipd/ipdSlice"; // <-- NEW import
-// import ApiIpdService from "../../services/api/ApiIpdService";
+  checkPatientAdmitted,
+} from "../../../redux/ipd/ipdSlice";
 import "./styles.scss";
 import ApiIpdService from "../../../api/services/ipd/ipdService";
 import { getTokenData } from "../../../utils/utils";
@@ -46,7 +46,7 @@ const FIELD_SCHEMA = [
   }, // from filters.doctor
   { id: "admissionDate", label: "Admission Date*", type: "date" },
   { id: "admissionTime", label: "Admission Time*", type: "time" },
-  { id: "referralInfo", label: "Referral Info", type: "searchWithAdd" },
+  // { id: "referralInfo", label: "Referral Info", type: "searchWithAdd" },
   {
     id: "patientCategory",
     label: "Patient Category",
@@ -151,6 +151,47 @@ function FieldRenderer({
       {...extraProps}
     />
   );
+
+  if (field.id === "contactNo") {
+    return (
+      <Controller
+        name="contactNo"
+        control={control}
+        rules={{
+          validate: {
+            digitsOnly: (v) =>
+              v == null ||
+              v === "" ||
+              /^\d*$/.test(v) ||
+              "Only numbers are allowed",
+            maxTen: (v) =>
+              v == null ||
+              v === "" ||
+              v.length <= 10 ||
+              "Contact number cannot exceed 10 digits",
+          },
+        }}
+        render={({ field: rhf }) => (
+          <Input
+            placeholder="Contact No"
+            inputMode="numeric"
+            pattern="\d*"
+            value={rhf.value ?? ""}
+            onChange={(e) => {
+              const onlyDigits = e.target.value.replace(/\D/g, "");
+              rhf.onChange(onlyDigits);
+            }}
+            onPaste={(e) => {
+              const text = e.clipboardData.getData("text");
+              const onlyDigits = text.replace(/\D/g, "");
+              e.preventDefault();
+              rhf.onChange(`${rhf.value ?? ""}${onlyDigits}`);
+            }}
+          />
+        )}
+      />
+    );
+  }
 
   switch (field.type) {
     case "select-departments":
@@ -380,14 +421,11 @@ export default function PatientAdmission() {
   const departmentsRoles = useSelector(
     (s) => s.ipd?.doctorDepartmentRoles || []
   );
-  const wardsState = useSelector((s) => s.ipd?.wards); // could be array OR wrapped
+  const wardsState = useSelector((s) => s.ipd?.wards);
 
-  // If your thunk returns the array directly, keep as is.
-  // If it returns { data: [...] }, then do: const wards = wardsState?.data || [];
   const wards = Array.isArray(wardsState)
     ? wardsState
     : wardsState?.data || wardsState || [];
-  console.log("INTEL ==> patientDetails", patientDetails);
 
   const ageFromDOB = calcAgeFromDOB(patientDetails?.dob);
   const ageYears =
@@ -405,8 +443,13 @@ export default function PatientAdmission() {
 
   const [loadingInitial, setLoadingInitial] = useState(true);
 
-  const { handleSubmit, control, setValue } = useForm({
-    mode: "onBlur",
+  const {
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
     defaultValues: {
       admissionDate: dayjs().toISOString(),
       admissionTime: dayjs().toISOString(),
@@ -416,6 +459,7 @@ export default function PatientAdmission() {
       roomId: undefined,
       admittingDoctorId: undefined,
       attendingDoctor: undefined,
+      contactNo: "",
     },
   });
 
@@ -426,11 +470,10 @@ export default function PatientAdmission() {
     let mounted = true;
     (async () => {
       try {
-        // Redux loads
         await Promise.all([
           dispatch(fetchDoctorDeptRoles()),
           dispatch(fetchFilters({ field: "doctor" })),
-          dispatch(fetchWards()), // <-- NEW
+          dispatch(fetchWards()),
         ]);
       } finally {
         if (mounted) setLoadingInitial(false);
@@ -499,7 +542,7 @@ export default function PatientAdmission() {
           0,
         hospitalId: hospitalId || 0,
         admittedOn,
-        referral: !!formData.referralInfo,
+        // referral: !!formData.referralInfo,
         admissionId: patientDetails?.admissionId || "",
         isDischarged: false,
         mrno: patientDetails?.mrno || patientDetails?.mrNo || "",
@@ -519,6 +562,15 @@ export default function PatientAdmission() {
         },
       };
 
+      const checkIfAdmitted = await dispatch(
+        checkPatientAdmitted({
+          patientId: patientDetails?.id ?? patientDetails?.patientId ?? "",
+        })
+      );
+      if (!!checkIfAdmitted.payload.alreadyAdmitted) {
+        message.error("Patient is already admitted");
+        return;
+      }
       await ApiIpdService.createAdmission(payload);
       message.success("Admission created successfully");
       navigate(`/ipd/inPatients`, {
@@ -537,7 +589,9 @@ export default function PatientAdmission() {
     <ConfigProvider theme={{ token: { borderRadius: 12, controlHeight: 40 } }}>
       <div className="ipd-patient-admission-form-container">
         <Card
-          title={<strong>Add Admission Details</strong>}
+          title={
+            <div className="fs24-semibold-text">Add Admission Details</div>
+          }
           bordered
           className="admission-card"
         >
@@ -547,6 +601,12 @@ export default function PatientAdmission() {
               <div className="patient-meta">
                 {gender || "-"} • {metaAge}
               </div>
+              {(patientDetails?.mrno || patientDetails?.mrNo) && (
+                <div className="patient-mrno">
+                  <span className="text-uppercase fw-semibold">mrno:</span>{" "}
+                  {patientDetails?.mrno || patientDetails?.mrNo || "-"}
+                </div>
+              )}
             </div>
 
             <Spin spinning={loadingInitial}>
@@ -557,6 +617,8 @@ export default function PatientAdmission() {
                       label={f.label.replace("*", "")}
                       required={/\*/.test(f.label)}
                       className="field-item"
+                      validateStatus={errors[f.id] ? "error" : undefined}
+                      help={errors[f.id]?.message}
                     >
                       <FieldRenderer
                         field={f}

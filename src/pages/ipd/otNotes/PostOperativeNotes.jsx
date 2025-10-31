@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setPostOperativeNotes } from "../../../redux/ipd/otNotesSlice";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import { Select } from "antd";
-import { isEmptyRichText } from "../../../utils/utils";
+import { isEmptyRichText, hasNoData } from "../../../utils/utils";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -150,8 +150,9 @@ const PostOperativeNotes = (props) => {
       });
   };
   if (!sectionData) return null;
-  if (!isEditable && !Object.values(postOperativeNotes).some((value) => value))
+  if (!isEditable && hasNoData(postOperativeNotes)) {
     return null;
+  }
   return (
     <div className="ipd-ot-notes-post-op-container">
       <CollapsibleWrapper

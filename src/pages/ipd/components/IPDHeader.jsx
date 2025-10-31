@@ -17,6 +17,7 @@ import { useLocalStorage } from "../../../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
 import { getClinicName } from "../../../utils/utils"; 
 import VideoModal from "../../../common/VideoModal";
+import Header from "../../../common/Header";
 
 function IPDHeader({ locationPath }) {
   const [popOverVideo, setPopOverVideo] = useState(false);
@@ -39,7 +40,7 @@ function IPDHeader({ locationPath }) {
 
   const { profile, videoList } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
-
+  
   const [clinicOptions, setClinicOptions] = useState([]);
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [getToken, setToken] = useLocalStorage(
@@ -224,6 +225,7 @@ function IPDHeader({ locationPath }) {
               </button>
             </Popover> */}
             {HOSPITAL_DATA}
+            <Header isIPD={true} />            
 
             <Drawer
               title="Video Tutorial"

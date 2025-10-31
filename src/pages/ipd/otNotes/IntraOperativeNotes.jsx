@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setIntraOperativeNotes } from "../../../redux/ipd/otNotesSlice";
 import "./styles.scss";
-import { isEmptyRichText } from "../../../utils/utils";
+import { isEmptyRichText, hasNoData } from "../../../utils/utils";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const UnitInput = createRemoteComponent("UnitInput");
@@ -15,7 +15,6 @@ export const MetricsList = ({ sectionData, data }) => {
       <div className="ipdot-ion-metrics-title">{"Metrics"}</div>
       <ul className="ipdot-ion-metrics-list">
         {sectionData?.map((section) => {
-          console.log('INTEL ==> ', data?.[section.id], section.title)
           return (
             <>
               {data?.[section.id] ? (
@@ -28,7 +27,7 @@ export const MetricsList = ({ sectionData, data }) => {
                     {data?.[section.id]}
                   </span>
                 </li>
-              ): null}
+              ) : null}
             </>
           );
         })}
@@ -48,7 +47,8 @@ const IntraOperativeNotes = (props) => {
     dispatch(setIntraOperativeNotes({ key, value, parentId }));
   };
   const renderRichTextEditorSection = (data) => {
-    if (!isEditable && isEmptyRichText(intraOperativeNotes?.[data?.id])) return null;
+    if (!isEditable && isEmptyRichText(intraOperativeNotes?.[data?.id]))
+      return null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -137,8 +137,12 @@ const IntraOperativeNotes = (props) => {
               const enabledChildItems = item?.children?.filter(
                 (item) => item.enabled
               );
-              console.log('INTEL ==> item', enabledChildItems, intraOperativeNotes)
-              if (enabledChildItems?.length > 0 && enabledChildItems?.some(item => item.id && !!intraOperativeNotes?.[item.id])) {
+              if (
+                enabledChildItems?.length > 0 &&
+                enabledChildItems?.some(
+                  (item) => item.id && !!intraOperativeNotes?.[item.id]
+                )
+              ) {
                 return (
                   <li key={item.id}>
                     <MetricsList
@@ -149,7 +153,8 @@ const IntraOperativeNotes = (props) => {
                 );
               }
             }
-            if (!isEditable && isEmptyRichText(intraOperativeNotes?.[item?.id])) return null;
+            if (!isEditable && isEmptyRichText(intraOperativeNotes?.[item?.id]))
+              return null;
             return <li key={item.id}>{renderRichTextEditorSection(item)}</li>;
           })}
         </ul>
@@ -168,8 +173,9 @@ const IntraOperativeNotes = (props) => {
     });
   };
   if (!sectionData) return null;
-  if (!isEditable && !Object.values(intraOperativeNotes).some((value) => value))
+  if (!isEditable && hasNoData(intraOperativeNotes)) {
     return null;
+  }
   return (
     <div>
       <CollapsibleWrapper

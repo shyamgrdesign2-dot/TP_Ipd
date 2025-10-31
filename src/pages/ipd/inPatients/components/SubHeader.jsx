@@ -3,7 +3,7 @@ import "./SubHeader.scss";
 import { defaultIcons } from "../../../../assets/images/icons";
 import { useNavigate } from "react-router-dom";
 
-const SubHeader = ({ headerTitle }) => {
+const SubHeader = ({ headerTitle, showAddAdmission = true }) => {
   const navigate = useNavigate();
 
   const handleAddAdmission = () => {
@@ -13,7 +13,8 @@ const SubHeader = ({ headerTitle }) => {
   return (
     <div className="sub-header">
       <div className="sub-header-content">{headerTitle}</div>
-      <div>
+      {showAddAdmission && (
+        <div>
         <Button
           type="primary"
           icon={<img src={defaultIcons.plusIcon} alt="+" />}
@@ -21,7 +22,8 @@ const SubHeader = ({ headerTitle }) => {
         >
           Add Admission
         </Button>
-      </div>
+        </div>
+      )}
     </div>
   );
 };

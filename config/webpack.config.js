@@ -183,7 +183,8 @@ module.exports = function (webpackEnv) {
             additionalData: preProcessor === 'sass-loader' 
               ? `@import "${paths.appSrc}/assets/scss/themeVariables.scss";
                  @import "${paths.appSrc}/assets/scss/_typography-mixins.scss";
-                 @import "${paths.appSrc}/assets/scss/_mixins.scss";`
+                 @import "${paths.appSrc}/assets/scss/_mixins.scss";
+                 @import "${paths.appSrc}/assets/scss/_utilities.scss";`
               : undefined,
           },
         }

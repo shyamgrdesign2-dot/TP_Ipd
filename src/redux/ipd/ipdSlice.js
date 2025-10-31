@@ -114,6 +114,20 @@ export const fetchPatientUniqueId = createAsyncThunk(
   }
 );
 
+export const checkPatientAdmitted = createAsyncThunk(
+  "ipd/checkPatientAdmitted",
+  async (data) => {
+    try {
+      let result = {};
+      result = await ApiIpdService.checkPatientAdmitted(data);
+      return result;
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
 export const markPatientAsDischarged = createAsyncThunk(
   "ipd/markPatientAsDischarged",
   async (data) => {

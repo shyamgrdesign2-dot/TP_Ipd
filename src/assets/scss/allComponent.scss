@@ -369,7 +369,7 @@
     margin-right: 20px;
     width: calc(100vw - 50px);
   }
-  
+
   &.bg-white {
     .ant-select-selector {
       background: #ffffff !important;   // ✅ override when bg-white class is added
@@ -3248,4 +3248,27 @@ body.sticky-search-open {
 }
 .ipd-patient-details-layout {
   border-radius: 20px !important;
+}
+nav.portal-header-ipd {
+  box-shadow: none !important;
+}
+.profile-dropdown-ipd {
+  width: 250px;
+  span.ant-dropdown-menu-title-content {
+    display: flex !important;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  .header-dropdown-ipd-myprofile {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .mx-3 {
+    margin-left: 0 !important;
+  }
+}
+
+.ant-dropdown-menu.ant-dropdown-menu-root.ant-dropdown-menu-vertical.ant-dropdown-menu-light {
+  overflow-y: unset !important;
 }
