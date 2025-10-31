@@ -327,7 +327,7 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
         return (
           <DatePicker
             placeholder={column.placeholder || `Select ${column.title}`}
-            value={text ? dayjs(text) : null}
+            value={text ? dayjs(text, 'DD/MM/YYYY') : null}
             onChange={(date) => handleRowUpdate(record.key, column.dataIndex, date ? date.format('YYYY-MM-DD') : null)}
             style={{ width: '100%' }}
             {...(column.dateProps || {})}
