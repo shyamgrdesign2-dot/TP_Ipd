@@ -1,6 +1,6 @@
 import React, {useMemo, useState, useEffect } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setChiefComplaint } from "../../../redux/ipd/progressNotesSlice";
 import {

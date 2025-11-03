@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setAdditionalRemarks } from "../../../redux/ipd/progressNotesSlice";
 import { formatDateToShortMonthYear } from "../../../utils/utils";
