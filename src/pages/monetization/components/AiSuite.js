@@ -21,7 +21,7 @@ import DDxKnowMore from "../../../components/DDxKnowMore";
 import SmartSyncKnowMore from "../components/SmartSyncKnowMore";
 import CvtKnowMore from "../../smartSync/components/CvtKnowMore";
 import AskTatvaKnowMore from "./AskTatvaKnowMore";
-import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData, sendMessageToParent } from "../../../utils/utils";
 
 import { services } from "../../../redux/doctorsSlice";
 import { checkCredits } from "../../../redux/monetizationSlice";
@@ -31,6 +31,7 @@ import { useLocalStorage } from "../../../utils/localStorage";
 import ExpiredSubModal from "./ExpiredSubModal";
 import ReceptionistKnowMore from "../../appointmentAgent/components/knowMore/ReceptionistKnowMore";
 import ContactSupportModal from "../../../common/ContactSupportModal";
+import { EVENTS } from "../../../utils/events";
 
 function AiSuite({ aiModal, handleAiSuite }) {
 
@@ -166,8 +167,11 @@ function AiSuite({ aiModal, handleAiSuite }) {
             setLoading(false);
 
             if (!isChrome && !isSafari) {
-                navigate(`/?url=${newUrl}&key=phpRedirect`, { replace: true });
-                navigate(0, { replace: true });
+                // navigate(`/?url=${newUrl}&key=phpRedirect`, { replace: true });
+                // navigate(0, { replace: true });
+                sendMessageToParent(EVENTS.REDIRECT, {
+                    url: newUrl,
+                });
             } else {
                 await window.open(newUrl, "_blank");
             }

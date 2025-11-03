@@ -12,7 +12,6 @@ import { useLocalStorage } from '../../utils/localStorage'
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_MEDECO_TOKEN } from '../../utils/constants'
 import config from '../../config'
 import { useSelector } from 'react-redux'
-import { getMedecoToken as fetchMedecoToken } from '../../api/services/ApiMedecoToken'
 
 const OurOffering = () => {
     const [searchParams] = useSearchParams();
@@ -64,27 +63,19 @@ const OurOffering = () => {
             key: "generate_ddx"
         },
     ]
-    const handleOfferingClick = async (key) => {
-        let medecoToken = getMedecoToken();
+    const handleOfferingClick = (key) => {
+        const medecoToken = getMedecoToken();
         const practiceToken = getPracticeToken();
         const MEDECO_WEBVIEW_URL = config.MEDECO_WEBVIEW_URL
 
-        // If medecoToken is missing, try to generate it
-        if (!medecoToken && profile?.um_contact) {
-            try {
-                const mobileNumber = `91${profile.um_contact}`;
-                console.log('Generating MedEco token for mobile:', mobileNumber);
-                const tokenResponse = await fetchMedecoToken(mobileNumber);
-                if (tokenResponse?.data?.token) {
-                    setMedecoToken(tokenResponse.data.token);
-                    medecoToken = tokenResponse.data.token;
-                    console.log('MedEco token generated successfully');
-                }
-            } catch (error) {
-                console.error('Failed to generate MedEco token:', error);
-            }
-        }
-
+        console.log('Offering Click:', {
+            key,
+            medecoToken: !!medecoToken,
+            practiceToken: !!practiceToken,
+            MEDECO_WEBVIEW_URL,
+            configObject: config,
+            env: process.env.REACT_APP_ENV
+        });
         switch (key) {
             case "tatva_practice":
                 if (from === "home") {
@@ -95,47 +86,19 @@ const OurOffering = () => {
                 }
                 break;
             case "tatva_shots":
-                console.log('TatvaShots Debug:', {
-                    medecoToken: !!medecoToken,
-                    practiceToken: !!practiceToken,
-                    MEDECO_WEBVIEW_URL: !!MEDECO_WEBVIEW_URL,
-                    medecoTokenValue: medecoToken,
-                    practiceTokenValue: practiceToken,
-                    MEDECO_WEBVIEW_URL_Value: MEDECO_WEBVIEW_URL
-                });
-                if (medecoToken && practiceToken && MEDECO_WEBVIEW_URL) {
-                    window.location.href = `${MEDECO_WEBVIEW_URL}/tatva-shots?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`;
-                } else {
-                    alert('Authentication required. Please login again.');
-                }
+                window.location.href = `${MEDECO_WEBVIEW_URL}/tatva-shots?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`;
                 break;
             case "remote_care":
-                if (medecoToken && practiceToken && MEDECO_WEBVIEW_URL) {
-                    window.location.href = `${MEDECO_WEBVIEW_URL}/remote-care?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`;
-                } else {
-                    alert('Authentication required. Please login again.');
-                }
+                window.location.href = `${MEDECO_WEBVIEW_URL}/remote-care?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`
                 break;
             case "generate_ddx":
-                if (medecoToken && practiceToken && MEDECO_WEBVIEW_URL) {
-                    window.location.href = `${MEDECO_WEBVIEW_URL}/ddx-welcome?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`;
-                } else {
-                    alert('Authentication required. Please login again.');
-                }
+                window.location.href = `${MEDECO_WEBVIEW_URL}/ddx-welcome?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`;
                 break;
             case "ask_tatva":
-                if (medecoToken && practiceToken && MEDECO_WEBVIEW_URL) {
-                    window.location.href = `${MEDECO_WEBVIEW_URL}/tatva-ai?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`;
-                } else {
-                    alert('Authentication required. Please login again.');
-                }
+                window.location.href = `${MEDECO_WEBVIEW_URL}/tatva-ai?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`;
                 break;
             case "tatva_pedia":
-                if (medecoToken && practiceToken && MEDECO_WEBVIEW_URL) {
-                    window.location.href = `${MEDECO_WEBVIEW_URL}/tatvapedia?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`;
-                } else {
-                    alert('Authentication required. Please login again.');
-                }
+                window.location.href = `${MEDECO_WEBVIEW_URL}/tatvapedia?authToken=${medecoToken}&practiceToken=${practiceToken}&fromPractice=${true}`;
                 break;
             default:
                 break;

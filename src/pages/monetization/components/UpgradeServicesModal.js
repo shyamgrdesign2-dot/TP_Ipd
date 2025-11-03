@@ -25,7 +25,7 @@ import AskTatvaKnowMore from "./../components/AskTatvaKnowMore";
 import PharmacyKnowMore from "./../components/PharmacyKnowMore";
 import BillingKnowMore from "./../components/BillingKnowMore";
 import MedEcoAppKnowMore from "./../components/MedEcoAppKnowMore";
-import { errorMessage, getClinicName, getDeviceSdkData, getTokenData } from "../../../utils/utils";
+import { errorMessage, getClinicName, getDeviceSdkData, getTokenData, sendMessageToParent } from "../../../utils/utils";
 
 import { services } from "../../../redux/doctorsSlice";
 import { checkCredits } from "../../../redux/monetizationSlice";
@@ -33,6 +33,7 @@ import FullPageLoader from "../../vaccination/components/Loader";
 import config from "../../../config";
 import { useLocalStorage } from "../../../utils/localStorage";
 import ExpiredSubModal from "./ExpiredSubModal";
+import { EVENTS } from "../../../utils/events";
 
 function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal }) {
 
@@ -189,8 +190,11 @@ function UpgradeServicesModal({ isUpgradeModal, upgradeList, handleUpgradeModal 
             setLoading(false);
 
             if (!isChrome && !isSafari) {
-                navigate(`/?url=${newUrl}&key=phpRedirect`, { replace: true });
-                navigate(0, { replace: true });
+                // navigate(`/?url=${newUrl}&key=phpRedirect`, { replace: true });
+                // navigate(0, { replace: true });
+                sendMessageToParent(EVENTS.REDIRECT, {
+                    url: newUrl,
+                });
             } else {
                 await window.open(newUrl, "_blank");
             }

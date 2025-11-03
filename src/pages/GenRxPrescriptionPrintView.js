@@ -12,6 +12,7 @@ import {
   getClinicName,
   isApollo,
   trackEvent,
+  sendMessageToParent
 } from "../utils/utils";
 import api from "../api/services/axiosService";
 
@@ -28,6 +29,7 @@ import { viewCaseManager } from "../redux/caseManagerSlice";
 
 import { pdfjs, Document, Page } from "react-pdf";
 import { env } from "../EnvironmentConfig";
+import { EVENTS } from "../utils/events";
 const worker = require("pdfjs-dist/build/pdf.worker.min.js");
 pdfjs.GlobalWorkerOptions.workerSrc = worker;
 
@@ -94,11 +96,12 @@ function GenRxPrescriptionPrintView() {
   };
 
   const handleInAppDownload = async () => {
-    navigate(`/gen-rx-print/?url=${printUrl}&key=download`, {
-      replace: true,
-      state: state,
-    });
-    navigate(0, { replace: true });
+    // navigate(`/gen-rx-print/?url=${printUrl}&key=download`, {
+    //   replace: true,
+    //   state: state,
+    // });
+    // navigate(0, { replace: true });
+    sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
   };
 
   async function onDocumentLoadSuccess(successEvent) {
@@ -227,11 +230,12 @@ function GenRxPrescriptionPrintView() {
   };
 
   const printInAppContent = () => {
-    navigate(`/gen-rx-print/?url=${printUrl}&key=print`, {
-      replace: true,
-      state,
-    });
-    navigate(0, { replace: true });
+    // navigate(`/gen-rx-print/?url=${printUrl}&key=print`, {
+    //   replace: true,
+    //   state,
+    // });
+    // navigate(0, { replace: true });
+    sendMessageToParent(EVENTS.PRINT, { url: printUrl });
   };
 
   return (

@@ -364,9 +364,9 @@ const UploadDocument = ({
           });
         }
       }
-      if (isAndroid && !isBrowser) {
-        deleteDocsUploadedFromAndroid(patient_data.patient_unique_id);
-      }
+      // if (isAndroid && !isBrowser) {
+      //   deleteDocsUploadedFromAndroid(patient_data.patient_unique_id);
+      // }
       if (!isAppointmentData) {
         setTimeout(async () => {
           const doctorUploadedDocs = await fetchAllPatientDocs(
@@ -511,9 +511,9 @@ const UploadDocument = ({
     toggleDeletePopup();
     setFilesData([]);
     setRecordData([]);
-    if (isAndroid && !isBrowser) {
-      deleteDocsUploadedFromAndroid(patient_data.patient_unique_id);
-    }
+    // if (isAndroid && !isBrowser) {
+    //   deleteDocsUploadedFromAndroid(patient_data.patient_unique_id);
+    // }
   };
 
   const handleFileInputClick = () => {
@@ -566,13 +566,13 @@ const UploadDocument = ({
               style={{ display: "flex", alignItems: "center", gap: "5px" }}
               onClick={handleFileInputClick}
             >
-              {isAndroid && !isBrowser ? (
+              {/* {isAndroid && !isBrowser ? (
                 <div
                   ref={fileInputRef}
                   onClick={handleUploadDocPopup}
                   style={{ display: "none" }}
                 />
-              ) : (
+              ) : ( */}
                 <input
                   type="file"
                   multiple
@@ -582,7 +582,7 @@ const UploadDocument = ({
                   style={{ display: "none" }}
                   disabled={filesData.length >= 5}
                 />
-              )}
+              {/* )} */}
               <i className="icon-upload" />
               <span>Upload new report</span>
             </Button>

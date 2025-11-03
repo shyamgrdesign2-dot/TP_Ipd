@@ -46,7 +46,12 @@ import alertIcon from "./../../assets/images/alertIcon.svg";
 import { debounce } from "lodash";
 import * as XLSX from "xlsx";
 import { handleInAppClick } from "../opdBilling/utils/helper";
-import { errorMessage, getClinicName, sendMessageToParent, trackEvent } from "../../utils/utils";
+import {
+  errorMessage,
+  getClinicName,
+  sendMessageToParent,
+  trackEvent,
+} from "../../utils/utils";
 import successIcon from "../../assets/images/end-visit.svg";
 import closeIcon from "../../assets/images/close-visit.svg";
 import CreateCertificate from "../../components/medical_certificate/CreateCertificate";
@@ -395,13 +400,13 @@ const AllPatients = () => {
         label: (
           <div onClick={() => handleAddClick(record)}>
             Upload Medical Records
-            {isAndroid && !isBrowser ? (
+            {/* {isAndroid && !isBrowser ? (
               <div
                 ref={fileInputRef}
                 onClick={() => handleUploadDocPopup(record)}
                 style={{ display: "none" }}
               />
-            ) : (
+            ) : ( */}
               <input
                 type="file"
                 multiple
@@ -410,7 +415,7 @@ const AllPatients = () => {
                 accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf, video/mp4, video/quicktime, video/x-msvideo"
                 style={{ display: "none" }}
               />
-            )}
+            {/* )} */}
           </div>
         ),
         key: "uploadDoc",
@@ -700,10 +705,14 @@ const AllPatients = () => {
     SSO_TO_PM().then(async (data) => {
       if (data.success == 200) {
         if (!isChrome && !isSafari) {
-          navigate(`/?url=${data.url}&module=${moduleName}&key=phpRedirect`, {
-            replace: true,
+          // navigate(`/?url=${data.url}&module=${moduleName}&key=phpRedirect`, {
+          //   replace: true,
+          // });
+          // navigate(0, { replace: true });
+          sendMessageToParent(EVENTS.REDIRECT, {
+            url: data?.url,
+            module: moduleName
           });
-          navigate(0, { replace: true });
         } else {
           window.open(`${data.url}&module=${moduleName}`);
         }
@@ -822,13 +831,13 @@ const AllPatients = () => {
         const res = await uploadDocsToAzure(formData);
         if (res?.length > 0) {
           const printUrl = res?.[0]?.url;
-          // sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
-          handleInAppClick(
-            userId,
-            "download",
-            printUrl,
-            setStartLoader(true)
-          );
+          sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
+          // handleInAppClick(
+          //   userId,
+          //   "download",
+          //   printUrl,
+          //   setStartLoader(true)
+          // );
         }
       } else {
         // Download file directly in Chrome/Safari

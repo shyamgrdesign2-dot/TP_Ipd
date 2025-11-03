@@ -26,7 +26,7 @@ import followUpActiveIcon from "../assets/images/follow-up-active.svg";
 import LockIcon from "../assets/images/lock-icon.svg";
 import tatvaAiActiveIcon from "../assets/images/website-images/tatvaAiActiveIcon.svg";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { errorMessage, getClinicName, shouldMonetizationDisabled, trackEvent } from "../utils/utils";
+import { errorMessage, getClinicName, sendMessageToParent, shouldMonetizationDisabled, trackEvent } from "../utils/utils";
 import FullPageLoader from "../pages/vaccination/components/Loader";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
 import moment from "moment";
@@ -36,6 +36,7 @@ import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 import IPDKnowMore from "../pages/monetization/components/IPDKnowMore";
 import PharmacyKnowMore from "../pages/monetization/components/PharmacyKnowMore";
 import AskTatvaKnowMore from "../pages/monetization/components/AskTatvaKnowMore";
+import { EVENTS } from "../utils/events";
 
 function SidebarDoctor() {
   const dispatch = useDispatch();
@@ -211,10 +212,14 @@ function SidebarDoctor() {
       } else {
         if (data.success == 200) {
           if (!isChrome && !isSafari) {
-            navigate(`/?url=${data.url}&module=${moduleName}&key=phpRedirect`, {
-              replace: true,
+            // navigate(`/?url=${data.url}&module=${moduleName}&key=phpRedirect`, {
+            //   replace: true,
+            // });
+            // navigate(0, { replace: true });
+            sendMessageToParent(EVENTS.REDIRECT, {
+              url: `${data?.url}&module=${moduleName}`,
+              module: moduleName
             });
-            navigate(0, { replace: true });
           } else {
             await window.open(`${data.url}&module=${moduleName}`);
           }
@@ -328,8 +333,11 @@ function SidebarDoctor() {
       setLoading(false);
 
       if (!isChrome && !isSafari) {
-        navigate(`/?url=${newUrl}&key=phpRedirect`, { replace: true });
-        navigate(0, { replace: true });
+        // navigate(`/?url=${newUrl}&key=phpRedirect`, { replace: true });
+        // navigate(0, { replace: true });
+        sendMessageToParent(EVENTS.REDIRECT, {
+          url: newUrl,
+        });
       } else {
         await window.open(newUrl, "_blank");
       }

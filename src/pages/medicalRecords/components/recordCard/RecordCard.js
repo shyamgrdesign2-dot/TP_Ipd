@@ -150,27 +150,27 @@ const RecordCard = ({
   };
 
   const handleInAppDownload = async () => {
-    // sendMessageToParent(EVENTS.DOWNLOAD, { url });
-    const deviceUid = localStorage.getItem("app_device_unique_id");
-    if (deviceUid) {
-      const docRef = doc(db, "fileDownload", deviceUid);
-      try {
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          await updateDoc(docRef, {
-            canDownload: "yes",
-            pdfURL: url,
-          });
-        } else {
-          await setDoc(doc(db, "fileDownload", deviceUid), {
-            canDownload: "yes",
-            pdfURL: url,
-          });
-        }
-      } catch (error) {
-        console.error("Error updating document:", error);
-      }
-    }
+    sendMessageToParent(EVENTS.DOWNLOAD, { url });
+    // const deviceUid = localStorage.getItem("app_device_unique_id");
+    // if (deviceUid) {
+    //   const docRef = doc(db, "fileDownload", deviceUid);
+    //   try {
+    //     const docSnap = await getDoc(docRef);
+    //     if (docSnap.exists()) {
+    //       await updateDoc(docRef, {
+    //         canDownload: "yes",
+    //         pdfURL: url,
+    //       });
+    //     } else {
+    //       await setDoc(doc(db, "fileDownload", deviceUid), {
+    //         canDownload: "yes",
+    //         pdfURL: url,
+    //       });
+    //     }
+    //   } catch (error) {
+    //     console.error("Error updating document:", error);
+    //   }
+    // }
   };
 
   const handleDownload = async () => {

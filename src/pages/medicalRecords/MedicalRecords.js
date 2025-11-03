@@ -122,13 +122,13 @@ const handleFileUpload = (event) => {
               style={{ display: "flex", alignItems: "center", gap: "5px" }}
               onClick={() => fileInputRef.current?.click()}
             >
-              {isAndroid && !isBrowser ? (
+              {/* {isAndroid && !isBrowser ? (
                 <div
                   ref={fileInputRef}
                   onClick={handleUploadDocPopup}
                   style={{ display: "none" }}
                 />
-              ) : (
+              ) : ( */}
                 <input
                   type="file"
                   multiple
@@ -137,7 +137,7 @@ const handleFileUpload = (event) => {
                   accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf, video/mp4, video/quicktime, video/x-msvideo"
                   style={{ display: "none" }}
                 />
-              )}
+              {/* )} */}
               <i className="icon-upload" />
               <span>Upload new report</span>
             </Button>
