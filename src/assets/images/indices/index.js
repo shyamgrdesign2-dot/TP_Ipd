@@ -3,6 +3,7 @@ import { defaultIcons as assessmentIcons } from '../assessmentIcons';
 import { defaultIcons as otNotesIcons } from '../otNotesIcons';
 import { defaultIcons as crossReferralIcons } from '../crossReferralIcons';
 import { defaultIcons as dischargeSummaryIcons } from '../dischargeSummaryIcons';
+import { defaultIcons as progressNotesIcons } from '../progressNotesIcons';
 
 // Combine both icon collections into a single defaultIcons object
 const defaultIcons = {
@@ -10,6 +11,7 @@ const defaultIcons = {
   ...otNotesIcons,
   ...crossReferralIcons,
   ...dischargeSummaryIcons,
+  ...progressNotesIcons
 };
 
 // Export individual collections for backward compatibility
