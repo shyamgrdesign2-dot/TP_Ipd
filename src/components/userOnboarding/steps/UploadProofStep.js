@@ -25,7 +25,7 @@ const UploadProofStep = ({
   const [isFileFormatNotSupported, setIsFileFormatNotSupported] =
     useState(false);
   const [selectedFileExtension, setSelectedFileExtension] = useState("");
-
+  const ua = navigator.userAgent.toLowerCase();
   const isRealChrome =
     ua.includes('chrome') &&
     !ua.includes('edg') &&
