@@ -6,6 +6,7 @@ dayjs.extend(customParseFormat);
 
 const initialState = {
   consultantNotes: [],
+  filteredConsultantNotes: [],
   clinicalAssessmentPlan: [],
   vitals: {},
   medication: [],
@@ -24,11 +25,9 @@ export const getConsultantNotes = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const result = await ApiConsultantNotes.getConsultantNotes(data);
-      if (result?.length) {
-        return result;
-      } else {
-        return rejectWithValue("No consultant notes found");
-      }
+      const notes = Array.isArray(result) ? result : [];
+      const isFiltered = !!data.filterStartDate || !!data.filterEndDate;
+      return { notes, isFiltered };
     } catch (error) {
       console.log("Error fetching consultant notes: ", error);
       return rejectWithValue(
@@ -62,9 +61,13 @@ const consultantNotesSlice = createSlice({
     },
     clearConsultantNotes: (state) => {
       state.consultantNotes = [];
+      state.filteredConsultantNotes = [];
       state.currentConsultantNote = null;
       state.error = null;
       state.success = false;
+    },
+    clearFilteredConsultantNotes: (state) => {
+      state.filteredConsultantNotes = [];
     },
     updateConsultantNoteInList: (state, action) => {
       const { _id, updatedData } = action.payload;
@@ -111,7 +114,13 @@ const consultantNotesSlice = createSlice({
       .addCase(getConsultantNotes.fulfilled, (state, action) => {
         state.loading = false;
 
-        const notes = Array.isArray(action.payload) ? action.payload : [];
+        const payload = action.payload;
+        const isFiltered = payload?.isFiltered || false;
+        const notes = Array.isArray(payload?.notes)
+          ? payload.notes
+          : Array.isArray(payload)
+          ? payload
+          : [];
         const sorted = [...notes].sort((a, b) => {
           const ad = a?.consultationNotes || {};
           const bd = b?.consultationNotes || {};
@@ -135,12 +144,18 @@ const consultantNotesSlice = createSlice({
           return bCreated.valueOf() - aCreated.valueOf(); // descending
         });
 
-        state.consultantNotes = sorted;
+        if (isFiltered) {
+          state.filteredConsultantNotes = sorted;
+        } else {
+          state.consultantNotes = sorted;
+          state.filteredConsultantNotes = [];
+        }
         state.error = null;
       })
       .addCase(getConsultantNotes.rejected, (state, action) => {
         state.loading = false;
         state.consultantNotes = [];
+        state.filteredConsultantNotes = [];
         state.error = action.payload;
       })
       // Update consultant notes
@@ -178,6 +193,7 @@ const consultantNotesSlice = createSlice({
 export const {
   setCurrentConsultantNote,
   clearConsultantNotes,
+  clearFilteredConsultantNotes,
   updateConsultantNoteInList,
   setClinicalAssessmentPlan,
   setVitals,

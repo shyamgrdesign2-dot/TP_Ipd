@@ -67,7 +67,6 @@ const PatientsTable = ({
       dataIndex: "srno",
       key: "srno",
       className: "col-sno fs-14",
-      fixed: "left",
       render: (text, record, index) => (
         <div>
           <span>{index + 1}</span>

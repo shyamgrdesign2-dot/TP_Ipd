@@ -7,7 +7,7 @@ const EmptyState = ({ label }) => (
   <div className="empty-state">
     <div className="empty-state-content">
       <img src={emptyFileIcon} alt="No results" className="empty-state-icon" />
-      <Text className="empty-state-text">No {label} available</Text>
+      <Text className="empty-state-text">{label}</Text>
     </div>
   </div>
 );

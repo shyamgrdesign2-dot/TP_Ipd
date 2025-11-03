@@ -202,7 +202,7 @@ const ScanResults = () => {
             })}
           </Row>
         ) : (
-          <EmptyState label="Scan Results" />
+          <EmptyState label="No Scan Results available" />
         )}
       </div>
     </div>
