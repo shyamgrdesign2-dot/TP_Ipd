@@ -318,7 +318,7 @@ function MedicationsBox(props) {
         if (doseCalculatorDrawer) {
           const modifyData = updatedData[0]
           const objDose = dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)
-          medicationLibrary.push({
+          const newMedicine = {
             ...modifyData,
             tmm_dosage_unit_name: "",
             tmm_dosage: '',
@@ -334,8 +334,8 @@ function MedicationsBox(props) {
             medicine_name: modifyData.tmm_medicine_name,
             medicine_generic_name: modifyData.tmm_generic,
             exist: dosesList.some((e1) => e1.medicine_id == modifyData.tmm_id) ? true : false
-          });
-          setMedicationLibrary(medicationData);
+          };
+          setMedicationLibrary(prev => [...prev, newMedicine]);
           setSearchMLQuery("");
           setAddCustom(null);
         } else {
