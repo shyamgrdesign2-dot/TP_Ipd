@@ -279,7 +279,15 @@ function MedicationsBox(props) {
       if (action.meta.requestStatus === "fulfilled") {
         const updatedData = action.payload.map((e) => {
 
-          const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
+          const medicineUnit = e?.medicineUnit.map((e1) => {
+            return {
+              key: JSON.stringify({ ...e1 }),
+              value: e1.tmu_id,
+              label: String(e1.tmu_title || ""),
+            };
+          });
+
+          const unitObj = medicineUnit ? medicineUnit.find((x) => x.value == e.tmm_unit) : null;
           const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
           const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
 
@@ -372,12 +380,24 @@ function MedicationsBox(props) {
   const onSearchUnitPerDoseChid = useCallback(
     (query, i) => {
       const updateQuery = onlyDecimalFormat(query);
-      medicationData[i].tmm_dosage_unit_name = updateQuery;
-      medicationData[i].tmm_dosage = '';
-      medicationData[i].tmm_unit = 0;
-      medicationData[i].tmm_unit_name = '';
-      medicationData[i].tmu_id = 0;
-      dispatch(setMedicationData(medicationData));
+      
+      // Create a new array with updated medication data
+      const updatedMedicationData = medicationData.map((item, index) => {
+        if (index === i) {
+          return {
+            ...item,
+            tmm_dosage_unit_name: updateQuery,
+            tmm_dosage: '',
+            tmm_unit: 0,
+            tmm_unit_name: '',
+            tmu_id: 0,
+          };
+        }
+        return item;
+      });
+      
+      dispatch(setMedicationData(updatedMedicationData));
+      
       if (updateQuery) {
         const options = medicationData[i].medicineUnit.map((e) => {
           return {
@@ -396,14 +416,26 @@ function MedicationsBox(props) {
 
   const onBlurUnitPerDoseChid = useCallback(
     async (i) => {
-      if (!isAlphabetExit(medicationData[i].tmm_dosage_unit_name)) {
+      const currentItem = medicationData[i];
+      if (!isAlphabetExit(currentItem.tmm_dosage_unit_name)) {
         setUnitPerDoseOptions([]);
-        medicationData[i].tmm_dosage_unit_name = "";
-        medicationData[i].tmm_dosage = '';
-        medicationData[i].tmm_unit = 0;
-        medicationData[i].tmm_unit_name = '';
-        medicationData[i].tmu_id = 0;
-        dispatch(setMedicationData(medicationData));
+        
+        // Create a new array with updated medication data
+        const updatedMedicationData = medicationData.map((item, index) => {
+          if (index === i) {
+            return {
+              ...item,
+              tmm_dosage_unit_name: "",
+              tmm_dosage: '',
+              tmm_unit: 0,
+              tmm_unit_name: '',
+              tmu_id: 0,
+            };
+          }
+          return item;
+        });
+        
+        dispatch(setMedicationData(updatedMedicationData));
       }
     },
     [unitPerDoseOptions, medicationData]
@@ -413,12 +445,23 @@ function MedicationsBox(props) {
     (data, e, i) => {
       setUnitPerDoseOptions([]);
       const objParse = JSON.parse(e.key);
-      medicationData[i].tmm_dosage_unit_name = data;
-      medicationData[i].tmm_dosage = objParse.tmm_dosage;
-      medicationData[i].tmm_unit = objParse.tmu_id;
-      medicationData[i].tmm_unit_name = objParse.tmu_title;
-      medicationData[i].tmu_id = objParse.tmu_id;
-      dispatch(setMedicationData(medicationData));
+      
+      // Create a new array with updated medication data
+      const updatedMedicationData = medicationData.map((item, index) => {
+        if (index === i) {
+          return {
+            ...item,
+            tmm_dosage_unit_name: data,
+            tmm_dosage: objParse.tmm_dosage,
+            tmm_unit: objParse.tmu_id,
+            tmm_unit_name: objParse.tmu_title,
+            tmu_id: objParse.tmu_id,
+          };
+        }
+        return item;
+      });
+      
+      dispatch(setMedicationData(updatedMedicationData));
     },
     [unitPerDoseOptions, medicationData]
   );
@@ -1197,7 +1240,8 @@ function MedicationsBox(props) {
   }
 
   const mainMedicationSelect = async (index) => {
-    const childData = await innerMedication(index)
+    const childData = await innerMedication(index);
+    console.log(childData,"childData")
     handleDrawerChild(childData, index)
   }
 
@@ -1533,21 +1577,53 @@ function MedicationsBox(props) {
 
   const TABLE_MEDICATION = useMemo(() => {
     const noteProps = isEditable ? { lg: 4, md: 4, sm: 4, xs: 4 } : { lg: 7, md: 7, sm: 7, xs: 7 };
+    console.log(medicationData,"medicationData")
     
-    const rows = (medicationData || []).map((item, index) => ({
-      originalItem: item,
-      index,
-      medicineName: item?.tmm_medicine_name || "--",
-      genericName: item?.tmm_generic || "",
-      unitPerDose: item?.tmm_dosage || "--",
-      frequency: isNumeric(item.tmf_block) && item.tmf_block == 0 ? `${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
+    const rows = (medicationData || []).map((item, index) => {
+      const dosageValue = item?.tmm_dosage;
+      const dosageUnitName = typeof item?.tmm_dosage_unit_name === "string" ? item.tmm_dosage_unit_name.trim() : "";
+
+      const resolvedUnitId = item?.tmm_unit ?? item?.tmu_id ?? item?.default_tmm_unit;
+      let resolvedUnitLabel = typeof item?.tmm_unit_name === "string" ? item.tmm_unit_name.trim() : "";
+      if (!resolvedUnitLabel && Array.isArray(item?.medicineUnit)) {
+        const matchedUnit = item.medicineUnit.find((unit) => {
+          const unitValue = typeof unit?.value === "number" ? unit.value : parseInt(unit?.value, 10);
+          return unitValue == resolvedUnitId;
+        });
+        if (matchedUnit) {
+          if (typeof matchedUnit.label === "string" && matchedUnit.label.trim()) {
+            resolvedUnitLabel = matchedUnit.label.trim();
+          } else if (matchedUnit.key) {
+            try {
+              const parsed = JSON.parse(matchedUnit.key);
+              resolvedUnitLabel = parsed?.tmu_title || resolvedUnitLabel;
+            } catch (error) {
+              console.warn("Unable to parse medicine unit", matchedUnit, error);
+            }
+          }
+        }
+      }
+
+      const unitPerDoseDisplay = dosageUnitName
+        || (dosageValue
+          ? `${dosageValue}${resolvedUnitLabel ? ` ${resolvedUnitLabel}` : ""}`
+          : resolvedUnitLabel || "--");
+
+      return {
+        originalItem: item,
+        index,
+        medicineName: item?.tmm_medicine_name || "--",
+        genericName: item?.tmm_generic || "",
+        unitPerDose: unitPerDoseDisplay,
+        frequency: isNumeric(item.tmf_block) && item.tmf_block == 0 ? `${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
         ${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
         ${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : ""}
         ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + "" : "0"}` : `${item.tmm_freq_type_name ? item.tmm_freq_type_name : "--"}`,
-      when: item?.tmm_time_name || "--",
-      duration: item?.tmm_days_duration_type || "--",
-      note: item?.tmm_remarks || "--",
-    }));
+        when: item?.tmm_time_name || "--",
+        duration: item?.tmm_days_duration_type || "--",
+        note: item?.tmm_remarks || "--",
+      };
+    });
         
     return (
       <div className="ipd-wrapper-class-medbox-readonly">
@@ -1567,7 +1643,7 @@ function MedicationsBox(props) {
             </Col>
             <Col lg={18} md={18} sm={18} xs={18}>
               <Row>
-                <Col lg={3} md={3} sm={3} xs={3} className="border-end border-start">
+                <Col lg={4} md={4} sm={4} xs={4} className="border-end border-start">
                   <div className="fontroboto fw-medium p-2 fs-12 text-welcome">
                     <label>UNIT PER DOSE</label>
                   </div>
@@ -1575,16 +1651,6 @@ function MedicationsBox(props) {
                 <Col lg={5} md={5} sm={5} xs={5} className="border-end">
                   <div className="fontroboto fw-medium p-2 fs-12 text-welcome d-flex align-items-center">
                     <label>FREQUENCY</label>
-                    {/* <Popover
-                      open={frequencyPopOver}
-                      content={FREQUENCY_CONTENT}
-                      placement="rightTop"
-                      trigger="click"
-                      arrow={false}
-                      onOpenChange={showHideFrequencyPopOver}
-                      overlayClassName="pp-0">
-                      {isEditable ? <i className='icon-info ms-1 fs-18'></i> : null}
-                    </Popover> */}
                   </div>
                 </Col>
                 <Col lg={4} md={4} sm={4} xs={4} className="border-end">
@@ -1663,7 +1729,7 @@ function MedicationsBox(props) {
                             {rows.filter(row => row.originalItem.tmm_id === item.originalItem.tmm_id).map((subItem, ii) => {
                               return (
                                 <Row key={ii} className={`${ii != 0 && 'position-relative border-top'}`}>
-                                  <Col lg={3} md={3} sm={3} xs={3} className="border-end border-start">
+                                  <Col lg={4} md={4} sm={4} xs={4} className="border-end border-start">
                                     <AutoComplete
                                       disabled
                                     //   defaultValue={subItem.tmm_dosage_unit_name || "--"}
@@ -1681,7 +1747,7 @@ function MedicationsBox(props) {
                                       onClear={() => onSearchUnitPerDoseChid("", subItem?.index)}
                                       allowClear
                                     />
-                                    {/* {ii === 0 && profile?.dp_id === 9 && (
+                                    {/* {ii === 0 && (profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) && (
                                       dosesList.some((e1) => e1.medicine_id == item.tmm_id) ? (
                                         <div className="badge-tapper position-absolute" style={{ bottom: 0, left: 20 }} onClick={() => handleViewDoseCalcDrawer("1", item?.tmm_id)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Edit Calculation</div>
                                       ) : (
@@ -1801,7 +1867,7 @@ function MedicationsBox(props) {
         </DragDropContext>
       </div>
     );
-  }, [medicationData, frequencyPopOver, isEditable, selectedTab]);
+  }, [medicationData, frequencyPopOver, isEditable, selectedTab, childDrawerData]);
 
   //Template Componet
   const TEMPLATE_CONTENT = useCallback(() => {
@@ -2347,12 +2413,13 @@ function MedicationsBox(props) {
                     const makeData = {
                       unique_id: medicationData[selectedIndex]?.unique_id,
                       tmm_id: medicationData[selectedIndex]?.tmm_id,
-                      tmm_medicine_name: medicationData[selectedIndex]?.tmm_medicine_name,
-                      tmm_generic: medicationData[selectedIndex]?.tmm_generic,
-                      tmm_company: medicationData[selectedIndex]?.tmm_company
-                    }
-                    const updateItem = medicineType !== undefined ? { ...makeData, ...medicineType } : makeData
-                    setAddCustom(updateItem);
+                      tmm_medicine_name: String(medicationData[selectedIndex]?.tmm_medicine_name || ""),
+                      tmm_generic: String(medicationData[selectedIndex]?.tmm_generic || ""),
+                      tmm_company: String(medicationData[selectedIndex]?.tmm_company || ""),
+                      tmm_type: medicationData[selectedIndex]?.tmm_type,
+                      ...medicineType
+                    };
+                    setAddCustom(makeData);
                   }}
                 ></i>
               }
@@ -2365,20 +2432,20 @@ function MedicationsBox(props) {
             </div>
           </div>
         </Card>
-        <Tabs
-          type="editable-card"
-          onChange={onChange}
-          activeKey={activeKey}
-          onEdit={(targetKey, action) => onEdit(targetKey, action, childDrawerData[childIndex])}
-          items={childDrawerData && childDrawerData?.length > 0 && childDrawerData?.map((e, i) => {
-            return {
+        {Array.isArray(childDrawerData) && childDrawerData.length > 0 ? (
+          <Tabs
+            type="editable-card"
+            onChange={onChange}
+            activeKey={activeKey}
+            onEdit={(targetKey, action) => onEdit(targetKey, action, childDrawerData[childIndex])}
+            items={childDrawerData.map((e, i) => ({
               key: e.unique_id,
               label: `Dose ${i + 1}`,
-              children: null,
-            };
-          })}
-          className="tablet-medication-tabs"
-        />
+              children: null
+            }))}
+            className="tablet-medication-tabs"
+          />
+        ) : null}
         <i className="icon-Add custom-tapper-button" onClick={() => taperDoseAdd(childDrawerData && childDrawerData?.length > 0 ? childDrawerData[childIndex] : medicationData[selectedIndex])} />
         {childDrawerData && childDrawerData?.length > 0 && (
           <div className="p-4">
@@ -2420,13 +2487,8 @@ function MedicationsBox(props) {
                           : null
                         : null
                     }
-                    onSelect={(val) => onSelectMedicineUnitChild(val)}
-                    options={
-                      childDrawerData?.[childIndex]?.medicineUnit?.map((e) => ({
-                        label: e.tmu_title,
-                        value: e.tmu_id,
-                      })) || []
-                    }
+                    onSelect={onSelectMedicineUnitChild}
+                    options={childDrawerData?.[childIndex]?.medicineUnit}
                   />
                 </Col>
               </Row>
@@ -3086,7 +3148,7 @@ function MedicationsBox(props) {
                 <img src={calculatorIcon} alt="Dose calcultor" className="svg-hovered me-2" /><span>{isPillUpAccessableFromGB ? 'Dose calc' : 'Dose calculator'}</span>
               </button>
             )}
-            <button
+            {/* <button
               className="btn d-flex align-items-center btn-text"
               onClick={loadPreviousRxClick}
             >
@@ -3122,7 +3184,7 @@ function MedicationsBox(props) {
                 </button>
 
               </Popover>
-            </Tooltip>
+            </Tooltip> */}
             <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={medicationData.length > 0 ? false : true}>
               <i className="icon-eraser1 me-2"></i> {!isPillUpAccessableFromGB && <span>Clear</span>}
             </button>

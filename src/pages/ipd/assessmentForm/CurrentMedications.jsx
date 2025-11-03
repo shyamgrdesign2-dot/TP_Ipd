@@ -14,6 +14,8 @@ const CurrentMedications = (props) => {
 
   if (!isEditable && !medicationData?.length) return null;
 
+  console.log(isMobile,"isMobile")
+
   return (
     <div
       className={`ipdaf-medication-box-container ${

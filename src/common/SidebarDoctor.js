@@ -20,6 +20,8 @@ import {
   S_TATVA_PRACTICE,
   PERSISTANT_STORAGE_KEY_EXTRA,
   FAILED_VERIFICATION,
+  GB_NEW_IPD,
+  GB_NEW_IPD_HOS_BUSINESS_ID,
 } from "../utils/constants";
 import newGif from "../assets/images/new-gif.gif";
 import ipdIcon from "../assets/images/ipd.svg";
@@ -43,6 +45,7 @@ import {
   getClinicName,
   shouldMonetizationDisabled,
   trackEvent,
+  trackMoEngageEvent,
 } from "../utils/utils";
 import FullPageLoader from "../pages/vaccination/components/Loader";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
@@ -57,6 +60,10 @@ import AskTatvaKnowMore from "../pages/monetization/components/AskTatvaKnowMore"
 function SidebarDoctor() {
   const dispatch = useDispatch();
   const { servicesList } = useSelector((state) => state.doctors);
+  const isNewIPDAccessableFromGB = useFeatureIsOn(GB_NEW_IPD);
+  const isNewIPDHosBusinessIdAccessableFromGB = useFeatureIsOn(
+    GB_NEW_IPD_HOS_BUSINESS_ID
+  );
   const ASK_TATVA_planDetails = servicesList?.find(
     (e) => e.service_name === S_ASK_TATVA
   );
@@ -165,7 +172,11 @@ function SidebarDoctor() {
   };
 
   const clickOldModule = async (moduleName) => {
-    if (moduleName === "ipd") {
+    trackMoEngageEvent("IPD_InPatients_Clicked", {});
+    if (
+      moduleName === "ipd" &&
+      (isNewIPDAccessableFromGB || isNewIPDHosBusinessIdAccessableFromGB)
+    ) {
       navigate("/ipd/inPatients");
 
       return check_SSO(moduleName);
@@ -268,7 +279,10 @@ function SidebarDoctor() {
         "INTEL ==> inapp",
         `/patient_details/?url=${data.url}&module=${moduleName}&key=print`
       );
-      if (moduleName === "ipd") {
+      if (
+        moduleName === "ipd" &&
+        (isNewIPDAccessableFromGB || isNewIPDHosBusinessIdAccessableFromGB)
+      ) {
         navigate("/ipd/inPatients");
       } else if (moduleName === "opd_billing" && isOpdBillingAccessable) {
         navigate("/billing-dashboard");

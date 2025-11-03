@@ -65,6 +65,7 @@ const FollowUp = (props) => {
           allowClear
           inputReadOnly
           placeholder="dd/mm/yyyy"
+          minDate={dayjs().startOf('day')}
         />
       </div>
     );

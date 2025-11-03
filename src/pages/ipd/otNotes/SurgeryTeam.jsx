@@ -41,11 +41,18 @@ const SurgeryTeam = (props) => {
   };
 
   const renderSection = (role) => {
-    const options = (doctorsList || []).map((item) => ({
-      key: JSON.stringify(item),
-      value: item.name,
-      label: <div key={item.id}>{item.name}</div>,
-    }));
+    const removeDoctors = (role.id === "floorCirculatingNurse" || role.id === 'scrubNurse');
+    const options = (doctorsList || [])
+      .filter(item =>
+        removeDoctors
+          ? item.role && !/Doctor|Dr\./i.test(item.role)
+          : item.role && !!/Doctor|Dr\./i.test(item.role)
+      )
+      .map((item) => ({
+        key: JSON.stringify(item),
+        value: item.name,
+        label: <div key={item.id}>{item.name}</div>,
+      }));
     return (
       <div className="ipdot-st-section">
         <label className="otNotes-label">{role.name || role.title}</label>

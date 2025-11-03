@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { defaultIcons } from "../../../assets/images/icons";
+import { defaultIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setFindings } from "../../../redux/ipd/progressNotesSlice";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");

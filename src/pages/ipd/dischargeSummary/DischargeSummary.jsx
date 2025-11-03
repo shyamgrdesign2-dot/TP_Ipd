@@ -152,12 +152,12 @@ const DischargeSummary = (props) => {
   useEffect(() => {
     if (isEditable)
       dispatch(
-        getLastPrescriptionDate({ patientId: patientDetails?.patientUniqueId })
+        getLastPrescriptionDate({ patientId: patientDetails?.patient_unique_id })
       ).then((res) => {
         if (res.payload) {
           dispatch(
             lastPrescriptionData({
-              patientId: patientDetails?.patientUniqueId,
+              patientId: patientDetails?.patient_unique_id,
               caseId: res.payload?.caseId,
             })
           );

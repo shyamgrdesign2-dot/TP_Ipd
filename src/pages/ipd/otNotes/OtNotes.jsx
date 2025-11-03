@@ -44,6 +44,7 @@ const OtNotes = (props) => {
     isEditable: isEditableState = true,
     isNew = false,
     fromDischargeSummary = false,
+    activeOtNoteId,
   } = state || {};
   const isEditable = isEditableProp && isEditableState;
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
@@ -99,8 +100,10 @@ const OtNotes = (props) => {
           admissionId: patientDetails.admissionId,
         })
       ).then((res) => {
-        if (otNotesData.currentOtNoteId) {
-          dispatch(setSingleOtNotesData({ _id: otNotesData.currentOtNoteId }));
+        const activeId = activeOtNoteId || otNotesData.currentOtNoteId;
+        if (activeId) {
+          dispatch(setCurrentOtNoteId(activeId));
+          dispatch(setSingleOtNotesData({ _id: activeId }));
         }
       });
     }
@@ -244,11 +247,11 @@ const OtNotes = (props) => {
       })
     ).then((res) => {
       if (res?.payload?.error) {
-        message.warning(
-          `${res.payload.error} - ${
-            res.payload.message?.split("must")?.[0]
-          } missing`
-        );
+        if (res.payload.message?.split("must")?.[0]) {
+          message.warning(`Please fill all the fields before saving`);
+        } else {
+          message.warning(`Something went wrong, Please try again.`);
+        }
         return;
       }
       dispatch(
@@ -386,13 +389,17 @@ const OtNotes = (props) => {
                   showAutoFill={showAutoFillLocal && isNew}
                   autoFillTitle={autoFillTitleLocal}
                   onAutoFill={() => {
-                    // setIsLoading(true);
-                    // otNotesData?.otNotesData[otNotesData?.otNotesData?.length - 1]?._id && dispatch(setSingleOtNotesData({_id: otNotesData?.otNotesData[otNotesData?.otNotesData?.length - 1]?._id})).then(() => {
-                    //   console.log('INTEL ==> DONE')
-                    // })
-                    // setTimeout(() => {
-                    //   setIsLoading(false)
-                    // }, 100)
+                    const prevOtNotesId =
+                      otNotesData?.otNotesData[
+                        otNotesData?.otNotesData?.length - 1
+                      ]?._id;
+                    setIsLoading(true);
+                    if (prevOtNotesId) {
+                      dispatch(setSingleOtNotesData({ _id: prevOtNotesId }));
+                      setTimeout(() => {
+                        setIsLoading(false);
+                      }, 100);
+                    }
                   }}
                   items={modelData}
                   renderSection={renderSections}

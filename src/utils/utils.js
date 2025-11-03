@@ -879,6 +879,24 @@ export const trackEvent = (eventName, attributes) => {
   window.Moengage.track_event(eventName, attributes);
 };
 
+export const trackMoEngageEvent = (eventName, eventParams = {}, commonData = {}) => {
+  try {
+    const finalAttributes = {
+      ...(commonData || {}),
+      ...(eventParams || {}),
+    };
+    
+    if (window.Moengage && typeof window.Moengage.track_event === 'function') {
+      window.Moengage.track_event(eventName, finalAttributes);
+      console.log(`MoEngage Event Tracked: ${eventName}`, finalAttributes);
+    } else {
+      console.warn('MoEngage is not available or track_event function not found');
+    }
+  } catch (error) {
+    console.error('Error tracking MoEngage event:', error);
+  }
+};
+
 export const getIndianLanguageFont = (text, defaultFont = "Roboto") => {
   // Devanagari (Hindi, Marathi, Sanskrit, Nepali, etc.)
   if (/[\u0900-\u097F]/.test(text)) {
