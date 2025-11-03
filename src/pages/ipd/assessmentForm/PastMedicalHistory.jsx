@@ -38,7 +38,11 @@ const PastMedicalHistory = (props) => {
   const renderAutoFillButton = useCallback(() => {
     const { pastMedicalHistory: lastPastMedicalHistory = {} } =
       lastPrescriptionDataForAssessment || {};
-    if (!lastRxDate) return null;
+    if (
+      !lastRxDate ||
+      !lastPrescriptionDataForAssessment?.pastMedicalHistory?.length
+    )
+      return null;
     return (
       <AutoFillButton
         refCallback={setAutoFillButtonRef}
@@ -118,7 +122,7 @@ const PastMedicalHistory = (props) => {
         width="100%"
         containerClass="wrapper-class ipd-pmh-wrapper-class"
         icon={assessmentsIcons[`${sectionData?.id}Pc`]}
-        showAutoFill={isEditable}
+        showAutoFill={false}
         opdDate="15 Jun 2025"
         onAutoFill={() => {
           console.log("auto fill");
@@ -127,7 +131,7 @@ const PastMedicalHistory = (props) => {
           console.log("save");
         }}
         renderBody={renderMedicalHistory}
-        headerComponent={medicalHistoryData?.length ? showLastUpdatedAt: null}
+        headerComponent={medicalHistoryData?.length ? showLastUpdatedAt : null}
       />
       {addMedicalHistoryDrawer && (
         <Drawer

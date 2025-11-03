@@ -111,28 +111,21 @@ const AssessmentsForm = (props) => {
       });
     }
     dispatch(getCustomization());
-    if (isEditable)
+    if (isEditable) {
       dispatch(
-        getLastPrescriptionDate({ patientId: patientDetails?.patientUniqueId })
+        getLastPrescriptionDate({ patientId: patientDetails?.patient_unique_id })
       ).then((res) => {
         if (res.payload) {
           dispatch(
             lastPrescriptionData({
-              patientId: patientDetails?.patientUniqueId,
+              patientId: patientDetails?.patient_unique_id,
               caseId: res.payload?.caseId,
             })
           );
         }
       });
-  }, [
-    addDataToStore,
-    dispatch,
-    isEditable,
-    patientDetails?.details?.id,
-    patientDetails?.admissionId,
-    patientDetails?.patientUniqueId,
-    assessmentData?.assessmentsData,
-  ]);
+    }
+  }, [addDataToStore, dispatch, isEditable, patientDetails]);
 
   useEffect(() => {
     dispatch(getMedicationTemplates());
@@ -153,7 +146,7 @@ const AssessmentsForm = (props) => {
     };
     dispatch(updateCustomization(newData));
   };
-  
+
   const renderSections = (data) => {
     switch (data?.id) {
       case "basicInfo":
