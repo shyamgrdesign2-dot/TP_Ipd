@@ -200,14 +200,14 @@ const IPDPatientDetails = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (patient_data?.patient_unique_id) {
+    if (patientId) {
       getAllPatientDocs(
-        patient_data?.patient_unique_id,
+        patientId,
         admissionId,
         "medical_records"
       );
     }
-  }, [patient_data?.patient_unique_id]);
+  }, [patientId]);
 
   // Drawer Medical Report
   const handleDrawerMedicalReport = () => {

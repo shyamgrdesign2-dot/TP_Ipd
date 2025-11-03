@@ -435,11 +435,6 @@ function TabMedicationBox(props) {
           const updatedMedicationData = [...medicationData, { ...updatedData[0] }];
           dispatch(setMedicationData(updatedMedicationData));
           setSelectedIndex(updatedMedicationData.length - 1);
-          // // CRITICALLY: close childDrawer if open
-          // setChildDrawer(false);
-          // setChildDrawerData(null);
-          // setChildIndex(null);
-          // setActiveKey(null);
           // Only then open parent drawer
           handleDrawerParent();
         }
@@ -474,6 +469,7 @@ function TabMedicationBox(props) {
 
   const mainMedicationSelect = async (index) => {
     const childData = await innerMedication(index)
+    console.log(childData,"childData")
     handleDrawerChild(childData, index)
   }
 
@@ -778,6 +774,7 @@ function TabMedicationBox(props) {
   });
 
   const TABLE_MEDICATION = useMemo(() => {
+    console.log(medicationData,"medicationData")
     return (
       medicationData.length > 0 && (
         <SortableList
