@@ -24,7 +24,6 @@ const SurgeryTeam = ({ surgeryTeam, id }) => {
     }
 
     if (!displayValue) return null;
-    console.log(icon, label);
     return (
       <MemberChip
         icon={defaultIcons.referringTo}

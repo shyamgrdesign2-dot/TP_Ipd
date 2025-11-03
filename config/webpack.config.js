@@ -776,6 +776,8 @@ module.exports = function (webpackEnv) {
             shared_ui:
               process.env.REACT_APP_ENV === 'ipd'
                 ? 'module /shared-ui/assets/remoteEntry.js'
+                : process.env.REACT_APP_ENV === 'prod'
+                ? 'module /shared-ui/assets/remoteEntry.js'
                 : 'module http://localhost:3001/assets/remoteEntry.js',
           },
           shared: {

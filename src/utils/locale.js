@@ -827,7 +827,7 @@ export const IPD = {
               view: 1,
             },
             {
-              id: "sutureTypeCount",
+              id: "sutureType",
               label: "Suture Type/Count",
               order: 4,
               visible: true,
@@ -1057,7 +1057,7 @@ export const IPD = {
             {
               placeholder:
                 "Enter type and count of sutures used (e.g., Vicryl 3-0 × 2)",
-              id: "sutureTypeCount",
+              id: "sutureType",
               title: "Suture Type/Count",
               enabled: true,
               icon: "suture",
