@@ -570,6 +570,7 @@
 .printheight {
   border-radius: 20px;
   overflow-y: auto;
+  height: calc(100vh - 160px);
   .react-pdf__Document {
     background-color: $bgbody;
     .react-pdf__Page_afterload {
