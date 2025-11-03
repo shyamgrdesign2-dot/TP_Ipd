@@ -39,6 +39,7 @@ import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
 import CommonModal from "../../common/CommonModal";
 import moment from "moment";
+import { setMedicationData } from "../../redux/prescriptionSlice";
 
 const dateFormat = 'YYYY-MM-DD'
 
@@ -51,11 +52,11 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
 
   const {
     patient_data,
-    medicationData,
-    setMedicationData,
     vitalsData,
     setVitalsData,
   } = useContext(CashManagerContext);
+
+  let { medicationData } = useSelector((state) => state.prescription);
 
   const {
     selectedVitalsList,
@@ -162,9 +163,30 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
   }
 
   const handleSaveMedicineDoses = async () => {
-    const sanitizedDosesData = medicationLibrary?.filter(e => !e.exist)?.map(
-      ({ dosage, dosage_unit, concentration, concentration_unit, medicine_id }) => ({ dosage, dosage_unit, concentration, concentration_unit, medicine_id })
-    )
+    const rawDosesToCreate = (medicationLibrary || []).filter((entry) => !entry.exist);
+
+    const sanitizedDosesData = rawDosesToCreate.map((entry) => {
+      const {
+        dosage,
+        dosage_unit,
+        concentration,
+        concentration_unit,
+        medicine_id,
+        tmm_id,
+      } = entry || {};
+
+      const resolvedMedicineId = parseInt(medicine_id ?? tmm_id, 10);
+
+      return {
+        dosage,
+        dosage_unit: dosage_unit,
+        concentration,
+        concentration_unit: concentration_unit,
+        medicine_id: Number.isFinite(resolvedMedicineId)
+          ? resolvedMedicineId
+          : undefined,
+      };
+    });
 
     if (!todayWeight) {
       message.open({
@@ -198,45 +220,113 @@ const DoseCalculator = ({ handleViewDoseCalcDrawer, activeTab, setActiveTab, sea
         ),
         duration: 3,
       });
+    } else if (sanitizedDosesData.filter(e => !e.medicine_id)?.length > 0) {
+      message.open({
+        key: MESSAGE_KEY,
+        type: '',
+        className: 'message-appointment',
+        content: (
+          <div className='d-flex align-items-center'>
+            <InfoCircleOutlined className="fs-21 me-2 circle-outlined-custom" />
+            <div>
+              <div className='text-start fs-18 fontroboto'>Unable to identify the medicine for dose calculation. Please try re-adding it.</div>
+            </div>
+            <img src={imgCloseVisit} className='ms-3' onClick={() => message.destroy()} />
+          </div>
+        ),
+        duration: 3,
+      });
     } else if (medicationLibrary?.length > 0) {
 
-      const action = sanitizedDosesData?.length > 0 ? await dispatch(createDose(sanitizedDosesData)) : { meta: { requestStatus: 'fulfilled' } }
+      const payloadToCreate = sanitizedDosesData.filter(
+        (dose) => dose.medicine_id && dose.dosage && dose.concentration
+      );
+
+      const action = payloadToCreate.length > 0
+        ? await dispatch(createDose(payloadToCreate))
+        : { meta: { requestStatus: 'fulfilled' } };
       if (action.meta.requestStatus === "fulfilled") {
 
-        const collectOriginalData = new Set(medicationData.map(item => parseInt(item.tmm_id)));
-        const findDataWithoutOriginalData = medicationLibrary.filter(item => !collectOriginalData.has(parseInt(item.medicine_id)));
-        medicationData.push(...findDataWithoutOriginalData);
-        setMedicationData((prev) => [...prev]);
+        const currentMedicationData = Array.isArray(medicationData) ? medicationData : [];
 
-        medicationLibrary?.map(e => {
-          const findTmmId = medicationData.findIndex(e1 => e1.tmm_id == e.medicine_id)
-          // if (!medicationData[findTmmId].tmm_dosage) {
-          const tmm_unit = medicationData[findTmmId]?.tmm_unit;
-          const dose = calculateDose(e.dosage, todayWeight, e.concentration, medicationData[findTmmId]?.tmm_type)
-          if (isMobile) {
-            const unitObj = medicationData[findTmmId]?.medicineUnit.find((x) => x.value == tmm_unit) !== undefined ?
-              medicationData[findTmmId]?.medicineUnit.find((x) => x.value == tmm_unit) :
-              medicationData[findTmmId].medicineUnit[0];
+        const cloneMedicationItem = (item) => ({
+          ...item,
+          medicineUnit: Array.isArray(item?.medicineUnit)
+            ? item.medicineUnit.map((unit) => ({ ...unit }))
+            : item?.medicineUnit,
+        });
 
-            medicationData[findTmmId].tmm_dosage_unit_name = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : ""}` : ""}`;
-            medicationData[findTmmId].tmm_dosage = dose ? dose : "";
-            medicationData[findTmmId].tmm_unit = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_id : "";
-            medicationData[findTmmId].tmm_unit_name = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_title : "";
-            medicationData[findTmmId].tmu_id = unitObj && unitObj !== undefined ? JSON.parse(unitObj.key).tmu_id : "";
-          } else {
-            const unitObj = medicationData[findTmmId]?.medicineUnit.find((x) => x.tmu_id == tmm_unit) !== undefined ?
-              medicationData[findTmmId]?.medicineUnit.find((x) => x.tmu_id == tmm_unit) :
-              medicationData[findTmmId]?.medicineUnit[0];
+        const clonedMedicationData = currentMedicationData.map(cloneMedicationItem);
+        const collectOriginalData = new Set(
+          clonedMedicationData.map((item) => parseInt(item.tmm_id))
+        );
 
-            medicationData[findTmmId].tmm_dosage_unit_name = `${dose ? `${dose} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`;
-            medicationData[findTmmId].tmm_dosage = dose ? dose : "";
-            medicationData[findTmmId].tmm_unit = unitObj && unitObj !== undefined ? unitObj.tmu_id : "";
-            medicationData[findTmmId].tmm_unit_name = unitObj && unitObj !== undefined ? unitObj.tmu_title : "";
-            medicationData[findTmmId].tmu_id = unitObj && unitObj !== undefined ? unitObj.tmu_id : "";
+        const additionalMedicationData = medicationLibrary
+          .filter((item) => !collectOriginalData.has(parseInt(item.medicine_id)))
+          .map(cloneMedicationItem);
+
+        let nextMedicationData = [...clonedMedicationData, ...additionalMedicationData];
+
+        const computeUpdatedMedication = nextMedicationData.map((medItem) => {
+          const doseEntry = medicationLibrary.find(
+            (entry) => parseInt(entry.medicine_id) === parseInt(medItem.tmm_id)
+          );
+
+          if (!doseEntry) {
+            return medItem;
           }
-          // }
-        })
-        setMedicationData((prev) => [...prev]);
+
+          const tmmUnit = medItem?.tmm_unit;
+          const calculatedDose = calculateDose(
+            doseEntry.dosage,
+            todayWeight,
+            doseEntry.concentration,
+            medItem?.tmm_type
+          );
+
+          if (isMobile) {
+            const unitObj = Array.isArray(medItem?.medicineUnit)
+              ? medItem.medicineUnit.find((x) => x.value == tmmUnit) ?? medItem.medicineUnit[0]
+              : null;
+
+            let parsedUnit = {};
+            if (unitObj && unitObj.key) {
+              try {
+                parsedUnit = JSON.parse(unitObj.key) || {};
+              } catch (error) {
+                console.warn("Failed to parse medicine unit key", unitObj, error);
+              }
+            }
+
+            return {
+              ...medItem,
+              tmm_dosage_unit_name: calculatedDose
+                ? `${calculatedDose} ${parsedUnit?.tmu_title || ""}`
+                : "",
+              tmm_dosage: calculatedDose || "",
+              tmm_unit: parsedUnit?.tmu_id ?? medItem?.tmm_unit ?? "",
+              tmm_unit_name: parsedUnit?.tmu_title ?? medItem?.tmm_unit_name ?? "",
+              tmu_id: parsedUnit?.tmu_id ?? medItem?.tmu_id ?? "",
+            };
+          }
+
+          const unitObj = Array.isArray(medItem?.medicineUnit)
+            ? medItem.medicineUnit.find((x) => x.tmu_id == tmmUnit) ?? medItem.medicineUnit[0]
+            : null;
+
+          return {
+            ...medItem,
+            tmm_dosage_unit_name: calculatedDose
+              ? `${calculatedDose} ${unitObj?.tmu_title || ""}`
+              : "",
+            tmm_dosage: calculatedDose || "",
+            tmm_unit: unitObj?.tmu_id ?? medItem?.tmm_unit ?? "",
+            tmm_unit_name: unitObj?.tmu_title ?? medItem?.tmm_unit_name ?? "",
+            tmu_id: unitObj?.tmu_id ?? medItem?.tmu_id ?? "",
+          };
+        });
+
+        dispatch(setMedicationData(computeUpdatedMedication));
 
         vitalsUpdate?.weight != todayWeight && onAddUpdateClicked()
 
