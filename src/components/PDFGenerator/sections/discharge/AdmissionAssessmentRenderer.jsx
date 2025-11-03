@@ -114,27 +114,23 @@ const renderFunctionalAssessment = (data, formatSettings) => {
 
 const renderTreatmentPlan = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Treatment Plan" />
-      <RichTextPrintRendererSection
-        data={data}
-        formatSettings={formatSettings}
-        id="treatmentPlan"
-      />
-    </View>
+    <RichTextPrintRendererSection
+      data={data}
+      formatSettings={formatSettings}
+      id="treatmentPlan"
+      title="Treatment Plan"
+    />
   );
 };
 
 const renderAdditionalNotes = (data, formatSettings) => {
   return (
-    <View style={styles.sectionContainer}>
-      <SectionTitle title="Additional Notes" />
-      <RichTextPrintRendererSection
-        data={data}
-        formatSettings={formatSettings}
-        id="additionalNotes"
-      />
-    </View>
+    <RichTextPrintRendererSection
+      data={data}
+      formatSettings={formatSettings}
+      id="additionalNotes"
+      title="Additional Notes"
+    />
   );
 };
 

@@ -3,6 +3,7 @@ import RichTextPrintRenderer from "./richTextPrintRenderer";
 import { View, StyleSheet, Text } from "@react-pdf/renderer";
 import { camelToCapitalized } from "../../../../../utils/utils";
 import { getAllVisibleSections } from "../../../utils/pdfUtils";
+import SectionTitle from "../../SectionTitle";
 
 const styles = StyleSheet.create({
   // Main container
@@ -88,6 +89,7 @@ const RichTextPrintRendererSection = ({
   data,
   formatSettings,
   id = "treatmentPlan",
+  title = null,
 }) => {
   const mainSection = formatSettings?.find((section) => section?.id === id);
   const subsections = getAllVisibleSections(mainSection?.subSections || []);
@@ -95,6 +97,8 @@ const RichTextPrintRendererSection = ({
   if (!mainSection) return null;
 
   return (
+    <View style={styles.sectionContainer}>
+      {title ? <SectionTitle title={title} />: null}
     <View style={styles.mainContainer} wrap={false}>
       {subsections.map((subsection) => {
         const key = subsection.id;
@@ -127,7 +131,6 @@ const RichTextPrintRendererSection = ({
             </View>
           );
         } else if (data?.[id]?.[key]) {
-          // console.log('INTEL ==> data inside subsection', data?.[id]?.[key])
           return (
             <RichTextPrintRenderer
               key={key}
@@ -139,6 +142,7 @@ const RichTextPrintRendererSection = ({
         return null;
       })}
     </View>
+      </View>
   );
 };
 

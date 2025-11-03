@@ -11,7 +11,10 @@ import ObsHistoryListView from "../../../../print_settings/obsHistory/list";
 import { PX_TO_PT } from "../../../constants";
 import { IPD } from "../../../../../utils/locale";
 import moment from "moment";
-import { getAllVisibleSections } from "../../../utils/pdfUtils";
+import {
+  getAllVisibleSections,
+  isEmptyRichText,
+} from "../../../utils/pdfUtils";
 import SectionTitle from "../../SectionTitle";
 
 const styles = StyleSheet.create({
@@ -594,75 +597,78 @@ const renderLabResults = (labResults, printSettings) => {
             ))}
           </View>
 
-          {labParamsPatchTableData && Object.keys(labParamsPatchTableData[0]?.groupedInputs || {}).map(
-            (reportName, j) => (
-              <View key={j} style={{ marginTop: PX_TO_PT * 0 }}>
-                <View style={[obsStyles.row]} wrap={false}>
-                  <Text
-                    style={[
-                      obsStyles.cell,
-                      {
-                        flex: 1,
-                        fontWeight: 500,
-                        color: "#000",
-                      },
-                    ]}
-                  >
-                    {reportName}
-                  </Text>
-                </View>
+          {labParamsPatchTableData &&
+            Object.keys(labParamsPatchTableData[0]?.groupedInputs || {}).map(
+              (reportName, j) => (
+                <View key={j} style={{ marginTop: PX_TO_PT * 0 }}>
+                  <View style={[obsStyles.row]} wrap={false}>
+                    <Text
+                      style={[
+                        obsStyles.cell,
+                        {
+                          flex: 1,
+                          fontWeight: 500,
+                          color: "#000",
+                        },
+                      ]}
+                    >
+                      {reportName}
+                    </Text>
+                  </View>
 
-                {labParamsPatchTableData[0]?.groupedInputs[reportName]?.map(
-                  (test, idx) => (
-                    <View key={idx} style={{ marginTop: PX_TO_PT * 0 }}>
-                      <View style={[obsStyles.row]} wrap={false}>
-                        <Text
-                          style={[
-                            obsStyles.cell,
-                            {
-                              flex: 1,
-                              fontWeight: 500,
-                              color: "#000",
-                            },
-                          ]}
-                        >
-                          {test.testName}
-                        </Text>
+                  {labParamsPatchTableData[0]?.groupedInputs[reportName]?.map(
+                    (test, idx) => (
+                      <View key={idx} style={{ marginTop: PX_TO_PT * 0 }}>
+                        <View style={[obsStyles.row]} wrap={false}>
+                          <Text
+                            style={[
+                              obsStyles.cell,
+                              {
+                                flex: 1,
+                                fontWeight: 500,
+                                color: "#000",
+                              },
+                            ]}
+                          >
+                            {test.testName}
+                          </Text>
 
-                        {labParamsPatchTableData.map((entry, k) => {
-                          const testResult = entry?.groupedInputs[
-                            reportName
-                          ]?.find((input) => input?.testName === test?.testName);
-                          return (
-                            <Text
-                              key={k}
-                              style={[
-                                obsStyles.cell,
-                                {
-                                  flex: 1,
-                                  fontWeight: 400,
-                                  color: "#000",
-                                },
-                              ]}
-                            >
-                              {testResult
-                                ? testResult.value +
-                                  " " +
-                                  (testResult.testName !== "Remarks"
-                                    ? testResult.units
-                                    : "")
-                                : "-"}
-                              &nbsp;
-                            </Text>
-                          );
-                        })}
+                          {labParamsPatchTableData.map((entry, k) => {
+                            const testResult = entry?.groupedInputs[
+                              reportName
+                            ]?.find(
+                              (input) => input?.testName === test?.testName
+                            );
+                            return (
+                              <Text
+                                key={k}
+                                style={[
+                                  obsStyles.cell,
+                                  {
+                                    flex: 1,
+                                    fontWeight: 400,
+                                    color: "#000",
+                                  },
+                                ]}
+                              >
+                                {testResult
+                                  ? testResult.value +
+                                    " " +
+                                    (testResult.testName !== "Remarks"
+                                      ? testResult.units
+                                      : "")
+                                  : "-"}
+                                &nbsp;
+                              </Text>
+                            );
+                          })}
+                        </View>
                       </View>
-                    </View>
-                  )
-                )}
-              </View>
-            )
-          )}
+                    )
+                  )}
+                </View>
+              )
+            )}
         </View>
       </View>
     </View>
@@ -694,6 +700,7 @@ const PatientHistory = ({
   const subsections = patientHistorySection?.subSections || [];
 
   const sortedSubsections = getAllVisibleSections(subsections);
+  console.log("INTEL ==. finalData.labResults", finalData.labResults);
 
   const hasRenderableSubsection = sortedSubsections.some((subsection) => {
     const key = subsection.id;
@@ -723,7 +730,7 @@ const PatientHistory = ({
     }
 
     // Lab Results
-    if (key === "labResults" && finalData.labResults) {
+    if (key === "labResults" && finalData.labResults?.length) {
       return true;
     }
 
@@ -752,7 +759,8 @@ const PatientHistory = ({
           // Presenting Complaints
           if (
             key === "presentingComplaints" &&
-            finalData.presentingComplaints
+            finalData.presentingComplaints &&
+            !isEmptyRichText(finalData.presentingComplaints)
           ) {
             return renderPresentingComplaints(
               Array.isArray(finalData?.presentingComplaints)
@@ -811,7 +819,7 @@ const PatientHistory = ({
           }
 
           // Lab Results
-          if (key === "labResults" && finalData.labResults) {
+          if (key === "labResults" && finalData.labResults?.length) {
             return renderLabResults(finalData.labResults, {
               page_format: {
                 pagination: true,
