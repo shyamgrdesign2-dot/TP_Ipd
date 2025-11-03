@@ -179,8 +179,7 @@ const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, 
                                                         key={entry.date}
                                                         style={{
                                                             // width: '160px',
-                                                            maxWidth: '33%',
-                                                            flexBasis: '33%',
+                                                            ...(isIPD ? { maxWidth: '33%', flexBasis: '33%' } : {}),
                                                             display: 'flex',
                                                             alignItems: 'center',
                                                             justifyContent: isIPD ? 'flex-start' : 'center',
@@ -198,7 +197,7 @@ const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, 
                                                         style={{
                                                             // width: '160px',
                                                             // maxWidth: '33%',
-                                                            flexBasis: '33%',
+                                                            // flexBasis: '33%',
                                                             display: 'flex',
                                                             alignItems: 'center',
                                                             justifyContent: isIPD ? 'flex-start' : 'center',
