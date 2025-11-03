@@ -575,7 +575,8 @@ const Obstetric = ({
                   />
                 </TabPane>
               )}
-              {obstetricDetails?.examinationHistory?.length && (
+              {(!isIPD ||
+                (isIPD && obstetricDetails?.examinationHistory?.length)) && (
                 <TabPane
                   tab={
                     isPreviousPregnancyOverview

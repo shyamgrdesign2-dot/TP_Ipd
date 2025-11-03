@@ -79,6 +79,7 @@ import trackArrow from "./track-arrow.svg";
 import greenTick from "./green-tick.svg";
 import dischargedPatientsOutline from "./dischargedPatients-outline.svg";
 import dischargedPatientsPc from "./dischargedPatients-pc.svg";
+import wardBedManagementOutline from "./wardBedManagement-outline.svg";
 import dischargedPatientsSc from "./dischargedPatients-sc.svg";
 
 export const defaultIcons = {
@@ -162,7 +163,8 @@ export const defaultIcons = {
   dischargeNotesOutline,
   dischargedPatientsOutline,
   dischargedPatientsPc,
-  dischargedPatientsSc
+  dischargedPatientsSc,
+  wardBedManagementOutline
 };
 
 export {
@@ -246,5 +248,6 @@ export {
   dischargeNotesOutline,
   dischargedPatientsOutline,
   dischargedPatientsPc,
-  dischargedPatientsSc
+  dischargedPatientsSc,
+  wardBedManagementOutline
 };

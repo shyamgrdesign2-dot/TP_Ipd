@@ -223,6 +223,7 @@ const TreatmentGiven = ({ sectionData }) => {
       rootClassName="treatment-given-picker"
       loading={treatmentNotesLoading}
       hideTableWhenEmpty={true}
+      isTreatmentGiven={true}
     />
   );
 

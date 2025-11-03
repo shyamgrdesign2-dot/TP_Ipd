@@ -1,46 +1,55 @@
-import React, { useState } from "react";
+import React from "react";
 import { NavLink } from "react-router-dom";
 import patientsActiveIcon from "../../../assets/images/all-patients-active.svg";
 import { defaultIcons } from "../../../assets/images/dischargeSummaryIcons";
 import { getTokenData } from "../../../utils/utils";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
+import axios from "axios";
+import config from "../../../config";
 
 function IPDNavbar() {
-  const [showIframe, setShowIframe] = useState(false);
-  const handleTestingIframe = () => {
-    setShowIframe(true);
+
+  async function SSO_TO_PM() {
+    const tokenData = await getTokenData()
+    try {
+      const sendData = {
+        doctor_unique_id: tokenData?.doctor_unique_id,
+        mobile_no: tokenData?.mobile_no,
+        clinic_id: tokenData?.clinic_id,
+        hm_business_id: tokenData?.hospital_business_id,
+        from: "app",
+      };
+
+      const formData = new FormData();
+      Object.keys(sendData).forEach((key) => {
+        formData.append(key, sendData[key]);
+      });
+
+      const response = await axios.post(config.sso_to_pm_url, formData, {
+        auth: {
+          username: config.sso_to_pm_username,
+          password: config.sso_to_pm_password,
+        },
+      });
+
+      return response.data;
+    } catch (err) {
+      console.log(err.message);
+      console.log(err.response?.status);
+    }
+  }
+
+  const handleWardBedManagementClick = async () => {
+    SSO_TO_PM().then(async (data) => {
+      if (data.success == 200) {
+        await window.open(`${data.url}&module=ipd&key=print`, "_blank");
+      }
+    })
   };
 
-  if (showIframe) {
-    let token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
-    return (
-      <div>
-        <iframe
-          // src={`http://localhost:3000/login_tatvacare_dr.php?type=1&token=${token}&module=ipd&key=print`}
-          src={`https://pm-uat-dhspl-2.tatvacare.in/login_tatvacare_dr.php?type=1&token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkb2N0b3JfdW5pcXVlX2lkIjoiMmNBS2U5RlVidkdSSnROIiwibW9iaWxlX25vIjoiOTc0MjYzOTk1OCIsInBhdGllbnRfdW5pcXVlX2lkIjoiIiwiYXBwb2ludG1lbnRfaWQiOiIiLCJjbGluaWNfaWQiOiIzNjgiLCJobV9idXNpbmVzc19pZCI6Ijc1NDgxMTcxMzQzODc3MyIsImV4cCI6MTc2MTgyNTg5MX0.AXt1L7u7CTPeF43VzcRkvwSpZRFamDyRO19so7trRFY&module=ipd`}
-          width="100%"
-          height="100%"
-          frameBorder="10"
-          title="TatvaCare"
-          style={{
-            display: "block",
-            width: "100%",
-            height: "100%",
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 10000,
-          }}
-        />
-      </div>
-    );
-  }
   return (
     <div className="SidebarDoctor ipd-sidebar">
       <div>
-        <NavLink to="/ipd/inPatients" replace={true}>
+        <NavLink to="/ipd/inPatients" replace={true} end>
           {({ isActive }) => (
             <>
               <img
@@ -59,7 +68,7 @@ function IPDNavbar() {
       </div>
 
       <div>
-        <NavLink to="/ipd/dischargedPatients" replace={true}>
+        <NavLink to="/ipd/dischargedPatients" replace={true} end>
           {({ isActive }) => (
             <>
               <img
@@ -79,27 +88,28 @@ function IPDNavbar() {
           )}
         </NavLink>
       </div>
-      {/* <div>
-        <NavLink onClick={handleTestingIframe} to="#" replace={true}>
-          {({ isActive }) => (
+      <div>
+        <NavLink 
+          to="/ipd/ward-bed-management" 
+          onClick={(e) => {
+            e.preventDefault();
+            handleWardBedManagementClick();
+          }}
+        >
+          {() => (
             <>
               <img
-                src={
-                  isActive
-                    ? defaultIcons.dischargedPatientsPc
-                    : defaultIcons.dischargedPatientsOutline
-                }
-                alt="testIframe"
+                src={defaultIcons.wardBedManagementOutline}
+                alt="Ward/Bed Management"
+                style={{ filter: "grayscale(100%)" }}
               />
               <div className="mt-1 px-2">
-                <div className={isActive ? "text-primary" : ""}>
-                  WIP
-                </div>
+                <div>Ward/Bed Management</div>
               </div>
             </>
           )}
         </NavLink>
-      </div> */}
+      </div>
     </div>
   );
 }

@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import moment from "moment";
 import { Row } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import SubHeader from "./components/SubHeader";
 import FilterControls from "./components/FilterControls";
 import PatientsTable from "./components/PatientsTable";
@@ -23,12 +23,14 @@ import {
 import "./InPatients.scss";
 import { fetchPatientUniqueId } from "../../../redux/ipd/ipdSlice";
 import { useDispatch } from "react-redux";
+import { trackMoEngageEvent } from "../../../utils/utils";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD-MM-YYYY";
 
 function InPatients() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Initialize state from session storage
   const initializeFiltersFromSession = () => {
@@ -125,12 +127,22 @@ function InPatients() {
     return doctors.map((doctor) => doctor.id).join(",");
   }, [doctors]);
 
-  // Save filters to session storage whenever they change
+  
+  useEffect(() => {
+    const patientData = location.state?.patientDetails || null;
+    trackMoEngageEvent("IPD_InPatients_Mounted", {
+      selected_doctor_ids: selectedDoctors,
+      selected_doctors_count: selectedDoctors.length,
+      selected_wards: selectedWards,
+      date_range: dateRange,
+      date_status: dateStatus,
+    }, patientData);
+  }, []);
+
   useEffect(() => {
     saveFiltersToSession();
   }, [saveFiltersToSession]);
 
-  // Data fetching effects - only run when filters actually change
   const fetchParams = useMemo(
     () => ({
       ...filterParams,
@@ -222,31 +234,41 @@ function InPatients() {
       );
       const endDate = moment(dateStrings[1], showDateFormat).format(dateFormat);
 
+      let newDateStatus = null;
       if (startDate === today && endDate === today) {
-        setDateStatus(1);
+        newDateStatus = 1;
       } else if (
         startDate === moment().add(-1, "d").format(dateFormat) &&
         endDate === today
       ) {
-        setDateStatus(2);
+        newDateStatus = 2;
       } else if (
         startDate === moment().add(-7, "d").format(dateFormat) &&
         endDate === today
       ) {
-        setDateStatus(3);
+        newDateStatus = 3;
       } else if (
         startDate === moment().add(-1, "M").format(dateFormat) &&
         endDate === today
       ) {
-        setDateStatus(4);
-      } else {
-        setDateStatus(null);
+        newDateStatus = 4;
       }
 
+      setDateStatus(newDateStatus);
       setDateRange({
         startDate: startDate,
         endDate: endDate,
       });
+
+      // Track date filter change
+      const patientData = location.state?.patientDetails || null;
+      trackMoEngageEvent("IPD_InPatients_Updated", {
+        filter_type: "admitted_on_date",
+        date_status: newDateStatus,
+        start_date: startDate,
+        end_date: endDate,
+        date_range_days: moment(endDate).diff(moment(startDate), 'days') + 1,
+      }, patientData);
     } else {
       setDateStatus(null);
       setDateRange(null);
@@ -267,6 +289,14 @@ function InPatients() {
     (doctorIds) => {
       setSelectedDoctors(doctorIds);
       resetData();
+      
+      // Track doctor filter change
+      const patientData = location.state?.patientDetails || null;
+      trackMoEngageEvent("IPD_InPatients_Updated", {
+        filter_type: "doctor",
+        selected_doctor_ids: doctorIds,
+        selected_doctors_count: doctorIds.length,
+      }, patientData);
     },
     [resetData]
   );
@@ -275,6 +305,14 @@ function InPatients() {
     (wardIds) => {
       setSelectedWards(wardIds);
       resetData();
+      
+      // Track ward filter change
+      const patientData = location.state?.patientDetails || null;
+      trackMoEngageEvent("IPD_InPatients_Updated", {
+        filter_type: "ward",
+        selected_wards: wardIds,
+        selected_wards_count: wardIds.length,
+      }, patientData);
     },
     [resetData]
   );
