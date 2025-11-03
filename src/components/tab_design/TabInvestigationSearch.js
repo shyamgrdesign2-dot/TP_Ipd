@@ -74,7 +74,7 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList, investigat
             });
         });
         if (searchChildQuery.length > 0) {
-            searchChildQuery && childOptionsList.findIndex(e => e.investigation_name?.toLowerCase()?.trim() == searchChildQuery?.toLowerCase()?.trim()) === -1 && tokenData?.hospital_business_id != env.zydus_business_id && !isZydusUserAccessableFromGB && !isApolloHosBusinessIdAccessableFromGB &&
+            searchChildQuery && childOptionsList.findIndex(e => e.investigation_name?.toLowerCase()?.trim() == searchChildQuery?.toLowerCase()?.trim()) === -1 && (propInvestigationData ? true : tokenData?.hospital_business_id != env.zydus_business_id && !isZydusUserAccessableFromGB && !isApolloHosBusinessIdAccessableFromGB) &&
                 data.push({
                     key: JSON.stringify({
                         unique_id: uuidv4(),
