@@ -24,8 +24,9 @@ const SubHeader = ({ headerTitle, showAddAdmission = true }) => {
           type="primary"
           icon={<img src={defaultIcons.plusIcon} alt="+" />}
           onClick={handleAddAdmission}
+          className="add-admission-button"
         >
-          Add Admission
+          Create New Admission
         </Button>
         </div>
       )}

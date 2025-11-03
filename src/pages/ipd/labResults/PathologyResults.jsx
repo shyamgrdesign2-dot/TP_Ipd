@@ -613,7 +613,7 @@ const Pathologyresults = () => {
           ))}
         </div>
       ) : (
-        <EmptyState label="Pathology Results" />
+        <EmptyState label="No Pathology Results available" />
       )}
 
       {/* Toolbar Actions */}

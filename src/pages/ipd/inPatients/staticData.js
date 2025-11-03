@@ -519,6 +519,7 @@ export const formatPatientsForTable = (patients) => {
       bedNumber: patient.room.title,
       doctorName: patient.doctor.name,
       doctorId: patient.doctor.id,
+      mrno: patient.mrno,
       admittedOn: patient.admittedOn,
       referral: patient.referral,
       patientData: patient,

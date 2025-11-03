@@ -9,6 +9,7 @@ import {
   setLabInvestigation,
   setAdditionalRemarks,
   getConsultantNotes,
+  clearFilteredConsultantNotes,
 } from "../../../redux/ipd/consultantNotesSlice";
 import { setMedicationData } from "../../../redux/prescriptionSlice";
 import "./styles.scss";
@@ -19,12 +20,15 @@ import ConsultantNotesPreviewHeader from "./components/ConsultantNotesPreviewHea
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { downloadModule, printModule } from "../utils/printDownload.js";
+import EmptyState from "../labResults/EmptyState.jsx";
 dayjs.extend(customParseFormat);
 
 const ReusableStepper = createRemoteComponent("ReusableStepper");
 
 const ConsultantNotesTimeline = () => {
-  const { consultantNotes } = useSelector((state) => state.consultantNotes);
+  const { consultantNotes, filteredConsultantNotes } = useSelector(
+    (state) => state.consultantNotes
+  );
   const { state } = useLocation();
   const { patient_data, patientDetails } = state || {};
   const patientId = patientDetails?.details?.id;
@@ -97,7 +101,8 @@ const ConsultantNotesTimeline = () => {
     setDateStatus(null);
     setDateRange(null);
     setPickerModal(false);
-  }, []);
+    dispatch(clearFilteredConsultantNotes());
+  }, [dispatch]);
 
   const disabledDate = (current) => {
     return current && current >= moment().add(1, "days").startOf("day");
@@ -195,8 +200,10 @@ const ConsultantNotesTimeline = () => {
   };
 
   const mappedData = useMemo(() => {
-    if (!Array.isArray(consultantNotes)) return [];
-    return consultantNotes.map((entry) => {
+    // Use filteredConsultantNotes when date range is active, otherwise use consultantNotes
+    const notesToUse = dateRange ? filteredConsultantNotes : consultantNotes;
+    if (!Array.isArray(notesToUse)) return [];
+    return notesToUse.map((entry) => {
       const pn = entry?.consultationNotes || {};
       const dateIso = pn?.date ? new Date(pn.date) : null;
       const timeIso = pn?.time ? new Date(pn.time) : null;
@@ -227,7 +234,7 @@ const ConsultantNotesTimeline = () => {
         },
       };
     });
-  }, [consultantNotes]);
+  }, [consultantNotes, filteredConsultantNotes, dateRange]);
 
   return (
     <div className="consultant-notes-timeline">
@@ -246,27 +253,33 @@ const ConsultantNotesTimeline = () => {
         </div>
       </div>
 
-      <ReusableStepper
-        data={mappedData}
-        groupBy={(item) =>
-          item._id || item.timestamp?.split(" ")[0] || "Unknown"
-        }
-        sortGroups={(a, b) => new Date(b) - new Date(a)}
-        renderGroupHeader={renderCustomGroupHeader}
-        layout={{
-          stepDirection: "vertical",
-          currentStep: -1,
-        }}
-        showShadow={true}
-        toolbar={{
-          show: true,
-          label: dateRange
-            ? `Filtered: ${moment(dateRange.startDate).format(
-                "DD-MM-YYYY"
-              )} - ${moment(dateRange.endDate).format("DD-MM-YYYY")}`
-            : "All dates",
-        }}
-      />
+      {!!mappedData.length ? (
+        <ReusableStepper
+          data={mappedData}
+          groupBy={(item) =>
+            item._id || item.timestamp?.split(" ")[0] || "Unknown"
+          }
+          sortGroups={(a, b) => new Date(b) - new Date(a)}
+          renderGroupHeader={renderCustomGroupHeader}
+          layout={{
+            stepDirection: "vertical",
+            currentStep: -1,
+          }}
+          showShadow={true}
+          toolbar={{
+            show: true,
+            label: dateRange
+              ? `Filtered: ${moment(dateRange.startDate).format(
+                  "DD-MM-YYYY"
+                )} - ${moment(dateRange.endDate).format("DD-MM-YYYY")}`
+              : "All dates",
+          }}
+        />
+      ) : (
+        <div className="no-data-container">
+          <EmptyState label="No Consultant Notes available for the selected date range" />
+        </div>
+      )}
     </div>
   );
 };

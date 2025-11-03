@@ -1715,7 +1715,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
         )}
       </div>
 
-      <div className="mb-3">
+      {/* <div className="mb-3">
         <Row
           justify="space-between"
           className="align-items-center form_addnewpatient mb-1"
@@ -1812,7 +1812,6 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
               </Row>
             </div>
 
-            {/* Signature Place Selection and Draw/Upload */}
             {otherSettings.signature && (
               <div className="mt-3">
                 <Form.Item className="mb-3">
@@ -1830,7 +1829,6 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                   </Radio.Group>
                 </Form.Item>
 
-                {/* Signature Container */}
                 <div className="border rounded-10px mt-3">
                   <div className="upload-headfoot border-0 border-bottom rounded-bottom-0 mt-0">
                     {fileSignature && fileSignature?.imageShow ? (
@@ -1866,7 +1864,6 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                       </div>
                     )}
 
-                    {/* Signature Modal */}
                     <CommonModal
                       handleCancel={true}
                       isModalOpen={isSignatureDrawerOpen}
@@ -2026,7 +2023,6 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                     />
                   </div>
 
-                  {/* Include in Signature */}
                   <div className="p-3">
                     <div className="title-common mb-3">
                       Include in signature
@@ -2098,7 +2094,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
             </div>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }

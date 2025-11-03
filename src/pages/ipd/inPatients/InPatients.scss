@@ -4,7 +4,7 @@
   font-weight: 400;
   line-height: 22px;
 
-  @media screen and (min-width: 768px) and (max-width: 1024px) {
+  @media screen and (min-width: 464px) and (max-width: 1199px) {
     font-size: 12px;
     line-height: normal;
   }
@@ -27,11 +27,6 @@
   .ant-table-wrapper {
     .ant-table {
       background: transparent;
-      // Create 12px vertical gap between rows
-      table {
-        border-collapse: separate;
-        border-spacing: 0 12px;
-      }
 
       // Header styles
       .ant-table-thead {
@@ -43,10 +38,34 @@
             color: #454551 !important;
             font-weight: 600;
             font-size: 12px;
-            padding: 4px 10px;
-            height: 38px;
+            padding: 8px 10px;
+            height: 38px !important;
             line-height: 18px;
             border-bottom: none;
+            overflow: visible !important;
+            vertical-align: middle !important;
+            
+            // Fix sort icon visibility and alignment
+            .ant-table-column-sorter {
+              overflow: visible !important;
+              height: auto !important;
+              vertical-align: middle !important;
+            }
+            
+            .ant-table-column-sorter-inner {
+              overflow: visible !important;
+              height: auto !important;
+              line-height: 1 !important;
+              vertical-align: middle !important;
+              
+              &:after {
+                line-height: 30px !important;
+              }
+            }
+            
+            .ant-table-column-sorter-sub {
+              overflow: visible !important;
+            }
           }
         }
       }
@@ -54,7 +73,6 @@
       // Body styles
       .ant-table-tbody {
         // Pull body up to remove extra gap under header introduced by border-spacing
-        transform: translateY(-12px);
         padding-bottom: 12px; // preserve bottom spacing
         tr {
           td {
@@ -63,7 +81,7 @@
             font-family: "Poppins", sans-serif;
             font-weight: 500; // Medium
             font-size: 14px;
-            padding: 4px 12px;
+            padding: 18px 12px;
             height: 58px;
             border-bottom: none;
             vertical-align: middle;
@@ -162,7 +180,7 @@
         }
       }
 
-      @media screen and (min-width: 768px) and (max-width: 1024px) {
+      @media screen and (min-width: 464px) and (max-width: 1199px) {
         .col-contact {
           .contact-cell {
             flex-direction: column;
@@ -182,8 +200,10 @@
         .col-discharged-on { width: 145px !important; min-width: 145px !important; }
         .col-action { width: 120px !important; min-width: 120px !important; }
 
-        // Button label short on iPad
+        // Button label short on tablet devices
         .col-action {
+          width: 120px !important;
+          max-width: 120px !important;
           .view-details-btn {
             color: transparent;
             position: relative;
@@ -233,7 +253,7 @@
   padding: 18px;
 
   .filters {
-    margin-bottom: 6px;
+    margin-bottom: 18px;
   }
 }
 
@@ -259,7 +279,7 @@
 }
 
 // Search input responsive width for tablet view
-@media screen and (min-width: 768px) and (max-width: 1024px) {
+@media screen and (min-width: 464px) and (max-width: 1199px) {
   .ipd-search-input {
     width: 250px !important;
     transition: max-width 0.3s ease;
@@ -288,7 +308,7 @@
     }
   }
 
-  @media screen and (min-width: 768px) and (max-width: 1024px) {
+  @media screen and (min-width: 464px) and (max-width: 1199px) {
     .filter-active {
       span {
         max-width: 100px;
