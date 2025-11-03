@@ -1023,6 +1023,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                     />
                   </Col>
                   <Col md={12}>
+                  {console.log(medicationData[selectedIndex].medicineUnit,"medicationData[selectedIndex].medicineUnit")}
                     <Select
                       className="autocomplete-custom w-100 popinput inputheight38"
                       placeholder="Select"
@@ -1038,15 +1039,14 @@ function TabMedicationSearch({ passIndex, onClose }) {
                       value={
                         medicationData[selectedIndex]?.medicineUnit
                           ? medicationData[selectedIndex].medicineUnit.findIndex(
-                            (e) => e.value == parseInt(medicationData[selectedIndex]?.tmm_unit, 10)
+                            (e) => e.value == medicationData[selectedIndex]?.tmm_unit
                           ) !== -1
                             ? parseInt(medicationData[selectedIndex]?.tmm_unit)
                             : null
                           : null
                       }
                       onSelect={onSelectMedicineUnitChild}
-                      // options={medicationData[selectedIndex].medicineUnit} // TODO: INTEL - fix it for tab medication box
-                      options={[]}
+                      options={medicationData[selectedIndex].medicineUnit}
                     />
                   </Col>
                 </Row>
