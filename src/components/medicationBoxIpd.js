@@ -279,7 +279,15 @@ function MedicationsBox(props) {
       if (action.meta.requestStatus === "fulfilled") {
         const updatedData = action.payload.map((e) => {
 
-          const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
+          const medicineUnit = e?.medicineUnit.map((e1) => {
+            return {
+              key: JSON.stringify({ ...e1 }),
+              value: e1.tmu_id,
+              label: String(e1.tmu_title || ""),
+            };
+          });
+
+          const unitObj = medicineUnit ? medicineUnit.find((x) => x.value == e.tmm_unit) : null;
           const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
           const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
 
@@ -3086,7 +3094,7 @@ function MedicationsBox(props) {
                 <img src={calculatorIcon} alt="Dose calcultor" className="svg-hovered me-2" /><span>{isPillUpAccessableFromGB ? 'Dose calc' : 'Dose calculator'}</span>
               </button>
             )}
-            <button
+            {/* <button
               className="btn d-flex align-items-center btn-text"
               onClick={loadPreviousRxClick}
             >
@@ -3122,7 +3130,7 @@ function MedicationsBox(props) {
                 </button>
 
               </Popover>
-            </Tooltip>
+            </Tooltip> */}
             <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={medicationData.length > 0 ? false : true}>
               <i className="icon-eraser1 me-2"></i> {!isPillUpAccessableFromGB && <span>Clear</span>}
             </button>
