@@ -14,12 +14,13 @@ import {
   updateLocation,
 } from "./services/onboardingService";
 import { getUserMobileNumber, getUtmParams } from "./services/userDataService";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../utils/constants";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN, PERSISTANT_STORAGE_KEY_MEDECO_TOKEN } from "../../utils/constants";
 import CustomStepper from "./CustomStepper";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { updateHasLocation } from "../../redux/doctorsSlice";
 import { useDispatch } from "react-redux";
 import { detectOperatingSystem } from "../../utils/utils";
+import { useLocalStorage } from "../../utils/localStorage";
 
 const DoctorOnboarding = ({
   visible,
@@ -27,6 +28,8 @@ const DoctorOnboarding = ({
   initialStep = 0,
   isAccountLocked = false,
 }) => {
+  const [searchParams] = useSearchParams();
+  const isFromOffering = searchParams.get("fromOffering") === "true";
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
@@ -37,8 +40,8 @@ const DoctorOnboarding = ({
   const [specialitiesLoading, setSpecialitiesLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [formData, setFormData] = useState({
-    fullName: "",
-    speciality: "",
+    fullName: searchParams.get("fullName") ?? "",
+    speciality: searchParams.get("speciality") ?? "",
     clinicName: "",
     clinicPincode: "",
     clinicAddress: "",
@@ -47,10 +50,15 @@ const DoctorOnboarding = ({
     governmentIdProof: null,
     mrcCertificate: null,
   });
+  const fromMedeco = searchParams.get("isFromMedeco")
   const [doctorData, setDoctorData] = useState({});
   const navigate = useNavigate();
   const { state } = useLocation();
+  const [getMedecoToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_MEDECO_TOKEN
+  );
   const clinicDetails = state?.clinicDetails;
+  const mobileFromUrl = searchParams.get("mobileNo")
   const dispatch = useDispatch();
   // Get UTM params
   const utm = getUtmParams();
@@ -167,7 +175,7 @@ const DoctorOnboarding = ({
   // Init API call to get user details and determine starting step
   const initializeOnboarding = async () => {
     setIsInitializing(true);
-    const phoneNumber = getUserMobileNumber();
+    const phoneNumber = getUserMobileNumber()?.length > 0 ? getUserMobileNumber() : (mobileFromUrl ?? "");
     const utm = getUtmParams();
     try {
       const response = await initOnboarding(phoneNumber, utm);
@@ -217,6 +225,7 @@ const DoctorOnboarding = ({
       } else {
         setCurrentStep(0);
       }
+      return response.id;
     } catch (error) {
       console.error("Error initializing onboarding:", error);
       // If initialization fails and account is locked, still go to step 2
@@ -228,7 +237,8 @@ const DoctorOnboarding = ({
         setCurrentStep(0);
       }
     } finally {
-      setIsInitializing(false);
+      if (!isFromOffering)
+        setIsInitializing(false);
     }
   };
 
@@ -237,7 +247,7 @@ const DoctorOnboarding = ({
     const user = getUserMobileNumber();
     const utm = getUtmParams();
 
-    setUserMobileNumber(user);
+    setUserMobileNumber(user && user.length > 0 ? user : (mobileFromUrl ?? ""));
     setUtmParams(utm);
 
     // Fetch specialities
@@ -245,7 +255,61 @@ const DoctorOnboarding = ({
 
     // If the drawer is visible, initialize onboarding
     if (visible && !clinicDetails) {
-      initializeOnboarding();
+      initializeOnboarding().then((res) => {
+        // If the user is coming from the offering page, set the step to 0
+        if ((isFromOffering || fromMedeco === "true") && initialStep === 0) {
+          // Only submit when moving from step 0 (Basic Info) to step 1 (Clinic Details)
+          if (currentStep !== 0) {
+            return true;
+          }
+
+          if (!formData.fullName || !formData.speciality) {
+            message.error("Please fill in all required fields");
+            return false;
+          }
+
+          setIsSubmitting(true);
+          if (res) {
+            const doctorData = {
+              id: res,
+              phone_number: getUserMobileNumber()?.length > 0 ? getUserMobileNumber() : (mobileFromUrl ?? ""),
+              doctorName: formData.fullName,
+              departmentId: formData.speciality,
+              // Use real UTM data
+              utm_source: utmParams?.utm_source,
+              utm_campaign: utmParams?.utm_campaign,
+              utm_term: utmParams?.utm_term,
+              utm_content: utmParams?.utm_content,
+              utm_medium: utmParams?.utm_medium,
+            };
+
+            updateOnboardingDetails(doctorData).then(data => {
+              setCurrentStep(1);
+              window.Moengage.track_event("TP_NewLoginFlow_Basic_info_Next", {
+                mobile: getUserMobileNumber(),
+                doctor_name: formData.fullName,
+                speciality: formData.speciality,
+                clinic_name: formData.clinicName,
+                clinic_address: formData.clinicAddress,
+                clinic_pincode: formData.clinicPincode,
+                clinic_lat: formData.clinic_lat,
+                clinic_long: formData.clinic_long,
+              });
+            }).catch((error) => {
+              message.error("Failed to update your information. Please try again.");
+              console.error("Error updating doctor details:", error);
+            }).finally(() => {
+              setIsSubmitting(false);
+            });
+          }
+        }
+      }).catch((error) => {
+        console.error("Error during onboarding initialization:", error);
+        message.error("Failed to initialize onboarding. Please try again.");
+      }
+      ).finally(() => {
+        setIsInitializing(false); // Ensure initializing is set to false after initialization   0
+      });
     }
   }, [visible]);
 
@@ -324,7 +388,7 @@ const DoctorOnboarding = ({
       // Use real user data from context/token
       const doctorData = {
         id: userOnboardingId,
-        phone_number: userMobileNumber,
+        phone_number: userMobileNumber ?? mobileFromUrl,
         doctorName: formData.fullName,
         departmentId: formData.speciality,
         // Use real UTM data
@@ -373,7 +437,7 @@ const DoctorOnboarding = ({
       // Combine all the data for the finalize API
       const finalizeData = {
         id: userOnboardingId,
-        phone_number: userMobileNumber,
+        phone_number: userMobileNumber ?? mobileFromUrl,
         doctorName: formData.fullName,
         departmentId: formData.speciality,
         // UTM data
@@ -529,6 +593,7 @@ const DoctorOnboarding = ({
       const success = await handleUploadDocuments();
       if (success) {
         // Close the drawer
+        completeClinicSetupForMedeco()
         onClose();
         // moengage event for upload documents step
         window.Moengage.track_event("TP_NewLoginFlow_Submit_setup", {
@@ -567,7 +632,15 @@ const DoctorOnboarding = ({
       setCurrentStep(stepIndex);
     }
   };
-
+  const completeClinicSetupForMedeco = () => {
+    const medecoToken = getMedecoToken();
+    if (fromMedeco === "true" && medecoToken) {
+      const url = `${config.MEDECO_WEBVIEW_URL}/?authToken=${medecoToken}`
+      window.location.href = url;
+      return;
+    }
+    return;
+  }
   const drawerContent = (
     <div
       style={{
@@ -709,7 +782,7 @@ const DoctorOnboarding = ({
                 { label: "Upload ID" },
               ]}
               currentStep={currentStep}
-              // onStepClick={handleStepClick}
+            // onStepClick={handleStepClick}
             />
           </div>
         </div>
@@ -767,7 +840,7 @@ const DoctorOnboarding = ({
                       ),
                     }
                   );
-
+                  completeClinicSetupForMedeco()
                   onClose();
                   navigate("/?from=finalSetup");
                 }}
@@ -846,9 +919,9 @@ const DoctorOnboarding = ({
       style={
         isMobile
           ? {
-              borderTopLeftRadius: "1rem",
-              borderTopRightRadius: "1rem",
-            }
+            borderTopLeftRadius: "1rem",
+            borderTopRightRadius: "1rem",
+          }
           : {}
       }
     >

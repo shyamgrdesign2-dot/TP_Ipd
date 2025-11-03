@@ -1,7 +1,6 @@
 import { Outlet } from "react-router-dom";
 import IPDHeader from "./components/IPDHeader";
 import IPDNavBar from "./components/IPDNavBar";
-import IPDNavBarDupe from "./components/IPDNavBarDupe";
 
 export default function HomePageLayout() {
   return (
@@ -9,8 +8,7 @@ export default function HomePageLayout() {
       <IPDHeader />
       <div className="d-flex">
         <IPDNavBar />
-        {/* <IPDNavBarDupe /> */}
-        <div className={"w-100 bg-body vh-100"} style={{ overflow: "auto" }}>
+        <div className={"w-100 bg-body home-page-layout-height"} style={{ overflow: "auto" }}>
           <Outlet />
         </div>
       </div>

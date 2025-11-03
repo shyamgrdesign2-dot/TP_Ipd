@@ -18,7 +18,7 @@ import {
 import moment from "moment";
 import dayjs from "dayjs";
 import editIcon from "../../assets/images/edit.svg";
-import { isMobile } from "react-device-detect";
+import { isChrome, isMobile, isSafari } from "react-device-detect";
 import SidebarDoctor from "../../common/SidebarDoctor";
 import Header from "../../common/Header";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
@@ -30,6 +30,9 @@ import VaccinationAnalytics from "./VaccinationAnalytics";
 import "./ApolloConsultations.scss";
 import { getDecodedToken } from "../../utils/localStorage";
 import { PAEDIATRIC_DP_ID } from "../../utils/constants";
+import { sendMessageToParent } from "../../utils/utils";
+import { EVENTS } from "../../utils/events";
+import { uploadDocsToAzure } from "../medicalRecords/service";
 
 const { Text } = Typography;
 
@@ -680,9 +683,20 @@ const ConsultationDetailsPage = () => {
         type: "array",
       });
       const blob = new Blob([excelBuffer], {
-        type: "application/octet-stream",
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
-      saveAs(blob, `Apollo.xlsx`);
+      if (!isChrome && !isSafari) {
+        const file = new File([blob], "Apollo.xlsx", {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        const formData = new FormData();
+        formData.append(file?.name, file);
+        const res = await uploadDocsToAzure(formData);
+        const printUrl = res?.[0]?.url;
+        sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
+      } else {
+        saveAs(blob, `Apollo.xlsx`);
+      }
       setExcelLoading(false);
     } catch (error) {
       message.error("Failed to fetch consultations");

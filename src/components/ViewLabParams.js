@@ -197,7 +197,7 @@ const LabResultsTable = ({ labParamsData, handleViewLabParamsDrawer = () => {}, 
                                                         key={entry.date}
                                                         style={{
                                                             // width: '160px',
-                                                            maxWidth: '33%',
+                                                            // maxWidth: '33%',
                                                             flexBasis: '33%',
                                                             display: 'flex',
                                                             alignItems: 'center',

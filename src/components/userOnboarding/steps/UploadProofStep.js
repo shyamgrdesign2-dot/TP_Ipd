@@ -25,6 +25,20 @@ const UploadProofStep = ({
   const [isFileFormatNotSupported, setIsFileFormatNotSupported] =
     useState(false);
   const [selectedFileExtension, setSelectedFileExtension] = useState("");
+  const ua = navigator.userAgent.toLowerCase();
+  const isRealChrome =
+    ua.includes('chrome') &&
+    !ua.includes('edg') &&
+    !ua.includes('opr') &&
+    !ua.includes('wv') && // Android WebView has "wv"
+    !ua.includes('version/'); // iOS WebView has "Version/"
+
+  // Detect real Safari (exclude iOS WebView)
+  const isRealSafari =
+    ua.includes('safari') &&
+    !ua.includes('chrome') &&
+    !ua.includes('crios') && // Chrome on iOS
+    !ua.includes('fxios');   // Firefox on iOS
 
   // Listen for window resize to update mobile state
   useEffect(() => {
@@ -592,7 +606,7 @@ const UploadProofStep = ({
               </div>
             </div>
             <div className={styles.attachmentOptions}>
-              <div
+              {(!isMobile || isRealChrome || isRealSafari) ? <div
                 className={styles.attachOption}
                 onClick={() => handleFileSelect(activeUploadType)}
               >
@@ -624,7 +638,7 @@ const UploadProofStep = ({
                 </div>
                 <div className={styles.attachOptionText}>Use Camera</div>
                 <div className={styles.attachOptionArrow}>{rightArrowSvg}</div>
-              </div>
+              </div> : null}
               <div
                 className={styles.attachOption}
                 onClick={() => handleFileSelect(activeUploadType)}

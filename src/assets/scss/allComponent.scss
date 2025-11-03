@@ -3278,3 +3278,14 @@ nav.portal-header-ipd {
 .ant-dropdown-menu.ant-dropdown-menu-root.ant-dropdown-menu-vertical.ant-dropdown-menu-light {
   overflow-y: unset !important;
 }
+
+body:has(.ipd-sidebar) {
+  overflow: hidden;
+}
+body:has(.patient-details-container) {
+  overflow: hidden;
+}
+.home-page-layout-height {
+  min-height: 0;
+  max-height: calc(100dvh - 75px);
+}

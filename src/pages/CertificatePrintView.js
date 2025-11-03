@@ -129,9 +129,9 @@ function CertificatePrintView() {
     };
 
     const printInAppContent = async () => {
-        // sendMessageToParent(EVENTS.PRINT, { url: printUrl });
-        navigate(`/certificate_print_view/?url=${printUrl}&key=print`, { replace: true, state: state })
-        navigate(0, { replace: true });
+        sendMessageToParent(EVENTS.PRINT, { url: printUrl });
+        // navigate(`/certificate_print_view/?url=${printUrl}&key=print`, { replace: true, state: state })
+        // navigate(0, { replace: true });
     };
 
     const handleDownload = async () => {
@@ -151,9 +151,9 @@ function CertificatePrintView() {
     };
 
     const handleInAppDownload = async () => {
-        navigate(`/certificate_print_view/?url=${printUrl}&key=download`, { replace: true, state: state })
-        navigate(0, { replace: true });
-        // sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
+        // navigate(`/certificate_print_view/?url=${printUrl}&key=download`, { replace: true, state: state })
+        // navigate(0, { replace: true });
+        sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
     };
 
     const onEditCertificateClick = async () => {

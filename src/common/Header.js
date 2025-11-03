@@ -31,13 +31,12 @@ import AISuite from "../assets/images/ai-suite.png";
 import iconMobile from "../assets/images/icon-mobile.svg";
 
 import config from "../config";
-import { shouldUseTatvaCare } from "../utils/utils";
 import { getProfile, updateStatusMoengageB2C, changeHospital, customizedPad, swtichLayout, navigatetoTatvaPedia, changeLogoStatus, showMedicineTime, showMedicineFrequency, getMedicineType, getDefaultPrintsettings, listVideo, zydusRefIds, campaigns } from "../redux/doctorsSlice";
 import { viewDoctorWebsite } from "../redux/doctorWebsiteSlice";
 import defaultprofile from "../assets/images/default-profile.svg";
 import logoSm from "../assets/images/logo-sm.svg";
 import { useLocalStorage, clearLocalStorage, getDecodedToken } from "../utils/localStorage";
-import { TRIAL, GB_ZYDUS_USER, OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_TATVA_PRACTICE, PERSISTANT_STORAGE_KEY_BILL_TOKEN } from "../utils/constants";
+import { TRIAL, GB_ZYDUS_USER, OPD_API_KEY, PERSISTANT_STORAGE_KEY_AUTH_TOKEN, S_TATVA_PRACTICE, PERSISTANT_STORAGE_KEY_BILL_TOKEN, FROM_NATIVE_APP } from "../utils/constants";
 import { errorMessage, getClinicName, makeDefaultLogo, shouldMonetizationDisabled, getTokenData, getDeviceSdkData } from "../utils/utils";
 import { Modal, Card } from "antd";
 import alertIcon from '../assets/images/alertIcon.svg';
@@ -119,6 +118,7 @@ function Header({ locationPath, isIPD = false }) {
 
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
+  const [getFromNative, _] = useLocalStorage(FROM_NATIVE_APP)
 
   useEffect(() => {
     if (!isReceptionist) {
@@ -149,7 +149,7 @@ function Header({ locationPath, isIPD = false }) {
   }, []);
 
   useEffect(() => {
-    if (profile) { 
+    if (profile) {
       if (profile.moengage_b2c_send === undefined) {
         window.Moengage.add_unique_user_id(profile?.b2c)
         dispatch(updateStatusMoengageB2C());
@@ -232,113 +232,39 @@ function Header({ locationPath, isIPD = false }) {
     setIsLogoModalOpen(!isLogoModalOpen);
   }, [isLogoModalOpen]);
 
-  const tatvaRedirectClick = async () => {
-    const clinic_name = getClinicName(profile?.hospital_data);
-    window.Moengage.track_event("TP_Tatvapedia_landing", {
-      clinic_name,
-    });
-    showHideLogoModal();
-
-    const isTatvaCareUser = shouldUseTatvaCare();
-    
-    if (isTatvaCareUser) {
-      // For TatvaCare users (specific doctor), navigate to local offerings page
-      navigate('/our-offerings?from=home');
-    } else {
-      // For TatvaPedia users, use OAuth2 flow
-    try {
-      // Start loading
-      setIsLoading(true);
-
-      // Generate Basic Auth token
-      const credentials = btoa('client:secret');
-      const mobileNumber = profile?.um_contact && `+91${profile.um_contact}`;
-      const password = tokenData.doctor_unique_id && `uuid:${tokenData.doctor_unique_id}`;
-
-
-      // Prepare form data
-      const formData = new URLSearchParams();
-      formData.append('client_id', 'client');
-      formData.append('username', mobileNumber);
-      formData.append('password', password);
-      formData.append('grant_type', 'custom_password');
-      formData.append('scope', 'openid,profile,read');
-
-      // Make API call
-      const response = await axios({
-        method: 'post',
-        url: `${config.tatvaPedia_api_url}/oauth2/token`,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${credentials}`
-        },
-        data: formData
-      });
-
-      // Get token from response
-      const token = response.data.access_token;
-
-      // Handle redirect with token
-      setTimeout(() => {
-        if (!isChrome && !isSafari) {
-          navigate('/?close_app=true', { replace: true });
-          navigate(0, { replace: true });
-        } else {
-          const redirectUrl = `${config.tatvaPedia_domain_url}/?token=${token}`;
-          window.open(redirectUrl);
-        }
-        // Stop loading after redirect
-        setIsLoading(false);
-      }, 500);
-
-    } catch (error) {
-      console.error('Error fetching token:', error);
-      // Handle error appropriately
-      errorMessage('Failed to redirect to TatvaPedia');
-      // Stop loading on error
-      setIsLoading(false);
-    }
-    }
-  };
-
   const handleRedirectToOffering = async () => {
     navigate('/our-offerings?from=home');
   }
 
   const LOGO_MODAL = useMemo(() => {
-    const isTatvaCareUser = shouldUseTatvaCare();
     return (
       <CommonModal
         isModalOpen={isLogoModalOpen}
         onCancel={showHideLogoModal}
         modalWidth={500}
-        title={isTatvaCareUser ? "Welcome to TatvaCare" : "Welcome to TatvaPedia"}
+        title={"Tatvacare"}
         modalBody={
           <>
             <div className="mb-4 fontroboto lh-base">
-              {isTatvaCareUser ? (
-                "TatvaCare is your all-in-one platform to simplify clinical practice, patient management, and medical learning."
-              ) : (
-                "You can explore exclusive bit-sized medical content, expert-curated content, boost your proficiency & learning, and showcase your clinical competencies by submitting content based on your experiences."
-              )}
-            </div>
+              Tatvacare is your all-in-one platform to simplify clinical practice, patient management, and medical learning.</div>
             <div className="alert-warning rounded-10px p-2 patient-details mb-4">
               <div className="d-flex align-items-center">
                 <img className='me-3' src={alertIcon} alt="Warning" />
                 <span>
                   Are you sure you want to switch? <br />
-                  You will be redirect to {isTatvaCareUser ? "TatvaCare" : "TatvaPedia"} platform.
+                  You will be redirect to Tatvacare platform.
                 </span>
               </div>
             </div>
             <div>
               <div className="d-flex align-items-center mt-2 justify-content-end">
-                <div onClick={isTatvaCareUser ? handleRedirectToOffering : tatvaRedirectClick}
+                <div onClick={handleRedirectToOffering}
                   className="me-4 text-decoration-underline btn p-0 text-main">
                   Yes, Switch
                 </div>
                 <Button
                   onClick={() => {
+
                     window.Moengage.track_event("TP_Tatvapedia_Switch_cancelled");
                     showHideLogoModal()
                   }}
@@ -353,7 +279,6 @@ function Header({ locationPath, isIPD = false }) {
       />
     );
   }, [isLogoModalOpen]);
-
 
   //Switch Modal
   const showHideSwitchModal = useCallback(() => {
@@ -372,10 +297,22 @@ function Header({ locationPath, isIPD = false }) {
     const action = await dispatch(swtichLayout(sendData))
     if (action.meta.requestStatus === "fulfilled") {
       flag == 0 && showHideSwitchModal()
-      if (!isChrome && !isSafari) {
+      if (getFromNative() && getFromNative() === "true") {
+        SSO_TO_PM(1).then(async (data) => {
+          if (data.success == 200) {
+            navigate('/', { replace: true })
+            clearLocalStorage()
+            await window.open(data.url, '_self');
+          }
+        });
+      }
+      else if (!isChrome && !isSafari) {
         setTimeout(() => {
-          navigate(`/?switch_layout=old`, { replace: true })
-          navigate(0, { replace: true });
+          // navigate(`/?switch_layout=old`, { replace: true })
+          // navigate(0, { replace: true });
+          sendMessageToParent(EVENTS.REDIRECT, {
+            url: '/?switch_layout=old',
+          });
         }, 500);
       } else {
         SSO_TO_PM(1).then(async (data) => {
@@ -591,7 +528,11 @@ function Header({ locationPath, isIPD = false }) {
     SSO_TO_PM(2).then(async (data) => {
       if (data.success == 200) {
         if (!isChrome && !isSafari) {
-          navigate(`/?url=${data.url}&key=phpRedirect`, { replace: true })
+          // navigate(`/?url=${data.url}&key=phpRedirect`, { replace: true })
+          // navigate(0, { replace: true });
+          sendMessageToParent(EVENTS.REDIRECT, {
+            url: data?.url,
+          });
           navigate(0, { replace: true });
         } else {
           await window.open(data.url)
@@ -604,8 +545,12 @@ function Header({ locationPath, isIPD = false }) {
     SSO_TO_PM(1).then(async (data) => {
       if (data.success == 200) {
         if (!isChrome && !isSafari) {
-          navigate(`/?url=${data.url}&module=my_availability&key=phpRedirect`, { replace: true })
-          navigate(0, { replace: true });
+          // navigate(`/?url=${data.url}&module=my_availability&key=phpRedirect`, { replace: true })
+          // navigate(0, { replace: true });
+          sendMessageToParent(EVENTS.REDIRECT, {
+            url: data?.url,
+            module: "my_availability"
+          });
         } else {
           await window.open(`${data.url}&module=my_availability`)
         }

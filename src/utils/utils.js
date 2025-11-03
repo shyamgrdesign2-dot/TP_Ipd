@@ -23,6 +23,7 @@ import {
   AISENSY_SCRIPT_SRC,
 } from "../utils/constants";
 import { env } from "../EnvironmentConfig.js";
+import { uploadDocsToAzure } from "../pages/medicalRecords/service.js";
 // export const validateEmail = (email) => {
 //   return String(email)
 //     .toLowerCase()
@@ -735,29 +736,45 @@ export const handlePrintClick = (
       .set(options)
       .output("datauristring")
       .then(async (pdfDataUri) => {
-        const base64string = pdfDataUri.slice(
-          pdfDataUri.indexOf("base64,") + 7
-        );
-        const deviceUid = localStorage.getItem("app_device_unique_id");
-        if (deviceUid) {
-          const docRef = doc(db, chartType, deviceUid);
-          try {
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-              await updateDoc(docRef, {
-                base64string,
-              });
-            } else {
-              await setDoc(doc(db, chartType, deviceUid), {
-                base64string,
-              });
-            }
-          } catch (error) {
-            console.error("Error updating document:", error);
+        const response = await fetch(pdfDataUri);
+        const printBlob = await response.blob();
+        const file = new File(
+          [printBlob],
+          `${new Date().toISOString().split("T")[0]}.pdf`,
+          {
+            type: "application/pdf",
           }
-        } else {
-          console.error("Device UID not found");
+        );
+        const formData = new FormData();
+        formData.append(file?.name, file);
+        const res = await uploadDocsToAzure(formData);
+        const printUrl = res?.[0]?.url;
+        if (res?.length > 0) {
+          sendMessageToParent(EVENTS.PRINT, { url: printUrl });
         }
+        // const base64string = pdfDataUri.slice(
+        //   pdfDataUri.indexOf("base64,") + 7
+        // );
+        // const deviceUid = localStorage.getItem("app_device_unique_id");
+        // if (deviceUid) {
+        //   const docRef = doc(db, chartType, deviceUid);
+        //   try {
+        //     const docSnap = await getDoc(docRef);
+        //     if (docSnap.exists()) {
+        //       await updateDoc(docRef, {
+        //         base64string,
+        //       });
+        //     } else {
+        //       await setDoc(doc(db, chartType, deviceUid), {
+        //         base64string,
+        //       });
+        //     }
+        //   } catch (error) {
+        //     console.error("Error updating document:", error);
+        //   }
+        // } else {
+        //   console.error("Device UID not found");
+        // }
         setTabLoader(false);
       })
       .catch((err) => {

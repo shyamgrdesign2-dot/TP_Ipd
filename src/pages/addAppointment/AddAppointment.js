@@ -5,7 +5,7 @@ import { Drawer, message, Spin, Tooltip, Popover } from "antd";
 
 import ConfirmAppointment from "./components/ConfirmAppointment";
 import { addAppointment, getSlotsList } from "./service";
-import { errorMessage, getTokenData, getClinicName } from "../../utils/utils";
+import { errorMessage, getTokenData, getClinicName, sendMessageToParent } from "../../utils/utils";
 import Form from "react-bootstrap/Form";
 import { DatePicker, Tabs, Select } from "antd";
 import tutorial from "../../assets/images/tutorial-icon.svg";
@@ -34,6 +34,7 @@ import { upsertDoctorSettingFlag } from "../../redux/doctorsSlice";
 import { getCaseTypes, listCategories } from "../../redux/appointmentsSlice";
 import playIcons from "../../assets/images/tube-icon.svg";
 import VideoModal from "../../common/VideoModal";
+import { EVENTS } from "../../utils/events";
 
 const TIME_SECTIONS_CONFIG = [
   { key: 'MIDNIGHT', label: 'Midnight', timeRange: '12AM - 3AM' },
@@ -812,10 +813,14 @@ function AddAppointment() {
     SSO_TO_PM(1).then(async (data) => {
       if (data.success == 200) {
         if (!isChrome && !isSafari) {
-          navigate(`/?url=${data.url}&module=my_availability&key=phpRedirect`, {
-            replace: true,
+          // navigate(`/?url=${data.url}&module=my_availability&key=phpRedirect`, {
+          //   replace: true,
+          // });
+          // navigate(0, { replace: true });
+          sendMessageToParent(EVENTS.REDIRECT, {
+            url: data?.url,
+            module: 'my_availability'
           });
-          navigate(0, { replace: true });
         } else {
           // Add visibility change listener before opening new tab
           document.addEventListener('visibilitychange', handleVisibilityChange);
