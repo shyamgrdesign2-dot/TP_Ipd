@@ -35,6 +35,7 @@ import dayjs from "dayjs";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { updateCustomization } from "../../../redux/ipd/ipdSlice";
 import { isMobile } from "react-device-detect";
+import TabMedicationBox from "../../../components/tab_design/TabMedicationBox";
 import TabInvestigationBox from "../../../components/tab_design/TabInvestigationBox";
 import { MESSAGE_KEY } from "../../../utils/constants";
 import visitEnd from "../../../assets/images/end-visit.svg";
@@ -45,7 +46,6 @@ import { getProgressNotes } from "../../../redux/ipd/progressNotesSlice";
 import FullPageLoader from "../../vaccination/components/Loader";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { isEmptyRichText } from "../../../components/PDFGenerator";
-import MedicationBoxIpd from "../../../components/medicationBoxIpd";
 dayjs.extend(customParseFormat);
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
@@ -282,7 +282,10 @@ const ConsultantNotes = (props) => {
           return (
             <div className="ipdaf-box-container">
               {isMobile ? (
-                <MedicationBoxIpd isEditable={isEditable} />
+                <TabMedicationBox
+                  hideFrequentlyUsedMeds={true}
+                  isEditable={isEditable}
+                />
               ) : (
                 <MedicationsBox
                   isEditable={isEditable}
