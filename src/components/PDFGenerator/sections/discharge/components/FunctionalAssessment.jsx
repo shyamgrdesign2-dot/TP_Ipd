@@ -199,8 +199,8 @@ const renderReferral = (referralDoctor) => {
  */
 
 function convertToAssessmentStructure(input = {}) {
-  const { others = [], ...assessment } = input;
-  return { assessment, others };
+  const { others = [], referredToPhysiotherapyForReview = {}, ...assessment } = input;
+  return { assessment, others, referredToPhysiotherapyForReview };
 }
 
 const FunctionalAssessment = ({
@@ -215,8 +215,8 @@ const FunctionalAssessment = ({
   if (!hasAssessmentData) return null;
 
   const assessment = isAssessment
-    ? convertToAssessmentStructure(data.functionalAssessment)
-    : data.functionalAssessmentTimeOfAdmission;
+    ? convertToAssessmentStructure(data?.functionalAssessment)
+    : data?.functionalAssessmentTimeOfAdmission;
 
   const functionalAssessmentSection = formatSettings.find(
     (section) => section.id === "functionalAssessment"
@@ -244,8 +244,8 @@ const FunctionalAssessment = ({
     (sub) =>
       sub.id === "referredToPhysiotherapyForReview" &&
       ((isAssessment &&
-        assessment?.assessment?.referredToPhysiotherapyForReview &&
-        assessment?.assessment?.referredToPhysiotherapyForReview?.name) ||
+        assessment?.referredToPhysiotherapyForReview &&
+        assessment?.referredToPhysiotherapyForReview?.name) ||
         (!isAssessment && data?.referralDoctor && data?.referralDoctor?.name))
   );
 
@@ -270,12 +270,12 @@ const FunctionalAssessment = ({
           if (
             key === "referredToPhysiotherapyForReview" &&
             ((isAssessment &&
-              assessment?.assessment.referredToPhysiotherapyForReview) ||
+              assessment?.referredToPhysiotherapyForReview) ||
               (!isAssessment && data?.referralDoctor))
           ) {
             return renderReferral(
               isAssessment
-                ? assessment?.assessment.referredToPhysiotherapyForReview?.name
+                ? assessment?.referredToPhysiotherapyForReview?.name
                 : data?.referralDoctor
             );
           }

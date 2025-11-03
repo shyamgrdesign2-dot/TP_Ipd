@@ -61,7 +61,7 @@ const ExaminationSection = (props) => {
               const data = physicalExaminationBasicData[item.id];
               if (
                 !data?.title &&
-                ((data?.value === undefined || data?.value == null) &&
+                ((data?.value === undefined || data?.value == null || data?.value === 0) &&
                   isEmptyRichText(data?.notes))
               )
                 return null;

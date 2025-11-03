@@ -346,8 +346,8 @@ const PhysicalExamination = ({
           }
           if (
             key === "generalExamination" &&
-            ((isAssessment && physicalExamination?.examination) ||
-              (!isAssessment && physicalExamination?.generalExamination))
+            ((isAssessment && hasGeneralExamination) ||
+              (!isAssessment && hasGeneralExamination))
           ) {
             return renderGeneralExamination(
               isAssessment
