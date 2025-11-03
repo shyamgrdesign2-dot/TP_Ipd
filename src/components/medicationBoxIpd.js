@@ -279,7 +279,15 @@ function MedicationsBox(props) {
       if (action.meta.requestStatus === "fulfilled") {
         const updatedData = action.payload.map((e) => {
 
-          const unitObj = e?.medicineUnit ? e?.medicineUnit.find((x) => x.tmu_id == e.tmm_unit) : null;
+          const medicineUnit = e?.medicineUnit.map((e1) => {
+            return {
+              key: JSON.stringify({ ...e1 }),
+              value: e1.tmu_id,
+              label: String(e1.tmu_title || ""),
+            };
+          });
+
+          const unitObj = medicineUnit ? medicineUnit.find((x) => x.value == e.tmm_unit) : null;
           const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
           const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
 
@@ -372,12 +380,24 @@ function MedicationsBox(props) {
   const onSearchUnitPerDoseChid = useCallback(
     (query, i) => {
       const updateQuery = onlyDecimalFormat(query);
-      medicationData[i].tmm_dosage_unit_name = updateQuery;
-      medicationData[i].tmm_dosage = '';
-      medicationData[i].tmm_unit = 0;
-      medicationData[i].tmm_unit_name = '';
-      medicationData[i].tmu_id = 0;
-      dispatch(setMedicationData(medicationData));
+      
+      // Create a new array with updated medication data
+      const updatedMedicationData = medicationData.map((item, index) => {
+        if (index === i) {
+          return {
+            ...item,
+            tmm_dosage_unit_name: updateQuery,
+            tmm_dosage: '',
+            tmm_unit: 0,
+            tmm_unit_name: '',
+            tmu_id: 0,
+          };
+        }
+        return item;
+      });
+      
+      dispatch(setMedicationData(updatedMedicationData));
+      
       if (updateQuery) {
         const options = medicationData[i].medicineUnit.map((e) => {
           return {
@@ -396,14 +416,26 @@ function MedicationsBox(props) {
 
   const onBlurUnitPerDoseChid = useCallback(
     async (i) => {
-      if (!isAlphabetExit(medicationData[i].tmm_dosage_unit_name)) {
+      const currentItem = medicationData[i];
+      if (!isAlphabetExit(currentItem.tmm_dosage_unit_name)) {
         setUnitPerDoseOptions([]);
-        medicationData[i].tmm_dosage_unit_name = "";
-        medicationData[i].tmm_dosage = '';
-        medicationData[i].tmm_unit = 0;
-        medicationData[i].tmm_unit_name = '';
-        medicationData[i].tmu_id = 0;
-        dispatch(setMedicationData(medicationData));
+        
+        // Create a new array with updated medication data
+        const updatedMedicationData = medicationData.map((item, index) => {
+          if (index === i) {
+            return {
+              ...item,
+              tmm_dosage_unit_name: "",
+              tmm_dosage: '',
+              tmm_unit: 0,
+              tmm_unit_name: '',
+              tmu_id: 0,
+            };
+          }
+          return item;
+        });
+        
+        dispatch(setMedicationData(updatedMedicationData));
       }
     },
     [unitPerDoseOptions, medicationData]
@@ -413,12 +445,23 @@ function MedicationsBox(props) {
     (data, e, i) => {
       setUnitPerDoseOptions([]);
       const objParse = JSON.parse(e.key);
-      medicationData[i].tmm_dosage_unit_name = data;
-      medicationData[i].tmm_dosage = objParse.tmm_dosage;
-      medicationData[i].tmm_unit = objParse.tmu_id;
-      medicationData[i].tmm_unit_name = objParse.tmu_title;
-      medicationData[i].tmu_id = objParse.tmu_id;
-      dispatch(setMedicationData(medicationData));
+      
+      // Create a new array with updated medication data
+      const updatedMedicationData = medicationData.map((item, index) => {
+        if (index === i) {
+          return {
+            ...item,
+            tmm_dosage_unit_name: data,
+            tmm_dosage: objParse.tmm_dosage,
+            tmm_unit: objParse.tmu_id,
+            tmm_unit_name: objParse.tmu_title,
+            tmu_id: objParse.tmu_id,
+          };
+        }
+        return item;
+      });
+      
+      dispatch(setMedicationData(updatedMedicationData));
     },
     [unitPerDoseOptions, medicationData]
   );
@@ -1197,7 +1240,7 @@ function MedicationsBox(props) {
   }
 
   const mainMedicationSelect = async (index) => {
-    const childData = await innerMedication(index)
+    const childData = await innerMedication(index);
     handleDrawerChild(childData, index)
   }
 
@@ -1681,7 +1724,7 @@ function MedicationsBox(props) {
                                       onClear={() => onSearchUnitPerDoseChid("", subItem?.index)}
                                       allowClear
                                     />
-                                    {/* {ii === 0 && profile?.dp_id === 9 && (
+                                    {/* {ii === 0 && (profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) && (
                                       dosesList.some((e1) => e1.medicine_id == item.tmm_id) ? (
                                         <div className="badge-tapper position-absolute" style={{ bottom: 0, left: 20 }} onClick={() => handleViewDoseCalcDrawer("1", item?.tmm_id)}><img src={calculatorIconBlue} alt="Dose calcultor" className="svg-hovered me-1" /> Edit Calculation</div>
                                       ) : (
@@ -2421,12 +2464,7 @@ function MedicationsBox(props) {
                         : null
                     }
                     onSelect={(val) => onSelectMedicineUnitChild(val)}
-                    options={
-                      childDrawerData?.[childIndex]?.medicineUnit?.map((e) => ({
-                        label: e.tmu_title,
-                        value: e.tmu_id,
-                      })) || []
-                    }
+                    options={childDrawerData?.[childIndex]?.medicineUnit}
                   />
                 </Col>
               </Row>
@@ -3086,7 +3124,7 @@ function MedicationsBox(props) {
                 <img src={calculatorIcon} alt="Dose calcultor" className="svg-hovered me-2" /><span>{isPillUpAccessableFromGB ? 'Dose calc' : 'Dose calculator'}</span>
               </button>
             )}
-            <button
+            {/* <button
               className="btn d-flex align-items-center btn-text"
               onClick={loadPreviousRxClick}
             >
@@ -3122,7 +3160,7 @@ function MedicationsBox(props) {
                 </button>
 
               </Popover>
-            </Tooltip>
+            </Tooltip> */}
             <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={medicationData.length > 0 ? false : true}>
               <i className="icon-eraser1 me-2"></i> {!isPillUpAccessableFromGB && <span>Clear</span>}
             </button>
