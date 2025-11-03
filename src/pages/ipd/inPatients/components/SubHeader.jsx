@@ -6,7 +6,7 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_NEW_IPD_ZYDUS } from "../../../../utils/constants";
 
 const SubHeader = ({ headerTitle, showAddAdmission = true }) => {
-  const isNewIPDHosBusinessIdAccessableFromGB = useFeatureIsOn(
+  const isNewIPDZydusAccessableFromGB = useFeatureIsOn(
     GB_NEW_IPD_ZYDUS
   );
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const SubHeader = ({ headerTitle, showAddAdmission = true }) => {
   return (
     <div className="sub-header">
       <div className="sub-header-content">{headerTitle}</div>
-      {(showAddAdmission && isNewIPDHosBusinessIdAccessableFromGB) && (
+      {(showAddAdmission && isNewIPDZydusAccessableFromGB) && (
         <div>
         <Button
           type="primary"

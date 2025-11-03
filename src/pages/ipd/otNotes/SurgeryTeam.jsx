@@ -53,6 +53,22 @@ const SurgeryTeam = (props) => {
         value: item.name,
         label: <div key={item.id}>{item.name}</div>,
       }));
+    const seenIds = new Set();
+    const uniqueOptions = [];
+    for (const opt of options) {
+      let item;
+      try {
+        item = opt.key ? JSON.parse(opt.key) : null;
+      } catch (e) {
+        item = null;
+      }
+      if (item && item.id !== undefined && !seenIds.has(item.id)) {
+        seenIds.add(item.id);
+        uniqueOptions.push(opt);
+      } else if (!item || item.id === undefined) {
+        uniqueOptions.push(opt);
+      }
+    }
     return (
       <div className="ipdot-st-section">
         <label className="otNotes-label">{role.name || role.title}</label>
@@ -60,7 +76,7 @@ const SurgeryTeam = (props) => {
           showSearch
           optionLabelProp="label"
           mode="multiple"
-          options={options}
+          options={uniqueOptions}
           value={
             Array.isArray(initialValue?.[role.id]) 
               ? initialValue[role.id].map(item => item.name || item)
