@@ -5,11 +5,14 @@ import { defaultIcons } from "../../../assets/images/dischargeSummaryIcons";
 import { getTokenData } from "../../../utils/utils";
 import axios from "axios";
 import config from "../../../config";
+import { env } from "../../../EnvironmentConfig";
+import { GB_ZYDUS_USER } from "../../../utils/constants";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 function IPDNavbar() {
-
+  const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
   async function SSO_TO_PM() {
-    const tokenData = await getTokenData()
+    const tokenData = await getTokenData();
     try {
       const sendData = {
         doctor_unique_id: tokenData?.doctor_unique_id,
@@ -38,12 +41,16 @@ function IPDNavbar() {
     }
   }
 
+  const izZydusUser =
+    getTokenData()?.hospital_business_id == env.zydus_business_id &&
+    isZydusUserAccessableFromGB;
+
   const handleWardBedManagementClick = async () => {
     SSO_TO_PM().then(async (data) => {
       if (data.success == 200) {
         await window.open(`${data.url}&module=ipd&key=print`, "_blank");
       }
-    })
+    });
   };
 
   return (
@@ -88,28 +95,30 @@ function IPDNavbar() {
           )}
         </NavLink>
       </div>
-      <div>
-        <NavLink 
-          to="/ipd/ward-bed-management" 
-          onClick={(e) => {
-            e.preventDefault();
-            handleWardBedManagementClick();
-          }}
-        >
-          {() => (
-            <>
-              <img
-                src={defaultIcons.wardBedManagementOutline}
-                alt="Ward/Bed Management"
-                style={{ filter: "grayscale(100%)" }}
-              />
-              <div className="mt-1 px-2">
-                <div>Ward/Bed Management</div>
-              </div>
-            </>
-          )}
-        </NavLink>
-      </div>
+      {!izZydusUser ? (
+        <div>
+          <NavLink
+            to="/ipd/ward-bed-management"
+            onClick={(e) => {
+              e.preventDefault();
+              handleWardBedManagementClick();
+            }}
+          >
+            {() => (
+              <>
+                <img
+                  src={defaultIcons.wardBedManagementOutline}
+                  alt="Ward/Bed Management"
+                  style={{ filter: "grayscale(100%)" }}
+                />
+                <div className="mt-1 px-2">
+                  <div>ATD & Ward/Bed Management</div>
+                </div>
+              </>
+            )}
+          </NavLink>
+        </div>
+      ) : null}
     </div>
   );
 }
