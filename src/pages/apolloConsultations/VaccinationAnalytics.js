@@ -1,3 +1,4 @@
+import * as XLSX from "xlsx";
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -22,6 +23,8 @@ import { getDecodedToken } from "../../utils/localStorage";
 import { isChrome, isSafari } from "react-device-detect";
 import { sendMessageToParent } from "../../utils/utils";
 import { EVENTS } from "../../utils/events";
+import { saveAs } from "file-saver";
+import { uploadDocsToAzure } from "../medicalRecords/service";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -339,7 +342,7 @@ const VaccinationAnalytics = ({ doctors }) => {
     }));
   };
 
-  const handleDownload = (filter) => {
+  const handleDownload = async (filter) => {
     let dataToDownload = [];
     setExcelLoading(true);
 
@@ -407,21 +410,32 @@ const VaccinationAnalytics = ({ doctors }) => {
       ),
     ].join("\n");
 
-    // Download CSV
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `vaccination-analytics-${filter}-${
+    // Build XLSX from rows
+    const rows = csvContent.split("\n").map((line) => line.split(","));
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Analytics");
+    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([wbout], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const fileName = `vaccination-analytics-${filter}-${
       new Date().toISOString().split("T")[0]
-    }.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    message.success("Download completed successfully!");
-    setExcelLoading(false);
+    }.xlsx`;
+
     if (!isChrome && !isSafari) {
-      sendMessageToParent(EVENTS.DOWNLOAD, { url: url });
+      const file = new File([blob], fileName, {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const formData = new FormData();
+      formData.append(file.name, file);
+      const res = await uploadDocsToAzure(formData);
+      const printUrl = res?.[0]?.url;
+      sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
+    } else {
+      saveAs(blob, fileName);
     }
+    setExcelLoading(false);
   };
 
   // Create custom dropdown for download options

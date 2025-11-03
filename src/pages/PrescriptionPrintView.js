@@ -9,7 +9,7 @@ import { useReactToPrint } from 'react-to-print';
 
 // import { PDFReader } from 'reactjs-pdf-reader';
 
-import { errorMessage, getClinic, trackEvent } from "../utils/utils";
+import { errorMessage, getClinic, sendMessageToParent, trackEvent } from "../utils/utils";
 
 import messageSent from '../assets/images/message-sent.svg';
 import wtsp from '../assets/images/wtsp.svg';
@@ -36,6 +36,8 @@ import { getDecodedToken } from '../utils/localStorage';
 import { assignCarePlan, updateCarePlanName } from './smartSync/services/carePlanService';
 import api from '../api/services/axiosService';
 import { fetchPatientDefaultLanguage, updatePatientDefaultLanguage } from "../api/services/DefaultLanguageService";
+import { EVENTS } from "../utils/events";
+import { uploadDocsToAzure } from "./medicalRecords/service";
 const worker = require('pdfjs-dist/build/pdf.worker.min.js')
 pdfjs.GlobalWorkerOptions.workerSrc = worker
 // pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -241,8 +243,20 @@ function PrescriptionPrintView() {
     };
 
     const printInAppContent = async () => {
-        navigate(`/prescription_print_view/?url=${currentSessionRx || printUrl}&key=print`, { replace: true, state: state })
-        navigate(0, { replace: true });
+        // navigate(`/prescription_print_view/?url=${currentSessionRx || printUrl}&key=print`, { replace: true, state: state })
+        // navigate(0, { replace: true });
+        if (currentSessionRx) {
+            const file = new File([currentSessionRx], `${new Date().toISOString().split("T")[0]}.pdf`, {
+              type: "application/pdf",
+            });
+            const formData = new FormData();
+            formData.append(file?.name, file);
+            const res = await uploadDocsToAzure(formData);
+            const printUrl = res?.[0]?.url;
+            sendMessageToParent(EVENTS.PRINT, { url: printUrl });
+        } else {
+            sendMessageToParent(EVENTS.PRINT, { url: printUrl });
+        }
     };
 
     // const printContent = async () => {
@@ -287,8 +301,20 @@ function PrescriptionPrintView() {
     };
 
     const handleInAppDownload = async () => {
-        navigate(`/prescription_print_view/?url=${currentSessionRx || printUrl}&key=download`, { replace: true, state: state })
-        navigate(0, { replace: true });
+        // navigate(`/prescription_print_view/?url=${currentSessionRx || printUrl}&key=download`, { replace: true, state: state })
+        // navigate(0, { replace: true });
+        if (currentSessionRx) {
+            const file = new File([currentSessionRx], `${new Date().toISOString().split("T")[0]}.pdf`, {
+              type: "application/pdf",
+            });
+            const formData = new FormData();
+            formData.append(file?.name, file);
+            const res = await uploadDocsToAzure(formData);
+            const printUrl = res?.[0]?.url;
+            sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
+        } else {
+            sendMessageToParent(EVENTS.DOWNLOAD, { url: printUrl });
+        }
     };
 
     const onEditPrescriptionClick = async () => {

@@ -30,6 +30,7 @@ import MessageCreateCampaign from "./pages/MessageCreateCampaign";
 
 import { store, persistor } from "./redux/store";
 import {
+  FROM_NATIVE_APP,
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
   PERSISTANT_STORAGE_KEY_BILL_TOKEN,
   PERSISTANT_STORAGE_KEY_MEDECO_TOKEN,
@@ -99,11 +100,12 @@ const growthbook = new GrowthBook({
 function App() {
   const [redirectReady, setRedirectReady] = useState(false);
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const authToken = searchParams.get("authToken");
   const redirectTo = searchParams.get("redirectTo");
   const uploadParams = searchParams.get("uploadParams");
   const medecoToken = searchParams.get("medecoToken");
-  const location = useLocation();
+  const fromNative = searchParams.get("fromNative");
   const navigate = useNavigate();
   const [getToken, setToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_AUTH_TOKEN
@@ -112,6 +114,7 @@ function App() {
   const [getMedecoToken, setMedecoToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_MEDECO_TOKEN
   );
+  const [_, setFromNativeFlag] = useLocalStorage(FROM_NATIVE_APP)
 
   const isLoginPage = location.pathname === "/login";
   const isRootPath = location.pathname === "/";
@@ -160,6 +163,14 @@ function App() {
       window.isLoggingOut = false;
     }
   };
+  useEffect(() => {
+    if (medecoToken) {
+      setMedecoToken(medecoToken);
+    }
+    if (fromNative) {
+      setFromNativeFlag(fromNative)
+    }
+  }, []);
   useEffect(() => {
     const checkUserStatus = async () => {
       const token = getToken();
@@ -342,8 +353,8 @@ function App() {
         localRedirectTo === "profile"
           ? "/doctor_profile"
           : redirectReady
-          ? localRedirectTo
-          : "/";
+            ? localRedirectTo
+            : "/";
 
       // Clean up localStorage if redirecting to profile
       if (localRedirectTo === "profile" || redirectReady) {

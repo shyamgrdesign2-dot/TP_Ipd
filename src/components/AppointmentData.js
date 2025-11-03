@@ -1190,13 +1190,13 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
         label: (
           <div onClick={handleAddClick}>
             Upload Medical Records
-            {isAndroid && !isBrowser ? (
+            {/* {isAndroid && !isBrowser ? (
               <div
                 ref={fileInputRef}
                 onClick={() => handleUploadDocPopup(record)}
                 style={{ display: "none" }}
               />
-            ) : (
+            ) : ( */}
               <input
                 type="file"
                 multiple
@@ -1205,7 +1205,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
                 accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf, video/mp4, video/quicktime, video/x-msvideo"
                 style={{ display: "none" }}
               />
-            )}
+            {/* )} */}
           </div>
         ),
         key: "uploadDoc",
@@ -1708,8 +1708,9 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     if (record.print_rx_url) {
       const printUrl = await updateRxDigitizeInUrl(record);
       if (!isChrome && !isSafari) {
-        navigate(`/?url=${printUrl}&key=print`, { replace: true });
-        navigate(0, { replace: true });
+        // navigate(`/?url=${printUrl}&key=print`, { replace: true });
+        // navigate(0, { replace: true });
+        sendMessageToParent(EVENTS.PRINT, { url: record.print_rx_url });
       } else {
         await window.open(printUrl);
       }

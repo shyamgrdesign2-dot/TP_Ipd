@@ -11,6 +11,10 @@ const FinalSetup = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    const mobileNo = params.get("mobileNo")
+    if (mobileNo) {
+      localStorage.setItem("mobileNumber", mobileNo)
+    }
     const stepParam = params.get("step");
     const noLocation = params.get("noLocation") === "true";
     const isLocked = params.get("isAccountLocked") === "true";

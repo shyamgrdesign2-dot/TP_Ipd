@@ -14,9 +14,10 @@ import DoctorWebsiteSettingsContext from '../../context/DoctorWebsiteSettingsCon
 
 import { saveDoctorWebsite, publishDoctorWebsite } from "../../redux/doctorWebsiteSlice";
 import { updateWebsitePublish } from "../../redux/doctorsSlice";
-import { errorMessage, handleCopy, validateEmail, trackEvent, getTokenData } from '../../utils/utils';
+import { errorMessage, handleCopy, validateEmail, trackEvent, getTokenData, sendMessageToParent } from '../../utils/utils';
 import CommonModal from '../../common/CommonModal';
 import alertIcon from '../../assets/images/alertIcon.svg';
+import { EVENTS } from '../../utils/events';
 
 function HeaderDoctorWebsite() {
 
@@ -230,8 +231,11 @@ function HeaderDoctorWebsite() {
 
     const clickRedirect = async () => {
         if (!isChrome && !isSafari) {
-            navigate(`/doctor_website_setting/?url=${publishUrl}&key=phpRedirect`, { replace: true, state: { websiteData: { ...websiteData } } })
-            navigate(0, { replace: true });
+            // navigate(`/doctor_website_setting/?url=${publishUrl}&key=phpRedirect`, { replace: true, state: { websiteData: { ...websiteData } } })
+            // navigate(0, { replace: true });
+            sendMessageToParent(EVENTS.REDIRECT, {
+                url: `/doctor_website_setting/?url=${publishUrl}`,
+            });
         } else {
             await window.open(publishUrl)
         }

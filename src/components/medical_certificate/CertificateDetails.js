@@ -47,9 +47,9 @@ function CertificateDetails({ patient_data }) {
     };
 
     async function printInAppContent(item) {
-        navigate(`/patient_details/?url=${item?.certificate}&key=print`, { replace: true, state: { patient_data: patient_data } })
-        navigate(0, { replace: true });
-        // sendMessageToParent(EVENTS.PRINT, { url: item?.certificate });
+        // navigate(`/patient_details/?url=${item?.certificate}&key=print`, { replace: true, state: { patient_data: patient_data } })
+        // navigate(0, { replace: true });
+        sendMessageToParent(EVENTS.PRINT, { url: item?.certificate });
     };
 
     const getMenuItems = (item) => {

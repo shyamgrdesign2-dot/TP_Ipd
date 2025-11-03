@@ -12,5 +12,6 @@ export const EVENTS = {
   PRINT: "print",
   DOWNLOAD: "download",
   SHARE: "share",
-  LOGOUT: "logout"
+  LOGOUT: "logout",
+  REDIRECT: "openExternalLink",
 };

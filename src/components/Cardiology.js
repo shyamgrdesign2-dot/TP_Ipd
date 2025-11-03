@@ -281,12 +281,12 @@ function Cardiology(props) {
   );
 
   async function printRxInAppContent() {
-    // sendMessageToParent(EVENTS.PRINT, { url: viewCaseManagerData?.print_rx_url });
-    navigate(
-      `/patient_details/?url=${viewCaseManagerData?.print_rx_url}&key=print`,
-      { replace: true, state: { patient_data: patient_data } }
-    );
-    navigate(0, { replace: true });
+    sendMessageToParent(EVENTS.PRINT, { url: viewCaseManagerData?.print_rx_url });
+    // navigate(
+    //   `/patient_details/?url=${viewCaseManagerData?.print_rx_url}&key=print`,
+    //   { replace: true, state: { patient_data: patient_data } }
+    // );
+    // navigate(0, { replace: true });
   }
   async function printRxContent() {
     await window.open(viewCaseManagerData?.print_rx_url);
@@ -542,12 +542,12 @@ function Cardiology(props) {
       showDigitalGenRx && voiceRxUrl
         ? voiceRxUrl
         : viewCaseManagerData?.print_url;
-    // sendMessageToParent(EVENTS.PRINT, { url: printUrl });
-    navigate(`/patient_details/?url=${printUrl}&key=print`, {
-      replace: true,
-      state: { patient_data: patient_data },
-    });
-    navigate(0, { replace: true });
+    sendMessageToParent(EVENTS.PRINT, { url: printUrl });
+    // navigate(`/patient_details/?url=${printUrl}&key=print`, {
+    //   replace: true,
+    //   state: { patient_data: patient_data },
+    // });
+    // navigate(0, { replace: true });
   };
 
   const handleEditRxClick = () => {

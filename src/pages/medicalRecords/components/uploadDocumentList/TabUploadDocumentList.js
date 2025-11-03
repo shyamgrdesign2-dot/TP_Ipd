@@ -38,13 +38,13 @@ const TabUploadDocumentList = ({
             className="btn btn-input d-flex w-100 align-items-center btn-41"
             onClick={handleAddClick}
           >
-            {isAndroid && !isBrowser ? (
+            {/* {isAndroid && !isBrowser ? (
               <div
                 ref={fileInputRef}
                 onClick={handleUploadDocPopup}
                 style={{ display: "none" }}
               />
-            ) : (
+            ) : ( */}
               <input
                 type="file"
                 multiple
@@ -53,7 +53,7 @@ const TabUploadDocumentList = ({
                 accept="image/png, image/jpeg, image/jpg, image/gif, application/pdf, video/mp4, video/quicktime, video/x-msvideo"
                 style={{ display: "none" }}
               />
-            )}
+            {/* )} */}
             <i className="icon-Add me-2 fs-21"></i>
             Upload new Report
           </Button>

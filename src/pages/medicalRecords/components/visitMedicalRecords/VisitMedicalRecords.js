@@ -194,13 +194,13 @@ const VisitMedicalRecords = ({
                 }}
                 onClick={handleAddClick}
               >
-                {isAndroid && !isBrowser ? (
+                {/* {isAndroid && !isBrowser ? (
                   <div
                     ref={fileInputRef}
                     onClick={handleUploadDocPopup}
                     style={{ display: "none" }}
                   />
-                ) : (
+                ) : ( */}
                   <input
                     type="file"
                     multiple
@@ -210,7 +210,7 @@ const VisitMedicalRecords = ({
                     style={{ display: "none" }}
                     disabled={(filesData?.length || 0) >= 5}
                   />
-                )}
+                {/* )} */}
                 <i className="icon-upload" />
                 {"Upload new report"}
               </Button>
