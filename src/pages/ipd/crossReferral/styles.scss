@@ -1,0 +1,389 @@
+.ipd-generic-form-container.cross-referral {
+  .patient-details-body {
+    display: block;
+    background: rgba(249, 247, 253, 1) !important;
+  }
+  .ipd-filled-by-card-container {
+    background: rgba(249, 247, 253, 1) !important;
+  }
+  .patient-details-menu {
+    display: none;
+  }
+  .patient-details-content {
+    background: transparent !important;
+  }
+  .patient-details-menu-container .patient-section {
+    background: transparent !important;
+  }
+}
+#cw-panel-referral-information {
+  .cw__bodyInner {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    .surgery-details-first-row:has(> *) {
+      margin-top: 0 !important;
+    }
+    .surgery-details-second-row-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.02);
+      padding: 20px;
+      border-radius: 16px;
+    }
+    .surgery-details-second-row-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #454551;
+    }
+    .surgery-details-second-row {
+      align-items: flex-end;
+      display: flex;
+      flex-direction: row;
+      gap: 24px;
+      flex-wrap: nowrap;
+      & > * {
+        flex: 1;
+        min-width: 0; /* Allows flex items to shrink below content size */
+      }
+    }
+  }
+}
+
+.cross-referral-timeline-container {
+  margin-bottom: 50px;
+  .ipdot-date-range-filter-container {
+    width: max-content;
+    max-width: 260px;
+    margin: 24px 10px 4px;
+  }
+  .medical-progress__step-content {
+    background: #F9F7FD !important;
+    .header-shadow {
+      background: linear-gradient(
+        180deg,
+        #ffffff 0%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      width: 100%;
+    }
+  }
+  .ant-steps-item-description {
+    margin-top: 0 !important;
+  }
+  .medical-progress__cards-container {
+    > div {
+      display: block !important;
+    }
+  }
+
+  .collapsible-wrapper {
+    position: relative;
+    width: 100%;
+  }
+
+  .cross-referral-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+
+    &.collapsed {
+      max-height: 60dvh;
+    }
+
+    &.expanded {
+      max-height: none;
+    }
+  }
+
+  .gradient-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20dvh;
+    background: linear-gradient(
+      180deg,
+      rgba(246, 244, 252, 0) 0%,
+      #f6f4fc 79.31%
+    );
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  .view-more-btn,
+  .view-less-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(236, 234, 250, 1);
+    border: none;
+    border-radius: 100px;
+    color: rgba(75, 74, 213, 1);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    img {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.2s ease;
+
+      &.arrow-down {
+        transform: rotate(0deg);
+      }
+
+      &.arrow-up {
+        transform: rotate(180deg);
+      }
+    }
+
+    &:hover {
+      background: rgb(224, 221, 239);
+      transform: translateY(-1px);
+    }
+  }
+
+  .view-less-btn {
+    margin: 16px auto 0;
+    background: rgba(236, 234, 250, 1);
+  }
+  .medical-progress__content-header {
+    position: relative;
+  }
+  .ipdot-readonly-ot-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    .ipdot-readonly-ot-header-icon {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+    .ipdot-readonly-ot-header-title {
+      z-index: 2;
+      font-size: 24px;
+      font-weight: 600;
+      color: rgba(88, 28, 135, 1) !important;
+      span {
+        color: rgba(88, 28, 135, 1) !important;
+      }
+    }
+    .ipdot-readonly-ot-header-left-mid-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ipdot-readonly-ot-header-left-section,
+    .ipdot-readonly-ot-header-right-section {
+      z-index: 2;
+      display: flex;
+      align-items: flex-start;
+      gap: 4px;
+    }
+    .ipdot-readonly-ot-header-left-section-top-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .irohb-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      .irohb-section-left {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 8px 12px;
+        background: rgba(88, 28, 135, 0.06);
+        border-radius: 100px;
+        img {
+          width: 18px;
+          height: 18px;
+          object-fit: contain;
+        }
+        span {
+          color: rgba(88, 28, 135, 1) !important;
+          font-size: 14px;
+          font-weight: 500;
+        }
+      }
+      .irohb-section-right {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 8px 12px;
+        background: rgba(88, 28, 135, 0.06);
+        border-radius: 100px;
+        img {
+          width: 18px;
+          height: 18px;
+          object-fit: contain;
+        }
+        span {
+          color: rgba(88, 28, 135, 1) !important;
+          font-size: 14px;
+          font-weight: 500;
+        }
+      }
+    }
+    .ipdot-readonly-ot-header-right-section {
+      gap: 20px;
+    }
+  }
+  .empty-consultant-notes-section {
+    background: rgba(237, 138, 0, 0.06);
+    box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01);
+    padding: 16px;
+    border-radius: 16px;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: flex-start;
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: rgba(237, 138, 0, 1);
+      background: #f2d0a1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      > div {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: rgba(237, 138, 0, 1);
+        z-index: 2;
+      }
+    }
+    span {
+      color: rgba(237, 138, 0, 1) !important;
+      font-size: 14px;
+      font-weight: 400;
+    }
+  }
+}
+
+.ipdcrt-section-container {
+  border-radius: 16px;
+  box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01);
+  border: 1px solid rgba(238, 222, 255, 1);
+  background: rgba(250, 249, 253, 1);
+  .heading {
+    background: linear-gradient(
+      0deg,
+      rgba(246, 240, 253, 0.6) 0%,
+      rgba(237, 222, 254, 0.6) 100%
+    );
+    border-radius: 16px 16px 0 0;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    .left-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    img {
+      width: 20px;
+      height: 20px;
+    }
+    span {
+      color: rgba(88, 28, 135, 1) !important;
+      font-size: 16px;
+      font-weight: 600;
+    }
+  }
+}
+.ipdcrt-painfosection-container {
+  position: relative;
+  background: linear-gradient(164.22deg, rgba(243, 232, 253, 0.7) 0.28%, rgba(242, 239, 250, 0.7) 16.3%);
+  overflow: hidden;
+  box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.08);
+  border: none;
+  .heading {
+    background: transparent !important;
+    position: relative;
+    z-index: 2;
+  }
+}
+.ipdcrt-section-content {
+  margin: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.ipdrf-chips-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ipdrf-reason-container {
+  .ipdrf-heading {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .ipdrf-info {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 6px;
+    .info-bold-text {
+      font-weight: 600;
+    }
+  }
+}
+
+.ipd-cross-ref-consult-form-container {
+  .patient-details-content {
+    .sections {
+      padding: 24px !important;
+    }
+    .patient-section {
+      padding: 0 !important;
+    }
+  }
+}
+.ipd-crosref-consult-addremarks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.02) !important;
+
+  .ant-picker-input {
+    input {
+      font-family: Poppins !important;
+    }
+  }
+}
+.ipdf-all-consultant-notes-container, #consultantNotesData .ipd-otnotes-editable-section-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}

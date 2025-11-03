@@ -116,6 +116,7 @@ import genRxBg from "../assets/images/gen-rx-bg.gif";
 import LabResultsTable from "../components/LabParams";
 import ZydusLabParams from "../components/ZydusLabParams";
 import ZydusLabParametersList from "../components/ZydusLabParametersList";
+import { fetchGynecHistory, getLabParamsData, setGynecHistoryData, setMedicalHistoryData as setMedicalHistory, setMedicationData, setPillupSwitch } from "../redux/prescriptionSlice";
 import carePlanIcon from "../assets/images/Care plan_Active.svg";
 
 function Prescription() {
@@ -181,22 +182,18 @@ function Prescription() {
   const [diagnosisData, setDiagnosisData] = useState([]);
   const [adviceData, setAdviceData] = useState([]);
   const [investigationData, setInvestigationData] = useState([]);
-  const [medicationData, setMedicationData] = useState([]);
   const [vitalsData, setVitalsData] = useState([]);
-  const [medicalHistoryData, setMedicalHistoryData] = useState([]);
   const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
   const [viewlabparamsDrawer, setViewlabparamsDrawer] = useState(false);
   const [privateNotesData, setPrivateNotesData] = useState(null);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [additionalNote, setAdditionalNote] = useState("");
   const [isGrowthChart, setIsGrowthChart] = useState(false);
-  const [labParamsData, setLabParamsData] = useState([]);
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
   const [customModuleContents, setCustomModuleContents] = useState([]);
   const [isGenRxDrawerVisible, setIsGenRxDrawerVisible] = useState(
     caseManagerData?.smart_prescription_filename || false
   );
-  const [pillupSwitch, setPillupSwitch] = useState(true);
   const [showSCBanner, setShowSCBanner] = useState(false);
   const [zydusTestReportDrawer, setZydusTestReportDrawer] = useState(false);
   const [labReportID, setLabReportID] = useState(null);
@@ -210,6 +207,10 @@ function Prescription() {
   const [subModalData, setSubModalData] = useState(null);
   const [useVoiceRx, setUseVoiceRx] = useState(false);
   const [useDDX, setUseDDX] = useState(false);
+
+  const setMedicalHistoryData = (data) => {
+    dispatch(setMedicalHistory(data));
+  }
 
   const responsive = {
     desktop: {
@@ -230,6 +231,7 @@ function Prescription() {
     object && setSubModalData(object)
     setIsSubModalOpen(!isSubModalOpen);
   }
+  let { medicationData, pillupSwitch, labParamsData, medicalHistoryData, gynecHistoryData } = useSelector((state) => state.prescription);
 
   const contextApi = {
     patient_data,
@@ -281,7 +283,6 @@ function Prescription() {
   const [selectPrivateNotes, setSelectPrivateNotes] = useState(null);
   const [vaccinationDrawer, setVaccinationDrawer] = useState(false);
   const [growthDrawer, setGrowthDrawer] = useState(false);
-  const [updatedGynecHistory, setUpdatedGynecHistory] = useState(null);
   const [obstetricDrawer, setObstetricDrawer] = useState(false);
   const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
   const [medicalReportDrawer, setMedicalReportDrawer] = useState(false);
@@ -749,13 +750,13 @@ function Prescription() {
     }
   }, [privateNotesList]);
 
-  const handleSaveGynecHistory = (updatedGynecHistory) => {
-    setUpdatedGynecHistory(updatedGynecHistory);
+  const handleSaveGynecHistory = (gynecHistoryData) => {
+    dispatch(setGynecHistoryData(gynecHistoryData));
   };
 
   useEffect(() => {
     if (isGynaecHistoryAccessable) {
-      fetchGynecHistory();
+      fetchGynecHistoryData();
     }
   }, [isGynaecHistoryAccessable]);
 
@@ -821,19 +822,8 @@ function Prescription() {
     }
   };
 
-  const fetchGynecHistory = async () => {
-    try {
-      const data = await getGynecDetails(
-        patient_data.patient_unique_id,
-        userId
-      );
-      // Destructure to remove createdAt and createdBy
-      const { createdAt, createdBy, ...updatedData } = data;
-
-      setUpdatedGynecHistory(updatedData);
-    } catch (error) {
-      console.error("Error fetching gynec history:", error);
-    }
+  const fetchGynecHistoryData = async () => {
+    dispatch(fetchGynecHistory({patientId: patient_data.patient_unique_id,userId}));
   };
 
   const handleFileUpload = (event) => {
@@ -904,20 +894,13 @@ function Prescription() {
   };
 
   const getLabParams = async () => {
-    try {
-      const cleanedToken = token.replace(/['"]+/g, "");
-      const response = await axios.get(
-        `${baseUrl}/api/v1/lab-parameters/results/${patient_data?.patient_unique_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${cleanedToken}`,
-          },
-        }
-      );
-      setLabParamsData(response.data?.data?.results || []);
-    } catch (error) {
-      console.error("Error fetching lab params:", error);
-    }
+    dispatch(
+      getLabParamsData({
+        patient_unique_id: patient_data?.patient_unique_id,
+      })
+    ).catch((err) => {
+          console.error("Error fetching lab params:", err);
+      });
   };
 
   const fetchCarePlanNames = async () => {
@@ -1138,16 +1121,16 @@ function Prescription() {
                   <i
                     className={`${
                       medicalHistoryData.length > 0 ||
-                      (updatedGynecHistory &&
-                        Object.keys(updatedGynecHistory).length > 0)
+                      (gynecHistoryData &&
+                        Object.keys(gynecHistoryData).length > 0)
                         ? "icon-Edit"
                         : "icon-Add"
                     } me-1 fs-5`}
                   ></i>{" "}
                   <span>{`${
                     medicalHistoryData.length > 0 ||
-                    (updatedGynecHistory &&
-                      Object.keys(updatedGynecHistory).length > 0)
+                    (gynecHistoryData &&
+                      Object.keys(gynecHistoryData).length > 0)
                       ? "Edit"
                       : "Add"
                   }`}</span>
@@ -1157,9 +1140,9 @@ function Prescription() {
                 <ShimmerLoader />
               ) : (
                 (medicalHistoryData.length > 0 ||
-                  (updatedGynecHistory &&
-                    Object.keys(updatedGynecHistory).length > 0)) && (
-                  <MedicalHistoryList gynecHistory={updatedGynecHistory} />
+                  (gynecHistoryData &&
+                    Object.keys(gynecHistoryData).length > 0)) && (
+                  <MedicalHistoryList gynecHistory={gynecHistoryData} />
                 )
               )}
             </div>
@@ -1353,8 +1336,6 @@ function Prescription() {
             </div>
             <LabParametersList
               labParamsData={labParamsData}
-              patient_unique_id={patient_data?.patient_unique_id}
-              doc_id={userId}
             />
           </div>
         </>
@@ -1502,7 +1483,7 @@ function Prescription() {
         <HeaderPrescription
           isVaccinationEnabled={isVaccinationAccessable}
           isGrowthChartEnabled={isGrowthChartAccessable}
-          gynecHistory={updatedGynecHistory}
+          gynecHistory={gynecHistoryData}
           labParamsData={labParamsData}
           zydusSelectedLabParams={zydusSelectedLabParams}
           handleGenRx={handleGenRx}

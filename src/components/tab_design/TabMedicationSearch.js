@@ -30,8 +30,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
 import { errorMessage, onlyNumberFormat, onlyDecimalFormat, isNumeric, hasNumber, removeBeforeWhiteSpace, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, calculateDose } from "../../utils/utils";
-
-import CashManagerContext from "../../context/CashManagerContext";
+import { setMedicationData } from "../../redux/prescriptionSlice";
 import {
   getMedicineDetails,
   getFrequentlySearchedMedication,
@@ -61,11 +60,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const { dosesList, parentOptionsList, childOptionsList, genericList, loading } = useSelector((state) => state.medication);
   const { todayData } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
-
-  const { medicationData, setMedicationData } = useContext(CashManagerContext);
-
   const [searchChildQuery, setSearchChildQuery] = useState("");
   const [childSearchOptions, setChildSearchOptions] = useState([]);
+  let { medicationData : storedMedicationData } = useSelector((state) => state.prescription);
+  const medicationData = storedMedicationData ? JSON.parse(JSON.stringify(storedMedicationData)) : [];
 
   const [selectedIndex, setSelectedIndex] = useState(passIndex);
   const SINCE_OPTIONS = [
@@ -281,7 +279,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             return {
               key: JSON.stringify({ ...e1 }),
               value: e1.tmu_id,
-              label: <>{e1.tmu_title}</>,
+              label: String(e1.tmu_title || ""),
             };
           });
 
@@ -322,7 +320,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         if (doseCalculatorDrawer) {
           const modifyData = updatedData[0]
           const objDose = dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)
-          medicationLibrary.push({
+          const newMedicine = {
             ...modifyData,
             tmm_dosage_unit_name: "",
             tmm_dosage: '',
@@ -338,21 +336,19 @@ function TabMedicationSearch({ passIndex, onClose }) {
             medicine_name: modifyData.tmm_medicine_name,
             medicine_generic_name: modifyData.tmm_generic,
             exist: dosesList.some((e1) => e1.medicine_id == modifyData.tmm_id) ? true : false
-          });
-          setMedicationLibrary((prev) => [...prev]);
+          };
+          setMedicationLibrary(prev => [...prev, newMedicine]);
           setSearchMLQuery("");
           setAddCustom(null);
         } else {
-          medicationData.push({
-            ...updatedData[0],
-          });
-          setMedicationData((prev) => [...prev]);
-          setSelectedIndex(medicationData.length - 1);
+          const updatedMedicationData = [...medicationData, { ...updatedData[0] }];
+          dispatch(setMedicationData(updatedMedicationData));
+          setSelectedIndex(updatedMedicationData.length - 1);
           setActiveKey(updatedData[0]?.unique_id);
 
-          const setArray = medicationData.reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], [])
+          const setArray = updatedMedicationData.reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], [])
           setSelectedIndex1(setArray?.length - 1)
-          setChildIndex(medicationData.findIndex(e => e.unique_id == setArray.at(-1)?.unique_id));
+          setChildIndex(updatedMedicationData.findIndex(e => e.unique_id == setArray.at(-1)?.unique_id));
 
           setSinceValue(updatedData[0].tmm_days ? parseInt(updatedData[0].tmm_days) : 1);
           setSearchChildQuery("");
@@ -364,27 +360,33 @@ function TabMedicationSearch({ passIndex, onClose }) {
     }
   }
 
+  // Fully hardened innerMedication implementation
   const innerMedication = (index) => {
-    const mainArray = []
-    for (var i = index; i < medicationData.length; i++) {
-      if (medicationData[i]?.tmm_id == medicationData[index]?.tmm_id) {
-        mainArray.push(medicationData[i])
+    if (
+      typeof index !== 'number' ||
+      !Array.isArray(medicationData) ||
+      index < 0 ||
+      index >= medicationData.length ||
+      !medicationData[index]
+    ) {
+      return [];
+    }
+    const anchorId = medicationData[index].tmm_id;
+    const mainArray = [];
+    for (let i = index; i < medicationData.length; i++) {
+      if (medicationData[i] && medicationData[i].tmm_id === anchorId) {
+        mainArray.push(medicationData[i]);
       } else {
         break;
       }
     }
-    return mainArray
-  }
+    return mainArray.filter(e => e && typeof e.unique_id !== 'undefined');
+  };
 
   const onRemoveRow = async (index) => {
     const childData = await innerMedication(index)
-    childData.map((e) => {
-      const mainIndex = medicationData.findIndex(x => x.unique_id == e.unique_id);
-      if (mainIndex != -1) {
-        medicationData.splice(mainIndex, 1)
-      }
-    })
-    setMedicationData((prev) => [...prev]);
+    let updatedMedicationData = medicationData.filter(item => !(Array.isArray(childData) && childData.some(child => child.unique_id === item.unique_id)));
+    dispatch(setMedicationData(updatedMedicationData));
     setSelectedIndex(null);
     setActiveKey(null);
     setSelectedIndex1(null);
@@ -425,18 +427,18 @@ function TabMedicationSearch({ passIndex, onClose }) {
         }}
       >
         <div className="text-truncate">
-          {item.tmm_medicine_name}
+          {String(item.tmm_medicine_name || "")}
           {innerMedication(item?.index)?.length > 1 ? (
             <div className="text-truncate small">Taper Dose</div>
           ) : (
             (item.tmm_dosage || item.tmm_unit_name) ? (
               isNumeric(item.tmf_block) && item.tmf_block == 0 ? (
-                <div className="text-truncate small">{tmm_freq_type_name}</div>
+                <div className="text-truncate small">{String(tmm_freq_type_name)}</div>
               ) : (
                 <div className="text-truncate small">{`
                 ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
-                ${item.tmm_freq_type_name ? item.tmm_freq_type_name + " | " : ""}
-                ${item.tmm_time_name ? item.tmm_time_name : ""}
+                ${item.tmm_freq_type_name ? String(item.tmm_freq_type_name) + " | " : ""}
+                ${item.tmm_time_name ? String(item.tmm_time_name) : ""}
                 `}</div>
               )
             ) : (
@@ -449,7 +451,9 @@ function TabMedicationSearch({ passIndex, onClose }) {
       <Button
         type="text"
         className="rounded-0 btn-close-chips"
-        onClick={() => onRemoveRow(item?.index)}
+        onClick={() => {
+          return onRemoveRow(item?.index);
+        }}
       >
         <i className="icon-Cross"></i>
       </Button>
@@ -495,7 +499,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
               removedArray.splice(dragIndex + 1, 0, ...array)
             }
 
-            setMedicationData(removedArray);
+            dispatch(setMedicationData(removedArray));
           }}
           axis="xy"
           pressDelay={150}
@@ -504,84 +508,11 @@ function TabMedicationSearch({ passIndex, onClose }) {
     );
   }, [medicationData, selectedIndex, selectedIndex1, childIndex, selectedTab]);
 
-  // const TABLE_MEDICATION = useMemo(() => {
-  //   return (
-  //     medicationData.length > 0 &&
-  //     medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], []).map((item, index) => {
-  //       return (
-  //         <div
-  //           key={index}
-  //           style={{
-  //             width:
-  //               item.tmm_medicine_name.length > 12 &&
-  //                 item.tmm_medicine_name.length < 24
-  //                 ? `${item.tmm_medicine_name.length * 10.5}px`
-  //                 : item.tmm_medicine_name.length >= 24
-  //                   ? "256px"
-  //                   : "150px",
-  //           }}
-  //           className={`${selectedIndex1 == index && "closable-chips-active"
-  //             } d-flex align-items-center justify-content-between text-truncate closable-chips`}
-  //         >
-  //           <div
-  //             className="text-truncate p-2"
-  //             onClick={() => {
-  //               setSelectedIndex(item?.index);
-  //               setActiveKey(item?.unique_id);
-
-  //               setSelectedIndex1(index);
-  //               setChildIndex(item?.index);
-
-  //               setSinceValue(item.tmm_days ? parseInt(item.tmm_days) : 1);
-  //               setAddCustom(null);
-  //             }}
-  //           >
-  //             <div className="text-truncate">
-  //               {item.tmm_medicine_name}
-  //               {innerMedication(item?.index)?.length > 1 ? (
-  //                 <div className="text-truncate small">Taper Dose</div>
-  //               ) : (
-  //                 (item.tmm_dosage || item.tmm_unit_name) ? (
-  //                   isNumeric(item.tmf_block) && item.tmf_block == 0 ? (
-  //                     <div className="text-truncate small">{`
-  //                     ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
-  //                     ${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
-  //                     ${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
-  //                     ${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}
-  //                     ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : "0 |"}
-  //                     ${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
-  //                   ) : (
-  //                     <div className="text-truncate small">{`
-  //                       ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
-  //                       ${item.tmm_freq_type_name ? item.tmm_freq_type_name + " | " : ""}
-  //                       ${item.tmm_time_name ? item.tmm_time_name : ""}
-  //                       `}</div>
-  //                   )
-  //                 ) : (
-  //                   <div className="text-truncate small">Note</div>
-  //                 )
-  //               )}
-
-  //             </div>
-  //           </div>
-  //           <Button
-  //             type="text"
-  //             className="rounded-0 btn-close-chips"
-  //             onClick={() => onRemoveRow(item?.index)}
-  //           >
-  //             <i className="icon-Cross"></i>
-  //           </Button>
-  //         </div>
-  //       );
-  //     })
-  //   );
-  // }, [medicationData, selectedIndex, selectedIndex1, childIndex, selectedTab]);
-
   const onChangeDosageChild = useCallback(
     (e) => {
       const updateQuery = onlyDecimalFormat(e.target.value);
       medicationData[selectedIndex].tmm_dosage = updateQuery;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [selectedIndex, medicationData]
   );
@@ -598,7 +529,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         medicationData[selectedIndex].tmm_unit = objParse.tmu_id;
         medicationData[selectedIndex].tmm_unit_name = objParse.tmu_title;
         medicationData[selectedIndex].tmu_id = objParse.tmu_id;
-        setMedicationData((prev) => [...prev]);
+        dispatch(setMedicationData(medicationData));
       }
     },
     [selectedIndex, medicationData]
@@ -608,20 +539,20 @@ function TabMedicationSearch({ passIndex, onClose }) {
     if (parseInt(medicationData[selectedIndex].tcm_tmm_freq_morning) > 0) {
       medicationData[selectedIndex].tcm_tmm_freq_morning =
         parseInt(medicationData[selectedIndex].tcm_tmm_freq_morning) - 1;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     }
   }, [selectedIndex, medicationData]);
 
   const morningClick = useCallback(() => {
     medicationData[selectedIndex].tcm_tmm_freq_morning = 1;
-    setMedicationData((prev) => [...prev]);
+    dispatch(setMedicationData(medicationData));
   }, [selectedIndex, medicationData]);
 
   const onChangeInputMorningChild = useCallback(
     (e) => {
       const updateQuery = onlyDecimalFormat(e.target.value);
       medicationData[selectedIndex].tcm_tmm_freq_morning = updateQuery;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [selectedIndex, medicationData]
   );
@@ -629,27 +560,27 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const morningIncrement = useCallback(() => {
     medicationData[selectedIndex].tcm_tmm_freq_morning =
       parseInt(medicationData[selectedIndex].tcm_tmm_freq_morning) + 1;
-    setMedicationData((prev) => [...prev]);
+    dispatch(setMedicationData(medicationData));
   }, [selectedIndex, medicationData]);
 
   const afternoonDecrement = useCallback(() => {
     if (parseInt(medicationData[selectedIndex].tcm_tmm_freq_afternoon) > 0) {
       medicationData[selectedIndex].tcm_tmm_freq_afternoon =
         parseInt(medicationData[selectedIndex].tcm_tmm_freq_afternoon) - 1;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     }
   }, [selectedIndex, medicationData]);
 
   const afternoonClick = useCallback(() => {
     medicationData[selectedIndex].tcm_tmm_freq_afternoon = 1;
-    setMedicationData((prev) => [...prev]);
+    dispatch(setMedicationData(medicationData));
   }, [selectedIndex, medicationData]);
 
   const onChangeInputAfternoonChild = useCallback(
     (e) => {
       const updateQuery = onlyDecimalFormat(e.target.value);
       medicationData[selectedIndex].tcm_tmm_freq_afternoon = updateQuery;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [selectedIndex, medicationData]
   );
@@ -657,27 +588,27 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const afternoonIncrement = useCallback(() => {
     medicationData[selectedIndex].tcm_tmm_freq_afternoon =
       parseInt(medicationData[selectedIndex].tcm_tmm_freq_afternoon) + 1;
-    setMedicationData((prev) => [...prev]);
+    dispatch(setMedicationData(medicationData));
   }, [selectedIndex, medicationData]);
 
   const eveningDecrement = useCallback(() => {
     if (parseInt(medicationData[selectedIndex].tcm_tmm_freq_evening) > 0) {
       medicationData[selectedIndex].tcm_tmm_freq_evening =
         parseInt(medicationData[selectedIndex].tcm_tmm_freq_evening) - 1;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     }
   }, [selectedIndex, medicationData]);
 
   const eveningClick = useCallback(() => {
     medicationData[selectedIndex].tcm_tmm_freq_evening = 1;
-    setMedicationData((prev) => [...prev]);
+    dispatch(setMedicationData(medicationData));
   }, [selectedIndex, medicationData]);
 
   const onChangeInputEveningChild = useCallback(
     (e) => {
       const updateQuery = onlyDecimalFormat(e.target.value);
       medicationData[selectedIndex].tcm_tmm_freq_evening = updateQuery;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [selectedIndex, medicationData]
   );
@@ -685,27 +616,27 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const eveningIncrement = useCallback(() => {
     medicationData[selectedIndex].tcm_tmm_freq_evening =
       parseInt(medicationData[selectedIndex].tcm_tmm_freq_evening) + 1;
-    setMedicationData((prev) => [...prev]);
+    dispatch(setMedicationData(medicationData));
   }, [selectedIndex, medicationData]);
 
   const nightDecrement = useCallback(() => {
     if (parseInt(medicationData[selectedIndex].tcm_tmm_freq_night) > 0) {
       medicationData[selectedIndex].tcm_tmm_freq_night =
         parseInt(medicationData[selectedIndex].tcm_tmm_freq_night) - 1;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     }
   }, [selectedIndex, medicationData]);
 
   const nightClick = useCallback(() => {
     medicationData[selectedIndex].tcm_tmm_freq_night = 1;
-    setMedicationData((prev) => [...prev]);
+    dispatch(setMedicationData(medicationData));
   }, [selectedIndex, medicationData]);
 
   const onChangeInputNightChild = useCallback(
     (e) => {
       const updateQuery = onlyDecimalFormat(e.target.value);
       medicationData[selectedIndex].tcm_tmm_freq_night = updateQuery;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [selectedIndex, medicationData]
   );
@@ -713,7 +644,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const nightIncrement = useCallback(() => {
     medicationData[selectedIndex].tcm_tmm_freq_night =
       parseInt(medicationData[selectedIndex].tcm_tmm_freq_night) + 1;
-    setMedicationData((prev) => [...prev]);
+    dispatch(setMedicationData(medicationData));
   }, [selectedIndex, medicationData]);
 
   const handleRadioChange = useCallback(
@@ -730,7 +661,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
       medicationData[selectedIndex].tcm_tmm_freq_evening = 0;
       medicationData[selectedIndex].tcm_tmm_freq_morning = 0;
       medicationData[selectedIndex].tcm_tmm_freq_night = 0;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [selectedTab, medicationData]
   );
@@ -746,7 +677,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         medicationData[selectedIndex].tmm_freq_type_name = "";
         medicationData[selectedIndex].tmf_block_val = "";
       }
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [selectedIndex, medicationData]
   );
@@ -767,7 +698,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         medicationData[selectedIndex].tmm_time = 0;
         medicationData[selectedIndex].tmm_time_name = "";
       }
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [selectedIndex, medicationData]
   );
@@ -785,7 +716,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         return {
           key: Math.random(),
           value: `${sinceValue} ${option.value}`,
-          label: <>{`${sinceValue}${option.label}`}</>,
+          label: `${sinceValue}${option.label}`,
         };
       });
       setSinceOptions(options);
@@ -794,7 +725,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         return {
           key: Math.random(),
           value: `${inputSince} ${option.value}`,
-          label: <>{`${inputSince}${option.label}`}</>,
+          label: `${inputSince}${option.label}`,
         };
       });
       setSinceOptions(options);
@@ -803,7 +734,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         return {
           key: Math.random(),
           value: `${option.value}`,
-          label: <>{`${option.label}`}</>,
+          label: `${option.label}`,
         };
       });
       setSinceOptions(options);
@@ -816,13 +747,13 @@ function TabMedicationSearch({ passIndex, onClose }) {
       setInputSince(updateQuery);
       medicationData[selectedIndex].tmm_days = 0;
       medicationData[selectedIndex].tmm_duration_type = "";
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
       if (updateQuery.length > 0) {
         const options = SINCE_OPTIONS.map((option) => {
           return {
             key: Math.random(),
             value: `${updateQuery} ${option.value}`,
-            label: <>{`${updateQuery}${option.label}`}</>,
+            label: `${updateQuery}${option.label}`,
           };
         });
         setSinceOptions(options);
@@ -831,7 +762,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
           return {
             key: Math.random(),
             value: option.value,
-            label: <>{`${option.label}`}</>,
+            label: `${option.label}`,
           };
         });
         setSinceOptions(options);
@@ -866,7 +797,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
       setSinceValue(key);
       medicationData[selectedIndex].tmm_days = 0;
       medicationData[selectedIndex].tmm_duration_type = "";
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [sinceValue, selectedIndex, medicationData]
   );
@@ -883,7 +814,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
           medicationData[selectedIndex].tmm_days = 0;
           medicationData[selectedIndex].tmm_duration_type = "";
         }
-        setMedicationData((prev) => [...prev]);
+        dispatch(setMedicationData(medicationData));
       }
     },
     [selectedIndex, medicationData]
@@ -900,19 +831,20 @@ function TabMedicationSearch({ passIndex, onClose }) {
         medicationData[selectedIndex].tmm_days = 0;
         medicationData[selectedIndex].tmm_duration_type = "";
       }
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [selectedIndex, medicationData]
   );
 
   const onAutoFillDuration = () => {
     const { tmm_days_duration_type, tmm_days, tmm_duration_type } = medicationData[selectedIndex]
-    medicationData.forEach(e => {
-      e.tmm_days_duration_type = tmm_days_duration_type;
-      e.tmm_days = tmm_days;
-      e.tmm_duration_type = tmm_duration_type;
-    });
-    setMedicationData((prev) => [...prev]);
+    const updatedMedicationData = medicationData.map(e => ({
+      ...e,
+      tmm_days_duration_type,
+      tmm_days,
+      tmm_duration_type
+    }));
+    dispatch(setMedicationData(updatedMedicationData));
     message.open({
       key: MESSAGE_KEY,
       type: '',
@@ -940,7 +872,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const onChangeInputNoteChild = useCallback(
     (e) => {
       medicationData[selectedIndex].tmm_remarks = e.target.value;
-      setMedicationData((prev) => [...prev]);
+      dispatch(setMedicationData(medicationData));
     },
     [selectedIndex, medicationData]
   );
@@ -976,9 +908,9 @@ function TabMedicationSearch({ passIndex, onClose }) {
       tmu_id: 0,
       unique_id: uuidv4(),
     }
-    medicationData.splice(parseInt(array.at(-1).index) + 1, 0, updatedData);
-    setMedicationData((prev) => [...prev]);
-    setSelectedIndex(parseInt(array.at(-1).index) + 1);
+    const updatedMedicationData = [...medicationData, updatedData];
+    dispatch(setMedicationData(updatedMedicationData));
+    setSelectedIndex(updatedMedicationData.length - 1);
     setSinceValue(updatedData.tmm_days ? parseInt(updatedData.tmm_days) : 1);
     setSearchChildQuery("");
     setAddCustom(null);
@@ -991,8 +923,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
     } else {
       const index = medicationData.findIndex(e => e.unique_id == unique_id)
       if (index != -1) {
-        medicationData.splice(index, 1);
-        setMedicationData((prev) => [...prev]);
+        const updatedMedicationData = medicationData.filter(item => item.unique_id !== unique_id);
+        dispatch(setMedicationData(updatedMedicationData));
         const checkIndex = medicationData.findIndex(e => e.unique_id == activeKey)
         if (checkIndex != -1) {
           setSelectedIndex(checkIndex);
@@ -1033,6 +965,8 @@ function TabMedicationSearch({ passIndex, onClose }) {
     },
   ];
 
+  
+
   //Child Componet
   const CHILD_DRAWER_DATA = useMemo(() => {
     return (
@@ -1042,10 +976,10 @@ function TabMedicationSearch({ passIndex, onClose }) {
             <div className="selectedchip-header d-flex align-items-center justify-content-between title px-20">
               <div className="text-truncate title-common fontroboto">
                 {selectedIndex != null &&
-                  medicationData[selectedIndex]?.tmm_medicine_name}
+                  String(medicationData[selectedIndex]?.tmm_medicine_name || "")}
                 <div className="text-truncate fs-14 fw-normal fontroboto mt-1">
                   {selectedIndex != null &&
-                    medicationData[selectedIndex]?.tmm_generic}
+                    String(medicationData[selectedIndex]?.tmm_generic || "")}
                 </div>
               </div>
               {((profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) || !medicationData[selectedIndex]?.pms_default) && (
@@ -1056,20 +990,20 @@ function TabMedicationSearch({ passIndex, onClose }) {
                 </Dropdown>
               )}
             </div>
-            <Tabs
-              type="editable-card"
-              onChange={onChange}
-              activeKey={activeKey}
-              onEdit={(targetKey, action) => onEdit(targetKey, action, medicationData[childIndex])}
-              items={childIndex != null && innerMedication(childIndex).map((e, i) => {
-                return {
+            {Array.isArray(childIndex != null ? innerMedication(childIndex) : []) && innerMedication(childIndex)?.length > 0 ? (
+              <Tabs
+                type="editable-card"
+                onChange={onChange}
+                activeKey={activeKey}
+                onEdit={(targetKey, action) => onEdit(targetKey, action, medicationData[childIndex])}
+                items={innerMedication(childIndex).map((e, i) => ({
                   key: e.unique_id,
                   label: `Dose ${i + 1}`,
                   children: null,
-                };
-              })}
-              className="tablet-medication-tabs"
-            />
+                }))}
+                className="tablet-medication-tabs"
+              />
+            ) : null}
             <i className="icon-Add custom-tapper-button" onClick={() => taperDoseAdd(medicationData[childIndex])} />
             <div className="p-4">
               <div>
@@ -1089,6 +1023,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                     />
                   </Col>
                   <Col md={12}>
+                  {console.log(medicationData[selectedIndex].medicineUnit,"medicationData[selectedIndex].medicineUnit")}
                     <Select
                       className="autocomplete-custom w-100 popinput inputheight38"
                       placeholder="Select"
@@ -1104,9 +1039,9 @@ function TabMedicationSearch({ passIndex, onClose }) {
                       value={
                         medicationData[selectedIndex]?.medicineUnit
                           ? medicationData[selectedIndex].medicineUnit.findIndex(
-                            (e) => e.value == medicationData[selectedIndex].tmm_unit
+                            (e) => e.value == medicationData[selectedIndex]?.tmm_unit
                           ) !== -1
-                            ? parseInt(medicationData[selectedIndex].tmm_unit)
+                            ? parseInt(medicationData[selectedIndex]?.tmm_unit)
                             : null
                           : null
                       }
@@ -1646,12 +1581,6 @@ function TabMedicationSearch({ passIndex, onClose }) {
                     )
                   })}
                 </div>
-                {/* <Segmented
-                  value={sinceValue > 5 ? -1 : sinceValue}
-                  className="search-segment"
-                  options={SINCE_LIST}
-                  onChange={onChangeSegmentedSinceChild}
-                /> */}
               </div>
               <div className="mt-3 mb-2">
                 <div className="segement-static d-flex">
@@ -1699,17 +1628,6 @@ function TabMedicationSearch({ passIndex, onClose }) {
                     selectedValue={medicationData[selectedIndex].tmm_days_duration_type}
                     array={EXTRA_OPTIONS} />
                 )}
-                {/* <Segmented
-                  value={
-                    medicationData[selectedIndex].tmm_duration_type !==
-                    undefined && medicationData[selectedIndex].tmm_days !==
-                    undefined &&
-                    `${medicationData[selectedIndex].tmm_days} ${medicationData[selectedIndex].tmm_duration_type}`
-                  }
-                  className="search-segment"
-                  options={sinceOptions}
-                  onChange={onChangeSinceChild}
-                /> */}
               </div>
 
               {medicationData[selectedIndex].tmm_days_duration_type && (
@@ -1824,7 +1742,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
           return {
             key: JSON.stringify({ ...e1 }),
             value: e1.tmu_id,
-            label: <>{e1.tmu_title}</>,
+            label: e1.tmu_title + '',
           };
         });
 
@@ -1844,6 +1762,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             }
             return item;
           });
+          
         } else {
           medicationData.map(item => {
             if (item.tmm_id == modifyData.tmm_id) {
@@ -1866,7 +1785,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
             return {
               key: JSON.stringify({ ...e1 }),
               value: e1.tmu_id,
-              label: <>{e1.tmu_title}</>,
+              label: String(e1.tmu_title || ""),
             };
           });
 
@@ -1906,7 +1825,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         if (doseCalculatorDrawer) {
           const modifyData = updatedData[0]
           const objDose = dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)
-          medicationLibrary.push({
+          const newMedicine = {
             ...modifyData,
             tmm_dosage_unit_name: "",
             tmm_dosage: '',
@@ -1922,18 +1841,18 @@ function TabMedicationSearch({ passIndex, onClose }) {
             medicine_name: modifyData.tmm_medicine_name,
             medicine_generic_name: modifyData.tmm_generic,
             exist: dosesList.some((e1) => e1.medicine_id == modifyData.tmm_id) ? true : false
-          });
+          };
+          setMedicationLibrary(prev => [...prev, newMedicine]);
         } else {
-          medicationData.push({
-            ...updatedData[0],
-          });
+          const updatedMedicationData = [...medicationData, { ...updatedData[0] }];
+          dispatch(setMedicationData(updatedMedicationData));
 
-          setSelectedIndex(medicationData.length - 1);
+          setSelectedIndex(updatedMedicationData.length - 1);
           setActiveKey(updatedData[0]?.unique_id);
 
-          const setArray = medicationData.reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], [])
+          const setArray = updatedMedicationData.reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], [])
           setSelectedIndex1(setArray?.length - 1)
-          setChildIndex(medicationData.findIndex(e => e.unique_id == setArray.at(-1)?.unique_id));
+          setChildIndex(updatedMedicationData.findIndex(e => e.unique_id == setArray.at(-1)?.unique_id));
 
           setSinceValue(updatedData[0].tmm_days ? parseInt(updatedData[0].tmm_days) : 1);
         }
@@ -1942,7 +1861,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
         setMedicationLibrary((prev) => [...prev]);
         setSearchMLQuery("");
       } else {
-        setMedicationData((prev) => [...prev]);
+        dispatch(setMedicationData(medicationData));
         setSearchChildQuery("");
       }
       setAddCustom(null);

@@ -6,11 +6,21 @@ import moment from "moment";
 import { isPrimigravida } from "../../utils/helper";
 import PatientInfoList from "./PatientInfoList";
 import AncImmunisationList from "./AncImmunisationList";
+import { useDispatch } from "react-redux";
+import { fetchObstetricsData } from "../../../../redux/obstetricSlice";
+import { useLocation } from "react-router-dom";
+import { useAccess } from "../../../vaccination/useAccess";
 
 const ObstetricList = ({ handleDrawerObstetric }) => {
-  const { obstetricDetails: allObstetricDetails } = useSelector(
+  const { obstetricDetails: allObstetricDetails, isObstetricDetailsFetched, } = useSelector(
     (state) => state.obstetric
   );
+  const { state } = useLocation();
+  const { patient_data } = state;
+  const {
+    isGynaecHistoryAccessable,
+  } = useAccess(patient_data?.ageYears);
+  const dispatch = useDispatch();
   const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const { examinationHistory } = obstetricDetails || [];
   const [accordionItems, setAccordionItems] = useState([]);
@@ -59,6 +69,18 @@ const ObstetricList = ({ handleDrawerObstetric }) => {
     const adjustedLmpDate = lmpDate.clone().add(gestationWeeks, "weeks");
     gestationDays = today.diff(adjustedLmpDate, "days");
   }
+
+  const getAllObstetricDetails = async () => {
+    dispatch(
+      fetchObstetricsData({ patientId: patient_data.patient_unique_id })
+    );
+  };
+
+  useEffect(() => {
+    if (!isObstetricDetailsFetched && isGynaecHistoryAccessable) {
+      getAllObstetricDetails();
+    }
+  }, [isObstetricDetailsFetched, isGynaecHistoryAccessable]);
 
   useEffect(() => {
     const accordionItemsData = examinationHistory?.map((visitItem, i) => ({

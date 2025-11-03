@@ -1,0 +1,232 @@
+@import "../../assets/scss/shimmerLoader.scss";
+
+.dynamic-picker-container {
+  --border: #ececf2;
+  --muted: #a9a9b2;
+  --text: #15161a;
+  --bg: #fff;
+
+  display: grid;
+  gap: 16px;
+
+  .ant-select-selection-search {
+    .ant-select-selection-placeholder {
+      font-family: "Poppins", sans-serif !important;
+    }
+    span input {
+      font-family: "Poppins", sans-serif !important;
+    }
+  }
+}
+
+/* antd table theming to match the design */
+.dynamic-picker-table {
+  background: var(--bg);
+  border-radius: 12px;
+  overflow: hidden;
+
+  .ant-table {
+    border-radius: 12px;
+    th.ant-table-cell {
+      border-bottom-left-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+    }
+    .ant-table-cell {
+      input,
+      .ant-select,
+      .ant-picker {
+        border: none !important;
+        &:focus,
+        &.ant-select-focused,
+        &.ant-picker-focused {
+          box-shadow: none !important;
+          border: none !important;
+          background-color: transparent !important;
+        }
+      }
+      .ant-select-selector {
+        border: none !important;
+        background: transparent !important;
+      }
+    }
+  }
+
+  .ant-table-thead > tr > th {
+    background: #fafafb;
+    color: #4b4c56;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    padding: 16px 12px;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 18px 12px;
+    border-bottom: 1px solid #f2f2f5;
+    vertical-align: middle;
+  }
+
+  .title-cell {
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .icd-cell {
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  .col-drag,
+  .col-delete {
+    width: 56px;
+    text-align: center;
+  }
+
+  .drag-handle {
+    display: inline-grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    cursor: grab;
+    color: #8b8c96;
+    &:hover {
+      background: #f3f3f6;
+      color: #5d5e68;
+    }
+    &:active {
+      cursor: grabbing;
+    }
+    svg {
+      font-size: 18px;
+    }
+  }
+
+  .delete-btn {
+    width: 28px;
+    height: 28px;
+    display: inline-grid;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    color: #9d9eaa;
+    border-radius: 8px;
+    &:hover {
+      background: #fff1f0;
+      color: #cf1322;
+    }
+    svg {
+      font-size: 18px;
+    }
+  }
+
+  // Badge styles for different types
+  .badge {
+    display: inline-block;
+    padding: 4px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    // color: #4b4ad5 !important;
+    @include text-secondary;
+    background: #f1f1f5;
+  }
+}
+
+.dynamic-picker-search {
+  .dynamic-picker-search-input {
+    width: 100%;
+    height: 52px;
+    padding: 0 2px;
+    .ant-input::placeholder,
+    .ant-select-selection-placeholder {
+      @include text-light-gray;
+    }
+    .ant-input,
+    .ant-select-selector {
+      border-radius: 12px !important;
+      padding: 0 16px;
+      border-color: #e5e6ee;
+      background-color: #fff !important;
+    }
+  }
+}
+
+// Option row styling for search dropdown
+.option-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .option-title {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .option-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+}
+
+/* responsive refinements */
+@media (max-width: 768px) {
+  .dynamic-picker-table .title-cell {
+    font-size: 16px;
+  }
+}
+
+.dynamic-picker-table {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+
+  .ant-table {
+    border-radius: 12px;
+    overflow: hidden;
+    border-bottom: 2px solid #f1f1f5;
+    // margin-bottom: 16px;
+  }
+
+  .ant-table-thead > tr > th {
+    background: #fafafb;
+    color: #4b4c56;
+    font-weight: 600;
+    padding: 14px 16px;
+    border: 1px solid #ececf2;
+    text-align: left;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 14px 16px;
+    border: 1px solid #ececf2;
+    vertical-align: middle;
+    background: #fff;
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: #fafafa;
+  }
+
+  .col-drag,
+  .col-delete {
+    width: 56px;
+    text-align: center;
+  }
+}
+
+.medication-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .medication-name {
+    @include fs12-semibold-text;
+    // flex: 1;
+    font-weight: 500;
+  }
+}

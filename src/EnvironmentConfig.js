@@ -165,6 +165,7 @@ const qa_tp = {
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
+  ipd_api_url: "https://pm-ipd-uat.tatvacare.in/api/v1",
   zydus_voice_rx_expiry_date: "2025-11-01",
   FREE_VOICE_RX_APOLLO_USER_IDS: [12469, 12475],
 };
@@ -250,6 +251,8 @@ const qa = {
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-doctor-portal-qa.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
+  ipd_api_url:
+    "https://pm-ipd-uat.tatvacare.in/api/v1",
 };
 
 const uat = {
@@ -338,6 +341,8 @@ const uat = {
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://pm-uat-doctor-portal.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
+  ipd_api_url:
+    "https://pm-ipd-uat.tatvacare.in/api/v1",
   zydus_voice_rx_expiry_date: "2025-11-01",
   FREE_VOICE_RX_APOLLO_USER_IDS: [12469, 12475],
 };
@@ -434,8 +439,14 @@ const prod = {
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
   doctor_portal_url: "https://tatvapractice.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
+  ipd_api_url: "https://pm-ipd-prod.tatvacare.in/api/v1",
   zydus_voice_rx_expiry_date: "2025-11-01",
   FREE_VOICE_RX_APOLLO_USER_IDS: [12469, 12475, 12476, 12477],
+};
+
+const ipd = {
+  ...uat,  // Copy all properties from UAT
+  // Add any IPD-specific overrides here if needed in the future
 };
 
 const getEnv = () => {
@@ -448,10 +459,12 @@ const getEnv = () => {
       return qa;
     case "uat":
       return uat;
+    case "ipd":
+      return ipd;
     case "prod":
       return prod;
     default:
-      break;
+      return uat; // Default to UAT if no environment is specified
   }
 };
 export const env = getEnv();

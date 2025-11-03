@@ -67,6 +67,29 @@ import SnapRxDigitise from "./pages/snapRx/SnapRxDigitise";
 import AppointmentAgent from "./pages/appointmentAgent/AppointmentAgent";
 import AppointmentSuccess from "./pages/appointmentAgent/components/AppointmentSuccess/AppointmentSuccess";
 import OpdBill from "./pages/opdBilling/OpdBill";
+import IPDPatientDetails from "./pages/ipd/patientDetails/patientDetails";
+import AssessmentsForm from "./pages/ipd/assessmentForm/AssessmentsForm";
+import InPatients from "./pages/ipd/inPatients/InPatients";
+import OtNotes from "./pages/ipd/otNotes/OtNotes";
+import HomePageLayout from "./pages/ipd/HomePageLayout";
+import ConsultantNotes from "./pages/ipd/consultantNotes/ConsultantNotes";
+import LabResults from "./pages/ipd/labResults/LabResults";
+import ProgressNotes from "./pages/ipd/progressNotes/progressNotes";
+import IPDMedicalRecords from "./pages/ipd/medicalRecords/IPDMedicalRecords";
+import CrossReferral from "./pages/ipd/crossReferral/CrossReferral";
+import CrossReferralConsultantNotes from "./pages/ipd/crossReferral/CrossReferralConsultantNotes";
+import DischargeSummary from "./pages/ipd/dischargeSummary/DischargeSummary";
+import PreviewDischargeSummary from "./pages/ipd/dischargeSummary/PreviewDischargeSummary";
+import PreviewProgressNotes from "./pages/ipd/progressNotes/previewProgressNotes";
+import ConfigurePrintSettings from "./pages/ipd/dischargeSummary/ConfigurePrintSettings";
+import PatientAdmission from "./pages/ipd/patientAdmission/PatientAdmission";
+import AddAdmission from "./pages/ipd/patientAdmission/AddAdmission";
+import PrintPreview from "./pages/ipd/consultantNotes/PrintPreview";
+import PrintSettings from "./pages/ipd/consultantNotes/PrintSettings";
+import PreviewAdmissionAssessment from "./pages/ipd/assessmentForm/PreviewAdmissionAssessment";
+import PrintPreviewOTNotes from "./pages/ipd/assessmentForm/PrintPreviewOTNotes";
+import PrintPreviewCrossReferral from "./pages/ipd/assessmentForm/PrintPreviewCrossReferral";
+import DischargedPatients from "./pages/ipd/inPatients/DischargedPatients";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -419,13 +442,73 @@ function App() {
               <Route element={<PrivateRoute />}>
                 <Route path="/*" element={<AppointmentList />} />
                 <Route
+                  path={`/ipd/patient-details`}
+                  element={<IPDPatientDetails />}
+                />
+                <Route
+                  path="/ipd/patient-details/assessment-form"
+                  element={<AssessmentsForm />}
+                />
+                <Route
+                  path="/ipd/patient-details/ot-notes"
+                  element={<OtNotes />}
+                />
+                <Route
+                  path="/ipd/patient-details/cross-referral"
+                  element={<CrossReferral />}
+                />
+                <Route
+                  path="/ipd/patient-details/cross-referral/consultant-notes"
+                  element={<CrossReferralConsultantNotes />}
+                />
+                <Route
+                  path="/ipd/patient-details/discharge-summary"
+                  element={<DischargeSummary />}
+                />
+                <Route
+                  path="/ipd/patient-details/progress-notes"
+                  element={<ProgressNotes />}
+                />
+                <Route
+                  path="/ipd/patient-details/consultant-notes"
+                  element={<ConsultantNotes />}
+                />
+                <Route
+                  path="/ipd/patient-details/lab-results"
+                  element={<LabResults />}
+                />
+                {/* <Route
+                  path="/ipd/patient-details/medical-records"
+                  element={<IPDMedicalRecords />}
+                /> */}
+                <Route
                   path="create-campaign"
                   element={<MessageCreateCampaign />}
                 />
                 <Route path="patient_details" element={<PatientDetails />} />
                 <Route
                   path="prescription"
+                  // element={isMobile ? <TabMedicationBox /> : <MedicationsBox />}
                   element={isMobile ? <TabPrescription /> : <Prescription />}
+                  // element={isMobile ? <TabPrescription /> : <Obstetric />}
+                  // element={isMobile ? <TabPrescription /> : <ObstetricList />}
+                  // element={isMobile ? <TabPrescription /> : <MedicalHistoryBox />}
+                  // element={isMobile ? <TabPrescription /> : <MedicalHistoryList  />}
+                  // element={isMobile ? <TabMedicationBox /> : <GynecHistoryList />}
+                  // element={isMobile ? <TabMedicationBox /> : <LabParametersList />}
+                  //   element={isMobile ? <TabMedicationBox /> : (
+                  //     <>
+                  //       <LabResultsTable showHeader={true} showSearchBar={false} />
+                  //       <LabParams
+                  //         // handleAddLabParamsDrawer={handleAddLabParamsDrawer}
+                  //         // patient_unique_id={patient_data?.patient_unique_id}
+                  //         onSave={() => {}}
+                  //         // isBackModalOpen={isBackModalOpen}
+                  //         // showHideBackModal={showHideBackModal}
+                  //         // patientGender={patient_data?.pm_gender}
+                  //       />
+                  //     </>
+                  // )}
                 />
                 <Route
                   path="prescription_print_view"
@@ -480,6 +563,60 @@ function App() {
                 <Route
                   path="appointment-agent/success"
                   element={<AppointmentSuccess />}
+                />
+                <Route path="ipd" element={<HomePageLayout />}>
+                  <Route path="inPatients" element={<InPatients />} />
+                  <Route path="dischargedPatients" element={<DischargedPatients />} />
+                  <Route path="add-admission" element={<AddAdmission />} />
+                  <Route path="patient-admission" element={<PatientAdmission />} />
+                </Route>
+                <Route
+                  path="ipd/discharge-summary/preview"
+                  element={<PreviewDischargeSummary />}
+                />
+                <Route
+                  path="ipd/admission-assessment/preview"
+                  element={<PreviewAdmissionAssessment />}
+                />
+                <Route
+                  path="ipd/ot-notes/preview"
+                  element={<PrintPreviewOTNotes />}
+                />
+                <Route
+                  path="ipd/progress-notes/preview"
+                  element={<PreviewProgressNotes />}
+                />
+                <Route
+                  path="ipd/cross-referral/preview"
+                  element={<PrintPreviewCrossReferral />}
+                />
+                <Route
+                  path="ipd/cross-referral/configure-print-settings"
+                  element={<PrintSettings />}
+                />
+                <Route
+                  path="ipd/discharge-summary/configure-print-settings"
+                  element={<ConfigurePrintSettings />}
+                />
+                <Route
+                  path="ipd/consultant-notes/preview"
+                  element={<PrintPreview />}
+                />
+                <Route
+                  path="ipd/consultant-notes/configure-print-settings"
+                  element={<PrintSettings />}
+                />
+                <Route
+                  path="ipd/ot-notes/configure-print-settings"
+                  element={<PrintSettings />}
+                />
+                <Route
+                  path="ipd/admission-assessment/configure-print-settings"
+                  element={<PrintSettings />}
+                />
+                <Route
+                  path="ipd/progress-notes/configure-print-settings"
+                  element={<PrintSettings />}
                 />
               </Route>
               <Route path="opd-bill" element={<OpdBill />} />

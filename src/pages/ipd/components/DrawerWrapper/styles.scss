@@ -1,0 +1,71 @@
+.drawer-wrapper-container {
+  .ant-drawer-header {
+    display: none !important;
+  }
+  .drawer-wrapper-body {
+    background: #f9f9fa !important;
+    padding: 24px 26px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .disclaimer-banner {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    background: #fdf4ec; // light peach tone
+    border-radius: 12px;
+    padding: 16px 20px;
+    gap: 12px;
+
+    .banner-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .banner-text {
+      flex: 1;
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #3d3d3d;
+
+      strong {
+        font-weight: 600;
+      }
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        width: 18px;
+        height: 18px;
+      }
+
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+  }
+  .ant-select .ant-select-selection-placeholder {
+    color: #e2e2ea !important;
+  }
+  .ant-select-prefix {
+    align-items: center;
+    display: flex;
+  }
+  .ant-select .ant-select-selection-placeholder {
+    color: #e2e2ea !important;
+  }
+  .icon-search {
+    font-size: 16px !important;
+  }
+}

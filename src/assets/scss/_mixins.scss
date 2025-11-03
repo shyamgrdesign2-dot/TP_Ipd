@@ -1,0 +1,89 @@
+// Global Mixins
+// =============================================================================
+
+// Readonly container styling mixin
+@mixin readonly-container-box {
+  background: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01) !important;
+  border: none !important;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.flex-column {
+  @include flex-column;
+}
+@mixin flex-column-gap-16 {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.flex-column-gap-16 {
+  @include flex-column-gap-16;
+}
+@mixin flex-column-gap-6 {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.flex-column-gap-6 {
+  @include flex-column-gap-6;
+}
+
+@mixin box-with-padding {
+  background: #fafafb !important;
+  border: 0.85px solid #f1f1f5 !important;
+  padding: 14px;
+  border-radius: 16px;
+}
+.box-with-padding {
+  @include box-with-padding;
+}
+
+@mixin big-box-with-shadow {
+  background: #ffffff80;
+  box-shadow: 0px 0px 12px 0px #00000003;
+  border-radius: 16px;
+  padding: 16px;
+}
+.big-box-with-shadow {
+  @include big-box-with-shadow;
+}
+@mixin pl-0 {
+  padding-left: 0 !important;
+}
+.pl-0 {
+  @include pl-0;
+}
+@mixin padding-0 {
+  padding: 0 !important;
+}
+.padding-0 {
+  @include padding-0;
+}
+@mixin d-flex-align-center-gap-8 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.d-flex-align-center-gap-8 {
+  @include d-flex-align-center-gap-8;
+}
+// Add other reusable mixins here as needed
+
+@mixin no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for Firefox */
+  scrollbar-width: none;
+  /* Hide scrollbar for IE/Edge */
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar {
+  @include no-scrollbar;
+}

@@ -9,7 +9,7 @@ export const getGynecDetails = async function (patient_unique_id, userId) {
   try {
     const decodedToken = getDecodedToken();
     const doctorId = decodedToken?.result?.user_id;
-    res = await api.get(`/gynec/${patient_unique_id}/${userId || doctorId}`, baseUrl);
+    res = await api.get(`/gynec/${parseInt(patient_unique_id, 10)}/${userId || doctorId}`, baseUrl);
 
     res = res.data;
   } catch (e) {
@@ -35,7 +35,7 @@ export const postGynecDetails = async function (payload) {
 export const updateGynecDetails = async function (patientId, payload, userId) {
   let res = {};
   try {
-    res = await api.patch(`/gynec/${patientId}/${userId}`, payload, baseUrl);
+    res = await api.patch(`/gynec/${parseInt(patientId, 10)}/${userId}`, payload, baseUrl);
   } catch (error) {
     console.error("Error while updating gynec details: ", error);
   }

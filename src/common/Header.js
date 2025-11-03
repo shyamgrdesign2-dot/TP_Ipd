@@ -59,7 +59,7 @@ import {
 } from "../utils/utils";
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
-function Header({ locationPath }) {
+function Header({ locationPath, isIPD = false }) {
 
   const [popOverVideo, setPopOverVideo] = useState(false);
   const [videoLink, setVideoLink] = useState(null);
@@ -665,6 +665,66 @@ function Header({ locationPath }) {
     clickBuyNow()
   };
 
+  const getIPDMenuItems = () => {
+    const ipdItems = [
+      {
+        label: (
+          <>
+            <div className="mx-3">
+              {profile?.um_image && planDetails?.currentPlanStatus !== "PAID" ? (
+                <img
+                  src={profile?.um_image ?? defaultprofile}
+                  alt="Profile"
+                  className="rounded-circle"
+                  style={{ width: "52px", height: "52px" }}
+                />
+              ) : planDetails?.currentPlanStatus === "PAID" ? (
+                <PremiumUser />
+              ) : (
+                <div className="rounded-pill patientProfile patientProfile52 border">
+                  {makeDefaultLogo(profile?.um_name)}
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="text-black titleprint">{profile?.um_name}</div>
+              <div className="title-common">{profile?.um_contact}</div>
+            </div>
+          </>
+        ),
+        key: "0",
+      },
+      {
+        type: "divider",
+      },
+      {
+        label: (
+          <div className="header-dropdown-ipd-myprofile" onClick={() => setUpWebsiteUrl(1)}>
+            <div className="title-common me-4 d-flex align-items-center">
+              <i className="icon-profile me-3"></i>My Profile
+            </div>
+            <i className="icon-right iconrotate180"></i>
+          </div>
+        ),
+        key: "1",
+      },
+      {
+        type: "divider",
+      },
+      {
+        label: (
+          <div className="title-common d-flex align-items-center">
+            <i className="icon-exit me-3 color-red"></i>
+            <span className="color-red">Log Out</span>
+          </div>
+        ),
+        key: "logout",
+        onClick: handleLogout,
+        className: "logout-menu-item"
+      },
+    ];
+    return ipdItems;
+  }
   const getMenuItems = () => {
     const commonItems = [
       {
@@ -1020,6 +1080,48 @@ function Header({ locationPath }) {
       um_id: tokenData?.user_id,
       ...deviceSdkData
     });
+  }
+
+  if (isIPD) {
+    return (
+      <Navbar className="justify-content-between portal-header portal-header-ipd">
+        {isLoading && (
+          <div className="spinner-overlay">
+            <Spin size="large" />
+          </div>
+        )}
+        <Container fluid>
+          <Nav className="ms-auto align-items-center d-flex">
+            <Dropdown
+              menu={{
+                items: getIPDMenuItems(),
+              }}
+              trigger={["click"]}
+              className="py-0 nav-link cursor-pointer"
+              overlayClassName="profile-dropdown-ipd"
+            >
+              <a onClick={handeProfileDD}>
+                {profile?.um_image &&
+                planDetails?.currentPlanStatus !== "PAID" ? (
+                  <img
+                    src={profile?.um_image ?? defaultprofile}
+                    alt="Profile"
+                    className="rounded-circle"
+                    style={{ width: "35px", height: "35px" }}
+                  />
+                ) : planDetails?.currentPlanStatus === "PAID" ? (
+                  <PremiumUser />
+                ) : (
+                  <div className="rounded-pill patientProfile border">
+                    {makeDefaultLogo(profile?.um_name)}
+                  </div>
+                )}
+              </a>
+            </Dropdown>
+          </Nav>
+        </Container>
+      </Navbar>
+    );
   }
 
   return (

@@ -1,0 +1,802 @@
+$theme-black: #454551;
+$panel-top: #f8f4ff;
+$panel-btm: #fbfaff;
+$border: rgba(80, 56, 160, 0.12);
+$text: #232336;
+$muted: #6f6b88;
+
+.ipd-customization-drawer {
+    .ant-drawer-title {
+        font-size: 18px !important;
+        font-weight: 600;
+        color: $theme-black !important;
+    }
+}
+
+.ipd-assessments-form-container {
+    .toolbar-container {
+        justify-content: flex-end !important;
+    }
+    #cw-panel-additional-notes, #cw-panel-functional-assessment, #cw-panel-treatment-plan {
+        margin-top: 16px !important;
+    }
+    .cw.cw--closed .cw__body#cw-panel-functional-assessment {
+        margin-top: 0 !important;
+    }
+    .cw.cw--closed .cw__body#cw-panel-additional-notes {
+        margin-top: 0 !important;
+    }
+    .cw.cw--closed .cw__body#cw-panel-treatment-plan {
+        margin-top: 0 !important;
+    }
+    .patient-details-menu-container {
+        .sections {
+            gap: 0 !important;
+        }
+        .patient-section {
+            padding: 24px 24px 0 !important;
+        }
+    }
+    .ipdaf-box-container {
+        background: var(--backgroundColor, #fff);
+        border-radius: 16px;
+        box-shadow: 0px 0px 6px 0px #00000005;
+        padding: 6px 6px 14px;
+        margin-bottom: 24px;
+    }
+    .ipdaf-generic-card-container {
+        padding: 12px;
+        margin-bottom: 24px;
+        margin-top: 18px;
+        .generic-card__icon {
+            width: 25px;
+            height: 25px;
+        }
+        .generic-card__title {
+            color: #4B4AD5 !important;
+        }
+        table {
+            border: 1px solid #F1F1F5 !important;
+            border-radius: 14px !important;
+            // overflow: hidden !important;
+            border-collapse: unset !important;
+            border-spacing: 0 !important;
+            margin-bottom: 24px;
+        }
+        td, span {
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            line-height: normal !important;
+        }
+    }
+    .ipdaf-obstetrics-container {
+        .ant-table-content {
+            table {
+                border: none !important;
+                margin-bottom: 0;
+                border-radius: 14px !important;
+                border-top-left-radius: 0 !important;
+                border-top-right-radius: 0 !important;
+                overflow: hidden;
+                tr, th, td {
+                    border-radius: 0 !important;
+                    
+                }
+            }
+        }
+        .st__section {
+            table {
+                border-bottom: 1px solid #F1F1F5 !important;
+                border-radius: 0 !important;
+            }
+        }
+    }
+    .ipdaf-padding-0 {
+        padding: 0 !important;
+    }
+    .collapsible-wrapper-class {
+        .cw__body {
+            padding: 0px !important;
+            // border-radius: 16px;
+            // margin-top: 24px;
+            // box-shadow: 0px 0px 6px 0px #00000005;
+            // background-color: #fff;
+        }
+    }
+    .ipdcn-vitals-main-container {
+         padding: 20px !important;
+         border-radius: 16px;
+        //  margin-top: 24px;
+         margin-bottom: 24px;
+         box-shadow: 0px 0px 6px 0px #00000005;
+         background-color: var(--backgroundColor, #fff);
+    }
+    .ipd-custom-module-container {
+        background-color: #F9F7FD;
+        padding: 0 24px 18px;
+
+        .prescription-box-sm {
+            border: 1px solid #e2e2ea;
+            background-color: #fff;
+            border-radius: 20px;
+            margin-bottom: 15px;
+        
+            &:last-child {
+              margin-bottom: 0;
+            }
+          }
+      }
+}
+.ipd-assessments-readable-container {
+    .rich-text-editor-container {
+        border: none !important;
+    }
+}
+.ipd-lab-params-container {
+    table {
+        border: 1px solid #F1F1F5 !important;
+        border-radius: 14px !important;
+        // overflow: hidden !important;
+        border-collapse: unset !important;
+        border-spacing: 0 !important;
+        background-color: #FAFAFB !important;
+        th {
+            background-color: #FAFAFB !important;
+            border-radius: 0 !important;
+        }
+    }
+}
+.rich-text-editor-wrapper-header-title {
+    font-weight: 500 !important;
+}
+.ipdcn-vitals-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-bottom: 16px;
+    > img {
+        width: 24px;
+        height: 24px;
+    }
+    > div {
+        color: #454551;
+        font-size: 14px;
+        font-weight: 500;
+    }
+}
+
+.ipdcn-vitals-container {
+    display: flex;
+    flex-wrap: wrap;
+
+    padding: 24px 0;
+    align-items: flex-start;
+    align-content: flex-start;
+    gap: 28px;
+    align-self: stretch;
+
+    > label {
+      max-width: calc(33% - 28px);
+      flex-basis: calc(33% - 28px);
+      margin-right: 28px;
+    }
+    .cw__body {
+        padding: 0 !important;
+    }
+    .cw__bodyInner {
+        margin-top: 0 !important;
+    }
+
+    .input-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+  }
+  
+  .examinations-parent-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    position: relative;
+    width: 100%;
+    > div {
+      max-width: calc(50% - 28px);
+      flex-basis: calc(50% - 28px);
+      margin-right: 28px;
+    }
+
+.examination-container-header {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    gap: 4px;
+  }
+  
+  .examination-rich-container {
+    border: 1px solid #e2e2ea80;
+    width: 100% !important;
+    background: #FAFAFB66;
+  }
+  
+  .examination-header {
+    font-size: 14px;
+    color: #171725;
+    font-weight: 500;
+  }
+  
+  .exam-radio-text {
+    .ant-radio-label {
+      font-size: 14px;
+      color: #454551;
+      font-weight: 400;
+    }
+  }  
+  }
+
+
+
+.assessments-parent-container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); // two-column layout
+    gap: 24px;
+    margin-bottom: 24px;
+    }
+
+    .assessment-card {
+    border: 1px solid $border;
+    border-radius: 16px;
+    padding: 16px;
+    background-color: var(--backgroundColor, #fff);
+    }
+
+    .assessment-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    }
+
+    .assessment-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: $text;
+    }
+
+    .assessment-radio-group {
+    display: grid;
+    gap: 12px;
+
+    // antd radio text tone
+    .ant-radio-wrapper {
+        color: $muted;
+        font-size: 16px;
+    }
+    .ant-radio-label {
+        font-size: 14px;
+        color: #454551;
+        padding: 0 !important;
+    }
+    }
+
+    @media (max-width: 900px) {
+    .assessments-parent-container {
+        grid-template-columns: 1fr;
+    }
+    }
+
+    .generic-card-container {
+        margin-bottom: 20px;
+      }
+      
+      .big-ring-radio {
+        --radio-size: 16px;
+        --radio-ring: 2px;
+        --radio-dot: 7px;
+        --radio-primary: #4b4ad5;
+        --radio-unchecked: #8a8a8a;
+      
+        .ant-radio .ant-radio-inner {
+          --radio-ring: 1px;
+          width: var(--radio-size) !important;
+          height: var(--radio-size) !important;
+          border-radius: 50% !important;
+          border-width: var(--radio-ring) !important;
+          border-color: var(--radio-unchecked) !important;
+          background: #fff !important;
+          box-shadow: none !important;
+        }
+      
+        .ant-radio-wrapper:hover .ant-radio:not(.ant-radio-checked) .ant-radio-inner {
+          border-color: var(--radio-unchecked) !important;
+        }
+      
+        .ant-radio .ant-radio-inner::after {
+          width: var(--radio-dot) !important;
+          height: var(--radio-dot) !important;
+          border-radius: 50% !important;
+          top: 50% !important;
+          left: 50% !important;
+          margin: 0 !important;
+          transform: translate(-50%, -50%) scale(0) !important;
+          opacity: 0 !important;
+          background: var(--radio-primary) !important;
+        }
+      
+        .ant-radio-checked .ant-radio-inner {
+          --radio-ring: 2px !important;
+          border-width: var(--radio-ring) !important;
+          border-color: var(--radio-primary) !important;
+        }
+        .ant-radio-checked .ant-radio-inner::after {
+          transform: translate(-50%, -50%) scale(1) !important;
+          opacity: 1 !important;
+        }
+      
+        .ant-radio-checked .ant-radio-inner::after {
+          transition:
+            transform 20ms ease-out,
+            opacity 20ms ease-out !important;
+        }
+      
+        .ant-radio-wrapper {
+          gap: 8px !important;
+          cursor: pointer !important;
+        }
+      }
+
+// Consultant Notes Timeline Styles
+.consultant-notes-timeline {
+    min-height: calc(100vh - 200px);
+    max-height: calc(100vh - 200px);
+    box-sizing: border-box;
+    position: relative;
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #8b5cf6;
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: #7c3aed;
+    }
+
+    .timeline-filter {
+        padding: 18px 0 0 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        .timeline-filter-left {
+            .timeline-date-filter {
+                width: 200px;
+                border-radius: 8px;
+                border: 1px solid #d9d9d9;
+                
+                .ant-picker-input {
+                    input {
+                        font-size: 14px;
+                        color: #232336;
+                    }
+                }
+            }
+        }
+        
+        .timeline-filter-right {
+            .new-note-button {
+                background: #8b5cf6;
+                border-color: #8b5cf6;
+                border-radius: 8px;
+                font-weight: 500;
+                
+                &:hover {
+                    background: #7c3aed;
+                    border-color: #7c3aed;
+                }
+            }
+        }
+    }
+
+    .timeline-content {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        padding-bottom: 24px;
+    }
+
+    .no-notes-message {
+        text-align: center;
+        padding: 48px 24px;
+        color: #6f6b88;
+        font-size: 16px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .consultant-note-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 24px;
+        flex-shrink: 0;
+
+        .consultant-note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+
+            .consultant-note-date-time {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+
+                .date-icon {
+                    color: #8b5cf6;
+                    font-size: 16px;
+                }
+
+                .date {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #8b5cf6;
+                }
+
+                .time {
+                    font-size: 14px;
+                    color: #6f6b88;
+                }
+            }
+
+            .consultant-note-actions {
+                display: flex;
+                gap: 8px;
+
+                .ant-btn {
+                    border: none;
+                    box-shadow: none;
+                    color: #6f6b88;
+                    
+                    &:hover {
+                        color: #8b5cf6;
+                        background: #f8f4ff;
+                    }
+                }
+            }
+        }
+
+        .consultant-note-content {
+            padding: 24px;
+        }
+
+        .consultant-note-section {
+            margin-bottom: 24px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            .section-header {
+                display: flex;
+                align-items: center;
+                margin-bottom: 12px;
+
+                .section-icon {
+                    width: 24px;
+                    height: 24px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 12px;
+                    font-size: 16px;
+                }
+
+                .section-title {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #8b5cf6;
+                    margin: 0;
+                }
+            }
+
+            .section-content {
+                margin-left: 36px;
+
+                .consultant-notes-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+
+                    .consultant-notes-item {
+                        padding: 4px 0;
+                        color: #232336;
+                        font-size: 14px;
+                        line-height: 1.5;
+
+                        &::before {
+                            content: "•";
+                            color: #8b5cf6;
+                            font-weight: bold;
+                            display: inline-block;
+                            width: 1em;
+                            margin-left: -1em;
+                        }
+                    }
+                }
+
+                .no-data {
+                    color: #6f6b88;
+                    font-style: italic;
+                    font-size: 14px;
+                }
+
+                .medication-table-container {
+                    overflow-x: auto;
+                    border-radius: 8px;
+                    border: 1px solid #f0f0f0;
+
+                    .medication-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 14px;
+
+                        thead {
+                            background: #8b5cf6;
+                            
+                            th {
+                                color: white;
+                                font-weight: 600;
+                                padding: 12px 16px;
+                                text-align: left;
+                                border: none;
+                            }
+                        }
+
+                        tbody {
+                            tr {
+                                border-bottom: 1px solid #f0f0f0;
+
+                                &:last-child {
+                                    border-bottom: none;
+                                }
+
+                                td {
+                                    padding: 12px 16px;
+                                    color: #232336;
+                                    border: none;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .filled-by-section {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+
+                    .filled-by-label {
+                        color: #6f6b88;
+                        font-size: 14px;
+                    }
+
+                    .filled-by-name {
+                        color: #8b5cf6;
+                        font-weight: 600;
+                        font-size: 16px;
+                    }
+
+                    .filled-by-role {
+                        background: #10b981;
+                        color: white;
+                        padding: 4px 12px;
+                        border-radius: 16px;
+                        font-size: 12px;
+                        font-weight: 500;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+    .consultant-notes-timeline {
+        padding: 16px;
+        min-height: calc(100vh - 150px);
+        max-height: calc(100vh - 150px);
+
+        .consultant-note-card {
+            .consultant-note-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+
+                .consultant-note-actions {
+                    align-self: flex-end;
+                }
+            }
+
+            .consultant-note-content {
+                padding: 16px;
+            }
+
+            .consultant-note-section {
+                .section-content {
+                    margin-left: 0;
+                }
+            }
+        }
+
+        .medication-table-container {
+            .medication-table {
+                font-size: 12px;
+
+                thead th,
+                tbody td {
+                    padding: 8px 12px;
+                }
+            }
+        }
+    }
+}
+
+.consultant-notes-timeline-card {
+    display: flex !important;
+    padding-top: 16px !important;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    align-self: stretch;
+    border-radius: 10px !important;
+    background: rgba(255, 255, 255, 0.50) !important;
+    box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.01) !important;
+    min-width: max-content !important;
+    border: none !important;
+}
+
+.detailed-medical-card {
+    width: 100% !important;
+    min-width: 1000px !important;
+  
+    border: none !important;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.01);
+
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    align-items: flex-start;
+    gap: 16px;
+    align-self: stretch;
+}
+
+// Progress Summary Wrapper
+.progress-summary-wrapper {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    pointer-events: auto;
+    
+    @media (max-width: 768px) {
+        bottom: 16px;
+        right: 16px;
+    }
+    
+    @media (max-width: 480px) {
+        bottom: 12px;
+        right: 12px;
+    }
+}
+
+// Agent Alex Layout Adjustments
+.ipd-assessments-form-container {
+    &.agent-alex-open {
+        .ipd-assessments-form-container {
+            transition: width 0.3s ease;
+        }
+    }
+    
+    @media (max-width: 1200px) {
+        &.agent-alex-open {
+            .ipd-assessments-form-container {
+                width: calc(100% - 404px) !important;
+                min-width: 600px; // Ensure minimum usable width
+            }
+        }
+    }
+    
+    @media (max-width: 1024px) {
+        &.agent-alex-open {
+            .ipd-assessments-form-container {
+                width: 100% !important; // On smaller screens, agent panel goes full screen
+            }
+        }
+    }
+}
+
+
+.with-aux {
+    width: calc(100% - 404px);
+    transition: width 0.3s ease;
+}
+
+.consultant-notes-time {
+    display: flex;
+    padding: 6px 12px;
+    align-items: center;
+    gap: 4px;
+    border-radius: 100px;
+    background: rgba(88, 28, 135, 0.06);
+    color: #581C87 !important;
+    font-family: "Poppins";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.cnp-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border-radius: 12px;
+
+    .cnp-gh-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 1 !important;
+
+        .cnp-gh-calendar {
+            width: 32px;
+            height: 32px;
+        }
+        .cnp-gh-date {
+            color: #581C87 !important;
+            font-weight: 600;
+            font-size: 24px;
+        }
+        .cnp-gh-time {
+            display: inline-flex;
+            padding: 6px 12px;
+            border-radius: 100px;
+            background: rgba(88, 28, 135, 0.06);
+            color: #581C87 !important;
+            font-size: 12px;
+            font-weight: 500;
+        }
+    }
+
+    .cnp-gh-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        z-index: 1;
+
+        .cnp-gh-action {
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+        }
+    }
+}

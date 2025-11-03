@@ -4,8 +4,15 @@ import dayjs from "dayjs";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 import axios from 'axios';
 import { env } from "../EnvironmentConfig";
+import { useSelector } from "react-redux";
 
-const LabParametersList = ({ labParamsData }) => {
+const LabParametersList = () => {
+  const { labParamsData: labParamsDataFromStore } = useSelector(
+    (state) => state.prescription
+  );
+  const labParamsData = labParamsDataFromStore
+    ? structuredClone(labParamsDataFromStore)
+    : [];
   const transformData = (data) => {
     const result = {};
 

@@ -1,4 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { fetchObstetricDetails } from "../pages/obstetric/service";
 
 const initialState = {
   obstetricDetails: {},
@@ -11,7 +12,26 @@ const initialState = {
   defaultImmunisation: [],
   ancDoctorList: [],
   immunisationDoctorList: [],
+  obstetricDetailsBackup: {},
 };
+
+export const fetchObstetricsData = createAsyncThunk(
+  "prescription/fetchObstetricsData",
+  async ({ patientId }) => {
+    try {
+      let result = {};
+      result = await fetchObstetricDetails(patientId);
+      if (result) {
+        return result;
+      } else {
+        throw Error(result.error);
+      }
+    } catch (err) {
+      console.log("error: ", err);
+      throw Error(err);
+    }
+  }
+);
 
 const obstetricSlice = createSlice({
   name: "obstetric",
@@ -39,6 +59,9 @@ const obstetricSlice = createSlice({
       }
       state.obstetricDetails = action.payload;
       state.isObstetricDetailsFetched = true;
+    },
+    addObstetricDetailsBackup: (state, action) => {
+      state.obstetricDetailsBackup = action.payload;
     },
     patientDiagnosisUpdated: (state) => {
       state.isPatientDiagnosisUpdated = true;
@@ -68,11 +91,26 @@ const obstetricSlice = createSlice({
       state.immunisationDoctorList = action.payload;
     },
   },
+  extraReducers: (builder) => {
+    builder
+    .addCase(fetchObstetricsData.pending, (state) => {
+      state.loading = true;
+    })
+    .addCase(fetchObstetricsData.fulfilled, (state, action) => {
+      state.loading = false;
+      state.obstetricDetails = action.payload;
+    })
+    .addCase(fetchObstetricsData.rejected, (state, action) => {
+      state.obstetricDetails = [];
+      state.loading = false;
+    })
+  }
 });
 
 export const {
   resetObstetricState,
   addObstetricDetails,
+  addObstetricDetailsBackup,
   patientDiagnosisUpdated,
   resetUpdatedPatientDiagnosis,
   obstetricDetailsUpdated,

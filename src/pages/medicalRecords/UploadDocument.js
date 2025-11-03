@@ -17,10 +17,9 @@ import {
   uploadDocument,
 } from "./service";
 import { setAllUploadedDocs } from "../../redux/uploadDocSlice";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import { isAndroid, isBrowser } from "react-device-detect";
-import { MESSAGE_KEY } from "../../utils/constants";
 import {
   generateUniqueFileName,
   getCorrectedFileName,
@@ -33,6 +32,8 @@ import {
   isPdfFile,
   isImageFile,
 } from "./utils/helper";
+// Updated to use Redux
+import { uploadMedicalRecordDocument, getMedicalRecordsDocuments } from "../../redux/ipd/medicalRecordsSlice";
 import {
   SUPPORTED_IMAGE_TYPES,
   SUPPORTED_VIDEO_TYPES,
@@ -40,6 +41,7 @@ import {
   MAX_DOCUMENT_FILE_SIZE,
   MAX_VIDEO_FILE_SIZE,
   VIDEO_THUMBNAIL_TIME,
+  MESSAGE_KEY
 } from "../../utils/constants";
 
 const UploadDocument = ({
@@ -52,21 +54,32 @@ const UploadDocument = ({
   isEditDocument,
   setIsEditDocument,
   patientData,
+  patient_data_naviagte,
+  patientDetails,
   isAppointmentData,
   handleUploadDocPopup,
+  // New optional props for IPD medical records flow
+  isIPDMedicalRecords = false,
+  patientId: ipdPatientId,
+  admissionId: ipdAdmissionId,
+  // Optional override for category options
+  overrideDocumentOptions,
 }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { userId } = useSelector((state) => state.doctors);
   const { state } = useLocation();
   const patient_data = state?.patient_data || patientData;
   const { uploadDocCategories, allUploadedDocs, patientUploadedDocs } =
     useSelector((state) => state.uploadDoc);
-  const documentOptions = uploadDocCategories.map((item) => {
-    return {
-      label: item.category_name,
-      value: item.category_id,
-    };
-  });
+  const documentOptions = isIPDMedicalRecords && overrideDocumentOptions?.length
+    ? overrideDocumentOptions
+    : uploadDocCategories.map((item) => {
+        return {
+          label: item.category_name,
+          value: item.category_id,
+        };
+      });
 
   const [isFileSizeError, setIsFileSizeError] = useState(false);
   const [isFileLimitError, setIsFileLimitError] = useState(false);
@@ -242,6 +255,88 @@ const UploadDocument = ({
 
   const handleSubmit = async () => {
     setLoader(true);
+
+    // Separate submit flow for IPD Medical Records (does not affect existing flow)
+    if (isIPDMedicalRecords) {
+      try {
+        // Upload each file via IPD docs API
+        for (let i = 0; i < filesData.length; i++) {
+          const fileBlob = filesData[i];
+          const meta = recordData?.[i];
+          
+          // Derive subCategory from selected document option label if available
+          const selectedOption = documentOptions.find(
+            (opt) => opt.value === meta?.recordType
+          );
+          const subCategory = (selectedOption?.label || "other").toLowerCase();
+          const name = meta?.name || fileBlob?.name;
+
+          // Prepare payload (add _id if editing existing document)
+          const payload = {
+            patientId: ipdPatientId,
+            admissionId: ipdAdmissionId,
+            category: "medical_records",
+            subCategory,
+            file: fileBlob,
+            name,
+            thumbnail: meta?.thumbnailFile,
+            notes: meta?.notes,
+            date: meta?.recordUploadDate
+          };
+
+          // 🆕 If editing an existing document, include its _id
+          if (meta?.id && isEditDocument) {
+            payload._id = meta.id;
+          }
+
+          await dispatch(uploadMedicalRecordDocument(payload));
+        }
+
+        // Success message
+        message.open({
+          key: MESSAGE_KEY,
+          type: "",
+          className: "message-appointment",
+          content: (
+            <div className="d-flex align-items-center">
+              <img src={visitEnd} className="me-3" />
+              <div>
+                <div className="fontroboto text-start fw-normal mt-1">
+                  Medical Records {recordData.some(d => d?._id) ? "updated" : "added"} successfully
+                </div>
+              </div>
+              <img src={imgCloseVisit} className="ms-3" onClick={() => message.destroy()} />
+            </div>
+          ),
+          duration: 5,
+        });
+      } catch (e) {
+        console.error("IPD Medical Records upload failed:", e);
+      }
+      setLoader(false);
+      setFilesData([]);
+      setRecordData([]);
+      handleDrawerUploadDoc();
+
+      // Refresh the documents after saving
+      await dispatch(getMedicalRecordsDocuments({ 
+        patientId: ipdPatientId, 
+        admissionId: patientDetails?.admissionId, 
+        category: "medical_records" 
+      }));
+
+      navigate(`/ipd/patient-details`, {
+        replace: true,
+        state: {
+          patient_data : patient_data_naviagte,
+          patientDetails,
+          isEditable: false,
+          activeTab: "records", // This will help identify which tab to show
+        },
+      });
+      return;
+    }
+
     if (isEditDocument) {
       const fileData = recordData?.[0];
       if (fileData) {
@@ -508,6 +603,7 @@ const UploadDocument = ({
       fileInputRef.current.value = "";
     }
     handleDrawerUploadDoc();
+    setIsEditDocument(false)
     toggleDeletePopup();
     setFilesData([]);
     setRecordData([]);
@@ -593,7 +689,7 @@ const UploadDocument = ({
           className="d-flex justify-content-center align-items-center flex-column"
           style={{ gap: "24px", padding: "0 24px 24px" }}
         >
-          {filesData.map((item, index) => (
+          {filesData?.map((item, index) => (
             <div
               key={index}
               style={{
@@ -664,8 +760,28 @@ const UploadDocument = ({
                         }
                         options={documentOptions}
                         placeholder="Select"
-                        className="w-100"
-                        value={recordData?.[index]?.recordType}
+                        className="w-100"                        value={
+                          // For IPD Medical Records edit mode, convert category_id to appropriate value
+                          isIPDMedicalRecords && isEditDocument
+                            ? (() => {
+                                const catId = recordData?.[index]?.recordType;
+                                // If category_id is a number, find the corresponding value in documentOptions
+                                if (typeof catId === 'number') {
+                                  const found = documentOptions.find(
+                                    (opt) => {
+                                      // Map the category_id to the correct option
+                                      const categoryName = uploadDocCategories.find(
+                                        (c) => c?.category_id === catId
+                                      )?.category_name;
+                                      return opt?.label === categoryName;
+                                    }
+                                  );
+                                  return found?.value;
+                                }
+                                return catId;
+                              })()
+                            : recordData?.[index]?.recordType
+                        }
                         allowClear
                       />
                     </div>

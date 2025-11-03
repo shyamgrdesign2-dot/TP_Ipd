@@ -68,9 +68,6 @@ function SmartRxFollowUpBox() {
             const dateB = moment(dateString);
             const dateC = moment().format(dateFormat);
 
-            console.log(`Difference is ${dateB.diff(dateC, 'days')} day(s)`);
-            console.log(`Difference is ${dateB.diff(dateC, 'weeks')} week(s)`);
-            console.log(`Difference is ${dateB.diff(dateC, 'months')} month(s)`);
 
             const days = dateB.diff(dateC, 'days');
             const weeks = dateB.diff(dateC, 'weeks');

@@ -61,7 +61,9 @@ function ObsHistoryListView({
         }}
         fixed
       >
-        Obstetric History&nbsp;:&nbsp;
+        Obstetric History
+        &nbsp;:
+        {/* &nbsp; */}
       </Text>
 
       {options?.includes("gplae") && (

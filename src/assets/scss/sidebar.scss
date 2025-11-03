@@ -10,6 +10,18 @@ body {
         &::-webkit-scrollbar {
             width: 0;
         }
+        &.ipd-sidebar {
+            min-width: 100px !important;
+            width: 100px;
+
+            a {
+                margin-bottom: 16px !important;
+                
+                &.active {
+                    background: rgba(75, 74, 213, 0.08) !important;
+                }
+            }
+        }
         .sidebar-message {
             width: 35px;
             @media only screen and (max-width: 1400px) {

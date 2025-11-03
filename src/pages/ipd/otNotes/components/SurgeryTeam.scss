@@ -1,0 +1,33 @@
+.surgery-team-container {
+  @include readonly-container-box;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+
+  .surgery-team-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 8px;
+
+    .surgery-team-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+    }
+
+    .surgery-team-title {
+      color: #333333;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+    }
+  }
+
+  .team-members-grid {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+}

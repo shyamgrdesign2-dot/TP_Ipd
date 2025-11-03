@@ -9,6 +9,8 @@ import edit from "./../../../../assets/images/document-edit.svg";
 import trash from "./../../../../assets/images/trash.svg";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
 import { deleteDocById, fetchAllPatientDocs } from "../../service";
+// IPD services - Updated to use Redux
+import { deleteMedicalRecordDocument, getMedicalRecordsDocuments } from "../../../../redux/ipd/medicalRecordsSlice";
 import { setAllUploadedDocs } from "../../../../redux/uploadDocSlice";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -35,6 +37,12 @@ const RecordCard = ({
   setFilesData,
   setIsEditDocument,
   setUploadDocDrawer,
+  // IPD specific
+  isIPDFlow = false,
+  patientId,
+  admissionId,
+  onIpdRecordDeleted,
+  isIpd=false
 }) => {
   const dispatch = useDispatch();
   const decodedToken = getDecodedToken();
@@ -52,9 +60,12 @@ const RecordCard = ({
     investigation_date,
     category_id,
     display_name,
+    category
   } = cardData || {};
 
   let thumbnailUrl = thumbnail_url;
+
+  const isEditable = !isIpd && !url?.startsWith(config.zydus_proxy_url);
 
   const getThumbnailUrl = async (url) => {
     if (url?.includes(".pdf")) {
@@ -75,7 +86,7 @@ const RecordCard = ({
   const updatedFileName = shortenText(display_name);
   const categoryName = category_id === -2 ? 'Zydus Lab' : category_id === -3 ? 'Zydus Radio' : uploadDocCategories.find(
     (item) => item?.category_id === category_id
-  )?.category_name;
+  )?.category_name || category;
 
   const [showTooltip, setShowTooltip] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
@@ -115,16 +126,37 @@ const RecordCard = ({
   };
 
   const handleDelete = async () => {
-    await deleteDocById(id);
-    const doctorUploadedDocs = await fetchAllPatientDocs(
-      patient_data.patient_unique_id
-    );
-    dispatch(
-      setAllUploadedDocs(
-        mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
-      )
-    );
-    toggleDeletePopup();
+    try {
+      if (isIPDFlow && patientId && admissionId && id) {
+        // Delete via IPD API using Redux
+        const result = await dispatch(deleteMedicalRecordDocument({ patientId, admissionId, id }));
+        
+        // Check if deletion was successful
+        if (result.type === 'medicalRecords/deleteMedicalRecordDocument/fulfilled') {
+          // Optimistically update UI
+          if (typeof onIpdRecordDeleted === "function") {
+            onIpdRecordDeleted(id);
+          }
+        } else {
+          console.error('Failed to delete document:', result.payload);
+        }
+      } else {
+        // Existing non-IPD flow
+        await deleteDocById(id);
+        const doctorUploadedDocs = await fetchAllPatientDocs(
+          patient_data.patient_unique_id
+        );
+        dispatch(
+          setAllUploadedDocs(
+            mergeDocuments(doctorUploadedDocs, patientUploadedDocs)
+          )
+        );
+      }
+    } catch (e) {
+      console.error("Failed to delete document", e);
+    } finally {
+      toggleDeletePopup();
+    }
   };
 
   const handleEdit = () => {
@@ -175,9 +207,6 @@ const RecordCard = ({
 
   const handleDownload = async () => {
     try {
-      console.log("Starting download for:", display_name);
-      console.log("URL:", url);
-      
       // For Zydus proxy URLs, use axios with auth headers
       if (url?.startsWith(config.zydus_proxy_url)) {
         const payload = {
@@ -196,21 +225,17 @@ const RecordCard = ({
         };
 
         const response = await axios(payload);
-        console.log("Download response received:", response.headers);
 
         const blob = new Blob([response.data], {
           type: response.headers["content-type"],
         });
-        console.log("Blob created:", blob.type, blob.size);
         
         saveAs(blob, display_name);
-        console.log("File download initiated");
         return;
       }
 
       // For regular URLs (S3, Firebase Storage, etc.), try fetch first
       try {
-        console.log("Attempting fetch download...");
         const response = await fetch(url, {
           method: "GET",
           mode: "cors",
@@ -221,13 +246,10 @@ const RecordCard = ({
         }
 
         const blob = await response.blob();
-        console.log("Fetch download successful:", blob.type, blob.size);
         
         saveAs(blob, display_name);
-        console.log("File download initiated via fetch");
         return;
       } catch (fetchError) {
-        console.log("Fetch failed, trying direct link fallback:", fetchError.message);
         
         // Fallback: Use direct link download (opens in new tab or triggers browser download)
         const link = document.createElement("a");
@@ -241,14 +263,9 @@ const RecordCard = ({
         link.click();
         document.body.removeChild(link);
         
-        console.log("File download initiated via direct link");
       }
     } catch (error) {
-      console.error("Error downloading file: ", error);
-      console.error("Error details:", error.response || error.message);
-      
-      // Final fallback: Open in new tab
-      console.log("All download methods failed, opening in new tab");
+      console.error("Error downloading file:", error.response || error.message);
       window.open(url, "_blank");
     }
   };
@@ -268,7 +285,7 @@ const RecordCard = ({
         ),
         key: "download",
       },
-      !url?.startsWith(config.zydus_proxy_url) && {
+      isEditable && {
         label: (
           <div onClick={handleEdit}>
             <img src={edit} alt="edit" className="me-2" />
@@ -277,7 +294,7 @@ const RecordCard = ({
         ),
         key: "edit",
       },
-      !url?.startsWith(config.zydus_proxy_url) && {
+      isEditable && {
         label: (
           <div onClick={toggleDeletePopup}>
             <img src={trash} alt="delete" className="me-2" />
@@ -441,6 +458,7 @@ const RecordCard = ({
             toggleDeletePopup={toggleDeletePopup}
             handleInAppDownload={handleInAppDownload}
             handleDownload={handleDownload}
+            isEditable={isEditable}
           />
         </Drawer>
       )}

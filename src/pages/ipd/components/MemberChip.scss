@@ -1,0 +1,59 @@
+.team-member-chip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 12px;
+  padding: 5px 20px 5px 12px;
+  gap: 24px;
+  font-size: 14px;
+  overflow: hidden;
+  position: relative;
+  min-width: 298px;
+  background: #F3EDFCB2;
+  border: 0.3px solid rgba(238, 222, 255, 0.5);
+
+  .chip-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .chip-role {
+    font-size: 10px;
+    color: var(--label);
+    font-weight: 400;
+    padding: 2px 8px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .team-member-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    position: absolute;
+    left: -14px;
+    bottom: -5px;
+  }
+
+  .team-member-label {
+    color: var(--label);
+    font-weight: 400;
+    white-space: nowrap;
+    font-size: 12px;
+    margin-left: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .team-member-value {
+    margin-left: 20px;
+    color: var(--label);
+    font-weight: 600;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

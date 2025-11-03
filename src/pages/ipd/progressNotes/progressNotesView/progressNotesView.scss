@@ -1,0 +1,144 @@
+.medical-progress {
+  // &__date-header-card {
+  //   margin-bottom: 16px;
+  //   border-radius: 8px;
+  //   // box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    
+  //   .ant-card-body {
+  //     padding: 16px 20px;
+  //   }
+  // }
+
+  &__content-date-text {
+    color: #581C87 !important;
+    font-family: Poppins !important;
+    font-size: 1.5rem !important;
+    font-style: normal;
+    font-weight: 600 !important;
+    line-height: normal !important;
+  }
+}
+
+
+// .medical-progress__content-date-text {
+//   color: #581C87;
+//   font-family: Poppins;
+//   font-size: 1.5rem;
+//   font-style: normal;
+//   font-weight: 600;
+//   line-height: normal;
+// }
+
+//   &__content-date {
+//     display: flex;
+//     align-items: center;
+//     gap: 12px;
+//     font-size: 16px;
+//     font-weight: 600;
+//     color: #581C87;
+//   }
+
+//   &__content-calendar-icon {
+//     width: 20px;
+//     height: 20px;
+//     fill: #581C87;
+//   }
+
+//   &__content-date-text {
+//     flex: 1;
+//     font-size: 16px;
+//     font-weight: 600;
+//     color: #581C87;
+//   }
+
+//   &__content-download-icon,
+//   &__content-print-icon {
+//     width: 18px;
+//     height: 18px;
+//     fill: #581C87;
+//     cursor: pointer;
+//     transition: all 0.2s ease;
+//     margin-left: 8px;
+
+//     &:hover {
+//       fill: #7C3AED;
+//       transform: scale(1.1);
+//     }
+//   }
+
+//   &__progress-card {
+//     margin-bottom: 12px;
+//     border-radius: 8px;
+//     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+//     transition: all 0.2s ease;
+
+//     &:hover {
+//       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+//     }
+//   }
+
+//   &__calendar-icon {
+//     font-size: 16px;
+//     margin-right: 8px;
+//   }
+// }
+
+// // Responsive design
+// @media (max-width: 768px) {
+//   .medical-progress {
+//     &__content-date {
+//       flex-wrap: wrap;
+//       gap: 8px;
+//     }
+
+//     &__content-date-text {
+//       font-size: 14px;
+//     }
+
+//     &__content-download-icon,
+//     &__content-print-icon {
+//       width: 16px;
+//       height: 16px;
+//     }
+//   }
+// }
+
+// // Dark mode support
+// @media (prefers-color-scheme: dark) {
+//   .medical-progress {
+//     &__date-header-card {
+//       background-color: #1f2937;
+//       border-color: #374151;
+//     }
+
+//     &__content-date-text {
+//       color: #e5e7eb;
+//     }
+
+//     &__content-calendar-icon,
+//     &__content-download-icon,
+//     &__content-print-icon {
+//       fill: #e5e7eb;
+//     }
+//   }
+// } 
+
+.agent-alex-sidebar {
+  padding: 0 !important;
+}
+
+.agent-alex-card {
+  width: 283px !important;
+  min-width: 283px !important;
+  box-shadow: none !important;
+}
+
+.agent-pn-step-content {
+  padding: 15px;
+  border-radius: 12px;
+  margin-top: 10px;
+  margin-left: 0.8rem;
+  border-radius: 1rem;
+  border: 0.8px solid #EAECF0;
+  background: rgba(242, 239, 250, 0.5);
+}

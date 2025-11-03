@@ -235,6 +235,9 @@ body {
         &.inputheight41 {
             height: 41px;
         }
+        &.ipd-input input {
+            font-family: 'Poppins' !important;
+        }
         &.input-tuncate {
             .ant-input {
                 overflow: hidden;

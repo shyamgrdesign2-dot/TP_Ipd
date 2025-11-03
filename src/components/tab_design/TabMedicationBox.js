@@ -86,8 +86,11 @@ import { getDecodedToken } from "../../utils/localStorage";
 import { env } from "../../EnvironmentConfig";
 import DoseCalculator from "../dose_calculator/doseCalculator";
 import { upsertDoctorSettingFlag } from "../../redux/doctorsSlice";
+import { useLocation } from "react-router-dom";
+import { clearMedicationData, setMedicationData, setPillupSwitch } from "../../redux/prescriptionSlice";
 
-function TabMedicationBox() {
+function TabMedicationBox(props) {
+  const { hideFrequentlyUsedMeds = false, isEditable = true } = props;
   const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     dosesList,
@@ -99,9 +102,12 @@ function TabMedicationBox() {
   } = useSelector((state) => state.medication);
   const { todayData } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
+  const { state } = useLocation();
+  const { patient_data, caseManagerData } = state;
+  const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
 
-  const { patient_data, medicationData, setMedicationData, pillupSwitch, setPillupSwitch, tcmId } =
-    useContext(CashManagerContext);
+  let { medicationData , pillupSwitch } = useSelector((state) => state.prescription);
+  // const medicationData = medicationDataFromStore ? JSON.parse(JSON.stringify(medicationDataFromStore)) : [];
 
   const isPillUpAccessableFromGB = useFeatureIsOn(GB_PILLUP_MEDICINE);
 
@@ -289,7 +295,7 @@ function TabMedicationBox() {
     const mainArray = []
     for (var i = index; i < medicationData.length; i++) {
       if (medicationData[i].tmm_id == medicationData[index].tmm_id) {
-        mainArray.push(medicationData[i])
+        mainArray.push({...medicationData[i]})
       } else {
         break;
       }
@@ -297,18 +303,22 @@ function TabMedicationBox() {
     return mainArray
   }
 
+
   const onRemoveRow = async (index, data = []) => {
     const childData = await innerMedication(index)
-    childData.map((e) => {
-      const mainIndex = medicationData.findIndex(x => x.unique_id == e.unique_id);
-      if (mainIndex != -1) {
-        medicationData.splice(mainIndex, 1)
-      }
-    })
+    // Immutable removal
+    let updatedMedicationData = medicationData.filter(
+      item => !(Array.isArray(childData) && childData.some(child => child.unique_id === item.unique_id))
+    );
+    // If data is provided, insert immutably
     if (data?.length > 0) {
-      medicationData.splice(selectedIndex, 0, ...data)
+      updatedMedicationData = [
+        ...updatedMedicationData.slice(0, selectedIndex),
+        ...data,
+        ...updatedMedicationData.slice(selectedIndex),
+      ];
     }
-    setMedicationData((prev) => [...prev]);
+    dispatch(setMedicationData(updatedMedicationData));
     setSelectedIndex(null);
   };
 
@@ -359,7 +369,7 @@ function TabMedicationBox() {
             return {
               key: JSON.stringify({ ...e1 }),
               value: e1.tmu_id,
-              label: <>{e1.tmu_title}</>,
+              label: String(e1.tmu_title || ""),
             };
           });
 
@@ -400,7 +410,7 @@ function TabMedicationBox() {
         if (doseCalculatorDrawer) {
           const modifyData = updatedData[0]
           const objDose = dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)
-          medicationLibrary.push({
+          const newMedicine = {
             ...modifyData,
             tmm_dosage_unit_name: "",
             tmm_dosage: '',
@@ -416,16 +426,16 @@ function TabMedicationBox() {
             medicine_name: modifyData.tmm_medicine_name,
             medicine_generic_name: modifyData.tmm_generic,
             exist: dosesList.some((e1) => e1.medicine_id == modifyData.tmm_id) ? true : false
-          });
-          setMedicationLibrary((prev) => [...prev]);
+          };
+          setMedicationLibrary(prev => [...prev, newMedicine]);
           setSearchMLQuery("");
           setAddCustom(null);
         } else {
-          medicationData.push({
-            ...updatedData[0],
-          });
-          setMedicationData((prev) => [...prev]);
-          setSelectedIndex(medicationData.length - 1);
+          // Immutable add for medicationData
+          const updatedMedicationData = [...medicationData, { ...updatedData[0] }];
+          dispatch(setMedicationData(updatedMedicationData));
+          setSelectedIndex(updatedMedicationData.length - 1);
+          // Only then open parent drawer
           handleDrawerParent();
         }
       } else {
@@ -434,20 +444,9 @@ function TabMedicationBox() {
     }
   };
 
-  // const innerMedication = (index) => {
-  //   const mainArray = []
-  //   for (var i = index; i < medicationData.length; i++) {
-  //     if (medicationData[i].tmm_id == medicationData[index].tmm_id) {
-  //       mainArray.push(medicationData[i])
-  //     } else {
-  //       break;
-  //     }
-  //   }
-  //   return mainArray
-  // }
-
   // Handle Child Drawer
   const handleDrawerChild = (data, index) => {
+    setParentDrawer(false);
     setChildDrawer(!childDrawer);
     setChildDrawerData(data);
     if (data && data?.length > 0) {
@@ -464,12 +463,13 @@ function TabMedicationBox() {
     setSinceValue(data && data?.length > 0 && data[0].tmm_days ? parseInt(data[0].tmm_days) : 1);
     setSelectedIndex(index);
     setChildIndex(data && data?.length > 0 ? 0 : null)
-    setActiveKey(data && data?.length > 0 ? data[0].unique_id : null)
+    setActiveKey(data && data?.length > 0 ? data[0]?.unique_id : null)
     setAddCustom(null);
   }
 
   const mainMedicationSelect = async (index) => {
     const childData = await innerMedication(index)
+    console.log(childData,"childData")
     handleDrawerChild(childData, index)
   }
 
@@ -519,7 +519,7 @@ function TabMedicationBox() {
           return {
             key: JSON.stringify({ ...e1 }),
             value: e1.tmu_id,
-            label: <>{e1.tmu_title}</>,
+            label: String(e1.tmu_title || ""),
           };
         });
 
@@ -547,7 +547,7 @@ function TabMedicationBox() {
           unique_id: uuidv4(),
         };
       });
-      setMedicationData([...medicationData, ...updatedData]);
+      dispatch(setMedicationData([...medicationData, ...updatedData]));
     } else {
       errorMessage(action.error)
     }
@@ -564,7 +564,7 @@ function TabMedicationBox() {
           return {
             key: JSON.stringify({ ...e1 }),
             value: e1.tmu_id,
-            label: <>{e1.tmu_title}</>,
+            label: String(e1.tmu_title || ""),
           };
         });
 
@@ -590,7 +590,7 @@ function TabMedicationBox() {
           unique_id: uuidv4(),
         };
       });
-      setMedicationData([...medicationData, ...updatedData]);
+      dispatch(setMedicationData([...medicationData, ...updatedData]));
       handleDrawerTemplate();
     } else {
       errorMessage(action.error)
@@ -749,13 +749,13 @@ function TabMedicationBox() {
           )}
         </div>
       </div>
-      <Button
+      {isEditable && <Button
         type="text"
         className="rounded-0 btn-close-chips"
         onClick={() => onRemoveRow(item?.index)}
       >
         <i className="icon-Cross"></i>
-      </Button>
+      </Button>}
     </div>
   )});
 
@@ -774,6 +774,7 @@ function TabMedicationBox() {
   });
 
   const TABLE_MEDICATION = useMemo(() => {
+    console.log(medicationData,"medicationData")
     return (
       medicationData.length > 0 && (
         <SortableList
@@ -798,7 +799,7 @@ function TabMedicationBox() {
               removedArray.splice(dragIndex + 1, 0, ...array)
             }
 
-            setMedicationData(removedArray);
+            dispatch(setMedicationData(removedArray));
           }}
           axis="xy"
           pressDelay={150}
@@ -806,67 +807,6 @@ function TabMedicationBox() {
       )
     );
   }, [medicationData, childDrawerData, selectedTab]);
-
-  // const TABLE_MEDICATION = useMemo(() => {
-  //   return (
-  //     medicationData.length > 0 &&
-  //     medicationData.map((e, index) => ({ ...e, index: index })).reduce((acc, curr) => acc?.at(-1)?.tmm_id == curr.tmm_id ? acc : [...acc, curr], []).map((item, index) => {
-  //       return (
-  //         <div
-  //           key={index}
-  //           style={{
-  //             width:
-  //               item.tmm_medicine_name.length > 12 &&
-  //                 item.tmm_medicine_name.length < 24
-  //                 ? `${item.tmm_medicine_name.length * 10.5}px`
-  //                 : item.tmm_medicine_name.length >= 24
-  //                   ? "256px"
-  //                   : "150px",
-  //           }}
-  //           className="d-flex align-items-center justify-content-between text-truncate closable-chips closable-chips-active"
-  //         >
-  //           <div
-  //             className="text-truncate p-2"
-  //             onClick={() => mainMedicationSelect(item?.index)}>
-  //             <div className="text-truncate">
-  //               {item.tmm_medicine_name}
-  //               {innerMedication(item?.index)?.length > 1 ? (
-  //                 <div className="text-truncate small">Taper Dose</div>
-  //               ) : (
-  //                 (item.tmm_dosage || item.tmm_unit_name) ? (
-  //                   isNumeric(item.tmf_block) && item.tmf_block == 0 ? (
-  //                     <div className="text-truncate small">{`
-  //                     ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
-  //                     ${item.tcm_tmm_freq_morning ? item.tcm_tmm_freq_morning + " - " : "0 -"}
-  //                     ${item.tcm_tmm_freq_afternoon ? item.tcm_tmm_freq_afternoon + " - " : "0 -"}
-  //                     ${item.tcm_tmm_freq_evening ? item.tcm_tmm_freq_evening + " - " : selectedTab != 'man' ? "0 -" : ""}
-  //                     ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + " | " : "0 |"}
-  //                     ${item.tmm_time_name ? item.tmm_time_name : ""}`}</div>
-  //                   ) : (
-  //                     <div className="text-truncate small">{`
-  //                       ${item.tmm_dosage && item.tmm_unit_name ? `${item.tmm_dosage} ${item.tmm_unit_name}` + " | " : ""}
-  //                       ${item.tmm_freq_type_name ? item.tmm_freq_type_name + " | " : ""}
-  //                       ${item.tmm_time_name ? item.tmm_time_name : ""}
-  //                       `}</div>
-  //                   )
-  //                 ) : (
-  //                   <div className="text-truncate small">Note</div>
-  //                 )
-  //               )}
-  //             </div>
-  //           </div>
-  //           <Button
-  //             type="text"
-  //             className="rounded-0 btn-close-chips"
-  //             onClick={() => onRemoveRow(item?.index)}
-  //           >
-  //             <i className="icon-Cross"></i>
-  //           </Button>
-  //         </div>
-  //       );
-  //     })
-  //   );
-  // }, [medicationData, childDrawerData, selectedTab]);
 
   //Template Componet
   const TEMPLATE_CONTENT = useMemo(() => {
@@ -1002,174 +942,249 @@ function TabMedicationBox() {
 
   const onChangeDosageChild = useCallback(
     (e) => {
+      if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) {
+        console.warn('onChangeDosageChild: Invalid childDrawerData or childIndex');
+        return;
+      }
       const updateQuery = onlyDecimalFormat(e.target.value);
-      childDrawerData[childIndex].tmm_dosage = updateQuery;
-      setChildDrawerData((prev) => [...prev]);
+      const updated = childDrawerData.map((item, idx) => 
+        idx === childIndex ? { ...item, tmm_dosage: updateQuery } : item
+      );
+      setChildDrawerData(updated);
     },
     [childIndex, childDrawerData]
   );
 
   const onSelectMedicineUnitChild = useCallback(
     (data) => {
-      const obj = childDrawerData[childIndex].medicineUnit
-        ? childDrawerData[childIndex].medicineUnit.find(
+      if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) {
+        console.warn('onSelectMedicineUnitChild: Invalid childDrawerData or childIndex');
+        return;
+      }
+      const obj = childDrawerData[childIndex]?.medicineUnit
+        ? childDrawerData[childIndex]?.medicineUnit.find(
           (e) => e.value == data
         )
         : null;
       if (obj && obj !== undefined) {
         const objParse = JSON.parse(obj.key);
-        childDrawerData[childIndex].tmm_unit = objParse.tmu_id;
-        childDrawerData[childIndex].tmm_unit_name = objParse.tmu_title;
-        childDrawerData[childIndex].tmu_id = objParse.tmu_id;
-        setChildDrawerData((prev) => [...prev]);
+        const updated = childDrawerData.map((item, idx) => 
+          idx === childIndex ? { 
+            ...item, 
+            tmm_unit: objParse.tmu_id,
+            tmm_unit_name: objParse.tmu_title,
+            tmu_id: objParse.tmu_id
+          } : item
+        );
+        setChildDrawerData(updated);
       }
     },
     [childIndex, childDrawerData]
   );
 
   const morningDecrement = useCallback(() => {
-    if (parseInt(childDrawerData[childIndex].tcm_tmm_freq_morning) > 0) {
-      childDrawerData[childIndex].tcm_tmm_freq_morning =
-        parseInt(childDrawerData[childIndex].tcm_tmm_freq_morning) - 1;
-      setChildDrawerData((prev) => [...prev]);
+    if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+    if (parseInt(childDrawerData[childIndex]?.tcm_tmm_freq_morning) > 0) {
+      const updated = childDrawerData.map((item, idx) => 
+        idx === childIndex ? { 
+          ...item, 
+          tcm_tmm_freq_morning: parseInt(item.tcm_tmm_freq_morning) - 1 
+        } : item
+      );
+      setChildDrawerData(updated);
     }
   }, [childIndex, childDrawerData]);
 
   const morningClick = useCallback(() => {
-    childDrawerData[childIndex].tcm_tmm_freq_morning = 1;
-    setChildDrawerData((prev) => [...prev]);
+    if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+    const updated = childDrawerData.map((item, idx) => 
+      idx === childIndex ? { ...item, tcm_tmm_freq_morning: 1 } : item
+    );
+    setChildDrawerData(updated);
   }, [childIndex, childDrawerData]);
 
   const onChangeInputMorningChild = useCallback(
     (e) => {
+      if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
       const updateQuery = onlyDecimalFormat(e.target.value);
-      childDrawerData[childIndex].tcm_tmm_freq_morning = updateQuery;
-      setChildDrawerData((prev) => [...prev]);
+      const updated = childDrawerData.map((item, idx) => 
+        idx === childIndex ? { ...item, tcm_tmm_freq_morning: updateQuery } : item
+      );
+      setChildDrawerData(updated);
     },
     [childIndex, childDrawerData]
   );
 
   const morningIncrement = useCallback(() => {
-    childDrawerData[childIndex].tcm_tmm_freq_morning =
-      parseInt(childDrawerData[childIndex].tcm_tmm_freq_morning) + 1;
-    setChildDrawerData((prev) => [...prev]);
+    if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+    const updated = childDrawerData.map((item, idx) => 
+      idx === childIndex ? { 
+        ...item, 
+        tcm_tmm_freq_morning: parseInt(item.tcm_tmm_freq_morning) + 1 
+      } : item
+    );
+    setChildDrawerData(updated);
   }, [childIndex, childDrawerData]);
 
   const afternoonDecrement = useCallback(() => {
-    if (parseInt(childDrawerData[childIndex].tcm_tmm_freq_afternoon) > 0) {
-      childDrawerData[childIndex].tcm_tmm_freq_afternoon =
-        parseInt(childDrawerData[childIndex].tcm_tmm_freq_afternoon) - 1;
-      setChildDrawerData((prev) => [...prev]);
+    if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+    if (parseInt(childDrawerData[childIndex]?.tcm_tmm_freq_afternoon) > 0) {
+      const updated = childDrawerData.map((item, idx) => 
+        idx === childIndex ? { ...item, tcm_tmm_freq_afternoon: parseInt(item.tcm_tmm_freq_afternoon) - 1 } : item
+      );
+      setChildDrawerData(updated);
     }
   }, [childIndex, childDrawerData]);
 
   const afternoonClick = useCallback(() => {
-    childDrawerData[childIndex].tcm_tmm_freq_afternoon = 1;
-    setChildDrawerData((prev) => [...prev]);
+    if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+    const updated = childDrawerData.map((item, idx) => 
+      idx === childIndex ? { ...item, tcm_tmm_freq_afternoon: 1 } : item
+    );
+    setChildDrawerData(updated);
   }, [childIndex, childDrawerData]);
 
   const onChangeInputAfternoonChild = useCallback(
     (e) => {
+      if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
       const updateQuery = onlyDecimalFormat(e.target.value);
-      childDrawerData[childIndex].tcm_tmm_freq_afternoon = updateQuery;
-      setChildDrawerData((prev) => [...prev]);
+      const updated = childDrawerData.map((item, idx) => 
+        idx === childIndex ? { ...item, tcm_tmm_freq_afternoon: updateQuery } : item
+      );
+      setChildDrawerData(updated);
     },
     [childIndex, childDrawerData]
   );
 
   const afternoonIncrement = useCallback(() => {
-    childDrawerData[childIndex].tcm_tmm_freq_afternoon =
-      parseInt(childDrawerData[childIndex].tcm_tmm_freq_afternoon) + 1;
-    setChildDrawerData((prev) => [...prev]);
+    if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+    const updated = childDrawerData.map((item, idx) => 
+      idx === childIndex ? { ...item, tcm_tmm_freq_afternoon: parseInt(item.tcm_tmm_freq_afternoon) + 1 } : item
+    );
+    setChildDrawerData(updated);
   }, [childIndex, childDrawerData]);
 
   const eveningDecrement = useCallback(() => {
-    if (parseInt(childDrawerData[childIndex].tcm_tmm_freq_evening) > 0) {
-      childDrawerData[childIndex].tcm_tmm_freq_evening =
-        parseInt(childDrawerData[childIndex].tcm_tmm_freq_evening) - 1;
-      setChildDrawerData((prev) => [...prev]);
+    if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+    if (parseInt(childDrawerData[childIndex]?.tcm_tmm_freq_evening) > 0) {
+      const updated = childDrawerData.map((item, idx) => 
+        idx === childIndex ? { ...item, tcm_tmm_freq_evening: parseInt(item.tcm_tmm_freq_evening) - 1 } : item
+      );
+      setChildDrawerData(updated);
     }
   }, [childIndex, childDrawerData]);
 
   const eveningClick = useCallback(() => {
-    childDrawerData[childIndex].tcm_tmm_freq_evening = 1;
-    setChildDrawerData((prev) => [...prev]);
+    if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+    const updated = childDrawerData.map((item, idx) => 
+      idx === childIndex ? { ...item, tcm_tmm_freq_evening: 1 } : item
+    );
+    setChildDrawerData(updated);
   }, [childIndex, childDrawerData]);
 
   const onChangeInputEveningChild = useCallback(
     (e) => {
+      if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
       const updateQuery = onlyDecimalFormat(e.target.value);
-      childDrawerData[childIndex].tcm_tmm_freq_evening = updateQuery;
-      setChildDrawerData((prev) => [...prev]);
+      const updated = childDrawerData.map((item, idx) => 
+        idx === childIndex ? { ...item, tcm_tmm_freq_evening: updateQuery } : item
+      );
+      setChildDrawerData(updated);
     },
     [childIndex, childDrawerData]
   );
 
   const eveningIncrement = useCallback(() => {
-    childDrawerData[childIndex].tcm_tmm_freq_evening =
-      parseInt(childDrawerData[childIndex].tcm_tmm_freq_evening) + 1;
-    setChildDrawerData((prev) => [...prev]);
+    if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+    const updated = childDrawerData.map((item, idx) => 
+      idx === childIndex ? { ...item, tcm_tmm_freq_evening: parseInt(item.tcm_tmm_freq_evening) + 1 } : item
+    );
+    setChildDrawerData(updated);
   }, [childIndex, childDrawerData]);
 
   const nightDecrement = useCallback(() => {
-    if (parseInt(childDrawerData[childIndex].tcm_tmm_freq_night) > 0) {
-      childDrawerData[childIndex].tcm_tmm_freq_night =
-        parseInt(childDrawerData[childIndex].tcm_tmm_freq_night) - 1;
-      setChildDrawerData((prev) => [...prev]);
+    if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+    if (parseInt(childDrawerData[childIndex]?.tcm_tmm_freq_night) > 0) {
+      const updated = childDrawerData.map((item, idx) => 
+        idx === childIndex ? { ...item, tcm_tmm_freq_night: parseInt(item.tcm_tmm_freq_night) - 1 } : item
+      );
+      setChildDrawerData(updated);
     }
   }, [childIndex, childDrawerData]);
 
   const nightClick = useCallback(() => {
-    childDrawerData[childIndex].tcm_tmm_freq_night = 1;
-    setChildDrawerData((prev) => [...prev]);
+    if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+    const updated = childDrawerData.map((item, idx) => 
+      idx === childIndex ? { ...item, tcm_tmm_freq_night: 1 } : item
+    );
+    setChildDrawerData(updated);
   }, [childIndex, childDrawerData]);
 
   const onChangeInputNightChild = useCallback(
     (e) => {
+      if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
       const updateQuery = onlyDecimalFormat(e.target.value);
-      childDrawerData[childIndex].tcm_tmm_freq_night = updateQuery;
-      setChildDrawerData((prev) => [...prev]);
+      const updated = childDrawerData.map((item, idx) => 
+        idx === childIndex ? { ...item, tcm_tmm_freq_night: updateQuery } : item
+      );
+      setChildDrawerData(updated);
     },
     [childIndex, childDrawerData]
   );
 
   const nightIncrement = useCallback(() => {
-    childDrawerData[childIndex].tcm_tmm_freq_night =
-      parseInt(childDrawerData[childIndex].tcm_tmm_freq_night) + 1;
-    setChildDrawerData((prev) => [...prev]);
+    if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+    const updated = childDrawerData.map((item, idx) => 
+      idx === childIndex ? { ...item, tcm_tmm_freq_night: parseInt(item.tcm_tmm_freq_night) + 1 } : item
+    );
+    setChildDrawerData(updated);
   }, [childIndex, childDrawerData]);
 
   const handleRadioChange = useCallback(
     (e) => {
+      if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
       setSelectedTab(e.target.value);
-      if (e.target.value !== "other") {
-        childDrawerData[childIndex].tmf_block = 0;
-      } else {
-        childDrawerData[childIndex].tmf_block = 1;
-      }
-      childDrawerData[childIndex].tmm_freq_type = 0;
-      childDrawerData[childIndex].tmm_freq_type_name = "";
-      childDrawerData[childIndex].tcm_tmm_freq_afternoon = 0;
-      childDrawerData[childIndex].tcm_tmm_freq_evening = 0;
-      childDrawerData[childIndex].tcm_tmm_freq_morning = 0;
-      childDrawerData[childIndex].tcm_tmm_freq_night = 0;
-      setChildDrawerData((prev) => [...prev]);
+      const updated = childDrawerData.map((item, idx) => 
+        idx === childIndex ? {
+          ...item,
+          tmf_block: e.target.value !== "other" ? 0 : 1,
+          tmm_freq_type: 0,
+          tmm_freq_type_name: "",
+          tcm_tmm_freq_afternoon: 0,
+          tcm_tmm_freq_evening: 0,
+          tcm_tmm_freq_morning: 0,
+          tcm_tmm_freq_night: 0
+        } : item
+      );
+      setChildDrawerData(updated);
     },
-    [selectedTab, childDrawerData]
+    [selectedTab, childDrawerData, childIndex]
   );
 
   const onChangeFrequencyChild = useCallback(
     (item) => {
-      if (item.tmf_id != childDrawerData[childIndex].tmm_freq_type) {
-        childDrawerData[childIndex].tmm_freq_type = item.tmf_id;
-        childDrawerData[childIndex].tmm_freq_type_name = item.tmf_title;
-        childDrawerData[childIndex].tmf_block_val = item.tmf_block_val;
-      } else {
-        childDrawerData[childIndex].tmm_freq_type = 0;
-        childDrawerData[childIndex].tmm_freq_type_name = "";
-        childDrawerData[childIndex].tmf_block_val = "";
-      }
-      setChildDrawerData((prev) => [...prev]);
+      if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+      const updated = childDrawerData.map((med, idx) => {
+        if (idx === childIndex) {
+          if (item.tmf_id != med.tmm_freq_type) {
+            return {
+              ...med,
+              tmm_freq_type: item.tmf_id,
+              tmm_freq_type_name: item.tmf_title,
+              tmf_block_val: item.tmf_block_val
+            };
+          } else {
+            return {
+              ...med,
+              tmm_freq_type: 0,
+              tmm_freq_type_name: "",
+              tmf_block_val: ""
+            };
+          }
+        }
+        return med;
+      });
+      setChildDrawerData(updated);
     },
     [childIndex, childDrawerData]
   );
@@ -1183,14 +1198,18 @@ function TabMedicationBox() {
 
   const onChangeTimingChild = useCallback(
     (item) => {
-      if (item.tmt_id != childDrawerData[childIndex].tmm_time) {
-        childDrawerData[childIndex].tmm_time = item.tmt_id;
-        childDrawerData[childIndex].tmm_time_name = item.tmt_title;
-      } else {
-        childDrawerData[childIndex].tmm_time = 0;
-        childDrawerData[childIndex].tmm_time_name = "";
-      }
-      setChildDrawerData((prev) => [...prev]);
+      if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+      const updated = childDrawerData.map((med, idx) => {
+        if (idx === childIndex) {
+          if (item.tmt_id != med.tmm_time) {
+            return { ...med, tmm_time: item.tmt_id, tmm_time_name: item.tmt_title };
+          } else {
+            return { ...med, tmm_time: 0, tmm_time_name: "" };
+          }
+        }
+        return med;
+      });
+      setChildDrawerData(updated);
     },
     [childIndex, childDrawerData]
   );
@@ -1235,11 +1254,13 @@ function TabMedicationBox() {
 
   const onChangeInputSinceChild = useCallback(
     (e) => {
+      if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
       const updateQuery = onlyNumberFormat(e.target.value);
       setInputSince(updateQuery);
-      childDrawerData[childIndex].tmm_days = 0;
-      childDrawerData[childIndex].tmm_duration_type = "";
-      setChildDrawerData((prev) => [...prev]);
+      const updated = childDrawerData.map((item, idx) => 
+        idx === childIndex ? { ...item, tmm_days: 0, tmm_duration_type: "" } : item
+      );
+      setChildDrawerData(updated);
       if (updateQuery.length > 0) {
         const options = SINCE_OPTIONS.map((option) => {
           return {
@@ -1286,27 +1307,41 @@ function TabMedicationBox() {
 
   const onChangeSegmentedSinceChild = useCallback(
     (key) => {
+      if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
       setSinceValue(key);
-      childDrawerData[childIndex].tmm_days = 0;
-      childDrawerData[childIndex].tmm_duration_type = "";
-      setChildDrawerData((prev) => [...prev]);
+      const updated = childDrawerData.map((item, idx) => 
+        idx === childIndex ? { ...item, tmm_days: 0, tmm_duration_type: "" } : item
+      );
+      setChildDrawerData(updated);
     },
     [sinceValue, childIndex, childDrawerData]
   );
 
   const onChangeSinceChild = useCallback(
     (key) => {
+      if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
       if (hasNumber(key)) {
-        if (key != childDrawerData[childIndex].tmm_days_duration_type) {
-          childDrawerData[childIndex].tmm_days_duration_type = key;
-          childDrawerData[childIndex].tmm_days = key.split(" ")[0];
-          childDrawerData[childIndex].tmm_duration_type = key.split(" ")[1];
-        } else {
-          childDrawerData[childIndex].tmm_days_duration_type = "";
-          childDrawerData[childIndex].tmm_days = 0;
-          childDrawerData[childIndex].tmm_duration_type = "";
-        }
-        setChildDrawerData((prev) => [...prev]);
+        const updated = childDrawerData.map((item, idx) => {
+          if (idx === childIndex) {
+            if (key != item.tmm_days_duration_type) {
+              return {
+                ...item,
+                tmm_days_duration_type: key,
+                tmm_days: key.split(" ")[0],
+                tmm_duration_type: key.split(" ")[1]
+              };
+            } else {
+              return {
+                ...item,
+                tmm_days_duration_type: "",
+                tmm_days: 0,
+                tmm_duration_type: ""
+              };
+            }
+          }
+          return item;
+        });
+        setChildDrawerData(updated);
       }
     },
     [childIndex, childDrawerData]
@@ -1314,34 +1349,49 @@ function TabMedicationBox() {
 
   const onChangeDurationChild = useCallback(
     (item) => {
-      if (item.value != childDrawerData[childIndex].tmm_days_duration_type) {
-        childDrawerData[childIndex].tmm_days_duration_type = item.value;
-        childDrawerData[childIndex].tmm_days = 0;
-        childDrawerData[childIndex].tmm_duration_type = item.value;
-      } else {
-        childDrawerData[childIndex].tmm_days_duration_type = "";
-        childDrawerData[childIndex].tmm_days = 0;
-        childDrawerData[childIndex].tmm_duration_type = "";
-      }
-      setChildDrawerData((prev) => [...prev]);
+      if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+      const updated = childDrawerData.map((med, idx) => {
+        if (idx === childIndex) {
+          if (item.value != med.tmm_days_duration_type) {
+            return {
+              ...med,
+              tmm_days_duration_type: item.value,
+              tmm_days: 0,
+              tmm_duration_type: item.value
+            };
+          } else {
+            return {
+              ...med,
+              tmm_days_duration_type: "",
+              tmm_days: 0,
+              tmm_duration_type: ""
+            };
+          }
+        }
+        return med;
+      });
+      setChildDrawerData(updated);
     },
     [childIndex, childDrawerData]
   );
 
   const onAutoFillDuration = () => {
-    const { tmm_days_duration_type, tmm_days, tmm_duration_type } = childDrawerData[childIndex]
-    childDrawerData.forEach(e => {
-      e.tmm_days_duration_type = tmm_days_duration_type;
-      e.tmm_days = tmm_days;
-      e.tmm_duration_type = tmm_duration_type;
-    });
-    setChildDrawerData((prev) => [...prev]);
-    medicationData.forEach(e => {
-      e.tmm_days_duration_type = tmm_days_duration_type;
-      e.tmm_days = tmm_days;
-      e.tmm_duration_type = tmm_duration_type;
-    });
-    setMedicationData((prev) => [...prev]);
+    if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) return;
+    const { tmm_days_duration_type, tmm_days, tmm_duration_type } = childDrawerData[childIndex];
+    const updatedChildDrawerData = childDrawerData.map(e => ({
+      ...e,
+      tmm_days_duration_type,
+      tmm_days,
+      tmm_duration_type
+    }));
+    setChildDrawerData(updatedChildDrawerData);
+    const updatedMedicationData = medicationData.map(e => ({
+      ...e,
+      tmm_days_duration_type,
+      tmm_days,
+      tmm_duration_type
+    }));
+    dispatch(setMedicationData(updatedMedicationData));
     message.open({
       key: MESSAGE_KEY,
       type: '',
@@ -1385,7 +1435,7 @@ function TabMedicationBox() {
 
   useEffect(() => {
     if (childIndex != null) {
-      const selectedMedication = childDrawerData[childIndex];
+      const selectedMedication = childDrawerData?.[childIndex];
       if (selectedMedication?.tmf_block > 0) {
         setSelectedTab("other");
       } else {
@@ -1427,10 +1477,13 @@ function TabMedicationBox() {
       tmm_unit_name: "",
       tmu_id: 0,
       unique_id: uuidv4(),
-    }
-    childDrawerData.push(updatedData);
-    setChildDrawerData((prev) => [...prev]);
-    setChildIndex(childDrawerData.length - 1);
+    };
+    // Immutable add for childDrawerData
+    const newArr = Array.isArray(childDrawerData)
+      ? [...childDrawerData, updatedData]
+      : [updatedData];
+    setChildDrawerData(newArr);
+    setChildIndex(newArr.length - 1);
     setSinceValue(updatedData.tmm_days ? parseInt(updatedData.tmm_days) : 1);
     setActiveKey(updatedData.unique_id);
   };
@@ -1439,16 +1492,17 @@ function TabMedicationBox() {
     if (action === 'add') {
       taperDoseAdd(item);
     } else {
-      const index = childDrawerData.findIndex(e => e.unique_id == unique_id)
+      if (!Array.isArray(childDrawerData)) return;
+      const index = childDrawerData.findIndex(e => e.unique_id == unique_id);
       if (index != -1) {
-        childDrawerData.splice(index, 1);
-        setChildDrawerData((prev) => [...prev]);
-        const checkIndex = childDrawerData.findIndex(e => e.unique_id == activeKey)
+        const updated = childDrawerData.filter(e => e.unique_id !== unique_id);
+        setChildDrawerData(updated);
+        const checkIndex = updated.findIndex(e => e.unique_id == activeKey);
         if (checkIndex != -1) {
           setChildIndex(checkIndex);
         } else {
           setChildIndex(selectedIndex);
-          setActiveKey(childDrawerData[selectedIndex]?.unique_id);
+          setActiveKey(updated[selectedIndex]?.unique_id);
         }
       }
     }
@@ -1469,9 +1523,10 @@ function TabMedicationBox() {
                 <i className="icon-Cross fs-3"></i>
               </Button>
               <div className="text-truncate title-common fontroboto">
-                {medicationData[selectedIndex]?.tmm_medicine_name}
+                {/* Always coerce to string */}
+                {String(medicationData[selectedIndex]?.tmm_medicine_name || "")}
                 <div className="text-truncate fs-14 fw-normal fontroboto mt-1">
-                  {medicationData[selectedIndex]?.tmm_generic}
+                  {String(medicationData[selectedIndex]?.tmm_generic || "")}
                 </div>
               </div>
             </div>
@@ -1483,14 +1538,15 @@ function TabMedicationBox() {
                     const makeData = {
                       unique_id: medicationData[selectedIndex]?.unique_id,
                       tmm_id: medicationData[selectedIndex]?.tmm_id,
-                      tmm_medicine_name: medicationData[selectedIndex]?.tmm_medicine_name,
-                      tmm_generic: medicationData[selectedIndex]?.tmm_generic,
-                      tmm_company: medicationData[selectedIndex]?.tmm_company
-                    }
-                    const updateItem = medicineType !== undefined ? { ...makeData, ...medicineType } : makeData
-                    setAddCustom(updateItem);
+                      tmm_medicine_name: String(medicationData[selectedIndex]?.tmm_medicine_name || ""),
+                      tmm_generic: String(medicationData[selectedIndex]?.tmm_generic || ""),
+                      tmm_company: String(medicationData[selectedIndex]?.tmm_company || ""),
+                      tmm_type: medicationData[selectedIndex]?.tmm_type,
+                      ...medicineType
+                    };
+                    setAddCustom(makeData);
                   }}
-                ></i>
+                />
               }
               <Button
                 className="btn btn-primary3 btn-41 px-4 ms-3 me-20"
@@ -1501,20 +1557,20 @@ function TabMedicationBox() {
             </div>
           </div>
         </Card>
-        <Tabs
-          type="editable-card"
-          onChange={onChange}
-          activeKey={activeKey}
-          onEdit={(targetKey, action) => onEdit(targetKey, action, childDrawerData[childIndex])}
-          items={childDrawerData && childDrawerData?.length > 0 && childDrawerData?.map((e, i) => {
-            return {
+        {Array.isArray(childDrawerData) && childDrawerData.length > 0 ? (
+          <Tabs
+            type="editable-card"
+            onChange={onChange}
+            activeKey={activeKey}
+            onEdit={(targetKey, action) => onEdit(targetKey, action, childDrawerData[childIndex])}
+            items={childDrawerData.map((e, i) => ({
               key: e.unique_id,
               label: `Dose ${i + 1}`,
-              children: null,
-            };
-          })}
-          className="tablet-medication-tabs"
-        />
+              children: null
+            }))}
+            className="tablet-medication-tabs"
+          />
+        ) : null}
         <i className="icon-Add custom-tapper-button" onClick={() => taperDoseAdd(childDrawerData && childDrawerData?.length > 0 ? childDrawerData[childIndex] : medicationData[selectedIndex])} />
         {childDrawerData && childDrawerData?.length > 0 && (
           <div className="p-4">
@@ -1525,8 +1581,8 @@ function TabMedicationBox() {
                   <Input
                     placeholder="e.g. 1"
                     value={
-                      childDrawerData[childIndex].tmm_dosage
-                        ? childDrawerData[childIndex].tmm_dosage
+                      childDrawerData?.[childIndex]?.tmm_dosage
+                        ? childDrawerData[childIndex]?.tmm_dosage
                         : ""
                     }
                     inputMode="decimal"
@@ -1540,24 +1596,24 @@ function TabMedicationBox() {
                     placeholder="Select"
                     defaultValue={
                       childDrawerData[childIndex]?.medicineUnit
-                        ? childDrawerData[childIndex].medicineUnit.findIndex(
-                          (e) => e.value == childDrawerData[childIndex].tmm_unit
+                        ? childDrawerData[childIndex]?.medicineUnit.findIndex(
+                          (e) => e.value == childDrawerData[childIndex]?.tmm_unit
                         ) !== -1
-                          ? parseInt(childDrawerData[childIndex].tmm_unit)
+                          ? parseInt(childDrawerData[childIndex]?.tmm_unit)
                           : null
                         : null
                     }
                     value={
                       childDrawerData[childIndex]?.medicineUnit
-                        ? childDrawerData[childIndex].medicineUnit.findIndex(
-                          (e) => e.value == childDrawerData[childIndex].tmm_unit
+                        ? childDrawerData[childIndex]?.medicineUnit.findIndex(
+                          (e) => e.value == childDrawerData[childIndex]?.tmm_unit
                         ) !== -1
-                          ? parseInt(childDrawerData[childIndex].tmm_unit)
+                          ? parseInt(childDrawerData[childIndex]?.tmm_unit)
                           : null
                         : null
                     }
                     onSelect={onSelectMedicineUnitChild}
-                    options={childDrawerData[childIndex].medicineUnit}
+                    options={childDrawerData?.[childIndex]?.medicineUnit}
                   />
                 </Col>
               </Row>
@@ -1609,12 +1665,12 @@ function TabMedicationBox() {
                       aria-label="Basic example"
                       className="inputheight45 border w-100 rounded-0"
                     >
-                      {childDrawerData[childIndex].tcm_tmm_freq_morning !== undefined &&
-                        childDrawerData[childIndex].tcm_tmm_freq_morning != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_morning != 0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
-                            disabled={childDrawerData[childIndex].tmf_block}
+                            disabled={childDrawerData[childIndex]?.tmf_block}
                             onClick={morningDecrement}
                           >
                             <i className="icon-minus d-block text-main"></i>
@@ -1623,29 +1679,29 @@ function TabMedicationBox() {
                       <BSButton
                         variant="outline-light"
                         className="rounded-0 dateoutline p-0 bg-white"
-                        disabled={childDrawerData[childIndex].tmf_block}
+                        disabled={childDrawerData[childIndex]?.tmf_block}
                         onClick={() =>
-                          !childDrawerData[childIndex].tcm_tmm_freq_morning && morningClick()
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_morning && morningClick()
                         }
                       >
                         <Input
                           placeholder="Morning"
                           inputMode="numeric"
                           value={
-                            childDrawerData[childIndex].tcm_tmm_freq_morning
-                              ? childDrawerData[childIndex].tcm_tmm_freq_morning
+                            childDrawerData[childIndex]?.tcm_tmm_freq_morning
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_morning
                               : ""
                           }
                           className="rounded-0 h-100 border-0 text-center text-main"
                           onChange={onChangeInputMorningChild}
                         />
                       </BSButton>
-                      {childDrawerData[childIndex].tcm_tmm_freq_morning !== undefined &&
-                        childDrawerData[childIndex].tcm_tmm_freq_morning != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_morning != 0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
-                            disabled={childDrawerData[childIndex].tmf_block}
+                            disabled={childDrawerData[childIndex]?.tmf_block}
                             onClick={morningIncrement}
                           >
                             <i className="icon-Add text-main d-block"></i>
@@ -1658,12 +1714,12 @@ function TabMedicationBox() {
                       aria-label="Basic example"
                       className="inputheight45 w-100 border rounded-0 border-start-0"
                     >
-                      {childDrawerData[childIndex].tcm_tmm_freq_afternoon !== undefined &&
-                        childDrawerData[childIndex].tcm_tmm_freq_afternoon != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon != 0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
-                            disabled={childDrawerData[childIndex].tmf_block}
+                            disabled={childDrawerData[childIndex]?.tmf_block}
                             onClick={afternoonDecrement}
                           >
                             <i className="icon-minus d-block text-main"></i>
@@ -1672,29 +1728,29 @@ function TabMedicationBox() {
                       <BSButton
                         variant="outline-light"
                         className="rounded-0 dateoutline p-0 bg-white"
-                        disabled={childDrawerData[childIndex].tmf_block}
+                        disabled={childDrawerData[childIndex]?.tmf_block}
                         onClick={() =>
-                          !childDrawerData[childIndex].tcm_tmm_freq_afternoon && afternoonClick()
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_afternoon && afternoonClick()
                         }
                       >
                         <Input
                           placeholder="Afternoon"
                           inputMode="numeric"
                           value={
-                            childDrawerData[childIndex].tcm_tmm_freq_afternoon
-                              ? childDrawerData[childIndex].tcm_tmm_freq_afternoon
+                            childDrawerData[childIndex]?.tcm_tmm_freq_afternoon
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_afternoon
                               : ""
                           }
                           className="rounded-0 h-100 border-0 text-center text-main"
                           onChange={onChangeInputAfternoonChild}
                         />
                       </BSButton>
-                      {childDrawerData[childIndex].tcm_tmm_freq_afternoon !== undefined &&
-                        childDrawerData[childIndex].tcm_tmm_freq_afternoon != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon != 0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
-                            disabled={childDrawerData[childIndex].tmf_block}
+                            disabled={childDrawerData[childIndex]?.tmf_block}
                             onClick={afternoonIncrement}
                           >
                             <i className="icon-Add text-main d-block"></i>
@@ -1707,12 +1763,12 @@ function TabMedicationBox() {
                       aria-label="Basic example"
                       className="inputheight45 w-100 border rounded-0 border-start-0"
                     >
-                      {childDrawerData[childIndex].tcm_tmm_freq_night !== undefined &&
-                        childDrawerData[childIndex].tcm_tmm_freq_night != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_night != 0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
-                            disabled={childDrawerData[childIndex].tmf_block}
+                            disabled={childDrawerData[childIndex]?.tmf_block}
                             onClick={nightDecrement}
                           >
                             <i className="icon-minus d-block text-main"></i>
@@ -1721,29 +1777,29 @@ function TabMedicationBox() {
                       <BSButton
                         variant="outline-light"
                         className="rounded-0 dateoutline p-0 bg-white"
-                        disabled={childDrawerData[childIndex].tmf_block}
+                        disabled={childDrawerData[childIndex]?.tmf_block}
                         onClick={() =>
-                          !childDrawerData[childIndex].tcm_tmm_freq_night && nightClick()
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_night && nightClick()
                         }
                       >
                         <Input
                           placeholder="Night"
                           inputMode="numeric"
                           value={
-                            childDrawerData[childIndex].tcm_tmm_freq_night
-                              ? childDrawerData[childIndex].tcm_tmm_freq_night
+                            childDrawerData[childIndex]?.tcm_tmm_freq_night
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_night
                               : ""
                           }
                           className="rounded-0 h-100 border-0 text-center text-main"
                           onChange={onChangeInputNightChild}
                         />
                       </BSButton>
-                      {childDrawerData[childIndex].tcm_tmm_freq_night !== undefined &&
-                        childDrawerData[childIndex].tcm_tmm_freq_night != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_night != 0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
-                            disabled={childDrawerData[childIndex].tmf_block}
+                            disabled={childDrawerData[childIndex]?.tmf_block}
                             onClick={nightIncrement}
                           >
                             <i className="icon-Add d-block text-main"></i>
@@ -1760,12 +1816,12 @@ function TabMedicationBox() {
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0"
                     >
-                      {childDrawerData[childIndex].tcm_tmm_freq_morning !== undefined &&
-                        childDrawerData[childIndex].tcm_tmm_freq_morning != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_morning != 0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
-                            disabled={childDrawerData[childIndex].tmf_block}
+                            disabled={childDrawerData[childIndex]?.tmf_block}
                             onClick={morningDecrement}
                           >
                             <i className="icon-minus d-block text-main"></i>
@@ -1774,17 +1830,17 @@ function TabMedicationBox() {
                       <BSButton
                         variant="outline-light"
                         className="rounded-0 dateoutline p-0 bg-white"
-                        disabled={childDrawerData[childIndex].tmf_block}
+                        disabled={childDrawerData[childIndex]?.tmf_block}
                         onClick={() =>
-                          !childDrawerData[childIndex].tcm_tmm_freq_morning && morningClick()
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_morning && morningClick()
                         }
                       >
                         <Input
                           placeholder="Morning"
                           inputMode="numeric"
                           value={
-                            childDrawerData[childIndex].tcm_tmm_freq_morning
-                              ? childDrawerData[childIndex].tcm_tmm_freq_morning
+                            childDrawerData[childIndex]?.tcm_tmm_freq_morning
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_morning
                               : ""
                           }
                           className="rounded-0 h-100 border-0 text-center text-main"
@@ -1793,8 +1849,8 @@ function TabMedicationBox() {
                         {/* <InputNumber
                           placeholder="Morning"
                           value={
-                            childDrawerData[childIndex].tcm_tmm_freq_morning
-                              ? childDrawerData[childIndex].tcm_tmm_freq_morning
+                            childDrawerData[childIndex]?.tcm_tmm_freq_morning
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_morning
                               : ""
                           }
                           style={{ paddingLeft:"5%", textAlign: 'center', fontSize: '18px' }}
@@ -1803,12 +1859,12 @@ function TabMedicationBox() {
                           step={0.1}
                         /> */}
                       </BSButton>
-                      {childDrawerData[childIndex].tcm_tmm_freq_morning !== undefined &&
-                        childDrawerData[childIndex].tcm_tmm_freq_morning != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_morning != 0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
-                            disabled={childDrawerData[childIndex].tmf_block}
+                            disabled={childDrawerData[childIndex]?.tmf_block}
                             onClick={morningIncrement}
                           >
                             <i className="icon-Add text-main d-block"></i>
@@ -1821,12 +1877,12 @@ function TabMedicationBox() {
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0 border-start-0"
                     >
-                      {childDrawerData[childIndex].tcm_tmm_freq_afternoon !== undefined &&
-                        childDrawerData[childIndex].tcm_tmm_freq_afternoon != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon != 0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
-                            disabled={childDrawerData[childIndex].tmf_block}
+                            disabled={childDrawerData[childIndex]?.tmf_block}
                             onClick={afternoonDecrement}
                           >
                             <i className="icon-minus d-block text-main"></i>
@@ -1835,17 +1891,17 @@ function TabMedicationBox() {
                       <BSButton
                         variant="outline-light"
                         className="rounded-0 dateoutline p-0 bg-white"
-                        disabled={childDrawerData[childIndex].tmf_block}
+                        disabled={childDrawerData[childIndex]?.tmf_block}
                         onClick={() =>
-                          !childDrawerData[childIndex].tcm_tmm_freq_afternoon && afternoonClick()
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_afternoon && afternoonClick()
                         }
                       >
                         <Input
                           placeholder="Afternoon"
                           inputMode="numeric"
                           value={
-                            childDrawerData[childIndex].tcm_tmm_freq_afternoon
-                              ? childDrawerData[childIndex].tcm_tmm_freq_afternoon
+                            childDrawerData[childIndex]?.tcm_tmm_freq_afternoon
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_afternoon
                               : ""
                           }
                           className="rounded-0 h-100 border-0 text-center text-main"
@@ -1854,8 +1910,8 @@ function TabMedicationBox() {
                         {/* <InputNumber
                           placeholder="Afternoon"
                           value={
-                            childDrawerData[childIndex].tcm_tmm_freq_afternoon
-                              ? childDrawerData[childIndex].tcm_tmm_freq_afternoon
+                            childDrawerData[childIndex]?.tcm_tmm_freq_afternoon
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_afternoon
                               : ""
                           }
                           style={{ paddingLeft:"5%", textAlign: 'center', fontSize: '18px' }}
@@ -1864,12 +1920,12 @@ function TabMedicationBox() {
                           step={0.1}
                         /> */}
                       </BSButton>
-                      {childDrawerData[childIndex].tcm_tmm_freq_afternoon !== undefined &&
-                        childDrawerData[childIndex].tcm_tmm_freq_afternoon != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon != 0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
-                            disabled={childDrawerData[childIndex].tmf_block}
+                            disabled={childDrawerData[childIndex]?.tmf_block}
                             onClick={afternoonIncrement}
                           >
                             <i className="icon-Add text-main d-block"></i>
@@ -1882,12 +1938,12 @@ function TabMedicationBox() {
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0 border-start-0"
                     >
-                      {childDrawerData[childIndex].tcm_tmm_freq_evening !== undefined &&
-                        childDrawerData[childIndex].tcm_tmm_freq_evening != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_evening !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_evening != 0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
-                            disabled={childDrawerData[childIndex].tmf_block}
+                            disabled={childDrawerData[childIndex]?.tmf_block}
                             onClick={eveningDecrement}
                           >
                             <i className="icon-minus d-block text-main"></i>
@@ -1896,17 +1952,17 @@ function TabMedicationBox() {
                       <BSButton
                         variant="outline-light"
                         className="rounded-0 dateoutline p-0 bg-white"
-                        disabled={childDrawerData[childIndex].tmf_block}
+                        disabled={childDrawerData[childIndex]?.tmf_block}
                         onClick={() =>
-                          !childDrawerData[childIndex].tcm_tmm_freq_evening && eveningClick()
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_evening && eveningClick()
                         }
                       >
                         <Input
                           placeholder="Evening"
                           inputMode="numeric"
                           value={
-                            childDrawerData[childIndex].tcm_tmm_freq_evening
-                              ? childDrawerData[childIndex].tcm_tmm_freq_evening
+                            childDrawerData[childIndex]?.tcm_tmm_freq_evening
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_evening
                               : ""
                           }
                           className="rounded-0 h-100 border-0 text-center text-main"
@@ -1915,8 +1971,8 @@ function TabMedicationBox() {
                         {/* <InputNumber
                           placeholder="Evening"
                           value={
-                            childDrawerData[childIndex].tcm_tmm_freq_evening
-                              ? childDrawerData[childIndex].tcm_tmm_freq_evening
+                            childDrawerData[childIndex]?.tcm_tmm_freq_evening
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_evening
                               : ""
                           }
                           style={{ paddingLeft:"5%", textAlign: 'center', fontSize: '18px' }}
@@ -1925,12 +1981,12 @@ function TabMedicationBox() {
                           step={0.1}
                         /> */}
                       </BSButton>
-                      {childDrawerData[childIndex].tcm_tmm_freq_evening !== undefined &&
-                        childDrawerData[childIndex].tcm_tmm_freq_evening != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_evening !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_evening != 0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
-                            disabled={childDrawerData[childIndex].tmf_block}
+                            disabled={childDrawerData[childIndex]?.tmf_block}
                             onClick={eveningIncrement}
                           >
                             <i className="icon-Add text-main d-block"></i>
@@ -1943,12 +1999,12 @@ function TabMedicationBox() {
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0 border-start-0"
                     >
-                      {childDrawerData[childIndex].tcm_tmm_freq_night !== undefined &&
-                        childDrawerData[childIndex].tcm_tmm_freq_night != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_night != 0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
-                            disabled={childDrawerData[childIndex].tmf_block}
+                            disabled={childDrawerData[childIndex]?.tmf_block}
                             onClick={nightDecrement}
                           >
                             <i className="icon-minus d-block text-main"></i>
@@ -1957,17 +2013,17 @@ function TabMedicationBox() {
                       <BSButton
                         variant="outline-light"
                         className="rounded-0 dateoutline p-0 bg-white"
-                        disabled={childDrawerData[childIndex].tmf_block}
+                        disabled={childDrawerData[childIndex]?.tmf_block}
                         onClick={() =>
-                          !childDrawerData[childIndex].tcm_tmm_freq_night && nightClick()
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_night && nightClick()
                         }
                       >
                         <Input
                           placeholder="Night"
                           inputMode="numeric"
                           value={
-                            childDrawerData[childIndex].tcm_tmm_freq_night
-                              ? childDrawerData[childIndex].tcm_tmm_freq_night
+                            childDrawerData[childIndex]?.tcm_tmm_freq_night
+                              ? childDrawerData[childIndex]?.tcm_tmm_freq_night
                               : ""
                           }
                           className="rounded-0 h-100 border-0 text-center text-main"
@@ -1975,19 +2031,19 @@ function TabMedicationBox() {
                         />
                         {/* <InputNumber
                           placeholder="Night"
-                          value={childDrawerData[childIndex].tcm_tmm_freq_night}
+                          value={childDrawerData[childIndex]?.tcm_tmm_freq_night}
                           style={{ paddingLeft:"5%", textAlign: 'center', fontSize: '18px' }}
                           className="rounded-0 h-100 border-0 text-center text-main"
                           onChange={onChangeInputNightChild}
                           step={0.1}
                         /> */}
                       </BSButton>
-                      {childDrawerData[childIndex].tcm_tmm_freq_night !== undefined &&
-                        childDrawerData[childIndex].tcm_tmm_freq_night != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !== undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_night != 0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
-                            disabled={childDrawerData[childIndex].tmf_block}
+                            disabled={childDrawerData[childIndex]?.tmf_block}
                             onClick={nightIncrement}
                           >
                             <i className="icon-Add text-main d-block"></i>
@@ -2006,7 +2062,7 @@ function TabMedicationBox() {
                           <button
                             key={i}
                             type="button"
-                            className={`btn text-truncate ${childDrawerData[childIndex].tmm_freq_type == item.tmf_id &&
+                            className={`btn text-truncate ${childDrawerData[childIndex]?.tmm_freq_type == item.tmf_id &&
                               "btn-segement"
                               }`}
                             onClick={() => onChangeFrequencyChild(item)}
@@ -2020,7 +2076,7 @@ function TabMedicationBox() {
                               className={`btn segment-more ${filteredTitles
                                 .slice(2, filteredTitles.length)
                                 .some(
-                                  (e) => e.tmf_id == childDrawerData[childIndex].tmm_freq_type
+                                  (e) => e.tmf_id == childDrawerData[childIndex]?.tmm_freq_type
                                 ) && "btn-segement"
                                 }`}
                               onClick={handleFrequencyMoreOptionsVisible}
@@ -2028,11 +2084,11 @@ function TabMedicationBox() {
                               {filteredTitles
                                 .slice(2, filteredTitles.length)
                                 .some(
-                                  (e) => e.tmf_id == childDrawerData[childIndex].tmm_freq_type
+                                  (e) => e.tmf_id == childDrawerData[childIndex]?.tmm_freq_type
                                 ) ? (
                                 <span id="selected">
                                   <i className="icon-Edit me-2 fs-21"></i>{" "}
-                                  {childDrawerData[childIndex].tmm_freq_type_name}
+                                  {childDrawerData[childIndex]?.tmm_freq_type_name}
                                 </span>
                               ) : (
                                 "More"
@@ -2055,7 +2111,7 @@ function TabMedicationBox() {
                     }}
                     label={'tmf_title'}
                     value={'tmf_id'}
-                    selectedValue={childDrawerData[childIndex].tmm_freq_type}
+                    selectedValue={childDrawerData[childIndex]?.tmm_freq_type}
                     array={filteredTitles.slice(2, filteredTitles.length)} />
                 )}
               </div>
@@ -2067,7 +2123,7 @@ function TabMedicationBox() {
                         <button
                           key={i}
                           type="button"
-                          className={`btn mt-3 ${childDrawerData[childIndex].tmm_time == item.tmt_id
+                          className={`btn mt-3 ${childDrawerData?.[childIndex]?.tmm_time == item.tmt_id
                             ? "btn-segement"
                             : ""
                             }`}
@@ -2082,7 +2138,7 @@ function TabMedicationBox() {
                             className={`btn mt-3 segment-more ${timingList
                               .slice(5, timingList.length)
                               .some(
-                                (e) => e.tmt_id == childDrawerData[childIndex].tmm_time
+                                (e) => e.tmt_id == childDrawerData?.[childIndex]?.tmm_time
                               ) && "btn-segement"
                               }`}
                             onClick={handleTimingMoreOptionsVisible}
@@ -2090,11 +2146,11 @@ function TabMedicationBox() {
                             {timingList
                               .slice(5, timingList.length)
                               .some(
-                                (e) => e.tmt_id == childDrawerData[childIndex].tmm_time
+                                (e) => e.tmt_id == childDrawerData?.[childIndex]?.tmm_time
                               ) ? (
                               <span id="selected">
                                 <i className="icon-Edit me-2 fs-21"></i>
-                                {childDrawerData[childIndex].tmm_time_name}
+                                {childDrawerData?.[childIndex]?.tmm_time_name}
                               </span>
                             ) : (
                               "More"
@@ -2116,7 +2172,7 @@ function TabMedicationBox() {
                     }}
                     label={'tmt_title'}
                     value={'tmt_id'}
-                    selectedValue={childDrawerData[childIndex].tmm_time}
+                    selectedValue={childDrawerData?.[childIndex]?.tmm_time}
                     array={timingList.slice(5, timingList.length)} />
                 )}
               </div>
@@ -2149,7 +2205,7 @@ function TabMedicationBox() {
                     <>
                       <button key={i}
                         type="button"
-                        className={`btn ${childDrawerData[childIndex].tmm_days_duration_type == item.value && 'btn-segement'}`}
+                        className={`btn ${childDrawerData[childIndex]?.tmm_days_duration_type == item.value && 'btn-segement'}`}
                         onClick={() => onChangeSinceChild(item.value)}>
                         {item.label}
                       </button>
@@ -2157,13 +2213,13 @@ function TabMedicationBox() {
                         <button
                           key={-1}
                           type="button"
-                          className={`btn text-truncate px-1 segment-more ${EXTRA_OPTIONS.some((e) => e.value == childDrawerData[childIndex].tmm_days_duration_type) && "btn-segement"}`}
+                          className={`btn text-truncate px-1 segment-more ${EXTRA_OPTIONS.some((e) => e.value == childDrawerData[childIndex]?.tmm_days_duration_type) && "btn-segement"}`}
                           onClick={handleDurationMoreOptionsVisible}
                         >
-                          {EXTRA_OPTIONS.some((e) => e.value == childDrawerData[childIndex].tmm_days_duration_type) ? (
+                          {EXTRA_OPTIONS.some((e) => e.value == childDrawerData[childIndex]?.tmm_days_duration_type) ? (
                             <span id="selected">
                               <i className="icon-Edit me-2 fs-21"></i>
-                              {hasNumber(childDrawerData[childIndex].tmm_days_duration_type) ? childDrawerData[childIndex].tmm_days_duration_type : capitalize(childDrawerData[childIndex].tmm_days_duration_type, true)}
+                              {hasNumber(childDrawerData[childIndex]?.tmm_days_duration_type) ? childDrawerData[childIndex]?.tmm_days_duration_type : capitalize(childDrawerData[childIndex]?.tmm_days_duration_type, true)}
                             </span>
                           ) : (
                             "More"
@@ -2185,13 +2241,13 @@ function TabMedicationBox() {
                   }}
                   label={'label'}
                   value={'value'}
-                  selectedValue={childDrawerData[childIndex].tmm_days_duration_type}
+                  selectedValue={childDrawerData[childIndex]?.tmm_days_duration_type}
                   array={EXTRA_OPTIONS} />
               )}
               {/* <Segmented
                 value={
-                  childDrawerData[childIndex].tmm_duration_type !== undefined && childDrawerData[childIndex].tmm_days !== undefined &&
-                  `${childDrawerData[childIndex].tmm_days} ${childDrawerData[childIndex].tmm_duration_type}`
+                  childDrawerData[childIndex]?.tmm_duration_type !== undefined && childDrawerData[childIndex]?.tmm_days !== undefined &&
+                  `${childDrawerData[childIndex]?.tmm_days} ${childDrawerData[childIndex]?.tmm_duration_type}`
                 }
                 className="search-segment"
                 options={sinceOptions}
@@ -2199,15 +2255,15 @@ function TabMedicationBox() {
               /> */}
             </div>
 
-            {childDrawerData[childIndex].tmm_days_duration_type && (
+            {childDrawerData[childIndex]?.tmm_days_duration_type && (
               <div className="text-primary d-flex align-items-center"><i className="icon-copyIcon fs-16 me-1" /> <span className="text-primary text-decoration-underline" onClick={onAutoFillDuration}>Autofill this duration for all added meds.</span></div>
             )}
 
             <label className="title-common mb-1 mt-3">Note</label>
             <Input.TextArea
               value={
-                childDrawerData[childIndex].tmm_remarks
-                  ? childDrawerData[childIndex].tmm_remarks
+                childDrawerData[childIndex]?.tmm_remarks
+                  ? childDrawerData[childIndex]?.tmm_remarks
                   : ""
               }
               placeholder="Enter any specific notes here"
@@ -2238,7 +2294,8 @@ function TabMedicationBox() {
   }, [isModalOpen1]);
 
   const onRemoveRows = () => {
-    setMedicationData([])
+    // dispatch(setMedicationData([]))
+    dispatch(clearMedicationData())
     showHideClearData()
   };
 
@@ -2354,42 +2411,50 @@ function TabMedicationBox() {
           return {
             key: JSON.stringify({ ...e1 }),
             value: e1.tmu_id,
-            label: <>{e1.tmu_title}</>,
+            label: String(e1.tmu_title || ""),
           };
         });
 
         if (doseCalculatorDrawer) {
-          medicationLibrary.map(item => {
+          const updatedMedicationLibrary = medicationLibrary.map(item => {
             if (item.tmm_id == modifyData.tmm_id) {
-              item.tmm_medicine_name = modifyData.tmm_medicine_name;
-              item.tmm_generic = modifyData.tmm_generic;
-              item.tmm_company = modifyData.tmm_company;
-              item.tmm_type = modifyData.tmm_type;
-              item.tmm_dosage_unit_name = '';
-              item.tmm_dosage = '';
-              item.tmm_unit = 0;
-              item.tmm_unit_name = '';
-              item.tmu_id = 0;
-              item.medicineUnit = medicineUnit;
+              return {
+                ...item,
+                tmm_medicine_name: modifyData.tmm_medicine_name,
+                tmm_generic: modifyData.tmm_generic,
+                tmm_company: modifyData.tmm_company,
+                tmm_type: modifyData.tmm_type,
+                tmm_dosage_unit_name: '',
+                tmm_dosage: '',
+                tmm_unit: 0,
+                tmm_unit_name: '',
+                tmu_id: 0,
+                medicineUnit: medicineUnit
+              };
             }
             return item;
           });
+          setMedicationLibrary(updatedMedicationLibrary);
         } else {
-          medicationData.map(item => {
+          const updatedMedicationData = medicationData.map(item => {
             if (item.tmm_id == modifyData.tmm_id) {
-              item.tmm_medicine_name = modifyData.tmm_medicine_name;
-              item.tmm_generic = modifyData.tmm_generic;
-              item.tmm_company = modifyData.tmm_company;
-              item.tmm_type = modifyData.tmm_type;
-              item.tmm_dosage_unit_name = '';
-              item.tmm_dosage = '';
-              item.tmm_unit = 0;
-              item.tmm_unit_name = '';
-              item.tmu_id = 0;
-              item.medicineUnit = medicineUnit;
+              return {
+                ...item,
+                tmm_medicine_name: modifyData.tmm_medicine_name,
+                tmm_generic: modifyData.tmm_generic,
+                tmm_company: modifyData.tmm_company,
+                tmm_type: modifyData.tmm_type,
+                tmm_dosage_unit_name: '',
+                tmm_dosage: '',
+                tmm_unit: 0,
+                tmm_unit_name: '',
+                tmu_id: 0,
+                medicineUnit: medicineUnit
+              };
             }
             return item;
           });
+          dispatch(setMedicationData(updatedMedicationData));
         }
       } else {
         const updatedData = action.payload.map((e) => {
@@ -2397,7 +2462,7 @@ function TabMedicationBox() {
             return {
               key: JSON.stringify({ ...e1 }),
               value: e1.tmu_id,
-              label: <>{e1.tmu_title}</>,
+              label: String(e1.tmu_title || ""),
             };
           });
 
@@ -2437,7 +2502,7 @@ function TabMedicationBox() {
         if (doseCalculatorDrawer) {
           const modifyData = updatedData[0]
           const objDose = dosesList.find((e1) => e1.medicine_id == modifyData.tmm_id)
-          medicationLibrary.push({
+          const newMedicine = {
             ...modifyData,
             tmm_dosage_unit_name: "",
             tmm_dosage: '',
@@ -2453,14 +2518,14 @@ function TabMedicationBox() {
             medicine_name: modifyData.tmm_medicine_name,
             medicine_generic_name: modifyData.tmm_generic,
             exist: dosesList.some((e1) => e1.medicine_id == modifyData.tmm_id) ? true : false
-          });
+          };
+          setMedicationLibrary(prev => [...prev, newMedicine]);
         }
       }
       if (doseCalculatorDrawer) {
-        setMedicationLibrary((prev) => [...prev]);
         setSearchMLQuery("");
       } else {
-        setMedicationData((prev) => [...prev]);
+        // medicationData already dispatched via immutable updates above
         const childData = await innerMedication(selectedIndex)
         setChildDrawerData(childData);
       }
@@ -2484,7 +2549,8 @@ function TabMedicationBox() {
                 <i className="icon-Cross fs-3"></i>
               </Button>
               <div className="text-truncate title-common fontroboto">
-                {`${addCustom?.tmm_id ? 'Edit' : 'Add'} Custom Medicine`}
+                {/* Always coerce to string */}
+                {String(`${addCustom?.tmm_id ? 'Edit' : 'Add'} Custom Medicine`)}
               </div>
             </div>
           </div>
@@ -2564,27 +2630,6 @@ function TabMedicationBox() {
               <div className="medicine-templates h-100 p-3">
                 <Input className="popinput" placeholder="Search Generic Name" onChange={onSearchGeneric} value={genericQuery} prefix={<i className='icon-search me-2'></i>} allowClear />
                 <div className="mt-3">
-                  {/* {genericList.length > 0 ? (
-                    genericList.map((item, i) => {
-                      return (
-                        <Button
-                          key={i}
-                          type="text"
-                          style={{ width: item.tmm_generic.length > 26 && "250px" }}
-                          className={`${item.tmm_generic.length > 26 && "chips-custom-break"} btn btn-primary2 chips-custom mb-14 me-14`}
-                          onClick={() => onSelectGeneric(item)}>
-                          {item.tmm_generic}
-                        </Button>
-                      )
-                    })
-                  ) : (
-                    genericQuery.length > 0 &&
-                    <div className="text-center">
-                      <img className="mb-4" src={noRecordFound} alt="No Result Found" />
-                      <div className="title-common fontroboto mb-3">Sorry ! No results found</div>
-                      <div className="fontroboto text-greycolor">The generic name is currently not listed in our database <br /> We will add it soon. </div>
-                    </div>
-                  )} */}
                   {[...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).map((item, i) => {
                     return (
                       i === [...genericList, { tmm_generic: genericQuery }].filter(e => e.tmm_generic).length - 1 && genericQuery.length > 0 ? (
@@ -2707,7 +2752,7 @@ function TabMedicationBox() {
   ];
 
   const pillUpChange = (checked) => {
-    setPillupSwitch(checked)
+    dispatch(setPillupSwitch(checked))
   };
 
   return (
@@ -2717,7 +2762,7 @@ function TabMedicationBox() {
           <div className="d-flex align-items-center">
             <img className="me-2" src={Medicationicon} alt="Medication" />
             <div className="title-common">{isPillUpAccessableFromGB ? 'Meds' : 'Medications'} (Rx)</div>
-            {isPillUpAccessableFromGB &&
+            {isPillUpAccessableFromGB && isEditable &&
               <div ref={tourRef} className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center" style={{ backgroundColor: 'rgb(226, 226, 234, 0.2)' }}>
                 {(() => {
                   const decodedToken = getDecodedToken();
@@ -2740,7 +2785,7 @@ function TabMedicationBox() {
             }
           </div>
 
-          <div className="d-flex align-items-center">
+          {isEditable && <div className="d-flex align-items-center">
             {(profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) && (
               <button
                 className="btn d-flex align-items-center btn-text"
@@ -2783,7 +2828,7 @@ function TabMedicationBox() {
             <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={medicationData.length > 0 ? false : true}>
               <i className="icon-eraser1 me-2"></i> {!isPillUpAccessableFromGB && <span>Clear</span>}
             </button>
-          </div>
+          </div>}
           <Drawer
             title="Medication Templates"
             placement="right"
@@ -2819,7 +2864,7 @@ function TabMedicationBox() {
             {addCustom ? ADD_MEDICINE_DATA : CHILD_DRAWER_DATA}
           </Drawer>
         </div>
-        <div className="p-14 py-0">
+        {isEditable && <div className="p-14 py-0">
           <div
             className="inputheight38 border rounded-10px d-flex align-items-center"
             onClick={handleDrawerParent}
@@ -2829,7 +2874,7 @@ function TabMedicationBox() {
               Search Medicines by Name
             </span>
           </div>
-        </div>
+        </div>}
         <Drawer
           closeIcon={false}
           placement="right"
@@ -2845,7 +2890,7 @@ function TabMedicationBox() {
             />
           )}
         </Drawer>
-        <div
+        {!hideFrequentlyUsedMeds ? <div
           className="d-flex flex-wrap p-14-pb0 overflow-hidden"
           style={{ maxHeight: "114px" }}
         >
@@ -2873,7 +2918,7 @@ function TabMedicationBox() {
                   </div>
                 );
               })}
-        </div>
+        </div>: null}
         {DELETE_MODAL}
         {REMOVE_ALL_ROWS}
         {/* Dose Calc Drawer */}

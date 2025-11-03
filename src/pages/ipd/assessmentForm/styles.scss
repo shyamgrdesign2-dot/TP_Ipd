@@ -1,0 +1,699 @@
+$theme-black: #454551;
+$panel-top: #f8f4ff;
+$panel-btm: #fbfaff;
+$border: rgba(80, 56, 160, 0.12);
+$text: #232336;
+$muted: #6f6b88;
+
+.ipd-customization-drawer {
+  .ant-drawer-title {
+    font-size: 18px !important;
+    font-weight: 600;
+    color: $theme-black !important;
+  }
+}
+
+.ipd-generic-form-container {
+  .toolbar-container {
+    justify-content: flex-end !important;
+  }
+  #cw-panel-additional-notes,
+  #cw-panel-functional-assessment,
+  #cw-panel-treatment-plan {
+    margin-top: 16px !important;
+  }
+  .cw.cw--closed .cw__body#cw-panel-functional-assessment {
+    margin-top: 0 !important;
+  }
+  .cw.cw--closed .cw__body#cw-panel-additional-notes {
+    margin-top: 0 !important;
+  }
+  .cw.cw--closed .cw__body#cw-panel-treatment-plan {
+    margin-top: 0 !important;
+  }
+  .patient-details-menu-container {
+    .sections {
+      gap: 0 !important;
+    }
+    .patient-section {
+      padding: 24px 16px 0 !important;
+    }
+  }
+  .ipdaf-medication-box-container {
+    background: var(--backgroundColor, #fff);
+    border-radius: 16px;
+    box-shadow: 0px 0px 6px 0px #00000005;
+    padding: 6px 6px 14px;
+    margin: 24px 0;
+  }
+  .ipdaf-medication-box-container-readonly {
+    margin: 24px;
+    padding: 6px 6px 0;
+    border: none !important;
+  }
+  textarea.ant-input.css-dev-only-do-not-override-kbg4zp.ant-input-outlined.notesinput.border-0.h-100.align-self-center,
+  .ant-select-selector {
+    background-color: #ffffff !important;
+  }
+  .ipdaf-generic-card-container {
+    padding: 12px;
+    // margin-bottom: 24px;
+    // margin-top: 24px;
+    box-shadow: 0px 0px 12px 0px #00000003;
+    .generic-card__icon {
+      width: 25px;
+      height: 25px;
+    }
+    .generic-card__title {
+      color: #4b4ad5 !important;
+    }
+    table {
+      border: 1px solid #f1f1f5 !important;
+      border-radius: 14px !important;
+      border-collapse: unset !important;
+      border-spacing: 0 !important;
+      margin-bottom: 24px;
+    }
+    td,
+    span {
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      line-height: normal !important;
+    }
+    .ant-collapse-expand-icon {
+      display: none !important;
+    }
+    .ant-collapse-content-box {
+      background-color: #fff !important;
+    }
+  }
+  .ipdaflr-readyonly {
+    margin-bottom: 24px;
+    margin-top: 24px;
+  }
+  .ipdaf-readable-renderer {
+  }
+  .ipdaf-obstetrics-container {
+    margin-top: 14px;
+    .ant-table-content {
+      table {
+        border: none !important;
+        margin-bottom: 0;
+        border-radius: 14px !important;
+        border-top-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
+        overflow: hidden;
+        tr,
+        th,
+        td {
+          border-radius: 0 !important;
+        }
+      }
+    }
+    .st__section {
+      table {
+        border-bottom: 1px solid #f1f1f5 !important;
+        border-radius: 0 !important;
+      }
+    }
+  }
+  .ipdaf-padding-0 {
+    padding: 0 !important;
+  }
+  .ipdaf-gynec-readable {
+    background-color: unset !important;
+    div,
+    span,
+    p,
+    table,
+    tr,
+    td,
+    th {
+      background-color: unset !important;
+    }
+    * {
+      background-color: unset !important;
+    }
+  }
+  .ipdaf-margin-0 {
+    margin: 0 !important;
+  }
+  .collapsible-wrapper-class {
+    background: #f9f7fd;
+    .collapsible-wrapper-abs-header-shadow {
+      background: linear-gradient(
+        180deg,
+        #ffffff 0%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      width: 100%;
+    }
+    .cw__body {
+      padding: 0px !important;
+    }
+    .cw {
+      box-shadow: none !important;
+      &:hover {
+        box-shadow: none !important;
+      }
+    }
+  }
+  .collapsible-wrapper-class-readonly {
+    .rich-text-editor-wrapper {
+      gap: 0;
+      margin: 0 20px 24px;
+      border-radius: 10px;
+
+      background: #fbfafd !important;
+      background-color: #fbfafd !important;
+      box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01) !important;
+      *:not(thead):not(th):not(tr):not(td):not(th > div):not(th > div > div) {
+        background: #fbfafd !important;
+        background-color: #fbfafd !important;
+      }
+      th > div {
+        background: rgb(241, 241, 245) !important;
+        background-color: rgb(241, 241, 245) !important;
+      }
+      .ant-collapse-content,
+      .ant-collapse-content-active {
+        background: #fbfafd !important;
+        background-color: #fbfafd !important;
+      }
+    }
+    .ipd-pmh-wrapper-class,
+    .ipd-gynec-history-wrapper {
+      background-color: #fff;
+    }
+    &:hover {
+      box-shadow: none !important;
+    }
+  }
+  .ipd-wrapper-class-readonly {
+    background: #fbfafd !important;
+    background-color: #fbfafd !important;
+    box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01);
+    .rich-text-editor-wrapper {
+      background: #fbfafd !important;
+      background-color: #fbfafd !important;
+    }
+  }
+
+  
+  .ipd-custom-module-container {
+    background-color: #fff;
+    padding: 0 24px 18px;
+  }
+}
+
+.ipd-assessments-readable-container {
+  border-radius: 24px;
+  padding: 30px 30px 184px;
+  border: 1px solid #eaecf0;
+  gap: 18px;
+  display: flex;
+  flex-direction: column;
+
+  .rich-text-editor-container {
+    border: none !important;
+    margin: 0 28px !important;
+    .slate-editable-wrapper {
+      margin-bottom: 0;
+      min-height: auto;
+      margin-top: 0;
+      max-height: fit-content;
+      p:has([data-slate-length="0"]) {
+        display: none !important;
+      }
+    }
+  }
+}
+
+.ipd-gynec-history-wrapper.rich-text-editor-wrapper {
+  gap: 0 !important;
+  * {
+    font-family: Poppins !important;
+    letter-spacing: 0;
+  }
+}
+.ipd-lab-params-container {
+  table {
+    border: 1px solid #f1f1f5 !important;
+    border-radius: 14px !important;
+    border-collapse: unset !important;
+    border-spacing: 0 !important;
+    background-color: #fafafb !important;
+    th {
+      background-color: #fafafb !important;
+      border-radius: 0 !important;
+    }
+  }
+}
+.rich-text-editor-wrapper-header-title {
+  font-weight: 500 !important;
+}
+.ipd-adm-assess-container-readable {
+  .rich-text-editor-wrapper-header-title {
+    font-weight: 600 !important;
+  }
+}
+.ipd-fn-as-readonly {
+  margin-bottom: 24px;
+  background-color: #fbfafd !important;
+  box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01);
+  .ipdaf-assessment-readonly {
+    padding: 0 41px;
+  }
+}
+.ipdaf-vitals-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+  > img {
+    width: 24px;
+    height: 24px;
+  }
+  > div {
+    color: #454551;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+.ipdaf-vitals-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  > label {
+    max-width: calc(33% - 28px);
+    flex-basis: calc(33% - 28px);
+    margin-right: 28px;
+  }
+  .cw__body {
+    padding: 0 !important;
+  }
+  .cw__bodyInner {
+    margin-top: 0 !important;
+  }
+}
+
+.ipdaf-vitals-readonly {
+  font-family: Poppins;
+  font-size: 14px;
+  color: #454551;
+  font-weight: normal;
+  line-height: 1.5;
+  padding: 0 34px;
+
+  .vital-label {
+    font-weight: 600;
+  }
+
+  .separator {
+    color: #454551;
+    margin: 0 4px;
+  }
+}
+
+.examinations-parent-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  position: relative;
+  width: 100%;
+  > div {
+    max-width: calc(50% - 28px);
+    flex-basis: calc(50% - 28px);
+    margin-right: 28px;
+  }
+
+  .examination-container-header {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    gap: 4px;
+    @media (max-width: 1100px) {
+      &[data-testid="examination-radio-neurological_psychosocial"] {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  }
+
+  .examination-rich-container {
+    border: 1px solid #e2e2ea80;
+    width: 100% !important;
+  }
+
+  .examination-header {
+    font-size: 14px;
+    color: #171725;
+    font-weight: 500;
+  }
+
+  .exam-radio-text {
+    .ant-radio-label {
+      font-size: 14px;
+      color: #454551;
+      font-weight: 400;
+    }
+  }
+}
+
+.ipdaf-examination-readonly {
+  font-family: Poppins;
+  font-size: 14px;
+  color: #454551;
+  font-weight: normal;
+  line-height: 1.5;
+  padding: 12px 0;
+
+  ul {
+    list-style-type: disc;
+    margin: 0;
+    padding-left: 20px;
+    margin-left: 32px;
+    .ipdaf-exam-read-notes-container {
+      display: flex;
+      justify-content: flex-start;
+      align-items: start;
+      margin-top: 4px;
+      gap: 4px;
+    }
+    .ipdaf-exam-read-notes-heading {
+      font-size: 14px;
+      font-weight: 400;
+      color: #454551;
+      margin-left: 20px;
+    }
+    .rich-text-editor-container {
+      margin: 0 !important;
+      .slate-editable-wrapper {
+        margin: 0 !important;
+      }
+    }
+  }
+
+  .examination-item {
+    margin-bottom: 8px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .examination-label {
+    font-weight: 600;
+  }
+
+  .examination-note {
+    color: #666;
+  }
+  .rich-text-editor-container {
+    border: none !important;
+    margin: 0 28px !important;
+    .slate-editable-wrapper {
+      margin-bottom: 0;
+      min-height: auto;
+      margin-top: 0;
+      p:has([data-slate-length="0"]) {
+        display: none !important;
+      }
+    }
+  }
+}
+
+.assessments-parent-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.ipdaf-assessment-readonly {
+  font-family: Poppins;
+  font-size: 14px;
+  color: #454551;
+  font-weight: normal;
+  line-height: 1.5;
+  padding: 12px 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+
+  .assessment-label {
+    font-weight: 600;
+  }
+
+  .assessment-note {
+    font-style: italic;
+    color: #666;
+  }
+
+  .separator {
+    color: #454551;
+    margin: 0 4px;
+  }
+}
+
+.assessment-card {
+  border: 1px solid $border;
+  border-radius: 16px;
+  padding: 16px;
+  background-color: var(--backgroundColor, #fff);
+}
+
+.assessment-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.assessment-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: $text;
+}
+
+.assessment-radio-group {
+  display: grid;
+  gap: 12px;
+
+  .ant-radio-wrapper {
+    color: $muted;
+    font-size: 16px;
+  }
+  .ant-radio-label {
+    font-size: 14px;
+    color: #454551;
+    padding: 0 !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .assessments-parent-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.generic-card-container {
+  margin-bottom: 20px;
+}
+
+.big-ring-radio {
+  --radio-size: 16px;
+  --radio-ring: 2px;
+  --radio-dot: 7px;
+  --radio-primary: #4b4ad5;
+  --radio-unchecked: #8a8a8a;
+
+  .ant-radio .ant-radio-inner {
+    --radio-ring: 1px;
+    width: var(--radio-size) !important;
+    height: var(--radio-size) !important;
+    border-radius: 50% !important;
+    border-width: var(--radio-ring) !important;
+    border-color: var(--radio-unchecked) !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .ant-radio-wrapper:hover .ant-radio:not(.ant-radio-checked) .ant-radio-inner {
+    border-color: var(--radio-unchecked) !important;
+  }
+
+  .ant-radio .ant-radio-inner::after {
+    width: var(--radio-dot) !important;
+    height: var(--radio-dot) !important;
+    border-radius: 50% !important;
+    top: 50% !important;
+    left: 50% !important;
+    margin: 0 !important;
+    transform: translate(-50%, -50%) scale(0) !important;
+    opacity: 0 !important;
+    background: var(--radio-primary) !important;
+  }
+
+  .ant-radio-checked .ant-radio-inner {
+    --radio-ring: 2px !important;
+    border-width: var(--radio-ring) !important;
+    border-color: var(--radio-primary) !important;
+  }
+  .ant-radio-checked .ant-radio-inner::after {
+    transform: translate(-50%, -50%) scale(1) !important;
+    opacity: 1 !important;
+  }
+
+  .ant-radio-checked .ant-radio-inner::after {
+    transition: transform 20ms ease-out, opacity 20ms ease-out !important;
+  }
+
+  .ant-radio-wrapper {
+    gap: 8px !important;
+    cursor: pointer !important;
+  }
+}
+.teab-pop-header {
+  input,
+  select {
+    font-family: Poppins !important;
+  }
+  button > span {
+    color: #fff !important;
+  }
+}
+
+.patient-details-container {
+  overflow: hidden !important;
+  .content-card {
+    border: none !important;
+    align-items: flex-start !important;
+  }
+}
+
+.customise-form-ipd-container {
+  .ant-drawer-title {
+    font-size: 18px !important;
+  }
+  .customise-form-ipd-container-inner {
+    padding: 24px 34px;
+    .formClusters {
+      border-radius: 24px;
+    }
+  }
+}
+
+.examination-rich-readonly-container {
+  background: #fbfafd !important;
+  box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.01);
+  border: none !important;
+}
+.ipd-success-msg-bar-container {
+  color: rgba(255, 255, 255, 1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
+  span {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 1) !important;
+  }
+}
+
+.ipd-custom-message {
+  .ant-message-notice-content {
+    background: rgba(23, 23, 37, 1) !important;
+    color: rgba(255, 255, 255, 1) !important;
+    border-radius: 8px !important;
+    box-shadow: 0px 4px 12px 0px rgba(185, 185, 185, 0.25) !important;
+  }
+
+  .ant-message-custom-content {
+    color: rgba(255, 255, 255, 1) !important;
+  }
+}
+
+.ipd-fas-refphy-container {
+  box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.02);
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  .referred-to-physiotherapy-name {
+    margin: 6px 40px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #454551;
+  }
+  .refphy-label-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px;
+    .refphy-label {
+      font-size: 16px;
+      font-weight: 500;
+      color: #454551;
+    }
+    img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+  }
+  .autocomplete-custom.ant-select .ant-select-selector {
+    padding: 8px !important;
+  }
+  .autocomplete-custom.ant-select .ant-select-selection-placeholder {
+    font-family: "Poppins" !important;
+    font-size: 14px !important;
+  }
+}
+
+.ipd-wrapper-class-readonly {
+  .refphy-label-container {
+    gap: 16px;
+  }
+}
+.filled-on-date {
+  span {
+    color: rgba(186, 125, 233, 1) !important;
+  }
+}
+
+.ipdaf-medication-box-container-readonly {
+  textarea.ant-input.css-kbg4zp.ant-input-outlined.notesinput {
+    background: #fbfafd !important;
+    background-color: #fbfafd !important;
+  }
+}
+
+.ipdaf-vitals-main-container {
+  padding: 20px !important;
+  border-radius: 16px;
+  // margin-top: 24px;
+  // margin-bottom: 24px;
+  box-shadow: 0px 0px 6px 0px #00000005;
+  background-color: var(--backgroundColor, #fff);
+  &-readonly {
+    margin-left: 20px;
+    margin-right: 20px;
+    background-color: #fbfafd !important
+  }
+}

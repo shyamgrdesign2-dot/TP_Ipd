@@ -1,0 +1,25 @@
+/* interaction-gate.scss */
+
+/* Container establishes stacking context so overlay can eat events */
+.ig { position: relative; }
+
+/* Deep-disable all descendants: no click, no hover, no drag/select */
+.ig.is-disabled * {
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-drag: none !important;
+}
+
+/* Invisible shield that prevents click-through to content behind */
+.ig__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: auto;     /* must capture events */
+  background: transparent;  /* invisible */
+  cursor: not-allowed;
+}
+
+/* Optional visual hint:
+.ig.is-disabled { filter: grayscale(.05) opacity(.9); }
+*/

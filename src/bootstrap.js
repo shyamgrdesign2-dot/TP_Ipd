@@ -1,0 +1,34 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+import './index.css';
+import './assets/scss/app.scss';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import * as Sentry from "@sentry/react";
+
+Sentry.init({
+  dsn: "https://e217b496cfe26ddc7d834f74ad8ff89c@o4509909105508352.ingest.us.sentry.io/4509910041231360",
+  sendDefaultPii: true,
+  environment: process.env.REACT_APP_ENV,
+  beforeSend(event) {
+    // Filter out development errors or specific error types
+    if (event.environment === "dev") return null;
+    return event;
+  },
+});
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+    <BrowserRouter basename={"/"}>
+      <App />
+    </BrowserRouter>
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();

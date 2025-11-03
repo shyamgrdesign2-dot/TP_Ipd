@@ -23,7 +23,7 @@ import { getDecodedToken } from "../../utils/localStorage";
 import { GB_APOLLO_DISABLE_FEATURE, GB_ZYDUS_USER } from "../../utils/constants";
 import { env } from "../../EnvironmentConfig";
 
-function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
+function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList, investigationData: propInvestigationData, setInvestigationData: propSetInvestigationData }) {
 
     const {
         parentOptionsList,
@@ -36,7 +36,9 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
 
     const { state } = useLocation();
     const { patient_data } = state;
-    const { investigationData, setInvestigationData } = useContext(CashManagerContext);
+    const contextData = useContext(CashManagerContext);
+    const investigationData = propInvestigationData ?? contextData?.investigationData ?? [];
+    const setInvestigationData = propSetInvestigationData ?? contextData?.setInvestigationData ?? (() => {});
 
     const [searchChildQuery, setSearchChildQuery] = useState("");
     const [childSearchOptions, setChildSearchOptions] = useState([]);
@@ -72,7 +74,7 @@ function TabInvestigationSearch({ passIndex, onClose, ddxOptionsList }) {
             });
         });
         if (searchChildQuery.length > 0) {
-            searchChildQuery && childOptionsList.findIndex(e => e.investigation_name?.toLowerCase()?.trim() == searchChildQuery?.toLowerCase()?.trim()) === -1 && tokenData?.hospital_business_id != env.zydus_business_id && !isZydusUserAccessableFromGB && !isApolloHosBusinessIdAccessableFromGB &&
+            searchChildQuery && childOptionsList.findIndex(e => e.investigation_name?.toLowerCase()?.trim() == searchChildQuery?.toLowerCase()?.trim()) === -1 && (propInvestigationData ? true : tokenData?.hospital_business_id != env.zydus_business_id && !isZydusUserAccessableFromGB && !isApolloHosBusinessIdAccessableFromGB) &&
                 data.push({
                     key: JSON.stringify({
                         unique_id: uuidv4(),

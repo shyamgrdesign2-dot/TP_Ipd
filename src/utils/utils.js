@@ -2,7 +2,12 @@ import moment from "moment";
 
 import config from "../config";
 import { message } from "antd";
-import { MESSAGE_KEY, NEO_NATOLOGISTS_DP_ID, PAEDIATRICS_DP_ID, SNAP_RX_TOKENS_STORAGE_KEY } from "../utils/constants";
+import {
+  MESSAGE_KEY,
+  NEO_NATOLOGISTS_DP_ID,
+  PAEDIATRICS_DP_ID,
+  SNAP_RX_TOKENS_STORAGE_KEY,
+} from "../utils/constants";
 import { browserName, deviceDetect, isBrowser } from "react-device-detect";
 import html2pdf from "html2pdf.js";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
@@ -12,7 +17,11 @@ import imageCompression from "browser-image-compression";
 import numeral from "numeral";
 import packageJson from "../../package.json";
 import { EVENTS } from "./events.js";
-import { AISENSY_SCRIPT_CONTAINER,AISENSY_SCRIPT_ID,AISENSY_SCRIPT_SRC } from "../utils/constants";
+import {
+  AISENSY_SCRIPT_CONTAINER,
+  AISENSY_SCRIPT_ID,
+  AISENSY_SCRIPT_SRC,
+} from "../utils/constants";
 import { env } from "../EnvironmentConfig.js";
 import { uploadDocsToAzure } from "../pages/medicalRecords/service.js";
 // export const validateEmail = (email) => {
@@ -30,7 +39,7 @@ export const aisensybotInjection = (isLoginFlow) => {
     if (existingScript) {
       document.body.removeChild(existingScript);
     }
-    
+
     // Also remove any injected widget container/button
     const widget = document.querySelector(AISENSY_SCRIPT_CONTAINER);
     if (widget) widget.remove();
@@ -147,13 +156,13 @@ export const capitalizeFirstLetter = (text) => {
 };
 
 export const capitalizeFirstWordOnly = (text) => {
-  if (!text) return ""; 
-  const words = text.split(' ');
+  if (!text) return "";
+  const words = text.split(" ");
   if (words.length === 0) return "";
   const firstWord = words[0].charAt(0).toUpperCase() + words[0].slice(1);
   const remainingWords = words.slice(1);
-  
-  return [firstWord, ...remainingWords].join(' ');
+
+  return [firstWord, ...remainingWords].join(" ");
 };
 export const capitalize = (str, lower = false) =>
   (lower ? str.toLowerCase() : str).replace(/(?:^|\s|["'([{])+\S/g, (match) =>
@@ -285,8 +294,15 @@ export const medicine_freq_dosage_format = (freqDosage, is_dosage_decimal) => {
 export const calculateDose = (dosage, weight, concentration, tmmType) => {
   const dose =
     (parseFloat(dosage) * parseFloat(weight)) / parseFloat(concentration);
-    console.log(dose.toFixed(1))
-  return !isNaN(dose) ? [8, 11, 23, 20, 34, 27, 9, 33, 21, 1, 17, 35, 12, 40, 10, 18, 31, 36, 2, 19, 14, 30, 15, 13, 3, 16]?.includes(parseInt(tmmType)) ? Math.round(dose.toFixed(1)) : dose.toFixed(1).replace(/\.0$/, "") : "";
+  console.log(dose.toFixed(1));
+  return !isNaN(dose)
+    ? [
+        8, 11, 23, 20, 34, 27, 9, 33, 21, 1, 17, 35, 12, 40, 10, 18, 31, 36, 2,
+        19, 14, 30, 15, 13, 3, 16,
+      ]?.includes(parseInt(tmmType))
+      ? Math.round(dose.toFixed(1))
+      : dose.toFixed(1).replace(/\.0$/, "")
+    : "";
 };
 
 export const formatAmount = (amount) => {
@@ -548,6 +564,11 @@ export const getFormattedDate = (date) => {
   // const dateObj = new Date(date + " UTC");
   // return moment(dateObj).format("YYYY-MM-DD");
   return moment(date).format("YYYY-MM-DD");
+};
+
+export const formatDateToShortMonthYear = (date) => {
+  if (!date) return "";
+  return moment(date).format("DD MMM’YY").replace("'20", "'");
 };
 
 const getTime = (date) => {
@@ -875,6 +896,24 @@ export const trackEvent = (eventName, attributes) => {
   window.Moengage.track_event(eventName, attributes);
 };
 
+export const trackMoEngageEvent = (eventName, eventParams = {}, commonData = {}) => {
+  try {
+    const finalAttributes = {
+      ...(commonData || {}),
+      ...(eventParams || {}),
+    };
+    
+    if (window.Moengage && typeof window.Moengage.track_event === 'function') {
+      window.Moengage.track_event(eventName, finalAttributes);
+      console.log(`MoEngage Event Tracked: ${eventName}`, finalAttributes);
+    } else {
+      console.warn('MoEngage is not available or track_event function not found');
+    }
+  } catch (error) {
+    console.error('Error tracking MoEngage event:', error);
+  }
+};
+
 export const getIndianLanguageFont = (text, defaultFont = "Roboto") => {
   // Devanagari (Hindi, Marathi, Sanskrit, Nepali, etc.)
   if (/[\u0900-\u097F]/.test(text)) {
@@ -948,127 +987,140 @@ export const isValidGST = (gstNumber) => {
 };
 
 export const getRxTitle = (LanguageId, title) => {
-    const translations = {
-        1: { // English
-            "S.NO": 'S.NO',
-            "MEDICINE": 'MEDICINE',
-            "DOSE": 'DOSE',
-            "DURATION": 'DURATION',
-            "QTY": 'QTY',
-            "FREQUENCY": 'FREQUENCY',
-            "NOTES": 'NOTES',
-        },
-        2: { // Gujarati
-            "S.NO": 'સંખ્યા',
-            "MEDICINE": 'દવાઓ',
-            "DOSE": 'માત્રા',
-            "DURATION": 'સમયગાળો',
-            "QTY": 'જથ્થો',
-            "FREQUENCY": 'આવર્તન',
-            "NOTES": 'નૉૅધ',
-        },
-        3: { // Hindi
-            "S.NO": 'संख्या',
-            "MEDICINE": 'दवाइयाँ',
-            "DOSE": 'खुराक',
-            "DURATION": 'अवधि',
-            "QTY": 'मात्रा',
-            "FREQUENCY": 'आवृत्ति',
-            "NOTES": 'टिप्पणियाँ',
-        },
-        4: { // Marathi
-            "S.NO": 'अ.क्र.',
-            "MEDICINE": 'औषधे',
-            "DOSE": 'डोस',
-            "DURATION": 'कालावधी',
-            "QTY": 'प्रमाण',
-            "FREQUENCY": 'FREQUENCY',
-            "NOTES": 'नोट्स',
-        },
-        5: { // Telugu 
-            "S.NO": 'S.NO',
-            "MEDICINE": 'MEDICINE',
-            "DOSE": 'DOSE',
-            "DURATION": 'DURATION',
-            "QTY": 'QTY',
-            "FREQUENCY": 'FREQUENCY',
-            "NOTES": 'NOTES',
-        },
-        6: { // Kannada
-            "S.NO": 'ಸಂಖ್ಯೆ',
-            "MEDICINE": 'ಔಷಧಿಗಳು',
-            "DOSE": 'ಡೋಸ್',
-            "DURATION": 'ಅವಧಿ',
-            "QTY": 'ಪ್ರಮಾಣ',
-            "FREQUENCY": 'ಆವರ್ತನ',
-            "NOTES": 'ಟಿಪ್ಪಣಿಗಳು',
-        },
-        7: { // Urdu
-            "S.NO": 'S.NO',
-            "MEDICINE": 'MEDICINE',
-            "DOSE": 'DOSE',
-            "DURATION": 'DURATION',
-            "QTY": 'QTY',
-            "FREQUENCY": 'FREQUENCY',
-            "NOTES": 'NOTES',
-        },
-        8: { // Punjabi
-            "S.NO": 'S.NO',
-            "MEDICINE": 'MEDICINE',
-            "DOSE": 'DOSE',
-            "DURATION": 'DURATION',
-            "QTY": 'QTY',
-            "FREQUENCY": 'FREQUENCY',
-            "NOTES": 'NOTES',
-        },
-        9: { // Malayalam
-            "S.NO": 'S.NO',
-            "MEDICINE": 'MEDICINE',
-            "DOSE": 'DOSE',
-            "DURATION": 'DURATION',
-            "QTY": 'QTY',
-            "FREQUENCY": 'FREQUENCY',
-            "NOTES": 'NOTES',
-        },
-        10: { // Tamil
-            "S.NO": 'எண்',
-            "MEDICINE": 'மருந்துகள்',
-            "DOSE": 'மருந்தளவு',
-            "DURATION": 'கால அளவு',
-            "QTY": 'மொத்த அளவு',
-            "FREQUENCY": 'அதிர்வெண்',
-            "NOTES": 'குறிப்புகள்',
-        },
-        11: { // Assamese
-            "S.NO": 'ক্ৰমিক নম্বৰ',
-            "MEDICINE": 'ঔষধ',
-            "DOSE": 'পৰিমাণ',
-            "DURATION": 'সময়কাল',
-            "QTY": 'পৰিমাণ',
-            "FREQUENCY": 'ঘনত্ব',
-            "NOTES": 'টোকা',
-        },
-        12: { // Bengali
-            "S.NO": 'ক্র.সংখ্যা',
-            "MEDICINE": 'ওষুধ',
-            "DOSE": 'ডোজ',
-            "DURATION": 'সময়কাল',
-            "QTY": 'পরিমাণ',
-            "FREQUENCY": 'ফ্রিকোয়েন্সি',
-            "NOTES": 'নোট',
-        },
-        13: { // Odia
-            "S.NO": 'କ୍ରମିକ ସଂଖ୍ୟା',
-            "MEDICINE": 'ଔଷଧ',
-            "DOSE": 'ଡୋଜ',
-            "DURATION": 'ସମୟ',
-            "QTY": 'ପରିମାଣ',
-            "FREQUENCY": 'ସମୟ ଅନୁସୂଚୀ',
-            "NOTES": 'ଟିପ୍ପଣୀ',
-        }
-    };
-    return translations?.[parseInt(LanguageId)]?.[title] || title;
-}
+  const translations = {
+    1: {
+      // English
+      "S.NO": "S.NO",
+      MEDICINE: "MEDICINE",
+      DOSE: "DOSE",
+      DURATION: "DURATION",
+      QTY: "QTY",
+      FREQUENCY: "FREQUENCY",
+      NOTES: "NOTES",
+    },
+    2: {
+      // Gujarati
+      "S.NO": "સંખ્યા",
+      MEDICINE: "દવાઓ",
+      DOSE: "માત્રા",
+      DURATION: "સમયગાળો",
+      QTY: "જથ્થો",
+      FREQUENCY: "આવર્તન",
+      NOTES: "નૉૅધ",
+    },
+    3: {
+      // Hindi
+      "S.NO": "संख्या",
+      MEDICINE: "दवाइयाँ",
+      DOSE: "खुराक",
+      DURATION: "अवधि",
+      QTY: "मात्रा",
+      FREQUENCY: "आवृत्ति",
+      NOTES: "टिप्पणियाँ",
+    },
+    4: {
+      // Marathi
+      "S.NO": "अ.क्र.",
+      MEDICINE: "औषधे",
+      DOSE: "डोस",
+      DURATION: "कालावधी",
+      QTY: "प्रमाण",
+      FREQUENCY: "FREQUENCY",
+      NOTES: "नोट्स",
+    },
+    5: {
+      // Telugu
+      "S.NO": "S.NO",
+      MEDICINE: "MEDICINE",
+      DOSE: "DOSE",
+      DURATION: "DURATION",
+      QTY: "QTY",
+      FREQUENCY: "FREQUENCY",
+      NOTES: "NOTES",
+    },
+    6: {
+      // Kannada
+      "S.NO": "ಸಂಖ್ಯೆ",
+      MEDICINE: "ಔಷಧಿಗಳು",
+      DOSE: "ಡೋಸ್",
+      DURATION: "ಅವಧಿ",
+      QTY: "ಪ್ರಮಾಣ",
+      FREQUENCY: "ಆವರ್ತನ",
+      NOTES: "ಟಿಪ್ಪಣಿಗಳು",
+    },
+    7: {
+      // Urdu
+      "S.NO": "S.NO",
+      MEDICINE: "MEDICINE",
+      DOSE: "DOSE",
+      DURATION: "DURATION",
+      QTY: "QTY",
+      FREQUENCY: "FREQUENCY",
+      NOTES: "NOTES",
+    },
+    8: {
+      // Punjabi
+      "S.NO": "S.NO",
+      MEDICINE: "MEDICINE",
+      DOSE: "DOSE",
+      DURATION: "DURATION",
+      QTY: "QTY",
+      FREQUENCY: "FREQUENCY",
+      NOTES: "NOTES",
+    },
+    9: {
+      // Malayalam
+      "S.NO": "S.NO",
+      MEDICINE: "MEDICINE",
+      DOSE: "DOSE",
+      DURATION: "DURATION",
+      QTY: "QTY",
+      FREQUENCY: "FREQUENCY",
+      NOTES: "NOTES",
+    },
+    10: {
+      // Tamil
+      "S.NO": "எண்",
+      MEDICINE: "மருந்துகள்",
+      DOSE: "மருந்தளவு",
+      DURATION: "கால அளவு",
+      QTY: "மொத்த அளவு",
+      FREQUENCY: "அதிர்வெண்",
+      NOTES: "குறிப்புகள்",
+    },
+    11: {
+      // Assamese
+      "S.NO": "ক্ৰমিক নম্বৰ",
+      MEDICINE: "ঔষধ",
+      DOSE: "পৰিমাণ",
+      DURATION: "সময়কাল",
+      QTY: "পৰিমাণ",
+      FREQUENCY: "ঘনত্ব",
+      NOTES: "টোকা",
+    },
+    12: {
+      // Bengali
+      "S.NO": "ক্র.সংখ্যা",
+      MEDICINE: "ওষুধ",
+      DOSE: "ডোজ",
+      DURATION: "সময়কাল",
+      QTY: "পরিমাণ",
+      FREQUENCY: "ফ্রিকোয়েন্সি",
+      NOTES: "নোট",
+    },
+    13: {
+      // Odia
+      "S.NO": "କ୍ରମିକ ସଂଖ୍ୟା",
+      MEDICINE: "ଔଷଧ",
+      DOSE: "ଡୋଜ",
+      DURATION: "ସମୟ",
+      QTY: "ପରିମାଣ",
+      FREQUENCY: "ସମୟ ଅନୁସୂଚୀ",
+      NOTES: "ଟିପ୍ପଣୀ",
+    },
+  };
+  return translations?.[parseInt(LanguageId)]?.[title] || title;
+};
 
 export const getDurationTitle = (LanguageId, tmm_duration_type) => {
   var tmm_duration_type = tmm_duration_type.toLowerCase();
@@ -1237,132 +1289,130 @@ export const getDurationTitle = (LanguageId, tmm_duration_type) => {
 };
 
 export const getTimeingTitle = (LanguageId) => {
+  var FetchColumn = "tmt_title";
 
-    var FetchColumn = 'tmt_title';
+  if (LanguageId == 1) {
+    FetchColumn = "tmt_title";
+  } else if (LanguageId == 2) {
+    FetchColumn = "tmt_gujarati";
+  } else if (LanguageId == 3) {
+    FetchColumn = "tmt_hindi";
+  } else if (LanguageId == 4) {
+    FetchColumn = "tmt_marathi";
+  } else if (LanguageId == 6) {
+    FetchColumn = "tmt_kannada";
+  } else if (LanguageId == 10) {
+    FetchColumn = "tmt_tamil";
+  } else if (LanguageId == 11) {
+    FetchColumn = "tmt_assamese";
+  } else if (LanguageId == 12) {
+    FetchColumn = "tmt_bengali";
+  } else if (LanguageId == 13) {
+    FetchColumn = "tmt_odia";
+  }
 
-    if (LanguageId == 1) {
-        FetchColumn = 'tmt_title';
-    } else if (LanguageId == 2) {
-        FetchColumn = 'tmt_gujarati';
-    } else if (LanguageId == 3) {
-        FetchColumn = 'tmt_hindi';
-    } else if (LanguageId == 4) {
-        FetchColumn = 'tmt_marathi';
-    } else if (LanguageId == 6) {
-        FetchColumn = 'tmt_kannada';
-    } else if (LanguageId == 10) {
-        FetchColumn = 'tmt_tamil';
-    } else if (LanguageId == 11) {
-        FetchColumn = 'tmt_assamese';
-    } else if (LanguageId == 12) {
-        FetchColumn = 'tmt_bengali';
-    } else if (LanguageId == 13) {
-        FetchColumn = 'tmt_odia';
-    }
-
-    return FetchColumn;
-}
+  return FetchColumn;
+};
 
 export const getFrequencyTitle = (LanguageId) => {
+  var FetchColumn = "tmf_title";
 
-    var FetchColumn = 'tmf_title';
+  if (LanguageId == 1) {
+    FetchColumn = "tmf_title";
+  } else if (LanguageId == 2) {
+    FetchColumn = "tmf_gujarati";
+  } else if (LanguageId == 3) {
+    FetchColumn = "tmf_hindi";
+  } else if (LanguageId == 4) {
+    FetchColumn = "tmf_marathi";
+  } else if (LanguageId == 6) {
+    FetchColumn = "tmf_kannada";
+  } else if (LanguageId == 10) {
+    FetchColumn = "tmf_tamil";
+  } else if (LanguageId == 11) {
+    FetchColumn = "tmf_assamese";
+  } else if (LanguageId == 12) {
+    FetchColumn = "tmf_bengali";
+  } else if (LanguageId == 13) {
+    FetchColumn = "tmf_odia";
+  }
 
-    if (LanguageId == 1) {
-        FetchColumn = 'tmf_title';
-    } else if (LanguageId == 2) {
-        FetchColumn = 'tmf_gujarati';
-    } else if (LanguageId == 3) {
-        FetchColumn = 'tmf_hindi';
-    } else if (LanguageId == 4) {
-        FetchColumn = 'tmf_marathi';
-    } else if (LanguageId == 6) {
-        FetchColumn = 'tmf_kannada';
-    } else if (LanguageId == 10) {
-        FetchColumn = 'tmf_tamil';
-    } else if (LanguageId == 11) {
-        FetchColumn = 'tmf_assamese';
-    } else if (LanguageId == 12) {
-        FetchColumn = 'tmf_bengali';
-    } else if (LanguageId == 13) {
-        FetchColumn = 'tmf_odia';
-    }
-
-    return FetchColumn;
-}
+  return FetchColumn;
+};
 
 export const getFrequencyLanguageTitles = (languageId) => {
-    const languageMap = {
-        1: 'english',
-        2: 'gujarati',
-        3: 'hindi',
-        4: 'marathi',
-        6: 'kannada',
-        10: 'tamil',
-        11: 'assamese',
-        12: 'bengali',
-        13: 'odia',
-    };
+  const languageMap = {
+    1: "english",
+    2: "gujarati",
+    3: "hindi",
+    4: "marathi",
+    6: "kannada",
+    10: "tamil",
+    11: "assamese",
+    12: "bengali",
+    13: "odia",
+  };
 
-    const frequencyTitles = {
-        english: {
-            morning: 'Morning',
-            afternoon: 'Afternoon',
-            evening: 'Evening',
-            night: 'Night'
-        },
-        gujarati: {
-            morning: 'સવારે',
-            afternoon: 'બપોર',
-            evening: 'સાંજે',
-            night: 'રાત્રે'
-        },
-        hindi: {
-            morning: 'सुबह',
-            afternoon: 'दोपहर',
-            evening: 'शाम',
-            night: 'रात'
-        },
-        marathi: {
-            morning: 'सकाळी',
-            afternoon: 'दुपारी',
-            evening: 'संध्याकाळ',
-            night: 'रात्री'
-        },
-        kannada: {
-            morning: 'ಬೆಳಗ್ಗೆ',
-            afternoon: 'ಮಧ್ಯಾಹ್ನ',
-            evening: 'ಸಂಜೆ',
-            night: 'ರಾತ್ರಿ'
-        },
-        tamil: {
-            morning: 'காலை பொழுதில்',
-            afternoon: 'மதியம்',
-            evening: 'மாலையில்',
-            night: 'இரவு'
-        },
-        assamese: {
-            morning: 'সকাল',
-            afternoon: 'বিকাল',
-            evening: 'সন্ধ্যা',
-            night: 'ৰাতি'
-        },
-        bengali: {
-            morning: 'সকাল',
-            afternoon: 'দুপুর',
-            evening: 'সন্ধ্যা',
-            night: 'রাত'
-        },
-        odia: {
-            morning: 'ସକାଳ',
-            afternoon: 'ବେଳୁଆ',
-            evening: 'ସନ୍ଧ୍ୟା',
-            night: 'ରାତି'
-        },
-    };
+  const frequencyTitles = {
+    english: {
+      morning: "Morning",
+      afternoon: "Afternoon",
+      evening: "Evening",
+      night: "Night",
+    },
+    gujarati: {
+      morning: "સવારે",
+      afternoon: "બપોર",
+      evening: "સાંજે",
+      night: "રાત્રે",
+    },
+    hindi: {
+      morning: "सुबह",
+      afternoon: "दोपहर",
+      evening: "शाम",
+      night: "रात",
+    },
+    marathi: {
+      morning: "सकाळी",
+      afternoon: "दुपारी",
+      evening: "संध्याकाळ",
+      night: "रात्री",
+    },
+    kannada: {
+      morning: "ಬೆಳಗ್ಗೆ",
+      afternoon: "ಮಧ್ಯಾಹ್ನ",
+      evening: "ಸಂಜೆ",
+      night: "ರಾತ್ರಿ",
+    },
+    tamil: {
+      morning: "காலை பொழுதில்",
+      afternoon: "மதியம்",
+      evening: "மாலையில்",
+      night: "இரவு",
+    },
+    assamese: {
+      morning: "সকাল",
+      afternoon: "বিকাল",
+      evening: "সন্ধ্যা",
+      night: "ৰাতি",
+    },
+    bengali: {
+      morning: "সকাল",
+      afternoon: "দুপুর",
+      evening: "সন্ধ্যা",
+      night: "রাত",
+    },
+    odia: {
+      morning: "ସକାଳ",
+      afternoon: "ବେଳୁଆ",
+      evening: "ସନ୍ଧ୍ୟା",
+      night: "ରାତି",
+    },
+  };
 
-    const language = languageMap[languageId] || 'english';
-    return frequencyTitles[language];
-}
+  const language = languageMap[languageId] || "english";
+  return frequencyTitles[language];
+};
 
 export const shouldMonetizationDisabled = () => {
   const monetizationDisabled = config?.tp_monetization_disabled_hospital;
@@ -1384,7 +1434,10 @@ export const shouldAppointmentAgentDisabled = () => {
   const { hospital_business_id = null } = getTokenData();
   const currentHospital = Number(hospital_business_id);
 
-  if (currentHospital && appointmentAgentDisabledArray.includes(currentHospital)) {
+  if (
+    currentHospital &&
+    appointmentAgentDisabledArray.includes(currentHospital)
+  ) {
     return true;
   }
 
@@ -1457,11 +1510,511 @@ export const clearExpiredTokensFromStorage = () => {
   }
 };
 
-export const isZydus = () => env?.ZYDUS_BUSINESS_ID === getTokenData()?.hospital_business_id;
+export const normalizeToDefault = (m, key) => {
+  if (key && m[key]) return { default: m[key] };
+  if (m?.default) return { default: m.default };
+  if (typeof m === "function") return { default: m };
+  throw new Error("Remote module does not export a React component.");
+};
+
+export const sortAssessmentFormStructure = (array) => {
+  if (!Array.isArray(array)) {
+    return [];
+  }
+
+  const sortedArray = [...array].sort((a, b) => {
+    const orderA = typeof a.order === "number" ? a.order : 0;
+    const orderB = typeof b.order === "number" ? b.order : 0;
+    return orderA - orderB;
+  });
+
+  return sortedArray.map((section) => {
+    if (Array.isArray(section.children)) {
+      return {
+        ...section,
+        children: [...section.children].sort((a, b) => {
+          const orderA = typeof a.order === "number" ? a.order : 0;
+          const orderB = typeof b.order === "number" ? b.order : 0;
+          return orderA - orderB;
+        }),
+      };
+    }
+    return section;
+  });
+};
+
+export const addOrderToAssessmentFormStructure = (array) => {
+  if (!Array.isArray(array)) {
+    return [];
+  }
+
+  return array.map((section, index) => {
+    const sectionWithOrder = {
+      ...section,
+      order: index,
+    };
+
+    if (Array.isArray(section.children)) {
+      sectionWithOrder.children = section.children.map((child, childIndex) => ({
+        ...child,
+        order: childIndex,
+      }));
+    }
+
+    return sectionWithOrder;
+  });
+};
+
+export const convertMedicationFormat = (medications) => {
+  if (!medications) return [];
+
+  // If single object is passed, convert to array
+  const medicationArray = Array.isArray(medications)
+    ? medications
+    : [medications];
+
+  return medicationArray.map((medication) => {
+    // Extract frequency and schedule from the medication object
+    let frequency = "";
+    let schedule = [];
+
+    // Convert frequency type to human readable format
+    if (medication.tmm_freq_type_name) {
+      frequency = medication.tmm_freq_type_name;
+    }
+
+    // Build schedule based on morning, afternoon, evening, night values
+    if (medication.tcm_tmm_freq_morning === "1") schedule.push("Morning");
+    if (medication.tcm_tmm_freq_afternoon === "1") schedule.push("Afternoon");
+    if (medication.tcm_tmm_freq_evening === "1") schedule.push("Evening");
+    if (medication.tcm_tmm_freq_night === "1") schedule.push("Night");
+
+    // If tmm_time_name exists, use that for schedule
+    if (medication.tmm_time_name) {
+      schedule = [medication.tmm_time_name];
+    }
+
+    return {
+      name: medication.tmm_medicine_name || "",
+      unitPerDose: medication.tmm_generic || "",
+      frequency: frequency || "Once daily", // Default to once daily if not specified
+      schedule: schedule.join(", ") || "As needed",
+      duration: medication.tmm_duration_type || "as needed",
+      notes: medication.tmm_remarks || "",
+    };
+  });
+};
+
+export const convertTemplateDataToRichText = (templateData, templateType) => {
+  if (!Array.isArray(templateData)) return [];
+  switch (templateType) {
+    case "symptoms":
+      return [
+        {
+          type: "bulleted-list",
+          children: templateData.map((item) => ({
+            type: "list-item",
+            children: [
+              {
+                text: item?.symptom_name || item?.title || item?.symptom || "",
+                bold: true,
+              },
+              {
+                text: (() => {
+                  const parts = [];
+                  if (item.since) parts.push(`since: ${item.since}`);
+                  if (item.severity) parts.push(`severity: ${item.severity}`);
+                  if (item.note) parts.push(item.note);
+                  return parts.length ? ` (${parts.join(", ")})` : "";
+                })(),
+              },
+            ],
+          })),
+        },
+      ];
+    case "medications":
+      return [
+        {
+          type: "bulleted-list",
+          children: templateData.map((item) => ({
+            type: "list-item",
+            children: [
+              {
+                text: item.medication_name || "",
+                bold: true,
+              },
+              {
+                text: (() => {
+                  const parts = [];
+                  if (item.unitPerDose) parts.push(`Dose: ${item.unitPerDose}`);
+                  if (item.frequency)
+                    parts.push(`Frequency: ${item.frequency}`);
+                  if (item.schedule) parts.push(`Schedule: ${item.schedule}`);
+                  if (item.duration) parts.push(`Duration: ${item.duration}`);
+                  if (item.notes) parts.push(`Instructions: ${item.notes}`);
+                  return parts.length ? ` (${parts.join(", ")})` : "";
+                })(),
+              },
+            ],
+          })),
+        },
+      ];
+    default:
+      return [];
+  }
+};
+
+export const mergeArraysOfObjects = (
+  array1 = [],
+  array2 = [],
+  matchKey = "title",
+  tagsKey = "tags",
+  tagMatchKey = "title"
+) => {
+  if (!Array.isArray(array1) || !Array.isArray(array2)) {
+    return Array.isArray(array1) ? array1 : Array.isArray(array2) ? array2 : [];
+  }
+
+  const array2Map = new Map();
+  array2.forEach((item) => {
+    if (item && typeof item === "object" && item[matchKey]) {
+      array2Map.set(item[matchKey], item);
+    }
+  });
+
+  const mergedArray = array1.map((item1) => {
+    if (!item1 || typeof item1 !== "object" || !item1[matchKey]) {
+      return item1;
+    }
+
+    const matchingItem2 = array2Map.get(item1[matchKey]);
+
+    if (!matchingItem2) {
+      return item1;
+    }
+
+    const mergedItem = { ...matchingItem2, ...item1 };
+
+    if (
+      tagsKey &&
+      Array.isArray(item1[tagsKey]) &&
+      Array.isArray(matchingItem2[tagsKey])
+    ) {
+      const tags1Map = new Map();
+      item1[tagsKey].forEach((tag) => {
+        if (tag && typeof tag === "object" && tag[tagMatchKey]) {
+          tags1Map.set(tag[tagMatchKey], tag);
+        }
+      });
+
+      const mergedTags = [...item1[tagsKey]];
+
+      matchingItem2[tagsKey].forEach((tag2) => {
+        if (tag2 && typeof tag2 === "object" && tag2[tagMatchKey]) {
+          if (!tags1Map.has(tag2[tagMatchKey])) {
+            mergedTags.push(tag2);
+          }
+        }
+      });
+
+      mergedItem[tagsKey] = mergedTags;
+    }
+
+    array2Map.delete(item1[matchKey]);
+
+    return mergedItem;
+  });
+
+  array2Map.forEach((item) => {
+    mergedArray.push(item);
+  });
+
+  return mergedArray;
+};
+
+export const isEmptyRichText = (richText) => {
+  return (
+    richText === undefined ||
+    !richText?.length ||
+    richText?.[0]?.children?.[0]?.text?.trim() === ""
+  );
+};
+
+export const deepMergePreserveFirst = (obj1, obj2) => {
+  const isEmpty = (value) => {
+    if (value == null) return true;
+    if (Array.isArray(value)) return value.length === 0;
+    if (typeof value === "string") return value.trim() === "";
+    return false;
+  };
+
+  if (obj1 == null && obj2 == null) return null;
+  if (obj1 == null) return obj2;
+  if (obj2 == null) return obj1;
+
+  if (
+    typeof obj1 !== "object" ||
+    obj1 === null ||
+    typeof obj2 !== "object" ||
+    obj2 === null
+  ) {
+    return isEmpty(obj2) ? obj1 : obj2;
+  }
+
+  if (obj1 instanceof Date || obj2 instanceof Date) {
+    return obj2 instanceof Date ? obj2 : obj1;
+  }
+
+  if (Array.isArray(obj1) && Array.isArray(obj2)) {
+    if (obj2.length === 0) return obj1;
+
+    if (obj1.length === 0) return obj2;
+
+    const maxLength = Math.max(obj1.length, obj2.length);
+    const result = [];
+
+    for (let i = 0; i < maxLength; i++) {
+      const val1 = i < obj1.length ? obj1[i] : undefined;
+      const val2 = i < obj2.length ? obj2[i] : undefined;
+
+      if (
+        val1 != null &&
+        val2 != null &&
+        typeof val1 === "object" &&
+        typeof val2 === "object" &&
+        !Array.isArray(val1) &&
+        !Array.isArray(val2) &&
+        !(val1 instanceof Date) &&
+        !(val2 instanceof Date)
+      ) {
+        result[i] = deepMergePreserveFirst(val1, val2);
+      } else {
+        result[i] = val2 !== undefined && !isEmpty(val2) ? val2 : val1;
+      }
+    }
+
+    return result;
+  }
+
+  if (Array.isArray(obj1) || Array.isArray(obj2)) {
+    if (Array.isArray(obj2) && obj2.length === 0) return obj1;
+    if (Array.isArray(obj1) && obj1.length === 0) return obj2;
+    return obj2;
+  }
+
+  const result = { ...obj1 };
+
+  for (const key in obj2) {
+    if (obj2.hasOwnProperty(key)) {
+      if (key in obj1) {
+        const val1 = obj1[key];
+        const val2 = obj2[key];
+
+        if (isEmpty(val2)) {
+          result[key] = val1;
+        } else if (
+          val1 != null &&
+          val2 != null &&
+          typeof val1 === "object" &&
+          typeof val2 === "object" &&
+          !Array.isArray(val1) &&
+          !Array.isArray(val2) &&
+          !(val1 instanceof Date) &&
+          !(val2 instanceof Date)
+        ) {
+          result[key] = deepMergePreserveFirst(val1, val2);
+        } else {
+          result[key] = val2;
+        }
+      } else {
+        result[key] = obj2[key];
+      }
+    }
+  }
+
+  return result;
+};
+
+// Convert patient data structure to IPD format for discharge summary
+export const convertPatientDataToIpdFormat = (patientInformation) => {
+  if (!patientInformation) return {};
+
+  return {
+    patientName: patientInformation.patientName || "",
+    patientAgeGender:
+      patientInformation.age && patientInformation.gender
+        ? `${patientInformation.age} / ${patientInformation.gender}`
+        : "",
+    contactNumber: patientInformation.contactNumber || "",
+    wardBedNumber: patientInformation.wardBedNo || "",
+    patientId: patientInformation.patientId || "",
+    admissionId: patientInformation.admissionId || "",
+    admittedOn: patientInformation.admissionDate
+      ? new Date(patientInformation.admissionDate).toLocaleDateString()
+      : "",
+    primaryConsultant: patientInformation.primaryConsultant?.name || "",
+    admitSpeciality: patientInformation.primaryConsultant?.speciality || "",
+    address: patientInformation.address || "",
+    dateOfDischarge: patientInformation.dateOfDischarge || "",
+  };
+};
+
+const calculateSurgeryDuration = (startTime, endTime) => {
+  if (!startTime || !endTime) return 0;
+
+  const startMoment = moment(startTime, "HH:mm");
+  let endMoment = moment(endTime, "HH:mm");
+
+  if (endMoment.isBefore(startMoment)) {
+    endMoment.add(1, "day");
+  }
+
+  return endMoment.diff(startMoment, "minutes");
+};
+
+const formatSurgeryTime = (minutes) => {
+  if (minutes <= 0) return "";
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (hours > 0 && mins > 0) {
+    return `${hours}hr ${mins}min`;
+  } else if (hours > 0) {
+    return `${hours}hr`;
+  } else {
+    return `${mins}min`;
+  }
+};
+
+export const convertSurgeryDataToDisplayFormat = (surgeryData) => {
+  const displayData = [];
+
+  // Surgery Details
+  if (surgeryData.surgeryDetails) {
+    const details = surgeryData.surgeryDetails;
+
+    if (details.procedureName?.length) {
+      displayData.push({
+        key: "Surgery/Procedure Name",
+        value: Array.isArray(details.procedureName)
+          ? details.procedureName?.join(", ")
+          : details.procedureName,
+      });
+    }
+
+    if (details.surgeryDate) {
+      displayData.push({
+        key: "Date Of Surgery",
+        value: details.surgeryDate,
+      });
+    }
+
+    if (details.surgeryStartTime && details.surgeryEndTime) {
+      const surgeryTimeDiff = calculateSurgeryDuration(
+        details.surgeryStartTime,
+        details.surgeryEndTime
+      );
+      const surgeryTime = formatSurgeryTime(surgeryTimeDiff);
+
+      displayData.push({
+        key: "Duration",
+        value: `${details.surgeryStartTime} - ${details.surgeryEndTime} (${surgeryTime})`,
+      });
+    }
+
+    if (details.anaesthesiaType) {
+      displayData.push({
+        key: "Anaesthesia Type",
+        value: details.anaesthesiaType,
+      });
+    }
+  }
+
+  // Surgery Team
+  if (surgeryData.surgeryTeam) {
+    const team = surgeryData.surgeryTeam;
+
+    // Combine all surgeons
+    const allSurgeons = [
+      ...(team.primarySurgeon || []),
+      ...(team.secondarySurgeon || []),
+    ];
+
+    if (allSurgeons.length) {
+      displayData.push({
+        key: "Surgeon",
+        value: allSurgeons.map((surgeon) => surgeon.name).join(", "),
+      });
+    }
+
+    if (team.anaesthesiologist?.length) {
+      displayData.push({
+        key: "Anaesthetist",
+        value: team.anaesthesiologist.map((person) => person.name).join(", "),
+      });
+    }
+
+    if (team.assistant?.length) {
+      displayData.push({
+        key: "Assistant",
+        value: team.assistant.map((person) => person.name).join(", "),
+      });
+    }
+
+    if (team.scrubNurse?.length) {
+      displayData.push({
+        key: "Scrub Nurse",
+        value: team.scrubNurse.map((person) => person.name).join(", "),
+      });
+    }
+
+    if (team.floorCirculatingNurse?.length) {
+      displayData.push({
+        key: "Floor Circulating Nurse",
+        value: team.floorCirculatingNurse
+          .map((person) => person.name)
+          .join(", "),
+      });
+    }
+  }
+
+  // Operative Notes - Special handling as requested
+  if (surgeryData.operativeNotes) {
+    const notes = surgeryData.operativeNotes;
+
+    if (notes.operativeFindings) {
+      displayData.push({
+        key: "Operative Findings",
+        value: notes.operativeFindings,
+      });
+    }
+
+    if (notes.procedures) {
+      displayData.push({
+        key: "Procedure",
+        value: notes.procedures,
+      });
+    }
+
+    if (notes.additionalNotes) {
+      displayData.push({
+        key: "Additional Notes",
+        value: notes.additionalNotes,
+      });
+    }
+  }
+
+  return displayData;
+};
+
+export const isZydus = () =>
+  env?.ZYDUS_BUSINESS_ID === getTokenData()?.hospital_business_id;
 
 export const isVoiceRxFree = () => {
-  return (isZydus() && new Date(env?.zydus_voice_rx_expiry_date) > new Date()) || env?.FREE_VOICE_RX_APOLLO_USER_IDS?.includes(getTokenData()?.user_id);
-}
+  return (
+    (isZydus() && new Date(env?.zydus_voice_rx_expiry_date) > new Date()) ||
+    env?.FREE_VOICE_RX_APOLLO_USER_IDS?.includes(getTokenData()?.user_id)
+  );
+};
 
 // Function to determine supported MIME types for MediaRecorder in the current browser
 export const getSupportedMimeType = () => {
@@ -1471,11 +2024,11 @@ export const getSupportedMimeType = () => {
 
   // Try different MIME types in order of preference
   const mimeTypes = [
-    "audio/webm;codecs=opus",     // Best compression for long recordings
+    "audio/webm;codecs=opus", // Best compression for long recordings
     "audio/mp4;codecs=mp4a.40.2", // AAC - excellent compression
-    "audio/webm",                 // Good fallback
-    "audio/mp4",                  // Wide API compatibility
-    "audio/mpeg",                 // MP3 - universal support
+    "audio/webm", // Good fallback
+    "audio/mp4", // Wide API compatibility
+    "audio/mpeg", // MP3 - universal support
   ];
 
   for (const type of mimeTypes) {
@@ -1487,25 +2040,26 @@ export const getSupportedMimeType = () => {
   return null; // No supported type found, let browser use default
 };
 
-export const isApollo = () => env?.APOLLO_BUSINESS_IDS?.includes(getTokenData()?.hospital_business_id);
+export const isApollo = () =>
+  env?.APOLLO_BUSINESS_IDS?.includes(getTokenData()?.hospital_business_id);
 
 // List of specific doctors who should see "Tatva Care Platform" branding
 const TATVACARE_DOCTORS = [
   "NMQAvpjb7nPRYBh",
   "7RULp5rlfWF8JC6",
-  "9RplZSe-tEGFzQP"
+  "9RplZSe-tEGFzQP",
 ];
 
 // Helper function to determine if current doctor should use TatvaCare platform
 export const shouldUseTatvaCare = () => {
   // Get user ID from localStorage or token
-  const token = localStorage.getItem('persistant.storage.key.auth-token');
+  const token = localStorage.getItem("persistant.storage.key.auth-token");
   if (!token) return false;
-  
+
   try {
-    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    const decodedToken = JSON.parse(atob(token.split(".")[1]));
     const doctorId = decodedToken?.result?.doctor_unique_id;
-    
+
     // Check if this doctor is in the TatvaCare list
     return TATVACARE_DOCTORS.includes(doctorId);
   } catch (error) {
@@ -1521,4 +2075,232 @@ export const getPlatformName = () => {
 // Helper function to get the platform name for welcome messages
 export const getWelcomePlatformName = () => {
   return shouldUseTatvaCare() ? "Tatva Care Platform" : "TatvaPractice";
+};
+
+export function mapSectionsWithData(structure, apiResponse) {
+  return structure.map((section) => {
+    const sectionData = apiResponse[section.field] || {};
+
+    let total = 0;
+    let filled = 0;
+
+    const children = (section.children || []).map((child) => {
+      total++;
+
+      let hasData = false;
+
+      // Check if nested object/array exists in API response
+      if (child?.isRedundant) {
+        if (Array.isArray(sectionData)) {
+          hasData = sectionData?.length > 0;
+        } else if (typeof sectionData === "object" && sectionData !== null) {
+          hasData = Object.keys(sectionData).some((key) => !!sectionData[key]);
+        } else {
+          hasData = !!sectionData;
+        }
+      } else {
+        let childFieldValue;
+        if (child.field && child.field.includes(".")) {
+          const parts = child.field.split(".");
+          childFieldValue = parts.reduce(
+            (acc, key) =>
+              acc && acc[key] !== undefined ? acc[key] : undefined,
+            sectionData
+          );
+          hasData = childFieldValue;
+        } else if (Array.isArray(sectionData[child.field])) {
+          hasData =
+            sectionData[child.field].length > 0 &&
+            (!["paragraph", "bulleted-list", "numbered-list"].includes(
+              sectionData[child.field]?.[0]?.type
+            ) ||
+              (["paragraph", "bulleted-list", "numbered-list"].includes(
+                sectionData[child.field]?.[0]?.type
+              ) &&
+                sectionData[child.field]?.[0]?.objectID) ||
+              (["paragraph", "bulleted-list", "numbered-list"].includes(
+                sectionData[child.field]?.[0]?.type
+              ) &&
+                !sectionData[child.field]?.[0]?.objectID &&
+                !isEmptyRichText(sectionData[child.field])));
+        } else if (
+          typeof sectionData[child.field] === "object" &&
+          sectionData[child.field] !== null
+        ) {
+          hasData = Object.keys(sectionData[child.field]).some((key) =>
+            child.field === "generalExamination"
+              ? sectionData[child.field][key]?.value !== undefined
+              : !!sectionData[child.field][key]
+          );
+        } else {
+          hasData = !!sectionData[child.field];
+        }
+      }
+
+      if (hasData) filled++;
+
+      return {
+        ...child,
+        isDataFilled: hasData,
+      };
+    });
+
+    return {
+      ...section,
+      children,
+      total,
+      filled,
+      isDataFilled: filled > 0,
+      isFullyFilled: filled === total,
+      isPartiallyFilled: filled > 0 && filled < total,
+    };
+  });
+}
+
+export const getPatientInformation = (patientDetails) => {
+  return {
+    patientName: patientDetails?.details?.name || "",
+    patientId: patientDetails?.details?.id || "",
+    age: patientDetails?.details?.age || "",
+    contactNumber: patientDetails?.details?.contact || "",
+    gender: patientDetails?.details?.gender || "",
+    admissionId: patientDetails?.admissionId || "",
+    admissionDate: patientDetails?.admittedOn || "",
+    wardBedNo:
+      patientDetails?.ward?.title && patientDetails?.room?.title
+        ? `${patientDetails?.ward?.title} - ${patientDetails?.room?.title}`
+        : "",
+    address: patientDetails?.details?.address || "",
+    bloodGroup: patientDetails?.details?.bloodGroup || "",
+    dischargeSummaryNo: patientDetails?.dischargeNo || "",
+    dischargedAt: patientDetails?.dischargedAt || "",
+    doctorName: patientDetails?.doctorName || "",
+  };
+};
+
+export const formatDateWithTime = (dateString) => {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, "0");
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const month = monthNames[date.getMonth()];
+  let hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  return `${day} ${month}, ${hours}:${minutes}${ampm}`;
+};
+export const camelToCapitalized = (text) => {
+  return text
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase())
+    .trim();
+};
+
+export const hasNoData = (data) => {
+  const values = Object.values(data);
+
+  return !values.some((value) => {
+    if (value === null || value === undefined) {
+      return false;
+    }
+
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+    if (typeof value === "number") {
+      return value > 0;
+    }
+
+    if (typeof value === "string") {
+      return value.trim() !== "";
+    }
+
+    if (typeof value === "object") {
+      return Object.keys(value).length > 0;
+    }
+
+    if (typeof value === "boolean") {
+      return value;
+    }
+
+    return !!value;
+  });
+};
+
+export const transformAdmissionToPatient = (source = {}) => {
+  if (!source || typeof source !== "object") return {};
+
+  const details = source.details || {};
+  const metadata = source.metadata || {};
+
+  return {
+    pm_salutation: "", // not available in source
+    pm_fullname: details.name
+      ? details.name.charAt(0).toUpperCase() +
+        details.name.slice(1).toLowerCase()
+      : "",
+    pm_id: Number(details.id) || null, // safely parse to number
+    pm_pid: source.admissionId || "", // fallback: using admissionId
+    pm_contact_no: details.contact || "",
+    patient_unique_id: source?.patient_unique_id || null,
+    pm_gender: details.gender
+      ? details.gender.charAt(0) + details.gender.slice(1).toLowerCase()
+      : "",
+    ageDays: 0, // not available, fallback
+    ageMonths: 0, // not available, fallback
+    ageYears: Number(details.age) || null,
+    pm_dob: null, // not in source (needs DOB if available)
+    tpml_refrence_id: source.mrno || "",
+    pm_address: details.address || "",
+    pm_area: "",
+    pm_city: "",
+    pm_state: "",
+    pm_pincode: "",
+    pm_blood_group: "", // not in source
+    category: metadata.category || null,
+    lastVisitDate: source.dischargedAt
+      ? source.dischargedAt.split("T")[0]
+      : null,
+    pm_first_name: details.name || "",
+  };
+};
+
+
+export const getModuleCode = (module) => {
+  if (!module) return "";
+
+  const moduleMap = {
+    "OT Note": "OT",
+    "OT Notes": "OT",
+    "Progress Note": "PN",
+    "Progress Notes": "PN",
+    Assessment: "AF",
+    "Consultant Notes": "CN",
+    "Cross Referral": "CR",
+    "Laboratory Report": "LR",
+    "Radiology Report": "RR",
+    "Nursing Notes": "NN",
+    Medication: "MED",
+    "Vital Signs": "VS",
+    "Discharge Planning": "DP",
+  };
+
+  return moduleMap[module] || module.substring(0, 2).toUpperCase();
 };
