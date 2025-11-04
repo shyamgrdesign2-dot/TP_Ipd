@@ -15,6 +15,7 @@ import { updateVisitStatus } from '../api/services/VisitService';
 import { resetUploadDocState } from '../redux/uploadDocSlice';
 import { resetDDxState } from '../redux/ddxSlice';
 import { NEO_NATOLOGISTS_DP_ID } from '../utils/constants';
+import { setMedicationData } from "../redux/prescriptionSlice";
 
 function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToAppointment, pam_id, isSnapRx }) {
     const navigate = useNavigate();
@@ -50,6 +51,7 @@ function HeaderPrescriptionPrint({ patient_data, tcm_id, printUrl, handleGoToApp
               dispatch(resetObstetricState());
               dispatch(resetUploadDocState());
               dispatch(resetDDxState());
+              dispatch(setMedicationData([]))
               navigate("/", { replace: true });
             } else {
               errorMessage(action.error);

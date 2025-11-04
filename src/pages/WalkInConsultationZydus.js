@@ -24,6 +24,7 @@ import { resetObstetricState } from "../redux/obstetricSlice";
 import moment from "moment";
 import { resetUploadDocState } from "../redux/uploadDocSlice";
 import { resetDDxState } from "../redux/ddxSlice";
+import { setMedicationData } from "../redux/prescriptionSlice";
 
 function WalkInConsultationZydus() {
     const navigate = useNavigate();
@@ -274,6 +275,7 @@ function WalkInConsultationZydus() {
         dispatch(resetObstetricState());
         dispatch(resetUploadDocState());
         dispatch(resetDDxState());
+        dispatch(setMedicationData([]))
     }, [])
 
     useEffect(() => {

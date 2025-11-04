@@ -64,6 +64,7 @@ import { resetVaccineState } from "../../redux/vaccineSlice";
 import { resetGrowthChartState } from "../../redux/growthChartSlice";
 import { resetObstetricState } from "../../redux/obstetricSlice";
 import { resetDDxState } from "../../redux/ddxSlice";
+import { setMedicationData } from "../../redux/prescriptionSlice";
 import { EVENTS } from "../../utils/events";
 const { RangePicker } = DatePicker;
 
@@ -348,6 +349,7 @@ const AllPatients = () => {
     dispatch(resetObstetricState());
     dispatch(resetUploadDocState());
     dispatch(resetDDxState());
+    dispatch(setMedicationData([]))
     navigate("/patient_details", {
       state: {
         patient_data: { ...record, pm_first_name: record?.pm_fullname },

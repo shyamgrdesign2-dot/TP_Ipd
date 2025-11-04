@@ -251,8 +251,6 @@ function Prescription() {
     setAdviceData,
     investigationData,
     setInvestigationData,
-    medicationData,
-    setMedicationData,
     vitalsData,
     setVitalsData,
     medicalHistoryData,
@@ -573,7 +571,7 @@ function Prescription() {
           )
         );
       }
-      setPillupSwitch(caseManagerData?.pillup_fulfilment == 1 ? true : false);
+      dispatch(setPillupSwitch(caseManagerData?.pillup_fulfilment == 1 ? true : false));
 
       // Initialize labReportID from caseManagerData if available
       if (caseManagerData?.labReportID) {

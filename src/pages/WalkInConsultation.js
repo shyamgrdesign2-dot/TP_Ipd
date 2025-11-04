@@ -23,6 +23,7 @@ import { resetGrowthChartState } from "../redux/growthChartSlice";
 import { resetObstetricState } from "../redux/obstetricSlice";
 import { resetUploadDocState } from "../redux/uploadDocSlice";
 import { resetDDxState } from "../redux/ddxSlice";
+import { setMedicationData } from "../redux/prescriptionSlice";
 import {
   getClinic,
   getTokenData
@@ -406,6 +407,7 @@ function WalkInConsultation() {
     dispatch(resetObstetricState());
     dispatch(resetUploadDocState());
     dispatch(resetDDxState());
+    dispatch(setMedicationData([]))
   }, [])
 
   useEffect(() => {

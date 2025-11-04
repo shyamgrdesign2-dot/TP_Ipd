@@ -138,11 +138,13 @@ import {
   setBillPrintSettings,
   setShouldShowOpdBilling,
 } from "../redux/billingSlice";
+import { setMedicationData } from "../redux/prescriptionSlice";
 import WelcomeModal from "./userOnboarding/welcomeModal/WelcomeModal";
 import { checkSymptomsCollectorTour } from "../api/services/ApiGenRx";
 import ExpiredSubModal from "../pages/monetization/components/ExpiredSubModal";
 import { EVENTS } from "../utils/events";
 import AiReceptionistButton from "./AiReceptionist";
+
 
 const { TextArea } = Input;
 
@@ -676,6 +678,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
       dispatch(resetObstetricState());
       dispatch(resetUploadDocState());
       dispatch(resetDDxState());
+      dispatch(setMedicationData([]))
       getSymptomCollectorTourCheck();
     }
   }, []);
