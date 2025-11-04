@@ -287,6 +287,7 @@ const ConsultantNotes = (props) => {
                 <MedicationsBox
                   isEditable={isEditable}
                   medicationData={medicationData}
+                  isIpd={true}
                 />
               )}
             </div>

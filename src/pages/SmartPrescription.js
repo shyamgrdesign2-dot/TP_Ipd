@@ -48,6 +48,8 @@ import CarePlanList from "../components/CarePlanList";
 import { getCarePlanAssignments } from "./smartSync/services/carePlanService";
 import { assignCarePlan } from "./smartSync/services/carePlanService";
 import carePlanIcon from "../assets/images/Care plan_Active.svg";
+import { setMedicationData } from "../redux/prescriptionSlice";
+
 
 import {
   PERSISTANT_STORAGE_KEY_AUTH_TOKEN,
@@ -182,7 +184,7 @@ function SmartPrescription() {
   const [diagnosisData, setDiagnosisData] = useState([]);
   const [adviceData, setAdviceData] = useState([]);
   const [investigationData, setInvestigationData] = useState([]);
-  const [medicationData, setMedicationData] = useState([]);
+  // const [medicationData, setMedicationData] = useState([]);
   const [followUpDate, setFollowUpDate] = useState(null);
   const [selectedCarePlan, setSelectedCarePlan] = useState(null);
   const [carePlanPlaceholder, setCarePlanPlaceholder] = useState(undefined);
@@ -228,7 +230,7 @@ function SmartPrescription() {
   const [loader, setLoader] = useState(false);
   const [customModuleContents, setCustomModuleContents] = useState([]);
   const startTime = moment().format("YYYY-MM-DD HH:mm:ss");
-  const [pillupSwitch, setPillupSwitch] = useState(true);
+  // const [pillupSwitch, setPillupSwitch] = useState(true);
   // Add state for custom RX management (unified with templates)
   const [isCustomSSRX, setIsCustomSSRX] = useState(false);
   const [customRxImages, setCustomRxImages] = useState([]);
@@ -287,8 +289,6 @@ function SmartPrescription() {
     setAdviceData,
     investigationData,
     setInvestigationData,
-    medicationData,
-    setMedicationData,
     vitalsData,
     setVitalsData,
     medicalHistoryData,
@@ -302,8 +302,6 @@ function SmartPrescription() {
     customModuleContents,
     setCustomModuleContents,
     startTime,
-    pillupSwitch, 
-    setPillupSwitch,
     isCustomSSRX,
     setIsCustomSSRX,
     selectedCarePlan,
