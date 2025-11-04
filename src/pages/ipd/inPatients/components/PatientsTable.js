@@ -9,7 +9,6 @@ import { defaultIcons } from "../../../../assets/images/icons";
 import { defaultIcons as newIcons } from "../../../../assets/images/indices";
 import { markPatientAsDischarged } from "../../../../redux/ipd/ipdSlice";
 import { usePatientsData } from "../hooks/usePatientsData";
-import { isMobile } from "react-device-detect";
 
 const MoreActionsContent = ({ handleMarkPatientAsDischarged, record }) => {
   return (
@@ -191,9 +190,9 @@ const PatientsTable = ({
             className="view-details-btn"
             onClick={() => {
               onViewDetails(record?.patientData);
-            } }
+            }}
           >
-            {isMobile ? "View" : "View Details"}
+            View Details
           </button>
           {!isDischargedPatients && !record?.isDischarged ? (
             <Popover
@@ -202,22 +201,30 @@ const PatientsTable = ({
                 if (!open) {
                   setOpenMoreActionsPopover(null);
                 }
-              } }
-              content={<MoreActionsContent
-                handleMarkPatientAsDischarged={handleMarkPatientAsDischarged}
-                record={record?.patientData} />}
+              }}
+              content={
+                <MoreActionsContent
+                  handleMarkPatientAsDischarged={handleMarkPatientAsDischarged}
+                  record={record?.patientData}
+                />
+              }
               trigger="click"
               overlayClassName="zindex-1000 pp-0 videoTutorial"
               placement="bottomRight"
               arrow={false}
             >
               <img
-                onClick={() => showHideMoreActionPopover(
-                  !openMoreActionsPopover ? record?.patientData?.admissionId : null
-                )}
+                onClick={() =>
+                  showHideMoreActionPopover(
+                    !openMoreActionsPopover
+                      ? record?.patientData?.admissionId
+                      : null
+                  )
+                }
                 className="cursor-pointer"
                 src={defaultIcons.moreIcon}
-                alt={":"} />
+                alt={":"}
+              />
             </Popover>
           ) : null}
         </div>
