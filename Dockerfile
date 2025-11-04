@@ -6,7 +6,7 @@ FROM node:22 as build
 ##ENV REACT_APP_ENV qa
 
 # Define a build argument for REACT_APP_ENV
-ARG REACT_APP_ENV
+ARG REACT_APP_ENV=prod
 ARG SENTRY_AUTH_TOKEN
 
 # Set REACT_APP_ENV environment variable
