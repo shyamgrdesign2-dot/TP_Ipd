@@ -77,7 +77,7 @@ const CustomRow = ({ children, ...props }) => {
 
 function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowthChartEnabled, page }) {
 
-  const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setMedicationData, setVitalsData, setMedicalHistoryData, setPrivateNotesData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
+  const { setSymptomsData, setExaminationData, setDiagnosisData, setAdviceData, setInvestigationData, setVitalsData, setMedicalHistoryData, setPrivateNotesData, setFollowUpDate, setAdditionalNote } = useContext(CashManagerContext);
   const { loading, customizedPadLeftList, customizedPadRightList, videoList, profile } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
   const [dataSourceLeft, setDataSourceLeft] = useState([]);
