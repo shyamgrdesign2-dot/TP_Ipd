@@ -532,7 +532,7 @@ function Prescription() {
             unique_id: uuidv4(),
           };
         });
-        setMedicationData([...updatedData]);
+        dispatch(setMedicationData([...updatedData]));
       }
       if (
         caseManagerData.advice.length > 0 &&
