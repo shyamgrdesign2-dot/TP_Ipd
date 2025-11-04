@@ -370,7 +370,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                                 unique_id: uuidv4(),
                             };
                         });
-                        setMedicationData([...medicationData, ...updatedData])
+                        dispatch(setMedicationData([...medicationData, ...updatedData]))
                     } else {
                         const updatedData = data.medicine.map((e) => {
                             const medicineUnit = e?.medicineUnit.map((e1) => {
@@ -405,7 +405,7 @@ function HeaderPrescription({ isVaccinationEnabled, isGrowthChartEnabled, gynecH
                                 unique_id: uuidv4(),
                             };
                         });
-                        setMedicationData([...medicationData, ...updatedData])
+                        dispatch(setMedicationData([...medicationData, ...updatedData]))
                     }
                 }
                 if(data?.userModules?.length > 0){
