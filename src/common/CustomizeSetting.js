@@ -11,6 +11,8 @@ import CashManagerContext from "../context/CashManagerContext";
 
 import { useSelector, useDispatch } from "react-redux";
 import { customizedPad, listVideo } from "../redux/doctorsSlice";
+import { setMedicationData } from "../redux/prescriptionSlice";
+
 
 import tutorial from '../assets/images/tutorial-icon.svg';
 import playcover2 from '../assets/images/play-cover2.png';
@@ -227,7 +229,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
           setDiagnosisData([])
         }
         if (right.findIndex(e => e.tmdpm_id === 12 && e.tmdpm_status === 0) === -1) {
-          setMedicationData([])
+          dispatch(setMedicationData([]))
         }
         if (right.findIndex(e => e.tmdpm_id === 13 && e.tmdpm_status === 0) === -1) {
           setAdviceData([])
@@ -292,7 +294,7 @@ function CustomizeSetting({ handleDrawerCustomize, isVaccinationEnabled, isGrowt
         setDiagnosisData([])
       }
       if (right.findIndex(e => e.tmdpm_id === 12 && e.tmdpm_status === 0) === -1) {
-        setMedicationData([])
+        dispatch(setMedicationData([]))
       }
       if (right.findIndex(e => e.tmdpm_id === 13 && e.tmdpm_status === 0) === -1) {
         setAdviceData([])
