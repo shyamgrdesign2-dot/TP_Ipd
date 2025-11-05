@@ -45,7 +45,7 @@ export const downloadWithGenerator = async (
 // Mapping between document type and settings key
 const settingsKeyByDocType = {
   dischargeSummary: "dischargeSummary",
-  assessment: "assessment",
+  assessments: "assessments",
   progressNotes: "progressNotes",
   consultationNotes: "consultationNotes",
   otNotes: "otNotes",

@@ -270,7 +270,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
   // Get module title for display
   const getModuleTitle = () => {
     const titleMap = {
-      assessment: "Assessment Form",
+      assessments: "Assessment Form",
       progressNotes: "Progress Notes",
       consultationNotes: "Consultant Notes",
       otNotes: "Operation Notes",

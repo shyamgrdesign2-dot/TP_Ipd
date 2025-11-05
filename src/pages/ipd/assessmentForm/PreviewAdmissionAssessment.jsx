@@ -33,7 +33,7 @@ const PreviewAdmissionAssessment = () => {
   const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
   const { assessmentsData } = useSelector((state) => state.assessment);
-  const { assessment: currentSettings } = printSettings;
+  const { assessments: currentSettings } = printSettings;
 
   //   const patientData = dischargeSummaryData?.patientInformation || {};
 
@@ -81,7 +81,7 @@ const PreviewAdmissionAssessment = () => {
         <PDFGenerator
           settings={currentSettings}
           data={assessmentsData}
-          documentType="assessment"
+          documentType="assessments"
           patientData={getPatientInformation(patientDetails)}
         />
       ).toBlob();
@@ -94,7 +94,7 @@ const PreviewAdmissionAssessment = () => {
   const handleDrawerConfigureSettings = () => {
     navigate("/ipd/admission-assessment/configure-print-settings", {
       state: {
-        moduleType: "assessment",
+        moduleType: "assessments",
         data: assessmentsData,
         printSettings: currentSettings,
         returnPath: "/ipd/admission-assessment/preview",

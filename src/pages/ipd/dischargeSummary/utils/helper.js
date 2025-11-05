@@ -238,7 +238,7 @@ const handleWebViewDownload = async (
 const getDocumentTypeTitle = (documentType) => {
   const titleMapping = {
     dischargeSummary: "Discharge-Summary",
-    assessment: "Assessment-Form",
+    assessments: "Assessment-Form",
     progressNotes: "Progress-Notes",
     consultantNotes: "Consultant-Notes",
     otNotes: "Operation-Notes",

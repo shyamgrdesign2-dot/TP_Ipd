@@ -26,7 +26,7 @@ import { getPatientInformation } from "../../utils/utils";
 
 // Document type mapping for PDF generation
 const DOCUMENT_TYPE_MAPPING = {
-  assessment: "assessment",
+  assessments: "assessments",
   progressNotes: "progressNotes",
   consultationNotes: "consultationNotes",
   otNotes: "otNotes",
@@ -36,7 +36,7 @@ const DOCUMENT_TYPE_MAPPING = {
 
 // Module title mapping
 const MODULE_TITLE_MAPPING = {
-  assessment: "Assessment Form",
+  assessments: "Assessment Form",
   progressNotes: "Progress Notes",
   consultationNotes: "Consultant Notes",
   otNotes: "Operation Notes",
