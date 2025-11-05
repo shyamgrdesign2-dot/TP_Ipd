@@ -14,8 +14,6 @@ const CurrentMedications = (props) => {
 
   if (!isEditable && !medicationData?.length) return null;
 
-  console.log(isMobile,"isMobile")
-
   return (
     <div
       className={`ipdaf-medication-box-container ${
@@ -26,14 +24,14 @@ const CurrentMedications = (props) => {
         isMobile ? (
           <MedicationBoxIpd isEditable={isEditable} />
         ) : (
-          <MedicationsBox isEditable={isEditable} isDischargeSummary={isDischargeSummary} />
+          <MedicationsBox isEditable={isEditable} isDischargeSummary={isDischargeSummary} isIpd={true} />
         )
       ) : (
         <InteractionGate disabled={true}>
           {isMobile ? (
             <MedicationBoxIpd isEditable={isEditable} />
           ) : (
-            <MedicationsBox isEditable={isEditable} isDischargeSummary={isDischargeSummary} />
+            <MedicationsBox isEditable={isEditable} isDischargeSummary={isDischargeSummary} isIpd={true} />
           )}
         </InteractionGate>
       )}

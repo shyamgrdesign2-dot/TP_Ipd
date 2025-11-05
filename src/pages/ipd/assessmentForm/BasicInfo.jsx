@@ -23,11 +23,11 @@ const BasicInfo = (props) => {
     chiefComplaint,
     lastPrescriptionDate,
     historyOfPresentIllness,
-    medicationData,
     labResults,
     gynecHistoryData,
     obstetricHistory,
   } = useSelector((state) => state.assessment);
+  const {medicationData} = useSelector((state) => state.prescription);
   const { obstetricDetails: allObstetricDetails } = useSelector(
     (state) => state.obstetric
   );

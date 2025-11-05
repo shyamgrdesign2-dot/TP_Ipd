@@ -65,6 +65,7 @@ import { GB_SMARTSYNC_CONNECT } from "../utils/constants";
 import { upsertDoctorSettingFlag } from "../redux/doctorsSlice";
 import { setDefaultCustomSyncPadTemplate } from "../pages/smartSync/services/uploadService";
 import { assignCarePlan, updateCarePlanName, getCarePlanAssignments } from "../pages/smartSync/services/carePlanService";
+import { setPillupSwitch } from "../redux/prescriptionSlice";
 
 function HeaderPrescription({
   prescription,
@@ -83,6 +84,8 @@ function HeaderPrescription({
   const { templates, loading } = useSelector((state) => state.caseManager);
   const { profile, videoList } = useSelector((state) => state.doctors);
   const [videoLink, setVideoLink] = useState(null);
+  let { pillupSwitch } = useSelector((state) => state.prescription);
+
 
   const dispatch = useDispatch();
 
@@ -105,8 +108,6 @@ function HeaderPrescription({
     followUpDate,
     setFollowUpDate,
     additionalNote,
-    pillupSwitch,
-    setPillupSwitch,
     setMedicalHistoryData,
   } = useContext(CashManagerContext);
 
@@ -668,12 +669,12 @@ function HeaderPrescription({
     ];
   
     const pillUpChange = (checked) => {
-      setPillupSwitch(checked)
+      dispatch(setPillupSwitch(checked));
     };
 
     useEffect(() => {
       if (caseManagerData !== undefined) {
-        setPillupSwitch(caseManagerData?.pillup_fulfilment)
+        dispatch(setPillupSwitch(caseManagerData?.pillup_fulfilment));
       }
     }, []);
 

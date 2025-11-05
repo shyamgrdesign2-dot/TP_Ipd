@@ -2117,7 +2117,7 @@ function Cardiology(props) {
                 <p className="mt-4 fontroboto">
                   No visit found for this patient yet
                 </p>
-                <div className="d-flex flex-column align-items-center justify-content-center g-4">
+                {!isIPD ? <div className="d-flex flex-column align-items-center justify-content-center g-4">
                   {isSmartSyncAccessableFromGB || isSnapRxAccessableFromGB && !isMobile ? (
                     <SmartDropdownButtons
                       profile={profile}
@@ -2147,7 +2147,7 @@ function Cardiology(props) {
                       {"Start New Consult"}
                     </Button>
                   )}
-                </div>
+                </div>: null}
               </div>
             )}
           </div>
@@ -2191,7 +2191,7 @@ function SmartDropdownButtons({ profile, patient_data, navigate, isIPD }) {
       style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
     >
       <div>
-        {!isIPD ? <Button
+        <Button
           className="btn btn-primary3 btn-text-white px-5 m-2 btn-41"
           onClick={() => {
             window.Moengage.track_event("start_new_visit_click", {
@@ -2235,7 +2235,7 @@ function SmartDropdownButtons({ profile, patient_data, navigate, isIPD }) {
               }}
             ></i>
           </span>
-        </Button>: null}
+        </Button>
       </div>
       {open && 
         <div className="smart-rx-buttons-group">

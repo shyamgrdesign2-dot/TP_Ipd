@@ -52,7 +52,7 @@ import { setMedicationData, setPillupSwitch } from "../redux/prescriptionSlice";
 const { TextArea } = Input;
 
 function MedicationsBox(props) {
-  const { isEditable = true, isDischargeSummary = false } = props;
+  const { isEditable = true, isDischargeSummary = false, isIpd = false} = props;
   const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     dosesList,
@@ -462,71 +462,39 @@ function MedicationsBox(props) {
   const [frequencyQuery, setFrequencyQuery] = useState('');
 
   const onBlurFrequencyChild = useCallback(
-    async (i) => {
-      // Create a new array with updated medication data
+    (i) => {
+      const query = frequencyQuery || medicationData?.[i]?.tmm_freq_type_name || "";
+      if (!query) return;
+
+      const normalizedQuery = query.length >= 1 && query.length <= 4 && isNumeric(query)
+        ? query.split('').join('-')
+        : query;
+
+      const parts = normalizedQuery.split('-');
+      const morning = parts?.[0] ?? '0';
+      const afternoon = parts?.[1] ?? '0';
+      const evening = parts?.[2] ?? '0';
+      const night = parts?.[3] ?? parts?.[2] ?? '0';
+
       const updatedMedicationData = medicationData.map((item, index) => {
         if (index === i) {
-          if (isNumeric(frequencyQuery) && frequencyQuery.length <= 3) {
-            return {
-              ...item,
-              tmm_freq_type_name: `${frequencyQuery[0]}-${frequencyQuery[1] ? frequencyQuery[1] : 0}-${frequencyQuery[2] ? frequencyQuery[2] : 0}`,
-              tmf_block: 0,
-              tmm_freq_type: 0,
-              tcm_tmm_freq_afternoon: frequencyQuery[1] ? frequencyQuery[1] : 0,
-              tcm_tmm_freq_evening: 0,
-              tcm_tmm_freq_morning: frequencyQuery[0],
-              tcm_tmm_freq_night: frequencyQuery[2] ? frequencyQuery[2] : 0,
-            };
-          } else if (isNumeric(frequencyQuery) && frequencyQuery.length >= 4) {
-            return {
-              ...item,
-              tmm_freq_type_name: `${frequencyQuery[0]}-${frequencyQuery[1] ? frequencyQuery[1] : 0}-${frequencyQuery[2] ? frequencyQuery[2] : 0}-${frequencyQuery[3] ? frequencyQuery[3] : 0}`,
-              tmf_block: 0,
-              tmm_freq_type: 0,
-              tcm_tmm_freq_afternoon: frequencyQuery[1] ? frequencyQuery[1] : 0,
-              tcm_tmm_freq_evening: frequencyQuery[2] ? frequencyQuery[2] : 0,
-              tcm_tmm_freq_morning: frequencyQuery[0],
-              tcm_tmm_freq_night: frequencyQuery[3] ? frequencyQuery[3] : 0,
-            };
-          } else if (!frequencyFormat(item.tmm_freq_type_name) && filteredTitles.findIndex((x) => x.tmf_title == item.tmm_freq_type_name) == -1) {
-            return {
-              ...item,
-              tmm_freq_type_name: "",
-              tmf_block: 0,
-              tmm_freq_type: 0,
-              tcm_tmm_freq_afternoon: 0,
-              tcm_tmm_freq_evening: 0,
-              tcm_tmm_freq_morning: 0,
-              tcm_tmm_freq_night: 0,
-            };
-          } else if (frequencyFormat(item.tmm_freq_type_name)) {
-            const updatedItem = {
-              ...item,
-              tmm_freq_type_name: frequencyQuery,
-              tmf_block: 0,
-              tmm_freq_type: 0,
-            };
-            
-            if (frequencyQuery.split("-")[3] !== undefined) {
-              updatedItem.tcm_tmm_freq_afternoon = frequencyQuery.split("-")[1] ? frequencyQuery.split("-")[1] : 0;
-              updatedItem.tcm_tmm_freq_evening = frequencyQuery.split("-")[2] ? frequencyQuery.split("-")[2] : 0;
-              updatedItem.tcm_tmm_freq_morning = frequencyQuery.split("-")[0] ? frequencyQuery.split("-")[0] : 0;
-              updatedItem.tcm_tmm_freq_night = frequencyQuery.split("-")[3] ? frequencyQuery.split("-")[3] : 0;
-            } else {
-              updatedItem.tcm_tmm_freq_afternoon = frequencyQuery.split("-")[1] ? frequencyQuery.split("-")[1] : 0;
-              updatedItem.tcm_tmm_freq_evening = 0;
-              updatedItem.tcm_tmm_freq_morning = frequencyQuery.split("-")[0] ? frequencyQuery.split("-")[0] : 0;
-              updatedItem.tcm_tmm_freq_night = frequencyQuery.split("-")[2] ? frequencyQuery.split("-")[2] : 0;
-            }
-            
-            return updatedItem;
-          }
+          return {
+            ...item,
+            tmm_freq_type_name: normalizedQuery,
+            tmf_block: 0,
+            tmm_freq_type: 0,
+            tcm_tmm_freq_morning: morning,
+            tcm_tmm_freq_afternoon: afternoon,
+            tcm_tmm_freq_evening: parts.length > 3 ? evening : '0',
+            tcm_tmm_freq_night: parts.length > 3 ? night : (parts?.[2] ?? '0'),
+          };
         }
         return item;
       });
+
       dispatch(setMedicationData(updatedMedicationData));
     },
-    [medicationData]
+    [frequencyQuery, medicationData]
   );
 
   const onSearchFrequencyChild = useCallback(
@@ -574,9 +542,14 @@ function MedicationsBox(props) {
           return item;
         });
         dispatch(setMedicationData(updatedMedicationData));
+      } else {
+        const currentValue = medicationData?.[i]?.tmm_freq_type_name || "";
+        if (currentValue) {
+          onBlurFrequencyChild(i, currentValue);
+        }
       }
     },
-    [frequencyOptions, medicationData]
+    [frequencyOptions, medicationData, onBlurFrequencyChild]
   );
 
   const onSelectFrequencyChild = useCallback(
@@ -1106,7 +1079,7 @@ function MedicationsBox(props) {
   const TABLE_MEDICATION = useMemo(() => {
     const noteProps = isEditable ? { lg: 6, md: 6, sm: 6, xs: 6 } : { flex: 'auto' };
     return (
-      <div className="ipd-wrapper-class-medbox-readonly">
+      <div className={isIpd ? "ipd-wrapper-class-medbox-readonly" : ""}>
         {medicationData.length > 0 &&
           <Row
             gutter={[0]}
@@ -1260,7 +1233,13 @@ function MedicationsBox(props) {
                                       value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
                                       onSearch={(query) => onSearchFrequencyChild(query, item?.index)}
                                       onFocus={() => onSearchFrequencyChild(item.tmm_freq_type_name, item?.index)}
-                                      onBlur={() => onBlurFrequencyChild(item?.index)}
+                                    onBlur={() => setFrequencyQuery("" )}
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Tab" || e.key === "Enter") {
+                                        onBlurFrequencyChild(item?.index);
+                                        setFrequencyQuery("");
+                                      }
+                                    }}
                                       onSelect={(data) => onSelectFrequencyChild(data, item?.index)}
                                       options={frequencyOptions}
                                       onClear={() => onSelectFrequencyChild("", item?.index)}

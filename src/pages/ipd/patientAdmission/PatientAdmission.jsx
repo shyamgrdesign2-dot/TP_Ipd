@@ -133,24 +133,23 @@ function FieldRenderer({
     rhf,
     mapItem = (x) => ({ value: x, label: x }),
     extraProps = {}
-  ) => (
-    <Select
-      value={rhf.value}
-      onChange={rhf.onChange}
-      onBlur={rhf.onBlur}
-      allowClear
-      placeholder="Select"
-      popupMatchSelectWidth={false}
-      options={list.map(mapItem)}
-      optionLabelProp="label"
-      showSearch
-      filterOption={(input, option) =>
-        (option?.label || "").toLowerCase().includes(input.toLowerCase())
-      }
-      className="w-100"
-      {...extraProps}
-    />
-  );
+  ) => {
+      return (
+        <Select
+          value={rhf.value}
+          onChange={rhf.onChange}
+          onBlur={rhf.onBlur}
+          allowClear
+          placeholder="Select"
+          popupMatchSelectWidth={false}
+          options={list.map(mapItem)}
+          optionLabelProp="label"
+          showSearch
+          filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
+          className="w-100"
+          {...extraProps} />
+      );
+    };
 
   if (field.id === "contactNo") {
     return (
@@ -223,6 +222,7 @@ function FieldRenderer({
       const doctors = selectedDept?.doctors || [];
       return (
         <Controller
+          key={selectedDepartmentId}
           name={field.id}
           control={control}
           rules={rules}
@@ -285,6 +285,7 @@ function FieldRenderer({
         <Controller
           name={field.id}
           control={control}
+          key={selectedDepartmentId}
           render={({ field: rhf }) => (
             <Select
               value={rhf.value}
@@ -484,7 +485,9 @@ export default function PatientAdmission() {
     };
   }, [dispatch]);
 
-  const handleDepartmentChange = () => setValue("admittingDoctorId", undefined);
+  const handleDepartmentChange = () => {
+    setValue("admittingDoctorId", undefined);
+  };
   const handleWardChange = () => setValue("roomId", undefined);
 
   const onSubmit = async (formData) => {
@@ -536,7 +539,7 @@ export default function PatientAdmission() {
             doctor?.role || patientDetails?.primaryConsultant?.speciality || "",
         },
         doctorId:
-          doctor?.doctorId ||
+          formData.attendingDoctor ||
           patientDetails?.primaryConsultant?.id ||
           patientDetails?.doctorId ||
           0,
