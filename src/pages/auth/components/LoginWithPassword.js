@@ -66,12 +66,14 @@ const LoginWithPassword = ({ handleView, number }) => {
       });
       // Step 3: Extract response fields
       const { message, ssoUrl } = response;
+      console.log('INTEL ==> response ', response, message, ssoUrl);
 
       // Step 4: Handle SSO URL Redirection
       if (ssoUrl) {
         const updatedSsoUrl = isMobile
           ? `${ssoUrl}&device_type=mobile`
           : `${ssoUrl}&device_type=desktop`;
+        console.log('iNTEL ==? ssoUrl', ssoUrl, updatedSsoUrl)
 
         window.location.href = updatedSsoUrl;
         return;
