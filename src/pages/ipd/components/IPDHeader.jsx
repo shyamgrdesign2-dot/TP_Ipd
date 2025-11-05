@@ -200,12 +200,12 @@ function IPDHeader({ locationPath }) {
     <>
       <Navbar className="justify-content-between portal-header">
         <Container fluid>
-          <i
-            className="icon-right cursor-pointer"
-            onClick={() => navigate("/")}
-          ></i>
-
-          <div className="fw-semibold">IPD</div>
+          <img
+              src={require("../../../assets/images/logo.png")}
+              className={`d-inline-block align-top cursor-pointer`}
+              style={{ width: "110px" }}
+              alt="Logo"
+            />
 
           <Nav className="ms-auto align-items-center d-flex">
             {/* <Popover

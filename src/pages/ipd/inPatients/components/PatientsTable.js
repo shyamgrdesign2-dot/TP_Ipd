@@ -104,13 +104,14 @@ const PatientsTable = ({
       ),
     },
     {
-      title: "Patient ID",
+      title: "Patient ID / Mrno",
       dataIndex: "patientId",
       key: "patientId",
-      className: "col-patient-id",
+      className: "col-patient-details",
       render: (text, record) => (
-        <div className="d-flex align-items-center gap-2">
-          <span>{record?.patientId || ""}</span>
+        <div>
+          <div>{record?.patientId || ""}</div>
+          <small>{record?.mrno}</small>
         </div>
       ),
     },
