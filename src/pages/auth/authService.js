@@ -33,6 +33,7 @@ export const verifyAccessToken = async (phoneNumber, accessToken) => {
     const response = await axios.post(`${baseUrl}/api/v1/auth/verify-access-token`, {
       phone_number: phoneNumber,
       access_token: accessToken,
+      isIPD: true // TODO: INTEL - REVERT WHEN MERGED IPD-PROD TO PROD
     });
     return response.data;
   } catch (error) {
