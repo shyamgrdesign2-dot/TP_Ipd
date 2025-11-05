@@ -9,6 +9,7 @@ export const loginWithPassword = async (phoneNumber, password) => {
     const response = await axios.post(`${baseUrl}/api/v1/auth/password-login`, {
       phone_number: phoneNumber,
       password,
+      isIPD: true // TODO: INTEL - REVERT WHEN MERGED IPD-PROD TO PROD
     });
     return response.data;
   } catch (error) {
