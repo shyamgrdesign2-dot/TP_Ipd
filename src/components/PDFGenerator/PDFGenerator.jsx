@@ -70,7 +70,7 @@ const PDFGenerator = ({
       contentSections = renderDischargeSummary(data, formatSettings);
       break;
 
-    case "assessment":
+    case "assessments":
       contentSections = renderAdmissionAssessment(data, formatSettings);
       break;
 

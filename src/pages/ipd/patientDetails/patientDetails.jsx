@@ -506,7 +506,7 @@ const IPDPatientDetails = () => {
       navigate("/ipd/admission-assessment/configure-print-settings", {
         state: {
           patientDetails,
-          moduleType: "assessment",
+          moduleType: "assessments",
           data: assessmentsData,
         },
       });
@@ -626,7 +626,7 @@ const IPDPatientDetails = () => {
   // Assessment: print & download
   const handleAssessmentPrint = async () => {
     try {
-      await printModule("assessment", printSettings, patientDetails, assessmentsData);
+      await printModule("assessments", printSettings, patientDetails, assessmentsData);
     } catch (error) {
       console.error("Error printing assessment:", error);
     }
@@ -634,7 +634,7 @@ const IPDPatientDetails = () => {
 
   const handleAssessmentDownload = async () => {
     try {
-      await downloadModule("assessment", printSettings, patientDetails, assessmentsData);
+      await downloadModule("assessments", printSettings, patientDetails, assessmentsData);
     } catch (error) {
       console.error("Error downloading assessment:", error);
     }
