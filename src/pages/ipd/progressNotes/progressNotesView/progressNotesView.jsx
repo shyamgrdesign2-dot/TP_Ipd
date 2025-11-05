@@ -13,6 +13,10 @@ import {
   clearDateFilter,
 } from "../../../../redux/ipd/progressNotesSlice";
 import useOnlyViewMode from "../../../../hooks/useOnlyViewMode";
+import {
+  isSameDay,
+  isWithinEditableWindow,
+} from "../utils/helper";
 
 const { Title, Text } = Typography;
 const { ReusableStepper, ReusableProgressCard, RichTextEditor } =
@@ -342,8 +346,7 @@ function ProgressNotesView({
         actions={
           !isOnlyViewMode &&
           !isProgressNotesSummary &&
-          new Date(item?.timestamp).toISOString().split("T")[0] ===
-            new Date().toISOString().split("T")[0]
+          canEditWithinWindow
             ? [{ name: "edit", label: "Edit progress note" }]
             : []
         }

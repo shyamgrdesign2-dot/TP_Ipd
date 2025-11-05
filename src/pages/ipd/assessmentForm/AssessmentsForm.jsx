@@ -321,7 +321,7 @@ const AssessmentsForm = (props) => {
           selectedDate={dayjs(filledDate)}
           selectedTime={dayjs(filledAtTime)}
           dateFormat="DD MMM YYYY"
-          timeFormat="HH:mm A"
+          timeFormat="hh:mm A"
           selectedTimePeriod={selectedTimePeriod}
           timePeriodOptions={[
             { label: "Morning", value: "Morning" },

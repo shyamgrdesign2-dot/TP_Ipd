@@ -2,6 +2,7 @@ import { db } from "../../../../firebase";
 import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
 import html2pdf from "html2pdf.js";
 import { browserName } from "react-device-detect";
+import dayjs from "dayjs";
 
 /**
  * Print progress notes
@@ -178,4 +179,51 @@ export const generatePDFFromHTML = (element, setLoader) => {
       console.error("Error generating PDF", err);
       if (setLoader) setLoader(false);
     });
+};
+
+const normalizeToDayjs = (input) => {
+  if (!input) return null;
+  if (dayjs.isDayjs(input)) return input.clone();
+  if (input instanceof Date) {
+    const parsed = dayjs(input);
+    return parsed.isValid() ? parsed : null;
+  }
+  if (typeof input === "string") {
+    const isoParsed = dayjs(input);
+    if (isoParsed.isValid()) return isoParsed;
+
+    const knownFormats = [
+      "YYYY-MM-DDTHH:mm:ss.SSSZ",
+      "YYYY-MM-DDTHH:mm:ssZ",
+      "YYYY-MM-DDTHH:mm:ss",
+      "YYYY-MM-DD HH:mm:ss",
+      "YYYY-MM-DD",
+      "DD-MM-YYYY",
+    ];
+
+    for (const format of knownFormats) {
+      const parsed = dayjs(input, format, true);
+      if (parsed.isValid()) return parsed;
+    }
+  }
+
+  return null;
+};
+
+export const isSameDay = (timestamp, reference = dayjs()) => {
+  const tsMoment = normalizeToDayjs(timestamp);
+  const refMoment = normalizeToDayjs(reference) || dayjs();
+
+  if (!tsMoment) return false;
+  return tsMoment.isSame(refMoment, "day");
+};
+
+export const isWithinEditableWindow = (timestamp, hoursWindow = 24) => {
+  const tsMoment = normalizeToDayjs(timestamp);
+  if (!tsMoment) return false;
+
+  const now = dayjs();
+  const diffInHours = now.diff(tsMoment, "hour", true);
+
+  return diffInHours >= 0 && diffInHours <= hoursWindow;
 };
