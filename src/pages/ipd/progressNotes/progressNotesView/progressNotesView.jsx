@@ -286,6 +286,7 @@ function ProgressNotesView({
   };
 
   const renderCustomItem = (item, itemIndex, groupKey, items, emit) => {
+
     const value = item.period || item.timeOfDay || "";
     const formattedTimeOfDay = value.charAt(0).toUpperCase() + value.slice(1);
     return (
@@ -366,7 +367,7 @@ function ProgressNotesView({
         margin: "0 auto",
       }}
     >
-      <div style={{ width: "max-content", maxWidth: "260px" }}>
+      <div className="ms-3" style={{ width: "max-content", maxWidth: "260px" }}>
         {!isProgressNotesSummary && (
           <DateRangeFilter
             placeholder={"Filter by date"}
