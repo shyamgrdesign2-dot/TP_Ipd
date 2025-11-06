@@ -9,7 +9,6 @@ import {
   setLabResults,
   setPhysicalExaminationBasicData,
   setPhysicalExaminationOthersData,
-  setPhysicalExaminationProvisionalDiagnosisData,
   setReferredDocForReview,
   setTreatmentPlanData,
   setVitalsData,

@@ -41,7 +41,7 @@ const FIELD_SCHEMA = [
   },
   {
     id: "attendingDoctor",
-    label: "Attending Doctor*",
+    label: "Attending Doctor",
     type: "select-attending",
   }, // from filters.doctor
   { id: "admissionDate", label: "Admission Date*", type: "date" },
@@ -122,7 +122,7 @@ function FieldRenderer({
     "wardId",
     "roomId",
     "admittingDoctorId",
-    "attendingDoctor",
+    // "attendingDoctor",
     "admissionDate",
     "admissionTime",
     // "admissionNo",
@@ -546,7 +546,7 @@ export default function PatientAdmission() {
           speciality:
             doctor?.role || patientDetails?.primaryConsultant?.speciality || "",
         },
-        doctorId: formData?.attendingDoctor || 0,
+        doctorId: formData?.attendingDoctor || null,
         hospitalId: hospitalId || 0,
         admittedOn,
         // referral: !!formData.referralInfo,
