@@ -28,7 +28,7 @@ import { trackMoEngageEvent } from "../../../utils/utils";
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD-MM-YYYY";
 
-function InPatients() {
+function ApproveToDischargePatients() {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -130,7 +130,7 @@ function InPatients() {
   
   useEffect(() => {
     const patientData = location.state?.patientDetails || null;
-    trackMoEngageEvent("IPD_InPatients_Mounted", {
+    trackMoEngageEvent("IPD_ApproveToDischargePatients_Mounted", {
       selected_doctor_ids: selectedDoctors,
       selected_doctors_count: selectedDoctors.length,
       selected_wards: selectedWards,
@@ -152,6 +152,7 @@ function InPatients() {
         selectedDoctors.length > 0 ? selectedDoctors.join(",") : allDoctorIds,
       ward: selectedWards.length > 0 ? selectedWards.join(",") : "",
       isDischarged: false,
+      sentForApproval: true,
     }),
     [filterParams, dateRange, selectedDoctors, selectedWards, allDoctorIds]
   );
@@ -262,7 +263,7 @@ function InPatients() {
 
       // Track date filter change
       const patientData = location.state?.patientDetails || null;
-      trackMoEngageEvent("IPD_InPatients_Updated", {
+      trackMoEngageEvent("IPD_ApproveToDischargePatients_Updated", {
         filter_type: "admitted_on_date",
         date_status: newDateStatus,
         start_date: startDate,
@@ -292,7 +293,7 @@ function InPatients() {
       
       // Track doctor filter change
       const patientData = location.state?.patientDetails || null;
-      trackMoEngageEvent("IPD_InPatients_Updated", {
+      trackMoEngageEvent("IPD_ApproveToDischargePatients_Updated", {
         filter_type: "doctor",
         selected_doctor_ids: doctorIds,
         selected_doctors_count: doctorIds.length,
@@ -308,7 +309,7 @@ function InPatients() {
       
       // Track ward filter change
       const patientData = location.state?.patientDetails || null;
-      trackMoEngageEvent("IPD_InPatients_Updated", {
+      trackMoEngageEvent("IPD_ApproveToDischargePatients_Updated", {
         filter_type: "ward",
         selected_wards: wardIds,
         selected_wards_count: wardIds.length,
@@ -337,7 +338,7 @@ function InPatients() {
 
   return (
     <>
-      <SubHeader headerTitle={"InPatients"} />
+      <SubHeader headerTitle={"Approve To Discharge"} />
       <div className="border rounded-4 appointment-wrap ipd-inpatients-page-wrap dateborder">
         <div className="inpatients-main">
           <Row
@@ -377,7 +378,7 @@ function InPatients() {
             lastElementRef={lastElementRef}
             filterParams={filterParams}
             fetchParams={fetchParams}
-            isInPatients={true}
+            isDischargeQueue={true}
           />
         </div>
       </div>
@@ -385,4 +386,4 @@ function InPatients() {
   );
 }
 
-export default React.memo(InPatients);
+export default React.memo(ApproveToDischargePatients);

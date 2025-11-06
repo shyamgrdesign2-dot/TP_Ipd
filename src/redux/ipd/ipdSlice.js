@@ -142,6 +142,20 @@ export const markPatientAsDischarged = createAsyncThunk(
   }
 );
 
+export const sendForDischargeApproval = createAsyncThunk(
+  "ipd/sendForDischargeApproval",
+  async (data) => {
+    try {
+      let result = {};
+      result = await ApiIpdService.sendForDischargeApproval(data);
+      return result;
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
 const ipdSlice = createSlice({
   name: "ipd",
   initialState,

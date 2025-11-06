@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Spin, Popover, message } from "antd";
 import moment from "moment";
 import { useDispatch } from "react-redux";
@@ -7,17 +7,21 @@ import Referral from "./Referral";
 import "../InPatients.scss";
 import { defaultIcons } from "../../../../assets/images/icons";
 import { defaultIcons as newIcons } from "../../../../assets/images/indices";
-import { markPatientAsDischarged } from "../../../../redux/ipd/ipdSlice";
+import {
+  markPatientAsDischarged,
+  sendForDischargeApproval,
+} from "../../../../redux/ipd/ipdSlice";
 import { usePatientsData } from "../hooks/usePatientsData";
+import { getTokenData } from "../../../../utils/utils";
 
-const MoreActionsContent = ({ handleMarkPatientAsDischarged, record }) => {
+const MoreActionsContent = ({ onCtaClick, record, title }) => {
   return (
     <div
-      onClick={() => handleMarkPatientAsDischarged(record)}
+      onClick={() => onCtaClick(record)}
       className="more-actions-content cursor-pointer"
     >
       <img src={newIcons.dischargedPatientsSc} alt="dischargedPatientsSc" />
-      <div className="fs16-semibold-primary">Discharge Patient</div>
+      <div className="fs16-semibold-primary">{title}</div>
     </div>
   );
 };
@@ -34,8 +38,16 @@ const PatientsTable = ({
   filterParams,
   isDischargedPatients = false,
   fetchParams = {},
+  isInPatients = false,
+  isDischargeQueue = false,
 }) => {
   const dispatch = useDispatch();
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    const { user_id } = getTokenData();
+    setUserId(user_id);
+  }, []);
 
   const { fetchData } = usePatientsData();
   const [openMoreActionsPopover, setOpenMoreActionsPopover] = useState(null);
@@ -54,6 +66,22 @@ const PatientsTable = ({
         );
       } else {
         message.success("Patient discharged successfully");
+        setOpenMoreActionsPopover(null);
+        fetchData(fetchParams);
+      }
+    });
+  };
+
+  const handleSendForDischargeApproval = (record) => {
+    dispatch(
+      sendForDischargeApproval({ admissionId: record?.admissionId })
+    ).then((res) => {
+      if (res?.payload?.status === 400) {
+        message.warning(
+          res?.payload?.data?.message || "Send for approval failed"
+        );
+      } else {
+        message.success("Patient sent for discharge approval successfully");
         setOpenMoreActionsPopover(null);
         fetchData(fetchParams);
       }
@@ -194,54 +222,74 @@ const PatientsTable = ({
       key: "action",
       fixed: "right",
       className: "col-action",
-      render: (_, record) => (
-        <div
-          size="middle"
-          style={{ display: "flex", justifyContent: "space-between" }}
-        >
-          <button
-            className="view-details-btn"
-            onClick={() => {
-              onViewDetails(record?.patientData);
-            }}
-          >
-            View Details
-          </button>
-          {!isDischargedPatients && !record?.isDischarged ? (
-            <Popover
-              open={openMoreActionsPopover === record?.patientData?.admissionId}
-              onOpenChange={(open) => {
-                if (!open) {
-                  setOpenMoreActionsPopover(null);
-                }
-              }}
-              content={
-                <MoreActionsContent
-                  handleMarkPatientAsDischarged={handleMarkPatientAsDischarged}
-                  record={record?.patientData}
-                />
+      render: (_, record) => {
+        const isAdmittingDoctor = record?.doctorId === userId;
+        const actionObj = isInPatients
+          ? isAdmittingDoctor
+            ? {
+                title: "Discharge Patient",
+                onCtaClick: handleMarkPatientAsDischarged,
               }
-              trigger="click"
-              overlayClassName="zindex-1000 pp-0 videoTutorial"
-              placement="bottomRight"
-              arrow={false}
+            : {
+                title: "Send For Discharge Approval",
+                onCtaClick: handleSendForDischargeApproval,
+              }
+          : {
+              title: "Discharge Patient",
+              onCtaClick: handleMarkPatientAsDischarged,
+            };
+        return (
+          <div
+            size="middle"
+            style={{ display: "flex", justifyContent: "space-between" }}
+          >
+            <button
+              className="view-details-btn"
+              onClick={() => {
+                onViewDetails(record?.patientData);
+              }}
             >
-              <img
-                onClick={() =>
-                  showHideMoreActionPopover(
-                    !openMoreActionsPopover
-                      ? record?.patientData?.admissionId
-                      : null
-                  )
+              View Details
+            </button>
+            {!isDischargedPatients && !record?.isDischarged ? (
+              <Popover
+                open={
+                  openMoreActionsPopover === record?.patientData?.admissionId
                 }
-                className="cursor-pointer"
-                src={defaultIcons.moreIcon}
-                alt={":"}
-              />
-            </Popover>
-          ) : null}
-        </div>
-      ),
+                onOpenChange={(open) => {
+                  if (!open) {
+                    setOpenMoreActionsPopover(null);
+                  }
+                }}
+                content={
+                  <MoreActionsContent
+                    onCtaClick={actionObj?.onCtaClick}
+                    record={record?.patientData}
+                    title={actionObj?.title}
+                  />
+                }
+                trigger="click"
+                overlayClassName="zindex-1000 pp-0 videoTutorial"
+                placement="bottomRight"
+                arrow={false}
+              >
+                <img
+                  onClick={() =>
+                    showHideMoreActionPopover(
+                      !openMoreActionsPopover
+                        ? record?.patientData?.admissionId
+                        : null
+                    )
+                  }
+                  className="cursor-pointer"
+                  src={defaultIcons.moreIcon}
+                  alt={":"}
+                />
+              </Popover>
+            ) : null}
+          </div>
+        );
+      },
     },
   ];
 
@@ -254,6 +302,10 @@ const PatientsTable = ({
       <div className="mt-3 fontroboto fw-normal">
         {error
           ? "Using static data. No patients match your filters."
+          : isDischargeQueue
+          ? "There are no patients in the discharge queue right now!"
+          : isDischargedPatients
+          ? "There are no discharged patients right now!"
           : "There are no patients right now!"}
       </div>
     </div>

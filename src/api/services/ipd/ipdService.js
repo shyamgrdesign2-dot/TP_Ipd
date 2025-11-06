@@ -58,4 +58,12 @@ ApiIpdService.markPatientAsDischarged = function ({ admissionId }) {
   );
 };
 
+ApiIpdService.sendForDischargeApproval = function ({ admissionId }) {
+  return api.put(
+    `/patients/mark-discharged-approval?admissionId=${admissionId}`,
+    {},
+    baseUrl
+  );
+};
+
 export default ApiIpdService;

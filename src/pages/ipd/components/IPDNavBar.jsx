@@ -73,7 +73,26 @@ function IPDNavbar() {
           )}
         </NavLink>
       </div>
-
+      <div>
+        <NavLink to="/ipd/approveToDischagePatients" replace={true} end>
+          {({ isActive }) => (
+            <>
+              <img
+                src={defaultIcons.wardBedManagementOutline}
+                alt="Discharge Queue"
+                style={{
+                  filter: isActive ? "grayscale(0%)" : "grayscale(100%)",
+                }}
+              />
+              <div className="mt-1 px-2">
+                <div className={isActive ? "text-primary" : ""}>
+                  Discharge Queue
+                </div>
+              </div>
+            </>
+          )}
+        </NavLink>
+      </div>
       <div>
         <NavLink to="/ipd/dischargedPatients" replace={true} end>
           {({ isActive }) => (
