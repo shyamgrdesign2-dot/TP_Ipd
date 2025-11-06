@@ -33,8 +33,9 @@ const ChiefComplaint = (props) => {
     (state) => state.symptoms
   );
 
-  const { chiefComplaint: chiefComplaintFromLastPrescription = [] } =
-    lastPrescriptionDataForAssessment;
+  const {
+    presentingComplaints: chiefComplaintFromLastPrescription = [],
+  } = lastPrescriptionDataForAssessment;
   const { lastRxDate } = lastPrescriptionDate || {};
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [isShimmering, setIsShimmering] = useState(false);
@@ -61,7 +62,9 @@ const ChiefComplaint = (props) => {
     }
     if (
       !Array.isArray(chiefComplaintFromLastPrescription) ||
-      !chiefComplaintFromLastPrescription?.[0]?.children
+      (Array.isArray(chiefComplaintFromLastPrescription) &&
+        chiefComplaintFromLastPrescription?.length > 1) ||
+      chiefComplaintFromLastPrescription?.[0]?.symptom_name
     ) {
       const convertedData = convertTemplateDataToRichText(
         chiefComplaintFromLastPrescription,
@@ -78,10 +81,7 @@ const ChiefComplaint = (props) => {
       (!Array.isArray(chiefComplaintFromLastPrescription) &&
         typeof chiefComplaintFromLastPrescription === "string" &&
         !!chiefComplaintFromLastPrescription) ||
-      (Array.isArray(chiefComplaintFromLastPrescription) &&
-        !!chiefComplaintFromLastPrescription?.[0]?.children?.[0]?.text) ||
-      (Array.isArray(chiefComplaintFromLastPrescription) &&
-        !!chiefComplaintFromLastPrescription?.[0]?.title)
+      !isEmptyRichText(chiefComplaintFromLastPrescription)
     );
   }, [chiefComplaint, chiefComplaintFromLastPrescription]);
 
@@ -115,7 +115,11 @@ const ChiefComplaint = (props) => {
         containerClass={`${hideBorder ? "ipdchiefcomplaint-hide-border" : ""} ${
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
-        opdDate={formatDateToShortMonthYear(lastRxDate)}
+        opdDate={
+          lastRxDate
+            ? formatDateToShortMonthYear(lastRxDate)
+            : "Last Consultation"
+        }
         onSave={() => {
           console.log("save");
         }}
@@ -140,7 +144,9 @@ const ChiefComplaint = (props) => {
         renderFooter={() => {
           return children && children;
         }}
-        headerComponent={!isEmptyRichText(chiefComplaint) ? showLastUpdatedAt : null}
+        headerComponent={
+          !isEmptyRichText(chiefComplaint) ? showLastUpdatedAt : null
+        }
       />
     </div>
   );
