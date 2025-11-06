@@ -70,6 +70,40 @@ const ProgressNotes = (props) => {
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [shouldAutofill, setShouldAutofill] = useState(false);
 
+  const mergeDateAndTime = useCallback((dateValue, timeValue) => {
+    const dateMoment = dayjs(dateValue ?? new Date());
+    const validDate = dateMoment.isValid() ? dateMoment : dayjs();
+
+    const timeSource = timeValue ?? dateValue ?? new Date();
+    const timeMoment = dayjs(timeSource);
+    const validTime = timeMoment.isValid() ? timeMoment : dayjs();
+
+    return validDate
+      .set("hour", validTime.hour())
+      .set("minute", validTime.minute())
+      .set("second", validTime.second())
+      .set("millisecond", validTime.millisecond())
+      .toDate();
+  }, []);
+
+  const handleFilledDateChange = useCallback(
+    (value) => {
+      const merged = mergeDateAndTime(value, filledAtTime);
+      setFilledDate(merged);
+      setFilledAtTime(merged);
+    },
+    [mergeDateAndTime, filledAtTime]
+  );
+
+  const handleFilledTimeChange = useCallback(
+    (value) => {
+      const merged = mergeDateAndTime(filledDate, value);
+      setFilledDate(merged);
+      setFilledAtTime(merged);
+    },
+    [mergeDateAndTime, filledDate]
+  );
+
   const {
     progressNotes,
     currentProgressNote,
@@ -443,8 +477,8 @@ const ProgressNotes = (props) => {
             { label: "Evening", value: "Evening" },
             { label: "Night", value: "Night" },
           ]}
-          onDateChange={(date) => setFilledDate(date)}
-          onTimeChange={(time) => setFilledAtTime(time)}
+          onDateChange={handleFilledDateChange}
+          onTimeChange={handleFilledTimeChange}
           onTimePeriodChange={handleTimePeriodChange}
           editable
           showTimePeriod={true}
