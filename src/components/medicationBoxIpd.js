@@ -47,6 +47,7 @@ import { upsertDoctorSettingFlag } from "../redux/doctorsSlice";
 import { useLocation } from "react-router-dom";
 import { clearMedicationData, setMedicationData, setPillupSwitch } from "../redux/prescriptionSlice";
 import TabMedicationSearch from "./tab_design/TabMedicationSearch";
+import TabMedicationMoreModal from "./tab_design/TabMedicationMoreModal";
 
 
 const { TextArea } = Input;
@@ -770,17 +771,26 @@ function MedicationsBox(props) {
   );
 
   // More options visibility handlers
-  const handleTimingMoreOptionsVisible = () => {
-    setTimingMoreOptionsVisible(!timingMoreOptionsVisible);
-  }
+  const handleTimingMoreOptionsVisible = useCallback(
+    () => {
+      setTimingMoreOptionsVisible(!timingMoreOptionsVisible)
+    },
+    [timingMoreOptionsVisible]
+  );
 
-  const handleFrequencyMoreOptionsVisible = () => {
-    setFrequencyMoreOptionsVisible(!frequencyMoreOptionsVisible);
-  }
+  const handleFrequencyMoreOptionsVisible = useCallback(
+    () => {
+      setFrequencyMoreOptionsVisible(!frequencyMoreOptionsVisible)
+    },
+    [frequencyMoreOptionsVisible]
+  );
 
-  const handleDurationMoreOptionsVisible = () => {
-    setDurationMoreOptionsVisible(!durationMoreOptionsVisible);
-  }
+  const handleDurationMoreOptionsVisible = useCallback(
+    () => {
+      setDurationMoreOptionsVisible(!durationMoreOptionsVisible)
+    },
+    [durationMoreOptionsVisible]
+  );
 
   // Child drawer input handlers (simplified versions)
   const onChangeDosageChild = useCallback(
@@ -1164,19 +1174,15 @@ function MedicationsBox(props) {
     }
   }, [childIndex, childDrawerData]);
 
-  const onChangeNoteChild = useCallback(
-    (e, i) => {
-      medicationData[i].tmm_remarks = e.target.value;
-      setChildDrawerData((prev) => [...prev]);
-      dispatch(setMedicationData(medicationData));
-    },
-    [medicationData]
-  );
-
   const onChangeInputNoteChild = useCallback(
     (e) => {
-      childDrawerData[childIndex].tmm_remarks = e.target.value;
-      setChildDrawerData((prev) => [...prev]);
+      const { value } = e.target;
+      if (!Array.isArray(childDrawerData) || childIndex === null) return;
+      setChildDrawerData((prev) =>
+        prev.map((item, idx) =>
+          idx === childIndex ? { ...item, tmm_remarks: value } : item
+        )
+      );
     },
     [childIndex, childDrawerData]
   );
@@ -1577,7 +1583,6 @@ function MedicationsBox(props) {
 
   const TABLE_MEDICATION = useMemo(() => {
     const noteProps = isEditable ? { lg: 4, md: 4, sm: 4, xs: 4 } : { lg: 7, md: 7, sm: 7, xs: 7 };
-    console.log(medicationData,"medicationData")
     
     const rows = (medicationData || []).map((item, index) => {
       const dosageValue = item?.tmm_dosage;
@@ -2932,6 +2937,20 @@ function MedicationsBox(props) {
                   </div>
                 )}
               </div>
+              {frequencyMoreOptionsVisible && (
+                <TabMedicationMoreModal
+                  width='563px'
+                  title={'Frequency'}
+                  onClose={handleFrequencyMoreOptionsVisible}
+                  onClick={(item) => {
+                    setFrequencyMoreOptionsVisible(false);
+                    onChangeFrequencyChild(item);
+                  }}
+                  label={'tmf_title'}
+                  value={'tmf_id'}
+                  selectedValue={childDrawerData[childIndex]?.tmm_freq_type}
+                  array={filteredTitles.slice(2, filteredTitles.length)} />
+              )}
               <div>
                 <div className="segement-static d-flex flex-wrap">
                   {timingList.slice(0, 5).map((item, i) => {
@@ -2980,6 +2999,20 @@ function MedicationsBox(props) {
                 </div>
               </div>
             </div>
+            {timingMoreOptionsVisible && (
+              <TabMedicationMoreModal
+                width='563px'
+                title={'Timings'}
+                onClose={handleTimingMoreOptionsVisible}
+                onClick={(item) => {
+                  setTimingMoreOptionsVisible(false);
+                  onChangeTimingChild(item);
+                }}
+                label={'tmt_title'}
+                value={'tmt_id'}
+                selectedValue={childDrawerData?.[childIndex]?.tmm_time}
+                array={timingList.slice(5, timingList.length)} />
+            )}
             <div className="mt-3">
               <label className="title-common mb-1">Duration</label>
               <div className="segement-static d-flex">
@@ -3028,6 +3061,20 @@ function MedicationsBox(props) {
                 })}
               </div>
             </div>
+            {durationMoreOptionsVisible && (
+              <TabMedicationMoreModal
+                width='563px'
+                title={'Duration'}
+                onClose={handleDurationMoreOptionsVisible}
+                onClick={(item) => {
+                  setDurationMoreOptionsVisible(false);
+                  onChangeDurationChild(item);
+                }}
+                label={'label'}
+                value={'value'}
+                selectedValue={childDrawerData[childIndex]?.tmm_days_duration_type}
+                array={EXTRA_OPTIONS} />
+            )}
 
             {childDrawerData[childIndex]?.tmm_days_duration_type && (
               <div className="text-primary d-flex align-items-center"><i className="icon-copyIcon fs-16 me-1" /> <span className="text-primary text-decoration-underline" onClick={() => onAutoFillDuration(selectedIndex)}>Autofill this duration for all added meds.</span></div>

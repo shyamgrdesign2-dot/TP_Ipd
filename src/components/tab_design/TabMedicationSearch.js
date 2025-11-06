@@ -795,11 +795,15 @@ function TabMedicationSearch({ passIndex, onClose }) {
   const onChangeSegmentedSinceChild = useCallback(
     (key) => {
       setSinceValue(key);
-      medicationData[selectedIndex].tmm_days = 0;
-      medicationData[selectedIndex].tmm_duration_type = "";
-      dispatch(setMedicationData(medicationData));
+      if (selectedIndex === null || !Array.isArray(medicationData)) return;
+      const updatedMedication = medicationData.map((item, idx) =>
+        idx === selectedIndex
+          ? { ...item, tmm_days: 0, tmm_duration_type: "" }
+          : item
+      );
+      dispatch(setMedicationData(updatedMedication));
     },
-    [sinceValue, selectedIndex, medicationData]
+    [sinceValue, selectedIndex, medicationData, dispatch]
   );
 
   const onChangeSinceChild = useCallback(

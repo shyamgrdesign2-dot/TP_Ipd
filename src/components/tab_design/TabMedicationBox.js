@@ -774,7 +774,6 @@ function TabMedicationBox(props) {
   });
 
   const TABLE_MEDICATION = useMemo(() => {
-    console.log(medicationData,"medicationData")
     return (
       medicationData.length > 0 && (
         <SortableList
