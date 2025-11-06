@@ -1,5 +1,5 @@
 // PatientAdmission.jsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ConfigProvider,
   Row,
@@ -41,18 +41,19 @@ const FIELD_SCHEMA = [
   },
   {
     id: "attendingDoctor",
-    label: "Attending Doctor",
+    label: "Attending Doctor*",
     type: "select-attending",
   }, // from filters.doctor
   { id: "admissionDate", label: "Admission Date*", type: "date" },
   { id: "admissionTime", label: "Admission Time*", type: "time" },
   // { id: "referralInfo", label: "Referral Info", type: "searchWithAdd" },
-  {
-    id: "patientCategory",
-    label: "Patient Category",
-    type: "select-static",
-    options: ["Cash", "Insurance", "Corporate", "Government"],
-  },
+  // {
+  //   id: "patientCategory",
+  //   label: "Patient Category",
+  //   type: "select-static",
+  //   options: ["Cash", "Insurance", "Corporate", "Government"],
+  // },
+  { id: "admissionNo", label: "Admission Number", type: "input" },
   {
     id: "haveAMLC",
     label: "Have a MLC?",
@@ -121,8 +122,10 @@ function FieldRenderer({
     "wardId",
     "roomId",
     "admittingDoctorId",
+    "attendingDoctor",
     "admissionDate",
     "admissionTime",
+    // "admissionNo",
   ];
   const rules = requiredIds.includes(field.id)
     ? { required: `${field.label.replace("*", "")} is required` }
@@ -134,22 +137,25 @@ function FieldRenderer({
     mapItem = (x) => ({ value: x, label: x }),
     extraProps = {}
   ) => {
-      return (
-        <Select
-          value={rhf.value}
-          onChange={rhf.onChange}
-          onBlur={rhf.onBlur}
-          allowClear
-          placeholder="Select"
-          popupMatchSelectWidth={false}
-          options={list.map(mapItem)}
-          optionLabelProp="label"
-          showSearch
-          filterOption={(input, option) => (option?.label || "").toLowerCase().includes(input.toLowerCase())}
-          className="w-100"
-          {...extraProps} />
-      );
-    };
+    return (
+      <Select
+        value={rhf.value}
+        onChange={rhf.onChange}
+        onBlur={rhf.onBlur}
+        allowClear
+        placeholder="Select"
+        popupMatchSelectWidth={false}
+        options={list.map(mapItem)}
+        optionLabelProp="label"
+        showSearch
+        filterOption={(input, option) =>
+          (option?.label || "").toLowerCase().includes(input.toLowerCase())
+        }
+        className="w-100"
+        {...extraProps}
+      />
+    );
+  };
 
   if (field.id === "contactNo") {
     return (
@@ -285,6 +291,7 @@ function FieldRenderer({
         <Controller
           name={field.id}
           control={control}
+          rules={rules}
           key={selectedDepartmentId}
           render={({ field: rhf }) => (
             <Select
@@ -398,6 +405,7 @@ function FieldRenderer({
         <Controller
           name={field.id}
           control={control}
+          rules={rules}
           render={({ field: rhf }) => (
             <Input
               placeholder={field.label}
@@ -538,11 +546,7 @@ export default function PatientAdmission() {
           speciality:
             doctor?.role || patientDetails?.primaryConsultant?.speciality || "",
         },
-        doctorId:
-          formData.attendingDoctor ||
-          patientDetails?.primaryConsultant?.id ||
-          patientDetails?.doctorId ||
-          0,
+        doctorId: formData?.attendingDoctor || 0,
         hospitalId: hospitalId || 0,
         admittedOn,
         // referral: !!formData.referralInfo,
@@ -551,8 +555,10 @@ export default function PatientAdmission() {
         mrno: patientDetails?.mrno || patientDetails?.mrNo || "",
         visitno: patientDetails?.visitno || "",
         encounterno: patientDetails?.encounterno || "",
+        admissionNo: formData?.admissionNo || "",
         metadata: {
-          category: formData.patientCategory || "",
+          // category: formData.patientCategory || "",
+          category: "",
           haveMLC: formData.haveAMLC === "Yes",
           mlcno: formData.mlcNumber || "",
           caretaker: formData.careTaker || "",

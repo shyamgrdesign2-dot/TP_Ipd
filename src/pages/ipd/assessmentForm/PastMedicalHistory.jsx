@@ -39,7 +39,6 @@ const PastMedicalHistory = (props) => {
     const { pastMedicalHistory: lastPastMedicalHistory = {} } =
       lastPrescriptionDataForAssessment || {};
     if (
-      !lastRxDate ||
       !lastPrescriptionDataForAssessment?.pastMedicalHistory?.length
     )
       return null;
@@ -63,7 +62,7 @@ const PastMedicalHistory = (props) => {
             );
           }
         }}
-        title={`Autofill From OPD (${formatDateToShortMonthYear(lastRxDate)})`}
+        title={`Autofill From OPD ${lastRxDate ? `(${formatDateToShortMonthYear(lastRxDate)})` : ""}`}
       />
     );
   }, [lastPrescriptionDataForAssessment, medicalHistoryData]);

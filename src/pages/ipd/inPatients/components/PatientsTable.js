@@ -103,14 +103,26 @@ const PatientsTable = ({
         </div>
       ),
     },
+    // {
+    //   title: "Patient ID / Mrno",
+    //   dataIndex: "patientId",
+    //   key: "patientId",
+    //   className: "col-patient-details",
+    //   render: (text, record) => (
+    //     <div>
+    //       <div>{record?.patientId || ""}</div>
+    //       <small>{record?.mrno}</small>
+    //     </div>
+    //   ),
+    // },
     {
-      title: "Patient ID / Mrno",
-      dataIndex: "patientId",
-      key: "patientId",
+      title: "Admission Id / MRN id",
+      dataIndex: "admissionNo",
+      key: "admissionNo",
       className: "col-patient-details",
       render: (text, record) => (
         <div>
-          <div>{record?.patientId || ""}</div>
+          <div>{record?.admissionNo || ""}</div>
           <small>{record?.mrno}</small>
         </div>
       ),
