@@ -46,6 +46,7 @@ import { getProgressNotes } from "../../../redux/ipd/progressNotesSlice";
 import FullPageLoader from "../../vaccination/components/Loader";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { isEmptyRichText } from "../../../components/PDFGenerator";
+import MedicationBoxIpd from "../../../components/medicationBoxIpd";
 dayjs.extend(customParseFormat);
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
@@ -282,10 +283,7 @@ const ConsultantNotes = (props) => {
           return (
             <div className="ipdaf-box-container">
               {isMobile ? (
-                <TabMedicationBox
-                  hideFrequentlyUsedMeds={true}
-                  isEditable={isEditable}
-                />
+                <MedicationBoxIpd isEditable={isEditable} />
               ) : (
                 <MedicationsBox
                   isEditable={isEditable}
