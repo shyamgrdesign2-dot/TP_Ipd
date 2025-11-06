@@ -19,6 +19,7 @@ import {
 import "./styles.scss";
 import { searchPatients } from "../../../redux/appointmentsSlice";
 import { defaultIcons } from "../../../assets/images/icons";
+import ExampleFormWithKeyboardFix from "../../../components/ExampleFormWithKeyboardFix";
 
 const { Title, Text, Link } = Typography;
 
@@ -109,6 +110,10 @@ export default function AddAdmission() {
   const handleBackClick = () => {
     navigate("/ipd/inPatients", { replace: true });
   };
+
+  return (
+    <ExampleFormWithKeyboardFix />
+  )
 
   return (
     <div className="add-admission-page">

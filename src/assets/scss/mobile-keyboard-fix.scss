@@ -1,0 +1,90 @@
+/* Mobile Keyboard Fix Styles */
+
+/* Ensure the viewport uses the full screen */
+html {
+  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height - newer browsers */
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Fixed header that stays visible during keyboard open */
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  
+  /* Use safe area insets for devices with notches */
+  padding-top: env(safe-area-inset-top);
+  
+  /* Ensure it stays above keyboard */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Main content area that adjusts for keyboard */
+.main-content {
+  padding-top: 60px; /* Adjust based on your header height */
+  padding-bottom: env(keyboard-inset-height, 0px); /* iOS Safari */
+  min-height: calc(100vh - 60px);
+  min-height: calc(100dvh - 60px);
+}
+
+/* Form container adjustments */
+.form-container {
+  padding-bottom: 100px; /* Extra space for keyboard */
+  
+  /* On mobile devices */
+  @media screen and (max-width: 768px) {
+    padding-bottom: 50vh; /* More space on mobile */
+  }
+}
+
+/* Input field focus adjustments */
+.form-input:focus {
+  /* Prevent zoom on iOS */
+  font-size: 16px;
+  
+  /* Smooth scroll behavior */
+  scroll-margin-top: 80px; /* Space from top when scrolled into view */
+}
+
+/* Tablet specific adjustments */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .fixed-header {
+    /* Ensure header stays visible on tablets */
+    position: fixed !important;
+    top: 0 !important;
+  }
+  
+  .main-content {
+    /* Add more bottom padding for tablet keyboards */
+    padding-bottom: 40vh;
+  }
+}
+
+/* Keyboard detection using viewport units */
+@supports (height: 100dvh) {
+  .keyboard-aware-container {
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .keyboard-aware-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 20px;
+  }
+  
+  .keyboard-aware-header {
+    flex-shrink: 0;
+  }
+}

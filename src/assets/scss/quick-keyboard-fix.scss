@@ -1,0 +1,70 @@
+/* Quick CSS-only fix for keyboard issues */
+
+/* Prevent viewport zoom on input focus (iOS) */
+input, textarea, select {
+  font-size: 16px !important;
+}
+
+/* Ensure fixed header stays visible */
+.fixed-header-keyboard-safe {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 9999 !important;
+  background: white;
+  
+  /* Force hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform;
+  
+  /* Ensure it's always visible */
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+
+/* Main content adjustments */
+.main-content-keyboard-safe {
+  padding-top: 70px; /* Adjust based on your header height */
+  min-height: 100vh;
+  
+  /* Add extra bottom padding for keyboard */
+  padding-bottom: 50vh;
+  
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+}
+
+/* Form container */
+.form-keyboard-safe {
+  padding-bottom: 200px; /* Extra space for keyboard */
+}
+
+/* Input focus behavior */
+.form-keyboard-safe input:focus,
+.form-keyboard-safe textarea:focus,
+.form-keyboard-safe .ant-input:focus,
+.form-keyboard-safe .ant-select-focused {
+  /* Ensure focused input is visible */
+  scroll-margin-top: 100px;
+}
+
+/* Tablet specific fixes */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .main-content-keyboard-safe {
+    padding-bottom: 60vh; /* More space on tablets */
+  }
+  
+  .fixed-header-keyboard-safe {
+    /* Ensure header is always at the very top */
+    position: fixed !important;
+    top: 0 !important;
+  }
+}
+
+/* Mobile specific fixes */
+@media screen and (max-width: 767px) {
+  .main-content-keyboard-safe {
+    padding-bottom: 70vh; /* Even more space on mobile */
+  }
+}
