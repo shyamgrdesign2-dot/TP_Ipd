@@ -250,6 +250,7 @@ const FunctionalAssessment = (props) => {
     );
   };
   const renderReferredToPhysiotherapy = (data) => {
+    if (typeof referredDocForReview === 'object' && referredDocForReview?.name) return null;
     if (!isEditable && !referredDocForReview) return null;
     if (!isEditable) {
       return (
