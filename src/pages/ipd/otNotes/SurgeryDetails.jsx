@@ -15,6 +15,7 @@ import {
   setDiagnosis,
   searchSurgeryProcedures,
 } from "../../../redux/ipd/otNotesSlice";
+import { createSurgery } from "../../../redux/surgicalSlice";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -27,10 +28,16 @@ const SurgeryDetails = (props) => {
   const initialValue = useMemo(() => surgeryDetails || {}, [surgeryDetails]);
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     dispatch(searchSurgeryProcedures(""));
   }, []);
+
+  const createCustomSurgery = async (name) => {
+    const masterId = await createSurgery({ name: name });
+    return masterId;
+  };
 
   const renderSurgeryProcedureName = () => {
     const options = (surgeryProcedureOptions || []).map((item) => ({
@@ -38,6 +45,41 @@ const SurgeryDetails = (props) => {
       value: item.name,
       label: <div key={item.id || item.masterId}>{item.name}</div>,
     }));
+
+    if (searchQuery) {
+      const trimmedQuery = searchQuery.trim();
+      
+      if (trimmedQuery) {
+        const isItemExists = surgeryProcedureOptions.some(
+          item => item.name.toLowerCase() === trimmedQuery.toLowerCase()
+        );
+
+        if (!isItemExists) {
+          options.push({
+            key: JSON.stringify({
+              change: 1,
+              name: trimmedQuery,
+              isCustom: true,
+            }),
+            value: trimmedQuery,
+            label: trimmedQuery, // Use just the search term for display
+            customLabel: (
+              <>
+                <div>
+                  {trimmedQuery}
+                  <i className="icon-Add mx-1 text-primary fs-6"></i>{" "}
+                  <span className="fw-medium text-decoration-underline text-primary">
+                    {" "}
+                    Add Custom
+                  </span>
+                </div>
+              </>
+            ),
+          });
+        }
+      }
+    }
+
     return (
       <div>
         <label className="otNotes-label">Surgery/Procedure Name</label>
@@ -49,17 +91,43 @@ const SurgeryDetails = (props) => {
           value={initialValue?.procedureName || undefined}
           className="multiple-select-custom autocomplete-custom w-100 popinput inputheight41"
           placeholder="Search and select Surgery/Procedure"
-          onSearch={(q) => dispatch(searchSurgeryProcedures(q))}
+          onSearch={(q) => {
+            setSearchQuery(q);
+            dispatch(searchSurgeryProcedures(q));
+          }}
           allowClear
-          onChange={(value, option) => {
-            if (value === undefined || value === null) {
+          optionRender={(option) => {
+            // Show custom label in dropdown if it exists, otherwise show regular label
+            return option.data.customLabel || option.data.label;
+          }}
+          onChange={async (value, option) => {
+            if (value === undefined || value === null || (Array.isArray(value) && value.length === 0)) {
               dispatch(setSurgeryProcedureName(""));
+              setSearchQuery(""); // Clear search query
               return;
             }
+            
             try {
-              const parsed = option?.key ? JSON.parse(option.key) : null;
-              dispatch(setSurgeryProcedureName(parsed?.name || value));
+              // Handle multiple selections - check if the last selected option is custom
+              const options = Array.isArray(option) ? option : [option];
+              const lastOption = options[options.length - 1];
+              const parsed = lastOption?.key ? JSON.parse(lastOption.key) : null;
+              
+              if (parsed?.isCustom) {
+                // Create custom surgery and update the options list
+                await createCustomSurgery(parsed.name);
+                
+                // Refresh the surgery procedures list to include the new custom item
+                dispatch(searchSurgeryProcedures(""));
+                
+                setSearchQuery(""); // Clear search query after adding custom
+              }
+              
+              // For multiple selection, store the entire array of selected values
+              dispatch(setSurgeryProcedureName(value));
+              
             } catch (e) {
+              console.error("Error handling surgery selection:", e);
               dispatch(setSurgeryProcedureName(value));
             }
           }}
