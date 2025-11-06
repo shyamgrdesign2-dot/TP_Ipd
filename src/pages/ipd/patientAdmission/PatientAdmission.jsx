@@ -468,7 +468,7 @@ export default function PatientAdmission() {
       roomId: undefined,
       admittingDoctorId: undefined,
       attendingDoctor: undefined,
-      contactNo: "",
+      contactNo: patientDetails?.contact,
     },
   });
 
