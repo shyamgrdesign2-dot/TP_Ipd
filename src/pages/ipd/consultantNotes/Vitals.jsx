@@ -34,7 +34,7 @@ const Vitals = (props) => {
                   onChange={(e) => handleVitalsValue(e, config.id)}
                   value={vitals?.[config.id]}
                   type="text"
-                  inputMode="decimal"
+                  inputMode="text"
                   label={config.label}
                   unit={config.unit}
                   {...configProps}

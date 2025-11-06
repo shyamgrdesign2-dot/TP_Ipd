@@ -114,8 +114,8 @@ const IntraOperativeNotes = (props) => {
                   containerStyle={{ marginBottom: "20px" }}
                   onChange={(e) => handleChange(e, subItem.id, item.id)}
                   value={intraOperativeNotes?.[item.id]?.[subItem.id]}
-                  type="number"
-                  inputMode="decimal"
+                  type="text"
+                  inputMode="text"
                   label={subItem.label}
                   unit={subItem?.unit || null}
                   {...subItem}
