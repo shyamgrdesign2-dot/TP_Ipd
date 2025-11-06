@@ -72,7 +72,7 @@ export const useAssessmentSectionVisibility = (isEditable) => {
       (!Object.keys(functionalAssessmentData || {})?.length ||
         (Object.keys(functionalAssessmentData || {})?.length === 1 &&
           !!functionalAssessmentData?.others)) &&
-      !referredDocForReview?.name &&
+      !referredDocForReview &&
       isEmptyRichText(functionalAssessmentData?.others)
     );
 

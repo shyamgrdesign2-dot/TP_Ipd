@@ -2124,7 +2124,7 @@ function MedicationsBox(props) {
           <div className="d-flex align-items-center">
             <img className="me-2" src={Medicationicon} alt="Medication" />
             <div className="title-common">{isDischargeSummary ? isPillUpAccessableFromGB ? 'Discharge Meds': 'Discharge Medications': isPillUpAccessableFromGB ? 'Meds' : 'Medications'} (Rx)</div>
-            {(isPillUpAccessableFromGB && isEditable) &&
+            {(!isIpd && isPillUpAccessableFromGB && isEditable) &&
               <div ref={tourRef} className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center" style={{ backgroundColor: 'rgb(226, 226, 234, 0.2)' }}>
                 {(() => {
                   const decodedToken = getDecodedToken();

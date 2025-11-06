@@ -228,7 +228,7 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
       dispatch(setFollowUpDate(dischargeSummaryData.followUp.date));
     }
 
-    if (!Array.isArray(dischargeSummaryData?.followUp?.doctor)) {
+    if (dischargeSummaryData?.followUp?.doctor && !Array.isArray(dischargeSummaryData?.followUp?.doctor)) {
       dispatch(setFollowUpDoctor(dischargeSummaryData.followUp.doctor));
     }
 

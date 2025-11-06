@@ -3121,22 +3121,6 @@ function MedicationsBox(props) {
           <div className="d-flex align-items-center">
             <img className="me-2" src={Medicationicon} alt="Medication" />
             <div className="title-common">{isPillUpAccessableFromGB ? 'Meds' : 'Medications'} (Rx)</div>
-            {(isPillUpAccessableFromGB && isEditable) &&
-              <div ref={tourRef} className="ms-2 border rounded-20px px-2 py-1 d-flex align-items-center" style={{ backgroundColor: 'rgb(226, 226, 234, 0.2)' }}>
-                <img src={Pillup} />
-                <Popover
-                  open={popOver3}
-                  onOpenChange={showHidePillUpPopover}
-                  content={profile?.userSettingFlag?.find(e => e?.type === 'pillup')?.status === 1 ? PILLUP_CONTENT() : null}
-                  trigger="hover"
-                  placement="bottom"
-                >
-                  <i className="icon-info opacity-50 fs-18 mx-1"></i>
-                </Popover>
-                <Switch className="switch-custom" value={pillupSwitch} onChange={pillUpChange} />
-                <Tour placement="bottom" closeIcon={false} open={tourOpen} steps={steps} onClose={onTourHandle} />
-              </div>
-            }
           </div>
           {isEditable && <div className="d-flex align-items-center">
             {profile?.dp_id === 9 && (

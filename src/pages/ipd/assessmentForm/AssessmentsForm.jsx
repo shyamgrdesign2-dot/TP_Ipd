@@ -55,6 +55,7 @@ const AssessmentsForm = (props) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { obstetricDetails: allObstetricDetails } = useSelector(
     (state) => state.obstetric
   );
@@ -175,6 +176,8 @@ const AssessmentsForm = (props) => {
   };
 
   const onSaveAssessmentClick = () => {
+    if (isLoading) return;
+    setIsLoading(true);
     const reqData = {
       date: filledDate,
       time: filledAtTime,
@@ -212,7 +215,7 @@ const AssessmentsForm = (props) => {
         {
           ...assessmentData.functionalAssessmentData,
           referredToPhysiotherapyForReview:
-            assessmentData?.referredDocForReview || {},
+            assessmentData?.referredDocForReview || null,
         } || {},
       treatmentPlan: assessmentData.treatmentPlanData || [],
       additionalNotes: assessmentData.additionalNotesData || [],
@@ -228,6 +231,7 @@ const AssessmentsForm = (props) => {
       })
     ).then((res) => {
       if (res?.payload?.error) {
+        setIsLoading(false);
         message.warning(
           `${res.payload.error} - ${
             res.payload.message?.split("must")?.[0]
@@ -235,6 +239,7 @@ const AssessmentsForm = (props) => {
         );
         return;
       }
+      setIsLoading(false);
       addDataToStore(reqData);
       dispatch(
         getAssessmentsData({
@@ -250,6 +255,7 @@ const AssessmentsForm = (props) => {
         },
         replace: true,
       });
+      setIsLoading(false);
       message.success({
         content: (
           <div className="ipd-success-msg-bar-container">
@@ -261,6 +267,7 @@ const AssessmentsForm = (props) => {
         icon: <img src={saveIcon} alt="x" />,
         className: "ipd-custom-message",
       });
+      setIsLoading(false);
     });
   };
 
@@ -382,7 +389,8 @@ const AssessmentsForm = (props) => {
                 title={"Admission Assessment"}
                 mainCta={{
                   handler: onSaveAssessmentClick,
-                  title: "Save",
+                  title: isLoading ? "Saving..." : "Save",
+                  disabled: isLoading,
                 }}
                 items={assessments}
                 renderSection={renderSections}

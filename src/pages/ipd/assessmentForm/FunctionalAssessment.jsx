@@ -22,6 +22,7 @@ const ASSESSMENT_CHILDREN_MAPPING = {
   bedSoreOnAdmission: "Bed Sore on Admission",
 };
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
+const UnitInput = createRemoteComponent("UnitInput");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const GenericCard = createRemoteComponent("GenericCard");
 
@@ -118,11 +119,11 @@ const FunctionalAssessment = (props) => {
   };
 
   const { others, ...functionalAssessmentWithouOthers } =
-        functionalAssessmentData;
+    functionalAssessmentData;
 
-      const isFunctionAssessmentValuesPresent = Object.values(
-        functionalAssessmentWithouOthers
-      ).some((item) => !!item && item !== "");
+  const isFunctionAssessmentValuesPresent = Object.values(
+    functionalAssessmentWithouOthers
+  ).some((item) => !!item && item !== "");
 
   const renderAssessment = () => {
     if (!isEditable) {
@@ -132,7 +133,7 @@ const FunctionalAssessment = (props) => {
           !!functionalAssessmentData.others)
       )
         return null;
-      
+
       if (!isFunctionAssessmentValuesPresent) return null;
 
       const functionalAssessmentFinalData = Object.entries(
@@ -233,35 +234,23 @@ const FunctionalAssessment = (props) => {
           <img src={assessmentsIcons[`${data?.id}Pc`]} alt="x" />
           <label className="refphy-label">{data.title}</label>
         </div>
-        <Select
-          showSearch
-          optionLabelProp="label"
-          options={options}
-          value={referredDocForReview?.name}
-          className="autocomplete-custom w-100 popinput inputheight41"
-          placeholder={`Select Physiotherapist`}
-          onSearch={(q) =>
-            dispatch(fetchFilters({ field: "doctor", search: q }))
-          }
-          allowClear
-          onChange={(value, option) => {
-            if (value === undefined || value === null) {
-              dispatch(setReferredDocForReview(null));
-              return;
-            }
-            try {
-              const parsed = option?.key ? JSON.parse(option.key) : null;
-              dispatch(setReferredDocForReview(parsed));
-            } catch (err) {
-              console.log("ERR in Referred To Physiotherapy", err);
-            }
+        <UnitInput
+          key={data?.id}
+          containerStyle={{ marginBottom: "20px" }}
+          onChange={(e) => {
+            dispatch(setReferredDocForReview(e));
           }}
+          value={referredDocForReview}
+          type="string"
+          inputMode="text"
+          title={null}
+          unit={null}
         />
       </div>
     );
   };
   const renderReferredToPhysiotherapy = (data) => {
-    if (!isEditable && !referredDocForReview?.name) return null;
+    if (!isEditable && !referredDocForReview) return null;
     if (!isEditable) {
       return (
         <div className="ipd-fas-refphy-container rich-text-editor-wrapper wrapper-class ipd-wrapper-class-readonly">
@@ -270,7 +259,7 @@ const FunctionalAssessment = (props) => {
             <label className="refphy-label">{data.title}</label>
           </div>
           <div className="referred-to-physiotherapy-name">
-            {referredDocForReview?.name}
+            {referredDocForReview}
           </div>
         </div>
       );
@@ -320,7 +309,7 @@ const FunctionalAssessment = (props) => {
   if (
     !isEditable &&
     !isFunctionAssessmentValuesPresent &&
-    !referredDocForReview?.name &&
+    !referredDocForReview &&
     isEmptyRichText(functionalAssessmentData?.others)
   )
     return null;

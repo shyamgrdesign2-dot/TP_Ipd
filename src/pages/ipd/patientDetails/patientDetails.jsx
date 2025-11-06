@@ -334,7 +334,7 @@ const IPDPatientDetails = () => {
       // Referred Doc For Review
       dispatch(
         setReferredDocForReview(
-          data?.functionalAssessment?.referredToPhysiotherapyForReview || {}
+          data?.functionalAssessment?.referredToPhysiotherapyForReview || null
         )
       );
     }
