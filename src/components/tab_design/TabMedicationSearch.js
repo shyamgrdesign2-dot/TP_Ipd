@@ -2096,7 +2096,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
                                 {item.value}
                               </Button>
                             )}
-                            {(JSON.parse(item.key)?.tmm_hm_type === 1 && JSON.parse(item.key)?.um_id === 1) && <span className="position-absolute align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2', right: 6, top: -6}}>Z</span>}
+                            {(JSON.parse(item.key)?.tmm_hm_type === 1 && JSON.parse(item.key)?.um_id === 0) && <span className="position-absolute align-items-center small fs-12-1 d-inline-flex justify-content-center rounded-circle text-white" style={{width: 18, height: 18, background: '#c44ea2', right: 6, top: -6}}>Z</span>}
                           </div>
                         )
                       })
