@@ -16,7 +16,6 @@ export const getPathologyResults = createAsyncThunk(
         throw Error(result.error);
       }
     } catch (error) {
-      console.log("error: ", error);
       if (error?.response?.status === 401) {
         const action = await dispatch(ictAuthToken());
         if (action.meta.requestStatus === "fulfilled") {
@@ -462,8 +461,6 @@ const labResultsSlice = createSlice({
       })
       .addCase(getPathologyResults.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          action.payload?.message || "Failed to fetch pathology results";
       });
 
     // Update pathology results
