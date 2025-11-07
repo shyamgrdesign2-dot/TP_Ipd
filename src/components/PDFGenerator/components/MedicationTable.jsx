@@ -420,7 +420,7 @@ const MedicationTable = ({
                         },
                       ]}
                     >
-                      {item.tmm_remarks ? item.tmm_remarks : "-"}&nbsp;
+                      {item.tmm_remarks ? item.tmm_remarks : "-"}
                     </Text>
                   </View>
                 );
