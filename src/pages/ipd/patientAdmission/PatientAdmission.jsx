@@ -555,6 +555,7 @@ export default function PatientAdmission() {
         // referral: !!formData.referralInfo,
         admissionId: patientDetails?.admissionId || "",
         isDischarged: false,
+        sentForApproval: false,
         mrno: patientDetails?.mrno || patientDetails?.mrNo || "",
         visitno: patientDetails?.visitno || "",
         encounterno: patientDetails?.encounterno || "",
