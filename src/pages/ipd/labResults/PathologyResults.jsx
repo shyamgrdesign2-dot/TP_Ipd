@@ -92,7 +92,7 @@ const Pathologyresults = () => {
 
   // Refs for scroll synchronization
   const headerScrollRef = useRef(null);
-  const rowScrollRefs = useRef([]);
+  const rowScrollRefs = useRef({});
 
   const pathologyResultsNoOfDays = 6000;
 
@@ -129,57 +129,67 @@ const Pathologyresults = () => {
     }
   }, [error, updateError, scanError, dispatch]);
 
-  // Synchronize scrolling between header and rows
+  // Synchronize scrolling between header and rows with performance optimization
   useEffect(() => {
-    const handleHeaderScroll = (e) => {
-      const scrollLeft = e.target.scrollLeft;
-      setIsScrolled(scrollLeft > 0);
-      rowScrollRefs.current.forEach((ref) => {
-        if (ref && ref !== e.target) {
-          ref.scrollLeft = scrollLeft;
+    // Use requestAnimationFrame for better performance
+    let isScrolling = false;
+    let lastScrollLeft = 0;
+
+    const syncScroll = (scrollLeft, sourceElement) => {
+      if (isScrolling) return;
+
+      isScrolling = true;
+      lastScrollLeft = scrollLeft;
+
+      // Use requestAnimationFrame to optimize performance
+      requestAnimationFrame(() => {
+        // Update header if source wasn't header
+        if (
+          headerScrollRef.current &&
+          sourceElement !== headerScrollRef.current
+        ) {
+          headerScrollRef.current.scrollLeft = lastScrollLeft;
         }
+
+        // Update all rows
+        Object.values(rowScrollRefs.current).forEach((ref) => {
+          if (ref && ref !== sourceElement) {
+            ref.scrollLeft = lastScrollLeft;
+          }
+        });
+
+        setIsScrolled(lastScrollLeft > 0);
+        isScrolling = false;
       });
     };
 
-    const handleRowScroll = (e) => {
-      const scrollLeft = e.target.scrollLeft;
-      setIsScrolled(scrollLeft > 0);
-      if (headerScrollRef.current) {
-        headerScrollRef.current.scrollLeft = scrollLeft;
-      }
-      rowScrollRefs.current.forEach((ref) => {
-        if (ref && ref !== e.target) {
-          ref.scrollLeft = scrollLeft;
-        }
-      });
+    const handleScroll = (e) => {
+      syncScroll(e.target.scrollLeft, e.target);
     };
 
     // Add event listeners
     if (headerScrollRef.current) {
-      headerScrollRef.current.addEventListener("scroll", handleHeaderScroll);
+      headerScrollRef.current.addEventListener("scroll", handleScroll);
     }
 
-    rowScrollRefs.current.forEach((ref) => {
+    Object.values(rowScrollRefs.current).forEach((ref) => {
       if (ref) {
-        ref.addEventListener("scroll", handleRowScroll);
+        ref.addEventListener("scroll", handleScroll);
       }
     });
 
     // Cleanup
     return () => {
       if (headerScrollRef.current) {
-        headerScrollRef.current.removeEventListener(
-          "scroll",
-          handleHeaderScroll
-        );
+        headerScrollRef.current.removeEventListener("scroll", handleScroll);
       }
-      rowScrollRefs.current.forEach((ref) => {
+      Object.values(rowScrollRefs.current).forEach((ref) => {
         if (ref) {
-          ref.removeEventListener("scroll", handleRowScroll);
+          ref.removeEventListener("scroll", handleScroll);
         }
       });
     };
-  }, [expandedCategories]); // Re-run when categories expand/collapse
+  }, [expandedCategories, pathologyResults]); // Re-run when categories expand/collapse
 
   const getCategoryTestKeys = (categoryKey) => {
     const category = pathologyResults.find((cat) => cat.key === categoryKey);
@@ -518,7 +528,7 @@ const Pathologyresults = () => {
                     {renderCategoryHeader(category)}
                   </div>
                   <div className="category-content">
-                    {category.tests.map((test, testIndex) => (
+                    {category.tests.map((test) => (
                       <div key={test.key} className="test-row-container">
                         <div
                           className={`test-row-fixed ${
@@ -572,7 +582,13 @@ const Pathologyresults = () => {
                         </div>
                         <div
                           className="test-row-scrollable"
-                          ref={(el) => (rowScrollRefs.current[testIndex] = el)}
+                          ref={(el) => {
+                            if (el) {
+                              rowScrollRefs.current[test.key] = el;
+                            } else {
+                              delete rowScrollRefs.current[test.key];
+                            }
+                          }}
                         >
                           {availableDates.map((date) => {
                             const value = test.values[date]?.value;

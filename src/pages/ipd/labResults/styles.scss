@@ -577,7 +577,7 @@
   transition: box-shadow 0.3s ease;
   
   &.scrolled {
-    box-shadow: 3px 0 12px 0 rgba(0, 0, 0, 0.08);
+    box-shadow: 6px 0 10px -4px rgba(0, 0, 0, 0.12);
   }
   
   .header-checkbox {
@@ -606,6 +606,7 @@
   
   .header-date {
     min-width: 220px;
+    width: 220px;
     padding: 10px 11px;
     border-right: 1px solid #e2e2ea;
     text-align: center;
@@ -618,6 +619,7 @@
   
   .header-trends {
     min-width: 200px;
+    width: 220px;
     padding: 10px 11px;
     display: flex;
     align-items: center;
@@ -656,7 +658,7 @@
   transition: box-shadow 0.3s ease;
   
   &.scrolled {
-    box-shadow: 3px 0 12px 0 rgba(0, 0, 0, 0.08);
+    box-shadow: 6px 0 10px -4px rgba(0, 0, 0, 0.12);
   }
   
   .test-checkbox {
@@ -686,17 +688,71 @@
   
   .test-value {
     min-width: 220px;
+    width: 220px;
     padding: 14px 18px;
     border-right: 1px solid #e2e2ea;
     display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    white-space: nowrap;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
     min-height: 68px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .test-value-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    width: 100%;
+    position: relative;
+  }
+  
+  .test-value-text {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    line-height: 22px;
+    width: 145px;
+    overflow: hidden;
+    
+    &.collapsed {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      text-overflow: ellipsis;
+      max-height: 44px;
+    }
+    
+    &.expanded {
+      display: block;
+      max-height: none;
+    }
+  }
+  
+  .test-value-toggle {
+    background: none;
+    border: none;
+    color: #4b4ad5;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    text-decoration: none;
+    position: absolute;
+    bottom: 0;
+    left: 145px;
+    white-space: nowrap;
+    
+    &:hover {
+      text-decoration: underline;
+    }
   }
   
   .test-trend {
     min-width: 200px;
+    width: 220px;
     padding: 14px 18px;
     display: flex;
     align-items: center;
