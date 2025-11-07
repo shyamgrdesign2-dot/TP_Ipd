@@ -1768,8 +1768,8 @@ function MedicationsBox(props) {
                                       showSearch
                                       className={`autocomplete-custom bg-white w-100 h-100 inputborder ${!isEditable ? 'autoselect-medrx-readonly': ''}`}
                                       placeholder="e.g 1-0-1"
-                                      defaultValue={item.frequency ? item.frequency : "--"}
-                                      value={item.frequency ? item.frequency : "--"}
+                                      defaultValue={subItem.frequency ? subItem.frequency : "--"}
+                                      value={subItem.frequency ? subItem.frequency : "--"}
                                       onSearch={(query) => onSearchFrequencyChild(query, subItem?.index)}
                                       onFocus={() => onSearchFrequencyChild(subItem.frequency, subItem?.index)}
                                       onBlur={() => onBlurFrequencyChild(subItem?.index)}
@@ -2399,7 +2399,7 @@ function MedicationsBox(props) {
               <Button
                 type="text"
                 className="btn btn-delete-prescription px-3 focus-none h-100"
-                onClick={() => updateChild(childDrawerData)}
+                onClick={handleDrawerChild}
               >
                 <i className="icon-Cross fs-3"></i>
               </Button>

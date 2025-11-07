@@ -1233,13 +1233,13 @@ function MedicationsBox(props) {
                                       value={item.tmm_freq_type_name != "" ? item.tmm_freq_type_name : null}
                                       onSearch={(query) => onSearchFrequencyChild(query, item?.index)}
                                       onFocus={() => onSearchFrequencyChild(item.tmm_freq_type_name, item?.index)}
-                                    onBlur={() => setFrequencyQuery("" )}
-                                    onKeyDown={(e) => {
-                                      if (e.key === "Tab" || e.key === "Enter") {
-                                        onBlurFrequencyChild(item?.index);
-                                        setFrequencyQuery("");
-                                      }
-                                    }}
+                                      onBlur={() => setFrequencyQuery("" )}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Tab" || e.key === "Enter") {
+                                          onBlurFrequencyChild(item?.index);
+                                          setFrequencyQuery("");
+                                        }
+                                      }}
                                       onSelect={(data) => onSelectFrequencyChild(data, item?.index)}
                                       options={frequencyOptions}
                                       onClear={() => onSelectFrequencyChild("", item?.index)}
