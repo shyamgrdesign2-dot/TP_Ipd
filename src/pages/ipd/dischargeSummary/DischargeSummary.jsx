@@ -476,6 +476,8 @@ const DischargeSummary = (props) => {
           dischargeSummaryState.dischargeSummaryData?.otherAdvice || [],
         warningSigns:
           dischargeSummaryState.dischargeSummaryData?.warningSigns || [],
+        preventiveMeasures:
+        dischargeSummaryState.dischargeSummaryData?.preventiveMeasures || [],
         emergencyContact:
           dischargeSummaryState.dischargeSummaryData?.emergencyContact || [],
       },

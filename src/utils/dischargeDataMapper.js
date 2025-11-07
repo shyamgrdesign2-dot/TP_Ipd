@@ -215,6 +215,12 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
             warningSigns: dischargeSummaryData?.dischargeAdvice?.warningSigns,
           })
         );
+      dischargeSummaryData?.dischargeAdvice?.preventiveMeasures &&
+        dispatch(
+          setDischargeSummaryDataViaPatch({
+            preventiveMeasures: dischargeSummaryData?.dischargeAdvice?.preventiveMeasures,
+          })
+        );
       dischargeSummaryData?.dischargeAdvice?.emergencyContact &&
         dispatch(
           setDischargeSummaryDataViaPatch({

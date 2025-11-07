@@ -41,6 +41,7 @@ import functionalAssessmentPc from "./functionalAssessment-pc.svg";
 import gynecHistoryPc from "./gynecHistory-pc.svg";
 import obstetricHistoryPc from "./obstetricHistory-pc.svg";
 import otherAdvicePc from "./otherAdvice-pc.svg";
+import preventiveMeasuresPc from "./otherAdvice-pc.svg";
 import othersPc from "./others-pc.svg";
 import otNotesDark from "./otNotes-dark.svg";
 import otNotesGray from "./otNotes-gray.svg";
@@ -119,6 +120,7 @@ export const defaultIcons = {
   gynecHistoryPc,
   obstetricHistoryPc,
   otherAdvicePc,
+  preventiveMeasuresPc,
   othersPc,
   otNotesDark,
   otNotesGray,
@@ -204,6 +206,7 @@ export {
   gynecHistoryPc,
   obstetricHistoryPc,
   otherAdvicePc,
+  preventiveMeasuresPc,
   othersPc,
   otNotesDark,
   otNotesGray,

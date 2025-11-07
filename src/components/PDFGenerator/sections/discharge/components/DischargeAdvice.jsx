@@ -187,6 +187,40 @@ const renderWarningSigns = (warningSigns) => {
   );
 };
 
+const renderPreventiveMeasures = (preventiveMeasures) => {
+  if (!preventiveMeasures) return null;
+
+  let items = [];
+  if (Array.isArray(preventiveMeasures) && !isEmptyRichText(preventiveMeasures)) {
+    const text = preventiveMeasures
+      .map((node) => node.children?.map((child) => child.text).join(""))
+      .join(" ");
+    items = text.split(",").map((item) => item.trim());
+  } else if (typeof preventiveMeasures === "string") {
+    items = preventiveMeasures.split(",").map((item) => item.trim());
+  }
+
+  if (items.length === 0) return null;
+
+  return (
+    <View style={styles.subsectionContainer}>
+      <View style={styles.contentContainer}>
+        <Text style={[styles.subsectionTitle]}>
+          When to Obtain Urgent Care:
+        </Text>
+        <View style={styles.bulletList}>
+          {items.map((item, index) => (
+            <View key={`warning-${index}`} style={styles.bulletItem}>
+              <Text style={[styles.bullet]}>•</Text>
+              <Text style={[styles.bulletContent]}>{item}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    </View>
+  );
+};
+
 /**
  * Render Emergency Contact subsection
  */
@@ -274,6 +308,9 @@ const DischargeAdvice = ({ data, title, formatSettings }) => {
               {subSection.id === "warningSigns" &&
                 !isEmptyRichText(advice.warningSigns) &&
                 renderWarningSigns(advice.warningSigns)}
+              {subSection.id === "preventiveMeasures" &&
+                !isEmptyRichText(advice.preventiveMeasures) &&
+                renderPreventiveMeasures(advice.preventiveMeasures)}
               {subSection.id === "emergencyContact" &&
                 !isEmptyRichText(advice.emergencyContact) &&
                 renderEmergencyContact(advice.emergencyContact)}

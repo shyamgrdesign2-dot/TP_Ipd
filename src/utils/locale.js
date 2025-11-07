@@ -1815,9 +1815,16 @@ export const IPD = {
           view: 1,
         },
         {
+          id: "preventiveMeasures",
+          label: "Preventive Measures",
+          order: 5,
+          visible: true,
+          view: 1,
+        },
+        {
           id: "emergencyContact",
           label: "Emergency Contact",
-          order: 5,
+          order: 6,
           visible: true,
           view: 1,
         },
@@ -2585,6 +2592,14 @@ export const IPD = {
           title: "Warning Signs",
           enabled: true,
           icon: "warning",
+        },
+        {
+          placeholder: "Enter Preventive Measures",
+          id: "preventiveMeasures",
+          field: "preventiveMeasures",
+          title: "Preventive Measures",
+          enabled: true,
+          icon: "advice",
         },
         {
           placeholder: "Enter Emergency Contact",

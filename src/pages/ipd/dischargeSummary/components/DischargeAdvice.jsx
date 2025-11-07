@@ -24,6 +24,11 @@ const DischargeAdvice = (props) => {
     setAutoFillTextToAppendWarningSigns,
   ] = useState([]);
   const [
+    autoFillTextToAppendPreventiveMeasures,
+    setAutoFillTextToAppendPreventiveMeasures,
+  ] = useState([]);
+
+  const [
     autoFillTextToAppendEmergencyContact,
     setAutoFillTextToAppendEmergencyContact,
   ] = useState([]);
@@ -82,6 +87,56 @@ const DischargeAdvice = (props) => {
       />
     );
   };
+
+  const renderPreventiveMeasures = (data) => {
+    if (!isEditable && isEmptyRichText(dischargeSummaryData?.preventiveMeasures))
+      return null;
+
+    return (
+      <RichTextEditWrapper
+        readOnly={!isEditable}
+        showToolbar={isEditable}
+        showActionBtns={isEditable}
+        title={data?.title}
+        width={isEditable ? "100%" : "fit-content"}
+        icon={dischargeSummaryIcons[`${data?.id}Pc`]}
+        showAutoFill={false}
+        containerClass={`wrapper-class ${
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
+        opdDate="15 Jun 2025"
+        showMagicPenGif={false}
+        showMicrophone={false}
+        onChange={(data) => handleOthersChange(data, "preventiveMeasures")}
+        initialValue={
+          dischargeSummaryData?.preventiveMeasures
+            ? dischargeSummaryData?.preventiveMeasures
+            : [
+                {
+                  type: "paragraph",
+                  children: [{ text: "" }],
+                },
+              ]
+        }
+        placeholder={
+          data?.placeholder ||
+          "Enter details like onset, duration, progression, and associated symptoms"
+        }
+        onSave={() => {
+          console.log("save");
+        }}
+        onErase={() => {
+          setAutoFillTextToAppendPreventiveMeasures(["clear"]);
+        }}
+        onTemplate={() => {
+          console.log("template");
+        }}
+        newAutoFillTextToAppend={autoFillTextToAppendPreventiveMeasures}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppendPreventiveMeasures}
+      />
+    );
+  };
+
   const renderEmergencyContact = (data) => {
     if (!isEditable && isEmptyRichText(dischargeSummaryData?.emergencyContact))
       return null;
@@ -242,6 +297,8 @@ const DischargeAdvice = (props) => {
                 return renderOtherAdvice(item);
               case "warningSigns":
                 return renderWarningSigns(item);
+              case "preventiveMeasures":
+                return renderPreventiveMeasures(item);
               case "emergencyContact":
                 return renderEmergencyContact(item);
               default:
