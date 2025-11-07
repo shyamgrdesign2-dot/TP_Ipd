@@ -88,13 +88,13 @@ const ReferralInformationView = (props) => {
             icon={newIcons.informedBy}
             label="Referred By"
             value={informedByDoctor?.name}
-            role={informedByDoctor?.role}
+            role={`${informedByDoctor?.speciality} (${informedByDoctor?.role})`}
           />
           <MemberChip
             icon={newIcons.referringTo}
             label="Referred To"
             value={referringTo?.name}
-            role={referringTo?.role}
+            role={`${referringTo?.speciality} (${referringTo?.role})`}
           />
           <MemberChip
             icon={newIcons.referringDepartment}

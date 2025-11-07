@@ -88,7 +88,7 @@ const renderChronologicalSummary = (summary) => {
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle]}>Chronological Summary:</Text>
+        {/* <Text style={[styles.subsectionTitle]}>Chronological Summary:</Text> */}
         <View style={styles.bulletList}>
           {summary.map((entry, index) => {
             // Extract text from rich text format

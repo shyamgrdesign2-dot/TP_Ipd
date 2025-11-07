@@ -886,15 +886,16 @@ const IPDPatientDetails = () => {
         );
       case "dischargeSummary":
         const isAdmittingDoctor = patientDetails?.doctorId === user_id;
+        const showOnlyEditForm = !isAdmittingDoctor && !patientDetails?.isDischarged;
+        // const showOnlyEditForm = false;
         return (
           <div className="ipd-adm-assess-container-readable ipd-discharge-summary-container-readable">
             <DischargeSummaryReadonly ref={dischargeSummaryReadonlyRef} />
             {Object.keys(actualDischargeSummaryData)?.length && (
-              <div className="ipd-toolbar-edit-custom-print-download ipd-toolbar-edit-custom-print-download-discharge">
+              <div className={`ipd-toolbar-edit-custom-print-download ${showOnlyEditForm ? 'ipd-toolbar-edit-custom-print-download-discharge': ''}`}>
                 <ToolbarActions
                   editBtnText={"Edit Summary"}
-                  showOnlyEditForm={!isAdmittingDoctor && !patientDetails?.isDischarged}
-                  // showOnlyEditForm={false}
+                  showOnlyEditForm={showOnlyEditForm}
                   showEditForm={!isOnlyViewMode}
                   onEdit={handleDischargeSummaryClick}
                   onPrintPreview={handleDischargeSummaryPrintPreview}

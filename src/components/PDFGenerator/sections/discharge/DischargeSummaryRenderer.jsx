@@ -46,10 +46,24 @@ const renderPrimaryConsultant = (data) => {
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Admitting Consultant" />
-      <View style={{ padding: "6px 0px" }}>
+      {/* <SectionTitle title="Admitting Consultant" /> */}
+      <Text style={styles.subsectionTitle}>Admitting Consultant:</Text>
+      <View style={{ padding: "6px 0px 0 0" }}>
         {renderSimpleText(consultantText)}
       </View>
+    </View>
+  );
+};
+
+const renderCrossReferral = (data, formatSettings) => {
+  const text = data.crossReferral
+    ?.map((item) => `${item.name} (${item.speciality})`)
+    .join(", ");
+  return (
+    <View style={styles.sectionContainer}>
+      {/* <SectionTitle title="Cross Reference" /> */}
+      <Text style={styles.subsectionTitle}>Cross Reference:</Text>
+      <View style={{ padding: "6px 0px" }}>{renderSimpleText(text)}</View>
     </View>
   );
 };
@@ -60,7 +74,7 @@ const renderPrimaryConsultant = (data) => {
 const renderDiagnosisAndSurgery = (data, formatSettings) => {
   return (
     <DiagnosisAndSurgery
-      title="Diagnosis & Surgery"
+      // title="Diagnosis & Surgery"
       formatSettings={formatSettings}
       data={data}
     />
@@ -70,12 +84,18 @@ const renderDiagnosisAndSurgery = (data, formatSettings) => {
 /**
  * Patient History Section
  */
-const renderPatientHistory = (data, formatSettings, frequencyList, timingList, fontSize) => {
+const renderPatientHistory = (
+  data,
+  formatSettings,
+  frequencyList,
+  timingList,
+  fontSize
+) => {
   return (
     <PatientHistory
       data={data}
       formatSettings={formatSettings}
-      title="Patient History"
+      // title="Patient History"
       frequencyList={frequencyList}
       timingList={timingList}
       fontSize={fontSize}
@@ -91,7 +111,7 @@ const renderPhysicalExamination = (data, formatSettings) => {
     <PhysicalExamination
       data={data}
       formatSettings={formatSettings}
-      title="Physical Examination at the Time of Admission"
+      // title="Physical Examination at the Time of Admission"
     />
   );
 };
@@ -134,10 +154,16 @@ const renderOTNotes = (data, formatSettings) => {
 /**
  * Discharge Notes Section
  */
-const renderDischargeNotes = (data, formatSettings, frequencyList, timingList, fontSize) => {
+const renderDischargeNotes = (
+  data,
+  formatSettings,
+  frequencyList,
+  timingList,
+  fontSize
+) => {
   return (
     <DischargeNote
-      title="Discharge Note"
+      // title="Discharge Note"
       data={data}
       formatSettings={formatSettings}
       frequencyList={frequencyList}
@@ -153,7 +179,7 @@ const renderDischargeNotes = (data, formatSettings, frequencyList, timingList, f
 const renderDischargeAdvice = (data, formatSettings) => {
   return (
     <DischargeAdvice
-      title="Discharge Advice"
+      // title="Discharge Advice"
       data={data}
       formatSettings={formatSettings}
     />
@@ -173,15 +199,18 @@ const renderFollowUp = (data, formatSettings) => {
  * Prepared By Section
  */
 const renderPreparedBy = (data) => {
-  if (!data?.preparedBy) return null;
+  // if (!data?.preparedBy) return null;
 
-  const { preparedBy } = data;
+  // const { preparedBy } = data;
 
-  if (!preparedBy?.length || preparedBy.some((item) => !item.name)) return null;
+  // if (!preparedBy?.length || preparedBy.some((item) => !item.name)) return null;
 
+  const { primaryConsultant } = data.patientInformation;
+  const consultantText = `${primaryConsultant.name} (${primaryConsultant.speciality})`;
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title="Prepared by" />
+      {/* <SectionTitle title="Approved by" /> */}
+      <Text style={styles.subsectionTitle}>Discharge Summary Approved by:</Text>
 
       {/* Inline label-value */}
       <View style={{ padding: "6px 6px 0 6px" }}>
@@ -191,14 +220,15 @@ const renderPreparedBy = (data) => {
             textTransform: "capitalize",
           }}
         >
-          <Text style={{ fontWeight: 600, color: "#171725" }}>
+          {/* <Text style={{ fontWeight: 600, color: "#171725" }}>
             Discharge Summary Prepared by:{" "}
-          </Text>
+          </Text> */}
           <Text style={{ fontWeight: 400, color: "#454551" }}>
-            {preparedBy.map(
+            {/* {preparedBy.map(
               (doctor, index) =>
                 `${doctor.name}${index < preparedBy.length - 1 ? ", " : ""}`
-            )}
+            )} */}
+            {consultantText}
           </Text>
         </Text>
       </View>
@@ -212,7 +242,13 @@ const renderPreparedBy = (data) => {
  * @param {Object} formatSettings - Format settings
  * @returns {Array} Array of section components
  */
-export const renderDischargeSummary = (data, formatSettings, frequencyList, timingList, fontSize) => {
+export const renderDischargeSummary = (
+  data,
+  formatSettings,
+  frequencyList,
+  timingList,
+  fontSize
+) => {
   if (!data || !formatSettings) return [];
 
   // Get sorted sections
@@ -221,14 +257,29 @@ export const renderDischargeSummary = (data, formatSettings, frequencyList, timi
   // Map section keys to render functions (using new array format IDs)
   const sectionRenderers = {
     admittingConsultant: () => renderPrimaryConsultant(data, formatSettings),
+    crossReferral: () => renderCrossReferral(data, formatSettings),
     diagnosisAndSurgery: () => renderDiagnosisAndSurgery(data, formatSettings),
-    patientHistory: () => renderPatientHistory(data, formatSettings, frequencyList, timingList, fontSize),
+    patientHistory: () =>
+      renderPatientHistory(
+        data,
+        formatSettings,
+        frequencyList,
+        timingList,
+        fontSize
+      ),
     physicalExamination: () => renderPhysicalExamination(data, formatSettings),
     // functionalAssessment: () =>
     //   renderFunctionalAssessment(data, formatSettings),
     courseInHospital: () => renderCourseInHospital(data, formatSettings),
     otNotes: () => renderOTNotes(data, formatSettings),
-    dischargeNotes: () => renderDischargeNotes(data, formatSettings, frequencyList, timingList, fontSize),
+    dischargeNotes: () =>
+      renderDischargeNotes(
+        data,
+        formatSettings,
+        frequencyList,
+        timingList,
+        fontSize
+      ),
     dischargeAdvice: () => renderDischargeAdvice(data, formatSettings),
     followUp: () => renderFollowUp(data, formatSettings),
     // Backward compatibility with old keys
@@ -248,7 +299,7 @@ export const renderDischargeSummary = (data, formatSettings, frequencyList, timi
     .filter(Boolean);
 
   // Add prepared by at the end
-  if (data.preparedBy) {
+  if (data.patientInformation?.primaryConsultant) {
     sections.push(renderPreparedBy(data));
   }
 

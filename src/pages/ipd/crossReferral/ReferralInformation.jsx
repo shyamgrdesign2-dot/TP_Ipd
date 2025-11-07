@@ -143,6 +143,7 @@ const ReferralInformation = (props) => {
           id: doctor.doctorId,
           name: doctor.doctorName,
           role: doctor.role,
+          speciality: doctor.speciality,
         }),
         value: doctor.doctorName,
         label: (

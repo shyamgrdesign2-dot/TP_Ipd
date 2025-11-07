@@ -303,8 +303,8 @@ const DischargeSummary = (props) => {
               return <DischargeAdvice {...props} sectionData={data} />;
             case "followUp":
               return <FollowUp {...props} sectionData={data} />;
-            case "preparedBy":
-              return <PreparedBy {...props} sectionData={data} />;
+            // case "preparedBy":
+            //   return <PreparedBy {...props} sectionData={data} />;
             default:
               return <>{data?.title}</>;
           }

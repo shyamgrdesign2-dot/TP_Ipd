@@ -362,12 +362,6 @@ const CrossReferralTimeline = () => {
               referringTo,
             } = entry?.crossReferral["referralInformation"] || {};
             const isCurrentDoctorReferee = user_id === referringTo?.id;
-            console.log(
-              "INTEL ==> isCurrentDoctorReferee",
-              user_id,
-              referringTo?.id,
-              isCurrentDoctorReferee
-            );
             return (
               <div className="collapsible-wrapper">
                 <div
