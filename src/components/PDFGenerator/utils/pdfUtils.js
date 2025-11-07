@@ -160,7 +160,8 @@ export const formatDate = (date, format = "DD MMM YYYY") => {
  */
 const getFieldValue = (key, patientData) => {
   const fieldValueMap = {
-    patientName: () => patientData.patientName || "",
+    patientName: () =>
+      `${getSalutation(patientData)} ${patientData.patientName || ""}`,
     patientId: () => patientData.patientId || "",
     ageGender: () =>
       `${patientData.age || ""} Years, ${patientData.gender || ""}`,
@@ -177,6 +178,9 @@ const getFieldValue = (key, patientData) => {
     heightWeight: () =>
       `${patientData.height || ""} cm / ${patientData.weight || ""} kg`,
     dob: () => formatDate(patientData.dob),
+    mrnNo: () => patientData.mrnNo || "",
+    primaryConsultant: () => patientData.doctorName || "",
+    admissionNo: () => patientData.admissionNo || "",
   };
 
   const getter = fieldValueMap[key];
@@ -219,3 +223,12 @@ export const truncateText = (text, maxLength = 100) => {
   if (!text || text.length <= maxLength) return text;
   return `${text.substring(0, maxLength)}...`;
 };
+
+export const getSalutation = ({ gender = "", age = null }) => {
+  if (age != null && age < 5) return "Baby";
+  const g = gender.trim().toLowerCase();
+  if (g === "male") return "Mr.";
+  if (g === "female") return "Ms.";
+  return "";
+};
+

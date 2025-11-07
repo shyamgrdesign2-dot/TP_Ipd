@@ -1711,6 +1711,38 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                 </Row>
               </div>
             </div>
+            {displayPatientInfo.showPatientInfo === 0 && (
+              <div className="my-4">
+                <div className="my-2">
+                  Display Patient name & MRN No in all pages
+                </div>
+                <Radio.Group
+                  value={!!displayPatientInfo.showPatientNameAndMrnNoOnAllPages}
+                  onChange={(e) => {
+                    updateHeaderFooter({
+                      displayPatientInfo: {
+                        ...headerFooterSettings.displayPatientInfo,
+                        showPatientNameAndMrnNoOnAllPages: e.target.value,
+                      },
+                    });
+                  }}
+                  style={{ width: "100%", display: "flex" }}
+                >
+                  <Radio.Button
+                    value={true}
+                    style={{ flex: 1, textAlign: "center" }}
+                  >
+                    Show
+                  </Radio.Button>
+                  <Radio.Button
+                    value={false}
+                    style={{ flex: 1, textAlign: "center" }}
+                  >
+                    Hide
+                  </Radio.Button>
+                </Radio.Group>
+              </div>
+            )}
           </div>
         )}
       </div>

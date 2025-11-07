@@ -70,42 +70,83 @@ const PatientInfo = ({ displaySettings, patientData, patientInfoFontSize }) => {
 
   if (visibleFields.length === 0) return null;
 
-  return (
-    <View
-      style={styles.outerContainer}
-      fixed={displaySettings?.showPatientInfo === 1}
-    >
-      <View style={styles.topBorder} />
+  const showPatientInfoSetting = displaySettings?.showPatientInfo;
+  const showInfoOnAllPages = showPatientInfoSetting === 1;
+  const showInfoOnFirstPageOnly = showPatientInfoSetting === 0;
+  const showNameAndMrnOnOtherPages =
+    showInfoOnFirstPageOnly &&
+    displaySettings?.showPatientNameAndMrnNoOnAllPages;
 
-      <View style={[styles.container, { fontSize: patientInfoFontSize }]}>
-        <View style={{ flex: 0.7 }}>
-          {visibleFields.map((item, i) => {
-            return (
-              i % 2 === 0 && (
-                <Text key={`left-${i}`} style={[styles.fieldText]}>
-                  <Text style={styles.label}>{item.label}:</Text>
-                  <Text style={styles.value}> {item.value}</Text>
-                </Text>
-              )
-            );
-          })}
-        </View>
-        <View style={{ flex: 0.4 }}>
-          {visibleFields.map((item, i) => {
-            return (
-              i % 2 === 1 && (
-                <Text key={`right-${i}`} style={[styles.fieldText]}>
-                  <Text style={styles.label}>{item.label}:</Text>
-                  <Text style={styles.value}> {item.value}</Text>
-                </Text>
-              )
-            );
-          })}
-        </View>
+  const renderFieldColumns = () => (
+    <View style={[styles.container, { fontSize: patientInfoFontSize }]}>
+      <View style={{ flex: 0.7 }}>
+        {visibleFields.map((item, i) => {
+          return (
+            i % 2 === 0 && (
+              <Text key={`left-${i}`} style={[styles.fieldText]}>
+                <Text style={styles.label}>{item.label}:</Text>
+                <Text style={styles.value}> {item.value}</Text>
+              </Text>
+            )
+          );
+        })}
+      </View>
+      <View style={{ flex: 0.4 }}>
+        {visibleFields.map((item, i) => {
+          return (
+            i % 2 === 1 && (
+              <Text key={`right-${i}`} style={[styles.fieldText]}>
+                <Text style={styles.label}>{item.label}:</Text>
+                <Text style={styles.value}> {item.value}</Text>
+              </Text>
+            )
+          );
+        })}
+      </View>
+    </View>
+  );
+
+  const renderNameAndMrn = () => (
+    <View style={[styles.container, { fontSize: patientInfoFontSize }]}>
+      <View style={{ flex: 0.7 }}>
+        <Text style={styles.fieldText}>
+          <Text style={styles.label}>Patient Name:</Text>
+          <Text style={styles.value}> {patientData?.patientName}</Text>
+        </Text>
+      </View>
+      <View style={{ flex: 0.4 }}>
+        <Text style={styles.fieldText}>
+          <Text style={styles.label}>MRN No:</Text>
+          <Text style={styles.value}> {patientData?.mrnNo}</Text>
+        </Text>
+      </View>
+    </View>
+  );
+
+  return (
+    <>
+      <View style={styles.outerContainer} fixed={showInfoOnAllPages}>
+        <View style={styles.topBorder} />
+        {(showInfoOnAllPages || showInfoOnFirstPageOnly) &&
+          renderFieldColumns()}
+        <View style={styles.bottomBorder} />
       </View>
 
-      <View style={styles.bottomBorder} />
-    </View>
+      {showNameAndMrnOnOtherPages && (
+        <View
+          fixed
+          render={({ pageNumber }) =>
+            pageNumber > 1 ? (
+              <View style={styles.outerContainer}>
+                <View style={styles.topBorder} />
+                {renderNameAndMrn()}
+                <View style={styles.bottomBorder} />
+              </View>
+            ) : null
+          }
+        />
+      )}
+    </>
   );
 };
 
