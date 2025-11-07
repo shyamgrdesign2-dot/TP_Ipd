@@ -74,7 +74,7 @@ const MedicationTable = ({
   const innerMedication = (index) => {
     const mainArray = [];
     for (let i = index; i < medications.length; i++) {
-      if (medications[i].tmm_id == medications[index].tmm_id) {
+      if (medications[i].tmm_id === medications[index].tmm_id) {
         mainArray.push(medications[i]);
       } else {
         break;
@@ -149,6 +149,14 @@ const MedicationTable = ({
     const value = getTimeingTitle(1);
     return value;
   };
+
+  const medicationData = medications
+    ?.map((e, index) => ({ ...e, index: index }))
+    .reduce(
+      (acc, curr) =>
+        acc?.at(-1)?.tmm_id === curr.tmm_id ? acc : [...acc, curr],
+      []
+    );
 
   const tableContent = (
     <View style={styles.medicationTableContainer}>
@@ -250,7 +258,7 @@ const MedicationTable = ({
             </View>
           </View>
         </View>
-        {medications?.map((med, i) => (
+        {medicationData?.map((med, i) => (
           <View style={styles.row} key={i} wrap={false}>
             <Text
               style={[

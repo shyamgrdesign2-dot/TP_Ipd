@@ -165,7 +165,7 @@ export const capitalizeFirstWordOnly = (text) => {
   return [firstWord, ...remainingWords].join(" ");
 };
 export const capitalize = (str, lower = false) =>
-  (lower ? str.toLowerCase() : str).replace(/(?:^|\s|["'([{])+\S/g, (match) =>
+  (lower ? str?.toLowerCase() : str)?.replace(/(?:^|\s|["'([{])+\S/g, (match) =>
     match.toUpperCase()
   );
 
