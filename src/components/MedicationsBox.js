@@ -52,7 +52,7 @@ import { setMedicationData, setPillupSwitch } from "../redux/prescriptionSlice";
 const { TextArea } = Input;
 
 function MedicationsBox(props) {
-  const { isEditable = true, isDischargeSummary = false, isIpd = false} = props;
+  const { isEditable = true, isDischargeSummary = false, isIpd = false, medication: medicationFromProps = [] } = props;
   const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     dosesList,
@@ -68,7 +68,7 @@ function MedicationsBox(props) {
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
 
   let { medicationData : medicationDataFromStore, pillupSwitch } = useSelector((state) => state.prescription);
-  const medicationData = medicationDataFromStore ? structuredClone(medicationDataFromStore) : [];
+  const medicationData = medicationFromProps?.length ? medicationFromProps : medicationDataFromStore ? structuredClone(medicationDataFromStore) : [];  
 
 
   //PopOver1

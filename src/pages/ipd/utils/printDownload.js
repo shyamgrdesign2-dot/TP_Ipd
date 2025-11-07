@@ -3,7 +3,7 @@ import { PDFGenerator } from "../../../components/PDFGenerator";
 import { downloadDocument, printDocument } from "../dischargeSummary/utils/helper";
 import { getPatientInformation } from "../../../utils/utils";
 
-export const generatePdfBlob = async (documentType, settings, data, patientDetails) => {
+export const generatePdfBlob = async (documentType, settings, data, patientDetails, frequencyList, timingList) => {
   if (!settings) throw new Error("Missing print settings");
   const element = (
     <PDFGenerator
@@ -11,6 +11,8 @@ export const generatePdfBlob = async (documentType, settings, data, patientDetai
       data={data}
       documentType={documentType}
       patientData={patientDetails ? getPatientInformation(patientDetails) : undefined}
+      frequencyList={frequencyList}
+      timingList={timingList}
     />
   );
   return await pdf(element).toBlob();
@@ -20,9 +22,11 @@ export const printWithGenerator = async (
   documentType,
   settings,
   data,
-  patientDetails
+  patientDetails,
+  frequencyList,
+  timingList
 ) => {
-  const blob = await generatePdfBlob(documentType, settings, data, patientDetails);
+  const blob = await generatePdfBlob(documentType, settings, data, patientDetails, frequencyList, timingList);
   const patientId = patientDetails?.details?.id;
   printDocument(blob, patientId, documentType);
 };
@@ -31,9 +35,11 @@ export const downloadWithGenerator = async (
   documentType,
   settings,
   data,
-  patientDetails
+  patientDetails,
+  frequencyList,
+  timingList
 ) => {
-  const blob = await generatePdfBlob(documentType, settings, data, patientDetails);
+  const blob = await generatePdfBlob(documentType, settings, data, patientDetails, frequencyList, timingList);
   const url = URL.createObjectURL(blob);
   try {
     downloadDocument(url, blob, patientDetails, documentType);
@@ -70,27 +76,29 @@ export const hasPrintableData = (data) => {
   return !!data;
 };
 
-export const printModule = async (documentType, printSettings, patientDetails, rawData) => {
+export const printModule = async (documentType, printSettings, patientDetails, rawData, frequencyList = [], timingList = []) => {
   const settingsKey = settingsKeyByDocType[documentType];
   const settings = settingsKey ? printSettings?.[settingsKey] : undefined;
   if (!settings) return;
   const data = buildPdfData(documentType, patientDetails, rawData);
   if (!hasPrintableData(data)) return;
-  await printWithGenerator(documentType, settings, data, patientDetails);
+  await printWithGenerator(documentType, settings, data, patientDetails, frequencyList, timingList);
 };
 
 export const downloadModule = async (
   documentType,
   printSettings,
   patientDetails,
-  rawData
+  rawData,
+  frequencyList = [],
+  timingList = []
 ) => {
   const settingsKey = settingsKeyByDocType[documentType];
   const settings = settingsKey ? printSettings?.[settingsKey] : undefined;
   if (!settings) return;
   const data = buildPdfData(documentType, patientDetails, rawData);
   if (!hasPrintableData(data)) return;
-  await downloadWithGenerator(documentType, settings, data, patientDetails);
+  await downloadWithGenerator(documentType, settings, data, patientDetails, frequencyList, timingList);
 };
 
 

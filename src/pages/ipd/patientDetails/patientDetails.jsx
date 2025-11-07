@@ -109,6 +109,7 @@ const IPDPatientDetails = () => {
     (state) => state.dischargeSummary
   );
   const { printSettings } = useSelector((state) => state.printSettings);
+  const { frequencyList, timingList } = useSelector((state) => state.doctors);
   const [open, setOpen] = useState(true);
   const [activeMenuItem, setActiveMenuItem] = useState("assessment");
   const [patientData, setPatientData] = useState(null);
@@ -628,7 +629,7 @@ const IPDPatientDetails = () => {
   // Assessment: print & download
   const handleAssessmentPrint = async () => {
     try {
-      await printModule("assessments", printSettings, patientDetails, assessmentsData);
+      await printModule("assessments", printSettings, patientDetails, assessmentsData, frequencyList, timingList);
     } catch (error) {
       console.error("Error printing assessment:", error);
     }
@@ -636,7 +637,7 @@ const IPDPatientDetails = () => {
 
   const handleAssessmentDownload = async () => {
     try {
-      await downloadModule("assessments", printSettings, patientDetails, assessmentsData);
+      await downloadModule("assessments", printSettings, patientDetails, assessmentsData, frequencyList, timingList);
     } catch (error) {
       console.error("Error downloading assessment:", error);
     }
@@ -654,7 +655,7 @@ const IPDPatientDetails = () => {
           console.error("Error fetching consultant notes before print:", e);
         }
       }
-      await printModule("consultationNotes", printSettings, patientDetails, notes);
+      await printModule("consultationNotes", printSettings, patientDetails, notes, frequencyList, timingList);
     } catch (error) {
       console.error("Error printing consultant notes:", error);
     }
@@ -671,7 +672,7 @@ const IPDPatientDetails = () => {
           console.error("Error fetching consultant notes before download:", e);
         }
       }
-      await downloadModule("consultationNotes", printSettings, patientDetails, notes);
+      await downloadModule("consultationNotes", printSettings, patientDetails, notes, frequencyList, timingList);
     } catch (error) {
       console.error("Error downloading consultant notes:", error);
     }

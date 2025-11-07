@@ -37,6 +37,7 @@ const ConsultantNotesTimeline = () => {
   const [dateStatus, setDateStatus] = useState(null);
   const [pickerModal, setPickerModal] = useState(false);
   const { printSettings } = useSelector((state) => state.printSettings);
+  const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -158,7 +159,9 @@ const ConsultantNotesTimeline = () => {
       "consultationNotes",
       printSettings,
       patientDetails,
-      groupData?.[0]?.originalEntry
+      groupData?.[0]?.originalEntry,
+      frequencyList,
+      timingList
     );
   };
 
@@ -167,7 +170,9 @@ const ConsultantNotesTimeline = () => {
       "consultationNotes",
       printSettings,
       patientDetails,
-      groupData?.[0]?.originalEntry
+      groupData?.[0]?.originalEntry,
+      frequencyList,
+      timingList
     );
   };
 

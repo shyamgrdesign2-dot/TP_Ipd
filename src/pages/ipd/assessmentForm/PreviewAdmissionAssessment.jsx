@@ -34,7 +34,7 @@ const PreviewAdmissionAssessment = () => {
   const { printSettings } = useSelector((state) => state.printSettings);
   const { assessmentsData } = useSelector((state) => state.assessment);
   const { assessments: currentSettings } = printSettings;
-
+  const { frequencyList, timingList } = useSelector((state) => state.doctors);
   //   const patientData = dischargeSummaryData?.patientInformation || {};
 
   useEffect(() => {
@@ -83,6 +83,8 @@ const PreviewAdmissionAssessment = () => {
           data={assessmentsData}
           documentType="assessments"
           patientData={getPatientInformation(patientDetails)}
+          frequencyList={frequencyList}
+          timingList={timingList}
         />
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));

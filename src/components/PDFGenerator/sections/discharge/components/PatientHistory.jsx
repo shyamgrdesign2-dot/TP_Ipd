@@ -711,6 +711,9 @@ const PatientHistory = ({
   formatSettings,
   isAssessment = false,
   title,
+  frequencyList,
+  timingList,
+  fontSize,
 }) => {
   const hasAssessmentData = isAssessment
     ? !!data?.basicInfo
@@ -828,6 +831,9 @@ const PatientHistory = ({
                   finalData.medications || finalData.currentMedication
                 }
                 title="Medication (Rx)"
+                frequencyList={frequencyList}
+                timingList={timingList}
+                fontSize={fontSize}
               />
             );
           }

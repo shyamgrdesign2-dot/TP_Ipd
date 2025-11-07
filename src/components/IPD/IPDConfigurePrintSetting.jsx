@@ -50,6 +50,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
   const { draftSettings, fileStates, printSettings } = useSelector(
     (state) => state.printSettings
   );
+  const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
   const {
     returnPath,
@@ -329,6 +330,8 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
           data={data}
           documentType={documentType}
           patientData={getPatientInformation(patientDetails)}
+          frequencyList={frequencyList}
+          timingList={timingList}
         />
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));

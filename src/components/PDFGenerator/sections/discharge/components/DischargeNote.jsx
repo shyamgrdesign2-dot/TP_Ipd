@@ -102,7 +102,7 @@ const renderPatientCondition = (condition) => {
  * @param {Object} props.data - Discharge note data
  * @returns {JSX.Element} Discharge Note Section
  */
-const DischargeNote = ({ data, title, formatSettings }) => {
+const DischargeNote = ({ data, title, formatSettings, frequencyList, timingList, fontSize }) => {
   if (!data?.dischargeNotes) return null;
 
   const notes = data.dischargeNotes;
@@ -148,7 +148,9 @@ const DischargeNote = ({ data, title, formatSettings }) => {
                   <MedicationTable
                     medications={notes.dischargeMedications}
                     title={subSection.label}
-                    showContainer={true}
+                    frequencyList={frequencyList}
+                    timingList={timingList}
+                    fontSize={fontSize}
                   />
                 )}
             </View>

@@ -104,7 +104,13 @@ const renderRichText = (data, title) => {
   );
 };
 
-export const renderConsultantNotes = (data, formatSettings) => {
+export const renderConsultantNotes = (
+  data,
+  formatSettings,
+  frequencyList,
+  timingList,
+  fontSize
+) => {
   if (!data || !formatSettings) return [];
 
   // Check if data is an array (multiple consultant notes) or single object
@@ -131,6 +137,9 @@ export const renderConsultantNotes = (data, formatSettings) => {
             consultationData.medication || consultationData.currentMedication
           }
           title="Medication (Rx)"
+          frequencyList={frequencyList}
+          timingList={timingList}
+          fontSize={fontSize}
         />
       ),
       labInvestigation: () => (

@@ -2,11 +2,14 @@ import React from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as consultantIcons } from "../../../assets/images/consultantNotesIcons/index.js";
 
-import MedicationTable from "./components/MedicationTable";
 import LabInvestigationTable from "./components/LabInvestigationTable";
 import FilledByCard from "./components/FilledByCard.jsx";
 import "./ConsultantNotesPreview.scss";
 import { isEmptyRichText } from "../../../components/PDFGenerator/index.js";
+import { isMobile } from "react-device-detect";
+import MedicationsBox from "../../../components/MedicationsBox.js";
+import InteractionGate from "../components/InteractionGate/InteractionGate.jsx";
+import MedicationBoxIpd from "../../../components/medicationBoxIpd.js";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
@@ -15,7 +18,7 @@ const ConsultantNotesPreview = ({ entry }) => {
 
   const clinicalAssessmentPlan = consultationData?.clinicalAssessmentPlan;
   const vitals = consultationData?.vitals || {};
-  const medication = consultationData?.currentMedication || [];
+  const medication = consultationData?.medication || [];
   const labInvestigation = consultationData?.labInvestigation || [];
   const additionalRemarks = consultationData?.additionalRemarks;
   const filledBy = entry?.createdByName;
@@ -139,18 +142,18 @@ const ConsultantNotesPreview = ({ entry }) => {
 
         {/* Medication */}
         {Array.isArray(medication) && medication.length > 0 && (
-          <div className="cnp-section">
-            <div className="cnp-section-header">
-              <img
-                className="cnp-section-icon"
-                src={consultantIcons.medicationPc}
-                alt="Medication"
-              />
-              <div className="cnp-section-title">Medication(Rx)</div>
-            </div>
-            <div className="cnp-section-content cnp-no-left-pad">
-              <MedicationTable data={medication} />
-            </div>
+          <div className="ipdcnp-medication-box-container-readonly">
+            <InteractionGate disabled={true}>
+              {isMobile ? (
+                <MedicationBoxIpd isEditable={false} medication={medication} />
+              ) : (
+                <MedicationsBox
+                  isEditable={false}
+                  isIpd={true}
+                  medication={medication}
+                />
+              )}
+            </InteractionGate>
           </div>
         )}
 

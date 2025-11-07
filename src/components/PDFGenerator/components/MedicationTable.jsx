@@ -6,103 +6,28 @@
 import React from "react";
 import { View, Text } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
+import { PX_TO_PT } from "../constants";
+import {
+  capitalize,
+  getDurationTitle,
+  getFrequencyLanguageTitles,
+  getFrequencyTitle,
+  getTimeingTitle,
+  isNumeric,
+  medicine_freq_dosage_format,
+} from "../../../utils/utils";
+import { EXTRA_OPTIONS } from "../../../utils/constants";
 
 const styles = StyleSheet.create({
-  // Medication table
   medicationTableContainer: {
     gap: 6,
+    paddingVertical: 6,
   },
 
   table: {
-    borderWidth: 0.607,
-    borderColor: "#F1F1F5",
-    borderRadius: 6,
-    backgroundColor: "rgba(255,255,255,0.5)",
+    marginTop: PX_TO_PT * 4,
   },
 
-  tableHeader: {
-    flexDirection: "row",
-    backgroundColor: "#FAFAFB",
-    minHeight: 30,
-    borderBottomWidth: 0.607,
-    borderBottomColor: "#F1F1F5",
-  },
-
-  tableRow: {
-    flexDirection: "row",
-    minHeight: 48,
-    borderBottomWidth: 0.607,
-    borderBottomColor: "#F1F1F5",
-  },
-
-  // Table cells
-  cellBase: {
-    flex: 1,
-    justifyContent: "flex-start",
-    paddingHorizontal: 6.681,
-    paddingVertical: 9.11,
-    borderRightWidth: 0.607,
-    borderRightColor: "#F1F1F5",
-  },
-
-  cellMedicineName: {
-    minWidth: 145.762,
-    flexDirection: "column",
-    gap: 2,
-  },
-
-  cellNote: {
-    minWidth: 121.468,
-  },
-
-  // Header text
-  headerText: {
-    fontWeight: 600, // SemiBold
-    color: "#171725",
-    lineHeight: 1.286, // 10.932 / 8.503
-    letterSpacing: 0.0607,
-    textTransform: "uppercase",
-    flexWrap: "wrap",
-  },
-
-  // Cell text - Medicine name
-  medicineName: {
-    fontWeight: 500, // Medium
-    color: "#454551",
-    lineHeight: 1.2754, // 12.754 / 10
-    letterSpacing: 0.0607,
-    flexWrap: "wrap",
-  },
-
-  // Cell text - Generic name
-  genericName: {
-    fontSize: 8,
-    fontWeight: 400,
-    color: "#454551",
-    lineHeight: 1.5,
-    letterSpacing: 0.0607,
-    flexWrap: "wrap",
-  },
-
-  // Cell text - Regular data
-  cellText: {
-    fontWeight: 400,
-    color: "#454551",
-    lineHeight: 1.822,
-    flexWrap: "wrap",
-  },
-
-  // Cell text - Small note
-  cellTextSmall: {
-    fontSize: 8,
-    fontWeight: 400,
-    color: "#454551",
-    lineHeight: 2.14,
-    opacity: 0.9,
-    flexWrap: "wrap",
-  },
-
-  // Title
   title: {
     color: "#171725",
     fontWeight: 600,
@@ -111,112 +36,395 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
 
-  // Container
-  container: {
-    paddingVertical: 6,
-    paddingHorizontal: 0,
+  row: {
+    flexDirection: "row",
+    borderBottom: "1px solid #171725",
+    borderLeft: "1px solid #171725",
+    minHeight: PX_TO_PT * 10,
+  },
+  cell: {
+    flex: 1,
+    padding: 6,
+    borderRight: "1px solid #171725",
+    height: "100%",
+  },
+  headerRow: {
+    flexDirection: "row",
+    borderBottom: "1px solid #171725",
+    borderLeft: "1px solid #171725",
+    borderTop: "1px solid #171725",
+  },
+  headerCell: {
+    flex: 1,
+    padding: 6,
+    borderRight: "1px solid #171725",
+    fontWeight: 700,
   },
 });
 
-/**
- * MedicationTable Component
- * @param {Object} props - Component props
- * @param {Array} props.medications - Array of medication objects
- * @param {string} props.title - Title for the medication table
- * @param {boolean} props.showContainer - Whether to show container padding
- * @returns {JSX.Element} Medication Table
- */
 const MedicationTable = ({
   medications,
   title = "Medication (Rx)",
-  showContainer = true,
+  frequencyList,
+  timingList,
+  fontSize,
 }) => {
   if (!medications || medications.length === 0) return null;
 
+  const innerMedication = (index) => {
+    const mainArray = [];
+    for (let i = index; i < medications.length; i++) {
+      if (medications[i].tmm_id == medications[index].tmm_id) {
+        mainArray.push(medications[i]);
+      } else {
+        break;
+      }
+    }
+    return mainArray;
+  };
+
+  const formatUnitPerDose = (tmm_dosage, is_dosage_decimal) => {
+    const unitPerDoseFormat = medicine_freq_dosage_format(
+      tmm_dosage,
+      is_dosage_decimal
+    );
+    return unitPerDoseFormat;
+  };
+
+  const formatFrequency = (
+    morning,
+    afternoon,
+    evening,
+    night,
+    is_dosage_decimal
+  ) => {
+    const {
+      morning: morningLabel,
+      afternoon: afternoonLabel,
+      evening: eveningLabel,
+      night: nightLabel,
+    } = getFrequencyLanguageTitles(1);
+
+    const frequencyParts = [
+      morning > 0
+        ? `${morningLabel}(${medicine_freq_dosage_format(
+            morning,
+            is_dosage_decimal
+          )})`
+        : "",
+      afternoon > 0
+        ? `${afternoonLabel}(${medicine_freq_dosage_format(
+            afternoon,
+            is_dosage_decimal
+          )})`
+        : "",
+      evening > 0
+        ? `${eveningLabel}(${medicine_freq_dosage_format(
+            evening,
+            is_dosage_decimal
+          )})`
+        : "",
+      night > 0
+        ? `${nightLabel}(${medicine_freq_dosage_format(
+            night,
+            is_dosage_decimal
+          )})`
+        : "",
+    ].filter(Boolean);
+    const frequencyInWords = frequencyParts.join(" - ");
+    return frequencyInWords;
+  };
+
+  const frequencyLang = () => {
+    const value = getFrequencyTitle(1);
+    return value;
+  };
+
+  const durationLang = (title) => {
+    const value = getDurationTitle(1, title);
+    return value;
+  };
+
+  const timeingLang = () => {
+    const value = getTimeingTitle(1);
+    return value;
+  };
+
   const tableContent = (
     <View style={styles.medicationTableContainer}>
-      {title && <Text style={[styles.title]}>{title}:</Text>}
-
+      {title && <Text style={styles.title}>{title}</Text>}
       <View style={styles.table}>
-        {/* Table Header */}
-        <View fixed style={styles.tableHeader}>
-          <View style={[styles.cellBase, styles.cellMedicineName]}>
-            <Text style={[styles.headerText]}>MEDICINE NAME</Text>
-          </View>
-          <View style={styles.cellBase}>
-            <Text style={[styles.headerText]}>UNIT PER DOSE</Text>
-          </View>
-          <View style={styles.cellBase}>
-            <Text style={[styles.headerText]}>FREQUENCY</Text>
-          </View>
-          <View style={styles.cellBase}>
-            <Text style={[styles.headerText]}>WHEN</Text>
-          </View>
-          <View style={styles.cellBase}>
-            <Text style={[styles.headerText]}>DURATION</Text>
-          </View>
-          <View
-            style={[styles.cellBase, styles.cellNote, { borderRightWidth: 0 }]}
-          >
-            <Text style={[styles.headerText]}>NOTE</Text>
-          </View>
-        </View>
-
-        {/* Table Rows */}
-        {medications.map((med, index) => (
-          <View
-            key={`med-${index}`}
+        <View style={styles.headerRow} fixed>
+          <Text
             style={[
-              styles.tableRow,
-              index === medications.length - 1 && { borderBottomWidth: 0 },
+              styles.headerCell,
+              {
+                fontWeight: 500,
+                color: "#000",
+              },
             ]}
           >
-            {/* Medicine Name with Generic */}
-            <View style={[styles.cellBase, styles.cellMedicineName]}>
-              <Text style={[styles.medicineName]}>{med.tmm_medicine_name}</Text>
-              {med.tmm_generic && (
-                <Text style={[styles.genericName]}>{med.tmm_generic}</Text>
+            MEDICINE
+          </Text>
+          <View
+            style={{
+              flex: 2.4,
+            }}
+          >
+            <View style={{ flexGrow: 1, flexDirection: "row" }}>
+              <Text
+                style={[
+                  styles.headerCell,
+                  {
+                    flex: 0.45,
+                    fontWeight: 500,
+                  },
+                ]}
+              >
+                DOSE
+              </Text>
+
+              <Text
+                style={[
+                  styles.headerCell,
+                  {
+                    flex: 0.6,
+                    fontWeight: 500,
+                    color: "#000",
+                  },
+                ]}
+              >
+                FREQUENCY
+              </Text>
+
+              <Text
+                style={[
+                  styles.headerCell,
+                  {
+                    flex: 0.53,
+                    fontWeight: 500,
+                    color: "#000",
+                  },
+                ]}
+              >
+                DURATION
+              </Text>
+
+              <Text
+                style={[
+                  styles.headerCell,
+                  {
+                    flex: 0.18,
+                    fontWeight: 500,
+                    color: "#000",
+                  },
+                ]}
+              >
+                QTY
+              </Text>
+
+              <Text
+                style={[
+                  styles.headerCell,
+                  {
+                    flex: 0.7,
+                    fontWeight: 500,
+                    color: "#000",
+                  },
+                ]}
+              >
+                NOTES
+              </Text>
+            </View>
+          </View>
+        </View>
+        {medications?.map((med, i) => (
+          <View style={styles.row} key={i} wrap={false}>
+            <View style={styles.cell}>
+              <Text
+                style={[
+                  {
+                    fontWeight: 500,
+                  },
+                ]}
+              >
+                {med.tmm_medicine_name}
+              </Text>
+              {med?.tmm_generic && (
+                <Text
+                  style={[
+                    {
+                      color: "#171725",
+                      fontWeight: 400,
+                      fontSize: fontSize - 2,
+                      marginTop: 5,
+                    },
+                  ]}
+                >
+                  {med.tmm_generic}
+                </Text>
               )}
             </View>
-
-            {/* Unit Per Dose */}
-            <View style={styles.cellBase}>
-              <Text style={[styles.cellText]}>
-                {med.tmm_dosage || med.tmm_unit || "1"}{" "}
-                {med.tmm_unit_name || "Tablets"}
-              </Text>
-            </View>
-
-            {/* Frequency */}
-            <View style={styles.cellBase}>
-              <Text style={[styles.cellText]}>
-                {med.tmm_freq_type_name || "-"}
-              </Text>
-            </View>
-
-            {/* When */}
-            <View style={styles.cellBase}>
-              <Text style={[styles.cellText]}>{med.tmm_time_name || "-"}</Text>
-            </View>
-
-            {/* Duration */}
-            <View style={styles.cellBase}>
-              <Text style={[styles.cellText]}>
-                {med.tmm_days_duration_type || med.tmm_days || "-"}
-              </Text>
-            </View>
-
-            {/* Note */}
             <View
-              style={[
-                styles.cellBase,
-                styles.cellNote,
-                { borderRightWidth: 0 },
-              ]}
+              style={{
+                flex: 2.4,
+              }}
             >
-              <Text style={[styles.cellTextSmall]}>
-                {med.tmm_remarks || "-"}
-              </Text>
+              {innerMedication(i).map((item, ii) => {
+                return (
+                  <View
+                    style={{
+                      flexGrow: 1,
+                      flexDirection: "row",
+                      borderBottom:
+                        ii !== innerMedication(i)?.length - 1
+                          ? "1px solid #171725"
+                          : "0px",
+                    }}
+                    key={ii}
+                  >
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 0.45,
+                          color: "#171725",
+                          fontWeight: 500,
+                        },
+                      ]}
+                    >{`${
+                      item.tmm_dosage && item.tmm_unit
+                        ? `${formatUnitPerDose(
+                            item.tmm_dosage,
+                            med?.is_dosage_decimal
+                          )} ${
+                            item?.medicineUnit?.find(
+                              (x) => x.tmu_id == item.tmm_unit
+                            )?.tmu_title || ""
+                          }`
+                        : `${
+                            item?.medicineUnit?.find(
+                              (x) => x.tmu_id == item.default_tmm_unit
+                            )?.tmu_title || ""
+                          }`
+                    }`}</Text>
+
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 0.6,
+                          color: "#171725",
+                          fontWeight: 400,
+                        },
+                      ]}
+                    >
+                      {item.tmf_block === 0 || item.tmf_block === ""
+                        ? `${
+                            item.tcm_tmm_freq_morning ||
+                            item.tcm_tmm_freq_afternoon ||
+                            item.tcm_tmm_freq_evening ||
+                            item.tcm_tmm_freq_night
+                              ? `${
+                                  item.tcm_tmm_freq_morning
+                                    ? medicine_freq_dosage_format(
+                                        item.tcm_tmm_freq_morning,
+                                        med?.is_dosage_decimal
+                                      )
+                                    : 0
+                                } - ${
+                                  item.tcm_tmm_freq_afternoon
+                                    ? medicine_freq_dosage_format(
+                                        item.tcm_tmm_freq_afternoon,
+                                        med?.is_dosage_decimal
+                                      )
+                                    : 0
+                                }${
+                                  item.tcm_tmm_freq_evening
+                                    ? " - " +
+                                      medicine_freq_dosage_format(
+                                        item.tcm_tmm_freq_evening,
+                                        med?.is_dosage_decimal
+                                      )
+                                    : ""
+                                } - ${
+                                  item.tcm_tmm_freq_night
+                                    ? medicine_freq_dosage_format(
+                                        item.tcm_tmm_freq_night,
+                                        med?.is_dosage_decimal
+                                      )
+                                    : 0
+                                }`
+                              : formatFrequency(
+                                  item.tcm_tmm_freq_morning,
+                                  item.tcm_tmm_freq_afternoon,
+                                  item.tcm_tmm_freq_evening,
+                                  item.tcm_tmm_freq_night
+                                )
+                          }`
+                        : `(${
+                            frequencyList?.find(
+                              (x) => x.tmf_id === item.tmm_freq_type
+                            )?.[frequencyLang()] || ""
+                          })`}
+                      {"\n"}
+                      {timingList?.find((x) => x.tmt_id === item.tmm_time)
+                        ?.tmt_title !== "None"
+                        ? timingList?.find((x) => x.tmt_id === item.tmm_time)?.[
+                            timeingLang()
+                          ] || ""
+                        : ""}
+                    </Text>
+
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 0.53,
+                          color: "#171725",
+                          fontWeight: 400,
+                        },
+                      ]}
+                    >
+                      {EXTRA_OPTIONS.some(
+                        (x) => x.value == item.tmm_duration_type
+                      )
+                        ? durationLang(capitalize(item.tmm_duration_type, true))
+                        : isNumeric(item.tmm_days)
+                        ? `${item.tmm_days} ${durationLang(
+                            item.tmm_duration_type
+                          )}`
+                        : "-"}
+                    </Text>
+
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 0.18,
+                          color: "#171725",
+                          fontWeight: 400,
+                        },
+                      ]}
+                    >
+                      {item.display_qty ? item.display_qty : "-"}
+                    </Text>
+
+                    <Text
+                      style={[
+                        styles.cell,
+                        {
+                          flex: 0.7,
+                          color: "#171725",
+                          fontWeight: 400,
+                        },
+                      ]}
+                    >
+                      {item.tmm_remarks ? item.tmm_remarks : "-"}&nbsp;
+                    </Text>
+                  </View>
+                );
+              })}
             </View>
           </View>
         ))}
@@ -224,12 +432,7 @@ const MedicationTable = ({
     </View>
   );
 
-  // Return with or without container padding
-  return showContainer ? (
-    <View style={styles.container}>{tableContent}</View>
-  ) : (
-    tableContent
-  );
+  return tableContent;
 };
 
 export default MedicationTable;

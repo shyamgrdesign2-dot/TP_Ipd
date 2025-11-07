@@ -70,12 +70,15 @@ const renderDiagnosisAndSurgery = (data, formatSettings) => {
 /**
  * Patient History Section
  */
-const renderPatientHistory = (data, formatSettings) => {
+const renderPatientHistory = (data, formatSettings, frequencyList, timingList, fontSize) => {
   return (
     <PatientHistory
       data={data}
       formatSettings={formatSettings}
       title="Patient History"
+      frequencyList={frequencyList}
+      timingList={timingList}
+      fontSize={fontSize}
     />
   );
 };
@@ -131,12 +134,15 @@ const renderOTNotes = (data, formatSettings) => {
 /**
  * Discharge Notes Section
  */
-const renderDischargeNotes = (data, formatSettings) => {
+const renderDischargeNotes = (data, formatSettings, frequencyList, timingList, fontSize) => {
   return (
     <DischargeNote
       title="Discharge Note"
       data={data}
       formatSettings={formatSettings}
+      frequencyList={frequencyList}
+      timingList={timingList}
+      fontSize={fontSize}
     />
   );
 };
@@ -206,7 +212,7 @@ const renderPreparedBy = (data) => {
  * @param {Object} formatSettings - Format settings
  * @returns {Array} Array of section components
  */
-export const renderDischargeSummary = (data, formatSettings) => {
+export const renderDischargeSummary = (data, formatSettings, frequencyList, timingList, fontSize) => {
   if (!data || !formatSettings) return [];
 
   // Get sorted sections
@@ -216,13 +222,13 @@ export const renderDischargeSummary = (data, formatSettings) => {
   const sectionRenderers = {
     admittingConsultant: () => renderPrimaryConsultant(data, formatSettings),
     diagnosisAndSurgery: () => renderDiagnosisAndSurgery(data, formatSettings),
-    patientHistory: () => renderPatientHistory(data, formatSettings),
+    patientHistory: () => renderPatientHistory(data, formatSettings, frequencyList, timingList, fontSize),
     physicalExamination: () => renderPhysicalExamination(data, formatSettings),
-    functionalAssessment: () =>
-      renderFunctionalAssessment(data, formatSettings),
+    // functionalAssessment: () =>
+    //   renderFunctionalAssessment(data, formatSettings),
     courseInHospital: () => renderCourseInHospital(data, formatSettings),
     otNotes: () => renderOTNotes(data, formatSettings),
-    dischargeNotes: () => renderDischargeNotes(data, formatSettings),
+    dischargeNotes: () => renderDischargeNotes(data, formatSettings, frequencyList, timingList, fontSize),
     dischargeAdvice: () => renderDischargeAdvice(data, formatSettings),
     followUp: () => renderFollowUp(data, formatSettings),
     // Backward compatibility with old keys

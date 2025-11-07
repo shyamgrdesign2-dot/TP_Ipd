@@ -53,7 +53,7 @@ import TabMedicationMoreModal from "./tab_design/TabMedicationMoreModal";
 const { TextArea } = Input;
 
 function MedicationsBox(props) {
-  const { isEditable = true } = props;
+  const { isEditable = true, medication: medicationFromProps = [] } = props;
   const { profile, frequencyList, timingList, medicineTypeList } = useSelector((state) => state.doctors);
   const {
     dosesList,
@@ -68,8 +68,8 @@ function MedicationsBox(props) {
   const { patient_data, caseManagerData } = state;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
 
-  let { medicationData, pillupSwitch } = useSelector((state) => state.prescription);
-  // const medicationData = medicationDataFromStore ? structuredClone(medicationDataFromStore) : [];
+  let { medicationData: medicationDataFromStore, pillupSwitch } = useSelector((state) => state.prescription);
+  const medicationData = medicationFromProps?.length ? medicationFromProps : medicationDataFromStore || [];
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);

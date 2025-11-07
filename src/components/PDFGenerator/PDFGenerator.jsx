@@ -30,19 +30,13 @@ if (!fontsRegistered) {
   }
 }
 
-/**
- * PDFGenerator Component
- * @param {Object} props - Component props
- * @param {Object} props.settings - Configuration settings for the document
- * @param {Object} props.data - Content data to display
- * @param {Object} props.documentType - Document type
- * @returns {JSX.Element} PDF Document
- */
 const PDFGenerator = ({
   settings,
   data,
   documentType,
   patientData: patientDataFromProps,
+  frequencyList,
+  timingList,
 }) => {
   // Validate props
   if (!settings) {
@@ -62,16 +56,30 @@ const PDFGenerator = ({
   // Get format settings - formatStyle is now always an array
   const formatSettings = settings.formatStyle || [];
 
+  const { fontSize } = settings.pageFormat || {};
+
   // Render content based on document type
   let contentSections = [];
 
   switch (documentType) {
     case "dischargeSummary":
-      contentSections = renderDischargeSummary(data, formatSettings);
+      contentSections = renderDischargeSummary(
+        data,
+        formatSettings,
+        frequencyList,
+        timingList,
+        fontSize
+      );
       break;
 
     case "assessments":
-      contentSections = renderAdmissionAssessment(data, formatSettings);
+      contentSections = renderAdmissionAssessment(
+        data,
+        formatSettings,
+        frequencyList,
+        timingList,
+        fontSize
+      );
       break;
 
     case "progressNotes":
@@ -79,7 +87,13 @@ const PDFGenerator = ({
       break;
 
     case "consultationNotes":
-      contentSections = renderConsultantNotes(data, formatSettings);
+      contentSections = renderConsultantNotes(
+        data,
+        formatSettings,
+        frequencyList,
+        timingList,
+        fontSize
+      );
       break;
 
     case "otNotes":

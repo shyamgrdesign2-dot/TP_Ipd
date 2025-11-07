@@ -1,10 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import ApiLabResults from "../../api/services/ipd/ApiLabResults";
+import { ictAuthToken } from "../appointmentsSlice";
+import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN } from "../../utils/constants";
 
 // Async thunk for getting pathology results
 export const getPathologyResults = createAsyncThunk(
   "labResults/getPathologyResults",
-  async (data) => {
+  async (data, { dispatch }) => {
     try {
       let result = {};
       result = await ApiLabResults.getZydusLabResults(data);
@@ -15,6 +17,16 @@ export const getPathologyResults = createAsyncThunk(
       }
     } catch (error) {
       console.log("error: ", error);
+      if (error?.response?.status === 401) {
+        const action = await dispatch(ictAuthToken());
+        if (action.meta.requestStatus === "fulfilled") {
+          await localStorage.setItem(
+            PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN,
+            JSON.stringify(action.payload.tokenNo)
+          );
+          dispatch(getPathologyResults(data));
+        }
+      }
       throw Error(error);
     }
   }

@@ -31,6 +31,7 @@ const PrintPreview = () => {
   const { printSettings } = useSelector((state) => state.printSettings);
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { consultationNotes: currentSettings } = printSettings;
+  const { frequencyList, timingList } = useSelector((state) => state.doctors);
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -70,6 +71,8 @@ const PrintPreview = () => {
           data={consultantNotes}
           documentType="consultationNotes"
           patientData={getPatientInformation(patientDetails)}
+          frequencyList={frequencyList}
+          timingList={timingList}
         />
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));

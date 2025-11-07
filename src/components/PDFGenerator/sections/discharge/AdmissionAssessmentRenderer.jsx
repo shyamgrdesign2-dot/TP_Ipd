@@ -73,13 +73,16 @@ const renderDiagnosisAndSurgery = (data, formatSettings) => {
 /**
  * Basic Information Section
  */
-const renderBasicInfo = (data, formatSettings) => {
+const renderBasicInfo = (data, formatSettings, frequencyList, timingList, fontSize) => {
   return (
     <PatientHistory
       data={data}
       formatSettings={formatSettings}
       isAssessment={true}
       // title="Basic Info"
+      frequencyList={frequencyList}
+      timingList={timingList}
+      fontSize={fontSize}
     />
   );
 };
@@ -140,7 +143,7 @@ const renderAdditionalNotes = (data, formatSettings) => {
  * @param {Object} formatSettings - Format settings
  * @returns {Array} Array of section components
  */
-export const renderAdmissionAssessment = (data, formatSettings) => {
+export const renderAdmissionAssessment = (data, formatSettings, frequencyList, timingList, fontSize) => {
   const sortedSections = getAllVisibleSections(formatSettings || null);
   if (!data || !formatSettings) return [];
 
@@ -157,7 +160,7 @@ export const renderAdmissionAssessment = (data, formatSettings) => {
       ),
     treatmentPlan: () => renderTreatmentPlan(data, formatSettings),
     additionalNotes: () => renderAdditionalNotes(data, formatSettings),
-    basicInfo: () => renderBasicInfo(data, formatSettings),
+    basicInfo: () => renderBasicInfo(data, formatSettings, frequencyList, timingList, fontSize),
     physicalExamination: () => renderPhysicalExamination(data, formatSettings),
     functionalAssessment: () =>
       renderFunctionalAssessment(data, formatSettings),

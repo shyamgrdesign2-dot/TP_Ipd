@@ -35,7 +35,7 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
     (state) => state.dischargeSummary
   );
   const { dischargeSummary: currentSettings } = printSettings;
-
+  const { frequencyList, timingList } = useSelector((state) => state.doctors);
   const patientData = dischargeSummaryData?.patientInformation || {};
 
   useEffect(() => {
@@ -56,6 +56,8 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
           data={dischargeSummaryData}
           documentType="dischargeSummary"
           patientData={getPatientInformation(patientDetails)}
+          frequencyList={frequencyList}
+          timingList={timingList}
         />
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));

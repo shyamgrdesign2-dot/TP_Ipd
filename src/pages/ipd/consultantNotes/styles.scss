@@ -113,7 +113,7 @@ $muted: #6f6b88;
     }
     .ipd-custom-module-container {
         background-color: #F9F7FD;
-        padding: 0 24px 18px;
+        padding: 24px 24px 24px 18px;
 
         .prescription-box-sm {
             border: 1px solid #e2e2ea;
@@ -353,6 +353,14 @@ $muted: #6f6b88;
     max-height: calc(100vh - 200px);
     box-sizing: border-box;
     position: relative;
+
+    // Override ReusableStepper styles that affect children
+    // Prevent ReusableStepper's medical-progress__cards-container styles from affecting children
+    .medical-progress__cards-container .ant-row {
+        margin: 0 !important;
+        flex-wrap: wrap !important;
+        overflow-x: visible !important;
+    }
 
     // Custom scrollbar
     &::-webkit-scrollbar {
