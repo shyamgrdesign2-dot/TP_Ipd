@@ -26,8 +26,7 @@ export const getPathologyResults = createAsyncThunk(
           );
           dispatch(getPathologyResults(data));
         }
-      }
-      throw Error(error);
+      } else throw Error(error);
     }
   }
 );
