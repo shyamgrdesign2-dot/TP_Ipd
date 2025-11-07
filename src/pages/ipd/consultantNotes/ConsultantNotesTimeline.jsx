@@ -10,6 +10,8 @@ import {
   setAdditionalRemarks,
   getConsultantNotes,
   clearFilteredConsultantNotes,
+  setFluidBalance,
+  setExamination,
 } from "../../../redux/ipd/consultantNotesSlice";
 import { setMedicationData } from "../../../redux/prescriptionSlice";
 import "./styles.scss";
@@ -129,6 +131,16 @@ const ConsultantNotesTimeline = () => {
       dispatch(setVitals(consultationData.vitals));
     }
 
+    // Set fluid balance
+    if (consultationData.fluidBalance) {
+      dispatch(setFluidBalance(consultationData.fluidBalance));
+    }
+
+    // Set examination
+    if (consultationData.examination) {
+      dispatch(setExamination(consultationData.examination));
+    }
+
     // Set medication
     if (consultationData.medication) {
       dispatch(setMedicationData(consultationData.medication));
@@ -228,6 +240,8 @@ const ConsultantNotesTimeline = () => {
         timestamp: pn?.time,
         clinicalAssessmentPlan: pn?.clinicalAssessmentPlan,
         vitals: pn?.vitals,
+        fluidBalance: pn?.fluidBalance,
+        examination: pn?.examination,
         currentMedication: pn?.currentMedication,
         labInvestigation: pn?.labInvestigation,
         additionalRemarks: pn?.additionalRemarks,

@@ -234,10 +234,12 @@ const PatientsTable = ({
                 title: "Send For Discharge Approval",
                 onCtaClick: handleSendForDischargeApproval,
               }
-          : {
+          : (isAdmittingDoctor && isDischargeQueue)
+          ? {
               title: "Discharge Patient",
               onCtaClick: handleMarkPatientAsDischarged,
-            };
+            }
+          : null;
         return (
           <div
             size="middle"
@@ -251,7 +253,7 @@ const PatientsTable = ({
             >
               View Details
             </button>
-            {!isDischargedPatients && !record?.isDischarged ? (
+            {!isDischargedPatients && !record?.isDischarged && actionObj?.title ? (
               <Popover
                 open={
                   openMoreActionsPopover === record?.patientData?.admissionId

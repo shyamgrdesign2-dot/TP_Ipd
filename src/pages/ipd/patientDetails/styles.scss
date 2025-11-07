@@ -9,6 +9,11 @@
     z-index: 100;
     width: fit-content;
 }
+.ipd-toolbar-edit-custom-print-download-discharge {
+    &:not(.no-edit) {
+        left: calc(60dvw) !important;
+    }
+}
 .ipd-adm-assess-container-readable {
     width: 100% ;
 }

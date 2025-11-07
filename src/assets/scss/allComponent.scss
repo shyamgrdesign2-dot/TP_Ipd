@@ -372,7 +372,7 @@
 
   &.bg-white {
     .ant-select-selector {
-      background: #ffffff !important;   // ✅ override when bg-white class is added
+      background: #ffffff !important; // ✅ override when bg-white class is added
     }
   }
 }
@@ -3054,7 +3054,8 @@ body {
   }
 }
 
-.drx-written-container, .drx-digitize-container {
+.drx-written-container,
+.drx-digitize-container {
   .digitize-rx {
     overflow: hidden;
     padding-bottom: 20px !important;
@@ -3074,7 +3075,9 @@ body {
   }
   .digitize-rx {
     .digitised-section-rx {
-      .digitised-rx-follow-up-item, ul, li {
+      .digitised-rx-follow-up-item,
+      ul,
+      li {
         position: relative;
         width: 100%;
       }
@@ -3167,8 +3170,7 @@ body.sticky-search-open {
   }
 }
 .ipd-mhl-container-discharge-summary {
-  .prescriptiontab-accordian.history-sider-box.ant-collapse
-    .ant-collapse-item {
+  .prescriptiontab-accordian.history-sider-box.ant-collapse .ant-collapse-item {
     .ant-collapse-header {
       border: 1px solid #f1f1f5;
       padding: 8px 12px;
@@ -3299,4 +3301,21 @@ body:has(.patient-details-container) {
     height: fit-content;
     transform: translateY(-50%);
   }
+}
+.fluid-balance-section-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1;
+  gap: 24px;
+}
+.ipd-fluid-item-section-container {
+  flex-basis: calc(50% - 24px);
+  max-width: calc(50% - 24px);
+  .ui-field  {
+    // margin-bottom: 0 !important;
+  }
+}
+
+.consultant-notes-examination-container {
+  padding: 0 !important;
 }

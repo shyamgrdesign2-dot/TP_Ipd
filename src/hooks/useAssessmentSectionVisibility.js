@@ -21,6 +21,7 @@ export const useAssessmentSectionVisibility = (isEditable) => {
 
   // Extract all necessary data from Redux store
   const {
+    topInformant,
     chiefComplaint,
     historyOfPresentIllness,
     labResults,
@@ -47,6 +48,7 @@ export const useAssessmentSectionVisibility = (isEditable) => {
   const showBasicInfo =
     isEditable ||
     !(
+      !topInformant &&
       isEmptyRichText(chiefComplaint) &&
       isEmptyRichText(historyOfPresentIllness) &&
       !medicationData?.length &&

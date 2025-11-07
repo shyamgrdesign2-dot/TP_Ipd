@@ -3,6 +3,7 @@ import { IPD } from "../../../utils/locale";
 import {
   formatDateToShortMonthYear,
   getPatientInformation,
+  getTokenData,
   normalizeToDefault,
   transformAdmissionToPatient,
 } from "../../../utils/utils";
@@ -125,8 +126,14 @@ const IPDPatientDetails = () => {
   const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
   const fileInputRef = useRef(null);
   const dischargeSummaryReadonlyRef = useRef(null);
+  const [user_id, setUserId] = useState(null);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const { user_id } = getTokenData();
+    setUserId(user_id);
+  }, []);
 
   const handleAddAssessmentClick = (isEmpty = false) => {
     if (isEmpty) {
@@ -203,11 +210,7 @@ const IPDPatientDetails = () => {
 
   useEffect(() => {
     if (patientId) {
-      getAllPatientDocs(
-        patientId,
-        admissionId,
-        "medical_records"
-      );
+      getAllPatientDocs(patientId, admissionId, "medical_records");
     }
   }, [patientId]);
 
@@ -483,12 +486,12 @@ const IPDPatientDetails = () => {
         state: {
           patientDetails,
           moduleType: "progressNotes",
-          data: { 
+          data: {
             patientInformation: getPatientInformation(patientDetails),
             progressNotes: progressNotes,
           },
         },
-      });  
+      });
     } else if (activeMenuItem === "crossReferral") {
       navigate("/ipd/cross-referral/configure-print-settings", {
         state: {
@@ -524,6 +527,8 @@ const IPDPatientDetails = () => {
       dispatch(resetDischargeSummaryToInitialState());
       dispatch(resetPrescriptionData());
       dispatch(resetOtNotesToInitialState());
+    } else if (id === "consultantNotes") {
+      dispatch(resetAssessmentForm());
     }
     navigate("/ipd/patient-details", {
       state: {
@@ -612,7 +617,12 @@ const IPDPatientDetails = () => {
 
   const handleProgressNotesPrint = async () => {
     try {
-      await printModule("progressNotes", printSettings, patientDetails, progressNotes);
+      await printModule(
+        "progressNotes",
+        printSettings,
+        patientDetails,
+        progressNotes
+      );
     } catch (error) {
       console.error("Error printing progress notes:", error);
     }
@@ -620,7 +630,12 @@ const IPDPatientDetails = () => {
 
   const handleProgressNotesDownload = async () => {
     try {
-      await downloadModule("progressNotes", printSettings, patientDetails, progressNotes);
+      await downloadModule(
+        "progressNotes",
+        printSettings,
+        patientDetails,
+        progressNotes
+      );
     } catch (error) {
       console.error("Error downloading progress notes:", error);
     }
@@ -629,7 +644,14 @@ const IPDPatientDetails = () => {
   // Assessment: print & download
   const handleAssessmentPrint = async () => {
     try {
-      await printModule("assessments", printSettings, patientDetails, assessmentsData, frequencyList, timingList);
+      await printModule(
+        "assessments",
+        printSettings,
+        patientDetails,
+        assessmentsData,
+        frequencyList,
+        timingList
+      );
     } catch (error) {
       console.error("Error printing assessment:", error);
     }
@@ -637,7 +659,14 @@ const IPDPatientDetails = () => {
 
   const handleAssessmentDownload = async () => {
     try {
-      await downloadModule("assessments", printSettings, patientDetails, assessmentsData, frequencyList, timingList);
+      await downloadModule(
+        "assessments",
+        printSettings,
+        patientDetails,
+        assessmentsData,
+        frequencyList,
+        timingList
+      );
     } catch (error) {
       console.error("Error downloading assessment:", error);
     }
@@ -649,13 +678,22 @@ const IPDPatientDetails = () => {
       let notes = consultantNotes;
       if (!Array.isArray(notes) || notes.length === 0) {
         try {
-          const res = await dispatch(getConsultantNotes({ patientId, admissionId }));
+          const res = await dispatch(
+            getConsultantNotes({ patientId, admissionId })
+          );
           notes = res?.payload || notes;
         } catch (e) {
           console.error("Error fetching consultant notes before print:", e);
         }
       }
-      await printModule("consultationNotes", printSettings, patientDetails, notes, frequencyList, timingList);
+      await printModule(
+        "consultationNotes",
+        printSettings,
+        patientDetails,
+        notes,
+        frequencyList,
+        timingList
+      );
     } catch (error) {
       console.error("Error printing consultant notes:", error);
     }
@@ -666,13 +704,22 @@ const IPDPatientDetails = () => {
       let notes = consultantNotes;
       if (!Array.isArray(notes) || notes.length === 0) {
         try {
-          const res = await dispatch(getConsultantNotes({ patientId, admissionId }));
+          const res = await dispatch(
+            getConsultantNotes({ patientId, admissionId })
+          );
           notes = res?.payload || notes;
         } catch (e) {
           console.error("Error fetching consultant notes before download:", e);
         }
       }
-      await downloadModule("consultationNotes", printSettings, patientDetails, notes, frequencyList, timingList);
+      await downloadModule(
+        "consultationNotes",
+        printSettings,
+        patientDetails,
+        notes,
+        frequencyList,
+        timingList
+      );
     } catch (error) {
       console.error("Error downloading consultant notes:", error);
     }
@@ -689,7 +736,12 @@ const IPDPatientDetails = () => {
 
   const handleOTNotesDownload = async () => {
     try {
-      await downloadModule("otNotes", printSettings, patientDetails, otNotesData);
+      await downloadModule(
+        "otNotes",
+        printSettings,
+        patientDetails,
+        otNotesData
+      );
     } catch (error) {
       console.error("Error downloading OT notes:", error);
     }
@@ -698,7 +750,12 @@ const IPDPatientDetails = () => {
   // Cross Referral: print & download
   const handleCrossReferralPrint = async () => {
     try {
-      await printModule("crossReferral", printSettings, patientDetails, crossReferralData);
+      await printModule(
+        "crossReferral",
+        printSettings,
+        patientDetails,
+        crossReferralData
+      );
     } catch (error) {
       console.error("Error printing cross referral:", error);
     }
@@ -706,7 +763,12 @@ const IPDPatientDetails = () => {
 
   const handleCrossReferralDownload = async () => {
     try {
-      await downloadModule("crossReferral", printSettings, patientDetails, crossReferralData);
+      await downloadModule(
+        "crossReferral",
+        printSettings,
+        patientDetails,
+        crossReferralData
+      );
     } catch (error) {
       console.error("Error downloading cross referral:", error);
     }
@@ -823,13 +885,16 @@ const IPDPatientDetails = () => {
           </div>
         );
       case "dischargeSummary":
+        const isAdmittingDoctor = patientDetails?.doctorId === user_id;
         return (
           <div className="ipd-adm-assess-container-readable ipd-discharge-summary-container-readable">
             <DischargeSummaryReadonly ref={dischargeSummaryReadonlyRef} />
             {Object.keys(actualDischargeSummaryData)?.length && (
-              <div className="ipd-toolbar-edit-custom-print-download">
+              <div className="ipd-toolbar-edit-custom-print-download ipd-toolbar-edit-custom-print-download-discharge">
                 <ToolbarActions
                   editBtnText={"Edit Summary"}
+                  showOnlyEditForm={!isAdmittingDoctor && !patientDetails?.isDischarged}
+                  // showOnlyEditForm={false}
                   showEditForm={!isOnlyViewMode}
                   onEdit={handleDischargeSummaryClick}
                   onPrintPreview={handleDischargeSummaryPrintPreview}
@@ -842,7 +907,11 @@ const IPDPatientDetails = () => {
                       const currentSettings = printSettings?.dischargeSummary;
                       if (!currentSettings) return;
                       await downloadModule(
-                        "dischargeSummary", printSettings, patientDetails, actualDischargeSummaryData);
+                        "dischargeSummary",
+                        printSettings,
+                        patientDetails,
+                        actualDischargeSummaryData
+                      );
                     } catch (e) {
                       console.error("Error downloading discharge summary:", e);
                     }

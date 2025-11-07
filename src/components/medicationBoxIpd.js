@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import CommonModal from '../common/CommonModal';
 import alertIcon from '../assets/images/alertIcon.svg';
 import CashManagerContext from '../context/CashManagerContext';
-import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, hasNumber, isAlphabetExit, calculateDose, getClinicName } from "../utils/utils";
+import { errorMessage, onlyNumberFormat, removeBeforeWhiteSpace, frequencyFormat, frequencyCombination, isNumeric, onlyDecimalFormat, capitalizeAfterSentence, replaceCommasAndSemicolons, capitalize, hasNumber, isAlphabetExit, calculateDose, getClinicName, mergeArraysOfObjects, formatDateToShortMonthYear } from "../utils/utils";
 import Medicationicon from "../assets/images/Medication.svg";
 import TimingInfo from "../assets/images/TimingInfo.svg";
 import noRecordFound from '../assets/images/no-record-round.svg';
@@ -48,7 +48,9 @@ import { useLocation } from "react-router-dom";
 import { clearMedicationData, setMedicationData, setPillupSwitch } from "../redux/prescriptionSlice";
 import TabMedicationSearch from "./tab_design/TabMedicationSearch";
 import TabMedicationMoreModal from "./tab_design/TabMedicationMoreModal";
+import { createRemoteComponent } from "../shared/remoteComponents";
 
+const AutoFillButton = createRemoteComponent("AutoFillButton");
 
 const { TextArea } = Input;
 
@@ -67,9 +69,14 @@ function MedicationsBox(props) {
   const { state } = useLocation();
   const { patient_data, caseManagerData } = state;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
+  const [autoFillButtonRef, setAutoFillButtonRef] = useState(null);
+  const { lastPrescriptionDataForAssessment, lastPrescriptionDate } =
+    useSelector((state) => state.assessment);
+  const { lastRxDate } = lastPrescriptionDate || {};
 
   let { medicationData: medicationDataFromStore, pillupSwitch } = useSelector((state) => state.prescription);
   const medicationData = medicationFromProps?.length ? medicationFromProps : medicationDataFromStore || [];
+  console.log('INTEL ==> medicationData', medicationData)
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -1732,6 +1739,7 @@ function MedicationsBox(props) {
                               ></i>
                             }
                             {rows.filter(row => row.originalItem.tmm_id === item.originalItem.tmm_id).map((subItem, ii) => {
+                              console.log('INTEL ==> subItem', subItem)
                               return (
                                 <Row key={ii} className={`${ii != 0 && 'position-relative border-top'}`}>
                                   <Col lg={4} md={4} sm={4} xs={4} className="border-end border-start">
@@ -3161,6 +3169,85 @@ function MedicationsBox(props) {
     dispatch(setPillupSwitch(checked))
   };
 
+  const renderAutoFill = useCallback(() => {
+    const { currentMedications: lastMedications = {} } =
+      lastPrescriptionDataForAssessment || {};
+    if (
+      !lastMedications?.length
+    )
+      return null;
+    return (
+      <div className="relative-medication-box-auto-fill">
+        <AutoFillButton
+          refCallback={setAutoFillButtonRef}
+          showOnlyAutoFill={true}
+          onClick={(data, e) => {
+            e?.stopPropagation();
+  
+            
+            if (lastMedications.length && !medicationData?.length) {
+              dispatch(setMedicationData(lastMedications));
+            } else {
+              const updatedData = lastMedications?.map((e) => {
+                const medicineUnit = e?.medicineUnit.map((e1) => {
+                  return {
+                    key: JSON.stringify({ ...e1 }),
+                    value: e1.tmu_id,
+                    label: String(e1.tmu_title || ""),
+                  };
+                });
+        
+                const unitObj = medicineUnit
+                  ? medicineUnit.find((x) => x.value?.toString() == e.tmm_unit)
+                  : null;
+                const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
+                const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+        
+                return {
+                  ...e,
+                  tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+                  tmm_freq_type_name:
+                    e.tmf_block == 0
+                      ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
+                        ? e.tcm_tmm_freq_morning + " - "
+                        : "0 -"
+                      }${e.tcm_tmm_freq_afternoon && e.tcm_tmm_freq_afternoon != 0
+                        ? e.tcm_tmm_freq_afternoon + " - "
+                        : "0 -"
+                      }${e.tcm_tmm_freq_evening && e.tcm_tmm_freq_evening != 0
+                        ? e.tcm_tmm_freq_evening + " - "
+                        : ""
+                      }${e.tcm_tmm_freq_night && e.tcm_tmm_freq_night != 0
+                        ? e.tcm_tmm_freq_night
+                        : "0"}`
+                      : frequencyObj !== undefined
+                        ? frequencyObj.tmf_title
+                        : "",
+                  tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+                  tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+                  tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+                  tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
+                  unique_id: uuidv4(),
+                };
+              });
+              // dispatch(
+              //   setMedicationData(
+              //     [...medicationData, ...updatedData]
+              //   )
+              // );
+              dispatch(
+                setMedicationData(
+                  [...medicationData, ...lastMedications]
+                )
+              );
+            }
+          }}
+          title={`Autofill From OPD ${lastRxDate ? `(${formatDateToShortMonthYear(lastRxDate)})` : ""}`}
+        />
+      </div>
+    );
+  }, [lastPrescriptionDataForAssessment, medicationData]);
+
   return (
     <>
       <div>
@@ -3179,14 +3266,15 @@ function MedicationsBox(props) {
                 <img src={calculatorIcon} alt="Dose calcultor" className="svg-hovered me-2" /><span>{isPillUpAccessableFromGB ? 'Dose calc' : 'Dose calculator'}</span>
               </button>
             )}
-            {/* <button
+            <button
               className="btn d-flex align-items-center btn-text"
-              onClick={loadPreviousRxClick}
+              // onClick={loadPreviousRxClick}
             >
               {" "}
-              <i className="icon-reload me-2"></i> <span>{isPillUpAccessableFromGB ? 'Prev. Rx ' : 'Load Prev. Rx'}</span>
+              {/* <i className="icon-reload me-2"></i> <span>{isPillUpAccessableFromGB ? 'Prev. Rx ' : 'Load Prev. Rx'}</span> */}
+              {renderAutoFill()}
             </button>
-            <Popover
+            {/* <Popover
               open={popOver1}
               onOpenChange={showHideTemplatesListPopover}
               content={TEMPLATE_CONTENT}

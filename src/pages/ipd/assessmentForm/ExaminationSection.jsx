@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { Radio } from "antd";
 import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
@@ -15,16 +15,17 @@ const ExaminationSection = (props) => {
     isEditable = true,
     sectionData,
     isDischargeSummary = false,
+    isConsultantNotes = false,
   } = props || {};
-  const { physicalExaminationBasicData = {} } = useSelector(
-    (state) => state.assessment
+  const physicalExaminationBasicData = useSelector(
+    (state) => state.assessment.physicalExaminationBasicData || {}
   );
   const dispatch = useDispatch();
   const checkExaminationDataPresent = useCheckExaminationData(physicalExaminationBasicData);
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [disableFocusEffect, setDisableFocusEffect] = useState({});
-  const onExaminationRadioChange = (e, item) => {
-    const { id } = item;
+  const onExaminationRadioChange = useCallback((e, item) => {
+    const { id } = item; 
     dispatch(
       setPhysicalExaminationBasicData({
         ...physicalExaminationBasicData,
@@ -36,16 +37,16 @@ const ExaminationSection = (props) => {
         },
       })
     );
-  };
+  }, [dispatch, physicalExaminationBasicData]);
 
-  const handleExaminationNotesChange = (data, id) => {
+  const handleExaminationNotesChange = useCallback((data, id) => {
     dispatch(
       setPhysicalExaminationBasicData({
         ...physicalExaminationBasicData,
         [id]: { ...physicalExaminationBasicData[id], notes: data },
       })
     );
-  };
+  }, [dispatch, physicalExaminationBasicData]);
 
   const renderReadOnlyExamination = () => {
     return (
@@ -109,7 +110,7 @@ const ExaminationSection = (props) => {
     }, 100);
   };
 
-  const renderEditableExamination = () => {
+  const renderEditableExamination = useMemo(() => {
     return (
       <div className="examinations-parent-container">
         {sectionData?.children
@@ -156,9 +157,7 @@ const ExaminationSection = (props) => {
                   <Radio.Group
                     className="exam-radio-text"
                     onChange={(e) => onExaminationRadioChange(e, item)}
-                    value={physicalExaminationBasicData[
-                      item.id
-                    ]?.value?.toString()}
+                    value={physicalExaminationBasicData[item.id]?.value}
                     options={item.options}
                   />
                 </div>
@@ -167,11 +166,11 @@ const ExaminationSection = (props) => {
           })}
       </div>
     );
-  };
+  }, [physicalExaminationBasicData, sectionData, isEditable, autoFillTextToAppend, disableFocusEffect, handleExaminationNotesChange, onExaminationRadioChange]);
 
   const renderExaminationSection = () => {
     return isEditable
-      ? renderEditableExamination()
+      ? renderEditableExamination
       : renderReadOnlyExamination();
   };
 
@@ -201,7 +200,7 @@ const ExaminationSection = (props) => {
       placeholder={"Additional notes if any"}
       containerClass={`examination-rich-container ${
         !isEditable ? "examination-rich-readonly-container" : ""
-      }`}
+      } ${isConsultantNotes ? "consultant-notes-examination-container" : ""}`}
       renderBody={renderExaminationSection}
     />
   );

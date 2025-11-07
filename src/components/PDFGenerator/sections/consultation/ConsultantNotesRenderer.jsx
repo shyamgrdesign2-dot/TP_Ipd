@@ -5,6 +5,8 @@ import { getAllVisibleSections, isEmptyRichText } from "../../utils/pdfUtils";
 import SlateToPdf from "../../components/SlateToPdf";
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import FilledByCard from "../../components/FilledByCard";
+import { renderGeneralExamination } from "../discharge/components/PhysicalExamination";
+import { IPD } from "../../../../utils/locale";
 
 const styles = StyleSheet.create({
   // Subsection container
@@ -131,6 +133,8 @@ export const renderConsultantNotes = (
           "Clinical Assessment & Plan"
         ),
       vitals: () => <Vitals vitals={consultationData.vitals} title="Vitals" />,
+      examinations: () => renderGeneralExamination(consultationData.examination, {label: 'Examination'}),
+      // fluidBalance: () => <Vitals vitals={consultationData.vitals} title="Vitals" />,
       medication: () => (
         <MedicationTable
           medications={

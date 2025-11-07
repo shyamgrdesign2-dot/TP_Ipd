@@ -9,6 +9,8 @@ const initialState = {
   filteredConsultantNotes: [],
   clinicalAssessmentPlan: [],
   vitals: {},
+  fluidBalance: {},
+  examination: {},
   medication: [],
   labInvestigation: [],
   additionalRemarks: [],
@@ -86,6 +88,12 @@ const consultantNotesSlice = createSlice({
     setVitals: (state, action) => {
       state.vitals = action.payload;
     },
+    setFluidBalance: (state, action) => {
+      state.fluidBalance = action.payload;
+    },
+    setExamination: (state, action) => {
+      state.examination = action.payload;
+    },
     setMedication: (state, action) => {
       state.medication = action.payload;
     },
@@ -99,6 +107,8 @@ const consultantNotesSlice = createSlice({
       state.clinicalAssessmentPlan = [];
       state.vitals = {};
       state.medication = [];
+      state.fluidBalance = {};
+      state.examination = {};
       state.labInvestigation = [];
       state.additionalRemarks = [];
       state.currentConsultantNote = null;
@@ -201,6 +211,8 @@ export const {
   setLabInvestigation,
   setAdditionalRemarks,
   resetConsultantNotes,
+  setFluidBalance,
+  setExamination,
 } = consultantNotesSlice.actions;
 
 export default consultantNotesSlice.reducer;

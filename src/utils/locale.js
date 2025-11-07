@@ -92,7 +92,7 @@ export const IPD = {
         {
           placeholder: "",
           id: "topInformant",
-          title: "Top Informant",
+          title: "Informant",
           enabled: true,
           icon: "roundDotted",
         },
@@ -502,7 +502,7 @@ export const IPD = {
       subSections: [
         {
           id: "topInformant",
-          label: "Top Informant",
+          label: "Informant",
           order: 1,
           visible: true,
           view: 1,
@@ -3084,6 +3084,166 @@ export const IPD = {
       children: [],
     },
     VITALS_CONFIG,
+    {
+      id: "fluidBalance",
+      title: "Fluid Balance",
+      icon: "fluidBalance",
+      menuIcon: "fluidBalance",
+      enabled: true,
+      expanded: false,
+      children: [
+        {
+          placeholder: "Enter Fluid Input",
+          id: "fluidInput",
+          title: "Fluid Input",
+          enabled: true,
+          icon: "droplet",
+        },
+        {
+          placeholder: "Enter Fluid Output",
+          id: "fluidOutput",
+          title: "Fluid Output",
+          enabled: true,
+          icon: "droplet",
+        },
+        {
+          // placeholder: "Enter Fluid Output",
+          id: "balance",
+          title: "Balance",
+          enabled: true,
+          icon: "balance",
+        },
+      ],
+    },
+    {
+      placeholder: "",
+      id: "examinations",
+      title: "General Examination",
+      enabled: true,
+      icon: "aidKit",
+      children: [
+        {
+          title: "Pallor",
+          enabled: true,
+          id: "pallor",
+          description: "",
+          options: [
+            { label: "Present", value: 1, name: "present" },
+            { label: "Absent", value: 2, name: "absent" },
+          ],
+        },
+        {
+          title: "Clubbing",
+          enabled: true,
+          id: "clubbing",
+          description: "",
+          options: [
+            { label: "Present", value: 1, name: "present" },
+            { label: "Absent", value: 2, name: "absent" },
+          ],
+        },
+        {
+          title: "Cyanosis",
+          enabled: true,
+          id: "cynosis",
+          description: "",
+          options: [
+            { label: "Present", value: 1, name: "present" },
+            { label: "Absent", value: 2, name: "absent" },
+          ],
+        },
+        {
+          title: "Lymphadenopathy",
+          enabled: true,
+          id: "lymphadenopathy",
+          description: "",
+          options: [
+            { label: "Present", value: 1, name: "present" },
+            { label: "Absent", value: 2, name: "absent" },
+          ],
+        },
+        {
+          title: "Edema",
+          enabled: true,
+          id: "edema",
+          description: "",
+          options: [
+            { label: "Present", value: 1, name: "present" },
+            { label: "Absent", value: 2, name: "absent" },
+          ],
+        },
+        {
+          title: "Hydration",
+          enabled: true,
+          id: "hydration",
+          description: "",
+          options: [
+            { label: "Normal", value: 1, name: "normal" },
+            { label: "Dehydrated", value: 2, name: "dehydrated" },
+          ],
+        },
+        {
+          title: "CVS",
+          enabled: true,
+          id: "cvs",
+          description: "",
+          options: [
+            { label: "WNL", value: 1, name: "wnl" },
+            { label: "Abnormal", value: 2, name: "abnormal" },
+          ],
+        },
+        {
+          title: "Breast/Chest",
+          enabled: true,
+          id: "breast_chest",
+          description: "",
+          options: [
+            { label: "WNL", value: 1, name: "wnl" },
+            { label: "Abnormal", value: 2, name: "abnormal" },
+          ],
+        },
+        {
+          title: "Abdomen",
+          enabled: true,
+          id: "abdomen",
+          description: "",
+          options: [
+            { label: "WNL", value: 1, name: "wnl" },
+            { label: "Abnormal", value: 2, name: "abnormal" },
+          ],
+        },
+        {
+          title: "Neurological/Psychosocial",
+          enabled: true,
+          id: "neurological_psychosocial",
+          description: "",
+          options: [
+            { label: "WNL", value: 1, name: "wnl" },
+            { label: "Abnormal", value: 2, name: "abnormal" },
+          ],
+        },
+        {
+          title: "Back",
+          enabled: true,
+          id: "back",
+          description: "",
+          options: [
+            { label: "WNL", value: 1, name: "wnl" },
+            { label: "Abnormal", value: 2, name: "abnormal" },
+          ],
+        },
+        {
+          title: "HEENT",
+          enabled: true,
+          id: "heent",
+          description: "",
+          options: [
+            { label: "WNL", value: 1, name: "wnl" },
+            { label: "Abnormal", value: 2, name: "abnormal" },
+          ],
+        },
+      ],
+    },
     {
       id: "medication",
       title: "Medication",

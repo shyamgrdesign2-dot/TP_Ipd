@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
 /**
  * Render General Examination
  */
-const renderGeneralExamination = (examination, subsection) => {
+export const renderGeneralExamination = (examination, subsection) => {
   if (!examination || Object.keys(examination).length === 0) return null;
 
   return (

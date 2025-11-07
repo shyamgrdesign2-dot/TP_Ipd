@@ -138,6 +138,7 @@ const BasicInfo = (props) => {
 
   if (
     !isEditable &&
+    !topInformant &&
     isEmptyRichText(chiefComplaint) &&
     isEmptyRichText(historyOfPresentIllness) &&
     !medicationData?.length &&

@@ -10,6 +10,9 @@ import { isMobile } from "react-device-detect";
 import MedicationsBox from "../../../components/MedicationsBox.js";
 import InteractionGate from "../components/InteractionGate/InteractionGate.jsx";
 import MedicationBoxIpd from "../../../components/medicationBoxIpd.js";
+import { IPD } from "../../../utils/locale.js";
+import useCheckExaminationData from "../../../hooks/useCheckExaminationData.js";
+import ExaminationSection from "../assessmentForm/ExaminationSection.jsx";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
@@ -19,10 +22,13 @@ const ConsultantNotesPreview = ({ entry }) => {
   const clinicalAssessmentPlan = consultationData?.clinicalAssessmentPlan;
   const vitals = consultationData?.vitals || {};
   const medication = consultationData?.medication || [];
+  const fluidBalance = consultationData?.fluidBalance || [];
+  const examination = consultationData?.examination || [];
   const labInvestigation = consultationData?.labInvestigation || [];
   const additionalRemarks = consultationData?.additionalRemarks;
   const filledBy = entry?.createdByName;
   const role = entry?.createdByRole;
+  const checkExaminationDataPresent = useCheckExaminationData(examination);
 
   // Check if vitals has any non-empty values
   const hasVitals = Object.values(vitals).some(
@@ -155,6 +161,42 @@ const ConsultantNotesPreview = ({ entry }) => {
               )}
             </InteractionGate>
           </div>
+        )}
+
+        {/* Fluid Balance */}
+        {Object.keys(fluidBalance).length > 0 && (
+          <div className="cnp-section">
+            <div className="cnp-section-header">
+              <img
+                className="cnp-section-icon"
+                src={consultantIcons.fluidBalancePc}
+                alt="Fluid Balance"
+              />
+              <div className="cnp-section-title">Fluid Balance</div>
+            </div>
+            <div className="cnp-section-content">
+              <div className="cnp-fluid-balance-inline">
+                {Object.entries(fluidBalance).map(([key, value], index) => (
+                  <React.Fragment key={index}>
+                    <span className="cnp-fluid-balance-label">{key}:</span>
+                    <span className="cnp-fluid-balance-value"> {value}</span>
+                    {index < Object.entries(fluidBalance).length - 1 && (
+                      <span className="cnp-fluid-balance-separator"> | </span>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Examination */}
+        {checkExaminationDataPresent && (
+          <ExaminationSection
+            isConsultantNotes={true}
+            isEditable={false}
+            sectionData={IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE[3]}
+          />
         )}
 
         {/* Lab Investigation */}

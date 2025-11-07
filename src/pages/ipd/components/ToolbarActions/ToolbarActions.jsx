@@ -15,6 +15,7 @@ export default function ToolbarActions({
   onSettings = () => {},
   onDownload = () => {},
   editBtnText = null,
+  showOnlyEditForm = false,
 }) {
   const BTN = {
     BIG: "big",
@@ -108,40 +109,45 @@ export default function ToolbarActions({
             </span>
           </div>
         )}
-
-        {/* Edit Form Button */}
-        {showEditForm && (
+        {showOnlyEditForm ? (
+          renderAction(actions[0])
+        ) : (
           <>
-            {renderAction(actions[0])}
-            <span className="toolbar__divider" aria-hidden="true" />
+            {/* Edit Form Button */}
+            {showEditForm && (
+              <>
+                {renderAction(actions[0])}
+                <span className="toolbar__divider" aria-hidden="true" />
+              </>
+            )}
+
+            {/* Add to Discharge Summary Button */}
+            {showAddToDischarge && (
+              <>
+                {renderAction(actions[1])}
+                {/* <span className="toolbar__divider" aria-hidden="true" /> */}
+              </>
+            )}
+
+            {/* Print Preview Button */}
+            {renderAction(actions[2])}
+
+            {/* Action Cluster */}
+            {!showAddToDischarge && (
+              <>
+                <div className="toolbar__cluster">
+                  {renderAction(actions[3])}
+                  {renderAction(actions[4])}
+                </div>
+
+                <span className="toolbar__divider" aria-hidden="true" />
+              </>
+            )}
+
+            {/* Download Button */}
+            {renderAction(actions[5])}
           </>
         )}
-
-        {/* Add to Discharge Summary Button */}
-        {showAddToDischarge && (
-          <>
-            {renderAction(actions[1])}
-            {/* <span className="toolbar__divider" aria-hidden="true" /> */}
-          </>
-        )}
-
-        {/* Print Preview Button */}
-        {renderAction(actions[2])}
-
-        {/* Action Cluster */}
-        {!showAddToDischarge && (
-          <>
-            <div className="toolbar__cluster">
-              {renderAction(actions[3])}
-              {renderAction(actions[4])}
-            </div>
-
-            <span className="toolbar__divider" aria-hidden="true" />
-          </>
-        )}
-
-        {/* Download Button */}
-        {renderAction(actions[5])}
       </div>
     </div>
   );
