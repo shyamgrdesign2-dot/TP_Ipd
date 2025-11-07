@@ -76,7 +76,6 @@ function MedicationsBox(props) {
 
   let { medicationData: medicationDataFromStore, pillupSwitch } = useSelector((state) => state.prescription);
   const medicationData = medicationFromProps?.length ? medicationFromProps : medicationDataFromStore || [];
-  console.log('INTEL ==> medicationData', medicationData)
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -421,6 +420,24 @@ function MedicationsBox(props) {
     },
     [unitPerDoseOptions, medicationData]
   );
+
+  // Utility function to normalize medicineUnit format
+  const normalizeMedicineUnit = (medicineUnit = []) => {
+    // Check if already in correct format
+    const isFormatted =
+      medicineUnit.length > 0 &&
+      Object.prototype.hasOwnProperty.call(medicineUnit[0], "key");
+
+    if (isFormatted) return medicineUnit; // ✅ Already formatted
+
+    // Otherwise, convert raw data to formatted
+    return medicineUnit.map((e1) => ({
+      key: JSON.stringify(e1),
+      value: e1.tmu_id,
+      label: String(e1.tmu_title || ""),
+    }));
+  };
+
 
   const onBlurUnitPerDoseChid = useCallback(
     async (i) => {
@@ -799,21 +816,39 @@ function MedicationsBox(props) {
     [durationMoreOptionsVisible]
   );
 
-  // Child drawer input handlers (simplified versions)
   const onChangeDosageChild = useCallback(
     (e) => {
-      if (!Array.isArray(childDrawerData) || childIndex === null || !childDrawerData[childIndex]) {
-        console.warn('onChangeDosageChild: Invalid childDrawerData or childIndex');
+      if (
+        !Array.isArray(childDrawerData) ||
+        childIndex === null ||
+        !childDrawerData[childIndex]
+      ) {
+        console.warn("onChangeDosageChild: Invalid childDrawerData or childIndex");
         return;
       }
+  
       const updateQuery = onlyDecimalFormat(e.target.value);
-      const updated = childDrawerData.map((item, idx) => 
-        idx === childIndex ? { ...item, tmm_dosage: updateQuery } : item
+      const currentItem = childDrawerData[childIndex];
+      const currentUnitName = currentItem?.tmm_unit_name || "";
+  
+      const updated = childDrawerData.map((item, idx) =>
+        idx === childIndex
+          ? {
+              ...item,
+              tmm_dosage: updateQuery,
+              tmm_dosage_unit_name:
+                updateQuery && currentUnitName
+                  ? `${updateQuery} ${currentUnitName}`
+                  : updateQuery || "",
+            }
+          : item
       );
+  
       setChildDrawerData(updated);
     },
     [childIndex, childDrawerData]
   );
+  
 
   const onSelectMedicineUnitChild = useCallback(
     (data) => {
@@ -821,26 +856,41 @@ function MedicationsBox(props) {
         console.warn('onSelectMedicineUnitChild: Invalid childDrawerData or childIndex');
         return;
       }
-      const obj = childDrawerData[childIndex]?.medicineUnit
-        ? childDrawerData[childIndex]?.medicineUnit.find(
-          (e) => e.value == data
-        )
-        : null;
-      if (obj && obj !== undefined) {
-        const objParse = JSON.parse(obj.key);
-        const updated = childDrawerData.map((item, idx) => 
-          idx === childIndex ? { 
-            ...item, 
-            tmm_unit: objParse.tmu_id,
-            tmm_unit_name: objParse.tmu_title,
-            tmu_id: objParse.tmu_id
-          } : item
-        );
-        setChildDrawerData(updated);
-      }
+  
+      const medicineUnit = childDrawerData[childIndex]?.medicineUnit || [];
+      const selected =
+        medicineUnit.find((e) => e.value == data || e.tmu_id == data);
+  
+      if (!selected) return;
+  
+      const parsedObj = selected.key
+        ? JSON.parse(selected.key)
+        : {
+            tmu_id: selected.tmu_id ?? selected.value,
+            tmu_title: selected.tmu_title ?? selected.label,
+          };
+  
+      const updated = childDrawerData.map((item, idx) => {
+        if (idx !== childIndex) return item;
+  
+        const dosage = item.tmm_dosage || "";
+        const unitName = parsedObj.tmu_title || "";
+        const dosageUnitName = dosage && unitName ? `${dosage} ${unitName}` : "";
+  
+        return {
+          ...item,
+          tmm_unit: parsedObj.tmu_id,
+          tmm_unit_name: parsedObj.tmu_title,
+          tmu_id: parsedObj.tmu_id,
+          tmm_dosage_unit_name: dosageUnitName,
+        };
+      });
+  
+      setChildDrawerData(updated);
     },
     [childIndex, childDrawerData]
-  );
+  );  
+  
 
   useEffect(() => {
     if (sinceValue !== -1) {
@@ -1739,7 +1789,6 @@ function MedicationsBox(props) {
                               ></i>
                             }
                             {rows.filter(row => row.originalItem.tmm_id === item.originalItem.tmm_id).map((subItem, ii) => {
-                              console.log('INTEL ==> subItem', subItem)
                               return (
                                 <Row key={ii} className={`${ii != 0 && 'position-relative border-top'}`}>
                                   <Col lg={4} md={4} sm={4} xs={4} className="border-end border-start">
@@ -2419,23 +2468,33 @@ function MedicationsBox(props) {
               </div>
             </div>
             <div className="d-flex align-items-center">
-              {!medicationData[selectedIndex]?.pms_default &&
-                <i className="icon-Edit ms-2"
+              {!medicationData[selectedIndex]?.pms_default && (
+                <i
+                  className="icon-Edit ms-2"
                   onClick={() => {
-                    const medicineType = medicineTypeList.find(x => x?.tmy_id == medicationData[selectedIndex]?.tmm_type)
+                    const medicineType = medicineTypeList.find(
+                      (x) =>
+                        x?.tmy_id == medicationData[selectedIndex]?.tmm_type
+                    );
                     const makeData = {
                       unique_id: medicationData[selectedIndex]?.unique_id,
                       tmm_id: medicationData[selectedIndex]?.tmm_id,
-                      tmm_medicine_name: String(medicationData[selectedIndex]?.tmm_medicine_name || ""),
-                      tmm_generic: String(medicationData[selectedIndex]?.tmm_generic || ""),
-                      tmm_company: String(medicationData[selectedIndex]?.tmm_company || ""),
+                      tmm_medicine_name: String(
+                        medicationData[selectedIndex]?.tmm_medicine_name || ""
+                      ),
+                      tmm_generic: String(
+                        medicationData[selectedIndex]?.tmm_generic || ""
+                      ),
+                      tmm_company: String(
+                        medicationData[selectedIndex]?.tmm_company || ""
+                      ),
                       tmm_type: medicationData[selectedIndex]?.tmm_type,
-                      ...medicineType
+                      ...medicineType,
                     };
                     setAddCustom(makeData);
                   }}
                 ></i>
-              }
+              )}
               <Button
                 className="btn btn-primary3 btn-41 px-4 ms-3 me-20"
                 onClick={() => updateChild(childDrawerData)}
@@ -2450,16 +2509,27 @@ function MedicationsBox(props) {
             type="editable-card"
             onChange={onChange}
             activeKey={activeKey}
-            onEdit={(targetKey, action) => onEdit(targetKey, action, childDrawerData[childIndex])}
+            onEdit={(targetKey, action) =>
+              onEdit(targetKey, action, childDrawerData[childIndex])
+            }
             items={childDrawerData.map((e, i) => ({
               key: e.unique_id,
               label: `Dose ${i + 1}`,
-              children: null
+              children: null,
             }))}
             className="tablet-medication-tabs"
           />
         ) : null}
-        <i className="icon-Add custom-tapper-button" onClick={() => taperDoseAdd(childDrawerData && childDrawerData?.length > 0 ? childDrawerData[childIndex] : medicationData[selectedIndex])} />
+        <i
+          className="icon-Add custom-tapper-button"
+          onClick={() =>
+            taperDoseAdd(
+              childDrawerData && childDrawerData?.length > 0
+                ? childDrawerData[childIndex]
+                : medicationData[selectedIndex]
+            )
+          }
+        />
         {childDrawerData && childDrawerData?.length > 0 && (
           <div className="p-4">
             <div>
@@ -2482,26 +2552,15 @@ function MedicationsBox(props) {
                   <Select
                     className="autocomplete-custom w-100 popinput inputheight38"
                     placeholder="Select"
-                    defaultValue={
-                      childDrawerData[childIndex]?.medicineUnit
-                        ? childDrawerData[childIndex]?.medicineUnit.findIndex(
-                          (e) => e.value == childDrawerData[childIndex]?.tmm_unit
-                        ) !== -1
-                          ? parseInt(childDrawerData[childIndex]?.tmm_unit)
-                          : null
-                        : null
-                    }
                     value={
-                      childDrawerData[childIndex]?.medicineUnit
-                        ? childDrawerData[childIndex]?.medicineUnit.findIndex(
-                          (e) => e.value == childDrawerData[childIndex]?.tmm_unit
-                        ) !== -1
-                          ? parseInt(childDrawerData[childIndex]?.tmm_unit)
-                          : null
+                      childDrawerData?.[childIndex]?.tmm_unit
+                        ? Number(childDrawerData[childIndex].tmm_unit)
                         : null
                     }
                     onSelect={onSelectMedicineUnitChild}
-                    options={childDrawerData?.[childIndex]?.medicineUnit}
+                    options={normalizeMedicineUnit(
+                      childDrawerData?.[childIndex]?.medicineUnit
+                    )}
                   />
                 </Col>
               </Row>
@@ -2515,30 +2574,42 @@ function MedicationsBox(props) {
                   >
                     <Radio.Button
                       value="man"
-                      className={`${selectedTab === "man" ? "selected-tab" : ""} fw-medium`}
+                      className={`${
+                        selectedTab === "man" ? "selected-tab" : ""
+                      } fw-medium`}
                     >
                       <span
-                        className={`${selectedTab === "man" ? "selected-tab" : ""} fw-medium`}
+                        className={`${
+                          selectedTab === "man" ? "selected-tab" : ""
+                        } fw-medium`}
                       >
                         MAN
                       </span>
                     </Radio.Button>
                     <Radio.Button
                       value="mean"
-                      className={`${selectedTab === "mean" ? "selected-tab" : ""} fw-medium`}
+                      className={`${
+                        selectedTab === "mean" ? "selected-tab" : ""
+                      } fw-medium`}
                     >
                       <span
-                        className={`${selectedTab === "mean" ? "selected-tab" : ""} fw-medium`}
+                        className={`${
+                          selectedTab === "mean" ? "selected-tab" : ""
+                        } fw-medium`}
                       >
                         MEAN
                       </span>
                     </Radio.Button>
                     <Radio.Button
                       value="other"
-                      className={`${selectedTab === "other" ? "selected-tab" : ""} fw-medium`}
+                      className={`${
+                        selectedTab === "other" ? "selected-tab" : ""
+                      } fw-medium`}
                     >
                       <span
-                        className={`${selectedTab === "other" ? "selected-tab" : ""} fw-medium`}
+                        className={`${
+                          selectedTab === "other" ? "selected-tab" : ""
+                        } fw-medium`}
                       >
                         Hrs a Day
                       </span>
@@ -2553,8 +2624,10 @@ function MedicationsBox(props) {
                       aria-label="Basic example"
                       className="inputheight45 border w-100 rounded-0"
                     >
-                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !== undefined &&
-                        childDrawerData[childIndex]?.tcm_tmm_freq_morning != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !==
+                        undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_morning !=
+                          0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
@@ -2569,7 +2642,8 @@ function MedicationsBox(props) {
                         className="rounded-0 dateoutline p-0 bg-white"
                         disabled={childDrawerData[childIndex]?.tmf_block}
                         onClick={() =>
-                          !childDrawerData[childIndex]?.tcm_tmm_freq_morning && morningClick()
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_morning &&
+                          morningClick()
                         }
                       >
                         <Input
@@ -2577,15 +2651,18 @@ function MedicationsBox(props) {
                           inputMode="numeric"
                           value={
                             childDrawerData[childIndex]?.tcm_tmm_freq_morning
-                              ? childDrawerData[childIndex]?.tcm_tmm_freq_morning
+                              ? childDrawerData[childIndex]
+                                  ?.tcm_tmm_freq_morning
                               : ""
                           }
                           className="rounded-0 h-100 border-0 text-center text-main"
                           onChange={onChangeInputMorningChild}
                         />
                       </BSButton>
-                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !== undefined &&
-                        childDrawerData[childIndex]?.tcm_tmm_freq_morning != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !==
+                        undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_morning !=
+                          0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
@@ -2602,8 +2679,10 @@ function MedicationsBox(props) {
                       aria-label="Basic example"
                       className="inputheight45 w-100 border rounded-0 border-start-0"
                     >
-                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !== undefined &&
-                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !==
+                        undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !=
+                          0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
@@ -2618,7 +2697,8 @@ function MedicationsBox(props) {
                         className="rounded-0 dateoutline p-0 bg-white"
                         disabled={childDrawerData[childIndex]?.tmf_block}
                         onClick={() =>
-                          !childDrawerData[childIndex]?.tcm_tmm_freq_afternoon && afternoonClick()
+                          !childDrawerData[childIndex]
+                            ?.tcm_tmm_freq_afternoon && afternoonClick()
                         }
                       >
                         <Input
@@ -2626,15 +2706,18 @@ function MedicationsBox(props) {
                           inputMode="numeric"
                           value={
                             childDrawerData[childIndex]?.tcm_tmm_freq_afternoon
-                              ? childDrawerData[childIndex]?.tcm_tmm_freq_afternoon
+                              ? childDrawerData[childIndex]
+                                  ?.tcm_tmm_freq_afternoon
                               : ""
                           }
                           className="rounded-0 h-100 border-0 text-center text-main"
                           onChange={onChangeInputAfternoonChild}
                         />
                       </BSButton>
-                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !== undefined &&
-                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !==
+                        undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !=
+                          0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
@@ -2651,8 +2734,10 @@ function MedicationsBox(props) {
                       aria-label="Basic example"
                       className="inputheight45 w-100 border rounded-0 border-start-0"
                     >
-                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !== undefined &&
-                        childDrawerData[childIndex]?.tcm_tmm_freq_night != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !==
+                        undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_night !=
+                          0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
@@ -2667,7 +2752,8 @@ function MedicationsBox(props) {
                         className="rounded-0 dateoutline p-0 bg-white"
                         disabled={childDrawerData[childIndex]?.tmf_block}
                         onClick={() =>
-                          !childDrawerData[childIndex]?.tcm_tmm_freq_night && nightClick()
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_night &&
+                          nightClick()
                         }
                       >
                         <Input
@@ -2682,8 +2768,10 @@ function MedicationsBox(props) {
                           onChange={onChangeInputNightChild}
                         />
                       </BSButton>
-                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !== undefined &&
-                        childDrawerData[childIndex]?.tcm_tmm_freq_night != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !==
+                        undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_night !=
+                          0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
@@ -2704,8 +2792,10 @@ function MedicationsBox(props) {
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0"
                     >
-                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !== undefined &&
-                        childDrawerData[childIndex]?.tcm_tmm_freq_morning != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !==
+                        undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_morning !=
+                          0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
@@ -2720,7 +2810,8 @@ function MedicationsBox(props) {
                         className="rounded-0 dateoutline p-0 bg-white"
                         disabled={childDrawerData[childIndex]?.tmf_block}
                         onClick={() =>
-                          !childDrawerData[childIndex]?.tcm_tmm_freq_morning && morningClick()
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_morning &&
+                          morningClick()
                         }
                       >
                         <Input
@@ -2728,15 +2819,18 @@ function MedicationsBox(props) {
                           inputMode="numeric"
                           value={
                             childDrawerData[childIndex]?.tcm_tmm_freq_morning
-                              ? childDrawerData[childIndex]?.tcm_tmm_freq_morning
+                              ? childDrawerData[childIndex]
+                                  ?.tcm_tmm_freq_morning
                               : ""
                           }
                           className="rounded-0 h-100 border-0 text-center text-main"
                           onChange={onChangeInputMorningChild}
                         />
                       </BSButton>
-                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !== undefined &&
-                        childDrawerData[childIndex]?.tcm_tmm_freq_morning != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_morning !==
+                        undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_morning !=
+                          0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
@@ -2753,8 +2847,10 @@ function MedicationsBox(props) {
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0 border-start-0"
                     >
-                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !== undefined &&
-                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !==
+                        undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !=
+                          0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
@@ -2769,7 +2865,8 @@ function MedicationsBox(props) {
                         className="rounded-0 dateoutline p-0 bg-white"
                         disabled={childDrawerData[childIndex]?.tmf_block}
                         onClick={() =>
-                          !childDrawerData[childIndex]?.tcm_tmm_freq_afternoon && afternoonClick()
+                          !childDrawerData[childIndex]
+                            ?.tcm_tmm_freq_afternoon && afternoonClick()
                         }
                       >
                         <Input
@@ -2777,15 +2874,18 @@ function MedicationsBox(props) {
                           inputMode="numeric"
                           value={
                             childDrawerData[childIndex]?.tcm_tmm_freq_afternoon
-                              ? childDrawerData[childIndex]?.tcm_tmm_freq_afternoon
+                              ? childDrawerData[childIndex]
+                                  ?.tcm_tmm_freq_afternoon
                               : ""
                           }
                           className="rounded-0 h-100 border-0 text-center text-main"
                           onChange={onChangeInputAfternoonChild}
                         />
                       </BSButton>
-                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !== undefined &&
-                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !==
+                        undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_afternoon !=
+                          0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
@@ -2802,8 +2902,10 @@ function MedicationsBox(props) {
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0 border-start-0"
                     >
-                      {childDrawerData[childIndex]?.tcm_tmm_freq_evening !== undefined &&
-                        childDrawerData[childIndex]?.tcm_tmm_freq_evening != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_evening !==
+                        undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_evening !=
+                          0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
@@ -2818,7 +2920,8 @@ function MedicationsBox(props) {
                         className="rounded-0 dateoutline p-0 bg-white"
                         disabled={childDrawerData[childIndex]?.tmf_block}
                         onClick={() =>
-                          !childDrawerData[childIndex]?.tcm_tmm_freq_evening && eveningClick()
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_evening &&
+                          eveningClick()
                         }
                       >
                         <Input
@@ -2826,15 +2929,18 @@ function MedicationsBox(props) {
                           inputMode="numeric"
                           value={
                             childDrawerData[childIndex]?.tcm_tmm_freq_evening
-                              ? childDrawerData[childIndex]?.tcm_tmm_freq_evening
+                              ? childDrawerData[childIndex]
+                                  ?.tcm_tmm_freq_evening
                               : ""
                           }
                           className="rounded-0 h-100 border-0 text-center text-main"
                           onChange={onChangeInputEveningChild}
                         />
                       </BSButton>
-                      {childDrawerData[childIndex]?.tcm_tmm_freq_evening !== undefined &&
-                        childDrawerData[childIndex]?.tcm_tmm_freq_evening != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_evening !==
+                        undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_evening !=
+                          0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
@@ -2851,8 +2957,10 @@ function MedicationsBox(props) {
                       aria-label="Basic example"
                       className="inputheight45 border rounded-0 border-start-0"
                     >
-                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !== undefined &&
-                        childDrawerData[childIndex]?.tcm_tmm_freq_night != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !==
+                        undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_night !=
+                          0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
@@ -2867,7 +2975,8 @@ function MedicationsBox(props) {
                         className="rounded-0 dateoutline p-0 bg-white"
                         disabled={childDrawerData[childIndex]?.tmf_block}
                         onClick={() =>
-                          !childDrawerData[childIndex]?.tcm_tmm_freq_night && nightClick()
+                          !childDrawerData[childIndex]?.tcm_tmm_freq_night &&
+                          nightClick()
                         }
                       >
                         <Input
@@ -2882,8 +2991,10 @@ function MedicationsBox(props) {
                           onChange={onChangeInputNightChild}
                         />
                       </BSButton>
-                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !== undefined &&
-                        childDrawerData[childIndex]?.tcm_tmm_freq_night != 0 && (
+                      {childDrawerData[childIndex]?.tcm_tmm_freq_night !==
+                        undefined &&
+                        childDrawerData[childIndex]?.tcm_tmm_freq_night !=
+                          0 && (
                           <BSButton
                             variant="outline-light"
                             className="rounded-0 dateoutline px-2 bg-white"
@@ -2906,9 +3017,10 @@ function MedicationsBox(props) {
                           <button
                             key={i}
                             type="button"
-                            className={`btn text-truncate ${childDrawerData[childIndex]?.tmm_freq_type == item.tmf_id &&
-                              "btn-segement"
-                              }`}
+                            className={`btn text-truncate ${
+                              childDrawerData[childIndex]?.tmm_freq_type ==
+                                item.tmf_id && "btn-segement"
+                            }`}
                             onClick={() => onChangeFrequencyChild(item)}
                           >
                             {item.tmf_title}
@@ -2917,22 +3029,30 @@ function MedicationsBox(props) {
                             <button
                               key={-1}
                               type="button"
-                              className={`btn segment-more ${filteredTitles
-                                .slice(2, filteredTitles.length)
-                                .some(
-                                  (e) => e.tmf_id == childDrawerData[childIndex]?.tmm_freq_type
-                                ) && "btn-segement"
-                                }`}
+                              className={`btn segment-more ${
+                                filteredTitles
+                                  .slice(2, filteredTitles.length)
+                                  .some(
+                                    (e) =>
+                                      e.tmf_id ==
+                                      childDrawerData[childIndex]?.tmm_freq_type
+                                  ) && "btn-segement"
+                              }`}
                               onClick={handleFrequencyMoreOptionsVisible}
                             >
                               {filteredTitles
                                 .slice(2, filteredTitles.length)
                                 .some(
-                                  (e) => e.tmf_id == childDrawerData[childIndex]?.tmm_freq_type
+                                  (e) =>
+                                    e.tmf_id ==
+                                    childDrawerData[childIndex]?.tmm_freq_type
                                 ) ? (
                                 <span id="selected">
                                   <i className="icon-Edit me-2 fs-21"></i>{" "}
-                                  {childDrawerData[childIndex]?.tmm_freq_type_name}
+                                  {
+                                    childDrawerData[childIndex]
+                                      ?.tmm_freq_type_name
+                                  }
                                 </span>
                               ) : (
                                 "More"
@@ -2947,17 +3067,18 @@ function MedicationsBox(props) {
               </div>
               {frequencyMoreOptionsVisible && (
                 <TabMedicationMoreModal
-                  width='563px'
-                  title={'Frequency'}
+                  width="563px"
+                  title={"Frequency"}
                   onClose={handleFrequencyMoreOptionsVisible}
                   onClick={(item) => {
                     setFrequencyMoreOptionsVisible(false);
                     onChangeFrequencyChild(item);
                   }}
-                  label={'tmf_title'}
-                  value={'tmf_id'}
+                  label={"tmf_title"}
+                  value={"tmf_id"}
                   selectedValue={childDrawerData[childIndex]?.tmm_freq_type}
-                  array={filteredTitles.slice(2, filteredTitles.length)} />
+                  array={filteredTitles.slice(2, filteredTitles.length)}
+                />
               )}
               <div>
                 <div className="segement-static d-flex flex-wrap">
@@ -2967,10 +3088,12 @@ function MedicationsBox(props) {
                         <button
                           key={i}
                           type="button"
-                          className={`btn mt-3 ${childDrawerData?.[childIndex]?.tmm_time == item.tmt_id
-                            ? "btn-segement"
-                            : ""
-                            }`}
+                          className={`btn mt-3 ${
+                            childDrawerData?.[childIndex]?.tmm_time ==
+                            item.tmt_id
+                              ? "btn-segement"
+                              : ""
+                          }`}
                           onClick={() => onChangeTimingChild(item)}
                         >
                           {item.tmt_title}
@@ -2979,18 +3102,23 @@ function MedicationsBox(props) {
                           <button
                             key={-1}
                             type="button"
-                            className={`btn mt-3 segment-more ${timingList
-                              .slice(5, timingList.length)
-                              .some(
-                                (e) => e.tmt_id == childDrawerData?.[childIndex]?.tmm_time
-                              ) && "btn-segement"
-                              }`}
+                            className={`btn mt-3 segment-more ${
+                              timingList
+                                .slice(5, timingList.length)
+                                .some(
+                                  (e) =>
+                                    e.tmt_id ==
+                                    childDrawerData?.[childIndex]?.tmm_time
+                                ) && "btn-segement"
+                            }`}
                             onClick={handleTimingMoreOptionsVisible}
                           >
                             {timingList
                               .slice(5, timingList.length)
                               .some(
-                                (e) => e.tmt_id == childDrawerData?.[childIndex]?.tmm_time
+                                (e) =>
+                                  e.tmt_id ==
+                                  childDrawerData?.[childIndex]?.tmm_time
                               ) ? (
                               <span id="selected">
                                 <i className="icon-Edit me-2 fs-21"></i>
@@ -3009,30 +3137,38 @@ function MedicationsBox(props) {
             </div>
             {timingMoreOptionsVisible && (
               <TabMedicationMoreModal
-                width='563px'
-                title={'Timings'}
+                width="563px"
+                title={"Timings"}
                 onClose={handleTimingMoreOptionsVisible}
                 onClick={(item) => {
                   setTimingMoreOptionsVisible(false);
                   onChangeTimingChild(item);
                 }}
-                label={'tmt_title'}
-                value={'tmt_id'}
+                label={"tmt_title"}
+                value={"tmt_id"}
                 selectedValue={childDrawerData?.[childIndex]?.tmm_time}
-                array={timingList.slice(5, timingList.length)} />
+                array={timingList.slice(5, timingList.length)}
+              />
             )}
             <div className="mt-3">
               <label className="title-common mb-1">Duration</label>
               <div className="segement-static d-flex">
                 {SINCE_LIST.map((item, i) => {
                   return (
-                    <button key={i}
+                    <button
+                      key={i}
                       type="button"
-                      className={`btn w-100 p-0 ${sinceValue > 5 ? item.value == -1 && 'btn-segement custom-input-selected' : sinceValue == item.value && 'btn-segement'}`}
-                      onClick={() => onChangeSegmentedSinceChild(item.value)}>
+                      className={`btn w-100 p-0 ${
+                        sinceValue > 5
+                          ? item.value == -1 &&
+                            "btn-segement custom-input-selected"
+                          : sinceValue == item.value && "btn-segement"
+                      }`}
+                      onClick={() => onChangeSegmentedSinceChild(item.value)}
+                    >
                       {item.label}
                     </button>
-                  )
+                  );
                 })}
               </div>
             </div>
@@ -3041,23 +3177,50 @@ function MedicationsBox(props) {
                 {sinceOptions.map((item, i) => {
                   return (
                     <>
-                      <button key={i}
+                      <button
+                        key={i}
                         type="button"
-                        className={`btn ${childDrawerData[childIndex]?.tmm_days_duration_type == item.value && 'btn-segement'}`}
-                        onClick={() => onChangeSinceChild(item.value)}>
+                        className={`btn ${
+                          childDrawerData[childIndex]?.tmm_days_duration_type ==
+                            item.value && "btn-segement"
+                        }`}
+                        onClick={() => onChangeSinceChild(item.value)}
+                      >
                         {item.label}
                       </button>
                       {i == sinceOptions.length - 1 && (
                         <button
                           key={-1}
                           type="button"
-                          className={`btn text-truncate px-1 segment-more ${EXTRA_OPTIONS.some((e) => e.value == childDrawerData[childIndex]?.tmm_days_duration_type) && "btn-segement"}`}
+                          className={`btn text-truncate px-1 segment-more ${
+                            EXTRA_OPTIONS.some(
+                              (e) =>
+                                e.value ==
+                                childDrawerData[childIndex]
+                                  ?.tmm_days_duration_type
+                            ) && "btn-segement"
+                          }`}
                           onClick={handleDurationMoreOptionsVisible}
                         >
-                          {EXTRA_OPTIONS.some((e) => e.value == childDrawerData[childIndex]?.tmm_days_duration_type) ? (
+                          {EXTRA_OPTIONS.some(
+                            (e) =>
+                              e.value ==
+                              childDrawerData[childIndex]
+                                ?.tmm_days_duration_type
+                          ) ? (
                             <span id="selected">
                               <i className="icon-Edit me-2 fs-21"></i>
-                              {hasNumber(childDrawerData[childIndex]?.tmm_days_duration_type) ? childDrawerData[childIndex]?.tmm_days_duration_type : capitalize(childDrawerData[childIndex]?.tmm_days_duration_type, true)}
+                              {hasNumber(
+                                childDrawerData[childIndex]
+                                  ?.tmm_days_duration_type
+                              )
+                                ? childDrawerData[childIndex]
+                                    ?.tmm_days_duration_type
+                                : capitalize(
+                                    childDrawerData[childIndex]
+                                      ?.tmm_days_duration_type,
+                                    true
+                                  )}
                             </span>
                           ) : (
                             "More"
@@ -3065,27 +3228,38 @@ function MedicationsBox(props) {
                         </button>
                       )}
                     </>
-                  )
+                  );
                 })}
               </div>
             </div>
             {durationMoreOptionsVisible && (
               <TabMedicationMoreModal
-                width='563px'
-                title={'Duration'}
+                width="563px"
+                title={"Duration"}
                 onClose={handleDurationMoreOptionsVisible}
                 onClick={(item) => {
                   setDurationMoreOptionsVisible(false);
                   onChangeDurationChild(item);
                 }}
-                label={'label'}
-                value={'value'}
-                selectedValue={childDrawerData[childIndex]?.tmm_days_duration_type}
-                array={EXTRA_OPTIONS} />
+                label={"label"}
+                value={"value"}
+                selectedValue={
+                  childDrawerData[childIndex]?.tmm_days_duration_type
+                }
+                array={EXTRA_OPTIONS}
+              />
             )}
 
             {childDrawerData[childIndex]?.tmm_days_duration_type && (
-              <div className="text-primary d-flex align-items-center"><i className="icon-copyIcon fs-16 me-1" /> <span className="text-primary text-decoration-underline" onClick={() => onAutoFillDuration(selectedIndex)}>Autofill this duration for all added meds.</span></div>
+              <div className="text-primary d-flex align-items-center">
+                <i className="icon-copyIcon fs-16 me-1" />{" "}
+                <span
+                  className="text-primary text-decoration-underline"
+                  onClick={() => onAutoFillDuration(selectedIndex)}
+                >
+                  Autofill this duration for all added meds.
+                </span>
+              </div>
             )}
 
             <label className="title-common mb-1 mt-3">Note</label>
