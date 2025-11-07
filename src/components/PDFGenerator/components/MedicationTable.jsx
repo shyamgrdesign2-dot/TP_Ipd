@@ -159,6 +159,18 @@ const MedicationTable = ({
             style={[
               styles.headerCell,
               {
+                flex: 0.18,
+                fontWeight: 500,
+                color: "#000",
+              },
+            ]}
+          >
+            S.NO
+          </Text>
+          <Text
+            style={[
+              styles.headerCell,
+              {
                 fontWeight: 500,
                 color: "#000",
               },
@@ -240,6 +252,18 @@ const MedicationTable = ({
         </View>
         {medications?.map((med, i) => (
           <View style={styles.row} key={i} wrap={false}>
+            <Text
+              style={[
+                styles.cell,
+                {
+                  flex: 0.18,
+                  color: "#171725",
+                  fontWeight: 500,
+                },
+              ]}
+            >
+              {i + 1}
+            </Text>
             <View style={styles.cell}>
               <Text
                 style={[

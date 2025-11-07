@@ -1672,14 +1672,14 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                       onDragEnd={onDragEndPatientInfo}
                     >
                       <SortableContext
-                        items={[...displayPatientInfo.fields]
+                        items={[...(displayPatientInfo.fields || [])]
                           .sort((a, b) => (a.order || 0) - (b.order || 0))
                           .map((field) => field.id)}
                         strategy={verticalListSortingStrategy}
                       >
                         <table className="customize-table table-display-patient">
                           <tbody>
-                            {[...displayPatientInfo.fields]
+                            {[...(displayPatientInfo.fields || [])]
                               .sort((a, b) => (a.order || 0) - (b.order || 0))
                               .map((field) => (
                                 <CustomRow
