@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   // Subsection title
   subsectionTitle: {
     color: "#171725",
-    fontSize: 10,
+    // fontSize: 10,
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
 
   // Label text (bold)
   labelText: {
-    fontSize: 10,
+    // fontSize: 10,
     fontWeight: 600,
     color: "#171725",
     lineHeight: 1.8,
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
 
   // Value text (regular)
   valueText: {
-    fontSize: 10,
+    // fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8,
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   // Bullet marker
   bullet: {
     width: 12,
-    fontSize: 10,
+    // fontSize: 10,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   // Bullet content
   bulletContent: {
     flex: 1,
-    fontSize: 10,
+    // fontSize: 10,
     fontWeight: 400,
     color: "#454551",
     lineHeight: 1.8,
@@ -159,7 +159,7 @@ const renderReasonForReferral = (reasonForReferral, fontFamily) => {
           <View style={styles.bulletList}>
             {renderRichText(reasonForReferral, {
               text: {
-                fontSize: 10,
+                // fontSize: 10,
                 fontFamily,
                 color: "#454551",
                 lineHeight: 1.8,

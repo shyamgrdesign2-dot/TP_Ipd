@@ -12,6 +12,10 @@ const styles = StyleSheet.create({
     // marginBottom: 8,
   },
 
+  sectionContainer: {
+    marginBottom: 12,
+  },
+
   // Subsection container
   subsectionContainer: {
     paddingVertical: 6,
@@ -99,7 +103,7 @@ const RichTextPrintRendererSection = ({
   return (
     <View style={styles.sectionContainer}>
       {title ? <SectionTitle title={title} />: null}
-    <View style={styles.mainContainer} wrap={false}>
+    <View style={styles.mainContainer}>
       {subsections.map((subsection) => {
         const key = subsection.id;
         if (
