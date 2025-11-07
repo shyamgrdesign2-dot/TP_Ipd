@@ -91,6 +91,13 @@ export const IPD = {
       children: [
         {
           placeholder: "",
+          id: "topInformant",
+          title: "Top Informant",
+          enabled: true,
+          icon: "roundDotted",
+        },
+        {
+          placeholder: "",
           id: "presentingComplaints",
           title: "Presenting Complaints",
           enabled: true,
@@ -436,6 +443,20 @@ export const IPD = {
           enabled: true,
           icon: "vitals",
         },
+        {
+          placeholder: "",
+          id: "desiredOutcome",
+          title: "Desired Outcome",
+          enabled: true,
+          icon: "vitals",
+        },
+        {
+          placeholder: "",
+          id: "preventiveActions",
+          title: "Preventive Actions",
+          enabled: true,
+          icon: "vitals",
+        },
       ],
     },
     {
@@ -480,30 +501,37 @@ export const IPD = {
       view: 1,
       subSections: [
         {
+          id: "topInformant",
+          label: "Top Informant",
+          order: 1,
+          visible: true,
+          view: 1,
+        },
+        {
           id: "presentingComplaints",
           label: "Presenting Complaints",
-          order: 1,
+          order: 2,
           visible: true,
           view: 1,
         },
         {
           id: "medications",
           label: "Medications",
-          order: 2,
+          order: 3,
           visible: true,
           view: 2,
         },
         {
           id: "labResults",
           label: "Lab Results",
-          order: 3,
+          order: 4,
           visible: true,
           view: 2,
         },
         {
           id: "pastMedicalHistory",
           label: "Past Medical History",
-          order: 4,
+          order: 5,
           visible: true,
           view: 1,
           subSections: [
@@ -526,14 +554,14 @@ export const IPD = {
         {
           id: "gyneacHistory",
           label: "Gynec History",
-          order: 5,
+          order: 6,
           visible: true,
           view: 1,
         },
         {
           id: "obstetricHistory",
           label: "Obstetric History",
-          order: 6,
+          order: 7,
           visible: true,
           view: 1,
         },
@@ -618,9 +646,16 @@ export const IPD = {
           view: 1,
         },
         {
-          id: "monitoringPlan",
-          label: "Monitoring Plan",
+          id: "desiredOutcome",
+          label: "Desired Outcome",
           order: 2,
+          visible: true,
+          view: 1,
+        },
+        {
+          id: "preventiveActions",
+          label: "Preventive Actions",
+          order: 3,
           visible: true,
           view: 1,
         },

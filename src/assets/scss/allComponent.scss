@@ -3289,3 +3289,14 @@ body:has(.patient-details-container) {
   min-height: 0;
   max-height: calc(100dvh - 75px);
 }
+.relative-medication-box {
+  position: relative;
+  .relative-medication-box-auto-fill {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    bottom: 0;
+    height: fit-content;
+    transform: translateY(-50%);
+  }
+}

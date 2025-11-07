@@ -544,7 +544,10 @@ export default function PatientAdmission() {
           name:
             doctor?.doctorName || patientDetails?.primaryConsultant?.name || "",
           speciality:
-            doctor?.role || patientDetails?.primaryConsultant?.speciality || "",
+            doctor?.speciality ||
+            patientDetails?.primaryConsultant?.speciality ||
+            "",
+          role: doctor?.role || patientDetails?.primaryConsultant?.role || "",
         },
         doctorId: formData?.attendingDoctor || null,
         hospitalId: hospitalId || 0,
