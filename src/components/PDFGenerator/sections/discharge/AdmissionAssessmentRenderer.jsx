@@ -79,7 +79,7 @@ const renderBasicInfo = (data, formatSettings) => {
       data={data}
       formatSettings={formatSettings}
       isAssessment={true}
-      title="Basic Info"
+      // title="Basic Info"
     />
   );
 };
@@ -93,7 +93,7 @@ const renderPhysicalExamination = (data, formatSettings) => {
       data={data}
       isAssessment={true}
       formatSettings={formatSettings}
-      title="Physical Examination"
+      // title="Physical Examination"
     />
   );
 };
@@ -107,7 +107,7 @@ const renderFunctionalAssessment = (data, formatSettings) => {
       isAssessment={true}
       data={data}
       formatSettings={formatSettings}
-      title="Functional Assessment"
+      // title="Functional Assessment"
     />
   );
 };
@@ -118,7 +118,7 @@ const renderTreatmentPlan = (data, formatSettings) => {
       data={data}
       formatSettings={formatSettings}
       id="treatmentPlan"
-      title="Treatment Plan"
+      // title="Treatment Plan"
     />
   );
 };
@@ -129,7 +129,7 @@ const renderAdditionalNotes = (data, formatSettings) => {
       data={data}
       formatSettings={formatSettings}
       id="additionalNotes"
-      title="Additional Notes"
+      // title="Additional Notes"
     />
   );
 };

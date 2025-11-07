@@ -8,14 +8,16 @@ import PastMedicalHistory from "./PastMedicalHistory.jsx";
 import ObstetricHistory from "./ObstetricHistory.jsx";
 import { defaultIcons } from "../../../assets/images/assessmentIcons/index.js";
 import GynecHistory from "./GynecHistory.jsx";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   formatDateToShortMonthYear,
   isEmptyRichText,
 } from "../../../utils/utils.js";
+import { setTopInformant } from "../../../redux/ipd/assessmentsFormSlice.js";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const AutoFillButton = createRemoteComponent("AutoFillButton");
+const UnitInput = createRemoteComponent("UnitInput");
 
 const BasicInfo = (props) => {
   const { isEditable = true, sectionData } = props;
@@ -27,6 +29,7 @@ const BasicInfo = (props) => {
     gynecHistoryData,
     obstetricHistory,
   } = useSelector((state) => state.assessment);
+  const dispatch = useDispatch();
   const {medicationData} = useSelector((state) => state.prescription);
   const { obstetricDetails: allObstetricDetails } = useSelector(
     (state) => state.obstetric
@@ -34,7 +37,7 @@ const BasicInfo = (props) => {
   const obstetricDetails = allObstetricDetails?.currentPregnancy || {};
   const { pregnancyHistory = [] } = allObstetricDetails;
   let { medicalHistoryData } = useSelector((state) => state.prescription);
-
+  const { topInformant } = useSelector((state) => state.assessment);
   const { lastRxDate } = lastPrescriptionDate || {};
 
   const renderAutoFillButton = () => {
@@ -48,12 +51,64 @@ const BasicInfo = (props) => {
     );
   };
 
+  const renderEditableTopInformant = (data) => {
+    return (
+      <div className="ipd-fas-refphy-container">
+        <div className="refphy-label-container">
+          <img src={defaultIcons[`${data?.id}Pc`]} alt="x" />
+          <label className="refphy-label">{data.title}</label>
+        </div>
+        <UnitInput
+          key={data?.id}
+          containerStyle={{ marginBottom: "20px" }}
+          onChange={(e) => {
+            dispatch(setTopInformant(e));
+          }}
+          value={topInformant}
+          type="string"
+          inputMode="text"
+          title={null}
+          unit={null}
+        />
+      </div>
+    );
+  };
+
+  const renderTopInformant = (data) => {
+    if (!isEditable && !topInformant) return null;
+    if (!isEditable) {
+      return (
+        <div className="ipd-fas-refphy-container rich-text-editor-wrapper wrapper-class ipd-wrapper-class-readonly">
+          <div className="refphy-label-container">
+            <img src={defaultIcons[`${data?.id}Pc`]} alt="x" />
+            <label className="refphy-label rich-text-editor-wrapper-header-title">{data.title}</label>
+          </div>
+          <div className="referred-to-physiotherapy-name">
+            {topInformant}
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="referred-to-physiotherapy-container mb-4">
+        {renderEditableTopInformant(data)}
+      </div>
+    );
+  };
+
   const renderChildren = () => {
-    return sectionData?.children?.map((item) => {
+    return sectionData?.children?.map((item, index) => {
       return (
         <React.Fragment key={item.id}>
           {(() => {
             switch (item?.id) {
+              case "topInformant":
+              const key = `${item?.id || "unknown"}-${index}`;
+                return (
+                  <React.Fragment key={key}>
+                    {renderTopInformant(item)}
+                  </React.Fragment>
+                );
               case "presentingComplaints":
                 return <ChiefComplaint {...props} sectionData={item} />;
               case "historyPresentIllness":

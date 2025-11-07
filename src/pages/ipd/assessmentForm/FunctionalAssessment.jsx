@@ -223,11 +223,6 @@ const FunctionalAssessment = (props) => {
     );
   };
   const renderSelectDoctor = (data) => {
-    const options = (doctorsList || []).map((item) => ({
-      key: JSON.stringify(item),
-      value: item.name,
-      label: <div key={item.id}>{item.name}</div>,
-    }));
     return (
       <div className="ipd-fas-refphy-container">
         <div className="refphy-label-container">

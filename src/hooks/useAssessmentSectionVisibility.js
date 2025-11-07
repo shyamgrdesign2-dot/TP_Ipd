@@ -80,7 +80,8 @@ export const useAssessmentSectionVisibility = (isEditable) => {
   const showTreatmentPlan =
     isEditable ||
     !(
-      isEmptyRichText(treatmentPlanData?.monitoringPlan) &&
+      isEmptyRichText(treatmentPlanData?.desiredOutcome) &&
+      isEmptyRichText(treatmentPlanData?.preventiveActions) &&
       isEmptyRichText(treatmentPlanData?.immediateManagement)
     );
 

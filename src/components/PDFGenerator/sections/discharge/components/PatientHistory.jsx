@@ -34,9 +34,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
 
+  subsectionContainer2: {
+    paddingBottom: 16,
+    paddingHorizontal: 0,
+  },
+
   // Inner content container
   contentContainer: {
     gap: 4,
+  },
+  contentContainer2: {
+    gap: 0,
   },
 
   // Subsection title
@@ -46,6 +54,13 @@ const styles = StyleSheet.create({
     lineHeight: 1.8, // 18px for 10px font
     textTransform: "capitalize",
     marginBottom: 4,
+  },
+
+  subsectionTitle2: {
+    color: "#171725",
+    fontWeight: 600,
+    lineHeight: 1.8,
+    textTransform: "capitalize",
   },
 
   // Bullet list container
@@ -179,9 +194,18 @@ const obsStyles = StyleSheet.create({
   },
 });
 
-/**
- * Render Presenting Complaints
- */
+const renderTopInformant = (topInformant) => {
+  if (!topInformant) return null;
+  return (
+    <View style={styles.subsectionContainer2}>
+      <View style={styles.contentContainer2}>
+        <Text style={[styles.subsectionTitle2]}>Top Informant:</Text>
+        <Text style={styles.bulletContent}>{topInformant}</Text>
+      </View>
+    </View>
+  );
+};
+
 const renderPresentingComplaints = (complaints) => {
   if (!complaints || complaints.length === 0) return null;
 
@@ -700,11 +724,14 @@ const PatientHistory = ({
   const subsections = patientHistorySection?.subSections || [];
 
   const sortedSubsections = getAllVisibleSections(subsections);
-  console.log("INTEL ==. finalData.labResults", finalData.labResults);
 
   const hasRenderableSubsection = sortedSubsections.some((subsection) => {
     const key = subsection.id;
 
+    // top informant
+    if (key === "topInformant" && finalData.topInformant) {
+      return true;
+    }
     // Presenting Complaints
     if (key === "presentingComplaints" && finalData.presentingComplaints) {
       return true;
@@ -755,6 +782,14 @@ const PatientHistory = ({
       <View style={styles.mainContainer}>
         {sortedSubsections.map((subsection) => {
           const key = subsection.id;
+
+          // Top Informant
+          if (
+            key === "topInformant" &&
+            finalData?.topInformant
+          ) {
+            return renderTopInformant(finalData?.topInformant);
+          }
 
           // Presenting Complaints
           if (

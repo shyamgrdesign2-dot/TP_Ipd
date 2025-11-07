@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import {
   setAdditionalNotesData,
+  setTopInformant,
   setChiefComplaint,
   setFunctionalAssessmentData,
   setGynecHistoryData,
@@ -32,6 +33,7 @@ export const useAssessmentDataStore = () => {
       if (data) {
         // Basic Info dispatches
         dispatch(setChiefComplaint(data?.basicInfo?.presentingComplaints || []));
+        dispatch(setTopInformant(data?.basicInfo?.topInformant || null));
         dispatch(
           setHistoryOfPresentIllness(
             data?.basicInfo?.historyOfPresentIllness || []

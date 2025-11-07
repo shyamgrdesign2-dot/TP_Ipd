@@ -17,9 +17,12 @@ import gynecHistoryPc from './gynecHistory-pc.svg';
 import historyPresentIllnessPc from './historyPresentIllness-pc.svg';
 import immediateManagementPc from './immediateManagement-pc.svg';
 import investigationsPc from './investigations-pc.svg';
+import preventiveActionsPc from './investigations-pc.svg';
 import monitoringPlanPc from './monitoringPlan-pc.svg';
+import desiredOutcomePc from './monitoringPlan-pc.svg';
 import obstetricHistoryPc from './obstetricHistory-pc.svg';
 import othersPc from './others-pc.svg';
+import topInformantPc from './others-pc.svg';
 import pastMedicalHistoryPc from './pastMedicalHistory-pc.svg';
 import physicalExaminationGray from './physicalExamination-gray.svg';
 import physicalExaminationPcDark from './physicalExamination-pc-dark.svg';
@@ -53,9 +56,12 @@ export const defaultIcons = {
   historyPresentIllnessPc,
   immediateManagementPc,
   investigationsPc,
+  preventiveActionsPc,
   monitoringPlanPc,
+  desiredOutcomePc,
   obstetricHistoryPc,
   othersPc,
+  topInformantPc,
   pastMedicalHistoryPc,
   physicalExaminationGray,
   physicalExaminationPcDark,
@@ -90,9 +96,12 @@ export {
   historyPresentIllnessPc,
   immediateManagementPc,
   investigationsPc,
+  preventiveActionsPc,
   monitoringPlanPc,
+  desiredOutcomePc,
   obstetricHistoryPc,
   othersPc,
+  topInformantPc,
   pastMedicalHistoryPc,
   physicalExaminationGray,
   physicalExaminationPcDark,

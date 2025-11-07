@@ -34,31 +34,17 @@ import DischargeNotes from "./components/DischargeNotes.jsx";
 import DischargeAdvice from "./components/DischargeAdvice.jsx";
 import FollowUp from "./components/FollowUp.jsx";
 import PreparedBy from "./components/PreparedBy.jsx";
-import OtNotes from "../otNotes/OtNotes.jsx";
 import {
-  getAssessmentsData,
   getLastPrescriptionDate,
   lastPrescriptionData,
-  setChiefComplaint,
-  setFunctionalAssessmentData,
-  setGynecHistoryData,
-  setHistoryOfPresentIllness,
-  setPhysicalExaminationBasicData,
-  setPhysicalExaminationOthersData,
-  setPhysicalExaminationProvisionalDiagnosisData,
-  setReferredDocForReview,
-  setVitalsData,
 } from "../../../redux/ipd/assessmentsFormSlice.js";
 import { defaultIcons } from "../../../assets/images/icons/index.js";
 import DrawerWrapper from "../components/DrawerWrapper/DrawerWrapper.jsx";
 import OtNotesTimeline from "../otNotes/OtNotesTimeline.jsx";
 import { otNotesIcons } from "../../../assets/images/indices/index.js";
-import { setMedicalHistoryData } from "../../../redux/prescriptionSlice.js";
-import { addObstetricDetails } from "../../../redux/obstetricSlice.js";
 import {
   getOtNotesData,
   resetOtNotesForm,
-  setSingleOtNotesData,
 } from "../../../redux/ipd/otNotesSlice.js";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");

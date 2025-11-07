@@ -8,6 +8,7 @@ const initialState = {
   lastPrescriptionDataForAssessment: {},
   loading: false,
   chiefComplaint: [],
+  topInformant: null,
   historyOfPresentIllness: [],
   labResults: [],
   physicalExaminationOthersData: [],
@@ -115,6 +116,9 @@ const assessmentSlice = createSlice({
     resetAssessmentForm: () => initialState,
     setAssessmentsData: (state, action) => {
       state.assessmentsData = action.payload;
+    },
+    setTopInformant: (state, action) => {
+      state.topInformant = action.payload;
     },
     setChiefComplaint: (state, action) => {
       state.chiefComplaint = action.payload;
@@ -225,6 +229,7 @@ const assessmentSlice = createSlice({
 export const {
   setAssessmentsData,
   setChiefComplaint,
+  setTopInformant,
   setHistoryOfPresentIllness,
   setLabResults,
   setPhysicalExaminationOthersData,

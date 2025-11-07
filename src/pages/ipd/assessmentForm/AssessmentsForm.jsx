@@ -182,6 +182,7 @@ const AssessmentsForm = (props) => {
       date: filledDate,
       time: filledAtTime,
       basicInfo: {
+        topInformant: assessmentData.topInformant || null,
         presentingComplaints: assessmentData.chiefComplaint || [],
         historyOfPresentIllness: assessmentData.historyOfPresentIllness,
         currentMedications: convertMedicationFormat(

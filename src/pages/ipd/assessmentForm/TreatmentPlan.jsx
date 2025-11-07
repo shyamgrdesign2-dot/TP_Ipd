@@ -14,8 +14,12 @@ const TreatmentPlan = (props) => {
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [
-    autoFillTextToAppendMonitoringPlan,
-    setAutoFillTextToAppendMonitoringPlan,
+    autoFillTextToAppendPreventiveActions,
+    setAutoFillTextToAppendPreventiveActions,
+  ] = useState([]);
+  const [
+    autoFillTextToAppendDesiredOutcome,
+    setAutoFillTextToAppendDesiredOutcome,
   ] = useState([]);
   const handleOthersChange = (data, key) => {
     dispatch(setTreatmentPlanData({ ...treatmentPlanData, [key]: data }));
@@ -29,8 +33,10 @@ const TreatmentPlan = (props) => {
             switch (item?.id) {
               case "immediateManagement":
                 return renderImmediateManagement(item);
-              case "monitoringPlan":
-                return renderMonitoringPlan(item);
+              case "desiredOutcome":
+                return renderDesiredOutcome(item);
+              case "preventiveActions":
+                return renderPreventiveActions(item);
               default:
                 return null;
             }
@@ -86,8 +92,8 @@ const TreatmentPlan = (props) => {
       />
     );
   };
-  const renderMonitoringPlan = (data) => {
-    if (!isEditable && isEmptyRichText(treatmentPlanData?.monitoringPlan))
+  const renderPreventiveActions = (data) => {
+    if (!isEditable && isEmptyRichText(treatmentPlanData?.preventiveActions))
       return null;
     return (
       <RichTextEditWrapper
@@ -104,10 +110,10 @@ const TreatmentPlan = (props) => {
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
-        onChange={(data) => handleOthersChange(data, "monitoringPlan")}
+        onChange={(data) => handleOthersChange(data, "preventiveActions")}
         initialValue={
-          treatmentPlanData?.monitoringPlan
-            ? treatmentPlanData?.monitoringPlan
+          treatmentPlanData?.preventiveActions
+            ? treatmentPlanData?.preventiveActions
             : [
                 {
                   type: "paragraph",
@@ -116,26 +122,74 @@ const TreatmentPlan = (props) => {
               ]
         }
         placeholder={
-          "Enter monitoring plan like vitals charting, labs, or daily observations"
+          "Enter preventive actions like medications, interventions, or follow-up plans"
         }
         onSave={() => {
           console.log("save");
         }}
         onErase={() => {
-          setAutoFillTextToAppendMonitoringPlan(["clear"]);
+          setAutoFillTextToAppendPreventiveActions(["clear"]);
         }}
         onTemplate={() => {
           console.log("template");
         }}
-        newAutoFillTextToAppend={autoFillTextToAppendMonitoringPlan}
-        setNewAutoFillTextToAppend={setAutoFillTextToAppendMonitoringPlan}
+        newAutoFillTextToAppend={autoFillTextToAppendPreventiveActions}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppendPreventiveActions}
+      />
+    );
+  };
+
+  const renderDesiredOutcome = (data) => {
+    if (!isEditable && isEmptyRichText(treatmentPlanData?.desiredOutcome))
+      return null;
+    return (
+      <RichTextEditWrapper
+        readOnly={!isEditable}
+        showToolbar={isEditable}
+        showActionBtns={isEditable}
+        title={data?.title}
+        width={isEditable ? "100%" : "fit-content"}
+        icon={assessmentsIcons[`${data?.id}Pc`]}
+        showAutoFill={false}
+        containerClass={`wrapper-class ${
+          !isEditable ? "ipd-wrapper-class-readonly" : ""
+        }`}
+        opdDate="15 Jun 2025"
+        showMagicPenGif={false}
+        showMicrophone={false}
+        onChange={(data) => handleOthersChange(data, "desiredOutcome")}
+        initialValue={
+          treatmentPlanData?.desiredOutcome
+            ? treatmentPlanData?.desiredOutcome
+            : [
+                {
+                  type: "paragraph",
+                  children: [{ text: "" }],
+                },
+              ]
+        }
+        placeholder={
+          "Enter desired outcome like expected recovery, complications, or follow-up plans"
+        }
+        onSave={() => {
+          console.log("save");
+        }}
+        onErase={() => {
+          setAutoFillTextToAppendDesiredOutcome(["clear"]);
+        }}
+        onTemplate={() => {
+          console.log("template");
+        }}
+        newAutoFillTextToAppend={autoFillTextToAppendDesiredOutcome}
+        setNewAutoFillTextToAppend={setAutoFillTextToAppendDesiredOutcome}
       />
     );
   };
 
   if (
     !isEditable &&
-    isEmptyRichText(treatmentPlanData?.monitoringPlan) &&
+    isEmptyRichText(treatmentPlanData?.desiredOutcome) &&
+    isEmptyRichText(treatmentPlanData?.preventiveActions) &&
     isEmptyRichText(treatmentPlanData?.immediateManagement)
   )
     return null;

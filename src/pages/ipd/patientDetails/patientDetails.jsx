@@ -26,6 +26,7 @@ import {
   setPhysicalExaminationOthersData,
   setPhysicalExaminationProvisionalDiagnosisData,
   setReferredDocForReview,
+  setTopInformant,
   setTreatmentPlanData,
   setVitalsData,
 } from "../../../redux/ipd/assessmentsFormSlice";
@@ -270,6 +271,7 @@ const IPDPatientDetails = () => {
     if (data) {
       // Chief Complaint
       dispatch(setChiefComplaint(data?.basicInfo?.presentingComplaints || []));
+      dispatch(setTopInformant(data?.basicInfo?.topInformant || null));
 
       // History of Present Illness
       dispatch(
