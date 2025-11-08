@@ -8,7 +8,6 @@ import { StyleSheet } from "@react-pdf/renderer";
 import { formatDate } from "../../../utils/pdfUtils";
 import SectionTitle from "../../SectionTitle";
 import { getAllVisibleSections } from "../../../utils/pdfUtils";
-import RichTextPrintRenderer from "./richTextPrintRenderer";
 
 const styles = StyleSheet.create({
   // Main container
@@ -86,42 +85,36 @@ const styles = StyleSheet.create({
 const renderChronologicalSummary = (summary) => {
   if (!summary || summary.length === 0) return null;
 
-  const isInitialGeneratedState = summary?.[0]?.day || summary?.[0]?.date;
+  return (
+    <View style={styles.subsectionContainer}>
+      <View style={styles.contentContainer}>
+        {/* <Text style={[styles.subsectionTitle]}>Chronological Summary:</Text> */}
+        <View style={styles.bulletList}>
+          {summary.map((entry, index) => {
+            // Extract text from rich text format
+            let entryText = "";
+            if (entry && entry.children && Array.isArray(entry.children)) {
+              entryText = entry.children?.map((child) => child.text).join("");
+            } else if (typeof entry === "string") {
+              entryText = entry;
+            }
 
-  if (isInitialGeneratedState) {
-    return (
-      <View style={styles.subsectionContainer}>
-        <View style={styles.contentContainer}>
-          {/* <Text style={[styles.subsectionTitle]}>Chronological Summary:</Text> */}
-          <View style={styles.bulletList}>
-            {summary.map((entry, index) => {
-              // Extract text from rich text format
-              let entryText = "";
-              if (entry && entry.children && Array.isArray(entry.children)) {
-                entryText = entry.children?.map((child) => child.text).join("");
-              } else if (typeof entry === "string") {
-                entryText = entry;
-              }
-
-              return (
-                <View key={`chron-${index}`} style={styles.bulletItem}>
-                  <Text style={[styles.bullet]}>•</Text>
-                  <Text style={[styles.bulletContent]}>
-                    <Text style={styles.dayLabel}>
-                      {entry.day} ({formatDate(entry.date)})
-                    </Text>
-                    <Text style={styles.regularText}>: {entryText}</Text>
+            return (
+              <View key={`chron-${index}`} style={styles.bulletItem}>
+                <Text style={[styles.bullet]}>•</Text>
+                <Text style={[styles.bulletContent]}>
+                  <Text style={styles.dayLabel}>
+                    {entry.day} ({formatDate(entry.date)})
                   </Text>
-                </View>
-              );
-            })}
-          </View>
+                  <Text style={styles.regularText}>: {entryText}</Text>
+                </Text>
+              </View>
+            );
+          })}
         </View>
       </View>
-    );
-  } else {
-    return <RichTextPrintRenderer data={summary} />;
-  }
+    </View>
+  );
 };
 
 /**
