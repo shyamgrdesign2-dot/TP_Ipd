@@ -32,7 +32,7 @@ import { getInvestigationTemplates } from "../../../redux/investigationSlice";
 import { getAdviceTemplates } from "../../../redux/adviceSlice";
 import AddCustomModule from "../../../components/AddCustomModule";
 import { useSelector } from "react-redux";
-import { convertMedicationFormat } from "../../../utils/utils";
+import { convertMedicationFormat, errorMessage } from "../../../utils/utils";
 import CustomModule from "../../../components/CustomModule";
 import BackConfirmationModal from "../../../components/BackConfirmationModal";
 import { useAssessmentSectionVisibility } from "../../../hooks/useAssessmentSectionVisibility";
@@ -88,13 +88,12 @@ const AssessmentsForm = (props) => {
     }
   }, [assessments]);
 
-  // useEffect(() => {
-  //   const { date, time } = assessmentData.assessmentsData || {};
-  //   if (date && time) {
-  //     setFilledDate(new Date(date));
-  //     setFilledAtTime(new Date(time));
-  //   }
-  // }, [assessmentData.assessmentsData]);
+  useEffect(() => {
+    if (!patient_data || !patientDetails?.details?.id || !patientDetails?.admissionId) {
+      navigate(-1);
+      return;
+    }
+  }, [patient_data, patientDetails?.details?.id, patientDetails?.admissionId]);
 
   useEffect(() => {
     if (
@@ -114,7 +113,9 @@ const AssessmentsForm = (props) => {
     dispatch(getCustomization());
     if (isEditable) {
       dispatch(
-        getLastPrescriptionDate({ patientId: patientDetails?.patient_unique_id })
+        getLastPrescriptionDate({
+          patientId: patientDetails?.patient_unique_id,
+        })
       ).then((res) => {
         if (res.payload) {
           dispatch(
@@ -175,7 +176,7 @@ const AssessmentsForm = (props) => {
     dispatch(updateCustomization(newData));
   };
 
-  const onSaveAssessmentClick = () => {
+  const onSaveAssessmentClick = async () => {
     if (isLoading) return;
     setIsLoading(true);
     const reqData = {
@@ -223,53 +224,62 @@ const AssessmentsForm = (props) => {
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
     };
 
-    dispatch(
+    const response = await dispatch(
       updateAssessmentsData({
         data: reqData,
         patientId: patientDetails?.details?.id,
         admissionId: patientDetails?.admissionId,
         _id: assessmentData?.assessmentId,
       })
-    ).then((res) => {
-      if (res?.payload?.error) {
+    );
+    if (response.meta.requestStatus === "fulfilled") {
+      try {
+        if (response?.payload?.error) {
+          setIsLoading(false);
+          message.warning(
+            `${response.payload.error} - ${
+              response.payload.message?.split("must")?.[0]
+            } missing`
+          );
+          return;
+        }
         setIsLoading(false);
-        message.warning(
-          `${res.payload.error} - ${
-            res.payload.message?.split("must")?.[0]
-          } missing`
+        addDataToStore(reqData);
+        dispatch(
+          getAssessmentsData({
+            patientId: patientDetails?.details?.id,
+            admissionId: patientDetails?.admissionId,
+          })
         );
-        return;
+        navigate("/ipd/patient-details", {
+          state: {
+            isEditable: false,
+            patient_data: patient_data,
+            patientDetails,
+          },
+          replace: true,
+        });
+        setIsLoading(false);
+        message.success({
+          content: (
+            <div className="ipd-success-msg-bar-container">
+              <span>Admission Assessment Form Saved Successfully</span>
+            </div>
+          ),
+          duration: 3,
+          type: "success",
+          icon: <img src={saveIcon} alt="x" />,
+          className: "ipd-custom-message",
+        });
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Assessment form save failed:", error);
+        setIsLoading(false);
       }
+    } else {
+      errorMessage(response?.error);
       setIsLoading(false);
-      addDataToStore(reqData);
-      dispatch(
-        getAssessmentsData({
-          patientId: patientDetails?.details?.id,
-          admissionId: patientDetails?.admissionId,
-        })
-      );
-      navigate("/ipd/patient-details", {
-        state: {
-          isEditable: false,
-          patient_data: patient_data,
-          patientDetails,
-        },
-        replace: true,
-      });
-      setIsLoading(false);
-      message.success({
-        content: (
-          <div className="ipd-success-msg-bar-container">
-            <span>Admission Assessment Form Saved Successfully</span>
-          </div>
-        ),
-        duration: 3,
-        type: "success",
-        icon: <img src={saveIcon} alt="x" />,
-        className: "ipd-custom-message",
-      });
-      setIsLoading(false);
-    });
+    }
   };
 
   const handleBackConfirmation = () => {
@@ -297,7 +307,7 @@ const AssessmentsForm = (props) => {
         setOpen(false);
       });
     } catch (err) {
-      console.log("INTEL ==> err", err);
+      console.error("get assessment form api failed", err);
       setIsBackModalOpen(false);
       setOpen(false);
     }

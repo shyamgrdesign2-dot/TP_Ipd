@@ -1,5 +1,6 @@
 import { useSelector } from "react-redux";
-import { isEmptyRichText } from "../utils/utils";
+import { isEmptyRichText } from "../components/PDFGenerator";
+// import { isEmptyRichText } from "../utils/utils";
 
 /**
  * Custom hook to determine the visibility of assessment form sections

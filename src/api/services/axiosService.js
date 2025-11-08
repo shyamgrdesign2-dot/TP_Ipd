@@ -14,6 +14,7 @@ instance.interceptors.request.use(
         if (!window.navigator.onLine) {
             const error = 'Internet connection not available';
             notification.error({ key: "notification_key", message: error });
+            console.log('INTEL ==> window.navigator.onLine', error)
             return Promise.reject(new Error(error));
         }
         // You can modify the request config here (e.g., add headers)

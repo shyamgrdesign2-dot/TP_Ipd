@@ -22,7 +22,7 @@ const LabResults = (props) => {
     (state) => state.assessment
   );
   const { state } = useLocation();
-  const { patient_data } = state;
+  const { patient_data = {} } = state || {};
   const [addlabparamsDrawer, setAddlabparamsDrawer] = useState(false);
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const dispatch = useDispatch();

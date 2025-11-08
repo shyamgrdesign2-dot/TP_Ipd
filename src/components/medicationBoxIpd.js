@@ -67,7 +67,7 @@ function MedicationsBox(props) {
   const { todayData } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
   const { state } = useLocation();
-  const { patient_data, caseManagerData } = state;
+  const { patient_data = {}, caseManagerData } = state || {};
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
   const [autoFillButtonRef, setAutoFillButtonRef] = useState(null);
   const { lastPrescriptionDataForAssessment, lastPrescriptionDate } =

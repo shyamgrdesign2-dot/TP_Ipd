@@ -1732,12 +1732,21 @@ export const mergeArraysOfObjects = (
   return mergedArray;
 };
 
-export const isEmptyRichText = (richText) => {
-  return (
-    richText === undefined ||
-    !richText?.length ||
-    richText?.[0]?.children?.[0]?.text?.trim() === ""
-  );
+export const isEmptyRichText = (content) => {
+  if (!content || !Array.isArray(content)) return true;
+  if (content.length === 0) return true;
+
+  // Check if all paragraphs are empty
+  return content.every((node) => {
+    if (!node.children || node.children.length === 0) return true;
+    return node.children.every((child) =>
+      child.children && Array.isArray(child.children)
+        ? child.children.every(
+            (child) => !child.text || child.text.trim() === ""
+          )
+        : !child.text || child.text.trim() === ""
+    );
+  });
 };
 
 export const deepMergePreserveFirst = (obj1, obj2) => {
