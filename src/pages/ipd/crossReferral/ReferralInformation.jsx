@@ -148,7 +148,7 @@ const ReferralInformation = (props) => {
         value: doctor.doctorName,
         label: (
           <div key={doctor.doctorId}>
-            {doctor.doctorName} ({doctor.role})
+            {doctor.doctorName}
           </div>
         ),
       }));

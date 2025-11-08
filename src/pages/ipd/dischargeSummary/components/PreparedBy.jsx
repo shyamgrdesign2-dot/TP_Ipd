@@ -28,7 +28,7 @@ const PreparedBy = (props) => {
       value: item.name,
       label: (
         <div key={item.id}>
-          {item.name} {item?.role ? `(${item?.role})` : ""}
+          {item.name} {item?.speciality ? `(${item?.speciality})` : ""}
         </div>
       ),
     }));
@@ -62,7 +62,7 @@ const PreparedBy = (props) => {
                   return {
                     id: parsed.id,
                     name: parsed.name,
-                    role: parsed.role,
+                    speciality: parsed?.speciality,
                   };
                 } else {
                   return {

@@ -65,7 +65,7 @@ const FollowUp = (props) => {
           allowClear
           inputReadOnly
           placeholder="dd/mm/yyyy"
-          minDate={dayjs().startOf('day')}
+          minDate={dayjs().startOf("day")}
         />
       </div>
     );
@@ -75,7 +75,11 @@ const FollowUp = (props) => {
     const options = (doctorsList || []).map((item) => ({
       key: JSON.stringify(item),
       value: item.name,
-      label: <div key={item.id}>{item.name} {item?.role ? `(${item?.role})` : ""}</div>,
+      label: (
+        <div key={item.id}>
+          {item.name} {item?.speciality ? `(${item?.speciality})` : ""}
+        </div>
+      ),
     }));
     return (
       <div>
@@ -86,13 +90,14 @@ const FollowUp = (props) => {
           className="autocomplete-custom w-100 popinput inputheight41"
           placeholder="Select Follow Up Doctor"
           options={options}
+          mode={"multiple"}
           value={dischargeSummaryData?.followUpDoctor?.name || undefined}
           onChange={(value, option) => {
             if (!value) {
               dispatch(setFollowUpDoctor(null));
               return;
             }
-            
+
             try {
               const parsed = option?.key ? JSON.parse(option.key) : null;
               if (parsed) {
@@ -131,9 +136,7 @@ const FollowUp = (props) => {
           dischargeSummaryIcons.additionalNotesPc
         }
         showAutoFill={false}
-        containerClass={`${
-          !isEditable ? "ipd-wrapper-class-readonly" : ""
-        }`}
+        containerClass={`${!isEditable ? "ipd-wrapper-class-readonly" : ""}`}
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}

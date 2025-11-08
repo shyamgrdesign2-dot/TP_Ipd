@@ -238,7 +238,7 @@ function FieldRenderer({
               rhf,
               (doc) => ({
                 value: doc.doctorId,
-                label: `${doc.doctorName} (${doc.role})`,
+                label: `${doc.doctorName}`,
               }),
               { disabled: !selectedDepartmentId }
             )
