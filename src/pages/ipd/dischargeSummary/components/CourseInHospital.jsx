@@ -25,13 +25,14 @@ const CourseInHospital = (props) => {
     actualDischargeSummaryData,
   } = useSelector((state) => state.dischargeSummary);
 
+  // console.log("INTEL ==> chronologicalSummary", chronologicalSummary);
+
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
   const handleOthersChange = (data, key) => {
     dispatch(setCourseInHospital({ ...courseInHospital, [key]: data }));
   };
-
 
   const transformChronologicalData = (apiData) => {
     if (!apiData) return [];
@@ -132,8 +133,7 @@ const CourseInHospital = (props) => {
   };
 
   const renderChronologicalSummary = (data) => {
-    if (!isEditable && isEmptyRichText(courseInHospital?.chronologicalSummary))
-      return null;
+    if (!isEditable && isEmptyRichText(chronologicalSummary)) return null;
 
     const getInitialValue = () => {
       if (
@@ -141,7 +141,12 @@ const CourseInHospital = (props) => {
         (Array.isArray(chronologicalSummary) ||
           Object.keys(chronologicalSummary).length > 0)
       ) {
-        const transformed = transformChronologicalData(chronologicalSummary);
+        const isInitialGeneratedState =
+          chronologicalSummary?.[0]?.day || chronologicalSummary?.[0]?.date;
+
+        const transformed = isInitialGeneratedState
+          ? transformChronologicalData(chronologicalSummary)
+          : chronologicalSummary;
 
         return Array.isArray(transformed) && transformed.length > 0
           ? transformed
