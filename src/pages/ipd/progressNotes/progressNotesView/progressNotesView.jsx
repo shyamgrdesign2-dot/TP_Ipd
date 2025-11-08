@@ -136,20 +136,22 @@ function ProgressNotesView({
       const pn = entry?.progressNotes || {};
       const dateIso = pn?.date ? new Date(pn.date) : null;
       const timeIso = pn?.time ? new Date(pn.time) : null;
-      const formattedDate = dateIso
-        ? `${dateIso.getFullYear()}-${String(dateIso.getMonth() + 1).padStart(
-            2,
-            "0"
-          )}-${String(dateIso.getDate()).padStart(2, "0")}`
-        : undefined;
+      const formattedDate =
+        dateIso && !Number.isNaN(dateIso.getTime())
+          ? `${dateIso.getFullYear()}-${String(dateIso.getMonth() + 1).padStart(
+              2,
+              "0"
+            )}-${String(dateIso.getDate()).padStart(2, "0")}`
+          : undefined;
       return {
         // identifiers and raw source to support edit flow
         _id: entry?._id,
         raw: entry,
-        date: formattedDate,
+        date: pn?.date,
+        groupDate: formattedDate || (pn?.date ? pn?.date?.split("T")[0] : undefined),
         period: pn?.period,
         time: timeIso ? timeIso.toLocaleTimeString() : undefined,
-        timestamp: pn?.time,
+        timestamp: pn?.createdAt,
         chiefComplaint: pn?.chiefComplaint,
         findings: pn?.findings,
         vitals: pn?.vitals,
@@ -220,9 +222,12 @@ function ProgressNotesView({
   // Custom render functions for ReusableStepper
   const renderCustomGroupHeader = (groupKey, groupData, emit) => {
     const date = new Date(groupKey);
-    const formattedDate = `${date.getDate()} ${date.toLocaleString("default", {
-      month: "short",
-    })}, ${date.getFullYear()}`;
+    const hasValidDate = !Number.isNaN(date.getTime());
+    const formattedDate = hasValidDate
+      ? `${date.getDate()} ${date.toLocaleString("default", {
+          month: "short",
+        })}, ${date.getFullYear()}`
+      : groupKey || "Unknown";
 
     return (
       <Card className="medical-progress__date-header-card">
@@ -289,6 +294,12 @@ function ProgressNotesView({
 
     const value = item.period || item.timeOfDay || "";
     const formattedTimeOfDay = value.charAt(0).toUpperCase() + value.slice(1);
+
+    const timestampSource = item?.timestamp || item?.date;
+    const canEditWithinWindow = timestampSource
+      ? isWithinEditableWindow(timestampSource, 24) || isSameDay(timestampSource)
+      : false;
+
     return (
       <ReusableProgressCard
         record={{
@@ -323,7 +334,7 @@ function ProgressNotesView({
           filledBy: item.filledBy,
           role: item.role,
           timeOfDay: formattedTimeOfDay,
-          timestamp: item.time,
+          timestamp: item.date,
         }}
         components={{
           RichTextEditor,
@@ -386,7 +397,11 @@ function ProgressNotesView({
         <ReusableStepper
           data={mappedData}
           groupBy={(item) =>
-            item.date || item.timestamp?.split(" ")[0] || "Unknown"
+            item?.groupDate ||
+            (typeof item?.date === "string"
+              ? item.date.split("T")[0] || item.date.split(" ")[0]
+              : undefined) ||
+            "Unknown"
           }
           sortGroups={(a, b) => new Date(b) - new Date(a)}
           renderGroupHeader={renderCustomGroupHeader}

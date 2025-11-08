@@ -65,7 +65,7 @@ const VisitMedicalRecords = ({
         display_name: rec?.docs?.name || rec?.docs?.filename || "Document",
         url: rec?.docs?.fileUrl || "",
         thumbnail_url: rec?.docs?.thubmnailFileUrl || "",
-        investigation_date: rec?.createdAt || "",
+        investigation_date: rec?.docs?.date || "",
         notes: rec?.docs?.notes || "",
       };
     });
