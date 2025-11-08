@@ -193,17 +193,6 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
       );
     }
 
-    if (dischargeSummaryData?.crossReferral) {
-      setDischargeSummaryDataViaPatch({
-        crossReferral: dischargeSummaryData?.crossReferral,
-      });
-    }
-    if (dischargeSummaryData?.labResults) {
-      setDischargeSummaryDataViaPatch({
-        labResults: dischargeSummaryData?.labResults,
-      });
-    }
-
     if (dischargeSummaryData?.dischargeAdvice) {
       dischargeSummaryData?.dischargeAdvice?.diet &&
         dispatch(setDiet(dischargeSummaryData?.dischargeAdvice?.diet));
@@ -229,8 +218,7 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
       dischargeSummaryData?.dischargeAdvice?.preventiveMeasures &&
         dispatch(
           setDischargeSummaryDataViaPatch({
-            preventiveMeasures:
-              dischargeSummaryData?.dischargeAdvice?.preventiveMeasures,
+            preventiveMeasures: dischargeSummaryData?.dischargeAdvice?.preventiveMeasures,
           })
         );
       dischargeSummaryData?.dischargeAdvice?.emergencyContact &&
@@ -246,10 +234,7 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
       dispatch(setFollowUpDate(dischargeSummaryData.followUp.date));
     }
 
-    if (
-      dischargeSummaryData?.followUp?.doctor &&
-      !Array.isArray(dischargeSummaryData?.followUp?.doctor)
-    ) {
+    if (dischargeSummaryData?.followUp?.doctor && !Array.isArray(dischargeSummaryData?.followUp?.doctor)) {
       dispatch(setFollowUpDoctor(dischargeSummaryData.followUp.doctor));
     }
 
