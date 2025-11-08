@@ -6,41 +6,51 @@ import { getMockValues, setDiet } from "../../redux/ipd/dischargeSummarySlice";
 const DietPickerTable = ({ isEditable = true }) => {
   const tableRef = useRef();
   const dispatch = useDispatch();
-  const { mockValues, dischargeSummaryData } = useSelector((state) => state.dischargeSummary);
+  const { mockValues, dischargeSummaryData } = useSelector(
+    (state) => state.dischargeSummary
+  );
   const [dietData, setDietData] = useState([]);
 
-  // Load mock values on component mount
+  const timersRef = useRef({});
+  const DISPATCH_DEBOUNCE_MS = 250;
+
   useEffect(() => {
     if (!mockValues?.diet) {
       dispatch(getMockValues());
     }
   }, [dispatch, mockValues?.diet]);
 
-  // Initialize diet data from Redux store
   useEffect(() => {
     if (dischargeSummaryData?.diet) {
       const formattedData = dischargeSummaryData.diet.map((item, index) => ({
-        key: `diet_${item.id || index}`,
-        id: item.id,
-        name: item.name,
-        note: item.note || "",
+        key: item.key ?? `diet_${item?.id ?? index}`,
+        id: item?.id,
+        name: item?.name,
+        note: item?.note || "",
       }));
       setDietData(formattedData);
     }
   }, [dischargeSummaryData?.diet]);
 
-  // Update Redux store when diet data changes
   const updateDietInStore = (updatedData) => {
-    const formattedData = updatedData.map(item => ({
-      id: item.id,
-      name: item.name,
-      note: item.note || "",
+    const formattedData = updatedData.map((item) => ({
+      id: item?.id,
+      name: item?.name,
+      note: item?.note || "",
     }));
-    
+
     dispatch(setDiet(formattedData));
   };
 
-  // Column configuration
+  const scheduleStoreWrite = (rowKey, field, updatedData) => {
+    const id = `${rowKey}::${field}`;
+    if (timersRef.current[id]) clearTimeout(timersRef.current[id]);
+    timersRef.current[id] = setTimeout(() => {
+      updateDietInStore(updatedData);
+      delete timersRef.current[id];
+    }, DISPATCH_DEBOUNCE_MS);
+  };
+
   const columns = [
     {
       title: "DIET NAME",
@@ -65,7 +75,6 @@ const DietPickerTable = ({ isEditable = true }) => {
     },
   ];
 
-  // Search configuration
   const searchConfig = {
     valueField: "name",
     titleField: "name",
@@ -80,7 +89,6 @@ const DietPickerTable = ({ isEditable = true }) => {
     ),
   };
 
-  // Fallback mock data for testing
   const fallbackDietData = [
     { id: 1, name: "Low-salt", note: "" },
     { id: 2, name: "Low-fat", note: "" },
@@ -91,32 +99,29 @@ const DietPickerTable = ({ isEditable = true }) => {
     { id: 7, name: "Gluten-free", note: "" },
     { id: 8, name: "Lactose-free", note: "" },
     { id: 9, name: "High-fiber diet", note: "Encourage fruits and vegetables" },
-    { id: 10, name: "Clear liquid diet", note: "First 24 hours" }
+    { id: 10, name: "Clear liquid diet", note: "First 24 hours" },
   ];
 
-  // Search function to filter diet options from mock data
   const handleSearch = async (query) => {
     if (!query.trim()) {
       return [];
     }
 
-    // Use mock values if available, otherwise use fallback data
     const dietOptions = mockValues?.diet || fallbackDietData;
 
     const filteredResults = dietOptions.filter((diet) =>
       diet.name.toLowerCase().includes(query.toLowerCase())
     );
-    
+
     return filteredResults;
   };
 
-  // Event handlers
   const handleRowChange = (row, field, value) => {
-    const updatedData = dietData.map(item => 
+    const updatedData = dietData.map((item) =>
       item.key === row.key ? { ...item, [field]: value } : item
     );
     setDietData(updatedData);
-    updateDietInStore(updatedData);
+    scheduleStoreWrite(row.key, field, updatedData);
   };
 
   const handleRowAdd = (row) => {
@@ -126,7 +131,7 @@ const DietPickerTable = ({ isEditable = true }) => {
   };
 
   const handleRowDelete = (row) => {
-    const updatedData = dietData.filter(item => item.key !== row.key);
+    const updatedData = dietData.filter((item) => item.key !== row.key);
     setDietData(updatedData);
     updateDietInStore(updatedData);
   };

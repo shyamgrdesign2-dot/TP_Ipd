@@ -8,6 +8,7 @@ import {
   addTreatmentNote,
   updateTreatmentNote,
   removeTreatmentNote,
+  setTreatmentNotes,
 } from "../../redux/ipd/dischargeSummarySlice";
 import {
   formatDateToShortMonthYear,
@@ -27,7 +28,8 @@ const TreatmentGiven = ({ sectionData }) => {
   const { isEditable = true } = state || {};
   const tableRef = useRef();
   const dispatch = useDispatch();
-
+  const DISPATCH_DEBOUNCE_MS = 250;
+  const changeTimersRef = useRef({});
   const { treatmentNotes, treatmentNotesLoading, actualDischargeSummaryData } =
     useSelector((state) => state.dischargeSummary);
 
@@ -45,6 +47,18 @@ const TreatmentGiven = ({ sectionData }) => {
       );
     });
   }, [treatmentNotes]);
+
+  useEffect(() => {
+    if (treatmentNotes?.length) {
+      const needsKeys = treatmentNotes.some((t) => !t?.key);
+      if (needsKeys) {
+        const withKeys = treatmentNotes.map((t, i) =>
+          t?.key ? t : { ...t, key: `${t?.id ?? t?.name ?? "row"}-${i}` }
+        );
+        dispatch(setTreatmentNotes(withKeys));
+      }
+    }
+  }, [treatmentNotes, dispatch]);
 
   const handleSearch = async (query) => {
     if (!query) return [];
@@ -194,9 +208,17 @@ const TreatmentGiven = ({ sectionData }) => {
   };
 
   const handleRowChange = (row, field, value) => {
-    dispatch(
-      updateTreatmentNote({ key: row.key, updates: { [field]: value } })
-    );
+    const id = `${row.key}::${field}`;
+    if (changeTimersRef.current[id]) {
+      clearTimeout(changeTimersRef.current[id]);
+    }
+
+    changeTimersRef.current[id] = setTimeout(() => {
+      dispatch(
+        updateTreatmentNote({ key: row.key, updates: { [field]: value } })
+      );
+      delete changeTimersRef.current[id];
+    }, DISPATCH_DEBOUNCE_MS);
   };
 
   const handleRowAdd = (row) => {

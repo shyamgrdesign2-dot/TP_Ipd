@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiDischargeSummary from "../../api/services/ipd/ApiDischargeSummary";
 
-// Helper function to map module to code
 const getCodeFromModule = (module) => {
   switch (module) {
     case "Cross Referral":
@@ -34,6 +33,16 @@ export const initialState = {
   currentDischargeSummaryId: null,
   dischargeSummaryFormDetails: {},
   actualDischargeSummaryData: {},
+};
+
+const shallowEqualList = (a = [], b = [], keys = ["id", "name", "note"]) => {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    for (const k of keys) {
+      if ((a[i]?.[k] ?? null) !== (b[i]?.[k] ?? null)) return false;
+    }
+  }
+  return true;
 };
 
 export const getDischargeSummaryData = createAsyncThunk(
@@ -175,7 +184,11 @@ const dischargeSummarySlice = createSlice({
       };
     },
     setDiet: (state, action) => {
-      state.dischargeSummaryData.diet = action.payload;
+      const curr = state.dischargeSummaryData.diet || [];
+      const next = action.payload || [];
+      if (!shallowEqualList(curr, next)) {
+        state.dischargeSummaryData.diet = next;
+      }
     },
     setDischargeSummaryDataViaPatch: (state, action) => {
       state.dischargeSummaryData = {
@@ -184,7 +197,11 @@ const dischargeSummarySlice = createSlice({
       };
     },
     setPhysicalActivities: (state, action) => {
-      state.dischargeSummaryData.physicalActivities = action.payload;
+      const curr = state.dischargeSummaryData.physicalActivities || [];
+      const next = action.payload || [];
+      if (!shallowEqualList(curr, next)) {
+        state.dischargeSummaryData.physicalActivities = next;
+      }
     },
     setFollowUpDate: (state, action) => {
       state.dischargeSummaryData.followUpDate = action.payload;
@@ -201,9 +218,12 @@ const dischargeSummarySlice = createSlice({
         : [];
     },
     setTreatmentNotes: (state, action) => {
-      state.treatmentNotes = Array.isArray(action.payload)
-        ? action.payload
-        : [];
+      const list = Array.isArray(action.payload) ? action.payload : [];
+      state.treatmentNotes = list.map((item, idx) => {
+        if (item && item.key) return item;
+        const base = item?.id ?? item?.objectID ?? item?.name ?? "row";
+        return { ...item, key: `${base}-${idx}` };
+      });
     },
     addTreatmentNote: (state, action) => {
       state.treatmentNotes.push(action.payload);
@@ -211,12 +231,22 @@ const dischargeSummarySlice = createSlice({
     updateTreatmentNote: (state, action) => {
       const { key, updates } = action.payload;
       const index = state.treatmentNotes.findIndex((note) => note.key === key);
-      if (index !== -1) {
-        state.treatmentNotes[index] = {
-          ...state.treatmentNotes[index],
-          ...updates,
-        };
+      if (index === -1) return;
+
+      const current = state.treatmentNotes[index];
+
+      let changed = false;
+      for (const k in updates) {
+        if (updates[k] !== current[k]) {
+          changed = true;
+          break;
+        }
       }
+      if (!changed) return;
+      state.treatmentNotes[index] = {
+        ...state.treatmentNotes[index],
+        ...updates,
+      };
     },
     removeTreatmentNote: (state, action) => {
       const key = action.payload;

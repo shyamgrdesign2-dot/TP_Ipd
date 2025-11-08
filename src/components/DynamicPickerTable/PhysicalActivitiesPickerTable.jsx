@@ -1,46 +1,61 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import DynamicPickerTable from "./DynamicPickerTable";
-import { getMockValues, setPhysicalActivities } from "../../redux/ipd/dischargeSummarySlice";
+import {
+  getMockValues,
+  setPhysicalActivities,
+} from "../../redux/ipd/dischargeSummarySlice";
 
 const PhysicalActivitiesPickerTable = ({ isEditable = true }) => {
   const tableRef = useRef();
   const dispatch = useDispatch();
-  const { mockValues, dischargeSummaryData } = useSelector((state) => state.dischargeSummary);
+  const { mockValues, dischargeSummaryData } = useSelector(
+    (state) => state.dischargeSummary
+  );
   const [physicalActivitiesData, setPhysicalActivitiesData] = useState([]);
 
-  // Load mock values on component mount
+  const timersRef = useRef({});
+  const DISPATCH_DEBOUNCE_MS = 250;
+
   useEffect(() => {
     if (!mockValues?.physicalActivities) {
       dispatch(getMockValues());
     }
   }, [dispatch, mockValues?.physicalActivities]);
 
-  // Initialize physical activities data from Redux store
   useEffect(() => {
     if (dischargeSummaryData?.physicalActivities) {
-      const formattedData = dischargeSummaryData.physicalActivities.map((item, index) => ({
-        key: `activity_${item.id || index}`,
-        id: item.id,
-        name: item.name,
-        note: item.note || "",
-      }));
+      const formattedData = dischargeSummaryData.physicalActivities.map(
+        (item, index) => ({
+          key: item.key ?? `activity_${item.id ?? index}`,
+          id: item.id,
+          name: item.name,
+          note: item.note || "",
+        })
+      );
       setPhysicalActivitiesData(formattedData);
     }
   }, [dischargeSummaryData?.physicalActivities]);
 
-  // Update Redux store when physical activities data changes
   const updatePhysicalActivitiesInStore = (updatedData) => {
-    const formattedData = updatedData.map(item => ({
+    const formattedData = updatedData.map((item) => ({
       id: item.id,
       name: item.name,
       note: item.note || "",
     }));
-    
+
     dispatch(setPhysicalActivities(formattedData));
   };
 
-  // Column configuration
+  const scheduleStoreWrite = (rowKey, field, updatedData) => {
+    const id = `${rowKey}::${field}`;
+    if (timersRef.current[id]) clearTimeout(timersRef.current[id]);
+    timersRef.current[id] = setTimeout(() => {
+      updatePhysicalActivitiesInStore(updatedData);
+      delete timersRef.current[id];
+    }, DISPATCH_DEBOUNCE_MS);
+  };
+
   const columns = [
     {
       title: "ACTIVITIES NAME",
@@ -65,7 +80,6 @@ const PhysicalActivitiesPickerTable = ({ isEditable = true }) => {
     },
   ];
 
-  // Search configuration
   const searchConfig = {
     valueField: "name",
     titleField: "name",
@@ -80,7 +94,6 @@ const PhysicalActivitiesPickerTable = ({ isEditable = true }) => {
     ),
   };
 
-  // Fallback mock data for testing
   const fallbackPhysicalActivitiesData = [
     { id: 11, name: "Avoid strenuous activity", note: "For 4 days" },
     { id: 12, name: "Gradual walking", note: "" },
@@ -91,32 +104,30 @@ const PhysicalActivitiesPickerTable = ({ isEditable = true }) => {
     { id: 17, name: "Cycling", note: "After 1 week" },
     { id: 18, name: "Swimming", note: "Avoid until wound heals" },
     { id: 19, name: "Jogging", note: "Resume after 2 weeks" },
-    { id: 20, name: "Bed rest", note: "Strict bed rest for 2 days" }
+    { id: 20, name: "Bed rest", note: "Strict bed rest for 2 days" },
   ];
 
-  // Search function to filter physical activities options from mock data
   const handleSearch = async (query) => {
     if (!query.trim()) {
       return [];
     }
 
-    // Use mock values if available, otherwise use fallback data
-    const activitiesOptions = mockValues?.physicalActivities || fallbackPhysicalActivitiesData;
+    const activitiesOptions =
+      mockValues?.physicalActivities || fallbackPhysicalActivitiesData;
 
     const filteredResults = activitiesOptions.filter((activity) =>
       activity.name.toLowerCase().includes(query.toLowerCase())
     );
-    
+
     return filteredResults;
   };
 
-  // Event handlers
   const handleRowChange = (row, field, value) => {
-    const updatedData = physicalActivitiesData.map(item => 
+    const updatedData = physicalActivitiesData.map((item) =>
       item.key === row.key ? { ...item, [field]: value } : item
     );
     setPhysicalActivitiesData(updatedData);
-    updatePhysicalActivitiesInStore(updatedData);
+    scheduleStoreWrite(row.key, field, updatedData);
   };
 
   const handleRowAdd = (row) => {
@@ -126,7 +137,9 @@ const PhysicalActivitiesPickerTable = ({ isEditable = true }) => {
   };
 
   const handleRowDelete = (row) => {
-    const updatedData = physicalActivitiesData.filter(item => item.key !== row.key);
+    const updatedData = physicalActivitiesData.filter(
+      (item) => item.key !== row.key
+    );
     setPhysicalActivitiesData(updatedData);
     updatePhysicalActivitiesInStore(updatedData);
   };

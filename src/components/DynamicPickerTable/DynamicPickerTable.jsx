@@ -142,6 +142,13 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
     setRows(initialData);
   }, [initialData]);
 
+  useEffect(() => {
+    const withKeys = (initialData || []).map((r, i) =>
+      r?.key ? r : { ...r, key: `${r?.id ?? r?.name ?? 'row'}-${i}` }
+    );
+    setRows(withKeys);
+  }, [initialData]);
+
   // Cleanup debounce timer on unmount
   useEffect(() => {
     return () => {
@@ -265,18 +272,39 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
     setOptions([]);
   };
 
-  const handleRowUpdate = useCallback((key, field, value) => {
-    setRows((prev) =>
-      prev.map((r) => (r.key === key ? { ...r, [field]: value } : r))
-    );
+  // const handleRowUpdate = useCallback((key, field, value) => {
+  //   setRows((prev) =>
+  //     prev.map((r) => (r.key === key ? { ...r, [field]: value } : r))
+  //   );
 
-    if (onRowChange) {
-      const updatedRow = rows.find(r => r.key === key);
-      if (updatedRow) {
-        onRowChange({ ...updatedRow, [field]: value }, field, value);
-      }
-    }
-  }, [rows, onRowChange]);
+  //   if (onRowChange) {
+  //     const updatedRow = rows.find(r => r.key === key);
+  //     if (updatedRow) {
+  //       onRowChange({ ...updatedRow, [field]: value }, field, value);
+  //     }
+  //   }
+  // }, [rows, onRowChange]);
+
+  // const handleRowUpdate = useCallback((key, field, value) => {
+  //   setRows((prev) => {
+  //     const next = prev.map((r) => (r.key === key ? { ...r, [field]: value } : r));
+  //     const updatedRow = next.find((r) => r.key === key);
+  //     onRowChange?.(updatedRow, field, value);
+  //     return next;
+  //   });
+  // }, [onRowChange]);
+
+   const handleRowUpdate = useCallback(
+     (key, field, value) => {
+       const next = rows.map((r) =>
+         r.key === key ? { ...r, [field]: value } : r
+       );
+       const updatedRow = next.find((r) => r.key === key);
+       setRows(next); 
+       onRowChange?.(updatedRow, field, value); 
+     },
+     [rows, onRowChange]
+   );
 
   const handleRowDelete = useCallback((key) => {
     const rowToDelete = rows.find(r => r.key === key);
@@ -324,10 +352,20 @@ export const DynamicPickerTable = forwardRef((props, ref) => {
         );
       
       case 'date':
+        const parseDate = (val) => {
+          if (!val) return null;
+          const d1 = dayjs(val);                        // ISO / native
+          if (d1.isValid()) return d1;
+          const d2 = dayjs(val, 'YYYY-MM-DD', true);    // stored format
+          if (d2.isValid()) return d2;
+          const d3 = dayjs(val, 'DD MMM YYYY', true);   // display format
+          return d3.isValid() ? d3 : null;
+        };
         return (
           <DatePicker
             placeholder={column.placeholder || `Select ${column.title}`}
-            value={text ? dayjs(text, 'DD/MM/YYYY') : null}
+            // value={text ? dayjs(text, 'DD/MM/YYYY') : null}
+            value={parseDate(text)}
             onChange={(date) => handleRowUpdate(record.key, column.dataIndex, date ? date.format('YYYY-MM-DD') : null)}
             style={{ width: '100%' }}
             {...(column.dateProps || {})}
