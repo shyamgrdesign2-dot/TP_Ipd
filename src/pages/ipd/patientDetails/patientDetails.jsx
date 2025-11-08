@@ -886,8 +886,8 @@ const IPDPatientDetails = () => {
         );
       case "dischargeSummary":
         const isAdmittingDoctor = patientDetails?.doctorId === user_id;
-        const showOnlyEditForm = !isAdmittingDoctor && !patientDetails?.isDischarged;
-        // const showOnlyEditForm = false;
+        // const showOnlyEditForm = !isAdmittingDoctor && !patientDetails?.isDischarged;
+        const showOnlyEditForm = false;
         return (
           <div className="ipd-adm-assess-container-readable ipd-discharge-summary-container-readable">
             <DischargeSummaryReadonly ref={dischargeSummaryReadonlyRef} />
