@@ -1666,10 +1666,27 @@ function MedicationsBox(props) {
         }
       }
 
-      const unitPerDoseDisplay = dosageUnitName
-        || (dosageValue
-          ? `${dosageValue}${resolvedUnitLabel ? ` ${resolvedUnitLabel}` : ""}`
-          : resolvedUnitLabel || "--");
+      const safe = (v) => {
+        if (
+          typeof v === "string" &&
+          (v.includes("null") || v.includes("undefined"))
+        ) {
+          return "--";
+        }
+        return (v ?? "--").toString().trim();
+      };
+      const name = safe(dosageUnitName);
+      const value = safe(dosageValue);
+      const unit = safe(resolvedUnitLabel);
+      let unitPerDoseDisplay = "";
+
+      if (name) {
+        unitPerDoseDisplay = name;
+      } else if (value) {
+        unitPerDoseDisplay = unit ? `${value} ${unit}` : value;
+      } else if (unit) {
+        unitPerDoseDisplay = unit;
+      }
 
       return {
         originalItem: item,
@@ -1683,7 +1700,7 @@ function MedicationsBox(props) {
         ${item.tcm_tmm_freq_night ? item.tcm_tmm_freq_night + "" : "0"}` : `${item.tmm_freq_type_name ? item.tmm_freq_type_name : "--"}`,
         when: item?.tmm_time_name || "--",
         duration: item?.tmm_days_duration_type || "--",
-        note: item?.tmm_remarks || "--",
+        note: item?.tmm_remarks && item?.tmm_remarks !== "null" ? item?.tmm_remarks : "--",
       };
     });
         
@@ -3294,6 +3311,7 @@ function MedicationsBox(props) {
 
   // Tour Pillup
   const tourRef = useRef(null);
+  const autoFillClickedRef = useRef(0);
 
   useEffect(() => {
     if (isPillUpAccessableFromGB && profile?.userSettingFlag?.find(e => e?.type === 'pillup')?.status !== 1) {
@@ -3357,63 +3375,65 @@ function MedicationsBox(props) {
           showOnlyAutoFill={true}
           onClick={(data, e) => {
             e?.stopPropagation();
+            if (autoFillClickedRef?.current > 0) return;
+            autoFillClickedRef.current += 1;
   
             
-            if (lastMedications.length && !medicationData?.length) {
-              dispatch(setMedicationData(lastMedications));
-            } else {
-              const updatedData = lastMedications?.map((e) => {
-                const medicineUnit = e?.medicineUnit.map((e1) => {
-                  return {
-                    key: JSON.stringify({ ...e1 }),
-                    value: e1.tmu_id,
-                    label: String(e1.tmu_title || ""),
-                  };
-                });
-        
-                const unitObj = medicineUnit
-                  ? medicineUnit.find((x) => x.value?.toString() == e.tmm_unit)
-                  : null;
-                const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
-                const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
-        
+            const updatedData = lastMedications?.map((e) => {
+              const medicineUnit = e?.medicineUnit.map((e1) => {
                 return {
-                  ...e,
-                  tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
-                  tmm_freq_type_name:
-                    e.tmf_block == 0
-                      ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
-                        ? e.tcm_tmm_freq_morning + " - "
-                        : "0 -"
-                      }${e.tcm_tmm_freq_afternoon && e.tcm_tmm_freq_afternoon != 0
-                        ? e.tcm_tmm_freq_afternoon + " - "
-                        : "0 -"
-                      }${e.tcm_tmm_freq_evening && e.tcm_tmm_freq_evening != 0
-                        ? e.tcm_tmm_freq_evening + " - "
-                        : ""
-                      }${e.tcm_tmm_freq_night && e.tcm_tmm_freq_night != 0
-                        ? e.tcm_tmm_freq_night
-                        : "0"}`
-                      : frequencyObj !== undefined
-                        ? frequencyObj.tmf_title
-                        : "",
-                  tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
-                  tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
-                  tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
-                  tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
-                  unique_id: uuidv4(),
+                  key: JSON.stringify({ ...e1 }),
+                  value: e1.tmu_id,
+                  label: String(e1.tmu_title || ""),
                 };
               });
-              // dispatch(
-              //   setMedicationData(
-              //     [...medicationData, ...updatedData]
-              //   )
-              // );
+      
+              const unitObj = medicineUnit
+                ? medicineUnit.find((x) => x.value?.toString() == e.tmm_unit)
+                : null;
+              const frequencyObj = frequencyList.find((x) => x.tmf_id == e.tmm_freq_type);
+              const timingObj = timingList.find((x) => x.tmt_id == e.tmm_time);
+      
+              return {
+                ...e,
+                tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
+                tmm_freq_type_name:
+                  e.tmf_block == 0
+                    ? `${e.tcm_tmm_freq_morning && e.tcm_tmm_freq_morning != 0
+                      ? e.tcm_tmm_freq_morning + " - "
+                      : "0 -"
+                    }${e.tcm_tmm_freq_afternoon && e.tcm_tmm_freq_afternoon != 0
+                      ? e.tcm_tmm_freq_afternoon + " - "
+                      : "0 -"
+                    }${e.tcm_tmm_freq_evening && e.tcm_tmm_freq_evening != 0
+                      ? e.tcm_tmm_freq_evening + " - "
+                      : ""
+                    }${e.tcm_tmm_freq_night && e.tcm_tmm_freq_night != 0
+                      ? e.tcm_tmm_freq_night
+                      : "0"}`
+                    : frequencyObj !== undefined
+                      ? frequencyObj.tmf_title
+                      : "",
+                tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
+                tmm_time_name: timingObj !== undefined ? timingObj.tmt_title : "",
+                tmm_dosage_unit_name: `${e.tmm_dosage ? `${e.tmm_dosage} ${unitObj && unitObj !== undefined ? unitObj.tmu_title : ""}` : ""}`,
+                tmm_days_duration_type: EXTRA_OPTIONS.some((x) => x.value == e.tmm_duration_type) ? e.tmm_duration_type : e.tmm_days ? `${e.tmm_days} ${e.tmm_duration_type}` : "",
+                unique_id: uuidv4(),
+              };
+            });
+            if (lastMedications.length && !medicationData?.length) {
+              dispatch(setMedicationData(updatedData));
+            } else {
               dispatch(
                 setMedicationData(
-                  [...medicationData, ...lastMedications]
+                  [...medicationData, ...updatedData]
                 )
               );
+              // dispatch(
+              //   setMedicationData(
+              //     [...medicationData, ...lastMedications]
+              //   )
+              // );
             }
           }}
           title={`Autofill From OPD ${lastRxDate ? `(${formatDateToShortMonthYear(lastRxDate)})` : ""}`}
