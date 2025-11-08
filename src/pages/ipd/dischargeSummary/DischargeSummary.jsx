@@ -469,6 +469,7 @@ const DischargeSummary = (props) => {
         dischargeMedications: prescriptionSlice.medicationData || [],
       },
       crossReferral: dischargeSummaryState.dischargeSummaryData?.crossReferral || [],
+      labResults: dischargeSummaryState.dischargeSummaryData?.labResults || [],
       dischargeAdvice: {
         diet: dischargeSummaryState.dischargeSummaryData?.diet || [],
         physicalActivities:
