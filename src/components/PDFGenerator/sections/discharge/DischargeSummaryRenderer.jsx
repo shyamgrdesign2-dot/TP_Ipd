@@ -59,6 +59,7 @@ const renderCrossReferral = (data, formatSettings) => {
   const text = data.crossReferral
     ?.map((item) => `${item.name} (${item.speciality})`)
     .join(", ");
+    if (!text) return;
   return (
     <View style={styles.sectionContainer}>
       {/* <SectionTitle title="Cross Reference" /> */}

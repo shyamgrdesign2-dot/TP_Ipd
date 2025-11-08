@@ -20,7 +20,7 @@ const initialState = {
   vitalsData: {},
   gynecHistoryData: {},
   referredDocForReview: null,
-  gyneacHistoryBackup : {},
+  gyneacHistoryBackup: {},
   assessmentId: null,
 };
 
@@ -61,16 +61,15 @@ export const addAssessmentsData = createAsyncThunk(
 export const updateAssessmentsData = createAsyncThunk(
   "assessment/updateAssessmentsData",
   async (data, { rejectWithValue }) => {
-    try {
-      let result = {};
-      result = await ApiAssessment.updateAssessmentsData(data);
-      if (result.message === "assessment updated successfully.") {
-        return result;
-      } else {
-        return result?.data;
-      }
-    } catch (error) {
-      return rejectWithValue(error.message || "Failed to add/update Assessment");
+    let result = {};
+    result = await ApiAssessment.updateAssessmentsData(data);
+    if (
+      result.message === "assessment updated successfully." ||
+      result.message === "assessment created successfully."
+    ) {
+      return result.data;
+    } else {
+      throw Error(result.error);
     }
   }
 );
@@ -170,7 +169,7 @@ const assessmentSlice = createSlice({
         state.assessmentsData = action.payload.assessment;
         state.assessmentsFilledByData = {
           ...action.payload,
-          assessment: undefined
+          assessment: undefined,
         };
         state.assessmentId = action.payload._id;
       })
@@ -242,6 +241,6 @@ export const {
   setReferredDocForReview,
   setPhysicalExaminationBasicData,
   resetAssessmentForm,
-  setGyneacHistoryBackup
+  setGyneacHistoryBackup,
 } = assessmentSlice.actions;
 export default assessmentSlice.reducer;

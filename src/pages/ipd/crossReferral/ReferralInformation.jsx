@@ -446,6 +446,7 @@ const ReferralInformation = (props) => {
           prefix={<img src={defaultIcons.calendarPlainIcon} />}
           allowClear
           inputReadOnly
+          placement="bottomLeft"
         />
       </div>
     );

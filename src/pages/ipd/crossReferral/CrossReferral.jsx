@@ -25,6 +25,7 @@ import {
 import ReferralInformation from "./ReferralInformation.jsx";
 import dayjs from "dayjs";
 import FullPageLoader from "../../vaccination/components/Loader.js";
+import { errorMessage } from "../../../utils/utils.js";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -117,46 +118,53 @@ const CrossReferral = (props) => {
     dispatch(updateCustomization(newData));
   };
 
-  const onAddReferralClick = () => {
+  const onAddReferralClick = async () => {
     const reqData = {
       ...crossReferralState.crossReferralFormDetails,
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
     };
 
-    dispatch(
+    const response = await dispatch(
       updateCrossReferralData({
         data: reqData,
         patientId: patientDetails?.details?.id,
         admissionId: patientDetails?.admissionId,
         _id: crossReferralState?.currentCrossReferralId || null,
       })
-    ).then((res) => {
-      if (res?.payload?.error) {
-        message.warning(
-          `${res.payload.error} - ${
-            res.payload.message?.split("must")?.[0]
-          } missing`
+    );
+    if (response.meta.requestStatus === "fulfilled") {
+      try {
+        if (response?.payload?.error) {
+          if (response.payload.message?.split("must")?.[0]) {
+            message.warning(`Please fill all the fields before saving`);
+          } else {
+            message.warning(`Something went wrong, Please try again.`);
+          }
+          return;
+        }
+        dispatch(
+          getCrossReferralData({
+            patientId: patientDetails?.details?.id,
+            admissionId: patientDetails?.admissionId,
+            _id: crossReferralState.currentCrossReferralId,
+          })
         );
-        return;
+        message.success("Cross Referral Added Successfully");
+        navigate("/ipd/patient-details", {
+          state: {
+            isEditable: false,
+            patient_data: patient_data,
+            patientDetails,
+            activeTab: "crossReferral",
+          },
+          replace: true,
+        });
+      } catch (err) {
+        errorMessage(response?.error);
       }
-      dispatch(
-        getCrossReferralData({
-          patientId: patientDetails?.details?.id,
-          admissionId: patientDetails?.admissionId,
-          _id: crossReferralState.currentCrossReferralId,
-        })
-      );
-      message.success('Cross Referral Added Successfully');
-      navigate("/ipd/patient-details", {
-        state: {
-          isEditable: false,
-          patient_data: patient_data,
-          patientDetails,
-          activeTab: "crossReferral",
-        },
-        replace: true,
-      });
-    });
+    } else {
+      errorMessage(response?.error);
+    }
   };
 
   const handleTimePeriodChange = (value) => {

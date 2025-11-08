@@ -69,16 +69,15 @@ export const addCrossReferralData = createAsyncThunk(
 export const updateCrossReferralData = createAsyncThunk(
   "crossReferral/updateCrossReferralData",
   async (data) => {
-    try {
-      let result = {};
-      result = await ApiCrossReferral.updateCrossReferral(data);
-      if (result.message === "cross referral created successfully.") {
-        return result;
-      } else {
-        return result?.data;
-      }
-    } catch (error) {
-      throw Error(error);
+    let result = {};
+    result = await ApiCrossReferral.updateCrossReferral(data);
+    if (
+      result.message === "cross referral created successfully." ||
+      result.message === "cross referral updated successfully."
+    ) {
+      return result.data;
+    } else {
+      throw Error(result.error);
     }
   }
 );

@@ -262,6 +262,75 @@ const convertDisplayDateToApiFormat = (displayDate) => {
   return date.toISOString().split("T")[0];
 };
 
+// ---- add near other helpers ----
+const computeSelectionsFromAddedData = (addedData, pathologyResults) => {
+  const selectedTests = [];
+  const selectedCategories = [];
+
+  if (!Array.isArray(addedData) || !Array.isArray(pathologyResults)) {
+    return { selectedTests, selectedCategories };
+  }
+
+  // Build quick lookup: reportName => category
+  const byReportName = {};
+  console.log("INTEL ==> pathologyResults", pathologyResults, addedData);
+  pathologyResults.forEach((cat) => {
+    const onlyName = cat.category.split(" (")[0]?.trim();
+    if (onlyName) byReportName[onlyName] = cat;
+  });
+
+  addedData.forEach((report) => {
+    const cat = byReportName[(report.reportName || "").trim()];
+    if (!cat) return;
+
+    // Which tests inside this category were added earlier?
+    const wantedNames = (report.tests || [])
+      .map((t) => (t.testName || "").trim().toLowerCase());
+
+    const pickedKeys = cat.tests
+      .filter((t) => wantedNames.includes((t.name || "").trim().toLowerCase()))
+      .map((t) => t.key);
+
+    selectedTests.push(...pickedKeys);
+    // console.log('INTEL ==> waitt', pickedKeys)
+
+    // If *all* tests in that category are included, mark the category too
+    if (pickedKeys.length && pickedKeys.length === cat.tests.length) {
+      selectedCategories.push(cat.key);
+    }
+  });
+  console.log('INTEL ==> selectedTests', selectedTests, selectedCategories)
+
+  // De-dupe
+  return {
+    // selectedTests: Array.from(new Set(selectedTests)),
+    // selectedCategories: Array.from(new Set(selectedCategories)),
+    selectedTests: selectedTests,
+    selectedCategories: selectedCategories,
+  };
+};
+
+// ---- add under other thunks ----
+export const loadAddedSelections = createAsyncThunk(
+  "labResults/loadAddedSelections",
+  async ({ patientId, admissionId }, { dispatch, getState }) => {
+    const added = await dispatch(
+      getAddedToDischargeSummaryTests({ patientId, admissionId })
+    ).unwrap(); // returns labParams[] or []
+
+    // Normalize to [{reportName, tests:[{testName}]}]
+    const normalized =
+      (added || []).map((grp) => ({
+        reportName: grp?.reportName,
+        tests: (grp?.tests || []).map((t) => ({ testName: t?.testName })),
+      })) || [];
+
+    const state = getState();
+    const pathologyResults = state?.labResults?.pathologyResults || [];
+
+    return computeSelectionsFromAddedData(normalized, pathologyResults);
+  }
+);
 const initialState = {
   // Data state
   pathologyResults: [],
@@ -306,6 +375,11 @@ const labResultsSlice = createSlice({
 
     setSelectedDateRange: (state, action) => {
       state.selectedDateRange = action.payload;
+    },
+
+    setSelections: (state, action) => {
+      state.selectedTests = action.payload?.selectedTests || [];
+      state.selectedCategories = action.payload?.selectedCategories || [];
     },
 
     toggleCategory: (state, action) => {
@@ -463,6 +537,10 @@ const labResultsSlice = createSlice({
         state.loading = false;
       });
 
+    builder.addCase(loadAddedSelections.fulfilled, (state, action) => {
+      state.selectedTests = action.payload?.selectedTests || [];
+      state.selectedCategories = action.payload?.selectedCategories || [];
+    });
     // Update pathology results
     builder
       .addCase(updatePathologyResults.pending, (state) => {
@@ -515,6 +593,7 @@ export const {
   setActiveScanCategory,
   setScanDateStatus,
   clearError,
+  setSelections,
 } = labResultsSlice.actions;
 
 export const selectPathologyResults = (state) =>

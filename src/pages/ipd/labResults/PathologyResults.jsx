@@ -35,6 +35,7 @@ import {
   selectFilteredAvailableDates,
   selectIsLoading,
   selectSelectedDateRange,
+  loadAddedSelections,
 } from "../../../redux/ipd/labResultsSlice";
 import { useLocation } from "react-router-dom";
 import moment from "moment";
@@ -112,6 +113,18 @@ const Pathologyresults = () => {
       );
     }
   }, [dispatch, patientId, admissionId, mrno]);
+
+  // After results load, fetch what was added earlier and mark selections
+  useEffect(() => {
+    if (
+      patientId &&
+      admissionId &&
+      pathologyResults.length > 0 // ensure we have keys to map into
+    ) {
+      dispatch(loadAddedSelections({ patientId, admissionId }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, patientId, admissionId, pathologyResults.length]);
 
   // Handle errors
   useEffect(() => {
