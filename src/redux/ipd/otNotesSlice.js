@@ -83,16 +83,12 @@ export const addOtNotesData = createAsyncThunk(
 export const updateOtNotesData = createAsyncThunk(
   "otNotes/updateOtNotesData",
   async (data, { rejectWithValue }) => {
-    try {
-      let result = {};
-      result = await ApiOtNotes.updateOtNotes(data);
-      if (result.message === "ot notes updated successfully.") {
-        return result;
-      } else {
-        return result?.data;
-      }
-    } catch (error) {
-      return rejectWithValue(error.message || "Failed to add/update OT Notes");
+    let result = {};
+    result = await ApiOtNotes.updateOtNotes(data);
+    if (result.message === "ot notes updated successfully." || result.message === "ot notes created successfully.") {
+      return result.data;
+    } else {
+      throw Error(result.error);
     }
   }
 );

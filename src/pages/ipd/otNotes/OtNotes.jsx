@@ -28,6 +28,7 @@ import {
 import BackConfirmationModal from "../../../components/BackConfirmationModal.js";
 import FullPageLoader from "../../vaccination/components/Loader.js";
 import dayjs from "dayjs";
+import { errorMessage } from "../../../utils/utils.js";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -39,8 +40,8 @@ const OtNotes = (props) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
   const {
-    patient_data,
-    patientDetails,
+    patient_data = {},
+    patientDetails = {},
     isEditable: isEditableState = true,
     isNew = false,
     fromDischargeSummary = false,
@@ -69,6 +70,18 @@ const OtNotes = (props) => {
   const handleTimePeriodChange = (value) => {
     setSelectedTimePeriod(value);
   };
+
+  useEffect(() => {
+    if (
+      !patient_data ||
+      !patientDetails?.details?.id ||
+      !patientDetails?.admissionId
+    ) {
+      navigate(-1);
+      return;
+    }
+  }, [patient_data, patientDetails?.details?.id, patientDetails?.admissionId]);
+
   useEffect(() => {
     if (otNotes.length > 0) {
       setModelData(otNotes);
@@ -170,7 +183,7 @@ const OtNotes = (props) => {
     dispatch(updateCustomization(newData));
   };
 
-  const onSaveOtNotesClick = () => {
+  const onSaveOtNotesClick = async () => {
     const reqData = {
       date: filledDate,
       time: filledAtTime,
@@ -238,51 +251,60 @@ const OtNotes = (props) => {
       customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
     };
 
-    dispatch(
+    const response = await dispatch(
       updateOtNotesData({
         data: reqData,
         patientId: patientDetails?.details?.id,
         admissionId: patientDetails?.admissionId,
         _id: otNotesState?.currentOtNoteId || null,
       })
-    ).then((res) => {
-      if (res?.payload?.error) {
-        if (res.payload.message?.split("must")?.[0]) {
-          message.warning(`Please fill all the fields before saving`);
-        } else {
-          message.warning(`Something went wrong, Please try again.`);
+    );
+    if (response.meta.requestStatus === "fulfilled") {
+      try {
+        if (response?.payload?.error) {
+          if (response.payload.message?.split("must")?.[0]) {
+            message.warning(`Please fill all the fields before saving`);
+          } else {
+            message.warning(`Something went wrong, Please try again.`);
+          }
+          return;
         }
-        return;
-      }
-      dispatch(
-        getOtNotesData({
-          patientId: patientDetails?.details?.id,
-          admissionId: patientDetails?.admissionId,
-          _id: otNotesState.currentOtNoteId,
-        })
-      );
-      if (fromDischargeSummary) {
-        navigate(-1, {
+        dispatch(
+          getOtNotesData({
+            patientId: patientDetails?.details?.id,
+            admissionId: patientDetails?.admissionId,
+            _id: otNotesState.currentOtNoteId,
+          })
+        );
+        if (fromDischargeSummary) {
+          navigate(-1, {
+            state: {
+              patient_data,
+              patientDetails,
+              isEditable: true,
+              activeTab: "dischargeSummary",
+            },
+            replace: true,
+          });
+          return;
+        }
+        navigate("/ipd/patient-details", {
           state: {
-            patient_data,
+            isEditable: false,
+            patient_data: patient_data,
             patientDetails,
-            isEditable: true,
-            activeTab: "dischargeSummary",
+            activeTab: "otNotes",
           },
           replace: true,
         });
-        return;
+      } catch (error) {
+        console.error("OT Notes update api failed:", error);
+        setIsLoading(false);
       }
-      navigate("/ipd/patient-details", {
-        state: {
-          isEditable: false,
-          patient_data: patient_data,
-          patientDetails,
-          activeTab: "otNotes",
-        },
-        replace: true,
-      });
-    });
+    } else {
+      errorMessage(response?.error);
+      setIsLoading(false);
+    }
   };
 
   const renderBottomSection = () => {

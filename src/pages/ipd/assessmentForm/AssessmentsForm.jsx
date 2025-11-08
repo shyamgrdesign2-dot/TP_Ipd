@@ -235,12 +235,11 @@ const AssessmentsForm = (props) => {
     if (response.meta.requestStatus === "fulfilled") {
       try {
         if (response?.payload?.error) {
-          setIsLoading(false);
-          message.warning(
-            `${response.payload.error} - ${
-              response.payload.message?.split("must")?.[0]
-            } missing`
-          );
+          if (response.payload.message?.split("must")?.[0]) {
+            message.warning(`Please fill the fields before saving`);
+          } else {
+            message.warning(`Something went wrong, Please try again.`);
+          }
           return;
         }
         setIsLoading(false);
