@@ -11,6 +11,7 @@ import {
 } from "../../../utils/pdfUtils";
 import { renderRichText } from "../../../utils/richTextRenderer";
 import SectionTitle from "../../SectionTitle";
+import RichTextPrintRenderer from "./richTextPrintRenderer";
 
 const styles = StyleSheet.create({
   // Main container
@@ -189,34 +190,12 @@ const renderWarningSigns = (warningSigns) => {
 
 const renderPreventiveMeasures = (preventiveMeasures) => {
   if (!preventiveMeasures) return null;
-
-  let items = [];
-  if (Array.isArray(preventiveMeasures) && !isEmptyRichText(preventiveMeasures)) {
-    const text = preventiveMeasures
-      .map((node) => node.children?.map((child) => child.text).join(""))
-      .join(" ");
-    items = text.split(",").map((item) => item.trim());
-  } else if (typeof preventiveMeasures === "string") {
-    items = preventiveMeasures.split(",").map((item) => item.trim());
-  }
-
-  if (items.length === 0) return null;
-
   return (
     <View style={styles.subsectionContainer}>
-      <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle]}>
-          When to Obtain Urgent Care:
-        </Text>
-        <View style={styles.bulletList}>
-          {items.map((item, index) => (
-            <View key={`warning-${index}`} style={styles.bulletItem}>
-              <Text style={[styles.bullet]}>•</Text>
-              <Text style={[styles.bulletContent]}>{item}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
+      <RichTextPrintRenderer
+        data={preventiveMeasures}
+        title="Preventive Measures"
+      />
     </View>
   );
 };
@@ -284,6 +263,8 @@ const DischargeAdvice = ({ data, title, formatSettings }) => {
       !sortedSubsections.some((s) => s.id === "otherAdvice")) &&
     (isEmptyRichText(advice.warningSigns) ||
       !sortedSubsections.some((s) => s.id === "warningSigns")) &&
+    (isEmptyRichText(advice.preventiveMeasures) ||
+      !sortedSubsections.some((s) => s.id === "preventiveMeasures")) &&
     (isEmptyRichText(advice.emergencyContact) ||
       !sortedSubsections.some((s) => s.id === "emergencyContact"))
   )

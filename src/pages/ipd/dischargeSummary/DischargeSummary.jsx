@@ -368,10 +368,7 @@ const DischargeSummary = (props) => {
       }
 
       return otNotesData.map((otNote) => {
-        console.log(
-          "INTEL ==> otNote?.otNotes?.operativeNotes",
-          otNote?.otNotes?.operativeNotes
-        );
+        
         const surgeryDetails = otNote?.otNotes?.surgeryDetails || {};
         const surgeryTeam = otNote?.otNotes?.surgeryTeam || {};
 

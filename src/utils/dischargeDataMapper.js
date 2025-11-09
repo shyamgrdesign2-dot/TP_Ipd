@@ -194,14 +194,14 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
     }
 
     if (dischargeSummaryData?.crossReferral) {
-      setDischargeSummaryDataViaPatch({
+      dispatch(setDischargeSummaryDataViaPatch({
         crossReferral: dischargeSummaryData?.crossReferral,
-      });
+      }));
     }
     if (dischargeSummaryData?.labResults) {
-      setDischargeSummaryDataViaPatch({
+      dispatch(setDischargeSummaryDataViaPatch({
         labResults: dischargeSummaryData?.labResults,
-      });
+      }));
     }
 
     if (dischargeSummaryData?.dischargeAdvice) {

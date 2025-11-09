@@ -61,7 +61,7 @@ const PreviewAdmissionAssessment = () => {
       )
         .then((res) => {
           if (res.payload && !res.error) {
-            addDischargeDataToStore(res.payload, dispatch);
+            // addDischargeDataToStore(res.payload, dispatch);
           }
         })
         .catch((error) => {
