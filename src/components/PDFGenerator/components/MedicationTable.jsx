@@ -302,7 +302,7 @@ const MedicationTable = ({
                 flex: 2.4,
               }}
             >
-              {innerMedication(i).map((item, ii) => {
+              {innerMedication(med?.index).map((item, ii) => {
                 return (
                   <View
                     style={{
