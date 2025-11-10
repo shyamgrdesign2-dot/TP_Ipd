@@ -1,0 +1,103 @@
+.discharge-confirmation-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+
+  .discharge-row {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+
+    .discharge-field {
+      flex: 1;
+    }
+  }
+
+  .discharge-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+
+    .discharge-label {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 20px;
+      color: #3d3d3d;
+      margin: 0;
+
+      .required-asterisk {
+        color: #ff4d4f;
+        margin-left: 4px;
+      }
+    }
+
+    .ant-picker,
+    .ant-select {
+      height: 41px;
+      border-radius: 8px;
+
+      .ant-picker-input,
+      .ant-select-selector {
+        height: 100%;
+        border-radius: 8px;
+      }
+
+      .ant-picker-input > input,
+      .ant-select-selection-search-input {
+        font-size: 14px;
+      }
+    }
+
+    .ant-picker-prefix,
+    .ant-select-prefix {
+      margin-right: 8px;
+
+      img {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+
+  .discharge-remarks-editor {
+    width: 100%;
+
+    .discharge-rich-text-wrapper {
+      width: 100%;
+      background: #ffffff;
+      border-radius: 8px;
+      gap: 0 !important;
+      padding: 0 !important;
+    }
+  }
+}
+
+// Ensure proper styling for DatePicker and TimePicker prefixes
+.ant-picker-focused {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.ant-select-focused {
+  .ant-select-selector {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1) !important;
+  }
+}
+
+// Match the drawer wrapper styling
+.drawer-wrapper-container {
+  .discharge-confirmation-container {
+    .popinput {
+      &.ant-picker,
+      &.ant-select {
+        .ant-picker-input,
+        .ant-select-selector {
+          padding: 0 12px;
+        }
+      }
+    }
+  }
+}

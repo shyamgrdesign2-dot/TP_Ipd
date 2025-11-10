@@ -13,6 +13,7 @@ const initialState = {
   isUpdating: false,
   error: null,
   success: false,
+  physicalExaminationBasicData: {},
   isFetched: false
 };
 
@@ -112,6 +113,9 @@ const progressNotesSlice = createSlice({
     setVitals: (state, action) => {
       state.vitals = action.payload;
     },
+    setPhysicalExaminationBasicData: (state, action) => {
+      state.physicalExaminationBasicData = action.payload;
+    },
     setAdditionalRemarks: (state, action) => {
       state.additionalRemarks = action.payload;
     },
@@ -122,6 +126,7 @@ const progressNotesSlice = createSlice({
       state.vitals = {};
       state.additionalRemarks = [];
       state.currentProgressNote = null;
+      state.physicalExaminationBasicData = {};
     },
   },
   extraReducers: (builder) => {
@@ -184,6 +189,7 @@ export const {
   setFindings,
   setVitals,
   setAdditionalRemarks,
+  setPhysicalExaminationBasicData,
   resetProgressNotes
 } = progressNotesSlice.actions;
 export default progressNotesSlice.reducer;

@@ -1,5 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Table, Spin, Popover, message } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Table,
+  Spin,
+  Popover,
+  message,
+  Tooltip,
+} from "antd";
 import moment from "moment";
 import { useDispatch } from "react-redux";
 import noData from "../../../../assets/images/nodata-found.svg";
@@ -13,6 +19,9 @@ import {
 } from "../../../../redux/ipd/ipdSlice";
 import { usePatientsData } from "../hooks/usePatientsData";
 import { getTokenData } from "../../../../utils/utils";
+import { useNavigate } from "react-router-dom";
+import DischargeConfirmationModal from "../../dischargeSummary/components/DischargeConfirmationModal";
+import DischargeConfirmationPopup from "../../dischargeSummary/components/DischargeConfirmationPopup";
 
 const MoreActionsContent = ({ onCtaClick, record, title }) => {
   return (
@@ -43,6 +52,8 @@ const PatientsTable = ({
 }) => {
   const dispatch = useDispatch();
   const [userId, setUserId] = useState(null);
+  const [warningModalOpen, setWarningModalOpen] = useState(null);
+  const [confirmPopupOpen, setConfirmPopupOpen] = useState(null);
 
   useEffect(() => {
     const { user_id } = getTokenData();
@@ -51,14 +62,23 @@ const PatientsTable = ({
 
   const { fetchData } = usePatientsData();
   const [openMoreActionsPopover, setOpenMoreActionsPopover] = useState(null);
-
+  const [apiToCall, setApiToCall] = useState("");
+  const dischargeConfirmationModalRef = useRef(null);
   const showHideMoreActionPopover = (recordId) => {
     setOpenMoreActionsPopover((prev) => (prev === recordId ? null : recordId));
   };
 
   const handleMarkPatientAsDischarged = (record) => {
+    setWarningModalOpen(record);
+    setApiToCall("markPatientAsDischarged");
+  };
+
+  const dischargePatient = () => {
+    dischargeConfirmationModalRef?.current?.clearFormData();
+    setConfirmPopupOpen(null);
+    setWarningModalOpen(null);
     dispatch(
-      markPatientAsDischarged({ admissionId: record?.admissionId })
+      markPatientAsDischarged({ admissionId: warningModalOpen?.admissionId })
     ).then((res) => {
       if (res?.payload?.status === 400) {
         message.warning(
@@ -66,6 +86,7 @@ const PatientsTable = ({
         );
       } else {
         message.success("Patient discharged successfully");
+        setApiToCall("");
         setOpenMoreActionsPopover(null);
         fetchData(fetchParams);
       }
@@ -73,19 +94,42 @@ const PatientsTable = ({
   };
 
   const handleSendForDischargeApproval = (record) => {
+    setWarningModalOpen(record);
+    setApiToCall("sendForDischargeApproval");
+  };
+
+  const sentForDischargeApproval = () => {
     dispatch(
-      sendForDischargeApproval({ admissionId: record?.admissionId })
-    ).then((res) => {
-      if (res?.payload?.status === 400) {
-        message.warning(
-          res?.payload?.data?.message || "Send for approval failed"
-        );
-      } else {
-        message.success("Patient sent for discharge approval successfully");
-        setOpenMoreActionsPopover(null);
-        fetchData(fetchParams);
-      }
-    });
+      sendForDischargeApproval({
+        admissionId: warningModalOpen?.admissionId,
+        ...confirmPopupOpen,
+      })
+    )
+      .then((res) => {
+        if (res?.payload?.status === 400) {
+          message.warning(
+            res?.payload?.data?.message || "Send for approval failed"
+          );
+        } else {
+          message.success("Patient sent for discharge approval successfully");
+          setApiToCall("");
+          setOpenMoreActionsPopover(null);
+          fetchData(fetchParams);
+        }
+      })
+      .finally(() => {
+        dischargeConfirmationModalRef?.current?.clearFormData();
+        setConfirmPopupOpen(null);
+        setWarningModalOpen(null);
+      });
+  };
+
+  const handleWarningModalClose = () => {
+    setWarningModalOpen(null);
+  };
+
+  const showConfirmPopup = (data) => {
+    setConfirmPopupOpen(data);
   };
 
   const columns = [
@@ -215,6 +259,31 @@ const PatientsTable = ({
               return <div>{dateTime.format("DD-MM-YYYY")}</div>;
             },
           },
+          {
+            title: "Discharge Type",
+            dataIndex: "dischargeType",
+            key: "dischargeType",
+            className: "col-discharged-on",
+            sortDirections: ["descend", "ascend", "descend"],
+            defaultSortOrder: "descend",
+            sorter: (a, b) => {
+              const aDate = moment(a.dischargeType).valueOf();
+              const bDate = moment(b.dischargeType).valueOf();
+              return aDate - bDate;
+            },
+            render: (text, record) => {
+              return (
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span>{record.dischargeType || "Normal"}</span>
+                  {record.dischargeRemarks ? (
+                    <Tooltip title={record.dischargeRemarks}>
+                      <i className="icon-info fs-16" style={{ cursor: "pointer", color: "#A2A2A8" }} />
+                    </Tooltip>
+                  ) : null}
+                </div>
+              );
+            },
+          },
         ]
       : []),
     {
@@ -224,6 +293,7 @@ const PatientsTable = ({
       className: "col-action",
       render: (_, record) => {
         const isAdmittingDoctor = record?.doctorId === userId;
+        // const isAdmittingDoctor = true;
         const actionObj = isInPatients
           ? isAdmittingDoctor
             ? {
@@ -234,7 +304,7 @@ const PatientsTable = ({
                 title: "Send For Discharge Approval",
                 onCtaClick: handleSendForDischargeApproval,
               }
-          : (isAdmittingDoctor && isDischargeQueue)
+          : isAdmittingDoctor && isDischargeQueue
           ? {
               title: "Discharge Patient",
               onCtaClick: handleMarkPatientAsDischarged,
@@ -253,7 +323,9 @@ const PatientsTable = ({
             >
               View Details
             </button>
-            {!isDischargedPatients && !record?.isDischarged && actionObj?.title ? (
+            {!isDischargedPatients &&
+            !record?.isDischarged &&
+            actionObj?.title ? (
               <Popover
                 open={
                   openMoreActionsPopover === record?.patientData?.admissionId
@@ -344,6 +416,29 @@ const PatientsTable = ({
       {!loading && !loadingMore && hasMore && (
         <div ref={lastElementRef} style={{ height: "20px" }}></div>
       )}
+      <DischargeConfirmationModal
+        open={warningModalOpen}
+        ref={dischargeConfirmationModalRef}
+        closeClick={handleWarningModalClose}
+        submitClick={showConfirmPopup}
+        dateOfDischarge={warningModalOpen?.dateOfDischarge}
+        timeOfDischarge={warningModalOpen?.timeOfDischarge}
+        dischargeType={warningModalOpen?.dischargeType}
+        dischargeRemarks={warningModalOpen?.dischargeRemarks}
+        apiToCall={apiToCall}
+      />
+      <DischargeConfirmationPopup
+        apiToCall={apiToCall}
+        isModalOpen={confirmPopupOpen}
+        onCancel={() => {
+          setConfirmPopupOpen(null);
+        }}
+        onConfirm={
+          apiToCall === "markPatientAsDischarged"
+            ? dischargePatient
+            : sentForDischargeApproval
+        }
+      />
     </div>
   );
 };

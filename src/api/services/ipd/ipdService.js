@@ -50,18 +50,30 @@ ApiIpdService.checkPatientAdmitted = function ({ patientId }) {
   );
 };
 
-ApiIpdService.markPatientAsDischarged = function ({ admissionId }) {
+ApiIpdService.markPatientAsDischarged = function ({
+  admissionId,
+  dateOfDischarge,
+  dischargeType,
+  timeOfDischarge,
+  dischargeRemarks,
+}) {
   return api.put(
     `/patients/mark-discharged?admissionId=${admissionId}`,
-    {},
+    { dateOfDischarge, dischargeType, timeOfDischarge, dischargeRemarks },
     baseUrl
   );
 };
 
-ApiIpdService.sendForDischargeApproval = function ({ admissionId }) {
+ApiIpdService.sendForDischargeApproval = function ({
+  admissionId,
+  dateOfDischarge,
+  dischargeType,
+  timeOfDischarge,
+  dischargeRemarks,
+}) {
   return api.put(
     `/patients/mark-discharged-approval?admissionId=${admissionId}`,
-    {},
+    { dateOfDischarge, dischargeType, timeOfDischarge, dischargeRemarks },
     baseUrl
   );
 };

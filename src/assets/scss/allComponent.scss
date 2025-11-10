@@ -3318,6 +3318,13 @@ body:has(.patient-details-container) {
 
 .consultant-notes-examination-container {
   padding: 0 !important;
+  gap: 0px !important;
+  .rich-text-editor-wrapper-header .left-content {
+    gap: 4px !important;
+  }
+  .ipdaf-examination-readonly ul {
+    margin-left: 24px !important;
+  }
 }
 
 html, body {

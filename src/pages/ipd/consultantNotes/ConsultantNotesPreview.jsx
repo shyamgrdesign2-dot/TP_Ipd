@@ -13,11 +13,13 @@ import MedicationBoxIpd from "../../../components/medicationBoxIpd.js";
 import { IPD } from "../../../utils/locale.js";
 import useCheckExaminationData from "../../../hooks/useCheckExaminationData.js";
 import CNExaminationSection from "../assessmentForm/CNExaminationSection.jsx";
+import FilledByCards from "../otNotes/components/FilledByCards.jsx";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
 const ConsultantNotesPreview = ({ entry }) => {
   const consultationData = entry?.consultationNotes || {};
+  const updates = entry?.updates;
 
   const clinicalAssessmentPlan = consultationData?.clinicalAssessmentPlan;
   const vitals = consultationData?.vitals || {};
@@ -178,7 +180,9 @@ const ConsultantNotesPreview = ({ entry }) => {
               <div className="cnp-fluid-balance-inline">
                 {Object.entries(fluidBalance).map(([key, value], index) => (
                   <React.Fragment key={index}>
-                    <span className="cnp-fluid-balance-label fw-semibold">{key}:</span>
+                    <span className="cnp-fluid-balance-label fw-semibold">
+                      {key}:
+                    </span>
                     <span className="cnp-fluid-balance-value"> {value}</span>
                     {index < Object.entries(fluidBalance).length - 1 && (
                       <span className="cnp-fluid-balance-separator"> | </span>
@@ -243,8 +247,12 @@ const ConsultantNotesPreview = ({ entry }) => {
           </div>
         )}
 
-        {/* Filled By Card */}
-        {(filledBy || role) && <FilledByCard filledBy={filledBy} role={role} />}
+        <FilledByCards
+          updates={!!updates.length ? [updates[updates.length - 1]] : []}
+          createdByRole={entry?.createdByRole}
+          createdByName={entry?.createdByName}
+          createdAt={entry?.createdAt}
+        />
       </div>
     </div>
   );

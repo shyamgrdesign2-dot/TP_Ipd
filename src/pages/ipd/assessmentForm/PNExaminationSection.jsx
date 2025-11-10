@@ -1,0 +1,206 @@
+import React, { useState, useMemo, useCallback } from "react";
+import { createRemoteComponent } from "../../../shared/remoteComponents";
+import { Radio } from "antd";
+import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import useCheckExaminationData from "../../../hooks/useCheckExaminationData";
+import { isEmptyRichText } from "../../../components/PDFGenerator";
+import { setPhysicalExaminationBasicData } from "../../../redux/ipd/progressNotesSlice";
+
+const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
+const RichTextEditor = createRemoteComponent("RichTextEditor");
+const PNExaminationSection = (props) => {
+  const {
+    isEditable = true,
+    sectionData,
+    examinationData = null,
+  } = props || {};
+  const { physicalExaminationBasicData = {} } = useSelector((state) => state.progressNotes);
+  const dispatch = useDispatch();
+  const checkReadableExaminationDataPresent = useCheckExaminationData(examinationData);
+  const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const [disableFocusEffect, setDisableFocusEffect] = useState({});
+  const onExaminationRadioChange = useCallback((e, item) => {
+    const { id } = item; 
+    dispatch(
+      setPhysicalExaminationBasicData({
+        ...physicalExaminationBasicData,
+        [id]: {
+          ...physicalExaminationBasicData[id],
+          value: e.target.value,
+          title: item.options.find((option) => option.value === e.target.value)
+            ?.label,
+        },
+      })
+    );
+  }, [dispatch, physicalExaminationBasicData]);
+
+  const handleExaminationNotesChange = useCallback((data, id) => {
+    dispatch(
+      setPhysicalExaminationBasicData({
+        ...physicalExaminationBasicData,
+        [id]: { ...physicalExaminationBasicData[id], notes: data },
+      })
+    );
+  }, [dispatch, physicalExaminationBasicData]);
+
+  const renderReadOnlyExamination = () => {
+    return (
+      <div
+        className={`ipdaf-examination-readonly ${
+          false ? "box-with-padding" : ""
+        }`}
+      >
+        <ul>
+          {sectionData?.children
+            ?.filter((item) => item.enabled)
+            .map((item) => {
+              const data = examinationData[item.id];
+              if (
+                !data?.title &&
+                ((data?.value === undefined || data?.value == null || data?.value === 0) &&
+                  isEmptyRichText(data?.notes))
+              )
+                return null;
+
+              return (
+                <li key={item.id} className="examination-item">
+                  <span className="examination-label">{item.title}:</span>{" "}
+                  {data.title}
+                  {!isEmptyRichText(data?.notes) && (
+                    <div className="ipdaf-exam-read-notes-container">
+                      <li className="ipdaf-exam-read-notes-heading">Notes:</li>
+                      <RichTextEditor
+                        showActionBtns={false}
+                        showAutoFill={false}
+                        showMagicPenGif={false}
+                        showMicrophone={false}
+                        showToolbar={false}
+                        readOnly={true}
+                        initialValue={data.notes}
+                      />
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+        </ul>
+      </div>
+    );
+  };
+
+  const handleEraseDataFromRichTextEditor = (item) => {
+    setDisableFocusEffect((prev) => ({
+      ...prev,
+      [item?.id]: true,
+    }));
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      [item?.id]: ["clear"],
+    }));
+    setTimeout(() => {
+      setDisableFocusEffect((prev) => ({
+        ...prev,
+        [item?.id]: false,
+      }));
+    }, 100);
+  };
+
+  const renderEditableExamination = useMemo(() => {
+    return (
+      <div className="examinations-parent-container">
+        {sectionData?.children
+          ?.filter((item) => item.enabled)
+          .map((item) => {
+            return (
+              <RichTextEditWrapper
+                key={item.id}
+                readOnly={!isEditable}
+                showToolbar={isEditable}
+                showActionBtns={false}
+                onErase={() => handleEraseDataFromRichTextEditor(item)}
+                newAutoFillTextToAppend={autoFillTextToAppend[item?.id]}
+                setNewAutoFillTextToAppend={(value) => {
+                  setAutoFillTextToAppend((prev) => ({
+                    ...prev,
+                    [item?.id]: value,
+                  }));
+                }}
+                toolbarClass={"small-toolbar"}
+                showAutoFill={false}
+                showMagicPenGif={false}
+                disableFocusEffect={disableFocusEffect[item?.id]}
+                showMicrophone={false}
+                placeholder={"Additional notes if any"}
+                containerClass="wrapper-class examination-rich-container"
+                onChange={(data) => handleExaminationNotesChange(data, item.id)}
+                initialValue={
+                  physicalExaminationBasicData[item.id]?.notes?.length
+                    ? physicalExaminationBasicData[item.id]?.notes
+                    : [
+                        {
+                          type: "paragraph",
+                          children: [{ text: "" }],
+                        },
+                      ]
+                }
+              >
+                <div
+                  className="examination-container-header"
+                  data-testid={`examination-radio-${item.id}`}
+                >
+                  <div className="examination-header">{item.title} : </div>
+                  <Radio.Group
+                    className="exam-radio-text"
+                    onChange={(e) => onExaminationRadioChange(e, item)}
+                    value={physicalExaminationBasicData[item.id]?.value}
+                    options={item.options}
+                  />
+                </div>
+              </RichTextEditWrapper>
+            );
+          })}
+      </div>
+    );
+  }, [physicalExaminationBasicData, sectionData, isEditable, autoFillTextToAppend, disableFocusEffect, handleExaminationNotesChange, onExaminationRadioChange]);
+
+  const renderExaminationSection = () => {
+    return isEditable
+      ? renderEditableExamination
+      : renderReadOnlyExamination();
+  };
+
+  if (!isEditable && !checkReadableExaminationDataPresent) return null;
+  return (
+    <RichTextEditWrapper
+      readOnly={!isEditable}
+      showToolbar={isEditable}
+      showActionBtns={isEditable}
+      showOnlyClear={isEditable}
+      isDataPresent={Object.keys(physicalExaminationBasicData)?.length}
+      onErase={(e) => {
+        dispatch(setPhysicalExaminationBasicData({}));
+        sectionData?.children
+          ?.filter((item) => item.enabled)
+          ?.forEach((item) => {
+            handleEraseDataFromRichTextEditor(item);
+          });
+      }}
+      title={sectionData?.title}
+      data-testid={sectionData?.id}
+      width="100%"
+      icon={defaultIcons[`${sectionData?.id}Pc`]}
+      showAutoFill={false}
+      showMagicPenGif={false}
+      showMicrophone={false}
+      placeholder={"Additional notes if any"}
+      containerClass={`examination-rich-container ${
+        !isEditable ? "examination-rich-readonly-container" : ""
+      } ${!isEditable ? "consultant-notes-examination-container progress-notes-examination-container" : ""}`}
+      renderBody={renderExaminationSection}
+    />
+  );
+};
+
+export default PNExaminationSection;

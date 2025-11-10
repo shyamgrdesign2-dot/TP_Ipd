@@ -16,6 +16,7 @@ import { renderRichText as renderRichTextUtil } from "../../utils/richTextRender
 import Vitals from "../../components/Vitals";
 import FilledByCard from "../../components/FilledByCard";
 import SlateToPdf from "../../components/SlateToPdf";
+import { renderGeneralExamination } from "../discharge/components/PhysicalExamination";
 
 const styles = StyleSheet.create({
   sectionContainer: {
@@ -210,6 +211,10 @@ export const renderProgressNotes = (data, formatSettings) => {
           "Findings"
         ),
       vitals: () => <Vitals vitals={progressNotesData.vitals} title="Vitals" />,
+      examinations: () =>
+        renderGeneralExamination(progressNotesData.examination, {
+          label: "Examination",
+        }),
       additionalRemarks: () =>
         renderRichText(
           progressNotesData.additionalRemarks,

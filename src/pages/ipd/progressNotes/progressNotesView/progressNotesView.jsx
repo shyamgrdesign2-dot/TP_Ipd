@@ -13,10 +13,9 @@ import {
   clearDateFilter,
 } from "../../../../redux/ipd/progressNotesSlice";
 import useOnlyViewMode from "../../../../hooks/useOnlyViewMode";
-import {
-  isSameDay,
-  isWithinEditableWindow,
-} from "../utils/helper";
+import { isSameDay, isWithinEditableWindow } from "../utils/helper";
+import PNExaminationSection from "../../assessmentForm/PNExaminationSection.jsx";
+import { IPD } from "../../../../utils/locale.js";
 
 const { Title, Text } = Typography;
 const { ReusableStepper, ReusableProgressCard, RichTextEditor } =
@@ -89,7 +88,7 @@ function ProgressNotesView({
     async (dates, dateStrings) => {
       // Call the existing onRangeChange to update local state
       onRangeChange(dates, dateStrings);
-      
+
       // Call API with date range if dates are selected
       if (dates && dateStrings && dateStrings.length === 2) {
         const startDate = moment(dateStrings[0], showDateFormat).format(
@@ -101,12 +100,15 @@ function ProgressNotesView({
 
         // Call API to fetch filtered progress notes
         try {
-          await dispatch(filterProgressNotesByDateRange({
-            patientId: patientDetails?.details?.id,
-            admissionId: patientDetails?.admissionId || patientDetails?.admission_id,
-            filterStartDate: startDate,
-            filterEndDate: endDate,
-          }));
+          await dispatch(
+            filterProgressNotesByDateRange({
+              patientId: patientDetails?.details?.id,
+              admissionId:
+                patientDetails?.admissionId || patientDetails?.admission_id,
+              filterStartDate: startDate,
+              filterEndDate: endDate,
+            })
+          );
         } catch (error) {
           console.error("Error fetching filtered progress notes:", error);
         }
@@ -132,7 +134,9 @@ function ProgressNotesView({
 
   // Use filtered data if available, otherwise use original data
   const dataToMap =
-  dateRange && dateRange.startDate && dateRange.endDate ? filteredProgressNotes : progressNotes;
+    dateRange && dateRange.startDate && dateRange.endDate
+      ? filteredProgressNotes
+      : progressNotes;
 
   const mappedData = useMemo(() => {
     if (!Array.isArray(dataToMap)) return [];
@@ -152,13 +156,15 @@ function ProgressNotesView({
         _id: entry?._id,
         raw: entry,
         date: pn?.date,
-        groupDate: formattedDate || (pn?.date ? pn?.date?.split("T")[0] : undefined),
+        groupDate:
+          formattedDate || (pn?.date ? pn?.date?.split("T")[0] : undefined),
         period: pn?.period,
         time: timeIso ? timeIso.toLocaleTimeString() : undefined,
         timestamp: pn?.createdAt,
         chiefComplaint: pn?.chiefComplaint,
         findings: pn?.findings,
         vitals: pn?.vitals,
+        examination: pn?.examination,
         additionalRemarks: pn?.additionalRemarks,
         filledBy: entry?.createdByName ? `${entry.createdByName}` : "",
         role: entry?.createdByRole,
@@ -189,7 +195,8 @@ function ProgressNotesView({
   const handleGroupHeaderAction = async (action, groupKey, groupData) => {
     addEvent(`Group Header - ${action}`, { groupKey, groupData });
 
-    const normalizedAction = typeof action === "string" ? action.toLowerCase() : "";
+    const normalizedAction =
+      typeof action === "string" ? action.toLowerCase() : "";
     const entries = Array.isArray(groupData)
       ? groupData
           .map((item) => item?.raw)
@@ -207,11 +214,27 @@ function ProgressNotesView({
 
     try {
       if (normalizedAction === "download") {
-        await downloadModule("progressNotes", printSettings, patientDetails, entries);
-        addEvent("Group Header - download success", { groupKey, count: entries.length });
+        await downloadModule(
+          "progressNotes",
+          printSettings,
+          patientDetails,
+          entries
+        );
+        addEvent("Group Header - download success", {
+          groupKey,
+          count: entries.length,
+        });
       } else if (normalizedAction === "print") {
-        await printModule("progressNotes", printSettings, patientDetails, entries);
-        addEvent("Group Header - print success", { groupKey, count: entries.length });
+        await printModule(
+          "progressNotes",
+          printSettings,
+          patientDetails,
+          entries
+        );
+        addEvent("Group Header - print success", {
+          groupKey,
+          count: entries.length,
+        });
       }
     } catch (error) {
       console.error(`Error handling ${action} for progress notes`, error);
@@ -295,13 +318,13 @@ function ProgressNotesView({
   };
 
   const renderCustomItem = (item, itemIndex, groupKey, items, emit) => {
-
     const value = item.period || item.timeOfDay || "";
     const formattedTimeOfDay = value.charAt(0).toUpperCase() + value.slice(1);
 
     const timestampSource = item?.timestamp || item?.date;
     const canEditWithinWindow = timestampSource
-      ? isWithinEditableWindow(timestampSource, 24) || isSameDay(timestampSource)
+      ? isWithinEditableWindow(timestampSource, 24) ||
+        isSameDay(timestampSource)
       : false;
 
     return (
@@ -327,7 +350,15 @@ function ProgressNotesView({
               data: item.vitals,
               type: "richtext",
             },
-
+            {
+              key: "examination",
+              title: null,
+              data: {
+                examinationData: item.examination,
+                sectionData: IPD.DEFAULT_PROGRESS_NOTES_FORM_STRUCTURE[3],
+              },
+              type: "examination",
+            },
             {
               key: "additionalRemarks",
               title: "Additional Remarks",
@@ -342,11 +373,10 @@ function ProgressNotesView({
         }}
         components={{
           RichTextEditor,
+          PNExaminationSection,
         }}
         actions={
-          !isOnlyViewMode &&
-          !isProgressNotesSummary &&
-          canEditWithinWindow
+          !isOnlyViewMode && !isProgressNotesSummary && canEditWithinWindow
             ? [{ name: "edit", label: "Edit progress note" }]
             : []
         }
@@ -396,37 +426,42 @@ function ProgressNotesView({
           />
         )}
       </div>
-      { mappedData.length > 0 ? (
-      <div>
-        <ReusableStepper
-          data={mappedData}
-          groupBy={(item) =>
-            item?.groupDate ||
-            (typeof item?.date === "string"
-              ? item.date.split("T")[0] || item.date.split(" ")[0]
-              : undefined) ||
-            "Unknown"
-          }
-          sortGroups={(a, b) => new Date(b) - new Date(a)}
-          renderGroupHeader={renderCustomGroupHeader}
-          renderItem={renderCustomItem}
-          onItemEvent={handleReusableItemEvent}
-          layout={{
-            gridGutter: [16, 16],
-            // colProps: { xs: 24, sm: 12, lg: 8 },
-            stepDirection: "vertical",
-            currentStep: -1,
-          }}
-          cardsDisplay={isProgressNotesSummary ? "column" : "row"}
-          sidebarClassName={isProgressNotesSummary ? "agent-alex-sidebar" : ""}
-          contentClassName={
-            isProgressNotesSummary ? "agent-pn-step-content" : undefined
-          }
-        />
-      </div>
+      {mappedData.length > 0 ? (
+        <div>
+          <ReusableStepper
+            data={mappedData}
+            groupBy={(item) =>
+              item?.groupDate ||
+              (typeof item?.date === "string"
+                ? item.date.split("T")[0] || item.date.split(" ")[0]
+                : undefined) ||
+              "Unknown"
+            }
+            sortGroups={(a, b) => new Date(b) - new Date(a)}
+            renderGroupHeader={renderCustomGroupHeader}
+            renderItem={renderCustomItem}
+            onItemEvent={handleReusableItemEvent}
+            layout={{
+              gridGutter: [16, 16],
+              // colProps: { xs: 24, sm: 12, lg: 8 },
+              stepDirection: "vertical",
+              currentStep: -1,
+            }}
+            cardsDisplay={isProgressNotesSummary ? "column" : "row"}
+            sidebarClassName={
+              isProgressNotesSummary ? "agent-alex-sidebar" : ""
+            }
+            contentClassName={
+              isProgressNotesSummary ? "agent-pn-step-content" : undefined
+            }
+          />
+        </div>
       ) : (
         <div className="no-data-container">
-          <Empty description="No progress notes found for the selected date range" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <Empty
+            description="No progress notes found for the selected date range"
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
         </div>
       )}
     </div>

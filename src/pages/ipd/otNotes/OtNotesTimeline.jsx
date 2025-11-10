@@ -387,9 +387,12 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
                         }
                       })}
                       <FilledByCards
-                        updates={updates}
+                        updates={
+                          !!updates.length ? [updates[updates.length - 1]] : []
+                        }
                         createdByRole={entry?.createdByRole}
                         createdByName={entry?.createdByName}
+                        createdAt={entry?.createdAt}
                       />
                     </>
                   )}
@@ -508,31 +511,36 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
         />
       </div>
 
-      { filteredMappedData.length > 0 ? <ReusableStepper
-        data={filteredMappedData}
-        groupBy={(item) =>
-          item.date || item.timestamp?.split(" ")[0] || "Unknown"
-        }
-        sortGroups={(a, b) => new Date(b) - new Date(a)}
-        renderGroupHeader={renderCustomGroupHeader}
-        onGroupHeaderAction={handleGroupHeaderAction}
-        onItemEvent={handleReusableItemEvent}
-        layout={{
-          stepDirection: "vertical",
-          currentStep: -1,
-        }}
-        showShadow={true}
-        toolbar={{
-          show: true,
-          label: dateRange
-            ? `Filtered: ${moment(dateRange.startDate).format(
-                showDateFormat
-              )} - ${moment(dateRange.endDate).format(showDateFormat)}`
-            : "All dates",
-        }}
-      /> : (
+      {filteredMappedData.length > 0 ? (
+        <ReusableStepper
+          data={filteredMappedData}
+          groupBy={(item) =>
+            item.date || item.timestamp?.split(" ")[0] || "Unknown"
+          }
+          sortGroups={(a, b) => new Date(b) - new Date(a)}
+          renderGroupHeader={renderCustomGroupHeader}
+          onGroupHeaderAction={handleGroupHeaderAction}
+          onItemEvent={handleReusableItemEvent}
+          layout={{
+            stepDirection: "vertical",
+            currentStep: -1,
+          }}
+          showShadow={true}
+          toolbar={{
+            show: true,
+            label: dateRange
+              ? `Filtered: ${moment(dateRange.startDate).format(
+                  showDateFormat
+                )} - ${moment(dateRange.endDate).format(showDateFormat)}`
+              : "All dates",
+          }}
+        />
+      ) : (
         <div className="no-data-container">
-          <Empty description="No OT notes found for the selected date range" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <Empty
+            description="No OT notes found for the selected date range"
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
         </div>
       )}
     </div>

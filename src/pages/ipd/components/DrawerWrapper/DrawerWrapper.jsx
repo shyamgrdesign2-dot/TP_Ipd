@@ -12,6 +12,7 @@ const DrawerWrapper = ({
   title,
   saveButtonText = "Save",
   sectionFrom = "Admission Assessment Form",
+  showDisclaimerBanner = true,
 }) => {
   return (
     <Drawer
@@ -47,7 +48,7 @@ const DrawerWrapper = ({
             </div>
           </div>
           <div className="modalcard-body drawer-wrapper-body">
-            <div className="disclaimer-banner">
+            {showDisclaimerBanner ? <div className="disclaimer-banner">
               <img
                 src={defaultIcons.infoIconWarningColoured}
                 alt="warning"
@@ -63,7 +64,7 @@ const DrawerWrapper = ({
                 be <strong>automatically updated there!</strong>
               </p>
                 <img className="banner-icon"  src={defaultIcons.crossIcon} alt="close" />
-            </div>
+            </div>: null}
             {children}
           </div>
         </Card>

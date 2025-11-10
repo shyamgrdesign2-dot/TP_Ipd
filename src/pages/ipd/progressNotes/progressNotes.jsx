@@ -21,6 +21,7 @@ import {
   setChiefComplaint,
   setAdditionalRemarks,
   setCurrentProgressNote,
+  setPhysicalExaminationBasicData,
 } from "../../../redux/ipd/progressNotesSlice.js";
 import {
   getCustomization,
@@ -43,6 +44,7 @@ import BackConfirmationModal from "../../../components/BackConfirmationModal.js"
 import FullPageLoader from "../../vaccination/components/Loader.js";
 import { formatDateWithTime } from "../../../utils/utils.js";
 import { isEmptyRichText } from "../../../components/PDFGenerator/index.js";
+import PNExaminationSection from "../assessmentForm/PNExaminationSection.jsx";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -112,6 +114,7 @@ const ProgressNotes = (props) => {
     findings,
     vitals,
     additionalRemarks,
+    physicalExaminationBasicData,
   } = useSelector((state) => state.progressNotes);
 
   const { customization = {} } = useSelector((state) => state.ipd);
@@ -136,6 +139,8 @@ const ProgressNotes = (props) => {
       if (Array.isArray(pn.findings)) dispatch(setFindings(pn.findings));
       if (pn.vitals && typeof pn.vitals === "object")
         dispatch(setVitals(pn.vitals));
+      if (pn.examination && typeof pn.examination === "object")
+        dispatch(setPhysicalExaminationBasicData(pn.examination));
       if (Array.isArray(pn.additionalRemarks))
         dispatch(setAdditionalRemarks(pn.additionalRemarks));
       if (pn.date) setFilledDate(new Date(pn.date));
@@ -180,6 +185,17 @@ const ProgressNotes = (props) => {
         vitals: vitals || {},
         chiefComplaint: chiefComplaint || [],
         findings: findings || [],
+        examination: Object.entries(physicalExaminationBasicData || {}).reduce(
+          (acc, [key, value]) => {
+            acc[key] = {
+              title: value?.title || "",
+              notes: value?.notes || [],
+              value: value?.value || null,
+            };
+            return acc;
+          },
+          {}
+        ),
         additionalRemarks: additionalRemarks || [],
         date: filledDate,
         time: filledAtTime,
@@ -417,6 +433,8 @@ const ProgressNotes = (props) => {
               />
             </div>
           );
+        case "examinations":
+          return <PNExaminationSection {...props} sectionData={data} />;
         case "additionalRemarks":
           return (
             <div className="ipd-pn-section-container">
