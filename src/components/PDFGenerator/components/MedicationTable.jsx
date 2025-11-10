@@ -309,7 +309,7 @@ const MedicationTable = ({
                       flexGrow: 1,
                       flexDirection: "row",
                       borderBottom:
-                        ii !== innerMedication(i)?.length - 1
+                        ii !== innerMedication(med?.index)?.length - 1
                           ? "1px solid #171725"
                           : "0px",
                     }}
