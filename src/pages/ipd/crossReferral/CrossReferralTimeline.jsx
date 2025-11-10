@@ -436,7 +436,7 @@ const CrossReferralTimeline = () => {
                         <div></div>
                       </div>
                       <span>
-                        Referred Doctor’s Consultation notes yet to be filled
+                        Referred Doctor's Consultation Notes yet to be filled
                       </span>
                     </div>
                   )}
