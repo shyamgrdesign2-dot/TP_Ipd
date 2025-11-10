@@ -83,7 +83,7 @@ const DiagnosisAndSurgery = ({
   const diagnosisAndSurgerySection = formatSettings.find(
     (section) =>
       section.id ===
-      (isAssessment ? "provisionalDiagnosis" : "diagnosisAndSurgery")
+      (isAssessment ? "provisional" : "diagnosisAndSurgery")
   );
   const subsections = diagnosisAndSurgerySection?.subSections || [];
   const sortedSubsections = getAllVisibleSections(subsections);

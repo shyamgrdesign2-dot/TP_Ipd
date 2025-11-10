@@ -46,6 +46,7 @@ import {
   getOtNotesData,
   resetOtNotesForm,
 } from "../../../redux/ipd/otNotesSlice.js";
+import { errorMessage } from "../../../utils/utils.js";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -138,7 +139,9 @@ const DischargeSummary = (props) => {
   useEffect(() => {
     if (isEditable)
       dispatch(
-        getLastPrescriptionDate({ patientId: patientDetails?.patient_unique_id })
+        getLastPrescriptionDate({
+          patientId: patientDetails?.patient_unique_id,
+        })
       ).then((res) => {
         if (res.payload) {
           dispatch(
@@ -306,7 +309,7 @@ const DischargeSummary = (props) => {
             // case "preparedBy":
             //   return <PreparedBy {...props} sectionData={data} />;
             default:
-              return <>{data?.title}</>;
+              return <></>;
           }
         })()}
       </div>
@@ -319,7 +322,7 @@ const DischargeSummary = (props) => {
     dispatch(updateCustomization(newData));
   };
 
-  const onSaveDischargeSummaryClick = () => {
+  const onSaveDischargeSummaryClick = async () => {
     // Helper function to format surgery data from OT Notes
     const formatSurgeriesPerformed = (otNotesData) => {
       if (!Array.isArray(otNotesData) || otNotesData.length === 0) {
@@ -368,7 +371,6 @@ const DischargeSummary = (props) => {
       }
 
       return otNotesData.map((otNote) => {
-        
         const surgeryDetails = otNote?.otNotes?.surgeryDetails || {};
         const surgeryTeam = otNote?.otNotes?.surgeryTeam || {};
 
@@ -465,7 +467,8 @@ const DischargeSummary = (props) => {
           dischargeSummaryState.dischargeSummaryData?.patientCondition,
         dischargeMedications: prescriptionSlice.medicationData || [],
       },
-      crossReferral: dischargeSummaryState.dischargeSummaryData?.crossReferral || [],
+      crossReferral:
+        dischargeSummaryState.dischargeSummaryData?.crossReferral || [],
       labResults: dischargeSummaryState.dischargeSummaryData?.labResults || [],
       dischargeAdvice: {
         diet: dischargeSummaryState.dischargeSummaryData?.diet || [],
@@ -476,7 +479,7 @@ const DischargeSummary = (props) => {
         warningSigns:
           dischargeSummaryState.dischargeSummaryData?.warningSigns || [],
         preventiveMeasures:
-        dischargeSummaryState.dischargeSummaryData?.preventiveMeasures || [],
+          dischargeSummaryState.dischargeSummaryData?.preventiveMeasures || [],
         emergencyContact:
           dischargeSummaryState.dischargeSummaryData?.emergencyContact || [],
       },
@@ -491,42 +494,42 @@ const DischargeSummary = (props) => {
         dischargeSummaryState.dischargeSummaryData?.preparedBy || null,
     };
 
-    dispatch(
+    const response = await dispatch(
       updateDischargeSummaryData({
         data: reqData,
         patientId: patientDetails?.details?.id,
         admissionId: patientDetails?.admissionId,
         _id: dischargeSummaryState.dischargeSummaryData?._id || null,
       })
-    ).then((res) => {
-      if (
-        !res?.payload?.error &&
-        res?.payload?.type ===
-          "dischargeSummary/updateDischargeSummaryData/rejected"
-      ) {
-        message.warning("Something went wrong, Please try again.");
-        return;
+    );
+    if (response.meta.requestStatus === "fulfilled") {
+      try {
+        if (response?.payload?.error) {
+          if (response.payload.message?.split("must")?.[0]) {
+            message.warning(`Please fill all the fields before saving`);
+          } else {
+            message.warning(`Something went wrong, Please try again.`);
+          }
+          return;
+        }
+        dispatch(resetActualDischargeSummaryData());
+        dispatch(resetDischargeSummaryData());
+        navigate("/ipd/patient-details", {
+          state: {
+            isEditable: false,
+            patient_data: patient_data,
+            patientDetails,
+            activeTab: "dischargeSummary",
+          },
+          replace: true,
+        });
+      } catch (err) {
+        errorMessage(response?.error);
       }
-      if (res?.payload?.error) {
-        message.warning(
-          `${res.payload.error} - ${
-            res.payload.message?.split("must")?.[0]
-          } missing`
-        );
-        return;
-      }
-      dispatch(resetActualDischargeSummaryData());
-      dispatch(resetDischargeSummaryData());
-      navigate("/ipd/patient-details", {
-        state: {
-          isEditable: false,
-          patient_data: patient_data,
-          patientDetails,
-          activeTab: "dischargeSummary",
-        },
-        replace: true,
-      });
-    });
+    } else {
+      errorMessage(response?.error);
+      // message.error("Failed to update discharge summary. Please try again.");
+    }
   };
 
   const renderHeaderSection = () => {

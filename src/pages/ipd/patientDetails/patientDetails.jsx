@@ -1,4 +1,5 @@
 import React, { Suspense, useEffect, useMemo, useState, useRef } from "react";
+import { LoadingOutlined } from "@ant-design/icons";
 import { IPD } from "../../../utils/locale";
 import {
   formatDateToShortMonthYear,
@@ -49,7 +50,7 @@ import {
   resetOtNotesToInitialState,
 } from "../../../redux/ipd/otNotesSlice";
 import MedicalRecords from "../medicalRecords/IPDMedicalRecords";
-import { Drawer } from "antd";
+import { Drawer, Spin } from "antd";
 import UploadDocument from "../../medicalRecords/UploadDocument";
 import { getAllPatientDocs } from "../medicalRecords/utils.js/helper";
 import VisitMedicalRecords from "../../medicalRecords/components/visitMedicalRecords/VisitMedicalRecords";
@@ -112,6 +113,7 @@ const IPDPatientDetails = () => {
   const { printSettings } = useSelector((state) => state.printSettings);
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
   const [open, setOpen] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeMenuItem, setActiveMenuItem] = useState("assessment");
   const [patientData, setPatientData] = useState(null);
   const isOnlyViewMode = useOnlyViewMode();
@@ -350,30 +352,46 @@ const IPDPatientDetails = () => {
     if (!patientId || !admissionId) return;
 
     if (activeMenuItem === "assessment") {
-      dispatch(getAssessmentsData({ patientId, admissionId })).then((res) => {
-        if (!res?.payload?.assessment) return;
-        addDataToStore(res.payload.assessment);
-      });
+      dispatch(getAssessmentsData({ patientId, admissionId }))
+        .then((res) => {
+          if (!res?.payload?.assessment) return;
+          addDataToStore(res.payload.assessment);
+        })
+        .then(() => {
+          setIsLoading(false);
+        });
     } else if (activeMenuItem === "consultantNotes") {
-      dispatch(getConsultantNotes({ patientId, admissionId })).catch(
-        (error) => {
+      dispatch(getConsultantNotes({ patientId, admissionId }))
+        .catch((error) => {
           console.error("Error fetching consultant notes:", error);
-        }
-      );
+        })
+        .then(() => {
+          setIsLoading(false);
+        });
     } else if (activeMenuItem === "progress") {
-      dispatch(getProgressNotes({ patientId, admissionId })).catch((error) => {
-        console.error("Error fetching progress notes:", error);
-      });
+      dispatch(getProgressNotes({ patientId, admissionId }))
+        .catch((error) => {
+          console.error("Error fetching progress notes:", error);
+        })
+        .then(() => {
+          setIsLoading(false);
+        });
     } else if (activeMenuItem === "otNotes") {
-      dispatch(getOtNotesData({ patientId, admissionId })).catch((error) => {
-        console.error("Error fetching OT notes:", error);
-      });
+      dispatch(getOtNotesData({ patientId, admissionId }))
+        .catch((error) => {
+          console.error("Error fetching OT notes:", error);
+        })
+        .then(() => {
+          setIsLoading(false);
+        });
     } else if (activeMenuItem === "crossReferral") {
-      dispatch(getCrossReferralData({ patientId, admissionId })).catch(
-        (error) => {
+      dispatch(getCrossReferralData({ patientId, admissionId }))
+        .catch((error) => {
           console.error("Error fetching Cross Referral notes:", error);
-        }
-      );
+        })
+        .then(() => {
+          setIsLoading(false);
+        });
     } else if (activeMenuItem === "records") {
       // if (patient_data.patient_unique_id) {
       //   getAllPatientDocs( patient_data.patient_unique_id , admissionId, "medical_records");
@@ -383,15 +401,20 @@ const IPDPatientDetails = () => {
       //     console.error("Error fetching progress notes:", error);
       //   }
       // );
+      setIsLoading(false);
     } else if (activeMenuItem === "dischargeSummary") {
       dispatch(getDischargeSummaryData({ patientId, admissionId }))
         .then((res) => {
           addDischargeDataToStore(res.payload, dispatch);
+          setIsLoading(false);
         })
         .catch((error) => {
           console.error("Error fetching discharge summary:", error);
         });
     } else if (activeMenuItem === "opd") {
+      setIsLoading(false);
+    } else {
+      setIsLoading(false);
     }
   }, [activeMenuItem, admissionId, patientId, dispatch]);
 
@@ -522,6 +545,7 @@ const IPDPatientDetails = () => {
   // console.log('INTEL ==> TRANSFORMED PATIENT DETAILS', transformAdmissionToPatient(patientDetails))
   const onHandleSelect = (id) => {
     setActiveMenuItem(id);
+    setIsLoading(true);
     if (id === "dischargeSummary" || id === "opd") {
       dispatch(resetAssessmentForm());
       dispatch(resetDischargeSummaryToInitialState());
@@ -892,7 +916,13 @@ const IPDPatientDetails = () => {
           <div className="ipd-adm-assess-container-readable ipd-discharge-summary-container-readable">
             <DischargeSummaryReadonly ref={dischargeSummaryReadonlyRef} />
             {Object.keys(actualDischargeSummaryData)?.length && (
-              <div className={`ipd-toolbar-edit-custom-print-download ${showOnlyEditForm ? 'ipd-toolbar-edit-custom-print-download-discharge': ''}`}>
+              <div
+                className={`ipd-toolbar-edit-custom-print-download ${
+                  showOnlyEditForm
+                    ? "ipd-toolbar-edit-custom-print-download-discharge"
+                    : ""
+                }`}
+              >
                 <ToolbarActions
                   editBtnText={"Edit Summary"}
                   showOnlyEditForm={showOnlyEditForm}
@@ -950,6 +980,14 @@ const IPDPatientDetails = () => {
     }
   };
 
+  const renderLoader = () => {
+    return (
+      <div className="patient-details-form-loader">
+        <Spin indicator={<LoadingOutlined style={{ fontSize: 22 }} spin />} />
+      </div>
+    );
+  };
+
   const canShowAddCTA = useMemo(() => {
     if (isOnlyViewMode) return false;
     return (
@@ -980,7 +1018,10 @@ const IPDPatientDetails = () => {
               wardBedNumber={patientData.wardBedNumber}
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
-              renderContent={isDataPresent ? renderContent : null}
+              renderContent={
+                isDataPresent ? renderContent : isLoading ? renderLoader : null
+              }
+              // renderContent={renderLoader}
               showAddCTA={canShowAddCTA}
             />
           )}

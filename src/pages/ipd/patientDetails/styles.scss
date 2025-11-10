@@ -1,31 +1,37 @@
 .ipd-toolbar-edit-custom-print-download {
-    position: fixed;
-    bottom: 7px;
-    left: calc(50dvw - 95px);
-    &:not(.no-edit) {
-        left: calc(50dvw - 209px);
-    }
-    right: 0;
-    z-index: 100;
-    width: fit-content;
+  position: fixed;
+  bottom: 7px;
+  left: calc(50dvw - 95px);
+  &:not(.no-edit) {
+    left: calc(50dvw - 209px);
+  }
+  right: 0;
+  z-index: 100;
+  width: fit-content;
 }
 .ipd-toolbar-edit-custom-print-download-discharge {
-    &:not(.no-edit) {
-        left: calc(60dvw) !important;
-    }
+  &:not(.no-edit) {
+    left: calc(60dvw) !important;
+  }
 }
 .ipd-adm-assess-container-readable {
-    width: 100% ;
+  width: 100%;
 }
 
 .ipd-progress-notes-view-container {
-    width: 100%;
-    // overflow: auto;
-    // height: calc(100dvh - 161px);
+  width: 100%;
+  // overflow: auto;
+  // height: calc(100dvh - 161px);
 }
 .pd-ipd-right-content {
-    
 }
 .pd-ipd-right-content:has(.ipd-discharge-summary-container-readable) {
-    overflow: hidden !important;
-  }
+  overflow: hidden !important;
+}
+.patient-details-form-loader {
+  height: calc(100dvh - 146px);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

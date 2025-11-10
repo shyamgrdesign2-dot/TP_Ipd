@@ -277,6 +277,7 @@ const AssessmentsForm = (props) => {
       }
     } else {
       errorMessage(response?.error);
+      // message.error("Failed to save assessment form. Please try again.");
       setIsLoading(false);
     }
   };
@@ -314,7 +315,7 @@ const AssessmentsForm = (props) => {
 
   const renderFilledBySection = () => {
     return (
-      <div style={{ margin: "24px 24px 0" }}>
+      <div style={{ margin: "16px 24px 0" }}>
         <FilledByCard
           filledBy={profile?.um_name}
           role="Doctor"

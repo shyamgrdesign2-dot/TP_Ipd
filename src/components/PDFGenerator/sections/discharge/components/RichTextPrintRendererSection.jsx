@@ -2,7 +2,7 @@ import React from "react";
 import RichTextPrintRenderer from "./richTextPrintRenderer";
 import { View, StyleSheet, Text } from "@react-pdf/renderer";
 import { camelToCapitalized } from "../../../../../utils/utils";
-import { getAllVisibleSections } from "../../../utils/pdfUtils";
+import { getAllVisibleSections, isEmptyRichText } from "../../../utils/pdfUtils";
 import SectionTitle from "../../SectionTitle";
 
 const styles = StyleSheet.create({
@@ -135,6 +135,7 @@ const RichTextPrintRendererSection = ({
             </View>
           );
         } else if (data?.[id]?.[key]) {
+          if (isEmptyRichText(data?.[id]?.[key])) return null;
           return (
             <RichTextPrintRenderer
               key={key}

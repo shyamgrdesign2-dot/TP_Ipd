@@ -69,7 +69,8 @@ export const updateAssessmentsData = createAsyncThunk(
     ) {
       return result.data;
     } else {
-      throw Error(result.error);
+      return result.data;
+
     }
   }
 );

@@ -152,7 +152,7 @@ export const renderAdmissionAssessment = (data, formatSettings, frequencyList, t
   // Map section keys to render functions (using new array format IDs)
   const sectionRenderers = {
     admittingConsultant: () => renderPrimaryConsultant(data, formatSettings),
-    provisionalDiagnosis: () =>
+    provisional: () =>
       renderDiagnosisAndSurgery(
         { diagnosisAndSurgery: data },
 
@@ -166,7 +166,7 @@ export const renderAdmissionAssessment = (data, formatSettings, frequencyList, t
       renderFunctionalAssessment(data, formatSettings),
     // Backward compatibility with old keys
     primaryConsultant: () => renderPrimaryConsultant(data, formatSettings),
-    dignosisAndSurgery: () => renderDiagnosisAndSurgery(data, formatSettings),
+    // dignosisAndSurgery: () => renderDiagnosisAndSurgery(data, formatSettings),
   };
 
   // Render sections in order

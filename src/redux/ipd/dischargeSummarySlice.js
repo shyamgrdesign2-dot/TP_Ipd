@@ -85,15 +85,14 @@ export const addDischargeSummaryData = createAsyncThunk(
 export const updateDischargeSummaryData = createAsyncThunk(
   "dischargeSummary/updateDischargeSummaryData",
   async (data) => {
-    try {
-      const result = await ApiDischargeSummary.updateDischargeSummary(data);
-      if (result.message === "discharge summary created successfully.") {
-        return result;
-      } else {
-        return result?.data;
-      }
-    } catch (error) {
-      throw Error(error);
+    const result = await ApiDischargeSummary.updateDischargeSummary(data);
+    if (
+      result.message === "discharge summary created successfully." ||
+      result.message === "discharge summary updated successfully."
+    ) {
+      return result.data;
+    } else {
+      return result.data;
     }
   }
 );

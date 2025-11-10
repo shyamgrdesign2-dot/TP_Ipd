@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   // Bullet list item
   bulletItem: {
     flexDirection: "row",
-    marginBottom: 0,
+    marginBottom: 4,
   },
 
   // Bullet marker

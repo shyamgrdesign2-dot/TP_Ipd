@@ -349,7 +349,7 @@ export const errorMessage = async (error) => {
           <div>
             <div className="title-common text-start fontroboto">Error</div>
             <div className="fontroboto text-start fw-normal mt-1">
-              We're Sorry, Somthing went wronng. Please{" "}
+              We're Sorry, Something went wrong. Please{" "}
               <span className="text-underline">try again</span>
             </div>
           </div>

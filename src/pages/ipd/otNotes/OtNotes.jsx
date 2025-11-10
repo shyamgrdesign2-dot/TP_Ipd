@@ -303,6 +303,7 @@ const OtNotes = (props) => {
       }
     } else {
       errorMessage(response?.error);
+      // message.error("Failed to save OT Notes. Please try again.");
       setIsLoading(false);
     }
   };
@@ -322,7 +323,7 @@ const OtNotes = (props) => {
 
   const renderFilledBySection = () => {
     return (
-      <div style={{ margin: "24px 24px 0" }}>
+      <div style={{ margin: "16px 24px 0" }}>
         <FilledByCard
           filledBy={profile?.um_name}
           role="Doctor"

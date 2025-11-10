@@ -59,7 +59,7 @@ const renderCrossReferral = (data, formatSettings) => {
   const text = data.crossReferral
     ?.map((item) => `${item.name} (${item.speciality})`)
     .join(", ");
-    if (!text) return;
+  if (!text) return;
   return (
     <View style={styles.sectionContainer}>
       {/* <SectionTitle title="Cross Reference" /> */}
@@ -200,20 +200,12 @@ const renderFollowUp = (data, formatSettings) => {
  * Prepared By Section
  */
 const renderPreparedBy = (data) => {
-  // if (!data?.preparedBy) return null;
-
-  // const { preparedBy } = data;
-
-  // if (!preparedBy?.length || preparedBy.some((item) => !item.name)) return null;
-
   const { primaryConsultant } = data.patientInformation;
   const consultantText = `${primaryConsultant.name} (${primaryConsultant.speciality})`;
   return (
     <View style={styles.sectionContainer}>
-      {/* <SectionTitle title="Approved by" /> */}
       <Text style={styles.subsectionTitle}>Discharge Summary Approved by:</Text>
 
-      {/* Inline label-value */}
       <View style={{ padding: "6px 6px 0 6px" }}>
         <Text
           style={{
@@ -221,18 +213,27 @@ const renderPreparedBy = (data) => {
             textTransform: "capitalize",
           }}
         >
-          {/* <Text style={{ fontWeight: 600, color: "#171725" }}>
-            Discharge Summary Prepared by:{" "}
-          </Text> */}
           <Text style={{ fontWeight: 400, color: "#454551" }}>
-            {/* {preparedBy.map(
-              (doctor, index) =>
-                `${doctor.name}${index < preparedBy.length - 1 ? ", " : ""}`
-            )} */}
             {consultantText}
           </Text>
         </Text>
       </View>
+    </View>
+  );
+};
+
+const renderSignOfRelatives = (data) => {
+  return (
+    <View wrap={false} style={styles.sectionContainer}>
+      <Text style={styles.subsectionTitle}>Sign Of Relatives:</Text>
+      <View
+        style={{
+          borderBottom: "1px solid #454551",
+          width: 120,
+          marginTop: "24px",
+          marginBottom: "6px",
+        }}
+      />
     </View>
   );
 };
@@ -302,6 +303,7 @@ export const renderDischargeSummary = (
   // Add prepared by at the end
   if (data.patientInformation?.primaryConsultant) {
     sections.push(renderPreparedBy(data));
+    sections.push(renderSignOfRelatives(data));
   }
 
   return sections;

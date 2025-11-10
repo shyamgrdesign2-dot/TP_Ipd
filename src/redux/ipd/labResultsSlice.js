@@ -3,7 +3,6 @@ import ApiLabResults from "../../api/services/ipd/ApiLabResults";
 import { ictAuthToken } from "../appointmentsSlice";
 import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN } from "../../utils/constants";
 
-// Async thunk for getting pathology results
 export const getPathologyResults = createAsyncThunk(
   "labResults/getPathologyResults",
   async (data, { dispatch }) => {
@@ -49,7 +48,6 @@ export const getAddedToDischargeSummaryTests = createAsyncThunk(
   }
 );
 
-// Async thunk for updating pathology results (add to discharge summary)
 export const updatePathologyResults = createAsyncThunk(
   "labResults/updatePathologyResults",
   async (data) => {
@@ -87,13 +85,11 @@ export const getScanResults = createAsyncThunk(
   }
 );
 
-// Helper function to parse reference range string to object
 const parseReferenceRange = (refRangeString) => {
   if (!refRangeString || refRangeString === "-" || refRangeString === "") {
     return { min: null, max: null };
   }
 
-  // Match patterns like "1.0-30.0", "28.0-217.0", etc.
   const rangeMatch = refRangeString.match(/^([\d.]+)\s*-\s*([\d.]+)$/);
 
   if (rangeMatch) {
@@ -103,17 +99,15 @@ const parseReferenceRange = (refRangeString) => {
     };
   }
 
-  // If it doesn't match the range pattern, return as is
   return { min: null, max: null };
 };
 
-// Helper function to transform new API data format to component format
 const transformNewApiDataToComponentFormat = (apiResponse) => {
   if (!apiResponse || !Array.isArray(apiResponse)) return [];
 
   return apiResponse.map((labResult, index) => ({
     key: (index + 1).toString(),
-    category: `${labResult.serviceName} (${
+    category: `${labResult.serviceName} ${labResult.sampleId} (${
       labResult.labResultParameters?.length || 0
     })`,
     sampleId: labResult.sampleId,
@@ -136,14 +130,11 @@ const transformNewApiDataToComponentFormat = (apiResponse) => {
   }));
 };
 
-// Helper function to transform API data to component format (legacy format)
 const transformApiDataToComponentFormat = (apiResponse) => {
-  // Check if this is the new format (array of lab results)
   if (Array.isArray(apiResponse)) {
     return transformNewApiDataToComponentFormat(apiResponse);
   }
 
-  // Legacy format with labParams
   if (
     !apiResponse ||
     !apiResponse.labParams ||
@@ -153,7 +144,7 @@ const transformApiDataToComponentFormat = (apiResponse) => {
 
   return apiResponse.labParams.map((category, index) => ({
     key: (index + 1).toString(),
-    category: `${category.reportName} (${category.testCount})`,
+    category: `${category.reportName} ${index} (${category.testCount})`,
     tests:
       category.tests?.map((test, testIndex) => ({
         key: `${index + 1}-${testIndex + 1}`,
@@ -165,7 +156,6 @@ const transformApiDataToComponentFormat = (apiResponse) => {
   }));
 };
 
-// Helper function to transform test values
 const transformTestValues = (values) => {
   const transformed = {};
 
@@ -179,14 +169,12 @@ const transformTestValues = (values) => {
   return transformed;
 };
 
-// Helper function to format date for display
 const formatDateForDisplay = (dateString) => {
   const date = new Date(dateString);
   const options = { day: "2-digit", month: "short", year: "numeric" };
   return date.toLocaleDateString("en-GB", options).replace(",", ",");
 };
 
-// Helper function to transform component data back to API format
 const transformComponentDataToApiFormat = (
   componentData,
   selectedTests,
@@ -195,7 +183,6 @@ const transformComponentDataToApiFormat = (
   const result = [];
 
   componentData.forEach((category) => {
-    // Check if this category or any of its tests are selected
     const isCategorySelected = selectedCategories.includes(category.key);
     const selectedTestsInCategory = category.tests.filter((test) =>
       selectedTests.includes(test.key)
@@ -207,7 +194,7 @@ const transformComponentDataToApiFormat = (
         : selectedTestsInCategory;
 
       const categoryData = {
-        reportName: category.category.split(" (")[0], // Remove count from name
+        reportName: category.category.split(" (")[0],
         testCount: testsToInclude.length,
         tests: testsToInclude.map((test) => ({
           testName: test.name,
@@ -223,12 +210,10 @@ const transformComponentDataToApiFormat = (
   return result;
 };
 
-// Helper function to transform values back to API format
 const transformValuesBackToApi = (values) => {
   const transformed = {};
 
   Object.entries(values || {}).forEach(([displayDate, data]) => {
-    // Convert display date back to API date format
     const apiDate = convertDisplayDateToApiFormat(displayDate);
     const [value, unit] = data.value.split(" ");
 
@@ -241,28 +226,20 @@ const transformValuesBackToApi = (values) => {
   return transformed;
 };
 
-// Helper function to convert display date to API format
 const convertDisplayDateToApiFormat = (displayDate) => {
-  // Handle different date formats
-  // "06 Aug, 2025" or "08-07-2025" (DD-MM-YYYY) to "2025-08-06" (YYYY-MM-DD)
-
-  // Check if it's already in YYYY-MM-DD format
   if (/^\d{4}-\d{2}-\d{2}$/.test(displayDate)) {
     return displayDate;
   }
 
-  // Check if it's in DD-MM-YYYY format (from new API)
   if (/^\d{2}-\d{2}-\d{4}$/.test(displayDate)) {
     const [day, month, year] = displayDate.split("-");
     return `${year}-${month}-${day}`;
   }
 
-  // Otherwise, parse as standard date format
   const date = new Date(displayDate);
   return date.toISOString().split("T")[0];
 };
 
-// ---- add near other helpers ----
 const computeSelectionsFromAddedData = (addedData, pathologyResults) => {
   const selectedTests = [];
   const selectedCategories = [];
@@ -271,9 +248,7 @@ const computeSelectionsFromAddedData = (addedData, pathologyResults) => {
     return { selectedTests, selectedCategories };
   }
 
-  // Build quick lookup: reportName => category
   const byReportName = {};
-  console.log("INTEL ==> pathologyResults", pathologyResults, addedData);
   pathologyResults.forEach((cat) => {
     const onlyName = cat.category.split(" (")[0]?.trim();
     if (onlyName) byReportName[onlyName] = cat;
@@ -283,42 +258,34 @@ const computeSelectionsFromAddedData = (addedData, pathologyResults) => {
     const cat = byReportName[(report.reportName || "").trim()];
     if (!cat) return;
 
-    // Which tests inside this category were added earlier?
-    const wantedNames = (report.tests || [])
-      .map((t) => (t.testName || "").trim().toLowerCase());
+    const wantedNames = (report.tests || []).map((t) =>
+      (t.testName || "").trim().toLowerCase()
+    );
 
     const pickedKeys = cat.tests
       .filter((t) => wantedNames.includes((t.name || "").trim().toLowerCase()))
       .map((t) => t.key);
 
     selectedTests.push(...pickedKeys);
-    // console.log('INTEL ==> waitt', pickedKeys)
 
-    // If *all* tests in that category are included, mark the category too
     if (pickedKeys.length && pickedKeys.length === cat.tests.length) {
       selectedCategories.push(cat.key);
     }
   });
-  console.log('INTEL ==> selectedTests', selectedTests, selectedCategories)
 
-  // De-dupe
   return {
-    // selectedTests: Array.from(new Set(selectedTests)),
-    // selectedCategories: Array.from(new Set(selectedCategories)),
     selectedTests: selectedTests,
     selectedCategories: selectedCategories,
   };
 };
 
-// ---- add under other thunks ----
 export const loadAddedSelections = createAsyncThunk(
   "labResults/loadAddedSelections",
   async ({ patientId, admissionId }, { dispatch, getState }) => {
     const added = await dispatch(
       getAddedToDischargeSummaryTests({ patientId, admissionId })
-    ).unwrap(); // returns labParams[] or []
+    ).unwrap();
 
-    // Normalize to [{reportName, tests:[{testName}]}]
     const normalized =
       (added || []).map((grp) => ({
         reportName: grp?.reportName,
@@ -332,28 +299,23 @@ export const loadAddedSelections = createAsyncThunk(
   }
 );
 const initialState = {
-  // Data state
   pathologyResults: [],
   scanResults: [],
   availableDates: [],
 
-  // UI state
   loading: false,
   updating: false,
   error: null,
   updateError: null,
 
-  // Selection state
   selectedTests: [],
   selectedCategories: [],
 
-  // Filter state
   searchText: "",
   selectedDateRange: null,
   activeTab: "pathology",
-  expandedCategories: ["1"], // Default first category expanded
+  expandedCategories: ["1"],
 
-  // Scan results specific state
   scanLoading: false,
   scanError: null,
   activeScanCategory: "all",
@@ -364,7 +326,6 @@ const labResultsSlice = createSlice({
   name: "labResults",
   initialState,
   reducers: {
-    // UI actions
     setActiveTab: (state, action) => {
       state.activeTab = action.payload;
     },
@@ -393,7 +354,6 @@ const labResultsSlice = createSlice({
       }
     },
 
-    // Selection actions
     selectTest: (state, action) => {
       const testKey = action.payload;
       if (!state.selectedTests.includes(testKey)) {
@@ -423,7 +383,6 @@ const labResultsSlice = createSlice({
     },
 
     selectAll: (state) => {
-      // Select all categories and tests
       state.selectedCategories = state.pathologyResults.map(
         (category) => category.key
       );
@@ -437,16 +396,13 @@ const labResultsSlice = createSlice({
       state.selectedCategories = [];
     },
 
-    // Bulk selection actions
     selectCategoryWithTests: (state, action) => {
       const { categoryKey, testKeys } = action.payload;
 
-      // Add category to selection
       if (!state.selectedCategories.includes(categoryKey)) {
         state.selectedCategories.push(categoryKey);
       }
 
-      // Add all tests to selection
       testKeys.forEach((testKey) => {
         if (!state.selectedTests.includes(testKey)) {
           state.selectedTests.push(testKey);
@@ -457,18 +413,15 @@ const labResultsSlice = createSlice({
     deselectCategoryWithTests: (state, action) => {
       const { categoryKey, testKeys } = action.payload;
 
-      // Remove category from selection
       state.selectedCategories = state.selectedCategories.filter(
         (key) => key !== categoryKey
       );
 
-      // Remove all tests from selection
       state.selectedTests = state.selectedTests.filter(
         (key) => !testKeys.includes(key)
       );
     },
 
-    // Scan results specific actions
     setActiveScanCategory: (state, action) => {
       state.activeScanCategory = action.payload;
     },
@@ -477,7 +430,6 @@ const labResultsSlice = createSlice({
       state.scanDateStatus = action.payload;
     },
 
-    // Clear errors
     clearError: (state) => {
       state.error = null;
       state.updateError = null;
@@ -486,7 +438,6 @@ const labResultsSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    // Get pathology results
     builder
       .addCase(getPathologyResults.pending, (state) => {
         state.loading = true;
@@ -498,20 +449,15 @@ const labResultsSlice = createSlice({
           action.payload
         );
 
-        // Extract available dates from the API response
         const dates = new Set();
 
-        // Check if this is the new format (array of lab results)
         if (Array.isArray(action.payload)) {
-          // Extract dates from certifiedDate field
           action.payload.forEach((labResult) => {
             if (labResult.certifiedDate) {
               dates.add(labResult.certifiedDate);
             }
           });
         } else {
-          // Legacy format handling
-          // Use testDates from API response if available
           if (
             action.payload?.testDates &&
             Array.isArray(action.payload.testDates)
@@ -520,7 +466,6 @@ const labResultsSlice = createSlice({
               dates.add(formatDateForDisplay(date));
             });
           } else {
-            // Fallback: extract from test values
             action.payload?.labParams?.forEach((category) => {
               category.tests?.forEach((test) => {
                 Object.keys(test.values || {}).forEach((date) => {
@@ -541,7 +486,7 @@ const labResultsSlice = createSlice({
       state.selectedTests = action.payload?.selectedTests || [];
       state.selectedCategories = action.payload?.selectedCategories || [];
     });
-    // Update pathology results
+
     builder
       .addCase(updatePathologyResults.pending, (state) => {
         state.updating = true;
@@ -549,7 +494,7 @@ const labResultsSlice = createSlice({
       })
       .addCase(updatePathologyResults.fulfilled, (state, action) => {
         state.updating = false;
-        // Optionally clear selections after successful update
+
         state.selectedTests = [];
         state.selectedCategories = [];
       })
@@ -559,7 +504,6 @@ const labResultsSlice = createSlice({
           action.payload?.message || "Failed to update pathology results";
       });
 
-    // Get scan results
     builder
       .addCase(getScanResults.pending, (state) => {
         state.scanLoading = true;
@@ -615,11 +559,9 @@ export const selectSelectedDateRange = (state) =>
 export const selectExpandedCategories = (state) =>
   state.labResults.expandedCategories;
 
-// Helper function to check if a date is within a date range
 const isDateInRange = (dateStr, dateRange) => {
   if (!dateRange || !dateRange[0] || !dateRange[1]) return true;
 
-  // Parse date string - handle both "DD-MM-YYYY" and other formats
   let testDate;
   if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
     const [day, month, year] = dateStr.split("-");
@@ -631,7 +573,6 @@ const isDateInRange = (dateStr, dateRange) => {
   const startDate = new Date(dateRange[0]);
   const endDate = new Date(dateRange[1]);
 
-  // Set time to start/end of day for proper comparison
   startDate.setHours(0, 0, 0, 0);
   endDate.setHours(23, 59, 59, 999);
   testDate.setHours(0, 0, 0, 0);
@@ -639,28 +580,23 @@ const isDateInRange = (dateStr, dateRange) => {
   return testDate >= startDate && testDate <= endDate;
 };
 
-// Selector for filtered pathology results based on search and date range
 export const selectFilteredPathologyResults = (state) => {
   const results = state.labResults.pathologyResults;
   const searchText = state.labResults.searchText?.toLowerCase().trim() || "";
   const dateRange = state.labResults.selectedDateRange;
 
-  // If no filters applied, return all results
   if (!searchText && !dateRange) {
     return results;
   }
 
   return results
     .map((category) => {
-      // Filter tests within each category
       const filteredTests = category.tests.filter((test) => {
-        // Search filter - check test name
         const matchesSearch =
           !searchText ||
           test.name.toLowerCase().includes(searchText) ||
           category.category.toLowerCase().includes(searchText);
 
-        // Date filter - check if any value date is within range
         const matchesDate =
           !dateRange ||
           Object.keys(test.values || {}).some((dateKey) =>
@@ -670,7 +606,6 @@ export const selectFilteredPathologyResults = (state) => {
         return matchesSearch && matchesDate;
       });
 
-      // Return category with filtered tests
       return {
         ...category,
         tests: filteredTests,
@@ -679,20 +614,17 @@ export const selectFilteredPathologyResults = (state) => {
         })`,
       };
     })
-    .filter((category) => category.tests.length > 0); // Remove empty categories
+    .filter((category) => category.tests.length > 0);
 };
 
-// Selector for filtered available dates based on search
 export const selectFilteredAvailableDates = (state) => {
   const dates = state.labResults.availableDates;
   const searchText = state.labResults.searchText?.toLowerCase().trim() || "";
 
-  // If no search, return all dates
   if (!searchText) {
     return dates;
   }
 
-  // Get all dates that have matching tests
   const results = state.labResults.pathologyResults;
   const matchingDates = new Set();
 
@@ -713,12 +645,10 @@ export const selectFilteredAvailableDates = (state) => {
   return dates.filter((date) => matchingDates.has(date));
 };
 
-// Selector for total selection count
 export const selectTotalSelectionCount = (state) => {
   return state.labResults.selectedTests.length;
 };
 
-// Selector for total item count (based on filtered results)
 export const selectTotalItemCount = (state) => {
   const filteredResults = selectFilteredPathologyResults(state);
   const testCount = filteredResults.reduce(
@@ -728,7 +658,6 @@ export const selectTotalItemCount = (state) => {
   return testCount;
 };
 
-// Selector to check if all visible items are selected
 export const selectIsAllSelected = (state) => {
   const filteredResults = selectFilteredPathologyResults(state);
   const allTestKeys = filteredResults.flatMap((category) =>
@@ -742,7 +671,6 @@ export const selectIsAllSelected = (state) => {
   );
 };
 
-// Selector for main checkbox indeterminate state
 export const selectIsMainCheckboxIndeterminate = (state) => {
   const totalSelected = selectTotalSelectionCount(state);
   const totalItems = selectTotalItemCount(state);
@@ -750,7 +678,6 @@ export const selectIsMainCheckboxIndeterminate = (state) => {
   return totalSelected > 0 && totalSelected < totalItems;
 };
 
-// Thunk for adding selected items to discharge summary
 export const addToDischargeSummary = createAsyncThunk(
   "labResults/addToDischargeSummary",
   async (
@@ -762,32 +689,17 @@ export const addToDischargeSummary = createAsyncThunk(
       const { pathologyResults, selectedTests, selectedCategories } =
         state.labResults;
 
-      // Transform selected data to API format
       const apiData = transformComponentDataToApiFormat(
         pathologyResults,
         selectedTests,
         selectedCategories
       );
 
-      const addedToDischargeSummaryTests = await dispatch(
-        getAddedToDischargeSummaryTests({
-          patientId,
-          admissionId,
-        })
-      ).unwrap();
-
-      const merged = [...addedToDischargeSummaryTests, ...apiData];
-
-      const uniqueByReportName = [
-        ...new Map(merged.map((item) => [item.reportName, item])).values(),
-      ];
-
-      // Call the update API
       const result = await dispatch(
         updatePathologyResults({
           patientId,
           admissionId,
-          data: uniqueByReportName,
+          data: apiData,
         })
       ).unwrap();
 
@@ -800,7 +712,6 @@ export const addToDischargeSummary = createAsyncThunk(
 
 export default labResultsSlice.reducer;
 
-// Export the transform functions for use in components
 export {
   transformApiDataToComponentFormat,
   transformComponentDataToApiFormat,

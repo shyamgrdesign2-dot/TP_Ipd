@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiPrintSettings from "../../api/services/ipd/ApiPrintSettings";
+import { IPD } from "../../utils/locale";
 // import { IPD } from "../../utils/locale";
 
 export const initialState = {
@@ -485,7 +486,7 @@ const printSettingsSlice = createSlice({
           //   ...action.payload.otNotes,
           //   formatStyle: IPD.DEFAULT_OT_NOTES_PRINT_FORMAT_STRUCTURE,
           // },
-          // assessment: {
+          // assessments: {
           //   ...action.payload.assessments,
           //   formatStyle:
           //     IPD.DEFAULT_ADMISSION_ASSESSMENT_PRINT_FORMAT_STRUCTURE,

@@ -73,12 +73,14 @@ import funcAssess from "./func-assess.svg";
 import downloadIcon from "./download.svg";
 import treatment from "./treatment.svg";
 import docIcon from "./doc-icon.svg";
+import deleteIconBlue from '../delete-icon-blue.svg';
 
 // Icon exports
 export const defaultIcons = {
   aidKit,
   bold,
   bulletedList,
+  deleteIconBlue,
   ddx,
   doc,
   galaxy,
