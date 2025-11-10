@@ -118,7 +118,10 @@ const PrintPreviewCrossReferral = () => {
   };
 
   const handleBackToSummary = () => {
-    navigate(-1);
+    navigate(`/ipd/patient-details`, {
+      state: { ...state, activeTab: "crossReferral", isEditable: false },
+      replace: true,
+    });
   };
 
   return (

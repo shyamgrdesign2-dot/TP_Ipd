@@ -123,9 +123,12 @@ const PreviewDischargeSummary = () => {
   const handleBackToSummary = () => {
     navigate("/ipd/patient-details", {
       state: {
+        ...state,
         patientDetails,
         activeTab: "dischargeSummary",
+        isEditable: false,
       },
+      replace: true
     });
   };
 

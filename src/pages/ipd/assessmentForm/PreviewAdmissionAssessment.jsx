@@ -18,7 +18,10 @@ import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
 // import PrintPreviewShimmer from "./components/PrintPreviewShimmer/PrintPreviewShimmer";
 import { getAssessmentsData } from "../../../redux/ipd/assessmentsFormSlice";
-import { handleDownloadDischargeSummary, printDischargeSummary } from "../dischargeSummary/utils/helper";
+import {
+  handleDownloadDischargeSummary,
+  printDischargeSummary,
+} from "../dischargeSummary/utils/helper";
 import { getPatientInformation } from "../../../utils/utils";
 
 const PreviewAdmissionAssessment = () => {
@@ -100,7 +103,7 @@ const PreviewAdmissionAssessment = () => {
         data: assessmentsData,
         printSettings: currentSettings,
         returnPath: "/ipd/admission-assessment/preview",
-        patientDetails
+        patientDetails,
       },
     });
   };
@@ -125,7 +128,10 @@ const PreviewAdmissionAssessment = () => {
   };
 
   const handleBackToSummary = () => {
-    navigate(-1);
+    navigate(`/ipd/patient-details`, {
+      state: { ...state, activeTab: "assessment", isEditable: false },
+      replace: true,
+    });
   };
 
   return (

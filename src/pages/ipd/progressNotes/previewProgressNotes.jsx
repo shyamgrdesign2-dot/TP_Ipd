@@ -5,7 +5,10 @@ import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 
 import { Container, Navbar } from "react-bootstrap";
-import { getSortedSections, PDFGenerator } from "../../../components/PDFGenerator";
+import {
+  getSortedSections,
+  PDFGenerator,
+} from "../../../components/PDFGenerator";
 import {
   handleDownloadProgressNotes,
   printProgressNotes,
@@ -16,7 +19,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { updatePrintSettings } from "../../../redux/ipd/printSettingsSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getPatientInformation } from "../../../utils/utils";
-import { downloadDocument, printDocument } from "../dischargeSummary/utils/helper";
+import {
+  downloadDocument,
+  printDocument,
+} from "../dischargeSummary/utils/helper";
 
 const PreviewProgressNotes = () => {
   const navigate = useNavigate();
@@ -30,12 +36,8 @@ const PreviewProgressNotes = () => {
   const { patientDetails } = state || {};
   const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
-  const { progressNotes } = useSelector(
-    (state) => state.progressNotes
-  );
+  const { progressNotes } = useSelector((state) => state.progressNotes);
   const { progressNotes: currentSettings } = printSettings;
-
-
 
   // const patientData = progressNotesData?.patientInformation || {};
   const patientInformation = getPatientInformation(patientDetails);
@@ -55,7 +57,6 @@ const PreviewProgressNotes = () => {
       makePDFUrl(currentSettings);
     }
   }, [currentSettings, progressNotes]);
-
 
   const makePDFUrl = async () => {
     try {
@@ -103,8 +104,10 @@ const PreviewProgressNotes = () => {
   };
 
   const handleBackToProgressNotes = () => {
-    // navigate(`/ipd/patient-details`, {state: {activeTab: "progress", isEditable: false}, replace: true});
-    navigate(-1);
+    navigate(`/ipd/patient-details`, {
+      state: { ...state, activeTab: "progress", isEditable: false },
+      replace: true,
+    });
   };
 
   return (

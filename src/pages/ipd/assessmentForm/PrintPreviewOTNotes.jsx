@@ -12,7 +12,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
 import { getOtNotesData } from "../../../redux/ipd/otNotesSlice";
-import { handleDownloadDischargeSummary, printDischargeSummary } from "../dischargeSummary/utils/helper";
+import {
+  handleDownloadDischargeSummary,
+  printDischargeSummary,
+} from "../dischargeSummary/utils/helper";
 import { getPatientInformation } from "../../../utils/utils";
 
 const PrintPreviewOTNotes = () => {
@@ -42,8 +45,7 @@ const PrintPreviewOTNotes = () => {
   useEffect(() => {
     if (
       patientDetails?.details?.id &&
-      (!otNotesData ||
-        (otNotesData && !Object.keys(otNotesData).length))
+      (!otNotesData || (otNotesData && !Object.keys(otNotesData).length))
     )
       dispatch(
         getOtNotesData({
@@ -90,7 +92,7 @@ const PrintPreviewOTNotes = () => {
         data: otNotesData,
         printSettings: currentSettings,
         returnPath: "/ipd/ot-notes/preview",
-        patientDetails
+        patientDetails,
       },
     });
   };
@@ -115,7 +117,13 @@ const PrintPreviewOTNotes = () => {
   };
 
   const handleBackToSummary = () => {
-    navigate(-1);
+    // navigate(-1, {
+    //   replace: true
+    // });
+    navigate(`/ipd/patient-details`, {
+      state: { ...state, activeTab: "otNotes", isEditable: false },
+      replace: true,
+    });
   };
 
   return (

@@ -115,11 +115,16 @@ const PrintPreview = () => {
   };
 
   const handleBackToSummary = () => {
-    navigate("/ipd/patient-details", {
-      state: {
-        patientDetails,
-        activeTab: "consultantNotes",
-      },
+    // navigate("/ipd/patient-details", {
+    //   state: {
+    //     patientDetails,
+    //     activeTab: "consultantNotes",
+    //   },
+    //   replace: true
+    // });
+    navigate(`/ipd/patient-details`, {
+      state: { ...state, activeTab: "consultantNotes", isEditable: false },
+      replace: true,
     });
   };
 
