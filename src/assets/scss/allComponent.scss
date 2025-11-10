@@ -3319,3 +3319,7 @@ body:has(.patient-details-container) {
 .consultant-notes-examination-container {
   padding: 0 !important;
 }
+
+html, body {
+  overscroll-behavior-y: contain;
+}
