@@ -11,7 +11,7 @@ import {
   getConsultantNotes,
   clearFilteredConsultantNotes,
   setFluidBalance,
-  setExamination,
+  setPhysicalExaminationBasicData,
 } from "../../../redux/ipd/consultantNotesSlice";
 import { setMedicationData } from "../../../redux/prescriptionSlice";
 import "./styles.scss";
@@ -138,7 +138,7 @@ const ConsultantNotesTimeline = () => {
 
     // Set examination
     if (consultationData.examination) {
-      dispatch(setExamination(consultationData.examination));
+      dispatch(setPhysicalExaminationBasicData(consultationData.examination));
     }
 
     // Set medication

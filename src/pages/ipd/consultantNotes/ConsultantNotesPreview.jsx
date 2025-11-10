@@ -12,7 +12,7 @@ import InteractionGate from "../components/InteractionGate/InteractionGate.jsx";
 import MedicationBoxIpd from "../../../components/medicationBoxIpd.js";
 import { IPD } from "../../../utils/locale.js";
 import useCheckExaminationData from "../../../hooks/useCheckExaminationData.js";
-import ExaminationSection from "../assessmentForm/ExaminationSection.jsx";
+import CNExaminationSection from "../assessmentForm/CNExaminationSection.jsx";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
@@ -178,7 +178,7 @@ const ConsultantNotesPreview = ({ entry }) => {
               <div className="cnp-fluid-balance-inline">
                 {Object.entries(fluidBalance).map(([key, value], index) => (
                   <React.Fragment key={index}>
-                    <span className="cnp-fluid-balance-label">{key}:</span>
+                    <span className="cnp-fluid-balance-label fw-semibold">{key}:</span>
                     <span className="cnp-fluid-balance-value"> {value}</span>
                     {index < Object.entries(fluidBalance).length - 1 && (
                       <span className="cnp-fluid-balance-separator"> | </span>
@@ -192,9 +192,9 @@ const ConsultantNotesPreview = ({ entry }) => {
 
         {/* Examination */}
         {checkExaminationDataPresent && (
-          <ExaminationSection
-            isConsultantNotes={true}
+          <CNExaminationSection
             isEditable={false}
+            examinationData={examination}
             sectionData={IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE[3]}
           />
         )}

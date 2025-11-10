@@ -9,6 +9,7 @@ const initialState = {
   filteredConsultantNotes: [],
   clinicalAssessmentPlan: [],
   vitals: {},
+  physicalExaminationBasicData: {},
   fluidBalance: {},
   examination: {},
   medication: [],
@@ -71,6 +72,9 @@ const consultantNotesSlice = createSlice({
     clearFilteredConsultantNotes: (state) => {
       state.filteredConsultantNotes = [];
     },
+    setPhysicalExaminationBasicData: (state, action) => {
+      state.physicalExaminationBasicData = action.payload;
+    },
     updateConsultantNoteInList: (state, action) => {
       const { _id, updatedData } = action.payload;
       const index = state.consultantNotes.findIndex((note) => note._id === _id);
@@ -106,6 +110,7 @@ const consultantNotesSlice = createSlice({
     resetConsultantNotes: (state) => {
       state.clinicalAssessmentPlan = [];
       state.vitals = {};
+      state.physicalExaminationBasicData = {};
       state.medication = [];
       state.fluidBalance = {};
       state.examination = {};
@@ -204,6 +209,7 @@ export const {
   setCurrentConsultantNote,
   clearConsultantNotes,
   clearFilteredConsultantNotes,
+  setPhysicalExaminationBasicData,
   updateConsultantNoteInList,
   setClinicalAssessmentPlan,
   setVitals,

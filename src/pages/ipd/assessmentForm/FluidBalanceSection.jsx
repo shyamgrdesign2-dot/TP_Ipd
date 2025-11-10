@@ -1,46 +1,71 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import defaultIcons from "../../../assets/images/indices";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setFluidBalance } from "../../../redux/ipd/consultantNotesSlice";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
-const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const UnitInput = createRemoteComponent("UnitInput");
 
-const FluidBalanceSection = ({
-  sectionData = {},
-  isEditable = true,
-  fluidBalanceData = {},
-  setFluidBalanceData = () => {},
-}) => {
-  const renderEditableMetrics = (item) => {
+const FluidBalanceSection = ({ sectionData = {}, isEditable = true }) => {
+  const { fluidBalance = {} } = useSelector((state) => state.consultantNotes);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const input = parseFloat(fluidBalance?.fluidInput) || 0;
+    const output = parseFloat(fluidBalance?.fluidOutput) || 0;
+    const balance = input - output;
+
+    if (fluidBalance?.balance !== balance) {
+      dispatch(setFluidBalance({ ...fluidBalance, balance }));
+    }
+  }, [fluidBalance?.fluidInput, fluidBalance?.fluidOutput]);
+
+  const handleFluidBalanceEdit = (value, key) => {
+    dispatch(setFluidBalance({ ...fluidBalance, [key]: parseFloat(value) }));
+  };
+  const renderEditableMetrics = () => {
     return (
       <div className="ipd-fluid-item-section-container">
-        <div className="">
-          <div className="" key={item.id}>
-            <UnitInput
-              key={item.id}
-              containerStyle={{ marginBottom: "20px" }}
-              //   onChange={(e) => handleChange(e, item.id, item.id)}
-              //   value={fluidBalanceData?.[item.id]}
-            //   value={""}
-              type="text"
-              inputMode="text"
-              label={item.label}
-              unit={item?.unit || null}
-              {...item}
-            />
-          </div>
-        </div>
+        {sectionData?.children
+          ?.filter((config) => config.enabled)
+          ?.map((config) => {
+            const {
+              children: _omitChildren,
+              dangerouslySetInnerHTML: _omitDsi,
+              ...configProps
+            } = config || {};
+            const isBalance = config.id === "balance";
+            return (
+              <div className="input-container" key={config.id}>
+                <UnitInput
+                  key={config.id}
+                  containerStyle={{ marginBottom: "20px" }}
+                  onChange={
+                    isBalance
+                      ? undefined
+                      : (e) => handleFluidBalanceEdit(e, config.id)
+                  }
+                  value={fluidBalance?.[config.id]}
+                  type="number"
+                  inputMode="numeric"
+                  label={config.label}
+                  unit={"ml"}
+                  disabled={isBalance}
+                  {...configProps}
+                  placeholder={config.placeholder}
+                />
+              </div>
+            );
+          })}
       </div>
     );
   };
 
   const renderChildren = () => {
-    const enabledItems = sectionData?.children?.filter((item) => item.enabled);
     return (
       <div className="fluid-balance-section-container">
-        {enabledItems?.map((item) => {
-          return renderEditableMetrics(item);
-        })}
+        {renderEditableMetrics()}
       </div>
     );
   };

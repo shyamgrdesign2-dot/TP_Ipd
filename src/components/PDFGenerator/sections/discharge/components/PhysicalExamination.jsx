@@ -12,6 +12,7 @@ import {
 import SlateToPdf from "../../../components/SlateToPdf";
 import Vitals from "../../../components/Vitals";
 import SectionTitle from "../../SectionTitle";
+import RichTextPrintRenderer from "./richTextPrintRenderer";
 
 const styles = StyleSheet.create({
   // Main container
@@ -51,7 +52,7 @@ const styles = StyleSheet.create({
 
   // Nested bullet list (second level)
   nestedBulletList: {
-    paddingLeft: 30,
+    marginLeft: 30,
   },
 
   // Bullet list item
@@ -121,72 +122,23 @@ export const renderGeneralExamination = (examination, subsection) => {
                   <Text style={[styles.bullet]}>•</Text>
                   <Text style={[styles.bulletContent]}>
                     <Text style={styles.examinationLabel}>{label}:</Text>
-                    <Text style={styles.regularText}> {value.title}</Text>
+                    <Text style={styles.regularText}> {value.title} {hasNotes ? ",  ": ''}</Text>
+                    {hasNotes && (
+                      <>
+                        <View style={[styles.bulletContent]}>
+                          <Text style={[styles.notesLabel]}>Notes: </Text>
+                          {typeof value.notes === "string" ? (
+                            <Text style={[styles.regularText]}>
+                              {value.notes}
+                            </Text>
+                          ) : (
+                            <RichTextPrintRenderer data={value.notes} />
+                          )}
+                        </View>
+                      </>
+                    )}
                   </Text>
                 </View>
-                {hasNotes && (
-                  <View style={styles.nestedBulletList}>
-                    <View style={styles.bulletItem}>
-                      <Text style={[styles.bullet]}>•</Text>
-                      <View style={[styles.bulletContent]}>
-                        <Text style={[styles.notesLabel]}>Notes: </Text>
-                        {typeof value.notes === "string" ? (
-                          <Text style={[styles.regularText]}>
-                            {value.notes}
-                          </Text>
-                        ) : (
-                          <SlateToPdf
-                            nodes={
-                              Array.isArray(value.notes)
-                                ? value.notes
-                                : [value.notes]
-                            }
-                            customStyles={{
-                              text: {
-                                color: "#454551",
-                                lineHeight: 1.8,
-                              },
-                              paragraph: { marginBottom: 2 },
-                              bulletList: { paddingLeft: 15, marginBottom: 2 },
-                              numberedList: {
-                                paddingLeft: 15,
-                                marginBottom: 2,
-                              },
-                              bulletItem: { marginBottom: 2 },
-                              numberedItem: { marginBottom: 2 },
-                              bulletSymbol: {
-                                width: 12,
-                                color: "#454551",
-                                fontWeight: 400,
-                                lineHeight: 1.8,
-                              },
-                              numberedSymbol: {
-                                width: 15,
-                                color: "#454551",
-                                fontWeight: 400,
-                                lineHeight: 1.8,
-                              },
-                              bulletText: {
-                                flex: 1,
-                                color: "#454551",
-                                fontWeight: 400,
-                                lineHeight: 1.8,
-                                textTransform: "capitalize",
-                              },
-                              numberedText: {
-                                flex: 1,
-                                color: "#454551",
-                                fontWeight: 400,
-                                lineHeight: 1.8,
-                                textTransform: "capitalize",
-                              },
-                            }}
-                          />
-                        )}
-                      </View>
-                    </View>
-                  </View>
-                )}
               </View>
             );
           })}

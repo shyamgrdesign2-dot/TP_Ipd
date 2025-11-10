@@ -47,8 +47,8 @@ import FullPageLoader from "../../vaccination/components/Loader";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { isEmptyRichText } from "../../../components/PDFGenerator";
 import MedicationBoxIpd from "../../../components/medicationBoxIpd";
-import ExaminationSection from "../assessmentForm/ExaminationSection";
 import FluidBalanceSection from "../assessmentForm/FluidBalanceSection";
+import CNExaminationSection from "../assessmentForm/CNExaminationSection";
 dayjs.extend(customParseFormat);
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
@@ -76,15 +76,11 @@ const ConsultantNotes = (props) => {
     clinicalAssessmentPlan,
     vitals,
     additionalRemarks,
+    fluidBalance,
+    physicalExaminationBasicData
   } = useSelector((state) => state.consultantNotes);
   const { medicationData } = useSelector((state) => state.prescription);
   const { customization = {} } = useSelector((state) => state.ipd);
-  const physicalExaminationBasicData = useSelector(
-    (state) => state.assessment.physicalExaminationBasicData || {}
-  );
-  const fluidBalance = useSelector(
-    (state) => state.assessment.fluidBalance || {}
-  );
   const { profile } = useSelector((state) => state.doctors);
   const { progressNotes, isFetched: isProgressNotesFetched } = useSelector(
     (state) => state.progressNotes
@@ -301,7 +297,7 @@ const ConsultantNotes = (props) => {
           );
         case "examinations":
           return (
-            <ExaminationSection
+            <CNExaminationSection
               isConsultantNotes={true}
               {...props}
               sectionData={data}
