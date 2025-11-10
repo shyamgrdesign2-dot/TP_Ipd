@@ -3273,6 +3273,135 @@ export const IPD = {
     },
     VITALS_CONFIG,
     {
+      placeholder: "",
+      id: "examinations",
+      title: "General Examination",
+      enabled: true,
+      icon: "aidKit",
+      children: [
+        {
+          title: "Pallor",
+          enabled: true,
+          id: "pallor",
+          description: "",
+          options: [
+            { label: "Present", value: 1, name: "present" },
+            { label: "Absent", value: 2, name: "absent" },
+          ],
+        },
+        {
+          title: "Clubbing",
+          enabled: true,
+          id: "clubbing",
+          description: "",
+          options: [
+            { label: "Present", value: 1, name: "present" },
+            { label: "Absent", value: 2, name: "absent" },
+          ],
+        },
+        {
+          title: "Cyanosis",
+          enabled: true,
+          id: "cynosis",
+          description: "",
+          options: [
+            { label: "Present", value: 1, name: "present" },
+            { label: "Absent", value: 2, name: "absent" },
+          ],
+        },
+        {
+          title: "Lymphadenopathy",
+          enabled: true,
+          id: "lymphadenopathy",
+          description: "",
+          options: [
+            { label: "Present", value: 1, name: "present" },
+            { label: "Absent", value: 2, name: "absent" },
+          ],
+        },
+        {
+          title: "Edema",
+          enabled: true,
+          id: "edema",
+          description: "",
+          options: [
+            { label: "Present", value: 1, name: "present" },
+            { label: "Absent", value: 2, name: "absent" },
+          ],
+        },
+        {
+          title: "Hydration",
+          enabled: true,
+          id: "hydration",
+          description: "",
+          options: [
+            { label: "Normal", value: 1, name: "normal" },
+            { label: "Dehydrated", value: 2, name: "dehydrated" },
+          ],
+        },
+        {
+          title: "CVS",
+          enabled: true,
+          id: "cvs",
+          description: "",
+          options: [
+            { label: "WNL", value: 1, name: "wnl" },
+            { label: "Abnormal", value: 2, name: "abnormal" },
+          ],
+        },
+        {
+          title: "Breast/Chest",
+          enabled: true,
+          id: "breast_chest",
+          description: "",
+          options: [
+            { label: "WNL", value: 1, name: "wnl" },
+            { label: "Abnormal", value: 2, name: "abnormal" },
+          ],
+        },
+        {
+          title: "Abdomen",
+          enabled: true,
+          id: "abdomen",
+          description: "",
+          options: [
+            { label: "WNL", value: 1, name: "wnl" },
+            { label: "Abnormal", value: 2, name: "abnormal" },
+          ],
+        },
+        {
+          title: "Neurological/Psychosocial",
+          enabled: true,
+          id: "neurological_psychosocial",
+          description: "",
+          options: [
+            { label: "WNL", value: 1, name: "wnl" },
+            { label: "Abnormal", value: 2, name: "abnormal" },
+          ],
+        },
+        {
+          title: "Back",
+          enabled: true,
+          id: "back",
+          description: "",
+          options: [
+            { label: "WNL", value: 1, name: "wnl" },
+            { label: "Abnormal", value: 2, name: "abnormal" },
+          ],
+        },
+        {
+          title: "HEENT",
+          enabled: true,
+          id: "heent",
+          description: "",
+          options: [
+            { label: "WNL", value: 1, name: "wnl" },
+            { label: "Abnormal", value: 2, name: "abnormal" },
+          ],
+        },
+      ],
+    },
+    {
       id: "additionalRemarks",
       title: "Additional Remarks",
       icon: "recordPad",

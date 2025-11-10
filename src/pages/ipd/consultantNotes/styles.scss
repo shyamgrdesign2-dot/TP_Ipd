@@ -349,10 +349,10 @@ $muted: #6f6b88;
 
 // Consultant Notes Timeline Styles
 .consultant-notes-timeline {
-    min-height: calc(100vh - 200px);
-    max-height: calc(100vh - 200px);
     box-sizing: border-box;
     position: relative;
+    margin-bottom: 90px;
+    padding-bottom: 90px;
 
     // Override ReusableStepper styles that affect children
     // Prevent ReusableStepper's medical-progress__cards-container styles from affecting children
@@ -627,8 +627,8 @@ $muted: #6f6b88;
 @media (max-width: 768px) {
     .consultant-notes-timeline {
         padding: 16px;
-        min-height: calc(100vh - 150px);
-        max-height: calc(100vh - 150px);
+        margin-bottom: 90px;
+        padding-bottom: 90px;
 
         .consultant-note-card {
             .consultant-note-header {

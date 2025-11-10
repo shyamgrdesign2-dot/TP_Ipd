@@ -200,7 +200,7 @@ const ExaminationSection = (props) => {
       placeholder={"Additional notes if any"}
       containerClass={`examination-rich-container ${
         !isEditable ? "examination-rich-readonly-container" : ""
-      } ${isConsultantNotes ? "consultant-notes-examination-container" : ""}`}
+      } ${isConsultantNotes && !isEditable ? "consultant-notes-examination-container" : ""}`}
       renderBody={renderExaminationSection}
     />
   );

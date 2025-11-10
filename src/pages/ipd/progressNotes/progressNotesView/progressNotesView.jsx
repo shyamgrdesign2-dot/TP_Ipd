@@ -380,6 +380,7 @@ function ProgressNotesView({
         maxWidth: "1400px",
         margin: "0 auto",
       }}
+      className="progress-notes-timeline-container"
     >
       <div className="ms-3" style={{ width: "max-content", maxWidth: "260px" }}>
         {!isProgressNotesSummary && (

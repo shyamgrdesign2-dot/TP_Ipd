@@ -53,14 +53,15 @@
 }
 
 .cross-referral-timeline-container {
-  margin-bottom: 50px;
+  margin-bottom: 90px;
+  padding-bottom: 90px;
   .ipdot-date-range-filter-container {
     width: max-content;
     max-width: 260px;
     margin: 24px 10px 4px;
   }
   .medical-progress__step-content {
-    background: #F9F7FD !important;
+    background: #f9f7fd !important;
     .header-shadow {
       background: linear-gradient(
         180deg,
@@ -315,7 +316,11 @@
 }
 .ipdcrt-painfosection-container {
   position: relative;
-  background: linear-gradient(164.22deg, rgba(243, 232, 253, 0.7) 0.28%, rgba(242, 239, 250, 0.7) 16.3%);
+  background: linear-gradient(
+    164.22deg,
+    rgba(243, 232, 253, 0.7) 0.28%,
+    rgba(242, 239, 250, 0.7) 16.3%
+  );
   overflow: hidden;
   box-shadow: 0px 2px 12px 0px rgba(0, 0, 0, 0.08);
   border: none;
@@ -382,7 +387,8 @@
     }
   }
 }
-.ipdf-all-consultant-notes-container, #consultantNotesData .ipd-otnotes-editable-section-container {
+.ipdf-all-consultant-notes-container,
+#consultantNotesData .ipd-otnotes-editable-section-container {
   display: flex;
   flex-direction: column;
   gap: 18px;
