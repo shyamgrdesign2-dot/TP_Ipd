@@ -183,7 +183,7 @@ const CourseInHospital = ({ data, title, formatSettings }) => {
   }
 
   return (
-    <View style={styles.sectionContainer}>
+    <View style={styles.sectionContainer} break>
       <SectionTitle title={title} />
       <View style={styles.mainContainer}>
         {sortedSubsections.map((subsection) => {

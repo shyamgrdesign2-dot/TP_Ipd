@@ -94,7 +94,7 @@ const OTNotes = ({ data, title, formatSettings }) => {
   if (!surgeries?.length) return null;
 
   return (
-    <View style={styles.sectionContainer}>
+    <View style={styles.sectionContainer} break>
       <SectionTitle title={title} />
       <View style={styles.mainContainer}>
         {surgeries.map((surgery, index) => {

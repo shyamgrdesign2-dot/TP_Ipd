@@ -103,6 +103,7 @@ const renderPatientHistory = (
       frequencyList={frequencyList}
       timingList={timingList}
       fontSize={fontSize}
+      isDischargeSummary={true}
     />
   );
 };

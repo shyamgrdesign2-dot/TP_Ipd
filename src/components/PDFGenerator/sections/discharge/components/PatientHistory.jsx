@@ -18,6 +18,9 @@ import {
 import SectionTitle from "../../SectionTitle";
 
 const styles = StyleSheet.create({
+  pageBreak: {
+    breakBefore: "page",
+  },
   // Main container
   mainContainer: {
     padding: "0 6px",
@@ -714,6 +717,7 @@ const PatientHistory = ({
   frequencyList,
   timingList,
   fontSize,
+  isDischargeSummary = false
 }) => {
   const hasAssessmentData = isAssessment
     ? !!data?.basicInfo
@@ -780,17 +784,14 @@ const PatientHistory = ({
   if (!hasRenderableSubsection) return null;
 
   return (
-    <View style={styles.sectionContainer}>
+    <View style={styles.sectionContainer} break={isDischargeSummary}>
       {title && <SectionTitle title={title} />}
       <View style={styles.mainContainer}>
         {sortedSubsections.map((subsection) => {
           const key = subsection.id;
 
           // Top Informant
-          if (
-            key === "topInformant" &&
-            finalData?.topInformant
-          ) {
+          if (key === "topInformant" && finalData?.topInformant) {
             return renderTopInformant(finalData?.topInformant);
           }
 
