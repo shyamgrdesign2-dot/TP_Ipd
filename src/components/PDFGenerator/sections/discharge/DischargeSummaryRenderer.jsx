@@ -56,15 +56,18 @@ const renderPrimaryConsultant = (data) => {
 };
 
 const renderCrossReferral = (data, formatSettings) => {
-  const text = data.crossReferral
-    ?.map((item) => `${item.name} (${item.speciality})`)
-    .join(", ");
-  if (!text) return;
+  const arrOfStrings = data.crossReferral
+    ?.map((item) => `${item.name} (${item.speciality})`);
+  if (!arrOfStrings?.length) return;
   return (
     <View style={styles.sectionContainer}>
       {/* <SectionTitle title="Cross Reference" /> */}
       <Text style={styles.subsectionTitle}>Cross Reference:</Text>
-      <View style={{ padding: "6px 0px" }}>{renderSimpleText(text)}</View>
+      {
+        arrOfStrings.map(text => {
+          return <View style={{ padding: "0" }}>{renderSimpleText(text)}</View>
+        })
+      }
     </View>
   );
 };
