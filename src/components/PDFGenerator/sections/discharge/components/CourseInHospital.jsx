@@ -9,6 +9,7 @@ import { formatDate } from "../../../utils/pdfUtils";
 import SectionTitle from "../../SectionTitle";
 import { getAllVisibleSections } from "../../../utils/pdfUtils";
 import RichTextPrintRenderer from "./richTextPrintRenderer";
+import { CHRONOLOGY_LAST_PARAGRAPH } from "../../../../../utils/locale";
 
 const styles = StyleSheet.create({
   // Main container
@@ -38,6 +39,14 @@ const styles = StyleSheet.create({
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
+    marginBottom: 4,
+  },
+
+  subsectionText: {
+    color: "#171725",
+    fontWeight: 400,
+    lineHeight: 1.8,
+    // textTransform: "capitalize",
     marginBottom: 4,
   },
 
@@ -142,6 +151,7 @@ const renderTreatmentGiven = (treatments) => {
             </View>
           ))}
         </View>
+        <Text style={[styles.subsectionText]}>{CHRONOLOGY_LAST_PARAGRAPH}</Text>
       </View>
     </View>
   );

@@ -311,3 +311,10 @@
     }
   }
 }
+
+.tooltip-rich-text-editor-readonly {
+  border: none !important;
+  .slate-editable-wrapper {
+    min-height: fit-content !important;
+  }
+}

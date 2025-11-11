@@ -122,7 +122,10 @@ export const renderGeneralExamination = (examination, subsection) => {
                   <Text style={[styles.bullet]}>•</Text>
                   <Text style={[styles.bulletContent]}>
                     <Text style={styles.examinationLabel}>{label}:</Text>
-                    <Text style={styles.regularText}> {value.title} {hasNotes ? ",  ": ''}</Text>
+                    <Text style={styles.regularText}>
+                      {" "}
+                      {value.title} {hasNotes ? ",  " : ""}
+                    </Text>
                     {hasNotes && (
                       <>
                         <View style={[styles.bulletContent]}>
@@ -231,6 +234,7 @@ const PhysicalExamination = ({
   isAssessment = false,
   formatSettings,
   title,
+  isDischargeSummary = false,
 }) => {
   if (!data?.physicalExamination) return null;
 
@@ -276,6 +280,7 @@ const PhysicalExamination = ({
       physicalExamination?.others &&
       !isEmptyRichText(physicalExamination?.others)
   );
+  console.log('INTE ==> hasVitals', hasVitals)
 
   if (!hasVitals && !hasGeneralExamination && !hasOthers) {
     return null;
@@ -288,7 +293,11 @@ const PhysicalExamination = ({
         {sortedSubsections.map((subsection) => {
           const key = subsection.id;
 
-          if (key === "vitals" && physicalExamination?.vitals) {
+          if (
+            key === "vitals" &&
+            !isDischargeSummary &&
+            physicalExamination?.vitals
+          ) {
             return (
               <Vitals
                 vitals={physicalExamination.vitals}

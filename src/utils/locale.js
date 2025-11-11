@@ -3497,3 +3497,7 @@ export const IPD = {
     },
   ],
 };
+
+export const CHRONOLOGY_LAST_PARAGRAPH = `During stay the patient was closely monitored for all vital parameters, intake output and was regularly investigated and managed medically. Patient was treated medically with Antibiotic, Antacid, Analgesic, IV Fluid and other support treatment. Patient's overall stay in Hospital was uneventful.
+Pre-discharge patient's clinical condition and investigation reports found to be in satisfactory limit.
+Today patient is being discharged with following medication and advice.`;

@@ -18,7 +18,7 @@ const timeFormat = "hh:mm A";
 
 const initialState = {
   dateOfDischarge: dayjs(),
-  timeOfDischarge: dayjs("00:00 AM", timeFormat),
+  timeOfDischarge: dayjs(),
   dischargeType: "Normal",
   dischargeRemarks: [{ type: "paragraph", children: [{ text: "" }] }],
 };
@@ -51,7 +51,7 @@ const DischargeConfirmationModal = forwardRef(
     useEffect(() => {
       setFormData({
         dateOfDischarge: dateOfDischarge || dayjs(),
-        timeOfDischarge: timeOfDischarge || dayjs("00:00 AM", timeFormat),
+        timeOfDischarge: timeOfDischarge || dayjs(),
         dischargeType: dischargeType || "Normal",
         dischargeRemarks:
           dischargeRemarks && dischargeRemarks.length > 0

@@ -1,11 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Table,
-  Spin,
-  Popover,
-  message,
-  Tooltip,
-} from "antd";
+import { Table, Spin, Popover, message, Tooltip } from "antd";
 import moment from "moment";
 import { useDispatch } from "react-redux";
 import noData from "../../../../assets/images/nodata-found.svg";
@@ -18,10 +12,13 @@ import {
   sendForDischargeApproval,
 } from "../../../../redux/ipd/ipdSlice";
 import { usePatientsData } from "../hooks/usePatientsData";
-import { getTokenData } from "../../../../utils/utils";
+import { getTokenData, isEmptyRichText } from "../../../../utils/utils";
 import { useNavigate } from "react-router-dom";
 import DischargeConfirmationModal from "../../dischargeSummary/components/DischargeConfirmationModal";
 import DischargeConfirmationPopup from "../../dischargeSummary/components/DischargeConfirmationPopup";
+import { createRemoteComponent } from "../../../../shared/remoteComponents";
+
+const RichTextEditor = createRemoteComponent("RichTextEditor");
 
 const MoreActionsContent = ({ onCtaClick, record, title }) => {
   return (
@@ -275,10 +272,24 @@ const PatientsTable = ({
               return (
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <span>{record.dischargeType || "Normal"}</span>
-                  {record.dischargeRemarks ? (
-                    <Tooltip title={record.dischargeRemarks}>
-                      <i className="icon-info fs-16" style={{ cursor: "pointer", color: "#A2A2A8" }} />
-                    </Tooltip>
+                  {!isEmptyRichText(record.dischargeRemarks) ? (
+                    <Popover
+                      title={"Additional Remarks"}
+                      placement="bottomRight"
+                      content={
+                        <RichTextEditor
+                          readOnly={true}
+                          className={"tooltip-rich-text-editor-readonly"}
+                          showToolbar={false}
+                          initialValue={record.dischargeRemarks}
+                        />
+                      }
+                    >
+                      <i
+                        className="icon-info fs-16"
+                        style={{ cursor: "pointer", color: "#A2A2A8" }}
+                      />
+                    </Popover>
                   ) : null}
                 </div>
               );

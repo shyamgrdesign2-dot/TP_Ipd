@@ -896,21 +896,27 @@ export const trackEvent = (eventName, attributes) => {
   window.Moengage.track_event(eventName, attributes);
 };
 
-export const trackMoEngageEvent = (eventName, eventParams = {}, commonData = {}) => {
+export const trackMoEngageEvent = (
+  eventName,
+  eventParams = {},
+  commonData = {}
+) => {
   try {
     const finalAttributes = {
       ...(commonData || {}),
       ...(eventParams || {}),
     };
-    
-    if (window.Moengage && typeof window.Moengage.track_event === 'function') {
+
+    if (window.Moengage && typeof window.Moengage.track_event === "function") {
       window.Moengage.track_event(eventName, finalAttributes);
       console.log(`MoEngage Event Tracked: ${eventName}`, finalAttributes);
     } else {
-      console.warn('MoEngage is not available or track_event function not found');
+      console.warn(
+        "MoEngage is not available or track_event function not found"
+      );
     }
   } catch (error) {
-    console.error('Error tracking MoEngage event:', error);
+    console.error("Error tracking MoEngage event:", error);
   }
 };
 
@@ -1955,10 +1961,13 @@ export const convertSurgeryDataToDisplayFormat = (surgeryData) => {
       });
     }
 
-    if (team.anaesthesiologist?.length) {
+    if (team.anaesthesiologist?.length || team.anaesthesiologist !== "") {
       displayData.push({
         key: "Anaesthetist",
-        value: team.anaesthesiologist.map((person) => person.name).join(", "),
+        value:
+          typeof team.anaesthesiologist === "string"
+            ? team.anaesthesiologist
+            : team.anaesthesiologist.map((person) => person.name).join(", "),
       });
     }
 
@@ -2292,7 +2301,6 @@ export const transformAdmissionToPatient = (source = {}) => {
     pm_first_name: details.name || "",
   };
 };
-
 
 export const getModuleCode = (module) => {
   if (!module) return "";

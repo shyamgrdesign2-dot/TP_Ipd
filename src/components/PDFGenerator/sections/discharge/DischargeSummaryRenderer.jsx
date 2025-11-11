@@ -116,6 +116,7 @@ const renderPhysicalExamination = (data, formatSettings) => {
     <PhysicalExamination
       data={data}
       formatSettings={formatSettings}
+      isDischargeSummary={true}
       // title="Physical Examination at the Time of Admission"
     />
   );
