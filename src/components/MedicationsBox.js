@@ -2156,13 +2156,15 @@ function MedicationsBox(props) {
                 <img src={calculatorIcon} alt="Dose calcultor" className="svg-hovered me-2" /><span>{isPillUpAccessableFromGB ? 'Dose calc' : 'Dose calculator'}</span>
               </button>
             )}
-            <button
-              className="btn d-flex align-items-center btn-text"
-              onClick={loadPreviousRxClick}
-            >
-              {" "}
-              <i className="icon-reload me-2"></i> <span>{isPillUpAccessableFromGB ? 'Prev. Rx ' : 'Load Prev. Rx'}</span>
-            </button>
+            { !isIpd && 
+              <button
+                className="btn d-flex align-items-center btn-text"
+                onClick={loadPreviousRxClick}
+              > 
+                {" "}
+                <i className="icon-reload me-2"></i> <span>{isPillUpAccessableFromGB ? 'Prev. Rx ' : 'Load Prev. Rx'}</span>
+              </button>
+            }
             <Popover
               open={popOver1}
               onOpenChange={showHideTemplatesListPopover}
