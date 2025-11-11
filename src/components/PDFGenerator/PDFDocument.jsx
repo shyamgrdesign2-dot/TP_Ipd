@@ -22,7 +22,7 @@ import PageNumber from "./components/PageNumber";
  * @param {Array} props.children - Content sections
  * @returns {JSX.Element} PDF Document
  */
-const PDFDocument = ({ settings, patientData, children }) => {
+const PDFDocument = ({ settings, patientData, children, documentType }) => {
   if (!settings) return null;
 
   const { pageFormat = {}, headerFooter = {} } = settings;
@@ -76,6 +76,7 @@ const PDFDocument = ({ settings, patientData, children }) => {
         <PDFHeader
           headerSettings={header}
           letterHeadFormat={letterHeadFormat}
+          patientData={patientData}
         />
 
         {/* Patient Information */}
@@ -83,6 +84,7 @@ const PDFDocument = ({ settings, patientData, children }) => {
           displaySettings={displayPatientInfo}
           patientData={patientData}
           patientInfoFontSize={patientInfoFontSize}
+          documentType={documentType}
         />
 
         {/* Content */}

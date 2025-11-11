@@ -173,6 +173,7 @@ const getFieldValue = (key, patientData) => {
     preparedOn: () => formatDate(patientData.preparedOn),
     address: () => patientData.address || "",
     dischargeSummaryNo: () => patientData.dischargeSummaryNo || "",
+    dischargeType: () => patientData.dischargeType || "",
     dischargeDate: () => formatDate(patientData.dischargedAt),
     bloodGroup: () => patientData.bloodGroup || "",
     heightWeight: () =>

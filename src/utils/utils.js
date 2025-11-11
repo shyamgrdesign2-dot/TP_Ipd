@@ -2191,6 +2191,7 @@ export const getPatientInformation = (patientDetails) => {
     address: patientDetails?.details?.address || "",
     bloodGroup: patientDetails?.details?.bloodGroup || "",
     dischargeSummaryNo: patientDetails?.dischargeNo || "",
+    dischargeType: patientDetails?.dischargeType || "",
     dischargedAt: patientDetails?.dischargedAt || "",
     doctorName: patientDetails?.doctor?.name || "",
     mrnNo: patientDetails?.mrno || "",

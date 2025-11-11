@@ -110,7 +110,7 @@ const PDFGenerator = ({
   }
 
   return (
-    <PDFDocument settings={settings} patientData={patientData}>
+    <PDFDocument settings={settings} patientData={patientData} documentType={documentType}>
       {contentSections}
     </PDFDocument>
   );

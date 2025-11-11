@@ -280,7 +280,6 @@ const PhysicalExamination = ({
       physicalExamination?.others &&
       !isEmptyRichText(physicalExamination?.others)
   );
-  console.log('INTE ==> hasVitals', hasVitals)
 
   if (!hasVitals && !hasGeneralExamination && !hasOthers) {
     return null;

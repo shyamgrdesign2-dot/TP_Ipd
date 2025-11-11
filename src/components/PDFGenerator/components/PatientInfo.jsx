@@ -34,6 +34,15 @@ const styles = StyleSheet.create({
     lineHeight: 1.8,
     color: "#171725",
   },
+  title: {
+    fontSize: 20,
+    fontWeight: 900,
+    color: "#454551",
+    textAlign: "center",
+    letterSpacing: 0.2,
+    lineHeight: 1.75,
+    textTransform: "uppercase",
+  },
 
   addressText: {
     lineHeight: 2,
@@ -63,7 +72,12 @@ const styles = StyleSheet.create({
  * @param {Object} props.patientData - Patient data
  * @returns {JSX.Element} Patient Info
  */
-const PatientInfo = ({ displaySettings, patientData, patientInfoFontSize }) => {
+const PatientInfo = ({
+  displaySettings,
+  patientData,
+  patientInfoFontSize,
+  documentType,
+}) => {
   // if (!displaySettings || !patientData) return null;
 
   const visibleFields = getVisiblePatientFields(displaySettings, patientData);
@@ -84,7 +98,9 @@ const PatientInfo = ({ displaySettings, patientData, patientInfoFontSize }) => {
           return (
             i % 2 === 0 && (
               <Text key={`left-${i}`} style={[styles.fieldText]}>
-                {item.label && item.value && <Text style={styles.label}>{item.label}:</Text>}
+                {item.label && item.value && (
+                  <Text style={styles.label}>{item.label}:</Text>
+                )}
                 {item.value && <Text style={styles.value}> {item.value}</Text>}
               </Text>
             )
@@ -123,8 +139,32 @@ const PatientInfo = ({ displaySettings, patientData, patientInfoFontSize }) => {
     </View>
   );
 
+  const dischargeStaticHeader =
+    !patientData?.dischargeType || patientData?.dischargeType === "Normal"
+      ? "Normal Discharge Summary"
+      : patientData?.dischargeType === "LAMA"
+      ? "Leaving Against Medical Advice (LAMA) Summary"
+      : patientData?.dischargeType === "Death"
+      ? "Death Summary"
+      : "";
+
   return (
     <>
+      {/* Fixed title on all pages */}
+      {documentType === "dischargeSummary" && !!dischargeStaticHeader ? (
+        <View
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginBottom: 10,
+          }}
+          fixed
+        >
+          <Text style={styles.title}>{dischargeStaticHeader}</Text>
+        </View>
+      ) : null}
+
       <View style={styles.outerContainer} fixed={showInfoOnAllPages}>
         <View style={styles.topBorder} />
         {(showInfoOnAllPages || showInfoOnFirstPageOnly) &&

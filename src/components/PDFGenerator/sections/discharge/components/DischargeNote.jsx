@@ -126,7 +126,7 @@ const DischargeNote = ({ data, title, formatSettings, frequencyList, timingList,
     return null;
 
   return (
-    <View style={styles.sectionContainer}>
+    <View style={styles.sectionContainer} break>
       <SectionTitle title={title} />
       <View style={styles.mainContainer}>
         {sortedSubsections.map((subSection) => {
