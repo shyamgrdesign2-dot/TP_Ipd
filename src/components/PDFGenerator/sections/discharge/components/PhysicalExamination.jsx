@@ -287,7 +287,7 @@ const PhysicalExamination = ({
 
   return (
     <View style={styles.sectionContainer}>
-      {title && <SectionTitle title={title} />}
+      {title ? <SectionTitle title={title} />: null}
       <View style={styles.mainContainer}>
         {sortedSubsections.map((subsection) => {
           const key = subsection.id;

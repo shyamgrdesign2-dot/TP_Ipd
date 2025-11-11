@@ -121,15 +121,126 @@ const DiagnosisAndSurgery = ({
       <SectionTitle title={title} />
       <View style={styles.mainContainer}>
         {/* Final Diagnosis */}
-        {sortedSubsections.map((subsection) => {
+{sortedSubsections.map((subsection) => {
           const key = subsection.id;
+          
+          // Final Diagnosis
           if (
             key === "finalDiagnosis" &&
             diagnosisAndSurgery.finalDiagnosis &&
             diagnosisAndSurgery.finalDiagnosis.length > 0
           ) {
+            // Table view (view === 1)
+            if (subsection.view === 1) {
+              return (
+                <View wrap={false} key="final-diagnosis-section" style={styles.subsectionContainer}>
+                  <Text style={styles.subsectionTitle}>Final Diagnosis:</Text>
+                  <View
+                    style={{
+                      border: "1px solid #E0E0E0",
+                      marginTop: 6,
+                    }}
+                  >
+                    {/* Table Header */}
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        borderBottom: "1px solid #E0E0E0",
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: "70%",
+                          padding: "8px 12px",
+                          borderRight: "1px solid #E0E0E0",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            // fontSize: 10,
+                            fontWeight: 700,
+                            color: "#000000",
+                          }}
+                        >
+                          DIAGNOSIS
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: "30%",
+                          padding: "8px 12px",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            // fontSize: 10,
+                            fontWeight: 700,
+                            color: "#000000",
+                          }}
+                        >
+                          ICD Code
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Table Rows */}
+                    {diagnosisAndSurgery.finalDiagnosis.map((dx, index) => (
+                      <View
+                        key={`final-dx-${index}`}
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          borderBottom:
+                            // index < diagnosisAndSurgery.finalDiagnosis.length - 1
+                            //   ? "1px solid #E0E0E0"
+                              // :
+                               "none",
+                        }}
+                      >
+                        <View
+                          style={{
+                            width: "70%",
+                            padding: "4px 12px",
+                            borderRight: "1px solid #E0E0E0",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              // fontSize: 10,
+                              fontWeight: 400,
+                              color: "#171725",
+                            }}
+                          >
+                            {dx.tds_name}
+                          </Text>
+                        </View>
+                        <View
+                          style={{
+                            width: "30%",
+                            padding: "4px 12px",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              // fontSize: 10,
+                              fontWeight: 400,
+                              color: "#171725",
+                            }}
+                          >
+                            {dx.icd_code || "--"}
+                          </Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              );
+            }
+            
+            // Bullet list view (view === 2 or default)
             return (
-              <View style={styles.subsectionContainer}>
+              <View wrap={false} key="final-diagnosis-section" style={styles.subsectionContainer}>
                 <View style={styles.contentContainer}>
                   <Text style={styles.subsectionTitle}>
                     Final Diagnosis:
@@ -150,13 +261,127 @@ const DiagnosisAndSurgery = ({
               </View>
             );
           }
+          
+          // Provisional Diagnosis
           if (
             key === "provisionalDiagnosis" &&
             diagnosisAndSurgery.provisionalDiagnosis &&
             diagnosisAndSurgery.provisionalDiagnosis.length > 0
           ) {
+            // Table view (view === 1)
+            if (subsection.view === 2) {
+              return (
+                <View key="provisional-diagnosis-section" style={styles.subsectionContainer}>
+                  {!isAssessment ? (
+                    <Text style={styles.subsectionTitle}>
+                      Provisional Diagnosis:
+                    </Text>
+                  ) : null}
+                  <View
+                    style={{
+                      border: "1px solid #E0E0E0",
+                      marginTop: 6,
+                    }}
+                  >
+                    {/* Table Header */}
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        borderBottom: "1px solid #E0E0E0",
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: "70%",
+                          padding: "8px 12px",
+                          borderRight: "1px solid #E0E0E0",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            // fontSize: 10,
+                            fontWeight: 700,
+                            color: "#000000",
+                          }}
+                        >
+                          DIAGNOSIS
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: "30%",
+                          padding: "8px 12px",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            // fontSize: 10,
+                            fontWeight: 700,
+                            color: "#000000",
+                          }}
+                        >
+                          ICD Code
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Table Rows */}
+                    {diagnosisAndSurgery.provisionalDiagnosis.map((dx, index) => (
+                      <View
+                        key={`prov-dx-${index}`}
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          borderBottom:
+                            index < diagnosisAndSurgery.provisionalDiagnosis.length - 1
+                              ? "1px solid #E0E0E0"
+                              : "none",
+                        }}
+                      >
+                        <View
+                          style={{
+                            width: "70%",
+                            padding: "8px 12px",
+                            borderRight: "1px solid #E0E0E0",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              // fontSize: 10,
+                              fontWeight: 400,
+                              color: "#171725",
+                            }}
+                          >
+                            {dx.tds_name}
+                          </Text>
+                        </View>
+                        <View
+                          style={{
+                            width: "30%",
+                            padding: "8px 12px",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              // fontSize: 10,
+                              fontWeight: 400,
+                              color: "#171725",
+                            }}
+                          >
+                            {dx.icd_code || "--"}
+                          </Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              );
+            }
+            
+            // Bullet list view (view === 2 or default)
             return (
-              <View style={styles.subsectionContainer}>
+              <View key="provisional-diagnosis-section" style={styles.subsectionContainer}>
                 <View style={styles.contentContainer}>
                   {!isAssessment ? (
                     <Text style={styles.subsectionTitle}>
@@ -184,13 +409,15 @@ const DiagnosisAndSurgery = ({
               </View>
             );
           }
+          
+          // Surgeries Performed (unchanged)
           if (
             key === "surgeriesPerformed" &&
             diagnosisAndSurgery.surgeriesPerformed &&
             diagnosisAndSurgery.surgeriesPerformed.length > 0
           ) {
             return (
-              <View style={styles.subsectionContainer}>
+              <View key="surgeries-section" style={styles.subsectionContainer}>
                 <View style={styles.contentContainer}>
                   <Text style={styles.subsectionTitle}>
                     Surgeries Performed:

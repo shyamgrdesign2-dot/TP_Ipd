@@ -19,10 +19,11 @@ import PageNumber from "./components/PageNumber";
  * @param {Object} props - Component props
  * @param {Object} props.settings - PDF settings
  * @param {Object} props.patientData - Patient information
+ * @param {Object} props.fullData - Full discharge summary data
  * @param {Array} props.children - Content sections
  * @returns {JSX.Element} PDF Document
  */
-const PDFDocument = ({ settings, patientData, children, documentType }) => {
+const PDFDocument = ({ settings, patientData, children, documentType, fullData }) => {
   if (!settings) return null;
 
   const { pageFormat = {}, headerFooter = {} } = settings;
@@ -85,6 +86,7 @@ const PDFDocument = ({ settings, patientData, children, documentType }) => {
           patientData={patientData}
           patientInfoFontSize={patientInfoFontSize}
           documentType={documentType}
+          fullData={fullData}
         />
 
         {/* Content */}

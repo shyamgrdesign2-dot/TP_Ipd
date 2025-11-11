@@ -22,6 +22,13 @@ const styles = StyleSheet.create({
   sectionContainer: {
     marginBottom: 12,
   },
+  flexContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+  },
 
   subsectionContainer: {
     marginBottom: 10,
@@ -33,6 +40,12 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     marginTop: 8,
   },
+  subsectionText: {
+    color: "#171725",
+    fontWeight: 400,
+    lineHeight: 1.8,
+    marginBottom: 4,
+  },
 });
 
 /**
@@ -42,32 +55,103 @@ const renderPrimaryConsultant = (data) => {
   if (!data?.patientInformation?.primaryConsultant) return null;
 
   const { primaryConsultant } = data.patientInformation;
-  const consultantText = `${primaryConsultant.name} (${primaryConsultant.speciality})`;
 
   return (
     <View style={styles.sectionContainer}>
-      {/* <SectionTitle title="Admitting Consultant" /> */}
-      <Text style={styles.subsectionTitle}>Admitting Consultant:</Text>
-      <View style={{ padding: "6px 0px 0 0" }}>
-        {renderSimpleText(consultantText)}
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          border: "1px solid #E0E0E0",
+        }}
+      >
+        <View
+          style={{
+            width: "30%",
+            padding: "8px 12px",
+            borderRight: "1px solid #E0E0E0",
+          }}
+        >
+          <Text
+            style={{
+              fontWeight: 700,
+              color: "#000000",
+            }}
+          >
+            {primaryConsultant.name}
+          </Text>
+        </View>
+
+        <View
+          style={{
+            width: "70%",
+            padding: "8px 12px",
+          }}
+        >
+          <Text
+            style={{
+              fontWeight: 400,
+              color: "#171725",
+            }}
+          >
+            {primaryConsultant.speciality}
+          </Text>
+        </View>
       </View>
     </View>
   );
 };
 
 const renderCrossReferral = (data, formatSettings) => {
-  const arrOfStrings = data.crossReferral
-    ?.map((item) => `${item.name} (${item.speciality})`);
-  if (!arrOfStrings?.length) return;
+  const crossReferrals = data.crossReferral;
+  if (!crossReferrals?.length) return null;
+
   return (
     <View style={styles.sectionContainer}>
-      {/* <SectionTitle title="Cross Reference" /> */}
-      <Text style={styles.subsectionTitle}>Cross Reference:</Text>
-      {
-        arrOfStrings.map(text => {
-          return <View style={{ padding: "0" }}>{renderSimpleText(text)}</View>
-        })
-      }
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          border: "1px solid #E0E0E0",
+        }}
+      >
+        <View
+          style={{
+            width: "30%",
+            padding: "8px 12px",
+            borderRight: "1px solid #E0E0E0",
+          }}
+        >
+          <Text
+            style={{
+              fontWeight: 700,
+              color: "#000000",
+            }}
+          >
+            CROSS REFERENCE
+          </Text>
+        </View>
+
+        <View
+          style={{
+            width: "70%",
+            padding: "8px 12px",
+          }}
+        >
+          {crossReferrals.map((item, index) => (
+            <Text
+              key={index}
+              style={{
+                fontWeight: 400,
+                color: "#171725",
+                marginBottom: index < crossReferrals.length - 1 ? 4 : 0,
+              }}
+            >
+              {item.name} ({item.speciality})
+            </Text>
+          ))}
+        </View>
+      </View>
     </View>
   );
 };
@@ -210,19 +294,16 @@ const renderPreparedBy = (data) => {
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.subsectionTitle}>Discharge Summary Approved by:</Text>
-
-      <View style={{ padding: "6px 6px 0 6px" }}>
-        <Text
-          style={{
-            lineHeight: 1.8,
-            textTransform: "capitalize",
-          }}
-        >
-          <Text style={{ fontWeight: 400, color: "#454551" }}>
-            {consultantText}
-          </Text>
+      <Text
+        style={{
+          lineHeight: 1.8,
+          textTransform: "capitalize",
+        }}
+      >
+        <Text style={{ fontWeight: 400, color: "#454551" }}>
+          {consultantText}
         </Text>
-      </View>
+      </Text>
     </View>
   );
 };
@@ -230,15 +311,30 @@ const renderPreparedBy = (data) => {
 const renderSignOfRelatives = (data) => {
   return (
     <View wrap={false} style={styles.sectionContainer}>
-      <Text style={styles.subsectionTitle}>Sign Of Relatives:</Text>
-      <View
-        style={{
-          borderBottom: "1px solid #454551",
-          width: 120,
-          marginTop: "24px",
-          marginBottom: "6px",
-        }}
-      />
+      <Text style={styles.subsectionText}>
+        Discharge advice, treatment and care has been explained to patient /
+        relatives in the language one understands.
+      </Text>
+      <View wrap={false} style={styles.flexContainer}>
+        <Text style={styles.subsectionTitle}>Name:</Text>
+        <View
+          style={{
+            borderBottom: "1px solid #454551",
+            width: 120,
+            marginTop: "24px",
+            marginBottom: "6px",
+          }}
+        />
+        <Text style={styles.subsectionTitle}>Signature:</Text>
+        <View
+          style={{
+            borderBottom: "1px solid #454551",
+            width: 120,
+            marginTop: "24px",
+            marginBottom: "6px",
+          }}
+        />
+      </View>
     </View>
   );
 };

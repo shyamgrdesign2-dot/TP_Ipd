@@ -70,6 +70,7 @@ const styles = StyleSheet.create({
  * @param {Object} props - Component props
  * @param {Object} props.displaySettings - Display patient info settings
  * @param {Object} props.patientData - Patient data
+ * @param {Object} props.fullData - Full discharge summary data
  * @returns {JSX.Element} Patient Info
  */
 const PatientInfo = ({
@@ -77,10 +78,34 @@ const PatientInfo = ({
   patientData,
   patientInfoFontSize,
   documentType,
+  fullData,
 }) => {
   // if (!displaySettings || !patientData) return null;
 
-  const visibleFields = getVisiblePatientFields(displaySettings, patientData);
+  let visibleFields = getVisiblePatientFields(displaySettings, patientData);
+
+  // Append surgery dates from otNotes if available
+  if (
+    fullData?.otNotes?.surgeries &&
+    Array.isArray(fullData.otNotes.surgeries)
+  ) {
+    const surgeryDateFields = fullData.otNotes.surgeries
+      .map((surgery, index) => {
+        if (surgery.dateOfSurgery) {
+          return {
+            key: `dateOfSurgery${index + 1}`,
+            label: `Date of Surgery ${index + 1}`,
+            value: surgery.dateOfSurgery,
+          };
+        }
+        return null;
+      })
+      .filter(Boolean); // Remove null entries
+
+    // Append surgery dates to visible fields
+    visibleFields = [...visibleFields, ...surgeryDateFields];
+  }
+
 
   if (visibleFields.length === 0) return null;
 
@@ -94,30 +119,46 @@ const PatientInfo = ({
   const renderFieldColumns = () => (
     <View style={[styles.container, { fontSize: patientInfoFontSize }]}>
       <View style={{ flex: 0.7 }}>
-        {visibleFields.map((item, i) => {
-          return (
-            i % 2 === 0 && (
-              <Text key={`left-${i}`} style={[styles.fieldText]}>
-                {item.label && item.value && (
-                  <Text style={styles.label}>{item.label}:</Text>
-                )}
-                {item.value && <Text style={styles.value}> {item.value}</Text>}
-              </Text>
-            )
-          );
-        })}
+        {visibleFields
+          ?.filter(
+            (item) =>
+              item.value !== undefined &&
+              item.value !== null &&
+              item.value !== ""
+          )
+          .map((item, i) => {
+            return (
+              i % 2 === 0 && (
+                <Text key={`left-${i}`} style={[styles.fieldText]}>
+                  {item.label && !!item.value && (
+                    <Text style={styles.label}>{item.label}:</Text>
+                  )}
+                  {item.value && (
+                    <Text style={styles.value}> {item.value}</Text>
+                  )}
+                </Text>
+              )
+            );
+          })}
       </View>
       <View style={{ flex: 0.4 }}>
-        {visibleFields.map((item, i) => {
-          return (
-            i % 2 === 1 && (
-              <Text key={`right-${i}`} style={[styles.fieldText]}>
-                <Text style={styles.label}>{item.label}:</Text>
-                <Text style={styles.value}> {item.value}</Text>
-              </Text>
-            )
-          );
-        })}
+        {visibleFields
+          ?.filter(
+            (item) =>
+              item.value !== undefined &&
+              item.value !== null &&
+              item.value !== ""
+          )
+          .map((item, i) => {
+            return (
+              i % 2 === 1 && (
+                <Text key={`right-${i}`} style={[styles.fieldText]}>
+                  <Text style={styles.label}>{item.label}:</Text>
+                  <Text style={styles.value}> {item.value}</Text>
+                </Text>
+              )
+            );
+          })}
       </View>
     </View>
   );

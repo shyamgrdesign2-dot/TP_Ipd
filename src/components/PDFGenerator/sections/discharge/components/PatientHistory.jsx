@@ -784,8 +784,10 @@ const PatientHistory = ({
   if (!hasRenderableSubsection) return null;
 
   return (
-    <View style={styles.sectionContainer} break={isDischargeSummary}>
-      {title && <SectionTitle title={title} />}
+    <View style={styles.sectionContainer} 
+    break
+    >
+      {title ? <SectionTitle title={title} />: null}
       <View style={styles.mainContainer}>
         {sortedSubsections.map((subsection) => {
           const key = subsection.id;
