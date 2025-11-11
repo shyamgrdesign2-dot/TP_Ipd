@@ -442,6 +442,7 @@ export default function PatientAdmission() {
   const ageMonths = ageFromDOB?.months ?? patientDetails?.ageMonths;
   const name = patientDetails?.name || patientDetails?.patientName || "-";
   const gender = patientDetails?.gender || "-";
+  const prefix = patientDetails?.prefix || "-";
   const metaAge =
     `${patientDetails?.age}y` ||
     (ageYears !== "-" && typeof ageMonths === "number"
@@ -521,6 +522,7 @@ export default function PatientAdmission() {
           id: String(patientDetails?.id ?? patientDetails?.patientId ?? ""),
           name: name === "-" ? "" : name,
           gender: toUpperSafe(gender, ""),
+          prefix: prefix || "",
           age: typeof ageYears === "number" ? ageYears : "",
           contact:
             patientDetails?.contact || patientDetails?.contactNumber || "",

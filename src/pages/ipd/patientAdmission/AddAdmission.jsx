@@ -13,9 +13,7 @@ import { PhoneOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-import {
-  clearPatientsSearch,
-} from "../../../redux/ipd/ipdSlice";
+import { clearPatientsSearch } from "../../../redux/ipd/ipdSlice";
 import "./styles.scss";
 import { searchPatients } from "../../../redux/appointmentsSlice";
 import { defaultIcons } from "../../../assets/images/icons";
@@ -84,6 +82,7 @@ export default function AddAdmission() {
       contact: patient?.mobilenumber || patient?.phone,
       mrno: patient?.mrno || patient?.mrNo,
       dob: patient?.dob,
+      prefix: patient?.prefix,
       age: ageObj?.years,
       ageMonths: ageObj?.months,
       bloodGroup: patient?.bloodGroup,
@@ -95,6 +94,7 @@ export default function AddAdmission() {
 
   const renderSubtitle = (p) => {
     const phone = p?.mobilenumber || p?.phone || p?.contact || "";
+    const gender = p?.gender;
     const ageObj = typeof p?.age === "number" ? false : calcAgeFromDOB(p?.dob);
     const ageTxt = ageObj ? `${ageObj.years}y,${ageObj.months}m` : `${p?.age}y`;
     return (
@@ -102,6 +102,8 @@ export default function AddAdmission() {
         {phone && <span className="aadm-sub-phone">{phone}</span>}
         {phone && ageTxt && <span className="aadm-dot">•</span>}
         {ageTxt && <span className="aadm-sub-age">{ageTxt}</span>}
+        {gender && ageTxt && <span className="aadm-dot">•</span>}
+        {gender && <span className="aadm-sub-age">{gender}</span>}
       </Space>
     );
   };
@@ -167,7 +169,7 @@ export default function AddAdmission() {
                         onSelectPatient(item);
                       }}
                     >
-                      {item?.patientname || "-"}
+                      {item?.prefix || ""} {item?.patientname || "-"}
                     </Link>
                     <div className="aadm-sub">{renderSubtitle(item)}</div>
                   </div>
