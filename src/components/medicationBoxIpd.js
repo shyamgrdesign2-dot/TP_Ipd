@@ -875,7 +875,7 @@ function MedicationsBox(props) {
   
         const dosage = item.tmm_dosage || "";
         const unitName = parsedObj.tmu_title || "";
-        const dosageUnitName = dosage && unitName ? `${dosage} ${unitName}` : "";
+        const dosageUnitName = dosage && unitName ? `${dosage} ${unitName}` : `1 ${unitName}`;
   
         return {
           ...item,
@@ -1683,9 +1683,9 @@ function MedicationsBox(props) {
       if (name) {
         unitPerDoseDisplay = name;
       } else if (value) {
-        unitPerDoseDisplay = unit ? `${value} ${unit}` : value;
+        unitPerDoseDisplay = unit ? `${value ? value : 1} ${unit}` : value;
       } else if (unit) {
-        unitPerDoseDisplay = unit;
+        unitPerDoseDisplay = unit ? `${value ? value : 1} ${unit}` : value;
       }
 
       return {

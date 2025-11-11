@@ -334,11 +334,8 @@ const MedicationTable = ({
                               (x) => x.tmu_id == item.tmm_unit
                             )?.tmu_title || ""
                           }`
-                        : `${
-                            item?.medicineUnit?.find(
-                              (x) => x.tmu_id == item.default_tmm_unit
-                            )?.tmu_title || ""
-                          }`
+                        : item.tmm_dosage_unit_name ?  item.tmm_dosage_unit_name 
+                        : `${1} ${item.tmm_unit_name}`
                     }`}</Text>
 
                     <Text
@@ -435,13 +432,13 @@ const MedicationTable = ({
                         (x) => x.value == item.tmm_duration_type
                       )
                         ? durationLang(capitalize(item.tmm_duration_type, true))
-                        : isNumeric(item.tmm_days)
+                        : isNumeric(item.tmm_days) && item.tmm_days != 0
                         ? `${item.tmm_days} ${durationLang(
                             item.tmm_duration_type
                           )}`
-                        : "-"}
+                        : "--"}
                     </Text>
-{/* 
+                    {/* 
                     <Text
                       style={[
                         styles.cell,
