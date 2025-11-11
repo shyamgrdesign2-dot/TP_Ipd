@@ -8,6 +8,7 @@ import { setSurgeryTeam } from "../../../redux/ipd/otNotesSlice";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
+const UnitInput = createRemoteComponent("UnitInput");
 
 const SurgeryTeam = (props) => {
   const { isEditable = true, sectionData } = props || {};
@@ -17,15 +18,6 @@ const SurgeryTeam = (props) => {
   const initialValue = useMemo(() => surgeryTeam || {}, [surgeryTeam]);
   const dispatch = useDispatch();
 
-  const teamRoles = [
-    { id: "primarySurgeon", name: "Primary Surgeon" },
-    { id: "secondarySurgeon", name: "Secondary Surgeon" },
-    { id: "assistant", name: "Assistant" },
-    { id: "anaesthesiologist", name: "Anaesthesiologist" },
-    { id: "scrubNurse", name: "Scrub Nurse" },
-    { id: "floorCirculatingNurse", name: "Floor/ Circulating Nurse" },
-  ];
-
   useEffect(() => {
     dispatch(fetchFilters({ field: "doctor" }));
   }, []);
@@ -33,17 +25,21 @@ const SurgeryTeam = (props) => {
   const renderChildren = (data) => {
     return (
       <div className="ipdot-st-section-container">
-        {data.children?.filter(item => item.enabled)?.map((role) => {
-          return renderSection(role);
-        })}
+        {data.children
+          ?.filter((item) => item.enabled)
+          ?.map((role) => {
+            return renderSection(role);
+          })}
       </div>
     );
   };
 
   const renderSection = (role) => {
-    const removeDoctors = (role.id === "floorCirculatingNurse" || role.id === 'scrubNurse');
+    const removeDoctors =
+      role.id === "floorCirculatingNurse" || role.id === "scrubNurse";
+    const isAnaesthesiologist = role.id === "anaesthesiologist";
     const options = (doctorsList || [])
-      .filter(item =>
+      .filter((item) =>
         removeDoctors
           ? item.role && !/Doctor|Dr\./i.test(item.role)
           : item.role && !!/Doctor|Dr\./i.test(item.role)
@@ -69,6 +65,29 @@ const SurgeryTeam = (props) => {
         uniqueOptions.push(opt);
       }
     }
+    if (isAnaesthesiologist) {
+      return (
+        <div className="ipdot-st-section" key={role.id}>
+          <UnitInput
+            key={role.id}
+            containerStyle={{ marginBottom: "20px" }}
+            onChange={(e) =>
+              dispatch(setSurgeryTeam({ roleId: role.id, value: e }))
+            }
+            value={
+              Array.isArray(initialValue?.[role.id])
+                ? ""
+                : initialValue?.[role.id]
+            }
+            type="text"
+            title={role.title}
+            unit={null}
+            // disabled={isAnaesthesiologist}
+            placeholder={`Select ${role.name || role.title}`}
+          />
+        </div>
+      );
+    }
     return (
       <div className="ipdot-st-section">
         <label className="otNotes-label">{role.name || role.title}</label>
@@ -78,8 +97,8 @@ const SurgeryTeam = (props) => {
           mode="multiple"
           options={uniqueOptions}
           value={
-            Array.isArray(initialValue?.[role.id]) 
-              ? initialValue[role.id].map(item => item.name || item)
+            Array.isArray(initialValue?.[role.id])
+              ? initialValue[role.id].map((item) => item.name || item)
               : undefined
           }
           className="multiple-select-custom autocomplete-custom w-100 popinput inputheight41"
@@ -93,9 +112,9 @@ const SurgeryTeam = (props) => {
               dispatch(setSurgeryTeam({ roleId: role.id, value: [] }));
               return;
             }
-            
+
             const parsedValues = [];
-            
+
             if (Array.isArray(options)) {
               // Handle multiple selections
               options.forEach((option, index) => {
@@ -123,7 +142,7 @@ const SurgeryTeam = (props) => {
                 parsedValues.push({ name: values });
               }
             }
-            
+
             dispatch(setSurgeryTeam({ roleId: role.id, value: parsedValues }));
           }}
         />

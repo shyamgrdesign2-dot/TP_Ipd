@@ -34,8 +34,11 @@ const SurgeryTeam = ({ surgeryTeam, id }) => {
   };
 
   if (
-    Object.keys(surgeryTeam).filter((key) => surgeryTeam[key]?.length > 0)
-      .length === 0
+    Object.keys(surgeryTeam).filter(
+      (key) =>
+        surgeryTeam[key]?.length > 0 ||
+        (typeof surgeryTeam[key] === "string" && !!surgeryTeam[key])
+    ).length === 0
   )
     return null;
 
@@ -58,7 +61,7 @@ const SurgeryTeam = ({ surgeryTeam, id }) => {
           true
         )}
         {renderTeamMember("Assistant", surgeryTeam.assistant, true)}
-        {renderTeamMember("Anaesthetist", surgeryTeam.anaesthetist, true)}
+        {renderTeamMember("Anaesthesiologist", surgeryTeam.anaesthesiologist, true)}
         {renderTeamMember("Scrub Nurse", surgeryTeam.scrubNurse, true)}
         {renderTeamMember(
           "Floor/ Circulating Nurse",

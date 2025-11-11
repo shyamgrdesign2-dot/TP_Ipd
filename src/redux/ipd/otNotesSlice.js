@@ -19,7 +19,7 @@ export const initialState = {
     primarySurgeon: [],
     secondarySurgeon: [],
     assistant: [],
-    anaesthesiologist: [],
+    anaesthesiologist: "",
     scrubNurse: [],
     floorCirculatingNurse: [],
   },
@@ -122,7 +122,7 @@ const otNotesSlice = createSlice({
       state.surgeryDetails.diagnosis = action.payload || null;
     },
     setSurgeryTeam: (state, action) => {
-      state.surgeryTeam[action.payload.roleId] = action.payload.value || [];
+      state.surgeryTeam[action.payload.roleId] = action.payload.value || (action.payload.roleId === "anaesthesiologist" ? "" : []);
     },
     setOperativeNotes: (state, action) => {
       state.operativeNotes[action.payload.key] = {
@@ -197,7 +197,7 @@ const otNotesSlice = createSlice({
           primarySurgeon: selectedOtNote.surgeryTeam.primarySurgeon || [],
           secondarySurgeon: selectedOtNote.surgeryTeam.secondarySurgeon || [],
           assistant: selectedOtNote.surgeryTeam.assistant || [],
-          anaesthesiologist: selectedOtNote.surgeryTeam.anaesthesiologist || [],
+          anaesthesiologist: selectedOtNote.surgeryTeam.anaesthesiologist || "",
           scrubNurse: selectedOtNote.surgeryTeam.scrubNurse || [],
           floorCirculatingNurse:
             selectedOtNote.surgeryTeam.floorCirculatingNurse || [],
@@ -269,7 +269,7 @@ const otNotesSlice = createSlice({
         primarySurgeon: [],
         secondarySurgeon: [],
         assistant: [],
-        anaesthesiologist: [],
+        anaesthesiologist: "",
         scrubNurse: [],
         floorCirculatingNurse: [],
       };

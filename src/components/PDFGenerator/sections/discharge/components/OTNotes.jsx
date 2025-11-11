@@ -218,7 +218,10 @@ const OTNotes = ({ data, title, formatSettings }) => {
                   if (
                     key === "anaesthetist" &&
                     surgery.anaesthetist &&
-                    surgery.anaesthetist.length > 0
+                    ((Array.isArray(surgery.anaesthetist) &&
+                      surgery.anaesthetist.length > 0) ||
+                      (typeof surgery.anaesthetist === "string" &&
+                        !!surgery.anaesthetist))
                   ) {
                     return (
                       <View style={styles.bulletItem}>
@@ -226,9 +229,11 @@ const OTNotes = ({ data, title, formatSettings }) => {
                         <Text style={[styles.bulletContent]}>
                           <Text style={styles.fieldLabel}>{label}: </Text>
                           <Text style={styles.regularText}>
-                            {surgery.anaesthetist
-                              .map((s) => s?.name || s)
-                              .join(", ")}
+                            {Array.isArray(surgery.anaesthetist)
+                              ? surgery.anaesthetist
+                                  .map((s) => s?.name || s)
+                                  .join(", ")
+                              : surgery.anaesthetist}
                           </Text>
                         </Text>
                       </View>
