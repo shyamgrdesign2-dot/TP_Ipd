@@ -230,7 +230,7 @@ const MedicationTable = ({
                 DURATION
               </Text>
 
-              <Text
+              {/* <Text
                 style={[
                   styles.headerCell,
                   {
@@ -241,7 +241,7 @@ const MedicationTable = ({
                 ]}
               >
                 QTY
-              </Text>
+              </Text> */}
 
               <Text
                 style={[
@@ -428,7 +428,7 @@ const MedicationTable = ({
                           )}`
                         : "-"}
                     </Text>
-
+{/* 
                     <Text
                       style={[
                         styles.cell,
@@ -440,7 +440,7 @@ const MedicationTable = ({
                       ]}
                     >
                       {item.display_qty ? item.display_qty : "-"}
-                    </Text>
+                    </Text> */}
 
                     <Text
                       style={[
