@@ -412,6 +412,18 @@ body {
     height: 189px;
     overflow: hidden;
   }
+  .ipd-image-crop {
+    height: 189px;
+    overflow: hidden;
+
+    .cropper-container {
+      margin: 0 !important;
+    }
+
+    .cropper-container, .preview-container {
+      max-width: max-content !important;
+    }
+  }
   .ant-select {
     &.appointmentselect {
       min-width: 150px;

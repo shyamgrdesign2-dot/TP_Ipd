@@ -99,6 +99,10 @@
         padding-right: 16px !important;
         width: 50px !important;
         min-width: 50px !important;
+        span {
+          display: inline-block;
+          white-space: nowrap;
+        }
       }
 
       .col-patient-details {
@@ -154,6 +158,7 @@
 
         div {
           display: -webkit-box;
+          line-clamp: 2;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;

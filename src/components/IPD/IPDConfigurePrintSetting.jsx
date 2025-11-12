@@ -46,6 +46,9 @@ const MODULE_TITLE_MAPPING = {
 
 function IPDConfigurePrintSetting({ moduleType, data }) {
   const divRef = useRef(null);
+  const previewJobRef = useRef(0);
+  const previewDebounceRef = useRef(null);
+  const pdfUrlRef = useRef(null);
   const dispatch = useDispatch();
   const { draftSettings, fileStates, printSettings } = useSelector(
     (state) => state.printSettings
@@ -223,57 +226,60 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
     initializePrintSettings();
   }, [printSettings, moduleType, dispatch]);
 
-  const updateFooterImageHeight = useCallback((footerFile, initialUpdate) => {
-    const getImageDimensions = (url) => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.src = url;
+  const updateFooterImageHeight = useCallback(
+    (footerFile, initialUpdate) => {
+      const getImageDimensions = (url) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.src = url;
 
-        img.onload = () => {
-          resolve({
-            width: img.naturalWidth,
-            height: img.naturalHeight,
-          });
-        };
+          img.onload = () => {
+            resolve({
+              width: img.naturalWidth,
+              height: img.naturalHeight,
+            });
+          };
 
-        img.onerror = (err) => reject(err);
-      });
-    };
+          img.onerror = (err) => reject(err);
+        });
+      };
 
-    getImageDimensions(footerFile?.showFile)
-      .then(({ height, width }) => {
-        const widthOfA4PageInPts = 595;
-        const PX_TO_PT = 0.75;
-        const pageXPadding = PX_TO_PT * 60;
-        const footerImgDimensions = {
-          footerHeight: height || 0,
-          footerWidth: width || 0,
-          renderedFooterImageHeight:
-            (height / width) * (widthOfA4PageInPts - pageXPadding) || 0,
-        };
-        if (initialUpdate) {
-          setFileFooter({
-            imageShow: true,
-            showFile: footerFile?.showFile,
-            ...footerImgDimensions,
-          });
-        } else {
-          setFileFooter((prev) => ({ ...prev, ...footerImgDimensions }));
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        if (initialUpdate) {
-          setFileFooter({
-            imageShow: true,
-            showFile: footerFile?.showFile,
-            footerHeight: 0,
-            footerWidth: 0,
-            renderedFooterImageHeight: 0,
-          });
-        }
-      });
-  }, [setFileFooter]);
+      getImageDimensions(footerFile?.showFile)
+        .then(({ height, width }) => {
+          const widthOfA4PageInPts = 595;
+          const PX_TO_PT = 0.75;
+          const pageXPadding = PX_TO_PT * 60;
+          const footerImgDimensions = {
+            footerHeight: height || 0,
+            footerWidth: width || 0,
+            renderedFooterImageHeight:
+              (height / width) * (widthOfA4PageInPts - pageXPadding) || 0,
+          };
+          if (initialUpdate) {
+            setFileFooter({
+              imageShow: true,
+              showFile: footerFile?.showFile,
+              ...footerImgDimensions,
+            });
+          } else {
+            setFileFooter((prev) => ({ ...prev, ...footerImgDimensions }));
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          if (initialUpdate) {
+            setFileFooter({
+              imageShow: true,
+              showFile: footerFile?.showFile,
+              footerHeight: 0,
+              footerWidth: 0,
+              renderedFooterImageHeight: 0,
+            });
+          }
+        });
+    },
+    [setFileFooter]
+  );
 
   useEffect(() => {
     if (!fileFooter?.showFile) return;
@@ -283,13 +289,16 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
     }
   }, [printSettings, fileFooter?.showFile, updateFooterImageHeight]);
 
-  const onTabChange = useCallback((key) => {
-    setSelectedTab(key);
-    // Only update footer height if fileFooter exists
-    if (fileFooter?.showFile && !fileFooter.renderedFooterImageHeight) {
-      updateFooterImageHeight(fileFooter);
-    }
-  }, [fileFooter, updateFooterImageHeight]);
+  const onTabChange = useCallback(
+    (key) => {
+      setSelectedTab(key);
+      // Only update footer height if fileFooter exists
+      if (fileFooter?.showFile && !fileFooter.renderedFooterImageHeight) {
+        updateFooterImageHeight(fileFooter);
+      }
+    },
+    [fileFooter, updateFooterImageHeight]
+  );
 
   const TabsPrintSetting = [
     {
@@ -311,6 +320,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
   const [numPages, setNumPages] = useState();
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [isPreviewGenerating, setIsPreviewGenerating] = useState(false);
 
   async function onDocumentLoadSuccess(successEvent) {
     setNumPages(successEvent?.numPages);
@@ -318,31 +328,84 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
     const blob = new Blob([data], { type: "application/pdf" });
     setPrintBlob(blob);
   }
+  const currentSettings = getCurrentModuleSettings();
 
-  const makePDFUrl = useCallback(async () => {
-    try {
-      const currentSettings = getCurrentModuleSettings();
+  const makePDFUrl = useCallback(
+    async (settings) => {
+      if (!settings || !data) {
+        return;
+      }
 
-      if (!currentSettings || !data) return;
-      const blob = await pdf(
-        <PDFGenerator
-          settings={currentSettings}
-          data={data}
-          documentType={documentType}
-          patientData={getPatientInformation(patientDetails)}
-          frequencyList={frequencyList}
-          timingList={timingList}
-        />
-      ).toBlob();
-      setPdfUrl(URL.createObjectURL(blob));
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-    }
-  }, [data, documentType, getCurrentModuleSettings]);
+      const jobId = ++previewJobRef.current;
+      setIsPreviewGenerating(true);
+
+      try {
+        const blob = await pdf(
+          <PDFGenerator
+            settings={settings}
+            data={data}
+            documentType={documentType}
+            patientData={getPatientInformation(patientDetails)}
+            frequencyList={frequencyList}
+            timingList={timingList}
+          />
+        ).toBlob();
+
+        if (jobId === previewJobRef.current) {
+          const nextUrl = URL.createObjectURL(blob);
+
+          if (pdfUrlRef.current) {
+            URL.revokeObjectURL(pdfUrlRef.current);
+          }
+
+          pdfUrlRef.current = nextUrl;
+          setPdfUrl(nextUrl);
+        }
+      } catch (error) {
+        if (jobId === previewJobRef.current) {
+          console.error("Error generating PDF:", error);
+        }
+      } finally {
+        if (jobId === previewJobRef.current) {
+          setIsPreviewGenerating(false);
+        }
+      }
+    },
+    [data, documentType, frequencyList, patientDetails, timingList]
+  );
 
   useEffect(() => {
-    makePDFUrl();
-  }, [makePDFUrl]);
+    if (!currentSettings) {
+      return;
+    }
+
+    if (previewDebounceRef.current) {
+      clearTimeout(previewDebounceRef.current);
+    }
+
+    previewDebounceRef.current = setTimeout(() => {
+      previewDebounceRef.current = null;
+      makePDFUrl(currentSettings);
+    }, 400);
+
+    return () => {
+      if (previewDebounceRef.current) {
+        clearTimeout(previewDebounceRef.current);
+        previewDebounceRef.current = null;
+      }
+    };
+  }, [currentSettings, makePDFUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (previewDebounceRef.current) {
+        clearTimeout(previewDebounceRef.current);
+      }
+      if (pdfUrlRef.current) {
+        URL.revokeObjectURL(pdfUrlRef.current);
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -391,6 +454,18 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
               <div className="rounded-20px bg-white mt-20 overflow-hidden">
                 <div ref={divRef} className="printheight">
                   <div className="position-relative h-100">
+                    {isPreviewGenerating && (
+                      <div
+                        className="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center"
+                        style={{
+                          backdropFilter: "blur(1px)",
+                          backgroundColor: "rgba(255, 255, 255, 0.6)",
+                          zIndex: 2,
+                        }}
+                      >
+                        <Spin tip="Updating preview..." />
+                      </div>
+                    )}
                     <Document
                       loading={
                         <Spin

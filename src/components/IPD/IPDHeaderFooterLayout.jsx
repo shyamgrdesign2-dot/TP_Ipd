@@ -1329,7 +1329,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                     }
                     modalBody={
                       <>
-                        <div className="d-flex image-crop bg-dark justify-content-center align-items-center">
+                        <div className="d-flex ipd-image-crop bg-dark justify-content-center align-items-center">
                           {fileHeader && fileHeader.crop ? (
                             <Cropper
                               ref={cropperHeaderRef}
@@ -1462,7 +1462,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                     }
                     modalBody={
                       <>
-                        <div className="d-flex image-crop bg-dark justify-content-center align-items-center">
+                        <div className="d-flex ipd-image-crop bg-dark justify-content-center align-items-center">
                           {fileFooter && fileFooter.crop ? (
                             <Cropper
                               ref={cropperFooterRef}
