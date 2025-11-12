@@ -133,7 +133,7 @@ const DiagnosisAndSurgery = ({
             if (subsection.view === 1) {
               return (
                 <View
-                  wrap={false}
+                  // wrap={false}
                   key="final-diagnosis-section"
                   style={styles.subsectionContainer}
                 >
@@ -151,11 +151,12 @@ const DiagnosisAndSurgery = ({
                         flexDirection: "row",
                         borderBottom: "1px solid #E0E0E0",
                       }}
+                      fixed
                     >
                       <View
                         style={{
-                          width: "70%",
-                          padding: "8px 12px",
+                          width: "80%",
+                          padding: "8px",
                           borderRight: "1px solid #E0E0E0",
                         }}
                       >
@@ -171,7 +172,7 @@ const DiagnosisAndSurgery = ({
                       </View>
                       <View
                         style={{
-                          width: "30%",
+                          width: "20%",
                           padding: "8px 12px",
                         }}
                       >
@@ -200,11 +201,12 @@ const DiagnosisAndSurgery = ({
                             // :
                             "none",
                         }}
+                        wrap={false}
                       >
                         <View
                           style={{
-                            width: "70%",
-                            padding: "4px 12px",
+                            width: "80%",
+                            padding: "4px 8px",
                             borderRight: "1px solid #E0E0E0",
                           }}
                         >
@@ -220,8 +222,8 @@ const DiagnosisAndSurgery = ({
                         </View>
                         <View
                           style={{
-                            width: "30%",
-                            padding: "4px 12px",
+                            width: "20%",
+                            padding: "4px 8px",
                           }}
                         >
                           <Text
@@ -274,7 +276,7 @@ const DiagnosisAndSurgery = ({
             diagnosisAndSurgery.provisionalDiagnosis.length > 0
           ) {
             // Table view (view === 1)
-            if (subsection.view === 2) {
+            if (subsection.view === 1) {
               return (
                 <View
                   key="provisional-diagnosis-section"
@@ -282,7 +284,7 @@ const DiagnosisAndSurgery = ({
                 >
                   {!isAssessment ? (
                     <Text style={styles.subsectionTitle}>
-                      Provisional Diagnosis:
+                      PROVISIONAL DIAGNOSIS
                     </Text>
                   ) : null}
                   <View
@@ -301,7 +303,7 @@ const DiagnosisAndSurgery = ({
                     >
                       <View
                         style={{
-                          width: "70%",
+                          width: "80%",
                           padding: "8px 12px",
                           borderRight: "1px solid #E0E0E0",
                         }}
@@ -318,7 +320,7 @@ const DiagnosisAndSurgery = ({
                       </View>
                       <View
                         style={{
-                          width: "30%",
+                          width: "20%",
                           padding: "8px 12px",
                         }}
                       >
@@ -349,10 +351,11 @@ const DiagnosisAndSurgery = ({
                                 ? "1px solid #E0E0E0"
                                 : "none",
                           }}
+                          wrap={false}
                         >
                           <View
                             style={{
-                              width: "70%",
+                              width: "80%",
                               padding: "8px 12px",
                               borderRight: "1px solid #E0E0E0",
                             }}
@@ -369,7 +372,7 @@ const DiagnosisAndSurgery = ({
                           </View>
                           <View
                             style={{
-                              width: "30%",
+                              width: "20%",
                               padding: "8px 12px",
                             }}
                           >

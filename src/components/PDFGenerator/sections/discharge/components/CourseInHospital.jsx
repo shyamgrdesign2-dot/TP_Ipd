@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
-    marginBottom: 4,
+    // marginBottom: 4,
   },
 
   subsectionText: {
@@ -59,6 +59,9 @@ const styles = StyleSheet.create({
   bulletItem: {
     flexDirection: "row",
     marginBottom: 4,
+  },
+  bulletItem2: {
+    flexDirection: "row",
   },
 
   // Bullet marker
@@ -142,11 +145,11 @@ const renderTreatmentGiven = (treatments) => {
 
   return (
     <View style={styles.subsectionContainer}>
-      <View style={styles.contentContainer}>
+      <View>
         <Text style={[styles.subsectionTitle]}>Treatment Given:</Text>
         <View style={styles.bulletList}>
           {treatments.map((treatment, index) => (
-            <View key={`treatment-${index}`} style={styles.bulletItem}>
+            <View key={`treatment-${index}`} style={styles.bulletItem2}>
               <Text style={[styles.bullet]}>•</Text>
               <Text style={[styles.bulletContent]}>{treatment.name}</Text>
             </View>

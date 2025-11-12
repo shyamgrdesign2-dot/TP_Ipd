@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
-    marginBottom: 4,
+    // marginBottom: 4,
   },
 
   // Bullet list container

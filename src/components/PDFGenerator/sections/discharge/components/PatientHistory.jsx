@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
 
   // Inner content container
   contentContainer: {
-    gap: 4,
+    // gap: 4,
   },
   contentContainer2: {
     gap: 0,
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     fontWeight: 600,
     lineHeight: 1.8, // 18px for 10px font
     textTransform: "capitalize",
-    marginBottom: 4,
+    // marginBottom: 4,
   },
 
   subsectionTitle2: {

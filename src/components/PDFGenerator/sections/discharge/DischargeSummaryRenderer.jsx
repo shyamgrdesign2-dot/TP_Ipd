@@ -75,7 +75,7 @@ const renderPrimaryConsultant = (data) => {
       >
         <View
           style={{
-            width: "70%",
+            width: "50%",
             padding: "8px 12px",
             borderRight: "1px solid #E0E0E0",
           }}
@@ -92,7 +92,7 @@ const renderPrimaryConsultant = (data) => {
 
         <View
           style={{
-            width: "30%",
+            width: "50%",
             padding: "8px 12px",
           }}
         >
@@ -138,7 +138,7 @@ const renderCrossReferral = (data, formatSettings) => {
           >
             <View
               style={{
-                width: "70%",
+                width: "50%",
                 padding: "4px 12px",
                 borderRight: "1px solid #E0E0E0",
               }}
@@ -155,7 +155,7 @@ const renderCrossReferral = (data, formatSettings) => {
             </View>
             <View
               style={{
-                width: "30%",
+                width: "50%",
                 padding: "4px 12px",
               }}
             >
