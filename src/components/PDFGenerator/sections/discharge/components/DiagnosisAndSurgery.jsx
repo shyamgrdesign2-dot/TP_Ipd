@@ -11,7 +11,7 @@ import SectionTitle from "../../SectionTitle";
 const styles = StyleSheet.create({
   // Main container
   mainContainer: {
-    padding: "0 6px",
+    // padding: "0 6px",
     // marginBottom: 8,
   },
 
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
-    marginBottom: 4,
+    // marginBottom: 4,
   },
 
   // Bullet list container
@@ -82,8 +82,7 @@ const DiagnosisAndSurgery = ({
 
   const diagnosisAndSurgerySection = formatSettings.find(
     (section) =>
-      section.id ===
-      (isAssessment ? "provisional" : "diagnosisAndSurgery")
+      section.id === (isAssessment ? "provisional" : "diagnosisAndSurgery")
   );
   const subsections = diagnosisAndSurgerySection?.subSections || [];
   const sortedSubsections = getAllVisibleSections(subsections);
@@ -121,9 +120,9 @@ const DiagnosisAndSurgery = ({
       <SectionTitle title={title} />
       <View style={styles.mainContainer}>
         {/* Final Diagnosis */}
-{sortedSubsections.map((subsection) => {
+        {sortedSubsections.map((subsection) => {
           const key = subsection.id;
-          
+
           // Final Diagnosis
           if (
             key === "finalDiagnosis" &&
@@ -133,12 +132,16 @@ const DiagnosisAndSurgery = ({
             // Table view (view === 1)
             if (subsection.view === 1) {
               return (
-                <View wrap={false} key="final-diagnosis-section" style={styles.subsectionContainer}>
-                  <Text style={styles.subsectionTitle}>Final Diagnosis:</Text>
+                <View
+                  wrap={false}
+                  key="final-diagnosis-section"
+                  style={styles.subsectionContainer}
+                >
+                  <Text style={styles.subsectionTitle}>FINAL DIAGNOSIS</Text>
                   <View
                     style={{
                       border: "1px solid #E0E0E0",
-                      marginTop: 6,
+                      // marginTop: 6,
                     }}
                   >
                     {/* Table Header */}
@@ -194,8 +197,8 @@ const DiagnosisAndSurgery = ({
                           borderBottom:
                             // index < diagnosisAndSurgery.finalDiagnosis.length - 1
                             //   ? "1px solid #E0E0E0"
-                              // :
-                               "none",
+                            // :
+                            "none",
                         }}
                       >
                         <View
@@ -237,14 +240,16 @@ const DiagnosisAndSurgery = ({
                 </View>
               );
             }
-            
+
             // Bullet list view (view === 2 or default)
             return (
-              <View wrap={false} key="final-diagnosis-section" style={styles.subsectionContainer}>
+              <View
+                wrap={false}
+                key="final-diagnosis-section"
+                style={styles.subsectionContainer}
+              >
                 <View style={styles.contentContainer}>
-                  <Text style={styles.subsectionTitle}>
-                    Final Diagnosis:
-                  </Text>
+                  <Text style={styles.subsectionTitle}>Final Diagnosis:</Text>
                   <View style={styles.bulletList}>
                     {diagnosisAndSurgery.finalDiagnosis.map((dx, index) => (
                       <View key={`final-dx-${index}`} style={styles.bulletItem}>
@@ -261,7 +266,7 @@ const DiagnosisAndSurgery = ({
               </View>
             );
           }
-          
+
           // Provisional Diagnosis
           if (
             key === "provisionalDiagnosis" &&
@@ -271,7 +276,10 @@ const DiagnosisAndSurgery = ({
             // Table view (view === 1)
             if (subsection.view === 2) {
               return (
-                <View key="provisional-diagnosis-section" style={styles.subsectionContainer}>
+                <View
+                  key="provisional-diagnosis-section"
+                  style={styles.subsectionContainer}
+                >
                   {!isAssessment ? (
                     <Text style={styles.subsectionTitle}>
                       Provisional Diagnosis:
@@ -280,7 +288,7 @@ const DiagnosisAndSurgery = ({
                   <View
                     style={{
                       border: "1px solid #E0E0E0",
-                      marginTop: 6,
+                      // marginTop: 6,
                     }}
                   >
                     {/* Table Header */}
@@ -327,61 +335,68 @@ const DiagnosisAndSurgery = ({
                     </View>
 
                     {/* Table Rows */}
-                    {diagnosisAndSurgery.provisionalDiagnosis.map((dx, index) => (
-                      <View
-                        key={`prov-dx-${index}`}
-                        style={{
-                          display: "flex",
-                          flexDirection: "row",
-                          borderBottom:
-                            index < diagnosisAndSurgery.provisionalDiagnosis.length - 1
-                              ? "1px solid #E0E0E0"
-                              : "none",
-                        }}
-                      >
+                    {diagnosisAndSurgery.provisionalDiagnosis.map(
+                      (dx, index) => (
                         <View
+                          key={`prov-dx-${index}`}
                           style={{
-                            width: "70%",
-                            padding: "8px 12px",
-                            borderRight: "1px solid #E0E0E0",
+                            display: "flex",
+                            flexDirection: "row",
+                            borderBottom:
+                              index <
+                              diagnosisAndSurgery.provisionalDiagnosis.length -
+                                1
+                                ? "1px solid #E0E0E0"
+                                : "none",
                           }}
                         >
-                          <Text
+                          <View
                             style={{
-                              // fontSize: 10,
-                              fontWeight: 400,
-                              color: "#171725",
+                              width: "70%",
+                              padding: "8px 12px",
+                              borderRight: "1px solid #E0E0E0",
                             }}
                           >
-                            {dx.tds_name}
-                          </Text>
-                        </View>
-                        <View
-                          style={{
-                            width: "30%",
-                            padding: "8px 12px",
-                          }}
-                        >
-                          <Text
+                            <Text
+                              style={{
+                                // fontSize: 10,
+                                fontWeight: 400,
+                                color: "#171725",
+                              }}
+                            >
+                              {dx.tds_name}
+                            </Text>
+                          </View>
+                          <View
                             style={{
-                              // fontSize: 10,
-                              fontWeight: 400,
-                              color: "#171725",
+                              width: "30%",
+                              padding: "8px 12px",
                             }}
                           >
-                            {dx.icd_code || "--"}
-                          </Text>
+                            <Text
+                              style={{
+                                // fontSize: 10,
+                                fontWeight: 400,
+                                color: "#171725",
+                              }}
+                            >
+                              {dx.icd_code || "--"}
+                            </Text>
+                          </View>
                         </View>
-                      </View>
-                    ))}
+                      )
+                    )}
                   </View>
                 </View>
               );
             }
-            
+
             // Bullet list view (view === 2 or default)
             return (
-              <View key="provisional-diagnosis-section" style={styles.subsectionContainer}>
+              <View
+                key="provisional-diagnosis-section"
+                style={styles.subsectionContainer}
+              >
                 <View style={styles.contentContainer}>
                   {!isAssessment ? (
                     <Text style={styles.subsectionTitle}>
@@ -409,7 +424,7 @@ const DiagnosisAndSurgery = ({
               </View>
             );
           }
-          
+
           // Surgeries Performed (unchanged)
           if (
             key === "surgeriesPerformed" &&

@@ -467,7 +467,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
 
   if (isLiteMode) {
     return (
-      <div className="ot-notes-timeline-container no-margin-bottom flex-column-gap-16">
+      <div className={`ot-notes-timeline-container no-margin-bottom flex-column-gap-16 ${isLiteMode ? 'no-extra-margin-padding': ''}`}>
         {filteredMappedData?.map((section, sectionIndex) => {
           return (
             <div className="otnotelite-section-container big-box-with-shadow flex-column-gap-16">

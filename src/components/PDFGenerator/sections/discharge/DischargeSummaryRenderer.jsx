@@ -31,14 +31,18 @@ const styles = StyleSheet.create({
   },
 
   subsectionContainer: {
-    marginBottom: 10,
+    marginBottom: 4,
   },
 
   subsectionTitle: {
     fontWeight: 700,
     color: "#000000",
+    // marginBottom: 6,
+  },
+  subsectionTitle2: {
+    fontWeight: 700,
+    color: "#000000",
     marginBottom: 6,
-    marginTop: 8,
   },
   subsectionText: {
     color: "#171725",
@@ -58,6 +62,10 @@ const renderPrimaryConsultant = (data) => {
 
   return (
     <View style={styles.sectionContainer}>
+      <Text style={[styles.subsectionTitle, { marginBottom: 4 }]}>
+        ADMITTING CONSULTANT
+      </Text>
+
       <View
         style={{
           display: "flex",
@@ -67,7 +75,7 @@ const renderPrimaryConsultant = (data) => {
       >
         <View
           style={{
-            width: "30%",
+            width: "70%",
             padding: "8px 12px",
             borderRight: "1px solid #E0E0E0",
           }}
@@ -84,7 +92,7 @@ const renderPrimaryConsultant = (data) => {
 
         <View
           style={{
-            width: "70%",
+            width: "30%",
             padding: "8px 12px",
           }}
         >
@@ -107,50 +115,62 @@ const renderCrossReferral = (data, formatSettings) => {
   if (!crossReferrals?.length) return null;
 
   return (
-    <View style={styles.sectionContainer}>
+    <View
+      wrap={false}
+      key="final-diagnosis-section"
+      style={styles.subsectionContainer}
+    >
+      <Text style={styles.subsectionTitle}>CROSS REFERENCE</Text>
       <View
         style={{
-          display: "flex",
-          flexDirection: "row",
           border: "1px solid #E0E0E0",
+          marginTop: 6,
         }}
       >
-        <View
-          style={{
-            width: "30%",
-            padding: "8px 12px",
-            borderRight: "1px solid #E0E0E0",
-          }}
-        >
-          <Text
+        {crossReferrals.map((dx, index) => (
+          <View
+            key={`final-dx-${index}`}
             style={{
-              fontWeight: 700,
-              color: "#000000",
+              display: "flex",
+              flexDirection: "row",
+              borderBottom: "none",
             }}
           >
-            CROSS REFERENCE
-          </Text>
-        </View>
-
-        <View
-          style={{
-            width: "70%",
-            padding: "8px 12px",
-          }}
-        >
-          {crossReferrals.map((item, index) => (
-            <Text
-              key={index}
+            <View
               style={{
-                fontWeight: 400,
-                color: "#171725",
-                marginBottom: index < crossReferrals.length - 1 ? 4 : 0,
+                width: "70%",
+                padding: "4px 12px",
+                borderRight: "1px solid #E0E0E0",
               }}
             >
-              {item.name} ({item.speciality})
-            </Text>
-          ))}
-        </View>
+              <Text
+                style={{
+                  // fontSize: 10,
+                  fontWeight: 400,
+                  color: "#171725",
+                }}
+              >
+                {dx.name}
+              </Text>
+            </View>
+            <View
+              style={{
+                width: "30%",
+                padding: "4px 12px",
+              }}
+            >
+              <Text
+                style={{
+                  // fontSize: 10,
+                  fontWeight: 400,
+                  color: "#171725",
+                }}
+              >
+                {dx.speciality || "--"}
+              </Text>
+            </View>
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -293,7 +313,9 @@ const renderPreparedBy = (data) => {
   const consultantText = `${primaryConsultant.name} (${primaryConsultant.speciality})`;
   return (
     <View style={styles.sectionContainer}>
-      <Text style={styles.subsectionTitle}>Discharge Summary Approved by:</Text>
+      <Text style={styles.subsectionTitle2}>
+        Discharge Summary Approved by:
+      </Text>
       <Text
         style={{
           lineHeight: 1.8,
