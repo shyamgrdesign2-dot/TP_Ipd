@@ -3,11 +3,8 @@ import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as consultantIcons } from "../../../assets/images/consultantNotesIcons/index.js";
 
 import LabInvestigationTable from "./components/LabInvestigationTable";
-import FilledByCard from "./components/FilledByCard.jsx";
 import "./ConsultantNotesPreview.scss";
 import { isEmptyRichText } from "../../../components/PDFGenerator/index.js";
-import { isMobile } from "react-device-detect";
-import MedicationsBox from "../../../components/MedicationsBox.js";
 import InteractionGate from "../components/InteractionGate/InteractionGate.jsx";
 import MedicationBoxIpd from "../../../components/medicationBoxIpd.js";
 import { IPD } from "../../../utils/locale.js";
@@ -152,15 +149,7 @@ const ConsultantNotesPreview = ({ entry }) => {
         {Array.isArray(medication) && medication.length > 0 && (
           <div className="ipdcnp-medication-box-container-readonly">
             <InteractionGate disabled={true}>
-              {isMobile ? (
-                <MedicationBoxIpd isEditable={false} medication={medication} />
-              ) : (
-                <MedicationsBox
-                  isEditable={false}
-                  isIpd={true}
-                  medication={medication}
-                />
-              )}
+              <MedicationBoxIpd isEditable={false} medication={medication} />
             </InteractionGate>
           </div>
         )}

@@ -362,6 +362,10 @@ $muted: #6f6b88;
         overflow-x: visible !important;
     }
 
+    .medical-progress__cards-container > .ant-row {
+        display: block !important;
+    }
+
     // Custom scrollbar
     &::-webkit-scrollbar {
         width: 8px;

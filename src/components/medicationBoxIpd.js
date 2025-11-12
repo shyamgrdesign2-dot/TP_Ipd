@@ -1709,7 +1709,6 @@ function MedicationsBox(props) {
         {medicationData.length > 0 &&
           <Row
             gutter={[0]}
-            style={{background:"#FAFAFB"}}
             className={`mt-14 border-top border-end border-start align-items-center ipd-wrapper-class-medbox`}
           >
             {isEditable ? <Col lg={1} md={1} sm={1} xs={1}>
