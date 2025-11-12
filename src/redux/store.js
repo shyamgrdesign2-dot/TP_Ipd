@@ -43,6 +43,7 @@ import labResultsSlice from "./ipd/labResultsSlice";
 import printSettingsSlice from "./ipd/printSettingsSlice";
 import dischargeSummarySlice from "./ipd/dischargeSummarySlice";
 import ipdCustomModulesSlice from "./ipd/customModuleSlice";
+import ipdTemplatesSlice from "./ipd/tempaltesSlice";
 
 const persistConfig = {
   key: "root",
@@ -91,6 +92,7 @@ const rootReducer = combineReducers({
   dischargeSummary: dischargeSummarySlice,
   printSettings: printSettingsSlice,
   ipdCustomModules: ipdCustomModulesSlice,
+  ipdTemplates: ipdTemplatesSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

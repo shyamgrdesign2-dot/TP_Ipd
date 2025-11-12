@@ -204,6 +204,8 @@ const DischargeSummary = (props) => {
       },
     });
   };
+  console.log(patient_data,"patient_data")
+  console.log(patientDetails,"patientDetails");
 
   const renderSections = (data) => {
     if (!data || !data.id) {
