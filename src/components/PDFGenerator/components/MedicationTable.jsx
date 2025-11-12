@@ -437,7 +437,7 @@ const MedicationTable = ({
                                     )
                                   : 0
                               }`
-                          : ""
+                          : "-"
                         : `${
                             frequencyList.find(
                               (x) => x.tmf_id === item.tmm_freq_type

@@ -1676,7 +1676,7 @@ function MedicationsBox(props) {
         return (v ?? "--").toString().trim();
       };
       const name = safe(dosageUnitName);
-      const value = safe(dosageValue);
+      const value = dosageValue;
       const unit = safe(resolvedUnitLabel);
       let unitPerDoseDisplay = "";
 
