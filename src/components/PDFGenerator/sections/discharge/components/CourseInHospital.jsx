@@ -80,7 +80,8 @@ const styles = StyleSheet.create({
 
   // Day label (Medium/SemiBold)
   dayLabel: {
-    fontWeight: 500, // Medium
+    fontWeight: 600, // Medium
+    textDecoration: "underline",
   },
 
   // Regular text

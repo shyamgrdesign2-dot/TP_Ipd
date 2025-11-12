@@ -73,8 +73,10 @@ const CourseInHospital = (props) => {
 
         dayContent = dayContent.trim();
 
-        const fullContent = dayPrefix + dayContent;
-        const childrenOfList = [{ text: fullContent }];
+        const childrenOfList = [
+          { text: dayPrefix, bold: true, underline: true },
+          { text: dayContent },
+        ];
 
         if (moduleCode) {
           childrenOfList.push({
