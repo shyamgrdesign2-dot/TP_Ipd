@@ -76,13 +76,19 @@ const DischargeAdvice = (props) => {
   const getCurrentValue = useCallback(
     (moduleId) => {
       const key = moduleId;
+      // Array-based modules (diet, physicalActivities) should return empty array, not EMPTY_RICH_TEXT_VALUE
+      const arrayBasedModules = ['diet', 'physicalActivities'];
+      const isArrayBasedModule = arrayBasedModules.includes(moduleId);
+      
       if (
         Array.isArray(dischargeSummaryData?.[key]) &&
         dischargeSummaryData[key].length
       ) {
         return dischargeSummaryData[key];
       }
-      return EMPTY_RICH_TEXT_VALUE;
+      
+      // For array-based modules, return empty array; for rich text modules, return EMPTY_RICH_TEXT_VALUE
+      return isArrayBasedModule ? [] : EMPTY_RICH_TEXT_VALUE;
     },
     [dischargeSummaryData]
   );
@@ -229,7 +235,7 @@ const DischargeAdvice = (props) => {
             return true;
           });
 
-          // Only update if there are new items to add
+          // Only update if there are new items to add  
           if (newItems.length > 0) {
             const combinedData = [...currentData, ...newItems];
             // Dispatch the appropriate action (setDiet or setPhysicalActivities)
