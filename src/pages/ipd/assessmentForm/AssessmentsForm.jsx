@@ -176,9 +176,63 @@ const AssessmentsForm = (props) => {
     dispatch(updateCustomization(newData));
   };
 
+
+  const convertToRawFormat = (data = []) => {
+    if (!Array.isArray(data) || data.length === 0) return [];
+  
+    // Check if already in raw format (has tmu_id and tmu_title)
+    const isAlreadyRaw = data.every(
+      (item) => item.tmu_id !== undefined && item.tmu_title !== undefined
+    );
+    if (isAlreadyRaw) return data;
+  
+    // Convert formatted → raw
+    return data.map((item) => {
+      if (item.key) {
+        try {
+          return JSON.parse(item.key);
+        } catch {
+          return { tmu_id: item.value, tmu_title: item.label };
+        }
+      } else {
+        return { tmu_id: item.value, tmu_title: item.label };
+      }
+    });
+  };
+
   const onSaveAssessmentClick = async () => {
     if (isLoading) return;
     setIsLoading(true);
+
+    // Helper function to format discharge medications
+    // Format tmm_dosage: if tmm_dosage_unit_name exists, use it; otherwise combine tmm_dosage + tmm_unit_name
+    const formatAssessmentMedications = (medications) => {
+      if (!Array.isArray(medications) || medications.length === 0) {
+        return [];
+      }
+
+      return medications.map((medication) => {
+        const formattedMedication = { ...medication };
+        const formattedMedicineUnit = convertToRawFormat(formattedMedication.medicineUnit);
+        
+        // If tmm_dosage_unit_name exists and is not empty, use it as tmm_dosage
+        if (formattedMedication.tmm_dosage_unit_name && formattedMedication.tmm_dosage_unit_name.trim() !== "") {
+          formattedMedication.tmm_dosage = formattedMedication.tmm_dosage_unit_name;
+        } else {
+          // Otherwise, combine tmm_dosage + tmm_unit_name
+          const dosage = formattedMedication.tmm_dosage ? formattedMedication.tmm_dosage: 1 ;
+          // const unitName = formattedMedication.tmm_unit_name || "";
+          const unitName = formattedMedication.tmm_unit_name ? formattedMedication.tmm_unit_name : formattedMedicineUnit?.find(
+            (x) => x.tmu_id == formattedMedication.tmu_id
+          )?.tmu_title || formattedMedicineUnit[0]?.tmu_title ;
+          
+          formattedMedication.tmm_dosage_unit_name = `${dosage} ${unitName}`.trim();
+        }
+        
+        return formattedMedication;
+      });
+    };
+
     const reqData = {
       date: filledDate,
       time: filledAtTime,
@@ -189,7 +243,7 @@ const AssessmentsForm = (props) => {
         currentMedications: convertMedicationFormat(
           prescriptionData.medicationData || []
         ),
-        medications: prescriptionData.medicationData || [],
+        medications: formatAssessmentMedications(prescriptionData.medicationData || []),
         labResults: assessmentData.labResults || [],
         pastMedicalHistory: prescriptionData.medicalHistoryData || {},
         gyneacHistory: assessmentData.gynecHistoryData || {},

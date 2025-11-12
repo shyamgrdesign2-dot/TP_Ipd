@@ -91,6 +91,29 @@ const MedicationTable = ({
     return unitPerDoseFormat;
   };
 
+  const convertToRawFormat = (data = []) => {
+    if (!Array.isArray(data) || data.length === 0) return [];
+  
+    // Check if already in raw format (has tmu_id and tmu_title)
+    const isAlreadyRaw = data.every(
+      (item) => item.tmu_id !== undefined && item.tmu_title !== undefined
+    );
+    if (isAlreadyRaw) return data;
+  
+    // Convert formatted → raw
+    return data.map((item) => {
+      if (item.key) {
+        try {
+          return JSON.parse(item.key);
+        } catch {
+          return { tmu_id: item.value, tmu_title: item.label };
+        }
+      } else {
+        return { tmu_id: item.value, tmu_title: item.label };
+      }
+    });
+  };  
+
   const formatFrequency = (
     morning,
     afternoon,
@@ -303,6 +326,7 @@ const MedicationTable = ({
               }}
             >
               {innerMedication(med?.index).map((item, ii) => {
+                
                 return (
                   <View
                     style={{
@@ -324,19 +348,26 @@ const MedicationTable = ({
                           fontWeight: 500,
                         },
                       ]}
-                    >{`${
-                      item.tmm_dosage && item.tmm_unit
-                        ? `${formatUnitPerDose(
-                            item.tmm_dosage,
-                            med?.is_dosage_decimal
-                          )} ${
-                            item?.medicineUnit?.find(
-                              (x) => x.tmu_id == item.tmm_unit
-                            )?.tmu_title || ""
-                          }`
-                        : item.tmm_dosage_unit_name ?  item.tmm_dosage_unit_name 
-                        : `${1} ${item.tmm_unit_name}`
-                    }`}</Text>
+                    >
+                      {item.tmm_dosage_unit_name
+                        ? item.tmm_dosage_unit_name
+                        : `${
+                            item.tmm_dosage && item.tmu_id
+                              ? `${formatUnitPerDose(
+                                  item.tmm_dosage,
+                                  med?.is_dosage_decimal
+                                )} ${
+                                  convertToRawFormat(item.medicineUnit)?.find(
+                                    (x) => x.tmu_id == item.tmu_id
+                                  )?.tmu_title || ""
+                                }`
+                              : `${item.tmm_dosage ? item.tmm_dosage : 1}${
+                                  convertToRawFormat(item.medicineUnit)?.find(
+                                    (x) => x.tmu_id == item.tmu_id
+                                  )?.tmu_title || ""
+                                }`
+                          }`}
+                    </Text>
 
                     <Text
                       style={[
@@ -349,73 +380,79 @@ const MedicationTable = ({
                       ]}
                     >
                       {item.tmf_block === 0 || item.tmf_block === ""
-                        ? `${
-                            item.tcm_tmm_freq_morning ||
-                            item.tcm_tmm_freq_afternoon ||
-                            item.tcm_tmm_freq_evening ||
-                            item.tcm_tmm_freq_night
-                              ? item.tcm_tmm_freq_evening != 0
-                                ? `${
-                                    item.tcm_tmm_freq_morning
-                                      ? medicine_freq_dosage_format(
-                                          item.tcm_tmm_freq_morning,
-                                          med?.is_dosage_decimal
-                                        )
-                                      : 0
-                                  } - ${
-                                    item.tcm_tmm_freq_afternoon
-                                      ? medicine_freq_dosage_format(
-                                          item.tcm_tmm_freq_afternoon,
-                                          med?.is_dosage_decimal
-                                        )
-                                      : 0
-                                  } - ${
-                                    item.tcm_tmm_freq_evening
-                                      ? medicine_freq_dosage_format(
-                                          item.tcm_tmm_freq_evening,
-                                          med?.is_dosage_decimal
-                                        )
-                                      : 0
-                                  } - ${
-                                    item.tcm_tmm_freq_night
-                                      ? medicine_freq_dosage_format(
-                                          item.tcm_tmm_freq_night,
-                                          med?.is_dosage_decimal
-                                        )
-                                      : 0
-                                  }`
-                                : `${
-                                    item.tcm_tmm_freq_morning
-                                      ? medicine_freq_dosage_format(
-                                          item.tcm_tmm_freq_morning,
-                                          med?.is_dosage_decimal
-                                        )
-                                      : 0
-                                  } - ${
-                                    item.tcm_tmm_freq_afternoon
-                                      ? medicine_freq_dosage_format(
-                                          item.tcm_tmm_freq_afternoon,
-                                          med?.is_dosage_decimal
-                                        )
-                                      : 0
-                                  } - ${
-                                    item.tcm_tmm_freq_night
-                                      ? medicine_freq_dosage_format(
-                                          item.tcm_tmm_freq_night,
-                                          med?.is_dosage_decimal
-                                        )
-                                      : 0
-                                  }`
-                              : formatFrequency(
-                                  item.tcm_tmm_freq_morning,
-                                  item.tcm_tmm_freq_afternoon,
-                                  item.tcm_tmm_freq_evening,
-                                  item.tcm_tmm_freq_night
-                                )
-                          }`
-                        : item?.tmm_freq_type_name ? `(${item.tmm_freq_type_name})` : ""}
+                        ? item.tcm_tmm_freq_morning ||
+                          item.tcm_tmm_freq_afternoon ||
+                          item.tcm_tmm_freq_evening ||
+                          item.tcm_tmm_freq_night
+                          ? item.tcm_tmm_freq_evening == 0 ||
+                            item.tcm_tmm_freq_evening == null
+                            ? `${
+                                item.tcm_tmm_freq_morning
+                                  ? medicine_freq_dosage_format(
+                                      item.tcm_tmm_freq_morning,
+                                      med?.is_dosage_decimal
+                                    )
+                                  : 0
+                              } - ${
+                                item.tcm_tmm_freq_afternoon
+                                  ? medicine_freq_dosage_format(
+                                      item.tcm_tmm_freq_afternoon,
+                                      med?.is_dosage_decimal
+                                    )
+                                  : 0
+                              } - ${
+                                item.tcm_tmm_freq_night
+                                  ? medicine_freq_dosage_format(
+                                      item.tcm_tmm_freq_night,
+                                      med?.is_dosage_decimal
+                                    )
+                                  : 0
+                              }`
+                            : `${
+                                item.tcm_tmm_freq_morning
+                                  ? medicine_freq_dosage_format(
+                                      item.tcm_tmm_freq_morning,
+                                      med?.is_dosage_decimal
+                                    )
+                                  : 0
+                              } - ${
+                                item.tcm_tmm_freq_afternoon
+                                  ? medicine_freq_dosage_format(
+                                      item.tcm_tmm_freq_afternoon,
+                                      med?.is_dosage_decimal
+                                    )
+                                  : 0
+                              } - ${
+                                item.tcm_tmm_freq_evening
+                                  ? medicine_freq_dosage_format(
+                                      item.tcm_tmm_freq_evening,
+                                      med?.is_dosage_decimal
+                                    )
+                                  : 0
+                              } - ${
+                                item.tcm_tmm_freq_night
+                                  ? medicine_freq_dosage_format(
+                                      item.tcm_tmm_freq_night,
+                                      med?.is_dosage_decimal
+                                    )
+                                  : 0
+                              }`
+                          : ""
+                        : `${
+                            frequencyList.find(
+                              (x) => x.tmf_id === item.tmm_freq_type
+                            )?.[frequencyLang()] || ""
+                          }`}
                       {"\n"}
-                      {item.tmm_time_name ? item.tmm_time_name : ""}
+                      {/* {item.tmm_time_name != "None" ? item.tmm_time_name : ""} */}
+                      {timingList.find((x) => x.tmt_id === item.tmm_time) !==
+                        undefined &&
+                      timingList.find((x) => x.tmt_id === item.tmm_time)
+                        ?.tmt_title !== "None"
+                        ? timingList.find((x) => x.tmt_id === item.tmm_time)?.[
+                            timeingLang()
+                          ]
+                        : ""}
                     </Text>
 
                     <Text
@@ -436,7 +473,7 @@ const MedicationTable = ({
                         ? `${item.tmm_days} ${durationLang(
                             item.tmm_duration_type
                           )}`
-                        : "--"}
+                        : "-"}
                     </Text>
                     {/* 
                     <Text
