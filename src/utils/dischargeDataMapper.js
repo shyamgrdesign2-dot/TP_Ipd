@@ -28,6 +28,7 @@ import {
   setDischargeSummaryDataViaPatch,
   setFinalDiagnosis,
   setOTSurgeries,
+  setFollowUps,
 } from "../redux/ipd/dischargeSummarySlice";
 
 export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
@@ -252,10 +253,13 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
     ) {
       dispatch(setFollowUpDoctor(dischargeSummaryData.followUp.doctor));
     }
+    if (dischargeSummaryData?.followUp) {
+      dispatch(setFollowUps(dischargeSummaryData.followUp));
+    }
 
-    if (dischargeSummaryData?.followUp?.additionalNotes) {
+    if (dischargeSummaryData?.followUpAdditionalNotes) {
       dispatch(
-        setAdditionalNotes(dischargeSummaryData.followUp.additionalNotes)
+        setAdditionalNotes(dischargeSummaryData.followUpAdditionalNotes)
       );
     }
     if (dischargeSummaryData?.preparedBy) {

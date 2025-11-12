@@ -13,9 +13,21 @@ const styles = StyleSheet.create({
     padding: "0 6px",
     // marginBottom: 8,
   },
+  mainContainer2: {
+    // padding: "0 6px",
+    marginBottom: 8,
+  },
+  sectionContainer: {
+    marginBottom: 8,
+  },
+  subsectionTitle2: {
+    fontWeight: 700,
+    color: "#000000",
+    marginBottom: 8,
+  },
 
   subsectionContainer: {
-    paddingVertical: 6,
+    // paddingVertical: 6,
     paddingHorizontal: 0,
   },
 
@@ -69,6 +81,73 @@ const styles = StyleSheet.create({
     lineHeight: 1.8,
     textTransform: "capitalize",
   },
+
+  // Table styles
+  table: {
+    display: "table",
+    width: "auto",
+    marginTop: 4,
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderRadius: 4,
+  },
+
+  tableRow: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+    borderBottomStyle: "solid",
+  },
+
+  tableRowLast: {
+    borderBottomWidth: 0,
+  },
+
+  tableHeader: {
+    // backgroundColor: "#F5F5F5",
+  },
+
+  tableCol: {
+    borderRightWidth: 1,
+    borderRightColor: "#E0E0E0",
+    borderRightStyle: "solid",
+    padding: 8,
+  },
+
+  tableColLast: {
+    borderRightWidth: 0,
+  },
+
+  tableColDate: {
+    width: "30%",
+  },
+
+  tableColDoctor: {
+    width: "70%",
+  },
+
+  tableHeaderText: {
+    fontSize: 10,
+    fontWeight: 600,
+    color: "#171725",
+    lineHeight: 1.6,
+  },
+
+  tableCellText: {
+    fontSize: 9,
+    fontWeight: 400,
+    color: "#454551",
+    lineHeight: 1.8,
+  },
+
+  doctorItem: {
+    marginBottom: 2,
+  },
+
+  doctorItemLast: {
+    marginBottom: 0,
+  },
 });
 
 const FollowUp = ({ data, title, formatSettings }) => {
@@ -76,13 +155,102 @@ const FollowUp = ({ data, title, formatSettings }) => {
 
   const followUp = data.followUp;
 
+  const isArrayFormat = Array.isArray(followUp);
+
   const followUpSection = formatSettings.find(
     (section) => section.id === "followUp"
   );
   const subsections = followUpSection?.subSections || [];
-
   const sortedSubsections = getAllVisibleSections(subsections);
 
+  if (isArrayFormat) {
+    const hasValidData = followUp.some(
+      (item) => item.date || (item.doctor && item.doctor.length > 0)
+    );
+
+    if (!hasValidData) return null;
+
+    return (
+      <View style={styles.sectionContainer}>
+        {title ? <Text style={styles.subsectionTitle2}>{title}</Text> : null}
+        <View style={styles.mainContainer2}>
+          <View style={styles.table}>
+            <View style={[styles.tableRow, styles.tableHeader]}>
+              <View style={[styles.tableCol, styles.tableColDate]}>
+                <Text style={styles.tableHeaderText}>Date</Text>
+              </View>
+              <View
+                style={[
+                  styles.tableCol,
+                  styles.tableColDoctor,
+                  styles.tableColLast,
+                ]}
+              >
+                <Text style={styles.tableHeaderText}>
+                  Doctor Name (Speciality)
+                </Text>
+              </View>
+            </View>
+
+            {followUp.map((item, index) => {
+              const isLastRow = index === followUp.length - 1;
+              const doctors = item.doctor || [];
+
+              return (
+                <View
+                  key={index}
+                  style={[styles.tableRow, isLastRow && styles.tableRowLast]}
+                >
+                  <View style={[styles.tableCol, styles.tableColDate]}>
+                    <Text style={styles.tableCellText}>{item.date || "-"}</Text>
+                  </View>
+
+                  <View
+                    style={[
+                      styles.tableCol,
+                      styles.tableColDoctor,
+                      styles.tableColLast,
+                    ]}
+                  >
+                    {doctors.length > 0 ? (
+                      doctors.map((doctor, docIndex) => {
+                        const isLastDoctor = docIndex === doctors.length - 1;
+                        return (
+                          <Text
+                            key={docIndex}
+                            style={[
+                              styles.tableCellText,
+                              isLastDoctor
+                                ? styles.doctorItemLast
+                                : styles.doctorItem,
+                            ]}
+                          >
+                            {doctor.name}
+                            {doctor.speciality ? ` (${doctor.speciality})` : ""}
+                          </Text>
+                        );
+                      })
+                    ) : (
+                      <Text style={styles.tableCellText}>-</Text>
+                    )}
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+        {!isEmptyRichText(data?.followUpAdditionalNotes) ? (
+          <RichTextPrintRenderer
+            key={"followup-additional-notes"}
+            data={data?.followUpAdditionalNotes}
+            title={"Additional Notes"}
+          />
+        ) : null}
+      </View>
+    );
+  }
+
+  // Handle object format (old format) - keep existing logic
   if (
     (!sortedSubsections.some((s) => s.id === "followUpDate") ||
       !followUp.date) &&
@@ -103,7 +271,7 @@ const FollowUp = ({ data, title, formatSettings }) => {
           const label = subSection?.label;
           if (key === "followUpDate" && followUp.date) {
             return (
-              <View style={styles.subsectionContainer}>
+              <View style={styles.subsectionContainer} key={key}>
                 <View style={styles.contentContainer}>
                   <Text style={styles.inlineText}>
                     <Text style={styles.inlineLabel}>{label}: </Text>
@@ -115,7 +283,7 @@ const FollowUp = ({ data, title, formatSettings }) => {
           }
           if (key === "followUpDoctor" && followUp.doctor?.name) {
             return (
-              <View style={styles.subsectionContainer}>
+              <View style={styles.subsectionContainer} key={key}>
                 <View style={styles.contentContainer}>
                   <Text style={styles.inlineText}>
                     <Text style={styles.inlineLabel}>{label}: </Text>
@@ -136,6 +304,7 @@ const FollowUp = ({ data, title, formatSettings }) => {
           ) {
             return (
               <RichTextPrintRenderer
+                key={key}
                 data={followUp.additionalNotes}
                 title={label}
               />

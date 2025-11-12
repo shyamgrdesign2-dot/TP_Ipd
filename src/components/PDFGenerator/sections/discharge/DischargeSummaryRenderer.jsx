@@ -62,7 +62,7 @@ const renderPrimaryConsultant = (data) => {
 
   return (
     <View style={styles.sectionContainer}>
-      <Text style={[styles.subsectionTitle, { marginBottom: 4 }]}>
+      <Text style={[styles.subsectionTitle, { marginBottom: 8 }]}>
         ADMITTING CONSULTANT
       </Text>
 
@@ -120,7 +120,9 @@ const renderCrossReferral = (data, formatSettings) => {
       key="final-diagnosis-section"
       style={styles.subsectionContainer}
     >
-      <Text style={styles.subsectionTitle}>CROSS REFERENCE</Text>
+      <Text style={[styles.subsectionTitle, { marginBottom: 2 }]}>
+        CROSS REFERENCE
+      </Text>
       <View
         style={{
           border: "1px solid #E0E0E0",
@@ -312,7 +314,7 @@ const renderPreparedBy = (data) => {
   const { primaryConsultant } = data.patientInformation;
   const consultantText = `${primaryConsultant.name} (${primaryConsultant.speciality})`;
   return (
-    <View style={styles.sectionContainer}>
+    <View wrap={false} style={styles.sectionContainer}>
       <Text style={styles.subsectionTitle2}>
         Discharge Summary Approved by:
       </Text>

@@ -483,13 +483,9 @@ const DischargeSummary = (props) => {
         emergencyContact:
           dischargeSummaryState.dischargeSummaryData?.emergencyContact || [],
       },
-      followUp: {
-        date: dischargeSummaryState.dischargeSummaryData?.followUpDate || "",
-        doctor:
-          dischargeSummaryState.dischargeSummaryData?.followUpDoctor || {},
-        additionalNotes:
-          dischargeSummaryState.dischargeSummaryData?.additionalNotes || [],
-      },
+      followUpAdditionalNotes:
+        dischargeSummaryState.dischargeSummaryData?.additionalNotes || [],
+      followUp: dischargeSummaryState.dischargeSummaryData?.followUps || [],
       preparedBy:
         dischargeSummaryState.dischargeSummaryData?.preparedBy || null,
     };

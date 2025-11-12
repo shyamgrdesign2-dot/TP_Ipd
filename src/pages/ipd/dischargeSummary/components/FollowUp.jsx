@@ -4,18 +4,27 @@ import { defaultIcons as dischargeSummaryIcons } from "../../../../assets/images
 import { defaultIcons } from "../../../../assets/images/icons";
 import "./styles.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { Select, DatePicker } from "antd";
+import { Select, DatePicker, Input, Button } from "antd";
 import dayjs from "dayjs";
+import moment from "moment";
+import { v4 as uuidv4 } from "uuid";
 import {
-  setFollowUpDate,
-  setFollowUpDoctor,
   setDischargeSummaryData,
+  setFollowUps,
+  addFollowUp,
+  updateFollowUp,
+  removeFollowUp,
 } from "../../../../redux/ipd/dischargeSummarySlice";
 import { fetchFilters } from "../../../../redux/ipd/inPatientsSlice";
-import { isEmptyRichText } from "../../../../utils/utils";
+import {
+  isEmptyRichText,
+  onlyNumberFormat,
+} from "../../../../utils/utils";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
+
+const dateDisplayFormat = "D MMM YYYY";
 
 const FollowUp = (props) => {
   const { isEditable = true, sectionData } = props || {};
@@ -30,6 +39,32 @@ const FollowUp = (props) => {
     setAutoFillTextToAppendAdditionalNotes,
   ] = useState([]);
 
+  // Initialize with at least one follow-up row if none exist
+  useEffect(() => {
+    if (
+      isEditable &&
+      (!dischargeSummaryData?.followUps ||
+        dischargeSummaryData?.followUps?.length === 0)
+    ) {
+      dispatch(
+        setFollowUps([
+          {
+            id: uuidv4(),
+            followUpInput: "",
+            date: null,
+            doctor: [],
+            dateOptions: [
+              { value: "2", unit: "day", label: "2 Days" },
+              { value: "2", unit: "week", label: "2 Weeks" },
+              { value: "2", unit: "month", label: "2 Months" },
+            ],
+          },
+        ])
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, isEditable]);
+
   useEffect(() => {
     dispatch(fetchFilters({ field: "doctor" }));
   }, [dispatch]);
@@ -38,88 +73,141 @@ const FollowUp = (props) => {
     dispatch(setDischargeSummaryData({ ...dischargeSummaryData, [key]: data }));
   };
 
-  const renderFollowUpDate = (data) => {
-    const dateDisplayFormat = "D MMM YYYY";
-    return (
-      <div>
-        <label className="followup-label">
-          {data?.title || "Follow Up Date"}
-        </label>
-        <DatePicker
-          className="w-100 popinput inputheight41"
-          format={{ format: dateDisplayFormat, type: "mask" }}
-          value={
-            dischargeSummaryData?.followUpDate
-              ? dayjs(dischargeSummaryData.followUpDate, dateDisplayFormat)
-              : null
-          }
-          onChange={(date) =>
-            dispatch(
-              setFollowUpDate(date ? date.format(dateDisplayFormat) : "")
-            )
-          }
-          suffixIcon={
-            <img src={defaultIcons.calendarPlainIcon} alt="calendar" />
-          }
-          prefix={null}
-          allowClear
-          inputReadOnly
-          placeholder="dd/mm/yyyy"
-          minDate={dayjs().startOf("day")}
-        />
-      </div>
+  const handleAddFollowUp = () => {
+    dispatch(
+      addFollowUp({
+        id: uuidv4(),
+        followUpInput: "",
+        date: null,
+        doctor: [],
+        dateOptions: [
+          { value: "2", unit: "day", label: "2 Days" },
+          { value: "2", unit: "week", label: "2 Weeks" },
+          { value: "2", unit: "month", label: "2 Months" },
+        ],
+      })
     );
   };
 
-  const renderFollowUpDoctor = (data) => {
-    const options = (doctorsList || []).map((item) => ({
-      key: JSON.stringify(item),
-      value: item.name,
-      label: (
-        <div key={item.id}>
-          {item.name} {item?.speciality ? `(${item?.speciality})` : ""}
-        </div>
-      ),
-    }));
-    return (
-      <div>
-        <label className="followup-label">
-          {data?.title || "Follow Up Doctor Name"}
-        </label>
-        <Select
-          className="autocomplete-custom w-100 popinput inputheight41"
-          placeholder="Select Follow Up Doctor"
-          options={options}
-          mode={"multiple"}
-          value={dischargeSummaryData?.followUpDoctor?.name || undefined}
-          onChange={(value, option) => {
-            if (!value) {
-              dispatch(setFollowUpDoctor(null));
-              return;
-            }
+  const handleRemoveFollowUp = (id) => {
+    dispatch(removeFollowUp(id));
+  };
 
-            try {
-              const parsed = option?.key ? JSON.parse(option.key) : null;
-              if (parsed) {
-                dispatch(setFollowUpDoctor(parsed));
-              } else {
-                dispatch(setFollowUpDoctor({ name: value }));
-              }
-            } catch (e) {
-              dispatch(setFollowUpDoctor({ name: value }));
-            }
-          }}
-          onSearch={(q) =>
-            dispatch(fetchFilters({ field: "doctor", search: q }))
-          }
-          showSearch
-          allowClear
-          optionLabelProp="label"
-        />
-      </div>
+  const disabledDate = (current) => {
+    return current && current < moment().startOf("day");
+  };
+
+  const onChangeFollowUpInput = (id, e) => {
+    const updateQuery = onlyNumberFormat(e.target.value);
+
+    let newDateOptions = [];
+    if (updateQuery.length > 0) {
+      newDateOptions = [
+        {
+          value: `${updateQuery}`,
+          unit: "day",
+          label: `${updateQuery} ${updateQuery <= 1 ? "Day" : "Days"}`,
+        },
+        {
+          value: `${updateQuery}`,
+          unit: "week",
+          label: `${updateQuery} ${updateQuery <= 1 ? "Week" : "Weeks"}`,
+        },
+        {
+          value: `${updateQuery}`,
+          unit: "month",
+          label: `${updateQuery} ${updateQuery <= 1 ? "Month" : "Months"}`,
+        },
+      ];
+    } else {
+      newDateOptions = [
+        { value: "2", unit: "day", label: "2 Days" },
+        { value: "2", unit: "week", label: "2 Weeks" },
+        { value: "2", unit: "month", label: "2 Months" },
+      ];
+    }
+
+    dispatch(
+      updateFollowUp({
+        id,
+        updates: {
+          followUpInput: updateQuery,
+          date: null,
+          dateOptions: newDateOptions,
+        },
+      })
     );
   };
 
+  const onDateChanged = (id, date, dateString) => {
+    if (dateString) {
+      const dateB = moment(dateString);
+      const dateC = moment().startOf("day");
+
+      const days = dateB.diff(dateC, "days");
+      const weeks = dateB.diff(dateC, "weeks");
+      const months = dateB.diff(dateC, "months");
+
+      let displayText = "";
+      if (months > 0) {
+        displayText = `${months} ${months <= 1 ? "Month" : "Months"}`;
+      } else if (weeks > 0) {
+        displayText = `${weeks} ${weeks <= 1 ? "Week" : "Weeks"}`;
+      } else {
+        displayText = `${days} ${days <= 1 ? "Day" : "Days"}`;
+      }
+
+      dispatch(
+        updateFollowUp({
+          id,
+          updates: {
+            followUpInput: displayText,
+            date: dateB.format(dateDisplayFormat),
+            dateOptions: [],
+          },
+        })
+      );
+    }
+  };
+
+  const onOptionPress = (id, option) => {
+    const calculatedDate = moment()
+      .startOf("day")
+      .add(parseInt(option.value), option.unit);
+
+    dispatch(
+      updateFollowUp({
+        id,
+        updates: {
+          followUpInput: option.label,
+          date: calculatedDate.format(dateDisplayFormat),
+          dateOptions: [],
+        },
+      })
+    );
+  };
+
+  const handleDoctorChange = (id, values, options) => {
+    const selectedDoctors = values.map((value, index) => {
+      const option = Array.isArray(options) ? options[index] : options;
+      try {
+        const parsed = option?.key ? JSON.parse(option.key) : null;
+        return parsed || { name: value };
+      } catch (e) {
+        return { name: value };
+      }
+    });
+
+    dispatch(
+      updateFollowUp({
+        id,
+        updates: {
+          doctor: selectedDoctors,
+        },
+      })
+    );
+  };
+console.log('INTEL ==> dischargeSummaryData', dischargeSummaryData);
   const renderAdditionalNotes = (data) => {
     if (!isEditable && isEmptyRichText(dischargeSummaryData?.additionalNotes))
       return null;
@@ -170,26 +258,160 @@ const FollowUp = (props) => {
     );
   };
 
+  const handleClearFollowUpInput = (id) => {
+    dispatch(
+      updateFollowUp({
+        id,
+        updates: {
+          followUpInput: "",
+          date: null,
+          dateOptions: [
+            { value: "2", unit: "day", label: "2 Days" },
+            { value: "2", unit: "week", label: "2 Weeks" },
+            { value: "2", unit: "month", label: "2 Months" },
+          ],
+        },
+      })
+    );
+  };
+
+  const renderFollowUpRow = (followUp, index) => {
+    const { id, followUpInput, date, doctor, dateOptions } =
+      followUp;
+
+    const doctorOptions = (doctorsList || []).map((item) => ({
+      key: JSON.stringify(item),
+      value: item.name,
+      label: (
+        <div key={item.id}>
+          {item.name} {item?.speciality ? `(${item?.speciality})` : ""}
+        </div>
+      ),
+    }));
+
+    const selectedDoctorValues = (doctor || []).map((doc) => doc.name);
+
+    return (
+      <div key={id} className="followup-row-container">
+        <div className="followup-row-fields">
+          <div className="followup-input-group">
+            <label className="followup-label">Follow-up</label>
+            <div className="followup-date-input-wrapper">
+              <div className="followup-input-with-clear">
+                <Input
+                  className="followup-input-field"
+                  placeholder="e.g. 3 Days"
+                  value={followUpInput}
+                  inputMode="numeric"
+                  onChange={(e) => onChangeFollowUpInput(id, e)}
+                  suffix={
+                    followUpInput ? (
+                      <span
+                        className="followup-clear-icon"
+                        onClick={() => handleClearFollowUpInput(id)}
+                      >
+                        ×
+                      </span>
+                    ) : null
+                  }
+                />
+              </div>
+              <DatePicker
+                className="followup-date-picker"
+                inputReadOnly
+                // disabledDate={disabledDate}
+                onChange={(date, dateString) =>
+                  onDateChanged(id, date, dateString)
+                }
+                value={date ? dayjs(date, dateDisplayFormat) : null}
+                suffixIcon={
+                  <img src={defaultIcons.calendarPlainIcon} alt="calendar" />
+                }
+                placeholder="YYYY MMM D"
+              />
+            </div>
+            {date && (
+              <div className="followup-calculated-date">
+                {moment(date, dateDisplayFormat).format("dddd, Do MMMM YYYY")}
+              </div>
+            )}
+            {dateOptions && dateOptions.length > 0 && (
+              <div className="followup-date-options">
+                {dateOptions.map((option, i) => (
+                  <Button
+                    key={i}
+                    type="text"
+                    className="followup-option-btn"
+                    onClick={() => onOptionPress(id, option)}
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="followup-doctor-group">
+            <label className="followup-label">Follow Up Doctor Name</label>
+            <Select
+              className="followup-doctor-select"
+              placeholder="Select Follow Up Doctor"
+              options={doctorOptions}
+              mode="multiple"
+              value={selectedDoctorValues}
+              onChange={(values, options) =>
+                handleDoctorChange(id, values, options)
+              }
+              onSearch={(q) =>
+                dispatch(fetchFilters({ field: "doctor", search: q }))
+              }
+              showSearch
+              allowClear
+              optionLabelProp="label"
+            />
+          </div>
+
+          {isEditable && (
+            <div className="followup-action-group">
+              {index === 0 && (
+                <Button
+                  type="primary"
+                  shape="circle"
+                  icon={<span className="icon-plus">+</span>}
+                  onClick={handleAddFollowUp}
+                  className="followup-add-btn"
+                />
+              )}
+              {dischargeSummaryData?.followUps?.length > 1 && (
+                <Button
+                  type="text"
+                  danger
+                  shape="circle"
+                  icon={<span className="icon-delete" />}
+                  onClick={() => handleRemoveFollowUp(id)}
+                  className="followup-remove-btn"
+                />
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderSection = () => {
-    const followUpDateItem = sectionData?.children?.find(
-      (item) => item.id === "followUpDate"
-    ) || { title: "Follow Up Date" };
-    const followUpDoctorItem = sectionData?.children?.find(
-      (item) => item.id === "followUpDoctor"
-    ) || { title: "Follow Up Doctor Name" };
     const additionalNotesItem = sectionData?.children?.find(
       (item) => item.id === "additionalNotes"
     ) || { title: "Additional Notes", id: "additionalNotes" };
 
+    const followUps = dischargeSummaryData?.followUps || [];
+
     return (
       <div className="followup-container">
-        <div className="followup-fields-row">
-          <div className="followup-date-section">
-            {renderFollowUpDate(followUpDateItem)}
-          </div>
-          <div className="followup-doctor-section">
-            {renderFollowUpDoctor(followUpDoctorItem)}
-          </div>
+        <div className="followup-rows-section">
+          {followUps.map((followUp, index) =>
+            renderFollowUpRow(followUp, index)
+          )}
         </div>
         <div className="followup-additional-notes-section">
           {renderAdditionalNotes(additionalNotesItem)}

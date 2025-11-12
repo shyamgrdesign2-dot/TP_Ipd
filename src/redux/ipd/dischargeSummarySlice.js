@@ -23,6 +23,7 @@ export const initialState = {
     patientInformation: {},
     surgeriesPerformed: [],
     followUpDoctor: {},
+    followUps: [],
   },
   mockValues: {},
   treatmentNotes: [],
@@ -211,6 +212,39 @@ const dischargeSummarySlice = createSlice({
     setAdditionalNotes: (state, action) => {
       state.dischargeSummaryData.additionalNotes = action.payload;
     },
+    setFollowUps: (state, action) => {
+      state.dischargeSummaryData.followUps = Array.isArray(action.payload)
+        ? action.payload
+        : [];
+    },
+    addFollowUp: (state, action) => {
+      if (!state.dischargeSummaryData.followUps) {
+        state.dischargeSummaryData.followUps = [];
+      }
+      state.dischargeSummaryData.followUps.push(action.payload);
+    },
+    updateFollowUp: (state, action) => {
+      const { id, updates } = action.payload;
+      if (!state.dischargeSummaryData.followUps) {
+        state.dischargeSummaryData.followUps = [];
+        return;
+      }
+      const index = state.dischargeSummaryData.followUps.findIndex(
+        (item) => item.id === id
+      );
+      if (index !== -1) {
+        state.dischargeSummaryData.followUps[index] = {
+          ...state.dischargeSummaryData.followUps[index],
+          ...updates,
+        };
+      }
+    },
+    removeFollowUp: (state, action) => {
+      const id = action.payload;
+      if (!state.dischargeSummaryData.followUps) return;
+      state.dischargeSummaryData.followUps =
+        state.dischargeSummaryData.followUps.filter((item) => item.id !== id);
+    },
     setPreparedBy: (state, action) => {
       state.dischargeSummaryData.preparedBy = Array.isArray(action.payload)
         ? action.payload
@@ -349,6 +383,10 @@ export const {
   setFollowUpDate,
   setFollowUpDoctor,
   setAdditionalNotes,
+  setFollowUps,
+  addFollowUp,
+  updateFollowUp,
+  removeFollowUp,
   setPreparedBy,
   setTreatmentNotes,
   addTreatmentNote,
