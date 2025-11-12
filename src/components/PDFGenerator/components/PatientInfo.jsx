@@ -115,7 +115,7 @@ const PatientInfo = ({
   const renderFieldColumns = () => (
     <View>
       <View style={[styles.container, { fontSize: patientInfoFontSize }]}>
-        <View style={{ flex: 0.7 }}>
+        <View style={{ flex: 0.6 }}>
           {visibleFields?.map((item, i) => {
             return (
               i % 2 === 0 && (
@@ -146,7 +146,7 @@ const PatientInfo = ({
       </View>
       {surgeryDateFields.length > 0 ? (
         <View style={[styles.container, { fontSize: patientInfoFontSize }]}>
-          <View style={{ flex: 0.7 }}>
+          <View style={{ flex: 0.6 }}>
             {surgeryDateFields?.map((item, i) => {
               return (
                 i % 2 === 0 && (

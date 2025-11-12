@@ -1,10 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { v4 as uuidv4 } from "uuid";
 import DynamicPickerTable from "./DynamicPickerTable";
 import {
   getMockValues,
   setPhysicalActivities,
 } from "../../redux/ipd/dischargeSummarySlice";
+import { removeBeforeWhiteSpace } from "../../utils/utils";
 
 const PhysicalActivitiesPickerTable = ({ isEditable = true }) => {
   const tableRef = useRef();
@@ -86,12 +88,27 @@ const PhysicalActivitiesPickerTable = ({ isEditable = true }) => {
     subtitleField: "note",
     preventDuplicates: true,
     duplicateCheckField: "id",
-    renderOption: (item) => (
-      <div className="option-row">
-        <span className="option-title">{item.name}</span>
-        {item.note && <span className="option-subtitle">{item.note}</span>}
-      </div>
-    ),
+    renderOption: (item) => {
+      if (item.isCustom) {
+        return (
+          <div className="option-row">
+            <span className="option-title">{item.name}</span>
+            <div>
+              <i className="icon-Add mx-1 text-primary fs-6"></i>
+              <button className="fw-medium text-decoration-underline text-primary bg-transparent border-0 p-0">
+                Add Custom
+              </button>
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div className="option-row">
+          <span className="option-title">{item.name}</span>
+          {item.note && <span className="option-subtitle">{item.note}</span>}
+        </div>
+      );
+    },
   };
 
   const fallbackPhysicalActivitiesData = [
@@ -108,7 +125,9 @@ const PhysicalActivitiesPickerTable = ({ isEditable = true }) => {
   ];
 
   const handleSearch = async (query) => {
-    if (!query.trim()) {
+    const cleanedQuery = removeBeforeWhiteSpace(query);
+
+    if (!cleanedQuery.trim()) {
       return [];
     }
 
@@ -116,8 +135,24 @@ const PhysicalActivitiesPickerTable = ({ isEditable = true }) => {
       mockValues?.physicalActivities || fallbackPhysicalActivitiesData;
 
     const filteredResults = activitiesOptions.filter((activity) =>
-      activity.name.toLowerCase().includes(query.toLowerCase())
+      activity.name.toLowerCase().includes(cleanedQuery.toLowerCase())
     );
+
+    // Check if the exact query matches any existing activity name
+    const exactMatch = filteredResults.some(
+      (activity) =>
+        activity.name.toLowerCase().trim() === cleanedQuery.toLowerCase().trim()
+    );
+
+    // If no exact match exists and query is not empty, add "Add Custom" option
+    if (!exactMatch && cleanedQuery.trim()) {
+      filteredResults.push({
+        id: uuidv4(),
+        name: cleanedQuery,
+        note: "",
+        isCustom: true,
+      });
+    }
 
     return filteredResults;
   };
