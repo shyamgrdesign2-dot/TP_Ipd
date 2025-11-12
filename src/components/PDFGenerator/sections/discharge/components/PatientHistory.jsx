@@ -717,7 +717,7 @@ const PatientHistory = ({
   frequencyList,
   timingList,
   fontSize,
-  isDischargeSummary = false
+  isDischargeSummary = false,
 }) => {
   const hasAssessmentData = isAssessment
     ? !!data?.basicInfo
@@ -783,99 +783,108 @@ const PatientHistory = ({
 
   if (!hasRenderableSubsection) return null;
 
-  return (
-    <View style={styles.sectionContainer} 
-    break
-    >
-      {title ? <SectionTitle title={title} />: null}
-      <View style={styles.mainContainer}>
-        {sortedSubsections.map((subsection) => {
-          const key = subsection.id;
+  const renderPatientHistoryPrint = () => {
+    return (
+      <View style={styles.sectionContainer}>
+        {title ? <SectionTitle title={title} /> : null}
+        <View style={styles.mainContainer}>
+          {sortedSubsections.map((subsection) => {
+            const key = subsection.id;
 
-          // Top Informant
-          if (key === "topInformant" && finalData?.topInformant) {
-            return renderTopInformant(finalData?.topInformant);
-          }
+            // Top Informant
+            if (key === "topInformant" && finalData?.topInformant) {
+              return renderTopInformant(finalData?.topInformant);
+            }
 
-          // Presenting Complaints
-          if (
-            key === "presentingComplaints" &&
-            finalData.presentingComplaints &&
-            !isEmptyRichText(finalData.presentingComplaints)
-          ) {
-            return renderPresentingComplaints(
-              Array.isArray(finalData?.presentingComplaints)
-                ? finalData.presentingComplaints
-                : [finalData.presentingComplaints]
-            );
-          }
+            // Presenting Complaints
+            if (
+              key === "presentingComplaints" &&
+              finalData.presentingComplaints &&
+              !isEmptyRichText(finalData.presentingComplaints)
+            ) {
+              return renderPresentingComplaints(
+                Array.isArray(finalData?.presentingComplaints)
+                  ? finalData.presentingComplaints
+                  : [finalData.presentingComplaints]
+              );
+            }
 
-          // Past Medical History
-          if (key === "pastMedicalHistory" && finalData.pastMedicalHistory) {
-            return renderPastMedicalHistory(finalData.pastMedicalHistory);
-          }
+            // Past Medical History
+            if (key === "pastMedicalHistory" && finalData.pastMedicalHistory) {
+              return renderPastMedicalHistory(finalData.pastMedicalHistory);
+            }
 
-          // Gynec History
-          if (
-            ((isAssessment && key === "gyneacHistory") ||
-              (!isAssessment && key === "gynecHistory")) &&
-            Object.keys(finalData.gyneacHistory)?.length
-          ) {
-            return renderGynecHistory(finalData.gyneacHistory);
-          }
+            // Gynec History
+            if (
+              ((isAssessment && key === "gyneacHistory") ||
+                (!isAssessment && key === "gynecHistory")) &&
+              Object.keys(finalData.gyneacHistory)?.length
+            ) {
+              return renderGynecHistory(finalData.gyneacHistory);
+            }
 
-          // Medications
+            // Medications
 
-          if (isAssessment && key === "medications" && finalData.medications) {
-            // return renderGynecHistory(finalData.medications, fontFamily);
-            return (
-              <MedicationTable
-                medications={
-                  finalData.medications || finalData.currentMedication
-                }
-                title="Medication (Rx)"
-                frequencyList={frequencyList}
-                timingList={timingList}
-                fontSize={fontSize}
-              />
-            );
-          }
+            if (
+              isAssessment &&
+              key === "medications" &&
+              finalData.medications
+            ) {
+              // return renderGynecHistory(finalData.medications, fontFamily);
+              return (
+                <MedicationTable
+                  medications={
+                    finalData.medications || finalData.currentMedication
+                  }
+                  title="Medication (Rx)"
+                  frequencyList={frequencyList}
+                  timingList={timingList}
+                  fontSize={fontSize}
+                />
+              );
+            }
 
-          // Obstetric History
-          if (
-            isAssessment &&
-            key === "obstetricHistory" &&
-            Object.keys(finalData?.obstetricHistory)?.length
-          ) {
-            return (
-              <ObsHistoryListView
-                PX_TO_PT={0.75}
-                styles={obsStyles}
-                printSettings={{
-                  page_format: {
-                    pagination: true,
-                  },
-                }}
-                options={IPD.OBSTETRIC_HISTORY_PRINT_FORMAT_STRUCTURE}
-                obsHistoryData={finalData?.obstetricHistory}
-              />
-            );
-          }
+            // Obstetric History
+            if (
+              isAssessment &&
+              key === "obstetricHistory" &&
+              Object.keys(finalData?.obstetricHistory)?.length
+            ) {
+              return (
+                <ObsHistoryListView
+                  PX_TO_PT={0.75}
+                  styles={obsStyles}
+                  printSettings={{
+                    page_format: {
+                      pagination: true,
+                    },
+                  }}
+                  options={IPD.OBSTETRIC_HISTORY_PRINT_FORMAT_STRUCTURE}
+                  obsHistoryData={finalData?.obstetricHistory}
+                />
+              );
+            }
 
-          // Lab Results
-          if (key === "labResults" && finalData.labResults?.length) {
-            return renderLabResults(finalData.labResults, {
-              page_format: {
-                pagination: true,
-              },
-            });
-          }
+            // Lab Results
+            if (key === "labResults" && finalData.labResults?.length) {
+              return renderLabResults(finalData.labResults, {
+                page_format: {
+                  pagination: true,
+                },
+              });
+            }
 
-          return null;
-        })}
+            return null;
+          })}
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
+  if (isDischargeSummary) {
+    return <View break>{renderPatientHistoryPrint()}</View>;
+  }
+
+  return <View>{renderPatientHistoryPrint()}</View>;
 };
 
 export default PatientHistory;

@@ -157,7 +157,7 @@ const PrintPreviewCrossReferral = () => {
           <Col md={7} sm={7} xl={5}>
             {!isMobile && (
               <div
-                className="d-flex align-items-center justify-content-end h-38"
+                className="d-flex align-items-center justify-content-center h-38"
                 onClick={handleDrawerConfigureSettings}
               >
                 <i className="icon-setting me-2"></i>
