@@ -41,9 +41,15 @@ const styles = StyleSheet.create({
     fontWeight: 600,
     lineHeight: 1.8,
     textTransform: "capitalize",
+    marginBottom: 2,
+  },
+  subsectionTitle2: {
+    color: "#171725",
+    fontWeight: 600,
+    lineHeight: 1.8,
+    textTransform: "capitalize",
     // marginBottom: 2,
   },
-
   // Bullet list container
   bulletList: {
     paddingLeft: 15,
@@ -82,7 +88,7 @@ const renderDiet = (diet) => {
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle]}>Diet:</Text>
+        <Text style={[styles.subsectionTitle2]}>Diet:</Text>
         <View style={styles.bulletList}>
           {diet.map((item, index) => (
             <View key={`diet-${index}`} style={styles.bulletItem}>
@@ -108,7 +114,7 @@ const renderPhysicalActivity = (activities) => {
   return (
     <View style={styles.subsectionContainer}>
       <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle]}>Physical Activity:</Text>
+        <Text style={[styles.subsectionTitle2]}>Physical Activity:</Text>
         <View style={styles.bulletList}>
           {activities.map((item, index) => (
             <View key={`activity-${index}`} style={styles.bulletItem}>
@@ -133,18 +139,7 @@ const renderOtherAdvice = (otherAdvice) => {
 
   return (
     <View style={styles.subsectionContainer}>
-      <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle]}>Other Advice:</Text>
-        <View style={styles.bulletList}>
-          {renderRichText(otherAdvice, {
-            text: {
-              color: "#454551",
-              lineHeight: 1.8,
-            },
-            paragraph: { marginBottom: 0 },
-          })}
-        </View>
-      </View>
+      <RichTextPrintRenderer data={otherAdvice} title="Other Advice:" />
     </View>
   );
 };
@@ -153,37 +148,13 @@ const renderOtherAdvice = (otherAdvice) => {
  * Render Warning Signs subsection
  */
 const renderWarningSigns = (warningSigns) => {
-  if (!warningSigns) return null;
-
-  // Handle both rich text and array formats
-  let items = [];
-  if (Array.isArray(warningSigns) && !isEmptyRichText(warningSigns)) {
-    // Extract text from rich text format
-    const text = warningSigns
-      .map((node) => node.children?.map((child) => child.text).join(""))
-      .join(" ");
-    items = text.split(",").map((item) => item.trim());
-  } else if (typeof warningSigns === "string") {
-    items = warningSigns.split(",").map((item) => item.trim());
-  }
-
-  if (items.length === 0) return null;
-
+  if (!warningSigns || isEmptyRichText(warningSigns)) return null;
   return (
     <View style={styles.subsectionContainer}>
-      <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle]}>
-          When to Obtain Urgent Care:
-        </Text>
-        <View style={styles.bulletList}>
-          {items.map((item, index) => (
-            <View key={`warning-${index}`} style={styles.bulletItem}>
-              <Text style={[styles.bullet]}>•</Text>
-              <Text style={[styles.bulletContent]}>{item}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
+      <RichTextPrintRenderer
+        data={warningSigns}
+        title={"When to Obtain Urgent Care:"}
+      />
     </View>
   );
 };
@@ -204,35 +175,14 @@ const renderPreventiveMeasures = (preventiveMeasures) => {
  * Render Emergency Contact subsection
  */
 const renderEmergencyContact = (emergencyContact) => {
-  if (!emergencyContact) return null;
-
-  // Handle both rich text and array formats
-  let contacts = [];
-  if (Array.isArray(emergencyContact) && !isEmptyRichText(emergencyContact)) {
-    // Extract text from rich text format
-    const text = emergencyContact
-      .map((node) => node.children?.map((child) => child.text).join(""))
-      .join(" ");
-    contacts = text.split(",").map((item) => item.trim());
-  } else if (typeof emergencyContact === "string") {
-    contacts = emergencyContact.split(",").map((item) => item.trim());
-  }
-
-  if (contacts.length === 0) return null;
+  if (!emergencyContact || isEmptyRichText(emergencyContact)) return null;
 
   return (
     <View style={styles.subsectionContainer}>
-      <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle]}>Emergency Contact:</Text>
-        <View style={styles.bulletList}>
-          {contacts.map((contact, index) => (
-            <View key={`contact-${index}`} style={styles.bulletItem}>
-              <Text style={[styles.bullet]}>•</Text>
-              <Text style={[styles.bulletContent]}>{contact}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
+      <RichTextPrintRenderer
+        data={emergencyContact}
+        title="Emergency Contact:"
+      />
     </View>
   );
 };

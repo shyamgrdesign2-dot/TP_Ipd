@@ -121,8 +121,8 @@ const FollowUp = ({ data, title, formatSettings }) => {
                     <Text style={styles.inlineLabel}>{label}: </Text>
                     <Text style={styles.inlineValue}>
                       {followUp.doctor?.name}
-                      {followUp.doctor?.role
-                        ? ` (${followUp.doctor?.role})`
+                      {followUp.doctor?.speciality
+                        ? ` (${followUp.doctor?.speciality})`
                         : ""}
                     </Text>
                   </Text>

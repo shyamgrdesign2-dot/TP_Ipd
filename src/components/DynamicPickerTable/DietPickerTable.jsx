@@ -1,7 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { v4 as uuidv4 } from "uuid";
 import DynamicPickerTable from "./DynamicPickerTable";
 import { getMockValues, setDiet } from "../../redux/ipd/dischargeSummarySlice";
+import { removeBeforeWhiteSpace } from "../../utils/utils";
 
 const DietPickerTable = ({ isEditable = true }) => {
   const tableRef = useRef();
@@ -81,12 +83,27 @@ const DietPickerTable = ({ isEditable = true }) => {
     subtitleField: "note",
     preventDuplicates: true,
     duplicateCheckField: "id",
-    renderOption: (item) => (
-      <div className="option-row">
-        <span className="option-title">{item.name}</span>
-        {item.note && <span className="option-subtitle">{item.note}</span>}
-      </div>
-    ),
+    renderOption: (item) => {
+      if (item.isCustom) {
+        return (
+          <div className="option-row">
+            <span className="option-title">{item.name}</span>
+            <div>
+              <i className="icon-Add mx-1 text-primary fs-6"></i>
+              <button className="fw-medium text-decoration-underline text-primary bg-transparent border-0 p-0">
+                Add Custom
+              </button>
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div className="option-row">
+          <span className="option-title">{item.name}</span>
+          {item.note && <span className="option-subtitle">{item.note}</span>}
+        </div>
+      );
+    },
   };
 
   const fallbackDietData = [
@@ -100,18 +117,37 @@ const DietPickerTable = ({ isEditable = true }) => {
     { id: 8, name: "Lactose-free", note: "" },
     { id: 9, name: "High-fiber diet", note: "Encourage fruits and vegetables" },
     { id: 10, name: "Clear liquid diet", note: "First 24 hours" },
+    { id: 11, name: "Full diet", note: "" },
   ];
 
   const handleSearch = async (query) => {
-    if (!query.trim()) {
+    const cleanedQuery = removeBeforeWhiteSpace(query);
+
+    if (!cleanedQuery.trim()) {
       return [];
     }
 
     const dietOptions = mockValues?.diet || fallbackDietData;
 
     const filteredResults = dietOptions.filter((diet) =>
-      diet.name.toLowerCase().includes(query.toLowerCase())
+      diet.name.toLowerCase().includes(cleanedQuery.toLowerCase())
     );
+
+    // Check if the exact query matches any existing diet name
+    const exactMatch = filteredResults.some(
+      (diet) =>
+        diet.name.toLowerCase().trim() === cleanedQuery.toLowerCase().trim()
+    );
+
+    // If no exact match exists and query is not empty, add "Add Custom" option
+    if (!exactMatch && cleanedQuery.trim()) {
+      filteredResults.push({
+        id: uuidv4(),
+        name: cleanedQuery,
+        note: "",
+        isCustom: true,
+      });
+    }
 
     return filteredResults;
   };
