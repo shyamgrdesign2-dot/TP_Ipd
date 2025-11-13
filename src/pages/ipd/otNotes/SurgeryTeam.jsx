@@ -79,7 +79,8 @@ const SurgeryTeam = (props) => {
                 ? ""
                 : initialValue?.[role.id]
             }
-            type="text"
+            type="string"
+            inputMode="text"
             title={role.title}
             unit={null}
             // disabled={isAnaesthesiologist}
