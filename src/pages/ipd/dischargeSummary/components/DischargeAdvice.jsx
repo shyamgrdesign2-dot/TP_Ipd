@@ -867,6 +867,7 @@ const DischargeAdvice = (props) => {
         onErase={() => {
           setAutoFillTextToAppendWarningSigns(["clear"]);
         }}
+        showTempButtons={true}
         onTemplate={warningSignsHandlers.handleTemplateButtonClick}
         onTemplateSelected={warningSignsHandlers.handleTemplateSelected}
         addTemplate={warningSignsHandlers.handleAddTemplate}
@@ -913,6 +914,7 @@ const DischargeAdvice = (props) => {
         onErase={() => {
           setAutoFillTextToAppendPreventiveMeasures(["clear"]);
         }}
+        showTempButtons={true}
         onTemplate={preventiveMeasuresHandlers.handleTemplateButtonClick}
         onTemplateSelected={preventiveMeasuresHandlers.handleTemplateSelected}
         addTemplate={preventiveMeasuresHandlers.handleAddTemplate}
@@ -959,6 +961,7 @@ const DischargeAdvice = (props) => {
         onErase={() => {
           setAutoFillTextToAppendEmergencyContact(["clear"]);
         }}
+        showTempButtons={true}
         onTemplate={emergencyContactHandlers.handleTemplateButtonClick}
         onTemplateSelected={emergencyContactHandlers.handleTemplateSelected}
         addTemplate={emergencyContactHandlers.handleAddTemplate}
@@ -1005,6 +1008,7 @@ const DischargeAdvice = (props) => {
           onErase={() => {
             setAutoFillTextToAppendOtherAdvice(["clear"]);
           }}
+          showTempButtons={true}
           onTemplate={otherAdviceHandlers.handleTemplateButtonClick}
           onTemplateSelected={otherAdviceHandlers.handleTemplateSelected}
           addTemplate={otherAdviceHandlers.handleAddTemplate}
@@ -1048,6 +1052,7 @@ const DischargeAdvice = (props) => {
                       onErase={() => {
                         dispatch(setDiet([]));
                       }}
+                      showTempButtons={true}
                       onTemplate={dietHandlers.handleTemplateButtonClick}
                       onTemplateSelected={dietHandlers.handleTemplateSelected}
                       addTemplate={dietHandlers.handleAddTemplate}
@@ -1081,6 +1086,7 @@ const DischargeAdvice = (props) => {
                       onErase={() => {
                         dispatch(setPhysicalActivities([]));
                       }}
+                      showTempButtons={true}
                       onTemplate={physicalActivitiesHandlers.handleTemplateButtonClick}
                       onTemplateSelected={physicalActivitiesHandlers.handleTemplateSelected}
                       addTemplate={physicalActivitiesHandlers.handleAddTemplate}
