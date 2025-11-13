@@ -1048,6 +1048,7 @@ const DischargeAdvice = (props) => {
                       opdDate="15 Jun 2025"
                       templates={dietTemplates}
                       templateType="diet"
+                      showTempButtons={true}
                       onSave={dietHandlers.handleTemplateButtonClick}
                       onErase={() => {
                         dispatch(setDiet([]));

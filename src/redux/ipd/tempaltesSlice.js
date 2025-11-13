@@ -174,7 +174,7 @@ export const TEMPLATE_MODULE_CATALOG = [
             id: "patientConditionDuringDischarge",
             title: "Patient Condition During Discharge - Temp",
           },
-          { id: "dischargeMedication", title: "Discharge Medication - Temp" },
+          // { id: "dischargeMedication", title: "Discharge Medication - Temp" },
         ],
       },
       {
