@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     lineHeight: 1.8,
     color: "#171725",
+    paddingRight: "10px",
   },
   title: {
     fontSize: 16,
