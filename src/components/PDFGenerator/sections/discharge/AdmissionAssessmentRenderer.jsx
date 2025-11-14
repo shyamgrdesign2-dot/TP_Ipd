@@ -190,7 +190,7 @@ export const renderAdmissionAssessment = (
     .map((section) => {
       const renderer = sectionRenderers[section.id];
       if (section.isCustom || isValidMongoId(section.id)) {
-        return <CustomModuleRenderer section={section} data={data} />;
+        return <CustomModuleRenderer section={section} data={data?.customModules} />;
       }
       if (renderer) {
         return renderer();

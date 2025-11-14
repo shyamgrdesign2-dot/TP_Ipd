@@ -198,6 +198,7 @@ const IpdCustomModule = ({
         placeholder={resolvedPlaceholder}
         icon={customModuleIcon}
         showTemplate
+        showTempButtons
         showSave
         showErase
         templates={moduleTemplates}

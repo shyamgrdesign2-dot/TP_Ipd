@@ -385,7 +385,7 @@ export const renderOTNotes = (data, formatSettings) => {
       .map((section) => {
         const renderer = sectionRenderers[section.id];
         if (section.isCustom || isValidMongoId(section.id)) {
-          return <CustomModuleRenderer section={section} data={data} />;
+          return <CustomModuleRenderer section={section} data={note?.otNotes?.customModules} />;
         }
         if (renderer) {
           return renderer();

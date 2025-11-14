@@ -322,7 +322,7 @@ const otNotesSlice = createSlice({
       })
       .addCase(updateOtNotesData.fulfilled, (state, action) => {
         state.loading = false;
-        state.otNotesData = action.meta.arg;
+        state.otNotesData = action.payload;
       })
       .addCase(updateOtNotesData.rejected, (state, action) => {
         state.otNotesData = [];

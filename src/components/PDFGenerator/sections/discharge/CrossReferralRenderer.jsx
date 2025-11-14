@@ -79,7 +79,12 @@ export const renderCrossReferral = (data, formatSettings) => {
       .map((section) => {
         const renderer = sectionRenderers[section.id];
         if (section.isCustom || isValidMongoId(section.id)) {
-          return <CustomModuleRenderer section={section} data={data} />;
+          return (
+            <CustomModuleRenderer
+              section={section}
+              data={note?.crossReferral?.customModules}
+            />
+          );
         }
         if (renderer) {
           return renderer();
@@ -90,10 +95,7 @@ export const renderCrossReferral = (data, formatSettings) => {
 
     return (
       <View key={note._id || noteIndex}>
-        <FilledByCard
-          filledBy={note.createdByName}
-          filledOn={note.createdAt}
-        />
+        <FilledByCard filledBy={note.createdByName} filledOn={note.createdAt} />
         {/* Content */}
         {sections}
       </View>
