@@ -784,7 +784,7 @@ const useIpdCustomModules = ({
 
   const renderCustomModulesFooter = useCallback(
     () => (
-      <div className="ipd-custom-module-container">
+      <div className="ipd-add-custom-module-container">
         <AddCustomModule {...addCustomModuleProps} />
       </div>
     ),

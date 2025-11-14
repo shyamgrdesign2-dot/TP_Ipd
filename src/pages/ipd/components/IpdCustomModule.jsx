@@ -31,20 +31,6 @@ const ensureSlateValue = (value) => {
   return DEFAULT_SLATE_VALUE;
 };
 
-const buildContainerClass = (baseClass, isReadOnly, hideBorder, extraClass) =>
-  [
-    baseClass,
-    hideBorder ? `${baseClass}--borderless` : null,
-    isReadOnly ? `${baseClass}--readonly` : null,
-    extraClass,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-// background: #f9f7fd !important;
-// border: 0.5px solid rgb(234, 236, 240);
-// border-radius: 18px;
-
 const IpdCustomModule = ({
   module,
   value,
@@ -59,7 +45,11 @@ const IpdCustomModule = ({
   footerComponent = null,
 }) => {
   const moduleTitle =
-    module?.title || module?.module_name || module?.name || "Custom Module";
+    module?.moduleName ||
+    module?.title ||
+    module?.module_name ||
+    module?.name ||
+    "Custom Module";
 
   const [editorValue, setEditorValue] = useState(() => ensureSlateValue(value));
   const [templateAppendValue, setTemplateAppendValue] = useState([]);
@@ -84,17 +74,6 @@ const IpdCustomModule = ({
     if (placeholder) return placeholder;
     return `Enter ${moduleTitle.toLowerCase()} details`;
   }, [placeholder, moduleTitle]);
-
-  const containerClass = useMemo(
-    () =>
-      buildContainerClass(
-        "ipd-custom-module-wrapper",
-        !isEditable,
-        hideBorder,
-        className
-      ),
-    [className, hideBorder, isEditable]
-  );
 
   const footerRenderer = useCallback(() => footerComponent, [footerComponent]);
 
@@ -163,8 +142,8 @@ const IpdCustomModule = ({
         .then(() => {
           setTemplateAppendValue([]);
         })
-        .catch(() => {
-          /* errors handled in caller */
+        .catch((e) => {
+          console.error("Error saving template", e);
         })
         .finally(() => {
           setIsTemplateLoading(false);
@@ -186,8 +165,8 @@ const IpdCustomModule = ({
       setIsTemplateLoading(true);
 
       Promise.resolve(onDeleteTemplate(templateIdentifier))
-        .catch(() => {
-          /* errors handled upstream */
+        .catch((e) => {
+          console.error("Error deleting template", e);
         })
         .finally(() => {
           setIsTemplateLoading(false);
@@ -204,7 +183,10 @@ const IpdCustomModule = ({
   }
 
   return (
-    <div className={containerClass}>
+    <div
+      key={`custom-module-${JSON.stringify(module)}`}
+      className="ipd-custom-module-wrapper"
+    >
       <RichTextEditWrapper
         readOnly={!isEditable}
         showToolbar={isEditable}
@@ -233,7 +215,9 @@ const IpdCustomModule = ({
         newAutoFillTextToAppend={templateAppendValue}
         setNewAutoFillTextToAppend={resetTemplateAppendValue}
         isShimmeringFromParent={isTemplateLoading}
-        containerClass={!isEditable ? "ipd-wrapper-class-readonly" : undefined}
+        containerClass={`${hideBorder ? "ipd-custom-module-hide-border" : ""} ${
+          !isEditable ? "ipd-wrapper-class-readonly readonly-container-box" : ""
+        }`}
         isDataPresent={!isEmptyRichText(editorValue)}
         onErase={() => setTemplateAppendValue(["clear"])}
       />

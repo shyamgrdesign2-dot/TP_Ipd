@@ -23,6 +23,8 @@ import FilledByCards from "./components/FilledByCards.jsx";
 import { useDischargeSummaryData } from "../dischargeSummary/utils/useDischargeSummaryData.js";
 import useOnlyViewMode from "../../../hooks/useOnlyViewMode";
 import { Empty } from "antd";
+import { groupIpdCustomModulesById } from "../../../utils/utils.js";
+import IpdCustomModule from "../components/IpdCustomModule.jsx";
 const ReusableStepper = createRemoteComponent("ReusableStepper");
 const GenericCard = createRemoteComponent("GenericCard");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -386,6 +388,18 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
                           default:
                             return null;
                         }
+                      })}
+                      {groupIpdCustomModulesById(
+                        entry?.otNotes?.customModules
+                      )?.map((customModule) => {
+                        return (
+                          <IpdCustomModule
+                            module={customModule}
+                            value={customModule.content}
+                            isEditable={false}
+                            hideBorder
+                          />
+                        );
                       })}
                       <FilledByCards
                         updates={

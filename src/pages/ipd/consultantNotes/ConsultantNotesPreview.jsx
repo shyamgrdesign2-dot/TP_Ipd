@@ -11,7 +11,6 @@ import { IPD } from "../../../utils/locale.js";
 import useCheckExaminationData from "../../../hooks/useCheckExaminationData.js";
 import CNExaminationSection from "../assessmentForm/CNExaminationSection.jsx";
 import FilledByCards from "../otNotes/components/FilledByCards.jsx";
-import ExaminationSection from "../assessmentForm/ExaminationSection.jsx";
 import { groupIpdCustomModulesById } from "../../../utils/utils.js";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -28,7 +27,9 @@ const ConsultantNotesPreview = ({ entry }) => {
   const labInvestigation = consultationData?.labInvestigation || [];
   const additionalRemarks = consultationData?.additionalRemarks;
 
-  const customModulesArray = groupIpdCustomModulesById(consultationData?.customModules);
+  const customModulesArray = groupIpdCustomModulesById(
+    consultationData?.customModules
+  );
 
   const filledBy = entry?.createdByName;
   const role = entry?.createdByRole;
