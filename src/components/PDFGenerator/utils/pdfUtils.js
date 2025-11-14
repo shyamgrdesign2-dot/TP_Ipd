@@ -3,7 +3,9 @@
  * Helper functions for PDF generation - Zydus Design Match
  */
 
+import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import { PX_TO_PT, CM_TO_PT, INCH_TO_PT } from "../constants";
+import SlateToPdf from "../components/SlateToPdf";
 
 /**
  * Convert pixels to points
@@ -233,3 +235,100 @@ export const getSalutation = ({ gender = "", age = null }) => {
   return "";
 };
 
+export const renderRichText = (data, title) => {
+  const styles = StyleSheet.create({
+    // Subsection container
+    subsectionContainer: {
+      paddingVertical: 6,
+      paddingHorizontal: 0,
+    },
+
+    // Content container
+    contentContainer: {
+      gap: 4,
+    },
+
+    // Subsection title
+    subsectionTitle: {
+      color: "#171725",
+      fontWeight: 600,
+      lineHeight: 1.8,
+      textTransform: "capitalize",
+      marginBottom: 4,
+    },
+
+    // Bullet list container
+    bulletList: {
+      paddingLeft: 15,
+    },
+  });
+
+  if (!data || isEmptyRichText(data)) return null;
+
+  // Custom styles for SlateToPdf to match existing styling
+  const customStyles = {
+    text: {
+      color: "#454551",
+      lineHeight: 1.8,
+    },
+    paragraph: {
+      marginBottom: 0,
+    },
+    bulletList: {
+      paddingLeft: 0,
+    },
+    numberedList: {
+      paddingLeft: 0,
+    },
+    bulletItem: {
+      flexDirection: "row",
+      marginBottom: 0,
+    },
+    numberedItem: {
+      flexDirection: "row",
+      marginBottom: 0,
+    },
+    bulletSymbol: {
+      width: 12,
+
+      color: "#454551",
+      fontWeight: 400,
+      lineHeight: 1.8,
+    },
+    numberedSymbol: {
+      width: 15,
+
+      color: "#454551",
+      fontWeight: 400,
+      lineHeight: 1.8,
+    },
+    bulletText: {
+      flex: 1,
+      color: "#454551",
+      fontWeight: 400,
+      lineHeight: 1.8,
+      textTransform: "capitalize",
+    },
+    numberedText: {
+      flex: 1,
+      color: "#454551",
+      fontWeight: 400,
+      lineHeight: 1.8,
+      textTransform: "capitalize",
+    },
+  };
+
+  return (
+    <View style={styles.subsectionContainer}>
+      <View style={styles.contentContainer}>
+        <Text style={[styles.subsectionTitle]}>{title}:</Text>
+        <View style={styles.bulletList}>
+          <SlateToPdf
+            nodes={Array.isArray(data) ? data : [data]}
+            customStyles={customStyles}
+          />
+        </View>
+      </View>
+    </View>
+  );
+};

@@ -519,7 +519,9 @@ const printSettingsSlice = createSlice({
       })
       .addCase(updatePrintSettings.fulfilled, (state, action) => {
         state.loading = false;
-        state.printSettings = action.payload;
+        const requestPayload = action.meta.arg;
+        state.printSettings = requestPayload;
+        state.draftSettings = requestPayload;
       })
       .addCase(updatePrintSettings.rejected, (state, action) => {
         state.loading = false;

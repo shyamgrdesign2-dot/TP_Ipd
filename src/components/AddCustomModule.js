@@ -10,22 +10,48 @@ import "./CustomModule.scss";
 import CustomModuleIcon from "../assets/images/custom-module.svg";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addModule,
-  getModuleContents,
-  getModules,
+  addModule as addModuleOPD,
+  getModuleContents as getModuleContentsOPD,
+  getModules as getModulesOPD,
 } from "../redux/customModuleSlice";
+import {
+  addModule as addModuleIPD,
+  getCustomModules as getCustomModulesIPD,
+  getModuleContents as getModuleContentsIPD,
+} from "../redux/ipd/customModuleSlice";
 import CashManagerContext from "../context/CashManagerContext";
 import { MESSAGE_KEY } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import { customizedPad } from "../redux/doctorsSlice";
 import { savePrintsettings } from "../redux/doctorsSlice";
+import {
+  buildCustomModuleSection,
+  extractModulesFromResponse,
+} from "../utils/customModuleHelpers";
 
-const AddCustomModule = () => {
+const AddCustomModule = ({
+  form,
+  customModuleContents: customModuleContentsProp,
+  setCustomModuleContents: setCustomModuleContentsProp,
+  admissionId,
+  patientId,
+  onCustomModuleAdded,
+}) => {
   const [showInput, setShowInput] = useState(false);
   const [newModuleName, setNewModuleName] = useState("");
   const dispatch = useDispatch();
-  const { customModules } = useSelector((state) => state.customModules);
+
+  const isIPDMode = !!form;
+
+  const { customModules: opdCustomModules } = useSelector(
+    (state) => state.customModules
+  );
+  const { customModules: ipdCustomModules } = useSelector(
+    (state) => state.ipdCustomModules
+  );
+  const customModules = isIPDMode ? ipdCustomModules : opdCustomModules;
+
   const {
     userId,
     customizedPadRightList,
@@ -33,22 +59,56 @@ const AddCustomModule = () => {
     defaultPrintSettings,
   } = useSelector((state) => state.doctors);
 
-  const { setCustomModuleContents, tcmId } = useContext(CashManagerContext);
+  const context = useContext(CashManagerContext);
+  const setCustomModuleContents =
+    setCustomModuleContentsProp || context?.setCustomModuleContents;
+  const tcmId = admissionId || patientId || context?.tcmId;
+
+  const getCustomModuleContents = useCallback(async () => {
+    if (isIPDMode) {
+      if (!tcmId || !form) return;
+      const action = await dispatch(getModuleContentsIPD({ tcmId, form }));
+      if (action.meta.requestStatus === "fulfilled") {
+        const contents = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload?.moduleContents || [];
+        if (setCustomModuleContents) {
+          setCustomModuleContents(
+            contents.filter(
+              (e) => !!customModules.find((cm) => cm.module_id === e.module_id)
+            )
+          );
+        }
+      }
+    } else {
+      const action = await dispatch(getModuleContentsOPD(tcmId));
+      if (action.meta.requestStatus === "fulfilled") {
+        if (setCustomModuleContents) {
+          setCustomModuleContents(
+            action.payload.moduleContents?.filter(
+              (e) => !!customModules.find((cm) => cm.module_id === e.module_id)
+            )
+          );
+        }
+      }
+    }
+  }, [
+    tcmId,
+    form,
+    isIPDMode,
+    customModules,
+    setCustomModuleContents,
+    dispatch,
+  ]);
 
   useEffect(() => {
-    if (tcmId) {
+    if (tcmId && !isIPDMode) {
       getCustomModuleContents();
     }
-  }, [tcmId]);
-
-  useEffect(() => {
-    if (customModules?.length) {
-      syncPrintSettings();
-      syncRightRxPad();
-    }
-  }, [customModules]);
+  }, [tcmId, isIPDMode, getCustomModuleContents]);
 
   const syncPrintSettings = useCallback(() => {
+    if (isIPDMode) return;
     const customModuleMap = new Map(
       customModules.map((module) => [module.module_id, module.name])
     );
@@ -113,9 +173,10 @@ const AddCustomModule = () => {
 
       dispatch(savePrintsettings(sendData));
     }
-  }, [customModules]);
+  }, [customModules, defaultPrintSettings, dispatch, isIPDMode]);
 
   const syncRightRxPad = useCallback(() => {
+    if (isIPDMode) return;
     const customModuleMap = new Map(
       customModules.map((module) => [module.module_id, module.name])
     );
@@ -172,24 +233,34 @@ const AddCustomModule = () => {
 
       dispatch(customizedPad(sendData));
     }
-  }, [customModules]);
-
-  const getCustomModuleContents = useCallback(async () => {
-    const action = await dispatch(getModuleContents(tcmId));
-    if (action.meta.requestStatus === "fulfilled") {
-      setCustomModuleContents(
-        action.payload.moduleContents?.filter(
-          (e) => !!customModules.find((cm) => cm.module_id === e.module_id)
-        )
-      );
-    }
-  }, [tcmId]);
+  }, [
+    customModules,
+    customizedPadLeftList,
+    customizedPadRightList,
+    dispatch,
+    isIPDMode,
+  ]);
 
   useEffect(() => {
-    dispatch(getModules(userId)).catch((error) =>
-      message.error(error || "Failed to fetch modules.")
-    );
-  }, [userId]);
+    if (customModules?.length && !isIPDMode) {
+      syncPrintSettings();
+      syncRightRxPad();
+    }
+  }, [customModules, isIPDMode, syncPrintSettings, syncRightRxPad]);
+
+  useEffect(() => {
+    if (isIPDMode) {
+      if (userId && form) {
+        dispatch(getCustomModulesIPD({ userId, form })).catch((error) =>
+          message.error(error || "Failed to fetch modules.")
+        );
+      }
+    } else {
+      dispatch(getModulesOPD(userId)).catch((error) =>
+        message.error(error || "Failed to fetch modules.")
+      );
+    }
+  }, [userId, form, isIPDMode, dispatch]);
 
   const handleAddModule = async () => {
     if (!newModuleName.trim()) {
@@ -206,19 +277,72 @@ const AddCustomModule = () => {
     }
 
     try {
-      const action = await dispatch(
-        addModule({
-          userId,
-          modules: [
-            ...customModules,
-            {
-              name: newModuleName,
-              templates: [],
-            },
-          ],
-        })
+      const previousModuleIds = new Set(
+        customModules.map((cm) => cm.module_id)
       );
+      const modulesPayload = [
+        ...customModules,
+        {
+          name: newModuleName,
+          templates: [],
+        },
+      ];
+
+      let action;
+      if (isIPDMode) {
+        action = await dispatch(
+          addModuleIPD({
+            data: {
+              userId,
+              modules: modulesPayload,
+              form,
+            },
+          })
+        );
+      } else {
+        action = await dispatch(
+          addModuleOPD({
+            userId,
+            modules: modulesPayload,
+          })
+        );
+      }
+
       if (action.meta.requestStatus === "fulfilled") {
+        let updatedModules = extractModulesFromResponse(action.payload);
+
+        if (isIPDMode) {
+          if (!updatedModules.length) {
+            const refreshAction = await dispatch(
+              getCustomModulesIPD({ userId, form })
+            );
+            if (refreshAction.meta.requestStatus === "fulfilled") {
+              updatedModules = extractModulesFromResponse(
+                refreshAction.payload
+              );
+            }
+          }
+
+          if (typeof onCustomModuleAdded === "function") {
+            const addedModule =
+              updatedModules.find(
+                (module) =>
+                  module &&
+                  !previousModuleIds.has(module.module_id) &&
+                  module.module_id
+              ) ||
+              updatedModules.find(
+                (module) =>
+                  module?.name?.toLowerCase() ===
+                  newModuleName.trim().toLowerCase()
+              );
+
+            if (addedModule) {
+              onCustomModuleAdded(buildCustomModuleSection(addedModule));
+            }
+          }
+        }
+
         setShowInput(false);
         message.open({
           key: MESSAGE_KEY,
@@ -226,7 +350,7 @@ const AddCustomModule = () => {
           className: "message-appointment",
           content: (
             <div className="d-flex align-items-center">
-              <img src={visitEnd} className="me-3" />
+              <img src={visitEnd} className="me-3" alt="Success" />
               <div>
                 <div className="title-common text-start fontroboto">{`${newModuleName} module has been created successfully.`}</div>
               </div>
@@ -234,6 +358,7 @@ const AddCustomModule = () => {
                 src={imgCloseVisit}
                 className="ms-3"
                 onClick={() => message.destroy()}
+                alt="Close"
               />
             </div>
           ),

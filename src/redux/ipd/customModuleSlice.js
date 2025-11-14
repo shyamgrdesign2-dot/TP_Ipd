@@ -10,7 +10,6 @@ const initialState = {
   error: null,
 };
 
-// @cursor: IPD CustomModule Integration
 export const getCustomModules = createAsyncThunk(
   "customModules/getCustomModules",
   async (data, { rejectWithValue }) => {

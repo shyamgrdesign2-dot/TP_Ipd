@@ -27,10 +27,9 @@ import {
   getCustomization,
   updateCustomization,
 } from "../../../redux/ipd/ipdSlice";
-import AddCustomModule from "../../../components/AddCustomModule";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
-import CustomModule from "../../../components/CustomModule";
+import useIpdCustomModules from "../../../hooks/useIpdCustomModules";
 import { MESSAGE_KEY } from "../../../utils/constants";
 import visitEnd from "../../../assets/images/end-visit.svg";
 import imgCloseVisit from "../../../assets/images/close-visit.svg";
@@ -72,6 +71,8 @@ const ProgressNotes = (props) => {
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [shouldAutofill, setShouldAutofill] = useState(false);
+
+  const formType = "progressNotes";
 
   const mergeDateAndTime = useCallback((dateValue, timeValue) => {
     const dateMoment = dayjs(dateValue ?? new Date());
@@ -119,7 +120,6 @@ const ProgressNotes = (props) => {
   } = useSelector((state) => state.progressNotes);
 
   const { customization = {} } = useSelector((state) => state.ipd);
-  const { customModules } = useSelector((state) => state.customModules);
   const { profile } = useSelector((state) => state.doctors);
 
   const { progressNotes: progressNotesCustomization = [] } = customization;
@@ -128,6 +128,25 @@ const ProgressNotes = (props) => {
       ? progressNotesCustomization
       : IPD.DEFAULT_PROGRESS_NOTES_FORM_STRUCTURE
   );
+
+  const {
+    customModuleContents,
+    isCustomModuleSection,
+    renderCustomModuleSection: renderCustomModuleComponent,
+    renderCustomModulesFooter,
+    hydrateFromSavedModules,
+    serializeCustomModules,
+    handleCustomModuleRenamed,
+  } = useIpdCustomModules({
+    formType,
+    customizationKey: "progressNotes",
+    modelData,
+    setModelData,
+    admissionId,
+    patientId,
+    patientData: patient_data,
+    isEditable,
+  });
 
   // Preload from navigation state when user clicked Edit from the timeline
   useEffect(() => {
@@ -157,6 +176,15 @@ const ProgressNotes = (props) => {
       dispatch(getProgressNotes({ patientId, admissionId }));
     }
   }, [dispatch, patientId, admissionId]);
+
+  useEffect(() => {
+    hydrateFromSavedModules(
+      currentProgressNote?.progressNotes?.customModules || []
+    );
+  }, [
+    currentProgressNote?.progressNotes?.customModules,
+    hydrateFromSavedModules,
+  ]);
 
   // Load filledDate and filledAtTime from current note if it changes (kept, with minor fix)
   useEffect(() => {
@@ -200,6 +228,7 @@ const ProgressNotes = (props) => {
         additionalRemarks: additionalRemarks || [],
         date: filledDate,
         time: filledAtTime,
+        customModules: serializeCustomModules(customModuleContents),
       };
 
       // Validate that there's actual data to save
@@ -277,7 +306,7 @@ const ProgressNotes = (props) => {
           className: "message-appointment",
           content: (
             <div className="d-flex align-items-center">
-              <img src={alertIcon} className="me-3" />
+              <img src={alertIcon} className="me-3" alt="Alert" />
               <div>
                 <div className="title-common text-start fontroboto">
                   Please fill in at least one field before saving!
@@ -287,6 +316,7 @@ const ProgressNotes = (props) => {
                 src={imgCloseVisit}
                 className="ms-3"
                 onClick={() => message.destroy()}
+                alt="Close"
               />
             </div>
           ),
@@ -312,7 +342,7 @@ const ProgressNotes = (props) => {
           className: "message-appointment",
           content: (
             <div className="d-flex align-items-center">
-              <img src={visitEnd} className="me-3" />
+              <img src={visitEnd} className="me-3" alt="Success" />
               <div>
                 <div className="title-common text-start fontroboto">
                   Progress Notes Saved Successfully!
@@ -322,6 +352,7 @@ const ProgressNotes = (props) => {
                 src={imgCloseVisit}
                 className="ms-3"
                 onClick={() => message.destroy()}
+                alt="Close"
               />
             </div>
           ),
@@ -430,6 +461,10 @@ const ProgressNotes = (props) => {
 
   const renderSections = useCallback(
     (data) => {
+      if (isCustomModuleSection(data)) {
+        return renderCustomModuleComponent(data);
+      }
+
       switch (data?.id) {
         case "chiefComplaint":
           return (
@@ -479,31 +514,20 @@ const ProgressNotes = (props) => {
     },
     [
       props,
-      handleAutofillVitals,
-      handleAutofillFindings,
-      handleAutofillChiefComplaint,
-      handleAutofillAdditionalRemarks,
       shouldAutofill,
+      isEditable,
+      dispatch,
+      isCustomModuleSection,
+      renderCustomModuleComponent,
     ]
   );
 
-  const renderBottomSection = () => {
-    return (
-      <div className="ipd-custom-module-container">
-        {customModules?.map((customModule) => {
-          return (
-            <CustomModule module={customModule} patient_data={patient_data} />
-          );
-        })}
-        <AddCustomModule />
-      </div>
-    );
-  };
+  const renderBottomSection = () => renderCustomModulesFooter();
 
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
-  const handleTimePeriodChange = (value) => {
+  const handleTimePeriodChange = useCallback((value) => {
     setSelectedTimePeriod(value);
-  };
+  }, []);
 
   const renderFilledBySection = () => {
     return (
@@ -529,19 +553,6 @@ const ProgressNotes = (props) => {
           editable
           showTimePeriod={true}
         />
-      </div>
-    );
-  };
-
-  const renderCustomModuleSection = () => {
-    return (
-      <div className="ipd-custom-module-container">
-        {customModules?.map((customModule) => {
-          return (
-            <CustomModule module={customModule} patient_data={patient_data} />
-          );
-        })}
-        <AddCustomModule />
       </div>
     );
   };
@@ -648,7 +659,7 @@ const ProgressNotes = (props) => {
               }}
               headerOffset={72}
               renderTopSection={renderFilledBySection}
-              // renderBottomSection={renderCustomModuleSection}
+              renderBottomSection={renderBottomSection}
               showAutoFill={!!progressNotes?.length}
               autoFillTitle={
                 progressNotes && progressNotes.length > 0
@@ -701,6 +712,7 @@ const ProgressNotes = (props) => {
                   setModelData(e);
                 }}
                 customModel={modelData}
+                onUpdateCustomModuleName={handleCustomModuleRenamed}
               />
             </div>
           </Suspense>

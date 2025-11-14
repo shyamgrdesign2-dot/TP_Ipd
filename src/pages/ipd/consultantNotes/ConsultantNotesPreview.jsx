@@ -11,6 +11,8 @@ import { IPD } from "../../../utils/locale.js";
 import useCheckExaminationData from "../../../hooks/useCheckExaminationData.js";
 import CNExaminationSection from "../assessmentForm/CNExaminationSection.jsx";
 import FilledByCards from "../otNotes/components/FilledByCards.jsx";
+import ExaminationSection from "../assessmentForm/ExaminationSection.jsx";
+import { groupIpdCustomModulesById } from "../../../utils/utils.js";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
@@ -25,6 +27,9 @@ const ConsultantNotesPreview = ({ entry }) => {
   const examination = consultationData?.examination || [];
   const labInvestigation = consultationData?.labInvestigation || [];
   const additionalRemarks = consultationData?.additionalRemarks;
+
+  const customModulesArray = groupIpdCustomModulesById(consultationData?.customModules);
+
   const filledBy = entry?.createdByName;
   const role = entry?.createdByRole;
   const checkExaminationDataPresent = useCheckExaminationData(examination);
@@ -235,6 +240,34 @@ const ConsultantNotesPreview = ({ entry }) => {
             </div>
           </div>
         )}
+
+        {/* Custom Modules */}
+
+        {customModulesArray.map(({ moduleId, content = [], moduleName }) => (
+          <div className="cnp-section" key={moduleId}>
+            <div className="cnp-section-header">
+              <img
+                className="cnp-section-icon"
+                src={consultantIcons.customModulesPc}
+                alt={moduleName}
+              />
+              <div className="cnp-section-title">{moduleName}</div>
+            </div>
+            <div className="cnp-section-content">
+              <RichTextEditor
+                showActionBtns={false}
+                showAutoFill={false}
+                showMagicPenGif={false}
+                width={"100%"}
+                showMicrophone={false}
+                showToolbar={false}
+                readOnly={true}
+                className="rich-text-editor-container-readonly"
+                initialValue={content}
+              />
+            </div>
+          </div>
+        ))}
 
         <FilledByCards
           updates={!!updates.length ? [updates[updates.length - 1]] : []}

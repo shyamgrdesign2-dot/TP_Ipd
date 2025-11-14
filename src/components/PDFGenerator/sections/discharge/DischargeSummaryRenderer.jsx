@@ -17,6 +17,8 @@ import DischargeAdvice from "./components/DischargeAdvice";
 import FollowUp from "./components/FollowUp";
 import { renderSimpleText } from "../ListViewRenderer";
 import { getAllVisibleSections } from "../../utils/pdfUtils";
+import { isValidMongoId } from "../../../../utils/utils";
+import CustomModuleRenderer from "../../components/CustomModuleRenderer";
 
 const styles = StyleSheet.create({
   sectionContainer: {
@@ -418,6 +420,11 @@ export const renderDischargeSummary = (
   const sections = sortedSections
     .map((section) => {
       const renderer = sectionRenderers[section.key];
+      if (section.isCustom || isValidMongoId(section.id)) {
+        return (
+          <CustomModuleRenderer section={section} data={data?.customModules} />
+        );
+      }
       if (renderer) {
         return renderer();
       }

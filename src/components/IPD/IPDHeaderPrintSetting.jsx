@@ -124,7 +124,17 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
 
     try {
       // Remove server-managed fields before updating
-      const { _id, doctorId, hospitalId, ...settingsPayload } = draftSettings;
+      const {
+        _id,
+        doctorId,
+        hospitalId,
+        createdAt,
+        createdBy,
+        updatedAt,
+        updatedBy,
+        message,
+        ...settingsPayload
+      } = draftSettings;
 
       // Call update print settings API with the module settings
       const action = await dispatch(

@@ -9,6 +9,8 @@ import FilledByCard from "../../components/FilledByCard";
 import ReferralInformation from "./components/ReferralInformation";
 import SectionTitle from "../SectionTitle";
 import RichTextPrintRendererSection from "./components/RichTextPrintRendererSection";
+import { isValidMongoId } from "../../../../utils/utils";
+import CustomModuleRenderer from "../../components/CustomModuleRenderer";
 
 const styles = StyleSheet.create({
   sectionContainer: {
@@ -76,6 +78,9 @@ export const renderCrossReferral = (data, formatSettings) => {
     const sections = sortedSections
       .map((section) => {
         const renderer = sectionRenderers[section.id];
+        if (section.isCustom || isValidMongoId(section.id)) {
+          return <CustomModuleRenderer section={section} data={data} />;
+        }
         if (renderer) {
           return renderer();
         }

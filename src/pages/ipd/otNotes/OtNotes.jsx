@@ -3,16 +3,14 @@ import { IPD } from "../../../utils/locale.js";
 import "../assessmentForm/styles.scss";
 import "./styles.scss";
 import { Button, Drawer, message } from "antd";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { createRemoteComponent } from "../../../shared/remoteComponents.js";
 import {
   getCustomization,
   updateCustomization,
 } from "../../../redux/ipd/ipdSlice.js";
-import AddCustomModule from "../../../components/AddCustomModule.js";
-import { useSelector } from "react-redux";
-import CustomModule from "../../../components/CustomModule.js";
+import useIpdCustomModules from "../../../hooks/useIpdCustomModules";
 import SurgeryDetails from "./SurgeryDetails";
 import SurgeryTeam from "./SurgeryTeam";
 import OperativeNotes from "./OperativeNotes";
@@ -58,7 +56,6 @@ const OtNotes = (props) => {
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const { customization = {} } = useSelector((state) => state.ipd);
   const otNotesState = useSelector((state) => state.otNotes);
-  const { customModules } = useSelector((state) => state.customModules);
   const otNotesData = useSelector((state) => state.otNotes);
   const { otNotes = [] } = customization;
   const [modelData, setModelData] = useState(
@@ -68,6 +65,27 @@ const OtNotes = (props) => {
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
+  const formType = "otNotes";
+
+  const {
+    customModuleContents,
+    isCustomModuleSection,
+    renderCustomModuleSection: renderCustomModuleComponent,
+    renderCustomModulesFooter,
+    hydrateFromSavedModules,
+    serializeCustomModules,
+    handleCustomModuleRenamed,
+  } = useIpdCustomModules({
+    formType,
+    customizationKey: "otNotes",
+    modelData,
+    setModelData,
+    admissionId: patientDetails?.admissionId,
+    patientId: patientDetails?.details?.id,
+    patientData: patient_data,
+    isEditable,
+  });
+
   const handleTimePeriodChange = (value) => {
     setSelectedTimePeriod(value);
   };
@@ -131,7 +149,10 @@ const OtNotes = (props) => {
     const currentNote = otNotesArray.find(
       (note) => note._id === otNotesState.currentOtNoteId
     );
+
+    hydrateFromSavedModules(currentNote?.otNotes?.customModules || []);
   }, [
+    hydrateFromSavedModules,
     otNotesState?.currentOtNoteId,
     otNotesState?.otNotesData,
   ]);
@@ -167,6 +188,10 @@ const OtNotes = (props) => {
     // Don't render if data is undefined or doesn't have required properties
     if (!data || !data.id) {
       return null;
+    }
+
+    if (isCustomModuleSection(data)) {
+      return renderCustomModuleComponent(data);
     }
 
     return (
@@ -286,7 +311,7 @@ const OtNotes = (props) => {
           {}
         ),
       },
-      customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
+      customModules: serializeCustomModules(customModuleContents),
     };
 
     const response = await dispatch(
@@ -347,18 +372,7 @@ const OtNotes = (props) => {
     }
   };
 
-  const renderBottomSection = () => {
-    return (
-      <div className="ipd-custom-module-container">
-        {customModules?.map((customModule) => {
-          return (
-            <CustomModule module={customModule} patient_data={patient_data} />
-          );
-        })}
-        <AddCustomModule />
-      </div>
-    );
-  };
+  const renderBottomSection = () => renderCustomModulesFooter();
 
   const renderFilledBySection = () => {
     return (
@@ -471,6 +485,7 @@ const OtNotes = (props) => {
                   }}
                   headerOffset={72}
                   onMenuItemClick={onMenuItemClick}
+                  renderBottomSection={renderBottomSection}
                 />
               ) : otNotes.length > 0 ? (
                 otNotes.map((item) => {
@@ -519,6 +534,7 @@ const OtNotes = (props) => {
                   setModelData(e);
                 }}
                 customModel={modelData}
+                onUpdateCustomModuleName={handleCustomModuleRenamed}
               />
             </div>
           </Suspense>

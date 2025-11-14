@@ -13,6 +13,8 @@ import FunctionalAssessment from "./components/FunctionalAssessment";
 import { renderSimpleText } from "../ListViewRenderer";
 import { getAllVisibleSections } from "../../utils/pdfUtils";
 import RichTextPrintRendererSection from "./components/RichTextPrintRendererSection";
+import { isValidMongoId } from "../../../../utils/utils";
+import CustomModuleRenderer from "../../components/CustomModuleRenderer";
 
 const styles = StyleSheet.create({
   sectionContainer: {
@@ -151,6 +153,7 @@ export const renderAdmissionAssessment = (
   fontSize
 ) => {
   const sortedSections = getAllVisibleSections(formatSettings || null);
+
   if (!data || !formatSettings) return [];
 
   // Get sorted sections
@@ -186,6 +189,9 @@ export const renderAdmissionAssessment = (
   const sections = sortedSections
     .map((section) => {
       const renderer = sectionRenderers[section.id];
+      if (section.isCustom || isValidMongoId(section.id)) {
+        return <CustomModuleRenderer section={section} data={data} />;
+      }
       if (renderer) {
         return renderer();
       }

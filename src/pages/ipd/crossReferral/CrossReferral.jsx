@@ -10,9 +10,7 @@ import {
   getCustomization,
   updateCustomization,
 } from "../../../redux/ipd/ipdSlice.js";
-import AddCustomModule from "../../../components/AddCustomModule.js";
-import { useSelector } from "react-redux";
-import CustomModule from "../../../components/CustomModule.js";
+import useIpdCustomModules from "../../../hooks/useIpdCustomModules";
 import {
   resetCrossReferralForm,
   updateCrossReferralData,
@@ -26,6 +24,7 @@ import ReferralInformation from "./ReferralInformation.jsx";
 import dayjs from "dayjs";
 import FullPageLoader from "../../vaccination/components/Loader.js";
 import { errorMessage } from "../../../utils/utils.js";
+import { useSelector } from "react-redux";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -42,9 +41,10 @@ const CrossReferral = (props) => {
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
+
+  const formType = "crossReferral";
   const { customization = {} } = useSelector((state) => state.ipd);
   const crossReferralState = useSelector((state) => state.crossReferral);
-  const { customModules } = useSelector((state) => state.customModules);
   const crossReferralData = useSelector((state) => state.crossReferral);
   const { profile } = useSelector((state) => state.doctors);
   const { crossReferral = [] } = customization;
@@ -54,11 +54,24 @@ const CrossReferral = (props) => {
       : IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE
   );
 
-  useEffect(() => {
-    if (crossReferral.length > 0) {
-      setModelData(crossReferral);
-    }
-  }, [crossReferral]);
+  const {
+    customModuleContents,
+    isCustomModuleSection,
+    renderCustomModuleSection: renderCustomModuleComponent,
+    renderCustomModulesFooter,
+    hydrateFromSavedModules,
+    serializeCustomModules,
+    handleCustomModuleRenamed,
+  } = useIpdCustomModules({
+    formType,
+    customizationKey: "crossReferral",
+    modelData,
+    setModelData,
+    admissionId: patientDetails?.admissionId,
+    patientId: patientDetails?.details?.id,
+    patientData: patient_data,
+    isEditable,
+  });
 
   useEffect(() => {
     dispatch(getCustomization());
@@ -80,7 +93,21 @@ const CrossReferral = (props) => {
         }
       });
     }
-  }, [patientDetails?.details?.id, patientDetails?.admissionId]);
+  }, [
+    crossReferralData.currentCrossReferralId,
+    dispatch,
+    patientDetails?.admissionId,
+    patientDetails?.details?.id,
+  ]);
+
+  useEffect(() => {
+    hydrateFromSavedModules(
+      crossReferralState?.crossReferralFormDetails?.customModules || []
+    );
+  }, [
+    crossReferralState?.crossReferralFormDetails?.customModules,
+    hydrateFromSavedModules,
+  ]);
 
   const handleDefaultClick = () => {
     setModelData(IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE);
@@ -94,8 +121,12 @@ const CrossReferral = (props) => {
 
   const renderSections = (data) => {
     // Don't render if data is undefined or doesn't have required properties
-    if (!data || !data.id) {
+    if (!data) {
       return null;
+    }
+
+    if (isCustomModuleSection(data)) {
+      return renderCustomModuleComponent(data);
     }
 
     return (
@@ -121,7 +152,7 @@ const CrossReferral = (props) => {
   const onAddReferralClick = async () => {
     const reqData = {
       ...crossReferralState.crossReferralFormDetails,
-      customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
+      customModules: serializeCustomModules(customModuleContents),
     };
 
     const response = await dispatch(
@@ -242,6 +273,8 @@ const CrossReferral = (props) => {
     console.log("INTEL ==> activeId", activeId);
   };
 
+  const renderBottomSection = () => renderCustomModulesFooter();
+
   // Early return if essential data is missing to prevent undefined errors
   if (!patientDetails && isEditable) {
     return (
@@ -281,12 +314,13 @@ const CrossReferral = (props) => {
                   handler: onAddReferralClick,
                   title: "Add Referral",
                 }}
-                items={[modelData[0]]}
+                items={modelData}
                 renderSection={renderSections}
                 onRequestClose={() => {
                   setIsBackModalOpen(true);
                 }}
                 renderHeaderSection={renderHeaderSection}
+                renderBottomSection={renderBottomSection}
                 headerOffset={72}
                 onMenuItemClick={onMenuItemClick}
               />
@@ -333,6 +367,7 @@ const CrossReferral = (props) => {
                   setModelData(e);
                 }}
                 customModel={[modelData?.[0]]}
+                onUpdateCustomModuleName={handleCustomModuleRenamed}
               />
             </div>
           </Suspense>
