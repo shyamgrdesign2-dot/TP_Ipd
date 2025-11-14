@@ -103,31 +103,71 @@ const parseReferenceRange = (refRangeString) => {
 };
 
 const transformNewApiDataToComponentFormat = (apiResponse) => {
-  if (!apiResponse || !Array.isArray(apiResponse)) return [];
+  if (!Array.isArray(apiResponse) || apiResponse.length === 0) return [];
 
-  return apiResponse.map((labResult, index) => ({
-    key: (index + 1).toString(),
-    category: `${labResult.serviceName} ${labResult.sampleId} (${
-      labResult.labResultParameters?.length || 0
-    })`,
-    sampleId: labResult.sampleId,
-    certifiedDate: labResult.certifiedDate,
-    serviceCode: labResult.serviceCode,
-    labResultId: labResult.labResultId,
-    tests:
-      labResult.labResultParameters?.map((param, paramIndex) => ({
-        key: `${index + 1}-${paramIndex + 1}`,
-        name: param.parameterName,
-        values: {
-          [labResult.certifiedDate]: {
-            value: `${param.resultValue || "-"}`,
-          },
-        },
-        refRange: parseReferenceRange(param.referenceRange),
-        selected: false,
-        labResultParameterId: param.labResultParameterId,
-      })) || [],
-  }));
+  const groupedByService = apiResponse.reduce((acc, item) => {
+    if (!acc[item.serviceCode]) acc[item.serviceCode] = [];
+    acc[item.serviceCode].push(item);
+    return acc;
+  }, {});
+
+  return Object.entries(groupedByService).map(
+    ([serviceCode, labResults], groupIndex) => {
+      const testsMap = new Map();
+
+      labResults.forEach((labResult, resultIndex) => {
+        const params = labResult.labResultParameters;
+
+        if (params?.length > 0) {
+          params.forEach((param, paramIndex) => {
+            const testName = param.parameterName;
+
+            if (!testsMap.has(testName)) {
+              testsMap.set(testName, {
+                key: `${groupIndex + 1}-${resultIndex + 1}-${paramIndex + 1}`,
+                name: testName,
+                values: {},
+                refRange: parseReferenceRange(param.referenceRange),
+                selected: false,
+                sampleId: labResult.sampleId,
+                labResultId: labResult.labResultId,
+                labResultParameterId: param.labResultParameterId,
+              });
+            }
+
+            testsMap.get(testName).values[labResult.certifiedDate] = {
+              value: param.resultValue ?? "-",
+            };
+          });
+        } else {
+          const testName = labResult.serviceName;
+
+          if (!testsMap.has(testName)) {
+            testsMap.set(testName, {
+              key: `${groupIndex + 1}-${resultIndex + 1}`,
+              name: testName,
+              values: {},
+              refRange: parseReferenceRange(labResult.referenceRange),
+              selected: false,
+              sampleId: labResult.sampleId,
+              labResultId: labResult.labResultId,
+            });
+          }
+
+          testsMap.get(testName).values[labResult.certifiedDate] = {
+            value: labResult.resultvalue ?? "-",
+          };
+        }
+      });
+
+      return {
+        key: String(groupIndex + 1),
+        serviceCode,
+        category: labResults[0].serviceName,
+        tests: Array.from(testsMap.values()),
+      };
+    }
+  );
 };
 
 const transformApiDataToComponentFormat = (apiResponse) => {
@@ -476,7 +516,9 @@ const labResultsSlice = createSlice({
           }
         }
 
-        state.availableDates = Array.from(dates).sort();
+        state.availableDates = Array.from(dates).sort(
+          (a, b) => new Date(b) - new Date(a)
+        );
       })
       .addCase(getPathologyResults.rejected, (state, action) => {
         state.loading = false;
