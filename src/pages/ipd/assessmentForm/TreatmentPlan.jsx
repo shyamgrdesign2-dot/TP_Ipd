@@ -1,16 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
 import { useDispatch, useSelector } from "react-redux";
 import { setTreatmentPlanData } from "../../../redux/ipd/assessmentsFormSlice";
 import { isEmptyRichText } from "../../../utils/utils";
+import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const TreatmentPlan = (props) => {
-  const { isEditable = true, sectionData } = props || {};
+  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
   const { treatmentPlanData = {} } = useSelector((state) => state.assessment);
+
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [
@@ -24,6 +26,53 @@ const TreatmentPlan = (props) => {
   const handleOthersChange = (data, key) => {
     dispatch(setTreatmentPlanData({ ...treatmentPlanData, [key]: data }));
   };
+
+  const doctorId = patientDetails?.doctor?.id || null;
+
+  const getFieldValue = useCallback(
+    (key) => {
+      const value = treatmentPlanData?.[key];
+      if (isEmptyRichText(value)) {
+        return [
+          {
+            type: "paragraph",
+            children: [{ text: "" }],
+          },
+        ];
+      }
+      return value;
+    },
+    [treatmentPlanData]
+  );
+
+  const usePlanTemplate = (moduleName, key) =>
+    useTemplateManagement({
+      moduleName,
+      templateSite: "ipd",
+      doctorId,
+      isEditable,
+      moduleType: "richText",
+      getCurrentValue: useCallback(() => getFieldValue(key), [getFieldValue, key]),
+      onValueChange: useCallback(
+        (data) => {
+          dispatch(setTreatmentPlanData({ ...treatmentPlanData, [key]: data }));
+        },
+        [dispatch, treatmentPlanData, key]
+      ),
+    });
+
+  const immediateManagementTemplate = usePlanTemplate(
+    "immediateManagement",
+    "immediateManagement"
+  );
+  const desiredOutcomeTemplate = usePlanTemplate(
+    "monitoringPlan",
+    "desiredOutcome"
+  );
+  const preventiveActionsTemplate = usePlanTemplate(
+    "preventiveActions",
+    "preventiveActions"
+  );
 
   const renderChildren = () => {
     return sectionData?.children?.map((item) => {
@@ -64,6 +113,15 @@ const TreatmentPlan = (props) => {
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
+        templates={immediateManagementTemplate.templates}
+        templateType="entries"
+        showTempButtons={true}
+        onTemplate={immediateManagementTemplate.refreshTemplates}
+        onTemplateSelected={immediateManagementTemplate.handleTemplateSelected}
+        addTemplate={immediateManagementTemplate.handleAddTemplate}
+        updateTemplate={immediateManagementTemplate.handleUpdateTemplate}
+        onDeleteTemplateClicked={immediateManagementTemplate.handleDeleteTemplate}
+        loading={immediateManagementTemplate.templatesLoading}
         onChange={(data) => handleOthersChange(data, "immediateManagement")}
         initialValue={
           treatmentPlanData?.immediateManagement
@@ -78,17 +136,22 @@ const TreatmentPlan = (props) => {
         placeholder={
           "Enter immediate management like emergency interventions or initial treatment" // TODO: INTEL - PLACEHOLDERS CAN ALSO BECOME DYNAMIC
         }
-        onSave={() => {
-          console.log("save");
-        }}
+        onSave={() => {}}
         onErase={() => {
+          handleOthersChange(
+            [
+              {
+                type: "paragraph",
+                children: [{ text: "" }],
+              },
+            ],
+            "immediateManagement"
+          );
           setAutoFillTextToAppend(["clear"]);
-        }}
-        onTemplate={() => {
-          console.log("template");
         }}
         newAutoFillTextToAppend={autoFillTextToAppend}
         setNewAutoFillTextToAppend={setAutoFillTextToAppend}
+        isDataPresent={!isEmptyRichText(treatmentPlanData?.immediateManagement)}
       />
     );
   };
@@ -110,6 +173,15 @@ const TreatmentPlan = (props) => {
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
+        templates={preventiveActionsTemplate.templates}
+        templateType="entries"
+        showTempButtons={true}
+        onTemplate={preventiveActionsTemplate.refreshTemplates}
+        onTemplateSelected={preventiveActionsTemplate.handleTemplateSelected}
+        addTemplate={preventiveActionsTemplate.handleAddTemplate}
+        updateTemplate={preventiveActionsTemplate.handleUpdateTemplate}
+        onDeleteTemplateClicked={preventiveActionsTemplate.handleDeleteTemplate}
+        loading={preventiveActionsTemplate.templatesLoading}
         onChange={(data) => handleOthersChange(data, "preventiveActions")}
         initialValue={
           treatmentPlanData?.preventiveActions
@@ -124,17 +196,22 @@ const TreatmentPlan = (props) => {
         placeholder={
           "Enter preventive actions like medications, interventions, or follow-up plans"
         }
-        onSave={() => {
-          console.log("save");
-        }}
+        onSave={() => {}}
         onErase={() => {
+          handleOthersChange(
+            [
+              {
+                type: "paragraph",
+                children: [{ text: "" }],
+              },
+            ],
+            "preventiveActions"
+          );
           setAutoFillTextToAppendPreventiveActions(["clear"]);
-        }}
-        onTemplate={() => {
-          console.log("template");
         }}
         newAutoFillTextToAppend={autoFillTextToAppendPreventiveActions}
         setNewAutoFillTextToAppend={setAutoFillTextToAppendPreventiveActions}
+        isDataPresent={!isEmptyRichText(treatmentPlanData?.preventiveActions)}
       />
     );
   };
@@ -157,6 +234,15 @@ const TreatmentPlan = (props) => {
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
+        templates={desiredOutcomeTemplate.templates}
+        templateType="entries"
+        showTempButtons={true}
+        onTemplate={desiredOutcomeTemplate.refreshTemplates}
+        onTemplateSelected={desiredOutcomeTemplate.handleTemplateSelected}
+        addTemplate={desiredOutcomeTemplate.handleAddTemplate}
+        updateTemplate={desiredOutcomeTemplate.handleUpdateTemplate}
+        onDeleteTemplateClicked={desiredOutcomeTemplate.handleDeleteTemplate}
+        loading={desiredOutcomeTemplate.templatesLoading}
         onChange={(data) => handleOthersChange(data, "desiredOutcome")}
         initialValue={
           treatmentPlanData?.desiredOutcome
@@ -171,17 +257,22 @@ const TreatmentPlan = (props) => {
         placeholder={
           "Enter desired outcome like expected recovery, complications, or follow-up plans"
         }
-        onSave={() => {
-          console.log("save");
-        }}
+        onSave={() => {}}
         onErase={() => {
+          handleOthersChange(
+            [
+              {
+                type: "paragraph",
+                children: [{ text: "" }],
+              },
+            ],
+            "desiredOutcome"
+          );
           setAutoFillTextToAppendDesiredOutcome(["clear"]);
-        }}
-        onTemplate={() => {
-          console.log("template");
         }}
         newAutoFillTextToAppend={autoFillTextToAppendDesiredOutcome}
         setNewAutoFillTextToAppend={setAutoFillTextToAppendDesiredOutcome}
+        isDataPresent={!isEmptyRichText(treatmentPlanData?.desiredOutcome)}
       />
     );
   };

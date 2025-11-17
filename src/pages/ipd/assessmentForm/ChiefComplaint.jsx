@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,11 +8,17 @@ import {
   formatDateToShortMonthYear,
   isEmptyRichText,
 } from "../../../utils/utils";
-import { fetchSingleTemplate } from "../../../redux/ipd/ipdSlice";
-import { addTemplate } from "../../../redux/symptomsSlice";
 import { useDischargeSummaryData } from "../dischargeSummary/utils/useDischargeSummaryData";
-// import { errorMessage } from "../../../utils/toast";
+import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
+
+const EMPTY_RICH_TEXT_VALUE = [
+  {
+    type: "paragraph",
+    children: [{ text: "" }],
+  },
+];
 
 const ChiefComplaint = (props) => {
   const {
@@ -21,6 +27,7 @@ const ChiefComplaint = (props) => {
     hideBorder = false,
     children,
     isDischargeSummary = false,
+    patientDetails,
   } = props || {};
   const dispatch = useDispatch();
   const { showLastUpdatedAt } = useDischargeSummaryData();
@@ -29,31 +36,44 @@ const ChiefComplaint = (props) => {
     lastPrescriptionDataForAssessment,
     lastPrescriptionDate,
   } = useSelector((state) => state.assessment);
-  const { templates: symptomsTemplates } = useSelector(
-    (state) => state.symptoms
-  );
+
+  const doctorId = patientDetails?.doctor?.id || null;
 
   const {
     presentingComplaints: chiefComplaintFromLastPrescription = [],
   } = lastPrescriptionDataForAssessment;
   const { lastRxDate } = lastPrescriptionDate || {};
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
-  const [isShimmering, setIsShimmering] = useState(false);
 
-  const handleTempleteSelection = async (template, type) => {
-    setIsShimmering(true);
-    const respData = await dispatch(
-      fetchSingleTemplate({ templateId: template?.tst_id, type })
-    );
-    if (respData.meta.requestStatus === "fulfilled") {
-      const updatedData = respData?.payload;
-      const newConvertedData = convertTemplateDataToRichText(updatedData, type);
-      setIsShimmering(false);
-      setAutoFillTextToAppend(newConvertedData);
-    } else {
-      setIsShimmering(false);
+  const getCurrentValue = useCallback(() => {
+    if (isEmptyRichText(chiefComplaint)) {
+      return EMPTY_RICH_TEXT_VALUE;
     }
-  };
+    return chiefComplaint;
+  }, [chiefComplaint]);
+
+  const {
+    templates: normalizedTemplates,
+    templatesLoading,
+    handleTemplateSelected,
+    handleAddTemplate,
+    handleUpdateTemplate,
+    handleDeleteTemplate,
+    refreshTemplates,
+  } = useTemplateManagement({
+    moduleName: "presentingComplaints",
+    templateSite: "ipd",
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue,
+    onValueChange: useCallback(
+      (data) => {
+        dispatch(setChiefComplaint(data));
+      },
+      [dispatch]
+    ),
+  });
 
   const handleAutoFill = (e) => {
     if (e?.[0] === "undo") {
@@ -92,8 +112,8 @@ const ChiefComplaint = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
-        templates={symptomsTemplates}
-        templateType="symptoms"
+        templates={normalizedTemplates}
+        templateType="entries"
         title={sectionData?.title}
         data-testid={sectionData?.id}
         width={isEditable ? "100%" : "fit-content"}
@@ -120,27 +140,23 @@ const ChiefComplaint = (props) => {
             ? formatDateToShortMonthYear(lastRxDate)
             : "Last Consultation"
         }
-        onSave={() => {
-          console.log("save");
-        }}
-        addTemplate={(templateData, callback) => {
-          dispatch(addTemplate(templateData)).then((res) => {
-            callback();
-          });
-        }}
+        showTempButtons={true}
+        onSave={() => {}}
         onErase={(e) => {
+          dispatch(setChiefComplaint(EMPTY_RICH_TEXT_VALUE));
           setAutoFillTextToAppend(["clear"]);
         }}
-        onTemplate={() => {
-          console.log("template");
-        }}
-        onTemplateSelected={handleTempleteSelection}
-        shimmerFromParent={true}
+        onTemplate={refreshTemplates}
+        onTemplateSelected={handleTemplateSelected}
+        addTemplate={handleAddTemplate}
+        updateTemplate={handleUpdateTemplate}
+        onDeleteTemplateClicked={handleDeleteTemplate}
+        loading={templatesLoading}
         onChange={(e) => dispatch(setChiefComplaint(e))}
         onAutoFill={handleAutoFill}
         newAutoFillTextToAppend={autoFillTextToAppend}
         setNewAutoFillTextToAppend={setAutoFillTextToAppend}
-        isShimmeringFromParent={isShimmering}
+        isDataPresent={!isEmptyRichText(chiefComplaint)}
         renderFooter={() => {
           return children && children;
         }}

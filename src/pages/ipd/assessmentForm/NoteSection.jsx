@@ -1,24 +1,69 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
 import { useDispatch, useSelector } from "react-redux";
 import { setAdditionalNotesData } from "../../../redux/ipd/assessmentsFormSlice";
 import { isEmptyRichText } from "../../../utils/utils";
+import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const NoteSection = (props) => {
-  const { isEditable = true, sectionData } = props || {};
+  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [
     autoFillTextToAppendDischargeCriteria,
     setAutoFillTextToAppendDischargeCriteria,
   ] = useState([]);
   const { additionalNotesData = {} } = useSelector((state) => state.assessment);
+
   const dispatch = useDispatch();
   const handleOthersChange = (data, key) => {
     dispatch(setAdditionalNotesData({ ...additionalNotesData, [key]: data }));
   };
+
+  const doctorId = patientDetails?.doctor?.id || null;
+
+  const getFieldValue = useCallback(
+    (key) => {
+      const value = additionalNotesData?.[key];
+      if (isEmptyRichText(value)) {
+        return [
+          {
+            type: "paragraph",
+            children: [{ text: "" }],
+          },
+        ];
+      }
+      return value;
+    },
+    [additionalNotesData]
+  );
+
+  const useNoteTemplate = (moduleName, key) =>
+    useTemplateManagement({
+      moduleName,
+      templateSite: "ipd",
+      doctorId,
+      isEditable,
+      moduleType: "richText",
+      getCurrentValue: useCallback(() => getFieldValue(key), [getFieldValue, key]),
+      onValueChange: useCallback(
+        (data) => {
+          dispatch(setAdditionalNotesData({ ...additionalNotesData, [key]: data }));
+        },
+        [dispatch, additionalNotesData, key]
+      ),
+    });
+
+  const specialInstructionsTemplate = useNoteTemplate(
+    "specialInstructions",
+    "specialInstructions"
+  );
+  const dischargeCriteriaTemplate = useNoteTemplate(
+    "dischargeCriteria",
+    "dischargeCriteria"
+  );
   const renderSpecialInstructions = (data) => {
     if (
       !isEditable &&
@@ -41,6 +86,15 @@ const NoteSection = (props) => {
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
+        templates={specialInstructionsTemplate.templates}
+        templateType="entries"
+        showTempButtons={true}
+        onTemplate={specialInstructionsTemplate.refreshTemplates}
+        onTemplateSelected={specialInstructionsTemplate.handleTemplateSelected}
+        addTemplate={specialInstructionsTemplate.handleAddTemplate}
+        updateTemplate={specialInstructionsTemplate.handleUpdateTemplate}
+        onDeleteTemplateClicked={specialInstructionsTemplate.handleDeleteTemplate}
+        loading={specialInstructionsTemplate.templatesLoading}
         onChange={(data) => handleOthersChange(data, "specialInstructions")}
         initialValue={
           additionalNotesData?.specialInstructions
@@ -55,17 +109,22 @@ const NoteSection = (props) => {
         placeholder={
           "Enter Special Instructions, Precautions or Additional Notes" // TODO: INTEL - PLACEHOLDERS CAN ALSO BECOME DYNAMIC
         }
-        onSave={() => {
-          console.log("save");
-        }}
+        onSave={() => {}}
         onErase={() => {
+          handleOthersChange(
+            [
+              {
+                type: "paragraph",
+                children: [{ text: "" }],
+              },
+            ],
+            "specialInstructions"
+          );
           setAutoFillTextToAppend(["clear"]);
-        }}
-        onTemplate={() => {
-          console.log("template");
         }}
         newAutoFillTextToAppend={autoFillTextToAppend}
         setNewAutoFillTextToAppend={setAutoFillTextToAppend}
+        isDataPresent={!isEmptyRichText(additionalNotesData?.specialInstructions)}
       />
     );
   };
@@ -88,6 +147,15 @@ const NoteSection = (props) => {
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
+        templates={dischargeCriteriaTemplate.templates}
+        templateType="entries"
+        showTempButtons={true}
+        onTemplate={dischargeCriteriaTemplate.refreshTemplates}
+        onTemplateSelected={dischargeCriteriaTemplate.handleTemplateSelected}
+        addTemplate={dischargeCriteriaTemplate.handleAddTemplate}
+        updateTemplate={dischargeCriteriaTemplate.handleUpdateTemplate}
+        onDeleteTemplateClicked={dischargeCriteriaTemplate.handleDeleteTemplate}
+        loading={dischargeCriteriaTemplate.templatesLoading}
         onChange={(data) => handleOthersChange(data, "dischargeCriteria")}
         initialValue={
           additionalNotesData?.dischargeCriteria
@@ -102,17 +170,22 @@ const NoteSection = (props) => {
         placeholder={
           "Enter discharge criteria like stable vitals, afebrile status etc"
         }
-        onSave={() => {
-          console.log("save");
-        }}
+        onSave={() => {}}
         onErase={() => {
+          handleOthersChange(
+            [
+              {
+                type: "paragraph",
+                children: [{ text: "" }],
+              },
+            ],
+            "dischargeCriteria"
+          );
           setAutoFillTextToAppendDischargeCriteria(["clear"]);
-        }}
-        onTemplate={() => {
-          console.log("template");
         }}
         newAutoFillTextToAppend={autoFillTextToAppendDischargeCriteria}
         setNewAutoFillTextToAppend={setAutoFillTextToAppendDischargeCriteria}
+        isDataPresent={!isEmptyRichText(additionalNotesData?.dischargeCriteria)}
       />
     );
   };

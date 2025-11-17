@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { IPD } from "../../../utils/locale";
 import { ConfigProvider, Radio, Select } from "antd";
@@ -11,6 +11,7 @@ import {
 import { isEmptyRichText } from "../../../utils/utils";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import { defaultIcons } from "../../../assets/images/icons";
+import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
 // import defaultIcons from "../../../assets/images/indices";
 
 const ASSESSMENT_CHILDREN_MAPPING = {
@@ -46,7 +47,10 @@ const FunctionalAssessment = (props) => {
     hideBorder = false,
     isCollapsible = false,
     showAddEditButton = false,
+    patientDetails = {},
   } = props || {};
+
+  const doctorId = patientDetails?.doctor?.id || null;
 
   const handleAssessmentChange = (key, e, item) => {
     const selectedOption = item.options.find(
@@ -63,6 +67,43 @@ const FunctionalAssessment = (props) => {
   useEffect(() => {
     dispatch(fetchFilters({ field: "doctor" }));
   }, []);
+
+  const getFunctionalOthersValue = useCallback(() => {
+    if (isEmptyRichText(functionalAssessmentData?.others)) {
+      return [
+        {
+          type: "paragraph",
+          children: [{ text: "" }],
+        },
+      ];
+    }
+    return functionalAssessmentData?.others;
+  }, [functionalAssessmentData?.others]);
+
+  const {
+    templates: functionalAssessmentTemplates,
+    templatesLoading: functionalAssessmentTemplatesLoading,
+    handleTemplateSelected: handleFunctionalAssessmentTemplateSelected,
+    handleAddTemplate: handleFunctionalAssessmentAddTemplate,
+    handleUpdateTemplate: handleFunctionalAssessmentUpdateTemplate,
+    handleDeleteTemplate: handleFunctionalAssessmentDeleteTemplate,
+    refreshTemplates: refreshFunctionalAssessmentTemplates,
+  } = useTemplateManagement({
+    moduleName: "functionalAssessmentOthers",
+    templateSite: "ipd",
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue: getFunctionalOthersValue,
+    onValueChange: useCallback(
+      (data) => {
+        dispatch(
+          setFunctionalAssessmentData({ ...functionalAssessmentData, others: data })
+        );
+      },
+      [dispatch, functionalAssessmentData]
+    ),
+  });
 
   const renderOthers = (data) => {
     if (!isEditable && isEmptyRichText(functionalAssessmentData?.others))
@@ -83,6 +124,15 @@ const FunctionalAssessment = (props) => {
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
+        templates={functionalAssessmentTemplates}
+        templateType="entries"
+        showTempButtons={true}
+        onTemplate={refreshFunctionalAssessmentTemplates}
+        onTemplateSelected={handleFunctionalAssessmentTemplateSelected}
+        addTemplate={handleFunctionalAssessmentAddTemplate}
+        updateTemplate={handleFunctionalAssessmentUpdateTemplate}
+        onDeleteTemplateClicked={handleFunctionalAssessmentDeleteTemplate}
+        loading={functionalAssessmentTemplatesLoading}
         initialValue={
           functionalAssessmentData?.others?.length
             ? functionalAssessmentData?.others
@@ -95,17 +145,19 @@ const FunctionalAssessment = (props) => {
         }
         placeholder={"Enter any other examination findings not covered above"} // TODO: INTEL - PLACEHOLDERS CAN ALSO BECOME DYNAMIC
         onChange={handleOthersChange}
-        onSave={() => {
-          console.log("save");
-        }}
+        onSave={() => {}}
         onErase={() => {
+          handleOthersChange([
+            {
+              type: "paragraph",
+              children: [{ text: "" }],
+            },
+          ]);
           setAutoFillTextToAppend(["clear"]);
-        }}
-        onTemplate={() => {
-          console.log("template");
         }}
         newAutoFillTextToAppend={autoFillTextToAppend}
         setNewAutoFillTextToAppend={setAutoFillTextToAppend}
+        isDataPresent={!isEmptyRichText(functionalAssessmentData?.others)}
       />
     );
   };

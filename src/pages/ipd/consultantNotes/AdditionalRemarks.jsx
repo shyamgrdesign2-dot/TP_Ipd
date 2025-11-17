@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/consultantNotesIcons";
 import { useSelector, useDispatch } from "react-redux";
 import { setAdditionalRemarks } from "../../../redux/ipd/consultantNotesSlice";
 import { isEmptyRichText } from "../../../components/PDFGenerator";
 import dayjs from "dayjs";
+import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -13,8 +14,10 @@ const AdditionalRemarks = (props) => {
     isEditable = true,
     shouldAutofill = false,
     sectionData,
+    patientDetails = {},
   } = props || {};
   const { additionalRemarks } = useSelector((state) => state.consultantNotes);
+  const doctorId = patientDetails?.doctor?.id || null;
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
@@ -25,6 +28,41 @@ const AdditionalRemarks = (props) => {
   const hasAdditionalRemarksInLastConsultantNote = !isEmptyRichText(
     prevAdditionalRemarks
   );
+
+  const getCurrentValue = useCallback(() => {
+    if (isEmptyRichText(additionalRemarks)) {
+      return [
+        {
+          type: "paragraph",
+          children: [{ text: "" }],
+        },
+      ];
+    }
+    return additionalRemarks;
+  }, [additionalRemarks]);
+
+  const {
+    templates: normalizedTemplates,
+    templatesLoading,
+    handleTemplateSelected,
+    handleAddTemplate,
+    handleUpdateTemplate,
+    handleDeleteTemplate,
+    refreshTemplates,
+  } = useTemplateManagement({
+    moduleName: "consultantAdditionalRemarks",
+    templateSite: "ipd",
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue,
+    onValueChange: useCallback(
+      (data) => {
+        dispatch(setAdditionalRemarks(data));
+      },
+      [dispatch]
+    ),
+  });
 
   const handleAutofill = (e) => {
     if (e?.[0] === "undo") {
@@ -78,15 +116,28 @@ const AdditionalRemarks = (props) => {
         dispatch(setAdditionalRemarks(newValue));
       }}
       placeholder={"Enter additional remarks if any"}
-      onSave={() => {
-        console.log("save");
-      }}
+      showTempButtons={true}
+      onSave={() => {}}
       onErase={() => {
+        dispatch(
+          setAdditionalRemarks([
+            {
+              type: "paragraph",
+              children: [{ text: "" }],
+            },
+          ])
+        );
         setAutoFillTextToAppend(["clear"]);
       }}
-      onTemplate={() => {
-        console.log("template");
-      }}
+      onTemplate={refreshTemplates}
+      onTemplateSelected={handleTemplateSelected}
+      addTemplate={handleAddTemplate}
+      updateTemplate={handleUpdateTemplate}
+      onDeleteTemplateClicked={handleDeleteTemplate}
+      loading={templatesLoading}
+      templates={normalizedTemplates}
+      templateType="entries"
+      isDataPresent={!isEmptyRichText(additionalRemarks)}
       newAutoFillTextToAppend={autoFillTextToAppend}
       setNewAutoFillTextToAppend={setAutoFillTextToAppend}
     />

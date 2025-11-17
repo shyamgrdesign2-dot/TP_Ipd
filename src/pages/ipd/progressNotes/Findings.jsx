@@ -1,13 +1,24 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setFindings } from "../../../redux/ipd/progressNotesSlice";
+import { isEmptyRichText } from "../../../utils/utils";
+import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
+const EMPTY_RICH_TEXT_VALUE = [
+  {
+    type: "paragraph",
+    children: [{ text: "" }],
+  },
+];
+
 const Findings = (props) => {
-  const { isEditable = true, shouldAutofill = false, sectionData } = props || {};
+  const { isEditable = true, shouldAutofill = false, sectionData, patientDetails = {} } = props || {};
   const { findings } = useSelector((state) => state.progressNotes);
+  const doctorId = patientDetails?.doctor?.id || null;
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
@@ -33,6 +44,40 @@ const Findings = (props) => {
       //   ))
     );
   }, [findings,prevFindings]);
+
+  // Get current value callback
+  const getCurrentValue = useCallback(() => {
+    if (isEmptyRichText(findings)) {
+      return EMPTY_RICH_TEXT_VALUE;
+    }
+    return Array.isArray(findings) && findings.length
+      ? findings
+      : EMPTY_RICH_TEXT_VALUE;
+  }, [findings]);
+
+  // Use template management hook
+  const {
+    templates: normalizedTemplates,
+    templatesLoading,
+    handleTemplateSelected,
+    handleAddTemplate,
+    handleUpdateTemplate,
+    handleDeleteTemplate,
+    refreshTemplates,
+  } = useTemplateManagement({
+    moduleName: "progressFindings",
+    templateSite: "ipd",
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue,
+    onValueChange: useCallback(
+      (data) => {
+        dispatch(setFindings(data));
+      },
+      [dispatch]
+    ),
+  });
 
   const handleAutofill = (e) => {
     if (e?.[0] === "undo") {
@@ -85,17 +130,25 @@ const Findings = (props) => {
         dispatch(setFindings(newValue));
       }}
       placeholder={"Enter findings if any"}
-      onSave={() => {
-        console.log("save");
-      }}
+      showTempButtons={true}
+      onSave={() => {}}
       onErase={() => {
+        // Clear Redux state
+        dispatch(setFindings(EMPTY_RICH_TEXT_VALUE));
+        // Clear local UI state
         setAutoFillTextToAppend(["clear"]);
       }}
-      onTemplate={() => {
-        console.log("template");
-      }}
+      onTemplate={refreshTemplates}
+      onTemplateSelected={handleTemplateSelected}
+      addTemplate={handleAddTemplate}
+      updateTemplate={handleUpdateTemplate}
+      onDeleteTemplateClicked={handleDeleteTemplate}
+      loading={templatesLoading}
+      templates={normalizedTemplates}
+      templateType="entries"
       newAutoFillTextToAppend={autoFillTextToAppend}
       setNewAutoFillTextToAppend={setAutoFillTextToAppend}
+      isDataPresent={!isEmptyRichText(findings)}
     />
   );
 };

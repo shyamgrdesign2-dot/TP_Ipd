@@ -11,14 +11,14 @@ export const TEMPLATE_MODULE_CATALOG = [
         title: "Basic Info",
         modules: [
           { id: "presentingComplaints", title: "Presenting Complaints - Temp" },
-          { id: "currentMedications", title: "Current Medications - Temp" },
+          // { id: "currentMedications", title: "Current Medications - Temp" },
         ],
       },
       {
         id: "physicalExamination",
         title: "Physical Examination",
         modules: [
-          { id: "generalExamination", title: "General Examination - Temp" },
+          // { id: "generalExamination", title: "General Examination - Temp" },
           { id: "physicalExaminationOthers", title: "Others - Temp" },
         ],
       },
@@ -31,7 +31,7 @@ export const TEMPLATE_MODULE_CATALOG = [
         id: "provisionalDiagnosis",
         title: "Provisional Diagnosis",
         modules: [
-          { id: "provisionalDiagnosis", title: "Provisional Diagnosis - Temp" },
+          // { id: "provisionalDiagnosis", title: "Provisional Diagnosis - Temp" },
         ],
       },
       {
@@ -39,7 +39,8 @@ export const TEMPLATE_MODULE_CATALOG = [
         title: "Treatment Plan",
         modules: [
           { id: "immediateManagement", title: "Immediate Management - Temp" },
-          { id: "monitoringPlan", title: "Monitoring Plan - Temp" },
+          { id: "monitoringPlan", title: "Desired Outcome - Temp" },
+          { id: "preventiveActions", title: "Preventive Actions - Temp" },
         ],
       },
       {
@@ -83,10 +84,10 @@ export const TEMPLATE_MODULE_CATALOG = [
             title: "Clinical Assessment Plan - Temp",
           },
           { id: "consultantMedication", title: "Medication - Temp" },
-          {
-            id: "consultantLabInvestigation",
-            title: "Lab Investigation - Temp",
-          },
+          // {
+          //   id: "consultantLabInvestigation",
+          //   title: "Lab Investigation - Temp",
+          // },
           {
             id: "consultantAdditionalRemarks",
             title: "Additional Remarks - Temp",

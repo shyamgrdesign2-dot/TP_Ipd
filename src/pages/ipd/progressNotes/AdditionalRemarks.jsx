@@ -1,21 +1,29 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setAdditionalRemarks } from "../../../redux/ipd/progressNotesSlice";
-import { formatDateToShortMonthYear } from "../../../utils/utils";
-// import { convertTemplateDataToRichText, formatDateToShortMonthYear } from "../../../utils/utils";
-// import { fetchSingleTemplate } from "../../../redux/ipd/ipdSlice";
-// import { errorMessage } from "../../../utils/toast";
+import { formatDateToShortMonthYear, isEmptyRichText } from "../../../utils/utils";
+import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
+
+const EMPTY_RICH_TEXT_VALUE = [
+  {
+    type: "paragraph",
+    children: [{ text: "" }],
+  },
+];
 
 const AdditionalRemarks = (props) => {
   const {
     isEditable = true,
     shouldAutofill = false,
     sectionData,
+    patientDetails = {},
   } = props || {};
   const { additionalRemarks } = useSelector((state) => state.progressNotes);
+  const doctorId = patientDetails?.doctor?.id || null;
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
@@ -47,6 +55,40 @@ const AdditionalRemarks = (props) => {
     hasAdditionalRemarksInLastProgressNote,
     "hasAdditionalRemarksInLastProgressNotex"
   );
+
+  // Get current value callback
+  const getCurrentValue = useCallback(() => {
+    if (isEmptyRichText(additionalRemarks)) {
+      return EMPTY_RICH_TEXT_VALUE;
+    }
+    return Array.isArray(additionalRemarks) && additionalRemarks.length
+      ? additionalRemarks
+      : EMPTY_RICH_TEXT_VALUE;
+  }, [additionalRemarks]);
+
+  // Use template management hook
+  const {
+    templates: normalizedTemplates,
+    templatesLoading,
+    handleTemplateSelected,
+    handleAddTemplate,
+    handleUpdateTemplate,
+    handleDeleteTemplate,
+    refreshTemplates,
+  } = useTemplateManagement({
+    moduleName: "progressAdditionalRemarks",
+    templateSite: "ipd",
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue,
+    onValueChange: useCallback(
+      (data) => {
+        dispatch(setAdditionalRemarks(data));
+      },
+      [dispatch]
+    ),
+  });
 
   const handleAutofill = (e) => {
     if (e?.[0] === "undo") {
@@ -104,17 +146,25 @@ const AdditionalRemarks = (props) => {
         dispatch(setAdditionalRemarks(newValue));
       }}
       placeholder={"Enter additional remarks if any"}
-      onSave={() => {
-        console.log("save");
-      }}
+      showTempButtons={true}
+      onSave={() => {}}
       onErase={() => {
+        // Clear Redux state
+        dispatch(setAdditionalRemarks(EMPTY_RICH_TEXT_VALUE));
+        // Clear local UI state
         setAutoFillTextToAppend(["clear"]);
       }}
-      onTemplate={() => {
-        console.log("template");
-      }}
+      onTemplate={refreshTemplates}
+      onTemplateSelected={handleTemplateSelected}
+      addTemplate={handleAddTemplate}
+      updateTemplate={handleUpdateTemplate}
+      onDeleteTemplateClicked={handleDeleteTemplate}
+      loading={templatesLoading}
+      templates={normalizedTemplates}
+      templateType="entries"
       newAutoFillTextToAppend={autoFillTextToAppend}
       setNewAutoFillTextToAppend={setAutoFillTextToAppend}
+      isDataPresent={!isEmptyRichText(additionalRemarks)}
     />
   );
 };

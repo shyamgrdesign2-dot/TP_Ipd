@@ -286,6 +286,7 @@ const ConsultantNotes = (props) => {
               {...props}
               sectionData={data}
               shouldAutofill={shouldAutofill}
+              patientDetails={patientDetails}
             />
           );
         case "vitals":
@@ -302,6 +303,7 @@ const ConsultantNotes = (props) => {
               isConsultantNotes={true}
               {...props}
               sectionData={data}
+              patientDetails={patientDetails}
             />
           );
         case "fluidBalance":
@@ -350,7 +352,8 @@ const ConsultantNotes = (props) => {
             <AdditionalRemarks
               {...props}
               sectionData={data}
-              shouldAutofill={shouldAutofill}
+              shouldAutofill={shouldAutofill} 
+              patientDetails={patientDetails}
             />
           );
         default:

@@ -164,18 +164,18 @@ const AssessmentsForm = (props) => {
     switch (data?.id) {
       case "basicInfo":
         return (
-          <BasicInfo {...props} sectionData={data} isEditable={isEditable} />
+          <BasicInfo {...props} sectionData={data} isEditable={isEditable} patientDetails={patientDetails} />
         );
       case "physicalExamination":
-        return <PhysicalExamination {...props} sectionData={data} />;
+        return <PhysicalExamination {...props} sectionData={data} patientDetails={patientDetails}/>;
       case "functionalAssessment":
-        return <FunctionalAssessment {...props} sectionData={data} />;
+        return <FunctionalAssessment {...props} sectionData={data} patientDetails={patientDetails} />;
       case "provisionalDiagnosis":
-        return <ProvisionalDiagnosisWrapper {...props} sectionData={data} />;
+        return <ProvisionalDiagnosisWrapper {...props} sectionData={data} patientDetails={patientDetails} />;
       case "treatmentPlan":
-        return <TreatmentPlan {...props} sectionData={data} />;
+        return <TreatmentPlan {...props} sectionData={data} patientDetails={patientDetails} />;
       case "additionalNotes":
-        return <NoteSection {...props} sectionData={data} />;
+        return <NoteSection {...props} sectionData={data} patientDetails={patientDetails} />;
       default:
         return null;
     }

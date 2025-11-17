@@ -20,7 +20,7 @@ const AutoFillButton = createRemoteComponent("AutoFillButton");
 const UnitInput = createRemoteComponent("UnitInput");
 
 const BasicInfo = (props) => {
-  const { isEditable = true, sectionData } = props;
+  const { isEditable = true, sectionData, patientDetails = {} } = props;
   const {
     chiefComplaint,
     lastPrescriptionDate,
@@ -110,7 +110,7 @@ const BasicInfo = (props) => {
                   </React.Fragment>
                 );
               case "presentingComplaints":
-                return <ChiefComplaint {...props} sectionData={item} />;
+                return <ChiefComplaint {...props} sectionData={item} patientDetails={patientDetails} />;
               case "historyPresentIllness":
                 return (
                   <HistoryOfPresentIllness {...props} sectionData={item} />

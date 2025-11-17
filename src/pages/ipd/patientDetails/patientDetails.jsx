@@ -94,7 +94,7 @@ const IPDPatientDetails = () => {
     activeTab,
     fromTab,
   } = state || {};
-
+  
   const patientId = patientDetails?.details?.id;
   const { admissionId } = patientDetails;
 

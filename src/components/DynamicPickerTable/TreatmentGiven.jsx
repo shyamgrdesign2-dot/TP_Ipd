@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback, useMemo } from "react";
-import { message, Tooltip } from "antd";
+import { Tooltip } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { createRemoteComponent } from "../../shared/remoteComponents";
 import DynamicPickerTable from "./DynamicPickerTable";
@@ -20,13 +20,7 @@ import { useLocation } from "react-router-dom";
 import { dischargeSummaryIcons } from "../../assets/images/indices";
 import "./styles.scss";
 import { greenTick } from "../../assets/images/dischargeSummaryIcons";
-import {
-  deleteTemplate as deleteTemplateThunk,
-  getTemplatesByModuleName,
-  makeSelectTemplatesByModule,
-  selectTemplatesLoading,
-  updateTemplate as updateTemplateThunk,
-} from "../../redux/ipd/tempaltesSlice";
+import { useTemplateManagement } from "../../hooks/useTemplateManagement";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -43,16 +37,6 @@ const TreatmentGiven = ({ sectionData }) => {
     actualDischargeSummaryData,
     dischargeSummaryData,
   } = useSelector((state) => state.dischargeSummary);
-
-  const templateSite = "ipd";
-  const moduleName = "treatmentGiven";
-
-  const templatesLoading = useSelector(selectTemplatesLoading);
-  const treatmentTemplatesSelector = useMemo(
-    () => makeSelectTemplatesByModule(moduleName),
-    [moduleName]
-  );
-  const treatmentTemplates = useSelector(treatmentTemplatesSelector);
 
   const doctorId =
     dischargeSummaryData?.patientInformation?.primaryConsultant?.id || null;
@@ -97,285 +81,46 @@ const TreatmentGiven = ({ sectionData }) => {
     }
   }, [treatmentNotes, dispatch]);
 
+  // Get current value callback
   const getCurrentValue = useCallback(
     () => ensureKeys(filteredTreatmentNotes),
     [filteredTreatmentNotes, ensureKeys]
   );
 
-  const extractArrayData = useCallback(
-    (template) => {
-      if (!template) return [];
-      const candidates = [
-        template.template?.[moduleName],
-        template[moduleName],
-        template.template?.data,
-        template.data,
-        template.entries,
-        template.template?.entries,
-        template.items,
-        template.template?.items,
-      ];
-      const found = candidates.find(
-        (candidate) => Array.isArray(candidate) && candidate.length > 0
-      );
-      return found && Array.isArray(found)
-        ? ensureKeys(JSON.parse(JSON.stringify(found)))
-        : [];
-    },
-    [moduleName, ensureKeys]
-  );
-
-  const getTemplateTitle = useCallback((template) => {
-    if (!template) return "Untitled Template";
-    const templateData = template.template || template;
-    return (
-      templateData.title ||
-      template.title ||
-      templateData.templateName ||
-      template.templateName ||
-      templateData.tst_template_name ||
-      template.tst_template_name ||
-      templateData.tat_template_name ||
-      template.tat_template_name ||
-      templateData.name ||
-      template.name ||
-      "Untitled Template"
-    );
+  // Duplicate check function for treatment notes
+  const isDuplicate = useCallback((existing, newItem) => {
+    // Check by id (most reliable)
+    if (existing.id && newItem.id && existing.id === newItem.id) {
+      return true;
+    }
+    return false;
   }, []);
 
-  const refreshTreatmentTemplates = useCallback(() => {
-    dispatch(
-      getTemplatesByModuleName({
-        moduleName,
-        site: templateSite,
-        isMaster: false,
-        doctorId,
-      })
-    );
-  }, [dispatch, moduleName, templateSite, doctorId]);
-
-  const handleTemplateSelected = useCallback(
-    (template) => {
-      try {
-        const templateData = extractArrayData(template);
-        const currentData = getCurrentValue();
-        
-        // Helper function to check if two treatment notes are duplicates
-        const isDuplicate = (existing, newItem) => {
-          // Check by id (most reliable)
-          if (existing.id && newItem.id && existing.id === newItem.id) {
-            return true;
-          }
-          // // Check by tmm_id (medication ID)
-          // if (existing.tmm_id && newItem.tmm_id && existing.tmm_id === newItem.tmm_id) {
-          //   return true;
-          // }
-          // // Check by name (case-insensitive)
-          // if (existing.name && newItem.name && 
-          //     existing.name.trim().toLowerCase() === newItem.name.trim().toLowerCase()) {
-          //   return true;
-          // }
-          // // Check by key if both have keys
-          // if (existing.key && newItem.key && existing.key === newItem.key) {
-          //   return true;
-          // }
-          return false;
-        };
-        
-        // Filter out duplicates from template data
-        const newItems = templateData.filter((templateItem) => {
-          return !currentData.some((existingItem) => 
-            isDuplicate(existingItem, templateItem)
-          );
-        });
-        
-        // Merge: existing data + new non-duplicate items from template
-        const mergedData = [...currentData, ...newItems];
-        
-        // Ensure all items have keys
-        const dataWithKeys = ensureKeys(mergedData);
-        
-        dispatch(setTreatmentNotes(dataWithKeys));
-        
-        if (newItems.length < templateData.length) {
-          const duplicateCount = templateData.length - newItems.length;
-          message.info(
-            `${duplicateCount} duplicate treatment${duplicateCount > 1 ? 's' : ''} skipped.`
-          );
-        }
-      } catch (error) {
-        console.error("Error applying treatment template:", error);
-        message.error("Failed to apply template.");
-      }
-    },
-    [dispatch, extractArrayData, ensureKeys, getCurrentValue]
-  );
-
-  const extractTemplatePayload = useCallback(
-    (payload) => {
-      const title =
-        payload?.title ||
-        payload?.templateName ||
-        payload?.tst_template_name ||
-        payload?.tat_template_name ||
-        payload?.name ||
-        "Untitled Template";
-      const currentValue = getCurrentValue();
-      const data =
-        payload?.data ||
-        payload?.[moduleName] ||
-        payload?.entries ||
-        currentValue;
-      const normalizedData =
-        Array.isArray(data) && data.length ? ensureKeys(data) : currentValue;
-      return {
-        _id: payload?._id || payload?.id,
-        title: title?.trim?.() ? title.trim() : "Untitled Template",
-        data: normalizedData,
-      };
-    },
-    [getCurrentValue, moduleName, ensureKeys]
-  );
-
-  const handleAddTemplate = useCallback(
-    async (templateData, callback) => {
-      const { title, data } = extractTemplatePayload(templateData);
-      const requestPayload = {
-        module: moduleName,
-        site: templateSite,
-        isMaster: false,
-        title,
-        [moduleName]: data,
-        doctorId,
-      };
-
-      const action = await dispatch(updateTemplateThunk(requestPayload));
-      if (updateTemplateThunk.fulfilled.match(action)) {
-        message.success("Template saved successfully.");
-        refreshTreatmentTemplates();
-        callback?.();
-      } else {
-        message.error(
-          action.payload || action.error?.message || "Failed to save template."
-        );
-      }
-    },
-    [
-      dispatch,
-      extractTemplatePayload,
-      moduleName,
-      templateSite,
-      doctorId,
-      refreshTreatmentTemplates,
-    ]
-  );
-
-  const handleUpdateTemplate = useCallback(
-    async (templateData, callback) => {
-      const { _id, title, data } = extractTemplatePayload(templateData);
-      if (!_id) {
-        message.warning("Template identifier not found for update.");
-        return;
-      }
-      const requestPayload = {
-        _id,
-        module: moduleName,
-        site: templateSite,
-        isMaster: false,
-        title,
-        [moduleName]: data,
-        doctorId,
-      };
-      const action = await dispatch(updateTemplateThunk(requestPayload));
-      if (updateTemplateThunk.fulfilled.match(action)) {
-        message.success("Template updated successfully.");
-        refreshTreatmentTemplates();
-        callback?.();
-      } else {
-        message.error(
-          action.payload ||
-            action.error?.message ||
-            "Failed to update template."
-        );
-      }
-    },
-    [
-      dispatch,
-      extractTemplatePayload,
-      moduleName,
-      templateSite,
-      doctorId,
-      refreshTreatmentTemplates,
-    ]
-  );
-
-  const handleDeleteTemplate = useCallback(
-    async (templateIdentifier) => {
-      const id =
-        typeof templateIdentifier === "object"
-          ? templateIdentifier?._id || templateIdentifier?.id
-          : templateIdentifier;
-      if (!id) {
-        message.warning("Template identifier not found.");
-        return;
-      }
-      const action = await dispatch(
-        deleteTemplateThunk({
-          _id: id,
-          moduleName,
-          site: templateSite,
-          isMaster: false,
-          doctorId,
-        })
-      );
-      if (deleteTemplateThunk.fulfilled.match(action)) {
-        message.success("Template deleted.");
-        refreshTreatmentTemplates();
-      } else {
-        message.error(
-          action.payload ||
-            action.error?.message ||
-            "Failed to delete template."
-        );
-      }
-    },
-    [dispatch, moduleName, templateSite, doctorId, refreshTreatmentTemplates]
-  );
-
-  const normalizeTreatmentTemplates = useCallback(
-    (moduleTemplates) => {
-      return (moduleTemplates || []).map((template) => {
-        const title = getTemplateTitle(template);
-        const data = extractArrayData(template);
-        const id = template?._id || template?.id;
-        return {
-          _id: id,
-          id,
-          title,
-          templateName: title,
-          tst_template_name: template?.tst_template_name || title,
-          tat_template_name: template?.tat_template_name || title,
-          [moduleName]: data,
-          entries: data,
-          module: template?.module,
-          site: template?.site,
-          isMaster: template?.isMaster,
-        };
-      });
-    },
-    [extractArrayData, getTemplateTitle, moduleName]
-  );
-
-  const normalizedTreatmentTemplates = useMemo(
-    () => normalizeTreatmentTemplates(treatmentTemplates),
-    [treatmentTemplates, normalizeTreatmentTemplates]
-  );
-
-  useEffect(() => {
-    if (isEditable) {
-      refreshTreatmentTemplates();
-    }
-  }, [isEditable, refreshTreatmentTemplates]);
+  // Use template management hook
+  const {
+    templates: normalizedTreatmentTemplates,
+    templatesLoading,
+    handleTemplateSelected,
+    handleAddTemplate,
+    handleUpdateTemplate,
+    handleDeleteTemplate,
+    refreshTemplates: refreshTreatmentTemplates,
+  } = useTemplateManagement({
+    moduleName: "treatmentGiven",
+    templateSite: "ipd",
+    doctorId,
+    isEditable,
+    moduleType: "array",
+    getCurrentValue,
+    onArrayChange: useCallback(
+      (data) => {
+        dispatch(setTreatmentNotes(data));
+      },
+      [dispatch]
+    ),
+    isDuplicate,
+    ensureKeys,
+  });
 
   const handleSearch = async (query) => {
     if (!query) return [];
@@ -596,7 +341,7 @@ const TreatmentGiven = ({ sectionData }) => {
       showMicrophone={false}
       placeholder="Treatment given details"
       templates={normalizedTreatmentTemplates}
-      templateType={moduleName}
+      templateType={"treatmentGiven"}
       onSave={() => {}}
       showTempButtons={true}
       onTemplate={refreshTreatmentTemplates}
