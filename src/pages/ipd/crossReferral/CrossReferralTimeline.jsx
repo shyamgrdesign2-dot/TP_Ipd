@@ -104,7 +104,7 @@ const CrossReferralTimeline = () => {
 
   const renderCustomGroupHeader = (groupKey, groupData, emit) => {
     const data = groupData?.[0]?.originalEntry;
-    const status = data?.status;
+    const isCancelled = data?.cancel;
     const crossReferralData = data?.crossReferral;
     const calculateSurgeryDuration = (startTime, endTime) => {
       if (!startTime || !endTime) return 0;
@@ -146,7 +146,7 @@ const CrossReferralTimeline = () => {
                 <div className="ipdot-readonly-ot-header-title d-flex align-items-center">
                   Referred To:{" "}
                   {crossReferralData?.referralInformation?.referringTo?.name}
-                  {status === "cancelled" && (
+                  {isCancelled && (
                     <div
                       style={{
                         display: "inline-flex",
@@ -282,9 +282,8 @@ const CrossReferralTimeline = () => {
     consultantNoteIndex,
     fullData,
     isCurrentDoctorReferee,
-    status
+    isCancelled
   ) => {
-    const isCancelled = status === "cancelled";
     return (
       <div className="ipdcrt-section-container">
         <div className="heading">
@@ -438,8 +437,7 @@ const CrossReferralTimeline = () => {
               referringTo,
             } = entry?.crossReferral["referralInformation"] || {};
             const isCurrentDoctorReferee = user_id === referringTo?.id;
-            const status = entry?.status;
-            const isCancelled = status === "cancelled";
+            const isCancelled = entry?.cancel;
             return (
               <div className="collapsible-wrapper">
                 <div
@@ -460,7 +458,8 @@ const CrossReferralTimeline = () => {
                                 !entry?.crossReferral["consultantNotes"]
                                   ?.length > 0 && !isCancelled
                               }
-                              status={status}
+                              handleCancelIconClick={handleCancelIconClick}
+                              isCancelled={isCancelled}
                             />
                           );
                         case "consultantNotes":
@@ -476,7 +475,7 @@ const CrossReferralTimeline = () => {
                                         consultantNoteIndex,
                                         entry?.crossReferral,
                                         isCurrentDoctorReferee,
-                                        status
+                                        isCancelled
                                       )}
                                     </div>
                                   );

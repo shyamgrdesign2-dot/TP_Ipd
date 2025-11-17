@@ -21,7 +21,8 @@ const ReferralInformationView = (props) => {
     isCollapsible = true,
     isEditable = false,
     isCurrentDoctorReferee,
-    status,
+    isCancelled = false,
+    handleCancelIconClick = () => {},
   } = props || {};
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -57,7 +58,6 @@ const ReferralInformationView = (props) => {
   ) {
     return null;
   }
-  const isCancelled = status === "cancelled";
   return (
     <div
       className={`ipdcrt-section-container ${
@@ -87,6 +87,14 @@ const ReferralInformationView = (props) => {
                 alt="Edit"
                 onClick={() => handleEditCrossReferral(_id)}
                 title="Edit this date's cross referral"
+              />
+              <img
+                className="medical-progress__content-calendar-icon"
+                style={{ fill: "#581C87", cursor: "pointer" }}
+                src={defaultIcons.deleteIconBlue}
+                alt="Cancel"
+                onClick={() => handleCancelIconClick(_id)}
+                title="Cancel this cross referral"
               />
             </div>
           )}

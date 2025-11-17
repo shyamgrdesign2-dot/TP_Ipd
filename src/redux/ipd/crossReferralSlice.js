@@ -88,10 +88,10 @@ export const cancelCrossReferralData = createAsyncThunk(
     try {
       let result = {};
       result = await ApiCrossReferral.cancelCrossReferral(data);
-      if (result.message === "cross referral cancel updated successfully.") {
+      if (result.message === "cancel cross referral updated successfully.") {
         return result.data;
       } else {
-        throw Error(result.error || "Failed to cancel cross referral");
+        return result.data;
       }
     } catch (error) {
       console.log("error: ", error);
