@@ -16,6 +16,7 @@ import {
   printDischargeSummary,
 } from "../dischargeSummary/utils/helper";
 import { getPatientInformation } from "../../../utils/utils";
+import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
 
 const PrintPreviewCrossReferral = () => {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ const PrintPreviewCrossReferral = () => {
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const { state } = useLocation();
-  const { patientDetails } = state || {};
+  const { patientDetails, fromTab } = state || {};
   const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
   const { crossReferralData } = useSelector((state) => state.crossReferral);
@@ -36,11 +37,7 @@ const PrintPreviewCrossReferral = () => {
     setDivWidth(divRef.current?.offsetWidth);
   }, [divRef]);
 
-  useEffect(() => {
-    if (!printSettings || Object.keys(printSettings).length === 0) {
-      dispatch(getPrintSettings());
-    }
-  }, []);
+  usePrintPreviewSetup();
 
   useEffect(() => {
     if (
@@ -119,7 +116,7 @@ const PrintPreviewCrossReferral = () => {
 
   const handleBackToSummary = () => {
     navigate(`/ipd/patient-details`, {
-      state: { ...state, activeTab: "crossReferral", isEditable: false },
+      state: { ...state, activeTab: "crossReferral", isEditable: false, fromTab },
       replace: true,
     });
   };

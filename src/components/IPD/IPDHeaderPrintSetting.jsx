@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { Navbar } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Popover } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -31,6 +31,9 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
   const showHideVideoListPopover = useCallback(() => {
     setPopOverVideo(!popOverVideo);
   }, [popOverVideo]);
+
+  const { state } = useLocation();
+  const { patientDetails = {} } = state || {};
 
   const { loading, videoList, profile } = useSelector((state) => state.doctors);
   const { draftSettings, printSettings } = useSelector(
@@ -127,6 +130,7 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
       const action = await dispatch(
         updatePrintSettings({
           ...settingsPayload,
+          doctorId: patientDetails?.doctor?.id,
         })
       );
 
@@ -230,6 +234,7 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
               updatePrintSettings({
                 ...settingsPayload,
                 [moduleType]: defaultSettings[moduleType],
+                doctorId: patientDetails?.doctor?.id,
               })
             );
           } else {

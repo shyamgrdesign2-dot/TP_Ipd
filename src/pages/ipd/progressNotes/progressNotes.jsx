@@ -58,6 +58,7 @@ const ProgressNotes = (props) => {
     patient_data,
     patientDetails,
     isEditable = true,
+    fromTab,
   } = state || {};
   const patientId = patientDetails?.details?.id;
   const { admissionId } = patientDetails || {};
@@ -313,6 +314,7 @@ const ProgressNotes = (props) => {
           patient_data,
           patientDetails,
           isEditable: false,
+          fromTab,
           activeTab: "progress", // This will help identify which tab to show
         },
       });
@@ -555,7 +557,7 @@ const ProgressNotes = (props) => {
     if (!patientDetails?.details?.id && !patientDetails?.admissionId) {
       setIsBackModalOpen(false);
       navigate(`/ipd/patient-details`, {
-        state: { ...state, activeTab: "progress", isEditable: false },
+        state: { ...state, activeTab: "progress", isEditable: false, fromTab },
         replace: true,
       });
       setOpen(false);
@@ -570,7 +572,7 @@ const ProgressNotes = (props) => {
       // addDataToStore(res.payload.assessment);
       dispatch(resetProgressNotes());
       navigate(`/ipd/patient-details`, {
-        state: { ...state, activeTab: "progress", isEditable: false },
+        state: { ...state, activeTab: "progress", isEditable: false, fromTab },
         replace: true,
       });
       setIsBackModalOpen(false);

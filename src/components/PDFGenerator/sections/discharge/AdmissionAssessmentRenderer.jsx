@@ -10,14 +10,8 @@ import DiagnosisAndSurgery from "./components/DiagnosisAndSurgery";
 import PatientHistory from "./components/PatientHistory";
 import PhysicalExamination from "./components/PhysicalExamination";
 import FunctionalAssessment from "./components/FunctionalAssessment";
-import CourseInHospital from "./components/CourseInHospital";
-import OTNotes from "./components/OTNotes";
-import DischargeNote from "./components/DischargeNote";
-import DischargeAdvice from "./components/DischargeAdvice";
-import FollowUp from "./components/FollowUp";
 import { renderSimpleText } from "../ListViewRenderer";
 import { getAllVisibleSections } from "../../utils/pdfUtils";
-import { IPD } from "../../../../utils/locale";
 import RichTextPrintRendererSection from "./components/RichTextPrintRendererSection";
 
 const styles = StyleSheet.create({
@@ -73,7 +67,13 @@ const renderDiagnosisAndSurgery = (data, formatSettings) => {
 /**
  * Basic Information Section
  */
-const renderBasicInfo = (data, formatSettings, frequencyList, timingList, fontSize) => {
+const renderBasicInfo = (
+  data,
+  formatSettings,
+  frequencyList,
+  timingList,
+  fontSize
+) => {
   return (
     <PatientHistory
       data={data}
@@ -143,7 +143,13 @@ const renderAdditionalNotes = (data, formatSettings) => {
  * @param {Object} formatSettings - Format settings
  * @returns {Array} Array of section components
  */
-export const renderAdmissionAssessment = (data, formatSettings, frequencyList, timingList, fontSize) => {
+export const renderAdmissionAssessment = (
+  data,
+  formatSettings,
+  frequencyList,
+  timingList,
+  fontSize
+) => {
   const sortedSections = getAllVisibleSections(formatSettings || null);
   if (!data || !formatSettings) return [];
 
@@ -160,7 +166,14 @@ export const renderAdmissionAssessment = (data, formatSettings, frequencyList, t
       ),
     treatmentPlan: () => renderTreatmentPlan(data, formatSettings),
     additionalNotes: () => renderAdditionalNotes(data, formatSettings),
-    basicInfo: () => renderBasicInfo(data, formatSettings, frequencyList, timingList, fontSize),
+    basicInfo: () =>
+      renderBasicInfo(
+        data,
+        formatSettings,
+        frequencyList,
+        timingList,
+        fontSize
+      ),
     physicalExamination: () => renderPhysicalExamination(data, formatSettings),
     functionalAssessment: () =>
       renderFunctionalAssessment(data, formatSettings),
@@ -176,7 +189,7 @@ export const renderAdmissionAssessment = (data, formatSettings, frequencyList, t
       if (renderer) {
         return renderer();
       }
-      return null;
+      return <Text>{""}</Text>;
     })
     .filter(Boolean);
 

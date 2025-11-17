@@ -1714,7 +1714,7 @@ export const IPD = {
         },
         {
           id: "anaesthetistType",
-          label: "Anaesthetist Type",
+          label: "Anaesthesia Type",
           order: 8,
           visible: true,
           view: 1,

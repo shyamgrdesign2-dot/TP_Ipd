@@ -23,6 +23,7 @@ import {
   printDischargeSummary,
 } from "../dischargeSummary/utils/helper";
 import { getPatientInformation } from "../../../utils/utils";
+import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
 
 const PreviewAdmissionAssessment = () => {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const PreviewAdmissionAssessment = () => {
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const { state } = useLocation();
-  const { patientDetails } = state || {};
+  const { patientDetails, fromTab } = state || {};
   const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
   const { assessmentsData } = useSelector((state) => state.assessment);
@@ -44,11 +45,7 @@ const PreviewAdmissionAssessment = () => {
     setDivWidth(divRef.current?.offsetWidth);
   }, [divRef]);
 
-  useEffect(() => {
-    if (!printSettings || Object.keys(printSettings).length === 0) {
-      dispatch(getPrintSettings());
-    }
-  }, []);
+  usePrintPreviewSetup();
 
   useEffect(() => {
     if (
@@ -129,7 +126,7 @@ const PreviewAdmissionAssessment = () => {
 
   const handleBackToSummary = () => {
     navigate(`/ipd/patient-details`, {
-      state: { ...state, activeTab: "assessment", isEditable: false },
+      state: { ...state, activeTab: "assessment", isEditable: false, fromTab },
       replace: true,
     });
   };

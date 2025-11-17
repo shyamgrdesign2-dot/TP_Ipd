@@ -76,6 +76,7 @@ import FullPageLoader from "../../vaccination/components/Loader";
 import useOnlyViewMode from "../../../hooks/useOnlyViewMode";
 import PatientDetails from "../../PatientDetails";
 import { downloadModule, printModule } from "../utils/printDownload";
+import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
 
 const PatientDetailsLayout = React.lazy(() => {
   return import("shared_ui/components").then((m) =>
@@ -91,6 +92,7 @@ const IPDPatientDetails = () => {
     patient_data,
     patientDetails,
     activeTab,
+    fromTab,
   } = state || {};
 
   const patientId = patientDetails?.details?.id;
@@ -99,7 +101,6 @@ const IPDPatientDetails = () => {
   const { hasAnyData: hasAnyAssessmentData } = useAssessmentSectionVisibility();
 
   const { assessmentsData } = useSelector((state) => state.assessment);
-  const prescriptionSlice = useSelector((state) => state.prescription);
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { otNotesData } = useSelector((state) => state.otNotes);
   const { progressNotes, filteredProgressNotes } = useSelector(
@@ -121,12 +122,10 @@ const IPDPatientDetails = () => {
   // Medical records states
   const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
   const [medicalReportDrawer, setMedicalReportDrawer] = useState(false);
-  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [filesData, setFilesData] = useState([]);
   const [isEditDocument, setIsEditDocument] = useState(false);
   const [shouldShowDeletePopup, setShowDeletePopup] = useState(false);
   const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
-  const fileInputRef = useRef(null);
   const dischargeSummaryReadonlyRef = useRef(null);
   const [user_id, setUserId] = useState(null);
 
@@ -149,6 +148,7 @@ const IPDPatientDetails = () => {
       state: {
         patient_data,
         patientDetails,
+        fromTab,
         isEditable: true,
       },
     });
@@ -159,6 +159,7 @@ const IPDPatientDetails = () => {
       state: {
         patient_data,
         patientDetails,
+        fromTab,
       },
     });
   };
@@ -171,6 +172,7 @@ const IPDPatientDetails = () => {
         patient_data,
         patientDetails,
         isEditable: true,
+        fromTab,
         isNew: true,
       },
     });
@@ -183,6 +185,7 @@ const IPDPatientDetails = () => {
         patient_data,
         patientDetails,
         isEditable: true,
+        fromTab,
       },
     });
   };
@@ -195,20 +198,12 @@ const IPDPatientDetails = () => {
         patientDetails,
         isEditable: true,
         activeMenuItem,
+        fromTab,
       },
     });
   };
 
-  /* Functions realted to Medical records */
-
-  // Fetch print settings once when component mounts
-  useEffect(() => {
-    // Only fetch if print settings are not already loaded
-    if (!printSettings || Object.keys(printSettings).length === 0) {
-      dispatch(getPrintSettings());
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
+  usePrintPreviewSetup();
 
   useEffect(() => {
     if (patientId) {
@@ -251,6 +246,7 @@ const IPDPatientDetails = () => {
         patient_data,
         patientDetails,
         isEditable: true,
+        fromTab,
       },
     });
   };
@@ -485,7 +481,15 @@ const IPDPatientDetails = () => {
     dispatch(resetCrossReferralForm());
     dispatch(resetActualDischargeSummaryData());
     dispatch(resetDischargeSummaryData());
-    navigate(`/ipd/inPatients`);
+    if (fromTab === "inPatients") {
+      navigate("/ipd/inPatients");
+    } else if (fromTab === "dischargedPatients") {
+      navigate("/ipd/dischargedPatients");
+    } else if (fromTab === "dischargeQueue") {
+      navigate("/ipd/approveToDischagePatients");
+    } else {
+      navigate(`/ipd/inPatients`, {});
+    }
   };
   const handleCustomizeClick = () => {
     if (activeMenuItem === "dischargeSummary") {
@@ -557,6 +561,7 @@ const IPDPatientDetails = () => {
     navigate("/ipd/patient-details", {
       state: {
         patientDetails,
+        fromTab,
         patient_data:
           id === "opd"
             ? transformAdmissionToPatient(patientDetails)
@@ -825,6 +830,7 @@ const IPDPatientDetails = () => {
               progressNotes={progressNotes}
               filteredProgressNotes={filteredProgressNotes}
               patientDetails={patientDetails}
+              fromTab={fromTab}
             />
             <div className="ipd-toolbar-edit-custom-print-download">
               <ToolbarActions
@@ -1053,6 +1059,7 @@ const IPDPatientDetails = () => {
                 }
                 // isAppointmentData={true}
                 isIPDMedicalRecords={true}
+                fromTab={fromTab}
                 patientId={patientId}
                 admissionId={admissionId}
                 overrideDocumentOptions={[

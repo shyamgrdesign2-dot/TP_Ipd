@@ -34,7 +34,7 @@ const FilledByCard = createRemoteComponent("FilledByCard");
 const CrossReferral = (props) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
-  const { patient_data, patientDetails, isEditable = true } = state || {};
+  const { patient_data, patientDetails, isEditable = true, fromTab } = state || {};
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
@@ -156,6 +156,7 @@ const CrossReferral = (props) => {
             patient_data: patient_data,
             patientDetails,
             activeTab: "crossReferral",
+            fromTab
           },
           replace: true,
         });
@@ -343,7 +344,7 @@ const CrossReferral = (props) => {
         onConfirm={() => {
           setIsBackModalOpen(false);
           navigate(`/ipd/patient-details`, {
-            state: { ...state, activeTab: "crossReferral", isEditable: false },
+            state: { ...state, activeTab: "crossReferral", isEditable: false , fromTab },
             replace: true,
           });
           dispatch(resetCrossReferralForm());

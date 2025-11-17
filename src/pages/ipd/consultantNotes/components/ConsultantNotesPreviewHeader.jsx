@@ -1,7 +1,15 @@
 import React from "react";
 import { defaultIcons as icons } from "../../../../assets/images/icons/index.js";
+import useOnlyViewMode from "../../../../hooks/useOnlyViewMode.js";
 
-const ConsultantNotesPreviewHeader = ({ dateText, timeText, onDownload, onPrint, onEdit }) => {
+const ConsultantNotesPreviewHeader = ({
+  dateText,
+  timeText,
+  onDownload,
+  onPrint,
+  onEdit,
+}) => {
+  const isOnlyViewMode = useOnlyViewMode();
   return (
     <div className="cnp-group-header">
       <div className="cnp-gh-left">
@@ -28,13 +36,15 @@ const ConsultantNotesPreviewHeader = ({ dateText, timeText, onDownload, onPrint,
           title="Print"
           onClick={onPrint}
         />
-        <img
-          className="cnp-gh-action"
-          src={icons.editIcon}
-          alt="Edit"
-          title="Edit"
-          onClick={onEdit}
-        />
+        {!isOnlyViewMode ? (
+          <img
+            className="cnp-gh-action"
+            src={icons.editIcon}
+            alt="Edit"
+            title="Edit"
+            onClick={onEdit}
+          />
+        ) : null}
       </div>
     </div>
   );

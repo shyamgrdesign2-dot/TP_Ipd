@@ -162,20 +162,24 @@ function FieldRenderer({
       <Controller
         name="contactNo"
         control={control}
-        rules={{
-          validate: {
-            digitsOnly: (v) =>
-              v == null ||
-              v === "" ||
-              /^\d*$/.test(v) ||
-              "Only numbers are allowed",
-            maxTen: (v) =>
-              v == null ||
-              v === "" ||
-              v.length <= 10 ||
-              "Contact number cannot exceed 10 digits",
-          },
-        }}
+        rules={
+          !field.isFromPatientDetails
+            ? {
+                validate: {
+                  digitsOnly: (v) =>
+                    v == null ||
+                    v === "" ||
+                    /^\d*$/.test(v) ||
+                    "Only numbers are allowed",
+                  maxTen: (v) =>
+                    v == null ||
+                    v === "" ||
+                    v.length <= 10 ||
+                    "Contact number cannot exceed 10 digits",
+                },
+              }
+            : {}
+        }
         render={({ field: rhf }) => (
           <Input
             placeholder="Contact No"
@@ -192,6 +196,7 @@ function FieldRenderer({
               e.preventDefault();
               rhf.onChange(`${rhf.value ?? ""}${onlyDigits}`);
             }}
+            disabled={field.isFromPatientDetails}
           />
         )}
       />
@@ -528,6 +533,7 @@ export default function PatientAdmission() {
             patientDetails?.contact || patientDetails?.contactNumber || "",
           address: patientDetails?.address || "",
           bloodGroup: patientDetails?.bloodGroup,
+          ...patientDetails?.zydusAdditionalData
         },
         ward: {
           id: ward?._id || "",
@@ -636,7 +642,11 @@ export default function PatientAdmission() {
                       help={errors[f.id]?.message}
                     >
                       <FieldRenderer
-                        field={f}
+                        field={{
+                          ...f,
+                          isFromPatientDetails:
+                            f.id === "contactNo" && !!patientDetails?.contact,
+                        }}
                         control={control}
                         wards={wards}
                         departmentsRoles={departmentsRoles}

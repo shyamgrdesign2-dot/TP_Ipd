@@ -385,7 +385,7 @@ export const renderOTNotes = (data, formatSettings) => {
         if (renderer) {
           return renderer();
         }
-        return null;
+        return <Text>{""}</Text>;
       })
       .filter(Boolean);
 

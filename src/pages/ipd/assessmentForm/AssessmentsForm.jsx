@@ -40,6 +40,7 @@ import { useAssessmentDataStore } from "../../../hooks/useAssessmentDataStore";
 import ProvisionalDiagnosisWrapper from "./provisinalDiagnosisWrapper";
 import dayjs from "dayjs";
 import FullPageLoader from "../../vaccination/components/Loader";
+import FilledByCards from "../otNotes/components/FilledByCards";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -50,7 +51,7 @@ const AssessmentsForm = (props) => {
   const { hasAnyData } = useAssessmentSectionVisibility();
   const { addDataToStore } = useAssessmentDataStore();
   const { state } = useLocation();
-  const { patient_data, patientDetails, isEditable = true } = state || {};
+  const { patient_data, patientDetails, isEditable = true, fromTab } = state || {};
 
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
@@ -89,7 +90,11 @@ const AssessmentsForm = (props) => {
   }, [assessments]);
 
   useEffect(() => {
-    if (!patient_data || !patientDetails?.details?.id || !patientDetails?.admissionId) {
+    if (
+      !patient_data ||
+      !patientDetails?.details?.id ||
+      !patientDetails?.admissionId
+    ) {
       navigate(-1);
       return;
     }
@@ -128,6 +133,12 @@ const AssessmentsForm = (props) => {
       });
     }
   }, [addDataToStore, dispatch, isEditable, patientDetails]);
+
+  useEffect(() => {
+    const { assessmentsData: { date, time } = {} } = assessmentData;
+    if (date) setFilledDate(new Date(date));
+    if (time) setFilledAtTime(new Date(time));
+  }, [assessmentData]);
 
   useEffect(() => {
     dispatch(getMedicationTemplates());
@@ -176,16 +187,15 @@ const AssessmentsForm = (props) => {
     dispatch(updateCustomization(newData));
   };
 
-
   const convertToRawFormat = (data = []) => {
     if (!Array.isArray(data) || data.length === 0) return [];
-  
+
     // Check if already in raw format (has tmu_id and tmu_title)
     const isAlreadyRaw = data.every(
       (item) => item.tmu_id !== undefined && item.tmu_title !== undefined
     );
     if (isAlreadyRaw) return data;
-  
+
     // Convert formatted → raw
     return data.map((item) => {
       if (item.key) {
@@ -213,22 +223,33 @@ const AssessmentsForm = (props) => {
 
       return medications.map((medication) => {
         const formattedMedication = { ...medication };
-        const formattedMedicineUnit = convertToRawFormat(formattedMedication.medicineUnit);
-        
+        const formattedMedicineUnit = convertToRawFormat(
+          formattedMedication.medicineUnit
+        );
+
         // If tmm_dosage_unit_name exists and is not empty, use it as tmm_dosage
-        if (formattedMedication.tmm_dosage_unit_name && formattedMedication.tmm_dosage_unit_name.trim() !== "") {
-          formattedMedication.tmm_dosage = formattedMedication.tmm_dosage_unit_name;
+        if (
+          formattedMedication.tmm_dosage_unit_name &&
+          formattedMedication.tmm_dosage_unit_name.trim() !== ""
+        ) {
+          formattedMedication.tmm_dosage =
+            formattedMedication.tmm_dosage_unit_name;
         } else {
           // Otherwise, combine tmm_dosage + tmm_unit_name
-          const dosage = formattedMedication.tmm_dosage ? formattedMedication.tmm_dosage: 1 ;
+          const dosage = formattedMedication.tmm_dosage
+            ? formattedMedication.tmm_dosage
+            : 1;
           // const unitName = formattedMedication.tmm_unit_name || "";
-          const unitName = formattedMedication.tmm_unit_name ? formattedMedication.tmm_unit_name : formattedMedicineUnit?.find(
-            (x) => x.tmu_id == formattedMedication.tmu_id
-          )?.tmu_title || formattedMedicineUnit[0]?.tmu_title ;
-          
-          formattedMedication.tmm_dosage_unit_name = `${dosage} ${unitName}`.trim();
+          const unitName = formattedMedication.tmm_unit_name
+            ? formattedMedication.tmm_unit_name
+            : formattedMedicineUnit?.find(
+                (x) => x.tmu_id == formattedMedication.tmu_id
+              )?.tmu_title || formattedMedicineUnit[0]?.tmu_title;
+
+          formattedMedication.tmm_dosage_unit_name =
+            `${dosage} ${unitName}`.trim();
         }
-        
+
         return formattedMedication;
       });
     };
@@ -243,7 +264,9 @@ const AssessmentsForm = (props) => {
         currentMedications: convertMedicationFormat(
           prescriptionData.medicationData || []
         ),
-        medications: formatAssessmentMedications(prescriptionData.medicationData || []),
+        medications: formatAssessmentMedications(
+          prescriptionData.medicationData || []
+        ),
         labResults: assessmentData.labResults || [],
         pastMedicalHistory: prescriptionData.medicalHistoryData || {},
         gyneacHistory: assessmentData.gynecHistoryData || {},
@@ -309,6 +332,7 @@ const AssessmentsForm = (props) => {
             isEditable: false,
             patient_data: patient_data,
             patientDetails,
+            fromTab,
           },
           replace: true,
         });
@@ -340,7 +364,7 @@ const AssessmentsForm = (props) => {
     if (!patientDetails?.details?.id && !patientDetails?.admissionId) {
       setIsBackModalOpen(false);
       navigate(`/ipd/patient-details`, {
-        state: { ...state, activeTab: "assessment", isEditable: false },
+        state: { ...state, activeTab: "assessment", isEditable: false, fromTab },
         replace: true,
       });
       setOpen(false);
@@ -354,7 +378,7 @@ const AssessmentsForm = (props) => {
       ).then((res) => {
         addDataToStore(res.payload.assessment);
         navigate(`/ipd/patient-details`, {
-          state: { ...state, activeTab: "assessment", isEditable: false },
+          state: { ...state, activeTab: "assessment", isEditable: false, fromTab },
           replace: true,
         });
         setIsBackModalOpen(false);
@@ -395,6 +419,8 @@ const AssessmentsForm = (props) => {
   };
 
   const renderAllSections = () => {
+    const { createdByName, createdByRole, createdAt, updates } =
+      assessmentData?.assessmentsFilledByData || {};
     const latestUpdatedAt = assessmentData.assessmentsData?.date || new Date();
     const latestUpdatedAtTime =
       assessmentData.assessmentsData?.time || new Date();
@@ -410,6 +436,7 @@ const AssessmentsForm = (props) => {
             filledBy={
               assessmentData.assessmentsFilledByData?.createdByName || ""
             }
+            filledOnText={"Created At:"}
             role={assessmentData.assessmentsFilledByData?.createdByRole || ""}
             showFilledOnDate={true}
             selectedDate={latestUpdatedAt}
@@ -425,6 +452,13 @@ const AssessmentsForm = (props) => {
               );
             })
           : null}
+        <FilledByCards
+          updates={!!updates.length ? [updates[updates.length - 1]] : []}
+          createdByRole={createdByRole}
+          createdByName={createdByName}
+          createdAt={createdAt}
+          containerClassName={"assessment-form-filled-by-cards-container"}
+        />
       </div>
     );
   };

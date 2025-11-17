@@ -62,7 +62,7 @@ const API_TIME_FORMAT = "HH:mm:ss";
 
 const ConsultantNotes = (props) => {
   const { state } = useLocation();
-  const { patient_data, patientDetails } = state || {};
+  const { patient_data, patientDetails, fromTab } = state || {};
   const patientId = patientDetails?.details?.id;
   const { admissionId } = patientDetails;
 
@@ -233,6 +233,7 @@ const ConsultantNotes = (props) => {
           patientDetails,
           isEditable: false,
           activeTab: "consultantNotes",
+          fromTab
         },
       });
     } catch (error) {

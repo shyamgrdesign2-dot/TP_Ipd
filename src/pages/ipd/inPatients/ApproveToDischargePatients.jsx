@@ -203,6 +203,7 @@ function ApproveToDischargePatients() {
               },
               isEditable: false,
               activeTab: patientData?.referral ? "crossReferral" : "assessment",
+              fromTab: 'dischargeQueue'
             },
           });
         }

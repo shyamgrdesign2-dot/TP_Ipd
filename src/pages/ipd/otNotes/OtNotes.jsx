@@ -46,6 +46,7 @@ const OtNotes = (props) => {
     isNew = false,
     fromDischargeSummary = false,
     activeOtNoteId,
+    fromTab,
   } = state || {};
   const isEditable = isEditableProp && isEditableState;
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
@@ -293,6 +294,7 @@ const OtNotes = (props) => {
             isEditable: false,
             patient_data: patient_data,
             patientDetails,
+            fromTab,
             activeTab: "otNotes",
           },
           replace: true,
@@ -491,7 +493,12 @@ const OtNotes = (props) => {
         onConfirm={() => {
           setIsBackModalOpen(false);
           navigate(`/ipd/patient-details`, {
-            state: { ...state, activeTab: "otNotes", isEditable: false },
+            state: {
+              ...state,
+              activeTab: "otNotes",
+              isEditable: false,
+              fromTab,
+            },
             replace: true,
           });
           dispatch(resetOtNotesForm());

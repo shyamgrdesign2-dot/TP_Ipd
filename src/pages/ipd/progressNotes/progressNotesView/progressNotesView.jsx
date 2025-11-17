@@ -28,6 +28,7 @@ function ProgressNotesView({
   progressNotes,
   filteredProgressNotes,
   patientDetails,
+  fromTab,
   isProgressNotesSummary = false,
 }) {
   const [events, setEvents] = useState([]);
@@ -181,6 +182,7 @@ function ProgressNotesView({
           progressNotesData: progressNotes,
           patientDetails,
           isEditable: true,
+          fromTab,
         },
       });
     }

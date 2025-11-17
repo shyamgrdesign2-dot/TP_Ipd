@@ -23,6 +23,7 @@ import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 import { getPrintSettings } from "../../redux/ipd/printSettingsSlice";
 import { getPatientInformation } from "../../utils/utils";
+import usePrintPreviewSetup from "../../hooks/usePrintPreviewSetup";
 
 // Document type mapping for PDF generation
 const DOCUMENT_TYPE_MAPPING = {
@@ -114,11 +115,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
     setDivWidth(divRef.current?.offsetWidth);
   }, [divRef]);
 
-  useEffect(() => {
-    if (!printSettings || Object.keys(printSettings).length === 0) {
-      dispatch(getPrintSettings());
-    }
-  }, [dispatch, printSettings]);
+  usePrintPreviewSetup();
 
   useEffect(() => {
     const initializePrintSettings = async () => {

@@ -421,7 +421,7 @@ export const renderDischargeSummary = (
       if (renderer) {
         return renderer();
       }
-      return null;
+      return <Text>{""}</Text>;
     })
     .filter(Boolean);
 

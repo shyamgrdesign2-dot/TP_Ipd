@@ -74,19 +74,28 @@ const PatientsTable = ({
     setConfirmPopupOpen(null);
     setWarningModalOpen(null);
     dispatch(
-      markPatientAsDischarged({ admissionId: warningModalOpen?.admissionId })
-    ).then((res) => {
-      if (res?.payload?.status === 400) {
-        message.warning(
-          res?.payload?.data?.message || "Patient discharged failed"
-        );
-      } else {
-        message.success("Patient discharged successfully");
-        setApiToCall("");
-        setOpenMoreActionsPopover(null);
-        fetchData(fetchParams);
-      }
-    });
+      markPatientAsDischarged({
+        admissionId: warningModalOpen?.admissionId,
+        ...confirmPopupOpen,
+      })
+    )
+      .then((res) => {
+        if (res?.payload?.status === 400) {
+          message.warning(
+            res?.payload?.data?.message || "Patient discharged failed"
+          );
+        } else {
+          message.success("Patient discharged successfully");
+          setApiToCall("");
+          setOpenMoreActionsPopover(null);
+          fetchData(fetchParams);
+        }
+      })
+      .finally(() => {
+        dischargeConfirmationModalRef?.current?.clearFormData();
+        setConfirmPopupOpen(null);
+        setWarningModalOpen(null);
+      });
   };
 
   const handleSendForDischargeApproval = (record) => {

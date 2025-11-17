@@ -13,6 +13,7 @@ body {
         &.ipd-sidebar {
             min-width: 100px !important;
             width: 100px;
+            max-height: calc(100dvh - 67px);
 
             a {
                 margin-bottom: 16px !important;

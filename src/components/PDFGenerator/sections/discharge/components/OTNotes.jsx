@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
 
 const OTNotes = ({ data, title, formatSettings }) => {
   if (!data?.otNotes?.surgeries || data.otNotes.surgeries.length === 0)
-    return null;
+    return <Text>{""}</Text>;
 
   const { surgeries } = data.otNotes;
 
@@ -91,7 +91,7 @@ const OTNotes = ({ data, title, formatSettings }) => {
 
   const sortedSubsections = getAllVisibleSections(subsections);
 
-  if (!surgeries?.length) return null;
+  if (!surgeries?.length) return <Text>{""}</Text>;
 
   return (
     <View style={styles.sectionContainer} break>
@@ -244,7 +244,9 @@ const OTNotes = ({ data, title, formatSettings }) => {
                       <View style={styles.bulletItem}>
                         <Text style={[styles.bullet]}>•</Text>
                         <Text style={[styles.bulletContent]}>
-                          <Text style={styles.fieldLabel}>{label}: </Text>
+                          <Text style={styles.fieldLabel}>
+                            {"Anaesthesia Type"}:{" "}
+                          </Text>
                           <Text style={styles.regularText}>
                             {surgery.anaesthetistType}
                           </Text>

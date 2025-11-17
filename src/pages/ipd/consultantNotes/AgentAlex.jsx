@@ -11,7 +11,7 @@ const AgentAlex = ({ onClose, onViewProgressNotes }) => {
   const [isTimelineExpanded, setIsTimelineExpanded] = useState(false);
   const { progressNotes } = useSelector((state) => state.progressNotes);
   const { state } = useLocation();
-  const { patientDetails } = state || {};
+  const { patientDetails, fromTab } = state || {};
 
   const handleCloseClick = () => {
     if (onClose) {
@@ -154,6 +154,7 @@ const AgentAlex = ({ onClose, onViewProgressNotes }) => {
           <ProgressNotesView
             progressNotes={[progressNotes[progressNotes.length - 1]]}
             patientDetails={patientDetails}
+            fromTab={fromTab}
             isProgressNotesSummary
           />
         </div>

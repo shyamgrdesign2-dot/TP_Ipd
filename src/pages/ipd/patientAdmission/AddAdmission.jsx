@@ -72,21 +72,27 @@ export default function AddAdmission() {
   }, [countryCode]); // eslint-disable-line
 
   const onSelectPatient = (patient) => {
-    console.log("intel ==> patient", patient);
-    // Shape a minimal patientDetails for the next screen
     const ageObj = calcAgeFromDOB(patient?.dob);
+    const zydusAdditionalData = {
+      dobStr: patient?.dobStr || "",
+      status: patient?.patientstatus,
+      registrationdate: patient?.registrationdate,
+      registrationdatestr: patient?.registrationdatestr || "",
+      hospital: patient?.hospital,
+      email: patient?.email || "",
+      dob: patient?.dob,
+    }
     const patientDetails = {
       id: patient?.patientId || patient?._id,
       name: patient?.patientname,
       gender: patient?.gender,
       contact: patient?.mobilenumber || patient?.phone,
       mrno: patient?.mrno || patient?.mrNo,
-      dob: patient?.dob,
       prefix: patient?.prefix,
       age: ageObj?.years,
       ageMonths: ageObj?.months,
       bloodGroup: patient?.bloodGroup,
-      // add more if your API provides it and is useful downstream
+      zydusAdditionalData
     };
 
     navigate("/ipd/patient-admission", { state: { patientDetails } });

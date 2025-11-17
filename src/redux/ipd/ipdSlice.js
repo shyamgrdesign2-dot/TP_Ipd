@@ -176,6 +176,12 @@ const ipdSlice = createSlice({
     clearPatientsSearch: (state) => {
       state.patientsSearch = { loading: false, list: [], error: null };
     },
+    storePatientDetails: (state, action) => {
+      state.patientDetails = action.payload;
+    },
+    resetPatientDetails: (state, action) => {
+      state.patientDetails = {};
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -250,6 +256,8 @@ export const {
   setDoctorDepartmentRoles,
   setWards,
   clearPatientsSearch,
+  resetPatientDetails,
+  storePatientDetails
 } = ipdSlice.actions;
 
 export default ipdSlice.reducer;

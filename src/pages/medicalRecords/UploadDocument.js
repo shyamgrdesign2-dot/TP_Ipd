@@ -64,6 +64,7 @@ const UploadDocument = ({
   admissionId: ipdAdmissionId,
   // Optional override for category options
   overrideDocumentOptions,
+  fromTab,
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -331,6 +332,7 @@ const UploadDocument = ({
           patient_data : patient_data_naviagte,
           patientDetails,
           isEditable: false,
+          fromTab,
           activeTab: "records", // This will help identify which tab to show
         },
       });

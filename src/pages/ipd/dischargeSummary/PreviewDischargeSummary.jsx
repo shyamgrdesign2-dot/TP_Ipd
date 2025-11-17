@@ -18,6 +18,7 @@ import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
 import PrintPreviewShimmer from "./components/PrintPreviewShimmer/PrintPreviewShimmer";
 import { getPatientInformation } from "../../../utils/utils";
+import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
 
 const PreviewDischargeSummary = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const PreviewDischargeSummary = () => {
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const { state } = useLocation();
-  const { patientDetails } = state || {};
+  const { patientDetails, fromTab, } = state || {};
   const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
   const { actualDischargeSummaryData: dischargeSummaryData } = useSelector(
@@ -41,11 +42,7 @@ const PreviewDischargeSummary = () => {
     setDivWidth(divRef.current?.offsetWidth);
   }, [divRef]);
 
-  useEffect(() => {
-    if (!printSettings || Object.keys(printSettings).length === 0) {
-      dispatch(getPrintSettings());
-    }
-  }, []);
+  usePrintPreviewSetup();
 
   useEffect(() => {
     if (
@@ -127,6 +124,7 @@ const PreviewDischargeSummary = () => {
         patientDetails,
         activeTab: "dischargeSummary",
         isEditable: false,
+        fromTab,
       },
       replace: true
     });

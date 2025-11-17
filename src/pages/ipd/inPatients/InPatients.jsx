@@ -21,7 +21,11 @@ import {
   clearIPDFilters,
 } from "../../../utils/localStorage";
 import "./InPatients.scss";
-import { fetchPatientUniqueId } from "../../../redux/ipd/ipdSlice";
+import {
+  fetchPatientUniqueId,
+  resetPatientDetails,
+  storePatientDetails,
+} from "../../../redux/ipd/ipdSlice";
 import { useDispatch } from "react-redux";
 import { trackMoEngageEvent } from "../../../utils/utils";
 
@@ -127,16 +131,19 @@ function InPatients() {
     return doctors.map((doctor) => doctor.id).join(",");
   }, [doctors]);
 
-  
   useEffect(() => {
     const patientData = location.state?.patientDetails || null;
-    trackMoEngageEvent("IPD_InPatients_Mounted", {
-      selected_doctor_ids: selectedDoctors,
-      selected_doctors_count: selectedDoctors.length,
-      selected_wards: selectedWards,
-      date_range: dateRange,
-      date_status: dateStatus,
-    }, patientData);
+    trackMoEngageEvent(
+      "IPD_InPatients_Mounted",
+      {
+        selected_doctor_ids: selectedDoctors,
+        selected_doctors_count: selectedDoctors.length,
+        selected_wards: selectedWards,
+        date_range: dateRange,
+        date_status: dateStatus,
+      },
+      patientData
+    );
   }, []);
 
   useEffect(() => {
@@ -190,20 +197,28 @@ function InPatients() {
             state: {
               patientDetails: {
                 ...patientData,
-                ...(res?.payload?.patientUniqueId && {
-                  patient_unique_id: res?.payload?.patientUniqueId,
-                }),
+                patient_unique_id:
+                  res?.payload?.patientUniqueId || patientData?.details?.id,
               },
               patient_data: {
                 ...patient_data,
-                ...(res?.payload?.patientUniqueId && {
-                  patient_unique_id: res?.payload?.patientUniqueId,
-                }),
+                patient_unique_id:
+                  res?.payload?.patientUniqueId || patientData?.details?.id,
               },
               isEditable: false,
               activeTab: patientData?.referral ? "crossReferral" : "assessment",
+              fromTab: 'inPatients'
             },
           });
+          dispatch(resetPatientDetails());
+          dispatch(
+            storePatientDetails({
+              ...patientData,
+              ...(res?.payload?.patientUniqueId && {
+                patient_unique_id: res?.payload?.patientUniqueId,
+              }),
+            })
+          );
         }
       );
     },
@@ -262,13 +277,17 @@ function InPatients() {
 
       // Track date filter change
       const patientData = location.state?.patientDetails || null;
-      trackMoEngageEvent("IPD_InPatients_Updated", {
-        filter_type: "admitted_on_date",
-        date_status: newDateStatus,
-        start_date: startDate,
-        end_date: endDate,
-        date_range_days: moment(endDate).diff(moment(startDate), 'days') + 1,
-      }, patientData);
+      trackMoEngageEvent(
+        "IPD_InPatients_Updated",
+        {
+          filter_type: "admitted_on_date",
+          date_status: newDateStatus,
+          start_date: startDate,
+          end_date: endDate,
+          date_range_days: moment(endDate).diff(moment(startDate), "days") + 1,
+        },
+        patientData
+      );
     } else {
       setDateStatus(null);
       setDateRange(null);
@@ -289,14 +308,18 @@ function InPatients() {
     (doctorIds) => {
       setSelectedDoctors(doctorIds);
       resetData();
-      
+
       // Track doctor filter change
       const patientData = location.state?.patientDetails || null;
-      trackMoEngageEvent("IPD_InPatients_Updated", {
-        filter_type: "doctor",
-        selected_doctor_ids: doctorIds,
-        selected_doctors_count: doctorIds.length,
-      }, patientData);
+      trackMoEngageEvent(
+        "IPD_InPatients_Updated",
+        {
+          filter_type: "doctor",
+          selected_doctor_ids: doctorIds,
+          selected_doctors_count: doctorIds.length,
+        },
+        patientData
+      );
     },
     [resetData]
   );
@@ -305,14 +328,18 @@ function InPatients() {
     (wardIds) => {
       setSelectedWards(wardIds);
       resetData();
-      
+
       // Track ward filter change
       const patientData = location.state?.patientDetails || null;
-      trackMoEngageEvent("IPD_InPatients_Updated", {
-        filter_type: "ward",
-        selected_wards: wardIds,
-        selected_wards_count: wardIds.length,
-      }, patientData);
+      trackMoEngageEvent(
+        "IPD_InPatients_Updated",
+        {
+          filter_type: "ward",
+          selected_wards: wardIds,
+          selected_wards_count: wardIds.length,
+        },
+        patientData
+      );
     },
     [resetData]
   );
@@ -340,9 +367,7 @@ function InPatients() {
       <SubHeader headerTitle={"InPatients"} />
       <div className="border rounded-4 appointment-wrap ipd-inpatients-page-wrap dateborder">
         <div className="inpatients-main">
-          <Row
-            className="justify-content-between align-items-center filters"
-          >
+          <Row className="justify-content-between align-items-center filters">
             <FilterControls
               searchQuery={inputSearchQuery}
               onSearchChange={onSearch}

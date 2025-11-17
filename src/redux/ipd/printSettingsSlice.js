@@ -27,9 +27,12 @@ export const initialState = {
  */
 export const getPrintSettings = createAsyncThunk(
   "printSettings/getPrintSettings",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
-      const result = await ApiPrintSettings.getPrintSettings();
+      const { ipd: { patientDetails } } = getState();
+      const result = await ApiPrintSettings.getPrintSettings(
+        { doctorId: patientDetails?.doctor?.id }
+      );
 
       if (result?._id) {
         return result;
@@ -52,10 +55,11 @@ export const getPrintSettings = createAsyncThunk(
  */
 export const updatePrintSettings = createAsyncThunk(
   "printSettings/updatePrintSettings",
-  async (printSettings, { rejectWithValue }) => {
+  async (data, { rejectWithValue }) => {
     try {
       const result = await ApiPrintSettings.updatePrintSettings({
-        printSettings,
+        printSettings: data?.printSettings || {},
+        doctorId: data?.doctorId || "",
       });
       return result;
     } catch (error) {

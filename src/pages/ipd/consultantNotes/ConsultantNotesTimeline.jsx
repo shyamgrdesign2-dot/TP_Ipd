@@ -32,7 +32,7 @@ const ConsultantNotesTimeline = () => {
     (state) => state.consultantNotes
   );
   const { state } = useLocation();
-  const { patient_data, patientDetails } = state || {};
+  const { patient_data, patientDetails, fromTab } = state || {};
   const patientId = patientDetails?.details?.id;
   const { admissionId } = patientDetails;
   const [dateRange, setDateRange] = useState(null);
@@ -162,6 +162,7 @@ const ConsultantNotesTimeline = () => {
         patient_data,
         patientDetails,
         isEditable: true,
+        fromTab
       },
     });
   };

@@ -82,6 +82,27 @@ export const updateCrossReferralData = createAsyncThunk(
   }
 );
 
+export const cancelCrossReferralData = createAsyncThunk(
+  "crossReferral/cancelCrossReferralData",
+  async (data, { rejectWithValue }) => {
+    try {
+      let result = {};
+      result = await ApiCrossReferral.cancelCrossReferral(data);
+      if (result.message === "cross referral cancel updated successfully.") {
+        return result.data;
+      } else {
+        throw Error(result.error || "Failed to cancel cross referral");
+      }
+    } catch (error) {
+      console.log("error: ", error);
+      return rejectWithValue({
+        visible: false,
+        message: error.response?.data?.message || error.message,
+      });
+    }
+  }
+);
+
 const crossReferralSlice = createSlice({
   name: "crossReferral",
   initialState,
@@ -215,6 +236,16 @@ const crossReferralSlice = createSlice({
       })
       .addCase(updateCrossReferralData.rejected, (state, action) => {
         state.crossReferralData = [];
+        state.loading = false;
+      })
+      .addCase(cancelCrossReferralData.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(cancelCrossReferralData.fulfilled, (state, action) => {
+        state.loading = false;
+        // state.crossReferralData = action.payload;
+      })
+      .addCase(cancelCrossReferralData.rejected, (state, action) => {
         state.loading = false;
       });
   },

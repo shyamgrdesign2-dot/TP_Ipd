@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { View, StyleSheet } from "@react-pdf/renderer";
+import { View, StyleSheet, Text } from "@react-pdf/renderer";
 import { getAllVisibleSections } from "../../utils/pdfUtils";
 import FilledByCard from "../../components/FilledByCard";
 import ReferralInformation from "./components/ReferralInformation";
@@ -16,12 +16,13 @@ const styles = StyleSheet.create({
   },
 });
 
-const renderReferralInformation = (data, formatSettings) => {
+const renderReferralInformation = (data, formatSettings, status) => {
   return (
     <ReferralInformation
       title="Referral Information"
       data={data}
       formatSettings={formatSettings}
+      status={status}
     />
   );
 };
@@ -56,11 +57,13 @@ export const renderCrossReferral = (data, formatSettings) => {
 
   const allSections = data.map((note, noteIndex) => {
     const crossReferralData = note?.crossReferral || {};
+    const status = note?.status;
     const sectionRenderers = {
       referralInformation: () =>
         renderReferralInformation(
           crossReferralData?.referralInformation,
-          formatSettings
+          formatSettings,
+          status
         ),
       consultantNotes: () =>
         renderConsultantNotes(
@@ -76,7 +79,7 @@ export const renderCrossReferral = (data, formatSettings) => {
         if (renderer) {
           return renderer();
         }
-        return null;
+        return <Text>{""}</Text>;
       })
       .filter(Boolean);
 

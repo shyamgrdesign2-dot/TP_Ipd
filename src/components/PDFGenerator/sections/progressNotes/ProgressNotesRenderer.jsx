@@ -231,7 +231,7 @@ export const renderProgressNotes = (data, formatSettings) => {
           console.log(renderer, "renderer");
           return renderer();
         }
-        return null;
+        return <Text>{""}</Text>;
       })
       .filter(Boolean);
 

@@ -117,13 +117,30 @@ const renderReferredBy = (referredBy, fontFamily) => {
 /**
  * Render Referred To subsection
  */
-const renderReferredTo = (referredTo, fontFamily) => {
+const renderReferredTo = (referredTo, fontFamily, status) => {
   if (!referredTo || !referredTo.name) return null;
 
   return (
     <Text style={[styles.inlineRow, { fontFamily }]}>
       <Text style={styles.labelText}>, Referred to: </Text>
       <Text style={styles.valueText}>{referredTo.name}</Text>
+      {status === "cancelled" && (
+        <Text
+          style={[
+            styles.valueText,
+            {
+              color: "#DC2626",
+              fontWeight: 600,
+              marginLeft: 8,
+              backgroundColor: "#FEE2E2",
+              padding: "2px 8px",
+              borderRadius: 4,
+            },
+          ]}
+        >
+          (Cancelled)
+        </Text>
+      )}
     </Text>
   );
 };
@@ -242,6 +259,7 @@ const ReferralInformation = ({
   fontFamily = "Poppins",
   title,
   formatSettings,
+  status,
 }) => {
   //   if (!data?.referralInformation) return null;
 
@@ -286,7 +304,7 @@ const ReferralInformation = ({
             )}
           {sortedSubsections.some((s) => s.id === "referringTo") &&
             referralInfo.referringTo?.name &&
-            renderReferredTo(referralInfo.referringTo, fontFamily)}
+            renderReferredTo(referralInfo.referringTo, fontFamily, status)}
           {sortedSubsections.some((s) => s.id === "referringDepartment") &&
             referralInfo.referringDepartment &&
             renderReferredDepartment(

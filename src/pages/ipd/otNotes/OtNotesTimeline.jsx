@@ -41,7 +41,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
 
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { patient_data, patientDetails } = state || {};
+  const { patient_data, patientDetails, fromTab } = state || {};
   const { otNotes = [] } = customization;
 
   useEffect(() => {
@@ -57,6 +57,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
         patientDetails,
         isEditable: true,
         activeOtNoteId: id,
+        fromTab,
       },
     });
   };
@@ -74,6 +75,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
         isEditable: true,
         activeOtNoteId: section?._id,
         fromDischargeSummary: true,
+        fromTab,
       },
     });
   };
@@ -467,7 +469,11 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
 
   if (isLiteMode) {
     return (
-      <div className={`ot-notes-timeline-container no-margin-bottom flex-column-gap-16 ${isLiteMode ? 'no-extra-margin-padding': ''}`}>
+      <div
+        className={`ot-notes-timeline-container no-margin-bottom flex-column-gap-16 ${
+          isLiteMode ? "no-extra-margin-padding" : ""
+        }`}
+      >
         {filteredMappedData?.map((section, sectionIndex) => {
           return (
             <div className="otnotelite-section-container big-box-with-shadow flex-column-gap-16">

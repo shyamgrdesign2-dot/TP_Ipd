@@ -114,8 +114,8 @@ function IPDNavbar() {
           )}
         </NavLink>
       </div>
-      {/* {!izZydusUser ? ( */}
-      {false ? (
+      {!izZydusUser ? (
+      // {false ? (
         <div>
           <NavLink
             to="/ipd/ward-bed-management"

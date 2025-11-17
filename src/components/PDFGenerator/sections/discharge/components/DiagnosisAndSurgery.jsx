@@ -117,7 +117,7 @@ const DiagnosisAndSurgery = ({
 
   return (
     <View style={styles.sectionContainer}>
-      <SectionTitle title={title} />
+      {title ? <SectionTitle title={title} /> : null}
       <View style={styles.mainContainer}>
         {/* Final Diagnosis */}
         {sortedSubsections.map((subsection) => {

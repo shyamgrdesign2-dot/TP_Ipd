@@ -21,4 +21,8 @@ ApiCrossReferral.updateCrossReferral = function ({ patientId, admissionId, _id, 
 return api.put(`/cross-referral?patientId=${patientId}&admissionId=${admissionId}${_id ? `&_id=${_id}` : ''}`, data, baseUrl);
 };
 
+ApiCrossReferral.cancelCrossReferral = function ({ patientId, admissionId, _id }) {
+  return api.put(`/cross-referral/cancel?patientId=${patientId}&admissionId=${admissionId}&_id=${_id}`, {}, baseUrl);
+};
+
 export default ApiCrossReferral;

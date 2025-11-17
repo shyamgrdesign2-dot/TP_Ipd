@@ -177,6 +177,7 @@ function DischargedPatients() {
           patient_data,
           isEditable: false,
           activeTab: "dischargeSummary",
+          fromTab: 'dischargedPatients'
         },
       });
     },

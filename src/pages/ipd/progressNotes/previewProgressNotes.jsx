@@ -1,40 +1,30 @@
-import { Button, Col, Drawer, Row, Spin } from "antd";
+import { Button, Col, Row, Spin } from "antd";
 import { isMobile } from "react-device-detect";
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 
 import { Container, Navbar } from "react-bootstrap";
-import {
-  getSortedSections,
-  PDFGenerator,
-} from "../../../components/PDFGenerator";
-import {
-  handleDownloadProgressNotes,
-  printProgressNotes,
-} from "./utils/helper";
-import { transformProgressNotesData } from "./utils/dataMapper";
+import { PDFGenerator } from "../../../components/PDFGenerator";
 
-import { useDispatch, useSelector } from "react-redux";
-import { updatePrintSettings } from "../../../redux/ipd/printSettingsSlice";
+import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getPatientInformation } from "../../../utils/utils";
 import {
   downloadDocument,
   printDocument,
 } from "../dischargeSummary/utils/helper";
+import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
 
 const PreviewProgressNotes = () => {
   const navigate = useNavigate();
   const divRef = useRef(null);
   const [divWidth, setDivWidth] = useState(0);
-  const [showConfigureSettings, setShowConfigureSettings] = useState(false);
   const [numPages, setNumPages] = useState();
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const { state } = useLocation();
-  const { patientDetails } = state || {};
-  const dispatch = useDispatch();
+  const { patientDetails, fromTab } = state || {};
   const { printSettings } = useSelector((state) => state.printSettings);
   const { progressNotes } = useSelector((state) => state.progressNotes);
   const { progressNotes: currentSettings } = printSettings;
@@ -48,6 +38,7 @@ const PreviewProgressNotes = () => {
   //   return dateB - dateA; // Most recent first
   // });
 
+  usePrintPreviewSetup();
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
   }, [divRef]);
@@ -99,13 +90,9 @@ const PreviewProgressNotes = () => {
     downloadDocument(pdfUrl, printBlob, patientDetails, "progressNotes");
   };
 
-  const handleSettingsUpdate = (newSettings) => {
-    dispatch(updatePrintSettings(newSettings));
-  };
-
   const handleBackToProgressNotes = () => {
     navigate(`/ipd/patient-details`, {
-      state: { ...state, activeTab: "progress", isEditable: false },
+      state: { ...state, activeTab: "progress", isEditable: false, fromTab },
       replace: true,
     });
   };

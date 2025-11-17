@@ -46,7 +46,7 @@ import {
   shouldMonetizationDisabled,
   trackEvent,
   trackMoEngageEvent,
-  sendMessageToParent
+  sendMessageToParent,
 } from "../utils/utils";
 import FullPageLoader from "../pages/vaccination/components/Loader";
 import { useOpdBilling } from "../pages/opdBilling/useOpdBilling";
@@ -175,12 +175,7 @@ function SidebarDoctor() {
 
   const clickOldModule = async (moduleName) => {
     trackMoEngageEvent("IPD_InPatients_Clicked", {});
-    if (
-      moduleName === "ipd" &&
-      (isNewIPDAccessableFromGB || isNewIPDHosBusinessIdAccessableFromGB)
-    ) {
-      navigate("/ipd/inPatients");
-
+    if (moduleName === "ipd") {
       return check_SSO(moduleName);
     }
 
@@ -275,15 +270,11 @@ function SidebarDoctor() {
 
   async function check_SSO(moduleName) {
     SSO_TO_PM().then(async (data) => {
-      // TODO : INTEL - REMOVE - IPD
-      console.log("INTEL ==> browser", `${data.url}&module=${moduleName}`);
-      console.log(
-        "INTEL ==> inapp",
-        `/patient_details/?url=${data.url}&module=${moduleName}&key=print`
-      );
       if (
-        moduleName === "ipd" &&
-        (isNewIPDAccessableFromGB || isNewIPDHosBusinessIdAccessableFromGB)
+        moduleName === "ipd"
+        // &&
+        // (isNewIPDAccessableFromGB || isNewIPDHosBusinessIdAccessableFromGB)
+        // TODO: INTEL - ONLY FOR IPD-PROD ENV
       ) {
         navigate("/ipd/inPatients");
       } else if (moduleName === "opd_billing" && isOpdBillingAccessable) {
@@ -307,7 +298,7 @@ function SidebarDoctor() {
             // navigate(0, { replace: true });
             sendMessageToParent(EVENTS.REDIRECT, {
               url: `${data?.url}&module=${moduleName}`,
-              module: moduleName
+              module: moduleName,
             });
           } else {
             await window.open(`${data.url}&module=${moduleName}`);

@@ -781,7 +781,7 @@ const PatientHistory = ({
     return false;
   });
 
-  if (!hasRenderableSubsection) return null;
+  if (!hasRenderableSubsection) return <Text>{""}</Text>;
 
   const renderPatientHistoryPrint = () => {
     return (
@@ -880,11 +880,8 @@ const PatientHistory = ({
       </View>
     );
   };
-  if (isDischargeSummary) {
-    return <View break>{renderPatientHistoryPrint()}</View>;
-  }
 
-  return <View>{renderPatientHistoryPrint()}</View>;
+  return <View break={isDischargeSummary}>{renderPatientHistoryPrint()}</View>;
 };
 
 export default PatientHistory;

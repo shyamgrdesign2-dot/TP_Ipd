@@ -61,6 +61,7 @@ const DischargeSummary = (props) => {
     patient_data,
     patientDetails,
     isEditable = true,
+    fromTab,
     isNew = false,
   } = state || {};
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
@@ -201,6 +202,7 @@ const DischargeSummary = (props) => {
         isEditable: true,
         isNew: true,
         fromDischargeSummary: true,
+        fromTab
       },
     });
   };
@@ -569,6 +571,7 @@ const DischargeSummary = (props) => {
             isEditable: false,
             patient_data: patient_data,
             patientDetails,
+            fromTab,
             activeTab: "dischargeSummary",
           },
           replace: true,
@@ -743,6 +746,7 @@ const DischargeSummary = (props) => {
               ...state,
               activeTab: "dischargeSummary",
               isEditable: false,
+              fromTab,
             },
             replace: true,
           });

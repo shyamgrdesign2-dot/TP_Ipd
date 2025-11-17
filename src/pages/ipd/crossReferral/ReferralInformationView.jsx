@@ -21,11 +21,12 @@ const ReferralInformationView = (props) => {
     isCollapsible = true,
     isEditable = false,
     isCurrentDoctorReferee,
+    status,
   } = props || {};
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { state } = useLocation();
-  const { patient_data, patientDetails } = state || {};
+  const { patient_data, patientDetails, fromTab } = state || {};
   const {
     relativesInformed = {},
     referringTo,
@@ -43,6 +44,7 @@ const ReferralInformationView = (props) => {
         patient_data,
         patientDetails,
         isEditable: true,
+        fromTab,
         activeCrossReferralId: id,
       },
     });
@@ -55,6 +57,7 @@ const ReferralInformationView = (props) => {
   ) {
     return null;
   }
+  const isCancelled = status === "cancelled";
   return (
     <div
       className={`ipdcrt-section-container ${
@@ -69,18 +72,24 @@ const ReferralInformationView = (props) => {
           <img src={newIcons.basicInfoPcDark} alt="x" />
           <span>Referral Information</span>
         </div>
-        {isEditable && !isCurrentDoctorReferee && isCollapsible && (
-          <div>
-            <img
-              className="medical-progress__content-calendar-icon"
-              style={{ fill: "#581C87", cursor: "pointer" }}
-              src={defaultIcons.editDarkIcon}
-              alt="Edit"
-              onClick={() => handleEditCrossReferral(_id)}
-              title="Edit this date's cross referral"
-            />
-          </div>
-        )}
+        {isEditable &&
+          !isCurrentDoctorReferee &&
+          isCollapsible &&
+          !isCancelled && (
+            <div
+              className="right-section"
+              style={{ display: "flex", gap: "12px" }}
+            >
+              <img
+                className="medical-progress__content-calendar-icon"
+                style={{ fill: "#581C87", cursor: "pointer" }}
+                src={defaultIcons.editDarkIcon}
+                alt="Edit"
+                onClick={() => handleEditCrossReferral(_id)}
+                title="Edit this date's cross referral"
+              />
+            </div>
+          )}
       </div>
       <div className="ipdcrt-section-content">
         <div className="ipdrf-chips-container">

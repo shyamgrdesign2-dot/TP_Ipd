@@ -9,14 +9,13 @@ import { PDFGenerator } from "../../../components/PDFGenerator";
 
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
-import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
 import { getOtNotesData } from "../../../redux/ipd/otNotesSlice";
 import {
   handleDownloadDischargeSummary,
   printDischargeSummary,
 } from "../dischargeSummary/utils/helper";
 import { getPatientInformation } from "../../../utils/utils";
+import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
 
 const PrintPreviewOTNotes = () => {
   const navigate = useNavigate();
@@ -26,8 +25,12 @@ const PrintPreviewOTNotes = () => {
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const { state } = useLocation();
-  const { patientDetails } = state || {};
+  const { patientDetails, fromTab } = state || {};
   const dispatch = useDispatch();
+  
+  // Use custom hook to handle patient details and print settings
+  usePrintPreviewSetup();
+  
   const { printSettings } = useSelector((state) => state.printSettings);
   const { otNotesData } = useSelector((state) => state.otNotes);
   const { otNotes: currentSettings } = printSettings;
@@ -35,12 +38,6 @@ const PrintPreviewOTNotes = () => {
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
   }, [divRef]);
-
-  useEffect(() => {
-    if (!printSettings || Object.keys(printSettings).length === 0) {
-      dispatch(getPrintSettings());
-    }
-  }, []);
 
   useEffect(() => {
     if (
@@ -121,7 +118,7 @@ const PrintPreviewOTNotes = () => {
     //   replace: true
     // });
     navigate(`/ipd/patient-details`, {
-      state: { ...state, activeTab: "otNotes", isEditable: false },
+      state: { ...state, activeTab: "otNotes", isEditable: false, fromTab },
       replace: true,
     });
   };

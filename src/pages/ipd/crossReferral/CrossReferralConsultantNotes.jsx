@@ -44,6 +44,7 @@ const CrossReferralConsultantNotes = (props) => {
     patientDetails,
     isEditable = true,
     fullData: { referralInformationData, id } = {},
+    fromTab
   } = state || {};
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -341,6 +342,7 @@ const CrossReferralConsultantNotes = (props) => {
           patient_data: patient_data,
           patientDetails,
           activeTab: "crossReferral",
+          fromTab
         },
         replace: true,
       });
@@ -500,7 +502,7 @@ const CrossReferralConsultantNotes = (props) => {
         onConfirm={() => {
           setIsBackModalOpen(false);
           navigate(`/ipd/patient-details`, {
-            state: { ...state, activeTab: "crossReferral", isEditable: false },
+            state: { ...state, activeTab: "crossReferral", isEditable: false, fromTab },
             replace: true,
           });
           dispatch(resetCrossReferralForm());

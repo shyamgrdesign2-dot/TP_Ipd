@@ -9,6 +9,8 @@ import {
   setCurrentCrossReferralId,
   setSelectedConsultantNoteId,
   setSingleCrossReferralData,
+  cancelCrossReferralData,
+  getCrossReferralData,
 } from "../../../redux/ipd/crossReferralSlice.js";
 import DateRangeFilter from "../components/DateRangeFilter.js";
 import { getCustomization } from "../../../redux/ipd/ipdSlice.js";
@@ -16,6 +18,8 @@ import { defaultIcons } from "../../../assets/images/icons/index.js";
 import { getTokenData, isEmptyRichText } from "../../../utils/utils.js";
 import ReferralInformationView from "./ReferralInformationView.jsx";
 import { IPD } from "../../../utils/locale.js";
+import { message } from "antd";
+import CancelCrossReferralConfirmationPopup from "./CancelCrossReferralConfirmationPopup.jsx";
 // import { MetricsList } from "../otNotes/IntraOperativeNotes.jsx";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -31,10 +35,15 @@ const CrossReferralTimeline = () => {
   const [dateStatus, setDateStatus] = useState(null);
   const [dateRange, setDateRange] = useState(null);
   const [pickerModal, setPickerModal] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [
+    selectedCrossReferralIdForCancel,
+    setSelectedCrossReferralIdForCancel,
+  ] = useState(null);
 
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { patient_data, patientDetails } = state || {};
+  const { patient_data, patientDetails, fromTab } = state || {};
   const { crossReferral = [] } = customization;
 
   useEffect(() => {
@@ -95,6 +104,7 @@ const CrossReferralTimeline = () => {
 
   const renderCustomGroupHeader = (groupKey, groupData, emit) => {
     const data = groupData?.[0]?.originalEntry;
+    const status = data?.status;
     const crossReferralData = data?.crossReferral;
     const calculateSurgeryDuration = (startTime, endTime) => {
       if (!startTime || !endTime) return 0;
@@ -133,9 +143,26 @@ const CrossReferralTimeline = () => {
                 src={newIcons.postOperativeNotesDark}
               />
               <div className="ipdot-readonly-ot-header-left-mid-section">
-                <div className="ipdot-readonly-ot-header-title">
+                <div className="ipdot-readonly-ot-header-title d-flex align-items-center">
                   Referred To:{" "}
                   {crossReferralData?.referralInformation?.referringTo?.name}
+                  {status === "cancelled" && (
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        padding: "4px 12px",
+                        backgroundColor: "#FEE2E2",
+                        color: "#DC2626",
+                        borderRadius: "6px",
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        marginLeft: "8px",
+                      }}
+                    >
+                      Cancelled
+                    </div>
+                  )}
                 </div>
                 <div className="irohb-section">
                   <div className="irohb-section-left">
@@ -202,6 +229,7 @@ const CrossReferralTimeline = () => {
         patient_data,
         patientDetails,
         isEditable: true,
+        fromTab,
         fullData: {
           referralInformationData: fullData?.referralInformation,
           id,
@@ -210,13 +238,53 @@ const CrossReferralTimeline = () => {
     });
   };
 
+  const handleCancelIconClick = (id) => {
+    setSelectedCrossReferralIdForCancel(id);
+    setCancelModalOpen(true);
+  };
+
+  const handleCancelModalClose = () => {
+    setCancelModalOpen(false);
+    setSelectedCrossReferralIdForCancel(null);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!selectedCrossReferralIdForCancel) return;
+
+    try {
+      await dispatch(
+        cancelCrossReferralData({
+          patientId: patientDetails?.details?.id,
+          admissionId: patientDetails?.admissionId,
+          _id: selectedCrossReferralIdForCancel,
+        })
+      ).unwrap();
+
+      message.success("Cross referral cancelled successfully");
+
+      // Refetch cross referral data
+      dispatch(
+        getCrossReferralData({
+          patientId: patientDetails?.details?.id,
+          admissionId: patientDetails?.admissionId,
+        })
+      );
+
+      handleCancelModalClose();
+    } catch (error) {
+      message.error(error?.message || "Failed to cancel cross referral");
+    }
+  };
+
   const renderConsultantNotes = (
     consultantNotes,
     _id,
     consultantNoteIndex,
     fullData,
-    isCurrentDoctorReferee
+    isCurrentDoctorReferee,
+    status
   ) => {
+    const isCancelled = status === "cancelled";
     return (
       <div className="ipdcrt-section-container">
         <div className="heading">
@@ -224,7 +292,7 @@ const CrossReferralTimeline = () => {
             <img src={newIcons.consultantNotesDataDark} alt="x" />
             <span>Consultant Notes</span>
           </div>
-          {isCurrentDoctorReferee ? (
+          {isCurrentDoctorReferee && !isCancelled ? (
             <div className="right-section">
               <img
                 className="medical-progress__content-calendar-icon"
@@ -240,6 +308,14 @@ const CrossReferralTimeline = () => {
                   )
                 }
                 title="Edit this date's cross referral"
+              />
+              <img
+                className="medical-progress__content-calendar-icon"
+                style={{ fill: "#581C87", cursor: "pointer" }}
+                src={defaultIcons.deleteIconBlue}
+                alt="Cancel"
+                onClick={() => handleCancelIconClick(_id)}
+                title="Cancel this cross referral"
               />
             </div>
           ) : null}
@@ -362,6 +438,8 @@ const CrossReferralTimeline = () => {
               referringTo,
             } = entry?.crossReferral["referralInformation"] || {};
             const isCurrentDoctorReferee = user_id === referringTo?.id;
+            const status = entry?.status;
+            const isCancelled = status === "cancelled";
             return (
               <div className="collapsible-wrapper">
                 <div
@@ -380,8 +458,9 @@ const CrossReferralTimeline = () => {
                               uniqueId={entry?._id}
                               isEditable={
                                 !entry?.crossReferral["consultantNotes"]
-                                  ?.length > 0
+                                  ?.length > 0 && !isCancelled
                               }
+                              status={status}
                             />
                           );
                         case "consultantNotes":
@@ -396,13 +475,14 @@ const CrossReferralTimeline = () => {
                                         entry?._id,
                                         consultantNoteIndex,
                                         entry?.crossReferral,
-                                        isCurrentDoctorReferee
+                                        isCurrentDoctorReferee,
+                                        status
                                       )}
                                     </div>
                                   );
                                 }
                               )}
-                              {isCurrentDoctorReferee && (
+                              {isCurrentDoctorReferee && !isCancelled && (
                                 // {true && (
                                 <div
                                   onClick={() =>
@@ -430,7 +510,7 @@ const CrossReferralTimeline = () => {
                       }
                     }
                   )}
-                  {!isCurrentDoctorReferee && (
+                  {!isCurrentDoctorReferee && !isCancelled && (
                     <div className="empty-consultant-notes-section">
                       <div className="dot">
                         <div></div>
@@ -441,7 +521,8 @@ const CrossReferralTimeline = () => {
                     </div>
                   )}
                   {isCurrentDoctorReferee &&
-                    !entry?.crossReferral["consultantNotes"] && (
+                    !entry?.crossReferral["consultantNotes"] &&
+                    !isCancelled && (
                       <div
                         onClick={() =>
                           handleAddConsultantNotesClick(
@@ -531,6 +612,11 @@ const CrossReferralTimeline = () => {
               )} - ${moment(dateRange.endDate).format(showDateFormat)}`
             : "All dates",
         }}
+      />
+      <CancelCrossReferralConfirmationPopup
+        isModalOpen={cancelModalOpen}
+        onCancel={handleCancelModalClose}
+        onConfirm={handleConfirmCancel}
       />
     </div>
   );
