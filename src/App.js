@@ -5,6 +5,7 @@ import {
   useSearchParams,
   useNavigate,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
@@ -441,7 +442,7 @@ function App() {
 
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>
-                <Route path="/*" element={<AppointmentList />} />
+                <Route path="/*" element={<Navigate to="/ipd/inPatients" replace />} />
                 <Route
                   path={`/ipd/patient-details`}
                   element={<IPDPatientDetails />}
