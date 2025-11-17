@@ -464,7 +464,7 @@ function DoctorProfile() {
               <div className="align-items-center d-flex h-100">
                 <div className="border-end h-100 text-center">
                   <div
-                    onClick={() => navigate("/", { replace: true })}
+                    onClick={() => navigate("/ipd/inPatients", { replace: true })}
                     className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
                   >
                     <i className="icon-right"></i>
