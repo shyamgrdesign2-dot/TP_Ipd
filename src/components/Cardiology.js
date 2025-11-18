@@ -931,19 +931,21 @@ function Cardiology(props) {
                   </Button>
                 </div>
                 <div>
-                  <button
-                    className="btn p-0 ms-3"
-                    style={{
-                      visibility:
-                        viewCaseManagerData?.doctor_data?.editCase &&
-                        !(isSmartRxFile && isMobile)
-                          ? "visible"
-                          : "hidden",
-                    }}
-                    onClick={handleEditRxClick}
-                  >
-                    <i className="icon-Edit"></i>
-                  </button>
+                  {!isIPD && 
+                    <button
+                      className="btn p-0 ms-3"
+                      style={{
+                        visibility:
+                          viewCaseManagerData?.doctor_data?.editCase &&
+                          !(isSmartRxFile && isMobile)
+                            ? "visible"
+                            : "hidden",
+                      }}
+                      onClick={handleEditRxClick}
+                    >
+                      <i className="icon-Edit"></i>
+                    </button>
+                  }
                   <button
                     className="btn p-0 ms-3"
                     onClick={() =>
