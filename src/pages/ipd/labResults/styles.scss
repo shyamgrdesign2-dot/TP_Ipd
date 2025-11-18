@@ -222,44 +222,6 @@
     background: #ffffff;
   }
   
-  /* Lab Tests Table */
-  .lab-tests-table {
-    margin: 0;
-  }
-  
-  .lab-tests-table .ant-table-thead > tr > th {
-    background: #f1f1f5;
-    border-bottom: 1px solid #e2e2ea;
-    padding: 10px 11px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: #454551;
-    line-height: 18px;
-    text-align: left;
-  }
-  
-  .lab-tests-table .ant-table-tbody > tr > td {
-    border-bottom: 1px solid #e2e2ea;
-    border-right: 1px solid #e2e2ea;
-    padding: 14px 18px;
-    vertical-align: middle;
-  }
-  
-  .lab-tests-table .ant-table-tbody > tr > td:first-child {
-    border-right: 1px solid #e2e2ea;
-    width: 60px;
-    text-align: center;
-  }
-  
-  .lab-tests-table .ant-table-tbody > tr > td:last-child {
-    border-right: none;
-  }
-  
-  .lab-test-row:hover {
-    background: #fafafa;
-  }
-  
   /* Checkbox Styling */
   .ant-checkbox-wrapper {
     font-family: 'Poppins', sans-serif;
@@ -306,10 +268,6 @@
     .category-header,
     .collapsed-category {
       padding: 14px 50px 14px 50px;
-    }
-    
-    .lab-tests-table .ant-table-tbody > tr > td {
-      padding: 8px 12px;
     }
   }
   
@@ -566,8 +524,48 @@
   background: #f1f1f5;
   height: 38px;
   border-radius: 12px;
-  margin-bottom: 14px;
-  overflow: hidden;
+  margin-bottom: 10px;
+  position: sticky;
+  top: 20px;
+  z-index: 100;
+  overflow: visible;
+  
+  /* Solid rectangular background layer behind rounded corners to prevent content showing through */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -24px;
+    right: -24px;
+    bottom: -20px;
+    background: #fff;
+    z-index: -1;
+    border-radius: 0;
+  }
+  
+  /* White space above and below the sticky header */
+  &::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -24px;
+    right: -24px;
+    bottom: -20px;
+    background: linear-gradient(
+      to bottom,
+      #ffffff 0%,
+      #ffffff 20px,
+      transparent 20px,
+      transparent calc(100% - 20px),
+      #ffffff calc(100% - 20px),
+      #ffffff 100%
+    );
+    z-index: 98;
+    pointer-events: none;
+  }
+  
+  /* Ensure rounded corners are visible on the main container */
+  isolation: isolate;
 }
 
 .table-header-fixed {
@@ -577,6 +575,8 @@
   z-index: 10;
   border-right: 1px solid #e2e2ea;
   transition: box-shadow 0.3s ease;
+  overflow: hidden;
+  border-radius: 12px 0 0 12px;
   
   &.scrolled {
     box-shadow: 6px 0 10px -4px rgba(0, 0, 0, 0.12);
@@ -605,10 +605,10 @@
   align-items: center;
   overflow-x: auto;
   flex: 1;
+  border-radius: 0 12px 12px 0;
   
   .header-date {
     min-width: 220px;
-    width: 220px;
     padding: 10px 11px;
     border-right: 1px solid #e2e2ea;
     text-align: center;
@@ -617,17 +617,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background: #f1f1f5;
+    flex: 1;
+    
+    &:last-child {
+      border-right: none;
+    }
   }
   
   .header-trends {
     min-width: 200px;
-    width: 220px;
     padding: 10px 11px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
     white-space: nowrap;
     height: 38px;
+    flex: 1;
   }
   
   /* Hide scrollbar for header */
@@ -690,7 +696,6 @@
   
   .test-value {
     min-width: 220px;
-    width: 220px;
     padding: 14px 18px;
     border-right: 1px solid #e2e2ea;
     display: flex;
@@ -700,6 +705,11 @@
     min-height: 68px;
     overflow: hidden;
     position: relative;
+    flex: 1;
+    
+    &:last-child {
+      border-right: none;
+    }
   }
   
   .test-value-content {
@@ -754,13 +764,13 @@
   
   .test-trend {
     min-width: 200px;
-    width: 220px;
     padding: 14px 18px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
     white-space: nowrap;
     min-height: 68px;
+    flex: 1;
   }
   
   /* Hide scrollbar for test rows */
