@@ -198,7 +198,8 @@ function IPDHeader({ locationPath }) {
   );
 
   const redirectToOpdPortal = () => {
-    window.location.href = env.doctor_portal_url;
+    const token = getToken();
+    window.location.href = `${env.doctor_portal_url}?authToken=${token}`;
   };
 
   return (
