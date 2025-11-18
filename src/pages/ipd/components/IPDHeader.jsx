@@ -15,9 +15,10 @@ import playIcons from "../../../assets/images/tube-icon.svg";
 import { changeHospital } from "../../../redux/doctorsSlice";
 import { useLocalStorage } from "../../../utils/localStorage";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
-import { getClinicName } from "../../../utils/utils"; 
+import { getClinicName } from "../../../utils/utils";
 import VideoModal from "../../../common/VideoModal";
 import Header from "../../../common/Header";
+import { env } from "../../../EnvironmentConfig";
 
 function IPDHeader({ locationPath }) {
   const [popOverVideo, setPopOverVideo] = useState(false);
@@ -40,7 +41,7 @@ function IPDHeader({ locationPath }) {
 
   const { profile, videoList } = useSelector((state) => state.doctors);
   const dispatch = useDispatch();
-  
+
   const [clinicOptions, setClinicOptions] = useState([]);
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [getToken, setToken] = useLocalStorage(
@@ -196,16 +197,20 @@ function IPDHeader({ locationPath }) {
     [popOverVideo]
   );
 
+  const redirectToOpdPortal = () => {
+    window.location.href = env.doctor_portal_url;
+  };
+
   return (
     <>
       <Navbar className="justify-content-between portal-header">
         <Container fluid>
-          <img
-              src={require("../../../assets/images/logo.png")}
-              className={`d-inline-block align-top cursor-pointer`}
-              style={{ width: "110px" }}
-              alt="Logo"
-            />
+          <i
+            className="icon-right cursor-pointer"
+            onClick={redirectToOpdPortal}
+          ></i>
+
+          <div className="fw-semibold">IPD</div>
 
           <Nav className="ms-auto align-items-center d-flex">
             {/* <Popover
@@ -225,7 +230,7 @@ function IPDHeader({ locationPath }) {
               </button>
             </Popover> */}
             {HOSPITAL_DATA}
-            <Header isIPD={true} />            
+            <Header isIPD={true} />
 
             <Drawer
               title="Video Tutorial"
