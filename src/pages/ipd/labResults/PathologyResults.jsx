@@ -142,42 +142,27 @@ const Pathologyresults = () => {
     }
   }, [error, updateError, scanError, dispatch]);
 
-  // Synchronize scrolling between header and rows with performance optimization
+  // Synchronize scrolling between header and rows
   useEffect(() => {
-    // Use requestAnimationFrame for better performance
-    let isScrolling = false;
-    let lastScrollLeft = 0;
-
-    const syncScroll = (scrollLeft, sourceElement) => {
-      if (isScrolling) return;
-
-      isScrolling = true;
-      lastScrollLeft = scrollLeft;
-
-      // Use requestAnimationFrame to optimize performance
-      requestAnimationFrame(() => {
-        // Update header if source wasn't header
-        if (
-          headerScrollRef.current &&
-          sourceElement !== headerScrollRef.current
-        ) {
-          headerScrollRef.current.scrollLeft = lastScrollLeft;
-        }
-
-        // Update all rows
-        Object.values(rowScrollRefs.current).forEach((ref) => {
-          if (ref && ref !== sourceElement) {
-            ref.scrollLeft = lastScrollLeft;
-          }
-        });
-
-        setIsScrolled(lastScrollLeft > 0);
-        isScrolling = false;
-      });
-    };
-
     const handleScroll = (e) => {
-      syncScroll(e.target.scrollLeft, e.target);
+      const scrollLeft = e.target.scrollLeft;
+      setIsScrolled(scrollLeft > 0);
+
+      // Update header if source wasn't header
+      if (
+        headerScrollRef.current &&
+        e.target !== headerScrollRef.current &&
+        headerScrollRef.current.scrollLeft !== scrollLeft
+      ) {
+        headerScrollRef.current.scrollLeft = scrollLeft;
+      }
+
+      // Update all rows immediately
+      Object.values(rowScrollRefs.current).forEach((ref) => {
+        if (ref && ref !== e.target && ref.scrollLeft !== scrollLeft) {
+          ref.scrollLeft = scrollLeft;
+        }
+      });
     };
 
     // Add event listeners
@@ -202,6 +187,20 @@ const Pathologyresults = () => {
         }
       });
     };
+  }, [expandedCategories, pathologyResults]); // Re-run when categories expand/collapse
+
+  // Sync new rows to current scroll position when categories expand
+  useEffect(() => {
+    if (headerScrollRef.current) {
+      const currentScrollLeft = headerScrollRef.current.scrollLeft;
+
+      // Sync all row refs to the header's current scroll position
+      Object.values(rowScrollRefs.current).forEach((ref) => {
+        if (ref && ref.scrollLeft !== currentScrollLeft) {
+          ref.scrollLeft = currentScrollLeft;
+        }
+      });
+    }
   }, [expandedCategories, pathologyResults]); // Re-run when categories expand/collapse
 
   const getCategoryTestKeys = (categoryKey) => {
@@ -598,6 +597,11 @@ const Pathologyresults = () => {
                           ref={(el) => {
                             if (el) {
                               rowScrollRefs.current[test.key] = el;
+                              // Immediately sync to current scroll position
+                              if (headerScrollRef.current) {
+                                el.scrollLeft =
+                                  headerScrollRef.current.scrollLeft;
+                              }
                             } else {
                               delete rowScrollRefs.current[test.key];
                             }
