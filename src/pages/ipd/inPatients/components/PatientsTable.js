@@ -16,6 +16,9 @@ import { getTokenData, isEmptyRichText } from "../../../../utils/utils";
 import DischargeConfirmationModal from "../../dischargeSummary/components/DischargeConfirmationModal";
 import DischargeConfirmationPopup from "../../dischargeSummary/components/DischargeConfirmationPopup";
 import { createRemoteComponent } from "../../../../shared/remoteComponents";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import { GB_ZYDUS_USER } from "../../../../utils/constants";
+import { env } from "../../../../EnvironmentConfig";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
@@ -50,6 +53,11 @@ const PatientsTable = ({
   const [userId, setUserId] = useState(null);
   const [warningModalOpen, setWarningModalOpen] = useState(null);
   const [confirmPopupOpen, setConfirmPopupOpen] = useState(null);
+  const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+
+  const izZydusUser =
+    (getTokenData()?.hospital_business_id == env.zydus_business_id &&
+    isZydusUserAccessableFromGB);
 
   useEffect(() => {
     const { user_id } = getTokenData();
@@ -319,9 +327,14 @@ const PatientsTable = ({
                 title: "Discharge Patient",
                 onCtaClick: handleMarkPatientAsDischarged,
               }
-            : {
+            : izZydusUser
+            ? {
                 title: "Send For Discharge Approval",
                 onCtaClick: handleSendForDischargeApproval,
+              }
+            : {
+                title: "Discharge Patient",
+                onCtaClick: handleMarkPatientAsDischarged,
               }
           : isAdmittingDoctor && isDischargeQueue
           ? {
