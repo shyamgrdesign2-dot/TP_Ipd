@@ -74,7 +74,7 @@ import downloadIcon from "./download.svg";
 import treatment from "./treatment.svg";
 import docIcon from "./doc-icon.svg";
 import deleteIconBlue from '../delete-icon-blue.svg';
-
+import voiceAiIcon from './voice-ai.gif';
 // Icon exports
 export const defaultIcons = {
   aidKit,
@@ -104,6 +104,7 @@ export const defaultIcons = {
   arrowIcon,
   document,
   infoIcon,
+  voiceAiIcon,
   editIcon,
   hospitalIcon,
   doctorIcon,

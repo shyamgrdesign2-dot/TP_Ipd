@@ -14,9 +14,6 @@ $muted: #6f6b88;
 }
 
 .ipd-generic-form-container {
-  .toolbar-container {
-    justify-content: flex-end !important;
-  }
   #cw-panel-additional-notes,
   #cw-panel-functional-assessment,
   #cw-panel-treatment-plan {
@@ -209,7 +206,6 @@ $muted: #6f6b88;
     }
   }
 
-  
   .ipd-custom-module-container {
     background-color: #fff;
     padding: 24px 24px 24px 18px;
@@ -699,7 +695,7 @@ $muted: #6f6b88;
   &-readonly {
     margin-left: 20px;
     margin-right: 20px;
-    background-color: #fbfafd !important
+    background-color: #fbfafd !important;
   }
 }
 .assessment-form-filled-by-cards-container {
