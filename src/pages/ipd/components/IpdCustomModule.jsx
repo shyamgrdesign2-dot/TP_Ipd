@@ -43,6 +43,8 @@ const IpdCustomModule = ({
   className,
   headerComponent = null,
   footerComponent = null,
+  onUpdateModuleName,
+  onDeleteModule,
 }) => {
   const moduleTitle =
     module?.moduleName ||
@@ -178,6 +180,21 @@ const IpdCustomModule = ({
     [onDeleteTemplate]
   );
 
+  const handleUpdateModuleName = useCallback(
+    (newModuleName) => {
+      if (typeof onUpdateModuleName === "function") {
+        onUpdateModuleName(newModuleName);
+      }
+    },
+    [onUpdateModuleName]
+  );
+
+  const handleDeleteModule = useCallback(() => {
+    if (typeof onDeleteModule === "function") {
+      onDeleteModule(module?.module_id || module?.id);
+    }
+  }, [onDeleteModule]);
+
   if (!isEditable && isValueEmpty) {
     return null;
   }
@@ -221,6 +238,11 @@ const IpdCustomModule = ({
         }`}
         isDataPresent={!isEmptyRichText(editorValue)}
         onErase={() => setTemplateAppendValue(["clear"])}
+        onUpdateModuleName={(newModuleName) =>
+          handleUpdateModuleName(newModuleName)
+        }
+        onDeleteModule={handleDeleteModule}
+        isCustom
       />
     </div>
   );

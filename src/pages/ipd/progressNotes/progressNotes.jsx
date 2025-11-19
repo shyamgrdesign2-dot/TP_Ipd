@@ -137,6 +137,7 @@ const ProgressNotes = (props) => {
     hydrateFromSavedModules,
     serializeCustomModules,
     handleCustomModuleRenamed,
+    handleCustomModuleDeleted,
   } = useIpdCustomModules({
     formType,
     customizationKey: "progressNotes",
@@ -713,6 +714,7 @@ const ProgressNotes = (props) => {
                 }}
                 customModel={modelData}
                 onUpdateCustomModuleName={handleCustomModuleRenamed}
+                onDeleteCustomModule={handleCustomModuleDeleted}
               />
             </div>
           </Suspense>

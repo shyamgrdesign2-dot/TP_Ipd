@@ -37,6 +37,7 @@ const AddCustomModule = ({
   admissionId,
   patientId,
   onCustomModuleAdded,
+  limit = 20,
 }) => {
   const [showInput, setShowInput] = useState(false);
   const [newModuleName, setNewModuleName] = useState("");
@@ -63,6 +64,8 @@ const AddCustomModule = ({
   const setCustomModuleContents =
     setCustomModuleContentsProp || context?.setCustomModuleContents;
   const tcmId = admissionId || patientId || context?.tcmId;
+  const activeModules = customModules.filter((cm) => !cm.isDeleted);
+  const activeModuleCount = activeModules.length;
 
   const getCustomModuleContents = useCallback(async () => {
     if (isIPDMode) {
@@ -267,12 +270,12 @@ const AddCustomModule = ({
       message.error("Module name cannot be empty.");
       return;
     }
-    if (customModules.some((cm) => cm.name === newModuleName.trim())) {
+    if (activeModules.some((cm) => cm.name === newModuleName.trim())) {
       message.error("Module name already exists.");
       return;
     }
-    if (customModules.length >= 20) {
-      message.error("You can only add up to 20 custom modules.");
+    if (activeModules.length >= limit) {
+      message.error(`You can only add up to ${limit} custom modules.`);
       return;
     }
 
@@ -406,14 +409,14 @@ const AddCustomModule = ({
           type="link"
           icon={<PlusOutlined />}
           className="add-custom-module-link"
-          disabled={customModules.length >= 20}
+          disabled={activeModuleCount >= limit}
         >
           Add Custom Module
         </Button>
         <div className="module-info">
-          <span className="module-count">{`${customModules.length}/20 modules added`}</span>
+          <span className="module-count">{`${activeModuleCount}/${limit} modules added`}</span>
           <Tooltip
-            title="You can create up to 20 custom modules. If you’ve reached the limit, delete an existing custom module to add a new one."
+            title={`You can create up to ${limit} custom modules. If you’ve reached the limit, delete an existing custom module to add a new one.`}
             placement="top"
             className="info-tooltip"
           >

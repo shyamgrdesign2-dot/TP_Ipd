@@ -118,6 +118,7 @@ const ConsultantNotes = (props) => {
     hydrateFromSavedModules,
     serializeCustomModules,
     handleCustomModuleRenamed,
+    handleCustomModuleDeleted,
   } = useIpdCustomModules({
     formType,
     customizationKey: "consultationNotes",
@@ -574,6 +575,7 @@ const ConsultantNotes = (props) => {
                 }}
                 customModel={modelData}
                 onUpdateCustomModuleName={handleCustomModuleRenamed}
+                onDeleteCustomModule={handleCustomModuleDeleted}
               />
             </div>
           </Suspense>

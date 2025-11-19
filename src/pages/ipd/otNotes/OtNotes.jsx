@@ -75,6 +75,7 @@ const OtNotes = (props) => {
     hydrateFromSavedModules,
     serializeCustomModules,
     handleCustomModuleRenamed,
+    handleCustomModuleDeleted,
   } = useIpdCustomModules({
     formType,
     customizationKey: "otNotes",
@@ -535,6 +536,7 @@ const OtNotes = (props) => {
                 }}
                 customModel={modelData}
                 onUpdateCustomModuleName={handleCustomModuleRenamed}
+                onDeleteCustomModule={handleCustomModuleDeleted}
               />
             </div>
           </Suspense>

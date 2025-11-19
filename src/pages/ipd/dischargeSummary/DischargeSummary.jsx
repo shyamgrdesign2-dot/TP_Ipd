@@ -96,6 +96,7 @@ const DischargeSummary = (props) => {
     hydrateFromSavedModules,
     serializeCustomModules,
     handleCustomModuleRenamed,
+    handleCustomModuleDeleted,
   } = useIpdCustomModules({
     formType,
     customizationKey: "dischargeSummary",
@@ -771,6 +772,7 @@ const DischargeSummary = (props) => {
                 }}
                 customModel={modelData}
                 onUpdateCustomModuleName={handleCustomModuleRenamed}
+                onDeleteCustomModule={handleCustomModuleDeleted}
               />
             </div>
           </Suspense>

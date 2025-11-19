@@ -62,6 +62,7 @@ const CrossReferral = (props) => {
     hydrateFromSavedModules,
     serializeCustomModules,
     handleCustomModuleRenamed,
+    handleCustomModuleDeleted,
   } = useIpdCustomModules({
     formType,
     customizationKey: "crossReferral",
@@ -368,6 +369,7 @@ const CrossReferral = (props) => {
                 }}
                 customModel={[modelData?.[0]]}
                 onUpdateCustomModuleName={handleCustomModuleRenamed}
+                onDeleteCustomModule={handleCustomModuleDeleted}
               />
             </div>
           </Suspense>

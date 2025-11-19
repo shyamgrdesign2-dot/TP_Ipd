@@ -86,7 +86,8 @@ const ConsultantNotesPreview = ({ entry }) => {
     hasVitals ||
     (Array.isArray(medication) && medication.length > 0) ||
     (Array.isArray(labInvestigation) && labInvestigation.length > 0) ||
-    !isEmptyRichText(additionalRemarks);
+    !isEmptyRichText(additionalRemarks) ||
+    !!customModulesArray?.length;
 
   if (!hasAnyContent) {
     return null;

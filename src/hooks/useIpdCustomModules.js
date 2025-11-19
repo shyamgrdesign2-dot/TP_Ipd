@@ -7,6 +7,8 @@ import IpdCustomModule from "../pages/ipd/components/IpdCustomModule";
 import {
   addModule as addModuleIPD,
   getCustomModules,
+  markModuleAsDeleted,
+  deleteModule,
 } from "../redux/ipd/customModuleSlice";
 import { updateCustomization } from "../redux/ipd/ipdSlice";
 import {
@@ -14,6 +16,7 @@ import {
   getPrintSettings,
 } from "../redux/ipd/printSettingsSlice";
 import { buildCustomModuleSection } from "../utils/customModuleHelpers";
+import { useLocation } from "react-router-dom";
 
 const DEFAULT_SLATE_VALUE = [
   {
@@ -165,6 +168,8 @@ const useIpdCustomModules = ({
   const [customModuleContentsState, setCustomModuleContentsState] = useState(
     []
   );
+  const { state } = useLocation();
+  const { patientDetails = {} } = state || {};
 
   const setCustomModuleContents = useCallback(
     (value) => {
@@ -277,12 +282,19 @@ const useIpdCustomModules = ({
       }
 
       if (action === "delete") {
-        const filtered = currentFormatStyle.filter(
-          (section) => ensureModuleId(section) !== moduleId
-        );
+        let softDeleted = false;
+        updatedFormatStyle = currentFormatStyle.map((section) => {
+          if (ensureModuleId(section) === moduleId) {
+            softDeleted = true;
+            return {
+              ...section,
+              isDeleted: true,
+            };
+          }
+          return section;
+        });
 
-        if (filtered.length !== currentFormatStyle.length) {
-          updatedFormatStyle = filtered;
+        if (softDeleted) {
           shouldUpdate = true;
         }
       }
@@ -304,16 +316,18 @@ const useIpdCustomModules = ({
       } = printSettings;
 
       const updatedPrintSettingsPayload = {
-        ...settingsPayload,
-        [FORM_TYPE_MAP[formType]]: {
-          ...moduleSettings,
-          formatStyle: updatedFormatStyle,
+        printSettings: {
+          ...settingsPayload,
+          [FORM_TYPE_MAP[formType]]: {
+            ...moduleSettings,
+            formatStyle: updatedFormatStyle,
+          },
         },
+        doctorId: patientDetails?.doctor?.id,
       };
-
       dispatch(updatePrintSettings(updatedPrintSettingsPayload));
     },
-    [customModules, dispatch, formType, printSettings]
+    [customModules, dispatch, formType, printSettings, patientDetails]
   );
 
   const handleCustomModuleAdded = useCallback(
@@ -368,16 +382,27 @@ const useIpdCustomModules = ({
   );
 
   const handleCustomModuleDeleted = useCallback(
-    (moduleId) => {
+    async (moduleId) => {
       if (!moduleId || !setModelData) {
         return;
       }
 
-      setModelData((prev = []) => {
-        if (!prev.some((item) => ensureModuleId(item) === moduleId)) {
-          return prev;
-        }
+      const payload = {
+        userId,
+        form: formType,
+        moduleId,
+      };
 
+      const action = await dispatch(deleteModule(payload));
+
+      if (action.meta.requestStatus === "fulfilled") {
+        message.success("Module deleted successfully.");
+      } else {
+        message.error("Failed to delete module. Please try again.");
+        return;
+      }
+      dispatch(markModuleAsDeleted({ moduleId }));
+      setModelData((prev = []) => {
         const next = prev.filter((item) => ensureModuleId(item) !== moduleId);
         updateCustomizationWith(next);
         syncPrintSettingsFormatStyle("delete", { moduleId });
@@ -390,6 +415,7 @@ const useIpdCustomModules = ({
       });
     },
     [
+      dispatch,
       setModelData,
       setCustomModuleContents,
       syncPrintSettingsFormatStyle,
@@ -398,9 +424,30 @@ const useIpdCustomModules = ({
   );
 
   const handleCustomModuleRenamed = useCallback(
-    (moduleId, updatedName) => {
+    async (moduleId, updatedName) => {
       if (!moduleId || !updatedName || !setModelData) {
         return;
+      }
+
+      const payload = {
+        data: {
+          userId,
+          modules: customModules.map((module) =>
+            module.module_id === moduleId
+              ? { ...module, name: updatedName }
+              : module
+          ),
+          form: formType,
+        },
+      };
+
+      const action = await dispatch(addModuleIPD(payload));
+
+      if (action.meta.requestStatus === "fulfilled") {
+        message.success("Module name updated successfully.");
+      } else {
+        message.error("Failed to update module name. Please try again.");
+        throw new Error("Failed to update module name");
       }
 
       setModelData((prev = []) => {
@@ -412,18 +459,13 @@ const useIpdCustomModules = ({
           ensureModuleId(item) === moduleId
             ? {
                 ...item,
-                ...buildCustomModuleSection({
-                  ...item,
-                  module_id: moduleId,
-                  title: updatedName,
-                  name: updatedName,
-                  module_name: updatedName,
-                }),
+                title: updatedName,
               }
             : item
         );
 
         updateCustomizationWith(next);
+
         syncPrintSettingsFormatStyle("rename", {
           moduleId,
           moduleName: updatedName,
@@ -663,20 +705,29 @@ const useIpdCustomModules = ({
 
   const serializeCustomModules = useCallback(
     (contents) =>
-      normalizeModuleContents(
-        contents || customModuleContents,
-        customModules
-      ).map(({ module_id, module_name, content }) => ({
-        moduleId: module_id,
-        moduleName: module_name,
-        content: ensureSlateValue(content),
-      })),
+      normalizeModuleContents(contents || customModuleContents, customModules)
+        .filter(({ module_id, deleted }) => {
+          if (deleted) {
+            return false;
+          }
+          const module = customModules.find((m) => m.module_id === module_id);
+          return !module?.deleted;
+        })
+        .map(({ module_id, module_name, content }) => ({
+          moduleId: module_id,
+          moduleName: module_name,
+          content: ensureSlateValue(content),
+        })),
     [customModuleContents, customModules]
   );
 
   const isCustomModuleSection = useCallback(
     (section) => {
       if (!section) {
+        return false;
+      }
+
+      if (section.deleted) {
         return false;
       }
 
@@ -689,7 +740,9 @@ const useIpdCustomModules = ({
         return false;
       }
 
-      return customModules.some((module) => module.module_id === sectionId);
+      return customModules.some(
+        (module) => module.module_id === sectionId && !module.deleted
+      );
     },
     [customModules]
   );
@@ -700,13 +753,23 @@ const useIpdCustomModules = ({
         return null;
       }
 
+      if (section.isDeleted) {
+        return null;
+      }
+
       const moduleId = ensureModuleId(section);
       if (!moduleId) {
         return null;
       }
 
       const baseModule =
-        customModules.find((module) => module.module_id === moduleId) || {};
+        customModules.find(
+          (module) => module.module_id === moduleId && !module.isDeleted
+        ) || {};
+
+      if (baseModule.isDeleted) {
+        return null;
+      }
 
       const mergedModule = {
         ...baseModule,
@@ -749,6 +812,10 @@ const useIpdCustomModules = ({
                 }
               })
           }
+          onUpdateModuleName={(newModuleName) =>
+            handleCustomModuleRenamed(moduleId, newModuleName)
+          }
+          onDeleteModule={(moduleId) => handleCustomModuleDeleted(moduleId)}
           {...extraProps}
         />
       );
@@ -760,6 +827,8 @@ const useIpdCustomModules = ({
       handleModuleTemplateSave,
       handleModuleTemplateDelete,
       isEditable,
+      handleCustomModuleRenamed,
+      handleCustomModuleDeleted,
     ]
   );
 
@@ -785,10 +854,10 @@ const useIpdCustomModules = ({
   const renderCustomModulesFooter = useCallback(
     () => (
       <div className="ipd-add-custom-module-container">
-        <AddCustomModule {...addCustomModuleProps} />
+        <AddCustomModule {...addCustomModuleProps} limit={10} />
       </div>
     ),
-    [addCustomModuleProps]
+    [addCustomModuleProps, customModules]
   );
 
   return {

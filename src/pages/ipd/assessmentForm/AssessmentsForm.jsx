@@ -89,7 +89,8 @@ const AssessmentsForm = (props) => {
     renderCustomModulesFooter,
     hydrateFromSavedModules,
     serializeCustomModules,
-    handleCustomModuleRenamed
+    handleCustomModuleRenamed,
+    handleCustomModuleDeleted,
   } = useIpdCustomModules({
     formType,
     customizationKey: "assessments",
@@ -598,6 +599,7 @@ const AssessmentsForm = (props) => {
                 }}
                 customModel={modelData}
                 onUpdateCustomModuleName={handleCustomModuleRenamed}
+                onDeleteCustomModule={handleCustomModuleDeleted}
               />
             </div>
           </Suspense>
