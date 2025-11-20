@@ -207,7 +207,6 @@ const FollowUp = (props) => {
       })
     );
   };
-console.log('INTEL ==> dischargeSummaryData', dischargeSummaryData);
   const renderAdditionalNotes = (data) => {
     if (!isEditable && isEmptyRichText(dischargeSummaryData?.additionalNotes))
       return null;

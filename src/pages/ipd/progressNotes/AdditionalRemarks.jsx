@@ -34,8 +34,7 @@ const AdditionalRemarks = (props) => {
   const prevAdditionalRemarks = useMemo(() => {
     return prevProgressNote?.progressNotes?.additionalRemarks;
   }, [prevProgressNote]);
-  console.log(additionalRemarks, "additionalRemarks");
-  console.log(prevAdditionalRemarks, "prevAdditionalRemarks");
+
   const hasAdditionalRemarksInLastProgressNote = useMemo(() => {
     return (
       (!Array.isArray(prevAdditionalRemarks) &&
@@ -51,10 +50,6 @@ const AdditionalRemarks = (props) => {
       //   ))
     );
   }, [additionalRemarks, prevAdditionalRemarks]);
-  console.log(
-    hasAdditionalRemarksInLastProgressNote,
-    "hasAdditionalRemarksInLastProgressNotex"
-  );
 
   // Get current value callback
   const getCurrentValue = useCallback(() => {

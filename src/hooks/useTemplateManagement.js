@@ -217,6 +217,7 @@ export const useTemplateManagement = (config) => {
                 },
                 ...clonedEntries,
               ];
+              console.log(combinedEntries,"combinedEntries")
             } else {
               combinedEntries = clonedEntries;
             }

@@ -37,9 +37,6 @@ const DischargeAdvice = (props) => {
   // Get doctorId from dischargeSummaryData
   const doctorId = dischargeSummaryData?.patientInformation?.primaryConsultant?.id;
 
-  console.log(dischargeSummaryData,"dischargeSummaryData")
-
-
   const [
     autoFillTextToAppendWarningSigns,
     setAutoFillTextToAppendWarningSigns,
