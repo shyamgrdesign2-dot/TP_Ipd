@@ -40,6 +40,8 @@ const ChiefComplaint = (props) => {
   }, [prevProgressNote]);
 
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const [editorResetKey, setEditorResetKey] = useState(0);
+
 
   // Get current value callback
   const getCurrentValue = useCallback(() => {
@@ -132,6 +134,7 @@ const ChiefComplaint = (props) => {
       title={sectionData?.title}
       data-testid={sectionData?.id}
       width={isEditable ? "100%" : "fit-content"}
+      key={`chief-complaint-editor-${editorResetKey}`}
       initialValue={
         chiefComplaint?.length > 0
           ? chiefComplaint
@@ -165,6 +168,7 @@ const ChiefComplaint = (props) => {
         dispatch(setChiefComplaint(EMPTY_RICH_TEXT_VALUE));
         // Clear local UI state
         setAutoFillTextToAppend(["clear"]);
+        setEditorResetKey((prev) => prev + 1);
       }}
       onTemplate={refreshTemplates}
       onTemplateSelected={handleTemplateSelected}

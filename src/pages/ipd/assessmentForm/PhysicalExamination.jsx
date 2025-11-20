@@ -79,7 +79,6 @@ const PhysicalExamination = (props) => {
   const renderOthers = (data) => {
     if (!isEditable && isEmptyRichText(physicalExaminationOthersData))
       return null;
-    console.log(isEditable,"isEditable")
     return (
       <div>
         <RichTextEditWrapper

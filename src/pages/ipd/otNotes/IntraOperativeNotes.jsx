@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setIntraOperativeNotes } from "../../../redux/ipd/otNotesSlice";
 import "./styles.scss";
 import { isEmptyRichText, hasNoData } from "../../../utils/utils";
+import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const UnitInput = createRemoteComponent("UnitInput");
@@ -37,18 +38,80 @@ export const MetricsList = ({ sectionData, data }) => {
 };
 
 const IntraOperativeNotes = (props) => {
-  const { isEditable = true, sectionData } = props || {};
+  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
   let { intraOperativeNotes = {} } = useSelector((state) => state.otNotes);
   intraOperativeNotes = props?.intraOperativeNotes || intraOperativeNotes;
+  const { profile } = useSelector((state) => state.doctors);
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState({});
   const dispatch = useDispatch();
+  const doctorId =
+    patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
   const handleChange = (value, key, parentId = null) => {
     if (!isEditable) return;
     dispatch(setIntraOperativeNotes({ key, value, parentId }));
   };
+  const defaultRichText = useMemo(
+    () => [
+      {
+        type: "paragraph",
+        children: [{ text: "" }],
+      },
+    ],
+    []
+  );
+
+  const getFieldValue = useCallback(
+    (key) => {
+      const value = props.intraOperativeNotes?.[key] ?? intraOperativeNotes?.[key];
+      if (Array.isArray(value) && value.length) {
+        return value;
+      }
+      if (value?.value && Array.isArray(value.value) && value.value.length) {
+        return value.value;
+      }
+      return defaultRichText;
+    },
+    [intraOperativeNotes, props.intraOperativeNotes, defaultRichText]
+  );
+
+  const useIntraTemplate = (moduleName, key) =>
+    useTemplateManagement({
+      moduleName,
+      templateSite: "ipd",
+      doctorId,
+      isEditable,
+      moduleType: "richText",
+      getCurrentValue: useCallback(() => getFieldValue(key), [getFieldValue, key]),
+      onValueChange: useCallback(
+        (data) => {
+          handleChange(data, key);
+        },
+        [handleChange, key]
+      ),
+    });
+
+  const complicationTemplate = useIntraTemplate(
+    "complicationSeverity",
+    "complicationSeverity"
+  );
+  const specimensTemplate = useIntraTemplate("specimensSent", "specimensSent");
+  const implantsTemplate = useIntraTemplate(
+    "implantsProstheticsUsed",
+    "implantsProstheticsUsed"
+  );
+
+  const templateMap = useMemo(
+    () => ({
+      complicationSeverity: complicationTemplate,
+      specimensSent: specimensTemplate,
+      implantsProstheticsUsed: implantsTemplate,
+    }),
+    [complicationTemplate, specimensTemplate, implantsTemplate]
+  );
   const renderRichTextEditorSection = (data) => {
     if (!isEditable && isEmptyRichText(intraOperativeNotes?.[data?.id]))
       return null;
+    const templateHandlers = templateMap[data?.id];
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -65,6 +128,7 @@ const IntraOperativeNotes = (props) => {
         }`}
         showMagicPenGif={false}
         onErase={() => {
+          handleChange(defaultRichText, data?.id);
           setAutoFillTextToAppend((prev) => ({
             ...prev,
             [data?.id]: ["clear"],
@@ -78,19 +142,18 @@ const IntraOperativeNotes = (props) => {
           }));
         }}
         showMicrophone={false}
+        templates={templateHandlers?.templates}
+        templateType={templateHandlers ? "entries" : undefined}
+        showTempButtons={isEditable && !!templateHandlers}
+        onTemplate={templateHandlers?.refreshTemplates}
+        onTemplateSelected={templateHandlers?.handleTemplateSelected}
+        addTemplate={templateHandlers?.handleAddTemplate}
+        updateTemplate={templateHandlers?.handleUpdateTemplate}
+        onDeleteTemplateClicked={templateHandlers?.handleDeleteTemplate}
+        loading={templateHandlers?.templatesLoading}
         onChange={(val) => handleChange(val, data?.id)}
-        initialValue={
-          props.intraOperativeNotes?.[data?.id]?.length
-            ? props.intraOperativeNotes?.[data?.id]
-            : intraOperativeNotes?.[data?.id]?.value?.length
-            ? intraOperativeNotes?.[data?.id]?.value
-            : [
-                {
-                  type: "paragraph",
-                  children: [{ text: "" }],
-                },
-              ]
-        }
+        initialValue={getFieldValue(data?.id)}
+        onSave={() => {}}
         placeholder={data?.placeholder}
       />
     );

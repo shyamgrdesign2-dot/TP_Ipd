@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,13 +6,15 @@ import { setPostOperativeNotes } from "../../../redux/ipd/otNotesSlice";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import { Select } from "antd";
 import { isEmptyRichText, hasNoData } from "../../../utils/utils";
+import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const PostOperativeNotes = (props) => {
-  const { isEditable = true, sectionData } = props || {};
+  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
   let { postOperativeNotes = {} } = useSelector((state) => state.otNotes);
   postOperativeNotes = props.postOperativeNotes || postOperativeNotes;
+  const { profile } = useSelector((state) => state.doctors);
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState({});
   const dispatch = useDispatch();
   const {
@@ -73,7 +75,55 @@ const PostOperativeNotes = (props) => {
     );
   };
 
+  const doctorId =
+    patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
+  const defaultRichText = useMemo(
+    () => [
+      {
+        type: "paragraph",
+        children: [{ text: "" }],
+      },
+    ],
+    []
+  );
+
+  const getFieldValue = useCallback(
+    (key) => {
+      const value = props.postOperativeNotes?.[key] ?? postOperativeNotes?.[key];
+      if (Array.isArray(value) && value.length) {
+        return value;
+      }
+      if (value?.value && Array.isArray(value.value) && value.value.length) {
+        return value.value;
+      }
+      return defaultRichText;
+    },
+    [postOperativeNotes, props.postOperativeNotes, defaultRichText]
+  );
+
+  const additionalInstructionsTemplate = useTemplateManagement({
+    moduleName: "postOperativeAdditionalInstructions",
+    templateSite: "ipd",
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue: useCallback(
+      () => getFieldValue("additionalInstructions"),
+      [getFieldValue]
+    ),
+    onValueChange: useCallback(
+      (data) => {
+        handleChange(data, "additionalInstructions");
+      },
+      [handleChange]
+    ),
+  });
+
   const renderRichTextEditorWrapper = (data) => {
+    const templateHandlers =
+      data?.id === "additionalInstructions"
+        ? additionalInstructionsTemplate
+        : null;
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -91,6 +141,7 @@ const PostOperativeNotes = (props) => {
         }`}
         showMagicPenGif={false}
         onErase={() => {
+          handleChange(defaultRichText, data?.id);
           setAutoFillTextToAppend((prev) => ({
             ...prev,
             [data?.id]: ["clear"],
@@ -104,19 +155,18 @@ const PostOperativeNotes = (props) => {
           }));
         }}
         showMicrophone={false}
+        templates={templateHandlers?.templates}
+        templateType={templateHandlers ? "entries" : undefined}
+        showTempButtons={isEditable && !!templateHandlers}
+        onTemplate={templateHandlers?.refreshTemplates}
+        onTemplateSelected={templateHandlers?.handleTemplateSelected}
+        addTemplate={templateHandlers?.handleAddTemplate}
+        updateTemplate={templateHandlers?.handleUpdateTemplate}
+        onDeleteTemplateClicked={templateHandlers?.handleDeleteTemplate}
+        loading={templateHandlers?.templatesLoading}
         onChange={(val) => handleChange(val, data?.id)}
-        initialValue={
-          props.postOperativeNotes?.[data?.id]?.length
-            ? props.postOperativeNotes?.[data?.id]
-            : postOperativeNotes?.[data?.id]?.value?.length
-            ? postOperativeNotes?.[data?.id]?.value
-            : [
-                {
-                  type: "paragraph",
-                  children: [{ text: "" }],
-                },
-              ]
-        }
+        initialValue={getFieldValue(data?.id)}
+        onSave={() => {}}
         placeholder={data?.placeholder}
       />
     )

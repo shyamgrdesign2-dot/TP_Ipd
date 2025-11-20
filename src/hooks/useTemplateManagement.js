@@ -199,12 +199,34 @@ export const useTemplateManagement = (config) => {
           const currentEntries = getCurrentValue() || [];
           const isEmptyCurrent = isEmptyRichText(currentEntries);
 
-          const combinedEntries = isEmptyCurrent
-            ? clonedEntries
-            : [
-                ...JSON.parse(JSON.stringify(currentEntries)),
+          let combinedEntries;
+
+          if (isEmptyCurrent) {
+            // Editor is empty - check if template starts with a list
+            // Slate tries to access [0,0] as a leaf node, but if first entry is a list,
+            // [0,0] points to list-item (non-leaf), causing error
+            const firstEntry = clonedEntries[0];
+            const isListFirst = firstEntry?.type === "bulleted-list" || firstEntry?.type === "numbered-list";
+            
+            if (isListFirst) {
+              // Prepend empty paragraph so [0,0] always refers to a text leaf node
+              combinedEntries = [
+                {
+                  type: "paragraph",
+                  children: [{ text: "" }],
+                },
                 ...clonedEntries,
               ];
+            } else {
+              combinedEntries = clonedEntries;
+            }
+          } else {
+            // Editor has content - append template normally
+            combinedEntries = [
+              ...JSON.parse(JSON.stringify(currentEntries)),
+              ...clonedEntries,
+            ];
+          }
 
           onValueChange?.(combinedEntries);
         } else {

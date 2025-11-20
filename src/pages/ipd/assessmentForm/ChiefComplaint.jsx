@@ -44,6 +44,7 @@ const ChiefComplaint = (props) => {
   } = lastPrescriptionDataForAssessment;
   const { lastRxDate } = lastPrescriptionDate || {};
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const [editorResetKey, setEditorResetKey] = useState(0);
 
   const getCurrentValue = useCallback(() => {
     if (isEmptyRichText(chiefComplaint)) {
@@ -109,6 +110,7 @@ const ChiefComplaint = (props) => {
   return (
     <div className="flex-column-gap-16">
       <RichTextEditWrapper
+        key={`chief-complaint-editor-${editorResetKey}`}
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
@@ -142,9 +144,10 @@ const ChiefComplaint = (props) => {
         }
         showTempButtons={true}
         onSave={() => {}}
-        onErase={(e) => {
+        onErase={() => {
           dispatch(setChiefComplaint(EMPTY_RICH_TEXT_VALUE));
           setAutoFillTextToAppend(["clear"]);
+          setEditorResetKey((prev) => prev + 1);
         }}
         onTemplate={refreshTemplates}
         onTemplateSelected={handleTemplateSelected}

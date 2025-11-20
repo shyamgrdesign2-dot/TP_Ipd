@@ -18,8 +18,46 @@ export const TEMPLATE_MODULE_CATALOG = [
         id: "physicalExamination",
         title: "Physical Examination",
         modules: [
-          // { id: "generalExamination", title: "General Examination - Temp" },
+          { id: "generalExamination", title: "General Examination - Temp" },
           { id: "physicalExaminationOthers", title: "Others - Temp" },
+        ],
+      },
+      {
+        id: "otNotes",
+        title: "OT Notes",
+        modules: [
+          {
+            id: "otDiagnosis",
+            title: "Diagnosis - Temp",
+          },
+          {
+            id: "operativeFindings",
+            title: "Operative Findings - Temp",
+          },
+          {
+            id: "operativeProcedure",
+            title: "Operative Procedure - Temp",
+          },
+          {
+            id: "operativeAdditionalNotes",
+            title: "Operative Additional Notes - Temp",
+          },
+          {
+            id: "complicationSeverity",
+            title: "Complication Severity - Temp",
+          },
+          {
+            id: "specimensSent",
+            title: "Specimens Sent - Temp",
+          },
+          {
+            id: "implantsProstheticsUsed",
+            title: "Implants/Prosthetics Used - Temp",
+          },
+          {
+            id: "postOperativeAdditionalInstructions",
+            title: "Post-Operative Additional Instructions - Temp",
+          },
         ],
       },
       {
@@ -254,7 +292,6 @@ export const getTemplatesByModuleName = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const response = await ApiTemplate.getTemplatesByModuleName(params);
-      console.log(response,"response")
       return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);

@@ -108,7 +108,6 @@ const styles = StyleSheet.create({
  * Render rich text with title
  */
 const renderRichText = (data, title) => {
-  console.log(data, title, "renderRichTextData");
   if (!data || !data?.length) return null;
 
   // Custom styles for SlateToPdf to match existing styling
@@ -193,12 +192,10 @@ export const renderProgressNotes = (data, formatSettings) => {
 
   // Get sorted sections
   const sortedSections = getAllVisibleSections(formatSettings);
-  console.log(sortedSections, "sortedSections");
 
   // Render all consultant notes on the same page
   const allSections = progressNotesArray.map((note, noteIndex) => {
     const progressNotesData = note?.progressNotes || note;
-    console.log(progressNotesData, "progressNotesData");
 
     // Map section keys to render functions (using new array format IDs)
     const sectionRenderers = {

@@ -161,15 +161,39 @@ const OtNotes = (props) => {
         {(() => {
           switch (data.id) {
             case "surgeryDetails":
-              return <SurgeryDetails {...props} sectionData={data} />;
+              return (
+                <SurgeryDetails
+                  {...props}
+                  sectionData={data}
+                  patientDetails={patientDetails}
+                />
+              );
             case "surgeryTeam":
               return <SurgeryTeam {...props} sectionData={data} />;
             case "operativeNotes":
-              return <OperativeNotes {...props} sectionData={data} />;
+              return (
+                <OperativeNotes
+                  {...props}
+                  sectionData={data}
+                  patientDetails={patientDetails}
+                />
+              );
             case "intraOperativeNotes":
-              return <IntraOperativeNotes {...props} sectionData={data} />;
+              return (
+                <IntraOperativeNotes
+                  {...props}
+                  sectionData={data}
+                  patientDetails={patientDetails}
+                />
+              );
             case "postOperativeNotes":
-              return <PostOperativeNotes {...props} sectionData={data} />;
+              return (
+                <PostOperativeNotes
+                  {...props}
+                  sectionData={data}
+                  patientDetails={patientDetails}
+                />
+              );
             default:
               return null;
           }
