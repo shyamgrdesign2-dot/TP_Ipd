@@ -616,8 +616,8 @@ const ExaminationSection = (props) => {
     <RichTextEditWrapper
       readOnly={!isEditable}
       showToolbar={isEditable}
-      showActionBtns={isEditable}
-      // showOnlyClear={isEditable}
+      // showActionBtns={isEditable}
+      showOnlyClear={isEditable}
       isDataPresent={Object.keys(physicalExaminationBasicData)?.length}
       onErase={(e) => {
         dispatch(setPhysicalExaminationBasicData({}));
@@ -635,7 +635,7 @@ const ExaminationSection = (props) => {
       showMagicPenGif={false}
       showMicrophone={false}
       placeholder={"Additional notes if any"}
-      showTempButtons={isEditable}
+      showTempButtons={false}
       templates={normalizedTemplates}
       templateType="generalExamination"
       onTemplate={refreshTemplates}
