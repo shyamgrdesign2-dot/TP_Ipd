@@ -138,9 +138,10 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
     const calculateSurgeryDuration = (startTime, endTime) => {
       if (!startTime || !endTime) return 0;
 
-      const startMoment = moment(startTime, "HH:mm");
-      let endMoment = moment(endTime, "HH:mm");
+      const startMoment = moment(startTime, "hh:mm A");
+      let endMoment = moment(endTime, "hh:mm A");
 
+      // If end < start → means next day
       if (endMoment.isBefore(startMoment)) {
         endMoment.add(1, "day");
       }
@@ -148,17 +149,15 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
       return endMoment.diff(startMoment, "minutes");
     };
 
-    const formatSurgeryTime = (minutes) => {
-      if (minutes <= 0) return "";
-      const hours = Math.floor(minutes / 60);
-      const mins = minutes % 60;
-      if (hours > 0 && mins > 0) {
-        return `${hours}hr ${mins}min`;
-      } else if (hours > 0) {
-        return `${hours}hr`;
-      } else {
-        return `${mins}min`;
-      }
+    const formatSurgeryTime = (totalMinutes) => {
+      if (!totalMinutes || totalMinutes <= 0) return "";
+    
+      const hours = Math.floor(totalMinutes / 60);
+      const mins = totalMinutes % 60;
+    
+      if (hours && mins) return `${hours}hr ${mins}min`;
+      if (hours) return `${hours}hr`;
+      return `${mins}min`;
     };
 
     const surgeryTimeDiff = calculateSurgeryDuration(
@@ -215,7 +214,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
             </div>
           </div>
           <div className="ipdot-readonly-ot-header-right-section">
-            <img
+            {/* <img
               className="medical-progress__content-download-icon"
               style={{ fill: "#581C87", cursor: "pointer" }}
               src={defaultIcons.downloadIcon}
@@ -236,7 +235,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
                 e.stopPropagation();
               }}
               title="Print this date's OT notes"
-            />
+            /> */}
             {!isOnlyViewMode ? (
               <img
                 className="medical-progress__content-calendar-icon"
