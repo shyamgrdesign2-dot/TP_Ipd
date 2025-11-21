@@ -131,10 +131,7 @@ const OtNotes = (props) => {
     const currentNote = otNotesArray.find(
       (note) => note._id === otNotesState.currentOtNoteId
     );
-
-    hydrateFromSavedModules(currentNote?.otNotes?.customModules || []);
   }, [
-    hydrateFromSavedModules,
     otNotesState?.currentOtNoteId,
     otNotesState?.otNotesData,
   ]);
