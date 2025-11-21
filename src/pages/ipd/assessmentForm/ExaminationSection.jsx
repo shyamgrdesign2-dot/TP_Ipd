@@ -561,7 +561,7 @@ const ExaminationSection = (props) => {
                 key={item.id}
                 readOnly={!isEditable}
                 showToolbar={isEditable}
-                showActionBtns={false}
+                showActionBtns={isEditable}
                 onErase={itemOnEraseCallbacks[item.id]}
                 newAutoFillTextToAppend={autoFillTextToAppend[item?.id]}
                 setNewAutoFillTextToAppend={itemSetAutoFillCallbacks[item.id]}
@@ -616,7 +616,7 @@ const ExaminationSection = (props) => {
     <RichTextEditWrapper
       readOnly={!isEditable}
       showToolbar={isEditable}
-      // showActionBtns={isEditable}
+      showActionBtns={isEditable}
       showOnlyClear={isEditable}
       isDataPresent={Object.keys(physicalExaminationBasicData)?.length}
       onErase={(e) => {
