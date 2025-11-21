@@ -19,8 +19,6 @@ const withParams = (params = {}) => {
 
 const ApiTemplate = {};
 
-// TODO - Need to add doctorId here for all the APIs
-
 ApiTemplate.getTemplates = function (params = {}) {
   // doctorId should be passed in params
   return api.get("/templates", withParams(params));

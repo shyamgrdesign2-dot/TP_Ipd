@@ -1,4 +1,4 @@
-import React, {useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,10 +6,18 @@ import { setChiefComplaint } from "../../../redux/ipd/progressNotesSlice";
 import {
   convertTemplateDataToRichText,
   formatDateToShortMonthYear,
+  isEmptyRichText,
 } from "../../../utils/utils";
-import { fetchSingleTemplate } from "../../../redux/ipd/ipdSlice";
-// import { errorMessage } from "../../../utils/toast";
+import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
+
+const EMPTY_RICH_TEXT_VALUE = [
+  {
+    type: "paragraph",
+    children: [{ text: "" }],
+  },
+];
 
 const ChiefComplaint = (props) => {
   // You can pass props as needed, e.g., isEditable, initialValue, etc.
@@ -19,10 +27,9 @@ const ChiefComplaint = (props) => {
     chiefComplaint,
     lastPrescriptionDataForProgress,
     lastPrescriptionDate,
+    patientDetails = {},
   } = useSelector((state) => state.progressNotes);
-  const { templates: symptomsTemplates } = useSelector(
-    (state) => state.symptoms
-  );
+  const doctorId = patientDetails?.doctor?.id || null;
 
   const { progressNotes } = useSelector((state) => state.progressNotes);
   const prevProgressNote = useMemo(() => {
@@ -33,22 +40,42 @@ const ChiefComplaint = (props) => {
   }, [prevProgressNote]);
 
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
-  const [isShimmering, setIsShimmering] = useState(false);
+  const [editorResetKey, setEditorResetKey] = useState(0);
 
-  const handleTempleteSelection = async (template, type) => {
-    setIsShimmering(true);
-    const respData = await dispatch(
-      fetchSingleTemplate({ templateId: template?.tst_id, type })
-    );
-    if (respData.meta.requestStatus === "fulfilled") {
-      const updatedData = respData?.payload;
-      const newConvertedData = convertTemplateDataToRichText(updatedData, type);
-      setIsShimmering(false);
-      setAutoFillTextToAppend(newConvertedData);
-    } else {
-      setIsShimmering(false);
+
+  // Get current value callback
+  const getCurrentValue = useCallback(() => {
+    if (isEmptyRichText(chiefComplaint)) {
+      return EMPTY_RICH_TEXT_VALUE;
     }
-  };
+    return Array.isArray(chiefComplaint) && chiefComplaint.length
+      ? chiefComplaint
+      : EMPTY_RICH_TEXT_VALUE;
+  }, [chiefComplaint]);
+
+  // Use template management hook
+  const {
+    templates: normalizedTemplates,
+    templatesLoading,
+    handleTemplateSelected,
+    handleAddTemplate,
+    handleUpdateTemplate,
+    handleDeleteTemplate,
+    refreshTemplates,
+  } = useTemplateManagement({
+    moduleName: "progressChiefComplaint",
+    templateSite: "ipd",
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue,
+    onValueChange: useCallback(
+      (data) => {
+        dispatch(setChiefComplaint(data));
+      },
+      [dispatch]
+    ),
+  });
 
   const handleAutoFill = (e) => {
     if (e?.[0] === "undo") {
@@ -102,11 +129,12 @@ const ChiefComplaint = (props) => {
       readOnly={!isEditable}
       showToolbar={isEditable}
       showActionBtns={isEditable}
-      templates={symptomsTemplates}
-      templateType="symptoms"
+      templates={normalizedTemplates}
+      templateType="entries"
       title={sectionData?.title}
       data-testid={sectionData?.id}
       width={isEditable ? "100%" : "fit-content"}
+      key={`chief-complaint-editor-${editorResetKey}`}
       initialValue={
         chiefComplaint?.length > 0
           ? chiefComplaint
@@ -118,7 +146,7 @@ const ChiefComplaint = (props) => {
             ]
       }
       placeholder={
-        "Enter chief complaint like patient’s main symptoms or presenting problem"
+        "Enter chief complaint like patient's main symptoms or presenting problem"
       }
       icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={isEditable && hasChiefComplaintInLastProgressNote}
@@ -133,22 +161,26 @@ const ChiefComplaint = (props) => {
       }
       containerClass={`${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
       opdDate={prevProgressNote?.createdAt ? formatDateToShortMonthYear(prevProgressNote?.createdAt || ""): null}
-      onSave={() => {
-        console.log("save");
-      }}
+      showTempButtons={true}
+      onSave={() => {}}
       onErase={() => {
+        // Clear Redux state
+        dispatch(setChiefComplaint(EMPTY_RICH_TEXT_VALUE));
+        // Clear local UI state
         setAutoFillTextToAppend(["clear"]);
+        setEditorResetKey((prev) => prev + 1);
       }}
-      onTemplate={() => {
-        console.log("template");
-      }}
-      onTemplateSelected={handleTempleteSelection}
-      shimmerFromParent={true}
+      onTemplate={refreshTemplates}
+      onTemplateSelected={handleTemplateSelected}
+      addTemplate={handleAddTemplate}
+      updateTemplate={handleUpdateTemplate}
+      onDeleteTemplateClicked={handleDeleteTemplate}
+      loading={templatesLoading}
       onChange={(e) => dispatch(setChiefComplaint(e))}
       onAutoFill={handleAutoFill}
       newAutoFillTextToAppend={autoFillTextToAppend}
       setNewAutoFillTextToAppend={setAutoFillTextToAppend}
-      isShimmeringFromParent={isShimmering}
+      isDataPresent={!isEmptyRichText(chiefComplaint)}
     />
   );
 };

@@ -164,18 +164,18 @@ const AssessmentsForm = (props) => {
     switch (data?.id) {
       case "basicInfo":
         return (
-          <BasicInfo {...props} sectionData={data} isEditable={isEditable} />
+          <BasicInfo {...props} sectionData={data} isEditable={isEditable} patientDetails={patientDetails} />
         );
       case "physicalExamination":
-        return <PhysicalExamination {...props} sectionData={data} />;
+        return <PhysicalExamination {...props} sectionData={data} patientDetails={patientDetails}/>;
       case "functionalAssessment":
-        return <FunctionalAssessment {...props} sectionData={data} />;
+        return <FunctionalAssessment {...props} sectionData={data} patientDetails={patientDetails} />;
       case "provisionalDiagnosis":
-        return <ProvisionalDiagnosisWrapper {...props} sectionData={data} />;
+        return <ProvisionalDiagnosisWrapper {...props} sectionData={data} patientDetails={patientDetails} />;
       case "treatmentPlan":
-        return <TreatmentPlan {...props} sectionData={data} />;
+        return <TreatmentPlan {...props} sectionData={data} patientDetails={patientDetails} />;
       case "additionalNotes":
-        return <NoteSection {...props} sectionData={data} />;
+        return <NoteSection {...props} sectionData={data} patientDetails={patientDetails} />;
       default:
         return null;
     }
@@ -419,8 +419,21 @@ const AssessmentsForm = (props) => {
   };
 
   const renderAllSections = () => {
-    const { createdByName, createdByRole, createdAt, updates } =
-      assessmentData?.assessmentsFilledByData || {};
+    const {
+      createdByName,
+      createdByRole,
+      createdAt,
+      updates,
+    } = assessmentData?.assessmentsFilledByData || {};
+    const normalizedUpdates = Array.isArray(updates) ? updates : [];
+    if (!Array.isArray(updates)) {
+      console.warn(
+        "[AssessmentsForm] Expected updates to be an array but received:",
+        updates,
+        "Full assessmentsFilledByData:",
+        assessmentData?.assessmentsFilledByData
+      );
+    }
     const latestUpdatedAt = assessmentData.assessmentsData?.date || new Date();
     const latestUpdatedAtTime =
       assessmentData.assessmentsData?.time || new Date();
@@ -453,7 +466,11 @@ const AssessmentsForm = (props) => {
             })
           : null}
         <FilledByCards
-          updates={!!updates.length ? [updates[updates.length - 1]] : []}
+          updates={
+            normalizedUpdates.length
+              ? [normalizedUpdates[normalizedUpdates.length - 1]]
+              : []
+          }
           createdByRole={createdByRole}
           createdByName={createdByName}
           createdAt={createdAt}

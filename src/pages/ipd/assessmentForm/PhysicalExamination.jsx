@@ -10,6 +10,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { isEmptyRichText } from "../../../utils/utils";
 import useCheckExaminationData from "../../../hooks/useCheckExaminationData";
+import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 
@@ -30,13 +31,50 @@ const PhysicalExamination = (props) => {
     showCollapsibleWrapper = true,
     children,
     isCollapsible,
+    patientDetails = {},
   } = props || {};
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const doctorId = patientDetails?.doctor?.id || null;
 
   const handleOthersChange = (data) => {
     dispatch(setPhysicalExaminationOthersData(data));
   };
+
+  const getCurrentOthersValue = useCallback(() => {
+    if (isEmptyRichText(physicalExaminationOthersData)) {
+      return [
+        {
+          type: "paragraph",
+          children: [{ text: "" }],
+        },
+      ];
+    }
+    return physicalExaminationOthersData;
+  }, [physicalExaminationOthersData]);
+
+  const {
+    templates: physicalExamTemplates,
+    templatesLoading: physicalExamTemplatesLoading,
+    handleTemplateSelected: handlePhysicalExamTemplateSelected,
+    handleAddTemplate: handlePhysicalExamAddTemplate,
+    handleUpdateTemplate: handlePhysicalExamUpdateTemplate,
+    handleDeleteTemplate: handlePhysicalExamDeleteTemplate,
+    refreshTemplates: refreshPhysicalExamTemplates,
+  } = useTemplateManagement({
+    moduleName: "physicalExaminationOthers",
+    templateSite: "ipd",
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue: getCurrentOthersValue,
+    onValueChange: useCallback(
+      (data) => {
+        dispatch(setPhysicalExaminationOthersData(data));
+      },
+      [dispatch]
+    ),
+  });
 
   const renderOthers = (data) => {
     if (!isEditable && isEmptyRichText(physicalExaminationOthersData))
@@ -56,6 +94,15 @@ const PhysicalExamination = (props) => {
           }`}
           showMagicPenGif={false}
           showMicrophone={false}
+          templates={physicalExamTemplates}
+          templateType="entries"
+          showTempButtons={true}
+          onTemplate={refreshPhysicalExamTemplates}
+          onTemplateSelected={handlePhysicalExamTemplateSelected}
+          addTemplate={handlePhysicalExamAddTemplate}
+          updateTemplate={handlePhysicalExamUpdateTemplate}
+          onDeleteTemplateClicked={handlePhysicalExamDeleteTemplate}
+          loading={physicalExamTemplatesLoading}
           onChange={handleOthersChange}
           initialValue={
             physicalExaminationOthersData?.length
@@ -68,9 +115,7 @@ const PhysicalExamination = (props) => {
                 ]
           }
           placeholder={"Enter any other examination findings not covered above"}
-          onSave={() => {
-            console.log("save");
-          }}
+          onSave={() => {}}
           onErase={() => {
             handleOthersChange([
               {
@@ -80,11 +125,9 @@ const PhysicalExamination = (props) => {
             ]);
             setAutoFillTextToAppend(["clear"]);
           }}
-          onTemplate={() => {
-            console.log("template");
-          }}
           newAutoFillTextToAppend={autoFillTextToAppend}
           setNewAutoFillTextToAppend={setAutoFillTextToAppend}
+          isDataPresent={!isEmptyRichText(physicalExaminationOthersData)}
         />
       </div>
     );

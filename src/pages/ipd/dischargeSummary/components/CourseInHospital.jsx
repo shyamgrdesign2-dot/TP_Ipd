@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { message } from "antd";
 import { createRemoteComponent } from "../../../../shared/remoteComponents";
 import { defaultIcons as dischargeSummaryIcons } from "../../../../assets/images/indices";
 import "./styles.scss";
@@ -9,21 +10,39 @@ import {
   getModuleCode,
   isEmptyRichText,
 } from "../../../../utils/utils";
-import { setCourseInHospital } from "../../../../redux/ipd/dischargeSummarySlice";
+import {
+  setCourseInHospital,
+  setChronologicalSummary,
+} from "../../../../redux/ipd/dischargeSummarySlice";
 import TreatmentGiven from "../../../../components/DynamicPickerTable/TreatmentGiven";
 import { greenTick } from "../../../../assets/images/dischargeSummaryIcons";
+import { useTemplateManagement } from "../../../../hooks/useTemplateManagement";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
+
+const EMPTY_RICH_TEXT_VALUE = [
+  {
+    type: "paragraph",
+    children: [{ text: "" }],
+  },
+];
 
 const CourseInHospital = (props) => {
   const { isEditable = true, sectionData } = props || {};
 
   const {
-    dischargeSummaryData: { courseInHospital } = {},
+    dischargeSummaryData = {},
     chronologicalSummary,
     actualDischargeSummaryData,
   } = useSelector((state) => state.dischargeSummary);
+
+  const { courseInHospital = {} } = dischargeSummaryData || {};
+
+  const doctorId =
+    dischargeSummaryData?.patientInformation?.primaryConsultant?.id ||
+    actualDischargeSummaryData?.patientInformation?.primaryConsultant?.id ||
+    null;
 
   // console.log("INTEL ==> chronologicalSummary", chronologicalSummary);
 
@@ -33,6 +52,74 @@ const CourseInHospital = (props) => {
   const handleOthersChange = (data, key) => {
     dispatch(setCourseInHospital({ ...courseInHospital, [key]: data }));
   };
+
+  // Get current value callback for chronological summary
+  const getCurrentChronologicalValue = useCallback(() => {
+    if (
+      Array.isArray(courseInHospital?.chronologicalSummary) &&
+      courseInHospital.chronologicalSummary.length
+    ) {
+      return courseInHospital.chronologicalSummary;
+    }
+
+    if (chronologicalSummary) {
+      if (Array.isArray(chronologicalSummary)) {
+        const isInitialGeneratedState =
+          chronologicalSummary?.[0]?.day || chronologicalSummary?.[0]?.date;
+        const transformed = isInitialGeneratedState
+          ? transformChronologicalData(chronologicalSummary)
+          : chronologicalSummary;
+        return transformed && transformed.length
+          ? transformed
+          : EMPTY_RICH_TEXT_VALUE;
+      }
+      if (
+        typeof chronologicalSummary === "object" &&
+        Object.keys(chronologicalSummary).length
+      ) {
+        const transformed = transformChronologicalData(chronologicalSummary);
+        return transformed && transformed.length
+          ? transformed
+          : EMPTY_RICH_TEXT_VALUE;
+      }
+    }
+
+    return courseInHospital?.chronologicalSummary ||
+      courseInHospital?.chronologicalSummary?.length
+      ? courseInHospital?.chronologicalSummary
+      : EMPTY_RICH_TEXT_VALUE;
+  }, [chronologicalSummary, courseInHospital]);
+
+  // Use template management hook for chronological summary
+  const {
+    templates: normalizedChronologicalTemplates,
+    templatesLoading,
+    handleTemplateSelected: handleChronologicalTemplateSelected,
+    handleAddTemplate: handleChronologicalAddTemplate,
+    handleUpdateTemplate: handleChronologicalUpdateTemplate,
+    handleDeleteTemplate: handleChronologicalDeleteTemplate,
+    refreshTemplates: refreshChronologicalTemplates,
+  } = useTemplateManagement({
+    moduleName: "chronologicalSummary",
+    templateSite: "ipd",
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue: getCurrentChronologicalValue,
+    onValueChange: useCallback(
+      (newEntries) => {
+        // Update both Redux stores
+        dispatch(setChronologicalSummary(newEntries));
+        dispatch(
+          setCourseInHospital({
+            ...courseInHospital,
+            chronologicalSummary: newEntries,
+          })
+        );
+      },
+      [dispatch, courseInHospital]
+    ),
+  });
 
   const transformChronologicalData = (apiData) => {
     if (!apiData) return [];
@@ -194,14 +281,28 @@ const CourseInHospital = (props) => {
             data?.placeholder ||
             "Click 'Generate Chronological Summary' to auto-populate or enter details manually"
           }
-          onSave={() => {
-            console.log("save");
-          }}
+          templates={normalizedChronologicalTemplates}
+          templateType="entries"
+          onSave={() => {}}
+          onTemplate={refreshChronologicalTemplates}
+          onTemplateSelected={handleChronologicalTemplateSelected}
+          addTemplate={handleChronologicalAddTemplate}
+          updateTemplate={handleChronologicalUpdateTemplate}
+          onDeleteTemplateClicked={handleChronologicalDeleteTemplate}
+          loading={templatesLoading}
+          data={getCurrentChronologicalValue()}
+          showTempButtons={true}
           onErase={() => {
+            // Clear the Redux state for chronologicalSummary
+            dispatch(setChronologicalSummary([]));
+            dispatch(
+              setCourseInHospital({
+                ...courseInHospital,
+                chronologicalSummary: [],
+              })
+            );
+            // Also clear the autoFillTextToAppend for the editor
             setAutoFillTextToAppend(["clear"]);
-          }}
-          onTemplate={() => {
-            console.log("template");
           }}
           newAutoFillTextToAppend={autoFillTextToAppend}
           setNewAutoFillTextToAppend={setAutoFillTextToAppend}

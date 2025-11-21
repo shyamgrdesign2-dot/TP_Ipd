@@ -11,7 +11,7 @@ export const TEMPLATE_MODULE_CATALOG = [
         title: "Basic Info",
         modules: [
           { id: "presentingComplaints", title: "Presenting Complaints - Temp" },
-          { id: "currentMedications", title: "Current Medications - Temp" },
+          // { id: "currentMedications", title: "Current Medications - Temp" },
         ],
       },
       {
@@ -23,6 +23,44 @@ export const TEMPLATE_MODULE_CATALOG = [
         ],
       },
       {
+        id: "otNotes",
+        title: "OT Notes",
+        modules: [
+          {
+            id: "otDiagnosis",
+            title: "Diagnosis - Temp",
+          },
+          {
+            id: "operativeFindings",
+            title: "Operative Findings - Temp",
+          },
+          {
+            id: "operativeProcedure",
+            title: "Operative Procedure - Temp",
+          },
+          {
+            id: "operativeAdditionalNotes",
+            title: "Operative Additional Notes - Temp",
+          },
+          {
+            id: "complicationSeverity",
+            title: "Complication Severity - Temp",
+          },
+          {
+            id: "specimensSent",
+            title: "Specimens Sent - Temp",
+          },
+          {
+            id: "implantsProstheticsUsed",
+            title: "Implants/Prosthetics Used - Temp",
+          },
+          {
+            id: "postOperativeAdditionalInstructions",
+            title: "Post-Operative Additional Instructions - Temp",
+          },
+        ],
+      },
+      {
         id: "functionalAssessment",
         title: "Functional Assessment",
         modules: [{ id: "functionalAssessmentOthers", title: "Others - Temp" }],
@@ -31,7 +69,7 @@ export const TEMPLATE_MODULE_CATALOG = [
         id: "provisionalDiagnosis",
         title: "Provisional Diagnosis",
         modules: [
-          { id: "provisionalDiagnosis", title: "Provisional Diagnosis - Temp" },
+          // { id: "provisionalDiagnosis", title: "Provisional Diagnosis - Temp" },
         ],
       },
       {
@@ -39,7 +77,8 @@ export const TEMPLATE_MODULE_CATALOG = [
         title: "Treatment Plan",
         modules: [
           { id: "immediateManagement", title: "Immediate Management - Temp" },
-          { id: "monitoringPlan", title: "Monitoring Plan - Temp" },
+          { id: "monitoringPlan", title: "Desired Outcome - Temp" },
+          { id: "preventiveActions", title: "Preventive Actions - Temp" },
         ],
       },
       {
@@ -83,10 +122,10 @@ export const TEMPLATE_MODULE_CATALOG = [
             title: "Clinical Assessment Plan - Temp",
           },
           { id: "consultantMedication", title: "Medication - Temp" },
-          {
-            id: "consultantLabInvestigation",
-            title: "Lab Investigation - Temp",
-          },
+          // {
+          //   id: "consultantLabInvestigation",
+          //   title: "Lab Investigation - Temp",
+          // },
           {
             id: "consultantAdditionalRemarks",
             title: "Additional Remarks - Temp",
@@ -174,7 +213,7 @@ export const TEMPLATE_MODULE_CATALOG = [
             id: "patientConditionDuringDischarge",
             title: "Patient Condition During Discharge - Temp",
           },
-          { id: "dischargeMedication", title: "Discharge Medication - Temp" },
+          // { id: "dischargeMedication", title: "Discharge Medication - Temp" },
         ],
       },
       {
@@ -253,7 +292,6 @@ export const getTemplatesByModuleName = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     try {
       const response = await ApiTemplate.getTemplatesByModuleName(params);
-      console.log(response,"response")
       return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);

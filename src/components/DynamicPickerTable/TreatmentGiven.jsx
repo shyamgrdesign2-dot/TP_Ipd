@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback, useMemo } from "react";
-import { message, Tooltip } from "antd";
+import { Tooltip } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { createRemoteComponent } from "../../shared/remoteComponents";
 import DynamicPickerTable from "./DynamicPickerTable";
@@ -20,6 +20,7 @@ import { useLocation } from "react-router-dom";
 import { dischargeSummaryIcons } from "../../assets/images/indices";
 import "./styles.scss";
 import { greenTick } from "../../assets/images/dischargeSummaryIcons";
+import { useTemplateManagement } from "../../hooks/useTemplateManagement";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -30,8 +31,15 @@ const TreatmentGiven = ({ sectionData }) => {
   const dispatch = useDispatch();
   const DISPATCH_DEBOUNCE_MS = 250;
   const changeTimersRef = useRef({});
-  const { treatmentNotes, treatmentNotesLoading, actualDischargeSummaryData } =
-    useSelector((state) => state.dischargeSummary);
+  const {
+    treatmentNotes,
+    treatmentNotesLoading,
+    actualDischargeSummaryData,
+    dischargeSummaryData,
+  } = useSelector((state) => state.dischargeSummary);
+
+  const doctorId =
+    dischargeSummaryData?.patientInformation?.primaryConsultant?.id || null;
 
   const filteredTreatmentNotes = useMemo(() => {
     if (!treatmentNotes) return [];
@@ -48,6 +56,19 @@ const TreatmentGiven = ({ sectionData }) => {
     });
   }, [treatmentNotes]);
 
+  const ensureKeys = useCallback((items) => {
+    if (!Array.isArray(items)) return [];
+    return items.map((item, index) => {
+      if (item?.key) return item;
+      const fallbackKey =
+        item?.id ||
+        item?.name ||
+        item?.tmm_id ||
+        `${item?.module || "row"}-${index}`;
+      return { ...item, key: `${fallbackKey}-${index}` };
+    });
+  }, []);
+
   useEffect(() => {
     if (treatmentNotes?.length) {
       const needsKeys = treatmentNotes.some((t) => !t?.key);
@@ -59,6 +80,47 @@ const TreatmentGiven = ({ sectionData }) => {
       }
     }
   }, [treatmentNotes, dispatch]);
+
+  // Get current value callback
+  const getCurrentValue = useCallback(
+    () => ensureKeys(filteredTreatmentNotes),
+    [filteredTreatmentNotes, ensureKeys]
+  );
+
+  // Duplicate check function for treatment notes
+  const isDuplicate = useCallback((existing, newItem) => {
+    // Check by id (most reliable)
+    if (existing.id && newItem.id && existing.id === newItem.id) {
+      return true;
+    }
+    return false;
+  }, []);
+
+  // Use template management hook
+  const {
+    templates: normalizedTreatmentTemplates,
+    templatesLoading,
+    handleTemplateSelected,
+    handleAddTemplate,
+    handleUpdateTemplate,
+    handleDeleteTemplate,
+    refreshTemplates: refreshTreatmentTemplates,
+  } = useTemplateManagement({
+    moduleName: "treatmentGiven",
+    templateSite: "ipd",
+    doctorId,
+    isEditable,
+    moduleType: "array",
+    getCurrentValue,
+    onArrayChange: useCallback(
+      (data) => {
+        dispatch(setTreatmentNotes(data));
+      },
+      [dispatch]
+    ),
+    isDuplicate,
+    ensureKeys,
+  });
 
   const handleSearch = async (query) => {
     if (!query) return [];
@@ -278,6 +340,21 @@ const TreatmentGiven = ({ sectionData }) => {
       showMagicPenGif={false}
       showMicrophone={false}
       placeholder="Treatment given details"
+      templates={normalizedTreatmentTemplates}
+      templateType={"treatmentGiven"}
+      onSave={() => {}}
+      showTempButtons={true}
+      onTemplate={refreshTreatmentTemplates}
+      onTemplateSelected={handleTemplateSelected}
+      addTemplate={handleAddTemplate}
+      updateTemplate={handleUpdateTemplate}
+      onDeleteTemplateClicked={handleDeleteTemplate}
+      loading={templatesLoading}
+      data={getCurrentValue()}
+      isDataPresent={filteredTreatmentNotes?.length > 0}
+      onErase={() => {
+        dispatch(setTreatmentNotes([]));
+      }}
       renderBody={renderTreatmentTable}
       headerComponent={showLastUpdatedAt}
     />

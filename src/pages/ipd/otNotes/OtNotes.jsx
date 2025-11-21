@@ -124,6 +124,19 @@ const OtNotes = (props) => {
   }, [patientDetails?.details?.id, patientDetails?.admissionId]);
 
   useEffect(() => {
+    const otNotesArray = Array.isArray(otNotesState?.otNotesData)
+      ? otNotesState.otNotesData
+      : [];
+
+    const currentNote = otNotesArray.find(
+      (note) => note._id === otNotesState.currentOtNoteId
+    );
+  }, [
+    otNotesState?.currentOtNoteId,
+    otNotesState?.otNotesData,
+  ]);
+
+  useEffect(() => {
     if (otNotesData?.otNotesData?.length > 0) {
       setShowAutoFillLocal(true);
       setAutoFillTitleLocal(
@@ -161,15 +174,39 @@ const OtNotes = (props) => {
         {(() => {
           switch (data.id) {
             case "surgeryDetails":
-              return <SurgeryDetails {...props} sectionData={data} />;
+              return (
+                <SurgeryDetails
+                  {...props}
+                  sectionData={data}
+                  patientDetails={patientDetails}
+                />
+              );
             case "surgeryTeam":
               return <SurgeryTeam {...props} sectionData={data} />;
             case "operativeNotes":
-              return <OperativeNotes {...props} sectionData={data} />;
+              return (
+                <OperativeNotes
+                  {...props}
+                  sectionData={data}
+                  patientDetails={patientDetails}
+                />
+              );
             case "intraOperativeNotes":
-              return <IntraOperativeNotes {...props} sectionData={data} />;
+              return (
+                <IntraOperativeNotes
+                  {...props}
+                  sectionData={data}
+                  patientDetails={patientDetails}
+                />
+              );
             case "postOperativeNotes":
-              return <PostOperativeNotes {...props} sectionData={data} />;
+              return (
+                <PostOperativeNotes
+                  {...props}
+                  sectionData={data}
+                  patientDetails={patientDetails}
+                />
+              );
             default:
               return null;
           }

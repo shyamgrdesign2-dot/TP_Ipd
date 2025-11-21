@@ -1,29 +1,67 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { createRemoteComponent } from "../../../../shared/remoteComponents";
 import { defaultIcons as dischargeSummaryIcons } from "../../../../assets/images/indices";
-import { defaultIcons } from "../../../../assets/images/icons";
 import "./styles.scss";
 import { useDispatch, useSelector } from "react-redux";
-import { Select, DatePicker, TimePicker } from "antd";
-import dayjs from "dayjs";
 import Vitals from "../../assessmentForm/Vitals";
 import { isEmptyRichText } from "../../../../utils/utils";
-import {
-  setDischargeSummaryData,
-  setPatientCondition,
-} from "../../../../redux/ipd/dischargeSummarySlice";
+import { setPatientCondition } from "../../../../redux/ipd/dischargeSummarySlice";
 import CurrentMedications from "../../assessmentForm/CurrentMedications";
+import { useTemplateManagement } from "../../../../hooks/useTemplateManagement";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const DischargeNotes = (props) => {
   const { isEditable = true, sectionData } = props || {};
-  const { surgeryDetails, surgeryProcedureOptions, dischargeSummaryData } =
-    useSelector((state) => state.dischargeSummary);
-  const initialValue = useMemo(() => surgeryDetails || {}, [surgeryDetails]);
+  const { dischargeSummaryData } = useSelector((state) => state.dischargeSummary);
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+
+  const EMPTY_RICH_TEXT_VALUE = [
+    {
+      type: "paragraph",
+      children: [{ text: "" }],
+    },
+  ];
+
+  // Template management for patientCondition using the hook
+  const doctorId = dischargeSummaryData?.patientInformation?.primaryConsultant?.id;
+
+  // Helper to get current value
+  const getCurrentPatientConditionValue = useCallback(() => {
+    const patientCondition = dischargeSummaryData?.patientCondition;
+    if (isEmptyRichText(patientCondition)) {
+      return EMPTY_RICH_TEXT_VALUE;
+    }
+    return Array.isArray(patientCondition) && patientCondition.length
+      ? patientCondition
+      : EMPTY_RICH_TEXT_VALUE;
+  }, [dischargeSummaryData?.patientCondition]);
+
+  // Use template management hook
+  const {
+    templates: normalizedPatientConditionTemplates,
+    templatesLoading,
+    handleTemplateSelected: handlePatientConditionTemplateSelected,
+    handleAddTemplate: handlePatientConditionAddTemplate,
+    handleUpdateTemplate: handlePatientConditionUpdateTemplate,
+    handleDeleteTemplate: handlePatientConditionDeleteTemplate,
+    refreshTemplates: refreshPatientConditionTemplates,
+  } = useTemplateManagement({
+    moduleName: "patientConditionDuringDischarge",
+    templateSite: "ipd",
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue: getCurrentPatientConditionValue,
+    onValueChange: useCallback(
+      (data) => {
+        dispatch(setPatientCondition(data));
+      },
+      [dispatch]
+    ),
+  });
 
   const handlePatientConditionChange = (data) => {
     dispatch(setPatientCondition(data));
@@ -46,29 +84,31 @@ const DischargeNotes = (props) => {
         opdDate="15 Jun 2025"
         showMagicPenGif={false}
         showMicrophone={false}
-        onChange={(data) => handlePatientConditionChange(data)}
+        onChange={handlePatientConditionChange}
         initialValue={
-          dischargeSummaryData?.patientCondition?.length
+          !isEmptyRichText(dischargeSummaryData?.patientCondition)
             ? dischargeSummaryData?.patientCondition
-            : [
-                {
-                  type: "paragraph",
-                  children: [{ text: "" }],
-                },
-              ]
+            : EMPTY_RICH_TEXT_VALUE
         }
         placeholder={data?.placeholder || "Enter Patient Condition"}
-        onSave={() => {
-          console.log("save");
-        }}
+        templates={normalizedPatientConditionTemplates}
+        templateType="entries"
+        showTempButtons={true}
+        onSave={() => {}}
+        onTemplate={refreshPatientConditionTemplates}
+        onTemplateSelected={handlePatientConditionTemplateSelected}
+        addTemplate={handlePatientConditionAddTemplate}
+        updateTemplate={handlePatientConditionUpdateTemplate}
+        onDeleteTemplateClicked={handlePatientConditionDeleteTemplate}
+        loading={templatesLoading}
+        data={getCurrentPatientConditionValue()}
         onErase={() => {
+          dispatch(setPatientCondition(EMPTY_RICH_TEXT_VALUE));
           setAutoFillTextToAppend(["clear"]);
-        }}
-        onTemplate={() => {
-          console.log("template");
         }}
         newAutoFillTextToAppend={autoFillTextToAppend}
         setNewAutoFillTextToAppend={setAutoFillTextToAppend}
+        isDataPresent={!isEmptyRichText(dischargeSummaryData?.patientCondition)}
       />
     );
   };

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,21 +6,23 @@ import { setPostOperativeNotes } from "../../../redux/ipd/otNotesSlice";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import { Select } from "antd";
 import { isEmptyRichText, hasNoData } from "../../../utils/utils";
+import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const PostOperativeNotes = (props) => {
-  const { isEditable = true, sectionData } = props || {};
+  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
   let { postOperativeNotes = {} } = useSelector((state) => state.otNotes);
   postOperativeNotes = props.postOperativeNotes || postOperativeNotes;
+  const { profile } = useSelector((state) => state.doctors);
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState({});
   const dispatch = useDispatch();
   const {
     filters: { ward: wardFilters },
   } = useSelector((state) => state.inPatients);
-  const handleChange = (value, key) => {
+  const handleChange = useCallback((value, key) => {
     dispatch(setPostOperativeNotes({ key, value }));
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchFilters({ field: "ward" }));
@@ -73,7 +75,99 @@ const PostOperativeNotes = (props) => {
     );
   };
 
+  const doctorId =
+    patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
+  const defaultRichText = useMemo(
+    () => [
+      {
+        type: "paragraph",
+        children: [{ text: "" }],
+      },
+    ],
+    []
+  );
+
+  const getFieldValue = useCallback(
+    (key) => {
+      const value = props.postOperativeNotes?.[key] ?? postOperativeNotes?.[key];
+      if (Array.isArray(value) && value.length) {
+        return value;
+      }
+      if (value?.value && Array.isArray(value.value) && value.value.length) {
+        return value.value;
+      }
+      return defaultRichText;
+    },
+    [postOperativeNotes, props.postOperativeNotes, defaultRichText]
+  );
+
+  // Memoize the initial value to prevent infinite loops
+  // Depend on actual Redux values, not the function
+  const additionalInstructionsValue = useMemo(() => {
+    const value = props.postOperativeNotes?.["additionalInstructions"] ?? postOperativeNotes?.["additionalInstructions"];
+    if (Array.isArray(value) && value.length) {
+      return value;
+    }
+    if (value?.value && Array.isArray(value.value) && value.value.length) {
+      return value.value;
+    }
+    return defaultRichText;
+  }, [postOperativeNotes, props.postOperativeNotes, defaultRichText]);
+
+  // Use ref to store the latest handleChange to prevent callback recreation
+  const handleChangeRef = useRef(handleChange);
+  useEffect(() => {
+    handleChangeRef.current = handleChange;
+  }, [handleChange]);
+
+  // Memoize onChange callbacks to prevent infinite loops
+  // Use ref to avoid dependency on handleChange
+  const handleAdditionalInstructionsOnChange = useCallback(
+    (val) => {
+      handleChangeRef.current(val, "additionalInstructions");
+    },
+    [] // Empty deps - use ref to get latest handleChange
+  );
+
+  const getAdditionalInstructionsValue = useCallback(
+    () => additionalInstructionsValue,
+    [additionalInstructionsValue]
+  );
+
+  const additionalInstructionsTemplate = useTemplateManagement({
+    moduleName: "postOperativeAdditionalInstructions",
+    templateSite: "ipd",
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue: getAdditionalInstructionsValue,
+    onValueChange: handleAdditionalInstructionsOnChange,
+  });
+
+  const handleAdditionalInstructionsOnErase = useCallback(() => {
+    handleChangeRef.current(defaultRichText, "additionalInstructions");
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["additionalInstructions"]: ["clear"],
+    }));
+  }, [defaultRichText]); // Remove handleChange from deps, use ref instead
+
+  const handleSetAutoFillTextToAppend = useCallback(
+    (value) => {
+      setAutoFillTextToAppend((prev) => ({
+        ...prev,
+        ["additionalInstructions"]: value,
+      }));
+    },
+    []
+  );
+
   const renderRichTextEditorWrapper = (data) => {
+    const templateHandlers =
+      data?.id === "additionalInstructions"
+        ? additionalInstructionsTemplate
+        : null;
+
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -90,33 +184,22 @@ const PostOperativeNotes = (props) => {
             : ""
         }`}
         showMagicPenGif={false}
-        onErase={() => {
-          setAutoFillTextToAppend((prev) => ({
-            ...prev,
-            [data?.id]: ["clear"],
-          }));
-        }}
+        onErase={handleAdditionalInstructionsOnErase}
         newAutoFillTextToAppend={autoFillTextToAppend[data?.id]}
-        setNewAutoFillTextToAppend={(value) => {
-          setAutoFillTextToAppend((prev) => ({
-            ...prev,
-            [data?.id]: value,
-          }));
-        }}
+        setNewAutoFillTextToAppend={handleSetAutoFillTextToAppend}
         showMicrophone={false}
-        onChange={(val) => handleChange(val, data?.id)}
-        initialValue={
-          props.postOperativeNotes?.[data?.id]?.length
-            ? props.postOperativeNotes?.[data?.id]
-            : postOperativeNotes?.[data?.id]?.value?.length
-            ? postOperativeNotes?.[data?.id]?.value
-            : [
-                {
-                  type: "paragraph",
-                  children: [{ text: "" }],
-                },
-              ]
-        }
+        templates={templateHandlers?.templates}
+        templateType={templateHandlers ? "entries" : undefined}
+        showTempButtons={isEditable && !!templateHandlers}
+        onTemplate={templateHandlers?.refreshTemplates}
+        onTemplateSelected={templateHandlers?.handleTemplateSelected}
+        addTemplate={templateHandlers?.handleAddTemplate}
+        updateTemplate={templateHandlers?.handleUpdateTemplate}
+        onDeleteTemplateClicked={templateHandlers?.handleDeleteTemplate}
+        loading={templateHandlers?.templatesLoading}
+        onChange={handleAdditionalInstructionsOnChange}
+        initialValue={additionalInstructionsValue}
+        onSave={() => {}}
         placeholder={data?.placeholder}
       />
     )

@@ -469,7 +469,6 @@ function TabMedicationBox(props) {
 
   const mainMedicationSelect = async (index) => {
     const childData = await innerMedication(index)
-    console.log(childData,"childData")
     handleDrawerChild(childData, index)
   }
 

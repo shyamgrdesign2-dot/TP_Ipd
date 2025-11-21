@@ -17,6 +17,7 @@ import Vitals from "../../components/Vitals";
 import FilledByCard from "../../components/FilledByCard";
 import SlateToPdf from "../../components/SlateToPdf";
 import { renderGeneralExamination } from "../discharge/components/PhysicalExamination";
+import { isEmptyRichText } from "../../../../utils/utils";
 
 const styles = StyleSheet.create({
   sectionContainer: {
@@ -108,8 +109,9 @@ const styles = StyleSheet.create({
  * Render rich text with title
  */
 const renderRichText = (data, title) => {
-  console.log(data, title, "renderRichTextData");
-  if (!data || !data?.length) return null;
+  if (!data) return null;
+  const nodes = Array.isArray(data) ? data : [data];
+  if (!nodes.length || isEmptyRichText(nodes)) return null;
 
   // Custom styles for SlateToPdf to match existing styling
   const customStyles = {
@@ -167,10 +169,7 @@ const renderRichText = (data, title) => {
       <View style={styles.contentContainer}>
         <Text style={[styles.subsectionTitle]}>{title}:</Text>
         <View style={styles.bulletList}>
-          <SlateToPdf
-            nodes={Array.isArray(data) ? data : [data]}
-            customStyles={customStyles}
-          />
+          <SlateToPdf nodes={nodes} customStyles={customStyles} />
         </View>
       </View>
     </View>
@@ -193,12 +192,10 @@ export const renderProgressNotes = (data, formatSettings) => {
 
   // Get sorted sections
   const sortedSections = getAllVisibleSections(formatSettings);
-  console.log(sortedSections, "sortedSections");
 
   // Render all consultant notes on the same page
   const allSections = progressNotesArray.map((note, noteIndex) => {
     const progressNotesData = note?.progressNotes || note;
-    console.log(progressNotesData, "progressNotesData");
 
     // Map section keys to render functions (using new array format IDs)
     const sectionRenderers = {

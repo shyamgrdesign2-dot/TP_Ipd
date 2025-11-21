@@ -1645,23 +1645,66 @@ function MedicationsBox(props) {
       const dosageValue = item?.tmm_dosage;
       const dosageUnitName = typeof item?.tmm_dosage_unit_name === "string" ? item.tmm_dosage_unit_name.trim() : "";
 
+      const convertToRawMedicineUnit = (data = []) => {
+        if (!Array.isArray(data) || data.length === 0) return [];
+        const isAlreadyRaw = data.every(
+          (unit) => unit?.tmu_id !== undefined && unit?.tmu_title !== undefined
+        );
+        if (isAlreadyRaw) return data;
+        return data.map((unit) => {
+          if (unit?.key) {
+            try {
+              return JSON.parse(unit.key);
+            } catch {
+              return {
+                tmu_id: unit?.value ?? unit?.tmu_id,
+                tmu_title: unit?.label ?? unit?.tmu_title,
+              };
+            }
+          }
+          return {
+            tmu_id: unit?.value ?? unit?.tmu_id,
+            tmu_title: unit?.label ?? unit?.tmu_title,
+          };
+        });
+      };
+
       const resolvedUnitId = item?.tmm_unit ?? item?.tmu_id ?? item?.default_tmm_unit;
       let resolvedUnitLabel = typeof item?.tmm_unit_name === "string" ? item.tmm_unit_name.trim() : "";
       if (!resolvedUnitLabel && Array.isArray(item?.medicineUnit)) {
-        const matchedUnit = item.medicineUnit.find((unit) => {
-          const unitValue = typeof unit?.value === "number" ? unit.value : parseInt(unit?.value, 10);
-          return unitValue == resolvedUnitId;
-        });
-        if (matchedUnit) {
-          if (typeof matchedUnit.label === "string" && matchedUnit.label.trim()) {
-            resolvedUnitLabel = matchedUnit.label.trim();
-          } else if (matchedUnit.key) {
-            try {
-              const parsed = JSON.parse(matchedUnit.key);
-              resolvedUnitLabel = parsed?.tmu_title || resolvedUnitLabel;
-            } catch (error) {
-              console.warn("Unable to parse medicine unit", matchedUnit, error);
-            }
+        const parseNumber = (value) => {
+          if (typeof value === "number") return value;
+          if (typeof value === "string" && value.trim()) {
+            const parsedValue = parseInt(value, 10);
+            return Number.isNaN(parsedValue) ? null : parsedValue;
+          }
+          return null;
+        };
+
+        const normalizedMedicineUnit = convertToRawMedicineUnit(item?.medicineUnit);
+
+        const matchedUnit =
+          item?.tmu_id
+            ? normalizedMedicineUnit.find((unit) => {
+              const unitId = parseNumber(unit?.tmu_id) ?? parseNumber(unit?.value);
+              return unitId != null && unitId == item.tmu_id;
+            })
+            : normalizedMedicineUnit.find((unit) => {
+              const unitValue = parseNumber(unit?.value) ?? parseNumber(unit?.tmu_id);
+              return unitValue != null && unitValue == resolvedUnitId;
+            });
+
+        console.log(matchedUnit, "matchedUnit");
+        if (matchedUnit?.tmu_title && typeof matchedUnit.tmu_title === "string") {
+          resolvedUnitLabel = matchedUnit.tmu_title.trim();
+        } else if (matchedUnit?.label && typeof matchedUnit.label === "string") {
+          resolvedUnitLabel = matchedUnit.label.trim();
+        } else if (matchedUnit?.key) {
+          try {
+            const parsed = JSON.parse(matchedUnit.key);
+            resolvedUnitLabel = parsed?.tmu_title || resolvedUnitLabel;
+          } catch (error) {
+            console.warn("Unable to parse medicine unit", matchedUnit, error);
           }
         }
       }
@@ -1681,12 +1724,14 @@ function MedicationsBox(props) {
       let unitPerDoseDisplay = "";
 
       if (name) {
-        unitPerDoseDisplay = name;
+        unitPerDoseDisplay = unit ? `${value ? value : 1} ${unit}` : value;;
       } else if (value) {
         unitPerDoseDisplay = unit ? `${value ? value : 1} ${unit}` : value;
       } else if (unit) {
         unitPerDoseDisplay = unit ? `${value ? value : 1} ${unit}` : value;
       }
+
+      console.log(unitPerDoseDisplay,"unitPerDoseDisplay");
 
       return {
         originalItem: item,
@@ -3467,7 +3512,7 @@ function MedicationsBox(props) {
               {/* <i className="icon-reload me-2"></i> <span>{isPillUpAccessableFromGB ? 'Prev. Rx ' : 'Load Prev. Rx'}</span> */}
               {renderAutoFill()}
             </button>
-            {/* <Popover
+            <Popover
               open={popOver1}
               onOpenChange={showHideTemplatesListPopover}
               content={TEMPLATE_CONTENT}
@@ -3496,7 +3541,7 @@ function MedicationsBox(props) {
                 </button>
 
               </Popover>
-            </Tooltip> */}
+            </Tooltip>
             <button onClick={showHideClearData} className="btn btn-text clear-text d-flex align-items-center" disabled={medicationData.length > 0 ? false : true}>
               <i className="icon-eraser1 me-2"></i> {!isPillUpAccessableFromGB && <span>Clear</span>}
             </button>

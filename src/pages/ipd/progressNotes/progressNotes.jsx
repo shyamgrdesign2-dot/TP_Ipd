@@ -210,18 +210,44 @@ const ProgressNotes = (props) => {
         );
 
       // Helper function to check if rich text editor data has meaningful content
+      // Handles multiple structures:
+      // 1. paragraph → text (existing structure)
+      // 2. list-item → text (direct text children)
+      // 3. list-item → paragraph → text (nested structure)
+      // 4. numbered-list/bulleted-list → list-item → text/paragraph → text
       const hasRichTextContent = (data) => {
         if (!Array.isArray(data) || data.length === 0) return false;
 
-        return data.some((item) => {
-          if (item && item.children && Array.isArray(item.children)) {
-            return item.children.some((child) => {
-              if (child && child.text) {
-                return child.text.trim() !== "";
-              }
-              return false;
-            });
+        // Recursive function to check if a node has non-empty text content
+        const hasTextInNode = (node) => {
+          if (!node || typeof node !== "object") return false;
+
+          // Check if node is a text node with non-empty text
+          if (node.text !== undefined) {
+            return typeof node.text === "string" && node.text.trim() !== "";
           }
+
+          // If node has children, recursively check them
+          if (node.children && Array.isArray(node.children)) {
+            return node.children.some((child) => hasTextInNode(child));
+          }
+
+          return false;
+        };
+
+        // Check each top-level item
+        return data.some((item) => {
+          // Check if item has children
+          if (item && item.children && Array.isArray(item.children)) {
+            // Check if any child has text content (handles both direct text and nested structures)
+            return item.children.some((child) => hasTextInNode(child));
+          }
+          
+          // Also check if the item itself is a text node
+          if (item && item.text !== undefined) {
+            return typeof item.text === "string" && item.text.trim() !== "";
+          }
+          
           return false;
         });
       };

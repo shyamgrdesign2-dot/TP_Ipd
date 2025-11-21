@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setIntraOperativeNotes } from "../../../redux/ipd/otNotesSlice";
 import "./styles.scss";
 import { isEmptyRichText, hasNoData } from "../../../utils/utils";
+import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const UnitInput = createRemoteComponent("UnitInput");
@@ -37,18 +38,283 @@ export const MetricsList = ({ sectionData, data }) => {
 };
 
 const IntraOperativeNotes = (props) => {
-  const { isEditable = true, sectionData } = props || {};
+  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
   let { intraOperativeNotes = {} } = useSelector((state) => state.otNotes);
   intraOperativeNotes = props?.intraOperativeNotes || intraOperativeNotes;
+  const { profile } = useSelector((state) => state.doctors);
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState({});
   const dispatch = useDispatch();
-  const handleChange = (value, key, parentId = null) => {
+  const doctorId =
+    patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
+  const handleChange = useCallback((value, key, parentId = null) => {
     if (!isEditable) return;
     dispatch(setIntraOperativeNotes({ key, value, parentId }));
-  };
+  }, [dispatch, isEditable]);
+  const defaultRichText = useMemo(
+    () => [
+      {
+        type: "paragraph",
+        children: [{ text: "" }],
+      },
+    ],
+    []
+  );
+
+  // Map section data IDs to Redux keys
+  // Section IDs: complicationsSeverity, specimensSent, implantsUsed
+  // Redux Keys: complicationsSeverity, specimensSent, implantsUsed
+  // Note: Section IDs and Redux keys are the same for all fields
+  const getReduxKey = useCallback((sectionId) => {
+    const mapping = {
+      complicationsSeverity: "complicationsSeverity", // Section ID = Redux key
+      specimensSent: "specimensSent", // Section ID = Redux key
+      implantsUsed: "implantsUsed", // Section ID = Redux key
+    };
+    return mapping[sectionId] || sectionId;
+  }, []);
+
+  // Helper to get field value by section ID (converts to Redux key)
+  const getFieldValueByKey = useCallback(
+    (sectionId) => {
+      const reduxKey = getReduxKey(sectionId);
+      // Redux stores as: intraOperativeNotes[reduxKey] = { value: [...] }
+      const reduxEntry = props.intraOperativeNotes?.[reduxKey] ?? intraOperativeNotes?.[reduxKey];
+      
+      // Check if it's stored as a direct array (legacy format)
+      if (Array.isArray(reduxEntry) && reduxEntry.length) {
+        return reduxEntry;
+      }
+      
+      // Check if it's stored as { value: [...] }
+      if (reduxEntry?.value && Array.isArray(reduxEntry.value) && reduxEntry.value.length) {
+        return reduxEntry.value;
+      }
+      
+      return defaultRichText;
+    },
+    [intraOperativeNotes, props.intraOperativeNotes, defaultRichText, getReduxKey]
+  );
+
+  // Memoize field values to prevent infinite loops - use section IDs
+  const complicationSeverityValue = useMemo(
+    () => getFieldValueByKey("complicationsSeverity"), // Section ID
+    [getFieldValueByKey]
+  );
+  const specimensSentValue = useMemo(
+    () => getFieldValueByKey("specimensSent"), // Section ID
+    [getFieldValueByKey]
+  );
+  const implantsProstheticsUsedValue = useMemo(
+    () => getFieldValueByKey("implantsUsed"), // Section ID
+    [getFieldValueByKey]
+  );
+
+  // Use ref to store the latest handleChange to prevent callback recreation
+  const handleChangeRef = useRef(handleChange);
+  useEffect(() => {
+    handleChangeRef.current = handleChange;
+  }, [handleChange]);
+
+  // Stable callbacks for template management - use Redux keys for dispatch
+  const handleComplicationSeverityChange = useCallback(
+    (data) => {
+      handleChange(data, "complicationsSeverity"); // Redux key
+    },
+    [handleChange]
+  );
+
+  const handleSpecimensSentChange = useCallback(
+    (data) => {
+      handleChange(data, "specimensSent"); // Redux key
+    },
+    [handleChange]
+  );
+
+  const handleImplantsProstheticsUsedChange = useCallback(
+    (data) => {
+      handleChange(data, "implantsUsed"); // Redux key
+    },
+    [handleChange]
+  );
+
+  const getComplicationSeverityValue = useCallback(
+    () => complicationSeverityValue,
+    [complicationSeverityValue]
+  );
+
+  const getSpecimensSentValue = useCallback(
+    () => specimensSentValue,
+    [specimensSentValue]
+  );
+
+  const getImplantsProstheticsUsedValue = useCallback(
+    () => implantsProstheticsUsedValue,
+    [implantsProstheticsUsedValue]
+  );
+
+  const useIntraTemplate = (moduleName, key, getCurrentValueFn, onValueChangeFn) =>
+    useTemplateManagement({
+      moduleName,
+      templateSite: "ipd",
+      doctorId,
+      isEditable,
+      moduleType: "richText",
+      getCurrentValue: getCurrentValueFn,
+      onValueChange: onValueChangeFn,
+    });
+
+  const complicationTemplate = useIntraTemplate(
+    "complicationsSeverity",
+    "complicationsSeverity",
+    getComplicationSeverityValue,
+    handleComplicationSeverityChange
+  );
+  const specimensTemplate = useIntraTemplate(
+    "specimensSent",
+    "specimensSent",
+    getSpecimensSentValue,
+    handleSpecimensSentChange
+  );
+  const implantsTemplate = useIntraTemplate(
+    "implantsUsed",
+    "implantsUsed",
+    getImplantsProstheticsUsedValue,
+    handleImplantsProstheticsUsedChange
+  );
+
+  // Map using section IDs (what data?.id will be)
+  const templateMap = useMemo(
+    () => ({
+      complicationsSeverity: complicationTemplate, // Section ID
+      specimensSent: specimensTemplate, // Section ID
+      implantsUsed: implantsTemplate, // Section ID
+    }),
+    [complicationTemplate, specimensTemplate, implantsTemplate]
+  );
+
+  // Memoize onChange callbacks for each field - map section IDs to Redux keys
+  // Use ref to avoid dependency on handleChange
+  const handleComplicationSeverityOnChange = useCallback(
+    (val) => handleChangeRef.current(val, "complicationsSeverity"), // Redux key
+    [] // Empty deps - use ref to get latest handleChange
+  );
+  const handleSpecimensSentOnChange = useCallback(
+    (val) => handleChangeRef.current(val, "specimensSent"), // Redux key
+    []
+  );
+  const handleImplantsProstheticsUsedOnChange = useCallback(
+    (val) => handleChangeRef.current(val, "implantsUsed"), // Redux key
+    []
+  );
+
+  // Memoize onErase callbacks - use Redux keys for dispatch, section IDs for state keys
+  const handleComplicationSeverityOnErase = useCallback(() => {
+    handleChangeRef.current(defaultRichText, "complicationsSeverity"); // Redux key
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["complicationsSeverity"]: ["clear"], // Section ID for state key
+    }));
+  }, [defaultRichText]);
+
+  const handleSpecimensSentOnErase = useCallback(() => {
+    handleChangeRef.current(defaultRichText, "specimensSent"); // Redux key
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["specimensSent"]: ["clear"], // Section ID for state key
+    }));
+  }, [defaultRichText]);
+
+  const handleImplantsProstheticsUsedOnErase = useCallback(() => {
+    handleChangeRef.current(defaultRichText, "implantsUsed"); // Redux key - corrected
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["implantsUsed"]: ["clear"], // Section ID for state key
+    }));
+  }, [defaultRichText]);
+
+  // Memoize setAutoFillTextToAppend callbacks - use section IDs for state keys
+  const handleSetComplicationSeverityAutoFill = useCallback((value) => {
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["complicationsSeverity"]: value, // Section ID
+    }));
+  }, []);
+
+  const handleSetSpecimensSentAutoFill = useCallback((value) => {
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["specimensSent"]: value, // Section ID
+    }));
+  }, []);
+
+  const handleSetImplantsProstheticsUsedAutoFill = useCallback((value) => {
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["implantsUsed"]: value, // Section ID
+    }));
+  }, []);
+
+  // Create maps using section IDs (what data?.id will be)
+  const onChangeMap = useMemo(
+    () => ({
+      complicationsSeverity: handleComplicationSeverityOnChange, // Section ID
+      specimensSent: handleSpecimensSentOnChange, // Section ID
+      implantsUsed: handleImplantsProstheticsUsedOnChange, // Section ID
+    }),
+    [
+      handleComplicationSeverityOnChange,
+      handleSpecimensSentOnChange,
+      handleImplantsProstheticsUsedOnChange,
+    ]
+  );
+
+  const onEraseMap = useMemo(
+    () => ({
+      complicationsSeverity: handleComplicationSeverityOnErase, // Section ID
+      specimensSent: handleSpecimensSentOnErase, // Section ID
+      implantsUsed: handleImplantsProstheticsUsedOnErase, // Section ID
+    }),
+    [
+      handleComplicationSeverityOnErase,
+      handleSpecimensSentOnErase,
+      handleImplantsProstheticsUsedOnErase,
+    ]
+  );
+
+  const setAutoFillMap = useMemo(
+    () => ({
+      complicationsSeverity: handleSetComplicationSeverityAutoFill, // Section ID
+      specimensSent: handleSetSpecimensSentAutoFill, // Section ID
+      implantsUsed: handleSetImplantsProstheticsUsedAutoFill, // Section ID
+    }),
+    [
+      handleSetComplicationSeverityAutoFill,
+      handleSetSpecimensSentAutoFill,
+      handleSetImplantsProstheticsUsedAutoFill,
+    ]
+  );
+
+  const initialValueMap = useMemo(
+    () => ({
+      complicationsSeverity: complicationSeverityValue, // Section ID
+      specimensSent: specimensSentValue, // Section ID
+      implantsUsed: implantsProstheticsUsedValue, // Section ID
+    }),
+    [complicationSeverityValue, specimensSentValue, implantsProstheticsUsedValue]
+  );
+
   const renderRichTextEditorSection = (data) => {
-    if (!isEditable && isEmptyRichText(intraOperativeNotes?.[data?.id]))
+    const sectionId = data?.id;
+    const reduxKey = getReduxKey(sectionId);
+    
+    // Check empty state - Redux stores as { value: [...] }
+    const reduxEntry = intraOperativeNotes?.[reduxKey];
+    const fieldValue = Array.isArray(reduxEntry) ? reduxEntry : reduxEntry?.value;
+    if (!isEditable && isEmptyRichText(fieldValue))
       return null;
+    
+    const templateHandlers = templateMap[sectionId];
+    
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -56,7 +322,7 @@ const IntraOperativeNotes = (props) => {
         showActionBtns={isEditable}
         title={data?.title}
         width="100%"
-        icon={isEditable ? otNotesIcons[data?.id] : null}
+        icon={isEditable ? otNotesIcons[sectionId] : null}
         showAutoFill={false}
         containerClass={`wrapper-class ${
           !isEditable
@@ -64,33 +330,22 @@ const IntraOperativeNotes = (props) => {
             : ""
         }`}
         showMagicPenGif={false}
-        onErase={() => {
-          setAutoFillTextToAppend((prev) => ({
-            ...prev,
-            [data?.id]: ["clear"],
-          }));
-        }}
-        newAutoFillTextToAppend={autoFillTextToAppend[data?.id]}
-        setNewAutoFillTextToAppend={(value) => {
-          setAutoFillTextToAppend((prev) => ({
-            ...prev,
-            [data?.id]: value,
-          }));
-        }}
+        onErase={onEraseMap[sectionId]}
+        newAutoFillTextToAppend={autoFillTextToAppend[sectionId]}
+        setNewAutoFillTextToAppend={setAutoFillMap[sectionId]}
         showMicrophone={false}
-        onChange={(val) => handleChange(val, data?.id)}
-        initialValue={
-          props.intraOperativeNotes?.[data?.id]?.length
-            ? props.intraOperativeNotes?.[data?.id]
-            : intraOperativeNotes?.[data?.id]?.value?.length
-            ? intraOperativeNotes?.[data?.id]?.value
-            : [
-                {
-                  type: "paragraph",
-                  children: [{ text: "" }],
-                },
-              ]
-        }
+        templates={templateHandlers?.templates}
+        templateType={templateHandlers ? "entries" : undefined}
+        showTempButtons={isEditable && !!templateHandlers}
+        onTemplate={templateHandlers?.refreshTemplates}
+        onTemplateSelected={templateHandlers?.handleTemplateSelected}
+        addTemplate={templateHandlers?.handleAddTemplate}
+        updateTemplate={templateHandlers?.handleUpdateTemplate}
+        onDeleteTemplateClicked={templateHandlers?.handleDeleteTemplate}
+        loading={templateHandlers?.templatesLoading}
+        onChange={onChangeMap[sectionId]}
+        initialValue={initialValueMap[sectionId] || getFieldValueByKey(sectionId)}
+        onSave={() => {}}
         placeholder={data?.placeholder}
       />
     );
@@ -139,9 +394,12 @@ const IntraOperativeNotes = (props) => {
               );
               if (
                 enabledChildItems?.length > 0 &&
-                enabledChildItems?.some(
-                  (item) => item.id && !!intraOperativeNotes?.[item.id]
-                )
+                enabledChildItems?.some((item) => {
+                  const reduxKey = getReduxKey(item.id);
+                  const reduxEntry = intraOperativeNotes?.[reduxKey];
+                  const fieldValue = Array.isArray(reduxEntry) ? reduxEntry : reduxEntry?.value;
+                  return item.id && !!fieldValue;
+                })
               ) {
                 return (
                   <li key={item.id}>
@@ -153,7 +411,10 @@ const IntraOperativeNotes = (props) => {
                 );
               }
             }
-            if (!isEditable && isEmptyRichText(intraOperativeNotes?.[item?.id]))
+            const reduxKey = getReduxKey(item?.id);
+            const reduxEntry = intraOperativeNotes?.[reduxKey];
+            const fieldValue = Array.isArray(reduxEntry) ? reduxEntry : reduxEntry?.value;
+            if (!isEditable && isEmptyRichText(fieldValue))
               return null;
             return <li key={item.id}>{renderRichTextEditorSection(item)}</li>;
           })}

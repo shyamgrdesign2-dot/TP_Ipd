@@ -15,13 +15,7 @@ import {
   setPhysicalActivities,
 } from "../../../../redux/ipd/dischargeSummarySlice";
 import { useDispatch } from "react-redux";
-import {
-  deleteTemplate as deleteTemplateThunk,
-  getTemplatesByModuleName,
-  makeSelectTemplatesByModule,
-  selectTemplatesLoading,
-  updateTemplate as updateTemplateThunk,
-} from "../../../../redux/ipd/tempaltesSlice";
+import { useTemplateManagement } from "../../../../hooks/useTemplateManagement";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -42,9 +36,6 @@ const DischargeAdvice = (props) => {
 
   // Get doctorId from dischargeSummaryData
   const doctorId = dischargeSummaryData?.patientInformation?.primaryConsultant?.id;
-
-  console.log(dischargeSummaryData,"dischargeSummaryData")
-
 
   const [
     autoFillTextToAppendWarningSigns,
@@ -188,421 +179,105 @@ const DischargeAdvice = (props) => {
     );
   }, []);
 
-  // Create template handlers factory for array-based modules (diet, physicalActivities)
-  const createArrayTemplateHandlers = useCallback(
-    (moduleId, moduleTemplates, setAction) => {
-      const moduleName = getModuleName(moduleId);
-      const currentValue = getCurrentValue(moduleId);
+  // Template management for rich text modules
+  const warningSignsTemplate = useTemplateManagement({
+    moduleName: "warningSigns",
+    templateSite,
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue: useCallback(() => getCurrentValue("warningSigns"), [getCurrentValue]),
+    onValueChange: useCallback(
+      (data) => handleOthersChange(data, "warningSigns"),
+      [handleOthersChange]
+    ),
+    autoFetch: false,
+  });
 
-      const refreshTemplates = () => {
-        dispatch(
-          getTemplatesByModuleName({
-            moduleName,
-            site: templateSite,
-            isMaster: false,
-            doctorId,
-          })
-        );
-      };
+  const preventiveMeasuresTemplate = useTemplateManagement({
+    moduleName: "preventiveMeasures",
+    templateSite,
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue: useCallback(() => getCurrentValue("preventiveMeasures"), [getCurrentValue]),
+    onValueChange: useCallback(
+      (data) => handleOthersChange(data, "preventiveMeasures"),
+      [handleOthersChange]
+    ),
+    autoFetch: false,
+  });
 
-      const handleTemplateSelected = (template) => {
-        try {
-          const templateData = extractArrayData(template, moduleId);
+  const emergencyContactTemplate = useTemplateManagement({
+    moduleName: "emergencyContact",
+    templateSite,
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue: useCallback(() => getCurrentValue("emergencyContact"), [getCurrentValue]),
+    onValueChange: useCallback(
+      (data) => handleOthersChange(data, "emergencyContact"),
+      [handleOthersChange]
+    ),
+    autoFetch: false,
+  });
 
-          if (!Array.isArray(templateData) || templateData.length === 0) {
-            console.warn("Invalid template data, skipping append");
-            return;
-          }
+  const otherAdviceTemplate = useTemplateManagement({
+    moduleName: "otherAdvice",
+    templateSite,
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue: useCallback(() => getCurrentValue("otherAdvice"), [getCurrentValue]),
+    onValueChange: useCallback(
+      (data) => handleOthersChange(data, "otherAdvice"),
+      [handleOthersChange]
+    ),
+    autoFetch: false,
+  });
 
-          // Deep clone to avoid reference issues
-          const clonedData = JSON.parse(JSON.stringify(templateData));
+  // Template management for array modules
+  const dietTemplate = useTemplateManagement({
+    moduleName: "diet",
+    templateSite,
+    doctorId,
+    isEditable,
+    moduleType: "array",
+    getCurrentValue: useCallback(() => getCurrentValue("diet"), [getCurrentValue]),
+    onArrayChange: useCallback(
+      (data) => dispatch(setDiet(data)),
+      [dispatch]
+    ),
+    isDuplicate: useCallback((existing, newItem) => {
+      if (existing.id && newItem.id && existing.id === newItem.id) {
+        return true;
+      }
+      return false;
+    }, []),
+    autoFetch: false,
+  });
 
-          // Get current value
-          const currentData = Array.isArray(currentValue) ? currentValue : [];
-          
-          // Get existing IDs to prevent duplicates
-          const existingIds = new Set(
-            currentData.map(item => item?.id).filter(id => id != null)
-          );
-          
-          // Filter out items that already exist (based on id)
-          const newItems = clonedData.filter(item => {
-            const itemId = item?.id;
-            // If item has an id and it already exists, skip it
-            if (itemId != null && existingIds.has(itemId)) {
-              return false;
-            }
-            return true;
-          });
+  const physicalActivitiesTemplate = useTemplateManagement({
+    moduleName: "physicalActivities",
+    templateSite,
+    doctorId,
+    isEditable,
+    moduleType: "array",
+    getCurrentValue: useCallback(() => getCurrentValue("physicalActivities"), [getCurrentValue]),
+    onArrayChange: useCallback(
+      (data) => dispatch(setPhysicalActivities(data)),
+      [dispatch]
+    ),
+    isDuplicate: useCallback((existing, newItem) => {
+      if (existing.id && newItem.id && existing.id === newItem.id) {
+        return true;
+      }
+      return false;
+    }, []),
+    autoFetch: false,
+  });
 
-          // Only update if there are new items to add  
-          if (newItems.length > 0) {
-            const combinedData = [...currentData, ...newItems];
-            // Dispatch the appropriate action (setDiet or setPhysicalActivities)
-            dispatch(setAction(combinedData));
-          } else {
-            message.info("All items from this template are already present.");
-          }
-        } catch (error) {
-          console.error("Error in handleTemplateSelected:", error);
-        }
-      };
-
-      const extractTemplatePayload = (payload) => {
-        // Check both root level and nested template object
-        const templateData = payload?.template || payload;
-        
-        const title =
-          templateData?.title ||
-          payload?.title ||
-          templateData?.templateName ||
-          payload?.templateName ||
-          templateData?.tst_template_name ||
-          payload?.tst_template_name ||
-          templateData?.tat_template_name ||
-          payload?.tat_template_name ||
-          templateData?.name ||
-          payload?.name ||
-          templateData?.moduleName ||
-          payload?.moduleName;
-        // For array-based templates, use the module-specific field or data
-        const data =
-          templateData?.[moduleId] ||
-          payload?.[moduleId] ||
-          templateData?.data ||
-          payload?.data ||
-          templateData?.items ||
-          payload?.items ||
-          currentValue;
-        return {
-          _id: payload?._id || payload?.id || templateData?._id || templateData?.id,
-          title: title?.trim?.() ? title.trim() : "Untitled Template",
-          [moduleId]: Array.isArray(data) && data.length ? data : currentValue,
-        };
-      };
-
-      const handleAddTemplate = async (templateData, callback) => {
-        const payload = extractTemplatePayload(templateData);
-        const requestPayload = {
-          module: moduleName,
-          site: templateSite,
-          isMaster: false,
-          title: payload.title,
-          [moduleId]: payload[moduleId], // Store as diet or physicalActivities
-          doctorId,
-        };
-
-        const action = await dispatch(updateTemplateThunk(requestPayload));
-        if (updateTemplateThunk.fulfilled.match(action)) {
-          message.success("Template saved successfully.");
-          refreshTemplates();
-          callback?.();
-        } else {
-          message.error(
-            action.payload || action.error?.message || "Failed to save template."
-          );
-        }
-      };
-
-      const handleUpdateTemplate = async (templateData, callback) => {
-        const payload = extractTemplatePayload(templateData);
-        if (!payload._id) {
-          message.warning("Template identifier not found for update.");
-          return;
-        }
-        const requestPayload = {
-          _id: payload._id,
-          module: moduleName,
-          site: templateSite,
-          isMaster: false,
-          title: payload.title,
-          [moduleId]: payload[moduleId],
-          doctorId,
-        };
-        const action = await dispatch(updateTemplateThunk(requestPayload));
-        if (updateTemplateThunk.fulfilled.match(action)) {
-          message.success("Template updated successfully.");
-          refreshTemplates();
-          callback?.();
-        } else {
-          message.error(
-            action.payload || action.error?.message || "Failed to update template."
-          );
-        }
-      };
-
-      const handleDeleteTemplate = async (templateIdentifier) => {
-        const id =
-          typeof templateIdentifier === "object"
-            ? templateIdentifier?._id || templateIdentifier?.id
-            : templateIdentifier;
-        if (!id) {
-          message.warning("Template identifier not found.");
-          return;
-        }
-        const action = await dispatch(
-          deleteTemplateThunk({
-            _id: id,
-            moduleName,
-            site: templateSite,
-            isMaster: false,
-            doctorId,
-          })
-        );
-        if (deleteTemplateThunk.fulfilled.match(action)) {
-          message.success("Template deleted.");
-          refreshTemplates();
-        } else {
-          message.error(
-            action.payload ||
-              action.error?.message ||
-              "Failed to delete template."
-          );
-        }
-      };
-
-      return {
-        moduleName,
-        currentValue,
-        handleTemplateSelected,
-        handleAddTemplate,
-        handleUpdateTemplate,
-        handleDeleteTemplate,
-        handleTemplateButtonClick: () => {
-          // No-op: Templates are already in Redux, no need to fetch again
-          // Templates will only be refreshed after add/update/delete operations
-        },
-      };
-    },
-    [
-      getModuleName,
-      getCurrentValue,
-      extractArrayData,
-      dispatch,
-      templateSite,
-    ]
-  );
-
-  // Create template handlers factory for a specific module (rich text)
-  const createTemplateHandlers = useCallback(
-    (moduleId, moduleTemplates) => {
-      const moduleName = getModuleName(moduleId);
-      const currentValue = getCurrentValue(moduleId);
-
-      const refreshTemplates = () => {
-        // Always fetch templates to get the latest list after save/update/delete
-        dispatch(
-          getTemplatesByModuleName({
-            moduleName,
-            site: templateSite,
-            isMaster: false,
-            doctorId,
-          })
-        );
-      };
-
-      const handleTemplateSelected = (template) => {
-        try {
-          const entries = extractEntries(template);
-
-          // Ensure entries is always a valid array before passing to handleOthersChange
-          if (!Array.isArray(entries) || entries.length === 0) {
-            console.warn("Invalid template entries, using empty value");
-            handleOthersChange(EMPTY_RICH_TEXT_VALUE, moduleId);
-            return;
-          }
-          // Deep clone to avoid reference issues
-          const clonedEntries = JSON.parse(JSON.stringify(entries));
-          
-          // Get current value and append template data to it
-          const currentEntries = currentValue || [];
-          const isEmptyCurrent = isEmptyRichText(currentEntries);
-          
-          // If current is empty, just use template entries; otherwise append
-          const combinedEntries = isEmptyCurrent 
-            ? clonedEntries 
-            : [...JSON.parse(JSON.stringify(currentEntries)), ...clonedEntries];
-          
-          handleOthersChange(combinedEntries, moduleId);
-        } catch (error) {
-          console.error("Error in handleTemplateSelected:", error);
-          handleOthersChange(EMPTY_RICH_TEXT_VALUE, moduleId);
-        }
-      };
-
-      const extractTemplatePayload = (payload) => {
-        // Check both root level and nested template object
-        const templateData = payload?.template || payload;
-        
-        const title =
-          templateData?.title ||
-          payload?.title ||
-          templateData?.templateName ||
-          payload?.templateName ||
-          templateData?.tst_template_name ||
-          payload?.tst_template_name ||
-          templateData?.tat_template_name ||
-          payload?.tat_template_name ||
-          templateData?.name ||
-          payload?.name ||
-          templateData?.moduleName ||
-          payload?.moduleName;
-        const entries =
-          templateData?.entries ||
-          payload?.entries ||
-          templateData?.symptoms ||
-          payload?.symptoms ||
-          templateData?.advices ||
-          payload?.advices ||
-          templateData?.data ||
-          payload?.data ||
-          currentValue;
-        return {
-          _id: payload?._id || payload?.id || templateData?._id || templateData?.id,
-          title: title?.trim?.() ? title.trim() : "Untitled Template",
-          entries: Array.isArray(entries) && entries.length
-            ? entries
-            : currentValue,
-        };
-      };
-
-      const handleAddTemplate = async (templateData, callback) => {
-        const { title, entries } = extractTemplatePayload(templateData);
-        const requestPayload = {
-          module: moduleName,
-          site: templateSite,
-          isMaster: false,
-          title,
-          entries,
-          doctorId,
-        };
-
-        const action = await dispatch(updateTemplateThunk(requestPayload));
-        if (updateTemplateThunk.fulfilled.match(action)) {
-          message.success("Template saved successfully.");
-          refreshTemplates();
-          callback?.();
-        } else {
-          message.error(
-            action.payload || action.error?.message || "Failed to save template."
-          );
-        }
-      };
-
-      const handleUpdateTemplate = async (templateData, callback) => {
-        const { _id, title, entries } = extractTemplatePayload(templateData);
-        if (!_id) {
-          message.warning("Template identifier not found for update.");
-          return;
-        }
-        const requestPayload = {
-          _id,
-          module: moduleName,
-          site: templateSite,
-          isMaster: false,
-          title,
-          entries,
-          doctorId,
-        };
-        const action = await dispatch(updateTemplateThunk(requestPayload));
-        if (updateTemplateThunk.fulfilled.match(action)) {
-          message.success("Template updated successfully.");
-          refreshTemplates();
-          callback?.();
-        } else {
-          message.error(
-            action.payload || action.error?.message || "Failed to update template."
-          );
-        }
-      };
-
-      const handleDeleteTemplate = async (templateIdentifier) => {
-        const id =
-          typeof templateIdentifier === "object"
-            ? templateIdentifier?._id || templateIdentifier?.id
-            : templateIdentifier;
-        if (!id) {
-          message.warning("Template identifier not found.");
-          return;
-        }
-        const action = await dispatch(
-          deleteTemplateThunk({
-            _id: id,
-            moduleName,
-            site: templateSite,
-            isMaster: false,
-            doctorId,
-          })
-        );
-        if (deleteTemplateThunk.fulfilled.match(action)) {
-          message.success("Template deleted.");
-          refreshTemplates();
-        } else {
-          message.error(
-            action.payload ||
-              action.error?.message ||
-              "Failed to delete template."
-          );
-        }
-      };
-
-      return {
-        moduleName,
-        currentValue,
-        handleTemplateSelected,
-        handleAddTemplate,
-        handleUpdateTemplate,
-        handleDeleteTemplate,
-        handleTemplateButtonClick: () => {
-          // No-op: Templates are already in Redux, no need to fetch again
-          // Templates will only be refreshed after add/update/delete operations
-        },
-      };
-    },
-    [
-      getModuleName,
-      getCurrentValue,
-      extractEntries,
-      handleOthersChange,
-      dispatch,
-      templateSite,
-    ]
-  );
-
-  // Get templates and handlers for each module at top level
-  const warningSignsModuleName = getModuleName("warningSigns");
-  const preventiveMeasuresModuleName = getModuleName("preventiveMeasures");
-  const emergencyContactModuleName = getModuleName("emergencyContact");
-  const otherAdviceModuleName = getModuleName("otherAdvice");
-  const dietModuleName = getModuleName("diet");
-  const physicalActivitiesModuleName = getModuleName("physicalActivities");
-
-  const warningSignsSelector = useMemo(
-    () => makeSelectTemplatesByModule(warningSignsModuleName),
-    [warningSignsModuleName]
-  );
-  const preventiveMeasuresSelector = useMemo(
-    () => makeSelectTemplatesByModule(preventiveMeasuresModuleName),
-    [preventiveMeasuresModuleName]
-  );
-  const emergencyContactSelector = useMemo(
-    () => makeSelectTemplatesByModule(emergencyContactModuleName),
-    [emergencyContactModuleName]
-  );
-  const otherAdviceSelector = useMemo(
-    () => makeSelectTemplatesByModule(otherAdviceModuleName),
-    [otherAdviceModuleName]
-  );
-  const dietSelector = useMemo(
-    () => makeSelectTemplatesByModule(dietModuleName),
-    [dietModuleName]
-  );
-  const physicalActivitiesSelector = useMemo(
-    () => makeSelectTemplatesByModule(physicalActivitiesModuleName),
-    [physicalActivitiesModuleName]
-  );
-
-  // Simple memoization for otherAdvice initialValue
+  // Simple memoization for initial values
   const otherAdviceInitialValue = useMemo(() => {
     const currentData = dischargeSummaryData?.otherAdvice;
     if (!isEmptyRichText(currentData)) {
@@ -615,7 +290,6 @@ const DischargeAdvice = (props) => {
     return EMPTY_RICH_TEXT_VALUE;
   }, [dischargeSummaryData?.otherAdvice]);
 
-  // Simple memoization for warningSigns initialValue
   const warningSignsInitialValue = useMemo(() => {
     const currentData = dischargeSummaryData?.warningSigns;
     if (!isEmptyRichText(currentData)) {
@@ -628,7 +302,6 @@ const DischargeAdvice = (props) => {
     return EMPTY_RICH_TEXT_VALUE;
   }, [dischargeSummaryData?.warningSigns]);
   
-  // Simple memoization for preventiveMeasures initialValue
   const preventiveMeasuresInitialValue = useMemo(() => {
     const currentData = dischargeSummaryData?.preventiveMeasures;
     if (!isEmptyRichText(currentData)) {
@@ -641,7 +314,6 @@ const DischargeAdvice = (props) => {
     return EMPTY_RICH_TEXT_VALUE;
   }, [dischargeSummaryData?.preventiveMeasures]);
   
-  // Simple memoization for emergencyContact initialValue
   const emergencyContactInitialValue = useMemo(() => {
     const currentData = dischargeSummaryData?.emergencyContact;
     if (!isEmptyRichText(currentData)) {
@@ -653,39 +325,6 @@ const DischargeAdvice = (props) => {
     }
     return EMPTY_RICH_TEXT_VALUE;
   }, [dischargeSummaryData?.emergencyContact]);
-  
-  const warningSignsTemplates = useSelector(warningSignsSelector);
-  const preventiveMeasuresTemplates = useSelector(preventiveMeasuresSelector);
-  const emergencyContactTemplates = useSelector(emergencyContactSelector);
-  const otherAdviceTemplates = useSelector(otherAdviceSelector);
-  const dietTemplates = useSelector(dietSelector);
-  const physicalActivitiesTemplates = useSelector(physicalActivitiesSelector);
-  const templatesLoading = useSelector(selectTemplatesLoading);
-
-  const warningSignsHandlers = useMemo(
-    () => createTemplateHandlers("warningSigns", warningSignsTemplates),
-    [createTemplateHandlers, warningSignsTemplates]
-  );
-  const preventiveMeasuresHandlers = useMemo(
-    () => createTemplateHandlers("preventiveMeasures", preventiveMeasuresTemplates),
-    [createTemplateHandlers, preventiveMeasuresTemplates]
-  );
-  const emergencyContactHandlers = useMemo(
-    () => createTemplateHandlers("emergencyContact", emergencyContactTemplates),
-    [createTemplateHandlers, emergencyContactTemplates]
-  );
-  const otherAdviceHandlers = useMemo(
-    () => createTemplateHandlers("otherAdvice", otherAdviceTemplates),
-    [createTemplateHandlers, otherAdviceTemplates]
-  );
-  const dietHandlers = useMemo(
-    () => createArrayTemplateHandlers("diet", dietTemplates, setDiet),
-    [createArrayTemplateHandlers, dietTemplates]
-  );
-  const physicalActivitiesHandlers = useMemo(
-    () => createArrayTemplateHandlers("physicalActivities", physicalActivitiesTemplates, setPhysicalActivities),
-    [createArrayTemplateHandlers, physicalActivitiesTemplates]
-  );
 
   // const normalizeTemplatesForModule = useCallback(
   //   (moduleTemplates) => {
@@ -735,105 +374,50 @@ const DischargeAdvice = (props) => {
   const initialFetchDoneRef = React.useRef(false);
 
   // Fetch templates for each module on mount only if they don't already exist in Redux
-  // This effect runs once on mount and checks Redux state (which persists across unmounts)
   useEffect(() => {
-    // Skip if we've already done the initial check
-    if (initialFetchDoneRef.current) {
+    if (initialFetchDoneRef.current || !isEditable) {
       return;
     }
 
-    // Check if templates already exist in Redux before fetching
     const shouldFetchTemplates = (existingTemplates) => {
-      // Only fetch if templates don't exist or array is empty
       return !existingTemplates || existingTemplates.length === 0;
     };
 
     // Fetch templates only if they don't exist in Redux
-    // Redux state persists across unmounts, so this check works even after remount
-    if (shouldFetchTemplates(warningSignsTemplates)) {
-      dispatch(
-        getTemplatesByModuleName({
-          moduleName: warningSignsModuleName,
-          site: templateSite,
-          isMaster: false,
-          doctorId,
-        })
-      );
+    if (shouldFetchTemplates(warningSignsTemplate.rawTemplates)) {
+      warningSignsTemplate.refreshTemplates();
+    }
+    if (shouldFetchTemplates(preventiveMeasuresTemplate.rawTemplates)) {
+      preventiveMeasuresTemplate.refreshTemplates();
+    }
+    if (shouldFetchTemplates(emergencyContactTemplate.rawTemplates)) {
+      emergencyContactTemplate.refreshTemplates();
+    }
+    if (shouldFetchTemplates(otherAdviceTemplate.rawTemplates)) {
+      otherAdviceTemplate.refreshTemplates();
+    }
+    if (shouldFetchTemplates(dietTemplate.rawTemplates)) {
+      dietTemplate.refreshTemplates();
+    }
+    if (shouldFetchTemplates(physicalActivitiesTemplate.rawTemplates)) {
+      physicalActivitiesTemplate.refreshTemplates();
     }
 
-    if (shouldFetchTemplates(preventiveMeasuresTemplates)) {
-      dispatch(
-        getTemplatesByModuleName({
-          moduleName: preventiveMeasuresModuleName,
-          site: templateSite,
-          isMaster: false,
-          doctorId,
-        })
-      );
-    }
-
-    if (shouldFetchTemplates(emergencyContactTemplates)) {
-      dispatch(
-        getTemplatesByModuleName({
-          moduleName: emergencyContactModuleName,
-          site: templateSite,
-          isMaster: false,
-          doctorId,
-        })
-      );
-    }
-
-    if (shouldFetchTemplates(otherAdviceTemplates)) {
-      dispatch(
-        getTemplatesByModuleName({
-          moduleName: otherAdviceModuleName,
-          site: templateSite,
-          isMaster: false,
-          doctorId,
-        })
-      );
-    }
-
-    if (shouldFetchTemplates(dietTemplates)) {
-      dispatch(
-        getTemplatesByModuleName({
-          moduleName: dietModuleName,
-          site: templateSite,
-          isMaster: false,
-          doctorId,
-        })
-      );
-    }
-
-    if (shouldFetchTemplates(physicalActivitiesTemplates)) {
-      dispatch(
-        getTemplatesByModuleName({
-          moduleName: physicalActivitiesModuleName,
-          site: templateSite,
-          isMaster: false,
-          doctorId,
-        })
-      );
-    }
-
-    // Mark initial check as done
     initialFetchDoneRef.current = true;
   }, [
-    dispatch,
-    warningSignsModuleName,
-    preventiveMeasuresModuleName,
-    emergencyContactModuleName,
-    otherAdviceModuleName,
-    dietModuleName,
-    physicalActivitiesModuleName,
-    templateSite,
-    // Include templates to check their current state, but ref prevents refetching
-    warningSignsTemplates,
-    preventiveMeasuresTemplates,
-    emergencyContactTemplates,
-    otherAdviceTemplates,
-    dietTemplates,
-    physicalActivitiesTemplates,
+    isEditable,
+    warningSignsTemplate.rawTemplates,
+    preventiveMeasuresTemplate.rawTemplates,
+    emergencyContactTemplate.rawTemplates,
+    otherAdviceTemplate.rawTemplates,
+    dietTemplate.rawTemplates,
+    physicalActivitiesTemplate.rawTemplates,
+    warningSignsTemplate.refreshTemplates,
+    preventiveMeasuresTemplate.refreshTemplates,
+    emergencyContactTemplate.refreshTemplates,
+    otherAdviceTemplate.refreshTemplates,
+    dietTemplate.refreshTemplates,
+    physicalActivitiesTemplate.refreshTemplates,
   ]);
 
   const renderWarningSigns = (data) => {
@@ -845,7 +429,7 @@ const DischargeAdvice = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
-        templates={warningSignsTemplates}
+        templates={warningSignsTemplate.templates}
         templateType="entries"
         title={data?.title}
         width={isEditable ? "100%" : "fit-content"}
@@ -863,17 +447,20 @@ const DischargeAdvice = (props) => {
           data?.placeholder ||
           "Enter details like onset, duration, progression, and associated symptoms"
         }
-        onSave={warningSignsHandlers.handleTemplateButtonClick}
+        onSave={() => {}}
         onErase={() => {
+          // Clear Redux state
+          handleOthersChange(EMPTY_RICH_TEXT_VALUE, "warningSigns");
+          // Clear local UI state
           setAutoFillTextToAppendWarningSigns(["clear"]);
         }}
         showTempButtons={true}
-        onTemplate={warningSignsHandlers.handleTemplateButtonClick}
-        onTemplateSelected={warningSignsHandlers.handleTemplateSelected}
-        addTemplate={warningSignsHandlers.handleAddTemplate}
-        updateTemplate={warningSignsHandlers.handleUpdateTemplate}
-        onDeleteTemplateClicked={warningSignsHandlers.handleDeleteTemplate}
-        loading={templatesLoading}
+        onTemplate={warningSignsTemplate.refreshTemplates}
+        onTemplateSelected={warningSignsTemplate.handleTemplateSelected}
+        addTemplate={warningSignsTemplate.handleAddTemplate}
+        updateTemplate={warningSignsTemplate.handleUpdateTemplate}
+        onDeleteTemplateClicked={warningSignsTemplate.handleDeleteTemplate}
+        loading={warningSignsTemplate.templatesLoading}
         newAutoFillTextToAppend={autoFillTextToAppendWarningSigns}
         setNewAutoFillTextToAppend={setAutoFillTextToAppendWarningSigns}
         // Don't pass data prop - RichTextEditWrapper will use its internal editorContent
@@ -892,7 +479,7 @@ const DischargeAdvice = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
-        templates={preventiveMeasuresTemplates}
+        templates={preventiveMeasuresTemplate.templates}
         templateType="entries"
         title={data?.title}
         width={isEditable ? "100%" : "fit-content"}
@@ -910,17 +497,20 @@ const DischargeAdvice = (props) => {
           data?.placeholder ||
           "Enter details like onset, duration, progression, and associated symptoms"
         }
-        onSave={preventiveMeasuresHandlers.handleTemplateButtonClick}
+        onSave={() => {}}
         onErase={() => {
+          // Clear Redux state
+          handleOthersChange(EMPTY_RICH_TEXT_VALUE, "preventiveMeasures");
+          // Clear local UI state
           setAutoFillTextToAppendPreventiveMeasures(["clear"]);
         }}
         showTempButtons={true}
-        onTemplate={preventiveMeasuresHandlers.handleTemplateButtonClick}
-        onTemplateSelected={preventiveMeasuresHandlers.handleTemplateSelected}
-        addTemplate={preventiveMeasuresHandlers.handleAddTemplate}
-        updateTemplate={preventiveMeasuresHandlers.handleUpdateTemplate}
-        onDeleteTemplateClicked={preventiveMeasuresHandlers.handleDeleteTemplate}
-        loading={templatesLoading}
+        onTemplate={preventiveMeasuresTemplate.refreshTemplates}
+        onTemplateSelected={preventiveMeasuresTemplate.handleTemplateSelected}
+        addTemplate={preventiveMeasuresTemplate.handleAddTemplate}
+        updateTemplate={preventiveMeasuresTemplate.handleUpdateTemplate}
+        onDeleteTemplateClicked={preventiveMeasuresTemplate.handleDeleteTemplate}
+        loading={preventiveMeasuresTemplate.templatesLoading}
         newAutoFillTextToAppend={autoFillTextToAppendPreventiveMeasures}
         setNewAutoFillTextToAppend={setAutoFillTextToAppendPreventiveMeasures}
         // Don't pass data prop - RichTextEditWrapper will use its internal editorContent
@@ -939,7 +529,7 @@ const DischargeAdvice = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
-        templates={emergencyContactTemplates}
+        templates={emergencyContactTemplate.templates}
         templateType="entries"
         title={data?.title}
         width={isEditable ? "100%" : "fit-content"}
@@ -957,17 +547,20 @@ const DischargeAdvice = (props) => {
           data?.placeholder ||
           "Enter details like onset, duration, progression, and associated symptoms"
         }
-        onSave={emergencyContactHandlers.handleTemplateButtonClick}
+        onSave={() => {}}
         onErase={() => {
+          // Clear Redux state
+          handleOthersChange(EMPTY_RICH_TEXT_VALUE, "emergencyContact");
+          // Clear local UI state
           setAutoFillTextToAppendEmergencyContact(["clear"]);
         }}
         showTempButtons={true}
-        onTemplate={emergencyContactHandlers.handleTemplateButtonClick}
-        onTemplateSelected={emergencyContactHandlers.handleTemplateSelected}
-        addTemplate={emergencyContactHandlers.handleAddTemplate}
-        updateTemplate={emergencyContactHandlers.handleUpdateTemplate}
-        onDeleteTemplateClicked={emergencyContactHandlers.handleDeleteTemplate}
-        loading={templatesLoading}
+        onTemplate={emergencyContactTemplate.refreshTemplates}
+        onTemplateSelected={emergencyContactTemplate.handleTemplateSelected}
+        addTemplate={emergencyContactTemplate.handleAddTemplate}
+        updateTemplate={emergencyContactTemplate.handleUpdateTemplate}
+        onDeleteTemplateClicked={emergencyContactTemplate.handleDeleteTemplate}
+        loading={emergencyContactTemplate.templatesLoading}
         newAutoFillTextToAppend={autoFillTextToAppendEmergencyContact}
         setNewAutoFillTextToAppend={setAutoFillTextToAppendEmergencyContact}
         // Don't pass data prop - RichTextEditWrapper will use its internal editorContent
@@ -986,7 +579,7 @@ const DischargeAdvice = (props) => {
           readOnly={!isEditable}
           showToolbar={isEditable}
           showActionBtns={isEditable}
-          templates={otherAdviceTemplates}
+          templates={otherAdviceTemplate.templates}
           templateType="entries"
           title={data?.title}
           width={isEditable ? "100%" : "fit-content"}
@@ -1004,17 +597,20 @@ const DischargeAdvice = (props) => {
             data?.placeholder ||
             "Enter details like onset, duration, progression, and associated symptoms"
           }
-          onSave={otherAdviceHandlers.handleTemplateButtonClick}
+          onSave={() => {}}
           onErase={() => {
+            // Clear Redux state
+            handleOthersChange(EMPTY_RICH_TEXT_VALUE, "otherAdvice");
+            // Clear local UI state
             setAutoFillTextToAppendOtherAdvice(["clear"]);
           }}
           showTempButtons={true}
-          onTemplate={otherAdviceHandlers.handleTemplateButtonClick}
-          onTemplateSelected={otherAdviceHandlers.handleTemplateSelected}
-          addTemplate={otherAdviceHandlers.handleAddTemplate}
-          updateTemplate={otherAdviceHandlers.handleUpdateTemplate}
-          onDeleteTemplateClicked={otherAdviceHandlers.handleDeleteTemplate}
-          loading={templatesLoading}
+          onTemplate={otherAdviceTemplate.refreshTemplates}
+          onTemplateSelected={otherAdviceTemplate.handleTemplateSelected}
+          addTemplate={otherAdviceTemplate.handleAddTemplate}
+          updateTemplate={otherAdviceTemplate.handleUpdateTemplate}
+          onDeleteTemplateClicked={otherAdviceTemplate.handleDeleteTemplate}
+          loading={otherAdviceTemplate.templatesLoading}
           newAutoFillTextToAppend={autoFillTextToAppendOtherAdvice}
           setNewAutoFillTextToAppend={setAutoFillTextToAppendOtherAdvice}
           // Don't pass data prop - RichTextEditWrapper will use its internal editorContent
@@ -1046,19 +642,19 @@ const DischargeAdvice = (props) => {
                       icon={defaultIcons[`${item?.id}Pc`]}
                       showAutoFill={false}
                       opdDate="15 Jun 2025"
-                      templates={dietTemplates}
+                      templates={dietTemplate.templates}
                       templateType="diet"
-                      onSave={dietHandlers.handleTemplateButtonClick}
+                      showTempButtons={true}
+                      onSave={() => {}}
                       onErase={() => {
                         dispatch(setDiet([]));
                       }}
-                      showTempButtons={true}
-                      onTemplate={dietHandlers.handleTemplateButtonClick}
-                      onTemplateSelected={dietHandlers.handleTemplateSelected}
-                      addTemplate={dietHandlers.handleAddTemplate}
-                      updateTemplate={dietHandlers.handleUpdateTemplate}
-                      onDeleteTemplateClicked={dietHandlers.handleDeleteTemplate}
-                      loading={templatesLoading}
+                      onTemplate={dietTemplate.refreshTemplates}
+                      onTemplateSelected={dietTemplate.handleTemplateSelected}
+                      addTemplate={dietTemplate.handleAddTemplate}
+                      updateTemplate={dietTemplate.handleUpdateTemplate}
+                      onDeleteTemplateClicked={dietTemplate.handleDeleteTemplate}
+                      loading={dietTemplate.templatesLoading}
                       data={dischargeSummaryData?.diet || []}
                       isDataPresent={Array.isArray(dischargeSummaryData?.diet) && dischargeSummaryData.diet.length > 0}
                       renderBody={() => {
@@ -1080,19 +676,19 @@ const DischargeAdvice = (props) => {
                       icon={defaultIcons[`${item?.id}Pc`]}
                       showAutoFill={false}
                       opdDate="15 Jun 2025"
-                      templates={physicalActivitiesTemplates}
+                      templates={physicalActivitiesTemplate.templates}
                       templateType="physicalActivities"
-                      onSave={physicalActivitiesHandlers.handleTemplateButtonClick}
+                      onSave={() => {}}
                       onErase={() => {
                         dispatch(setPhysicalActivities([]));
                       }}
                       showTempButtons={true}
-                      onTemplate={physicalActivitiesHandlers.handleTemplateButtonClick}
-                      onTemplateSelected={physicalActivitiesHandlers.handleTemplateSelected}
-                      addTemplate={physicalActivitiesHandlers.handleAddTemplate}
-                      updateTemplate={physicalActivitiesHandlers.handleUpdateTemplate}
-                      onDeleteTemplateClicked={physicalActivitiesHandlers.handleDeleteTemplate}
-                      loading={templatesLoading}
+                      onTemplate={physicalActivitiesTemplate.refreshTemplates}
+                      onTemplateSelected={physicalActivitiesTemplate.handleTemplateSelected}
+                      addTemplate={physicalActivitiesTemplate.handleAddTemplate}
+                      updateTemplate={physicalActivitiesTemplate.handleUpdateTemplate}
+                      onDeleteTemplateClicked={physicalActivitiesTemplate.handleDeleteTemplate}
+                      loading={physicalActivitiesTemplate.templatesLoading}
                       data={dischargeSummaryData?.physicalActivities || []}
                       isDataPresent={Array.isArray(dischargeSummaryData?.physicalActivities) && dischargeSummaryData.physicalActivities.length > 0}
                       renderBody={() => {

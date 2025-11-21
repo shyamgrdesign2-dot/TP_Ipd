@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { defaultIcons } from "../../../assets/images/icons";
@@ -16,19 +16,22 @@ import {
   searchSurgeryProcedures,
 } from "../../../redux/ipd/otNotesSlice";
 import { createSurgery } from "../../../redux/surgicalSlice";
+import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const SurgeryDetails = (props) => {
-  const { isEditable = true, sectionData } = props || {};
+  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
   const { surgeryDetails, surgeryProcedureOptions } = useSelector(
     (state) => state.otNotes
   );
+  const { profile } = useSelector((state) => state.doctors);
   const initialValue = useMemo(() => surgeryDetails || {}, [surgeryDetails]);
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const doctorId = patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
 
   useEffect(() => {
     dispatch(searchSurgeryProcedures(""));
@@ -232,6 +235,41 @@ const SurgeryDetails = (props) => {
       </div>
     );
   };
+  const getDiagnosisValue = useCallback(() => {
+    if (initialValue?.diagnosis && initialValue?.diagnosis.length) {
+      return initialValue.diagnosis;
+    }
+    return [
+      {
+        type: "paragraph",
+        children: [{ text: "" }],
+      },
+    ];
+  }, [initialValue?.diagnosis]);
+
+  const {
+    templates: diagnosisTemplates,
+    templatesLoading: diagnosisTemplatesLoading,
+    handleTemplateSelected: handleDiagnosisTemplateSelected,
+    handleAddTemplate: handleDiagnosisAddTemplate,
+    handleUpdateTemplate: handleDiagnosisUpdateTemplate,
+    handleDeleteTemplate: handleDiagnosisDeleteTemplate,
+    refreshTemplates: refreshDiagnosisTemplates,
+  } = useTemplateManagement({
+    moduleName: "otDiagnosis",
+    templateSite: "ipd",
+    doctorId,
+    isEditable,
+    moduleType: "richText",
+    getCurrentValue: getDiagnosisValue,
+    onValueChange: useCallback(
+      (data) => {
+        dispatch(setDiagnosis(data));
+      },
+      [dispatch]
+    ),
+  });
+
   const renderDiagnosis = (data) => {
     if (!isEditable && !initialValue?.diagnosis) return null;
 
@@ -250,6 +288,15 @@ const SurgeryDetails = (props) => {
         opdDate="11 Sep 2025"
         showMagicPenGif={false}
         showMicrophone={false}
+        templates={diagnosisTemplates}
+        templateType="entries"
+        showTempButtons={isEditable}
+        onTemplate={refreshDiagnosisTemplates}
+        onTemplateSelected={handleDiagnosisTemplateSelected}
+        addTemplate={handleDiagnosisAddTemplate}
+        updateTemplate={handleDiagnosisUpdateTemplate}
+        onDeleteTemplateClicked={handleDiagnosisDeleteTemplate}
+        loading={diagnosisTemplatesLoading}
         onChange={(data) => dispatch(setDiagnosis(data))}
         initialValue={
           initialValue?.diagnosis
@@ -264,14 +311,17 @@ const SurgeryDetails = (props) => {
         placeholder={
           "Enter pre-operative diagnosis (primary condition, comorbidities if relevant)" // TODO: INTEL - PLACEHOLDERS CAN ALSO BECOME DYNAMIC
         }
-        onSave={() => {
-          console.log("save");
-        }}
+        onSave={() => {}}
         onErase={() => {
+          dispatch(
+            setDiagnosis([
+              {
+                type: "paragraph",
+                children: [{ text: "" }],
+              },
+            ])
+          );
           setAutoFillTextToAppend(["clear"]);
-        }}
-        onTemplate={() => {
-          console.log("template");
         }}
         newAutoFillTextToAppend={autoFillTextToAppend}
         setNewAutoFillTextToAppend={setAutoFillTextToAppend}
