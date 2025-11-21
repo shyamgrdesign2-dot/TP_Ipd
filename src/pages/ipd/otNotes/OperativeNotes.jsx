@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,9 +17,10 @@ const OperativeNotes = (props) => {
   const dispatch = useDispatch();
   const doctorId =
     patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
-  const handleChange = (value, key) => {
+  const handleChange = useCallback((value, key) => {
     dispatch(setOperativeNotes({ key, value }));
-  };
+  }, [dispatch]);
+  
   const defaultRichText = useMemo(
     () => [
       {
@@ -30,9 +31,23 @@ const OperativeNotes = (props) => {
     []
   );
 
+  // Map section data IDs to Redux keys
+  // Section IDs: operativeFindings, procedures, additionalNotes
+  // Redux Keys: operativeFindings, operativeProcedure, operativeAdditionalNotes
+  const getReduxKey = useCallback((sectionId) => {
+    const mapping = {
+      operativeFindings: "operativeFindings",
+      procedures: "operativeProcedure",
+      additionalNotes: "operativeAdditionalNotes",
+    };
+    return mapping[sectionId] || sectionId;
+  }, []);
+
   const getFieldValue = useCallback(
     (key) => {
-      const value = props.operativeNotes?.[key] ?? operativeNotes?.[key];
+      // Convert section ID to Redux key if needed
+      const reduxKey = getReduxKey(key);
+      const value = props.operativeNotes?.[reduxKey] ?? operativeNotes?.[reduxKey];
       if (Array.isArray(value) && value.length) {
         return value;
       }
@@ -41,43 +56,115 @@ const OperativeNotes = (props) => {
       }
       return defaultRichText;
     },
-    [operativeNotes, props.operativeNotes, defaultRichText]
+    [operativeNotes, props.operativeNotes, defaultRichText, getReduxKey]
   );
 
-  const useOperativeTemplate = (moduleName, key) =>
+  // Helper to get field value by section ID
+  const getFieldValueBySectionId = useCallback(
+    (sectionId) => {
+      const reduxKey = getReduxKey(sectionId);
+      const value = props.operativeNotes?.[reduxKey] ?? operativeNotes?.[reduxKey];
+      if (Array.isArray(value) && value.length) {
+        return value;
+      }
+      if (value?.value && Array.isArray(value.value) && value.value.length) {
+        return value.value;
+      }
+      return defaultRichText;
+    },
+    [operativeNotes, props.operativeNotes, defaultRichText, getReduxKey]
+  );
+
+  // Memoize field values to prevent infinite loops
+  // Use section IDs for mapping
+  const operativeFindingsValue = useMemo(
+    () => getFieldValueBySectionId("operativeFindings"),
+    [getFieldValueBySectionId]
+  );
+
+  const operativeProcedureValue = useMemo(
+    () => getFieldValueBySectionId("procedures"),
+    [getFieldValueBySectionId]
+  );
+
+  const operativeAdditionalValue = useMemo(
+    () => getFieldValueBySectionId("additionalNotes"),
+    [getFieldValueBySectionId]
+  );
+
+  // Stable callbacks to prevent recreation
+  const handleOperativeFindingsChange = useCallback(
+    (data) => {
+      handleChange(data, "operativeFindings");
+    },
+    [handleChange]
+  );
+
+  const handleOperativeProcedureChange = useCallback(
+    (data) => {
+      handleChange(data, "operativeProcedure");
+    },
+    [handleChange]
+  );
+
+  const handleOperativeAdditionalChange = useCallback(
+    (data) => {
+      handleChange(data, "operativeAdditionalNotes");
+    },
+    [handleChange]
+  );
+
+  const getOperativeFindingsValue = useCallback(
+    () => operativeFindingsValue,
+    [operativeFindingsValue]
+  );
+
+  const getOperativeProcedureValue = useCallback(
+    () => operativeProcedureValue,
+    [operativeProcedureValue]
+  );
+
+  const getOperativeAdditionalValue = useCallback(
+    () => operativeAdditionalValue,
+    [operativeAdditionalValue]
+  );
+
+  const useOperativeTemplate = (moduleName, key, getCurrentValueFn, onValueChangeFn) =>
     useTemplateManagement({
       moduleName,
       templateSite: "ipd",
       doctorId,
       isEditable,
       moduleType: "richText",
-      getCurrentValue: useCallback(() => getFieldValue(key), [getFieldValue, key]),
-      onValueChange: useCallback(
-        (data) => {
-          handleChange(data, key);
-        },
-        [handleChange, key]
-      ),
+      getCurrentValue: getCurrentValueFn,
+      onValueChange: onValueChangeFn,
     });
 
   const operativeFindingsTemplate = useOperativeTemplate(
     "operativeFindings",
-    "operativeFindings"
+    "operativeFindings",
+    getOperativeFindingsValue,
+    handleOperativeFindingsChange
   );
   const operativeProcedureTemplate = useOperativeTemplate(
     "operativeProcedure",
-    "operativeProcedure"
+    "operativeProcedure",
+    getOperativeProcedureValue,
+    handleOperativeProcedureChange
   );
   const operativeAdditionalTemplate = useOperativeTemplate(
     "operativeAdditionalNotes",
-    "operativeAdditionalNotes"
+    "operativeAdditionalNotes",
+    getOperativeAdditionalValue,
+    handleOperativeAdditionalChange
   );
 
+  // Map using section IDs (what data?.id will be)
   const templateMap = useMemo(
     () => ({
       operativeFindings: operativeFindingsTemplate,
-      operativeProcedure: operativeProcedureTemplate,
-      operativeAdditionalNotes: operativeAdditionalTemplate,
+      procedures: operativeProcedureTemplate, // Section ID is "procedures"
+      additionalNotes: operativeAdditionalTemplate, // Section ID is "additionalNotes"
     }),
     [
       operativeFindingsTemplate,
@@ -86,9 +173,131 @@ const OperativeNotes = (props) => {
     ]
   );
 
+  // Use ref to store the latest handleChange to prevent callback recreation
+  const handleChangeRef = useRef(handleChange);
+  useEffect(() => {
+    handleChangeRef.current = handleChange;
+  }, [handleChange]);
+
+  // Memoize onChange callbacks for each field - map section IDs to Redux keys
+  // Use ref to avoid dependency on handleChange
+  const handleOperativeFindingsOnChange = useCallback(
+    (val) => handleChangeRef.current(val, "operativeFindings"), // Section ID = Redux key
+    [] // Empty deps - use ref to get latest handleChange
+  );
+  const handleOperativeProcedureOnChange = useCallback(
+    (val) => handleChangeRef.current(val, "operativeProcedure"), // Section ID "procedures" → Redux key "operativeProcedure"
+    []
+  );
+  const handleOperativeAdditionalOnChange = useCallback(
+    (val) => handleChangeRef.current(val, "operativeAdditionalNotes"), // Section ID "additionalNotes" → Redux key "operativeAdditionalNotes"
+    []
+  );
+
+  // Memoize onErase callbacks - use section IDs for state keys, Redux keys for dispatch
+  // Use ref to avoid dependency on handleChange
+  const handleOperativeFindingsOnErase = useCallback(() => {
+    handleChangeRef.current(defaultRichText, "operativeFindings"); // Redux key
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["operativeFindings"]: ["clear"], // Section ID for state key
+    }));
+  }, [defaultRichText]);
+
+  const handleOperativeProcedureOnErase = useCallback(() => {
+    handleChangeRef.current(defaultRichText, "operativeProcedure"); // Redux key
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["procedures"]: ["clear"], // Section ID for state key
+    }));
+  }, [defaultRichText]);
+
+  const handleOperativeAdditionalOnErase = useCallback(() => {
+    handleChangeRef.current(defaultRichText, "operativeAdditionalNotes"); // Redux key
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["additionalNotes"]: ["clear"], // Section ID for state key
+    }));
+  }, [defaultRichText]);
+
+  // Memoize setAutoFillTextToAppend callbacks - use section IDs for state keys
+  const handleSetOperativeFindingsAutoFill = useCallback((value) => {
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["operativeFindings"]: value, // Section ID
+    }));
+  }, []);
+
+  const handleSetOperativeProcedureAutoFill = useCallback((value) => {
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["procedures"]: value, // Section ID
+    }));
+  }, []);
+
+  const handleSetOperativeAdditionalAutoFill = useCallback((value) => {
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["additionalNotes"]: value, // Section ID
+    }));
+  }, []);
+
+  // Create maps using section IDs (what data?.id will be)
+  const onChangeMap = useMemo(
+    () => ({
+      operativeFindings: handleOperativeFindingsOnChange,
+      procedures: handleOperativeProcedureOnChange, // Section ID
+      additionalNotes: handleOperativeAdditionalOnChange, // Section ID
+    }),
+    [
+      handleOperativeFindingsOnChange,
+      handleOperativeProcedureOnChange,
+      handleOperativeAdditionalOnChange,
+    ]
+  );
+
+  const onEraseMap = useMemo(
+    () => ({
+      operativeFindings: handleOperativeFindingsOnErase,
+      procedures: handleOperativeProcedureOnErase, // Section ID
+      additionalNotes: handleOperativeAdditionalOnErase, // Section ID
+    }),
+    [
+      handleOperativeFindingsOnErase,
+      handleOperativeProcedureOnErase,
+      handleOperativeAdditionalOnErase,
+    ]
+  );
+
+  const setAutoFillMap = useMemo(
+    () => ({
+      operativeFindings: handleSetOperativeFindingsAutoFill,
+      procedures: handleSetOperativeProcedureAutoFill, // Section ID
+      additionalNotes: handleSetOperativeAdditionalAutoFill, // Section ID
+    }),
+    [
+      handleSetOperativeFindingsAutoFill,
+      handleSetOperativeProcedureAutoFill,
+      handleSetOperativeAdditionalAutoFill,
+    ]
+  );
+
+  const initialValueMap = useMemo(
+    () => ({
+      operativeFindings: operativeFindingsValue,
+      procedures: operativeProcedureValue, // Section ID
+      additionalNotes: operativeAdditionalValue, // Section ID
+    }),
+    [operativeFindingsValue, operativeProcedureValue, operativeAdditionalValue]
+  );
+
   const renderRichTextEditorSection = (data) => {
-    if (!isEditable && isEmptyRichText(operativeNotes?.[data?.id])) return null;
-    const templateHandlers = templateMap[data?.id];
+    const sectionId = data?.id;
+    const reduxKey = getReduxKey(sectionId);
+    
+    if (!isEditable && isEmptyRichText(operativeNotes?.[reduxKey])) return null;
+    const templateHandlers = templateMap[sectionId];
+    
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -96,22 +305,11 @@ const OperativeNotes = (props) => {
         showActionBtns={isEditable}
         title={data?.title}
         width="100%"
-        icon={isEditable ? otNotesIcons[data?.id] : null}
+        icon={isEditable ? otNotesIcons[sectionId] : null}
         showAutoFill={false}
-        onErase={() => {
-          handleChange(defaultRichText, data?.id);
-          setAutoFillTextToAppend((prev) => ({
-            ...prev,
-            [data?.id]: ["clear"],
-          }));
-        }}
-        newAutoFillTextToAppend={autoFillTextToAppend[data?.id]}
-        setNewAutoFillTextToAppend={(value) => {
-          setAutoFillTextToAppend((prev) => ({
-            ...prev,
-            [data?.id]: value,
-          }));
-        }}
+        onErase={onEraseMap[sectionId]}
+        newAutoFillTextToAppend={autoFillTextToAppend[sectionId]}
+        setNewAutoFillTextToAppend={setAutoFillMap[sectionId]}
         containerClass={`wrapper-class ${
           !isEditable ? "ipd-wrapper-class-readonly rich-text-editor-container-readonly ipdot-on-extraMargin" : ""
         }`}
@@ -126,10 +324,8 @@ const OperativeNotes = (props) => {
         updateTemplate={templateHandlers?.handleUpdateTemplate}
         onDeleteTemplateClicked={templateHandlers?.handleDeleteTemplate}
         loading={templateHandlers?.templatesLoading}
-        onChange={(val) => handleChange(val, data?.id)}
-        initialValue={
-          getFieldValue(data?.id)
-        }
+        onChange={onChangeMap[sectionId]}
+        initialValue={initialValueMap[sectionId] || getFieldValue(sectionId)}
         placeholder={data?.placeholder}
         onSave={() => {}}
       />
@@ -140,7 +336,8 @@ const OperativeNotes = (props) => {
       return (
         <ul>
           {sectionData?.children?.map((item) => {
-            if (!isEditable && isEmptyRichText(operativeNotes?.[item?.id])) return null;
+            const reduxKey = getReduxKey(item?.id);
+            if (!isEditable && isEmptyRichText(operativeNotes?.[reduxKey])) return null;
             return (
               <li key={item.id}>
                 {renderRichTextEditorSection(item)}

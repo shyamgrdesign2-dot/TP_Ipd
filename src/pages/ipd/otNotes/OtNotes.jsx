@@ -124,6 +124,22 @@ const OtNotes = (props) => {
   }, [patientDetails?.details?.id, patientDetails?.admissionId]);
 
   useEffect(() => {
+    const otNotesArray = Array.isArray(otNotesState?.otNotesData)
+      ? otNotesState.otNotesData
+      : [];
+
+    const currentNote = otNotesArray.find(
+      (note) => note._id === otNotesState.currentOtNoteId
+    );
+
+    hydrateFromSavedModules(currentNote?.otNotes?.customModules || []);
+  }, [
+    hydrateFromSavedModules,
+    otNotesState?.currentOtNoteId,
+    otNotesState?.otNotesData,
+  ]);
+
+  useEffect(() => {
     if (otNotesData?.otNotesData?.length > 0) {
       setShowAutoFillLocal(true);
       setAutoFillTitleLocal(
