@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { Radio, message } from "antd";
 import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
@@ -51,29 +51,70 @@ const ExaminationSection = (props) => {
     ],
     []
   );
+  // Helper function to normalize value to match option value type
+  const normalizeRadioValue = useCallback((value, options) => {
+    if (value === null || value === undefined) {
+      return undefined;
+    }
+    if (!options || !Array.isArray(options) || options.length === 0) {
+      return value;
+    }
+    // Get the type of the first option's value
+    const firstOptionValue = options[0]?.value;
+    if (firstOptionValue === undefined || firstOptionValue === null) {
+      return value;
+    }
+    const optionValueType = typeof firstOptionValue;
+    // Convert value to match option value type
+    if (optionValueType === 'number') {
+      const numValue = Number(value);
+      return isNaN(numValue) ? undefined : numValue;
+    } else if (optionValueType === 'string') {
+      return String(value);
+    }
+    return value;
+  }, []);
+
+  // Use ref to store the latest physicalExaminationBasicData to prevent callback recreation
+  const physicalExaminationBasicDataRef = useRef(physicalExaminationBasicData);
+  useEffect(() => {
+    physicalExaminationBasicDataRef.current = physicalExaminationBasicData;
+  }, [physicalExaminationBasicData]);
+
+  // Stable callback for radio change - uses ref to access latest state
   const onExaminationRadioChange = useCallback((e, item) => {
-    const { id } = item; 
+    const { id } = item;
+    const normalizedValue = normalizeRadioValue(e.target.value, item.options);
+    const currentState = physicalExaminationBasicDataRef.current;
     dispatch(
       setPhysicalExaminationBasicData({
-        ...physicalExaminationBasicData,
+        ...currentState,
         [id]: {
-          ...physicalExaminationBasicData[id],
-          value: e.target.value,
-          title: item.options.find((option) => option.value === e.target.value)
+          ...currentState[id],
+          value: normalizedValue,
+          title: item.options.find((option) => option.value === normalizedValue)
             ?.label,
         },
       })
     );
-  }, [dispatch, physicalExaminationBasicData]);
+  }, [dispatch, normalizeRadioValue]);
 
+  // Stable callback for notes change - uses ref to access latest state
   const handleExaminationNotesChange = useCallback((data, id) => {
+    const currentState = physicalExaminationBasicDataRef.current;
     dispatch(
       setPhysicalExaminationBasicData({
-        ...physicalExaminationBasicData,
-        [id]: { ...physicalExaminationBasicData[id], notes: data },
+        ...currentState,
+        [id]: { ...currentState[id], notes: data },
       })
     );
-  }, [dispatch, physicalExaminationBasicData]);
+  }, [dispatch]);
+
+  // Store stable callback in ref for use in map callbacks
+  const handleExaminationNotesChangeRef = useRef(handleExaminationNotesChange);
+  useEffect(() => {
+    handleExaminationNotesChangeRef.current = handleExaminationNotesChange;
+  }, [handleExaminationNotesChange]);
 
   const renderReadOnlyExamination = () => {
     return (
@@ -147,14 +188,22 @@ const ExaminationSection = (props) => {
             Array.isArray(current.notes) && current.notes.length
               ? current.notes
               : defaultNotes;
+          // Normalize value to match option type
+          let normalizedValue = current.value;
+          if (normalizedValue === undefined || normalizedValue === null) {
+            normalizedValue = 0;
+          } else if (child.options && Array.isArray(child.options) && child.options.length > 0) {
+            const firstOptionValue = child.options[0]?.value;
+            if (typeof firstOptionValue === 'number' && typeof normalizedValue !== 'number') {
+              const numValue = Number(normalizedValue);
+              normalizedValue = isNaN(numValue) ? 0 : numValue;
+            }
+          }
           return {
             id: child.id,
             label: child.title,
             title: current.title || "",
-            value:
-              current.value === undefined || current.value === null
-                ? 0
-                : current.value,
+            value: normalizedValue,
             notes,
           };
         }) || []
@@ -179,10 +228,21 @@ const ExaminationSection = (props) => {
       }
       const updated = {};
       templateData.forEach((item) => {
+        // Find the corresponding section item to get options for normalization
+        const sectionItem = sectionData?.children?.find((child) => child.id === item.id);
+        let normalizedValue = item.value;
+        if (normalizedValue === undefined || normalizedValue === null) {
+          normalizedValue = 0;
+        } else if (sectionItem?.options && Array.isArray(sectionItem.options) && sectionItem.options.length > 0) {
+          const firstOptionValue = sectionItem.options[0]?.value;
+          if (typeof firstOptionValue === 'number' && typeof normalizedValue !== 'number') {
+            const numValue = Number(normalizedValue);
+            normalizedValue = isNaN(numValue) ? 0 : numValue;
+          }
+        }
         updated[item.id] = {
           title: item.title || "",
-          value:
-            item.value === undefined || item.value === null ? 0 : item.value,
+          value: normalizedValue,
           notes: normalizeNotes(item.notes),
         };
       });
@@ -190,7 +250,7 @@ const ExaminationSection = (props) => {
       dispatch(setPhysicalExaminationBasicData({}));
       dispatch(setPhysicalExaminationBasicData(updated));
     },
-    [dispatch, normalizeNotes]
+    [dispatch, normalizeNotes, sectionData]
   );
 
   const extractTemplateData = useCallback((template) => {
@@ -421,6 +481,75 @@ const ExaminationSection = (props) => {
     [dispatch, doctorId, refreshTemplates]
   );
 
+  // Memoize initial values for each item to prevent new references on every render
+  const itemInitialValues = useMemo(() => {
+    const values = {};
+    sectionData?.children
+      ?.filter((item) => item.enabled)
+      ?.forEach((item) => {
+        const notes = physicalExaminationBasicData[item.id]?.notes;
+        values[item.id] =
+          Array.isArray(notes) && notes.length
+            ? notes
+            : defaultNotes;
+      });
+    return values;
+  }, [physicalExaminationBasicData, sectionData, defaultNotes]);
+
+  // Stable onChange callbacks for each item
+  const itemOnChangeCallbacks = useMemo(() => {
+    const callbacks = {};
+    sectionData?.children
+      ?.filter((item) => item.enabled)
+      ?.forEach((item) => {
+        callbacks[item.id] = (data) => {
+          handleExaminationNotesChangeRef.current(data, item.id);
+        };
+      });
+    return callbacks;
+  }, [sectionData]);
+
+  // Stable onErase callbacks for each item
+  const itemOnEraseCallbacks = useMemo(() => {
+    const callbacks = {};
+    sectionData?.children
+      ?.filter((item) => item.enabled)
+      ?.forEach((item) => {
+        callbacks[item.id] = () => handleEraseDataFromRichTextEditor(item);
+      });
+    return callbacks;
+  }, [sectionData]);
+
+  // Stable setNewAutoFillTextToAppend callbacks for each item
+  const itemSetAutoFillCallbacks = useMemo(() => {
+    const callbacks = {};
+    sectionData?.children
+      ?.filter((item) => item.enabled)
+      ?.forEach((item) => {
+        callbacks[item.id] = (value) => {
+          setAutoFillTextToAppend((prev) => ({
+            ...prev,
+            [item?.id]: value,
+          }));
+        };
+      });
+    return callbacks;
+  }, [sectionData]);
+
+  // Memoize radio values for each item
+  const itemRadioValues = useMemo(() => {
+    const values = {};
+    sectionData?.children
+      ?.filter((item) => item.enabled)
+      ?.forEach((item) => {
+        values[item.id] = normalizeRadioValue(
+          physicalExaminationBasicData[item.id]?.value,
+          item.options
+        );
+      });
+    return values;
+  }, [physicalExaminationBasicData, sectionData, normalizeRadioValue]);
+
   const renderEditableExamination = useMemo(() => {
     return (
       <div className="examinations-parent-container">
@@ -433,14 +562,9 @@ const ExaminationSection = (props) => {
                 readOnly={!isEditable}
                 showToolbar={isEditable}
                 showActionBtns={false}
-                onErase={() => handleEraseDataFromRichTextEditor(item)}
+                onErase={itemOnEraseCallbacks[item.id]}
                 newAutoFillTextToAppend={autoFillTextToAppend[item?.id]}
-                setNewAutoFillTextToAppend={(value) => {
-                  setAutoFillTextToAppend((prev) => ({
-                    ...prev,
-                    [item?.id]: value,
-                  }));
-                }}
+                setNewAutoFillTextToAppend={itemSetAutoFillCallbacks[item.id]}
                 toolbarClass={"small-toolbar"}
                 showAutoFill={false}
                 showMagicPenGif={false}
@@ -448,17 +572,8 @@ const ExaminationSection = (props) => {
                 showMicrophone={false}
                 placeholder={"Additional notes if any"}
                 containerClass="wrapper-class examination-rich-container"
-                onChange={(data) => handleExaminationNotesChange(data, item.id)}
-                initialValue={
-                  physicalExaminationBasicData[item.id]?.notes?.length
-                    ? physicalExaminationBasicData[item.id]?.notes
-                    : [
-                        {
-                          type: "paragraph",
-                          children: [{ text: "" }],
-                        },
-                      ]
-                }
+                onChange={itemOnChangeCallbacks[item.id]}
+                initialValue={itemInitialValues[item.id]}
               >
                 <div
                   className="examination-container-header"
@@ -468,7 +583,7 @@ const ExaminationSection = (props) => {
                   <Radio.Group
                     className="exam-radio-text"
                     onChange={(e) => onExaminationRadioChange(e, item)}
-                    value={physicalExaminationBasicData[item.id]?.value}
+                    value={itemRadioValues[item.id]}
                     options={item.options}
                   />
                 </div>
@@ -477,7 +592,18 @@ const ExaminationSection = (props) => {
           })}
       </div>
     );
-  }, [physicalExaminationBasicData, sectionData, isEditable, autoFillTextToAppend, disableFocusEffect, handleExaminationNotesChange, onExaminationRadioChange]);
+  }, [
+    sectionData,
+    isEditable,
+    autoFillTextToAppend,
+    disableFocusEffect,
+    itemOnChangeCallbacks,
+    itemOnEraseCallbacks,
+    itemSetAutoFillCallbacks,
+    itemInitialValues,
+    itemRadioValues,
+    onExaminationRadioChange,
+  ]);
 
   const renderExaminationSection = () => {
     return isEditable

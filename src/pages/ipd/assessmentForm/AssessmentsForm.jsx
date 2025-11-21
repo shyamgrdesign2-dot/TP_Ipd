@@ -419,8 +419,21 @@ const AssessmentsForm = (props) => {
   };
 
   const renderAllSections = () => {
-    const { createdByName, createdByRole, createdAt, updates } =
-      assessmentData?.assessmentsFilledByData || {};
+    const {
+      createdByName,
+      createdByRole,
+      createdAt,
+      updates,
+    } = assessmentData?.assessmentsFilledByData || {};
+    const normalizedUpdates = Array.isArray(updates) ? updates : [];
+    if (!Array.isArray(updates)) {
+      console.warn(
+        "[AssessmentsForm] Expected updates to be an array but received:",
+        updates,
+        "Full assessmentsFilledByData:",
+        assessmentData?.assessmentsFilledByData
+      );
+    }
     const latestUpdatedAt = assessmentData.assessmentsData?.date || new Date();
     const latestUpdatedAtTime =
       assessmentData.assessmentsData?.time || new Date();
@@ -453,7 +466,11 @@ const AssessmentsForm = (props) => {
             })
           : null}
         <FilledByCards
-          updates={!!updates.length ? [updates[updates.length - 1]] : []}
+          updates={
+            normalizedUpdates.length
+              ? [normalizedUpdates[normalizedUpdates.length - 1]]
+              : []
+          }
           createdByRole={createdByRole}
           createdByName={createdByName}
           createdAt={createdAt}
