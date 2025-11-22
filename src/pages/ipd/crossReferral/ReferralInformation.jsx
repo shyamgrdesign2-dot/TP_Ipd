@@ -19,6 +19,8 @@ import {
 import { setCrossReferralInformationDetails } from "../../../redux/ipd/crossReferralSlice";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import { doctorDepartmentRoles } from "../../../redux/ipd/ipdSlice";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { useLocation } from "react-router-dom";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -28,6 +30,8 @@ const ReferralInformation = (props) => {
   const { crossReferralFormDetails } = useSelector(
     (state) => state.crossReferral
   );
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const { filters } = useSelector((state) => state.inPatients);
   const { doctorDepartmentRoles: departmentRolesData } = useSelector(
     (state) => state.ipd
@@ -48,6 +52,42 @@ const ReferralInformation = (props) => {
     dispatch(fetchFilters({ field: "doctor" }));
     dispatch(doctorDepartmentRoles());
   }, [dispatch]);
+
+  const handleAIRecordingComplete = async (payload, callback) => {
+    if (!patientDetails?.details?.id || !patientDetails?.admissionId) {
+      callback?.();
+      return;
+    }
+    const response = await dispatch(
+      voiceRx({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        schemaKey: "CROSS_REFERRAL.referralInformation.reasonForReferral",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: initialValue?.reasonForReferral,
+      })
+    );
+
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+          ?.reasonForReferral || [];
+      if (Array.isArray(updatedData) && updatedData.length) {
+        dispatch(
+          setCrossReferralInformationDetails({
+            ...initialValue,
+            reasonForReferral: updatedData,
+          })
+        );
+        // setAutoFillTextToAppend(updatedData);
+      }
+      callback?.();
+    } else {
+      callback?.();
+    }
+  };
 
   const renderRelativesInformed = (role) => {
     let options = [];
@@ -146,11 +186,7 @@ const ReferralInformation = (props) => {
           speciality: doctor.speciality,
         }),
         value: doctor.doctorName,
-        label: (
-          <div key={doctor.doctorId}>
-            {doctor.doctorName}
-          </div>
-        ),
+        label: <div key={doctor.doctorId}>{doctor.doctorName}</div>,
       }));
     } else {
       options = (doctorsList || []).map((item) => ({
@@ -358,14 +394,20 @@ const ReferralInformation = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
+        showVoiceAI={
+          isEditable &&
+          patientDetails?.details?.id &&
+          patientDetails?.admissionId
+        }
+        showMicrophone={true}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingComplete}
         title={data?.title}
         width="100%"
         icon={otNotesIcons[data?.id]}
         showAutoFill={false}
         containerClass={` ${!isEditable ? "ipd-wrapper-class-readonly" : ""}`}
         opdDate="11 Sep 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
         onChange={(data) =>
           dispatch(
             setCrossReferralInformationDetails({

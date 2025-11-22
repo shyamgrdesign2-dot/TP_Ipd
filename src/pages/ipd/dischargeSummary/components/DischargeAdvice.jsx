@@ -16,6 +16,8 @@ import {
 } from "../../../../redux/ipd/dischargeSummarySlice";
 import { useDispatch } from "react-redux";
 import { useTemplateManagement } from "../../../../hooks/useTemplateManagement";
+import { voiceRx } from "../../../../redux/ipd/ipdSlice";
+import { defaultIcons as defaultAssetIcons } from "../../../../assets/images/icons";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -29,13 +31,28 @@ const EMPTY_RICH_TEXT_VALUE = [
 
 
 const DischargeAdvice = (props) => {
-  const { isEditable = true, sectionData } = props || {};
+  const {
+    isEditable = true,
+    sectionData,
+    patientId: patientIdProp = null,
+    admissionId: admissionIdProp = null,
+  } = props || {};
   const { dischargeSummaryData } = useSelector(
     (state) => state.dischargeSummary
   );
 
   // Get doctorId from dischargeSummaryData
-  const doctorId = dischargeSummaryData?.patientInformation?.primaryConsultant?.id;
+  const doctorId =
+    dischargeSummaryData?.patientInformation?.primaryConsultant?.id;
+  const resolvedPatientId =
+    patientIdProp ||
+    dischargeSummaryData?.patientInformation?.patientId ||
+    dischargeSummaryData?.patientInformation?.id ||
+    null;
+  const resolvedAdmissionId =
+    admissionIdProp ||
+    dischargeSummaryData?.patientInformation?.admissionId ||
+    null;
 
   const [
     autoFillTextToAppendWarningSigns,
@@ -277,6 +294,42 @@ const DischargeAdvice = (props) => {
     autoFetch: false,
   });
 
+  const getVoiceHandler = useCallback(
+    (fieldKey, previousOutput, onDataUpdate, setAutoFillFn) =>
+      async (payload, callback) => {
+        if (!resolvedPatientId || !resolvedAdmissionId) {
+          callback?.();
+          return;
+        }
+        const response = await dispatch(
+          voiceRx({
+            patientId: resolvedPatientId,
+            admissionId: resolvedAdmissionId,
+            schemaKey: `DISRCHARGED_SUMMARY.dischargeAdvice.${fieldKey}`,
+            audioFile: payload?.audioBlob,
+            filename: payload?.filename,
+            mimeType: payload?.mimeType,
+            previousOutput,
+          })
+        );
+
+        if (response.meta.requestStatus === "fulfilled") {
+          const updatedData =
+            response?.payload?.data?.rxDigitizationHistory?.[0]?.response?.[
+              fieldKey
+            ] || [];
+          if (!isEmptyRichText(updatedData)) {
+            onDataUpdate(updatedData);
+            // setAutoFillFn?.(updatedData);
+          }
+          callback?.();
+        } else {
+          callback?.();
+        }
+      },
+    [dispatch, resolvedPatientId, resolvedAdmissionId]
+  );
+
   // Simple memoization for initial values
   const otherAdviceInitialValue = useMemo(() => {
     const currentData = dischargeSummaryData?.otherAdvice;
@@ -439,8 +492,15 @@ const DischargeAdvice = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
+        showVoiceAI={isEditable && resolvedPatientId && resolvedAdmissionId}
+        showMicrophone={true}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={getVoiceHandler(
+          "warningSigns",
+          dischargeSummaryData?.warningSigns,
+          (data) => handleOthersChange(data, "warningSigns"),
+          setAutoFillTextToAppendWarningSigns
+        )}
         onChange={(data) => handleOthersChange(data, "warningSigns")}
         initialValue={warningSignsInitialValue}
         placeholder={
@@ -489,8 +549,15 @@ const DischargeAdvice = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
+        showVoiceAI={isEditable && resolvedPatientId && resolvedAdmissionId}
+        showMicrophone={true}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={getVoiceHandler(
+          "preventiveMeasures",
+          dischargeSummaryData?.preventiveMeasures,
+          (data) => handleOthersChange(data, "preventiveMeasures"),
+          setAutoFillTextToAppendPreventiveMeasures
+        )}
         onChange={(data) => handleOthersChange(data, "preventiveMeasures")}
         initialValue={preventiveMeasuresInitialValue}
         placeholder={
@@ -539,8 +606,15 @@ const DischargeAdvice = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
+        showVoiceAI={isEditable && resolvedPatientId && resolvedAdmissionId}
+        showMicrophone={true}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={getVoiceHandler(
+          "emergencyContact",
+          dischargeSummaryData?.emergencyContact,
+          (data) => handleOthersChange(data, "emergencyContact"),
+          setAutoFillTextToAppendEmergencyContact
+        )}
         onChange={(data) => handleOthersChange(data, "emergencyContact")}
         initialValue={emergencyContactInitialValue}
         placeholder={
@@ -589,8 +663,17 @@ const DischargeAdvice = (props) => {
             !isEditable ? "ipd-wrapper-class-readonly" : ""
           }`}
           opdDate="15 Jun 2025"
-          showMagicPenGif={false}
-          showMicrophone={false}
+          showVoiceAI={
+            isEditable && resolvedPatientId && resolvedAdmissionId
+          }
+          showMicrophone={true}
+          voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+          onVoiceAIRecordingComplete={getVoiceHandler(
+            "otherAdvice",
+            dischargeSummaryData?.otherAdvice,
+            (data) => handleOthersChange(data, "otherAdvice"),
+            setAutoFillTextToAppendOtherAdvice
+          )}
           onChange={(data) => handleOthersChange(data, "otherAdvice")}
           initialValue={otherAdviceInitialValue}
           placeholder={

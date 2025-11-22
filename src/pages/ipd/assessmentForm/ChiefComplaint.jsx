@@ -1,5 +1,12 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
 import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
 import { useDispatch, useSelector } from "react-redux";
 import { setChiefComplaint } from "../../../redux/ipd/assessmentsFormSlice";
@@ -8,7 +15,10 @@ import {
   formatDateToShortMonthYear,
   isEmptyRichText,
 } from "../../../utils/utils";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 import { useDischargeSummaryData } from "../dischargeSummary/utils/useDischargeSummaryData";
+import { useLocation } from "react-router-dom";
+// import { errorMessage } from "../../../utils/toast";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -27,9 +37,11 @@ const ChiefComplaint = (props) => {
     hideBorder = false,
     children,
     isDischargeSummary = false,
-    patientDetails,
   } = props || {};
   const dispatch = useDispatch();
+  const apiRef = useRef(null);
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const { showLastUpdatedAt } = useDischargeSummaryData();
   const {
     chiefComplaint,
@@ -39,12 +51,15 @@ const ChiefComplaint = (props) => {
 
   const doctorId = patientDetails?.doctor?.id || null;
 
-  const {
-    presentingComplaints: chiefComplaintFromLastPrescription = [],
-  } = lastPrescriptionDataForAssessment;
+  const { presentingComplaints: chiefComplaintFromLastPrescription = [] } =
+    lastPrescriptionDataForAssessment;
   const { lastRxDate } = lastPrescriptionDate || {};
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [editorResetKey, setEditorResetKey] = useState(0);
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
 
   const getCurrentValue = useCallback(() => {
     if (isEmptyRichText(chiefComplaint)) {
@@ -105,8 +120,27 @@ const ChiefComplaint = (props) => {
       !isEmptyRichText(chiefComplaintFromLastPrescription)
     );
   }, [chiefComplaint, chiefComplaintFromLastPrescription]);
+  
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) => {
+      const schemaKey = isDischargeSummary
+        ? "DISCHARGED_SUMMARY.patientHistory.presentingComplaints"
+        : "ASSESSMENTS.basicInfo.presentingComplaints";
+      return submitVoiceAiRecording({
+        payload,
+        schemaKey,
+        previousOutput: isEmptyRichText(chiefComplaint) ? [] : chiefComplaint,
+        onSuccess: (updatedData) => {
+          dispatch(setChiefComplaint(updatedData));
+        },
+        callback,
+      });
+    },
+    [chiefComplaint, dispatch, isDischargeSummary, submitVoiceAiRecording]
+  );
 
-  if ((!isEditable && isEmptyRichText(chiefComplaint)) && !isDischargeSummary) return null;
+  if (!isEditable && isEmptyRichText(chiefComplaint) && !isDischargeSummary)
+    return null;
   return (
     <div className="flex-column-gap-16">
       <RichTextEditWrapper
@@ -114,11 +148,15 @@ const ChiefComplaint = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
+        showVoiceAI={true}
+        showMicrophone={true}
+        showMagicPenGif={true}
         templates={normalizedTemplates}
         templateType="entries"
         title={sectionData?.title}
         data-testid={sectionData?.id}
         width={isEditable ? "100%" : "fit-content"}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
         initialValue={
           !isEmptyRichText(chiefComplaint)
             ? chiefComplaint
@@ -129,6 +167,10 @@ const ChiefComplaint = (props) => {
                 },
               ]
         }
+        onVoiceAIRecordingComplete={handleAIRecordingComplete}
+        onExposeApi={(api) => {
+          apiRef.current = api;
+        }}
         placeholder={
           "Enter chief complaint like patient’s main symptoms or presenting problem"
         }

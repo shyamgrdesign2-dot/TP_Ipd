@@ -23,7 +23,7 @@ import folderDark from "./folder-dark.svg";
 import referDoctors from "./refer-doctors.webp";
 import roundDotted from "./round-dotted.webp";
 import vitals from "./vitals.webp";
-import magicPen from "./magic-pen.webp";
+import magicPen from "./magic-pen.svg";
 import aiRefineGif from "./ai-refine.gif";
 import template from "./template.webp";
 import save from "./save.webp";

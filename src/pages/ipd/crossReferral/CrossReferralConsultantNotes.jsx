@@ -28,6 +28,7 @@ import { defaultIcons as newIcons } from "../../../assets/images/indices";
 import dayjs from "dayjs";
 import { defaultIcons } from "../../../assets/images/icons/index.js";
 import useIpdCustomModules from "../../../hooks/useIpdCustomModules.js";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -143,6 +144,47 @@ const CrossReferralConsultantNotes = (props) => {
     hydrateFromSavedModules,
   ]);
 
+  const handleAIRecordingComplete = async (fieldId, payload, callback) => {
+    if (!patientDetails?.details?.id || !patientDetails?.admissionId) {
+      callback?.();
+      return;
+    }
+    if (!fieldId) {
+      callback?.();
+      return;
+    }
+    const response = await dispatch(
+      voiceRx({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        schemaKey: `CROSS_REFERRAL.consultantNotes.${fieldId}`,
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: initialValue?.[fieldId],
+      })
+    );
+
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response?.[
+          fieldId
+        ] || [];
+      if (!Array.isArray(updatedData) || !updatedData.length) {
+        callback?.();
+        return;
+      }
+      // setAutoFillTextToAppend((prev) => ({
+      //   ...prev,
+      //   [fieldId]: updatedData,
+      // }));
+      dispatch(setCrossReferralConsultantNoteDetails({ [fieldId]: updatedData }));
+      callback?.();
+    } else {
+      callback?.();
+    }
+  };
+
   const handleChange = (value, key) => {
     if (!isEditable) return;
     dispatch(setCrossReferralConsultantNoteDetails({ [key]: value }));
@@ -215,7 +257,16 @@ const CrossReferralConsultantNotes = (props) => {
             ? "ipd-wrapper-class-readonly rich-text-editor-container-readonly ipdot-on-extraMargin"
             : "rich-text-editor-wrapper-bg"
         }`}
-        showMagicPenGif={false}
+        showVoiceAI={
+          isEditable &&
+          patientDetails?.details?.id &&
+          patientDetails?.admissionId
+        }
+        showMicrophone={true}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={(payload, callback) =>
+          handleAIRecordingComplete(data?.id, payload, callback)
+        }
         onErase={() => {
           setAutoFillTextToAppend((prev) => ({
             ...prev,
@@ -229,7 +280,6 @@ const CrossReferralConsultantNotes = (props) => {
             [data?.id]: value,
           }));
         }}
-        showMicrophone={false}
         onChange={(val) => handleChange(val, data?.id)}
         initialValue={
           initialValue?.[data?.id]

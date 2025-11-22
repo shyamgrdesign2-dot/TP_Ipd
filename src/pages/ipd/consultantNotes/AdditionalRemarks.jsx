@@ -6,6 +6,9 @@ import { setAdditionalRemarks } from "../../../redux/ipd/consultantNotesSlice";
 import { isEmptyRichText } from "../../../components/PDFGenerator";
 import dayjs from "dayjs";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { useLocation } from "react-router-dom";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -14,9 +17,10 @@ const AdditionalRemarks = (props) => {
     isEditable = true,
     shouldAutofill = false,
     sectionData,
-    patientDetails = {},
   } = props || {};
   const { additionalRemarks } = useSelector((state) => state.consultantNotes);
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const doctorId = patientDetails?.doctor?.id || null;
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
@@ -79,11 +83,42 @@ const AdditionalRemarks = (props) => {
     }
   }, [shouldAutofill]);
 
+  const handleAIRecordingComplete = async (payload, callback) => {
+    const response = await dispatch(
+      voiceRx({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        schemaKey: "CONSULTANT_NOTES.additionalRemarks",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: additionalRemarks,
+      })
+    );
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+          ?.additionalRemarks || [];
+      if (!isEmptyRichText(updatedData)) {
+        // setAutoFillTextToAppend(updatedData);
+        dispatch(setAdditionalRemarks(updatedData));
+        callback?.();
+      } else {
+        callback?.();
+      }
+    }
+  };
+
   return (
     <RichTextEditWrapper
       readOnly={!isEditable}
       showToolbar={isEditable}
       showActionBtns={isEditable}
+      showVoiceAI={true}
+      showMicrophone={true}
+      showMagicPenGif={true}
+      voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+      onVoiceAIRecordingComplete={handleAIRecordingComplete}
       title="Additional Remarks"
       width="100%"
       icon={defaultIcons[`${sectionData?.id}Pc`]}
@@ -100,8 +135,6 @@ const AdditionalRemarks = (props) => {
       }
       onAutoFill={handleAutofill}
       containerClass="wrapper-class"
-      showMagicPenGif={false}
-      showMicrophone={false}
       initialValue={
         additionalRemarks?.length > 0
           ? additionalRemarks

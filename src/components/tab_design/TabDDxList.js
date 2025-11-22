@@ -2,7 +2,6 @@ import { Button, Divider, Spin, Card } from "antd";
 import arrow from "../../assets/images/shaded-arrow.svg";
 import selectedTick from "../../assets/images/tick.svg";
 import loading from "../../assets/images/loading.gif";
-import cdssWallpaper from "../../assets/images/cdss-wallpaper.gif";
 import ddxIcon from "../../assets/images/ddxIcon.svg";
 import ddxTag from "../../assets/images/ddx-tag.svg";
 import {
@@ -44,6 +43,7 @@ const TabDDxList = ({
   const { patient_data } = state;
   const { diagnosisData, setDiagnosisData } = useContext(CashManagerContext);
   const tp_monetization_enable = !shouldMonetizationDisabled();
+  const cdssWallpaper = `${process.env.PUBLIC_URL || ""}/static-media/cdss-wallpaper.gif`;
 
   const clickBuyNow = (service_name) => {
     navigate('/get-unlimited-access', { state: { buyServiceName: service_name } })

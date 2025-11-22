@@ -102,6 +102,55 @@ const growthbook = new GrowthBook({
   enableDevMode: process.env.REACT_APP_ENV !== "prod",
 });
 
+const ConditionalRedirect = () => {
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  
+  // Check if redirectTo is in URL params or localStorage
+  const redirectTo = localStorage.getItem("redirectTo") || searchParams.get("redirectTo");
+  console.log("this is getting called")
+  // If we have a redirectTo, handle it
+  if (redirectTo) {
+    // Check if redirectTo includes /ipd
+    if (redirectTo.includes("/ipd")) {
+      // Extract path and query params from redirectTo
+      const [path, queryString] = redirectTo.split("?");
+      const redirectPath = path.startsWith("/") ? path : `/${path}`;
+      
+      // Only redirect if we're not already on this path
+      if (location.pathname !== redirectPath) {
+        // Clean up localStorage
+        localStorage.removeItem("redirectTo");
+        
+        // Navigate with query params if they exist
+        if (queryString) {
+          return <Navigate to={`${redirectPath}?${queryString}`} replace />;
+        }
+        return <Navigate to={redirectPath} replace />;
+      }
+    } else {
+      // For other redirectTo values, use as is
+      const redirectPath = redirectTo.startsWith("/") ? redirectTo : `/${redirectTo}`;
+      localStorage.removeItem("redirectTo");
+      return <Navigate to={redirectPath} replace />;
+    }
+  }
+  
+  // If we're on /ipd (exact match - no nested route), redirect to inPatients
+  // This happens when /ipd route matches the parent layout but has no index route
+  if (location.pathname === "/ipd") {
+    return <Navigate to="/ipd/inPatients" replace />;
+  }
+  
+  // If we're on root path, redirect to inPatients
+  if (location.pathname === "/") {
+    return <Navigate to="/ipd/inPatients" replace />;
+  }
+  
+  // Default redirect for any other unmatched routes
+  return <Navigate to="/ipd/inPatients" replace />;
+};
+
 function App() {
   const [redirectReady, setRedirectReady] = useState(false);
   const [searchParams] = useSearchParams();
@@ -296,11 +345,11 @@ function App() {
   useEffect(() => {
     if (redirectTo) {
       localStorage.setItem("redirectTo", redirectTo);
+      setRedirectReady(true);
 
       // Clean up URL but preserve other params
       const params = new URLSearchParams(location.search);
       params.delete("redirectTo");
-      setRedirectReady(true);
       // Update URL without the redirectTo parameter
       navigate(
         {
@@ -312,7 +361,7 @@ function App() {
     } else {
       setRedirectReady(false);
     }
-  }, []);
+  }, [redirectTo, location.search, location.pathname, navigate]);
 
   // Determine where to redirect on root path
   useEffect(() => {
@@ -445,7 +494,7 @@ function App() {
 
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>
-                <Route path="/*" element={<Navigate to="/ipd/inPatients" replace />} />
+                <Route path="/*" element={<ConditionalRedirect />} />
                 <Route
                   path={`/ipd/patient-details`}
                   element={<IPDPatientDetails />}
@@ -570,6 +619,7 @@ function App() {
                   element={<AppointmentSuccess />}
                 />
                 <Route path="ipd" element={<HomePageLayout />}>
+                  <Route index element={<Navigate to="/ipd/inPatients" replace />} />
                   <Route path="inPatients" element={<InPatients />} />
                   <Route path="approveToDischagePatients" element={<ApproveToDischargePatients />} />
                   <Route path="dischargedPatients" element={<DischargedPatients />} />

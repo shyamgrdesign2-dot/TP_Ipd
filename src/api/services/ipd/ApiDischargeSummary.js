@@ -15,7 +15,7 @@ ApiDischargeSummary.getDischargeSummary = function ({
   if (filterStartDate) url += `&filterStartDate=${filterStartDate}`;
   if (filterEndDate) url += `&filterEndDate=${filterEndDate}`;
   if (_id) url += `&_id=${_id}`;
-  return api.get(url, { ...baseUrl, timeout: 1200000 });
+  return api.get(url, { ...baseUrl, timeout: 120000 });
 };
 
 ApiDischargeSummary.addDischargeSummary = function ({

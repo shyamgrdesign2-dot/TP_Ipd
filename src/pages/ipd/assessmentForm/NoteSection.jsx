@@ -5,11 +5,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { setAdditionalNotesData } from "../../../redux/ipd/assessmentsFormSlice";
 import { isEmptyRichText } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { useLocation } from "react-router-dom";
+import { defaultIcons } from "../../../assets/images/icons";
+
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const NoteSection = (props) => {
-  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
+  const { isEditable = true, sectionData } = props || {};
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [
     autoFillTextToAppendDischargeCriteria,
@@ -18,6 +22,9 @@ const NoteSection = (props) => {
   const { additionalNotesData = {} } = useSelector((state) => state.assessment);
 
   const dispatch = useDispatch();
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
+
   const handleOthersChange = (data, key) => {
     dispatch(setAdditionalNotesData({ ...additionalNotesData, [key]: data }));
   };
@@ -47,10 +54,15 @@ const NoteSection = (props) => {
       doctorId,
       isEditable,
       moduleType: "richText",
-      getCurrentValue: useCallback(() => getFieldValue(key), [getFieldValue, key]),
+      getCurrentValue: useCallback(
+        () => getFieldValue(key),
+        [getFieldValue, key]
+      ),
       onValueChange: useCallback(
         (data) => {
-          dispatch(setAdditionalNotesData({ ...additionalNotesData, [key]: data }));
+          dispatch(
+            setAdditionalNotesData({ ...additionalNotesData, [key]: data })
+          );
         },
         [dispatch, additionalNotesData, key]
       ),
@@ -64,6 +76,62 @@ const NoteSection = (props) => {
     "dischargeCriteria",
     "dischargeCriteria"
   );
+
+  const handleAIRecordingCompleteSpecialInstructions = async (
+    payload,
+    callback
+  ) => {
+    const response = await dispatch(
+      voiceRx({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        schemaKey: "ASSESSMENTS.additionalNotes.specialInstructions",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: additionalNotesData?.specialInstructions,
+      })
+    );
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+          ?.specialInstructions || [];
+      if (!isEmptyRichText(updatedData)) {
+        setAutoFillTextToAppend(updatedData);
+        callback?.();
+      } else {
+        callback?.();
+      }
+    }
+  };
+
+  const handleAIRecordingCompleteDischargeCriteria = async (
+    payload,
+    callback
+  ) => {
+    const response = await dispatch(
+      voiceRx({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        schemaKey: "ASSESSMENTS.additionalNotes.dischargeCriteria",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: additionalNotesData?.dischargeCriteria,
+      })
+    );
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+          ?.dischargeCriteria || [];
+      if (!isEmptyRichText(updatedData)) {
+        setAutoFillTextToAppendDischargeCriteria(updatedData);
+        callback?.();
+      } else {
+        callback?.();
+      }
+    }
+  };
   const renderSpecialInstructions = (data) => {
     if (
       !isEditable &&
@@ -76,6 +144,13 @@ const NoteSection = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
+        showVoiceAI={true}
+        showMicrophone={true}
+        showMagicPenGif={true}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={
+          handleAIRecordingCompleteSpecialInstructions
+        }
         title={data?.title}
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
@@ -84,8 +159,6 @@ const NoteSection = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
         templates={specialInstructionsTemplate.templates}
         templateType="entries"
         showTempButtons={true}
@@ -93,7 +166,9 @@ const NoteSection = (props) => {
         onTemplateSelected={specialInstructionsTemplate.handleTemplateSelected}
         addTemplate={specialInstructionsTemplate.handleAddTemplate}
         updateTemplate={specialInstructionsTemplate.handleUpdateTemplate}
-        onDeleteTemplateClicked={specialInstructionsTemplate.handleDeleteTemplate}
+        onDeleteTemplateClicked={
+          specialInstructionsTemplate.handleDeleteTemplate
+        }
         loading={specialInstructionsTemplate.templatesLoading}
         onChange={(data) => handleOthersChange(data, "specialInstructions")}
         initialValue={
@@ -124,7 +199,9 @@ const NoteSection = (props) => {
         }}
         newAutoFillTextToAppend={autoFillTextToAppend}
         setNewAutoFillTextToAppend={setAutoFillTextToAppend}
-        isDataPresent={!isEmptyRichText(additionalNotesData?.specialInstructions)}
+        isDataPresent={
+          !isEmptyRichText(additionalNotesData?.specialInstructions)
+        }
       />
     );
   };
@@ -137,6 +214,11 @@ const NoteSection = (props) => {
         showToolbar={isEditable}
         key={data?.title}
         showActionBtns={isEditable}
+        showVoiceAI={true}
+        showMicrophone={true}
+        showMagicPenGif={true}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingCompleteDischargeCriteria}
         title={data?.title}
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
@@ -145,8 +227,6 @@ const NoteSection = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
         templates={dischargeCriteriaTemplate.templates}
         templateType="entries"
         showTempButtons={true}

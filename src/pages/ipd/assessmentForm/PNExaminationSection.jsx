@@ -7,6 +7,9 @@ import { useSelector } from "react-redux";
 import useCheckExaminationData from "../../../hooks/useCheckExaminationData";
 import { isEmptyRichText } from "../../../components/PDFGenerator";
 import { setPhysicalExaminationBasicData } from "../../../redux/ipd/progressNotesSlice";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { useLocation } from "react-router-dom";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -16,7 +19,11 @@ const PNExaminationSection = (props) => {
     sectionData,
     examinationData = null,
   } = props || {};
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const { physicalExaminationBasicData = {} } = useSelector((state) => state.progressNotes);
+  const patientId = patientDetails?.details?.id;
+  const admissionId = patientDetails?.admissionId;
   const dispatch = useDispatch();
   const checkReadableExaminationDataPresent = useCheckExaminationData(examinationData);
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
@@ -95,6 +102,53 @@ const PNExaminationSection = (props) => {
   useEffect(() => {
     handleExaminationNotesChangeRef.current = handleExaminationNotesChange;
   }, [handleExaminationNotesChange]);
+
+  const handleAIRecordingComplete = useCallback(
+    async (itemId, payload, callback) => {
+      if (!patientId || !admissionId) {
+        callback?.();
+        return;
+      }
+      const response = await dispatch(
+        voiceRx({
+          patientId,
+          admissionId,
+          schemaKey: `PROGRESS_NOTES.examination.${itemId}`,
+          audioFile: payload?.audioBlob,
+          filename: payload?.filename,
+          mimeType: payload?.mimeType,
+          previousOutput: physicalExaminationBasicData?.[itemId]?.notes,
+        })
+      );
+
+      if (response.meta.requestStatus === "fulfilled") {
+        const updatedData =
+          response?.payload?.data?.rxDigitizationHistory?.[0]?.response?.[
+            itemId
+          ] || [];
+          console.log('INTEL ==> updatedData', updatedData, itemId)
+        if (!isEmptyRichText(updatedData?.notes)) {
+          dispatch(
+            setPhysicalExaminationBasicData({
+              ...physicalExaminationBasicData,
+              [itemId]: {
+                ...physicalExaminationBasicData[itemId],
+                notes: updatedData?.notes,
+              },
+            })
+          );
+          // setAutoFillTextToAppend((prev) => ({
+          //   ...prev,
+          //   [itemId]: updatedData,
+          // }));
+        }
+        callback?.();
+      } else {
+        callback?.();
+      }
+    },
+    [dispatch, patientId, admissionId, physicalExaminationBasicData]
+  );
 
   const renderReadOnlyExamination = () => {
     return (
@@ -244,9 +298,14 @@ const PNExaminationSection = (props) => {
                 setNewAutoFillTextToAppend={itemSetAutoFillCallbacks[item.id]}
                 toolbarClass={"small-toolbar"}
                 showAutoFill={false}
-                showMagicPenGif={false}
+                size={"small"}
                 disableFocusEffect={disableFocusEffect[item?.id]}
-                showMicrophone={false}
+                showVoiceAI={isEditable && patientId && admissionId}
+                showMicrophone={true}
+                voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+                onVoiceAIRecordingComplete={(payload, callback) =>
+                  handleAIRecordingComplete(item.id, payload, callback)
+                }
                 placeholder={"Additional notes if any"}
                 containerClass="wrapper-class examination-rich-container"
                 onChange={itemOnChangeCallbacks[item.id]}
@@ -310,6 +369,7 @@ const PNExaminationSection = (props) => {
       icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={false}
       showMagicPenGif={false}
+      showVoiceAI={false}
       showMicrophone={false}
       placeholder={"Additional notes if any"}
       containerClass={`examination-rich-container ${

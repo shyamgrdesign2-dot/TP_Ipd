@@ -3,12 +3,15 @@ import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setChiefComplaint } from "../../../redux/ipd/progressNotesSlice";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
 import {
   convertTemplateDataToRichText,
   formatDateToShortMonthYear,
   isEmptyRichText,
 } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { useLocation } from "react-router-dom";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -21,13 +24,18 @@ const EMPTY_RICH_TEXT_VALUE = [
 
 const ChiefComplaint = (props) => {
   // You can pass props as needed, e.g., isEditable, initialValue, etc.
-  const { isEditable = true,shouldAutofill = false, sectionData } = props || {};
+  const {
+    isEditable = true,
+    shouldAutofill = false,
+    sectionData,
+  } = props || {};
   const dispatch = useDispatch();
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const {
     chiefComplaint,
     lastPrescriptionDataForProgress,
     lastPrescriptionDate,
-    patientDetails = {},
   } = useSelector((state) => state.progressNotes);
   const doctorId = patientDetails?.doctor?.id || null;
 
@@ -41,7 +49,6 @@ const ChiefComplaint = (props) => {
 
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [editorResetKey, setEditorResetKey] = useState(0);
-
 
   // Get current value callback
   const getCurrentValue = useCallback(() => {
@@ -111,8 +118,40 @@ const ChiefComplaint = (props) => {
     }
   }, [shouldAutofill]);
 
-  const hasChiefComplaintInLastProgressNote = useMemo(() => {
+  const handleAIRecordingComplete = async (payload, callback) => {
+    if (!patientDetails?.details?.id || !patientDetails?.admissionId) {
+      callback?.();
+      return;
+    }
+    const response = await dispatch(
+      voiceRx({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        schemaKey: "PROGRESS_NOTES.chiefComplaint",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: chiefComplaint,
+      })
+    );
 
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+          ?.chiefComplaint || [];
+      if (!isEmptyRichText(updatedData)) {
+        dispatch(setChiefComplaint(updatedData));
+        // setAutoFillTextToAppend(updatedData);
+        callback?.();
+      } else {
+        callback?.();
+      }
+    } else {
+      callback?.();
+    }
+  };
+
+  const hasChiefComplaintInLastProgressNote = useMemo(() => {
     return (
       (!Array.isArray(prevChiefComplaint) &&
         typeof prevChiefComplaint === "string" &&
@@ -135,6 +174,12 @@ const ChiefComplaint = (props) => {
       data-testid={sectionData?.id}
       width={isEditable ? "100%" : "fit-content"}
       key={`chief-complaint-editor-${editorResetKey}`}
+      showVoiceAI={
+        isEditable && patientDetails?.details?.id && patientDetails?.admissionId
+      }
+      showMicrophone={true}
+      voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+      onVoiceAIRecordingComplete={handleAIRecordingComplete}
       initialValue={
         chiefComplaint?.length > 0
           ? chiefComplaint
@@ -159,8 +204,12 @@ const ChiefComplaint = (props) => {
             ).toLocaleTimeString()})`
           : "No previous profress notes available"
       }
-      containerClass={`${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
-      opdDate={prevProgressNote?.createdAt ? formatDateToShortMonthYear(prevProgressNote?.createdAt || ""): null}
+      containerClass={`${!isEditable ? "ipd-wrapper-class-readonly" : ""}`}
+      opdDate={
+        prevProgressNote?.createdAt
+          ? formatDateToShortMonthYear(prevProgressNote?.createdAt || "")
+          : null
+      }
       showTempButtons={true}
       onSave={() => {}}
       onErase={() => {

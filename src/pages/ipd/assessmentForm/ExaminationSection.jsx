@@ -574,6 +574,7 @@ const ExaminationSection = (props) => {
                 containerClass="wrapper-class examination-rich-container"
                 onChange={itemOnChangeCallbacks[item.id]}
                 initialValue={itemInitialValues[item.id]}
+                size={"small"}
               >
                 <div
                   className="examination-container-header"

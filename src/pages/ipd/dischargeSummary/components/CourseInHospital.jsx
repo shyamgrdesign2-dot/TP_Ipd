@@ -17,6 +17,8 @@ import {
 import TreatmentGiven from "../../../../components/DynamicPickerTable/TreatmentGiven";
 import { greenTick } from "../../../../assets/images/dischargeSummaryIcons";
 import { useTemplateManagement } from "../../../../hooks/useTemplateManagement";
+import { voiceRx } from "../../../../redux/ipd/ipdSlice";
+import { defaultIcons as defaultAssetIcons } from "../../../../assets/images/icons";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -29,7 +31,12 @@ const EMPTY_RICH_TEXT_VALUE = [
 ];
 
 const CourseInHospital = (props) => {
-  const { isEditable = true, sectionData } = props || {};
+  const {
+    isEditable = true,
+    sectionData,
+    patientId = null,
+    admissionId = null,
+  } = props || {};
 
   const {
     dischargeSummaryData = {},
@@ -43,6 +50,15 @@ const CourseInHospital = (props) => {
     dischargeSummaryData?.patientInformation?.primaryConsultant?.id ||
     actualDischargeSummaryData?.patientInformation?.primaryConsultant?.id ||
     null;
+  const resolvedPatientId =
+    patientId ||
+    dischargeSummaryData?.patientInformation?.patientId ||
+    dischargeSummaryData?.patientInformation?.id ||
+    null;
+  const resolvedAdmissionId =
+    admissionId ||
+    dischargeSummaryData?.patientInformation?.admissionId ||
+    null;
 
   // console.log("INTEL ==> chronologicalSummary", chronologicalSummary);
 
@@ -51,6 +67,43 @@ const CourseInHospital = (props) => {
 
   const handleOthersChange = (data, key) => {
     dispatch(setCourseInHospital({ ...courseInHospital, [key]: data }));
+  };
+
+  const handleAIRecordingComplete = async (payload, callback) => {
+    if (!resolvedPatientId || !resolvedAdmissionId) {
+      callback?.();
+      return;
+    }
+    const response = await dispatch(
+      voiceRx({
+        patientId: resolvedPatientId,
+        admissionId: resolvedAdmissionId,
+        schemaKey: "DISRCHARGED_SUMMARY.courseInHospital.chronologicalSummary",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: getCurrentChronologicalValue(),
+      })
+    );
+
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+          ?.chronologicalSummary || [];
+      if (!isEmptyRichText(updatedData)) {
+        // setAutoFillTextToAppend(updatedData);
+        dispatch(
+          setCourseInHospital({
+            ...courseInHospital,
+            chronologicalSummary: updatedData,
+          })
+        );
+        dispatch(setChronologicalSummary(updatedData));
+      }
+      callback?.();
+    } else {
+      callback?.();
+    }
   };
 
   // Get current value callback for chronological summary
@@ -274,7 +327,10 @@ const CourseInHospital = (props) => {
           }`}
           opdDate="15 Jun 2025"
           showMagicPenGif={false}
-          showMicrophone={false}
+          showVoiceAI={isEditable && resolvedPatientId && resolvedAdmissionId}
+          showMicrophone={true}
+          voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+          onVoiceAIRecordingComplete={handleAIRecordingComplete}
           onChange={(data) => handleOthersChange(data, "chronologicalSummary")}
           initialValue={getInitialValue()}
           placeholder={

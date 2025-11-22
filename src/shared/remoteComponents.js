@@ -1,42 +1,49 @@
-import React from 'react';
+import React from "react";
+import { Provider } from "react-redux";
+import { useLocation } from "react-router-dom";
+import { store } from "../redux/store";
+import ApiIpdService from "../api/services/ipd/ipdService"; // TODO: adjust path if needed
+import magicPen from "../assets/images/icons/magic-pen.svg";
+import { isEmptyRichText } from "../utils/utils";
 
 const normalizeToDefault = (m, key) => {
   if (key && m[key]) return { default: m[key] };
   if (m?.default) return { default: m.default };
-  if (typeof m === 'function') return { default: m };
-  throw new Error('Remote module does not export a React component.');
+  if (typeof m === "function") return { default: m };
+  throw new Error("Remote module does not export a React component.");
 };
 
 // Centralized component loading
 const loadComponent = (componentName) => {
   return React.lazy(() =>
-    import('shared_ui/components').then((m) => normalizeToDefault(m, componentName))
+    import("shared_ui/components").then((m) =>
+      normalizeToDefault(m, componentName)
+    )
   );
 };
 
 // Pre-define all shared components
 export const RemoteComponents = {
-  LayoutWithMenu: loadComponent('LayoutWithMenu'),
-  Customization: loadComponent('Customization'),
-  CollapsibleWrapper: loadComponent('CollapsibleWrapper'),
-  GenericCard: loadComponent('GenericCard'),
-  RichTextEditWrapper: loadComponent('RichTextEditWrapper'),
-  GenericTable: loadComponent('GenericTable'),
-  SectionedTable: loadComponent('SectionedTable'),
-  UnitInput: loadComponent('UnitInput'),
-  AutoFillButton: loadComponent('AutoFillButton'),
-  RichTextEditor: loadComponent('RichTextEditor'),
-  ReusableProgressCard: loadComponent('ReusableProgressCard'),
-  FilledByCard: loadComponent('FilledByCard'),
-  ReusableStepper: loadComponent('ReusableStepper'),
-  ReusableProgressCard: loadComponent('ReusableProgressCard'),
+  LayoutWithMenu: loadComponent("LayoutWithMenu"),
+  Customization: loadComponent("Customization"),
+  CollapsibleWrapper: loadComponent("CollapsibleWrapper"),
+  GenericCard: loadComponent("GenericCard"),
+  RichTextEditWrapper: loadComponent("RichTextEditWrapper"),
+  GenericTable: loadComponent("GenericTable"),
+  SectionedTable: loadComponent("SectionedTable"),
+  UnitInput: loadComponent("UnitInput"),
+  AutoFillButton: loadComponent("AutoFillButton"),
+  RichTextEditor: loadComponent("RichTextEditor"),
+  ReusableProgressCard: loadComponent("ReusableProgressCard"),
+  FilledByCard: loadComponent("FilledByCard"),
+  ReusableStepper: loadComponent("ReusableStepper"),
+  VoiceAI: loadComponent("VoiceAI"),
 };
 
 export const withRemoteComponent = (WrappedComponent) => {
   return function WithRemoteComponentWrapper(props) {
     return (
-      <React.Suspense fallback={<div>{" "}</div>}> 
-      {/* TODO: INTEL - ADD LOADER/ SHIMMER */}
+      <React.Suspense fallback={<div> </div>}>
         <WrappedComponent {...props} />
       </React.Suspense>
     );
@@ -45,11 +52,55 @@ export const withRemoteComponent = (WrappedComponent) => {
 
 export const createRemoteComponent = (componentName, customFallback) => {
   const Component = RemoteComponents[componentName];
+  const isRichTextEditWrapper = componentName === "RichTextEditWrapper";
+
+  if (!Component) {
+    throw new Error(`Remote component "${componentName}" is not registered.`);
+  }
+
   return function RemoteComponentWrapper(props) {
+    const location = useLocation();
+    const { patientDetails } = location?.state || {};
+
+    const handleMagicPenClick = async (paragraph, callback) => {
+      if (isEmptyRichText(paragraph)) {
+        return;
+      }
+      if (!patientDetails) {
+        return;
+      }
+
+      const response = await ApiIpdService.magicPen({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        paragraph,
+      });
+      console.log('INTEL ==> response', response)
+      if (response?.data?.message === "Digitization failed")  {
+        return;
+      }
+      callback?.(response.format);
+    };
+    const onUndoMagicPenClick = ({ originalContent, refinedContent }) => {
+      console.log('Undo AI refine', { originalContent, refinedContent });
+    };
+
+    const finalProps =
+      isRichTextEditWrapper && !props.onMagicPenClick
+        ? {
+            ...props,
+            onMagicPenClick: handleMagicPenClick,
+            onUndoMagicPenClick: onUndoMagicPenClick,
+            magicPenIcon: magicPen,
+          }
+        : props;
+
     return (
-      <React.Suspense fallback={customFallback || <div>{" "}</div>}>
-        <Component {...props} />
-      </React.Suspense>
+      <Provider store={store}>
+        <React.Suspense fallback={customFallback || <div> </div>}>
+          <Component {...finalProps} />
+        </React.Suspense>
+      </Provider>
     );
   };
 };

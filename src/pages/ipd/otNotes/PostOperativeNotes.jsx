@@ -7,11 +7,16 @@ import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import { Select } from "antd";
 import { isEmptyRichText, hasNoData } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { useLocation } from "react-router-dom";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const PostOperativeNotes = (props) => {
-  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
+  const { isEditable = true, sectionData } = props || {};
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   let { postOperativeNotes = {} } = useSelector((state) => state.otNotes);
   postOperativeNotes = props.postOperativeNotes || postOperativeNotes;
   const { profile } = useSelector((state) => state.doctors);
@@ -77,6 +82,8 @@ const PostOperativeNotes = (props) => {
 
   const doctorId =
     patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
+  const patientId = patientDetails?.details?.id || null;
+  const admissionId = patientDetails?.admissionId || null;
   const defaultRichText = useMemo(
     () => [
       {
@@ -162,6 +169,46 @@ const PostOperativeNotes = (props) => {
     []
   );
 
+  const handleAIRecordingComplete = useCallback(
+    async (payload, callback) => {
+      if (!patientId || !admissionId) {
+        callback?.();
+        return;
+      }
+      const response = await dispatch(
+        voiceRx({
+          patientId,
+          admissionId,
+          schemaKey: "OT_NOTES.postOperativeNotes.additionalInstructions",
+          audioFile: payload?.audioBlob,
+          filename: payload?.filename,
+          mimeType: payload?.mimeType,
+          previousOutput: getAdditionalInstructionsValue(),
+        })
+      );
+
+      if (response.meta.requestStatus === "fulfilled") {
+        const updatedData =
+          response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+            ?.additionalInstructions || [];
+        if (!isEmptyRichText(updatedData)) {
+          handleChange(updatedData, "additionalInstructions");
+          // handleSetAutoFillTextToAppend(updatedData);
+        }
+        callback?.();
+      } else {
+        callback?.();
+      }
+    },
+    [
+      admissionId,
+      dispatch,
+      getAdditionalInstructionsValue,
+      handleChange,
+      patientId,
+    ]
+  );
+
   const renderRichTextEditorWrapper = (data) => {
     const templateHandlers =
       data?.id === "additionalInstructions"
@@ -183,11 +230,13 @@ const PostOperativeNotes = (props) => {
             ? "ipd-wrapper-class-readonly rich-text-editor-container-readonly ipdot-on-extraMargin"
             : ""
         }`}
-        showMagicPenGif={false}
+        showVoiceAI={isEditable && patientId && admissionId}
+        showMicrophone={true}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingComplete}
         onErase={handleAdditionalInstructionsOnErase}
         newAutoFillTextToAppend={autoFillTextToAppend[data?.id]}
         setNewAutoFillTextToAppend={handleSetAutoFillTextToAppend}
-        showMicrophone={false}
         templates={templateHandlers?.templates}
         templateType={templateHandlers ? "entries" : undefined}
         showTempButtons={isEditable && !!templateHandlers}

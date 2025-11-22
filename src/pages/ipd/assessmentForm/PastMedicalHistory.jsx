@@ -5,16 +5,19 @@ import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessm
 import { useSelector, useDispatch } from "react-redux";
 import MedicalHistoryList from "../../../components/MedicalHistoryList";
 import MedicalHistoryBox from "../../../components/MedicalHistoryBox";
-import { Drawer } from "antd";
+import { Drawer, message } from "antd";
 import { setMedicalHistoryData } from "../../../redux/prescriptionSlice";
 import {
   formatDateToShortMonthYear,
   mergeArraysOfObjects,
 } from "../../../utils/utils";
 import { useDischargeSummaryData } from "../dischargeSummary/utils/useDischargeSummaryData";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { useLocation } from "react-router-dom";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const GenericCard = createRemoteComponent("GenericCard");
+const VoiceAI = createRemoteComponent("VoiceAI");
 const AutoFillButton = createRemoteComponent("AutoFillButton");
 
 const PastMedicalHistory = (props) => {
@@ -23,6 +26,8 @@ const PastMedicalHistory = (props) => {
     sectionData,
     isDischargeSummary = false,
   } = props || {};
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const { showLastUpdatedAt } = useDischargeSummaryData();
   let { medicalHistoryData } = useSelector((state) => state.prescription);
   const { lastPrescriptionDataForAssessment, lastPrescriptionDate } =
@@ -35,12 +40,38 @@ const PastMedicalHistory = (props) => {
     setAddMedicaHistoryDrawer(!addMedicalHistoryDrawer);
   };
 
+  const handleAIRecordingComplete = async (payload, callback) => {
+    const response = await dispatch(
+      voiceRx({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        schemaKey: "ASSESSMENTS.basicInfo.pastMedicalHistory",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: medicalHistoryData,
+      })
+    );
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+          ?.pastMedicalHistory || [];
+      if (!!updatedData?.length) {
+        console.log("newConvertedData", updatedData);
+        dispatch(setMedicalHistoryData(updatedData));
+        callback?.();
+      } else {
+        callback?.();
+      }
+    } else {
+      callback?.();
+    }
+  };
+
   const renderAutoFillButton = useCallback(() => {
     const { pastMedicalHistory: lastPastMedicalHistory = {} } =
       lastPrescriptionDataForAssessment || {};
-    if (
-      !lastPrescriptionDataForAssessment?.pastMedicalHistory?.length
-    )
+    if (!lastPrescriptionDataForAssessment?.pastMedicalHistory?.length)
       return null;
     return (
       <AutoFillButton
@@ -62,7 +93,9 @@ const PastMedicalHistory = (props) => {
             );
           }
         }}
-        title={`Autofill From OPD ${lastRxDate ? `(${formatDateToShortMonthYear(lastRxDate)})` : ""}`}
+        title={`Autofill From OPD ${
+          lastRxDate ? `(${formatDateToShortMonthYear(lastRxDate)})` : ""
+        }`}
       />
     );
   }, [lastPrescriptionDataForAssessment, medicalHistoryData]);
@@ -70,7 +103,7 @@ const PastMedicalHistory = (props) => {
   const renderMedicalHistory = () => {
     return (
       <div
-        className={`ipdaf-generic-card-container ${
+        className={`ipdaf-generic-card-container ipdaf-past-medical-history-container ${
           medicalHistoryData?.length ? "ipdaf-padding-0 ipdaf-margin-0" : ""
         } ${!isEditable ? "ipdaf-readable-renderer" : null}`}
       >
@@ -81,21 +114,27 @@ const PastMedicalHistory = (props) => {
           />
         ) : null}
         {isEditable ? (
-          <div onClick={handleAddMedicalHistory}>
-            <GenericCard
-              icon={
-                medicalHistoryData?.length
-                  ? defaultIcons.editIcon
-                  : defaultIcons.plusIconColoured
-              }
-              title={
-                medicalHistoryData?.length
-                  ? "Add/Edit Past Medical History"
-                  : "Add Past Medical History"
-              }
-            >
-              {renderAutoFillButton()}
-            </GenericCard>
+          <div className="d-flex align-items-center">
+            <div className="ipdaf-pmh-generic-card-container" onClick={handleAddMedicalHistory}>
+              <GenericCard
+                icon={
+                  medicalHistoryData?.length
+                    ? defaultIcons.editIcon
+                    : defaultIcons.plusIconColoured
+                }
+                title={
+                  medicalHistoryData?.length
+                    ? "Add/Edit Past Medical History"
+                    : "Add Past Medical History"
+                }
+              >
+                {renderAutoFillButton()}
+              </GenericCard>
+            </div>
+            <VoiceAI
+              voiceAiIcon={defaultIcons.voiceAiIcon}
+              onRecordingComplete={handleAIRecordingComplete}
+            />
           </div>
         ) : null}
       </div>

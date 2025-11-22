@@ -2,6 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { isEmptyRichText } from "../../../utils/utils";
 import customModuleIcon from "../../../assets/images/custom-module.svg";
+import { useDispatch } from "react-redux";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { defaultIcons } from "../../../assets/images/icons";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -45,7 +48,11 @@ const IpdCustomModule = ({
   footerComponent = null,
   onUpdateModuleName,
   onDeleteModule,
+  patientId = null,
+  admissionId = null,
+  formType = "customModule",
 }) => {
+  const dispatch = useDispatch();
   const moduleTitle =
     module?.moduleName ||
     module?.title ||
@@ -195,6 +202,46 @@ const IpdCustomModule = ({
     }
   }, [onDeleteModule]);
 
+  const handleAIRecordingComplete = useCallback(
+    async (payload, callback) => {
+      if (!patientId || !admissionId) {
+        console.error("Patient ID or Admission ID missing for voice AI");
+        callback?.();
+        return;
+      }
+
+      const moduleId = module?.module_id || module?.id || "unknown";
+      const schemaKey = `${formType?.toUpperCase()}.${moduleTitle}`;
+
+      const response = await dispatch(
+        voiceRx({
+          patientId,
+          admissionId,
+          schemaKey,
+          audioFile: payload?.audioBlob,
+          filename: payload?.filename,
+          mimeType: payload?.mimeType,
+          previousOutput: editorValue,
+        })
+      );
+
+      if (response.meta.requestStatus === "fulfilled") {
+        const updatedData =
+          response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+            ?.content || [];
+        if (!isEmptyRichText(updatedData)) {
+          setTemplateAppendValue(updatedData);
+          callback?.();
+        } else {
+          callback?.();
+        }
+      } else {
+        callback?.();
+      }
+    },
+    [dispatch, patientId, admissionId, module, formType, editorValue]
+  );
+
   if (!isEditable && isValueEmpty) {
     return null;
   }
@@ -208,6 +255,10 @@ const IpdCustomModule = ({
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
+        showVoiceAI={isEditable && patientId && admissionId}
+        showMicrophone={isEditable && patientId && admissionId}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingComplete}
         title={moduleTitle}
         data-testid={module?.id || module?.module_id}
         width="100%"

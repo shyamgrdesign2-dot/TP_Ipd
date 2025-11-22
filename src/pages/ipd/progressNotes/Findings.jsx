@@ -5,6 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setFindings } from "../../../redux/ipd/progressNotesSlice";
 import { isEmptyRichText } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { useLocation } from "react-router-dom";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -16,13 +19,14 @@ const EMPTY_RICH_TEXT_VALUE = [
 ];
 
 const Findings = (props) => {
-  const { isEditable = true, shouldAutofill = false, sectionData, patientDetails = {} } = props || {};
-  const { findings } = useSelector((state) => state.progressNotes);
+  const { isEditable = true, shouldAutofill = false, sectionData } = props || {};
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
+  const { findings, progressNotes } = useSelector((state) => state.progressNotes);
   const doctorId = patientDetails?.doctor?.id || null;
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
-  const { progressNotes } = useSelector((state) => state.progressNotes);
   const prevProgressNote = useMemo(() => {
     return progressNotes[progressNotes?.length - 1];
   }, [progressNotes]);
@@ -94,11 +98,56 @@ const Findings = (props) => {
     }
   }, [shouldAutofill]);
 
+  const handleAIRecordingComplete = async (payload, callback) => {
+    if (
+      !(patientDetails?.details?.id || patientDetails?.details?.id) ||
+      !(patientDetails?.admissionId || patientDetails?.admissionId)
+    ) {
+      callback?.();
+      return;
+    }
+    const response = await dispatch(
+      voiceRx({
+        patientId:
+          patientDetails?.details?.id || patientDetails?.details?.id,
+        admissionId:
+          patientDetails?.admissionId || patientDetails?.admissionId,
+        schemaKey: "PROGRESS_NOTES.findings",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: findings,
+      })
+    );
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+          ?.findings || [];
+      if (!isEmptyRichText(updatedData)) {
+        dispatch(setFindings(updatedData));
+        // setAutoFillTextToAppend(updatedData);
+        callback?.();
+      } else {
+        callback?.();
+      }
+    } else {
+      callback?.();
+    }
+  };
+
   return (
     <RichTextEditWrapper
       readOnly={!isEditable}
       showToolbar={isEditable}
       showActionBtns={isEditable}
+      showVoiceAI={
+        isEditable &&
+        (patientDetails?.details?.id || patientDetails?.details?.id) &&
+        (patientDetails?.admissionId || patientDetails?.admissionId)
+      }
+      showMicrophone={true}
+      voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+      onVoiceAIRecordingComplete={handleAIRecordingComplete}
       title="Findings (Systemic Examination)"
       width="100%"
       icon={defaultIcons[`${sectionData?.id}Pc`]}
@@ -114,8 +163,6 @@ const Findings = (props) => {
       }
       onAutoFill={handleAutofill}
       containerClass=""
-      showMagicPenGif={false}
-      showMicrophone={false}
       initialValue={
         findings?.length > 0
           ? findings

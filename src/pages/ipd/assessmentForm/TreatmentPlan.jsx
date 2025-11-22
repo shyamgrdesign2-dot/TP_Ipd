@@ -5,15 +5,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { setTreatmentPlanData } from "../../../redux/ipd/assessmentsFormSlice";
 import { isEmptyRichText } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { useLocation } from "react-router-dom";
+import { defaultIcons } from "../../../assets/images/icons";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const TreatmentPlan = (props) => {
-  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
+  const { isEditable = true, sectionData } = props || {};
   const { treatmentPlanData = {} } = useSelector((state) => state.assessment);
 
   const dispatch = useDispatch();
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
+
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [
     autoFillTextToAppendPreventiveActions,
@@ -23,6 +29,7 @@ const TreatmentPlan = (props) => {
     autoFillTextToAppendDesiredOutcome,
     setAutoFillTextToAppendDesiredOutcome,
   ] = useState([]);
+
   const handleOthersChange = (data, key) => {
     dispatch(setTreatmentPlanData({ ...treatmentPlanData, [key]: data }));
   };
@@ -52,7 +59,10 @@ const TreatmentPlan = (props) => {
       doctorId,
       isEditable,
       moduleType: "richText",
-      getCurrentValue: useCallback(() => getFieldValue(key), [getFieldValue, key]),
+      getCurrentValue: useCallback(
+        () => getFieldValue(key),
+        [getFieldValue, key]
+      ),
       onValueChange: useCallback(
         (data) => {
           dispatch(setTreatmentPlanData({ ...treatmentPlanData, [key]: data }));
@@ -73,6 +83,86 @@ const TreatmentPlan = (props) => {
     "preventiveActions",
     "preventiveActions"
   );
+  const handleAIRecordingCompleteImmediateManagement = async (
+    payload,
+    callback
+  ) => {
+    const response = await dispatch(
+      voiceRx({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        schemaKey: "ASSESSMENTS.treatmentPlan.immediateManagement",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: treatmentPlanData?.immediateManagement,
+      })
+    );
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+          ?.immediateManagement || [];
+      if (!isEmptyRichText(updatedData)) {
+        setAutoFillTextToAppend(updatedData);
+        callback?.();
+      } else {
+        callback?.();
+      }
+    }
+  };
+
+  const handleAIRecordingCompletePreventiveActions = async (
+    payload,
+    callback
+  ) => {
+    const response = await dispatch(
+      voiceRx({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        schemaKey: "ASSESSMENTS.treatmentPlan.preventiveActions",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: treatmentPlanData?.preventiveActions,
+      })
+    );
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+          ?.preventiveActions || [];
+      if (!isEmptyRichText(updatedData)) {
+        setAutoFillTextToAppendPreventiveActions(updatedData);
+        callback?.();
+      } else {
+        callback?.();
+      }
+    }
+  };
+
+  const handleAIRecordingCompleteDesiredOutcome = async (payload, callback) => {
+    const response = await dispatch(
+      voiceRx({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        schemaKey: "ASSESSMENTS.treatmentPlan.desiredOutcome",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: treatmentPlanData?.desiredOutcome,
+      })
+    );
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+          ?.desiredOutcome || [];
+      if (!isEmptyRichText(updatedData)) {
+        setAutoFillTextToAppendDesiredOutcome(updatedData);
+        callback?.();
+      } else {
+        callback?.();
+      }
+    }
+  };
 
   const renderChildren = () => {
     return sectionData?.children?.map((item) => {
@@ -103,6 +193,13 @@ const TreatmentPlan = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
+        showVoiceAI={true}
+        showMicrophone={true}
+        showMagicPenGif={true}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={
+          handleAIRecordingCompleteImmediateManagement
+        }
         title={data?.title}
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
@@ -111,8 +208,6 @@ const TreatmentPlan = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
         templates={immediateManagementTemplate.templates}
         templateType="entries"
         showTempButtons={true}
@@ -120,7 +215,9 @@ const TreatmentPlan = (props) => {
         onTemplateSelected={immediateManagementTemplate.handleTemplateSelected}
         addTemplate={immediateManagementTemplate.handleAddTemplate}
         updateTemplate={immediateManagementTemplate.handleUpdateTemplate}
-        onDeleteTemplateClicked={immediateManagementTemplate.handleDeleteTemplate}
+        onDeleteTemplateClicked={
+          immediateManagementTemplate.handleDeleteTemplate
+        }
         loading={immediateManagementTemplate.templatesLoading}
         onChange={(data) => handleOthersChange(data, "immediateManagement")}
         initialValue={
@@ -163,6 +260,11 @@ const TreatmentPlan = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
+        showVoiceAI={true}
+        showMicrophone={true}
+        showMagicPenGif={true}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingCompletePreventiveActions}
         title={data?.title}
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
@@ -171,8 +273,6 @@ const TreatmentPlan = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
         templates={preventiveActionsTemplate.templates}
         templateType="entries"
         showTempButtons={true}
@@ -224,6 +324,11 @@ const TreatmentPlan = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
+        showVoiceAI={true}
+        showMicrophone={true}
+        showMagicPenGif={true}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingCompleteDesiredOutcome}
         title={data?.title}
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
@@ -232,8 +337,6 @@ const TreatmentPlan = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
         templates={desiredOutcomeTemplate.templates}
         templateType="entries"
         showTempButtons={true}

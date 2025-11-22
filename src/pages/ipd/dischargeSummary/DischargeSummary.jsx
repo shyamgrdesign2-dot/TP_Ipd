@@ -347,11 +347,32 @@ const DischargeSummary = (props) => {
                 </div>
               );
             case "dischargeNotes":
-              return <DischargeNotes {...props} sectionData={data} />;
+              return (
+                <DischargeNotes
+                  {...props}
+                  sectionData={data}
+                  patientId={patientDetails?.details?.id}
+                  admissionId={patientDetails?.admissionId}
+                />
+              );
             case "dischargeAdvice":
-              return <DischargeAdvice {...props} sectionData={data} />;
+              return (
+                <DischargeAdvice
+                  {...props}
+                  sectionData={data}
+                  patientId={patientDetails?.details?.id}
+                  admissionId={patientDetails?.admissionId}
+                />
+              );
             case "followUp":
-              return <FollowUp {...props} sectionData={data} />;
+              return (
+                <FollowUp
+                  {...props}
+                  sectionData={data}
+                  patientId={patientDetails?.details?.id}
+                  admissionId={patientDetails?.admissionId}
+                />
+              );
             // case "preparedBy":
             //   return <PreparedBy {...props} sectionData={data} />;
             default:

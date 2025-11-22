@@ -5,11 +5,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { setOperativeNotes } from "../../../redux/ipd/otNotesSlice";
 import { isEmptyRichText, hasNoData } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { useLocation } from "react-router-dom";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const OperativeNotes = (props) => {
-  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
+  const { isEditable = true, sectionData } = props || {};
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   let { operativeNotes = {} } = useSelector((state) => state.otNotes);
   operativeNotes = props.operativeNotes || operativeNotes;
   const { profile } = useSelector((state) => state.doctors);
@@ -17,6 +22,8 @@ const OperativeNotes = (props) => {
   const dispatch = useDispatch();
   const doctorId =
     patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
+  const patientId = patientDetails?.details?.id || null;
+  const admissionId = patientDetails?.admissionId || null;
   const handleChange = useCallback((value, key) => {
     dispatch(setOperativeNotes({ key, value }));
   }, [dispatch]);
@@ -173,6 +180,53 @@ const OperativeNotes = (props) => {
     ]
   );
 
+  const getVoiceHandler = useCallback(
+    (sectionId) =>
+      async (payload, callback) => {
+        if (!patientId || !admissionId) {
+          callback?.();
+          return;
+        }
+        const reduxKey = getReduxKey(sectionId);
+        const response = await dispatch(
+          voiceRx({
+            patientId,
+            admissionId,
+            schemaKey: `OT_NOTES.operativeNotes.${reduxKey}`,
+            audioFile: payload?.audioBlob,
+            filename: payload?.filename,
+            mimeType: payload?.mimeType,
+            previousOutput: getFieldValueBySectionId(sectionId),
+          })
+        );
+
+        if (response.meta.requestStatus === "fulfilled") {
+          const updatedData =
+            response?.payload?.data?.rxDigitizationHistory?.[0]?.response?.[
+              reduxKey
+            ] || [];
+          if (!isEmptyRichText(updatedData)) {
+            // setAutoFillTextToAppend((prev) => ({
+            //   ...prev,
+            //   [sectionId]: updatedData,
+            // }));
+            handleChange(updatedData, reduxKey);
+          }
+          callback?.();
+        } else {
+          callback?.();
+        }
+      },
+    [
+      admissionId,
+      dispatch,
+      getFieldValueBySectionId,
+      getReduxKey,
+      handleChange,
+      patientId,
+    ]
+  );
+
   // Use ref to store the latest handleChange to prevent callback recreation
   const handleChangeRef = useRef(handleChange);
   useEffect(() => {
@@ -313,8 +367,10 @@ const OperativeNotes = (props) => {
         containerClass={`wrapper-class ${
           !isEditable ? "ipd-wrapper-class-readonly rich-text-editor-container-readonly ipdot-on-extraMargin" : ""
         }`}
-        showMagicPenGif={false}
-        showMicrophone={false}
+        showVoiceAI={isEditable && patientId && admissionId}
+        showMicrophone={true}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={getVoiceHandler(sectionId)}
         templates={templateHandlers?.templates}
         templateType={templateHandlers ? "entries" : undefined}
         showTempButtons={isEditable && !!templateHandlers}

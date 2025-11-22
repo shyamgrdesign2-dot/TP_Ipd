@@ -91,6 +91,19 @@ ApiIpdService.sendForDischargeApproval = function ({
   );
 };
 
+ApiIpdService.magicPen = function ({ patientId, admissionId, paragraph }) {
+  return api.post(
+    `/ai/magic-pen?patientId=${patientId}&admissionId=${admissionId}`,
+    { paragraph },
+    {
+      ...baseUrl,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+
 ApiIpdService.voiceRx = function ({
   patientId,
   admissionId,
@@ -108,23 +121,36 @@ ApiIpdService.voiceRx = function ({
 
   const formData = new FormData();
   formData.append("audio_file", fileToUpload);
+  // Only append previousOutput if it is not null/undefined/empty object
+  let shouldAppendPreviousOutput = false;
   let previousOutputToSend = previousOutput;
-  if (typeof previousOutput === "string") {
-    try {
-      previousOutputToSend = JSON.stringify(JSON.parse(previousOutput));
-    } catch (e) {
-      previousOutputToSend = previousOutput; // Not a JSON string, leave as-is
+
+  if (
+    previousOutput !== null &&
+    previousOutput !== undefined &&
+    !(typeof previousOutput === "object" && Object.keys(previousOutput).length === 0)
+  ) {
+    shouldAppendPreviousOutput = true;
+    if (typeof previousOutput === "string") {
+      try {
+        previousOutputToSend = JSON.stringify(JSON.parse(previousOutput));
+      } catch (e) {
+        previousOutputToSend = previousOutput; // Not a JSON string, leave as-is
+      }
+    } else if (typeof previousOutput === "object") {
+      previousOutputToSend = JSON.stringify(previousOutput);
     }
-  } else if (typeof previousOutput === "object") {
-    previousOutputToSend = JSON.stringify(previousOutput);
   }
-  formData.append("previousOutput", previousOutputToSend);
+
+  if (shouldAppendPreviousOutput) {
+    formData.append("previousOutput", previousOutputToSend);
+  }
   return api.post(
     `/ai/voice-rx?patientId=${patientId}&admissionId=${admissionId}&schemaKey=${schemaKey}`,
     formData,
     {
       ...baseUrl,
-      timeout: 1200000,
+      timeout: 120000,
       headers: {
         "Content-Type": "multipart/form-data",
       },

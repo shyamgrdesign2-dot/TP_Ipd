@@ -6,6 +6,9 @@ import { setClinicalAssessmentPlan } from "../../../redux/ipd/consultantNotesSli
 import { isEmptyRichText } from "../../../components/PDFGenerator";
 import dayjs from "dayjs";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { useLocation } from "react-router-dom";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -14,11 +17,12 @@ const ClinicalAssessment = (props) => {
     isEditable = true,
     shouldAutofill = false,
     sectionData,
-    patientDetails = {},
   } = props || {};
   const { clinicalAssessmentPlan } = useSelector(
     (state) => state.consultantNotes
   );
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const doctorId = patientDetails?.doctor?.id || null;
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
@@ -84,16 +88,46 @@ const ClinicalAssessment = (props) => {
     }
   }, [shouldAutofill]);
 
+  const handleAIRecordingComplete = async (payload, callback) => {
+    const response = await dispatch(
+      voiceRx({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        schemaKey: "CONSULTANT_NOTES.clinicalAssessmentPlan",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: clinicalAssessmentPlan,
+      })
+    );
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+          ?.clinicalAssessmentPlan || [];
+      if (!isEmptyRichText(updatedData)) {
+        // setAutoFillTextToAppend(updatedData);
+        dispatch(setClinicalAssessmentPlan(updatedData));
+        callback?.();
+      } else {
+        callback?.();
+      }
+    }
+  };
+
   return (
     <RichTextEditWrapper
       readOnly={!isEditable}
       showToolbar={isEditable}
       showActionBtns={isEditable}
+      showVoiceAI={true}
+      showMicrophone={true}
+      showMagicPenGif={true}
+      voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+      onVoiceAIRecordingComplete={handleAIRecordingComplete}
       title="Clinical Assessment & Plan"
       width="100%"
       icon={defaultIcons[`${sectionData?.id}Pc`]}
       containerClass="wrapper-class"
-      showMagicPenGif={false}
       showAutoFill={hasClinicalAssessmentPlanInLastConsultantNote}
       autoFillTitle={
         hasClinicalAssessmentPlanInLastConsultantNote

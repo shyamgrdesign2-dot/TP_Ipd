@@ -17,12 +17,18 @@ import {
 } from "../../../redux/ipd/otNotesSlice";
 import { createSurgery } from "../../../redux/surgicalSlice";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { isEmptyRichText } from "../../../utils/utils";
+import { useLocation } from "react-router-dom";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const SurgeryDetails = (props) => {
-  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
+  const { isEditable = true, sectionData } = props || {};
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const { surgeryDetails, surgeryProcedureOptions } = useSelector(
     (state) => state.otNotes
   );
@@ -31,7 +37,10 @@ const SurgeryDetails = (props) => {
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const doctorId = patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
+  const doctorId =
+    patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
+  const patientId = patientDetails?.details?.id || null;
+  const admissionId = patientDetails?.admissionId || null;
 
   useEffect(() => {
     dispatch(searchSurgeryProcedures(""));
@@ -270,6 +279,37 @@ const SurgeryDetails = (props) => {
     ),
   });
 
+  const handleAIRecordingComplete = async (payload, callback) => {
+    if (!patientId || !admissionId) {
+      callback?.();
+      return;
+    }
+    const response = await dispatch(
+      voiceRx({
+        patientId,
+        admissionId,
+        schemaKey: "OT_NOTES.surgeryDetails.diagnosis",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: initialValue?.diagnosis,
+      })
+    );
+
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+          ?.diagnosis || [];
+      if (!isEmptyRichText(updatedData)) {
+        dispatch(setDiagnosis(updatedData));
+        // setAutoFillTextToAppend(updatedData);
+      }
+      callback?.();
+    } else {
+      callback?.();
+    }
+  };
+
   const renderDiagnosis = (data) => {
     if (!isEditable && !initialValue?.diagnosis) return null;
 
@@ -286,8 +326,10 @@ const SurgeryDetails = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="11 Sep 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
+        showVoiceAI={isEditable && patientId && admissionId}
+        showMicrophone={true}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingComplete}
         templates={diagnosisTemplates}
         templateType="entries"
         showTempButtons={isEditable}

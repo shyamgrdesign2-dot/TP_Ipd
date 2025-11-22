@@ -5,6 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setAdditionalRemarks } from "../../../redux/ipd/progressNotesSlice";
 import { formatDateToShortMonthYear, isEmptyRichText } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { useLocation } from "react-router-dom";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -20,14 +23,16 @@ const AdditionalRemarks = (props) => {
     isEditable = true,
     shouldAutofill = false,
     sectionData,
-    patientDetails = {},
   } = props || {};
-  const { additionalRemarks } = useSelector((state) => state.progressNotes);
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
+  const { additionalRemarks, progressNotes } = useSelector(
+    (state) => state.progressNotes
+  );
   const doctorId = patientDetails?.doctor?.id || null;
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
-  const { progressNotes } = useSelector((state) => state.progressNotes);
   const prevProgressNote = useMemo(() => {
     return progressNotes[progressNotes?.length - 1];
   }, [progressNotes]);
@@ -100,11 +105,52 @@ const AdditionalRemarks = (props) => {
     }
   }, [shouldAutofill]);
 
+  const handleAIRecordingComplete = async (payload, callback) => {
+    if (!patientDetails?.details?.id || !patientDetails?.admissionId) {
+      callback?.();
+      return;
+    }
+    const response = await dispatch(
+      voiceRx({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        schemaKey: "PROGRESS_NOTES.additionalRemarks",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: additionalRemarks,
+      })
+    );
+
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData =
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
+          ?.additionalRemarks || [];
+      if (!isEmptyRichText(updatedData)) {
+        dispatch(setAdditionalRemarks(updatedData));
+        // setAutoFillTextToAppend(updatedData);
+        callback?.();
+      } else {
+        callback?.();
+      }
+    } else {
+      callback?.();
+    }
+  };
+
   return (
     <RichTextEditWrapper
       readOnly={!isEditable}
       showToolbar={isEditable}
       showActionBtns={isEditable}
+      showVoiceAI={
+        isEditable &&
+        patientDetails?.details?.id &&
+        patientDetails?.admissionId
+      }
+      showMicrophone={true}
+      voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+      onVoiceAIRecordingComplete={handleAIRecordingComplete}
       title="Additional Remarks"
       width="100%"
       icon={defaultIcons[`${sectionData?.id}Pc`]}
@@ -125,8 +171,6 @@ const AdditionalRemarks = (props) => {
       }
       onAutoFill={handleAutofill}
       containerClass={`${!isEditable ? "ipd-wrapper-class-readonly" : ""}`}
-      showMagicPenGif={false}
-      showMicrophone={false}
       initialValue={
         additionalRemarks?.length > 0
           ? additionalRemarks

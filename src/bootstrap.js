@@ -10,6 +10,12 @@ import './assets/scss/app.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import * as Sentry from "@sentry/react";
 
+// Set global wallpaper path from public static assets to avoid bundling large media.
+if (typeof document !== 'undefined') {
+  const cdssWallpaperUrl = `${process.env.PUBLIC_URL || ''}/static-media/cdss-wallpaper.gif`;
+  document.documentElement.style.setProperty('--cdss-wallpaper-url', `url(${cdssWallpaperUrl})`);
+}
+
 Sentry.init({
   dsn: "https://e217b496cfe26ddc7d834f74ad8ff89c@o4509909105508352.ingest.us.sentry.io/4509910041231360",
   sendDefaultPii: true,
