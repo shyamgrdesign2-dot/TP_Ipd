@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useEffect } from "react";
 import { DatePicker, Button } from "antd";
 import dayjs from "dayjs";
-
+import './DateRangeFilter.scss';
 const { RangePicker } = DatePicker;
 
 const DATE_FORMAT = "YYYY-MM-DD";

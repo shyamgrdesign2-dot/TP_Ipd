@@ -1,0 +1,51 @@
+.massage-date-wrapper {
+  display: flex;
+  align-items: center;
+  min-width: 150px;
+  border-radius: 12px;
+  height: 38px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border: 1px solid #dce4e8 !important;
+  position: relative;
+  .massage-input {
+    width: 100%;
+    height: 36px;
+    right: 0;
+    border-radius: 12px;
+    background-color: transparent;
+    position: absolute;
+    z-index: -9;
+    .ant-picker-suffix {
+      position: absolute;
+      right: 0;
+    }
+    &:hover,
+    &:focus {
+      border-color: transparent !important;
+      box-shadow: none;
+      .ant-picker-clear {
+        display: none;
+      }
+    }
+  }
+}
+
+.massage-date-wrapper {
+  .filter-active {
+    span {
+      max-width: 140px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  @media screen and (min-width: 464px) and (max-width: 1199px) {
+    .filter-active {
+      span {
+        max-width: 100px;
+      }
+    }
+  }
+}
