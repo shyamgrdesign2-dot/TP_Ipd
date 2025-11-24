@@ -1,6 +1,6 @@
 import { Button, Col, Row, Spin } from "antd";
 import { isMobile } from "react-device-detect";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 
@@ -25,14 +25,14 @@ const PrintPreviewOTNotes = () => {
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const { state } = useLocation();
-  const { patientDetails, fromTab } = state || {};
+  const { patientDetails, fromTab, otNotesData: stateOtNotesData } = state || {};
   const dispatch = useDispatch();
   
   // Use custom hook to handle patient details and print settings
   usePrintPreviewSetup();
   
   const { printSettings } = useSelector((state) => state.printSettings);
-  const { otNotesData } = useSelector((state) => state.otNotes);
+  const { otNotesData: storeOtNotesData } = useSelector((state) => state.otNotes);
   const { otNotes: currentSettings } = printSettings;
 
   useEffect(() => {
@@ -42,7 +42,8 @@ const PrintPreviewOTNotes = () => {
   useEffect(() => {
     if (
       patientDetails?.details?.id &&
-      (!otNotesData || (otNotesData && !Object.keys(otNotesData).length))
+      (!storeOtNotesData ||
+        (storeOtNotesData && !Object.keys(storeOtNotesData).length))
     )
       dispatch(
         getOtNotesData({
@@ -60,18 +61,29 @@ const PrintPreviewOTNotes = () => {
         });
   }, []);
 
-  useEffect(() => {
-    if (currentSettings && Object.keys(otNotesData).length) {
-      makePDFUrl();
+  const resolvedOtNotesData = useMemo(() => {
+    if (Array.isArray(stateOtNotesData)) {
+      return stateOtNotesData;
     }
-  }, [currentSettings, otNotesData]);
+    return storeOtNotesData;
+  }, [stateOtNotesData, storeOtNotesData]);
 
-  const makePDFUrl = async () => {
+  useEffect(() => {
+    if (
+      currentSettings &&
+      resolvedOtNotesData &&
+      Object.keys(resolvedOtNotesData || {}).length
+    ) {
+      makePDFUrl(currentSettings, resolvedOtNotesData);
+    }
+  }, [currentSettings, resolvedOtNotesData]);
+
+  const makePDFUrl = async (settings, data) => {
     try {
       const blob = await pdf(
         <PDFGenerator
-          settings={currentSettings}
-          data={otNotesData}
+          settings={settings}
+          data={data}
           documentType="otNotes"
           patientData={getPatientInformation(patientDetails)}
         />
@@ -86,7 +98,7 @@ const PrintPreviewOTNotes = () => {
     navigate("/ipd/ot-notes/configure-print-settings", {
       state: {
         moduleType: "otNotes",
-        data: otNotesData,
+        data: resolvedOtNotesData,
         printSettings: currentSettings,
         returnPath: "/ipd/ot-notes/preview",
         patientDetails,

@@ -4,6 +4,8 @@ import ApiSurgical from "../../api/services/ApiSurgical";
 
 export const initialState = {
   otNotesData: {},
+  filteredOtNotesData: [],
+  currentFilterRange: null,
   loading: false,
   currentOtNoteId: null, //"68d26742d5f86080a3a6383a",
   currentOtNoteFilledByDetails: null,
@@ -102,6 +104,18 @@ const otNotesSlice = createSlice({
   reducers: {
     setOtNotesData: (state, action) => {
       state.otNotesData = action.payload;
+    },
+    setFilteredOtNotesData: (state, action) => {
+      state.filteredOtNotesData = Array.isArray(action.payload)
+        ? action.payload
+        : [];
+    },
+    setOtNotesFilterRange: (state, action) => {
+      state.currentFilterRange = action.payload || null;
+    },
+    clearOtNotesFilter: (state) => {
+      state.filteredOtNotesData = [];
+      state.currentFilterRange = null;
     },
     setSurgeryProcedureName: (state, action) => {
       state.surgeryDetails.procedureName = action.payload || "";
@@ -301,9 +315,13 @@ const otNotesSlice = createSlice({
       .addCase(getOtNotesData.fulfilled, (state, action) => {
         state.loading = false;
         state.otNotesData = action.payload;
+        state.filteredOtNotesData = [];
+        state.currentFilterRange = null;
       })
       .addCase(getOtNotesData.rejected, (state, action) => {
         state.otNotesData = {};
+        state.filteredOtNotesData = [];
+        state.currentFilterRange = null;
         state.loading = false;
       })
       .addCase(addOtNotesData.pending, (state) => {
@@ -312,9 +330,13 @@ const otNotesSlice = createSlice({
       .addCase(addOtNotesData.fulfilled, (state, action) => {
         state.loading = false;
         state.otNotesData = action.payload;
+        state.filteredOtNotesData = [];
+        state.currentFilterRange = null;
       })
       .addCase(addOtNotesData.rejected, (state, action) => {
         state.otNotesData = [];
+        state.filteredOtNotesData = [];
+        state.currentFilterRange = null;
         state.loading = false;
       })
       .addCase(updateOtNotesData.pending, (state) => {
@@ -323,9 +345,13 @@ const otNotesSlice = createSlice({
       .addCase(updateOtNotesData.fulfilled, (state, action) => {
         state.loading = false;
         state.otNotesData = action.payload;
+        state.filteredOtNotesData = [];
+        state.currentFilterRange = null;
       })
       .addCase(updateOtNotesData.rejected, (state, action) => {
         state.otNotesData = [];
+        state.filteredOtNotesData = [];
+        state.currentFilterRange = null;
         state.loading = false;
       });
   },
@@ -346,6 +372,9 @@ export const {
   setSingleOtNotesData,
   setCurrentOtNoteId,
   setCurrentOtNoteFilledByDetails,
+  setFilteredOtNotesData,
+  setOtNotesFilterRange,
+  clearOtNotesFilter,
   resetOtNotesForm,
   resetOtNotesToInitialState,
 } = otNotesSlice.actions;

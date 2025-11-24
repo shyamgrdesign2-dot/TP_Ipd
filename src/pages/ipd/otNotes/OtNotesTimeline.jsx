@@ -13,6 +13,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   setCurrentOtNoteId,
   setSingleOtNotesData,
+  setFilteredOtNotesData,
+  setOtNotesFilterRange,
+  clearOtNotesFilter,
 } from "../../../redux/ipd/otNotesSlice.js";
 import DateRangeFilter from "../components/DateRangeFilter.js";
 import { getCustomization } from "../../../redux/ipd/ipdSlice.js";
@@ -34,6 +37,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
   const showDateFormat = "DD-MM-YYYY";
   const dispatch = useDispatch();
   const otNotesState = useSelector((state) => state.otNotes);
+  const { otNotesData, currentFilterRange } = otNotesState;
   const isOnlyViewMode = useOnlyViewMode();
   const { showLastUpdatedAt } = useDischargeSummaryData(true, true);
   const { customization = {} } = useSelector((state) => state.ipd);
@@ -85,11 +89,43 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
   const handlePickerModal = useCallback(() => {
     setPickerModal(!pickerModal);
   }, [pickerModal]);
+  
+  const determineDateStatus = useCallback(
+    (startDate, endDate) => {
+      if (!startDate || !endDate) return null;
+      const today = moment().format(dateFormat);
+      if (startDate === today && endDate === today) {
+        return 1;
+      }
+      if (
+        startDate === moment().add(-1, "d").format(dateFormat) &&
+        endDate === today
+      ) {
+        return 2;
+      }
+      if (
+        startDate === moment().add(-7, "d").format(dateFormat) &&
+        endDate === today
+      ) {
+        return 3;
+      }
+      if (
+        startDate === moment().add(-1, "M").format(dateFormat) &&
+        endDate === today
+      ) {
+        return 4;
+      }
+      return null;
+    },
+    []
+  );
+
   const handleDateCancel = useCallback(() => {
     setDateStatus(null);
     setDateRange(null);
     setPickerModal(false);
-  }, []);
+    dispatch(clearOtNotesFilter());
+  }, [dispatch]);
 
   const disabledDate = useCallback((current) => {
     return current && current >= moment().add(1, "days").startOf("day");
@@ -102,27 +138,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
         dateFormat
       );
       const endDate = moment(dateStrings[1], showDateFormat).format(dateFormat);
-
-      if (startDate === today && endDate === today) {
-        setDateStatus(1);
-      } else if (
-        startDate === moment().add(-1, "d").format(dateFormat) &&
-        endDate === today
-      ) {
-        setDateStatus(2);
-      } else if (
-        startDate === moment().add(-7, "d").format(dateFormat) &&
-        endDate === today
-      ) {
-        setDateStatus(3);
-      } else if (
-        startDate === moment().add(-1, "M").format(dateFormat) &&
-        endDate === today
-      ) {
-        setDateStatus(4);
-      } else {
-        setDateStatus(null);
-      }
+      setDateStatus(determineDateStatus(startDate, endDate));
 
       setDateRange({
         startDate: startDate,
@@ -131,8 +147,27 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
     } else {
       setDateStatus(null);
       setDateRange(null);
+      dispatch(clearOtNotesFilter());
     }
-  }, []);
+  }, [determineDateStatus, dispatch]);
+
+  useEffect(() => {
+    if (
+      currentFilterRange?.startDate &&
+      currentFilterRange?.endDate
+    ) {
+      setDateRange(currentFilterRange);
+      setDateStatus(
+        determineDateStatus(
+          currentFilterRange.startDate,
+          currentFilterRange.endDate
+        )
+      );
+    } else {
+      setDateRange(null);
+      setDateStatus(null);
+    }
+  }, [currentFilterRange, determineDateStatus]);
 
   const renderCustomGroupHeader = (groupKey, groupData, emit) => {
     const data = groupData?.[0]?.originalEntry;
@@ -264,9 +299,47 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
     console.log("Event:", eventName, payload);
   };
 
+  const rawOtNotesEntries = useMemo(() => {
+    return Array.isArray(otNotesData) ? otNotesData : [];
+  }, [otNotesData]);
+
+  const filteredEntries = useMemo(() => {
+    if (!dateRange?.startDate || !dateRange?.endDate) {
+      return rawOtNotesEntries;
+    }
+
+    const startDate = moment(dateRange.startDate).startOf("day");
+    const endDate = moment(dateRange.endDate).endOf("day");
+
+    return rawOtNotesEntries.filter((entry) => {
+      const surgeryDate =
+        entry?.otNotes?.surgeryDetails?.surgeryDate;
+      if (!surgeryDate) return false;
+
+      let itemDate = moment(surgeryDate, "DD MMM YYYY");
+      if (!itemDate.isValid()) {
+        itemDate = moment(surgeryDate, showDateFormat);
+      }
+
+      if (!itemDate.isValid()) {
+        return false;
+      }
+
+      return itemDate.isBetween(startDate, endDate, null, "[]");
+    });
+  }, [rawOtNotesEntries, dateRange]);
+
+  useEffect(() => {
+    if (dateRange?.startDate && dateRange?.endDate) {
+      dispatch(setOtNotesFilterRange(dateRange));
+      dispatch(setFilteredOtNotesData(filteredEntries));
+    } else {
+      dispatch(clearOtNotesFilter());
+    }
+  }, [dateRange, filteredEntries, dispatch]);
+
   const mappedData = useMemo(() => {
-    if (!Array.isArray(otNotesState.otNotesData)) return [];
-    return otNotesState?.otNotesData?.map((entry, index) => {
+    return filteredEntries.map((entry, index) => {
       const dateIso = entry?.createdAt ? new Date(entry?.createdAt) : null;
       const updates = entry?.updates;
       return {
@@ -452,33 +525,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
         },
       };
     });
-  }, [otNotesState.otNotesData, otNotes, isLiteMode]);
-
-  const filteredMappedData = useMemo(() => {
-    if (!dateRange || !dateRange.startDate || !dateRange.endDate) {
-      return mappedData;
-    }
-
-    const startDate = moment(dateRange.startDate).startOf("day");
-    const endDate = moment(dateRange.endDate).endOf("day");
-
-    return mappedData.filter((item) => {
-      const surgeryDate =
-        item.originalEntry?.otNotes?.surgeryDetails?.surgeryDate;
-      if (!surgeryDate) return false;
-
-      let itemDate = moment(surgeryDate, "DD MMM YYYY");
-      if (!itemDate.isValid()) {
-        itemDate = moment(surgeryDate, showDateFormat);
-      }
-
-      if (!itemDate.isValid()) {
-        return false;
-      }
-
-      return itemDate.isBetween(startDate, endDate, null, "[]");
-    });
-  }, [mappedData, dateRange]);
+  }, [filteredEntries, otNotes, isLiteMode]);
 
   if (isLiteMode) {
     return (
@@ -487,7 +534,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
           isLiteMode ? "no-extra-margin-padding" : ""
         }`}
       >
-        {filteredMappedData?.map((section, sectionIndex) => {
+        {mappedData?.map((section, sectionIndex) => {
           return (
             <div className="otnotelite-section-container big-box-with-shadow flex-column-gap-16">
               <div className="d-flex-align-center-gap-8">
@@ -530,9 +577,9 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
         />
       </div>
 
-      {filteredMappedData.length > 0 ? (
+      {mappedData.length > 0 ? (
         <ReusableStepper
-          data={filteredMappedData}
+          data={mappedData}
           groupBy={(item) =>
             item.date || item.timestamp?.split(" ")[0] || "Unknown"
           }

@@ -100,7 +100,11 @@ const IPDPatientDetails = () => {
 
   const { assessmentsData } = useSelector((state) => state.assessment);
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
-  const { otNotesData } = useSelector((state) => state.otNotes);
+  const {
+    otNotesData,
+    filteredOtNotesData,
+    currentFilterRange: otNotesFilterRange,
+  } = useSelector((state) => state.otNotes);
   const { progressNotes, filteredProgressNotes, currentFilterRange } = useSelector(
     (state) => state.progressNotes
   );
@@ -629,9 +633,22 @@ const IPDPatientDetails = () => {
   };
 
   const handleOTNotesPrintPreview = () => {
+    const previewData = getOtNotesDataForOutput();
+    if (
+      hasActiveOtNotesFilter &&
+      (!Array.isArray(previewData) || previewData.length === 0)
+    ) {
+      message.warning(
+        "No OT notes found for the selected date range to preview."
+      );
+      return;
+    }
     navigate("/ipd/ot-notes/preview", {
       state: {
         patientDetails,
+        fromTab,
+        otNotesData: previewData,
+        filterRange: otNotesFilterRange,
       },
     });
   };
@@ -652,6 +669,18 @@ const IPDPatientDetails = () => {
     const hasActiveFilter =
       currentFilterRange?.startDate && currentFilterRange?.endDate;
     return hasActiveFilter ? filteredData : baseData;
+  };
+
+  const hasActiveOtNotesFilter =
+    otNotesFilterRange?.startDate && otNotesFilterRange?.endDate;
+
+  const getOtNotesDataForOutput = () => {
+    if (hasActiveOtNotesFilter) {
+      return Array.isArray(filteredOtNotesData)
+        ? filteredOtNotesData
+        : [];
+    }
+    return otNotesData;
   };
 
   const handleProgressNotesPrintPreview = () => {
@@ -810,20 +839,45 @@ const IPDPatientDetails = () => {
 
   // OT Notes: print & download
   const handleOTNotesPrint = async () => {
+    const otNotesToPrint = getOtNotesDataForOutput();
+    if (
+      hasActiveOtNotesFilter &&
+      (!Array.isArray(otNotesToPrint) || otNotesToPrint.length === 0)
+    ) {
+      message.warning(
+        "No OT notes found for the selected date range to print."
+      );
+      return;
+    }
     try {
-      await printModule("otNotes", printSettings, patientDetails, otNotesData);
+      await printModule(
+        "otNotes",
+        printSettings,
+        patientDetails,
+        otNotesToPrint
+      );
     } catch (error) {
       console.error("Error printing OT notes:", error);
     }
   };
 
   const handleOTNotesDownload = async () => {
+    const otNotesToDownload = getOtNotesDataForOutput();
+    if (
+      hasActiveOtNotesFilter &&
+      (!Array.isArray(otNotesToDownload) || otNotesToDownload.length === 0)
+    ) {
+      message.warning(
+        "No OT notes found for the selected date range to download."
+      );
+      return;
+    }
     try {
       await downloadModule(
         "otNotes",
         printSettings,
         patientDetails,
-        otNotesData
+        otNotesToDownload
       );
     } catch (error) {
       console.error("Error downloading OT notes:", error);
