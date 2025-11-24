@@ -4,6 +4,7 @@ import ApiProgressNotes from "../../api/services/ipd/ApiProgressNotes";
 const initialState = {
   progressNotes: {},
   filteredProgressNotes: [], // New array for filtered results
+  currentFilterRange: null,
   chiefComplaint: [],
   findings: [],
   vitals: {},
@@ -96,6 +97,7 @@ const progressNotesSlice = createSlice({
     clearProgressNotes: (state) => {
       state.progressNotes = [];
       state.filteredProgressNotes = []; // Clear filtered array too
+      state.currentFilterRange = null;
       state.currentProgressNote = null;
       state.error = null;
       state.success = false;
@@ -103,6 +105,7 @@ const progressNotesSlice = createSlice({
     // Clear date filter
     clearDateFilter: (state) => {
       state.filteredProgressNotes = [];
+      state.currentFilterRange = null;
     },
     setChiefComplaint: (state, action) => {
       state.chiefComplaint = action.payload;
@@ -140,6 +143,7 @@ const progressNotesSlice = createSlice({
         state.progressNotes = action.payload;
         state.isFetched = true;
         state.filteredProgressNotes = []; // Clear filtered array when new data is fetched
+        state.currentFilterRange = null;
         state.error = null;
       })
       .addCase(getProgressNotes.rejected, (state, action) => {
@@ -147,6 +151,7 @@ const progressNotesSlice = createSlice({
         state.filteredProgressNotes = []; // Clear filtered array on error
         state.loading = false;
         state.isFetched = true;
+        state.currentFilterRange = null;
         state.error = action.payload;
       })
       .addCase(updateProgressNotes.pending, (state) => {
@@ -164,9 +169,18 @@ const progressNotesSlice = createSlice({
         state.progressNotes = [];
         state.error = action.payload;
       })
-      .addCase(filterProgressNotesByDateRange.pending, (state) => {
+      .addCase(filterProgressNotesByDateRange.pending, (state, action) => {
         state.loading = true;
         state.error = null;
+        const { filterStartDate, filterEndDate } = action.meta.arg || {};
+        if (filterStartDate && filterEndDate) {
+          state.currentFilterRange = {
+            startDate: filterStartDate,
+            endDate: filterEndDate,
+          };
+        } else {
+          state.currentFilterRange = null;
+        }
       })
       .addCase(filterProgressNotesByDateRange.fulfilled, (state, action) => {
         state.loading = false;

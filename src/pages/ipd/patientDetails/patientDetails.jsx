@@ -51,7 +51,7 @@ import {
   resetOtNotesToInitialState,
 } from "../../../redux/ipd/otNotesSlice";
 import MedicalRecords from "../medicalRecords/IPDMedicalRecords";
-import { Drawer, Spin } from "antd";
+import { Drawer, Spin, message } from "antd";
 import UploadDocument from "../../medicalRecords/UploadDocument";
 import { getAllPatientDocs } from "../medicalRecords/utils.js/helper";
 import VisitMedicalRecords from "../../medicalRecords/components/visitMedicalRecords/VisitMedicalRecords";
@@ -101,7 +101,7 @@ const IPDPatientDetails = () => {
   const { assessmentsData } = useSelector((state) => state.assessment);
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { otNotesData } = useSelector((state) => state.otNotes);
-  const { progressNotes, filteredProgressNotes } = useSelector(
+  const { progressNotes, filteredProgressNotes, currentFilterRange } = useSelector(
     (state) => state.progressNotes
   );
   const { medicalRecords } = useSelector((state) => state.medicalRecords);
@@ -644,21 +644,56 @@ const IPDPatientDetails = () => {
     });
   };
 
+  const getProgressNotesDataForOutput = () => {
+    const baseData = Array.isArray(progressNotes) ? progressNotes : [];
+    const filteredData = Array.isArray(filteredProgressNotes)
+      ? filteredProgressNotes
+      : [];
+    const hasActiveFilter =
+      currentFilterRange?.startDate && currentFilterRange?.endDate;
+    return hasActiveFilter ? filteredData : baseData;
+  };
+
   const handleProgressNotesPrintPreview = () => {
+    const previewData = getProgressNotesDataForOutput();
+    const hasActiveFilter =
+      currentFilterRange?.startDate && currentFilterRange?.endDate;
+
+    if (hasActiveFilter && previewData.length === 0) {
+      message.warning(
+        "No progress notes found for the selected date range to preview."
+      );
+      return;
+    }
+
     navigate("/ipd/progress-notes/preview", {
       state: {
         patientDetails,
+        fromTab,
+        progressNotesData: previewData,
+        filterRange: currentFilterRange,
       },
     });
   };
 
   const handleProgressNotesPrint = async () => {
+    const notesToPrint = getProgressNotesDataForOutput();
+    const hasActiveFilter =
+      currentFilterRange?.startDate && currentFilterRange?.endDate;
+
+    if (hasActiveFilter && notesToPrint.length === 0) {
+      message.warning(
+        "No progress notes found for the selected date range to print."
+      );
+      return;
+    }
+
     try {
       await printModule(
         "progressNotes",
         printSettings,
         patientDetails,
-        progressNotes
+        notesToPrint
       );
     } catch (error) {
       console.error("Error printing progress notes:", error);
@@ -666,12 +701,23 @@ const IPDPatientDetails = () => {
   };
 
   const handleProgressNotesDownload = async () => {
+    const notesToDownload = getProgressNotesDataForOutput();
+    const hasActiveFilter =
+      currentFilterRange?.startDate && currentFilterRange?.endDate;
+
+    if (hasActiveFilter && notesToDownload.length === 0) {
+      message.warning(
+        "No progress notes found for the selected date range to download."
+      );
+      return;
+    }
+
     try {
       await downloadModule(
         "progressNotes",
         printSettings,
         patientDetails,
-        progressNotes
+        notesToDownload
       );
     } catch (error) {
       console.error("Error downloading progress notes:", error);

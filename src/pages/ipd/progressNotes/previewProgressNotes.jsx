@@ -1,6 +1,6 @@
 import { Button, Col, Row, Spin } from "antd";
 import { isMobile } from "react-device-detect";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 
@@ -24,9 +24,12 @@ const PreviewProgressNotes = () => {
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const { state } = useLocation();
-  const { patientDetails, fromTab } = state || {};
+  const { patientDetails, fromTab, progressNotesData: stateProgressNotesData } =
+    state || {};
   const { printSettings } = useSelector((state) => state.printSettings);
-  const { progressNotes } = useSelector((state) => state.progressNotes);
+  const { progressNotes: storeProgressNotes } = useSelector(
+    (state) => state.progressNotes
+  );
   const { progressNotes: currentSettings } = printSettings;
 
   // const patientData = progressNotesData?.patientInformation || {};
@@ -43,18 +46,28 @@ const PreviewProgressNotes = () => {
     setDivWidth(divRef.current?.offsetWidth);
   }, [divRef]);
 
-  useEffect(() => {
-    if (currentSettings && progressNotes.length > 0) {
-      makePDFUrl(currentSettings);
+  const resolvedProgressNotes = useMemo(() => {
+    if (Array.isArray(stateProgressNotesData)) {
+      return stateProgressNotesData;
     }
-  }, [currentSettings, progressNotes]);
+    if (Array.isArray(storeProgressNotes)) {
+      return storeProgressNotes;
+    }
+    return [];
+  }, [stateProgressNotesData, storeProgressNotes]);
 
-  const makePDFUrl = async () => {
+  useEffect(() => {
+    if (currentSettings && resolvedProgressNotes.length > 0) {
+      makePDFUrl(currentSettings, resolvedProgressNotes);
+    }
+  }, [currentSettings, resolvedProgressNotes]);
+
+  const makePDFUrl = async (settings, notes) => {
     try {
       const blob = await pdf(
         <PDFGenerator
-          settings={currentSettings}
-          data={{ patientInformation, progressNotes }}
+          settings={settings}
+          data={{ patientInformation, progressNotes: notes }}
           documentType="progressNotes"
         />
       ).toBlob();
@@ -68,7 +81,7 @@ const PreviewProgressNotes = () => {
     navigate("/ipd/progress-notes/configure-print-settings", {
       state: {
         moduleType: "progressNotes",
-        data: { patientInformation, progressNotes },
+        data: { patientInformation, progressNotes: resolvedProgressNotes },
         printSettings: currentSettings,
         returnPath: "/ipd/progress-notes/preview",
       },
