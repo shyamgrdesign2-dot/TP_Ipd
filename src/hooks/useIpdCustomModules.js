@@ -25,6 +25,15 @@ const DEFAULT_SLATE_VALUE = [
   },
 ];
 
+const FORM_TYPE_MAP = {
+  consultantNotes: "consultationNotes",
+  progressNotes: "progressNotes",
+  otNotes: "otNotes",
+  dischargedSummary: "dischargeSummary",
+  assessments: "assessments",
+  crossReferral: "crossReferral",
+};
+
 const ensureModuleId = (module) =>
   module?.module_id || module?.moduleId || module?.id || null;
 
@@ -140,15 +149,6 @@ const normalizeModuleContents = (entries, customModules = []) => {
   return Array.from(deduped.values());
 };
 
-const FORM_TYPE_MAP = {
-  consultantNotes: "consultationNotes",
-  progressNotes: "progressNotes",
-  otNotes: "otNotes",
-  dischargedSummary: "dischargeSummary",
-  assessments: "assessments",
-  crossReferral: "crossReferral",
-};
-
 const useIpdCustomModules = ({
   formType,
   customizationKey,
@@ -159,17 +159,15 @@ const useIpdCustomModules = ({
 }) => {
   const dispatch = useDispatch();
   const customization = useSelector((state) => state.ipd.customization || {});
-  const { userId } = useSelector((state) => state.doctors);
   const customModules = useSelector(
     (state) => state.ipdCustomModules.customModules || []
   );
   const { printSettings } = useSelector((state) => state.printSettings);
 
-  const [customModuleContentsState, setCustomModuleContentsState] = useState(
-    []
-  );
+  const [customModuleContents, setCustomModuleContentsState] = useState([]);
   const { state } = useLocation();
   const { patientDetails = {} } = state || {};
+  const admittingDoctorId = patientDetails?.doctor?.id;
 
   const setCustomModuleContents = useCallback(
     (value) => {
@@ -182,8 +180,6 @@ const useIpdCustomModules = ({
     [customModules]
   );
 
-  const customModuleContents = customModuleContentsState;
-
   useEffect(() => {
     setCustomModuleContentsState((prev) =>
       normalizeModuleContents(prev, customModules)
@@ -191,36 +187,42 @@ const useIpdCustomModules = ({
   }, [customModules]);
 
   useEffect(() => {
-    if (userId && formType) {
-      dispatch(getCustomModules({ userId, form: formType }));
+    if (admittingDoctorId && formType) {
+      dispatch(getCustomModules({ userId: admittingDoctorId, form: formType }));
     }
-  }, [dispatch, formType, userId]);
+  }, [dispatch, formType, admittingDoctorId]);
 
   useEffect(() => {
-    if (!printSettings?.[formType]) {
+    const mappedFormType = FORM_TYPE_MAP[formType];
+    if (mappedFormType && !printSettings?.[mappedFormType]) {
       dispatch(getPrintSettings());
     }
-  }, [dispatch, formType]);
+  }, [dispatch, formType, printSettings]);
 
   const updateCustomizationWith = useCallback(
-    (nextSections) => {
+    async (nextSections) => {
       if (!customizationKey || !setModelData) {
         return;
       }
 
-      dispatch(
-        updateCustomization({
-          ...customization,
-          [customizationKey]: nextSections,
-        })
-      );
+      try {
+        await dispatch(
+          updateCustomization({
+            ...customization,
+            [customizationKey]: nextSections,
+          })
+        );
+      } catch (error) {
+        console.error("Failed to update customization:", error);
+      }
     },
     [customization, customizationKey, dispatch, setModelData]
   );
 
   const syncPrintSettingsFormatStyle = useCallback(
-    (action, { moduleId, moduleName }) => {
-      if (!formType || !moduleId || !printSettings?.[FORM_TYPE_MAP[formType]]) {
+    async (action, { moduleId, moduleName }) => {
+      const mappedFormType = FORM_TYPE_MAP[formType];
+      if (!mappedFormType || !moduleId || !printSettings?.[mappedFormType]) {
         return;
       }
 
@@ -229,7 +231,7 @@ const useIpdCustomModules = ({
         customModules.find((module) => module.module_id === moduleId)?.name ||
         "Custom Module";
 
-      const moduleSettings = printSettings[FORM_TYPE_MAP[formType]];
+      const moduleSettings = printSettings[mappedFormType];
       const currentFormatStyle = Array.isArray(moduleSettings.formatStyle)
         ? [...moduleSettings.formatStyle]
         : [];
@@ -263,9 +265,7 @@ const useIpdCustomModules = ({
 
         updatedFormatStyle = [...currentFormatStyle, newSection];
         shouldUpdate = true;
-      }
-
-      if (action === "rename") {
+      } else if (action === "rename") {
         let renamed = false;
         updatedFormatStyle = currentFormatStyle.map((section) => {
           if (ensureModuleId(section) === moduleId) {
@@ -279,9 +279,7 @@ const useIpdCustomModules = ({
         });
 
         shouldUpdate = renamed;
-      }
-
-      if (action === "delete") {
+      } else if (action === "delete") {
         let softDeleted = false;
         updatedFormatStyle = currentFormatStyle.map((section) => {
           if (ensureModuleId(section) === moduleId) {
@@ -294,9 +292,7 @@ const useIpdCustomModules = ({
           return section;
         });
 
-        if (softDeleted) {
-          shouldUpdate = true;
-        }
+        shouldUpdate = softDeleted;
       }
 
       if (!shouldUpdate) {
@@ -318,16 +314,21 @@ const useIpdCustomModules = ({
       const updatedPrintSettingsPayload = {
         printSettings: {
           ...settingsPayload,
-          [FORM_TYPE_MAP[formType]]: {
+          [mappedFormType]: {
             ...moduleSettings,
             formatStyle: updatedFormatStyle,
           },
         },
-        doctorId: patientDetails?.doctor?.id,
+        doctorId: admittingDoctorId,
       };
-      dispatch(updatePrintSettings(updatedPrintSettingsPayload));
+
+      try {
+        await dispatch(updatePrintSettings(updatedPrintSettingsPayload));
+      } catch (error) {
+        console.error("Failed to update print settings:", error);
+      }
     },
-    [customModules, dispatch, formType, printSettings, patientDetails]
+    [customModules, dispatch, formType, printSettings, admittingDoctorId]
   );
 
   const handleCustomModuleAdded = useCallback(
@@ -344,7 +345,6 @@ const useIpdCustomModules = ({
 
         const nextSection = buildCustomModuleSection(moduleSection);
         const next = [...prev, nextSection];
-        updateCustomizationWith(next);
 
         const moduleName =
           moduleSection?.name ||
@@ -366,10 +366,19 @@ const useIpdCustomModules = ({
           ];
         });
 
-        syncPrintSettingsFormatStyle("add", {
-          moduleId,
-          moduleName,
+        Promise.allSettled([
+          updateCustomizationWith(next),
+          syncPrintSettingsFormatStyle("add", {
+            moduleId,
+            moduleName,
+          }),
+        ]).then((results) => {
+          const failures = results.filter((r) => r.status === "rejected");
+          if (failures.length > 0) {
+            console.error("Some secondary operations failed:", failures);
+          }
         });
+
         return next;
       });
     },
@@ -388,7 +397,7 @@ const useIpdCustomModules = ({
       }
 
       const payload = {
-        userId,
+        userId: admittingDoctorId,
         form: formType,
         moduleId,
       };
@@ -397,25 +406,38 @@ const useIpdCustomModules = ({
 
       if (action.meta.requestStatus === "fulfilled") {
         message.success("Module deleted successfully.");
+
+        dispatch(markModuleAsDeleted({ moduleId }));
+        setModelData((prev = []) => {
+          const next = prev.filter((item) => ensureModuleId(item) !== moduleId);
+
+          setCustomModuleContents((previous) =>
+            previous.filter((item) => item.module_id !== moduleId)
+          );
+
+          Promise.allSettled([
+            updateCustomizationWith(next),
+            syncPrintSettingsFormatStyle("delete", { moduleId }),
+          ]).then((results) => {
+            const failures = results.filter((r) => r.status === "rejected");
+            if (failures.length > 0) {
+              console.error(
+                "Some secondary operations failed after delete:",
+                failures
+              );
+            }
+          });
+
+          return next;
+        });
       } else {
         message.error("Failed to delete module. Please try again.");
-        return;
       }
-      dispatch(markModuleAsDeleted({ moduleId }));
-      setModelData((prev = []) => {
-        const next = prev.filter((item) => ensureModuleId(item) !== moduleId);
-        updateCustomizationWith(next);
-        syncPrintSettingsFormatStyle("delete", { moduleId });
-
-        setCustomModuleContents((previous) =>
-          previous.filter((item) => item.module_id !== moduleId)
-        );
-
-        return next;
-      });
     },
     [
       dispatch,
+      admittingDoctorId,
+      formType,
       setModelData,
       setCustomModuleContents,
       syncPrintSettingsFormatStyle,
@@ -431,7 +453,7 @@ const useIpdCustomModules = ({
 
       const payload = {
         data: {
-          userId,
+          userId: admittingDoctorId,
           modules: customModules.map((module) =>
             module.module_id === moduleId
               ? { ...module, name: updatedName }
@@ -445,44 +467,57 @@ const useIpdCustomModules = ({
 
       if (action.meta.requestStatus === "fulfilled") {
         message.success("Module name updated successfully.");
+
+        setModelData((prev = []) => {
+          if (!prev.some((item) => ensureModuleId(item) === moduleId)) {
+            return prev;
+          }
+
+          const next = prev.map((item) =>
+            ensureModuleId(item) === moduleId
+              ? {
+                  ...item,
+                  title: updatedName,
+                }
+              : item
+          );
+
+          setCustomModuleContents((previous) =>
+            previous.map((item) =>
+              item.module_id === moduleId
+                ? { ...item, module_name: updatedName }
+                : item
+            )
+          );
+
+          Promise.allSettled([
+            updateCustomizationWith(next),
+            syncPrintSettingsFormatStyle("rename", {
+              moduleId,
+              moduleName: updatedName,
+            }),
+          ]).then((results) => {
+            const failures = results.filter((r) => r.status === "rejected");
+            if (failures.length > 0) {
+              console.error(
+                "Some secondary operations failed after rename:",
+                failures
+              );
+            }
+          });
+
+          return next;
+        });
       } else {
         message.error("Failed to update module name. Please try again.");
         throw new Error("Failed to update module name");
       }
-
-      setModelData((prev = []) => {
-        if (!prev.some((item) => ensureModuleId(item) === moduleId)) {
-          return prev;
-        }
-
-        const next = prev.map((item) =>
-          ensureModuleId(item) === moduleId
-            ? {
-                ...item,
-                title: updatedName,
-              }
-            : item
-        );
-
-        updateCustomizationWith(next);
-
-        syncPrintSettingsFormatStyle("rename", {
-          moduleId,
-          moduleName: updatedName,
-        });
-
-        setCustomModuleContents((previous) =>
-          previous.map((item) =>
-            item.module_id === moduleId
-              ? { ...item, module_name: updatedName }
-              : item
-          )
-        );
-
-        return next;
-      });
     },
     [
+      admittingDoctorId,
+      formType,
+      customModules,
+      dispatch,
       setModelData,
       setCustomModuleContents,
       syncPrintSettingsFormatStyle,
@@ -567,7 +602,7 @@ const useIpdCustomModules = ({
 
       const payload = {
         data: {
-          userId,
+          userId: admittingDoctorId,
           modules: modulesPayload,
           form: formType,
         },
@@ -610,7 +645,7 @@ const useIpdCustomModules = ({
       message.error(errorMessage);
       throw new Error(errorMessage);
     },
-    [customModules, dispatch, formType, userId, setCustomModuleContents]
+    [customModules, dispatch, formType, admittingDoctorId, setCustomModuleContents]
   );
 
   const handleModuleTemplateDelete = useCallback(
@@ -672,7 +707,7 @@ const useIpdCustomModules = ({
 
       const payload = {
         data: {
-          userId,
+          userId: admittingDoctorId,
           modules: modulesPayload,
           form: formType,
         },
@@ -682,9 +717,6 @@ const useIpdCustomModules = ({
 
       if (action.meta.requestStatus === "fulfilled") {
         message.success("Template deleted successfully.");
-
-        setCustomModuleContents((previous) => previous);
-
         return action.payload;
       }
 
@@ -693,7 +725,7 @@ const useIpdCustomModules = ({
       message.error(errorMessage);
       throw new Error(errorMessage);
     },
-    [customModules, dispatch, formType, userId, setCustomModuleContents]
+    [customModules, dispatch, formType, admittingDoctorId]
   );
 
   const hydrateFromSavedModules = useCallback(
@@ -792,7 +824,10 @@ const useIpdCustomModules = ({
           onChange={(nextValue) =>
             handleModuleContentChange(moduleId, moduleName, nextValue)
           }
-          isEditable={extraProps?.isEditable ?? isEditable}
+          isEditable={isEditable}
+          patientId={patientId}
+          admissionId={admissionId}
+          formType={formType}
           onSaveTemplate={(templatePayload) =>
             handleModuleTemplateSave({
               moduleId,
@@ -827,6 +862,9 @@ const useIpdCustomModules = ({
       handleModuleTemplateSave,
       handleModuleTemplateDelete,
       isEditable,
+      patientId,
+      admissionId,
+      formType,
       handleCustomModuleRenamed,
       handleCustomModuleDeleted,
     ]
@@ -840,6 +878,7 @@ const useIpdCustomModules = ({
       admissionId,
       patientId,
       onCustomModuleAdded: handleCustomModuleAdded,
+      admittingDoctorId
     }),
     [
       admissionId,
@@ -848,6 +887,7 @@ const useIpdCustomModules = ({
       handleCustomModuleAdded,
       patientId,
       setCustomModuleContents,
+      admittingDoctorId
     ]
   );
 
@@ -857,7 +897,7 @@ const useIpdCustomModules = ({
         <AddCustomModule {...addCustomModuleProps} limit={10} />
       </div>
     ),
-    [addCustomModuleProps, customModules]
+    [addCustomModuleProps]
   );
 
   return {

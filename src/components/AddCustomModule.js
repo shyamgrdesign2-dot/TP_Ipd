@@ -32,12 +32,12 @@ import {
 
 const AddCustomModule = ({
   form,
-  customModuleContents: customModuleContentsProp,
   setCustomModuleContents: setCustomModuleContentsProp,
   admissionId,
   patientId,
   onCustomModuleAdded,
   limit = 20,
+  admittingDoctorId
 }) => {
   const [showInput, setShowInput] = useState(false);
   const [newModuleName, setNewModuleName] = useState("");
@@ -253,8 +253,8 @@ const AddCustomModule = ({
 
   useEffect(() => {
     if (isIPDMode) {
-      if (userId && form) {
-        dispatch(getCustomModulesIPD({ userId, form })).catch((error) =>
+      if (admittingDoctorId && form) {
+        dispatch(getCustomModulesIPD({ userId: admittingDoctorId, form })).catch((error) =>
           message.error(error || "Failed to fetch modules.")
         );
       }
@@ -263,7 +263,7 @@ const AddCustomModule = ({
         message.error(error || "Failed to fetch modules.")
       );
     }
-  }, [userId, form, isIPDMode, dispatch]);
+  }, [userId, form, isIPDMode, dispatch, admittingDoctorId]);
 
   const handleAddModule = async () => {
     if (!newModuleName.trim()) {
@@ -296,7 +296,7 @@ const AddCustomModule = ({
         action = await dispatch(
           addModuleIPD({
             data: {
-              userId,
+              userId: admittingDoctorId,
               modules: modulesPayload,
               form,
             },
@@ -317,7 +317,7 @@ const AddCustomModule = ({
         if (isIPDMode) {
           if (!updatedModules.length) {
             const refreshAction = await dispatch(
-              getCustomModulesIPD({ userId, form })
+              getCustomModulesIPD({ userId: admittingDoctorId, form })
             );
             if (refreshAction.meta.requestStatus === "fulfilled") {
               updatedModules = extractModulesFromResponse(
