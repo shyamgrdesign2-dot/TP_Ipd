@@ -98,9 +98,22 @@ const DischargeNotes = (props) => {
     );
 
     if (response.meta.requestStatus === "fulfilled") {
-      const updatedData =
+      let updatedData =
         response?.payload?.data?.rxDigitizationHistory?.[0]?.response
           ?.patientCondition || [];
+      if (isEmptyRichText(updatedData)) {
+        const transcription =
+          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
+            ?.transcription;
+        if (transcription) {
+          updatedData = [
+            {
+              type: "paragraph",
+              children: [{ text: transcription }],
+            },
+          ];
+        }
+      }
       if (!isEmptyRichText(updatedData)) {
         dispatch(setPatientCondition(updatedData));
         // setAutoFillTextToAppend(updatedData);

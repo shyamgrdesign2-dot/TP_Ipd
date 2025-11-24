@@ -127,13 +127,27 @@ const CNExaminationSection = (props) => {
           response?.payload?.data?.rxDigitizationHistory?.[0]?.response?.[
             itemId
           ] || [];
-        if (!isEmptyRichText(updatedData?.notes)) {
+        let updatedNotes = updatedData?.notes || [];
+        if (isEmptyRichText(updatedNotes)) {
+          const transcription =
+            response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
+              ?.transcription;
+          if (transcription) {
+            updatedNotes = [
+              {
+                type: "paragraph",
+                children: [{ text: transcription }],
+              },
+            ];
+          }
+        }
+        if (!isEmptyRichText(updatedNotes)) {
           dispatch(
             setPhysicalExaminationBasicData({
               ...physicalExaminationBasicData,
               [itemId]: {
                 ...physicalExaminationBasicData[itemId],
-                notes: updatedData?.notes,
+                notes: updatedNotes,
               },
             })
           );

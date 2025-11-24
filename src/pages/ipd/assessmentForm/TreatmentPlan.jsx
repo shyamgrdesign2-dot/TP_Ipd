@@ -99,9 +99,22 @@ const TreatmentPlan = (props) => {
       })
     );
     if (response.meta.requestStatus === "fulfilled") {
-      const updatedData =
+      let updatedData =
         response?.payload?.data?.rxDigitizationHistory?.[0]?.response
           ?.immediateManagement || [];
+      if (isEmptyRichText(updatedData)) {
+        const transcription =
+          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
+            ?.transcription;
+        if (transcription) {
+          updatedData = [
+            {
+              type: "paragraph",
+              children: [{ text: transcription }],
+            },
+          ];
+        }
+      }
       if (!isEmptyRichText(updatedData)) {
         setAutoFillTextToAppend(updatedData);
         callback?.();
@@ -127,9 +140,22 @@ const TreatmentPlan = (props) => {
       })
     );
     if (response.meta.requestStatus === "fulfilled") {
-      const updatedData =
+      let updatedData =
         response?.payload?.data?.rxDigitizationHistory?.[0]?.response
           ?.preventiveActions || [];
+      if (isEmptyRichText(updatedData)) {
+        const transcription =
+          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
+            ?.transcription;
+        if (transcription) {
+          updatedData = [
+            {
+              type: "paragraph",
+              children: [{ text: transcription }],
+            },
+          ];
+        }
+      }
       if (!isEmptyRichText(updatedData)) {
         setAutoFillTextToAppendPreventiveActions(updatedData);
         callback?.();
@@ -152,9 +178,22 @@ const TreatmentPlan = (props) => {
       })
     );
     if (response.meta.requestStatus === "fulfilled") {
-      const updatedData =
+      let updatedData =
         response?.payload?.data?.rxDigitizationHistory?.[0]?.response
           ?.desiredOutcome || [];
+      if (isEmptyRichText(updatedData)) {
+        const transcription =
+          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
+            ?.transcription;
+        if (transcription) {
+          updatedData = [
+            {
+              type: "paragraph",
+              children: [{ text: transcription }],
+            },
+          ];
+        }
+      }
       if (!isEmptyRichText(updatedData)) {
         setAutoFillTextToAppendDesiredOutcome(updatedData);
         callback?.();

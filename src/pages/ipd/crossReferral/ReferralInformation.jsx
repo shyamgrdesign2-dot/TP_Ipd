@@ -18,6 +18,7 @@ import {
 } from "../../../redux/ipd/crossReferralSlice";
 import { setCrossReferralInformationDetails } from "../../../redux/ipd/crossReferralSlice";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
+import { isEmptyRichText } from "../../../utils/utils";
 import { doctorDepartmentRoles } from "../../../redux/ipd/ipdSlice";
 import { voiceRx } from "../../../redux/ipd/ipdSlice";
 import { useLocation } from "react-router-dom";
@@ -71,10 +72,23 @@ const ReferralInformation = (props) => {
     );
 
     if (response.meta.requestStatus === "fulfilled") {
-      const updatedData =
+      let updatedData =
         response?.payload?.data?.rxDigitizationHistory?.[0]?.response
           ?.reasonForReferral || [];
-      if (Array.isArray(updatedData) && updatedData.length) {
+      if (isEmptyRichText(updatedData)) {
+        const transcription =
+          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
+            ?.transcription;
+        if (transcription) {
+          updatedData = [
+            {
+              type: "paragraph",
+              children: [{ text: transcription }],
+            },
+          ];
+        }
+      }
+      if (!isEmptyRichText(updatedData)) {
         dispatch(
           setCrossReferralInformationDetails({
             ...initialValue,

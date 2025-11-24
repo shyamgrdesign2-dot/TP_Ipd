@@ -14,6 +14,7 @@ import "./DischargeConfirmationModal.scss";
 import { useDispatch } from "react-redux";
 import { voiceRx } from "../../../../redux/ipd/ipdSlice.js";
 import { defaultIcons as defaultAssetIcons } from "../../../../assets/images/icons";
+import { isEmptyRichText } from "../../../../utils/utils";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const dateDisplayFormat = "DD-MM-YYYY";
@@ -117,10 +118,23 @@ const DischargeConfirmationModal = forwardRef(
       );
 
       if (response.meta.requestStatus === "fulfilled") {
-        const updatedData =
+        let updatedData =
           response?.payload?.data?.rxDigitizationHistory?.[0]?.response
             ?.dischargeRemarks || [];
-        if (Array.isArray(updatedData) && updatedData.length) {
+        if (isEmptyRichText(updatedData)) {
+          const transcription =
+            response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
+              ?.transcription;
+          if (transcription) {
+            updatedData = [
+              {
+                type: "paragraph",
+                children: [{ text: transcription }],
+              },
+            ];
+          }
+        }
+        if (!isEmptyRichText(updatedData)) {
           handleFieldChange("dischargeRemarks", updatedData);
           // setAutoFillTextToAppend(updatedData);
         }

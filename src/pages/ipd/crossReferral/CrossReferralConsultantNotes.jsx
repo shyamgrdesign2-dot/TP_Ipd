@@ -29,6 +29,7 @@ import dayjs from "dayjs";
 import { defaultIcons } from "../../../assets/images/icons/index.js";
 import useIpdCustomModules from "../../../hooks/useIpdCustomModules.js";
 import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { isEmptyRichText } from "../../../utils/utils";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -166,10 +167,23 @@ const CrossReferralConsultantNotes = (props) => {
     );
 
     if (response.meta.requestStatus === "fulfilled") {
-      const updatedData =
+      let updatedData =
         response?.payload?.data?.rxDigitizationHistory?.[0]?.response?.[
           fieldId
         ] || [];
+      if (isEmptyRichText(updatedData)) {
+        const transcription =
+          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
+            ?.transcription;
+        if (transcription) {
+          updatedData = [
+            {
+              type: "paragraph",
+              children: [{ text: transcription }],
+            },
+          ];
+        }
+      }
       if (!Array.isArray(updatedData) || !updatedData.length) {
         callback?.();
         return;
