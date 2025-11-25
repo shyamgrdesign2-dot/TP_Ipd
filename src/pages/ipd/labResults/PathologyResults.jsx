@@ -102,13 +102,17 @@ const Pathologyresults = () => {
     setLocalSearchText(searchText);
   }, [searchText]);
 
-  // Load data on component mount only (not on search/date changes)
   useEffect(() => {
     if (patientId && admissionId) {
       dispatch(
         getPathologyResults({
           mrno,
           noOfDays: pathologyResultsNoOfDays,
+          patientId,
+          admissionId,
+          filterStartDate: selectedDateRange?.startDate,
+          filterEndDate: selectedDateRange?.endDate,
+          search: searchText,
         })
       );
     }

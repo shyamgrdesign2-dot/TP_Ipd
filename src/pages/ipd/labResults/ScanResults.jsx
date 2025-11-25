@@ -15,13 +15,15 @@ import moment from "moment";
 import { useLocation } from "react-router-dom";
 import EmptyState from "./EmptyState";
 import { IPD } from "../../../utils/locale";
+import { isZydus } from "../../../utils/utils";
 
 const ScanResults = () => {
   const dispatch = useDispatch();
   const { state } = useLocation();
   const { patientDetails } = state || {};
   const patientId = patientDetails?.details?.id;
-  const { admissionId } = patientDetails;
+  const { admissionId, mrno } = patientDetails;
+
   const scanResults = useSelector(selectScanResults);
   const scanLoading = useSelector(selectScanLoading);
   const scanError = useSelector(selectScanError);
@@ -31,17 +33,8 @@ const ScanResults = () => {
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [activeScanCategory, setActiveScanCategory] = useState("all");
 
-  const mappedScanResults = scanResults.map(({ docs, _id, createdAt }) => {
-    return {
-      notes: "",
-      id: _id,
-      url: docs?.fileUrl,
-      thumbnail_url: docs?.fileUrl,
-      investigation_date: createdAt,
-      category: docs?.subCategory,
-      display_name: docs?.filename,
-    };
-  });
+  const scanResultsNoOfDays = 1500;
+  const isZydusHospital = isZydus();
 
   const categoryOptionHandler = (id) => {
     setActiveScanCategory(id);
@@ -55,7 +48,6 @@ const ScanResults = () => {
     }
   }, [scanError, dispatch]);
 
-  // Load scan results when category or date range changes
   useEffect(() => {
     if (patientId && admissionId) {
       dispatch(
@@ -65,10 +57,19 @@ const ScanResults = () => {
           subCategory: activeScanCategory === "all" ? null : activeScanCategory,
           filterStartDate: selectedDateRange?.startDate,
           filterEndDate: selectedDateRange?.endDate,
+          noOfDays: scanResultsNoOfDays,
+          mrno,
         })
       );
     }
-  }, [dispatch, patientId, admissionId, activeScanCategory, selectedDateRange]);
+  }, [
+    dispatch,
+    patientId,
+    admissionId,
+    activeScanCategory,
+    selectedDateRange,
+    mrno,
+  ]);
 
   const onDatePickerToggle = () => {
     setIsDatePickerOpen(!isDatePickerOpen);
@@ -123,44 +124,46 @@ const ScanResults = () => {
   return (
     <div className="scan-results">
       <div className="d-flex justify-content-center flex-column">
-        <div
-          className="d-flex flex-wrap justify-content-between"
-          style={{ padding: "0 24px 24px 24px" }}
-        >
-          <div className="d-flex" style={{ columnGap: "16px" }}>
-            {IPD.SCAN_RESULTS_CATEGORIES.map((item) => (
-              <Button
-                type="text"
-                key={item?.id}
-                className={`btnStyle btn px-5-16 fs-14 category-btn ${
-                  item?.id === activeScanCategory ? "active-category-btn" : ""
-                }`}
-                onClick={() => categoryOptionHandler(item?.id)}
-              >
-                <span
-                  className={`btnText category-label ${
-                    item?.id === activeScanCategory
-                      ? "active-category-label"
-                      : ""
+        {!isZydusHospital && (
+          <div
+            className="d-flex flex-wrap justify-content-between"
+            style={{ padding: "0 24px 24px 24px" }}
+          >
+            <div className="d-flex" style={{ columnGap: "16px" }}>
+              {IPD.SCAN_RESULTS_CATEGORIES.map((item) => (
+                <Button
+                  type="text"
+                  key={item?.id}
+                  className={`btnStyle btn px-5-16 fs-14 category-btn ${
+                    item?.id === activeScanCategory ? "active-category-btn" : ""
                   }`}
+                  onClick={() => categoryOptionHandler(item?.id)}
                 >
-                  {item?.name}
-                </span>
-              </Button>
-            ))}
+                  <span
+                    className={`btnText category-label ${
+                      item?.id === activeScanCategory
+                        ? "active-category-label"
+                        : ""
+                    }`}
+                  >
+                    {item?.name}
+                  </span>
+                </Button>
+              ))}
+            </div>
+            <DateRangeFilter
+              dateRange={selectedDateRange}
+              dateStatus={dateStatus}
+              onRangeChange={onDateRangeChange}
+              onToggleModal={onDatePickerToggle}
+              onCancel={onDateCancel}
+              placeholder="Filter by date"
+              isOpen={isDatePickerOpen}
+              className="date-filter-btn"
+              wrapperClassName="scan-results-date-filter-wrapper"
+            />
           </div>
-          <DateRangeFilter
-            dateRange={selectedDateRange}
-            dateStatus={dateStatus}
-            onRangeChange={onDateRangeChange}
-            onToggleModal={onDatePickerToggle}
-            onCancel={onDateCancel}
-            placeholder="Filter by date"
-            isOpen={isDatePickerOpen}
-            className="date-filter-btn"
-            wrapperClassName="scan-results-date-filter-wrapper"
-          />
-        </div>
+        )}
 
         {/* Loading Spinner */}
         {scanLoading && (
@@ -176,7 +179,7 @@ const ScanResults = () => {
         )}
 
         {/* Scan Results Grid */}
-        {!scanLoading && mappedScanResults.length > 0 ? (
+        {!scanLoading && scanResults.length > 0 ? (
           <Row
             xs={1}
             sm={2}
@@ -185,7 +188,7 @@ const ScanResults = () => {
             className="gy-4 w-100"
             style={{ padding: "0 0 50px 24px" }}
           >
-            {mappedScanResults.map((cardData, index) => {
+            {scanResults.map((cardData, index) => {
               return (
                 <Col key={index} className="gx-4 file-card">
                   <RecordCard

@@ -2,13 +2,20 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import ApiLabResults from "../../api/services/ipd/ApiLabResults";
 import { ictAuthToken } from "../appointmentsSlice";
 import { PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN } from "../../utils/constants";
+import { isZydus } from "../../utils/utils";
+import moment from "moment";
 
 export const getPathologyResults = createAsyncThunk(
   "labResults/getPathologyResults",
   async (data, { dispatch }) => {
     try {
       let result = {};
-      result = await ApiLabResults.getZydusLabResults(data);
+      const apiMethod = isZydus()
+        ? ApiLabResults.getZydusLabResults
+        : ApiLabResults.getPathologyResults;
+
+      result = await apiMethod(data);
+
       if (!result.error) {
         return result.data;
       } else {
@@ -72,7 +79,12 @@ export const getScanResults = createAsyncThunk(
   async (data) => {
     try {
       let result = {};
-      result = await ApiLabResults.getScanResults(data);
+      const apiMethod = isZydus()
+        ? ApiLabResults.getZydusRadiologyOrders
+        : ApiLabResults.getScanResults;
+
+      result = await apiMethod(data);
+
       if (!result.error) {
         return result;
       } else {
@@ -319,6 +331,32 @@ const computeSelectionsFromAddedData = (addedData, pathologyResults) => {
   };
 };
 
+const mapZydusScanResults = (data, um_id) =>
+  data.map((e) => ({
+    id: e.orderId,
+    category_id: -3,
+    name: `${e.serviceName}-${e.orderStatus}`,
+    display_name: `${e.serviceName}-${e.orderStatus}`,
+    url: null,
+    um_id: um_id,
+    thumbnail_url: "",
+    created_date: moment(e.orderConformedDate).format("YYYY-MM-DD"),
+    investigation_date: moment(e.orderConformedDate).format("YYYY-MM-DD"),
+    notes: "",
+  }));
+
+const mapDefaultScanResults = (data) =>
+  data.map(({ docs, _id, createdAt }) => ({
+    id: _id,
+    category_id: docs.subCategory,
+    url: docs?.fileUrl,
+    thumbnail_url: docs?.fileUrl,
+    investigation_date: createdAt,
+    category: docs?.subCategory,
+    display_name: docs?.filename,
+    notes: "",
+  }));
+
 export const loadAddedSelections = createAsyncThunk(
   "labResults/loadAddedSelections",
   async ({ patientId, admissionId }, { dispatch, getState }) => {
@@ -553,7 +591,10 @@ const labResultsSlice = createSlice({
       })
       .addCase(getScanResults.fulfilled, (state, action) => {
         state.scanLoading = false;
-        state.scanResults = action.payload?.data || action.payload || [];
+
+        state.scanResults = isZydus()
+          ? mapZydusScanResults(action.payload?.data, action.meta.arg?.um_id)
+          : mapDefaultScanResults(action.payload);
       })
       .addCase(getScanResults.rejected, (state, action) => {
         state.scanLoading = false;
@@ -753,7 +794,6 @@ export const addToDischargeSummary = createAsyncThunk(
 );
 
 export default labResultsSlice.reducer;
-
 export {
   transformApiDataToComponentFormat,
   transformComponentDataToApiFormat,

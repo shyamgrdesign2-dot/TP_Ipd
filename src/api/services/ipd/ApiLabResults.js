@@ -69,4 +69,11 @@ ApiLabResults.getAddedToDischargeSummaryTests = function ({
   );
 };
 
+ApiLabResults.getZydusRadiologyOrders = function ({ mrno, noOfDays }) {
+  return api.get(
+    `/ictApiProxy/emr/serviceorder/radiology/orders?mrno=${mrno}&noOfDays=${noOfDays}`,
+    zydusProxyUrl
+  );
+};
+
 export default ApiLabResults;
