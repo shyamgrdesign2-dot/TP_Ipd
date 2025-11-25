@@ -14,6 +14,10 @@ import microphone from "./microphone.webp";
 import numberedList from "./numbered-list.svg";
 import otSurgeryIcon from "./ot-surgery-icon.svg";
 import clockDarkOutlineIcon from "./clock-dark-outlined.svg";
+import gridVector from "./grid-vector.svg";
+import microphoneWhiteRounded from './microphone.svg';
+import microphoneSlash from './microphone-slash.svg';
+import submitIcon from './submit.svg';
 import calendarDarkOutlineIcon from "./calendar-dark-outlined.svg";
 import downArrowPcIcon from "./down-arrow-pc.svg";
 import obstetrics from "./obstetrics.webp";
@@ -145,10 +149,14 @@ export const defaultIcons = {
   docIcon,
   otSurgeryIcon,
   clockDarkOutlineIcon,
+  gridVector,
   calendarDarkOutlineIcon,
   downArrowPcIcon,
   editDarkIcon,
   infoIconWarningColoured,
   crossIcon,
   calendarDarkIcon,
+  microphoneWhiteRounded,
+  microphoneSlash,
+  submitIcon,
 };

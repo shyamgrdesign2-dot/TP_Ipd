@@ -26,6 +26,7 @@ const loadComponent = (componentName) => {
 export const RemoteComponents = {
   LayoutWithMenu: loadComponent("LayoutWithMenu"),
   Customization: loadComponent("Customization"),
+  PatientDetailsLayout: loadComponent("PatientDetailsLayout"),
   CollapsibleWrapper: loadComponent("CollapsibleWrapper"),
   GenericCard: loadComponent("GenericCard"),
   RichTextEditWrapper: loadComponent("RichTextEditWrapper"),

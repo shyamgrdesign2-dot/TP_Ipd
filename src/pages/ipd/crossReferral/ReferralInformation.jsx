@@ -6,16 +6,7 @@ import "./styles.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { Select, DatePicker, TimePicker } from "antd";
 import dayjs from "dayjs";
-import {
-  setReferringDepartment,
-  setReferringTo,
-  setSurgeryDate,
-  setSurgeryStartTime,
-  setSurgeryEndTime,
-  setDiagnosis,
-  //   searchReferringDepartments,
-  //   searchReferringTo,
-} from "../../../redux/ipd/crossReferralSlice";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { setCrossReferralInformationDetails } from "../../../redux/ipd/crossReferralSlice";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import { isEmptyRichText } from "../../../utils/utils";
@@ -25,6 +16,8 @@ import { useLocation } from "react-router-dom";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
+
+dayjs.extend(customParseFormat);
 
 const ReferralInformation = (props) => {
   const { isEditable = true, sectionData } = props || {};
@@ -460,6 +453,22 @@ const ReferralInformation = (props) => {
 
   const renderSurgeryDate = (data) => {
     const dateDisplayFormat = "D MMM YYYY";
+    const normalizeDate = (value) => {
+      if (!value) return "";
+      const formats = [
+        "D MMM YYYY",
+        "Do MMM YYYY",
+        "Do MMMM YYYY",
+        "D MMMM YYYY",
+        "YYYY-MM-DD",
+      ];
+      const parsed = dayjs(value, formats, true);
+      if (parsed.isValid()) return parsed.format(dateDisplayFormat);
+      const fallback = dayjs(value);
+      return fallback.isValid() ? fallback.format(dateDisplayFormat) : "";
+    };
+
+    const normalizedReferralDate = normalizeDate(initialValue?.[data?.id]);
     const isRelative = data?.id === "informedOnDate";
     return (
       <div>
@@ -475,8 +484,8 @@ const ReferralInformation = (props) => {
                     dateDisplayFormat
                   )
                 : null
-              : initialValue?.[data?.id]
-              ? dayjs(initialValue[data.id], dateDisplayFormat)
+              : normalizedReferralDate
+              ? dayjs(normalizedReferralDate, dateDisplayFormat)
               : null
           }
           onChange={(date) =>

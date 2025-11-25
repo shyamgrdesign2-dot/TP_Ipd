@@ -78,12 +78,9 @@ import useOnlyViewMode from "../../../hooks/useOnlyViewMode";
 import PatientDetails from "../../PatientDetails";
 import { downloadModule, printModule } from "../utils/printDownload";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
+import { createRemoteComponent } from "../../../shared/remoteComponents";
 
-const PatientDetailsLayout = React.lazy(() => {
-  return import("shared_ui/components").then((m) =>
-    normalizeToDefault(m, "PatientDetailsLayout")
-  );
-});
+const PatientDetailsLayout = createRemoteComponent("PatientDetailsLayout");
 
 const IPDPatientDetails = () => {
   const navigate = useNavigate();

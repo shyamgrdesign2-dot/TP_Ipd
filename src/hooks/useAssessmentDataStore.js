@@ -44,7 +44,7 @@ export const useAssessmentDataStore = () => {
         dispatch(
           setMedicalHistoryData(data?.basicInfo?.pastMedicalHistory || [])
         );
-        dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || []));
+        dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || {}));
         dispatch(addObstetricDetails(data?.basicInfo?.obstetricHistory || []));
 
         // Physical Examination dispatches

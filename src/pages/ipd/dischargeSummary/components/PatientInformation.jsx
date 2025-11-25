@@ -8,6 +8,7 @@ import MemberChip from "../../components/MemberChip";
 import { convertPatientDataToIpdFormat } from "../../../../utils/utils";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useDispatch } from "react-redux";
 import {
   setDischargeDate,
@@ -15,6 +16,8 @@ import {
 } from "../../../../redux/ipd/dischargeSummarySlice";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
+
+dayjs.extend(customParseFormat);
 
 const PatientInformation = (props) => {
   const { isEditable = true, sectionData } = props || {};
@@ -33,6 +36,26 @@ const PatientInformation = (props) => {
       dischargeSummaryData.patientInformation
     );
     const dateDisplayFormat = "D MMM YYYY";
+    const normalizeDate = (value) => {
+      if (!value) return "";
+      const formats = [
+        "D MMM YYYY",
+        "Do MMM YYYY",
+        "Do MMMM YYYY",
+        "D MMMM YYYY",
+        "YYYY-MM-DD",
+        "D-M-YYYY",
+        "DD-MM-YYYY",
+        "D/M/YYYY",
+        "DD/MM/YYYY",
+      ];
+      const parsed = dayjs(value, formats, true);
+      if (parsed.isValid()) return parsed.format(dateDisplayFormat);
+      const fallback = dayjs(value);
+      return fallback.isValid() ? fallback.format(dateDisplayFormat) : "";
+    };
+
+    const normalizedDischargeDate = normalizeDate(patientInfo?.dateOfDischarge);
 
     return (
       <>
@@ -62,8 +85,8 @@ const PatientInformation = (props) => {
             type: "mask",
           }}
           value={
-            patientInfo?.dateOfDischarge
-              ? dayjs(patientInfo?.dateOfDischarge, dateDisplayFormat)
+            normalizedDischargeDate
+              ? dayjs(normalizedDischargeDate, dateDisplayFormat)
               : null
           }
           placeholder={"DD/MM/YYYY"}

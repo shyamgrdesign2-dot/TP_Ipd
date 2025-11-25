@@ -3354,3 +3354,25 @@ html, body {
     }
   }
 }
+
+.global-voice-ai-wrapper {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: fit-content;
+  
+  @media (max-width: 768px) {
+      bottom: 16px;
+      right: 16px;
+  }
+  
+  @media (max-width: 480px) {
+      bottom: 12px;
+      right: 12px;
+  }
+}

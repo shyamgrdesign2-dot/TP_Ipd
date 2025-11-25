@@ -19,6 +19,7 @@ import {
 import {
   getCustomization,
   updateCustomization,
+  voiceRx,
 } from "../../../redux/ipd/ipdSlice";
 import {
   getAllDoses,
@@ -29,16 +30,19 @@ import { getDiagnosisTemplates } from "../../../redux/diagnosisSlice";
 import { getSymptomsTemplates } from "../../../redux/symptomsSlice";
 import { getInvestigationTemplates } from "../../../redux/investigationSlice";
 import { getAdviceTemplates } from "../../../redux/adviceSlice";
-import { convertMedicationFormat, errorMessage } from "../../../utils/utils";
+import { errorMessage } from "../../../utils/utils";
 import { useSelector, useDispatch } from "react-redux";
 import useIpdCustomModules from "../../../hooks/useIpdCustomModules";
 import BackConfirmationModal from "../../../components/BackConfirmationModal";
 import { useAssessmentSectionVisibility } from "../../../hooks/useAssessmentSectionVisibility";
 import { useAssessmentDataStore } from "../../../hooks/useAssessmentDataStore";
+import useAssessmentRequestData from "../../../hooks/useAssessmentRequestData";
 import ProvisionalDiagnosisWrapper from "./provisinalDiagnosisWrapper";
 import dayjs from "dayjs";
 import FullPageLoader from "../../vaccination/components/Loader";
 import FilledByCards from "../otNotes/components/FilledByCards";
+import GlobalVoiceAI from "../components/GlobalVoiceAI";
+import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -71,6 +75,7 @@ const AssessmentsForm = (props) => {
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
+  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
 
   const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.assessments;
 
@@ -106,6 +111,16 @@ const AssessmentsForm = (props) => {
   });
 
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+  const reqData = useAssessmentRequestData({
+    filledDate,
+    filledAtTime,
+    assessmentData,
+    prescriptionData,
+    allObstetricDetails,
+    provisionalDiagnosis,
+    customModuleContents,
+    serializeCustomModules,
+  });
   useEffect(() => {
     if (assessments.length > 0) {
       setModelData(sanitizeModelData(assessments));
@@ -206,18 +221,53 @@ const AssessmentsForm = (props) => {
     switch (data?.id) {
       case "basicInfo":
         return (
-          <BasicInfo {...props} sectionData={data} isEditable={isEditable} patientDetails={patientDetails} />
+          <BasicInfo
+            {...props}
+            sectionData={data}
+            isEditable={isEditable}
+            patientDetails={patientDetails}
+          />
         );
       case "physicalExamination":
-        return <PhysicalExamination {...props} sectionData={data} patientDetails={patientDetails}/>;
+        return (
+          <PhysicalExamination
+            {...props}
+            sectionData={data}
+            patientDetails={patientDetails}
+          />
+        );
       case "functionalAssessment":
-        return <FunctionalAssessment {...props} sectionData={data} patientDetails={patientDetails} />;
+        return (
+          <FunctionalAssessment
+            {...props}
+            sectionData={data}
+            patientDetails={patientDetails}
+          />
+        );
       case "provisionalDiagnosis":
-        return <ProvisionalDiagnosisWrapper {...props} sectionData={data} patientDetails={patientDetails} />;
+        return (
+          <ProvisionalDiagnosisWrapper
+            {...props}
+            sectionData={data}
+            patientDetails={patientDetails}
+          />
+        );
       case "treatmentPlan":
-        return <TreatmentPlan {...props} sectionData={data} patientDetails={patientDetails} />;
+        return (
+          <TreatmentPlan
+            {...props}
+            sectionData={data}
+            patientDetails={patientDetails}
+          />
+        );
       case "additionalNotes":
-        return <NoteSection {...props} sectionData={data} patientDetails={patientDetails} />;
+        return (
+          <NoteSection
+            {...props}
+            sectionData={data}
+            patientDetails={patientDetails}
+          />
+        );
       default:
         return null;
     }
@@ -234,119 +284,9 @@ const AssessmentsForm = (props) => {
     );
   };
 
-  const convertToRawFormat = (data = []) => {
-    if (!Array.isArray(data) || data.length === 0) return [];
-
-    // Check if already in raw format (has tmu_id and tmu_title)
-    const isAlreadyRaw = data.every(
-      (item) => item.tmu_id !== undefined && item.tmu_title !== undefined
-    );
-    if (isAlreadyRaw) return data;
-
-    // Convert formatted → raw
-    return data.map((item) => {
-      if (item.key) {
-        try {
-          return JSON.parse(item.key);
-        } catch {
-          return { tmu_id: item.value, tmu_title: item.label };
-        }
-      } else {
-        return { tmu_id: item.value, tmu_title: item.label };
-      }
-    });
-  };
-
   const onSaveAssessmentClick = async () => {
     if (isLoading) return;
     setIsLoading(true);
-
-    // Helper function to format discharge medications
-    // Format tmm_dosage: if tmm_dosage_unit_name exists, use it; otherwise combine tmm_dosage + tmm_unit_name
-    const formatAssessmentMedications = (medications) => {
-      if (!Array.isArray(medications) || medications.length === 0) {
-        return [];
-      }
-
-      return medications.map((medication) => {
-        const formattedMedication = { ...medication };
-        const formattedMedicineUnit = convertToRawFormat(
-          formattedMedication.medicineUnit
-        );
-
-        // If tmm_dosage_unit_name exists and is not empty, use it as tmm_dosage
-        if (
-          formattedMedication.tmm_dosage_unit_name &&
-          formattedMedication.tmm_dosage_unit_name.trim() !== ""
-        ) {
-          formattedMedication.tmm_dosage_unit_name =
-            formattedMedication.tmm_dosage_unit_name;
-        } else {
-          // Otherwise, combine tmm_dosage + tmm_unit_name
-          const dosage = formattedMedication.tmm_dosage
-            ? formattedMedication.tmm_dosage
-            : 1;
-          // const unitName = formattedMedication.tmm_unit_name || "";
-          const unitName = formattedMedication.tmm_unit_name
-            ? formattedMedication.tmm_unit_name
-            : formattedMedicineUnit?.find(
-                (x) => x.tmu_id == formattedMedication.tmu_id
-              )?.tmu_title || formattedMedicineUnit[0]?.tmu_title;
-
-          formattedMedication.tmm_dosage_unit_name =
-            `${dosage} ${unitName}`.trim();
-        }
-
-        return formattedMedication;
-      });
-    };
-
-    const reqData = {
-      date: filledDate,
-      time: filledAtTime,
-      basicInfo: {
-        topInformant: assessmentData.topInformant || null,
-        presentingComplaints: assessmentData.chiefComplaint || [],
-        historyOfPresentIllness: assessmentData.historyOfPresentIllness,
-        currentMedications: convertMedicationFormat(
-          prescriptionData.medicationData || []
-        ),
-        medications: formatAssessmentMedications(
-          prescriptionData.medicationData || []
-        ),
-        labResults: assessmentData.labResults || [],
-        pastMedicalHistory: prescriptionData.medicalHistoryData || {},
-        gyneacHistory: assessmentData.gynecHistoryData || {},
-        obstetricHistory:
-          Array.isArray(allObstetricDetails) && !allObstetricDetails.length
-            ? {}
-            : allObstetricDetails || {},
-      },
-      physicalExamination: {
-        vitals: assessmentData.vitalsData || {},
-        examination: Object.entries(
-          assessmentData.physicalExaminationBasicData || {}
-        ).reduce((acc, [key, value]) => {
-          acc[key] = {
-            title: value?.title || "",
-            notes: value?.notes || [],
-            value: value?.value || null,
-          };
-          return acc;
-        }, {}),
-        others: assessmentData.physicalExaminationOthersData || [],
-      },
-      provisionalDiagnosis: provisionalDiagnosis || [],
-      functionalAssessment:
-        {
-          ...assessmentData.functionalAssessmentData,
-          referredToPhysiotherapyForReview:
-            assessmentData?.referredDocForReview || null,
-        } || {},
-      treatmentPlan: assessmentData.treatmentPlanData || [],
-      additionalNotes: assessmentData.additionalNotesData || [],
-      customModules: serializeCustomModules(customModuleContents),
-    };
 
     const response = await dispatch(
       updateAssessmentsData({
@@ -361,6 +301,7 @@ const AssessmentsForm = (props) => {
         if (response?.payload?.error) {
           if (response.payload.message?.split("must")?.[0]) {
             message.warning(`Please fill the fields before saving`);
+            setIsLoading(false);
           } else {
             message.warning(`Something went wrong, Please try again.`);
           }
@@ -466,12 +407,8 @@ const AssessmentsForm = (props) => {
   };
 
   const renderAllSections = () => {
-    const {
-      createdByName,
-      createdByRole,
-      createdAt,
-      updates,
-    } = assessmentData?.assessmentsFilledByData || {};
+    const { createdByName, createdByRole, createdAt, updates } =
+      assessmentData?.assessmentsFilledByData || {};
     const normalizedUpdates = Array.isArray(updates) ? updates : [];
     if (!Array.isArray(updates)) {
       console.warn(
@@ -527,6 +464,45 @@ const AssessmentsForm = (props) => {
     );
   };
 
+  const handleAIRecordingComplete = async (payload, callback) => {
+    const response = await dispatch(
+      voiceRx({
+        patientId: patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId,
+        schemaKey: "ASSESSMENTS",
+        audioFile: payload?.audioBlob,
+        filename: payload?.filename,
+        mimeType: payload?.mimeType,
+        previousOutput: reqData,
+      })
+    );
+    if (response.meta.requestStatus === "fulfilled") {
+      const updatedData = response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
+      console.log("INTEL ==> UPDATED DATA", updatedData);
+      addDataToStore(updatedData);
+      callback?.();
+    } else {
+      callback?.();
+    }
+  };
+
+  const renderBottomSection = () => (
+    <>
+      {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+      <div className="global-voice-ai-wrapper">
+        {isVoiceAssistantOpen ? (
+          <AgentAlexVoicePanel
+            onSubmit={handleAIRecordingComplete}
+            onClose={() => setIsVoiceAssistantOpen(false)}
+          />
+        ) : (
+          <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+        )}
+      </div>
+      {renderCustomModulesFooter()}
+    </>
+  );
+
   if (!isEditable && !hasAnyData) return null;
 
   return (
@@ -563,7 +539,7 @@ const AssessmentsForm = (props) => {
                   setIsBackModalOpen(true);
                 }}
                 headerOffset={72}
-                renderBottomSection={renderCustomModulesFooter}
+                renderBottomSection={renderBottomSection}
               />
             )}
           </div>
