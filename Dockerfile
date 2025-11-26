@@ -32,6 +32,8 @@ RUN npm run build
 
 # Use Nginx as the production server
 FROM nginx:stable-alpine
+ARG REACT_APP_ENV=prod
+ENV REACT_APP_ENV $REACT_APP_ENV
 
 # Copy the built React app to Nginx's web server directory
 COPY --from=build /app/build /usr/share/nginx/html
