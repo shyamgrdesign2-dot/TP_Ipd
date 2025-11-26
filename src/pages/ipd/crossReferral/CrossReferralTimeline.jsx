@@ -52,8 +52,8 @@ const CrossReferralTimeline = () => {
   const { crossReferral = [] } = customization;
 
   useEffect(() => {
-    dispatch(getCustomization());
-  }, []);
+    dispatch(getCustomization({doctorId: patientDetails?.doctor?.id}));
+  }, [patientDetails?.doctor?.id]);
 
   const handlePickerModal = useCallback(() => {
     setPickerModal(!pickerModal);

@@ -37,7 +37,7 @@ const AddCustomModule = ({
   patientId,
   onCustomModuleAdded,
   limit = 20,
-  admittingDoctorId
+  admittingDoctorId,
 }) => {
   const [showInput, setShowInput] = useState(false);
   const [newModuleName, setNewModuleName] = useState("");
@@ -254,9 +254,9 @@ const AddCustomModule = ({
   useEffect(() => {
     if (isIPDMode) {
       if (admittingDoctorId && form) {
-        dispatch(getCustomModulesIPD({ userId: admittingDoctorId, form })).catch((error) =>
-          message.error(error || "Failed to fetch modules.")
-        );
+        dispatch(
+          getCustomModulesIPD({ userId: admittingDoctorId, form })
+        ).catch((error) => message.error(error || "Failed to fetch modules."));
       }
     } else {
       dispatch(getModulesOPD(userId)).catch((error) =>
@@ -389,6 +389,14 @@ const AddCustomModule = ({
             value={newModuleName}
             onChange={(e) => setNewModuleName(e.target.value)}
             className="custom-module-input"
+            {...(isIPDMode && {
+              maxLength: 40,
+              suffix: (
+                <div className="custom-module-input-suffix">
+                  {newModuleName?.length}/40
+                </div>
+              ),
+            })}
           />
           <>
             <CheckOutlined

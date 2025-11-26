@@ -63,6 +63,7 @@ const CrossReferral = (props) => {
     serializeCustomModules,
     handleCustomModuleRenamed,
     handleCustomModuleDeleted,
+    defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
     formType,
     customizationKey: "crossReferral",
@@ -75,7 +76,7 @@ const CrossReferral = (props) => {
   });
 
   useEffect(() => {
-    dispatch(getCustomization());
+    dispatch(getCustomization({ doctorId: patientDetails?.doctor?.id }));
 
     // Only fetch Cross Referral data if we have the required patient details
     if (patientDetails?.details?.id && patientDetails?.admissionId) {
@@ -111,13 +112,17 @@ const CrossReferral = (props) => {
   ]);
 
   const handleDefaultClick = () => {
-    setModelData(IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE);
+    const defaultModules = [
+      ...IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE,
+      ...defaultCustomModulesForCustomization,
+    ];
+    setModelData(defaultModules);
     setShowCustomisationDrawer(false);
     const newData = {
       ...customization,
-      crossReferral: IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE,
+      crossReferral: defaultModules,
     };
-    dispatch(updateCustomization(newData));
+    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
   const renderSections = (data) => {
@@ -147,7 +152,7 @@ const CrossReferral = (props) => {
   const handleSaveCustomization = () => {
     setShowCustomisationDrawer(false);
     const newData = { ...customization, crossReferral: [...modelData] };
-    dispatch(updateCustomization(newData));
+    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
   const onAddReferralClick = async () => {

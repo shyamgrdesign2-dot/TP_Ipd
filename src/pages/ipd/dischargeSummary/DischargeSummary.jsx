@@ -97,6 +97,7 @@ const DischargeSummary = (props) => {
     serializeCustomModules,
     handleCustomModuleRenamed,
     handleCustomModuleDeleted,
+    defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
     formType,
     customizationKey: "dischargeSummary",
@@ -187,8 +188,8 @@ const DischargeSummary = (props) => {
   }, [patientDetails?.details?.id, patientDetails?.admissionId]);
 
   useEffect(() => {
-    dispatch(getCustomization());
-  }, [patientDetails?.admissionId, patientDetails?.details?.id]);
+    dispatch(getCustomization({ doctorId: patientDetails?.doctor?.id }));
+  }, [patientDetails?.doctor?.id]);
 
   useEffect(() => {
     const savedModules =
@@ -204,13 +205,17 @@ const DischargeSummary = (props) => {
   ]);
 
   const handleDefaultClick = () => {
-    setModelData(IPD.DEFAULT_DISCHARGE_SUMMARY_FORM_STRUCTURE);
+    const defaultModules = [
+      ...IPD.DEFAULT_DISCHARGE_SUMMARY_FORM_STRUCTURE,
+      ...defaultCustomModulesForCustomization,
+    ];
+    setModelData(defaultModules);
     setShowCustomisationDrawer(false);
     const newData = {
       ...customization,
-      dischargeSummary: IPD.DEFAULT_DISCHARGE_SUMMARY_FORM_STRUCTURE,
+      dischargeSummary: defaultModules,
     };
-    dispatch(updateCustomization(newData));
+    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
   const handleAddEditPhysicalExamination = (data) => {
@@ -359,7 +364,7 @@ const DischargeSummary = (props) => {
   const handleSaveCustomization = () => {
     setShowCustomisationDrawer(false);
     const newData = { ...customization, dischargeSummary: [...modelData] };
-    dispatch(updateCustomization(newData));
+    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
   const convertToRawFormat = (data = []) => {
@@ -735,8 +740,11 @@ const DischargeSummary = (props) => {
           onClose={() => {
             dispatch(
               updateCustomization({
-                ...customization,
-                dischargeSummary: modelData,
+                doctorId: patientDetails?.doctor?.id,
+                customization: {
+                  ...customization,
+                  dischargeSummary: modelData,
+                },
               })
             );
             return setShowCustomisationDrawer(false);

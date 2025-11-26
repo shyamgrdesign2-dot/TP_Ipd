@@ -208,7 +208,11 @@ const useIpdCustomModules = ({
       try {
         await dispatch(
           updateCustomization({
-            ...customization,
+            doctorId: admittingDoctorId,
+            customization: {
+              ...customization,
+              [customizationKey]: nextSections,
+            },
             [customizationKey]: nextSections,
           })
         );
@@ -645,7 +649,13 @@ const useIpdCustomModules = ({
       message.error(errorMessage);
       throw new Error(errorMessage);
     },
-    [customModules, dispatch, formType, admittingDoctorId, setCustomModuleContents]
+    [
+      customModules,
+      dispatch,
+      formType,
+      admittingDoctorId,
+      setCustomModuleContents,
+    ]
   );
 
   const handleModuleTemplateDelete = useCallback(
@@ -781,25 +791,18 @@ const useIpdCustomModules = ({
 
   const renderCustomModuleSection = useCallback(
     (section, extraProps = {}) => {
-      if (!section) {
-        return null;
-      }
-
-      if (section.isDeleted) {
-        return null;
-      }
-
       const moduleId = ensureModuleId(section);
-      if (!moduleId) {
-        return null;
-      }
-
       const baseModule =
         customModules.find(
           (module) => module.module_id === moduleId && !module.isDeleted
         ) || {};
 
-      if (baseModule.isDeleted) {
+      if (
+        !section ||
+        section.isDeleted ||
+        !moduleId ||
+        !baseModule?.module_id
+      ) {
         return null;
       }
 
@@ -878,7 +881,7 @@ const useIpdCustomModules = ({
       admissionId,
       patientId,
       onCustomModuleAdded: handleCustomModuleAdded,
-      admittingDoctorId
+      admittingDoctorId,
     }),
     [
       admissionId,
@@ -887,7 +890,7 @@ const useIpdCustomModules = ({
       handleCustomModuleAdded,
       patientId,
       setCustomModuleContents,
-      admittingDoctorId
+      admittingDoctorId,
     ]
   );
 
@@ -900,6 +903,14 @@ const useIpdCustomModules = ({
     [addCustomModuleProps]
   );
 
+  const defaultCustomModulesForCustomization = useMemo(() => {
+    return (
+      customModules
+        ?.filter((module) => !module.isDeleted)
+        ?.map((module) => buildCustomModuleSection(module)) || []
+    );
+  }, [customModules]);
+
   return {
     customModules,
     customModuleContents,
@@ -910,6 +921,7 @@ const useIpdCustomModules = ({
     hydrateFromSavedModules,
     serializeCustomModules,
     addCustomModuleProps,
+    defaultCustomModulesForCustomization,
     handleCustomModuleAdded,
     handleCustomModuleDeleted,
     handleCustomModuleRenamed,

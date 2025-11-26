@@ -91,6 +91,7 @@ const AssessmentsForm = (props) => {
     serializeCustomModules,
     handleCustomModuleRenamed,
     handleCustomModuleDeleted,
+    defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
     formType,
     customizationKey: "assessments",
@@ -134,7 +135,7 @@ const AssessmentsForm = (props) => {
         addDataToStore(res.payload.assessment);
       });
     }
-    dispatch(getCustomization());
+    dispatch(getCustomization({doctorId : patientDetails?.doctor?.id}));
     if (isEditable) {
       dispatch(
         getLastPrescriptionDate({
@@ -176,13 +177,17 @@ const AssessmentsForm = (props) => {
   }, [dispatch]);
 
   const handleDefaultClick = () => {
-    setModelData(IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE);
+    const defaultModules = [
+      ...IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE,
+      ...defaultCustomModulesForCustomization,
+    ];
+    setModelData(defaultModules);
     setShowCustomisationDrawer(false);
     const newData = {
       ...customization,
-      assessments: IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE,
+      assessments: defaultModules,
     };
-    dispatch(updateCustomization(newData));
+    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
   const renderSections = (data) => {
@@ -213,7 +218,7 @@ const AssessmentsForm = (props) => {
   const handleSaveCustomization = () => {
     setShowCustomisationDrawer(false);
     const newData = { ...customization, assessments: [...modelData] };
-    dispatch(updateCustomization(newData));
+    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
   const convertToRawFormat = (data = []) => {
@@ -562,7 +567,11 @@ const AssessmentsForm = (props) => {
           onClose={() => {
             dispatch(
               updateCustomization({
-                ...customization,
+                doctorId: patientDetails?.doctor?.id,
+                customization: {
+                  ...customization,
+                  assessments: modelData,
+                },
                 assessments: modelData,
               })
             );

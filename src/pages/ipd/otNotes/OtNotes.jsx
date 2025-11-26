@@ -76,6 +76,7 @@ const OtNotes = (props) => {
     serializeCustomModules,
     handleCustomModuleRenamed,
     handleCustomModuleDeleted,
+    defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
     formType,
     customizationKey: "otNotes",
@@ -123,7 +124,7 @@ const OtNotes = (props) => {
   }, [isNew]);
 
   useEffect(() => {
-    dispatch(getCustomization());
+    dispatch(getCustomization({ doctorId: patientDetails?.doctor?.id }));
 
     // Only fetch OT Notes data if we have the required patient details
     if (patientDetails?.details?.id && patientDetails?.admissionId) {
@@ -176,13 +177,17 @@ const OtNotes = (props) => {
   }, [otNotesData?.otNotesData?.length]);
 
   const handleDefaultClick = () => {
-    setModelData(IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE);
+    const defaultModules = [
+      ...IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE,
+      ...defaultCustomModulesForCustomization,
+    ];
+    setModelData(defaultModules);
     setShowCustomisationDrawer(false);
     const newData = {
       ...customization,
-      otNotes: IPD.DEFAULT_OT_NOTES_FORM_STRUCTURE,
+      otNotes: defaultModules,
     };
-    dispatch(updateCustomization(newData));
+    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
   const renderSections = (data) => {
@@ -244,7 +249,7 @@ const OtNotes = (props) => {
   const handleSaveCustomization = () => {
     setShowCustomisationDrawer(false);
     const newData = { ...customization, otNotes: [...modelData] };
-    dispatch(updateCustomization(newData));
+    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
   const onSaveOtNotesClick = async () => {

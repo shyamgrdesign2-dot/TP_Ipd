@@ -87,7 +87,7 @@ const ConsultantNotes = (props) => {
   );
 
   useEffect(() => {
-    dispatch(getCustomization());
+    dispatch(getCustomization({doctorId: patientDetails?.doctor?.id}));
   }, [dispatch, patientDetails]);
 
   const { consultationNotes: consultantNotesCustomization = [] } =
@@ -119,6 +119,7 @@ const ConsultantNotes = (props) => {
     serializeCustomModules,
     handleCustomModuleRenamed,
     handleCustomModuleDeleted,
+    defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
     formType,
     customizationKey: "consultationNotes",
@@ -447,13 +448,17 @@ const ConsultantNotes = (props) => {
   };
 
   const handleDefaultClick = () => {
-    setModelData(IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE);
+    const defaultModules = [
+      ...IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE,
+      ...defaultCustomModulesForCustomization,
+    ];
+    setModelData(defaultModules);
     setShowCustomisationDrawer(false);
     const newData = {
       ...customization,
-      consultationNotes: IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE,
+      consultationNotes: defaultModules,
     };
-    dispatch(updateCustomization(newData));
+    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
   const handleSaveCustomization = () => {
@@ -462,7 +467,7 @@ const ConsultantNotes = (props) => {
       ...customization,
       consultationNotes: [...modelData],
     };
-    dispatch(updateCustomization(newData));
+    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
   const handleProgressSummaryClick = () => {

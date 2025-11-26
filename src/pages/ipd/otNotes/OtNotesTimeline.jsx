@@ -47,8 +47,8 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
   const { otNotes = [] } = customization;
 
   useEffect(() => {
-    dispatch(getCustomization());
-  }, []);
+    dispatch(getCustomization({doctorId: patientDetails?.doctor?.id}));
+  }, [patientDetails?.doctor?.id]);
 
   const handleEditOtNotes = (id) => {
     dispatch(setCurrentOtNoteId(id));

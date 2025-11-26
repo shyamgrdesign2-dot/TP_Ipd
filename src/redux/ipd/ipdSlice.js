@@ -34,10 +34,10 @@ export const fetchSingleTemplate = createAsyncThunk(
 
 export const getCustomization = createAsyncThunk(
   "ipd/getCustomization",
-  async () => {
+  async ({ doctorId } = {}) => {
     try {
       let result = {};
-      result = await ApiIpdService.getCustomization();
+      result = await ApiIpdService.getCustomization(doctorId);
       if (result?.settings) {
         return result?.settings;
       } else {
@@ -52,18 +52,21 @@ export const getCustomization = createAsyncThunk(
 
 export const updateCustomization = createAsyncThunk(
   "ipd/updateCustomization",
-  async (data) => {
+  async ({ doctorId, customization } = {}) => {
     try {
       let result = {};
       result = await ApiIpdService.updateCustomization({
-        progressNotes: [],
-        crossReferral: [],
-        otNotes: [],
-        dischargeSummary: [],
-        ...data,
+        doctorId,
+        customization: {
+          progressNotes: [],
+          crossReferral: [],
+          otNotes: [],
+          dischargeSummary: [],
+          ...customization,
+        },
       });
       if (result.message === "form customization updated successfully.") {
-        return data;
+        return customization;
       } else {
         throw Error(result.error);
       }
@@ -181,7 +184,7 @@ const ipdSlice = createSlice({
     },
     resetPatientDetails: (state, action) => {
       state.patientDetails = {};
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -257,7 +260,7 @@ export const {
   setWards,
   clearPatientsSearch,
   resetPatientDetails,
-  storePatientDetails
+  storePatientDetails,
 } = ipdSlice.actions;
 
 export default ipdSlice.reducer;

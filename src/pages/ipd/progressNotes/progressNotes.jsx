@@ -138,6 +138,7 @@ const ProgressNotes = (props) => {
     serializeCustomModules,
     handleCustomModuleRenamed,
     handleCustomModuleDeleted,
+    defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
     formType,
     customizationKey: "progressNotes",
@@ -172,7 +173,7 @@ const ProgressNotes = (props) => {
 
   // If navigated directly (no state), ensure customization and fetch list for autofill/use
   useEffect(() => {
-    dispatch(getCustomization());
+    dispatch(getCustomization({doctorId: patientDetails?.doctor?.id}));
     if (patientId && admissionId) {
       dispatch(getProgressNotes({ patientId, admissionId }));
     }
@@ -576,19 +577,23 @@ const ProgressNotes = (props) => {
   // };
 
   const handleDefaultClick = () => {
-    setModelData(IPD.DEFAULT_PROGRESS_NOTES_FORM_STRUCTURE);
+    const defaultModules = [
+      ...IPD.DEFAULT_PROGRESS_NOTES_FORM_STRUCTURE,
+      ...defaultCustomModulesForCustomization,
+    ];
+    setModelData(defaultModules);
     setShowCustomisationDrawer(false);
     const newData = {
       ...customization,
-      progressNotes: IPD.DEFAULT_PROGRESS_NOTES_FORM_STRUCTURE,
+      progressNotes: defaultModules,
     };
-    dispatch(updateCustomization(newData));
+    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
   const handleSaveCustomization = () => {
     setShowCustomisationDrawer(false);
     const newData = { ...customization, progressNotes: [...modelData] };
-    dispatch(updateCustomization(newData));
+    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
   const handleBackConfirmation = () => {
