@@ -76,7 +76,6 @@ export const createRemoteComponent = (componentName, customFallback) => {
         admissionId: patientDetails?.admissionId,
         paragraph,
       });
-      console.log('INTEL ==> response', response)
       if (response?.data?.message === "Digitization failed")  {
         return;
       }

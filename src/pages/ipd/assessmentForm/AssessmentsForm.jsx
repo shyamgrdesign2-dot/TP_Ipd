@@ -478,7 +478,6 @@ const AssessmentsForm = (props) => {
     );
     if (response.meta.requestStatus === "fulfilled") {
       const updatedData = response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      console.log("INTEL ==> UPDATED DATA", updatedData);
       addDataToStore(updatedData);
       callback?.();
     } else {
