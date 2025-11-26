@@ -243,7 +243,7 @@ export const renderProgressNotes = (data, formatSettings) => {
 
     return (
       <View key={note._id || noteIndex}>
-        <FilledByCard filledBy={note.createdByName} filledOn={note.createdAt} />
+        <FilledByCard filledBy={note.createdByName} filledOn={note?.progressNotes?.date} />
         {/* Content */}
         {noteSections}
       </View>

@@ -28,6 +28,7 @@ import useOnlyViewMode from "../../../hooks/useOnlyViewMode";
 import { Empty } from "antd";
 import { groupIpdCustomModulesById } from "../../../utils/utils.js";
 import IpdCustomModule from "../components/IpdCustomModule.jsx";
+import { downloadModule, printModule } from "../utils/printDownload";
 const ReusableStepper = createRemoteComponent("ReusableStepper");
 const GenericCard = createRemoteComponent("GenericCard");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -41,6 +42,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
   const isOnlyViewMode = useOnlyViewMode();
   const { showLastUpdatedAt } = useDischargeSummaryData(true, true);
   const { customization = {} } = useSelector((state) => state.ipd);
+  const { printSettings } = useSelector((state) => state.printSettings);
   const [dateStatus, setDateStatus] = useState(null);
   const [dateRange, setDateRange] = useState(null);
   const [pickerModal, setPickerModal] = useState(false);
@@ -259,6 +261,14 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                handleGroupHeaderAction("Download", groupKey, groupData);
+                if (emit) {
+                  emit("groupHeaderAction", {
+                    action: "download",
+                    groupKey,
+                    groupData,
+                  });
+                }
               }}
               title="Download this date's OT notes"
             />
@@ -270,6 +280,14 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                handleGroupHeaderAction("Print", groupKey, groupData);
+                if (emit) {
+                  emit("groupHeaderAction", {
+                    action: "print",
+                    groupKey,
+                    groupData,
+                  });
+                }
               }}
               title="Print this date's OT notes"
             />
@@ -291,8 +309,33 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
     );
   };
 
-  const handleGroupHeaderAction = (action, groupKey, groupData) => {
-    console.log("Action:", action, groupKey, groupData);
+  const handleGroupHeaderAction = async (action, groupKey, groupData) => {
+    const normalizedAction =
+      typeof action === "string" ? action.toLowerCase() : "";
+    const entries = Array.isArray(groupData)
+      ? groupData
+          .map((item) => item?.originalEntry)
+          .filter((entry) => entry && typeof entry === "object")
+      : [];
+
+    if (!entries.length) {
+      console.warn("No OT notes found for the selected group", {
+        action,
+        groupKey,
+        groupData,
+      });
+      return;
+    }
+
+    try {
+      if (normalizedAction === "download") {
+        await downloadModule("otNotes", printSettings, patientDetails, entries);
+      } else if (normalizedAction === "print") {
+        await printModule("otNotes", printSettings, patientDetails, entries);
+      }
+    } catch (error) {
+      console.error(`Error handling ${action} for OT notes`, error);
+    }
   };
 
   const handleReusableItemEvent = (eventName, payload) => {
