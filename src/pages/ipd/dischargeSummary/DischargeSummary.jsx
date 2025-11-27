@@ -86,7 +86,7 @@ const DischargeSummary = (props) => {
     useState(false);
   const otNotesData = useSelector((state) => state.otNotes);
   const [sectionData, setSectionData] = useState(null);
-  const formType = "dischargedSummary";
+  const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.dischargeSummary;
 
   const {
     customModuleContents,
@@ -99,8 +99,8 @@ const DischargeSummary = (props) => {
     handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
-    formType,
-    customizationKey: "dischargeSummary",
+    formType: customModuleFormType,
+    customizationKey: customModuleFormType,
     modelData,
     setModelData,
     admissionId: patientDetails?.admissionId,

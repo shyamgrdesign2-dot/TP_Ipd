@@ -52,7 +52,7 @@ const CrossReferralTimeline = () => {
   const { crossReferral = [] } = customization;
 
   useEffect(() => {
-    dispatch(getCustomization({doctorId: patientDetails?.doctor?.id}));
+    dispatch(getCustomization({ doctorId: patientDetails?.doctor?.id }));
   }, [patientDetails?.doctor?.id]);
 
   const handlePickerModal = useCallback(() => {
@@ -509,6 +509,19 @@ const CrossReferralTimeline = () => {
                               )}
                             </div>
                           );
+                        case "customModules":
+                          return groupIpdCustomModulesById(
+                            entry?.crossReferral[crossReferralEntry]
+                          )?.map((customModule) => {
+                            return (
+                              <IpdCustomModule
+                                module={customModule}
+                                value={customModule.content}
+                                isEditable={false}
+                                hideBorder
+                              />
+                            );
+                          });
                         default:
                           return null;
                       }

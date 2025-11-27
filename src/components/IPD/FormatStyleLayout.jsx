@@ -84,7 +84,7 @@ function FormatStyleLayout({ moduleType, formatSettings }) {
   const formatSections = React.useMemo(() => {
     if (!Array.isArray(formatSettings)) return [];
     // Create a copy before sorting to avoid mutating Redux state
-    return [...formatSettings].sort((a, b) => (a.order || 0) - (b.order || 0));
+    return [...formatSettings];
   }, [formatSettings]);
 
   const updateSectionInArray = useCallback(
@@ -318,7 +318,17 @@ function FormatStyleLayout({ moduleType, formatSettings }) {
             <div className="d-flex align-items-center gap-3">
               <Button
                 type="text"
-                icon={<img style={{transform: isExpanded ? "rotate(90deg)" : "rotate(-90deg)"}} src={defaultIcons.leftArrowIcon} alt="..." />}
+                icon={
+                  <img
+                    style={{
+                      transform: isExpanded
+                        ? "rotate(90deg)"
+                        : "rotate(-90deg)",
+                    }}
+                    src={defaultIcons.leftArrowIcon}
+                    alt="..."
+                  />
+                }
                 onClick={() => toggleSectionExpansion(section.id)}
                 style={{ padding: "4px" }}
               />
@@ -338,27 +348,23 @@ function FormatStyleLayout({ moduleType, formatSettings }) {
                 onDragEnd={onDragEnd}
               >
                 <SortableContext
-                  items={[...(section.subSections || [])]
-                    .sort((a, b) => (a.order || 0) - (b.order || 0))
-                    .map((sub) => sub.id)}
+                  items={[...(section.subSections || [])].map((sub) => sub.id)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {[...(section.subSections || [])]
-                    .sort((a, b) => (a.order || 0) - (b.order || 0))
-                    .map((subSection, index) => (
-                      <SortableCard key={subSection.id} id={subSection.id}>
-                        <div
-                          style={{
-                            borderBottom:
-                              index < section.subSections.length - 1
-                                ? "0.5px solid #e2e2ea"
-                                : "none",
-                          }}
-                        >
-                          {renderSubSection(subSection, 1)}
-                        </div>
-                      </SortableCard>
-                    ))}
+                  {[...(section.subSections || [])].map((subSection, index) => (
+                    <SortableCard key={subSection.id} id={subSection.id}>
+                      <div
+                        style={{
+                          borderBottom:
+                            index < section.subSections.length - 1
+                              ? "0.5px solid #e2e2ea"
+                              : "none",
+                        }}
+                      >
+                        {renderSubSection(subSection, 1)}
+                      </div>
+                    </SortableCard>
+                  ))}
                 </SortableContext>
               </DndContext>
             </div>

@@ -17,6 +17,7 @@ import {
 } from "../redux/ipd/printSettingsSlice";
 import { buildCustomModuleSection } from "../utils/customModuleHelpers";
 import { useLocation } from "react-router-dom";
+import { IPD } from "../utils/locale";
 
 const DEFAULT_SLATE_VALUE = [
   {
@@ -25,13 +26,13 @@ const DEFAULT_SLATE_VALUE = [
   },
 ];
 
-const FORM_TYPE_MAP = {
-  consultantNotes: "consultationNotes",
-  progressNotes: "progressNotes",
-  otNotes: "otNotes",
-  dischargedSummary: "dischargeSummary",
-  assessments: "assessments",
-  crossReferral: "crossReferral",
+const FORM_TYPE_TO_PRINT_SETTINGS_MODULE_MAP = {
+  [IPD.CUSTOM_MODULE_FORM_TYPES.consultantNotes]: "consultationNotes",
+  [IPD.CUSTOM_MODULE_FORM_TYPES.progressNotes]: "progressNotes",
+  [IPD.CUSTOM_MODULE_FORM_TYPES.otNotes]: "otNotes",
+  [IPD.CUSTOM_MODULE_FORM_TYPES.dischargeSummary]: "dischargeSummary",
+  [IPD.CUSTOM_MODULE_FORM_TYPES.assessments]: "assessments",
+  [IPD.CUSTOM_MODULE_FORM_TYPES.crossReferral]: "crossReferral",
 };
 
 const ensureModuleId = (module) =>
@@ -193,7 +194,7 @@ const useIpdCustomModules = ({
   }, [dispatch, formType, admittingDoctorId]);
 
   useEffect(() => {
-    const mappedFormType = FORM_TYPE_MAP[formType];
+    const mappedFormType = FORM_TYPE_TO_PRINT_SETTINGS_MODULE_MAP[formType];
     if (mappedFormType && !printSettings?.[mappedFormType]) {
       dispatch(getPrintSettings());
     }
@@ -225,7 +226,7 @@ const useIpdCustomModules = ({
 
   const syncPrintSettingsFormatStyle = useCallback(
     async (action, { moduleId, moduleName }) => {
-      const mappedFormType = FORM_TYPE_MAP[formType];
+      const mappedFormType = FORM_TYPE_TO_PRINT_SETTINGS_MODULE_MAP[formType];
       if (!mappedFormType || !moduleId || !printSettings?.[mappedFormType]) {
         return;
       }
@@ -911,6 +912,23 @@ const useIpdCustomModules = ({
     );
   }, [customModules]);
 
+  const defaultCustomModulesForPrintSettings = useMemo(() => {
+    return (
+      customModules
+        ?.filter((module) => !module.isDeleted)
+        ?.map((module) => {
+          return {
+            id: module.module_id,
+            label: module.name,
+            visible: true,
+            view: 1,
+            subSections: [],
+            isCustom: true,
+          };
+        }) || []
+    );
+  }, [customModules]);
+
   return {
     customModules,
     customModuleContents,
@@ -922,6 +940,7 @@ const useIpdCustomModules = ({
     serializeCustomModules,
     addCustomModuleProps,
     defaultCustomModulesForCustomization,
+    defaultCustomModulesForPrintSettings,
     handleCustomModuleAdded,
     handleCustomModuleDeleted,
     handleCustomModuleRenamed,

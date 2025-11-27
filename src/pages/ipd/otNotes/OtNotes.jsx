@@ -65,7 +65,8 @@ const OtNotes = (props) => {
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
-  const formType = "otNotes";
+  const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.otNotes;
+  
 
   const {
     customModuleContents,
@@ -78,8 +79,8 @@ const OtNotes = (props) => {
     handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
-    formType,
-    customizationKey: "otNotes",
+    formType: customModuleFormType,
+    customizationKey: customModuleFormType,
     modelData,
     setModelData,
     admissionId: patientDetails?.admissionId,

@@ -108,7 +108,7 @@ const ConsultantNotes = (props) => {
       : IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE
   );
 
-  const formType = "consultantNotes";
+  const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.consultantNotes;
 
   const {
     customModuleContents,
@@ -121,8 +121,8 @@ const ConsultantNotes = (props) => {
     handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
-    formType,
-    customizationKey: "consultationNotes",
+    formType: customModuleFormType,
+    customizationKey: customModuleFormType,
     modelData,
     setModelData,
     admissionId,

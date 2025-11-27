@@ -3496,6 +3496,14 @@ export const IPD = {
       code: "ULTRASOUND",
     },
   ],
+  CUSTOM_MODULE_FORM_TYPES: Object.freeze({
+    assessments: "assessments",
+    progressNotes: "progressNotes",
+    consultantNotes: "consultantNotes",
+    otNotes: "otNotes",
+    crossReferral: "crossReferral",
+    dischargeSummary: "dischargeSummary",
+  }),
 };
 
 export const CHRONOLOGY_LAST_PARAGRAPH = `During stay the patient was closely monitored for all vital parameters, intake output and was regularly investigated and managed medically. Patient was treated medically with Antibiotic, Antacid, Analgesic, IV Fluid and other support treatment. Patient's overall stay in Hospital was uneventful.

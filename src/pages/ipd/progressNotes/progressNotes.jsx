@@ -72,7 +72,7 @@ const ProgressNotes = (props) => {
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [shouldAutofill, setShouldAutofill] = useState(false);
 
-  const formType = "progressNotes";
+  const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.progressNotes;
 
   const mergeDateAndTime = useCallback((dateValue, timeValue) => {
     const dateMoment = dayjs(dateValue ?? new Date());
@@ -140,8 +140,8 @@ const ProgressNotes = (props) => {
     handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
-    formType,
-    customizationKey: "progressNotes",
+    formType: customModuleFormType,
+    customizationKey: customModuleFormType,
     modelData,
     setModelData,
     admissionId,

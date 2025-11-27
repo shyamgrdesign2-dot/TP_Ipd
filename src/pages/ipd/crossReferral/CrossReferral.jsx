@@ -33,7 +33,12 @@ const FilledByCard = createRemoteComponent("FilledByCard");
 const CrossReferral = (props) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
-  const { patient_data, patientDetails, isEditable = true, fromTab } = state || {};
+  const {
+    patient_data,
+    patientDetails,
+    isEditable = true,
+    fromTab,
+  } = state || {};
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
@@ -42,7 +47,7 @@ const CrossReferral = (props) => {
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
 
-  const formType = "crossReferral";
+  const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.crossReferral;
   const { customization = {} } = useSelector((state) => state.ipd);
   const crossReferralState = useSelector((state) => state.crossReferral);
   const crossReferralData = useSelector((state) => state.crossReferral);
@@ -56,17 +61,14 @@ const CrossReferral = (props) => {
 
   const {
     customModuleContents,
-    isCustomModuleSection,
-    renderCustomModuleSection: renderCustomModuleComponent,
-    renderCustomModulesFooter,
     hydrateFromSavedModules,
     serializeCustomModules,
     handleCustomModuleRenamed,
     handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
-    formType,
-    customizationKey: "crossReferral",
+    formType: customModuleFormType,
+    customizationKey: customModuleFormType,
     modelData,
     setModelData,
     admissionId: patientDetails?.admissionId,
@@ -122,17 +124,18 @@ const CrossReferral = (props) => {
       ...customization,
       crossReferral: defaultModules,
     };
-    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
+    dispatch(
+      updateCustomization({
+        doctorId: patientDetails?.doctor?.id,
+        customization: newData,
+      })
+    );
   };
 
   const renderSections = (data) => {
     // Don't render if data is undefined or doesn't have required properties
     if (!data) {
       return null;
-    }
-
-    if (isCustomModuleSection(data)) {
-      return renderCustomModuleComponent(data);
     }
 
     return (
@@ -152,7 +155,12 @@ const CrossReferral = (props) => {
   const handleSaveCustomization = () => {
     setShowCustomisationDrawer(false);
     const newData = { ...customization, crossReferral: [...modelData] };
-    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
+    dispatch(
+      updateCustomization({
+        doctorId: patientDetails?.doctor?.id,
+        customization: newData,
+      })
+    );
   };
 
   const onAddReferralClick = async () => {
@@ -193,7 +201,7 @@ const CrossReferral = (props) => {
             patient_data: patient_data,
             patientDetails,
             activeTab: "crossReferral",
-            fromTab
+            fromTab,
           },
           replace: true,
         });
@@ -279,8 +287,6 @@ const CrossReferral = (props) => {
     console.log("INTEL ==> activeId", activeId);
   };
 
-  const renderBottomSection = () => renderCustomModulesFooter();
-
   // Early return if essential data is missing to prevent undefined errors
   if (!patientDetails && isEditable) {
     return (
@@ -326,7 +332,6 @@ const CrossReferral = (props) => {
                   setIsBackModalOpen(true);
                 }}
                 renderHeaderSection={renderHeaderSection}
-                renderBottomSection={renderBottomSection}
                 headerOffset={72}
                 onMenuItemClick={onMenuItemClick}
               />
@@ -386,7 +391,12 @@ const CrossReferral = (props) => {
         onConfirm={() => {
           setIsBackModalOpen(false);
           navigate(`/ipd/patient-details`, {
-            state: { ...state, activeTab: "crossReferral", isEditable: false , fromTab },
+            state: {
+              ...state,
+              activeTab: "crossReferral",
+              isEditable: false,
+              fromTab,
+            },
             replace: true,
           });
           dispatch(resetCrossReferralForm());

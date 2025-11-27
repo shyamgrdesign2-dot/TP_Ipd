@@ -72,7 +72,8 @@ const AssessmentsForm = (props) => {
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
 
-  const formType = "assessments";
+  const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.assessment;
+
   const handleTimePeriodChange = (value) => {
     setSelectedTimePeriod(value);
   };
@@ -93,8 +94,8 @@ const AssessmentsForm = (props) => {
     handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
-    formType,
-    customizationKey: "assessments",
+    formType: customModuleFormType,
+    customizationKey: customModuleFormType,
     modelData,
     setModelData,
     admissionId: patientDetails?.admissionId,
@@ -135,7 +136,7 @@ const AssessmentsForm = (props) => {
         addDataToStore(res.payload.assessment);
       });
     }
-    dispatch(getCustomization({doctorId : patientDetails?.doctor?.id}));
+    dispatch(getCustomization({ doctorId: patientDetails?.doctor?.id }));
     if (isEditable) {
       dispatch(
         getLastPrescriptionDate({
@@ -187,7 +188,12 @@ const AssessmentsForm = (props) => {
       ...customization,
       assessments: defaultModules,
     };
-    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
+    dispatch(
+      updateCustomization({
+        doctorId: patientDetails?.doctor?.id,
+        customization: newData,
+      })
+    );
   };
 
   const renderSections = (data) => {
@@ -218,7 +224,12 @@ const AssessmentsForm = (props) => {
   const handleSaveCustomization = () => {
     setShowCustomisationDrawer(false);
     const newData = { ...customization, assessments: [...modelData] };
-    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
+    dispatch(
+      updateCustomization({
+        doctorId: patientDetails?.doctor?.id,
+        customization: newData,
+      })
+    );
   };
 
   const convertToRawFormat = (data = []) => {

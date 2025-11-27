@@ -29,10 +29,12 @@ export const getPrintSettings = createAsyncThunk(
   "printSettings/getPrintSettings",
   async (_, { rejectWithValue, getState }) => {
     try {
-      const { ipd: { patientDetails } } = getState();
-      const result = await ApiPrintSettings.getPrintSettings(
-        { doctorId: patientDetails?.doctor?.id }
-      );
+      const {
+        ipd: { patientDetails },
+      } = getState();
+      const result = await ApiPrintSettings.getPrintSettings({
+        doctorId: patientDetails?.doctor?.id,
+      });
 
       if (result?._id) {
         return result;
@@ -315,7 +317,6 @@ const printSettingsSlice = createSlice({
     // Save draft settings to main settings (persist changes)
     saveDraftSettings: (state, action) => {
       const { moduleType } = action.payload;
-
       if (state.draftSettings[moduleType]) {
         // Deep merge draft settings into main settings
         if (!state.printSettings[moduleType]) {
