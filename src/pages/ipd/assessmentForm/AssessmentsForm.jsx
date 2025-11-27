@@ -72,7 +72,7 @@ const AssessmentsForm = (props) => {
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
 
-  const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.assessment;
+  const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.assessments;
 
   const handleTimePeriodChange = (value) => {
     setSelectedTimePeriod(value);
