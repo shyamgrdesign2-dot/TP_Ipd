@@ -122,7 +122,7 @@ const ConsultantNotes = (props) => {
     defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
     formType: customModuleFormType,
-    customizationKey: customModuleFormType,
+    customizationKey: "consultationNotes",
     modelData,
     setModelData,
     admissionId,
