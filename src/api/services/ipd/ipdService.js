@@ -39,8 +39,9 @@ ApiIpdService.createAdmission = function (data) {
   return api.post(`/patients/create-admission`, data, baseUrl);
 };
 
-ApiIpdService.getWards = function () {
-  return api.get(`/patients/wards`, baseUrl);
+ApiIpdService.getWards = function ({ includeAll = true } = {}) {
+  const query = includeAll ? "?all=true" : "";
+  return api.get(`/patients/wards${query}`, baseUrl);
 };
 
 ApiIpdService.getDepartments = function () {

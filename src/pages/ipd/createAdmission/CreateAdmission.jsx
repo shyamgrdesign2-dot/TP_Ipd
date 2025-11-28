@@ -1,0 +1,1061 @@
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  AutoComplete,
+  Button,
+  Card,
+  Col,
+  ConfigProvider,
+  DatePicker,
+  Divider,
+  Input,
+  Row,
+  Select,
+  Space,
+  Spin,
+  TimePicker,
+  Tooltip,
+} from "antd";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
+import {
+  doctorDepartmentRoles as fetchDoctorDeptRoles,
+  fetchWards,
+  checkPatientAdmitted,
+} from "../../../redux/ipd/ipdSlice";
+import {
+    clearSearch,
+    searchPatients,
+  } from "../../../redux/appointmentsSlice";
+import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
+import "./CreateAdmission.scss";
+import ApiIpdService from "../../../api/services/ipd/ipdService";
+import { getTokenData } from "../../../utils/utils";
+import message from "antd/es/message";
+import SubHeader from "./components/SubHeader";
+import WardBedDrawer from "./components/WardBedDrawer";
+
+const FIELD_SCHEMA = [
+  { id: "departmentId", label: "Department*", type: "select-departments" },
+  { id: "admittingDoctorId", label: "Admitting Doctor*", type: "select-admit-doc" },
+  { id: "admissionDate", label: "Admission Date*", type: "date" },
+  { id: "admissionTime", label: "Admission Time*", type: "time" },
+  { id: "wardBed", label: "Ward & Bed*", type: "ward-bed-select" },
+  {
+    id: "patientCategory",
+    label: "Patient Category",
+    type: "select-static",
+    options: ["Emergency", "Insurance", "Cash", "Corporate"],
+  },
+  { id: "admissionNo", label: "Admission Number", type: "input" },
+//   {
+//     id: "haveAMLC",
+//     label: "Have a MLC?",
+//     type: "select-static",
+//     options: ["Yes", "No"],
+//   },
+  { id: "mlcNumber", label: "MLC Number", type: "input" },
+  { id: "careTaker", label: "Care Taker Name", type: "input" },
+  { id: "contactNo", label: "Care Taker Mobile number*", type: "input" },
+  {
+    id: "relationship",
+    label: "Relation With the Patient*",
+    type: "select-static",
+    options: ["Father", "Mother", "Spouse", "Sibling", "Friend", "Guardian", "Other"],
+  },
+  { id: "insuranceNumber", label: "Insurance Number", type: "input" },
+  { id: "policyNumber", label: "Policy Number", type: "input" },
+  { id: "tpaNumber", label: "TPA Number", type: "input" },
+  { id: "preApprovalId", label: "Pre-Approval ID", type: "input" },
+];
+
+const REQUIRED_FIELD_IDS = [
+  "departmentId",
+  "wardBed",
+  "admittingDoctorId",
+  "admissionDate",
+  "admissionTime",
+  "contactNo",
+  "relationship",
+];
+
+const SECTION_LAYOUT = [
+  {
+    key: "admission-details",
+    title: "Admission Details",
+    description: "Assign the right department, doctor, ward and timing.",
+    fieldIds: [
+      "departmentId",
+      "admittingDoctorId",
+      "admissionDate",
+      "admissionTime",
+      "wardBed",
+      "patientCategory",
+      "admissionNo",
+    //   "haveAMLC",
+      "mlcNumber",
+    ],
+  },
+  {
+    key: "care-taker",
+    title: "Care Taker Details",
+    description: "Primary contact person during the stay.",
+    fieldIds: ["contactNo", "careTaker", "relationship"],
+  },
+  {
+    key: "insurance",
+    title: "Insurance Details",
+    description: "Optional insurance & policy information.",
+    fieldIds: ["insuranceNumber", "policyNumber", "tpaNumber", "preApprovalId"],
+  },
+];
+
+function toUpperSafe(val, fallback = "") {
+  if (!val || typeof val !== "string") return fallback;
+  return val.toUpperCase();
+}
+
+function combineToAdmittedOn(dateISO, timeISO) {
+  const d = dateISO ? dayjs(dateISO) : null;
+  const t = timeISO ? dayjs(timeISO) : null;
+  if (d && t)
+    return d
+      .hour(t.hour())
+      .minute(t.minute())
+      .second(0)
+      .millisecond(0)
+      .toISOString();
+  return (d || t || dayjs()).toISOString();
+}
+
+function calcAgeFromDOB(dobISO) {
+  if (!dobISO) return null;
+  const dob = dayjs(dobISO);
+  if (!dob.isValid()) return null;
+  const now = dayjs();
+  const years = now.diff(dob, "year");
+  const months = now.diff(dob.add(years, "year"), "month");
+  return { years, months: Math.max(months, 0) };
+}
+
+function FieldRenderer({
+  field,
+  control,
+  wards,
+  departmentsRoles,
+  selectedDepartmentId,
+  selectedWardId,
+  doctorsList,
+  onDepartmentChange,
+  onWardChange,
+  onSearchDoctors,
+  onWardBedClick,
+  selectedWardBed,
+  fieldError,
+}) {
+//   const haveAMLC = useWatch({ control, name: "haveAMLC" });
+//   if (field.id === "mlcNumber" && haveAMLC !== "Yes") return null;
+
+  const rules = REQUIRED_FIELD_IDS.includes(field.id)
+    ? { required: `${field.label.replace("*", "")} is required` }
+    : {};
+
+  const renderSelect = (
+    list = [],
+    rhf,
+    mapItem = (x) => ({ value: x, label: x }),
+    extraProps = {}
+  ) => (
+    <Select
+      value={rhf.value}
+      onChange={rhf.onChange}
+      onBlur={rhf.onBlur}
+      allowClear
+      placeholder="Select"
+      popupMatchSelectWidth={false}
+      options={list.map(mapItem)}
+      optionLabelProp="label"
+      showSearch
+      filterOption={(input, option) =>
+        (option?.label || "").toLowerCase().includes(input.toLowerCase())
+      }
+      className="w-100"
+      {...extraProps}
+    />
+  );
+
+  if (field.id === "contactNo") {
+    return (
+      <Controller
+        name="contactNo"
+        control={control}
+        rules={{
+          required: "Care Taker Mobile number is required",
+          validate: {
+            digitsOnly: (v) =>
+              v == null ||
+              v === "" ||
+              /^\d*$/.test(v) ||
+              "Only numbers are allowed",
+            maxTen: (v) =>
+              v == null ||
+              v === "" ||
+              v.length <= 10 ||
+              "Contact number cannot exceed 10 digits",
+          },
+        }}
+        render={({ field: rhf }) => (
+          <Input
+            placeholder="Care Taker Mobile number"
+            inputMode="numeric"
+            pattern="\d*"
+            value={rhf.value ?? ""}
+            onChange={(e) => {
+              const onlyDigits = e.target.value.replace(/\D/g, "");
+              rhf.onChange(onlyDigits);
+            }}
+            onPaste={(e) => {
+              const text = e.clipboardData.getData("text");
+              const onlyDigits = text.replace(/\D/g, "");
+              e.preventDefault();
+              rhf.onChange(`${rhf.value ?? ""}${onlyDigits}`);
+            }}
+          />
+        )}
+      />
+    );
+  }
+
+  switch (field.type) {
+    case "select-departments":
+      return (
+        <Controller
+          name={field.id}
+          control={control}
+          rules={rules}
+          render={({ field: rhf }) =>
+            renderSelect(
+              departmentsRoles || [],
+              {
+                ...rhf,
+                onChange: (val) => {
+                  onDepartmentChange?.(val);
+                  rhf.onChange(val);
+                },
+              },
+              (d) => ({ value: d.departmentId, label: d.department })
+            )
+          }
+        />
+      );
+
+    case "select-admit-doc": {
+      const selectedDept = (departmentsRoles || []).find(
+        (d) => d.departmentId === selectedDepartmentId
+      );
+      const doctors = selectedDept?.doctors || [];
+      const selectComponent = (
+        <Controller
+          key={selectedDepartmentId}
+          name={field.id}
+          control={control}
+          rules={rules}
+          render={({ field: rhf }) =>
+            renderSelect(
+              doctors,
+              rhf,
+              (doc) => ({
+                value: doc.doctorId,
+                label: `${doc.doctorName}`,
+              }),
+              { disabled: !selectedDepartmentId }
+            )
+          }
+        />
+      );
+
+      if (selectedDepartmentId) return selectComponent;
+
+      return (
+        <Tooltip
+          title="Please select a Department"
+          placement="topLeft"
+          trigger={["hover", "focus"]}
+        >
+          <div>{selectComponent}</div>
+        </Tooltip>
+      );
+    }
+
+    case "ward-bed-select":
+      return (
+        <Controller
+          name={field.id}
+          control={control}
+          rules={rules}
+          render={({ field: rhf }) => {
+            const displayClassNames = [
+              "ward-bed-display",
+              selectedWardBed ? "filled" : "empty",
+              fieldError ? "has-error" : "",
+            ]
+              .filter(Boolean)
+              .join(" ");
+            return (
+              <>
+                <input type="hidden" {...rhf} />
+                <div
+                  className={displayClassNames}
+                tabIndex={0}
+                role="button"
+                onClick={() => {
+                  rhf.onBlur();
+                  onWardBedClick?.();
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onWardBedClick?.();
+                  }
+                }}
+              >
+                  <span className="ward-bed-text">
+                    {selectedWardBed || "Select Ward & Bed"}
+                  </span>
+                  {selectedWardBed && (
+                    <i className="icon-Edit" />
+                  )}
+                </div>
+              </>
+            );
+          }}
+        />
+      );
+
+    case "select-static": {
+      const opts = field.options || [];
+      return (
+        <Controller
+          name={field.id}
+          control={control}
+          rules={rules}
+          render={({ field: rhf }) =>
+            renderSelect(opts, rhf, (x) => ({ value: x, label: x }))
+          }
+        />
+      );
+    }
+
+    case "date":
+      return (
+        <Controller
+          name={field.id}
+          control={control}
+          rules={rules}
+          render={({ field: rhf }) => (
+            <DatePicker
+              value={rhf.value ? dayjs(rhf.value) : null}
+              onChange={(d) => rhf.onChange(d ? d.toISOString() : null)}
+              format="DD MMM YYYY"
+              className="w-100 admission-date-picker"
+            />
+          )}
+        />
+      );
+
+    case "time":
+      return (
+        <Controller
+          name={field.id}
+          control={control}
+          rules={rules}
+          render={({ field: rhf }) => (
+            <TimePicker
+              value={rhf.value ? dayjs(rhf.value) : null}
+              onChange={(t) =>
+                rhf.onChange(
+                  t
+                    ? dayjs()
+                        .hour(t.hour())
+                        .minute(t.minute())
+                        .second(0)
+                        .toISOString()
+                    : null
+                )
+              }
+              format="hh:mm A"
+              use12Hours
+              className="w-100 admission-date-picker"
+            />
+          )}
+        />
+      );
+
+    default:
+      return (
+        <Controller
+          name={field.id}
+          control={control}
+          rules={rules}
+          render={({ field: rhf }) => (
+            <Input
+              placeholder={field.label}
+              value={rhf.value || ""}
+              onChange={(e) => rhf.onChange(e.target.value)}
+            />
+          )}
+        />
+      );
+  }
+}
+
+export default function CreateAdmission() {
+  const navigate = useNavigate();
+  const { state } = useLocation();
+//   const { patientDetails } = state || {};
+  const dispatch = useDispatch();
+
+  const { filters } = useSelector((s) => s.inPatients);
+  const doctorsList = filters?.doctor || [];
+  const departmentsRoles = useSelector(
+    (s) => s.ipd?.doctorDepartmentRoles || []
+  );
+  const wardsState = useSelector((s) => s.ipd?.wards);
+
+  const wards = Array.isArray(wardsState)
+    ? wardsState
+    : wardsState?.data || wardsState || [];
+
+
+  const { patients, error } = useSelector((state) => state.records);
+
+  const [loadingInitial, setLoadingInitial] = useState(true);
+  const [isEditingName, setIsEditingName] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [patientSearchOptions, setPatientSearchOptions] = useState([]);
+  const [searchQueryName, setSearchQueryName] = useState("");
+  const [searchQueryMobile, setSearchQueryMobile] = useState("");
+  const [autoCompleteFlagName, setAutoCompleteFlagName] = useState(false);
+  const nameAutoCompleteRef = useRef(null);
+  const [patientDetails, setPatientDetails] = useState(null);
+  const [patientData, setPatientData] = useState(null);
+  const [wardBedDrawerOpen, setWardBedDrawerOpen] = useState(false);
+  const [selectedWardBed, setSelectedWardBed] = useState("");
+//   const [selectedTab, setSelectedTab] = useState(1);
+//   const [page, setPage] = useState(1);
+//   const [hasMore, setHasMore] = useState(true);
+//   const tableRef = useRef(null);
+
+  const {
+    handleSubmit,
+    control,
+    setValue,
+    watch,
+    formState: { errors, touchedFields, isSubmitted },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      admissionDate: dayjs().toISOString(),
+      admissionTime: dayjs().toISOString(),
+      haveAMLC: "",
+      departmentId: undefined,
+      wardBed: undefined,
+      admittingDoctorId: undefined,
+      attendingDoctor: undefined,
+      contactNo: patientDetails?.contact,
+    },
+  });
+
+  const selectedDepartmentId = useWatch({ control, name: "departmentId" });
+  const selectedWardBedValue = useWatch({ control, name: "wardBed" });
+  const watchedValues = watch();
+  
+  // Parse wardBed value to get wardId and roomId
+  const [selectedWardId, selectedRoomId] = useMemo(() => {
+    if (!selectedWardBedValue) return [null, null];
+    try {
+      const parsed = JSON.parse(selectedWardBedValue);
+      return [parsed.wardId, parsed.roomId];
+    } catch {
+      return [null, null];
+    }
+  }, [selectedWardBedValue]);
+
+  // Update selectedWardBed display when form value changes
+  useEffect(() => {
+    if (selectedWardId && selectedRoomId && wards.length > 0) {
+      const ward = wards.find((w) => w._id === selectedWardId);
+      const room = ward?.rooms?.find((r) => r._id === selectedRoomId);
+      if (ward && room) {
+        setSelectedWardBed(`${ward.name} - ${room.name}`);
+      }
+    } else if (!selectedWardBedValue) {
+      setSelectedWardBed("");
+    }
+  }, [selectedWardId, selectedRoomId, wards, selectedWardBedValue]);
+
+  const requiredFieldLabels = useMemo(() => {
+    return REQUIRED_FIELD_IDS.reduce((acc, fieldId) => {
+      const field = FIELD_SCHEMA.find((f) => f.id === fieldId);
+      if (field) {
+        acc[fieldId] = field.label.replace("*", "").trim();
+      }
+      return acc;
+    }, {});
+  }, []);
+
+  const isPatientSelected = Boolean(
+    patientData?.pm_pid ||
+      patientData?.pm_fullname ||
+      patientData?.patient_unique_id ||
+      patientDetails?.patientId ||
+      patientDetails?.patientName ||
+      patientDetails?.id ||
+      patientDetails?.name
+  );
+
+  const missingRequiredFields = useMemo(() => {
+    if (!isPatientSelected) return [];
+    return REQUIRED_FIELD_IDS.filter((fieldId) => {
+      const value = watchedValues?.[fieldId];
+      if (typeof value === "string") {
+        return value.trim() === "";
+      }
+      return value == null || value === false;
+    });
+  }, [watchedValues, isPatientSelected]);
+
+  const missingFieldLabels = missingRequiredFields.map(
+    (id) => requiredFieldLabels[id] || id
+  );
+
+  const helperMessage = !isPatientSelected
+    ? "Please select a patient to proceed."
+    : missingFieldLabels.length > 1
+    ? "Please fill all required details."
+    : missingFieldLabels.length === 1
+    ? `Please fill ${missingFieldLabels[0]}.`
+    : "";
+
+  const isConfirmDisabled = !isPatientSelected || missingFieldLabels.length > 0;
+
+  const ageFromDOB = calcAgeFromDOB(patientDetails?.dob || patientData?.DOB);
+  const ageYears =
+    ageFromDOB?.years ?? 
+    patientData?.ageYears ?? 
+    patientDetails?.age ?? 
+    patientDetails?.ageYears ?? 
+    "-";
+  const ageMonths = ageFromDOB?.months ?? patientData?.ageMonths ?? patientDetails?.ageMonths;
+  const name = 
+    patientData?.pm_fullname ?? 
+    patientDetails?.name ?? 
+    patientDetails?.patientName ?? 
+    "-";
+  const gender = 
+    patientData?.pm_gender ?? 
+    patientDetails?.gender ?? 
+    "-";
+  const prefix = 
+    patientData?.pm_salutation ?? 
+    patientDetails?.prefix ?? 
+    "";
+  const metaAge =
+    (typeof ageYears === "number" && typeof ageMonths === "number"
+      ? `${ageYears}y ${ageMonths}m`
+      : typeof ageYears === "number"
+      ? `${ageYears}y`
+      : "-") || "-";
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        await Promise.all([
+          dispatch(fetchDoctorDeptRoles()),
+          dispatch(fetchFilters({ field: "doctor" })),
+          dispatch(fetchWards({ includeAll: true })),
+        ]);
+      } finally {
+        if (mounted) setLoadingInitial(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [dispatch]);
+
+  const handleDepartmentChange = () => {
+    setValue("admittingDoctorId", undefined);
+  };
+
+  const handleWardBedConfirm = (wardId, roomId) => {
+    const ward = wards.find((w) => w._id === wardId);
+    const room = ward?.rooms?.find((r) => r._id === roomId);
+    
+    if (ward && room) {
+      const displayValue = `${ward.name} - ${room.name}`;
+      setSelectedWardBed(displayValue);
+      setValue("wardBed", JSON.stringify({ wardId, roomId }));
+    }
+  };
+
+  const handleWardBedClick = () => {
+    setWardBedDrawerOpen(true);
+  };
+
+  const onSubmit = async (formData) => {
+
+    try {
+      const admittedOn = combineToAdmittedOn(
+        formData.admissionDate,
+        formData.admissionTime
+      );
+
+      // Parse wardBed to get wardId and roomId
+      let wardId, roomId;
+      try {
+        const wardBedData = JSON.parse(formData.wardBed || "{}");
+        wardId = wardBedData.wardId;
+        roomId = wardBedData.roomId;
+      } catch {
+        wardId = null;
+        roomId = null;
+      }
+
+      const ward = (wards || []).find((w) => w._id === wardId);
+      const room = ward?.rooms?.find((r) => r._id === roomId);
+      const dept = (departmentsRoles || []).find(
+        (d) => d.departmentId === formData.departmentId
+      );
+      const doctor = (dept?.doctors || []).find(
+        (doc) => doc.doctorId === formData.admittingDoctorId
+      );
+      const tokenData = getTokenData();
+      const hospitalId = tokenData?.clinic_id;
+
+      const payload = {
+        details: {
+          id: String(patientDetails?.id ?? patientDetails?.patientId ?? ""),
+          name: name === "-" ? "" : name,
+          gender: toUpperSafe(gender, ""),
+          prefix: prefix || "",
+          age: typeof ageYears === "number" ? ageYears : "",
+          contact:
+            patientData?.pm_contact_no ??
+            patientDetails?.contact ?? 
+            patientDetails?.contactNumber ?? 
+            "",
+          address:
+            patientData?.patient_address ??
+            patientData?.pm_address ??
+            patientDetails?.address ?? 
+            "",
+          bloodGroup:
+            patientData?.pm_blood_group ??
+            patientDetails?.bloodGroup ??
+            patientData?.pm_blood_group ??
+            "",
+        },
+        ward: {
+          id: ward?._id || "",
+          title: ward?.name || "",
+        },
+        room: {
+          id: room?._id || "",
+          title: room?.name || "",
+        },
+        doctor: {
+          id:
+            doctor?.doctorId ||
+            patientDetails?.primaryConsultant?.id ||
+            patientDetails?.doctorId ||
+            "",
+          name:
+            doctor?.doctorName || patientDetails?.primaryConsultant?.name || "",
+          speciality:
+            doctor?.speciality ||
+            patientDetails?.primaryConsultant?.speciality ||
+            "",
+          role: doctor?.role || patientDetails?.primaryConsultant?.role || "",
+        },
+        doctorId: tokenData?.user_id || null,
+        hospitalId: hospitalId || 0,
+        admittedOn,
+        admissionId: patientDetails?.admissionId || "",
+        isDischarged: false,
+        sentForApproval: false,
+        mrno: patientData?.pm_pid ?? patientDetails?.mrno ?? patientDetails?.mrNo ?? "0",
+        visitno: patientDetails?.visitno || "0",
+        encounterno: patientDetails?.encounterno || "0",
+        admissionNo: formData?.admissionNo || "",
+        metadata: {
+          category: formData.patientCategory || "",
+          haveMLC: formData.mlcNumber && formData.mlcNumber.trim() !== "" ? true : false,
+          mlcno: formData.mlcNumber || "0",
+          caretaker: formData.careTaker || "",
+          contactno: formData.contactNo || "",
+          relationship: formData.relationship || "",
+          insuranceno: formData.insuranceNumber || "",
+          policyno: formData.policyNumber || "",
+          tpano: formData.tpaNumber || "",
+          preApprovalId: formData.preApprovalId || "",
+        },
+      };
+
+      const checkIfAdmitted = await dispatch(
+        checkPatientAdmitted({
+          patientId: patientDetails?.id ?? patientDetails?.patientId ?? "",
+        })
+      );
+      if (!!checkIfAdmitted.payload.alreadyAdmitted) {
+        message.error("Patient is already admitted");
+        return;
+      }
+      await ApiIpdService.createAdmission(payload);
+      message.success("Admission created successfully");
+      navigate(`/ipd/inPatients`, {
+        replace: true,
+      });
+    } catch (err) {
+      console.error("Create Admission Error:", err);
+      message.error(
+        err?.response?.data?.message ||
+          "Unable to create admission. Please try again."
+      );
+    }
+  };
+
+  const renderSectionFields = (fieldIds) =>
+    fieldIds.map((fieldId) => {
+      const field = FIELD_SCHEMA.find((f) => f.id === fieldId);
+      if (!field) return null;
+      const fieldValue = watch(field.id);
+      const shouldMarkMissing =
+        isPatientSelected &&
+        REQUIRED_FIELD_IDS.includes(field.id) &&
+        (!fieldValue || (typeof fieldValue === "string" && !fieldValue.trim())) &&
+        (isSubmitted || touchedFields?.[field.id]);
+
+      return (
+        <Col key={field.id} xs={24} sm={12} md={8}>
+          <div
+            className={`form-field ${
+              errors[field.id] ? "form-field-error" : ""
+            } ${shouldMarkMissing ? "form-field-missing" : ""}`}
+          >
+            <label className="field-label">
+              {field.label.replace("*", "")}
+              {/\*/.test(field.label) && <span className="required">*</span>}
+            </label>
+            <FieldRenderer
+              field={field}
+              control={control}
+              wards={wards}
+              departmentsRoles={departmentsRoles}
+              selectedDepartmentId={selectedDepartmentId}
+              selectedWardId={selectedWardId}
+              doctorsList={doctorsList}
+              onDepartmentChange={handleDepartmentChange}
+              onWardChange={handleDepartmentChange}
+              onSearchDoctors={(q) =>
+                dispatch(fetchFilters({ field: "doctor", search: q }))
+              }
+              onWardBedClick={handleWardBedClick}
+              selectedWardBed={selectedWardBed}
+              fieldError={errors[field.id]}
+            />
+            {errors[field.id] && (
+              <div className="field-error">{errors[field.id]?.message}</div>
+            )}
+          </div>
+        </Col>
+      );
+    });
+
+  const patientMeta = useMemo(
+    () => [
+      { label: "Gender", value: gender || "-" },
+      { label: "Age", value: metaAge || "-" },
+      {
+        label: "UHID",
+        value: patientDetails?.mrno || patientDetails?.mrNo || "-",
+      },
+      {
+        label: "Admission ID",
+        value: patientDetails?.admissionId || "-",
+      },
+    ],
+    [gender, metaAge, patientDetails]
+  );
+
+  const BoldWordInName = ({ name, boldWord }) => {
+    // Split the name into parts based on the bold word
+    const parts = name.split(new RegExp(`(${boldWord})`, "i"));
+
+    // Map through the parts and apply different styles to the bold word
+    const formattedName = parts.map((part, index) => {
+      if (part.toLowerCase() === boldWord.toLowerCase()) {
+        // If the part matches the bold word, render it in bold
+        return (
+          <span key={index} className="fw-medium">
+            {part}
+          </span>
+        );
+      } else {
+        return <span key={index}>{part}</span>;
+      }
+    });
+
+    return formattedName;
+  };
+
+  const PatientPlank = (patient) => {
+    return (
+      <>
+        <div className="d-flex align-items-center">
+          <div
+            className="d-flex align-items-center"
+            onClick={() => {
+              setAutoCompleteFlagName(false);
+              onSelect(patient);
+            }}
+          >
+            <div className="list-patientName d-flex align-items-center me-4">
+              <i className="icon-patients backbar me-2"></i>{" "}
+              <span>
+                {patient.pm_salutation && patient.pm_salutation}{" "}
+                <BoldWordInName
+                  name={patient.pm_fullname}
+                  boldWord={searchQuery}
+                />{" "}
+                ({patient.pm_gender}, {patient.ageYears}y)
+              </span>
+            </div>
+            <div className="list-patientName d-flex align-items-center me-4">
+              <i className="icon-phone backbar me-2"></i>
+              <BoldWordInName
+                name={patient.pm_contact_no}
+                boldWord={searchQuery}
+              />
+            </div>
+            <div className="list-patientName d-flex align-items-center me-4">
+              <i className="icon-Id backbar me-2"></i>
+              <BoldWordInName name={patient.pm_pid} boldWord={searchQuery} />
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  const onSearchName = useCallback(
+    (query) => {
+      setSearchQueryName(query);
+    },
+    [setSearchQueryName]
+  );
+
+  const onSearchMobile = useCallback(
+    (query) => {
+      setSearchQueryMobile(query);
+    },
+    [setSearchQueryMobile]
+  );
+
+  useEffect(() => {
+    if (searchQueryName || searchQueryMobile) {
+      const timeOutId = setTimeout(() => {
+        dispatch(
+          searchPatients({
+            searchQuery: searchQueryName || searchQueryMobile,
+            company: "",
+          })
+        );
+      }, 500);
+      return () => {
+        clearTimeout(timeOutId);
+      };
+    } else {
+      dispatch(clearSearch());
+    }
+  }, [searchQueryName, searchQueryMobile]);
+
+  useEffect(() => {
+    const data = [];
+    if (patients) {
+      if (patients.length === 0 && searchQuery.length > 0) {
+        data.push({
+          key: -2,
+          label: <div>{error}</div>,
+        });
+      } else {
+        patients.map((patient) => {
+          return data.push({
+            key: JSON.stringify(patient),
+            value: patient.pm_pid,
+            label: PatientPlank(patient),
+          });
+        });
+      }
+    }
+    setPatientSearchOptions(data);
+  }, [patients]);
+
+  const onSelect = (patient) => {
+    setPatientDetails({
+      patientName: patient.pm_fullname,
+      mobileNumber: patient.pm_contact_no,
+      patientUniqueId: patient.patient_unique_id,
+      patientId: patient.pm_pid,
+    });
+    setPatientData(patient)
+    setPatientSearchOptions([]);
+    setSearchQueryMobile("");
+    setSearchQueryName("");
+    setIsEditingName(false);
+  };
+
+  useEffect(() => {
+    if (isEditingName && nameAutoCompleteRef.current) {
+      nameAutoCompleteRef.current.focus();
+    }
+  }, [isEditingName]);
+
+  return (
+    <div className="create-admission-page-container">
+      <SubHeader
+        showConfirmAdmissionButton={isPatientSelected}
+        headerTitle={"Create Admission"}
+        onConfirmAdmissionClick={() => handleSubmit(onSubmit)()}
+        isConfirmDisabled={isConfirmDisabled}
+        helperMessage={helperMessage}
+        onDisabledClick={() => {
+          if (helperMessage) {
+            message.warning(helperMessage);
+          }
+        }}
+      />
+      <div className="border rounded-4 create-admission-page dateborder">
+        <Card className="patient-summary-card">
+          <div className="d-flex gap-2">
+            <div style={{ width: "100%" }}>
+              <div className="fs-18 fw-medium mb-2">
+                Patient Details
+              </div>
+              {isEditingName && !patientData ? (
+                <AutoComplete
+                  ref={nameAutoCompleteRef}
+                  value={searchQueryName}
+                  onSearch={(value) => {
+                    setSearchQueryName(value);
+                    onSearchName(value);
+                    onSearchMobile(value);
+                  }}
+                  options={patientSearchOptions}
+                  className="w-100 autocomplete-custom"
+                  open={autoCompleteFlagName}
+                  onFocus={() => {
+                    setAutoCompleteFlagName(true);
+                  }}
+                  onBlur={() => {
+                    setTimeout(() => {
+                      setAutoCompleteFlagName(false);
+                      setIsEditingName(true);
+                    }, 200);
+                  }}
+                  popupClassName="autocomplete-dropdown"
+                >
+                  <Input
+                    placeholder="Search by Patient's Name, Mobile number or Id"
+                    prefix={<i className="icon-search"></i>}
+                    suffix={
+                      searchQueryName.length > 0 && (
+                        <i
+                          className="icon-Cross"
+                          onClick={() => {
+                            setSearchQueryName("");
+                            setSearchQueryMobile("");
+                          }}
+                        />
+                      )
+                    }
+                  />
+                </AutoComplete>
+              ) : (
+                <div
+                  className={`d-flex align-items-center flex-wrap border cursor-pointer w-100 ${
+                    patientData && "pe-none disabled"
+                  }`}
+                  onClick={() => {
+                    if (!patientData) {
+                      setIsEditingName(true);
+                    }
+                  }}
+                  style={{ padding: "5px 10px", borderRadius: "12px" }}
+                >
+                  <div className="list-patientName d-flex align-items-center me-4 ml-2 my-1">
+                    <i className="icon-patients backbar me-2"></i>{" "}
+                    <span
+                      className="patientInfo"
+                      style={{ width: "max-content" }}
+                    >
+                      {patientData?.pm_fullname ||
+                        patientData?.patientName ||
+                        patientDetails?.patientName}
+                    </span>
+                  </div>
+                  <div className="list-patientName d-flex align-items-center me-4 my-1">
+                    <i className="icon-phone backbar me-2"></i>
+                    <span className="patientInfo">
+                      {patientData?.pm_contact_no ||
+                        patientData?.mobileNumber ||
+                        patientDetails?.mobileNumber}
+                    </span>
+                  </div>
+                  <div className="list-patientName d-flex align-items-center me-4 my-1">
+                    <i className="icon-Id backbar me-2"></i>
+                    <span className="patientInfo">
+                      {patientData?.pm_pid ||
+                        patientData?.pmPid ||
+                        patientDetails?.patientId}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </Card>
+
+        <Spin spinning={loadingInitial}>
+          {isPatientSelected && (
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {SECTION_LAYOUT.map((section) => (
+                <Card className="form-section-card" key={section.key}>
+                  <div className="section-header">
+                    <div>
+                      <p className="section-eyebrow">{section.title}</p>
+                    </div>
+                  </div>
+                  <Row gutter={[20, 20]}>
+                    {renderSectionFields(section.fieldIds)}
+                  </Row>
+                </Card>
+              ))}
+            </form>
+          )}
+        </Spin>
+      </div>
+
+      <WardBedDrawer
+        open={wardBedDrawerOpen}
+        onClose={() => setWardBedDrawerOpen(false)}
+        wards={wards}
+        selectedWardId={selectedWardId}
+        selectedRoomId={selectedRoomId}
+        onConfirm={handleWardBedConfirm}
+      />
+    </div>
+  );
+}

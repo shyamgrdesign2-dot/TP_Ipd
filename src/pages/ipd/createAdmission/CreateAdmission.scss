@@ -1,0 +1,294 @@
+.create-admission-page-container{
+    height: 100vh;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.create-admission-page::-webkit-scrollbar {
+    display: none !important;
+}
+
+.create-admission-page {
+  padding: 24px 32px 48px;
+  border-radius: 20px;
+  border: 1px solid #E2E2EA;
+  background: linear-gradient(0deg, rgba(242, 239, 250, 0.50) 0%, rgba(242, 239, 250, 0.50) 100%), #FFF;
+  flex: 1;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  margin: -80px 30px 0;
+  position: relative;
+  min-height: 0;
+
+  .section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h1 {
+      font-size: 28px;
+      margin: 4px 0 0;
+      font-weight: 600;
+      color: #232347;
+    }
+
+    .eyebrow-text {
+      font-size: 13px;
+      text-transform: uppercase;
+      color: #8d8da8;
+      letter-spacing: 0.1em;
+      margin: 0;
+    }
+  }
+}
+
+.patient-summary-card,
+.form-section-card {
+  border-radius: 20px !important;
+  border: none !important;
+  box-shadow: 0 20px 60px rgba(35, 35, 71, 0.08);
+  margin-bottom: 24px;
+}
+
+.patient-summary {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+
+  .patient-primary {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .avatar-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7b61ff, #5a3fff);
+    color: #fff;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .patient-name {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #232347;
+  }
+
+  .patient-contact {
+    margin: 2px 0 0;
+    color: #6b6b8c;
+  }
+
+  .patient-divider {
+    height: 48px;
+  }
+
+  .patient-meta {
+    display: flex;
+    gap: 32px;
+  }
+
+  .meta-item {
+    min-width: 120px;
+  }
+
+  .meta-label {
+    margin: 0;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9d9dbc;
+  }
+
+  .meta-value {
+    margin: 6px 0 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #232347;
+  }
+}
+
+.form-section-card {
+  .section-header {
+    margin-bottom: 20px;
+  }
+
+  .section-eyebrow {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: #232347;
+  }
+
+  .section-desc {
+    margin: 4px 0 0;
+    color: #8b8ba7;
+  }
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .field-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #3f3f61 !important;
+    margin: 0;
+  }
+
+  .required {
+    color: #ff5a5a !important;
+    margin-left: 4px;
+  }
+
+  .field-error {
+    font-size: 12px;
+    color: #ff4d4f !important;
+  }
+  
+  .ant-select-single{
+    height: 40px !important;
+  }
+
+  .ant-picker {
+      border: 1px solid #d9d9d9 !important;
+      border-radius: 10px !important;
+      display: flex;
+      height: 40px !important;
+      padding: 9px 12px !important;
+      justify-content: center;
+      align-items: center;
+
+      .ant-picker-input > input{
+        font-weight: 400 !important;
+      }
+  }
+
+  .ant-input {
+      border-radius: 10px !important;
+      display: flex;
+      height: 40px !important;
+      padding: 9px 12px !important;
+      justify-content: center;
+      align-items: center;
+  }
+
+  .ant-select-selector {
+      border-radius: 10px !important;
+      display: flex;
+      height: 40px !important;
+      padding: 9px 12px !important;
+      justify-content: center;
+      align-items: center;
+      font-weight: 400 !important;
+  }
+
+  .ant-select{
+    .ant-select-selection-placeholder{
+        font-weight: 400 !important;
+      }
+  }
+
+  .ward-bed-display {
+    width: 100%;
+    border-radius: 10px;
+    height: 40px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    font-weight: 400;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+
+    &.empty {
+      border: 1px dashed #7b6cff;
+      background: rgba(123, 108, 255, 0.08);
+      color: #5b4dfb;
+      justify-content: center;
+      text-align: center;
+    }
+
+    &.filled {
+      border: 1px solid #dcdcf4;
+      background: #fff;
+      color: #2a2875;
+      justify-content: space-between;
+    }
+
+    &.has-error {
+      border-color: #ff4d4f;
+    }
+
+    .ward-bed-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &.empty .ward-bed-text {
+      flex: none;
+      width: 100%;
+      color: #5b4dfb !important;
+    }
+
+    i {
+      font-size: 20px;
+      color: #595959;
+    }
+
+    &.empty i {
+      display: none;
+    }
+  }
+
+  &.form-field-missing .ant-select,
+  &.form-field-missing .ant-picker,
+  &.form-field-missing .ant-input,
+  &.form-field-missing .ward-bed-display {
+    border-color: #ff4d4f !important;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.admission-date-picker{
+    .ant-picker .ant-picker-input > input{
+        font-weight: 400 !important;
+    }
+}
+
+@media (max-width: 768px) {
+  .create-admission-page {
+    padding: 16px;
+  }
+
+  .patient-summary {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .patient-divider {
+      display: none;
+    }
+
+    .patient-meta {
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+  }
+}

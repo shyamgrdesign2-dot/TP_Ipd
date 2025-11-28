@@ -12,13 +12,17 @@ const SubHeader = ({ headerTitle, showAddAdmission = true }) => {
   const navigate = useNavigate();
 
   const handleAddAdmission = () => {
-    navigate(`/ipd/add-admission`);
+    if(isNewIPDZydusAccessableFromGB) {
+      navigate(`ipd/add-admission`);
+    } else {
+      navigate(`/ipd/create-admission`);
+    }
   };
 
   return (
     <div className="sub-header">
       <div className="sub-header-content">{headerTitle}</div>
-      {(showAddAdmission && isNewIPDZydusAccessableFromGB) && (
+      {(showAddAdmission) && (
         <div>
         <Button
           type="primary"
