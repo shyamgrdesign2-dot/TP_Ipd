@@ -232,7 +232,7 @@ const AssessmentsForm = (props) => {
           formattedMedication.tmm_dosage_unit_name &&
           formattedMedication.tmm_dosage_unit_name.trim() !== ""
         ) {
-          formattedMedication.tmm_dosage =
+          formattedMedication.tmm_dosage_unit_name =
             formattedMedication.tmm_dosage_unit_name;
         } else {
           // Otherwise, combine tmm_dosage + tmm_unit_name
