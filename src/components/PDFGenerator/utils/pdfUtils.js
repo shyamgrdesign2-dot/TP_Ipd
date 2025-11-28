@@ -64,8 +64,7 @@ export const getSortedSections = (sections) => {
           ? getSortedSections(section.subSections)
           : section.subSections,
     }))
-    .filter((section) => section.visible !== false)
-    .sort((a, b) => (a.order || 0) - (b.order || 0));
+    .filter((section) => section.visible !== false);
 };
 
 /**
@@ -96,7 +95,7 @@ export const getAllVisibleSections = (sections) => {
   };
 
   processSections(sections);
-  return result.sort((a, b) => (a.order || 0) - (b.order || 0));
+  return result;
 };
 
 /**

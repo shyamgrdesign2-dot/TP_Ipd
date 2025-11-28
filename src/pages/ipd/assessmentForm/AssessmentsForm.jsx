@@ -93,6 +93,7 @@ const AssessmentsForm = (props) => {
     handleCustomModuleRenamed,
     handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
+    sanitizeModelData,
   } = useIpdCustomModules({
     formType: customModuleFormType,
     customizationKey: customModuleFormType,
@@ -103,10 +104,11 @@ const AssessmentsForm = (props) => {
     patientData: patient_data,
     isEditable,
   });
+
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   useEffect(() => {
     if (assessments.length > 0) {
-      setModelData(assessments);
+      setModelData(sanitizeModelData(assessments));
     }
   }, [assessments]);
 

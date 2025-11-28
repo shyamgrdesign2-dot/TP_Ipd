@@ -80,6 +80,7 @@ const CrossReferralConsultantNotes = (props) => {
     handleCustomModuleRenamed,
     handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
+    sanitizeModelData
   } = useIpdCustomModules({
     formType: customModuleFormType,
     customizationKey: customModuleFormType,
@@ -109,7 +110,7 @@ const CrossReferralConsultantNotes = (props) => {
 
   useEffect(() => {
     if (crossReferral.length > 0) {
-      setModelData(crossReferral);
+      setModelData(sanitizeModelData(crossReferral));
     }
   }, [crossReferral]);
 

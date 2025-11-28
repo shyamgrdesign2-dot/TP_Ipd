@@ -87,7 +87,7 @@ const ConsultantNotes = (props) => {
   );
 
   useEffect(() => {
-    dispatch(getCustomization({doctorId: patientDetails?.doctor?.id}));
+    dispatch(getCustomization({ doctorId: patientDetails?.doctor?.id }));
   }, [dispatch, patientDetails]);
 
   const { consultationNotes: consultantNotesCustomization = [] } =
@@ -120,6 +120,7 @@ const ConsultantNotes = (props) => {
     handleCustomModuleRenamed,
     handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
+    sanitizeModelData,
   } = useIpdCustomModules({
     formType: customModuleFormType,
     customizationKey: "consultationNotes",
@@ -157,7 +158,7 @@ const ConsultantNotes = (props) => {
 
   useEffect(() => {
     if (consultantNotesCustomization.length > 0) {
-      setModelData(consultantNotesCustomization);
+      setModelData(sanitizeModelData(consultantNotesCustomization));
     }
   }, [consultantNotesCustomization]);
 
@@ -189,7 +190,8 @@ const ConsultantNotes = (props) => {
       Object.values(vitals)?.some((item) => !!item) ||
       medicationData?.length > 0 ||
       investigationData?.length > 0 ||
-      !isEmptyRichText(additionalRemarks)
+      !isEmptyRichText(additionalRemarks) ||
+      customModuleContents.some((module) => !isEmptyRichText(module.content))
     );
   }, [
     clinicalAssessmentPlan,
@@ -197,9 +199,15 @@ const ConsultantNotes = (props) => {
     medicationData,
     investigationData,
     additionalRemarks,
+    customModuleContents,
   ]);
 
   const saveConsultantNotes = async () => {
+    if (!isDataPresent) {
+      message.warning("Please fill in at least one field before saving!");
+      return;
+    }
+
     try {
       const consultantNotesData = {
         clinicalAssessmentPlan: clinicalAssessmentPlan || [],
@@ -273,7 +281,7 @@ const ConsultantNotes = (props) => {
           patientDetails,
           isEditable: false,
           activeTab: "consultantNotes",
-          fromTab
+          fromTab,
         },
       });
     } catch (error) {
@@ -392,7 +400,7 @@ const ConsultantNotes = (props) => {
             <AdditionalRemarks
               {...props}
               sectionData={data}
-              shouldAutofill={shouldAutofill} 
+              shouldAutofill={shouldAutofill}
               patientDetails={patientDetails}
             />
           );
@@ -458,7 +466,12 @@ const ConsultantNotes = (props) => {
       ...customization,
       consultationNotes: defaultModules,
     };
-    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
+    dispatch(
+      updateCustomization({
+        doctorId: patientDetails?.doctor?.id,
+        customization: newData,
+      })
+    );
   };
 
   const handleSaveCustomization = () => {
@@ -467,7 +480,12 @@ const ConsultantNotes = (props) => {
       ...customization,
       consultationNotes: [...modelData],
     };
-    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
+    dispatch(
+      updateCustomization({
+        doctorId: patientDetails?.doctor?.id,
+        customization: newData,
+      })
+    );
   };
 
   const handleProgressSummaryClick = () => {

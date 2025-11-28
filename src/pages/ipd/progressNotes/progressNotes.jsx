@@ -139,6 +139,7 @@ const ProgressNotes = (props) => {
     handleCustomModuleRenamed,
     handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
+    sanitizeModelData
   } = useIpdCustomModules({
     formType: customModuleFormType,
     customizationKey: customModuleFormType,
@@ -149,6 +150,12 @@ const ProgressNotes = (props) => {
     patientData: patient_data,
     isEditable,
   });
+
+  useEffect(() => {
+    if (progressNotesCustomization.length > 0) {
+      setModelData(sanitizeModelData(progressNotesCustomization));
+    }
+  }, [progressNotesCustomization]);
 
   // Preload from navigation state when user clicked Edit from the timeline
   useEffect(() => {
@@ -299,7 +306,8 @@ const ProgressNotes = (props) => {
         hasVitalsData ||
         hasChiefComplaint ||
         hasFindings ||
-        hasAdditionalRemarks;
+        hasAdditionalRemarks ||
+        customModuleContents.length > 0;
 
       if (!hasAnyData) {
         message.open({

@@ -153,6 +153,7 @@ const normalizeModuleContents = (entries, customModules = []) => {
 const useIpdCustomModules = ({
   formType,
   customizationKey,
+  modelData,
   setModelData,
   admissionId,
   patientId,
@@ -414,10 +415,10 @@ const useIpdCustomModules = ({
 
         dispatch(markModuleAsDeleted({ moduleId }));
         setModelData((prev = []) => {
-          const next = prev.filter((item) => ensureModuleId(item) !== moduleId);
-
-          setCustomModuleContents((previous) =>
-            previous.filter((item) => item.module_id !== moduleId)
+          const next = prev.map((item) =>
+            ensureModuleId(item) === moduleId
+              ? { ...item, isDeleted: true }
+              : item
           );
 
           Promise.allSettled([
@@ -450,12 +451,22 @@ const useIpdCustomModules = ({
     ]
   );
 
+  const isNameExists = (updatedName) => {
+    return customModules.some(
+      (module) => module.name.trim() === updatedName.trim() && !module.isDeleted
+    );
+  };
+
   const handleCustomModuleRenamed = useCallback(
     async (moduleId, updatedName) => {
       if (!moduleId || !updatedName || !setModelData) {
         return;
       }
 
+      if (isNameExists(updatedName)) {
+        message.error("Module name already exists.");
+        return;
+      }
       const payload = {
         data: {
           userId: admittingDoctorId,
@@ -770,11 +781,11 @@ const useIpdCustomModules = ({
         return false;
       }
 
-      if (section.deleted) {
+      if (section.isDeleted && isEditable) {
         return false;
       }
 
-      if (section.isCustom || section.isCustomModule) {
+      if (section.isCustom) {
         return true;
       }
 
@@ -784,7 +795,9 @@ const useIpdCustomModules = ({
       }
 
       return customModules.some(
-        (module) => module.module_id === sectionId && !module.deleted
+        (module) =>
+          module.module_id === sectionId &&
+          (isEditable ? !module.isDeleted : true)
       );
     },
     [customModules]
@@ -795,12 +808,13 @@ const useIpdCustomModules = ({
       const moduleId = ensureModuleId(section);
       const baseModule =
         customModules.find(
-          (module) => module.module_id === moduleId && !module.isDeleted
+          (module) =>
+            module.module_id === moduleId && !(module.isDeleted && isEditable)
         ) || {};
 
       if (
         !section ||
-        section.isDeleted ||
+        (section.isDeleted && isEditable) ||
         !moduleId ||
         !baseModule?.module_id
       ) {
@@ -883,6 +897,9 @@ const useIpdCustomModules = ({
       patientId,
       onCustomModuleAdded: handleCustomModuleAdded,
       admittingDoctorId,
+      activeCount:
+        modelData?.filter((item) => item.isCustom && !item.isDeleted).length ||
+        0,
     }),
     [
       admissionId,
@@ -892,13 +909,14 @@ const useIpdCustomModules = ({
       patientId,
       setCustomModuleContents,
       admittingDoctorId,
+      modelData,
     ]
   );
 
   const renderCustomModulesFooter = useCallback(
     () => (
       <div className="ipd-add-custom-module-container">
-        <AddCustomModule {...addCustomModuleProps} limit={10} />
+        <AddCustomModule {...addCustomModuleProps} limit={10} isIPDMode />
       </div>
     ),
     [addCustomModuleProps]
@@ -929,6 +947,21 @@ const useIpdCustomModules = ({
     );
   }, [customModules]);
 
+  const sanitizeModelData = (data) => {
+    if (!data) {
+      return [];
+    }
+    return data.filter((item) => {
+      if (item.isCustom) {
+        return customModules.some(
+          (module) =>
+            module.module_id === item.id && !(module.isDeleted && isEditable)
+        );
+      }
+      return true;
+    });
+  };
+
   return {
     customModules,
     customModuleContents,
@@ -946,6 +979,7 @@ const useIpdCustomModules = ({
     handleCustomModuleRenamed,
     handleModuleTemplateSave,
     handleModuleTemplateDelete,
+    sanitizeModelData,
   };
 };
 

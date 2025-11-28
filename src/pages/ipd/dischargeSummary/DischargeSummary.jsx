@@ -98,6 +98,7 @@ const DischargeSummary = (props) => {
     handleCustomModuleRenamed,
     handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
+    sanitizeModelData
   } = useIpdCustomModules({
     formType: customModuleFormType,
     customizationKey: customModuleFormType,
@@ -111,7 +112,7 @@ const DischargeSummary = (props) => {
 
   useEffect(() => {
     if (dischargeSummary.length > 0) {
-      setModelData(dischargeSummary);
+      setModelData(sanitizeModelData(dischargeSummary));
     }
   }, [dischargeSummary]);
 

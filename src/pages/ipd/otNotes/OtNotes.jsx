@@ -78,6 +78,7 @@ const OtNotes = (props) => {
     handleCustomModuleRenamed,
     handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
+    sanitizeModelData
   } = useIpdCustomModules({
     formType: customModuleFormType,
     customizationKey: customModuleFormType,
@@ -106,7 +107,7 @@ const OtNotes = (props) => {
 
   useEffect(() => {
     if (otNotes.length > 0) {
-      setModelData(otNotes);
+      setModelData(sanitizeModelData(otNotes));
     }
   }, [otNotes]);
 

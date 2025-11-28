@@ -21,7 +21,6 @@ import {
 } from "../../utils/constants";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
-import { getPrintSettings } from "../../redux/ipd/printSettingsSlice";
 import { getPatientInformation } from "../../utils/utils";
 import usePrintPreviewSetup from "../../hooks/usePrintPreviewSetup";
 

@@ -25,10 +25,7 @@ import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import { customizedPad } from "../redux/doctorsSlice";
 import { savePrintsettings } from "../redux/doctorsSlice";
-import {
-  buildCustomModuleSection,
-  extractModulesFromResponse,
-} from "../utils/customModuleHelpers";
+import { extractModulesFromResponse } from "../utils/customModuleHelpers";
 
 const AddCustomModule = ({
   form,
@@ -38,12 +35,12 @@ const AddCustomModule = ({
   onCustomModuleAdded,
   limit = 20,
   admittingDoctorId,
+  isIPDMode = false,
+  activeCount = 0,
 }) => {
   const [showInput, setShowInput] = useState(false);
   const [newModuleName, setNewModuleName] = useState("");
   const dispatch = useDispatch();
-
-  const isIPDMode = !!form;
 
   const { customModules: opdCustomModules } = useSelector(
     (state) => state.customModules
@@ -65,7 +62,7 @@ const AddCustomModule = ({
     setCustomModuleContentsProp || context?.setCustomModuleContents;
   const tcmId = admissionId || patientId || context?.tcmId;
   const activeModules = customModules.filter((cm) => !cm.isDeleted);
-  const activeModuleCount = activeModules.length;
+  const activeModuleCount = activeCount ?? activeModules.length;
 
   const getCustomModuleContents = useCallback(async () => {
     if (isIPDMode) {
@@ -312,36 +309,17 @@ const AddCustomModule = ({
       }
 
       if (action.meta.requestStatus === "fulfilled") {
-        let updatedModules = extractModulesFromResponse(action.payload);
+        const updatedModules = extractModulesFromResponse(action.payload);
 
         if (isIPDMode) {
-          if (!updatedModules.length) {
-            const refreshAction = await dispatch(
-              getCustomModulesIPD({ userId: admittingDoctorId, form })
-            );
-            if (refreshAction.meta.requestStatus === "fulfilled") {
-              updatedModules = extractModulesFromResponse(
-                refreshAction.payload
-              );
-            }
-          }
-
           if (typeof onCustomModuleAdded === "function") {
-            const addedModule =
-              updatedModules.find(
-                (module) =>
-                  module &&
-                  !previousModuleIds.has(module.module_id) &&
-                  module.module_id
-              ) ||
-              updatedModules.find(
-                (module) =>
-                  module?.name?.toLowerCase() ===
-                  newModuleName.trim().toLowerCase()
-              );
+            const addedModule = updatedModules.find(
+              (module) =>
+                module.module_id && !previousModuleIds.has(module.module_id)
+            );
 
             if (addedModule) {
-              onCustomModuleAdded(buildCustomModuleSection(addedModule));
+              onCustomModuleAdded(addedModule);
             }
           }
         }
