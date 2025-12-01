@@ -556,18 +556,6 @@ const CrossReferralTimeline = () => {
                         ></GenericCard>
                       </div>
                     )}
-                  {groupIpdCustomModulesById(
-                    entry?.crossReferral?.customModules
-                  )?.map((customModule) => {
-                    return (
-                      <IpdCustomModule
-                        module={customModule}
-                        value={customModule.content}
-                        isEditable={false}
-                        hideBorder={true}
-                      />
-                    );
-                  })}
                 </div>
               </div>
             );

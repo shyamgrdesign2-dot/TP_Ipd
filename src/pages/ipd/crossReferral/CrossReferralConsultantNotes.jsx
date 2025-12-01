@@ -80,7 +80,7 @@ const CrossReferralConsultantNotes = (props) => {
     handleCustomModuleRenamed,
     handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
-    sanitizeModelData
+    sanitizeModelData,
   } = useIpdCustomModules({
     formType: customModuleFormType,
     customizationKey: customModuleFormType,
@@ -349,8 +349,9 @@ const CrossReferralConsultantNotes = (props) => {
   };
 
   const onAddReferralClick = () => {
-    const consultantNotesData = crossReferralState.crossReferralFormDetails.consultantNotesData || [];
-    
+    const consultantNotesData =
+      crossReferralState.crossReferralFormDetails.consultantNotesData || [];
+
     const reqData = {
       ...crossReferralState.crossReferralFormDetails,
       consultantNotes: consultantNotesData,
@@ -397,6 +398,8 @@ const CrossReferralConsultantNotes = (props) => {
       });
     });
   };
+
+  const renderBottomSection = () => renderCustomModulesFooter();
 
   const renderHeaderSection = () => {
     return (
@@ -476,6 +479,7 @@ const CrossReferralConsultantNotes = (props) => {
                   title: "Add Referral",
                 }}
                 items={modelData}
+                renderBottomSection={renderBottomSection}
                 renderSection={renderSections}
                 onRequestClose={() => {
                   setIsBackModalOpen(true);

@@ -59,12 +59,16 @@ const CrossReferral = (props) => {
       : IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE
   );
 
+  useEffect(() => {
+    if (crossReferral.length > 0) {
+      setModelData(crossReferral);
+    }
+  }, [crossReferral]);
+
   const {
     customModuleContents,
     hydrateFromSavedModules,
     serializeCustomModules,
-    handleCustomModuleRenamed,
-    handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
     formType: customModuleFormType,
@@ -326,7 +330,7 @@ const CrossReferral = (props) => {
                   handler: onAddReferralClick,
                   title: "Add Referral",
                 }}
-                items={modelData}
+                items={[modelData[0]]}
                 renderSection={renderSections}
                 onRequestClose={() => {
                   setIsBackModalOpen(true);
@@ -378,8 +382,6 @@ const CrossReferral = (props) => {
                   setModelData(e);
                 }}
                 customModel={[modelData?.[0]]}
-                onUpdateCustomModuleName={handleCustomModuleRenamed}
-                onDeleteCustomModule={handleCustomModuleDeleted}
               />
             </div>
           </Suspense>
