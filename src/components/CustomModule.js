@@ -38,16 +38,11 @@ import { errorMessage, removeBeforeWhiteSpace } from "../utils/utils";
 import ModuleIcon from "../assets/images/custom-module.svg";
 import { MenuOutlined } from "@ant-design/icons";
 import {
-  addModule as addModuleOPD,
-  clearSearchResults as clearSearchResultsOPD,
-  searchModule as searchModuleOPD,
+  addModule,
+  clearSearchResults,
+  searchModule,
   userPreModulesRX,
 } from "../redux/customModuleSlice";
-import {
-  addModule as addModuleIPD,
-  clearSearchResults as clearSearchResultsIPD,
-  searchModule as searchModuleIPD,
-} from "../redux/ipd/customModuleSlice";
 
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import editIcon from "../assets/images/edit-icon-blue.svg";
@@ -59,40 +54,17 @@ import imgCloseVisit from "../assets/images/close-visit.svg";
 import { getDecodedToken } from "../utils/localStorage";
 import config from "../config";
 
-function CustomModule({
-  module,
-  form,
-  customModuleContents: customModuleContentsProp,
-  setCustomModuleContents: setCustomModuleContentsProp,
-  admissionId,
-  patientId,
-  onModuleDeleted,
-  onModuleRenamed,
-  ...props
-}) {
-  const isIPDMode = !!form;
-
-  const { customModules, searchModuleResults, loading } = useSelector((state) =>
-    isIPDMode ? state.ipdCustomModules : state.customModules
+function CustomModule({ module }) {
+  const { customModules, searchModuleResults, loading } = useSelector(
+    (state) => state.customModules
   );
   const { userId } = useSelector((state) => state.doctors);
 
   const dispatch = useDispatch();
   const decodedToken = getDecodedToken();
 
-  const context = useContext(CashManagerContext);
-  const customModuleContents =
-    customModuleContentsProp ||
-    context?.customModuleContents ||
-    props?.customModuleContents ||
-    [];
-  const setCustomModuleContents =
-    setCustomModuleContentsProp ||
-    context?.setCustomModuleContents ||
-    props?.setCustomModuleContents ||
-    (() => {});
-  const patient_data = props?.patient_data || context?.patient_data;
-  const tcmId = admissionId || patientId || context?.tcmId || props?.tcmId;
+  const { customModuleContents, setCustomModuleContents, patient_data, tcmId } =
+    useContext(CashManagerContext);
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -139,37 +111,19 @@ function CustomModule({
 
   //Parent AutoComplete
   useEffect(() => {
-    if (isIPDMode) {
-      dispatch(clearSearchResultsIPD());
-      const timeOutId = setTimeout(() => {
-        if (form) {
-          dispatch(
-            searchModuleIPD({
-              moduleId: module?.module_id,
-              keyword: searchChildQuery.query,
-              form,
-            })
-          );
-        }
-      }, 500);
-      return () => {
-        clearTimeout(timeOutId);
-      };
-    } else {
-      dispatch(clearSearchResultsOPD());
-      const timeOutId = setTimeout(() => {
-        dispatch(
-          searchModuleOPD({
-            moduleId: module?.module_id,
-            keyword: searchChildQuery.query,
-          })
-        );
-      }, 500);
-      return () => {
-        clearTimeout(timeOutId);
-      };
-    }
-  }, [searchChildQuery, isIPDMode, form, module?.module_id, dispatch]);
+    dispatch(clearSearchResults());
+    const timeOutId = setTimeout(() => {
+      dispatch(
+        searchModule({
+          moduleId: module?.module_id,
+          keyword: searchChildQuery.query,
+        })
+      );
+    }, 500);
+    return () => {
+      clearTimeout(timeOutId);
+    };
+  }, [searchChildQuery]);
 
   useEffect(() => {
     const data = [];
@@ -390,7 +344,7 @@ function CustomModule({
       // Find the module's existing content and update it
       const updatedModuleData = [
         ...moduleData?.filter((e) => e.title || e.notes),
-        ...(updatedData || []),
+        ...updatedData,
       ];
       // Update the parent state with the new module contents
       updateCustomModuleContents(updatedModuleData);
@@ -426,16 +380,7 @@ function CustomModule({
       }
       return cm;
     });
-    let action;
-    if (isIPDMode) {
-      action = await dispatch(
-        addModuleIPD({
-          data: { userId, modules, form },
-        })
-      );
-    } else {
-      action = await dispatch(addModuleOPD({ userId, modules }));
-    }
+    const action = await dispatch(addModule({ userId, modules }));
     if (action.meta.requestStatus === "rejected") {
       errorMessage(action.error);
     }
@@ -446,34 +391,20 @@ function CustomModule({
       const moduleToDelete = customModules.find(
         (m) => m.module_id === module.module_id
       );
-      const modulesPayload = customModules.filter(
-        (cm) => cm.module_id !== module.module_id
+      const action = await dispatch(
+        addModule({
+          userId,
+          modules: customModules.filter(
+            (cm) => cm.module_id !== module.module_id
+          ),
+        })
       );
-      let action;
-      if (isIPDMode) {
-        action = await dispatch(
-          addModuleIPD({
-            data: { userId, modules: modulesPayload, form },
-          })
-        );
-      } else {
-        action = await dispatch(
-          addModuleOPD({
-            userId,
-            modules: modulesPayload,
-          })
-        );
-      }
       if (action.meta.requestStatus === "fulfilled") {
         setCustomModuleContents((prev) => {
           return prev.filter(
             (item) => item.module_id !== moduleToDelete?.module_id
           );
         });
-
-        if (typeof onModuleDeleted === "function") {
-          onModuleDeleted(moduleToDelete?.module_id);
-        }
 
         message.open({
           key: MESSAGE_KEY,
@@ -543,16 +474,7 @@ function CustomModule({
         }
         return cm;
       });
-      let action;
-      if (isIPDMode) {
-        action = await dispatch(
-          addModuleIPD({
-            data: { userId, modules, form },
-          })
-        );
-      } else {
-        action = await dispatch(addModuleOPD({ userId, modules }));
-      }
+      const action = await dispatch(addModule({ userId, modules }));
       if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
@@ -596,16 +518,7 @@ function CustomModule({
         }
         return cm;
       });
-      let action;
-      if (isIPDMode) {
-        action = await dispatch(
-          addModuleIPD({
-            data: { userId, modules, form },
-          })
-        );
-      } else {
-        action = await dispatch(addModuleOPD({ userId, modules }));
-      }
+      const action = await dispatch(addModule({ userId, modules }));
       if (action.meta.requestStatus === "fulfilled") {
         setInputTemplateName(null);
         showHideSaveTemplatePopOver();
@@ -1105,35 +1018,22 @@ function CustomModule({
     }
 
     try {
-      const modulesPayload = customModules.map((cm) => {
-        if (cm.module_id === module.module_id) {
-          return {
-            ...cm,
-            name: newModuleName,
-          };
-        }
-        return cm;
-      });
-      let action;
-      if (isIPDMode) {
-        action = await dispatch(
-          addModuleIPD({
-            data: { userId, modules: modulesPayload, form },
-          })
-        );
-      } else {
-        action = await dispatch(
-          addModuleOPD({
-            userId,
-            modules: modulesPayload,
-          })
-        );
-      }
+      const action = await dispatch(
+        addModule({
+          userId,
+          modules: customModules.map((cm) => {
+            if (cm.module_id === module.module_id) {
+              return {
+                ...cm,
+                name: newModuleName,
+              };
+            }
+            return cm;
+          }),
+        })
+      );
       if (action.meta.requestStatus === "fulfilled") {
         setCanEditName(false);
-        if (typeof onModuleRenamed === "function") {
-          onModuleRenamed(module.module_id, newModuleName.trim());
-        }
         message.open({
           key: MESSAGE_KEY,
           type: "",
