@@ -17,6 +17,7 @@ import { isSameDay, isWithinEditableWindow } from "../utils/helper";
 import PNExaminationSection from "../../assessmentForm/PNExaminationSection.jsx";
 import { IPD } from "../../../../utils/locale.js";
 import { groupIpdCustomModulesById } from "../../../../utils/utils.js";
+import { isEmptyRichText } from "../../../../utils/utils.js";
 
 const { Title, Text } = Typography;
 const { ReusableStepper, ReusableProgressCard, RichTextEditor } =
@@ -368,13 +369,15 @@ function ProgressNotesView({
               data: item.additionalRemarks,
               type: "richtext",
             },
-            ...groupIpdCustomModulesById(item.raw?.progressNotes?.customModules).map((item) => ({
-              key: item.moduleId,
-              title: item.moduleName,
-              data: item.content,
-              type: "richtext",
-              isCustom: true
-            })),
+            ...groupIpdCustomModulesById(item.raw?.progressNotes?.customModules)
+              ?.filter((module) => !isEmptyRichText(module.content))
+              ?.map((item) => ({
+                key: item.moduleId,
+                title: item.moduleName,
+                data: item.content,
+                type: "richtext",
+                isCustom: true,
+              })),
           ],
           filledBy: item.filledBy,
           role: item.role,
