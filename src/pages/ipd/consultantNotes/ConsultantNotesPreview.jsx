@@ -245,31 +245,34 @@ const ConsultantNotesPreview = ({ entry }) => {
 
         {/* Custom Modules */}
 
-        {customModulesArray.map(({ moduleId, content = [], moduleName }) => (
-          <div className="cnp-section" key={moduleId}>
-            <div className="cnp-section-header">
-              <img
-                className="cnp-section-icon"
-                src={consultantIcons.customModulesPc}
-                alt={moduleName}
-              />
-              <div className="cnp-section-title">{moduleName}</div>
+        {customModulesArray
+          ?.filter((module) => !isEmptyRichText(module.content))
+          ?.map(({ moduleId, content = [], moduleName }) => (
+            <div className="cnp-section" key={moduleId}>
+              <div className="cnp-section-header">
+                <img
+                  className="cnp-section-icon"
+                  src={consultantIcons.customModulesPc}
+                  alt={moduleName}
+                />
+                <div className="cnp-section-title">{moduleName}</div>
+              </div>
+              <div className="cnp-section-content">
+                <RichTextEditor
+                  showActionBtns={false}
+                  showAutoFill={false}
+                  showMagicPenGif={false}
+                  width={"100%"}
+                  showMicrophone={false}
+                  showToolbar={false}
+                  readOnly={true}
+                  className="rich-text-editor-container-readonly"
+                  initialValue={content}
+                  setNewAutoFillTextToAppend={() => {}}
+                />
+              </div>
             </div>
-            <div className="cnp-section-content">
-              <RichTextEditor
-                showActionBtns={false}
-                showAutoFill={false}
-                showMagicPenGif={false}
-                width={"100%"}
-                showMicrophone={false}
-                showToolbar={false}
-                readOnly={true}
-                className="rich-text-editor-container-readonly"
-                initialValue={content}
-              />
-            </div>
-          </div>
-        ))}
+          ))}
 
         <FilledByCards
           updates={!!updates.length ? [updates[updates.length - 1]] : []}
