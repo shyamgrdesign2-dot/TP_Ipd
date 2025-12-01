@@ -10,9 +10,8 @@ import {
   getCustomization,
   updateCustomization,
 } from "../../../redux/ipd/ipdSlice.js";
-import AddCustomModule from "../../../components/AddCustomModule.js";
 import { useSelector } from "react-redux";
-import CustomModule from "../../../components/CustomModule.js";
+import useIpdCustomModules from "../../../hooks/useIpdCustomModules";
 import BackConfirmationModal from "../../../components/BackConfirmationModal.js";
 import FullPageLoader from "../../vaccination/components/Loader.js";
 import {
@@ -72,7 +71,6 @@ const DischargeSummary = (props) => {
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const { customization = {} } = useSelector((state) => state.ipd);
   const assessmentData = useSelector((state) => state.assessment);
-  const { customModules } = useSelector((state) => state.customModules);
   const dischargeSummaryState = useSelector((state) => state.dischargeSummary);
   const prescriptionSlice = useSelector((state) => state.prescription);
   const obstetricSlice = useSelector((state) => state.obstetric);
@@ -88,9 +86,33 @@ const DischargeSummary = (props) => {
     useState(false);
   const otNotesData = useSelector((state) => state.otNotes);
   const [sectionData, setSectionData] = useState(null);
+  const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.dischargeSummary;
+
+  const {
+    customModuleContents,
+    isCustomModuleSection,
+    renderCustomModuleSection: renderCustomModuleComponent,
+    renderCustomModulesFooter,
+    hydrateFromSavedModules,
+    serializeCustomModules,
+    handleCustomModuleRenamed,
+    handleCustomModuleDeleted,
+    defaultCustomModulesForCustomization,
+    sanitizeModelData
+  } = useIpdCustomModules({
+    formType: customModuleFormType,
+    customizationKey: customModuleFormType,
+    modelData,
+    setModelData,
+    admissionId: patientDetails?.admissionId,
+    patientId: patientDetails?.details?.id,
+    patientData: patient_data,
+    isEditable,
+  });
+
   useEffect(() => {
     if (dischargeSummary.length > 0) {
-      setModelData(dischargeSummary);
+      setModelData(sanitizeModelData(dischargeSummary));
     }
   }, [dischargeSummary]);
 
@@ -167,17 +189,34 @@ const DischargeSummary = (props) => {
   }, [patientDetails?.details?.id, patientDetails?.admissionId]);
 
   useEffect(() => {
-    dispatch(getCustomization());
-  }, [patientDetails?.details?.id, patientDetails?.admissionId]);
+    dispatch(getCustomization({ doctorId: patientDetails?.doctor?.id }));
+  }, [patientDetails?.doctor?.id]);
+
+  useEffect(() => {
+    const savedModules =
+      dischargeSummaryState?.dischargeSummaryData?.customModules ||
+      dischargeSummaryState?.actualDischargeSummaryData?.customModules ||
+      [];
+
+    hydrateFromSavedModules(savedModules);
+  }, [
+    dischargeSummaryState?.actualDischargeSummaryData?.customModules,
+    dischargeSummaryState?.dischargeSummaryData?.customModules,
+    hydrateFromSavedModules,
+  ]);
 
   const handleDefaultClick = () => {
-    setModelData(IPD.DEFAULT_DISCHARGE_SUMMARY_FORM_STRUCTURE);
+    const defaultModules = [
+      ...IPD.DEFAULT_DISCHARGE_SUMMARY_FORM_STRUCTURE,
+      ...defaultCustomModulesForCustomization,
+    ];
+    setModelData(defaultModules);
     setShowCustomisationDrawer(false);
     const newData = {
       ...customization,
-      dischargeSummary: IPD.DEFAULT_DISCHARGE_SUMMARY_FORM_STRUCTURE,
+      dischargeSummary: defaultModules,
     };
-    dispatch(updateCustomization(newData));
+    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
   const handleAddEditPhysicalExamination = (data) => {
@@ -206,8 +245,6 @@ const DischargeSummary = (props) => {
       },
     });
   };
-  console.log(patient_data,"patient_data")
-  console.log(patientDetails,"patientDetails");
 
   const renderSections = (data) => {
     if (!data || !data.id) {
@@ -217,6 +254,11 @@ const DischargeSummary = (props) => {
     return (
       <div className="ipd-otnotes-editable-section-container">
         {(() => {
+          
+          if (isCustomModuleSection(data)) {
+            return renderCustomModuleComponent(data);
+          }
+          
           switch (data.id) {
             case "patientInformation":
               return <PatientInformation {...props} sectionData={data} />;
@@ -323,7 +365,7 @@ const DischargeSummary = (props) => {
   const handleSaveCustomization = () => {
     setShowCustomisationDrawer(false);
     const newData = { ...customization, dischargeSummary: [...modelData] };
-    dispatch(updateCustomization(newData));
+    dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
   const convertToRawFormat = (data = []) => {
@@ -544,6 +586,7 @@ const DischargeSummary = (props) => {
       followUp: dischargeSummaryState.dischargeSummaryData?.followUps || [],
       preparedBy:
         dischargeSummaryState.dischargeSummaryData?.preparedBy || null,
+      customModules: serializeCustomModules(customModuleContents),
     };
 
     const response = await dispatch(
@@ -635,6 +678,8 @@ const DischargeSummary = (props) => {
     console.log("INTEL ==> activeId", activeId);
   };
 
+  const renderBottomSection = () => renderCustomModulesFooter();
+
   if (
     !Object.keys(dischargeSummaryState?.actualDischargeSummaryData || {})
       ?.length
@@ -677,6 +722,7 @@ const DischargeSummary = (props) => {
                   setIsBackModalOpen(true);
                 }}
                 renderHeaderSection={renderHeaderSection}
+                renderBottomSection={renderBottomSection}
                 headerOffset={72}
                 onMenuItemClick={onMenuItemClick}
               />
@@ -695,8 +741,11 @@ const DischargeSummary = (props) => {
           onClose={() => {
             dispatch(
               updateCustomization({
-                ...customization,
-                dischargeSummary: modelData,
+                doctorId: patientDetails?.doctor?.id,
+                customization: {
+                  ...customization,
+                  dischargeSummary: modelData,
+                },
               })
             );
             return setShowCustomisationDrawer(false);
@@ -731,6 +780,8 @@ const DischargeSummary = (props) => {
                   setModelData(e);
                 }}
                 customModel={modelData}
+                onUpdateCustomModuleName={handleCustomModuleRenamed}
+                onDeleteCustomModule={handleCustomModuleDeleted}
               />
             </div>
           </Suspense>

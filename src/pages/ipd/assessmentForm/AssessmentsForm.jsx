@@ -2,7 +2,6 @@ import React, { Suspense, useEffect, useState } from "react";
 import { IPD } from "../../../utils/locale";
 import "./styles.scss";
 import { Button, Drawer, message } from "antd";
-import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import BasicInfo from "./BasicInfo";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
@@ -30,10 +29,9 @@ import { getDiagnosisTemplates } from "../../../redux/diagnosisSlice";
 import { getSymptomsTemplates } from "../../../redux/symptomsSlice";
 import { getInvestigationTemplates } from "../../../redux/investigationSlice";
 import { getAdviceTemplates } from "../../../redux/adviceSlice";
-import AddCustomModule from "../../../components/AddCustomModule";
-import { useSelector } from "react-redux";
 import { convertMedicationFormat, errorMessage } from "../../../utils/utils";
-import CustomModule from "../../../components/CustomModule";
+import { useSelector, useDispatch } from "react-redux";
+import useIpdCustomModules from "../../../hooks/useIpdCustomModules";
 import BackConfirmationModal from "../../../components/BackConfirmationModal";
 import { useAssessmentSectionVisibility } from "../../../hooks/useAssessmentSectionVisibility";
 import { useAssessmentDataStore } from "../../../hooks/useAssessmentDataStore";
@@ -66,7 +64,6 @@ const AssessmentsForm = (props) => {
   const { provisionalDiagnosis = [] } =
     dischargeSummaryData?.diagnosisAndSurgery || {};
   const { customization = {} } = useSelector((state) => state.ipd);
-  const { customModules } = useSelector((state) => state.customModules);
   const assessmentData = useSelector((state) => state.assessment);
   const prescriptionData = useSelector((state) => state.prescription);
   const { assessments = [] } = customization;
@@ -74,6 +71,9 @@ const AssessmentsForm = (props) => {
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
+
+  const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.assessments;
+
   const handleTimePeriodChange = (value) => {
     setSelectedTimePeriod(value);
   };
@@ -82,10 +82,33 @@ const AssessmentsForm = (props) => {
       ? assessments
       : IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE
   );
+
+  const {
+    customModuleContents,
+    isCustomModuleSection,
+    renderCustomModuleSection: renderCustomModuleComponent,
+    renderCustomModulesFooter,
+    hydrateFromSavedModules,
+    serializeCustomModules,
+    handleCustomModuleRenamed,
+    handleCustomModuleDeleted,
+    defaultCustomModulesForCustomization,
+    sanitizeModelData,
+  } = useIpdCustomModules({
+    formType: customModuleFormType,
+    customizationKey: customModuleFormType,
+    modelData,
+    setModelData,
+    admissionId: patientDetails?.admissionId,
+    patientId: patientDetails?.details?.id,
+    patientData: patient_data,
+    isEditable,
+  });
+
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   useEffect(() => {
     if (assessments.length > 0) {
-      setModelData(assessments);
+      setModelData(sanitizeModelData(assessments));
     }
   }, [assessments]);
 
@@ -115,7 +138,7 @@ const AssessmentsForm = (props) => {
         addDataToStore(res.payload.assessment);
       });
     }
-    dispatch(getCustomization());
+    dispatch(getCustomization({ doctorId: patientDetails?.doctor?.id }));
     if (isEditable) {
       dispatch(
         getLastPrescriptionDate({
@@ -139,6 +162,12 @@ const AssessmentsForm = (props) => {
     if (date) setFilledDate(new Date(date));
     if (time) setFilledAtTime(new Date(time));
   }, [assessmentData]);
+  
+  useEffect(() => {
+    hydrateFromSavedModules(
+      assessmentData?.assessmentsData?.customModules || []
+    );
+  }, [assessmentData?.assessmentsData?.customModules, hydrateFromSavedModules]);
 
   useEffect(() => {
     dispatch(getMedicationTemplates());
@@ -151,16 +180,29 @@ const AssessmentsForm = (props) => {
   }, [dispatch]);
 
   const handleDefaultClick = () => {
-    setModelData(IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE);
+    const defaultModules = [
+      ...IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE,
+      ...defaultCustomModulesForCustomization,
+    ];
+    setModelData(defaultModules);
     setShowCustomisationDrawer(false);
     const newData = {
       ...customization,
-      assessments: IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE,
+      assessments: defaultModules,
     };
-    dispatch(updateCustomization(newData));
+    dispatch(
+      updateCustomization({
+        doctorId: patientDetails?.doctor?.id,
+        customization: newData,
+      })
+    );
   };
 
   const renderSections = (data) => {
+    if (isCustomModuleSection(data)) {
+      return renderCustomModuleComponent(data);
+    }
+
     switch (data?.id) {
       case "basicInfo":
         return (
@@ -184,7 +226,12 @@ const AssessmentsForm = (props) => {
   const handleSaveCustomization = () => {
     setShowCustomisationDrawer(false);
     const newData = { ...customization, assessments: [...modelData] };
-    dispatch(updateCustomization(newData));
+    dispatch(
+      updateCustomization({
+        doctorId: patientDetails?.doctor?.id,
+        customization: newData,
+      })
+    );
   };
 
   const convertToRawFormat = (data = []) => {
@@ -298,7 +345,7 @@ const AssessmentsForm = (props) => {
         } || {},
       treatmentPlan: assessmentData.treatmentPlanData || [],
       additionalNotes: assessmentData.additionalNotesData || [],
-      customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
+      customModules: serializeCustomModules(customModuleContents),
     };
 
     const response = await dispatch(
@@ -479,6 +526,7 @@ const AssessmentsForm = (props) => {
       </div>
     );
   };
+
   if (!isEditable && !hasAnyData) return null;
 
   return (
@@ -515,7 +563,7 @@ const AssessmentsForm = (props) => {
                   setIsBackModalOpen(true);
                 }}
                 headerOffset={72}
-                // renderBottomSection={renderBottomSection} // TODO: INTEL - WHEN SHOWING CUSTOM MODULE - WHEN ANY NEW ADDED, ADD THEM IN CUSTOMIZATION API FOR THIS PARTICULAR USER, so that user can move the custom module too
+                renderBottomSection={renderCustomModulesFooter}
               />
             )}
           </div>
@@ -532,7 +580,11 @@ const AssessmentsForm = (props) => {
           onClose={() => {
             dispatch(
               updateCustomization({
-                ...customization,
+                doctorId: patientDetails?.doctor?.id,
+                customization: {
+                  ...customization,
+                  assessments: modelData,
+                },
                 assessments: modelData,
               })
             );
@@ -568,6 +620,8 @@ const AssessmentsForm = (props) => {
                   setModelData(e);
                 }}
                 customModel={modelData}
+                onUpdateCustomModuleName={handleCustomModuleRenamed}
+                onDeleteCustomModule={handleCustomModuleDeleted}
               />
             </div>
           </Suspense>

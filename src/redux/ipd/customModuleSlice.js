@@ -10,7 +10,6 @@ const initialState = {
   error: null,
 };
 
-// @cursor: IPD CustomModule Integration
 export const getCustomModules = createAsyncThunk(
   "customModules/getCustomModules",
   async (data, { rejectWithValue }) => {
@@ -84,12 +83,30 @@ export const updateModuleContents = createAsyncThunk(
   }
 );
 
+export const deleteModule = createAsyncThunk(
+  "customModules/deleteModule",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await ApiCustomModule.deleteModule(data);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 const customModuleSlice = createSlice({
   name: "ipdCustomModules",
   initialState,
   reducers: {
     clearSearchResults(state) {
       state.searchModuleResults = [];
+    },
+    markModuleAsDeleted(state, action) {
+      const { moduleId } = action.payload;
+      state.customModules = state.customModules.map((module) =>
+        module.module_id === moduleId ? { ...module, isDeleted: true } : module
+      );
     },
   },
   extraReducers: (builder) => {
@@ -270,6 +287,7 @@ const customModuleSlice = createSlice({
   },
 });
 
-export const { clearSearchResults } = customModuleSlice.actions;
+export const { clearSearchResults, markModuleAsDeleted } =
+  customModuleSlice.actions;
 
 export default customModuleSlice.reducer;

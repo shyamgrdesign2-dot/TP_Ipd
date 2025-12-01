@@ -10,22 +10,46 @@ import "./CustomModule.scss";
 import CustomModuleIcon from "../assets/images/custom-module.svg";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addModule,
-  getModuleContents,
-  getModules,
+  addModule as addModuleOPD,
+  getModuleContents as getModuleContentsOPD,
+  getModules as getModulesOPD,
 } from "../redux/customModuleSlice";
+import {
+  addModule as addModuleIPD,
+  getCustomModules as getCustomModulesIPD,
+  getModuleContents as getModuleContentsIPD,
+} from "../redux/ipd/customModuleSlice";
 import CashManagerContext from "../context/CashManagerContext";
 import { MESSAGE_KEY } from "../utils/constants";
 import visitEnd from "../assets/images/end-visit.svg";
 import imgCloseVisit from "../assets/images/close-visit.svg";
 import { customizedPad } from "../redux/doctorsSlice";
 import { savePrintsettings } from "../redux/doctorsSlice";
+import { extractModulesFromResponse } from "../utils/customModuleHelpers";
 
-const AddCustomModule = () => {
+const AddCustomModule = ({
+  form,
+  setCustomModuleContents: setCustomModuleContentsProp,
+  admissionId,
+  patientId,
+  onCustomModuleAdded,
+  limit = 20,
+  admittingDoctorId,
+  isIPDMode = false,
+  activeCount = 0,
+}) => {
   const [showInput, setShowInput] = useState(false);
   const [newModuleName, setNewModuleName] = useState("");
   const dispatch = useDispatch();
-  const { customModules } = useSelector((state) => state.customModules);
+
+  const { customModules: opdCustomModules } = useSelector(
+    (state) => state.customModules
+  );
+  const { customModules: ipdCustomModules } = useSelector(
+    (state) => state.ipdCustomModules
+  );
+  const customModules = isIPDMode ? ipdCustomModules : opdCustomModules;
+
   const {
     userId,
     customizedPadRightList,
@@ -33,22 +57,58 @@ const AddCustomModule = () => {
     defaultPrintSettings,
   } = useSelector((state) => state.doctors);
 
-  const { setCustomModuleContents, tcmId } = useContext(CashManagerContext);
+  const context = useContext(CashManagerContext);
+  const setCustomModuleContents =
+    setCustomModuleContentsProp || context?.setCustomModuleContents;
+  const tcmId = admissionId || patientId || context?.tcmId;
+  const activeModules = customModules.filter((cm) => !cm.isDeleted);
+  const activeModuleCount = activeCount ?? activeModules.length;
+
+  const getCustomModuleContents = useCallback(async () => {
+    if (isIPDMode) {
+      if (!tcmId || !form) return;
+      const action = await dispatch(getModuleContentsIPD({ tcmId, form }));
+      if (action.meta.requestStatus === "fulfilled") {
+        const contents = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload?.moduleContents || [];
+        if (setCustomModuleContents) {
+          setCustomModuleContents(
+            contents.filter(
+              (e) => !!customModules.find((cm) => cm.module_id === e.module_id)
+            )
+          );
+        }
+      }
+    } else {
+      const action = await dispatch(getModuleContentsOPD(tcmId));
+      if (action.meta.requestStatus === "fulfilled") {
+        if (setCustomModuleContents) {
+          setCustomModuleContents(
+            action.payload.moduleContents?.filter(
+              (e) => !!customModules.find((cm) => cm.module_id === e.module_id)
+            )
+          );
+        }
+      }
+    }
+  }, [
+    tcmId,
+    form,
+    isIPDMode,
+    customModules,
+    setCustomModuleContents,
+    dispatch,
+  ]);
 
   useEffect(() => {
-    if (tcmId) {
+    if (tcmId && !isIPDMode) {
       getCustomModuleContents();
     }
-  }, [tcmId]);
-
-  useEffect(() => {
-    if (customModules?.length) {
-      syncPrintSettings();
-      syncRightRxPad();
-    }
-  }, [customModules]);
+  }, [tcmId, isIPDMode, getCustomModuleContents]);
 
   const syncPrintSettings = useCallback(() => {
+    if (isIPDMode) return;
     const customModuleMap = new Map(
       customModules.map((module) => [module.module_id, module.name])
     );
@@ -113,9 +173,10 @@ const AddCustomModule = () => {
 
       dispatch(savePrintsettings(sendData));
     }
-  }, [customModules]);
+  }, [customModules, defaultPrintSettings, dispatch, isIPDMode]);
 
   const syncRightRxPad = useCallback(() => {
+    if (isIPDMode) return;
     const customModuleMap = new Map(
       customModules.map((module) => [module.module_id, module.name])
     );
@@ -172,53 +233,97 @@ const AddCustomModule = () => {
 
       dispatch(customizedPad(sendData));
     }
-  }, [customModules]);
-
-  const getCustomModuleContents = useCallback(async () => {
-    const action = await dispatch(getModuleContents(tcmId));
-    if (action.meta.requestStatus === "fulfilled") {
-      setCustomModuleContents(
-        action.payload.moduleContents?.filter(
-          (e) => !!customModules.find((cm) => cm.module_id === e.module_id)
-        )
-      );
-    }
-  }, [tcmId]);
+  }, [
+    customModules,
+    customizedPadLeftList,
+    customizedPadRightList,
+    dispatch,
+    isIPDMode,
+  ]);
 
   useEffect(() => {
-    dispatch(getModules(userId)).catch((error) =>
-      message.error(error || "Failed to fetch modules.")
-    );
-  }, [userId]);
+    if (customModules?.length && !isIPDMode) {
+      syncPrintSettings();
+      syncRightRxPad();
+    }
+  }, [customModules, isIPDMode, syncPrintSettings, syncRightRxPad]);
+
+  useEffect(() => {
+    if (isIPDMode) {
+      if (admittingDoctorId && form) {
+        dispatch(
+          getCustomModulesIPD({ userId: admittingDoctorId, form })
+        ).catch((error) => message.error(error || "Failed to fetch modules."));
+      }
+    } else {
+      dispatch(getModulesOPD(userId)).catch((error) =>
+        message.error(error || "Failed to fetch modules.")
+      );
+    }
+  }, [userId, form, isIPDMode, dispatch, admittingDoctorId]);
 
   const handleAddModule = async () => {
     if (!newModuleName.trim()) {
       message.error("Module name cannot be empty.");
       return;
     }
-    if (customModules.some((cm) => cm.name === newModuleName.trim())) {
+    if (activeModules.some((cm) => cm.name === newModuleName.trim())) {
       message.error("Module name already exists.");
       return;
     }
-    if (customModules.length >= 20) {
-      message.error("You can only add up to 20 custom modules.");
+    if (activeModules.length >= limit) {
+      message.error(`You can only add up to ${limit} custom modules.`);
       return;
     }
 
     try {
-      const action = await dispatch(
-        addModule({
-          userId,
-          modules: [
-            ...customModules,
-            {
-              name: newModuleName,
-              templates: [],
-            },
-          ],
-        })
+      const previousModuleIds = new Set(
+        customModules.map((cm) => cm.module_id)
       );
+      const modulesPayload = [
+        ...customModules,
+        {
+          name: newModuleName,
+          templates: [],
+        },
+      ];
+
+      let action;
+      if (isIPDMode) {
+        action = await dispatch(
+          addModuleIPD({
+            data: {
+              userId: admittingDoctorId,
+              modules: modulesPayload,
+              form,
+            },
+          })
+        );
+      } else {
+        action = await dispatch(
+          addModuleOPD({
+            userId,
+            modules: modulesPayload,
+          })
+        );
+      }
+
       if (action.meta.requestStatus === "fulfilled") {
+        const updatedModules = extractModulesFromResponse(action.payload);
+
+        if (isIPDMode) {
+          if (typeof onCustomModuleAdded === "function") {
+            const addedModule = updatedModules.find(
+              (module) =>
+                module.module_id && !previousModuleIds.has(module.module_id)
+            );
+
+            if (addedModule) {
+              onCustomModuleAdded(addedModule);
+            }
+          }
+        }
+
         setShowInput(false);
         message.open({
           key: MESSAGE_KEY,
@@ -226,7 +331,7 @@ const AddCustomModule = () => {
           className: "message-appointment",
           content: (
             <div className="d-flex align-items-center">
-              <img src={visitEnd} className="me-3" />
+              <img src={visitEnd} className="me-3" alt="Success" />
               <div>
                 <div className="title-common text-start fontroboto">{`${newModuleName} module has been created successfully.`}</div>
               </div>
@@ -234,6 +339,7 @@ const AddCustomModule = () => {
                 src={imgCloseVisit}
                 className="ms-3"
                 onClick={() => message.destroy()}
+                alt="Close"
               />
             </div>
           ),
@@ -261,6 +367,14 @@ const AddCustomModule = () => {
             value={newModuleName}
             onChange={(e) => setNewModuleName(e.target.value)}
             className="custom-module-input"
+            {...(isIPDMode && {
+              maxLength: 40,
+              suffix: (
+                <div className="custom-module-input-suffix">
+                  {newModuleName?.length}/40
+                </div>
+              ),
+            })}
           />
           <>
             <CheckOutlined
@@ -281,14 +395,14 @@ const AddCustomModule = () => {
           type="link"
           icon={<PlusOutlined />}
           className="add-custom-module-link"
-          disabled={customModules.length >= 20}
+          disabled={activeModuleCount >= limit}
         >
           Add Custom Module
         </Button>
         <div className="module-info">
-          <span className="module-count">{`${customModules.length}/20 modules added`}</span>
+          <span className="module-count">{`${activeModuleCount}/${limit} modules added`}</span>
           <Tooltip
-            title="You can create up to 20 custom modules. If you’ve reached the limit, delete an existing custom module to add a new one."
+            title={`You can create up to ${limit} custom modules. If you’ve reached the limit, delete an existing custom module to add a new one.`}
             placement="top"
             className="info-tooltip"
           >

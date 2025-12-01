@@ -1,110 +1,12 @@
 import Vitals from "../../components/Vitals";
 import MedicationTable from "../../components/MedicationTable";
 import LabInvestigationTable from "../../components/LabInvestigationTable";
-import { getAllVisibleSections, isEmptyRichText } from "../../utils/pdfUtils";
-import SlateToPdf from "../../components/SlateToPdf";
-import { View, Text, StyleSheet } from "@react-pdf/renderer";
+import { getAllVisibleSections, renderRichText } from "../../utils/pdfUtils";
+import { View } from "@react-pdf/renderer";
 import FilledByCard from "../../components/FilledByCard";
 import { renderGeneralExamination } from "../discharge/components/PhysicalExamination";
-import { IPD } from "../../../../utils/locale";
-
-const styles = StyleSheet.create({
-  // Subsection container
-  subsectionContainer: {
-    paddingVertical: 6,
-    paddingHorizontal: 0,
-  },
-
-  // Content container
-  contentContainer: {
-    gap: 4,
-  },
-
-  // Subsection title
-  subsectionTitle: {
-    color: "#171725",
-    fontWeight: 600,
-    lineHeight: 1.8,
-    textTransform: "capitalize",
-    marginBottom: 4,
-  },
-
-  // Bullet list container
-  bulletList: {
-    paddingLeft: 15,
-  },
-});
-
-const renderRichText = (data, title) => {
-  if (!data || isEmptyRichText(data)) return null;
-
-  // Custom styles for SlateToPdf to match existing styling
-  const customStyles = {
-    text: {
-      color: "#454551",
-      lineHeight: 1.8,
-    },
-    paragraph: {
-      marginBottom: 0,
-    },
-    bulletList: {
-      paddingLeft: 0,
-    },
-    numberedList: {
-      paddingLeft: 0,
-    },
-    bulletItem: {
-      flexDirection: "row",
-      marginBottom: 0,
-    },
-    numberedItem: {
-      flexDirection: "row",
-      marginBottom: 0,
-    },
-    bulletSymbol: {
-      width: 12,
-
-      color: "#454551",
-      fontWeight: 400,
-      lineHeight: 1.8,
-    },
-    numberedSymbol: {
-      width: 15,
-
-      color: "#454551",
-      fontWeight: 400,
-      lineHeight: 1.8,
-    },
-    bulletText: {
-      flex: 1,
-      color: "#454551",
-      fontWeight: 400,
-      lineHeight: 1.8,
-      textTransform: "capitalize",
-    },
-    numberedText: {
-      flex: 1,
-      color: "#454551",
-      fontWeight: 400,
-      lineHeight: 1.8,
-      textTransform: "capitalize",
-    },
-  };
-
-  return (
-    <View style={styles.subsectionContainer}>
-      <View style={styles.contentContainer}>
-        <Text style={[styles.subsectionTitle]}>{title}:</Text>
-        <View style={styles.bulletList}>
-          <SlateToPdf
-            nodes={Array.isArray(data) ? data : [data]}
-            customStyles={customStyles}
-          />
-        </View>
-      </View>
-    </View>
-  );
-};
+import { isValidMongoId } from "../../../../utils/utils";
+import CustomModuleRenderer from "../../components/CustomModuleRenderer";
 
 export const renderConsultantNotes = (
   data,
@@ -133,7 +35,10 @@ export const renderConsultantNotes = (
           "Clinical Assessment & Plan"
         ),
       vitals: () => <Vitals vitals={consultationData.vitals} title="Vitals" />,
-      examinations: () => renderGeneralExamination(consultationData.examination, {label: 'Examination'}),
+      examinations: () =>
+        renderGeneralExamination(consultationData.examination, {
+          label: "Examination",
+        }),
       // fluidBalance: () => <Vitals vitals={consultationData.vitals} title="Vitals" />,
       medication: () => (
         <MedicationTable
@@ -164,6 +69,14 @@ export const renderConsultantNotes = (
       .map((section) => {
         const renderer = sectionRenderers[section.key];
 
+        if (section.isCustom || isValidMongoId(section.id)) {
+          return (
+            <CustomModuleRenderer
+              section={section}
+              data={consultationData?.customModules}
+            />
+          );
+        }
         if (renderer) {
           return renderer();
         }

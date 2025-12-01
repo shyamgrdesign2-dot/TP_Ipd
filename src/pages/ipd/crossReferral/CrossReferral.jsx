@@ -10,9 +10,7 @@ import {
   getCustomization,
   updateCustomization,
 } from "../../../redux/ipd/ipdSlice.js";
-import AddCustomModule from "../../../components/AddCustomModule.js";
-import { useSelector } from "react-redux";
-import CustomModule from "../../../components/CustomModule.js";
+import useIpdCustomModules from "../../../hooks/useIpdCustomModules";
 import {
   resetCrossReferralForm,
   updateCrossReferralData,
@@ -26,6 +24,7 @@ import ReferralInformation from "./ReferralInformation.jsx";
 import dayjs from "dayjs";
 import FullPageLoader from "../../vaccination/components/Loader.js";
 import { errorMessage } from "../../../utils/utils.js";
+import { useSelector } from "react-redux";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -34,7 +33,12 @@ const FilledByCard = createRemoteComponent("FilledByCard");
 const CrossReferral = (props) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
-  const { patient_data, patientDetails, isEditable = true, fromTab } = state || {};
+  const {
+    patient_data,
+    patientDetails,
+    isEditable = true,
+    fromTab,
+  } = state || {};
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
@@ -42,9 +46,10 @@ const CrossReferral = (props) => {
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
+
+  const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.crossReferral;
   const { customization = {} } = useSelector((state) => state.ipd);
   const crossReferralState = useSelector((state) => state.crossReferral);
-  const { customModules } = useSelector((state) => state.customModules);
   const crossReferralData = useSelector((state) => state.crossReferral);
   const { profile } = useSelector((state) => state.doctors);
   const { crossReferral = [] } = customization;
@@ -60,8 +65,24 @@ const CrossReferral = (props) => {
     }
   }, [crossReferral]);
 
+  const {
+    customModuleContents,
+    hydrateFromSavedModules,
+    serializeCustomModules,
+    defaultCustomModulesForCustomization,
+  } = useIpdCustomModules({
+    formType: customModuleFormType,
+    customizationKey: customModuleFormType,
+    modelData,
+    setModelData,
+    admissionId: patientDetails?.admissionId,
+    patientId: patientDetails?.details?.id,
+    patientData: patient_data,
+    isEditable,
+  });
+
   useEffect(() => {
-    dispatch(getCustomization());
+    dispatch(getCustomization({ doctorId: patientDetails?.doctor?.id }));
 
     // Only fetch Cross Referral data if we have the required patient details
     if (patientDetails?.details?.id && patientDetails?.admissionId) {
@@ -80,21 +101,44 @@ const CrossReferral = (props) => {
         }
       });
     }
-  }, [patientDetails?.details?.id, patientDetails?.admissionId]);
+  }, [
+    crossReferralData.currentCrossReferralId,
+    dispatch,
+    patientDetails?.admissionId,
+    patientDetails?.details?.id,
+  ]);
+
+  useEffect(() => {
+    hydrateFromSavedModules(
+      crossReferralState?.crossReferralFormDetails?.customModules || []
+    );
+  }, [
+    crossReferralState?.crossReferralFormDetails?.customModules,
+    hydrateFromSavedModules,
+  ]);
 
   const handleDefaultClick = () => {
-    setModelData(IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE);
+    const defaultModules = [
+      ...IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE,
+      ...defaultCustomModulesForCustomization,
+    ];
+    setModelData(defaultModules);
     setShowCustomisationDrawer(false);
     const newData = {
       ...customization,
-      crossReferral: IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE,
+      crossReferral: defaultModules,
     };
-    dispatch(updateCustomization(newData));
+    dispatch(
+      updateCustomization({
+        doctorId: patientDetails?.doctor?.id,
+        customization: newData,
+      })
+    );
   };
 
   const renderSections = (data) => {
     // Don't render if data is undefined or doesn't have required properties
-    if (!data || !data.id) {
+    if (!data) {
       return null;
     }
 
@@ -115,13 +159,18 @@ const CrossReferral = (props) => {
   const handleSaveCustomization = () => {
     setShowCustomisationDrawer(false);
     const newData = { ...customization, crossReferral: [...modelData] };
-    dispatch(updateCustomization(newData));
+    dispatch(
+      updateCustomization({
+        doctorId: patientDetails?.doctor?.id,
+        customization: newData,
+      })
+    );
   };
 
   const onAddReferralClick = async () => {
     const reqData = {
       ...crossReferralState.crossReferralFormDetails,
-      customModule: [], // TODO: INTEL - HANDLE CUSTOM MODULE
+      customModules: serializeCustomModules(customModuleContents),
     };
 
     const response = await dispatch(
@@ -156,7 +205,7 @@ const CrossReferral = (props) => {
             patient_data: patient_data,
             patientDetails,
             activeTab: "crossReferral",
-            fromTab
+            fromTab,
           },
           replace: true,
         });
@@ -344,7 +393,12 @@ const CrossReferral = (props) => {
         onConfirm={() => {
           setIsBackModalOpen(false);
           navigate(`/ipd/patient-details`, {
-            state: { ...state, activeTab: "crossReferral", isEditable: false , fromTab },
+            state: {
+              ...state,
+              activeTab: "crossReferral",
+              isEditable: false,
+              fromTab,
+            },
             replace: true,
           });
           dispatch(resetCrossReferralForm());

@@ -10,8 +10,9 @@ import fluidBalancePc from "../Lab-Parameters.svg";
 import labInvestigationPc from "../Lab-Parameters.svg";
 import additionalRemarksGray from "./additionalRemarks-gray.svg";
 import additionalRemarksPc from "./additionalRemarks-pc.svg";
-import examinationsPc from './additionalRemarks-pc.svg';
-import examinationsGray from './additionalRemarks-gray.svg';
+import examinationsPc from "./additionalRemarks-pc.svg";
+import examinationsGray from "./additionalRemarks-gray.svg";
+import customModulesPc from "../../images/custom-module.svg";
 
 export const defaultIcons = {
   clinicalAssessmentPlanGray,
@@ -27,7 +28,8 @@ export const defaultIcons = {
   fluidBalancePc,
   fluidBalanceGray,
   examinationsPc,
-  examinationsGray
+  examinationsGray,
+  customModulesPc,
 };
 
 export {
@@ -44,5 +46,6 @@ export {
   fluidBalancePc,
   fluidBalanceGray,
   examinationsPc,
-  examinationsGray
+  examinationsGray,
+  customModulesPc,
 };

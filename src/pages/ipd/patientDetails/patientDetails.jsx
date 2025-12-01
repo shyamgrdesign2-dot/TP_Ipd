@@ -20,6 +20,7 @@ import {
   resetAssessmentForm,
   setAdditionalNotesData,
   setChiefComplaint,
+  setCustomModules,
   setFunctionalAssessmentData,
   setGynecHistoryData,
   setHistoryOfPresentIllness,
@@ -341,6 +342,9 @@ const IPDPatientDetails = () => {
           data?.functionalAssessment?.referredToPhysiotherapyForReview || null
         )
       );
+
+      // Custom Modules
+      dispatch(setCustomModules(data?.customModules || []));
     }
   };
 

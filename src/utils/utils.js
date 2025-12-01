@@ -2324,3 +2324,19 @@ export const getModuleCode = (module) => {
 
   return moduleMap[module] || module.substring(0, 2).toUpperCase();
 };
+
+export const groupIpdCustomModulesById = (customModules = []) => {
+  const groupedModules = customModules?.reduce((acc, item) => {
+    if (!acc[item.moduleId]) {
+      acc[item.moduleId] = {
+        moduleId: item.moduleId,
+        moduleName: item.moduleName,
+        content: [],
+      };
+    }
+    acc[item.moduleId].content.push(...item.content);
+    return acc;
+  }, {});
+
+  return Object.values(groupedModules);
+};

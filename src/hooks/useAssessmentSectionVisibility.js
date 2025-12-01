@@ -34,6 +34,7 @@ export const useAssessmentSectionVisibility = (isEditable) => {
     referredDocForReview,
     treatmentPlanData,
     additionalNotesData,
+    customModules,
   } = assessmentData;
 
   const { medicationData, medicalHistoryData } = prescriptionData;
@@ -98,6 +99,10 @@ export const useAssessmentSectionVisibility = (isEditable) => {
       isEmptyRichText(additionalNotesData?.specialInstructions)
     );
 
+  const showCustomModules = customModules?.some(
+    (module) => !isEmptyRichText(module.content)
+  );
+
   // Check if any section has data to show (for overall form visibility)
   const hasAnyData =
     showBasicInfo ||
@@ -105,7 +110,8 @@ export const useAssessmentSectionVisibility = (isEditable) => {
     showFunctionalAssessment ||
     showTreatmentPlan ||
     showProvisionalDiagnosis ||
-    showNoteSection;
+    showNoteSection ||
+    showCustomModules;
 
   return {
     showBasicInfo,

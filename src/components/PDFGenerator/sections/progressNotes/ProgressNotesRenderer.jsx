@@ -18,6 +18,8 @@ import FilledByCard from "../../components/FilledByCard";
 import SlateToPdf from "../../components/SlateToPdf";
 import { renderGeneralExamination } from "../discharge/components/PhysicalExamination";
 import { isEmptyRichText } from "../../../../utils/utils";
+import { isValidMongoId } from "../../../../utils/utils";
+import CustomModuleRenderer from "../../components/CustomModuleRenderer";
 
 const styles = StyleSheet.create({
   sectionContainer: {
@@ -224,8 +226,15 @@ export const renderProgressNotes = (data, formatSettings) => {
     const noteSections = sortedSections
       .map((section) => {
         const renderer = sectionRenderers[section.key];
+        if (section.isCustom || isValidMongoId(section.id)) {
+          return (
+            <CustomModuleRenderer
+              section={section}
+              data={progressNotesData?.customModules}
+            />
+          );
+        }
         if (renderer) {
-          console.log(renderer, "renderer");
           return renderer();
         }
         return <Text>{""}</Text>;
@@ -240,6 +249,6 @@ export const renderProgressNotes = (data, formatSettings) => {
       </View>
     );
   });
-  console.log(allSections, "allSections");
+
   return allSections;
 };

@@ -6,12 +6,20 @@ const symptomTemplateBaseUrl = { customBaseUrl: config.symptoms_api_url };
 
 const ApiIpdService = {};
 
-ApiIpdService.getCustomization = function () {
-  return api.get(`/customization`, baseUrl);
+ApiIpdService.getCustomization = function (doctorId) {
+  let url = `/customization`;
+  if (doctorId) {
+    url += `?doctorId=${encodeURIComponent(doctorId)}`;
+  }
+  return api.get(url, baseUrl);
 };
 
-ApiIpdService.updateCustomization = function (data) {
-  return api.put(`/customization`, data, baseUrl);
+ApiIpdService.updateCustomization = function ({ doctorId, customization } = {}) {
+  let url = `/customization`;
+  if (doctorId) {
+    url += `?doctorId=${encodeURIComponent(doctorId)}`;
+  }
+  return api.put(url, customization, baseUrl);
 };
 
 ApiIpdService.doctorDepartmentRoles = function () {

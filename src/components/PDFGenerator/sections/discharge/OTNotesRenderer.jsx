@@ -14,6 +14,8 @@ import RichTextPrintRenderer from "./components/richTextPrintRenderer";
 import moment from "moment";
 import { camelToCapitalized } from "../../../../utils/utils";
 import FilledByCard from "../../components/FilledByCard";
+import { isValidMongoId } from "../../../../utils/utils";
+import CustomModuleRenderer from "../../components/CustomModuleRenderer";
 
 const styles = StyleSheet.create({
   sectionContainer: {
@@ -382,6 +384,9 @@ export const renderOTNotes = (data, formatSettings) => {
     const sections = sortedSections
       .map((section) => {
         const renderer = sectionRenderers[section.id];
+        if (section.isCustom || isValidMongoId(section.id)) {
+          return <CustomModuleRenderer section={section} data={note?.otNotes?.customModules} />;
+        }
         if (renderer) {
           return renderer();
         }

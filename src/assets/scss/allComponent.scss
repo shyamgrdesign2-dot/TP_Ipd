@@ -3324,3 +3324,25 @@ nav.portal-header-ipd {
 html, body {
   overscroll-behavior-y: contain;
 }
+
+.ipd-add-custom-module-container {
+  background-color: #F9F7FD !important;
+  padding: 24px;
+  padding-left: 18px;
+  margin-bottom: 80px;
+}
+
+.ipd-custom-module-wrapper {
+  .ipd-custom-module-hide-border .rich-text-editor-container {
+    border: none !important;
+    margin: 0 20px !important;
+    .slate-editable-wrapper {
+      margin-bottom: 0;
+      min-height: auto;
+      margin-top: 0;
+      p:has([data-slate-length="0"]) {
+        display: none !important;
+      }
+    }
+  }
+}

@@ -15,11 +15,16 @@ import {
 import DateRangeFilter from "../components/DateRangeFilter.js";
 import { getCustomization } from "../../../redux/ipd/ipdSlice.js";
 import { defaultIcons } from "../../../assets/images/icons/index.js";
-import { getTokenData, isEmptyRichText } from "../../../utils/utils.js";
+import {
+  getTokenData,
+  groupIpdCustomModulesById,
+  isEmptyRichText,
+} from "../../../utils/utils.js";
 import ReferralInformationView from "./ReferralInformationView.jsx";
 import { IPD } from "../../../utils/locale.js";
 import { message } from "antd";
 import CancelCrossReferralConfirmationPopup from "./CancelCrossReferralConfirmationPopup.jsx";
+import IpdCustomModule from "../components/IpdCustomModule.jsx";
 // import { MetricsList } from "../otNotes/IntraOperativeNotes.jsx";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -47,8 +52,8 @@ const CrossReferralTimeline = () => {
   const { crossReferral = [] } = customization;
 
   useEffect(() => {
-    dispatch(getCustomization());
-  }, []);
+    dispatch(getCustomization({ doctorId: patientDetails?.doctor?.id }));
+  }, [patientDetails?.doctor?.id]);
 
   const handlePickerModal = useCallback(() => {
     setPickerModal(!pickerModal);
@@ -504,6 +509,19 @@ const CrossReferralTimeline = () => {
                               )}
                             </div>
                           );
+                        case "customModules":
+                          return groupIpdCustomModulesById(
+                            entry?.crossReferral[crossReferralEntry]
+                          )?.map((customModule) => {
+                            return (
+                              <IpdCustomModule
+                                module={customModule}
+                                value={customModule.content}
+                                isEditable={false}
+                                hideBorder
+                              />
+                            );
+                          });
                         default:
                           return null;
                       }

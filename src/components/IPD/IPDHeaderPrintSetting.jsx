@@ -1,11 +1,10 @@
 import React, { useState, useCallback } from "react";
 import { Navbar } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Button, Popover } from "antd";
+import { Button } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 
-import { errorMessage, getClinicName } from "../../utils/utils";
-import VideoModal from "../../common/VideoModal";
+import { errorMessage } from "../../utils/utils";
 
 import {
   saveDraftSettings,
@@ -17,104 +16,39 @@ import {
 
 import CommonModal from "../../common/CommonModal";
 import alertIcon from "../../assets/images/alertIcon.svg";
-import tutorial from "../../assets/images/tutorial-icon.svg";
-import playIcons from "../../assets/images/tube-icon.svg";
+import useIpdCustomModules from "../../hooks/useIpdCustomModules";
+import { IPD } from "../../utils/locale";
+
+const PRINT_SETTINGS_MODULE_CUSTOM_MODULE_TYPE_MAP = {
+  consultationNotes: IPD.CUSTOM_MODULE_FORM_TYPES.consultantNotes,
+  progressNotes: IPD.CUSTOM_MODULE_FORM_TYPES.progressNotes,
+  otNotes: IPD.CUSTOM_MODULE_FORM_TYPES.otNotes,
+  dischargeSummary: IPD.CUSTOM_MODULE_FORM_TYPES.dischargeSummary,
+  assessments: IPD.CUSTOM_MODULE_FORM_TYPES.assessments,
+  crossReferral: IPD.CUSTOM_MODULE_FORM_TYPES.crossReferral,
+};
 
 function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [popOverVideo, setPopOverVideo] = useState(false);
-  const [videoLink, setVideoLink] = useState(null);
-
-  //PopOverVideo function
-  const showHideVideoListPopover = useCallback(() => {
-    setPopOverVideo(!popOverVideo);
-  }, [popOverVideo]);
-
   const { state } = useLocation();
   const { patientDetails = {} } = state || {};
 
-  const { loading, videoList, profile } = useSelector((state) => state.doctors);
   const { draftSettings, printSettings } = useSelector(
     (state) => state.printSettings
   );
 
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [flag, setFlag] = useState(0);
+  const { defaultCustomModulesForPrintSettings } = useIpdCustomModules({
+    formType: PRINT_SETTINGS_MODULE_CUSTOM_MODULE_TYPE_MAP[moduleType],
+  });
 
   const onDefaultPrintsettings = async () => {
     setFlag(2);
     showHideBackModal();
   };
-
-  //Video Component
-  const VIDEO_CONTENT = useCallback(() => {
-    return (
-      <>
-        <div className="video-contant rounded-4 p-20" key="oneclickrx-video">
-          <div className="align-items-center d-flex justify-content-between border-bottom mb-20 pb-2">
-            <div className="title-common lh-base">Video Tutorial</div>
-            <Button
-              className="btn btn-delete-prescription p-0"
-              onClick={showHideVideoListPopover}
-            >
-              <i className="icon-Cross" />
-            </Button>
-          </div>
-          <div
-            className="overflow-y-auto"
-            style={{ maxHeight: "calc(100vh - 550px)" }}
-          >
-            {videoList
-              ?.filter((e) => e.category_id === 7)[0]
-              ?.video?.map((item1, i1) => {
-                return (
-                  <div
-                    key={i1}
-                    className={`d-flex ${
-                      i1 !==
-                        videoList?.filter((e) => e.category_id === 7)[0]?.video
-                          ?.length -
-                          1 && "pb-3 mb-15 border-bottom"
-                    }`}
-                  >
-                    <div className="tutorial-play me-14">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setVideoLink(item1);
-                          const clinic_name = getClinicName(
-                            profile?.hospital_data
-                          );
-                          window.Moengage.track_event("TP_Tutorial_Viewed", {
-                            clinic_name,
-                            tutorial_type: videoList[0]?.category,
-                          });
-                        }}
-                      >
-                        <img src={playIcons} alt="play" />
-                      </button>
-                      <span className="tutorial-thumb">
-                        <img src={item1.thumbnail} alt="thumbnail" />
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className="title-common text-welcome">
-                        {item1?.tmv_title}
-                      </h3>
-                      <div className="fs-12 fontroboto fw-normal text-main">
-                        {item1?.tmv_description}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
-        </div>
-      </>
-    );
-  }, [popOverVideo]);
 
   const onSavePrintSettingsClick = async () => {
     if (!draftSettings || !moduleType) {
@@ -123,21 +57,27 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
     }
 
     try {
-      // Remove server-managed fields before updating
-      const { _id, doctorId, hospitalId, ...settingsPayload } = draftSettings;
+      const {
+        _id,
+        doctorId,
+        hospitalId,
+        createdAt,
+        createdBy,
+        updatedAt,
+        updatedBy,
+        message,
+        ...settingsPayload
+      } = draftSettings;
 
-      // Call update print settings API with the module settings
       const action = await dispatch(
         updatePrintSettings({
-          ...settingsPayload,
+          printSettings: { ...settingsPayload },
           doctorId: patientDetails?.doctor?.id,
         })
       );
 
       if (action.meta.requestStatus === "fulfilled") {
-        // Save draft settings to main settings (persist changes)
         dispatch(saveDraftSettings({ moduleType }));
-        // Navigate back to return path if provided, otherwise go back in history
         if (returnPath) {
           navigate(returnPath);
         } else {
@@ -154,7 +94,6 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
 
   const checkDataFillOrNot = () => {
     if (!draftSettings) {
-      // Navigate back to return path if provided, otherwise go back in history
       if (returnPath) {
         navigate(returnPath);
       } else {
@@ -166,11 +105,9 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
     let update_json = { ...draftSettings };
     delete update_json["qrcode"];
 
-    // For now, assume settings have changed (we can add proper comparison later)
     const hasChanges = true;
 
     if (!hasChanges) {
-      // Navigate back to return path if provided, otherwise go back in history
       if (returnPath) {
         navigate(returnPath);
       } else {
@@ -188,52 +125,54 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
 
   const onYesLeaveClick = async () => {
     if (flag === 1) {
-      // Revert draft settings back to saved settings before leaving
       dispatch(revertDraftSettings({ moduleType }));
 
-      // Navigate back to return path if provided, otherwise go back in history
       if (returnPath) {
         navigate(returnPath);
       } else {
         navigate(-1);
       }
     } else if (flag === 3) {
-      // Navigate back to return path if provided, otherwise go back in history
       if (returnPath) {
         navigate(returnPath);
       } else {
         navigate(-1);
       }
     } else {
-      // Handle default settings reset
       try {
         const action = await dispatch(getDefaultPrintsettings());
 
         if (action.meta.requestStatus === "fulfilled") {
           const defaultSettings = action.payload;
-
-          // Update both draft and main settings with the default settings for this module
           if (defaultSettings && defaultSettings[moduleType]) {
-            // Update draft settings
+            const defaultFormatStyleWithCustomModules = [
+              ...defaultSettings[moduleType].formatStyle,
+              ...defaultCustomModulesForPrintSettings,
+            ];
             dispatch(
               setDraftSettings({
                 moduleType,
-                settings: defaultSettings[moduleType],
+                settings: {
+                  ...defaultSettings[moduleType],
+                  formatStyle: defaultFormatStyleWithCustomModules,
+                },
               })
             );
 
-            // Save draft to main settings to persist the defaults
-            dispatch(saveDraftSettings({ moduleType }));
+            await dispatch(saveDraftSettings({ moduleType }));
 
-            // Remove server-managed fields before updating
             const { _id, doctorId, hospitalId, ...settingsPayload } =
               printSettings;
 
-            // Call update print settings API with the module settings
             await dispatch(
               updatePrintSettings({
-                ...settingsPayload,
-                [moduleType]: defaultSettings[moduleType],
+                printSettings: {
+                  ...settingsPayload,
+                  [moduleType]: {
+                    ...defaultSettings[moduleType],
+                    formatStyle: defaultFormatStyleWithCustomModules,
+                  },
+                },
                 doctorId: patientDetails?.doctor?.id,
               })
             );
@@ -339,7 +278,6 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
               setFlag(3);
               showHideBackModal();
             }}
-            loading={loading}
           >
             Save
           </Button>

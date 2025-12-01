@@ -54,7 +54,7 @@ import imgCloseVisit from "../assets/images/close-visit.svg";
 import { getDecodedToken } from "../utils/localStorage";
 import config from "../config";
 
-function CustomModule({ module, ...props }) {
+function CustomModule({ module }) {
   const { customModules, searchModuleResults, loading } = useSelector(
     (state) => state.customModules
   );
@@ -63,8 +63,8 @@ function CustomModule({ module, ...props }) {
   const dispatch = useDispatch();
   const decodedToken = getDecodedToken();
 
-  const { customModuleContents = [], setCustomModuleContents = () => {}, patient_data, tcmId } =
-    useContext(CashManagerContext) || props || {};
+  const { customModuleContents, setCustomModuleContents, patient_data, tcmId } =
+    useContext(CashManagerContext);
 
   //PopOver1
   const [popOver1, setPopOver1] = useState(false);
@@ -344,7 +344,7 @@ function CustomModule({ module, ...props }) {
       // Find the module's existing content and update it
       const updatedModuleData = [
         ...moduleData?.filter((e) => e.title || e.notes),
-        ...(updatedData || []),
+        ...updatedData,
       ];
       // Update the parent state with the new module contents
       updateCustomModuleContents(updatedModuleData);

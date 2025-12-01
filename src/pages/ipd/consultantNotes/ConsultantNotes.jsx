@@ -7,10 +7,7 @@ import React, {
 } from "react";
 import { IPD } from "../../../utils/locale";
 import "./styles.scss";
-import {
-  convertMedicationFormat,
-  formatDateWithTime,
-} from "../../../utils/utils";
+import { convertMedicationFormat } from "../../../utils/utils";
 import MedicationsBox from "../../../components/MedicationsBox";
 import { Button, Drawer, message } from "antd";
 import { useDispatch } from "react-redux";
@@ -33,9 +30,11 @@ import ClinicalAssessment from "../../ipd/consultantNotes/ClinicalAssessment";
 import AdditionalRemarks from "../../ipd/consultantNotes/AdditionalRemarks";
 import dayjs from "dayjs";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
-import { updateCustomization } from "../../../redux/ipd/ipdSlice";
+import {
+  updateCustomization,
+  getCustomization,
+} from "../../../redux/ipd/ipdSlice";
 import { isMobile } from "react-device-detect";
-import TabMedicationBox from "../../../components/tab_design/TabMedicationBox";
 import TabInvestigationBox from "../../../components/tab_design/TabInvestigationBox";
 import { MESSAGE_KEY } from "../../../utils/constants";
 import visitEnd from "../../../assets/images/end-visit.svg";
@@ -49,6 +48,7 @@ import { isEmptyRichText } from "../../../components/PDFGenerator";
 import MedicationBoxIpd from "../../../components/medicationBoxIpd";
 import FluidBalanceSection from "../assessmentForm/FluidBalanceSection";
 import CNExaminationSection from "../assessmentForm/CNExaminationSection";
+import useIpdCustomModules from "../../../hooks/useIpdCustomModules";
 dayjs.extend(customParseFormat);
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
@@ -77,7 +77,7 @@ const ConsultantNotes = (props) => {
     vitals,
     additionalRemarks,
     fluidBalance,
-    physicalExaminationBasicData
+    physicalExaminationBasicData,
   } = useSelector((state) => state.consultantNotes);
   const { medicationData } = useSelector((state) => state.prescription);
   const { customization = {} } = useSelector((state) => state.ipd);
@@ -85,6 +85,10 @@ const ConsultantNotes = (props) => {
   const { progressNotes, isFetched: isProgressNotesFetched } = useSelector(
     (state) => state.progressNotes
   );
+
+  useEffect(() => {
+    dispatch(getCustomization({ doctorId: patientDetails?.doctor?.id }));
+  }, [dispatch, patientDetails]);
 
   const { consultationNotes: consultantNotesCustomization = [] } =
     customization;
@@ -98,8 +102,36 @@ const ConsultantNotes = (props) => {
   const [shouldAutofill, setShouldAutofill] = useState(false);
   const [showAgentAlex, setShowAgentAlex] = useState(false);
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
+  const [modelData, setModelData] = useState(
+    consultantNotesCustomization.length > 0
+      ? consultantNotesCustomization
+      : IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE
+  );
 
-  // Load filledDate and filledAtTime from current consultant note
+  const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.consultantNotes;
+
+  const {
+    customModuleContents,
+    isCustomModuleSection,
+    renderCustomModuleSection: renderCustomModuleComponent,
+    renderCustomModulesFooter,
+    hydrateFromSavedModules,
+    serializeCustomModules,
+    handleCustomModuleRenamed,
+    handleCustomModuleDeleted,
+    defaultCustomModulesForCustomization,
+    sanitizeModelData,
+  } = useIpdCustomModules({
+    formType: customModuleFormType,
+    customizationKey: "consultationNotes",
+    modelData,
+    setModelData,
+    admissionId,
+    patientId,
+    patientData: patient_data,
+    isEditable,
+  });
+
   useEffect(() => {
     if (currentConsultantNote && currentConsultantNote.consultationNotes) {
       if (currentConsultantNote.consultationNotes.date) {
@@ -126,7 +158,7 @@ const ConsultantNotes = (props) => {
 
   useEffect(() => {
     if (consultantNotesCustomization.length > 0) {
-      setModelData(consultantNotesCustomization);
+      setModelData(sanitizeModelData(consultantNotesCustomization));
     }
   }, [consultantNotesCustomization]);
 
@@ -136,6 +168,15 @@ const ConsultantNotes = (props) => {
       dispatch(getConsultantNotes({ patientId, admissionId }));
     }
   }, [patientId, dispatch, admissionId]);
+
+  useEffect(() => {
+    hydrateFromSavedModules(
+      currentConsultantNote?.consultationNotes?.customModules || []
+    );
+  }, [
+    currentConsultantNote?.consultationNotes?.customModules,
+    hydrateFromSavedModules,
+  ]);
 
   useEffect(() => {
     if (!isProgressNotesFetched && patientId && admissionId) {
@@ -149,7 +190,8 @@ const ConsultantNotes = (props) => {
       Object.values(vitals)?.some((item) => !!item) ||
       medicationData?.length > 0 ||
       investigationData?.length > 0 ||
-      !isEmptyRichText(additionalRemarks)
+      !isEmptyRichText(additionalRemarks) ||
+      customModuleContents.some((module) => !isEmptyRichText(module.content))
     );
   }, [
     clinicalAssessmentPlan,
@@ -157,10 +199,15 @@ const ConsultantNotes = (props) => {
     medicationData,
     investigationData,
     additionalRemarks,
+    customModuleContents,
   ]);
 
-  // Save consultant notes
   const saveConsultantNotes = async () => {
+    if (!isDataPresent) {
+      message.warning("Please fill in at least one field before saving!");
+      return;
+    }
+
     try {
       const consultantNotesData = {
         clinicalAssessmentPlan: clinicalAssessmentPlan || [],
@@ -187,6 +234,7 @@ const ConsultantNotes = (props) => {
         additionalRemarks: additionalRemarks || [],
         date: filledDate ? dayjs(filledDate).format(API_DATE_FORMAT) : "",
         time: filledAtTime ? dayjs(filledAtTime).format(API_TIME_FORMAT) : "",
+        customModules: serializeCustomModules(customModuleContents),
       };
 
       const result = await dispatch(
@@ -233,7 +281,7 @@ const ConsultantNotes = (props) => {
           patientDetails,
           isEditable: false,
           activeTab: "consultantNotes",
-          fromTab
+          fromTab,
         },
       });
     } catch (error) {
@@ -279,6 +327,10 @@ const ConsultantNotes = (props) => {
 
   const renderSections = useCallback(
     (data) => {
+      if (isCustomModuleSection(data)) {
+        return renderCustomModuleComponent(data);
+      }
+
       switch (data?.id) {
         case "clinicalAssessmentPlan":
           return (
@@ -314,11 +366,7 @@ const ConsultantNotes = (props) => {
               {isMobile ? (
                 <MedicationBoxIpd isEditable={isEditable} />
               ) : (
-                <MedicationsBox
-                  isEditable={isEditable}
-                  medicationData={medicationData}
-                  isIpd={true}
-                />
+                <MedicationsBox isEditable={isEditable} isIpd={true} />
               )}
             </div>
           );
@@ -352,7 +400,7 @@ const ConsultantNotes = (props) => {
             <AdditionalRemarks
               {...props}
               sectionData={data}
-              shouldAutofill={shouldAutofill} 
+              shouldAutofill={shouldAutofill}
               patientDetails={patientDetails}
             />
           );
@@ -369,6 +417,8 @@ const ConsultantNotes = (props) => {
       medicationData,
       investigationData,
       dispatch,
+      isCustomModuleSection,
+      renderCustomModuleComponent,
     ]
   );
 
@@ -405,20 +455,23 @@ const ConsultantNotes = (props) => {
     );
   };
 
-  const [modelData, setModelData] = useState(
-    consultantNotesCustomization.length > 0
-      ? consultantNotesCustomization
-      : IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE
-  );
-
   const handleDefaultClick = () => {
-    setModelData(IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE);
+    const defaultModules = [
+      ...IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE,
+      ...defaultCustomModulesForCustomization,
+    ];
+    setModelData(defaultModules);
     setShowCustomisationDrawer(false);
     const newData = {
       ...customization,
-      consultationNotes: IPD.DEFAULT_CONSULTANT_NOTES_FORM_STRUCTURE,
+      consultationNotes: defaultModules,
     };
-    dispatch(updateCustomization(newData));
+    dispatch(
+      updateCustomization({
+        doctorId: patientDetails?.doctor?.id,
+        customization: newData,
+      })
+    );
   };
 
   const handleSaveCustomization = () => {
@@ -427,7 +480,12 @@ const ConsultantNotes = (props) => {
       ...customization,
       consultationNotes: [...modelData],
     };
-    dispatch(updateCustomization(newData));
+    dispatch(
+      updateCustomization({
+        doctorId: patientDetails?.doctor?.id,
+        customization: newData,
+      })
+    );
   };
 
   const handleProgressSummaryClick = () => {
@@ -445,6 +503,7 @@ const ConsultantNotes = (props) => {
           <ProgressSummary onClick={handleProgressSummaryClick} />
         </div>
       )}
+      {renderCustomModulesFooter()}
     </>
   );
 
@@ -538,6 +597,8 @@ const ConsultantNotes = (props) => {
                   setModelData(e);
                 }}
                 customModel={modelData}
+                onUpdateCustomModuleName={handleCustomModuleRenamed}
+                onDeleteCustomModule={handleCustomModuleDeleted}
               />
             </div>
           </Suspense>
