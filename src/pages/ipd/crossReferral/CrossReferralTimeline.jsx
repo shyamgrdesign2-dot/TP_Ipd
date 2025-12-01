@@ -512,16 +512,20 @@ const CrossReferralTimeline = () => {
                         case "customModules":
                           return groupIpdCustomModulesById(
                             entry?.crossReferral[crossReferralEntry]
-                          )?.map((customModule) => {
-                            return (
-                              <IpdCustomModule
-                                module={customModule}
-                                value={customModule.content}
-                                isEditable={false}
-                                hideBorder
-                              />
-                            );
-                          });
+                          )
+                            ?.filter(
+                              (module) => !isEmptyRichText(module.content)
+                            )
+                            ?.map((customModule) => {
+                              return (
+                                <IpdCustomModule
+                                  module={customModule}
+                                  value={customModule.content}
+                                  isEditable={false}
+                                  hideBorder
+                                />
+                              );
+                            });
                         default:
                           return null;
                       }

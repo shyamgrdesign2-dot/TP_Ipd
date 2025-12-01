@@ -47,7 +47,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
   const { otNotes = [] } = customization;
 
   useEffect(() => {
-    dispatch(getCustomization({doctorId: patientDetails?.doctor?.id}));
+    dispatch(getCustomization({ doctorId: patientDetails?.doctor?.id }));
   }, [patientDetails?.doctor?.id]);
 
   const handleEditOtNotes = (id) => {
@@ -153,10 +153,10 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
 
     const formatSurgeryTime = (totalMinutes) => {
       if (!totalMinutes || totalMinutes <= 0) return "";
-    
+
       const hours = Math.floor(totalMinutes / 60);
       const mins = totalMinutes % 60;
-    
+
       if (hours && mins) return `${hours}hr ${mins}min`;
       if (hours) return `${hours}hr`;
       return `${mins}min`;
@@ -389,18 +389,18 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
                             return null;
                         }
                       })}
-                      {groupIpdCustomModulesById(
-                        entry?.otNotes?.customModules
-                      )?.map((customModule) => {
-                        return (
-                          <IpdCustomModule
-                            module={customModule}
-                            value={customModule.content}
-                            isEditable={false}
-                            hideBorder
-                          />
-                        );
-                      })}
+                      {groupIpdCustomModulesById(entry?.otNotes?.customModules)
+                        ?.filter((module) => !isEmptyRichText(module.content))
+                        ?.map((customModule) => {
+                          return (
+                            <IpdCustomModule
+                              module={customModule}
+                              value={customModule.content}
+                              isEditable={false}
+                              hideBorder
+                            />
+                          );
+                        })}
                       <FilledByCards
                         updates={
                           !!updates.length ? [updates[updates.length - 1]] : []
