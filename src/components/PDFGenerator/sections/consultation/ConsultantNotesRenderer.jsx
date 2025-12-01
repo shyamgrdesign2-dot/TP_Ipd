@@ -2,7 +2,7 @@ import Vitals from "../../components/Vitals";
 import MedicationTable from "../../components/MedicationTable";
 import LabInvestigationTable from "../../components/LabInvestigationTable";
 import { getAllVisibleSections, renderRichText } from "../../utils/pdfUtils";
-import { View } from "@react-pdf/renderer";
+import { Text, View } from "@react-pdf/renderer";
 import FilledByCard from "../../components/FilledByCard";
 import { renderGeneralExamination } from "../discharge/components/PhysicalExamination";
 import { isValidMongoId } from "../../../../utils/utils";
