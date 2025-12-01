@@ -175,7 +175,7 @@ const useIpdCustomModules = ({
     (value) => {
       setCustomModuleContentsState((prev) => {
         const base = prev || [];
-        const nextRaw = typeof value === "function" ? value(base) : value;
+        const nextRaw = typeof value === "function" ? value(base) : [...base, ...value];
         return normalizeModuleContents(nextRaw, customModules);
       });
     },
