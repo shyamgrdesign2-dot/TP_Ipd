@@ -109,7 +109,8 @@ const DischargeConfirmationModal = forwardRef(
         voiceRx({
           patientId,
           admissionId,
-          schemaKey: "DISRCHARGED_SUMMARY.dischargeConfirmation.dischargeRemarks",
+          schemaKey:
+            "DISRCHARGED_SUMMARY.dischargeConfirmation.dischargeRemarks",
           audioFile: payload?.audioBlob,
           filename: payload?.filename,
           mimeType: payload?.mimeType,
@@ -119,8 +120,7 @@ const DischargeConfirmationModal = forwardRef(
 
       if (response.meta.requestStatus === "fulfilled") {
         let updatedData =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.response
-            ?.dischargeRemarks || [];
+          response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
         if (isEmptyRichText(updatedData)) {
           const transcription =
             response?.payload?.data?.rxDigitizationHistory?.[0]?.payload

@@ -94,8 +94,7 @@ const NoteSection = (props) => {
     );
     if (response.meta.requestStatus === "fulfilled") {
       let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
-          ?.specialInstructions || [];
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
       if (isEmptyRichText(updatedData)) {
         const transcription =
           response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
@@ -135,8 +134,7 @@ const NoteSection = (props) => {
     );
     if (response.meta.requestStatus === "fulfilled") {
       let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
-          ?.dischargeCriteria || [];
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
       if (isEmptyRichText(updatedData)) {
         const transcription =
           response?.payload?.data?.rxDigitizationHistory?.[0]?.payload

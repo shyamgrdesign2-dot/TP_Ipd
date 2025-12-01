@@ -2131,7 +2131,7 @@ function MedicationsBox(props) {
       })
     );
     if (response.meta.requestStatus === "fulfilled") {
-      const updatedData = response?.payload?.data?.rxDigitizationHistory?.[0]?.response?.medicationData || [];
+      const updatedData = response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
       dispatch(setMedicationData(updatedData));
       callback?.();
     } else {

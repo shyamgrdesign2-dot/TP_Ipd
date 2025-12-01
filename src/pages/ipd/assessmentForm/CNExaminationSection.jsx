@@ -124,9 +124,7 @@ const CNExaminationSection = (props) => {
 
       if (response.meta.requestStatus === "fulfilled") {
         const updatedData =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.response?.[
-            itemId
-          ] || [];
+          response?.payload?.data?.rxDigitizationHistory?.[0]?.response|| [];
         let updatedNotes = updatedData?.notes || [];
         if (isEmptyRichText(updatedNotes)) {
           const transcription =

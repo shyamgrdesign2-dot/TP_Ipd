@@ -97,8 +97,7 @@ const AdditionalRemarks = (props) => {
     );
     if (response.meta.requestStatus === "fulfilled") {
       let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
-          ?.additionalRemarks || [];
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
       if (isEmptyRichText(updatedData)) {
         const transcription =
           response?.payload?.data?.rxDigitizationHistory?.[0]?.payload

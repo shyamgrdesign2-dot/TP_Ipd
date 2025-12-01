@@ -60,10 +60,10 @@ const SurgeryDetails = (props) => {
 
     if (searchQuery) {
       const trimmedQuery = searchQuery.trim();
-      
+
       if (trimmedQuery) {
         const isItemExists = surgeryProcedureOptions.some(
-          item => item.name.toLowerCase() === trimmedQuery.toLowerCase()
+          (item) => item.name.toLowerCase() === trimmedQuery.toLowerCase()
         );
 
         if (!isItemExists) {
@@ -113,31 +113,36 @@ const SurgeryDetails = (props) => {
             return option.data.customLabel || option.data.label;
           }}
           onChange={async (value, option) => {
-            if (value === undefined || value === null || (Array.isArray(value) && value.length === 0)) {
+            if (
+              value === undefined ||
+              value === null ||
+              (Array.isArray(value) && value.length === 0)
+            ) {
               dispatch(setSurgeryProcedureName(""));
               setSearchQuery(""); // Clear search query
               return;
             }
-            
+
             try {
               // Handle multiple selections - check if the last selected option is custom
               const options = Array.isArray(option) ? option : [option];
               const lastOption = options[options.length - 1];
-              const parsed = lastOption?.key ? JSON.parse(lastOption.key) : null;
-              
+              const parsed = lastOption?.key
+                ? JSON.parse(lastOption.key)
+                : null;
+
               if (parsed?.isCustom) {
                 // Create custom surgery and update the options list
                 await createCustomSurgery(parsed.name);
-                
+
                 // Refresh the surgery procedures list to include the new custom item
                 dispatch(searchSurgeryProcedures(""));
-                
+
                 setSearchQuery(""); // Clear search query after adding custom
               }
-              
+
               // For multiple selection, store the entire array of selected values
               dispatch(setSurgeryProcedureName(value));
-              
             } catch (e) {
               console.error("Error handling surgery selection:", e);
               dispatch(setSurgeryProcedureName(value));
@@ -298,8 +303,7 @@ const SurgeryDetails = (props) => {
 
     if (response.meta.requestStatus === "fulfilled") {
       let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
-          ?.diagnosis || [];
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
       if (isEmptyRichText(updatedData)) {
         const transcription =
           response?.payload?.data?.rxDigitizationHistory?.[0]?.payload

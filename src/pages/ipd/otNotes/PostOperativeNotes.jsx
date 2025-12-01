@@ -1,4 +1,10 @@
-import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,9 +31,12 @@ const PostOperativeNotes = (props) => {
   const {
     filters: { ward: wardFilters },
   } = useSelector((state) => state.inPatients);
-  const handleChange = useCallback((value, key) => {
-    dispatch(setPostOperativeNotes({ key, value }));
-  }, [dispatch]);
+  const handleChange = useCallback(
+    (value, key) => {
+      dispatch(setPostOperativeNotes({ key, value }));
+    },
+    [dispatch]
+  );
 
   useEffect(() => {
     dispatch(fetchFilters({ field: "ward" }));
@@ -52,9 +61,7 @@ const PostOperativeNotes = (props) => {
         <div className="ipdot-ion-metrics-container">
           <ul className="ipdot-ion-metrics-list">
             <li>
-              <span className="ipdot-ion-metrics-list-label">
-                {data.title}
-              </span>{" "}
+              <span className="ipdot-ion-metrics-list-label">{data.title}</span>{" "}
               :{" "}
               <span className="ipdot-ion-metrics-list-value">
                 {props.postOperativeNotes?.[data.id]}
@@ -96,7 +103,8 @@ const PostOperativeNotes = (props) => {
 
   const getFieldValue = useCallback(
     (key) => {
-      const value = props.postOperativeNotes?.[key] ?? postOperativeNotes?.[key];
+      const value =
+        props.postOperativeNotes?.[key] ?? postOperativeNotes?.[key];
       if (Array.isArray(value) && value.length) {
         return value;
       }
@@ -111,7 +119,9 @@ const PostOperativeNotes = (props) => {
   // Memoize the initial value to prevent infinite loops
   // Depend on actual Redux values, not the function
   const additionalInstructionsValue = useMemo(() => {
-    const value = props.postOperativeNotes?.["additionalInstructions"] ?? postOperativeNotes?.["additionalInstructions"];
+    const value =
+      props.postOperativeNotes?.["additionalInstructions"] ??
+      postOperativeNotes?.["additionalInstructions"];
     if (Array.isArray(value) && value.length) {
       return value;
     }
@@ -159,15 +169,12 @@ const PostOperativeNotes = (props) => {
     }));
   }, [defaultRichText]); // Remove handleChange from deps, use ref instead
 
-  const handleSetAutoFillTextToAppend = useCallback(
-    (value) => {
-      setAutoFillTextToAppend((prev) => ({
-        ...prev,
-        ["additionalInstructions"]: value,
-      }));
-    },
-    []
-  );
+  const handleSetAutoFillTextToAppend = useCallback((value) => {
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["additionalInstructions"]: value,
+    }));
+  }, []);
 
   const handleAIRecordingComplete = useCallback(
     async (payload, callback) => {
@@ -189,8 +196,7 @@ const PostOperativeNotes = (props) => {
 
       if (response.meta.requestStatus === "fulfilled") {
         let updatedData =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.response
-            ?.additionalInstructions || [];
+          response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
         if (isEmptyRichText(updatedData)) {
           const transcription =
             response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
@@ -236,7 +242,7 @@ const PostOperativeNotes = (props) => {
         title={data?.title}
         data-testid={data?.id}
         width="100%"
-        icon={isEditable ? otNotesIcons[data?.id]: null}
+        icon={isEditable ? otNotesIcons[data?.id] : null}
         showAutoFill={false}
         containerClass={`wrapper-class ${
           !isEditable
@@ -264,19 +270,18 @@ const PostOperativeNotes = (props) => {
         onSave={() => {}}
         placeholder={data?.placeholder}
       />
-    )
-  }
+    );
+  };
 
   const renderRichTextEditorSection = (data) => {
-    if (!isEditable && isEmptyRichText(postOperativeNotes?.[data?.id])) return null;
+    if (!isEditable && isEmptyRichText(postOperativeNotes?.[data?.id]))
+      return null;
     if (!isEditable) {
       return (
         <ul>
-          <li>
-            {renderRichTextEditorWrapper(data)}
-          </li>
+          <li>{renderRichTextEditorWrapper(data)}</li>
         </ul>
-      )
+      );
     }
     return renderRichTextEditorWrapper(data);
   };
@@ -287,7 +292,7 @@ const PostOperativeNotes = (props) => {
         switch (item?.id) {
           case "postOpDestination":
             return renderPostOpDestination(item);
-            case "additionalInstructions":
+          case "additionalInstructions":
             return renderRichTextEditorSection(item);
           default:
             return null;

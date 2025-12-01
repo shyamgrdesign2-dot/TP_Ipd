@@ -3,7 +3,10 @@ import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setAdditionalRemarks } from "../../../redux/ipd/progressNotesSlice";
-import { formatDateToShortMonthYear, isEmptyRichText } from "../../../utils/utils";
+import {
+  formatDateToShortMonthYear,
+  isEmptyRichText,
+} from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
 import { voiceRx } from "../../../redux/ipd/ipdSlice";
 import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
@@ -124,8 +127,7 @@ const AdditionalRemarks = (props) => {
 
     if (response.meta.requestStatus === "fulfilled") {
       let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
-          ?.additionalRemarks || [];
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
       if (isEmptyRichText(updatedData)) {
         const transcription =
           response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
@@ -157,9 +159,7 @@ const AdditionalRemarks = (props) => {
       showToolbar={isEditable}
       showActionBtns={isEditable}
       showVoiceAI={
-        isEditable &&
-        patientDetails?.details?.id &&
-        patientDetails?.admissionId
+        isEditable && patientDetails?.details?.id && patientDetails?.admissionId
       }
       showMicrophone={true}
       voiceAiIcon={defaultAssetIcons.voiceAiIcon}

@@ -54,8 +54,7 @@ const PastMedicalHistory = (props) => {
     );
     if (response.meta.requestStatus === "fulfilled") {
       const updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
-          ?.pastMedicalHistory || [];
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
       if (!!updatedData?.length) {
         console.log("newConvertedData", updatedData);
         dispatch(setMedicalHistoryData(updatedData));
@@ -115,7 +114,10 @@ const PastMedicalHistory = (props) => {
         ) : null}
         {isEditable ? (
           <div className="d-flex align-items-center">
-            <div className="ipdaf-pmh-generic-card-container" onClick={handleAddMedicalHistory}>
+            <div
+              className="ipdaf-pmh-generic-card-container"
+              onClick={handleAddMedicalHistory}
+            >
               <GenericCard
                 icon={
                   medicalHistoryData?.length

@@ -21,7 +21,9 @@ const DischargeNotes = (props) => {
     patientId: patientIdProp = null,
     admissionId: admissionIdProp = null,
   } = props || {};
-  const { dischargeSummaryData } = useSelector((state) => state.dischargeSummary);
+  const { dischargeSummaryData } = useSelector(
+    (state) => state.dischargeSummary
+  );
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
@@ -99,8 +101,7 @@ const DischargeNotes = (props) => {
 
     if (response.meta.requestStatus === "fulfilled") {
       let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
-          ?.patientCondition || [];
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
       if (isEmptyRichText(updatedData)) {
         const transcription =
           response?.payload?.data?.rxDigitizationHistory?.[0]?.payload

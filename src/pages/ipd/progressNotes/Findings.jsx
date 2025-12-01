@@ -19,10 +19,16 @@ const EMPTY_RICH_TEXT_VALUE = [
 ];
 
 const Findings = (props) => {
-  const { isEditable = true, shouldAutofill = false, sectionData } = props || {};
+  const {
+    isEditable = true,
+    shouldAutofill = false,
+    sectionData,
+  } = props || {};
   const { state } = useLocation();
   const { patientDetails } = state || {};
-  const { findings, progressNotes } = useSelector((state) => state.progressNotes);
+  const { findings, progressNotes } = useSelector(
+    (state) => state.progressNotes
+  );
   const doctorId = patientDetails?.doctor?.id || null;
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
@@ -38,8 +44,7 @@ const Findings = (props) => {
       (!Array.isArray(prevFindings) &&
         typeof prevFindings === "string" &&
         !!prevFindings) ||
-        (Array.isArray(prevFindings) &&
-        !!prevFindings?.[0]?.children?.[0]?.text)
+      (Array.isArray(prevFindings) && !!prevFindings?.[0]?.children?.[0]?.text)
       // (Array.isArray(prevFindings) &&
       // prevFindings.some((item) =>
       //     item?.children?.some((child) =>
@@ -47,7 +52,7 @@ const Findings = (props) => {
       //     )
       //   ))
     );
-  }, [findings,prevFindings]);
+  }, [findings, prevFindings]);
 
   // Get current value callback
   const getCurrentValue = useCallback(() => {
@@ -108,10 +113,8 @@ const Findings = (props) => {
     }
     const response = await dispatch(
       voiceRx({
-        patientId:
-          patientDetails?.details?.id || patientDetails?.details?.id,
-        admissionId:
-          patientDetails?.admissionId || patientDetails?.admissionId,
+        patientId: patientDetails?.details?.id || patientDetails?.details?.id,
+        admissionId: patientDetails?.admissionId || patientDetails?.admissionId,
         schemaKey: "PROGRESS_NOTES.findings",
         audioFile: payload?.audioBlob,
         filename: payload?.filename,
@@ -121,8 +124,7 @@ const Findings = (props) => {
     );
     if (response.meta.requestStatus === "fulfilled") {
       let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
-          ?.findings || [];
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
       if (isEmptyRichText(updatedData)) {
         const transcription =
           response?.payload?.data?.rxDigitizationHistory?.[0]?.payload

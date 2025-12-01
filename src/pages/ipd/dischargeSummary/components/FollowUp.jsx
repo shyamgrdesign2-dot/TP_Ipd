@@ -16,10 +16,7 @@ import {
   removeFollowUp,
 } from "../../../../redux/ipd/dischargeSummarySlice";
 import { fetchFilters } from "../../../../redux/ipd/inPatientsSlice";
-import {
-  isEmptyRichText,
-  onlyNumberFormat,
-} from "../../../../utils/utils";
+import { isEmptyRichText, onlyNumberFormat } from "../../../../utils/utils";
 import { voiceRx } from "../../../../redux/ipd/ipdSlice";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
@@ -221,8 +218,7 @@ const FollowUp = (props) => {
 
     if (response.meta.requestStatus === "fulfilled") {
       let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response
-          ?.additionalNotes || [];
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
       if (isEmptyRichText(updatedData)) {
         const transcription =
           response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
@@ -336,8 +332,7 @@ const FollowUp = (props) => {
   };
 
   const renderFollowUpRow = (followUp, index) => {
-    const { id, followUpInput, date, doctor, dateOptions } =
-      followUp;
+    const { id, followUpInput, date, doctor, dateOptions } = followUp;
 
     const doctorOptions = (doctorsList || []).map((item) => ({
       key: JSON.stringify(item),

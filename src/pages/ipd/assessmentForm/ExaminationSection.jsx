@@ -14,6 +14,8 @@ import {
   selectTemplatesLoading,
   updateTemplate as updateTemplateThunk,
 } from "../../../redux/ipd/tempaltesSlice";
+import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -36,6 +38,8 @@ const ExaminationSection = (props) => {
   const templateModuleName = "generalExamination";
   const templateSite = "ipd";
   const doctorId = patientDetails?.doctor?.id || null;
+  const patientId = patientDetails?.details?.id;
+  const admissionId = patientDetails?.admissionId;
   const templateSelector = useMemo(
     () => makeSelectTemplatesByModule(templateModuleName),
     [templateModuleName]
@@ -115,6 +119,60 @@ const ExaminationSection = (props) => {
   useEffect(() => {
     handleExaminationNotesChangeRef.current = handleExaminationNotesChange;
   }, [handleExaminationNotesChange]);
+
+  const handleAIRecordingComplete = useCallback(
+    async (itemId, payload, callback) => {
+      if (!patientId || !admissionId) {
+        callback?.();
+        return;
+      }
+      const response = await dispatch(
+        voiceRx({
+          patientId,
+          admissionId,
+          schemaKey: `ASSESSMENTS.examination.${itemId}`,
+          audioFile: payload?.audioBlob,
+          filename: payload?.filename,
+          mimeType: payload?.mimeType,
+          previousOutput: physicalExaminationBasicData?.[itemId]?.notes,
+        })
+      );
+
+      if (response.meta.requestStatus === "fulfilled") {
+        const updatedData =
+          response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
+        let updatedNotes = updatedData?.notes || [];
+        if (isEmptyRichText(updatedNotes)) {
+          const transcription =
+            response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
+              ?.transcription;
+          if (transcription) {
+            updatedNotes = [
+              {
+                type: "paragraph",
+                children: [{ text: transcription }],
+              },
+            ];
+          }
+        }
+        if (!isEmptyRichText(updatedNotes)) {
+          dispatch(
+            setPhysicalExaminationBasicData({
+              ...physicalExaminationBasicData,
+              [itemId]: {
+                ...physicalExaminationBasicData[itemId],
+                notes: updatedNotes,
+              },
+            })
+          );
+        }
+        callback?.();
+      } else {
+        callback?.();
+      }
+    },
+    [admissionId, dispatch, patientId, physicalExaminationBasicData]
+  );
 
   const renderReadOnlyExamination = () => {
     return (
@@ -567,9 +625,13 @@ const ExaminationSection = (props) => {
                 setNewAutoFillTextToAppend={itemSetAutoFillCallbacks[item.id]}
                 toolbarClass={"small-toolbar"}
                 showAutoFill={false}
-                showMagicPenGif={false}
                 disableFocusEffect={disableFocusEffect[item?.id]}
-                showMicrophone={false}
+                showVoiceAI={isEditable && patientId && admissionId}
+                showMicrophone={true}
+                voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+                onVoiceAIRecordingComplete={(payload, callback) =>
+                  handleAIRecordingComplete(item.id, payload, callback)
+                }
                 placeholder={"Additional notes if any"}
                 containerClass="wrapper-class examination-rich-container"
                 onChange={itemOnChangeCallbacks[item.id]}
@@ -604,6 +666,9 @@ const ExaminationSection = (props) => {
     itemInitialValues,
     itemRadioValues,
     onExaminationRadioChange,
+    handleAIRecordingComplete,
+    patientId,
+    admissionId,
   ]);
 
   const renderExaminationSection = () => {

@@ -69,7 +69,7 @@ const FunctionalAssessment = (props) => {
     );
     if (response.meta.requestStatus === "fulfilled") {
       let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response?.others ||
+        response?.payload?.data?.rxDigitizationHistory?.[0]?.response ||
         [];
       if (isEmptyRichText(updatedData)) {
         const transcription =
