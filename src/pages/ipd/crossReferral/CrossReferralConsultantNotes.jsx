@@ -354,7 +354,7 @@ const CrossReferralConsultantNotes = (props) => {
     const reqData = {
       ...crossReferralState.crossReferralFormDetails,
       consultantNotes: consultantNotesData,
-      customModule: [],
+      customModules: serializeCustomModules(customModuleContents),
     };
 
     delete reqData.consultantNotesData;
