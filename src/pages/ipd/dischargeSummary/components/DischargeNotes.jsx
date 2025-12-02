@@ -8,8 +8,8 @@ import { isEmptyRichText } from "../../../../utils/utils";
 import { setPatientCondition } from "../../../../redux/ipd/dischargeSummarySlice";
 import CurrentMedications from "../../assessmentForm/CurrentMedications";
 import { useTemplateManagement } from "../../../../hooks/useTemplateManagement";
-import { voiceRx } from "../../../../redux/ipd/ipdSlice";
 import { defaultIcons as defaultAssetIcons } from "../../../../assets/images/icons";
+import { useVoiceAiRecordingComplete } from "../../../../hooks/useVoiceAiRecordingComplete";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -46,6 +46,10 @@ const DischargeNotes = (props) => {
     admissionIdProp ||
     dischargeSummaryData?.patientInformation?.admissionId ||
     null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: resolvedPatientId,
+    admissionId: resolvedAdmissionId,
+  });
 
   // Helper to get current value
   const getCurrentPatientConditionValue = useCallback(() => {
@@ -82,48 +86,21 @@ const DischargeNotes = (props) => {
     ),
   });
 
-  const handleAIRecordingComplete = async (payload, callback) => {
-    if (!resolvedPatientId || !resolvedAdmissionId) {
-      callback?.();
-      return;
-    }
-    const response = await dispatch(
-      voiceRx({
-        patientId: resolvedPatientId,
-        admissionId: resolvedAdmissionId,
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "DISRCHARGED_SUMMARY.dischargeNotes.patientCondition",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: dischargeSummaryData?.patientCondition,
-      })
-    );
-
-    if (response.meta.requestStatus === "fulfilled") {
-      let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      if (isEmptyRichText(updatedData)) {
-        const transcription =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-            ?.transcription;
-        if (transcription) {
-          updatedData = [
-            {
-              type: "paragraph",
-              children: [{ text: transcription }],
-            },
-          ];
-        }
-      }
-      if (!isEmptyRichText(updatedData)) {
-        dispatch(setPatientCondition(updatedData));
-        // setAutoFillTextToAppend(updatedData);
-      }
-      callback?.();
-    } else {
-      callback?.();
-    }
-  };
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            dispatch(setPatientCondition(updatedData));
+          }
+        },
+        callback,
+      }),
+    [dischargeSummaryData?.patientCondition, dispatch, submitVoiceAiRecording]
+  );
 
   const handlePatientConditionChange = (data) => {
     dispatch(setPatientCondition(data));

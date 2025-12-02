@@ -5,9 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setTreatmentPlanData } from "../../../redux/ipd/assessmentsFormSlice";
 import { isEmptyRichText } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
 import { useLocation } from "react-router-dom";
 import { defaultIcons } from "../../../assets/images/icons";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -29,6 +29,10 @@ const TreatmentPlan = (props) => {
     autoFillTextToAppendDesiredOutcome,
     setAutoFillTextToAppendDesiredOutcome,
   ] = useState([]);
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
 
   const handleOthersChange = (data, key) => {
     dispatch(setTreatmentPlanData({ ...treatmentPlanData, [key]: data }));
@@ -83,122 +87,55 @@ const TreatmentPlan = (props) => {
     "preventiveActions",
     "preventiveActions"
   );
-  const handleAIRecordingCompleteImmediateManagement = async (
-    payload,
-    callback
-  ) => {
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
+  const handleAIRecordingCompleteImmediateManagement = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "ASSESSMENTS.treatmentPlan.immediateManagement",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: treatmentPlanData?.immediateManagement,
-      })
-    );
-    if (response.meta.requestStatus === "fulfilled") {
-      let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      if (isEmptyRichText(updatedData)) {
-        const transcription =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-            ?.transcription;
-        if (transcription) {
-          updatedData = [
-            {
-              type: "paragraph",
-              children: [{ text: transcription }],
-            },
-          ];
-        }
-      }
-      if (!isEmptyRichText(updatedData)) {
-        setAutoFillTextToAppend(updatedData);
-        callback?.();
-      } else {
-        callback?.();
-      }
-    }
-  };
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            handleOthersChange(updatedData, "immediateManagement")
+          }
+        },
+        callback,
+      }),
+    [submitVoiceAiRecording, treatmentPlanData?.immediateManagement]
+  );
 
-  const handleAIRecordingCompletePreventiveActions = async (
-    payload,
-    callback
-  ) => {
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
+  const handleAIRecordingCompletePreventiveActions = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "ASSESSMENTS.treatmentPlan.preventiveActions",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: treatmentPlanData?.preventiveActions,
-      })
-    );
-    if (response.meta.requestStatus === "fulfilled") {
-      let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      if (isEmptyRichText(updatedData)) {
-        const transcription =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-            ?.transcription;
-        if (transcription) {
-          updatedData = [
-            {
-              type: "paragraph",
-              children: [{ text: transcription }],
-            },
-          ];
-        }
-      }
-      if (!isEmptyRichText(updatedData)) {
-        setAutoFillTextToAppendPreventiveActions(updatedData);
-        callback?.();
-      } else {
-        callback?.();
-      }
-    }
-  };
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            handleOthersChange(updatedData, "preventiveActions")
 
-  const handleAIRecordingCompleteDesiredOutcome = async (payload, callback) => {
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
+          }
+        },
+        callback,
+      }),
+    [submitVoiceAiRecording, treatmentPlanData?.preventiveActions]
+  );
+
+  const handleAIRecordingCompleteDesiredOutcome = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "ASSESSMENTS.treatmentPlan.desiredOutcome",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: treatmentPlanData?.desiredOutcome,
-      })
-    );
-    if (response.meta.requestStatus === "fulfilled") {
-      let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      if (isEmptyRichText(updatedData)) {
-        const transcription =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-            ?.transcription;
-        if (transcription) {
-          updatedData = [
-            {
-              type: "paragraph",
-              children: [{ text: transcription }],
-            },
-          ];
-        }
-      }
-      if (!isEmptyRichText(updatedData)) {
-        setAutoFillTextToAppendDesiredOutcome(updatedData);
-        callback?.();
-      } else {
-        callback?.();
-      }
-    }
-  };
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            handleOthersChange(updatedData, "desiredOutcome")
+
+          }
+        },
+        callback,
+      }),
+    [submitVoiceAiRecording, treatmentPlanData?.desiredOutcome]
+  );
 
   const renderChildren = () => {
     return sectionData?.children?.map((item) => {

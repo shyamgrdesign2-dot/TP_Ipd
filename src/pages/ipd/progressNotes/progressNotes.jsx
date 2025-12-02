@@ -26,7 +26,6 @@ import {
 import {
   getCustomization,
   updateCustomization,
-  voiceRx,
 } from "../../../redux/ipd/ipdSlice";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
@@ -48,6 +47,7 @@ import PNExaminationSection from "../assessmentForm/PNExaminationSection.jsx";
 import useProgressNotesRequestData from "../../../hooks/useProgressNotesRequestData";
 import GlobalVoiceAI from "../components/GlobalVoiceAI";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -65,6 +65,10 @@ const ProgressNotes = (props) => {
   } = state || {};
   const patientId = patientDetails?.details?.id;
   const { admissionId } = patientDetails || {};
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+  });
 
   // const { isEditable = true } = props; // Default patientId for testing
 
@@ -233,40 +237,44 @@ const ProgressNotes = (props) => {
     serializeCustomModules,
   });
 
-  const handleAIRecordingComplete = async (payload, callback) => {
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "PROGRESS_NOTES",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: progressNotesRequestData,
-      })
-    );
-    if (response.meta.requestStatus === "fulfilled") {
-      const updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || {};
-      const updatedNotes = updatedData?.progressNotes || updatedData;
-
-      if (updatedNotes) {
-        if (updatedNotes.vitals) dispatch(setVitals(updatedNotes.vitals));
-        if (updatedNotes.chiefComplaint)
-          dispatch(setChiefComplaint(updatedNotes.chiefComplaint));
-        if (updatedNotes.findings) dispatch(setFindings(updatedNotes.findings));
-        if (updatedNotes.additionalRemarks)
-          dispatch(setAdditionalRemarks(updatedNotes.additionalRemarks));
-        if (updatedNotes.examination)
-          dispatch(setPhysicalExaminationBasicData(updatedNotes.examination));
-        if (updatedNotes.date) setFilledDate(new Date(updatedNotes.date));
-        if (updatedNotes.time) setFilledAtTime(new Date(updatedNotes.time));
-      }
-      callback?.();
-    } else {
-      callback?.();
-    }
-  };
+        parseResponse: (response) => {
+          if (response?.meta?.requestStatus !== "fulfilled") {
+            return { data: null, success: false };
+          }
+          const updatedData =
+            response?.payload?.data?.rxDigitizationHistory?.[0]?.response || {};
+          const updatedNotes = updatedData?.progressNotes || updatedData;
+          return { data: updatedNotes, success: true };
+        },
+        onSuccess: (updatedNotes) => {
+          if (!updatedNotes) return;
+          if (updatedNotes.vitals) dispatch(setVitals(updatedNotes.vitals));
+          if (updatedNotes.chiefComplaint)
+            dispatch(setChiefComplaint(updatedNotes.chiefComplaint));
+          if (updatedNotes.findings)
+            dispatch(setFindings(updatedNotes.findings));
+          if (updatedNotes.additionalRemarks)
+            dispatch(setAdditionalRemarks(updatedNotes.additionalRemarks));
+          if (updatedNotes.examination)
+            dispatch(setPhysicalExaminationBasicData(updatedNotes.examination));
+          if (updatedNotes.date) setFilledDate(new Date(updatedNotes.date));
+          if (updatedNotes.time) setFilledAtTime(new Date(updatedNotes.time));
+        },
+        callback,
+        fallbackToTranscription: false,
+      }),
+    [
+      dispatch,
+      progressNotesRequestData,
+      submitVoiceAiRecording,
+    ]
+  );
 
   const saveProgressNotes = async () => {
     try {

@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { IPD } from "../../../utils/locale.js";
 import "../assessmentForm/styles.scss";
 import "./styles.scss";
@@ -49,7 +49,7 @@ import { errorMessage } from "../../../utils/utils.js";
 import useDischargeSummaryRequestData from "../../../hooks/useDischargeSummaryRequestData.js";
 import GlobalVoiceAI from "../components/GlobalVoiceAI.jsx";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel.jsx";
-import { voiceRx } from "../../../redux/ipd/ipdSlice.js";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -67,6 +67,10 @@ const DischargeSummary = (props) => {
     fromTab,
     isNew = false,
   } = state || {};
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const navigate = useNavigate();
   const [showAutoFillLocal, setShowAutoFillLocal] = useState(false);
@@ -260,36 +264,36 @@ const DischargeSummary = (props) => {
     });
   };
 
-  const handleAIRecordingComplete = async (payload, callback) => {
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "DISCHARGE_SUMMARY",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: reqData,
-      })
-    );
-
-    if (response.meta.requestStatus === "fulfilled") {
-      const updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || {};
-      const updatedSummary = updatedData?.dischargeSummary || updatedData;
-
-      if (updatedSummary) {
-        dispatch(resetDischargeSummaryForm());
-        addDischargeDataToStore(
-          { dischargeSummary: updatedSummary },
-          dispatch
-        );
-      }
-      callback?.();
-    } else {
-      callback?.();
-    }
-  };
+        parseResponse: (response) => {
+          if (response?.meta?.requestStatus !== "fulfilled") {
+            return { data: null, success: false };
+          }
+          const updatedData =
+            response?.payload?.data?.rxDigitizationHistory?.[0]?.response ||
+            {};
+          const updatedSummary = updatedData?.dischargeSummary || updatedData;
+          return { data: updatedSummary, success: true };
+        },
+        onSuccess: (updatedSummary) => {
+          if (updatedSummary) {
+            dispatch(resetDischargeSummaryForm());
+            addDischargeDataToStore(
+              { dischargeSummary: updatedSummary },
+              dispatch
+            );
+          }
+        },
+        callback,
+        fallbackToTranscription: false,
+      }),
+    [addDischargeDataToStore, dispatch, reqData, submitVoiceAiRecording]
+  );
 
   const renderSections = (data) => {
     if (!data || !data.id) {

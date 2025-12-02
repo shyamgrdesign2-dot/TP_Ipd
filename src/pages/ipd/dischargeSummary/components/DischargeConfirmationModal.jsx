@@ -4,6 +4,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
   useRef,
+  useCallback,
 } from "react";
 import { DatePicker, TimePicker, Select } from "antd";
 import dayjs from "dayjs";
@@ -12,9 +13,9 @@ import { createRemoteComponent } from "../../../../shared/remoteComponents.js";
 import { defaultIcons } from "../../../../assets/images/icons/index.js";
 import "./DischargeConfirmationModal.scss";
 import { useDispatch } from "react-redux";
-import { voiceRx } from "../../../../redux/ipd/ipdSlice.js";
 import { defaultIcons as defaultAssetIcons } from "../../../../assets/images/icons";
 import { isEmptyRichText } from "../../../../utils/utils";
+import { useVoiceAiRecordingComplete } from "../../../../hooks/useVoiceAiRecordingComplete";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const dateDisplayFormat = "DD-MM-YYYY";
@@ -48,6 +49,10 @@ const DischargeConfirmationModal = forwardRef(
     const apiRef = useRef(null);
     const [formData, setFormData] = useState(initialState);
     const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+    const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+      patientId,
+      admissionId,
+    });
 
     const dischargeTypeOptions = [
       { value: "Normal", label: <div>Normal</div> },
@@ -100,49 +105,22 @@ const DischargeConfirmationModal = forwardRef(
       }
     };
 
-    const handleAIRecordingComplete = async (payload, callback) => {
-      if (!patientId || !admissionId) {
-        callback?.();
-        return;
-      }
-      const response = await dispatch(
-        voiceRx({
-          patientId,
-          admissionId,
+    const handleAIRecordingComplete = useCallback(
+      (payload, callback) =>
+        submitVoiceAiRecording({
+          payload,
           schemaKey:
             "DISRCHARGED_SUMMARY.dischargeConfirmation.dischargeRemarks",
-          audioFile: payload?.audioBlob,
-          filename: payload?.filename,
-          mimeType: payload?.mimeType,
           previousOutput: formData.dischargeRemarks,
-        })
-      );
-
-      if (response.meta.requestStatus === "fulfilled") {
-        let updatedData =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-        if (isEmptyRichText(updatedData)) {
-          const transcription =
-            response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-              ?.transcription;
-          if (transcription) {
-            updatedData = [
-              {
-                type: "paragraph",
-                children: [{ text: transcription }],
-              },
-            ];
-          }
-        }
-        if (!isEmptyRichText(updatedData)) {
-          handleFieldChange("dischargeRemarks", updatedData);
-          // setAutoFillTextToAppend(updatedData);
-        }
-        callback?.();
-      } else {
-        callback?.();
-      }
-    };
+          onSuccess: (updatedData) => {
+            if (!isEmptyRichText(updatedData)) {
+              handleFieldChange("dischargeRemarks", updatedData);
+            }
+          },
+          callback,
+        }),
+      [formData.dischargeRemarks, handleFieldChange, submitVoiceAiRecording]
+    );
 
     return (
       <DrawerWrapper

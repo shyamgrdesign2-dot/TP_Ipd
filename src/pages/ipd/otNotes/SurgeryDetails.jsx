@@ -17,7 +17,7 @@ import {
 } from "../../../redux/ipd/otNotesSlice";
 import { createSurgery } from "../../../redux/surgicalSlice";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
 import { isEmptyRichText } from "../../../utils/utils";
 import { useLocation } from "react-router-dom";
@@ -41,6 +41,10 @@ const SurgeryDetails = (props) => {
     patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
   const patientId = patientDetails?.details?.id || null;
   const admissionId = patientDetails?.admissionId || null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+  });
 
   useEffect(() => {
     dispatch(searchSurgeryProcedures(""));
@@ -284,48 +288,21 @@ const SurgeryDetails = (props) => {
     ),
   });
 
-  const handleAIRecordingComplete = async (payload, callback) => {
-    if (!patientId || !admissionId) {
-      callback?.();
-      return;
-    }
-    const response = await dispatch(
-      voiceRx({
-        patientId,
-        admissionId,
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "OT_NOTES.surgeryDetails.diagnosis",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: initialValue?.diagnosis,
-      })
-    );
-
-    if (response.meta.requestStatus === "fulfilled") {
-      let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      if (isEmptyRichText(updatedData)) {
-        const transcription =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-            ?.transcription;
-        if (transcription) {
-          updatedData = [
-            {
-              type: "paragraph",
-              children: [{ text: transcription }],
-            },
-          ];
-        }
-      }
-      if (!isEmptyRichText(updatedData)) {
-        dispatch(setDiagnosis(updatedData));
-        // setAutoFillTextToAppend(updatedData);
-      }
-      callback?.();
-    } else {
-      callback?.();
-    }
-  };
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            dispatch(setDiagnosis(updatedData));
+          }
+        },
+        callback,
+      }),
+    [dispatch, initialValue?.diagnosis, submitVoiceAiRecording]
+  );
 
   const renderDiagnosis = (data) => {
     if (!isEditable && !initialValue?.diagnosis) return null;

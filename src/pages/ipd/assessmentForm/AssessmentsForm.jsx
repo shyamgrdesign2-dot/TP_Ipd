@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { IPD } from "../../../utils/locale";
 import "./styles.scss";
 import { Button, Drawer, message } from "antd";
@@ -19,7 +19,6 @@ import {
 import {
   getCustomization,
   updateCustomization,
-  voiceRx,
 } from "../../../redux/ipd/ipdSlice";
 import {
   getAllDoses,
@@ -43,6 +42,8 @@ import FullPageLoader from "../../vaccination/components/Loader";
 import FilledByCards from "../otNotes/components/FilledByCards";
 import GlobalVoiceAI from "../components/GlobalVoiceAI";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
+import { listSectionwithTag } from "../../../redux/medicalhistorySlice";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -53,7 +54,17 @@ const AssessmentsForm = (props) => {
   const { hasAnyData } = useAssessmentSectionVisibility();
   const { addDataToStore } = useAssessmentDataStore();
   const { state } = useLocation();
-  const { patient_data, patientDetails, isEditable = true, fromTab } = state || {};
+  const {
+    patient_data,
+    patientDetails,
+    isEditable = true,
+    fromTab,
+  } = state || {};
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+    isRichTextRequired: false,
+  });
 
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
@@ -128,6 +139,10 @@ const AssessmentsForm = (props) => {
   }, [assessments]);
 
   useEffect(() => {
+    dispatch(listSectionwithTag());
+  }, []);
+
+  useEffect(() => {
     if (
       !patient_data ||
       !patientDetails?.details?.id ||
@@ -173,16 +188,16 @@ const AssessmentsForm = (props) => {
   }, [addDataToStore, dispatch, isEditable, patientDetails]);
 
   useEffect(() => {
-    const { assessmentsData: { date, time } = {} } = assessmentData;
-    if (date) setFilledDate(new Date(date));
-    if (time) setFilledAtTime(new Date(time));
-  }, [assessmentData]);
-  
-  useEffect(() => {
     hydrateFromSavedModules(
       assessmentData?.assessmentsData?.customModules || []
     );
   }, [assessmentData?.assessmentsData?.customModules, hydrateFromSavedModules]);
+
+  useEffect(() => {
+    const { assessmentsData: { date, time } = {} } = assessmentData;
+    if (date) setFilledDate(new Date(date));
+    if (time) setFilledAtTime(new Date(time));
+  }, [assessmentData]);
 
   useEffect(() => {
     dispatch(getMedicationTemplates());
@@ -352,7 +367,12 @@ const AssessmentsForm = (props) => {
     if (!patientDetails?.details?.id && !patientDetails?.admissionId) {
       setIsBackModalOpen(false);
       navigate(`/ipd/patient-details`, {
-        state: { ...state, activeTab: "assessment", isEditable: false, fromTab },
+        state: {
+          ...state,
+          activeTab: "assessment",
+          isEditable: false,
+          fromTab,
+        },
         replace: true,
       });
       setOpen(false);
@@ -366,7 +386,12 @@ const AssessmentsForm = (props) => {
       ).then((res) => {
         addDataToStore(res.payload.assessment);
         navigate(`/ipd/patient-details`, {
-          state: { ...state, activeTab: "assessment", isEditable: false, fromTab },
+          state: {
+            ...state,
+            activeTab: "assessment",
+            isEditable: false,
+            fromTab,
+          },
           replace: true,
         });
         setIsBackModalOpen(false);
@@ -464,26 +489,20 @@ const AssessmentsForm = (props) => {
     );
   };
 
-  const handleAIRecordingComplete = async (payload, callback) => {
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "ASSESSMENTS",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: reqData,
-      })
-    );
-    if (response.meta.requestStatus === "fulfilled") {
-      const updatedData = response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      addDataToStore(updatedData);
-      callback?.();
-    } else {
-      callback?.();
-    }
-  };
+        onSuccess: (updatedData) => {
+          addDataToStore(updatedData, true);
+        },
+        callback,
+        fallbackToTranscription: false,
+      }),
+    [addDataToStore, reqData, submitVoiceAiRecording]
+  );
 
   const renderBottomSection = () => (
     <>

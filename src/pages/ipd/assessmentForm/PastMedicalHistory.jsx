@@ -12,7 +12,7 @@ import {
   mergeArraysOfObjects,
 } from "../../../utils/utils";
 import { useDischargeSummaryData } from "../dischargeSummary/utils/useDischargeSummaryData";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 import { useLocation } from "react-router-dom";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -36,36 +36,29 @@ const PastMedicalHistory = (props) => {
   const dispatch = useDispatch();
   const [addMedicalHistoryDrawer, setAddMedicaHistoryDrawer] = useState(false);
   const [autoFillButtonRef, setAutoFillButtonRef] = useState(null);
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
   const handleAddMedicalHistory = () => {
     setAddMedicaHistoryDrawer(!addMedicalHistoryDrawer);
   };
 
-  const handleAIRecordingComplete = async (payload, callback) => {
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "ASSESSMENTS.basicInfo.pastMedicalHistory",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: medicalHistoryData,
-      })
-    );
-    if (response.meta.requestStatus === "fulfilled") {
-      const updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      if (!!updatedData?.length) {
-        console.log("newConvertedData", updatedData);
-        dispatch(setMedicalHistoryData(updatedData));
-        callback?.();
-      } else {
-        callback?.();
-      }
-    } else {
-      callback?.();
-    }
-  };
+        onSuccess: (updatedData) => {
+          if (updatedData?.length) {
+            dispatch(setMedicalHistoryData(updatedData));
+          }
+        },
+        callback,
+      }),
+    [dispatch, medicalHistoryData, submitVoiceAiRecording]
+  );
 
   const renderAutoFillButton = useCallback(() => {
     const { pastMedicalHistory: lastPastMedicalHistory = {} } =

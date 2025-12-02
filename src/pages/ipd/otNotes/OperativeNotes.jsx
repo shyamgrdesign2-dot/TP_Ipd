@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setOperativeNotes } from "../../../redux/ipd/otNotesSlice";
 import { isEmptyRichText, hasNoData } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
 import { useLocation } from "react-router-dom";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
@@ -30,6 +30,10 @@ const OperativeNotes = (props) => {
     patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
   const patientId = patientDetails?.details?.id || null;
   const admissionId = patientDetails?.admissionId || null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+  });
   const handleChange = useCallback(
     (value, key) => {
       dispatch(setOperativeNotes({ key, value }));
@@ -197,60 +201,21 @@ const OperativeNotes = (props) => {
   );
 
   const getVoiceHandler = useCallback(
-    (sectionId) => async (payload, callback) => {
-      if (!patientId || !admissionId) {
-        callback?.();
-        return;
-      }
+    (sectionId) => (payload, callback) => {
       const reduxKey = getReduxKey(sectionId);
-      const response = await dispatch(
-        voiceRx({
-          patientId,
-          admissionId,
-          schemaKey: `OT_NOTES.operativeNotes.${reduxKey}`,
-          audioFile: payload?.audioBlob,
-          filename: payload?.filename,
-          mimeType: payload?.mimeType,
-          previousOutput: getFieldValueBySectionId(sectionId),
-        })
-      );
-
-      if (response.meta.requestStatus === "fulfilled") {
-        let updatedData =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-        if (isEmptyRichText(updatedData)) {
-          const transcription =
-            response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-              ?.transcription;
-          if (transcription) {
-            updatedData = [
-              {
-                type: "paragraph",
-                children: [{ text: transcription }],
-              },
-            ];
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: `OT_NOTES.operativeNotes.${reduxKey}`,
+        previousOutput: getFieldValueBySectionId(sectionId),
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            handleChange(updatedData, reduxKey);
           }
-        }
-        if (!isEmptyRichText(updatedData)) {
-          // setAutoFillTextToAppend((prev) => ({
-          //   ...prev,
-          //   [sectionId]: updatedData,
-          // }));
-          handleChange(updatedData, reduxKey);
-        }
-        callback?.();
-      } else {
-        callback?.();
-      }
+        },
+        callback,
+      });
     },
-    [
-      admissionId,
-      dispatch,
-      getFieldValueBySectionId,
-      getReduxKey,
-      handleChange,
-      patientId,
-    ]
+    [getFieldValueBySectionId, getReduxKey, handleChange, submitVoiceAiRecording]
   );
 
   // Use ref to store the latest handleChange to prevent callback recreation

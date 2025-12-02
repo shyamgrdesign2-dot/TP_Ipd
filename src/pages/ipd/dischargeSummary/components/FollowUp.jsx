@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { createRemoteComponent } from "../../../../shared/remoteComponents";
 import { defaultIcons as dischargeSummaryIcons } from "../../../../assets/images/indices";
 import { defaultIcons as defaultAssetIcons } from "../../../../assets/images/icons";
@@ -17,7 +17,7 @@ import {
 } from "../../../../redux/ipd/dischargeSummarySlice";
 import { fetchFilters } from "../../../../redux/ipd/inPatientsSlice";
 import { isEmptyRichText, onlyNumberFormat } from "../../../../utils/utils";
-import { voiceRx } from "../../../../redux/ipd/ipdSlice";
+import { useVoiceAiRecordingComplete } from "../../../../hooks/useVoiceAiRecordingComplete";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -50,6 +50,10 @@ const FollowUp = (props) => {
     admissionIdProp ||
     dischargeSummaryData?.patientInformation?.admissionId ||
     null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: resolvedPatientId,
+    admissionId: resolvedAdmissionId,
+  });
 
   // Initialize with at least one follow-up row if none exist
   useEffect(() => {
@@ -199,48 +203,21 @@ const FollowUp = (props) => {
     );
   };
 
-  const handleAIRecordingComplete = async (payload, callback) => {
-    if (!resolvedPatientId || !resolvedAdmissionId) {
-      callback?.();
-      return;
-    }
-    const response = await dispatch(
-      voiceRx({
-        patientId: resolvedPatientId,
-        admissionId: resolvedAdmissionId,
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "DISRCHARGED_SUMMARY.followUp.additionalNotes",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: dischargeSummaryData?.additionalNotes,
-      })
-    );
-
-    if (response.meta.requestStatus === "fulfilled") {
-      let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      if (isEmptyRichText(updatedData)) {
-        const transcription =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-            ?.transcription;
-        if (transcription) {
-          updatedData = [
-            {
-              type: "paragraph",
-              children: [{ text: transcription }],
-            },
-          ];
-        }
-      }
-      if (!isEmptyRichText(updatedData)) {
-        handleOthersChange(updatedData, "additionalNotes");
-        // setAutoFillTextToAppendAdditionalNotes(updatedData);
-      }
-      callback?.();
-    } else {
-      callback?.();
-    }
-  };
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            handleOthersChange(updatedData, "additionalNotes");
+          }
+        },
+        callback,
+      }),
+    [dischargeSummaryData?.additionalNotes, handleOthersChange, submitVoiceAiRecording]
+  );
 
   const handleDoctorChange = (id, values, options) => {
     const selectedDoctors = values.map((value, index) => {

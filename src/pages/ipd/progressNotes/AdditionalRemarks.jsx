@@ -8,9 +8,9 @@ import {
   isEmptyRichText,
 } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
 import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
 import { useLocation } from "react-router-dom";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -42,6 +42,10 @@ const AdditionalRemarks = (props) => {
   const prevAdditionalRemarks = useMemo(() => {
     return prevProgressNote?.progressNotes?.additionalRemarks;
   }, [prevProgressNote]);
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
 
   const hasAdditionalRemarksInLastProgressNote = useMemo(() => {
     return (
@@ -108,50 +112,19 @@ const AdditionalRemarks = (props) => {
     }
   }, [shouldAutofill]);
 
-  const handleAIRecordingComplete = async (payload, callback) => {
-    if (!patientDetails?.details?.id || !patientDetails?.admissionId) {
-      callback?.();
-      return;
-    }
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "PROGRESS_NOTES.additionalRemarks",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: additionalRemarks,
-      })
-    );
-
-    if (response.meta.requestStatus === "fulfilled") {
-      let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      if (isEmptyRichText(updatedData)) {
-        const transcription =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-            ?.transcription;
-        if (transcription) {
-          updatedData = [
-            {
-              type: "paragraph",
-              children: [{ text: transcription }],
-            },
-          ];
-        }
-      }
-      if (!isEmptyRichText(updatedData)) {
-        dispatch(setAdditionalRemarks(updatedData));
-        // setAutoFillTextToAppend(updatedData);
-        callback?.();
-      } else {
-        callback?.();
-      }
-    } else {
-      callback?.();
-    }
-  };
+        onSuccess: (updatedData) => {
+          dispatch(setAdditionalRemarks(updatedData));
+        },
+        callback,
+      }),
+    [additionalRemarks, dispatch, submitVoiceAiRecording]
+  );
 
   return (
     <RichTextEditWrapper

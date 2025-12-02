@@ -13,9 +13,9 @@ import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import { Select } from "antd";
 import { isEmptyRichText, hasNoData } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
 import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
 import { useLocation } from "react-router-dom";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -91,6 +91,10 @@ const PostOperativeNotes = (props) => {
     patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
   const patientId = patientDetails?.details?.id || null;
   const admissionId = patientDetails?.admissionId || null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+  });
   const defaultRichText = useMemo(
     () => [
       {
@@ -177,55 +181,20 @@ const PostOperativeNotes = (props) => {
   }, []);
 
   const handleAIRecordingComplete = useCallback(
-    async (payload, callback) => {
-      if (!patientId || !admissionId) {
-        callback?.();
-        return;
-      }
-      const response = await dispatch(
-        voiceRx({
-          patientId,
-          admissionId,
-          schemaKey: "OT_NOTES.postOperativeNotes.additionalInstructions",
-          audioFile: payload?.audioBlob,
-          filename: payload?.filename,
-          mimeType: payload?.mimeType,
-          previousOutput: getAdditionalInstructionsValue(),
-        })
-      );
-
-      if (response.meta.requestStatus === "fulfilled") {
-        let updatedData =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-        if (isEmptyRichText(updatedData)) {
-          const transcription =
-            response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-              ?.transcription;
-          if (transcription) {
-            updatedData = [
-              {
-                type: "paragraph",
-                children: [{ text: transcription }],
-              },
-            ];
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "OT_NOTES.postOperativeNotes.additionalInstructions",
+        previousOutput: getAdditionalInstructionsValue(),
+        selector: (data) => data?.notes || data,
+        onSuccess: (updatedNotes) => {
+          if (!isEmptyRichText(updatedNotes)) {
+            handleChange(updatedNotes, "additionalInstructions");
           }
-        }
-        if (!isEmptyRichText(updatedData)) {
-          handleChange(updatedData, "additionalInstructions");
-          // handleSetAutoFillTextToAppend(updatedData);
-        }
-        callback?.();
-      } else {
-        callback?.();
-      }
-    },
-    [
-      admissionId,
-      dispatch,
-      getAdditionalInstructionsValue,
-      handleChange,
-      patientId,
-    ]
+        },
+        callback,
+      }),
+    [getAdditionalInstructionsValue, handleChange, submitVoiceAiRecording]
   );
 
   const renderRichTextEditorWrapper = (data) => {

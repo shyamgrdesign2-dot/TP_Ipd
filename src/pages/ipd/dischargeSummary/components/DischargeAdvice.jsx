@@ -16,8 +16,8 @@ import {
 } from "../../../../redux/ipd/dischargeSummarySlice";
 import { useDispatch } from "react-redux";
 import { useTemplateManagement } from "../../../../hooks/useTemplateManagement";
-import { voiceRx } from "../../../../redux/ipd/ipdSlice";
 import { defaultIcons as defaultAssetIcons } from "../../../../assets/images/icons";
+import { useVoiceAiRecordingComplete } from "../../../../hooks/useVoiceAiRecordingComplete";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -52,6 +52,10 @@ const DischargeAdvice = (props) => {
     admissionIdProp ||
     dischargeSummaryData?.patientInformation?.admissionId ||
     null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: resolvedPatientId,
+    admissionId: resolvedAdmissionId,
+  });
 
   const [
     autoFillTextToAppendWarningSigns,
@@ -316,49 +320,20 @@ const DischargeAdvice = (props) => {
 
   const getVoiceHandler = useCallback(
     (fieldKey, previousOutput, onDataUpdate, setAutoFillFn) =>
-      async (payload, callback) => {
-        if (!resolvedPatientId || !resolvedAdmissionId) {
-          callback?.();
-          return;
-        }
-        const response = await dispatch(
-          voiceRx({
-            patientId: resolvedPatientId,
-            admissionId: resolvedAdmissionId,
-            schemaKey: `DISRCHARGED_SUMMARY.dischargeAdvice.${fieldKey}`,
-            audioFile: payload?.audioBlob,
-            filename: payload?.filename,
-            mimeType: payload?.mimeType,
-            previousOutput,
-          })
-        );
-
-        if (response.meta.requestStatus === "fulfilled") {
-          let updatedData =
-            response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-          if (isEmptyRichText(updatedData)) {
-            const transcription =
-              response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-                ?.transcription;
-            if (transcription) {
-              updatedData = [
-                {
-                  type: "paragraph",
-                  children: [{ text: transcription }],
-                },
-              ];
+      (payload, callback) =>
+        submitVoiceAiRecording({
+          payload,
+          schemaKey: `DISRCHARGED_SUMMARY.dischargeAdvice.${fieldKey}`,
+          previousOutput,
+          onSuccess: (updatedData) => {
+            if (!isEmptyRichText(updatedData)) {
+              onDataUpdate(updatedData);
+              // setAutoFillFn?.(updatedData);
             }
-          }
-          if (!isEmptyRichText(updatedData)) {
-            onDataUpdate(updatedData);
-            // setAutoFillFn?.(updatedData);
-          }
-          callback?.();
-        } else {
-          callback?.();
-        }
-      },
-    [dispatch, resolvedPatientId, resolvedAdmissionId]
+          },
+          callback,
+        }),
+    [submitVoiceAiRecording]
   );
 
   // Simple memoization for initial values

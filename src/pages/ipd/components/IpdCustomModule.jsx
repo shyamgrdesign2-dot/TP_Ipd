@@ -3,8 +3,8 @@ import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { isEmptyRichText } from "../../../utils/utils";
 import customModuleIcon from "../../../assets/images/custom-module.svg";
 import { useDispatch } from "react-redux";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
 import { defaultIcons } from "../../../assets/images/icons";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -53,6 +53,10 @@ const IpdCustomModule = ({
   formType = "customModule",
 }) => {
   const dispatch = useDispatch();
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+  });
   const moduleTitle =
     module?.moduleName ||
     module?.title ||
@@ -202,56 +206,32 @@ const IpdCustomModule = ({
     }
   }, [onDeleteModule]);
 
+  const schemaKeyMapping = {
+    assessments: "ASSESSMENTS",
+    progressNotes: "PROGRESS_NOTES",
+    consultantNotes: "CONSULTANT_NOTES",
+    crossReferral: "CROSS_REFERRAL",
+    dischargeSummary: "DISRCHARGED_SUMMARY",
+    otNotes: "OT_NOTES",
+  };
+
   const handleAIRecordingComplete = useCallback(
-    async (payload, callback) => {
-      if (!patientId || !admissionId) {
-        console.error("Patient ID or Admission ID missing for voice AI");
-        callback?.();
-        return;
-      }
-
-      const moduleId = module?.module_id || module?.id || "unknown";
-      const schemaKey = `${formType?.toUpperCase()}.${moduleTitle}`;
-
-      const response = await dispatch(
-        voiceRx({
-          patientId,
-          admissionId,
-          schemaKey,
-          audioFile: payload?.audioBlob,
-          filename: payload?.filename,
-          mimeType: payload?.mimeType,
-          previousOutput: editorValue,
-        })
-      );
-
-      if (response.meta.requestStatus === "fulfilled") {
-        let updatedData =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-        if (isEmptyRichText(updatedData)) {
-          const transcription =
-            response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-              ?.transcription;
-          if (transcription) {
-            updatedData = [
-              {
-                type: "paragraph",
-                children: [{ text: transcription }],
-              },
-            ];
+    (payload, callback) => {
+      const schemaKey = `${schemaKeyMapping?.[formType]}.customModule`;
+      submitVoiceAiRecording({
+        payload,
+        schemaKey,
+        previousOutput: editorValue,
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            // setTemplateAppendValue(updatedData);
+            handleChange(updatedData);
           }
-        }
-        if (!isEmptyRichText(updatedData)) {
-          setTemplateAppendValue(updatedData);
-          callback?.();
-        } else {
-          callback?.();
-        }
-      } else {
-        callback?.();
-      }
+        },
+        callback,
+      });
     },
-    [dispatch, patientId, admissionId, module, formType, editorValue]
+    [editorValue, formType, handleChange, moduleTitle, submitVoiceAiRecording]
   );
 
   if (!isEditable && isValueEmpty) {

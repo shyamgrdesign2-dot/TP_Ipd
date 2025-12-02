@@ -14,8 +14,8 @@ import {
   selectTemplatesLoading,
   updateTemplate as updateTemplateThunk,
 } from "../../../redux/ipd/tempaltesSlice";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
 import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -40,6 +40,10 @@ const ExaminationSection = (props) => {
   const doctorId = patientDetails?.doctor?.id || null;
   const patientId = patientDetails?.details?.id;
   const admissionId = patientDetails?.admissionId;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+  });
   const templateSelector = useMemo(
     () => makeSelectTemplatesByModule(templateModuleName),
     [templateModuleName]
@@ -121,57 +125,29 @@ const ExaminationSection = (props) => {
   }, [handleExaminationNotesChange]);
 
   const handleAIRecordingComplete = useCallback(
-    async (itemId, payload, callback) => {
-      if (!patientId || !admissionId) {
-        callback?.();
-        return;
-      }
-      const response = await dispatch(
-        voiceRx({
-          patientId,
-          admissionId,
-          schemaKey: `ASSESSMENTS.examination.${itemId}`,
-          audioFile: payload?.audioBlob,
-          filename: payload?.filename,
-          mimeType: payload?.mimeType,
-          previousOutput: physicalExaminationBasicData?.[itemId]?.notes,
-        })
-      );
-
-      if (response.meta.requestStatus === "fulfilled") {
-        const updatedData =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-        let updatedNotes = updatedData?.notes || [];
-        if (isEmptyRichText(updatedNotes)) {
-          const transcription =
-            response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-              ?.transcription;
-          if (transcription) {
-            updatedNotes = [
-              {
-                type: "paragraph",
-                children: [{ text: transcription }],
-              },
-            ];
+    (itemId, payload, callback) => {
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: `ASSESSMENTS.examination.${itemId}`,
+        previousOutput: physicalExaminationBasicData?.[itemId]?.notes,
+        selector: (data) => data?.notes || data,
+        onSuccess: (updatedNotes) => {
+          if (!isEmptyRichText(updatedNotes)) {
+            dispatch(
+              setPhysicalExaminationBasicData({
+                ...physicalExaminationBasicData,
+                [itemId]: {
+                  ...physicalExaminationBasicData[itemId],
+                  notes: updatedNotes,
+                },
+              })
+            );
           }
-        }
-        if (!isEmptyRichText(updatedNotes)) {
-          dispatch(
-            setPhysicalExaminationBasicData({
-              ...physicalExaminationBasicData,
-              [itemId]: {
-                ...physicalExaminationBasicData[itemId],
-                notes: updatedNotes,
-              },
-            })
-          );
-        }
-        callback?.();
-      } else {
-        callback?.();
-      }
+        },
+        callback,
+      });
     },
-    [admissionId, dispatch, patientId, physicalExaminationBasicData]
+    [dispatch, physicalExaminationBasicData, submitVoiceAiRecording]
   );
 
   const renderReadOnlyExamination = () => {

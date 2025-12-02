@@ -5,9 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setFindings } from "../../../redux/ipd/progressNotesSlice";
 import { isEmptyRichText } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
 import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
 import { useLocation } from "react-router-dom";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -32,6 +32,10 @@ const Findings = (props) => {
   const doctorId = patientDetails?.doctor?.id || null;
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id || patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId || patientDetails?.admissionId,
+  });
 
   const prevProgressNote = useMemo(() => {
     return progressNotes[progressNotes?.length - 1];
@@ -103,52 +107,19 @@ const Findings = (props) => {
     }
   }, [shouldAutofill]);
 
-  const handleAIRecordingComplete = async (payload, callback) => {
-    if (
-      !(patientDetails?.details?.id || patientDetails?.details?.id) ||
-      !(patientDetails?.admissionId || patientDetails?.admissionId)
-    ) {
-      callback?.();
-      return;
-    }
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id || patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId || patientDetails?.admissionId,
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "PROGRESS_NOTES.findings",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: findings,
-      })
-    );
-    if (response.meta.requestStatus === "fulfilled") {
-      let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      if (isEmptyRichText(updatedData)) {
-        const transcription =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-            ?.transcription;
-        if (transcription) {
-          updatedData = [
-            {
-              type: "paragraph",
-              children: [{ text: transcription }],
-            },
-          ];
-        }
-      }
-      if (!isEmptyRichText(updatedData)) {
-        dispatch(setFindings(updatedData));
-        // setAutoFillTextToAppend(updatedData);
-        callback?.();
-      } else {
-        callback?.();
-      }
-    } else {
-      callback?.();
-    }
-  };
+        onSuccess: (updatedData) => {
+          dispatch(setFindings(updatedData));
+        },
+        callback,
+      }),
+    [dispatch, findings, submitVoiceAiRecording]
+  );
 
   return (
     <RichTextEditWrapper

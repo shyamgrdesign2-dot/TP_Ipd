@@ -5,9 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setAdditionalNotesData } from "../../../redux/ipd/assessmentsFormSlice";
 import { isEmptyRichText } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
 import { useLocation } from "react-router-dom";
 import { defaultIcons } from "../../../assets/images/icons";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -24,6 +24,10 @@ const NoteSection = (props) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
   const { patientDetails } = state || {};
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
 
   const handleOthersChange = (data, key) => {
     dispatch(setAdditionalNotesData({ ...additionalNotesData, [key]: data }));
@@ -77,85 +81,38 @@ const NoteSection = (props) => {
     "dischargeCriteria"
   );
 
-  const handleAIRecordingCompleteSpecialInstructions = async (
-    payload,
-    callback
-  ) => {
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
+  const handleAIRecordingCompleteSpecialInstructions = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "ASSESSMENTS.additionalNotes.specialInstructions",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: additionalNotesData?.specialInstructions,
-      })
-    );
-    if (response.meta.requestStatus === "fulfilled") {
-      let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      if (isEmptyRichText(updatedData)) {
-        const transcription =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-            ?.transcription;
-        if (transcription) {
-          updatedData = [
-            {
-              type: "paragraph",
-              children: [{ text: transcription }],
-            },
-          ];
-        }
-      }
-      if (!isEmptyRichText(updatedData)) {
-        setAutoFillTextToAppend(updatedData);
-        callback?.();
-      } else {
-        callback?.();
-      }
-    }
-  };
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            handleOthersChange(updatedData, "specialInstructions");
+          }
+        },
+        callback,
+      }),
+    [additionalNotesData?.specialInstructions, submitVoiceAiRecording]
+  );
 
-  const handleAIRecordingCompleteDischargeCriteria = async (
-    payload,
-    callback
-  ) => {
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
+  const handleAIRecordingCompleteDischargeCriteria = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "ASSESSMENTS.additionalNotes.dischargeCriteria",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: additionalNotesData?.dischargeCriteria,
-      })
-    );
-    if (response.meta.requestStatus === "fulfilled") {
-      let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      if (isEmptyRichText(updatedData)) {
-        const transcription =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-            ?.transcription;
-        if (transcription) {
-          updatedData = [
-            {
-              type: "paragraph",
-              children: [{ text: transcription }],
-            },
-          ];
-        }
-      }
-      if (!isEmptyRichText(updatedData)) {
-        setAutoFillTextToAppendDischargeCriteria(updatedData);
-        callback?.();
-      } else {
-        callback?.();
-      }
-    }
-  };
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            // setAutoFillTextToAppendDischargeCriteria(updatedData);
+            handleOthersChange(updatedData, "dischargeCriteria");
+          }
+        },
+        callback,
+      }),
+    [additionalNotesData?.dischargeCriteria, submitVoiceAiRecording]
+  );
   const renderSpecialInstructions = (data) => {
     if (
       !isEditable &&

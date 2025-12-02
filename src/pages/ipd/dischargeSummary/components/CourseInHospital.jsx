@@ -17,7 +17,7 @@ import {
 import TreatmentGiven from "../../../../components/DynamicPickerTable/TreatmentGiven";
 import { greenTick } from "../../../../assets/images/dischargeSummaryIcons";
 import { useTemplateManagement } from "../../../../hooks/useTemplateManagement";
-import { voiceRx } from "../../../../redux/ipd/ipdSlice";
+import { useVoiceAiRecordingComplete } from "../../../../hooks/useVoiceAiRecordingComplete";
 import { defaultIcons as defaultAssetIcons } from "../../../../assets/images/icons";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
@@ -59,6 +59,10 @@ const CourseInHospital = (props) => {
     admissionId ||
     dischargeSummaryData?.patientInformation?.admissionId ||
     null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: resolvedPatientId,
+    admissionId: resolvedAdmissionId,
+  });
 
   // console.log("INTEL ==> chronologicalSummary", chronologicalSummary);
 
@@ -69,56 +73,6 @@ const CourseInHospital = (props) => {
     dispatch(setCourseInHospital({ ...courseInHospital, [key]: data }));
   };
 
-  const handleAIRecordingComplete = async (payload, callback) => {
-    if (!resolvedPatientId || !resolvedAdmissionId) {
-      callback?.();
-      return;
-    }
-    const response = await dispatch(
-      voiceRx({
-        patientId: resolvedPatientId,
-        admissionId: resolvedAdmissionId,
-        schemaKey: "DISRCHARGED_SUMMARY.courseInHospital.chronologicalSummary",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
-        previousOutput: getCurrentChronologicalValue(),
-      })
-    );
-
-    if (response.meta.requestStatus === "fulfilled") {
-      let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      if (isEmptyRichText(updatedData)) {
-        const transcription =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-            ?.transcription;
-        if (transcription) {
-          updatedData = [
-            {
-              type: "paragraph",
-              children: [{ text: transcription }],
-            },
-          ];
-        }
-      }
-      if (!isEmptyRichText(updatedData)) {
-        // setAutoFillTextToAppend(updatedData);
-        dispatch(
-          setCourseInHospital({
-            ...courseInHospital,
-            chronologicalSummary: updatedData,
-          })
-        );
-        dispatch(setChronologicalSummary(updatedData));
-      }
-      callback?.();
-    } else {
-      callback?.();
-    }
-  };
-
-  // Get current value callback for chronological summary
   const getCurrentChronologicalValue = useCallback(() => {
     if (
       Array.isArray(courseInHospital?.chronologicalSummary) &&
@@ -154,6 +108,33 @@ const CourseInHospital = (props) => {
       ? courseInHospital?.chronologicalSummary
       : EMPTY_RICH_TEXT_VALUE;
   }, [chronologicalSummary, courseInHospital]);
+
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "DISRCHARGED_SUMMARY.courseInHospital.chronologicalSummary",
+        previousOutput: getCurrentChronologicalValue(),
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            dispatch(
+              setCourseInHospital({
+                ...courseInHospital,
+                chronologicalSummary: updatedData,
+              })
+            );
+            dispatch(setChronologicalSummary(updatedData));
+          }
+        },
+        callback,
+      }),
+    [
+      courseInHospital,
+      dispatch,
+      getCurrentChronologicalValue,
+      submitVoiceAiRecording,
+    ]
+  );
 
   // Use template management hook for chronological summary
   const {
@@ -231,21 +212,14 @@ const CourseInHospital = (props) => {
         ];
 
         if (moduleCode) {
+          const sourceText = [dayData.module, dayData.subModule]
+            .filter(Boolean)
+            .join(" - ");
+          const tooltipText = `Source: ${sourceText} | Date: ${dayData.date || ""}`;
           childrenOfList.push({
             type: "link",
             url: null,
-            tooltip: () => (
-              <div className="chrosum-tooltip-container">
-                <div className="chrotol-source">
-                  <span>Source:</span>
-                  {dayData.module} - {dayData.subModule}
-                </div>
-                <div className="chrotol-source">
-                  <span>Date:</span>
-                  {dayData.date}
-                </div>
-              </div>
-            ),
+            tooltip: tooltipText,
             children: [{ text: `[${moduleCode}]` }],
           });
         }
@@ -338,7 +312,6 @@ const CourseInHospital = (props) => {
             !isEditable ? "ipd-wrapper-class-readonly" : ""
           }`}
           opdDate="15 Jun 2025"
-          showMagicPenGif={false}
           showVoiceAI={isEditable && resolvedPatientId && resolvedAdmissionId}
           showMicrophone={true}
           voiceAiIcon={defaultAssetIcons.voiceAiIcon}

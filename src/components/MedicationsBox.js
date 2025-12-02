@@ -50,7 +50,7 @@ import { useLocation } from "react-router-dom";
 import { setMedicationData, setPillupSwitch } from "../redux/prescriptionSlice";
 import { createRemoteComponent } from "../shared/remoteComponents";
 import { defaultIcons } from "../assets/images/icons";
-import { voiceRx } from "../redux/ipd/ipdSlice";
+import { useVoiceAiRecordingComplete } from "../hooks/useVoiceAiRecordingComplete";
 
 const VoiceAI = createRemoteComponent("VoiceAI");
 
@@ -122,6 +122,10 @@ function MedicationsBox(props) {
   const [medicationLibrary, setMedicationLibrary] = useState([]);
   const [editDoseId, setEditDoseId] = useState(0);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
 
   const isPillUpAccessableFromGB = useFeatureIsOn(GB_PILLUP_MEDICINE);
 
@@ -2118,26 +2122,20 @@ function MedicationsBox(props) {
     }
   ];
 
-  const handleAIRecordingComplete = async (payload, callback) => {
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "ASSESSMENTS.basicInfo.currentMedications",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: medicationData,
-      })
-    );
-    if (response.meta.requestStatus === "fulfilled") {
-      const updatedData = response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      dispatch(setMedicationData(updatedData));
-      callback?.();
-    } else {
-      callback?.();
-    }
-  }
+        onSuccess: (updatedData) => {
+          dispatch(setMedicationData(updatedData));
+        },
+        callback,
+        fallbackToTranscription: false,
+      }),
+    [dispatch, medicationData, submitVoiceAiRecording]
+  );
   const pillUpChange = (checked) => {
     dispatch(setPillupSwitch(checked))
   };

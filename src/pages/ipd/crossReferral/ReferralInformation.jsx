@@ -11,8 +11,8 @@ import { setCrossReferralInformationDetails } from "../../../redux/ipd/crossRefe
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import { isEmptyRichText } from "../../../utils/utils";
 import { doctorDepartmentRoles } from "../../../redux/ipd/ipdSlice";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
 import { useLocation } from "react-router-dom";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -41,59 +41,33 @@ const ReferralInformation = (props) => {
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
 
   useEffect(() => {
     dispatch(fetchFilters({ field: "doctor" }));
     dispatch(doctorDepartmentRoles());
   }, [dispatch]);
 
-  const handleAIRecordingComplete = async (payload, callback) => {
-    if (!patientDetails?.details?.id || !patientDetails?.admissionId) {
-      callback?.();
-      return;
-    }
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
-        schemaKey: "CROSS_REFERRAL.referralInformation.reasonForReferral",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
-        previousOutput: initialValue?.reasonForReferral,
-      })
-    );
-
-    if (response.meta.requestStatus === "fulfilled") {
-      let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      if (isEmptyRichText(updatedData)) {
-        const transcription =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-            ?.transcription;
-        if (transcription) {
-          updatedData = [
-            {
-              type: "paragraph",
-              children: [{ text: transcription }],
-            },
-          ];
+  const handleAIRecordingComplete = (payload, callback) =>
+    submitVoiceAiRecording({
+      payload,
+      schemaKey: "CROSS_REFERRAL.referralInformation.reasonForReferral",
+      previousOutput: initialValue?.reasonForReferral,
+      onSuccess: (updatedData) => {
+        if (!isEmptyRichText(updatedData)) {
+          dispatch(
+            setCrossReferralInformationDetails({
+              ...initialValue,
+              reasonForReferral: updatedData,
+            })
+          );
         }
-      }
-      if (!isEmptyRichText(updatedData)) {
-        dispatch(
-          setCrossReferralInformationDetails({
-            ...initialValue,
-            reasonForReferral: updatedData,
-          })
-        );
-        // setAutoFillTextToAppend(updatedData);
-      }
-      callback?.();
-    } else {
-      callback?.();
-    }
-  };
+      },
+      callback,
+    });
 
   const renderRelativesInformed = (role) => {
     let options = [];

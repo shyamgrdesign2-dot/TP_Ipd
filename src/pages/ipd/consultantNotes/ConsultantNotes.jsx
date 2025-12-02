@@ -55,7 +55,7 @@ import useIpdCustomModules from "../../../hooks/useIpdCustomModules";
 import useConsultantNotesRequestData from "../../../hooks/useConsultantNotesRequestData";
 import GlobalVoiceAI from "../components/GlobalVoiceAI";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 dayjs.extend(customParseFormat);
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
@@ -72,6 +72,11 @@ const ConsultantNotes = (props) => {
   const { patient_data, patientDetails, fromTab } = state || {};
   const patientId = patientDetails?.details?.id;
   const { admissionId } = patientDetails;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+    isRichTextRequired: false,
+  });
 
   const { isEditable = true } = props;
   const dispatch = useDispatch();
@@ -493,58 +498,63 @@ const ConsultantNotes = (props) => {
   const showProgressSummary =
     !showAgentAlex && !isVoiceAssistantOpen && progressNotes.length > 0;
 
-  const handleAIRecordingComplete = async (payload, callback) => {
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "CONSULTANT_NOTES",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: consultantNotesRequestData,
-      })
-    );
-    if (response.meta.requestStatus === "fulfilled") {
-      const updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || {};
-      const updatedNotes =
-        updatedData?.consultationNotes || updatedData?.consultantNotes || updatedData;
-
-      if (updatedNotes) {
-        if (updatedNotes.vitals) dispatch(setVitals(updatedNotes.vitals));
-        if (updatedNotes.clinicalAssessmentPlan)
-          dispatch(setClinicalAssessmentPlan(updatedNotes.clinicalAssessmentPlan));
-        // if (updatedNotes.currentMedication) {
-        //   dispatch(setMedicationData(updatedNotes.currentMedication));
-        // } 
-        // else 
-        if (updatedNotes.medication) {
-          dispatch(setMedicationData(updatedNotes.medication));
-        }
-        if (updatedNotes.labInvestigation) {
-          const mappedInvestigations =
-            updatedNotes.labInvestigation?.map((e) => ({
-              investigation_name: e.name,
-              note: e.notes,
-            })) || [];
-          setInvestigationData(mappedInvestigations);
-          dispatch(setLabInvestigation(mappedInvestigations));
-        }
-        if (updatedNotes.additionalRemarks)
-          dispatch(setAdditionalRemarks(updatedNotes.additionalRemarks));
-        if (updatedNotes.examination)
-          dispatch(setPhysicalExaminationBasicData(updatedNotes.examination));
-        if (updatedNotes.fluidBalance)
-          dispatch(setFluidBalance(updatedNotes.fluidBalance));
-        if (updatedNotes.date) setFilledDate(dayjs(updatedNotes.date));
-        if (updatedNotes.time) setFilledAtTime(dayjs(updatedNotes.time, API_TIME_FORMAT));
-      }
-      callback?.();
-    } else {
-      callback?.();
-    }
-  };
+        parseResponse: (response) => {
+          if (response?.meta?.requestStatus !== "fulfilled") {
+            return { data: null, success: false };
+          }
+          const updatedData =
+            response?.payload?.data?.rxDigitizationHistory?.[0]?.response ||
+            {};
+          const updatedNotes =
+            updatedData?.consultationNotes ||
+            updatedData?.consultantNotes ||
+            updatedData;
+          return { data: updatedNotes, success: true };
+        },
+        onSuccess: (updatedNotes) => {
+          if (!updatedNotes) return;
+          if (updatedNotes.vitals) dispatch(setVitals(updatedNotes.vitals));
+          if (updatedNotes.clinicalAssessmentPlan)
+            dispatch(
+              setClinicalAssessmentPlan(updatedNotes.clinicalAssessmentPlan)
+            );
+          if (updatedNotes.medication) {
+            dispatch(setMedicationData(updatedNotes.medication));
+          }
+          if (updatedNotes.labInvestigation) {
+            const mappedInvestigations =
+              updatedNotes.labInvestigation?.map((e) => ({
+                investigation_name: e.name,
+                note: e.notes,
+              })) || [];
+            setInvestigationData(mappedInvestigations);
+            dispatch(setLabInvestigation(mappedInvestigations));
+          }
+          if (updatedNotes.additionalRemarks)
+            dispatch(setAdditionalRemarks(updatedNotes.additionalRemarks));
+          if (updatedNotes.examination)
+            dispatch(setPhysicalExaminationBasicData(updatedNotes.examination));
+          if (updatedNotes.fluidBalance)
+            dispatch(setFluidBalance(updatedNotes.fluidBalance));
+          if (updatedNotes.date) setFilledDate(dayjs(updatedNotes.date));
+          if (updatedNotes.time)
+            setFilledAtTime(dayjs(updatedNotes.time, API_TIME_FORMAT));
+        },
+        callback,
+        fallbackToTranscription: false,
+      }),
+    [
+      consultantNotesRequestData,
+      dispatch,
+      submitVoiceAiRecording,
+    ]
+  );
 
   const renderBottomSection = () => (
     <>

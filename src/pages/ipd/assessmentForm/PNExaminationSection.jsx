@@ -13,9 +13,9 @@ import { useSelector } from "react-redux";
 import useCheckExaminationData from "../../../hooks/useCheckExaminationData";
 import { isEmptyRichText } from "../../../components/PDFGenerator";
 import { setPhysicalExaminationBasicData } from "../../../redux/ipd/progressNotesSlice";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
 import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
 import { useLocation } from "react-router-dom";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -32,6 +32,10 @@ const PNExaminationSection = (props) => {
   );
   const patientId = patientDetails?.details?.id;
   const admissionId = patientDetails?.admissionId;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+  });
   const dispatch = useDispatch();
   const checkReadableExaminationDataPresent =
     useCheckExaminationData(examinationData);
@@ -120,61 +124,29 @@ const PNExaminationSection = (props) => {
   }, [handleExaminationNotesChange]);
 
   const handleAIRecordingComplete = useCallback(
-    async (itemId, payload, callback) => {
-      if (!patientId || !admissionId) {
-        callback?.();
-        return;
-      }
-      const response = await dispatch(
-        voiceRx({
-          patientId,
-          admissionId,
-          schemaKey: `PROGRESS_NOTES.examination.${itemId}`,
-          audioFile: payload?.audioBlob,
-          filename: payload?.filename,
-          mimeType: payload?.mimeType,
-          previousOutput: physicalExaminationBasicData?.[itemId]?.notes,
-        })
-      );
-
-      if (response.meta.requestStatus === "fulfilled") {
-        const updatedData =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-        let updatedNotes = updatedData?.notes || [];
-        if (isEmptyRichText(updatedNotes)) {
-          const transcription =
-            response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-              ?.transcription;
-          if (transcription) {
-            updatedNotes = [
-              {
-                type: "paragraph",
-                children: [{ text: transcription }],
-              },
-            ];
+    (itemId, payload, callback) => {
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: `PROGRESS_NOTES.examination.${itemId}`,
+        previousOutput: physicalExaminationBasicData?.[itemId]?.notes,
+        selector: (data) => data?.notes || data,
+        onSuccess: (updatedNotes) => {
+          if (!isEmptyRichText(updatedNotes)) {
+            dispatch(
+              setPhysicalExaminationBasicData({
+                ...physicalExaminationBasicData,
+                [itemId]: {
+                  ...physicalExaminationBasicData[itemId],
+                  notes: updatedNotes,
+                },
+              })
+            );
           }
-        }
-        if (!isEmptyRichText(updatedNotes)) {
-          dispatch(
-            setPhysicalExaminationBasicData({
-              ...physicalExaminationBasicData,
-              [itemId]: {
-                ...physicalExaminationBasicData[itemId],
-                notes: updatedNotes,
-              },
-            })
-          );
-          // setAutoFillTextToAppend((prev) => ({
-          //   ...prev,
-          //   [itemId]: updatedData,
-          // }));
-        }
-        callback?.();
-      } else {
-        callback?.();
-      }
+        },
+        callback,
+      });
     },
-    [dispatch, patientId, admissionId, physicalExaminationBasicData]
+    [dispatch, physicalExaminationBasicData, submitVoiceAiRecording]
   );
 
   const renderReadOnlyExamination = () => {

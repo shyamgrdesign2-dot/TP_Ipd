@@ -12,8 +12,8 @@ import { isEmptyRichText } from "../../../utils/utils";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import { defaultIcons } from "../../../assets/images/icons";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
 import { useLocation } from "react-router-dom";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 // import defaultIcons from "../../../assets/images/indices";
 
 const ASSESSMENT_CHILDREN_MAPPING = {
@@ -39,6 +39,10 @@ const FunctionalAssessment = (props) => {
   const dispatch = useDispatch();
   const { state } = useLocation();
   const { patientDetails } = state || {};
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
 
   const handleOthersChange = (data) => {
     dispatch(
@@ -55,43 +59,27 @@ const FunctionalAssessment = (props) => {
   } = props || {};
 
   const doctorId = patientDetails?.doctor?.id || null;
-  const handleAIRecordingComplete = async (payload, callback) => {
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "ASSESSMENTS.functionalAssessment.others",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: functionalAssessmentData?.others,
-      })
-    );
-    if (response.meta.requestStatus === "fulfilled") {
-      let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response ||
-        [];
-      if (isEmptyRichText(updatedData)) {
-        const transcription =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-            ?.transcription;
-        if (transcription) {
-          updatedData = [
-            {
-              type: "paragraph",
-              children: [{ text: transcription }],
-            },
-          ];
-        }
-      }
-      if (!isEmptyRichText(updatedData)) {
-        setAutoFillTextToAppend(updatedData);
-        callback?.();
-      } else {
-        callback?.();
-      }
-    }
-  };
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            // setAutoFillTextToAppend(updatedData);
+            dispatch(
+              setFunctionalAssessmentData({
+                ...functionalAssessmentData,
+                others: updatedData,
+              })
+            );
+          }
+        },
+        callback,
+      }),
+    [functionalAssessmentData?.others, submitVoiceAiRecording]
+  );
 
   const handleAssessmentChange = (key, e, item) => {
     const selectedOption = item.options.find(

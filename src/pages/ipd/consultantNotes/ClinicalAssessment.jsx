@@ -6,9 +6,9 @@ import { setClinicalAssessmentPlan } from "../../../redux/ipd/consultantNotesSli
 import { isEmptyRichText } from "../../../components/PDFGenerator";
 import dayjs from "dayjs";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
-import { voiceRx } from "../../../redux/ipd/ipdSlice";
 import { useLocation } from "react-router-dom";
 import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -25,6 +25,10 @@ const ClinicalAssessment = (props) => {
   const { patientDetails } = state || {};
   const doctorId = patientDetails?.doctor?.id || null;
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
 
   const dispatch = useDispatch();
 
@@ -88,43 +92,19 @@ const ClinicalAssessment = (props) => {
     }
   }, [shouldAutofill]);
 
-  const handleAIRecordingComplete = async (payload, callback) => {
-    const response = await dispatch(
-      voiceRx({
-        patientId: patientDetails?.details?.id,
-        admissionId: patientDetails?.admissionId,
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
         schemaKey: "CONSULTANT_NOTES.clinicalAssessmentPlan",
-        audioFile: payload?.audioBlob,
-        filename: payload?.filename,
-        mimeType: payload?.mimeType,
         previousOutput: clinicalAssessmentPlan,
-      })
-    );
-    if (response.meta.requestStatus === "fulfilled") {
-      let updatedData =
-        response?.payload?.data?.rxDigitizationHistory?.[0]?.response || [];
-      if (isEmptyRichText(updatedData)) {
-        const transcription =
-          response?.payload?.data?.rxDigitizationHistory?.[0]?.payload
-            ?.transcription;
-        if (transcription) {
-          updatedData = [
-            {
-              type: "paragraph",
-              children: [{ text: transcription }],
-            },
-          ];
-        }
-      }
-      if (!isEmptyRichText(updatedData)) {
-        // setAutoFillTextToAppend(updatedData);
-        dispatch(setClinicalAssessmentPlan(updatedData));
-        callback?.();
-      } else {
-        callback?.();
-      }
-    }
-  };
+        onSuccess: (updatedData) => {
+          dispatch(setClinicalAssessmentPlan(updatedData));
+        },
+        callback,
+      }),
+    [clinicalAssessmentPlan, dispatch, submitVoiceAiRecording]
+  );
 
   return (
     <RichTextEditWrapper
