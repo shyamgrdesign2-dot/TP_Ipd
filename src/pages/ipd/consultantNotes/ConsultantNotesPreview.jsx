@@ -120,6 +120,7 @@ const ConsultantNotesPreview = ({ entry }) => {
                 readOnly={true}
                 className="rich-text-editor-container-readonly"
                 initialValue={clinicalAssessmentPlan}
+                setNewAutoFillTextToAppend={() => {}}
               />
             </div>
           </div>
@@ -238,6 +239,7 @@ const ConsultantNotesPreview = ({ entry }) => {
                 readOnly={true}
                 className="rich-text-editor-container-readonly"
                 initialValue={additionalRemarks}
+                setNewAutoFillTextToAppend={() => {}}
               />
             </div>
           </div>
