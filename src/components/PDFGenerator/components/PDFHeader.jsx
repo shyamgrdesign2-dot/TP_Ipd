@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
  * @param {Object} props.headerSettings - Header configuration
  * @returns {JSX.Element} PDF Header
  */
-const PDFHeader = ({ headerSettings, letterHeadFormat }) => {
+const PDFHeader = ({ headerSettings, letterHeadFormat, documentType }) => {
   if (!headerSettings) return null;
 
   const {
@@ -79,7 +79,28 @@ const PDFHeader = ({ headerSettings, letterHeadFormat }) => {
     informationVisible,
     showLogo,
     logoPosition,
+    fontSize,
   } = headerSettings;
+
+  // For admission details, use simpler header without fixed positioning to prevent truncation
+  if (documentType === "admissionDetails") {
+    return (
+      <View style={{ marginBottom: 20, alignItems: "center" }}>
+        {title && (
+          <Text
+            style={{
+              fontSize: fontSize || 18,
+              fontWeight: 700,
+              color: "#454551",
+              textAlign: "center",
+            }}
+          >
+            {title}
+          </Text>
+        )}
+      </View>
+    );
+  }
 
   const Logo = () => {
     if (showLogo && logo) {

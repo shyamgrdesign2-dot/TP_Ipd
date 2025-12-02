@@ -56,6 +56,7 @@ const settingsKeyByDocType = {
   consultationNotes: "consultationNotes",
   otNotes: "otNotes",
   crossReferral: "crossReferral",
+  admissionDetails: "admissionDetails",
 };
 
 // Build the data object expected by PDFGenerator for each document type

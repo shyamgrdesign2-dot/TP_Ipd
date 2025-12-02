@@ -35,8 +35,11 @@ ApiIpdService.fetchSingleTemplate = function ({ templateId, type }) {
 
 /** ---------------- NEW: Admissions + Masters ---------------- */
 ApiIpdService.createAdmission = function (data) {
-  // POST /patients/create-admission
   return api.post(`/patients/create-admission`, data, baseUrl);
+};
+
+ApiIpdService.editAdmission = function ({ admissionId, data }) {
+  return api.put(`/patients/edit-admission?admissionId=${admissionId}`, data, baseUrl);
 };
 
 ApiIpdService.getWards = function ({ includeAll = true } = {}) {

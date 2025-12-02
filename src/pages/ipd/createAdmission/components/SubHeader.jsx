@@ -12,6 +12,7 @@ const SubHeader = ({
   isConfirmDisabled = false,
   helperMessage = "",
   onDisabledClick,
+  isEditMode = false,
 }) => {
 
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ const SubHeader = ({
             }`}
             // disabled={isConfirmDisabled}
           >
-            Confirm Admission
+            {isEditMode ? "Edit Admission" : "Confirm Admission"}
           </Button>
           {/* {helperMessage && (
             <div className="sub-header-helper">{helperMessage}</div>

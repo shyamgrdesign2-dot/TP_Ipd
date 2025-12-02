@@ -13,7 +13,7 @@ const SubHeader = ({ headerTitle, showAddAdmission = true }) => {
 
   const handleAddAdmission = () => {
     if(isNewIPDZydusAccessableFromGB) {
-      navigate(`ipd/add-admission`);
+      navigate(`/ipd/add-admission`);
     } else {
       navigate(`/ipd/create-admission`);
     }

@@ -23,6 +23,7 @@ import {
   doctorDepartmentRoles as fetchDoctorDeptRoles,
   fetchWards,
   checkPatientAdmitted,
+  editAdmission,
 } from "../../../redux/ipd/ipdSlice";
 import {
     clearSearch,
@@ -413,7 +414,7 @@ function FieldRenderer({
 export default function CreateAdmission() {
   const navigate = useNavigate();
   const { state } = useLocation();
-//   const { patientDetails } = state || {};
+  const { isEditMode, admissionData } = state || {};
   const dispatch = useDispatch();
 
   const { filters } = useSelector((s) => s.inPatients);
@@ -442,6 +443,7 @@ export default function CreateAdmission() {
   const [patientData, setPatientData] = useState(null);
   const [wardBedDrawerOpen, setWardBedDrawerOpen] = useState(false);
   const [selectedWardBed, setSelectedWardBed] = useState("");
+  const [isEditModeState, setIsEditModeState] = useState(isEditMode || false);
 //   const [selectedTab, setSelectedTab] = useState(1);
 //   const [page, setPage] = useState(1);
 //   const [hasMore, setHasMore] = useState(true);
@@ -568,6 +570,90 @@ export default function CreateAdmission() {
       ? `${ageYears}y`
       : "-") || "-";
 
+  // Initialize edit mode data
+  useEffect(() => {
+    if (isEditMode && admissionData && departmentsRoles.length > 0) {
+      const details = admissionData?.details || {};
+      const metadata = admissionData?.metadata || {};
+      const ward = admissionData?.ward || {};
+      const room = admissionData?.room || {};
+      const doctor = admissionData?.doctor || {};
+
+      // Set patient data
+      const patientInfo = {
+        pm_fullname: details?.name || "",
+        pm_salutation: details?.prefix || "",
+        pm_gender: details?.gender || "",
+        pm_contact_no: details?.contact || "",
+        pm_pid: admissionData?.mrno || details?.id || "",
+        patient_address: details?.address || "",
+        pm_address: details?.address || "",
+        pm_blood_group: details?.bloodGroup || "",
+        ageYears: details?.age || "",
+      };
+
+      setPatientData(patientInfo);
+      setPatientDetails({
+        patientName: details?.name || "",
+        mobileNumber: details?.contact || "",
+        patientId: admissionData?.mrno || details?.id || "",
+        id: details?.id || "",
+      });
+
+      // Parse admission date and time
+      const admittedOn = admissionData?.admittedOn;
+      let admissionDate = dayjs().toISOString();
+      let admissionTime = dayjs().toISOString();
+      
+      if (admittedOn) {
+        const dateTime = dayjs(admittedOn);
+        admissionDate = dateTime.toISOString();
+        admissionTime = dateTime.toISOString();
+      }
+
+      // Find department that contains this doctor
+      const doctorId = doctor?.id || doctor?.doctorId;
+      let foundDepartmentId = undefined;
+      
+      if (doctorId) {
+        for (const dept of departmentsRoles) {
+          const foundDoctor = dept?.doctors?.find(
+            (doc) => doc.doctorId === doctorId || doc.doctorId === String(doctorId)
+          );
+          if (foundDoctor) {
+            foundDepartmentId = dept.departmentId;
+            break;
+          }
+        }
+      }
+
+      // Set form values
+      setValue("departmentId", foundDepartmentId);
+      setValue("admittingDoctorId", doctorId);
+      setValue("admissionDate", admissionDate);
+      setValue("admissionTime", admissionTime);
+      
+      // Set ward and bed
+      if (ward?.id && room?.id) {
+        setValue("wardBed", JSON.stringify({ wardId: ward.id, roomId: room.id }));
+        setSelectedWardBed(`${ward.title || ward.name || ""} - ${room.title || room.name || ""}`);
+      }
+      
+      setValue("patientCategory", metadata?.category || "");
+      setValue("admissionNo", admissionData?.admissionNo || "");
+      setValue("mlcNumber", metadata?.mlcno || "");
+      setValue("careTaker", metadata?.caretaker || "");
+      setValue("contactNo", metadata?.contactno || "");
+      setValue("relationship", metadata?.relationship || "");
+      setValue("insuranceNumber", metadata?.insuranceno || "");
+      setValue("policyNumber", metadata?.policyno || "");
+      setValue("tpaNumber", metadata?.tpano || "");
+      setValue("preApprovalId", metadata?.preApprovalId || "");
+
+      setIsEditingName(false); // Disable patient search in edit mode
+    }
+  }, [isEditMode, admissionData, departmentsRoles, setValue]);
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -624,8 +710,25 @@ export default function CreateAdmission() {
         roomId = null;
       }
 
-      const ward = (wards || []).find((w) => w._id === wardId);
-      const room = ward?.rooms?.find((r) => r._id === roomId);
+      // In edit mode, fall back to admissionData if form lookup fails
+      let ward = (wards || []).find((w) => w._id === wardId);
+      let room = ward?.rooms?.find((r) => r._id === roomId);
+      
+      // If not found and in edit mode, use data from admissionData
+      if (isEditModeState && admissionData) {
+        if (!ward && admissionData?.ward?.id) {
+          ward = {
+            _id: admissionData.ward.id,
+            name: admissionData.ward.title,
+          };
+        }
+        if (!room && admissionData?.room?.id) {
+          room = {
+            _id: admissionData.room.id,
+            name: admissionData.room.title,
+          };
+        }
+      }
       const dept = (departmentsRoles || []).find(
         (d) => d.departmentId === formData.departmentId
       );
@@ -659,12 +762,12 @@ export default function CreateAdmission() {
             "",
         },
         ward: {
-          id: ward?._id || "",
-          title: ward?.name || "",
+          id: ward?._id || admissionData?.ward?.id || "",
+          title: ward?.name || admissionData?.ward?.title || "",
         },
         room: {
-          id: room?._id || "",
-          title: room?.name || "",
+          id: room?._id || admissionData?.room?.id || "",
+          title: room?.name || admissionData?.room?.title || "",
         },
         doctor: {
           id:
@@ -683,13 +786,13 @@ export default function CreateAdmission() {
         doctorId: tokenData?.user_id || null,
         hospitalId: hospitalId || 0,
         admittedOn,
-        admissionId: patientDetails?.admissionId || "",
-        isDischarged: false,
-        sentForApproval: false,
-        mrno: patientData?.pm_pid ?? patientDetails?.mrno ?? patientDetails?.mrNo ?? "0",
-        visitno: patientDetails?.visitno || "0",
-        encounterno: patientDetails?.encounterno || "0",
-        admissionNo: formData?.admissionNo || "",
+        referral: admissionData?.referral || false,
+        isDischarged: admissionData?.isDischarged || false,
+        sentForApproval: admissionData?.sentForApproval || false,
+        mrno: patientData?.pm_pid ?? patientDetails?.mrno ?? patientDetails?.mrNo ?? admissionData?.mrno ?? "0",
+        visitno: admissionData?.visitno || patientDetails?.visitno || "0",
+        encounterno: admissionData?.encounterno || patientDetails?.encounterno || "0",
+        admissionNo: formData?.admissionNo || admissionData?.admissionNo || "",
         metadata: {
           category: formData.patientCategory || "",
           haveMLC: formData.mlcNumber && formData.mlcNumber.trim() !== "" ? true : false,
@@ -704,25 +807,40 @@ export default function CreateAdmission() {
         },
       };
 
-      const checkIfAdmitted = await dispatch(
-        checkPatientAdmitted({
-          patientId: patientDetails?.id ?? patientDetails?.patientId ?? "",
-        })
-      );
-      if (!!checkIfAdmitted.payload.alreadyAdmitted) {
-        message.error("Patient is already admitted");
-        return;
+      if (isEditModeState && admissionData?.admissionId) {
+        // Edit mode - call edit API
+        // Remove fields that shouldn't be in edit payload based on curl:
+        const editPayload = { ...payload };
+        delete editPayload.sentForApproval;
+        
+        await dispatch(editAdmission({
+          admissionId: admissionData.admissionId,
+          data: editPayload,
+        }));
+        message.success("Admission updated successfully");
+      } else {
+        // Create mode
+        const checkIfAdmitted = await dispatch(
+          checkPatientAdmitted({
+            patientId: patientDetails?.id ?? patientDetails?.patientId ?? "",
+          })
+        );
+        if (!!checkIfAdmitted.payload.alreadyAdmitted) {
+          message.error("Patient is already admitted");
+          return;
+        }
+        await ApiIpdService.createAdmission(payload);
+        message.success("Admission created successfully");
       }
-      await ApiIpdService.createAdmission(payload);
-      message.success("Admission created successfully");
+      
       navigate(`/ipd/inPatients`, {
         replace: true,
       });
     } catch (err) {
-      console.error("Create Admission Error:", err);
+      console.error("Create/Edit Admission Error:", err);
       message.error(
         err?.response?.data?.message ||
-          "Unable to create admission. Please try again."
+          `Unable to ${isEditModeState ? "update" : "create"} admission. Please try again.`
       );
     }
   };
@@ -927,7 +1045,7 @@ export default function CreateAdmission() {
     <div className="create-admission-page-container">
       <SubHeader
         showConfirmAdmissionButton={isPatientSelected}
-        headerTitle={"Create Admission"}
+        headerTitle={isEditModeState ? "Edit Admission" : "Create Admission"}
         onConfirmAdmissionClick={() => handleSubmit(onSubmit)()}
         isConfirmDisabled={isConfirmDisabled}
         helperMessage={helperMessage}
@@ -936,6 +1054,7 @@ export default function CreateAdmission() {
             message.warning(helperMessage);
           }
         }}
+        isEditMode={isEditModeState}
       />
       <div className="border rounded-4 create-admission-page dateborder">
         <Card className="patient-summary-card">
@@ -944,7 +1063,7 @@ export default function CreateAdmission() {
               <div className="fs-18 fw-medium mb-2">
                 Patient Details
               </div>
-              {isEditingName && !patientData ? (
+              {isEditingName && !patientData && !isEditModeState ? (
                 <AutoComplete
                   ref={nameAutoCompleteRef}
                   value={searchQueryName}
@@ -985,11 +1104,11 @@ export default function CreateAdmission() {
                 </AutoComplete>
               ) : (
                 <div
-                  className={`d-flex align-items-center flex-wrap border cursor-pointer w-100 ${
-                    patientData && "pe-none disabled"
+                  className={`d-flex align-items-center flex-wrap border w-100 ${
+                    (patientData || isEditModeState) ? "pe-none disabled" : "cursor-pointer"
                   }`}
                   onClick={() => {
-                    if (!patientData) {
+                    if (!patientData && !isEditModeState) {
                       setIsEditingName(true);
                     }
                   }}

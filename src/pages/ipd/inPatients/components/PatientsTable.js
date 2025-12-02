@@ -19,17 +19,38 @@ import { createRemoteComponent } from "../../../../shared/remoteComponents";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_ZYDUS_USER } from "../../../../utils/constants";
 import { env } from "../../../../EnvironmentConfig";
+import AdmissionDetailsDrawer from "./AdmissionDetailsDrawer";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
-const MoreActionsContent = ({ onCtaClick, record, title }) => {
+const MoreActionsContent = ({ onCtaClick, record, title, onViewAdmissionDetails }) => {
+  const handleViewAdmissionDetails = (e) => {
+    e.stopPropagation();
+    onViewAdmissionDetails?.(record);
+  };
+
+  const handleDischargeClick = (e) => {
+    e.stopPropagation();
+    onCtaClick?.(record);
+  };
+
   return (
-    <div
-      onClick={() => onCtaClick(record)}
-      className="more-actions-content cursor-pointer"
-    >
-      <img src={newIcons.dischargedPatientsSc} alt="dischargedPatientsSc" />
-      <div className="fs16-semibold-primary">{title}</div>
+    <div className="more-actions-menu">
+      <div
+        onClick={handleViewAdmissionDetails}
+        className="more-actions-menu-item cursor-pointer"
+      >
+        <span className="more-actions-menu-text">View Admission Details</span>
+      </div>
+      {title && (
+        <div
+          onClick={handleDischargeClick}
+          className="more-actions-menu-item cursor-pointer"
+        >
+          <img src={newIcons.dischargedPatientsSc} alt="dischargedPatientsSc" className="more-actions-menu-icon" />
+          <span className="more-actions-menu-text">{title}</span>
+        </div>
+      )}
     </div>
   );
 };
@@ -68,6 +89,8 @@ const PatientsTable = ({
   const [openMoreActionsPopover, setOpenMoreActionsPopover] = useState(null);
   const [apiToCall, setApiToCall] = useState("");
   const dischargeConfirmationModalRef = useRef(null);
+  const [admissionDetailsDrawerOpen, setAdmissionDetailsDrawerOpen] = useState(false);
+  const [selectedPatientForAdmissionDetails, setSelectedPatientForAdmissionDetails] = useState(null);
   const showHideMoreActionPopover = (recordId) => {
     setOpenMoreActionsPopover((prev) => (prev === recordId ? null : recordId));
   };
@@ -167,6 +190,10 @@ const PatientsTable = ({
           <span
             className="text-primary cursor-pointer"
             onClick={() => onViewDetails(record?.patientData)}
+            // onClick={() => {
+            //   setSelectedPatientForAdmissionDetails(record?.patientData);
+            //   setAdmissionDetailsDrawerOpen(true);
+            // }}
           >
             {record?.patientName}
           </span>
@@ -349,6 +376,10 @@ const PatientsTable = ({
           >
             <button
               className="view-details-btn"
+              // onClick={() => {
+              //   setSelectedPatientForAdmissionDetails(record?.patientData);
+              //   setAdmissionDetailsDrawerOpen(true);
+              // }}
               onClick={() => {
                 onViewDetails(record?.patientData);
               }}
@@ -372,6 +403,11 @@ const PatientsTable = ({
                     onCtaClick={actionObj?.onCtaClick}
                     record={record?.patientData}
                     title={actionObj?.title}
+                    onViewAdmissionDetails={(patientData) => {
+                      setOpenMoreActionsPopover(null);
+                      setSelectedPatientForAdmissionDetails(patientData);
+                      setAdmissionDetailsDrawerOpen(true);
+                    }}
                   />
                 }
                 trigger="click"
@@ -470,6 +506,14 @@ const PatientsTable = ({
             ? dischargePatient
             : sentForDischargeApproval
         }
+      />
+      <AdmissionDetailsDrawer
+        open={admissionDetailsDrawerOpen}
+        onClose={() => {
+          setAdmissionDetailsDrawerOpen(false);
+          setSelectedPatientForAdmissionDetails(null);
+        }}
+        patientData={selectedPatientForAdmissionDetails}
       />
     </div>
   );

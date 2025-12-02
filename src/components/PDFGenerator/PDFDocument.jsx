@@ -78,6 +78,7 @@ const PDFDocument = ({ settings, patientData, children, documentType, fullData }
           headerSettings={header}
           letterHeadFormat={letterHeadFormat}
           patientData={patientData}
+          documentType={documentType}
         />
 
         {/* Patient Information */}
