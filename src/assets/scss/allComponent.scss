@@ -786,9 +786,9 @@
               width: 100%;
               height: 100%;
               background: linear-gradient(
-                  rgba(255, 255, 255, 0.6),
-                  rgba(255, 255, 255, 0.6)
-                );
+                rgba(255, 255, 255, 0.6),
+                rgba(255, 255, 255, 0.6)
+              );
               background-image: linear-gradient(
                   rgba(255, 255, 255, 0.6),
                   rgba(255, 255, 255, 0.6)
@@ -2781,9 +2781,9 @@ body {
               width: 100%;
               height: 100%;
               background: linear-gradient(
-                  rgba(255, 255, 255, 0.6),
-                  rgba(255, 255, 255, 0.6)
-                );
+                rgba(255, 255, 255, 0.6),
+                rgba(255, 255, 255, 0.6)
+              );
               background-image: linear-gradient(
                   rgba(255, 255, 255, 0.6),
                   rgba(255, 255, 255, 0.6)
@@ -3313,7 +3313,7 @@ nav.portal-header-ipd {
 .ipd-fluid-item-section-container {
   flex-basis: calc(50% - 24px);
   max-width: calc(50% - 24px);
-  .ui-field  {
+  .ui-field {
     // margin-bottom: 0 !important;
   }
 }
@@ -3329,12 +3329,13 @@ nav.portal-header-ipd {
   }
 }
 
-html, body {
+html,
+body {
   overscroll-behavior-y: contain;
 }
 
 .ipd-add-custom-module-container {
-  background-color: #F9F7FD !important;
+  background-color: #f9f7fd !important;
   padding: 24px;
   padding-left: 18px;
   padding-bottom: 100px;
@@ -3365,14 +3366,19 @@ html, body {
   align-items: flex-end;
   justify-content: flex-end;
   width: fit-content;
-  
+
   @media (max-width: 768px) {
-      bottom: 16px;
-      right: 16px;
+    bottom: 16px;
+    right: 16px;
   }
-  
+
   @media (max-width: 480px) {
-      bottom: 12px;
-      right: 12px;
+    bottom: 12px;
+    right: 12px;
   }
+}
+
+.ipd-medicalhistory-scroll-fix {
+  max-height: calc(100dvh - 64px);
+  overflow: hidden;
 }

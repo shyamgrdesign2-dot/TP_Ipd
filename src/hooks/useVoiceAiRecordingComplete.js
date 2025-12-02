@@ -12,7 +12,7 @@ const buildParagraphFromText = (text = "") => [
 
 export const parseVoiceAiRichText = (
   response,
-  { selector, fallbackToTranscription = true } = {}
+  { selector, fallbackToTranscription = true, isRichTextRequired = true } = {}
 ) => {
   if (response?.meta?.requestStatus !== "fulfilled") {
     return { data: null, success: false };
@@ -26,20 +26,32 @@ export const parseVoiceAiRichText = (
       ? selector(historyEntry?.response || {})
       : historyEntry?.response || [];
 
-  if (fallbackToTranscription && isEmptyRichText(updatedData)) {
+  if (
+    fallbackToTranscription &&
+    isRichTextRequired &&
+    isEmptyRichText(updatedData)
+  ) {
     if (transcription) {
       updatedData = buildParagraphFromText(transcription);
     }
   }
 
-  if (fallbackToTranscription && isEmptyRichText(updatedData)) {
+  if (
+    fallbackToTranscription &&
+    isRichTextRequired &&
+    isEmptyRichText(updatedData)
+  ) {
     return { data: null, success: true };
   }
 
   return { data: updatedData, success: true };
 };
 
-export const useVoiceAiRecordingComplete = ({ patientId, admissionId }) => {
+export const useVoiceAiRecordingComplete = ({
+  patientId,
+  admissionId,
+  isRichTextRequired = true,
+}) => {
   const dispatch = useDispatch();
 
   const submitVoiceAiRecording = useCallback(
@@ -78,6 +90,7 @@ export const useVoiceAiRecordingComplete = ({ patientId, admissionId }) => {
       const { data, success } = parseResponse(response, {
         selector,
         fallbackToTranscription,
+        isRichTextRequired,
       });
 
       if (success && data !== null && data !== undefined) {

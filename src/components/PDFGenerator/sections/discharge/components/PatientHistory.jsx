@@ -270,7 +270,7 @@ const renderPastMedicalHistory = (history) => {
         <Text style={[styles.subsectionTitle]}>Past Medical History:</Text>
         <View style={styles.bulletList}>
           {history.map((historyGroup, idx) => {
-            const tags = historyGroup.tags?.filter((tag) => tag.enable === "Y");
+            const tags = historyGroup.tags?.filter((tag) => tag.enable);
             if (!tags || tags.length === 0) return null;
 
             return (
@@ -289,7 +289,7 @@ const renderPastMedicalHistory = (history) => {
                     <View key={`tag-${tagIdx}`} style={styles.bulletItem}>
                       <Text style={[styles.bullet]}>•</Text>
                       <Text style={[styles.bulletContent]}>
-                        <Text style={styles.itemLabel}>{tag.title}</Text>
+                        <Text style={styles.itemLabel}>{tag.enable === "N" ? 'No ': ""}{tag.title}</Text>
                         {(tag.since || tag.status || tag.note) && (
                           <Text style={styles.regularText}> (</Text>
                         )}
