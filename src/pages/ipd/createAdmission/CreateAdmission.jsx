@@ -27,6 +27,7 @@ import {
 } from "../../../redux/ipd/ipdSlice";
 import {
     clearSearch,
+    placeIctOrder,
     searchPatients,
   } from "../../../redux/appointmentsSlice";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
@@ -36,39 +37,46 @@ import { getTokenData } from "../../../utils/utils";
 import message from "antd/es/message";
 import SubHeader from "./components/SubHeader";
 import WardBedDrawer from "./components/WardBedDrawer";
+import { defaultIcons } from "../../../assets/images/assessmentIcons";
+import { defaultIcons as dischargeSummaryIcons } from "../../../assets/images/dischargeSummaryIcons";
+import { defaultIcons as assessmentIcons } from "../../../assets/images/assessmentIcons";
+import carePlanIcon from '../../../assets/images/Care plan_Active.svg';
+
 
 const FIELD_SCHEMA = [
-  { id: "departmentId", label: "Department*", type: "select-departments" },
-  { id: "admittingDoctorId", label: "Admitting Doctor*", type: "select-admit-doc" },
-  { id: "admissionDate", label: "Admission Date*", type: "date" },
-  { id: "admissionTime", label: "Admission Time*", type: "time" },
-  { id: "wardBed", label: "Ward & Bed*", type: "ward-bed-select" },
+  { id: "departmentId", label: "Department*", type: "select-departments", placeholder:"Search & Select Department" },
+  { id: "admittingDoctorId", label: "Admitting Doctor*", type: "select-admit-doc", placeholder:"Search & Select Doctor" },
+  { id: "admissionDate", label: "Admission Date*", type: "date", placeholder:"Select Admission Date" },
+  { id: "admissionTime", label: "Admission Time*", type: "time", placeholder:"Select Admission Time" },
+  { id: "wardBed", label: "Ward & Bed*", type: "ward-bed-select", placeholder:"Select Ward & Bed" },
   {
     id: "patientCategory",
     label: "Patient Category",
     type: "select-static",
+    placeholder:"Select Patient Category",
     options: ["Emergency", "Insurance", "Cash", "Corporate"],
   },
-  { id: "admissionNo", label: "Admission Number", type: "input" },
+  { id: "admissionNo", label: "Admission Number", type: "input", placeholder:"Enter Admission Number" },
 //   {
 //     id: "haveAMLC",
 //     label: "Have a MLC?",
 //     type: "select-static",
 //     options: ["Yes", "No"],
 //   },
-  { id: "mlcNumber", label: "MLC Number", type: "input" },
-  { id: "careTaker", label: "Care Taker Name", type: "input" },
-  { id: "contactNo", label: "Care Taker Mobile number*", type: "input" },
+  { id: "mlcNumber", label: "MLC Number", type: "input", placeholder:"Enter MLC Number" },
+  { id: "careTaker", label: "Care Taker Name*", type: "input", placeholder:"Enter Care Taker Name" },
+  { id: "contactNo", label: "Care Taker Mobile number*", type: "input", placeholder:"Enter Care Taker Mobile Number" },
   {
     id: "relationship",
     label: "Relation With the Patient*",
     type: "select-static",
+    placeholder:"Search & select relation",
     options: ["Father", "Mother", "Spouse", "Sibling", "Friend", "Guardian", "Other"],
   },
-  { id: "insuranceNumber", label: "Insurance Number", type: "input" },
-  { id: "policyNumber", label: "Policy Number", type: "input" },
-  { id: "tpaNumber", label: "TPA Number", type: "input" },
-  { id: "preApprovalId", label: "Pre-Approval ID", type: "input" },
+  { id: "insuranceNumber", label: "Insurance Number", type: "input", placeholder:"Enter Insurance Number" },
+  { id: "policyNumber", label: "Policy Number", type: "input", placeholder:"Enter Policy Number" },
+  { id: "tpaNumber", label: "TPA Number", type: "input", placeholder:"Enter TPA Number" },
+  { id: "preApprovalId", label: "Pre-Approval ID", type: "input", placeholder:"Enter Pre-Approval ID" },
 ];
 
 const REQUIRED_FIELD_IDS = [
@@ -79,6 +87,8 @@ const REQUIRED_FIELD_IDS = [
   "admissionTime",
   "contactNo",
   "relationship",
+  "careTaker",
+
 ];
 
 const SECTION_LAYOUT = [
@@ -86,6 +96,7 @@ const SECTION_LAYOUT = [
     key: "admission-details",
     title: "Admission Details",
     description: "Assign the right department, doctor, ward and timing.",
+    icon: assessmentIcons.examinationsPc,
     fieldIds: [
       "departmentId",
       "admittingDoctorId",
@@ -102,14 +113,23 @@ const SECTION_LAYOUT = [
     key: "care-taker",
     title: "Care Taker Details",
     description: "Primary contact person during the stay.",
+    icon: carePlanIcon,
     fieldIds: ["contactNo", "careTaker", "relationship"],
   },
   {
     key: "insurance",
     title: "Insurance Details",
+    icon: dischargeSummaryIcons.assessmentPc,
     description: "Optional insurance & policy information.",
     fieldIds: ["insuranceNumber", "policyNumber", "tpaNumber", "preApprovalId"],
   },
+//   {
+//     key: "surgery-procedure",
+//     title: "SurgerycProcedure Details",
+//     icon: dischargeSummaryIcons.otNotesDark,
+//     description: "Optional surgery/procedure details.",
+//     fieldIds: ["surgeryProcedure"],
+//   }
 ];
 
 function toUpperSafe(val, fallback = "") {
@@ -173,7 +193,7 @@ function FieldRenderer({
       onChange={rhf.onChange}
       onBlur={rhf.onBlur}
       allowClear
-      placeholder="Select"
+      placeholder={field.placeholder || "Select"}
       popupMatchSelectWidth={false}
       options={list.map(mapItem)}
       optionLabelProp="label"
@@ -181,7 +201,7 @@ function FieldRenderer({
       filterOption={(input, option) =>
         (option?.label || "").toLowerCase().includes(input.toLowerCase())
       }
-      className="w-100"
+      className="w-100 custom-select-placeholder"
       {...extraProps}
     />
   );
@@ -195,20 +215,14 @@ function FieldRenderer({
           required: "Care Taker Mobile number is required",
           validate: {
             digitsOnly: (v) =>
-              v == null ||
-              v === "" ||
-              /^\d*$/.test(v) ||
-              "Only numbers are allowed",
-            maxTen: (v) =>
-              v == null ||
-              v === "" ||
-              v.length <= 10 ||
-              "Contact number cannot exceed 10 digits",
+              !v || /^\d+$/.test(v) || "Only numbers are allowed",
+            exactlyTen: (v) =>
+              !v || v.length === 10 || "Contact number must be exactly 10 digits",
           },
         }}
         render={({ field: rhf }) => (
           <Input
-            placeholder="Care Taker Mobile number"
+            placeholder={field.placeholder || "Enter Care Taker Mobile Number"}
             inputMode="numeric"
             pattern="\d*"
             value={rhf.value ?? ""}
@@ -401,7 +415,7 @@ function FieldRenderer({
           rules={rules}
           render={({ field: rhf }) => (
             <Input
-              placeholder={field.label}
+              placeholder={field.placeholder || field.label}
               value={rhf.value || ""}
               onChange={(e) => rhf.onChange(e.target.value)}
             />
@@ -1060,8 +1074,9 @@ export default function CreateAdmission() {
         <Card className="patient-summary-card">
           <div className="d-flex gap-2">
             <div style={{ width: "100%" }}>
-              <div className="fs-18 fw-medium mb-2">
-                Patient Details
+              <div className="fs-18 fw-medium mb-2 d-flex align-items-center gap-2">
+                <img src={defaultIcons.basicInfoPc} alt="patient" />
+                <span>Patient Details</span>
               </div>
               {isEditingName && !patientData && !isEditModeState ? (
                 <AutoComplete
@@ -1154,7 +1169,10 @@ export default function CreateAdmission() {
                 <Card className="form-section-card" key={section.key}>
                   <div className="section-header">
                     <div>
-                      <p className="section-eyebrow">{section.title}</p>
+                      <p className="section-eyebrow d-flex align-items-center gap-2">
+                        <img src={section.icon} alt={section.title} />
+                        {section.title}
+                      </p>
                     </div>
                   </div>
                   <Row gutter={[20, 20]}>
