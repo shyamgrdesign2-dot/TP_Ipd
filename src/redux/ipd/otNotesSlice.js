@@ -225,7 +225,7 @@ const otNotesSlice = createSlice({
             estimatedBloodLoss: (intraOp.estimatedBloodLoss || 0).toString(),
             swabCount: (intraOp.swabCount || 0).toString(),
             fluidCount: (intraOp.fluidCount || 0).toString(),
-            sutureType: (intraOp.sutureType || 0).toString(),
+            sutureType: intraOp.sutureType ? (intraOp.sutureType).toString(): "",
           },
         };
       }

@@ -12,7 +12,15 @@ export const useOtNotesRequestData = ({
       date: filledDate,
       time: filledAtTime,
       surgeryDetails: {
-        ...otNotesState.surgeryDetails,
+        ...Object.fromEntries(
+          Object.entries(otNotesState.surgeryDetails || {}).filter(
+            ([key]) => key !== "diagnosis"
+          )
+        ),
+        ...(otNotesState.surgeryDetails &&
+        otNotesState.surgeryDetails.diagnosis != null
+          ? { diagnosis: otNotesState.surgeryDetails.diagnosis }
+          : {}),
       },
       surgeryTeam: {
         ...otNotesState.surgeryTeam,
@@ -48,10 +56,7 @@ export const useOtNotesRequestData = ({
             10
           ) || 0,
         sutureType:
-          parseInt(
-            otNotesState.intraOperativeNotes?.additionalUnits?.sutureType,
-            10
-          ) || 0,
+          otNotesState.intraOperativeNotes?.additionalUnits?.sutureType || null,
       },
       postOperativeNotes: {
         postOpDestination:
@@ -76,7 +81,13 @@ export const useOtNotesRequestData = ({
         ? serializeCustomModules(customModuleContents)
         : [],
     };
-  }, [customModuleContents, filledAtTime, filledDate, otNotesState, serializeCustomModules]);
+  }, [
+    customModuleContents,
+    filledAtTime,
+    filledDate,
+    otNotesState,
+    serializeCustomModules,
+  ]);
 };
 
 export default useOtNotesRequestData;

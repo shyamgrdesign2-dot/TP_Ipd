@@ -38,9 +38,6 @@ const PostOperativeNotes = (props) => {
     [dispatch]
   );
 
-  useEffect(() => {
-    dispatch(fetchFilters({ field: "ward" }));
-  }, []);
   const wards = useMemo(() => {
     return (
       wardFilters?.map((ward) => ({
