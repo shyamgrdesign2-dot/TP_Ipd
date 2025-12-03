@@ -47,10 +47,6 @@ const PastMedicalHistory = (props) => {
     setAddMedicaHistoryDrawer(!addMedicalHistoryDrawer);
   };
 
-  useEffect(() => {
-    dispatch(listSectionwithTag());
-  }, []);
-
   const mapIdsFromDefaultList = useCallback(
     (data = []) => {
       if (!Array.isArray(data) || !defaultList?.length) return data;
