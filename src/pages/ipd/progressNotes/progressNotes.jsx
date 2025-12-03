@@ -68,6 +68,7 @@ const ProgressNotes = (props) => {
   const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
     patientId,
     admissionId,
+    isRichTextRequired: false,
   });
 
   // const { isEditable = true } = props; // Default patientId for testing

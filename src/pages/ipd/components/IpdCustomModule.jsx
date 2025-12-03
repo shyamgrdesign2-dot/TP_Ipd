@@ -217,7 +217,7 @@ const IpdCustomModule = ({
 
   const handleAIRecordingComplete = useCallback(
     (payload, callback) => {
-      const schemaKey = `${schemaKeyMapping?.[formType]}.customModule`;
+      const schemaKey = `${schemaKeyMapping?.[formType]}.customModules`;
       submitVoiceAiRecording({
         payload,
         schemaKey,

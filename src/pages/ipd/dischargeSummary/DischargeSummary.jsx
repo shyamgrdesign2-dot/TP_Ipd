@@ -70,6 +70,7 @@ const DischargeSummary = (props) => {
   const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
     patientId: patientDetails?.details?.id,
     admissionId: patientDetails?.admissionId,
+    isRichTextRequired: false,
   });
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const navigate = useNavigate();
