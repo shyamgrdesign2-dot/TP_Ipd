@@ -502,10 +502,10 @@ const PatientsTable = ({
         dischargeRemarks={warningModalOpen?.dischargeRemarks}
         apiToCall={apiToCall}
         patientId={
+          warningModalOpen?.details?.id || 
           warningModalOpen?.patientId ||
           warningModalOpen?.patient_id ||
-          warningModalOpen?.patientDetails?.id ||
-          warningModalOpen?.patient?.id
+          warningModalOpen?.patientDetails?.id
         }
         admissionId={
           warningModalOpen?.admissionId ||

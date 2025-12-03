@@ -127,7 +127,7 @@ const PNExaminationSection = (props) => {
     (itemId, payload, callback) => {
       submitVoiceAiRecording({
         payload,
-        schemaKey: `PROGRESS_NOTES.examination.${itemId}.notes`,
+        schemaKey: `PROGRESS_NOTES.physicalExamination.examination.${itemId}.notes`,
         previousOutput: physicalExaminationBasicData?.[itemId]?.notes,
         selector: (data) => data?.notes || data,
         onSuccess: (updatedNotes) => {
