@@ -66,7 +66,12 @@ const OtNotes = (props) => {
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
   const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.otNotes;
-  
+  const requiredSurgeryDetailsFields = [
+    { key: "procedureName", label: "Surgery/Procedure Name" },
+    { key: "surgeryDate", label: "Surgery Date" },
+    { key: "surgeryStartTime", label: "Surgery Start Time" },
+    { key: "surgeryEndTime", label: "Surgery End Time" },
+  ];
 
   const {
     customModuleContents,
@@ -254,12 +259,41 @@ const OtNotes = (props) => {
     dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
+  const getMissingRequiredFields = () => {
+    const { surgeryDetails = {} } = otNotesState || {};
+    const isValueMissing = (value) => {
+      if (Array.isArray(value)) {
+        if (value.length === 0) return true;
+        return value.every((item) => {
+          if (typeof item === "string") return !item.trim();
+          if (item && typeof item === "object") return Object.keys(item).length === 0;
+          return !item;
+        });
+      }
+      if (typeof value === "string") return !value.trim();
+      return value === undefined || value === null || value === "";
+    };
+
+    return requiredSurgeryDetailsFields
+      .filter(({ key }) => {
+        const value = surgeryDetails?.[key];
+        return isValueMissing(value);
+      })
+      .map(({ label }) => label);
+  };
+
   const onSaveOtNotesClick = async () => {
+    const missingFields = getMissingRequiredFields();
+    if (missingFields.length) {
+      message.warning(`Please fill the required fields in Surgery Details`);
+      return;
+    }
     const reqData = {
       date: filledDate,
       time: filledAtTime,
       surgeryDetails: {
         ...otNotesState.surgeryDetails,
+      diagnosis: otNotesState.surgeryDetails.diagnosis ?? [],
       },
       surgeryTeam: {
         ...otNotesState.surgeryTeam,

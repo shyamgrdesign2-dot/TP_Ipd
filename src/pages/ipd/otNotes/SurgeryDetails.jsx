@@ -85,7 +85,7 @@ const SurgeryDetails = (props) => {
 
     return (
       <div>
-        <label className="otNotes-label">Surgery/Procedure Name</label>
+        <label className="otNotes-label">Surgery/Procedure Name*</label>
         <Select
           showSearch
           optionLabelProp="label"
@@ -163,7 +163,7 @@ const SurgeryDetails = (props) => {
     const dateDisplayFormat = "D MMM YYYY";
     return (
       <div>
-        <label className="otNotes-label">{data?.title}</label>
+        <label className="otNotes-label">{data?.title}*</label>
         <DatePicker
           className="w-100 popinput inputheight41"
           format={{ format: dateDisplayFormat, type: "mask" }}
@@ -187,7 +187,7 @@ const SurgeryDetails = (props) => {
     const timeFormat = "h:mm A";
     return (
       <div>
-        <label className="otNotes-label">{data?.title}</label>
+        <label className="otNotes-label">{data?.title}*</label>
         <TimePicker
           className="w-100 popinput inputheight41"
           format={timeFormat}
@@ -213,7 +213,7 @@ const SurgeryDetails = (props) => {
     const timeFormat = "h:mm A";
     return (
       <div>
-        <label className="otNotes-label">{data?.title}</label>
+        <label className="otNotes-label">{data?.title}*</label>
         <TimePicker
           use12Hours
           className="w-100 popinput inputheight41"
