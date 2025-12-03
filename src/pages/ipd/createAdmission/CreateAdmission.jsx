@@ -1034,7 +1034,7 @@ export default function CreateAdmission() {
       }
     }
     // Add "Add New Patient" option for non-Zydus users
-    if (!isZydus() && !isMobile) {
+    if (!isZydus()) {
       data.push({
         key: -1,
         value: "Add New Patient",
@@ -1117,10 +1117,6 @@ export default function CreateAdmission() {
       setIsEditingName(false);
     }
   }, [patient_data, isEditModeState]);
-
-  console.log("patientData", patient_data);
-  console.log("isEditModeState", isEditModeState);  
-  console.log("isEditingName", isEditingName);
 
   return (
     <div className="create-admission-page-container">

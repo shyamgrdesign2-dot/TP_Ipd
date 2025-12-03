@@ -12,11 +12,11 @@ const SubHeader = ({ headerTitle, showAddAdmission = true }) => {
   const navigate = useNavigate();
 
   const handleAddAdmission = () => {
-    if(isNewIPDZydusAccessableFromGB) {
-      navigate(`/ipd/add-admission`);
-    } else {
+    // if(isNewIPDZydusAccessableFromGB) {
+    //   navigate(`/ipd/add-admission`);
+    // } else {
       navigate(`/ipd/create-admission`);
-    }
+    // }
   };
 
   return (
