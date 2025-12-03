@@ -135,6 +135,7 @@ const PrintPreviewOTNotes = React.lazy(() => import("./pages/ipd/assessmentForm/
 const PrintPreviewCrossReferral = React.lazy(() => import("./pages/ipd/assessmentForm/PrintPreviewCrossReferral"));
 const DischargedPatients = React.lazy(() => import("./pages/ipd/inPatients/DischargedPatients"));
 const ApproveToDischargePatients = React.lazy(() => import("./pages/ipd/inPatients/ApproveToDischargePatients"));
+const IpdAddNewPatient = React.lazy(() => import("./pages/ipd/addNewPatient/IpdAddNewPatient"));
 // Not currently used (commented) but preserving for the record
 const IPDMedicalRecords = React.lazy(() => import("./pages/ipd/medicalRecords/IPDMedicalRecords"));
 
@@ -626,6 +627,7 @@ function App() {
                   <Route path="patient-admission" element={<PatientAdmission />} />
                 </Route>
                 <Route path="ipd/create-admission" element={<CreateAdmission />} />
+                <Route path="ipd/add-new-patient" element={<IpdAddNewPatient />} />
                 <Route
                   path="ipd/discharge-summary/preview"
                   element={<PreviewDischargeSummary />}

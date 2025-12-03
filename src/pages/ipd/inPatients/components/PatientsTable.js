@@ -47,7 +47,7 @@ const MoreActionsContent = ({ onCtaClick, record, title, onViewAdmissionDetails 
           onClick={handleDischargeClick}
           className="more-actions-menu-item cursor-pointer"
         >
-          <img src={newIcons.dischargedPatientsSc} alt="dischargedPatientsSc" className="more-actions-menu-icon" />
+          {/* <img src={newIcons.dischargedPatientsSc} alt="dischargedPatientsSc" className="more-actions-menu-icon" /> */}
           <span className="more-actions-menu-text">{title}</span>
         </div>
       )}

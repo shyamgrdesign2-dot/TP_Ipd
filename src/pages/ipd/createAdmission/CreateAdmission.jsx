@@ -33,7 +33,8 @@ import {
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import "./CreateAdmission.scss";
 import ApiIpdService from "../../../api/services/ipd/ipdService";
-import { getTokenData } from "../../../utils/utils";
+import { getTokenData, isZydus } from "../../../utils/utils";
+import { isMobile } from "react-device-detect";
 import message from "antd/es/message";
 import SubHeader from "./components/SubHeader";
 import WardBedDrawer from "./components/WardBedDrawer";
@@ -428,7 +429,7 @@ function FieldRenderer({
 export default function CreateAdmission() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { isEditMode, admissionData } = state || {};
+  const { isEditMode, admissionData, patient_data } = state || {};
   const dispatch = useDispatch();
 
   const { filters } = useSelector((s) => s.inPatients);
@@ -655,7 +656,7 @@ export default function CreateAdmission() {
       
       setValue("patientCategory", metadata?.category || "");
       setValue("admissionNo", admissionData?.admissionNo || "");
-      setValue("mlcNumber", metadata?.mlcno || "");
+      setValue("mlcNumber", metadata?.mlcno === "0" ? "" : metadata?.mlcno || "");
       setValue("careTaker", metadata?.caretaker || "");
       setValue("contactNo", metadata?.contactno || "");
       setValue("relationship", metadata?.relationship || "");
@@ -1032,21 +1033,68 @@ export default function CreateAdmission() {
         });
       }
     }
+    // Add "Add New Patient" option for non-Zydus users
+    if (!isZydus() && !isMobile) {
+      data.push({
+        key: -1,
+        value: "Add New Patient",
+        label: AddPatientPlank(),
+      });
+    }
     setPatientSearchOptions(data);
-  }, [patients]);
+  }, [patients, searchQuery, error]);
 
-  const onSelect = (patient) => {
-    setPatientDetails({
-      patientName: patient.pm_fullname,
-      mobileNumber: patient.pm_contact_no,
-      patientUniqueId: patient.patient_unique_id,
-      patientId: patient.pm_pid,
+  const goToAddPatient = () => {
+    navigate("/ipd/add-new-patient", {
+      state: {
+        from: "/ipd/create-admission",
+        returnPath: "/ipd/create-admission",
+      },
     });
-    setPatientData(patient)
-    setPatientSearchOptions([]);
-    setSearchQueryMobile("");
-    setSearchQueryName("");
-    setIsEditingName(false);
+  };
+
+  const AddPatientPlank = () => {
+    return (
+      <Button
+        type="text"
+        className="btn btn-primary1 btn-41 align-items-center d-flex"
+        icon={<i className="icon-Add"></i>}
+        onClick={(e) => {
+          e.stopPropagation();
+          goToAddPatient();
+        }}
+      >
+        Add New Patient
+      </Button>
+    );
+  };
+
+  const onSelect = (value, option) => {
+    // Check if "Add New Patient" was selected
+    if (option?.key === -1 || value === "Add New Patient") {
+      goToAddPatient();
+      return;
+    }
+
+    // Handle patient selection
+    try {
+      const patient = typeof option?.key === 'string' ? JSON.parse(option.key) : option?.key;
+      if (patient && patient.pm_pid) {
+        setPatientDetails({
+          patientName: patient.pm_fullname,
+          mobileNumber: patient.pm_contact_no,
+          patientUniqueId: patient.patient_unique_id,
+          patientId: patient.pm_pid,
+        });
+        setPatientData(patient);
+        setPatientSearchOptions([]);
+        setSearchQueryMobile("");
+        setSearchQueryName("");
+        setIsEditingName(false);
+      }
+    } catch (error) {
+      console.error("Error parsing patient data:", error);
+    }
   };
 
   useEffect(() => {
@@ -1055,11 +1103,30 @@ export default function CreateAdmission() {
     }
   }, [isEditingName]);
 
+  // Handle return from AddNewPatient page with new patient data
+  useEffect(() => {
+    if (patient_data && !isEditModeState) {
+      // Pre-fill patient data when returning from AddNewPatient
+      setPatientData(patient_data);
+      setPatientDetails({
+        patientName: patient_data.pm_fullname,
+        mobileNumber: patient_data.pm_contact_no,
+        patientUniqueId: patient_data.patient_unique_id,
+        patientId: patient_data.pm_pid,
+      });
+      setIsEditingName(false);
+    }
+  }, [patient_data, isEditModeState]);
+
+  console.log("patientData", patient_data);
+  console.log("isEditModeState", isEditModeState);  
+  console.log("isEditingName", isEditingName);
+
   return (
     <div className="create-admission-page-container">
       <SubHeader
         showConfirmAdmissionButton={isPatientSelected}
-        headerTitle={isEditModeState ? "Edit Admission" : "Create Admission"}
+        headerTitle={isEditModeState ? "Edit Admission" : "Create New Admission"}
         onConfirmAdmissionClick={() => handleSubmit(onSubmit)()}
         isConfirmDisabled={isConfirmDisabled}
         helperMessage={helperMessage}
@@ -1078,7 +1145,7 @@ export default function CreateAdmission() {
                 <img src={defaultIcons.basicInfoPc} alt="patient" />
                 <span>Patient Details</span>
               </div>
-              {isEditingName && !patientData && !isEditModeState ? (
+              {isEditingName && !patient_data && !isEditModeState ? (
                 <AutoComplete
                   ref={nameAutoCompleteRef}
                   value={searchQueryName}
@@ -1088,6 +1155,7 @@ export default function CreateAdmission() {
                     onSearchMobile(value);
                   }}
                   options={patientSearchOptions}
+                  onSelect={onSelect}
                   className="w-100 autocomplete-custom"
                   open={autoCompleteFlagName}
                   onFocus={() => {
@@ -1120,28 +1188,29 @@ export default function CreateAdmission() {
               ) : (
                 <div
                   className={`d-flex align-items-center flex-wrap border w-100 ${
-                    (patientData || isEditModeState) ? "pe-none disabled" : "cursor-pointer"
+                    (patient_data || isEditModeState) ? "pe-none disabled" : "cursor-pointer"
                   }`}
                   onClick={() => {
-                    if (!patientData && !isEditModeState) {
+                    if (!patient_data && !isEditModeState) {
                       setIsEditingName(true);
                     }
                   }}
                   style={{ padding: "5px 10px", borderRadius: "12px" }}
                 >
                   <div className="list-patientName d-flex align-items-center me-4 ml-2 my-1">
-                    <i className="icon-patients backbar me-2"></i>{" "}
+                    <i className="icon-patients backbar "></i>{" "}
                     <span
                       className="patientInfo"
                       style={{ width: "max-content" }}
                     >
                       {patientData?.pm_fullname ||
                         patientData?.patientName ||
-                        patientDetails?.patientName}
+                        patientDetails?.patientName}{" "}
+                      ({patientData?.pm_gender || patientDetails?.gender}, {patientData?.ageYears || patientDetails?.ageYears}y)
                     </span>
                   </div>
                   <div className="list-patientName d-flex align-items-center me-4 my-1">
-                    <i className="icon-phone backbar me-2"></i>
+                    <i className="icon-phone backbar"></i>
                     <span className="patientInfo">
                       {patientData?.pm_contact_no ||
                         patientData?.mobileNumber ||
@@ -1149,7 +1218,7 @@ export default function CreateAdmission() {
                     </span>
                   </div>
                   <div className="list-patientName d-flex align-items-center me-4 my-1">
-                    <i className="icon-Id backbar me-2"></i>
+                    <i className="icon-Id backbar"></i>
                     <span className="patientInfo">
                       {patientData?.pm_pid ||
                         patientData?.pmPid ||

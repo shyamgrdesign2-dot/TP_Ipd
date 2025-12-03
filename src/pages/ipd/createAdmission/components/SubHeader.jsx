@@ -7,7 +7,8 @@ import { GB_NEW_IPD_ZYDUS } from "../../../../utils/constants";
 
 const SubHeader = ({
   headerTitle,
-  showConfirmAdmissionButton = true,
+  showConfirmAdmissionButton = false,
+  backButtonPath = "/ipd/inPatients",
   onConfirmAdmissionClick,
   isConfirmDisabled = false,
   helperMessage = "",
@@ -22,7 +23,7 @@ const SubHeader = ({
       <div className="sub-header-content d-flex gap-1">
         <i
           className="icon-right"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate(backButtonPath)}
           style={{
             display: "block",
             color: "white",

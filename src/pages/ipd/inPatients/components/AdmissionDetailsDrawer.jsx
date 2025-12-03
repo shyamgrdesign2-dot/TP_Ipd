@@ -7,7 +7,6 @@ import { getPatientInformation } from "../../../../utils/utils";
 import { printModule, downloadModule } from "../../utils/printDownload";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { defaultIcons } from "../../../../assets/images/icons";
 import "./AdmissionDetailsDrawer.scss";
 
 // Configure PDF.js worker
@@ -212,20 +211,20 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
           <div className="header-actions">
             <Button
               type="text"
-              icon={<img src={defaultIcons.editIcon} alt="edit" />}
+              icon={<i className="icon-Edit ms-2" style={{ color: "#4b4ad5" }} />}
               onClick={handleEditClick}
               className="header-action-btn"
             />
             <Button
               type="text"
-              icon={<img src={defaultIcons.printerIcon} alt="print" />}
+              icon={<i className="icon-Print ms-2" style={{ color: "#4b4ad5" }} />}
               onClick={handlePrintClick}
               disabled={!printBlob && !pdfUrl}
               className="header-action-btn"
             />
             <Button
               type="text"
-              icon={<img src={defaultIcons.downloadIcon} alt="download" />}
+              icon={<i className="icon-download ms-2" style={{ color: "#4b4ad5" }} />}
               onClick={handleDownloadClick}
               disabled={!pdfUrl}
               className="header-action-btn"
