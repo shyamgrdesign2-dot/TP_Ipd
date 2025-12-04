@@ -3,7 +3,7 @@ import { Drawer, Button, Spin } from "antd";
 import { Document, Page, pdfjs } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 import { PDFGenerator } from "../../../../components/PDFGenerator";
-import { getPatientInformation } from "../../../../utils/utils";
+import { getPatientInformation, isZydus } from "../../../../utils/utils";
 import { printModule, downloadModule } from "../../utils/printDownload";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -209,22 +209,33 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
             <div className="header-title">Admission Details</div>
           </div>
           <div className="header-actions">
+            {!isZydus() && (
+              <Button
+                type="text"
+                icon={
+                  <i className="icon-Edit ms-2" style={{ color: "#4b4ad5" }} />
+                }
+                onClick={handleEditClick}
+                className="header-action-btn"
+              />
+            )}
             <Button
               type="text"
-              icon={<i className="icon-Edit ms-2" style={{ color: "#4b4ad5" }} />}
-              onClick={handleEditClick}
-              className="header-action-btn"
-            />
-            <Button
-              type="text"
-              icon={<i className="icon-Print ms-2" style={{ color: "#4b4ad5" }} />}
+              icon={
+                <i className="icon-Print ms-2" style={{ color: "#4b4ad5" }} />
+              }
               onClick={handlePrintClick}
               disabled={!printBlob && !pdfUrl}
               className="header-action-btn"
             />
             <Button
               type="text"
-              icon={<i className="icon-download ms-2" style={{ color: "#4b4ad5" }} />}
+              icon={
+                <i
+                  className="icon-download ms-2"
+                  style={{ color: "#4b4ad5" }}
+                />
+              }
               onClick={handleDownloadClick}
               disabled={!pdfUrl}
               className="header-action-btn"

@@ -57,13 +57,7 @@ const FIELD_SCHEMA = [
     placeholder:"Select Patient Category",
     options: ["Emergency", "Insurance", "Cash", "Corporate"],
   },
-  { id: "admissionNo", label: "Admission Number", type: "input", placeholder:"Enter Admission Number" },
-//   {
-//     id: "haveAMLC",
-//     label: "Have a MLC?",
-//     type: "select-static",
-//     options: ["Yes", "No"],
-//   },
+//   { id: "admissionNo", label: "Admission Number", type: "input", placeholder:"Enter Admission Number" },
   { id: "mlcNumber", label: "MLC Number", type: "input", placeholder:"Enter MLC Number" },
   { id: "careTaker", label: "Care Taker Name*", type: "input", placeholder:"Enter Care Taker Name" },
   { id: "contactNo", label: "Care Taker Mobile number*", type: "input", placeholder:"Enter Care Taker Mobile Number" },
@@ -89,7 +83,6 @@ const REQUIRED_FIELD_IDS = [
   "contactNo",
   "relationship",
   "careTaker",
-
 ];
 
 const SECTION_LAYOUT = [
@@ -105,8 +98,6 @@ const SECTION_LAYOUT = [
       "admissionTime",
       "wardBed",
       "patientCategory",
-      "admissionNo",
-    //   "haveAMLC",
       "mlcNumber",
     ],
   },
@@ -602,7 +593,8 @@ export default function CreateAdmission() {
         pm_salutation: details?.prefix || "",
         pm_gender: details?.gender || "",
         pm_contact_no: details?.contact || "",
-        pm_pid: admissionData?.mrno || details?.id || "",
+        patient_unique_id: details?.id || "",
+        pm_pid: details?.pm_pid || "",
         patient_address: details?.address || "",
         pm_address: details?.address || "",
         pm_blood_group: details?.bloodGroup || "",
@@ -613,8 +605,8 @@ export default function CreateAdmission() {
       setPatientDetails({
         patientName: details?.name || "",
         mobileNumber: details?.contact || "",
-        patientId: admissionData?.mrno || details?.id || "",
-        id: details?.id || "",
+        patientUniqueId: details?.id || "",
+        patientId: details?.pm_pid || "",
       });
 
       // Parse admission date and time
@@ -710,6 +702,7 @@ export default function CreateAdmission() {
 
   const onSubmit = async (formData) => {
 
+    // console.log(formData,"formData");
     try {
       const admittedOn = combineToAdmittedOn(
         formData.admissionDate,
@@ -757,7 +750,8 @@ export default function CreateAdmission() {
 
       const payload = {
         details: {
-          id: String(patientDetails?.id ?? patientDetails?.patientId ?? ""),
+          id: String(patientDetails?.patientUniqueId ?? patientDetails?.patientUniqueId ?? ""),
+          pm_pid: patientDetails?.patientId || "",
           name: name === "-" ? "" : name,
           gender: toUpperSafe(gender, ""),
           prefix: prefix || "",
@@ -806,10 +800,10 @@ export default function CreateAdmission() {
         referral: admissionData?.referral || false,
         isDischarged: admissionData?.isDischarged || false,
         sentForApproval: admissionData?.sentForApproval || false,
-        mrno: patientData?.pm_pid ?? patientDetails?.mrno ?? patientDetails?.mrNo ?? admissionData?.mrno ?? "0",
-        visitno: admissionData?.visitno || patientDetails?.visitno || "0",
-        encounterno: admissionData?.encounterno || patientDetails?.encounterno || "0",
-        admissionNo: formData?.admissionNo || admissionData?.admissionNo || "",
+        mrno:"0",
+        visitno:"0",
+        encounterno:"0",
+        admissionNo:admissionData?.admissionNo || "",
         metadata: {
           category: formData.patientCategory || "",
           haveMLC: formData.mlcNumber && formData.mlcNumber.trim() !== "" ? true : false,
@@ -824,11 +818,15 @@ export default function CreateAdmission() {
         },
       };
 
+    //   console.log(payload,"payload");
+
       if (isEditModeState && admissionData?.admissionId) {
         // Edit mode - call edit API
         // Remove fields that shouldn't be in edit payload based on curl:
         const editPayload = { ...payload };
         delete editPayload.sentForApproval;
+
+        // console.log(editPayload,"editPayload");
         
         await dispatch(editAdmission({
           admissionId: admissionData.admissionId,
@@ -839,14 +837,17 @@ export default function CreateAdmission() {
         // Create mode
         const checkIfAdmitted = await dispatch(
           checkPatientAdmitted({
-            patientId: patientDetails?.id ?? patientDetails?.patientId ?? "",
+            patientId: patientDetails?.patientUniqueId ?? patientDetails?.patientId ?? "",
           })
         );
         if (!!checkIfAdmitted.payload.alreadyAdmitted) {
           message.error("Patient is already admitted");
           return;
         }
-        await ApiIpdService.createAdmission(payload);
+
+        const createPayload = { ...payload };
+        delete createPayload.admissionNo;
+        await ApiIpdService.createAdmission(createPayload);
         message.success("Admission created successfully");
       }
       
@@ -1113,7 +1114,9 @@ export default function CreateAdmission() {
         // Decode base64 and parse JSON
         const decodedData = decodeURIComponent(atob(patientDataParam));
         const parsedPatientData = JSON.parse(decodedData);
-        
+
+        // console.log(parsedPatientData,"parsedPatientData");
+        // console.log(patientData,"patientData");
         if (parsedPatientData) {
           setPatientData(parsedPatientData);
           setPatientDetails({
@@ -1143,6 +1146,7 @@ export default function CreateAdmission() {
   useEffect(() => {
     if (patient_data && !isEditModeState && !patientData) {
       // Pre-fill patient data when returning from AddNewPatient
+      // console.log(patient_data,"patient_data");
       setPatientData(patient_data);
       setPatientDetails({
         patientName: patient_data.pm_fullname,
