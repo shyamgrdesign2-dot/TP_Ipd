@@ -261,7 +261,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                                     loading={loading}>
                                     {mode === EDIT
                                         ? 'Save'
-                                        : (isFromAllPatients || isFromAddAppointment)
+                                        : (isFromAllPatients || isFromAddAppointment || isFromCreateAdmission )
                                             ? 'Add Patient'
                                             : 'Add Patient to Consult'
                                     }

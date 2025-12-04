@@ -23,7 +23,7 @@ import AdmissionDetailsDrawer from "./AdmissionDetailsDrawer";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
-const MoreActionsContent = ({ onCtaClick, record, title, onViewAdmissionDetails }) => {
+const MoreActionsContent = ({ onCtaClick, record, title, onViewAdmissionDetails, isDischargedPatients, isDischarged }) => {
   const handleViewAdmissionDetails = (e) => {
     e.stopPropagation();
     onViewAdmissionDetails?.(record);
@@ -42,7 +42,7 @@ const MoreActionsContent = ({ onCtaClick, record, title, onViewAdmissionDetails 
       >
         <span className="more-actions-menu-text">View Admission Details</span>
       </div>
-      {title && (
+      {!isDischargedPatients && !isDischarged && title && (
         <div
           onClick={handleDischargeClick}
           className="more-actions-menu-item cursor-pointer"
@@ -386,9 +386,7 @@ const PatientsTable = ({
             >
               View Details
             </button>
-            {!isDischargedPatients &&
-            !record?.isDischarged &&
-            actionObj?.title ? (
+            {(
               <Popover
                 open={
                   openMoreActionsPopover === record?.patientData?.admissionId
@@ -408,6 +406,8 @@ const PatientsTable = ({
                       setSelectedPatientForAdmissionDetails(patientData);
                       setAdmissionDetailsDrawerOpen(true);
                     }}
+                    isDischargedPatients={isDischargedPatients}
+                    isDischarged={record?.isDischarged}
                   />
                 }
                 trigger="click"
@@ -428,7 +428,7 @@ const PatientsTable = ({
                   alt={":"}
                 />
               </Popover>
-            ) : null}
+            )}
           </div>
         );
       },

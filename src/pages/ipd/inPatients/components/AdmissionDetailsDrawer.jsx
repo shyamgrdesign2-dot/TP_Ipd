@@ -55,7 +55,7 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
         department: doctor?.speciality || "",
         wardBed: `${ward?.title || ""} / ${room?.title || ""}`,
         patientCategory: metadata?.category || "",
-        mlcNumber: metadata?.mlcno || "",
+        mlcNumber: metadata?.mlcno === "0" ? "" : metadata?.mlcno || "",
       },
       careTakerDetails: {
         mobileNumber: metadata?.contactno || "",

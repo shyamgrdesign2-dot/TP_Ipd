@@ -17,7 +17,7 @@ import {
 } from "antd";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import {
   doctorDepartmentRoles as fetchDoctorDeptRoles,
@@ -428,7 +428,9 @@ function FieldRenderer({
 
 export default function CreateAdmission() {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const location = useLocation();
+  const { state } = location;
+  const [searchParams] = useSearchParams();
   const { isEditMode, admissionData, patient_data } = state || {};
   const dispatch = useDispatch();
 
@@ -1103,9 +1105,43 @@ export default function CreateAdmission() {
     }
   }, [isEditingName]);
 
+  // Handle patient data from URL query parameters (cross-domain)
+  useEffect(() => {
+    const patientDataParam = searchParams.get('patientData');
+    if (patientDataParam && !patient_data && !isEditModeState && !patientData) {
+      try {
+        // Decode base64 and parse JSON
+        const decodedData = decodeURIComponent(atob(patientDataParam));
+        const parsedPatientData = JSON.parse(decodedData);
+        
+        if (parsedPatientData) {
+          setPatientData(parsedPatientData);
+          setPatientDetails({
+            patientName: parsedPatientData.pm_fullname || parsedPatientData.name || "",
+            mobileNumber: parsedPatientData.pm_contact_no || parsedPatientData.contact || "",
+            patientUniqueId: parsedPatientData.patient_unique_id || parsedPatientData.id || "",
+            patientId: parsedPatientData.pm_pid || parsedPatientData.patientId || "",
+          });
+          setIsEditingName(false);
+          
+          // Clean up URL after reading the data
+          const newSearchParams = new URLSearchParams(searchParams);
+          newSearchParams.delete('patientData');
+          navigate(
+            { pathname: location.pathname, search: newSearchParams.toString() },
+            { replace: true }
+          );
+        }
+      } catch (error) {
+        console.error("Error parsing patient data from URL:", error);
+        message.error("Failed to load patient data from URL");
+      }
+    }
+  }, [searchParams, patient_data, isEditModeState, patientData, navigate, location.pathname]);
+
   // Handle return from AddNewPatient page with new patient data
   useEffect(() => {
-    if (patient_data && !isEditModeState) {
+    if (patient_data && !isEditModeState && !patientData) {
       // Pre-fill patient data when returning from AddNewPatient
       setPatientData(patient_data);
       setPatientDetails({
@@ -1116,7 +1152,7 @@ export default function CreateAdmission() {
       });
       setIsEditingName(false);
     }
-  }, [patient_data, isEditModeState]);
+  }, [patient_data, isEditModeState, patientData]);
 
   return (
     <div className="create-admission-page-container">
