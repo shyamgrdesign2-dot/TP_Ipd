@@ -48,7 +48,9 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
       },
       admissionDetails: {
         admittingDoctor: doctor?.name || "",
-        admissionId: patientData?.admissionId || patientData?.admissionNo || "",
+        admissionId: patientData?.admissionId || "",
+        admissionNo: patientData?.admissionNo || "",
+        mrno: patientData?.mrno || "",
         referredBy: patientData?.referredBy || "",
         referralNotes: patientData?.referralNotes || "",
         admissionDate: patientData?.admittedOn || "",
@@ -56,6 +58,18 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
         wardBed: `${ward?.title || ""} / ${room?.title || ""}`,
         patientCategory: metadata?.category || "",
         mlcNumber: metadata?.mlcno === "0" ? "" : metadata?.mlcno || "",
+
+       // Conditional logic
+        ...(isZydus()
+          ? {
+              // For Zydus show both AdmissionNo & MRNO
+              admissionNo: patientData?.admissionNo || "",
+              mrno: patientData?.mrno || "",
+            }
+          : {
+              // For Non-Zydus show only AdmissionId
+              admissionId: patientData?.admissionId || "",
+            }),
       },
       careTakerDetails: {
         mobileNumber: metadata?.contactno || "",

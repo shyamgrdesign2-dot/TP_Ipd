@@ -14,6 +14,14 @@ const styles = StyleSheet.create({
   subsectionContainer: {
     marginBottom: 12,
   },
+  topBorder: {
+    marginBottom: 10,
+    marginTop: 10,
+    height: 0,
+    width: "100%",
+    borderTopWidth: 1,
+    borderTopColor: "#A2A2A8",
+  },
   subsectionTitle: {
     fontWeight: 700,
     color: "#171725",
@@ -117,29 +125,28 @@ const renderPatientDetails = (data) => {
   const leftFields = [
     { label: "Patient Name", value: patientName || "-" },
     { label: "Age/Gender", value: ageGender || "-" },
-    { label: "Contact No", value: patientInfo.contact || "-" },
+
   ];
   
   // Right column: 2 fields
   const rightFields = [
+    { label: "Contact No", value: patientInfo.contact || "-" },
     { label: "Patient ID", value: patientInfo.patientId || "-" },
-    { label: "Address", value: patientInfo.address || "-" },
+    // { label: "Address", value: patientInfo.address || "-" },
   ];
   
   return (
     <View style={styles.sectionContainer}>
-      <Text style={styles.subsectionTitle}>Patient Details</Text>
-      
-      <View style={styles.subsectionContainer}>
-        <View style={styles.twoColumnContainer}>
-          <View style={styles.leftColumn}>
-            {leftFields.map((field) => renderFieldRow(field.label, field.value))}
+      <View style={styles.topBorder} />
+          <View style={styles.twoColumnContainer}>
+            <View style={styles.leftColumn}>
+              {leftFields.map((field) => renderFieldRow(field.label, field.value))}
+            </View>
+            <View style={styles.rightColumn}>
+              {rightFields.map((field) => renderFieldRow(field.label, field.value))}
+            </View>
           </View>
-          <View style={styles.rightColumn}>
-            {rightFields.map((field) => renderFieldRow(field.label, field.value))}
-          </View>
-        </View>
-      </View>
+      <View style={styles.topBorder} />
     </View>
   );
 };
@@ -150,10 +157,13 @@ const renderPatientDetails = (data) => {
 const renderAdmissionDetailsSection = (data) => {
   const admissionInfo = data?.admissionDetails || {};
   
+  const hasValue = (v) => v !== undefined && v !== null && v !== " " && v !== "-" && v !== "0";
   // Collect all fields dynamically
   const allFields = [
     { label: "Admitting Doctor", value: admissionInfo.admittingDoctor || "-" },
     { label: "Admission ID", value: admissionInfo.admissionId || "-" },
+    { label: "Admission No", value: admissionInfo.admissionNo || "-" },
+    { label: "MRN No", value: admissionInfo.mrno || "-" },
     admissionInfo.referredBy && { label: "Referred By", value: admissionInfo.referredBy },
     admissionInfo.referralNotes && { label: "Referral Notes", value: admissionInfo.referralNotes },
     { 
@@ -169,7 +179,7 @@ const renderAdmissionDetailsSection = (data) => {
         ? String(admissionInfo.mlcNumber) 
         : "-" 
     },
-  ].filter(Boolean);
+  ].filter((item) => hasValue(item.value));
   
   // Split into two columns: first half on left, second half on right
   const midPoint = Math.ceil(allFields.length / 2);

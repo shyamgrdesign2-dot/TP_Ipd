@@ -12,7 +12,7 @@ import {
   sendForDischargeApproval,
 } from "../../../../redux/ipd/ipdSlice";
 import { usePatientsData } from "../hooks/usePatientsData";
-import { getTokenData, isEmptyRichText } from "../../../../utils/utils";
+import { getTokenData, isEmptyRichText, isZydus } from "../../../../utils/utils";
 import DischargeConfirmationModal from "../../dischargeSummary/components/DischargeConfirmationModal";
 import DischargeConfirmationPopup from "../../dischargeSummary/components/DischargeConfirmationPopup";
 import { createRemoteComponent } from "../../../../shared/remoteComponents";
@@ -228,15 +228,22 @@ const PatientsTable = ({
     //   ),
     // },
     {
-      title: "Admission Id / MRN id",
+      title: isZydus() ? "Admission No / MRN No" : "Admission Id",
       dataIndex: "admissionNo",
       key: "admissionNo",
       className: "col-patient-details",
       render: (text, record) => (
-        <div>
-          <div>{record?.admissionNo || ""}</div>
-          <small>{record?.mrno}</small>
-        </div>
+        <>
+          { isZydus() ?
+            <div>
+              <div>{record?.admissionNo || ""}</div>
+              <small>{record?.mrno}</small>
+            </div> :
+            <div>
+              <div>{record?.admissionId || ""}</div>
+            </div>
+          }
+        </>
       ),
     },
     {

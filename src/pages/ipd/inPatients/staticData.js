@@ -521,6 +521,7 @@ export const formatPatientsForTable = (patients) => {
       doctorId: patient.doctor.id,
       mrno: patient.mrno,
       admissionNo: patient.admissionNo,
+      admissionId: patient.admissionId,
       dateOfDischarge: patient.dateOfDischarge,
       timeOfDischarge: patient.timeOfDischarge,
       dischargeType: patient.dischargeType,
