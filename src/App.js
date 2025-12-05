@@ -54,97 +54,47 @@ import BillingSettings from "./pages/opdBilling/components/advanceBillSettings/B
 import AllPatients from "./pages/allPatients.js/AllPatients";
 import AddAppointment from "./pages/addAppointment/AddAppointment";
 import { checkAccountStatus } from "./pages/auth/authService";
-import FullPageLoader from "./pages/vaccination/components/Loader";
+import PrivateRoute from "./pages/auth/components/PrivateRoute";
+import GetUnlimitedAccess from "./pages/monetization/GetUnlimitedAccess";
+import UpgradeServicesModal from "./pages/monetization/components/UpgradeServicesModal";
+import Onboarding from "./pages/onBoarding/components/Onboarding";
+import FinalSetup from "./pages/FinalSetup";
+import OurOffering from "./pages/ourOffering/OurOffering";
+import SnapRx from "./pages/snapRx/SnapRx";
+import UploadRx from "./pages/uploadRx";
+import BottomSheetManager from "./components/bottomSheetManager";
+import SnapRxPreview from "./pages/snapRx/SnapRxPreview";
+import SnapRxDigitise from "./pages/snapRx/SnapRxDigitise";
+import AppointmentAgent from "./pages/appointmentAgent/AppointmentAgent";
+import AppointmentSuccess from "./pages/appointmentAgent/components/AppointmentSuccess/AppointmentSuccess";
+import OpdBill from "./pages/opdBilling/OpdBill";
+import IPDPatientDetails from "./pages/ipd/patientDetails/patientDetails";
+import AssessmentsForm from "./pages/ipd/assessmentForm/AssessmentsForm";
+import InPatients from "./pages/ipd/inPatients/InPatients";
+import OtNotes from "./pages/ipd/otNotes/OtNotes";
+import HomePageLayout from "./pages/ipd/HomePageLayout";
+import ConsultantNotes from "./pages/ipd/consultantNotes/ConsultantNotes";
+import LabResults from "./pages/ipd/labResults/LabResults";
+import ProgressNotes from "./pages/ipd/progressNotes/progressNotes";
+import IPDMedicalRecords from "./pages/ipd/medicalRecords/IPDMedicalRecords";
+import CrossReferral from "./pages/ipd/crossReferral/CrossReferral";
+import CrossReferralConsultantNotes from "./pages/ipd/crossReferral/CrossReferralConsultantNotes";
+import DischargeSummary from "./pages/ipd/dischargeSummary/DischargeSummary";
+import PreviewDischargeSummary from "./pages/ipd/dischargeSummary/PreviewDischargeSummary";
+import PreviewProgressNotes from "./pages/ipd/progressNotes/previewProgressNotes";
+import ConfigurePrintSettings from "./pages/ipd/dischargeSummary/ConfigurePrintSettings";
+import PatientAdmission from "./pages/ipd/patientAdmission/PatientAdmission";
+import AddAdmission from "./pages/ipd/patientAdmission/AddAdmission";
+import PrintPreview from "./pages/ipd/consultantNotes/PrintPreview";
+import PrintSettings from "./pages/ipd/consultantNotes/PrintSettings";
+import PreviewAdmissionAssessment from "./pages/ipd/assessmentForm/PreviewAdmissionAssessment";
+import PrintPreviewOTNotes from "./pages/ipd/assessmentForm/PrintPreviewOTNotes";
+import PrintPreviewCrossReferral from "./pages/ipd/assessmentForm/PrintPreviewCrossReferral";
+import DischargedPatients from "./pages/ipd/inPatients/DischargedPatients";
+import ApproveToDischargePatients from "./pages/ipd/inPatients/ApproveToDischargePatients";
+import IpdAddNewPatient from "./pages/ipd/addNewPatient/IpdAddNewPatient";
 import CreateAdmission from "./pages/ipd/createAdmission/CreateAdmission";
 
-// Lazily loaded components - grouped by folders for clarity
-
-// Common
-const DemoExpirationBanner = React.lazy(() => import("./common/DemoExpirationBanner"));
-const PlanExpirationBanner = React.lazy(() => import("./common/PlanExpirationBanner"));
-const DoctorModal = React.lazy(() => import("./common/DoctorModal"));
-const ExpiredPlanCard = React.lazy(() => import("./common/ExpiredPlanCard"));
-
-// Components
-const BottomSheetManager = React.lazy(() => import("./components/bottomSheetManager"));
-
-// Authentication and Monetization
-const AuthContainer = React.lazy(() => import("./pages/auth/auth"));
-const PrivateRoute = React.lazy(() => import("./pages/auth/components/PrivateRoute"));
-const GetUnlimitedAccess = React.lazy(() => import("./pages/monetization/GetUnlimitedAccess"));
-const UpgradeServicesModal = React.lazy(() => import("./pages/monetization/components/UpgradeServicesModal"));
-
-// Onboarding & Setup
-const Onboarding = React.lazy(() => import("./pages/onBoarding/components/Onboarding"));
-const FinalSetup = React.lazy(() => import("./pages/FinalSetup"));
-const OurOffering = React.lazy(() => import("./pages/ourOffering/OurOffering"));
-
-// Appointments & Patients
-const AppointmentList = React.lazy(() => import("./pages/AppointmentList"));
-const AddAppointment = React.lazy(() => import("./pages/addAppointment/AddAppointment"));
-const MessageCreateCampaign = React.lazy(() => import("./pages/MessageCreateCampaign"));
-const AllPatients = React.lazy(() => import("./pages/allPatients.js/AllPatients"));
-const AppointmentAgent = React.lazy(() => import("./pages/appointmentAgent/AppointmentAgent"));
-const AppointmentSuccess = React.lazy(() => import("./pages/appointmentAgent/components/AppointmentSuccess/AppointmentSuccess"));
-
-// Prescription pages
-const PatientDetails = React.lazy(() => import("./pages/PatientDetails"));
-const Prescription = React.lazy(() => import("./pages/Prescription"));
-const SmartPrescription = React.lazy(() => import("./pages/SmartPrescription"));
-const TabPrescription = React.lazy(() => import("./pages/tab_design/TabPrescription"));
-const PrescriptionPrintView = React.lazy(() => import("./pages/PrescriptionPrintView"));
-const ConfigurePrintSetting = React.lazy(() => import("./pages/ConfigurePrintSetting"));
-const MedicalCertificate = React.lazy(() => import("./pages/MedicalCertificate"));
-const CertificatePrintView = React.lazy(() => import("./pages/CertificatePrintView"));
-const SmartRxPreview = React.lazy(() => import("./pages/SmartRxPreview"));
-const SmartRxDigitise = React.lazy(() => import("./pages/SmartRxDigitise"));
-const GenRxPrescriptionPrintView = React.lazy(() => import("./pages/GenRxPrescriptionPrintView"));
-
-// Billing
-const BillingDashboard = React.lazy(() => import("./pages/opdBilling/components/billingDashboard/BillingDashboard"));
-const BillingSettings = React.lazy(() => import("./pages/opdBilling/components/advanceBillSettings/BillingSettings"));
-const OpdBill = React.lazy(() => import("./pages/opdBilling/OpdBill"));
-
-// SnapRx
-const SnapRx = React.lazy(() => import("./pages/snapRx/SnapRx"));
-const SnapRxPreview = React.lazy(() => import("./pages/snapRx/SnapRxPreview"));
-const SnapRxDigitise = React.lazy(() => import("./pages/snapRx/SnapRxDigitise"));
-const UploadRx = React.lazy(() => import("./pages/uploadRx"));
-
-// IPD module
-const IPDPatientDetails = React.lazy(() => import("./pages/ipd/patientDetails/patientDetails"));
-const AssessmentsForm = React.lazy(() => import("./pages/ipd/assessmentForm/AssessmentsForm"));
-const OtNotes = React.lazy(() => import("./pages/ipd/otNotes/OtNotes"));
-const CrossReferral = React.lazy(() => import("./pages/ipd/crossReferral/CrossReferral"));
-const CrossReferralConsultantNotes = React.lazy(() => import("./pages/ipd/crossReferral/CrossReferralConsultantNotes"));
-const DischargeSummary = React.lazy(() => import("./pages/ipd/dischargeSummary/DischargeSummary"));
-const ProgressNotes = React.lazy(() => import("./pages/ipd/progressNotes/progressNotes"));
-const ConsultantNotes = React.lazy(() => import("./pages/ipd/consultantNotes/ConsultantNotes"));
-const LabResults = React.lazy(() => import("./pages/ipd/labResults/LabResults"));
-const PreviewDischargeSummary = React.lazy(() => import("./pages/ipd/dischargeSummary/PreviewDischargeSummary"));
-const PreviewProgressNotes = React.lazy(() => import("./pages/ipd/progressNotes/previewProgressNotes"));
-const ConfigurePrintSettings = React.lazy(() => import("./pages/ipd/dischargeSummary/ConfigurePrintSettings"));
-const InPatients = React.lazy(() => import("./pages/ipd/inPatients/InPatients"));
-const HomePageLayout = React.lazy(() => import("./pages/ipd/HomePageLayout"));
-const PatientAdmission = React.lazy(() => import("./pages/ipd/patientAdmission/PatientAdmission"));
-const AddAdmission = React.lazy(() => import("./pages/ipd/patientAdmission/AddAdmission"));
-const PrintPreview = React.lazy(() => import("./pages/ipd/consultantNotes/PrintPreview"));
-const PrintSettings = React.lazy(() => import("./pages/ipd/consultantNotes/PrintSettings"));
-const PreviewAdmissionAssessment = React.lazy(() => import("./pages/ipd/assessmentForm/PreviewAdmissionAssessment"));
-const PrintPreviewOTNotes = React.lazy(() => import("./pages/ipd/assessmentForm/PrintPreviewOTNotes"));
-const PrintPreviewCrossReferral = React.lazy(() => import("./pages/ipd/assessmentForm/PrintPreviewCrossReferral"));
-const DischargedPatients = React.lazy(() => import("./pages/ipd/inPatients/DischargedPatients"));
-const ApproveToDischargePatients = React.lazy(() => import("./pages/ipd/inPatients/ApproveToDischargePatients"));
-const IpdAddNewPatient = React.lazy(() => import("./pages/ipd/addNewPatient/IpdAddNewPatient"));
-// Not currently used (commented) but preserving for the record
-const IPDMedicalRecords = React.lazy(() => import("./pages/ipd/medicalRecords/IPDMedicalRecords"));
-
-// Other pages
-const ApolloConsultations = React.lazy(() => import("./pages/apolloConsultations/ApolloConsultations"));
-const DoctorProfile = React.lazy(() => import("./pages/DoctorProfile"));
-const DoctorWebsiteSetting = React.lazy(() => import("./pages/DoctorWebsiteSetting"));
-
-// ----------- End imports -----------
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
