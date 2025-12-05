@@ -8,6 +8,7 @@ import { printModule, downloadModule } from "../../utils/printDownload";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import "./AdmissionDetailsDrawer.scss";
+import { isMobile } from "react-device-detect";
 
 // Configure PDF.js worker
 const worker = require("pdfjs-dist/build/pdf.worker.min.js");
@@ -35,6 +36,8 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
     const room = patientData?.room || {};
     const doctor = patientData?.doctor || {};
 
+    console.log(patientData?.details,"patientData?.details")
+
     return {
       patientInformation: {
         name: details?.name || "",
@@ -46,12 +49,12 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
         address: details?.address || "",
         bloodGroup: details?.bloodGroup || "",
         prefix: details?.prefix || "",
+        mrno: patientData?.mrno || "",
       },
       admissionDetails: {
         admittingDoctor: doctor?.name || "",
         admissionId: patientData?.admissionId || "",
         admissionNo: patientData?.admissionNo || "",
-        mrno: patientData?.mrno || "",
         referredBy: patientData?.referredBy || "",
         referralNotes: patientData?.referralNotes || "",
         admissionDate: patientData?.admittedOn || "",
@@ -210,7 +213,7 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
       placement="right"
       onClose={onClose}
       open={open}
-      width="55%"
+      width= {isMobile ? "100%" : "55%"}
       className="admission-details-drawer"
       closeIcon={false}
     >

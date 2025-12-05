@@ -54,6 +54,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginBottom: 4,
   },
+  rowWithWrap: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 4,
+    width: "100%",
+  },
   label: {
     fontWeight: 600,
     color: "#000000",
@@ -64,6 +71,12 @@ const styles = StyleSheet.create({
     fontWeight: 400,
     color: "#171725",
     fontSize: 10,
+  },
+  wrappedValue: {
+    fontWeight: 400,
+    color: "#171725",
+    fontSize: 10,
+    flex: 1,
   },
   listContainer: {
     marginLeft: 8,
@@ -97,6 +110,8 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
 });
+
+const hasValue = (v) => v !== undefined && v !== null && v !== " " && v !== "-" && v !== "0";
 
 /**
  * Format date and time
@@ -138,6 +153,19 @@ const renderFieldRow = (label, value) => {
 };
 
 /**
+ * Render a field row with wrapping (for long values like patient name)
+ */
+const renderWrappedFieldRow = (label, value) => {
+  if (!value && value !== 0) return null;
+  return (
+    <View style={styles.rowWithWrap} key={label}>
+      <Text style={styles.label}>{label}:</Text>
+      <Text style={styles.wrappedValue}>{String(value)}</Text>
+    </View>
+  );
+};
+
+/**
  * Patient Details Section
  */
 const renderPatientDetails = (data) => {
@@ -152,31 +180,33 @@ const renderPatientDetails = (data) => {
     patientInfo.gender || ""
   ].filter(Boolean).join(", ");
   
-  // Left column: 3 fields
+  // Left column fields (excluding Patient Name which will be full width with wrap)
   const leftFields = [
-    { label: "Patient Name", value: patientName || "-" },
     { label: "Age/Gender", value: ageGender || "-" },
-
+    { label: "Contact No", value: patientInfo.contact || "-" },
   ];
   
-  // Right column: 2 fields
+  // Right column fields
   const rightFields = [
-    { label: "Contact No", value: patientInfo.contact || "-" },
     { label: "Patient ID", value: patientInfo.pmPid || "-" },
+    { label: "MRN No", value: patientInfo.mrno || "-" },
     // { label: "Address", value: patientInfo.address || "-" },
-  ];
+  ].filter((item) => hasValue(item.value));
   
   return (
     <View style={styles.sectionContainer}>
       <View style={styles.topBorder} />
-          <View style={styles.twoColumnContainer}>
-            <View style={styles.leftColumn}>
-              {leftFields.map((field) => renderFieldRow(field.label, field.value))}
-            </View>
-            <View style={styles.rightColumn}>
-              {rightFields.map((field) => renderFieldRow(field.label, field.value))}
-            </View>
-          </View>
+      {/* Patient Name - Full width with wrapping */}
+      {renderWrappedFieldRow("Patient Name", patientName || "-")}
+      {/* Other fields in two columns */}
+      <View style={styles.twoColumnContainer}>
+        <View style={styles.leftColumn}>
+          {leftFields.map((field) => renderFieldRow(field.label, field.value))}
+        </View>
+        <View style={styles.rightColumn}>
+          {rightFields.map((field) => renderFieldRow(field.label, field.value))}
+        </View>
+      </View>
       <View style={styles.topBorder} />
     </View>
   );
@@ -187,14 +217,11 @@ const renderPatientDetails = (data) => {
  */
 const renderAdmissionDetailsSection = (data) => {
   const admissionInfo = data?.admissionDetails || {};
-  
-  const hasValue = (v) => v !== undefined && v !== null && v !== " " && v !== "-" && v !== "0";
   // Collect all fields dynamically
   const allFields = [
     { label: "Admitting Doctor", value: admissionInfo.admittingDoctor || "-" },
     { label: "Admission ID", value: admissionInfo.admissionId || "-" },
     { label: "Admission No", value: admissionInfo.admissionNo || "-" },
-    { label: "MRN No", value: admissionInfo.mrno || "-" },
     admissionInfo.referredBy && { label: "Referred By", value: admissionInfo.referredBy },
     admissionInfo.referralNotes && { label: "Referral Notes", value: admissionInfo.referralNotes },
     { 
