@@ -86,8 +86,6 @@ const PatientInfo = ({
   if (documentType === "admissionDetails") {
     return null;
   }
-  
-  console.log("this is getting called")
   // if (!displaySettings || !patientData) return null;
 
   let visibleFields = getVisiblePatientFields(displaySettings, patientData);
