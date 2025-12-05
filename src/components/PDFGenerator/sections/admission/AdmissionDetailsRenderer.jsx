@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
   subsectionTitle: {
     fontWeight: 700,
     color: "#171725",
-    fontSize: 12,
+    fontSize: 14,
     marginBottom: 8,
     borderRadius: 4,
     backgroundColor: "#F1F1F5",
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   subsectionText: {
     color: "#171725",
     fontWeight: 400,
-    fontSize: 10,
+    fontSize: 12,
     lineHeight: 1.6,
     marginBottom: 4,
   },
@@ -61,6 +61,37 @@ const styles = StyleSheet.create({
     minWidth: 120,
   },
   value: {
+    fontWeight: 400,
+    color: "#171725",
+    fontSize: 10,
+  },
+  listContainer: {
+    marginLeft: 8,
+    marginBottom: 4,
+  },
+  listItem: {
+    display: "flex",
+    flexDirection: "row",
+    marginBottom: 4,
+    fontSize: 10,
+    color: "#171725",
+  },
+  bullet: {
+    marginRight: 6,
+    fontWeight: 600,
+  },
+  listText: {
+    flex: 1,
+    fontWeight: 400,
+    color: "#171725",
+    fontSize: 10,
+  },
+  listLabel: {
+    fontWeight: 600,
+    color: "#000000",
+    fontSize: 10,
+  },
+  listValue: {
     fontWeight: 400,
     color: "#171725",
     fontSize: 10,
@@ -131,7 +162,7 @@ const renderPatientDetails = (data) => {
   // Right column: 2 fields
   const rightFields = [
     { label: "Contact No", value: patientInfo.contact || "-" },
-    { label: "Patient ID", value: patientInfo.patientId || "-" },
+    { label: "Patient ID", value: patientInfo.pmPid || "-" },
     // { label: "Address", value: patientInfo.address || "-" },
   ];
   
@@ -215,31 +246,32 @@ const renderCareTakerDetails = (data) => {
     return null;
   }
   
+  // Build list items array with label and value
+  const listItems = [];
+  if (careTakerInfo.mobileNumber) {
+    listItems.push({ label: "Care Taker Mobile number", value: careTakerInfo.mobileNumber });
+  }
+  if (careTakerInfo.name) {
+    listItems.push({ label: "Care Taker Name", value: careTakerInfo.name });
+  }
+  if (careTakerInfo.relation) {
+    listItems.push({ label: "Relation", value: careTakerInfo.relation });
+  }
+  
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.subsectionTitle}>Care Taker Details</Text>
       
       <View style={styles.subsectionContainer}>
-        {careTakerInfo.mobileNumber && (
-          <View style={styles.row}>
-            <Text style={styles.label}>Care Taker Mobile number:</Text>
-            <Text style={styles.value}>{careTakerInfo.mobileNumber || "-"}</Text>
-          </View>
-        )}
-        
-        {careTakerInfo.name && (
-          <View style={styles.row}>
-            <Text style={styles.label}>Care Taker Name:</Text>
-            <Text style={styles.value}>{careTakerInfo.name || "-"}</Text>
-          </View>
-        )}
-        
-        {careTakerInfo.relation && (
-          <View style={styles.row}>
-            <Text style={styles.label}>Relation:</Text>
-            <Text style={styles.value}>{careTakerInfo.relation || "-"}</Text>
-          </View>
-        )}
+        <View style={styles.listContainer}>
+          {listItems.map((item, index) => (
+            <View key={index} style={styles.listItem}>
+              <Text style={styles.bullet}>•</Text>
+              <Text style={styles.listLabel}>{item.label}:</Text>
+              <Text style={styles.listValue}> {item.value}</Text>
+            </View>
+          ))}
+        </View>
       </View>
     </View>
   );
@@ -261,38 +293,35 @@ const renderInsuranceDetails = (data) => {
     return null;
   }
   
+  // Build list items array with label and value
+  const listItems = [];
+  if (insuranceInfo.insuranceNumber) {
+    listItems.push({ label: "Insurance Number", value: insuranceInfo.insuranceNumber });
+  }
+  if (insuranceInfo.policyNumber) {
+    listItems.push({ label: "Policy Number", value: insuranceInfo.policyNumber });
+  }
+  if (insuranceInfo.tpaNumber) {
+    listItems.push({ label: "TPA Number", value: insuranceInfo.tpaNumber });
+  }
+  if (insuranceInfo.preApprovalId) {
+    listItems.push({ label: "Pre-Approval ID", value: insuranceInfo.preApprovalId });
+  }
+  
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.subsectionTitle}>Insurance Details</Text>
       
       <View style={styles.subsectionContainer}>
-        {insuranceInfo.insuranceNumber && (
-          <View style={styles.row}>
-            <Text style={styles.label}>Insurance Number:</Text>
-            <Text style={styles.value}>{insuranceInfo.insuranceNumber || "-"}</Text>
-          </View>
-        )}
-        
-        {insuranceInfo.policyNumber && (
-          <View style={styles.row}>
-            <Text style={styles.label}>Policy Number:</Text>
-            <Text style={styles.value}>{insuranceInfo.policyNumber || "-"}</Text>
-          </View>
-        )}
-        
-        {insuranceInfo.tpaNumber && (
-          <View style={styles.row}>
-            <Text style={styles.label}>TPA Number:</Text>
-            <Text style={styles.value}>{insuranceInfo.tpaNumber || "-"}</Text>
-          </View>
-        )}
-        
-        {insuranceInfo.preApprovalId && (
-          <View style={styles.row}>
-            <Text style={styles.label}>Pre-Approval ID:</Text>
-            <Text style={styles.value}>{insuranceInfo.preApprovalId || "-"}</Text>
-          </View>
-        )}
+        <View style={styles.listContainer}>
+          {listItems.map((item, index) => (
+            <View key={index} style={styles.listItem}>
+              <Text style={styles.bullet}>•</Text>
+              <Text style={styles.listLabel}>{item.label}:</Text>
+              <Text style={styles.listValue}> {item.value}</Text>
+            </View>
+          ))}
+        </View>
       </View>
     </View>
   );
