@@ -50,6 +50,8 @@ function PatientForm({ mode = ADD, patient_data }) {
     // Check if user came from all patients page
     const isFromAllPatients = location.state?.from === "/all_patients";
     const isFromAddAppointment = location.state?.from === "/add-appointment";
+    const isFromCreateAdmission = location.state?.from === "/ipd/create-admission";
+    const returnPath = location.state?.returnPath;
 
     useEffect(() => {
         const getEditData = async () => {
@@ -147,6 +149,14 @@ function PatientForm({ mode = ADD, patient_data }) {
                         replace: true,
                         state: {
                             ...location.state,
+                            patient_data: { ...action.payload },
+                        }
+                    });
+                } else if (isFromCreateAdmission && returnPath) {
+                    // Return to create admission page with new patient data
+                    navigate(returnPath, {
+                        replace: true,
+                        state: {
                             patient_data: { ...action.payload },
                         }
                     });
@@ -251,7 +261,7 @@ function PatientForm({ mode = ADD, patient_data }) {
                                     loading={loading}>
                                     {mode === EDIT
                                         ? 'Save'
-                                        : (isFromAllPatients || isFromAddAppointment)
+                                        : (isFromAllPatients || isFromAddAppointment || isFromCreateAdmission )
                                             ? 'Add Patient'
                                             : 'Add Patient to Consult'
                                     }

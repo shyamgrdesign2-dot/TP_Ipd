@@ -2024,8 +2024,11 @@ export const convertSurgeryDataToDisplayFormat = (surgeryData) => {
   return displayData;
 };
 
-export const isZydus = () =>
-  env?.ZYDUS_BUSINESS_ID === getTokenData()?.hospital_business_id;
+export const isZydus = () => {
+  const hospitalBusinessId = getTokenData()?.hospital_business_id;
+  const zydusBusinessId = env?.ZYDUS_BUSINESS_ID;
+  return String(zydusBusinessId) === String(hospitalBusinessId);
+};
 
 export const isVoiceRxFree = () => {
   return (

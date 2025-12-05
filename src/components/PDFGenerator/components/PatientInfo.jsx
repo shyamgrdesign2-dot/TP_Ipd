@@ -81,6 +81,11 @@ const PatientInfo = ({
   documentType,
   fullData,
 }) => {
+  // Hide patient info for admission details as it's included in the content sections
+  if (documentType === "admissionDetails") {
+    return null;
+  }
+  
   // if (!displaySettings || !patientData) return null;
 
   let visibleFields = getVisiblePatientFields(displaySettings, patientData);

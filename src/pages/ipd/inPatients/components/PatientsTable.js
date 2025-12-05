@@ -12,24 +12,45 @@ import {
   sendForDischargeApproval,
 } from "../../../../redux/ipd/ipdSlice";
 import { usePatientsData } from "../hooks/usePatientsData";
-import { getTokenData, isEmptyRichText } from "../../../../utils/utils";
+import { getTokenData, isEmptyRichText, isZydus } from "../../../../utils/utils";
 import DischargeConfirmationModal from "../../dischargeSummary/components/DischargeConfirmationModal";
 import DischargeConfirmationPopup from "../../dischargeSummary/components/DischargeConfirmationPopup";
 import { createRemoteComponent } from "../../../../shared/remoteComponents";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_ZYDUS_USER } from "../../../../utils/constants";
 import { env } from "../../../../EnvironmentConfig";
+import AdmissionDetailsDrawer from "./AdmissionDetailsDrawer";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
-const MoreActionsContent = ({ onCtaClick, record, title }) => {
+const MoreActionsContent = ({ onCtaClick, record, title, onViewAdmissionDetails, isDischargedPatients, isDischarged }) => {
+  const handleViewAdmissionDetails = (e) => {
+    e.stopPropagation();
+    onViewAdmissionDetails?.(record);
+  };
+
+  const handleDischargeClick = (e) => {
+    e.stopPropagation();
+    onCtaClick?.(record);
+  };
+
   return (
-    <div
-      onClick={() => onCtaClick(record)}
-      className="more-actions-content cursor-pointer"
-    >
-      <img src={newIcons.dischargedPatientsSc} alt="dischargedPatientsSc" />
-      <div className="fs16-semibold-primary">{title}</div>
+    <div className="more-actions-menu">
+      <div
+        onClick={handleViewAdmissionDetails}
+        className="more-actions-menu-item cursor-pointer"
+      >
+        <span className="more-actions-menu-text">View Admission Details</span>
+      </div>
+      {!isDischargedPatients && !isDischarged && title && (
+        <div
+          onClick={handleDischargeClick}
+          className="more-actions-menu-item cursor-pointer"
+        >
+          {/* <img src={newIcons.dischargedPatientsSc} alt="dischargedPatientsSc" className="more-actions-menu-icon" /> */}
+          <span className="more-actions-menu-text">{title}</span>
+        </div>
+      )}
     </div>
   );
 };
@@ -68,6 +89,8 @@ const PatientsTable = ({
   const [openMoreActionsPopover, setOpenMoreActionsPopover] = useState(null);
   const [apiToCall, setApiToCall] = useState("");
   const dischargeConfirmationModalRef = useRef(null);
+  const [admissionDetailsDrawerOpen, setAdmissionDetailsDrawerOpen] = useState(false);
+  const [selectedPatientForAdmissionDetails, setSelectedPatientForAdmissionDetails] = useState(null);
   const showHideMoreActionPopover = (recordId) => {
     setOpenMoreActionsPopover((prev) => (prev === recordId ? null : recordId));
   };
@@ -167,6 +190,10 @@ const PatientsTable = ({
           <span
             className="text-primary cursor-pointer"
             onClick={() => onViewDetails(record?.patientData)}
+            // onClick={() => {
+            //   setSelectedPatientForAdmissionDetails(record?.patientData);
+            //   setAdmissionDetailsDrawerOpen(true);
+            // }}
           >
             {record?.patientName}
           </span>
@@ -201,15 +228,22 @@ const PatientsTable = ({
     //   ),
     // },
     {
-      title: "Admission Id / MRN id",
+      title: isZydus() ? "Admission No / MRN No" : "Admission Id",
       dataIndex: "admissionNo",
       key: "admissionNo",
       className: "col-patient-details",
       render: (text, record) => (
-        <div>
-          <div>{record?.admissionNo || ""}</div>
-          <small>{record?.mrno}</small>
-        </div>
+        <>
+          { isZydus() ?
+            <div>
+              <div>{record?.admissionNo || ""}</div>
+              <small>{record?.mrno}</small>
+            </div> :
+            <div>
+              <div>{record?.admissionId || ""}</div>
+            </div>
+          }
+        </>
       ),
     },
     {
@@ -349,15 +383,17 @@ const PatientsTable = ({
           >
             <button
               className="view-details-btn"
+              // onClick={() => {
+              //   setSelectedPatientForAdmissionDetails(record?.patientData);
+              //   setAdmissionDetailsDrawerOpen(true);
+              // }}
               onClick={() => {
                 onViewDetails(record?.patientData);
               }}
             >
               View Details
             </button>
-            {!isDischargedPatients &&
-            !record?.isDischarged &&
-            actionObj?.title ? (
+            {(
               <Popover
                 open={
                   openMoreActionsPopover === record?.patientData?.admissionId
@@ -372,6 +408,13 @@ const PatientsTable = ({
                     onCtaClick={actionObj?.onCtaClick}
                     record={record?.patientData}
                     title={actionObj?.title}
+                    onViewAdmissionDetails={(patientData) => {
+                      setOpenMoreActionsPopover(null);
+                      setSelectedPatientForAdmissionDetails(patientData);
+                      setAdmissionDetailsDrawerOpen(true);
+                    }}
+                    isDischargedPatients={isDischargedPatients}
+                    isDischarged={record?.isDischarged}
                   />
                 }
                 trigger="click"
@@ -392,7 +435,7 @@ const PatientsTable = ({
                   alt={":"}
                 />
               </Popover>
-            ) : null}
+            )}
           </div>
         );
       },
@@ -470,6 +513,14 @@ const PatientsTable = ({
             ? dischargePatient
             : sentForDischargeApproval
         }
+      />
+      <AdmissionDetailsDrawer
+        open={admissionDetailsDrawerOpen}
+        onClose={() => {
+          setAdmissionDetailsDrawerOpen(false);
+          setSelectedPatientForAdmissionDetails(null);
+        }}
+        patientData={selectedPatientForAdmissionDetails}
       />
     </div>
   );

@@ -92,10 +92,10 @@ export const doctorDepartmentRoles = createAsyncThunk(
 );
 
 // ---------- NEW: Wards ----------
-export const fetchWards = createAsyncThunk("ipd/fetchWards", async () => {
+export const fetchWards = createAsyncThunk("ipd/fetchWards", async ({ includeAll = true } = {}) => {
   try {
     let result = {};
-    result = await ApiIpdService.getWards();
+    result = await ApiIpdService.getWards({ includeAll });
     return result;
   } catch (error) {
     console.log("error: ", error);
@@ -137,6 +137,20 @@ export const markPatientAsDischarged = createAsyncThunk(
     try {
       let result = {};
       result = await ApiIpdService.markPatientAsDischarged(data);
+      return result;
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
+export const editAdmission = createAsyncThunk(
+  "ipd/editAdmission",
+  async ({ admissionId, data }) => {
+    try {
+      let result = {};
+      result = await ApiIpdService.editAdmission({ admissionId, data });
       return result;
     } catch (error) {
       console.log("error: ", error);

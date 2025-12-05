@@ -18,6 +18,7 @@ import { renderProgressNotes } from "./sections/progressNotes/ProgressNotesRende
 import { renderAdmissionAssessment } from "./sections/discharge/AdmissionAssessmentRenderer";
 import { renderOTNotes } from "./sections/discharge/OTNotesRenderer";
 import { renderCrossReferral } from "./sections/discharge/CrossReferralRenderer";
+import { renderAdmissionDetails } from "./sections/admission/AdmissionDetailsRenderer";
 
 // Register fonts once
 let fontsRegistered = false;
@@ -102,6 +103,10 @@ const PDFGenerator = ({
 
     case "crossReferral":
       contentSections = renderCrossReferral(data, formatSettings);
+      break;
+
+    case "admissionDetails":
+      contentSections = renderAdmissionDetails(data, formatSettings, fontSize);
       break;
 
     default:

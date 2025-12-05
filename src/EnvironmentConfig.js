@@ -294,7 +294,7 @@ const uat = {
   obstetric_api_url:
     "https://pm-medicalhistory-uat.tatvacare.in/api/v1/obstetric-history",
   zydus_api_url: `https://pm-ingest-webhook-uat.tatvacare.in`,
-  zydus_business_id: "754811713438773",
+  zydus_business_id: 754811713438773,
   zydus_proxy_url: "https://pm-ict-proxy-uat.tatvacare.in",
   zydus_ict_lab_result_api_url: "https://pm-ict-proxy-uat.tatvacare.in",
   rx_digitization: "https://pm-rxdigitization-uat.tatvacare.in",
