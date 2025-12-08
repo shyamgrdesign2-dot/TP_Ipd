@@ -70,15 +70,15 @@ function MedicalHistoryList(props) {
             key: `${i + 1}`,
             label: (
               <ul style={{ margin: 0 }}>
-                <li className="fw-semibold">{e?.title}</li>
+                {e?.title ? <li className="fw-semibold">{e?.title}</li>: null}
               </ul>
             ),
             children: !e?.no_know_history ? (
               <div className="cardbody-data ipd-mhl-cardbody">
-                {e?.tags?.filter((x) => x.enable == "Y").length > 0 && (
+                {e?.tags?.filter((x) => x.enable == "Y" || x.enable === "").length > 0 && (
                   <ul style={{ paddingLeft: "48px", paddingRight: "48px" }}>
                     {e?.tags
-                      ?.filter((x) => x.enable == "Y")
+                      ?.filter((x) => x.enable == "Y" || x.enable === "")
                       ?.map((e1, i1) => {
                         return (
                           <>
