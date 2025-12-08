@@ -59,6 +59,10 @@ const loadComponent = (componentName) => {
   );
 };
 
+// Feature flag to toggle RichTextEditWrapper microphone and magic-pen visuals
+const isRichTextVoiceAiEnabled =
+  (process.env.REACT_APP_ENABLE_RICH_TEXT_VOICE_AI ?? "true") === "true";
+
 // Pre-define all shared components
 export const RemoteComponents = {
   LayoutWithMenu: loadComponent("LayoutWithMenu"),
@@ -122,7 +126,7 @@ export const createRemoteComponent = (componentName, customFallback) => {
       console.log('Undo AI refine', { originalContent, refinedContent });
     };
 
-    const finalProps =
+    const finalPropsBase =
       isRichTextEditWrapper && !props.onMagicPenClick
         ? {
             ...props,
@@ -131,6 +135,15 @@ export const createRemoteComponent = (componentName, customFallback) => {
             magicPenIcon: magicPen,
           }
         : props;
+
+    const finalProps =
+      isRichTextEditWrapper && !isRichTextVoiceAiEnabled
+        ? {
+            ...finalPropsBase,
+            showMicrophone: false,
+            showMagicPenGif: false,
+          }
+        : finalPropsBase;
 
     return (
       <Provider store={store}>
