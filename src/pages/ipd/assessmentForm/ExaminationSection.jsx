@@ -1,4 +1,10 @@
-import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { Radio, message } from "antd";
 import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
@@ -31,8 +37,9 @@ const ExaminationSection = (props) => {
     (state) => state.assessment.physicalExaminationBasicData || {}
   );
   const dispatch = useDispatch();
-  const checkExaminationDataPresent =
-    useCheckExaminationData(physicalExaminationBasicData);
+  const checkExaminationDataPresent = useCheckExaminationData(
+    physicalExaminationBasicData
+  );
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [disableFocusEffect, setDisableFocusEffect] = useState({});
   const templateModuleName = "generalExamination";
@@ -74,10 +81,10 @@ const ExaminationSection = (props) => {
     }
     const optionValueType = typeof firstOptionValue;
     // Convert value to match option value type
-    if (optionValueType === 'number') {
+    if (optionValueType === "number") {
       const numValue = Number(value);
       return isNaN(numValue) ? undefined : numValue;
-    } else if (optionValueType === 'string') {
+    } else if (optionValueType === "string") {
       return String(value);
     }
     return value;
@@ -90,33 +97,40 @@ const ExaminationSection = (props) => {
   }, [physicalExaminationBasicData]);
 
   // Stable callback for radio change - uses ref to access latest state
-  const onExaminationRadioChange = useCallback((e, item) => {
-    const { id } = item;
-    const normalizedValue = normalizeRadioValue(e.target.value, item.options);
-    const currentState = physicalExaminationBasicDataRef.current;
-    dispatch(
-      setPhysicalExaminationBasicData({
-        ...currentState,
-        [id]: {
-          ...currentState[id],
-          value: normalizedValue,
-          title: item.options.find((option) => option.value === normalizedValue)
-            ?.label,
-        },
-      })
-    );
-  }, [dispatch, normalizeRadioValue]);
+  const onExaminationRadioChange = useCallback(
+    (e, item) => {
+      const { id } = item;
+      const normalizedValue = normalizeRadioValue(e.target.value, item.options);
+      const currentState = physicalExaminationBasicDataRef.current;
+      dispatch(
+        setPhysicalExaminationBasicData({
+          ...currentState,
+          [id]: {
+            ...currentState[id],
+            value: normalizedValue,
+            title: item.options.find(
+              (option) => option.value === normalizedValue
+            )?.label,
+          },
+        })
+      );
+    },
+    [dispatch, normalizeRadioValue]
+  );
 
   // Stable callback for notes change - uses ref to access latest state
-  const handleExaminationNotesChange = useCallback((data, id) => {
-    const currentState = physicalExaminationBasicDataRef.current;
-    dispatch(
-      setPhysicalExaminationBasicData({
-        ...currentState,
-        [id]: { ...currentState[id], notes: data },
-      })
-    );
-  }, [dispatch]);
+  const handleExaminationNotesChange = useCallback(
+    (data, id) => {
+      const currentState = physicalExaminationBasicDataRef.current;
+      dispatch(
+        setPhysicalExaminationBasicData({
+          ...currentState,
+          [id]: { ...currentState[id], notes: data },
+        })
+      );
+    },
+    [dispatch]
+  );
 
   // Store stable callback in ref for use in map callbacks
   const handleExaminationNotesChangeRef = useRef(handleExaminationNotesChange);
@@ -164,8 +178,10 @@ const ExaminationSection = (props) => {
               const data = physicalExaminationBasicData[item.id];
               if (
                 !data?.title &&
-                ((data?.value === undefined || data?.value == null || data?.value === 0) &&
-                  isEmptyRichText(data?.notes))
+                (data?.value === undefined ||
+                  data?.value == null ||
+                  data?.value === 0) &&
+                isEmptyRichText(data?.notes)
               )
                 return null;
 
@@ -175,7 +191,7 @@ const ExaminationSection = (props) => {
                   {data.title}
                   {!isEmptyRichText(data?.notes) && (
                     <div className="ipdaf-exam-read-notes-container">
-                      <li className="ipdaf-exam-read-notes-heading">Notes:</li>
+                      {/* <li className="ipdaf-exam-read-notes-heading">Notes:</li> */}
                       <RichTextEditor
                         showActionBtns={false}
                         showAutoFill={false}
@@ -226,9 +242,16 @@ const ExaminationSection = (props) => {
           let normalizedValue = current.value;
           if (normalizedValue === undefined || normalizedValue === null) {
             normalizedValue = 0;
-          } else if (child.options && Array.isArray(child.options) && child.options.length > 0) {
+          } else if (
+            child.options &&
+            Array.isArray(child.options) &&
+            child.options.length > 0
+          ) {
             const firstOptionValue = child.options[0]?.value;
-            if (typeof firstOptionValue === 'number' && typeof normalizedValue !== 'number') {
+            if (
+              typeof firstOptionValue === "number" &&
+              typeof normalizedValue !== "number"
+            ) {
               const numValue = Number(normalizedValue);
               normalizedValue = isNaN(numValue) ? 0 : numValue;
             }
@@ -263,13 +286,22 @@ const ExaminationSection = (props) => {
       const updated = {};
       templateData.forEach((item) => {
         // Find the corresponding section item to get options for normalization
-        const sectionItem = sectionData?.children?.find((child) => child.id === item.id);
+        const sectionItem = sectionData?.children?.find(
+          (child) => child.id === item.id
+        );
         let normalizedValue = item.value;
         if (normalizedValue === undefined || normalizedValue === null) {
           normalizedValue = 0;
-        } else if (sectionItem?.options && Array.isArray(sectionItem.options) && sectionItem.options.length > 0) {
+        } else if (
+          sectionItem?.options &&
+          Array.isArray(sectionItem.options) &&
+          sectionItem.options.length > 0
+        ) {
           const firstOptionValue = sectionItem.options[0]?.value;
-          if (typeof firstOptionValue === 'number' && typeof normalizedValue !== 'number') {
+          if (
+            typeof firstOptionValue === "number" &&
+            typeof normalizedValue !== "number"
+          ) {
             const numValue = Number(normalizedValue);
             normalizedValue = isNaN(numValue) ? 0 : numValue;
           }
@@ -406,10 +438,7 @@ const ExaminationSection = (props) => {
       );
       return {
         _id:
-          templateData?._id ||
-          templateData?.id ||
-          payload?._id ||
-          payload?.id,
+          templateData?._id || templateData?.id || payload?._id || payload?.id,
         title: title?.trim?.() ? title.trim() : "Untitled Template",
         data: found || serializeGeneralExaminationData(),
       };
@@ -523,9 +552,7 @@ const ExaminationSection = (props) => {
       ?.forEach((item) => {
         const notes = physicalExaminationBasicData[item.id]?.notes;
         values[item.id] =
-          Array.isArray(notes) && notes.length
-            ? notes
-            : defaultNotes;
+          Array.isArray(notes) && notes.length ? notes : defaultNotes;
       });
     return values;
   }, [physicalExaminationBasicData, sectionData, defaultNotes]);
@@ -648,9 +675,7 @@ const ExaminationSection = (props) => {
   ]);
 
   const renderExaminationSection = () => {
-    return isEditable
-      ? renderEditableExamination
-      : renderReadOnlyExamination();
+    return isEditable ? renderEditableExamination : renderReadOnlyExamination();
   };
 
   if (!isEditable && !checkExaminationDataPresent) return null;
@@ -690,7 +715,11 @@ const ExaminationSection = (props) => {
       onSave={() => {}}
       containerClass={`examination-rich-container ${
         !isEditable ? "examination-rich-readonly-container" : ""
-      } ${isConsultantNotes && !isEditable ? "consultant-notes-examination-container" : ""}`}
+      } ${
+        isConsultantNotes && !isEditable
+          ? "consultant-notes-examination-container"
+          : ""
+      }`}
       renderBody={renderExaminationSection}
     />
   );

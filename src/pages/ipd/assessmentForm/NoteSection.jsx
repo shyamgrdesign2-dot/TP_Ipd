@@ -94,7 +94,7 @@ const NoteSection = (props) => {
         },
         callback,
       }),
-    [additionalNotesData?.specialInstructions, submitVoiceAiRecording]
+    [additionalNotesData, submitVoiceAiRecording]
   );
 
   const handleAIRecordingCompleteDischargeCriteria = useCallback(
@@ -111,7 +111,7 @@ const NoteSection = (props) => {
         },
         callback,
       }),
-    [additionalNotesData?.dischargeCriteria, submitVoiceAiRecording]
+    [additionalNotesData, submitVoiceAiRecording]
   );
   const renderSpecialInstructions = (data) => {
     if (

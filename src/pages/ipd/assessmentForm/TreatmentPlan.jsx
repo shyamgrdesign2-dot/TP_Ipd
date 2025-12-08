@@ -100,7 +100,7 @@ const TreatmentPlan = (props) => {
         },
         callback,
       }),
-    [submitVoiceAiRecording, treatmentPlanData?.immediateManagement]
+    [submitVoiceAiRecording, treatmentPlanData]
   );
 
   const handleAIRecordingCompletePreventiveActions = useCallback(
@@ -117,7 +117,7 @@ const TreatmentPlan = (props) => {
         },
         callback,
       }),
-    [submitVoiceAiRecording, treatmentPlanData?.preventiveActions]
+    [submitVoiceAiRecording, treatmentPlanData]
   );
 
   const handleAIRecordingCompleteDesiredOutcome = useCallback(
@@ -134,7 +134,7 @@ const TreatmentPlan = (props) => {
         },
         callback,
       }),
-    [submitVoiceAiRecording, treatmentPlanData?.desiredOutcome]
+    [submitVoiceAiRecording, treatmentPlanData]
   );
 
   const renderChildren = () => {
