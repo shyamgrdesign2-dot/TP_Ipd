@@ -1,6 +1,10 @@
 import { db } from "../../../../firebase";
-import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
-import { browserName } from "react-device-detect";
+import { doc, setDoc } from "firebase/firestore";
+import { browserName, isMobile, osName } from "react-device-detect";
+import { uploadDocsToAzure } from "../../../medicalRecords/service";
+import { sendMessageToParent } from "../../../../utils/utils";
+import { EVENTS } from "../../../../utils/events";
+import { printBlobInNewTab } from "../../../opdBilling/utils/helper";
 
 /**
  * Print document (generic function for all document types)
@@ -8,11 +12,7 @@ import { browserName } from "react-device-detect";
  * @param {string} patientId - Patient ID
  * @param {string} documentType - Type of document (dischargeSummary, assessment, progressNotes, etc.)
  */
-export const printDocument = (
-  printBlob,
-  patientId,
-  documentType = "dischargeSummary"
-) => {
+export const printDocument = async (printBlob) => {
   if (!printBlob) {
     console.error("No print blob available");
     return;
@@ -20,70 +20,88 @@ export const printDocument = (
 
   if (browserName === "Chrome WebView" || browserName === "WebKit") {
     // For Android WebView
-    handleWebViewPrint(printBlob, patientId, documentType);
+    const file = new File(
+      [printBlob],
+      `${new Date().toISOString().split("T")[0]}.pdf`,
+      {
+        type: "application/pdf",
+      }
+    );
+    const formData = new FormData();
+    formData.append(file?.name, file);
+    const res = await uploadDocsToAzure(formData);
+    const printUrl = res?.[0]?.url;
+
+    sendMessageToParent(EVENTS.PRINT, { url: printUrl });
   } else {
-    // For regular browsers
-    const url = URL.createObjectURL(printBlob);
+    if (isMobile || osName === "Linux") {
+      printBlobInNewTab(printBlob);
+    } else {
+      // For regular browsers
+      const url = URL.createObjectURL(printBlob);
 
-    // Create hidden iframe to load the content
-    const iframe = document.createElement("iframe");
-    iframe.style.position = "absolute";
-    iframe.style.width = "0px";
-    iframe.style.height = "0px";
-    iframe.style.border = "none";
-    iframe.src = url;
+      // Create hidden iframe to load the content
+      const iframe = document.createElement("iframe");
+      iframe.style.position = "absolute";
+      iframe.style.width = "0px";
+      iframe.style.height = "0px";
+      iframe.style.border = "none";
+      iframe.src = url;
 
-    iframe.onload = () => {
-      const iw = iframe.contentWindow;
-      if (!iw) return;
+      iframe.onload = () => {
+        const iw = iframe.contentWindow;
+        if (!iw) return;
 
-      const cleanup = () => {
+        const cleanup = () => {
+          try {
+            if (iframe.parentNode) document.body.removeChild(iframe);
+          } catch (_) {}
+          try {
+            URL.revokeObjectURL(url);
+          } catch (_) {}
+        };
+
         try {
-          if (iframe.parentNode) document.body.removeChild(iframe);
-        } catch (_) {}
-        try {
-          URL.revokeObjectURL(url);
-        } catch (_) {}
+          iw.focus();
+
+          // Prefer afterprint event to know when printing is done
+          const handleAfterPrint = () => {
+            iw.removeEventListener("afterprint", handleAfterPrint);
+            cleanup();
+          };
+          iw.addEventListener("afterprint", handleAfterPrint);
+
+          // Fallback for browsers using matchMedia('print')
+          if (typeof iw.matchMedia === "function") {
+            const mql = iw.matchMedia("print");
+            const onChange = (e) => {
+              if (!e.matches) {
+                mql.removeEventListener("change", onChange);
+                cleanup();
+              }
+            };
+            try {
+              mql.addEventListener("change", onChange);
+            } catch (_) {
+              // Older browsers: ignore
+            }
+          }
+
+          iw.print();
+
+          // Safety fallback cleanup in case events do not fire
+          setTimeout(cleanup, 20000);
+        } catch (e) {
+          // As a last resort, attempt print and cleanup later
+          try {
+            iw.print();
+          } catch (_) {}
+          setTimeout(cleanup, 20000);
+        }
       };
 
-      try {
-        iw.focus();
-
-        // Prefer afterprint event to know when printing is done
-        const handleAfterPrint = () => {
-          iw.removeEventListener("afterprint", handleAfterPrint);
-          cleanup();
-        };
-        iw.addEventListener("afterprint", handleAfterPrint);
-
-        // Fallback for browsers using matchMedia('print')
-        if (typeof iw.matchMedia === "function") {
-          const mql = iw.matchMedia("print");
-          const onChange = (e) => {
-            if (!e.matches) {
-              mql.removeEventListener("change", onChange);
-              cleanup();
-            }
-          };
-          try {
-            mql.addEventListener("change", onChange);
-          } catch (_) {
-            // Older browsers: ignore
-          }
-        }
-
-        iw.print();
-
-        // Safety fallback cleanup in case events do not fire
-        setTimeout(cleanup, 20000);
-      } catch (e) {
-        // As a last resort, attempt print and cleanup later
-        try { iw.print(); } catch (_) {}
-        setTimeout(cleanup, 20000);
-      }
-    };
-
-    document.body.appendChild(iframe);
+      document.body.appendChild(iframe);
+    }
   }
 };
 
@@ -94,50 +112,6 @@ export const printDocument = (
  */
 export const printDischargeSummary = (printBlob, patientId) => {
   return printDocument(printBlob, patientId, "dischargeSummary");
-};
-
-/**
- * Handle print for WebView
- * @param {Blob} blob - PDF blob
- * @param {string} patientId - Patient ID
- * @param {string} documentType - Type of document
- */
-const handleWebViewPrint = async (
-  blob,
-  patientId,
-  documentType = "dischargeSummary"
-) => {
-  const deviceUid = localStorage.getItem("app_device_unique_id");
-  if (!deviceUid) {
-    console.error("Device UID not found");
-    return;
-  }
-
-  try {
-    const reader = new FileReader();
-    reader.readAsDataURL(blob);
-    reader.onloadend = async () => {
-      const base64string = reader.result.split(",")[1];
-
-      const docRef = doc(db, documentType, deviceUid);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        await updateDoc(docRef, {
-          base64string,
-          patientId,
-        });
-      } else {
-        await setDoc(docRef, {
-          base64string,
-          patientId,
-          clicked: "yes",
-        });
-      }
-    };
-  } catch (error) {
-    console.error("Error in WebView print:", error);
-  }
 };
 
 /**
