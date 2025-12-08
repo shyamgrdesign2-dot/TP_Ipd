@@ -9,6 +9,9 @@ import {
   isEmptyRichText,
 } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { useLocation } from "react-router-dom";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -21,15 +24,24 @@ const EMPTY_RICH_TEXT_VALUE = [
 
 const ChiefComplaint = (props) => {
   // You can pass props as needed, e.g., isEditable, initialValue, etc.
-  const { isEditable = true,shouldAutofill = false, sectionData } = props || {};
+  const {
+    isEditable = true,
+    shouldAutofill = false,
+    sectionData,
+  } = props || {};
   const dispatch = useDispatch();
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const {
     chiefComplaint,
     lastPrescriptionDataForProgress,
     lastPrescriptionDate,
-    patientDetails = {},
   } = useSelector((state) => state.progressNotes);
   const doctorId = patientDetails?.doctor?.id || null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
 
   const { progressNotes } = useSelector((state) => state.progressNotes);
   const prevProgressNote = useMemo(() => {
@@ -41,7 +53,6 @@ const ChiefComplaint = (props) => {
 
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [editorResetKey, setEditorResetKey] = useState(0);
-
 
   // Get current value callback
   const getCurrentValue = useCallback(() => {
@@ -111,8 +122,21 @@ const ChiefComplaint = (props) => {
     }
   }, [shouldAutofill]);
 
-  const hasChiefComplaintInLastProgressNote = useMemo(() => {
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "PROGRESS_NOTES.chiefComplaint",
+        previousOutput: chiefComplaint,
+        onSuccess: (updatedData) => {
+          dispatch(setChiefComplaint(updatedData));
+        },
+        callback,
+      }),
+    [chiefComplaint, dispatch, submitVoiceAiRecording]
+  );
 
+  const hasChiefComplaintInLastProgressNote = useMemo(() => {
     return (
       (!Array.isArray(prevChiefComplaint) &&
         typeof prevChiefComplaint === "string" &&
@@ -135,6 +159,12 @@ const ChiefComplaint = (props) => {
       data-testid={sectionData?.id}
       width={isEditable ? "100%" : "fit-content"}
       key={`chief-complaint-editor-${editorResetKey}`}
+      showVoiceAI={
+        isEditable && patientDetails?.details?.id && patientDetails?.admissionId
+      }
+      showMicrophone={true}
+      voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+      onVoiceAIRecordingComplete={handleAIRecordingComplete}
       initialValue={
         chiefComplaint?.length > 0
           ? chiefComplaint
@@ -159,8 +189,12 @@ const ChiefComplaint = (props) => {
             ).toLocaleTimeString()})`
           : "No previous profress notes available"
       }
-      containerClass={`${!isEditable ? 'ipd-wrapper-class-readonly' : ''}`}
-      opdDate={prevProgressNote?.createdAt ? formatDateToShortMonthYear(prevProgressNote?.createdAt || ""): null}
+      containerClass={`${!isEditable ? "ipd-wrapper-class-readonly" : ""}`}
+      opdDate={
+        prevProgressNote?.createdAt
+          ? formatDateToShortMonthYear(prevProgressNote?.createdAt || "")
+          : null
+      }
       showTempButtons={true}
       onSave={() => {}}
       onErase={() => {

@@ -3494,6 +3494,7 @@ function MedicationsBox(props) {
             <img className="me-2" src={Medicationicon} alt="Medication" />
             <div className="title-common">{isPillUpAccessableFromGB ? 'Meds' : 'Medications'} (Rx)</div>
           </div>
+          {/*  TODO: INTEL - ADD VOICE RX */}
           {isEditable && <div className="d-flex align-items-center">
             {profile?.dp_id === 9 && (
               <button

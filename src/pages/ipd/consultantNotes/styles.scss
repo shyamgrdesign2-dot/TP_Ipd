@@ -15,7 +15,7 @@ $muted: #6f6b88;
 
 .ipd-assessments-form-container {
     .toolbar-container {
-        justify-content: flex-end !important;
+        justify-content: flex-end;
     }
     #cw-panel-additional-notes, #cw-panel-functional-assessment, #cw-panel-treatment-plan {
         margin-top: 16px !important;
@@ -749,6 +749,35 @@ $muted: #6f6b88;
 .with-aux {
     width: calc(100% - 404px);
     transition: width 0.3s ease;
+}
+
+.floating-bottom-row {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    pointer-events: none;
+
+    @media (max-width: 768px) {
+        bottom: 16px;
+        right: 16px;
+    }
+
+    @media (max-width: 480px) {
+        bottom: 12px;
+        right: 12px;
+    }
+
+    .global-voice-ai-wrapper,
+    .progress-summary-wrapper {
+        position: static;
+        bottom: auto;
+        right: auto;
+        pointer-events: auto;
+    }
 }
 
 .consultant-notes-time {

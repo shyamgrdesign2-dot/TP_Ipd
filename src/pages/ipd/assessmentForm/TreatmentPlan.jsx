@@ -5,15 +5,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { setTreatmentPlanData } from "../../../redux/ipd/assessmentsFormSlice";
 import { isEmptyRichText } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { useLocation } from "react-router-dom";
+import { defaultIcons } from "../../../assets/images/icons";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const TreatmentPlan = (props) => {
-  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
+  const { isEditable = true, sectionData } = props || {};
   const { treatmentPlanData = {} } = useSelector((state) => state.assessment);
 
   const dispatch = useDispatch();
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
+
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [
     autoFillTextToAppendPreventiveActions,
@@ -23,6 +29,11 @@ const TreatmentPlan = (props) => {
     autoFillTextToAppendDesiredOutcome,
     setAutoFillTextToAppendDesiredOutcome,
   ] = useState([]);
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
+
   const handleOthersChange = (data, key) => {
     dispatch(setTreatmentPlanData({ ...treatmentPlanData, [key]: data }));
   };
@@ -52,7 +63,10 @@ const TreatmentPlan = (props) => {
       doctorId,
       isEditable,
       moduleType: "richText",
-      getCurrentValue: useCallback(() => getFieldValue(key), [getFieldValue, key]),
+      getCurrentValue: useCallback(
+        () => getFieldValue(key),
+        [getFieldValue, key]
+      ),
       onValueChange: useCallback(
         (data) => {
           dispatch(setTreatmentPlanData({ ...treatmentPlanData, [key]: data }));
@@ -72,6 +86,55 @@ const TreatmentPlan = (props) => {
   const preventiveActionsTemplate = usePlanTemplate(
     "preventiveActions",
     "preventiveActions"
+  );
+  const handleAIRecordingCompleteImmediateManagement = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "ASSESSMENTS.treatmentPlan.immediateManagement",
+        previousOutput: treatmentPlanData?.immediateManagement,
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            handleOthersChange(updatedData, "immediateManagement")
+          }
+        },
+        callback,
+      }),
+    [submitVoiceAiRecording, treatmentPlanData]
+  );
+
+  const handleAIRecordingCompletePreventiveActions = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "ASSESSMENTS.treatmentPlan.preventiveActions",
+        previousOutput: treatmentPlanData?.preventiveActions,
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            handleOthersChange(updatedData, "preventiveActions")
+
+          }
+        },
+        callback,
+      }),
+    [submitVoiceAiRecording, treatmentPlanData]
+  );
+
+  const handleAIRecordingCompleteDesiredOutcome = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "ASSESSMENTS.treatmentPlan.desiredOutcome",
+        previousOutput: treatmentPlanData?.desiredOutcome,
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            handleOthersChange(updatedData, "desiredOutcome")
+
+          }
+        },
+        callback,
+      }),
+    [submitVoiceAiRecording, treatmentPlanData]
   );
 
   const renderChildren = () => {
@@ -103,6 +166,13 @@ const TreatmentPlan = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
+        showVoiceAI={true}
+        showMicrophone={true}
+        showMagicPenGif={true}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={
+          handleAIRecordingCompleteImmediateManagement
+        }
         title={data?.title}
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
@@ -111,8 +181,6 @@ const TreatmentPlan = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
         templates={immediateManagementTemplate.templates}
         templateType="entries"
         showTempButtons={true}
@@ -120,7 +188,9 @@ const TreatmentPlan = (props) => {
         onTemplateSelected={immediateManagementTemplate.handleTemplateSelected}
         addTemplate={immediateManagementTemplate.handleAddTemplate}
         updateTemplate={immediateManagementTemplate.handleUpdateTemplate}
-        onDeleteTemplateClicked={immediateManagementTemplate.handleDeleteTemplate}
+        onDeleteTemplateClicked={
+          immediateManagementTemplate.handleDeleteTemplate
+        }
         loading={immediateManagementTemplate.templatesLoading}
         onChange={(data) => handleOthersChange(data, "immediateManagement")}
         initialValue={
@@ -163,6 +233,11 @@ const TreatmentPlan = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
+        showVoiceAI={true}
+        showMicrophone={true}
+        showMagicPenGif={true}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingCompletePreventiveActions}
         title={data?.title}
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
@@ -171,8 +246,6 @@ const TreatmentPlan = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
         templates={preventiveActionsTemplate.templates}
         templateType="entries"
         showTempButtons={true}
@@ -224,6 +297,11 @@ const TreatmentPlan = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
+        showVoiceAI={true}
+        showMicrophone={true}
+        showMagicPenGif={true}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingCompleteDesiredOutcome}
         title={data?.title}
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
@@ -232,8 +310,6 @@ const TreatmentPlan = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
         templates={desiredOutcomeTemplate.templates}
         templateType="entries"
         showTempButtons={true}

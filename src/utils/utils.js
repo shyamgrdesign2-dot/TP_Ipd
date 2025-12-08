@@ -7,6 +7,9 @@ import {
   NEO_NATOLOGISTS_DP_ID,
   PAEDIATRICS_DP_ID,
   SNAP_RX_TOKENS_STORAGE_KEY,
+  AISENSY_SCRIPT_CONTAINER,
+  AISENSY_SCRIPT_ID,
+  AISENSY_SCRIPT_SRC,
 } from "../utils/constants";
 import { browserName, deviceDetect, isBrowser } from "react-device-detect";
 import html2pdf from "html2pdf.js";
@@ -17,13 +20,35 @@ import imageCompression from "browser-image-compression";
 import numeral from "numeral";
 import packageJson from "../../package.json";
 import { EVENTS } from "./events.js";
-import {
-  AISENSY_SCRIPT_CONTAINER,
-  AISENSY_SCRIPT_ID,
-  AISENSY_SCRIPT_SRC,
-} from "../utils/constants";
 import { env } from "../EnvironmentConfig.js";
 import { uploadDocsToAzure } from "../pages/medicalRecords/service.js";
+
+/**
+ * Converts a Blob to a File object with proper filename
+ * @param {Blob} blob - The blob object to convert
+ * @param {string} filename - The desired filename (optional, will use provided or generate default)
+ * @param {string} mimeType - The MIME type (optional, will use blob type or provided)
+ * @returns {File} A File object that can be uploaded
+ */
+export const convertBlobToFile = (blob, filename = null, mimeType = null) => {
+  if (!blob) {
+    throw new Error("Blob is required");
+  }
+
+  // Use provided filename or generate one
+  const finalFilename = filename || `recording-${Date.now()}.webm`;
+  
+  // Use provided mimeType, blob's type, or default
+  const finalMimeType = mimeType || blob.type || "audio/webm";
+
+  // Create and return a File object
+  const file = new File([blob], finalFilename, {
+    type: finalMimeType,
+    lastModified: Date.now(),
+  });
+
+  return file;
+};
 // export const validateEmail = (email) => {
 //   return String(email)
 //     .toLowerCase()

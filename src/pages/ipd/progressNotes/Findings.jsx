@@ -5,6 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setFindings } from "../../../redux/ipd/progressNotesSlice";
 import { isEmptyRichText } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { useLocation } from "react-router-dom";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -16,13 +19,24 @@ const EMPTY_RICH_TEXT_VALUE = [
 ];
 
 const Findings = (props) => {
-  const { isEditable = true, shouldAutofill = false, sectionData, patientDetails = {} } = props || {};
-  const { findings } = useSelector((state) => state.progressNotes);
+  const {
+    isEditable = true,
+    shouldAutofill = false,
+    sectionData,
+  } = props || {};
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
+  const { findings, progressNotes } = useSelector(
+    (state) => state.progressNotes
+  );
   const doctorId = patientDetails?.doctor?.id || null;
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id || patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId || patientDetails?.admissionId,
+  });
 
-  const { progressNotes } = useSelector((state) => state.progressNotes);
   const prevProgressNote = useMemo(() => {
     return progressNotes[progressNotes?.length - 1];
   }, [progressNotes]);
@@ -34,8 +48,7 @@ const Findings = (props) => {
       (!Array.isArray(prevFindings) &&
         typeof prevFindings === "string" &&
         !!prevFindings) ||
-        (Array.isArray(prevFindings) &&
-        !!prevFindings?.[0]?.children?.[0]?.text)
+      (Array.isArray(prevFindings) && !!prevFindings?.[0]?.children?.[0]?.text)
       // (Array.isArray(prevFindings) &&
       // prevFindings.some((item) =>
       //     item?.children?.some((child) =>
@@ -43,7 +56,7 @@ const Findings = (props) => {
       //     )
       //   ))
     );
-  }, [findings,prevFindings]);
+  }, [findings, prevFindings]);
 
   // Get current value callback
   const getCurrentValue = useCallback(() => {
@@ -94,11 +107,33 @@ const Findings = (props) => {
     }
   }, [shouldAutofill]);
 
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "PROGRESS_NOTES.findings",
+        previousOutput: findings,
+        onSuccess: (updatedData) => {
+          dispatch(setFindings(updatedData));
+        },
+        callback,
+      }),
+    [dispatch, findings, submitVoiceAiRecording]
+  );
+
   return (
     <RichTextEditWrapper
       readOnly={!isEditable}
       showToolbar={isEditable}
       showActionBtns={isEditable}
+      showVoiceAI={
+        isEditable &&
+        (patientDetails?.details?.id || patientDetails?.details?.id) &&
+        (patientDetails?.admissionId || patientDetails?.admissionId)
+      }
+      showMicrophone={true}
+      voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+      onVoiceAIRecordingComplete={handleAIRecordingComplete}
       title="Findings (Systemic Examination)"
       width="100%"
       icon={defaultIcons[`${sectionData?.id}Pc`]}
@@ -114,8 +149,6 @@ const Findings = (props) => {
       }
       onAutoFill={handleAutofill}
       containerClass=""
-      showMagicPenGif={false}
-      showMicrophone={false}
       initialValue={
         findings?.length > 0
           ? findings

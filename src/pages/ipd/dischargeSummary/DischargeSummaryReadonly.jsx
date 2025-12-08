@@ -18,7 +18,7 @@ import {
 
 import { useSelector } from "react-redux";
 import DischargeSummaryTracker from "./components/CollapsibleSummaryTracker/DischargeSummaryTracker";
-import PrintPreviewShimmer from "./components/PrintPreviewShimmer/PrintPreviewShimmer";
+import DischargeSummaryLoading from "./components/DischargeSummaryLoading/DischargeSummaryLoading";
 import { getPatientInformation } from "../../../utils/utils";
 import { useLocation } from "react-router-dom";
 
@@ -37,6 +37,7 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
   const { dischargeSummary: currentSettings } = printSettings;
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
   const patientData = dischargeSummaryData?.patientInformation || {};
+  const isLoading = !Object.keys(dischargeSummaryData).length || !pdfUrl;
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -91,9 +92,11 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
       <div className={`${isMobile ? "p-0" : ""}  rounded-4 d-flex`}>
         <DischargeSummaryTracker />
         <div className="discharge-summary-print-preview no-scrollbar">
-          <div className="rounded-20px bg-white">
-            {(!Object.keys(dischargeSummaryData).length || !pdfUrl) ? (
-              <PrintPreviewShimmer />
+          <div
+            className={`rounded-20px bg-white ${isLoading ? "ds-loading-wrapper" : ""}`}
+          >
+            {isLoading ? (
+              <DischargeSummaryLoading />
             ) : (
               <div ref={divRef} className="printheight">
                 <div className="position-relative h-100">

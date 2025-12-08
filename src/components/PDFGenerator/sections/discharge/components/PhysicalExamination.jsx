@@ -106,7 +106,7 @@ export const renderGeneralExamination = (examination, subsection) => {
         <Text style={[styles.subsectionTitle]}>{subsection.label}</Text>
         <View style={styles.bulletList}>
           {Object.entries(examination).map(([key, value]) => {
-            if (!value || !value.title) return null;
+            if (!value?.title && isEmptyRichText(value.notes)) return null;
 
             const label = key
               .replace(/_/g, "/")
@@ -124,12 +124,12 @@ export const renderGeneralExamination = (examination, subsection) => {
                     <Text style={styles.examinationLabel}>{label}:</Text>
                     <Text style={styles.regularText}>
                       {" "}
-                      {value.title} {hasNotes ? ",  " : ""}
+                      {value.title} {(hasNotes && value.title) ? ",  " : ""}
                     </Text>
                     {hasNotes && (
                       <>
                         <View style={[styles.bulletContent]}>
-                          <Text style={[styles.notesLabel]}>Notes: </Text>
+                          {/* <Text style={[styles.notesLabel]}>Notes: </Text> */}
                           {typeof value.notes === "string" ? (
                             <Text style={[styles.regularText]}>
                               {value.notes}
@@ -268,8 +268,8 @@ const PhysicalExamination = ({
       (item) =>
         item &&
         typeof item === "object" &&
-        item.title &&
-        `${item.title}`.trim() !== ""
+        ((item.title && `${item.title}`.trim() !== "") ||
+          !isEmptyRichText(item.notes))
     );
   const hasGeneralExamination = sortedSubsections.some(
     (sub) => sub.id === "generalExamination" && checkExamination
@@ -287,7 +287,7 @@ const PhysicalExamination = ({
 
   return (
     <View style={styles.sectionContainer}>
-      {title ? <SectionTitle title={title} />: null}
+      {title ? <SectionTitle title={title} /> : null}
       <View style={styles.mainContainer}>
         {sortedSubsections.map((subsection) => {
           const key = subsection.id;

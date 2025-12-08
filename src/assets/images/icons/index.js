@@ -14,6 +14,10 @@ import microphone from "./microphone.webp";
 import numberedList from "./numbered-list.svg";
 import otSurgeryIcon from "./ot-surgery-icon.svg";
 import clockDarkOutlineIcon from "./clock-dark-outlined.svg";
+import gridVector from "./grid-vector.svg";
+import microphoneWhiteRounded from './microphone.svg';
+import microphoneSlash from './microphone-slash.svg';
+import submitIcon from './submit.svg';
 import calendarDarkOutlineIcon from "./calendar-dark-outlined.svg";
 import downArrowPcIcon from "./down-arrow-pc.svg";
 import obstetrics from "./obstetrics.webp";
@@ -23,7 +27,7 @@ import folderDark from "./folder-dark.svg";
 import referDoctors from "./refer-doctors.webp";
 import roundDotted from "./round-dotted.webp";
 import vitals from "./vitals.webp";
-import magicPen from "./magic-pen.webp";
+import magicPen from "./magic-pen.svg";
 import aiRefineGif from "./ai-refine.gif";
 import template from "./template.webp";
 import save from "./save.webp";
@@ -74,7 +78,7 @@ import downloadIcon from "./download.svg";
 import treatment from "./treatment.svg";
 import docIcon from "./doc-icon.svg";
 import deleteIconBlue from '../delete-icon-blue.svg';
-
+import voiceAiIcon from './voice-ai.gif';
 // Icon exports
 export const defaultIcons = {
   aidKit,
@@ -104,6 +108,7 @@ export const defaultIcons = {
   arrowIcon,
   document,
   infoIcon,
+  voiceAiIcon,
   editIcon,
   hospitalIcon,
   doctorIcon,
@@ -144,10 +149,14 @@ export const defaultIcons = {
   docIcon,
   otSurgeryIcon,
   clockDarkOutlineIcon,
+  gridVector,
   calendarDarkOutlineIcon,
   downArrowPcIcon,
   editDarkIcon,
   infoIconWarningColoured,
   crossIcon,
   calendarDarkIcon,
+  microphoneWhiteRounded,
+  microphoneSlash,
+  submitIcon,
 };

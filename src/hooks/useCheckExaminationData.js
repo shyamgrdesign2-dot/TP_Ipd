@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { isEmptyRichText } from "../components/PDFGenerator";
 
 /**
  * Custom hook to check if examination data is present and valid
@@ -15,8 +16,8 @@ const useCheckExaminationData = (examinationData) => {
         (item) =>
           item &&
           typeof item === "object" &&
-          item.title &&
-          `${item.title}`.trim() !== ""
+          ((item.title &&
+          `${item.title}`.trim() !== "") || !isEmptyRichText(item.notes))
       )
     );
   }, [examinationData]);

@@ -4,6 +4,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
   useRef,
+  useCallback,
 } from "react";
 import { DatePicker, TimePicker, Select } from "antd";
 import dayjs from "dayjs";
@@ -11,6 +12,10 @@ import DrawerWrapper from "../../components/DrawerWrapper/DrawerWrapper.jsx";
 import { createRemoteComponent } from "../../../../shared/remoteComponents.js";
 import { defaultIcons } from "../../../../assets/images/icons/index.js";
 import "./DischargeConfirmationModal.scss";
+import { useDispatch } from "react-redux";
+import { defaultIcons as defaultAssetIcons } from "../../../../assets/images/icons";
+import { isEmptyRichText } from "../../../../utils/utils";
+import { useVoiceAiRecordingComplete } from "../../../../hooks/useVoiceAiRecordingComplete";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const dateDisplayFormat = "DD-MM-YYYY";
@@ -35,12 +40,19 @@ const DischargeConfirmationModal = forwardRef(
       dischargeRemarks,
       onDischargeDataChange,
       apiToCall,
+      patientId = null,
+      admissionId = null,
     },
     ref
   ) => {
+    const dispatch = useDispatch();
     const apiRef = useRef(null);
     const [formData, setFormData] = useState(initialState);
     const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
+    const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+      patientId,
+      admissionId,
+    });
 
     const dischargeTypeOptions = [
       { value: "Normal", label: <div>Normal</div> },
@@ -92,6 +104,23 @@ const DischargeConfirmationModal = forwardRef(
         submitClick(formData);
       }
     };
+
+    const handleAIRecordingComplete = useCallback(
+      (payload, callback) =>
+        submitVoiceAiRecording({
+          payload,
+          schemaKey:
+            "DISRCHARGED_SUMMARY.dischargeConfirmation",
+          previousOutput: formData.dischargeRemarks,
+          onSuccess: (updatedData) => {
+            if (!isEmptyRichText(updatedData)) {
+              handleFieldChange("dischargeRemarks", updatedData);
+            }
+          },
+          callback,
+        }),
+      [formData.dischargeRemarks, handleFieldChange, submitVoiceAiRecording]
+    );
 
     return (
       <DrawerWrapper
@@ -196,8 +225,10 @@ const DischargeConfirmationModal = forwardRef(
                 width="100%"
                 showAutoFill={false}
                 containerClass="discharge-rich-text-wrapper"
-                showMagicPenGif={false}
-                showMicrophone={false}
+                showVoiceAI={!!patientId && !!admissionId}
+                showMicrophone={true}
+                voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+                onVoiceAIRecordingComplete={handleAIRecordingComplete}
                 onChange={(data) => handleFieldChange("dischargeRemarks", data)}
                 initialValue={formData.dischargeRemarks}
                 placeholder="The patient is stable and has been discharged after careful consideration."

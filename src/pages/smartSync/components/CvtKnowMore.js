@@ -10,7 +10,6 @@ import loyalityIcon from "../../../assets/images/loyality.svg";
 import playIcons from "../../../assets/images/tube-icon.svg";
 import redCrossIcon from "../../../assets/images/red-cross.svg";
 import greenRightIcon from "../../../assets/images/green-right.svg";
-import structuredRxGif from "../../../assets/images/structuredRx.gif";
 import VideoModal from "../../../common/VideoModal";
 import ContactSupport from "../../monetization/components/ContactSupport";
 import ExpiredText from "../../monetization/components/ExpiredText";
@@ -21,6 +20,8 @@ import ExpiredSubModal from "../../monetization/components/ExpiredSubModal";
 const { TabPane } = Tabs;
 
 const CvtKnowMore = ({ handleCollapsed }) => {
+  const structuredRxGif =
+    `${process.env.PUBLIC_URL || ""}/static-media/structuredRx.gif`;
   const [videoLink, setVideoLink] = useState(false);
   const { loading, videoList } = useSelector((state) => state.doctors);
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);

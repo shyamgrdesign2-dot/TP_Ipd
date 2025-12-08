@@ -20,6 +20,7 @@ import tagNew from '../../src/assets/images/tag-new.svg';
 import Pillup from '../assets/images/pillup.svg';
 import EazyDoseLogo from '../assets/images/EazyDose Logo.png';
 
+
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import {
@@ -47,7 +48,11 @@ import DoseCalculator from "./dose_calculator/doseCalculator";
 import { upsertDoctorSettingFlag } from "../redux/doctorsSlice";
 import { useLocation } from "react-router-dom";
 import { setMedicationData, setPillupSwitch } from "../redux/prescriptionSlice";
+import { createRemoteComponent } from "../shared/remoteComponents";
+import { defaultIcons } from "../assets/images/icons";
+import { useVoiceAiRecordingComplete } from "../hooks/useVoiceAiRecordingComplete";
 
+const VoiceAI = createRemoteComponent("VoiceAI");
 
 const { TextArea } = Input;
 
@@ -64,7 +69,7 @@ function MedicationsBox(props) {
   const { todayData } = useSelector((state) => state.vitals);
   const dispatch = useDispatch();
   const { state } = useLocation();
-  const { patient_data, caseManagerData } = state;
+  const { patient_data, caseManagerData, patientDetails } = state;
   const tcmId = caseManagerData !== undefined ? caseManagerData.tcm_id : 0;
 
   let { medicationData : medicationDataFromStore, pillupSwitch } = useSelector((state) => state.prescription);
@@ -117,6 +122,10 @@ function MedicationsBox(props) {
   const [medicationLibrary, setMedicationLibrary] = useState([]);
   const [editDoseId, setEditDoseId] = useState(0);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
 
   const isPillUpAccessableFromGB = useFeatureIsOn(GB_PILLUP_MEDICINE);
 
@@ -2113,6 +2122,20 @@ function MedicationsBox(props) {
     }
   ];
 
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "ASSESSMENTS.basicInfo.currentMedications",
+        previousOutput: medicationData,
+        onSuccess: (updatedData) => {
+          dispatch(setMedicationData(updatedData));
+        },
+        callback,
+        fallbackToTranscription: false,
+      }),
+    [dispatch, medicationData, submitVoiceAiRecording]
+  );
   const pillUpChange = (checked) => {
     dispatch(setPillupSwitch(checked))
   };
@@ -2145,6 +2168,13 @@ function MedicationsBox(props) {
                 <Tour placement="bottom" closeIcon={false} open={tourOpen} steps={steps} onClose={onTourHandle} />
               </div>
             }
+            {/* {isIpd && isEditable ? (
+              <VoiceAI
+                voiceAiIcon={defaultIcons.voiceAiIcon}
+                showBlob={false}
+                onRecordingComplete={handleAIRecordingComplete}
+              />
+            ): null} */}
           </div>
           {isEditable && <div className="d-flex align-items-center">
             {(profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) && (

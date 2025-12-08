@@ -7,6 +7,9 @@ import { useSelector } from "react-redux";
 import useCheckExaminationData from "../../../hooks/useCheckExaminationData";
 import { isEmptyRichText } from "../../../components/PDFGenerator";
 import { setPhysicalExaminationBasicData } from "../../../redux/ipd/consultantNotesSlice";
+import { useLocation } from "react-router-dom";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -17,6 +20,15 @@ const CNExaminationSection = (props) => {
     examinationData = null,
   } = props || {};
   const { physicalExaminationBasicData = {} } = useSelector((state) => state.consultantNotes);
+  const { state } = useLocation();
+  const { patientDetails: locationPatientDetails } = state || {};
+  const patientDetails = locationPatientDetails || {};
+  const patientId = patientDetails?.details?.id;
+  const admissionId = patientDetails?.admissionId;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+  });
   const dispatch = useDispatch();
   const checkReadableExaminationDataPresent = useCheckExaminationData(examinationData);
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
@@ -95,6 +107,32 @@ const CNExaminationSection = (props) => {
   useEffect(() => {
     handleExaminationNotesChangeRef.current = handleExaminationNotesChange;
   }, [handleExaminationNotesChange]);
+
+  const handleAIRecordingComplete = useCallback(
+    (itemId, payload, callback) => {
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: `CONSULTANT_NOTES.physicalExamination.examination.${itemId}.notes`,
+        previousOutput: physicalExaminationBasicData?.[itemId]?.notes,
+        selector: (data) => data?.notes || data,
+        onSuccess: (updatedNotes) => {
+          if (!isEmptyRichText(updatedNotes)) {
+            dispatch(
+              setPhysicalExaminationBasicData({
+                ...physicalExaminationBasicData,
+                [itemId]: {
+                  ...physicalExaminationBasicData[itemId],
+                  notes: updatedNotes,
+                },
+              })
+            );
+          }
+        },
+        callback,
+      });
+    },
+    [dispatch, physicalExaminationBasicData, submitVoiceAiRecording]
+  );
 
   const renderReadOnlyExamination = () => {
     return (
@@ -244,9 +282,14 @@ const CNExaminationSection = (props) => {
                 setNewAutoFillTextToAppend={itemSetAutoFillCallbacks[item.id]}
                 toolbarClass={"small-toolbar"}
                 showAutoFill={false}
-                showMagicPenGif={false}
                 disableFocusEffect={disableFocusEffect[item?.id]}
-                showMicrophone={false}
+                showVoiceAI={isEditable && patientId && admissionId}
+                showMicrophone={true}
+                size={"small"}
+                voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+                onVoiceAIRecordingComplete={(payload, callback) =>
+                  handleAIRecordingComplete(item.id, payload, callback)
+                }
                 placeholder={"Additional notes if any"}
                 containerClass="wrapper-class examination-rich-container"
                 onChange={itemOnChangeCallbacks[item.id]}
@@ -310,6 +353,7 @@ const CNExaminationSection = (props) => {
       icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={false}
       showMagicPenGif={false}
+      showVoiceAI={false}
       showMicrophone={false}
       placeholder={"Additional notes if any"}
       containerClass={`examination-rich-container ${

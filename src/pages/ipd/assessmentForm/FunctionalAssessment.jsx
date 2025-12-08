@@ -12,6 +12,8 @@ import { isEmptyRichText } from "../../../utils/utils";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import { defaultIcons } from "../../../assets/images/icons";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { useLocation } from "react-router-dom";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 // import defaultIcons from "../../../assets/images/indices";
 
 const ASSESSMENT_CHILDREN_MAPPING = {
@@ -35,6 +37,13 @@ const FunctionalAssessment = (props) => {
   const doctorsList = filters?.doctor || [];
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const dispatch = useDispatch();
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
+
   const handleOthersChange = (data) => {
     dispatch(
       setFunctionalAssessmentData({ ...functionalAssessmentData, others: data })
@@ -47,10 +56,30 @@ const FunctionalAssessment = (props) => {
     hideBorder = false,
     isCollapsible = false,
     showAddEditButton = false,
-    patientDetails = {},
   } = props || {};
 
   const doctorId = patientDetails?.doctor?.id || null;
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "ASSESSMENTS.functionalAssessment.others",
+        previousOutput: functionalAssessmentData?.others,
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            // setAutoFillTextToAppend(updatedData);
+            dispatch(
+              setFunctionalAssessmentData({
+                ...functionalAssessmentData,
+                others: updatedData,
+              })
+            );
+          }
+        },
+        callback,
+      }),
+    [functionalAssessmentData?.others, submitVoiceAiRecording]
+  );
 
   const handleAssessmentChange = (key, e, item) => {
     const selectedOption = item.options.find(
@@ -98,7 +127,10 @@ const FunctionalAssessment = (props) => {
     onValueChange: useCallback(
       (data) => {
         dispatch(
-          setFunctionalAssessmentData({ ...functionalAssessmentData, others: data })
+          setFunctionalAssessmentData({
+            ...functionalAssessmentData,
+            others: data,
+          })
         );
       },
       [dispatch, functionalAssessmentData]
@@ -114,6 +146,11 @@ const FunctionalAssessment = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
+        showVoiceAI={true}
+        showMicrophone={true}
+        showMagicPenGif={true}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingComplete}
         title={data?.title}
         width={isEditable ? "100%" : "fit-content"}
         icon={assessmentsIcons[`${data?.id}Pc`]}
@@ -122,8 +159,6 @@ const FunctionalAssessment = (props) => {
           hideBorder ? "ipddaso-hide-border" : ""
         } ${!isEditable ? "ipd-wrapper-class-readonly" : ""}`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
         templates={functionalAssessmentTemplates}
         templateType="entries"
         showTempButtons={true}
@@ -297,7 +332,8 @@ const FunctionalAssessment = (props) => {
     );
   };
   const renderReferredToPhysiotherapy = (data) => {
-    if (typeof referredDocForReview === 'object' && referredDocForReview?.name) return null;
+    if (typeof referredDocForReview === "object" && referredDocForReview?.name)
+      return null;
     if (!isEditable && !referredDocForReview) return null;
     if (!isEditable) {
       return (

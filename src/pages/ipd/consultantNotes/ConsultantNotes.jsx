@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { IPD } from "../../../utils/locale";
 import "./styles.scss";
-import { convertMedicationFormat } from "../../../utils/utils";
 import MedicationsBox from "../../../components/MedicationsBox";
 import { Button, Drawer, message } from "antd";
 import { useDispatch } from "react-redux";
@@ -18,6 +17,10 @@ import {
   updateConsultantNotes,
   setVitals,
   setLabInvestigation,
+  setClinicalAssessmentPlan,
+  setFluidBalance,
+  setAdditionalRemarks,
+  setPhysicalExaminationBasicData,
   resetConsultantNotes,
 } from "../../../redux/ipd/consultantNotesSlice";
 import {
@@ -49,6 +52,10 @@ import MedicationBoxIpd from "../../../components/medicationBoxIpd";
 import FluidBalanceSection from "../assessmentForm/FluidBalanceSection";
 import CNExaminationSection from "../assessmentForm/CNExaminationSection";
 import useIpdCustomModules from "../../../hooks/useIpdCustomModules";
+import useConsultantNotesRequestData from "../../../hooks/useConsultantNotesRequestData";
+import GlobalVoiceAI from "../components/GlobalVoiceAI";
+import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 dayjs.extend(customParseFormat);
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
@@ -65,6 +72,11 @@ const ConsultantNotes = (props) => {
   const { patient_data, patientDetails, fromTab } = state || {};
   const patientId = patientDetails?.details?.id;
   const { admissionId } = patientDetails;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+    isRichTextRequired: false,
+  });
 
   const { isEditable = true } = props;
   const dispatch = useDispatch();
@@ -101,6 +113,7 @@ const ConsultantNotes = (props) => {
   const [investigationData, setInvestigationData] = useState([]);
   const [shouldAutofill, setShouldAutofill] = useState(false);
   const [showAgentAlex, setShowAgentAlex] = useState(false);
+  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
   const [modelData, setModelData] = useState(
     consultantNotesCustomization.length > 0
@@ -202,6 +215,20 @@ const ConsultantNotes = (props) => {
     customModuleContents,
   ]);
 
+  const consultantNotesRequestData = useConsultantNotesRequestData({
+    clinicalAssessmentPlan,
+    vitals,
+    medicationData,
+    physicalExaminationBasicData,
+    fluidBalance,
+    investigationData,
+    additionalRemarks,
+    filledDate,
+    filledAtTime,
+    customModuleContents,
+    serializeCustomModules,
+  });
+
   const saveConsultantNotes = async () => {
     if (!isDataPresent) {
       message.warning("Please fill in at least one field before saving!");
@@ -209,40 +236,12 @@ const ConsultantNotes = (props) => {
     }
 
     try {
-      const consultantNotesData = {
-        clinicalAssessmentPlan: clinicalAssessmentPlan || [],
-        vitals: vitals || {},
-        currentMedication: convertMedicationFormat(medicationData),
-        examination: Object.entries(physicalExaminationBasicData || {}).reduce(
-          (acc, [key, value]) => {
-            acc[key] = {
-              title: value?.title || "",
-              notes: value?.notes || [],
-              value: value?.value || null,
-            };
-            return acc;
-          },
-          {}
-        ),
-        fluidBalance: fluidBalance || {},
-        medication: medicationData,
-        labInvestigation:
-          investigationData?.map((e) => ({
-            name: e.investigation_name,
-            notes: e.note,
-          })) || [],
-        additionalRemarks: additionalRemarks || [],
-        date: filledDate ? dayjs(filledDate).format(API_DATE_FORMAT) : "",
-        time: filledAtTime ? dayjs(filledAtTime).format(API_TIME_FORMAT) : "",
-        customModules: serializeCustomModules(customModuleContents),
-      };
-
       const result = await dispatch(
         updateConsultantNotes({
           patientId,
           admissionId,
           _id: currentConsultantNote?._id,
-          data: consultantNotesData,
+          data: consultantNotesRequestData,
         })
       );
 
@@ -496,11 +495,96 @@ const ConsultantNotes = (props) => {
     setShowAgentAlex(false);
   };
 
+  const showProgressSummary =
+    !showAgentAlex && !isVoiceAssistantOpen && progressNotes.length > 0;
+
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "CONSULTANT_NOTES",
+        previousOutput: consultantNotesRequestData,
+        parseResponse: (response) => {
+          if (response?.meta?.requestStatus !== "fulfilled") {
+            return { data: null, success: false };
+          }
+          const updatedData =
+            response?.payload?.data?.rxDigitizationHistory?.[0]?.response ||
+            {};
+          const updatedNotes =
+            updatedData?.consultationNotes ||
+            updatedData?.consultantNotes ||
+            updatedData;
+          return { data: updatedNotes, success: true };
+        },
+        onSuccess: (updatedNotes) => {
+          if (!updatedNotes) return;
+          if (updatedNotes.vitals) dispatch(setVitals(updatedNotes.vitals));
+          if (updatedNotes.clinicalAssessmentPlan)
+            dispatch(
+              setClinicalAssessmentPlan(updatedNotes.clinicalAssessmentPlan)
+            );
+          if (updatedNotes.medication) {
+            dispatch(setMedicationData(updatedNotes.medication));
+          }
+          if (updatedNotes.labInvestigation) {
+            const mappedInvestigations =
+              updatedNotes.labInvestigation?.map((e) => ({
+                investigation_name: e.name,
+                note: e.notes,
+              })) || [];
+            setInvestigationData(mappedInvestigations);
+            dispatch(setLabInvestigation(mappedInvestigations));
+          }
+          if (updatedNotes.additionalRemarks)
+            dispatch(setAdditionalRemarks(updatedNotes.additionalRemarks));
+          if (updatedNotes.examination)
+            dispatch(setPhysicalExaminationBasicData(updatedNotes.examination));
+          if (updatedNotes.fluidBalance)
+            dispatch(setFluidBalance(updatedNotes.fluidBalance));
+          if (updatedNotes.date) setFilledDate(dayjs(updatedNotes.date));
+          if (updatedNotes.time)
+            setFilledAtTime(dayjs(updatedNotes.time, API_TIME_FORMAT));
+        },
+        callback,
+        fallbackToTranscription: false,
+      }),
+    [
+      consultantNotesRequestData,
+      dispatch,
+      submitVoiceAiRecording,
+    ]
+  );
+
   const renderBottomSection = () => (
     <>
-      {!showAgentAlex && progressNotes.length > 0 && (
-        <div className="progress-summary-wrapper">
-          <ProgressSummary onClick={handleProgressSummaryClick} />
+      {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+      {showProgressSummary ? (
+        <div className="floating-bottom-row">
+          <div className="global-voice-ai-wrapper">
+            {isVoiceAssistantOpen ? (
+              <AgentAlexVoicePanel
+                onSubmit={handleAIRecordingComplete}
+                onClose={() => setIsVoiceAssistantOpen(false)}
+              />
+            ) : (
+              <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+            )}
+          </div>
+          <div className="progress-summary-wrapper">
+            <ProgressSummary onClick={handleProgressSummaryClick} />
+          </div>
+        </div>
+      ) : (
+        <div className="global-voice-ai-wrapper">
+          {isVoiceAssistantOpen ? (
+            <AgentAlexVoicePanel
+              onSubmit={handleAIRecordingComplete}
+              onClose={() => setIsVoiceAssistantOpen(false)}
+            />
+          ) : (
+            <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+          )}
         </div>
       )}
       {renderCustomModulesFooter()}

@@ -118,6 +118,7 @@ const PatientHistory = (props) => {
         >
           <ChiefComplaint
             isEditable={true}
+            isDischargeSummary={true}
             {...props}
             sectionData={sectionItemData}
           />

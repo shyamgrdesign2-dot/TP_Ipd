@@ -17,12 +17,18 @@ import {
 } from "../../../redux/ipd/otNotesSlice";
 import { createSurgery } from "../../../redux/surgicalSlice";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { isEmptyRichText } from "../../../utils/utils";
+import { useLocation } from "react-router-dom";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const SurgeryDetails = (props) => {
-  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
+  const { isEditable = true, sectionData } = props || {};
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const { surgeryDetails, surgeryProcedureOptions } = useSelector(
     (state) => state.otNotes
   );
@@ -31,7 +37,14 @@ const SurgeryDetails = (props) => {
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const doctorId = patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
+  const doctorId =
+    patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
+  const patientId = patientDetails?.details?.id || null;
+  const admissionId = patientDetails?.admissionId || null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+  });
 
   useEffect(() => {
     dispatch(searchSurgeryProcedures(""));
@@ -51,10 +64,10 @@ const SurgeryDetails = (props) => {
 
     if (searchQuery) {
       const trimmedQuery = searchQuery.trim();
-      
+
       if (trimmedQuery) {
         const isItemExists = surgeryProcedureOptions.some(
-          item => item.name.toLowerCase() === trimmedQuery.toLowerCase()
+          (item) => item.name.toLowerCase() === trimmedQuery.toLowerCase()
         );
 
         if (!isItemExists) {
@@ -104,31 +117,36 @@ const SurgeryDetails = (props) => {
             return option.data.customLabel || option.data.label;
           }}
           onChange={async (value, option) => {
-            if (value === undefined || value === null || (Array.isArray(value) && value.length === 0)) {
+            if (
+              value === undefined ||
+              value === null ||
+              (Array.isArray(value) && value.length === 0)
+            ) {
               dispatch(setSurgeryProcedureName(""));
               setSearchQuery(""); // Clear search query
               return;
             }
-            
+
             try {
               // Handle multiple selections - check if the last selected option is custom
               const options = Array.isArray(option) ? option : [option];
               const lastOption = options[options.length - 1];
-              const parsed = lastOption?.key ? JSON.parse(lastOption.key) : null;
-              
+              const parsed = lastOption?.key
+                ? JSON.parse(lastOption.key)
+                : null;
+
               if (parsed?.isCustom) {
                 // Create custom surgery and update the options list
                 await createCustomSurgery(parsed.name);
-                
+
                 // Refresh the surgery procedures list to include the new custom item
                 dispatch(searchSurgeryProcedures(""));
-                
+
                 setSearchQuery(""); // Clear search query after adding custom
               }
-              
+
               // For multiple selection, store the entire array of selected values
               dispatch(setSurgeryProcedureName(value));
-              
             } catch (e) {
               console.error("Error handling surgery selection:", e);
               dispatch(setSurgeryProcedureName(value));
@@ -270,6 +288,22 @@ const SurgeryDetails = (props) => {
     ),
   });
 
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "OT_NOTES.surgeryDetails.diagnosis",
+        previousOutput: initialValue?.diagnosis,
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            dispatch(setDiagnosis(updatedData));
+          }
+        },
+        callback,
+      }),
+    [dispatch, initialValue?.diagnosis, submitVoiceAiRecording]
+  );
+
   const renderDiagnosis = (data) => {
     if (!isEditable && !initialValue?.diagnosis) return null;
 
@@ -286,8 +320,10 @@ const SurgeryDetails = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="11 Sep 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
+        showVoiceAI={isEditable && patientId && admissionId}
+        showMicrophone={true}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingComplete}
         templates={diagnosisTemplates}
         templateType="entries"
         showTempButtons={isEditable}

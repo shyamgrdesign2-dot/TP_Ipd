@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { IPD } from "../../../utils/locale.js";
 import "../assessmentForm/styles.scss";
 import "./styles.scss";
@@ -46,6 +46,10 @@ import {
   resetOtNotesForm,
 } from "../../../redux/ipd/otNotesSlice.js";
 import { errorMessage } from "../../../utils/utils.js";
+import useDischargeSummaryRequestData from "../../../hooks/useDischargeSummaryRequestData.js";
+import GlobalVoiceAI from "../components/GlobalVoiceAI.jsx";
+import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel.jsx";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -63,12 +67,18 @@ const DischargeSummary = (props) => {
     fromTab,
     isNew = false,
   } = state || {};
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+    isRichTextRequired: false,
+  });
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const navigate = useNavigate();
   const [showAutoFillLocal, setShowAutoFillLocal] = useState(false);
   const [autoFillTitleLocal, setAutoFillTitleLocal] = useState("");
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
+  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
   const { customization = {} } = useSelector((state) => state.ipd);
   const assessmentData = useSelector((state) => state.assessment);
   const dischargeSummaryState = useSelector((state) => state.dischargeSummary);
@@ -108,6 +118,15 @@ const DischargeSummary = (props) => {
     patientId: patientDetails?.details?.id,
     patientData: patient_data,
     isEditable,
+  });
+  const reqData = useDischargeSummaryRequestData({
+    dischargeSummaryState,
+    otNotesData,
+    assessmentData,
+    prescriptionSlice,
+    obstetricSlice,
+    serializeCustomModules,
+    customModuleContents,
   });
 
   useEffect(() => {
@@ -246,6 +265,37 @@ const DischargeSummary = (props) => {
     });
   };
 
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "DISCHARGE_SUMMARY",
+        previousOutput: reqData,
+        parseResponse: (response) => {
+          if (response?.meta?.requestStatus !== "fulfilled") {
+            return { data: null, success: false };
+          }
+          const updatedData =
+            response?.payload?.data?.rxDigitizationHistory?.[0]?.response ||
+            {};
+          const updatedSummary = updatedData?.dischargeSummary || updatedData;
+          return { data: updatedSummary, success: true };
+        },
+        onSuccess: (updatedSummary) => {
+          if (updatedSummary) {
+            dispatch(resetDischargeSummaryForm());
+            addDischargeDataToStore(
+              { dischargeSummary: updatedSummary },
+              dispatch
+            );
+          }
+        },
+        callback,
+        fallbackToTranscription: false,
+      }),
+    [addDischargeDataToStore, dispatch, reqData, submitVoiceAiRecording]
+  );
+
   const renderSections = (data) => {
     if (!data || !data.id) {
       return null;
@@ -347,11 +397,32 @@ const DischargeSummary = (props) => {
                 </div>
               );
             case "dischargeNotes":
-              return <DischargeNotes {...props} sectionData={data} />;
+              return (
+                <DischargeNotes
+                  {...props}
+                  sectionData={data}
+                  patientId={patientDetails?.details?.id}
+                  admissionId={patientDetails?.admissionId}
+                />
+              );
             case "dischargeAdvice":
-              return <DischargeAdvice {...props} sectionData={data} />;
+              return (
+                <DischargeAdvice
+                  {...props}
+                  sectionData={data}
+                  patientId={patientDetails?.details?.id}
+                  admissionId={patientDetails?.admissionId}
+                />
+              );
             case "followUp":
-              return <FollowUp {...props} sectionData={data} />;
+              return (
+                <FollowUp
+                  {...props}
+                  sectionData={data}
+                  patientId={patientDetails?.details?.id}
+                  admissionId={patientDetails?.admissionId}
+                />
+              );
             // case "preparedBy":
             //   return <PreparedBy {...props} sectionData={data} />;
             default:
@@ -368,227 +439,7 @@ const DischargeSummary = (props) => {
     dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
-  const convertToRawFormat = (data = []) => {
-    if (!Array.isArray(data) || data.length === 0) return [];
-  
-    // Check if already in raw format (has tmu_id and tmu_title)
-    const isAlreadyRaw = data.every(
-      (item) => item.tmu_id !== undefined && item.tmu_title !== undefined
-    );
-    if (isAlreadyRaw) return data;
-  
-    // Convert formatted → raw
-    return data.map((item) => {
-      if (item.key) {
-        try {
-          return JSON.parse(item.key);
-        } catch {
-          return { tmu_id: item.value, tmu_title: item.label };
-        }
-      } else {
-        return { tmu_id: item.value, tmu_title: item.label };
-      }
-    });
-  };
-
   const onSaveDischargeSummaryClick = async () => {
-    // Helper function to format surgery data from OT Notes
-    const formatSurgeriesPerformed = (otNotesData) => {
-      if (!Array.isArray(otNotesData) || otNotesData.length === 0) {
-        return [];
-      }
-
-      return otNotesData.map((otNote) => {
-        const surgeryDetails = otNote?.otNotes?.surgeryDetails || {};
-        return {
-          procedureName: Array.isArray(surgeryDetails.procedureName)
-            ? surgeryDetails.procedureName
-            : surgeryDetails.procedureName
-            ? [surgeryDetails.procedureName]
-            : [],
-          surgeryDate: surgeryDetails.surgeryDate || "",
-          surgeryStartTime: surgeryDetails.surgeryStartTime || "",
-          surgeryEndTime: surgeryDetails.surgeryEndTime || "",
-        };
-      });
-    };
-
-    // Helper function to format treatment given data
-    const formatTreatmentGiven = (treatmentNotes) => {
-      if (!Array.isArray(treatmentNotes) || treatmentNotes.length === 0) {
-        return [];
-      }
-
-      return treatmentNotes.map((treatment) => ({
-        name: treatment.name || "",
-        givenDate: treatment.givenDate || "",
-        duration: treatment.duration || "",
-        notes: treatment.notes || "",
-        module: treatment.module || "",
-      }));
-    };
-
-    // Helper function to format chronological summary
-    const formatChronologicalSummary = (chronologicalSummary, arr) => {
-      return arr || chronologicalSummary;
-    };
-
-    // Helper function to format OT Notes surgeries
-    const formatOtNotesSurgeries = (otNotesData) => {
-      if (!Array.isArray(otNotesData) || otNotesData.length === 0) {
-        return [];
-      }
-
-      return otNotesData.map((otNote) => {
-        const surgeryDetails = otNote?.otNotes?.surgeryDetails || {};
-        const surgeryTeam = otNote?.otNotes?.surgeryTeam || {};
-
-        return {
-          _id: otNote._id || "",
-          procedureName: Array.isArray(surgeryDetails.procedureName)
-            ? surgeryDetails.procedureName
-            : surgeryDetails.procedureName
-            ? [surgeryDetails.procedureName]
-            : [],
-          dateOfSurgery: surgeryDetails.surgeryDate || "",
-          surgeon: surgeryTeam.primarySurgeon || [],
-          secondarySurgeon: surgeryTeam.secondarySurgeon || [],
-          assistant: surgeryTeam.assistant || [],
-          anaesthetist: surgeryTeam.anaesthesiologist || [],
-          scrubNurse: surgeryTeam.scrubNurse || [],
-          floorCirculatingNurse: surgeryTeam.floorCirculatingNurse || [],
-          anaesthetistType: surgeryDetails.anaesthesiaType || "",
-          operativeFindings:
-            otNote?.otNotes?.operativeNotes?.operativeFindings || [],
-          procedure: otNote?.otNotes?.operativeNotes?.procedures || [],
-          additionalNotes:
-            otNote?.otNotes?.postOperativeNotes?.additionalNotes || [],
-        };
-      });
-    };  
-
-    // Helper function to format discharge medications
-    // Format tmm_dosage: if tmm_dosage_unit_name exists, use it; otherwise combine tmm_dosage + tmm_unit_name
-    const formatDischargeMedications = (medications) => {
-      if (!Array.isArray(medications) || medications.length === 0) {
-        return [];
-      }
-
-      return medications.map((medication) => {
-        const formattedMedication = { ...medication };
-        const formattedMedicineUnit = convertToRawFormat(formattedMedication.medicineUnit);
-        
-        // If tmm_dosage_unit_name exists and is not empty, use it as tmm_dosage
-        if (formattedMedication.tmm_dosage_unit_name && formattedMedication.tmm_dosage_unit_name.trim() !== "") {
-          formattedMedication.tmm_dosage = formattedMedication.tmm_dosage_unit_name;
-        } else {
-          // Otherwise, combine tmm_dosage + tmm_unit_name
-          const dosage = formattedMedication.tmm_dosage ? formattedMedication.tmm_dosage: 1 ;
-          // const unitName = formattedMedication.tmm_unit_name || "";
-          const unitName = formattedMedication.tmm_unit_name ? formattedMedication.tmm_unit_name : formattedMedicineUnit?.find(
-            (x) => x.tmu_id == formattedMedication.tmu_id
-          )?.tmu_title || formattedMedicineUnit[0]?.tmu_title ;
-          
-          formattedMedication.tmm_dosage_unit_name = `${dosage} ${unitName}`.trim();
-        }
-        
-        return formattedMedication;
-      });
-    };
-
-    const reqData = {
-      assessmentId:
-        dischargeSummaryState?.dischargeSummaryData?.assessmentId !==
-        "undefined"
-          ? dischargeSummaryState?.dischargeSummaryData?.assessmentId
-          : "",
-      patientInformation: {
-        ...dischargeSummaryState.dischargeSummaryData?.patientInformation,
-      },
-      diagnosisAndSurgery: {
-        finalDiagnosis:
-          dischargeSummaryState?.dischargeSummaryData?.diagnosisAndSurgery
-            ?.finalDiagnosis || [],
-        provisionalDiagnosis:
-          dischargeSummaryState?.dischargeSummaryData?.diagnosisAndSurgery
-            ?.provisionalDiagnosis || [],
-        surgeriesPerformed: formatSurgeriesPerformed(otNotesData.otNotesData),
-      },
-      patientHistory: {
-        presentingComplaints: assessmentData.chiefComplaint || [],
-        pastMedicalHistory: prescriptionSlice.medicalHistoryData || [],
-        gyneacHistory: assessmentData.gynecHistoryData || {},
-        obstetricHistory: obstetricSlice.obstetricDetails || {},
-      },
-      physicalExamination: {
-        vitals: assessmentData.vitalsData,
-        generalExamination: assessmentData.physicalExaminationBasicData || {},
-        others: assessmentData.physicalExaminationOthersData || [],
-      },
-      functionalAssessmentTimeOfAdmission: {
-        assessment: (() => {
-          const data = { ...assessmentData.functionalAssessmentData };
-          delete data.others;
-          return data;
-        })(),
-        others: assessmentData.functionalAssessmentData.others,
-      },
-      date:
-        JSON.stringify(
-          dischargeSummaryState.dischargeSummaryData?.courseInHospital
-            ?.chronologicalSummary
-        ) !== JSON.stringify(dischargeSummaryState?.chronologicalSummary) ||
-        JSON.stringify(
-          dischargeSummaryState.dischargeSummaryData?.courseInHospital
-            ?.treatmentGiven
-        ) !== JSON.stringify(dischargeSummaryState?.treatmentNotes)
-          ? new Date()
-          : null,
-      courseInHospital: {
-        chronologicalSummary: formatChronologicalSummary(
-          dischargeSummaryState?.chronologicalSummary,
-          dischargeSummaryState.dischargeSummaryData?.courseInHospital
-            ?.chronologicalSummary
-        ),
-        treatmentGiven: formatTreatmentGiven(
-          dischargeSummaryState.treatmentNotes
-        ),
-      },
-      otNotes: {
-        surgeries: formatOtNotesSurgeries(otNotesData.otNotesData),
-      },
-      dischargeNotes: {
-        dischargeVitals: {
-          ...dischargeSummaryState.dischargeSummaryData?.vitalsData,
-        },
-        patientCondition:
-          dischargeSummaryState.dischargeSummaryData?.patientCondition,
-        dischargeMedications: formatDischargeMedications(prescriptionSlice.medicationData || []),
-      },
-      crossReferral:
-        dischargeSummaryState.dischargeSummaryData?.crossReferral || [],
-      labResults: dischargeSummaryState.dischargeSummaryData?.labResults || [],
-      dischargeAdvice: {
-        diet: dischargeSummaryState.dischargeSummaryData?.diet || [],
-        physicalActivities:
-          dischargeSummaryState.dischargeSummaryData?.physicalActivities || [],
-        otherAdvice:
-          dischargeSummaryState.dischargeSummaryData?.otherAdvice || [],
-        warningSigns:
-          dischargeSummaryState.dischargeSummaryData?.warningSigns || [],
-        preventiveMeasures:
-          dischargeSummaryState.dischargeSummaryData?.preventiveMeasures || [],
-        emergencyContact:
-          dischargeSummaryState.dischargeSummaryData?.emergencyContact || [],
-      },
-      followUpAdditionalNotes:
-        dischargeSummaryState.dischargeSummaryData?.additionalNotes || [],
-      followUp: dischargeSummaryState.dischargeSummaryData?.followUps || [],
-      preparedBy:
-        dischargeSummaryState.dischargeSummaryData?.preparedBy || null,
-      customModules: serializeCustomModules(customModuleContents),
-    };
-
     const response = await dispatch(
       updateDischargeSummaryData({
         data: reqData,
@@ -678,7 +529,22 @@ const DischargeSummary = (props) => {
     console.log("INTEL ==> activeId", activeId);
   };
 
-  const renderBottomSection = () => renderCustomModulesFooter();
+  const renderBottomSection = () => (
+    <>
+      {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+      <div className="global-voice-ai-wrapper">
+        {isVoiceAssistantOpen ? (
+          <AgentAlexVoicePanel
+            onSubmit={handleAIRecordingComplete}
+            onClose={() => setIsVoiceAssistantOpen(false)}
+          />
+        ) : (
+          <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+        )}
+      </div>
+      {renderCustomModulesFooter()}
+    </>
+  );
 
   if (
     !Object.keys(dischargeSummaryState?.actualDischargeSummaryData || {})

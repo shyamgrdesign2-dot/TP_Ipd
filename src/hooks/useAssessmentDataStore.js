@@ -20,6 +20,7 @@ import {
 } from "../redux/prescriptionSlice";
 import { addObstetricDetails } from "../redux/obstetricSlice";
 import { setProvisionalDiagnosis } from "../redux/ipd/dischargeSummarySlice";
+import { useSelector } from "react-redux";
 
 /**
  * Custom hook to handle adding assessment data to Redux store
@@ -27,12 +28,69 @@ import { setProvisionalDiagnosis } from "../redux/ipd/dischargeSummarySlice";
  */
 export const useAssessmentDataStore = () => {
   const dispatch = useDispatch();
+  const { defaultList } = useSelector((state) => state.medicalhistory);
+
+  const mapIdsFromDefaultList = useCallback(
+    (data = []) => {
+      if (!Array.isArray(data) || !defaultList?.length) return data;
+
+      const normalize = (value) =>
+        (value || "").toString().trim().toLowerCase();
+
+      return data.map((item) => {
+        let section = defaultList.find(
+          (defaultItem) =>
+            normalize(defaultItem?.title) === normalize(item?.title)
+        );
+
+        if (!section && normalize(item?.title) === "others") {
+          section = defaultList.find(
+            (defaultItem) => normalize(defaultItem?.title) === "lifestyle"
+          );
+        }
+
+        const mappedTags = Array.isArray(item?.tags)
+          ? item.tags.map((tag) => {
+              const matchedTag = section?.tags?.find(
+                (defaultTag) =>
+                  normalize(defaultTag?.title) === normalize(tag?.title)
+              );
+              return matchedTag?.tmmhst_id
+                ? {
+                    ...tag,
+                    note: tag?.notes || tag?.note,
+                    tmmhst_id: matchedTag.tmmhst_id,
+                    enable:
+                      tag?.enable === "" || tag?.enable === undefined
+                        ? "Y"
+                        : tag?.enable,
+                  }
+                : {
+                    ...tag,
+                    note: tag?.notes || tag?.note,
+                    enable:
+                      tag?.enable === "" || tag?.enable === undefined
+                        ? "Y"
+                        : tag?.enable,
+                  };
+            })
+          : item?.tags;
+
+        return section?.tmmhs_id
+          ? { ...item, tmmhs_id: section.tmmhs_id, tags: mappedTags }
+          : { ...item, tags: mappedTags };
+      });
+    },
+    [defaultList]
+  );
 
   const addDataToStore = useCallback(
-    (data) => {
+    (data, fromVoice = false) => {
       if (data) {
         // Basic Info dispatches
-        dispatch(setChiefComplaint(data?.basicInfo?.presentingComplaints || []));
+        dispatch(
+          setChiefComplaint(data?.basicInfo?.presentingComplaints || [])
+        );
         dispatch(setTopInformant(data?.basicInfo?.topInformant || null));
         dispatch(
           setHistoryOfPresentIllness(
@@ -41,10 +99,11 @@ export const useAssessmentDataStore = () => {
         );
         dispatch(setMedicationData(data?.basicInfo?.medications || []));
         dispatch(setLabResults(data?.basicInfo?.labResults || []));
-        dispatch(
-          setMedicalHistoryData(data?.basicInfo?.pastMedicalHistory || [])
-        );
-        dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || []));
+        const dataWithIds = fromVoice
+          ? mapIdsFromDefaultList(data?.basicInfo?.pastMedicalHistory)
+          : data?.basicInfo?.pastMedicalHistory;
+        dispatch(setMedicalHistoryData(dataWithIds || []));
+        dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || {}));
         dispatch(addObstetricDetails(data?.basicInfo?.obstetricHistory || []));
 
         // Physical Examination dispatches
@@ -84,7 +143,7 @@ export const useAssessmentDataStore = () => {
         );
       }
     },
-    [dispatch]
+    [dispatch, defaultList, mapIdsFromDefaultList]
   );
 
   return { addDataToStore };

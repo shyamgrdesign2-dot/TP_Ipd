@@ -90,21 +90,21 @@ function GynecHistoryList(props) {
                                     )}
                                     {(gynecHistory.durationOfMenstrualFlow || gynecHistory.clots || gynecHistory.numberOfPadsPerDay || gynecHistory.flowNotes) && (
                                         <> (<>
-                                            {gynecHistory.durationOfMenstrualFlow && (
+                                            {gynecHistory.durationOfMenstrualFlow ? (
                                                 <><span>Duration</span> : <label>{gynecHistory.durationOfMenstrualFlow} days</label></>
-                                            )}
-                                            {gynecHistory.durationOfMenstrualFlow && (gynecHistory.clots || gynecHistory.numberOfPadsPerDay || gynecHistory.flowNotes) && <>, </>}
+                                            ): null}
+                                            {gynecHistory.durationOfMenstrualFlow ? (gynecHistory.clots || gynecHistory.numberOfPadsPerDay || gynecHistory.flowNotes) && <>, </>: null}
                                             {gynecHistory.clots !== undefined && gynecHistory.clots !== '' && (
                                                 <><span>Clots</span> : <label>{gynecHistory.clots ? 'Yes' : 'No'}</label></>
                                             )}
                                             {gynecHistory.clots !== undefined && gynecHistory.clots !== '' && (gynecHistory.numberOfPadsPerDay || gynecHistory.flowNotes) && <>, </>}
-                                            {gynecHistory.numberOfPadsPerDay && (
+                                            {gynecHistory.numberOfPadsPerDay ? (
                                                 <><span>Pads per day</span> : <label>{gynecHistory.numberOfPadsPerDay}</label></>
-                                            )}
-                                            {gynecHistory.numberOfPadsPerDay && gynecHistory.flowNotes && <>, </>}
-                                            {gynecHistory.flowNotes && (
+                                            ): null}
+                                            {gynecHistory.numberOfPadsPerDay && gynecHistory.flowNotes ? <>, </>: null}
+                                            {gynecHistory.flowNotes ? (
                                                 <><span>Flow notes</span> : <label>{gynecHistory.flowNotes}</label></>
-                                            )}
+                                            ): null}
                                         </>)</>
                                     )}
                                 </li>

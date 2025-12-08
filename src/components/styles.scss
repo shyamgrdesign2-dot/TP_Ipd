@@ -77,3 +77,73 @@
     }
   }
 }
+
+.wave-visualizer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 999px;
+}
+
+.wave-visualizer__baseline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+}
+
+.wave-visualizer__bars {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  padding-inline: 8px;
+  box-sizing: border-box;
+  gap: 2px;
+}
+
+.wave-visualizer__bar {
+  flex: 1 0 auto;
+  max-width: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  transform-origin: center bottom;
+}
+
+.wave-visualizer--paused .wave-visualizer__bar {
+  opacity: 0.4;
+}
+
+.wave-visualizer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+.wave-visualizer__bars {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  padding-inline: 30px;
+  box-sizing: border-box;
+}
+
+.wave-visualizer__bar {
+  width: 3px;
+  border-radius: 999px;
+  background: #d9d9e0;
+  transform-origin: center center;
+  // transition: height 0.08s linear;
+}

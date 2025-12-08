@@ -173,6 +173,31 @@ export const sendForDischargeApproval = createAsyncThunk(
   }
 );
 
+export const voiceRx = createAsyncThunk(
+  "ipd/voiceRx",
+  async (data) => {
+    try {
+      let result = {};
+      result = await ApiIpdService.voiceRx(data);
+      return result;
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
+export const magicPen = createAsyncThunk("ipd/magicPen", async (data) => {
+  try {
+    let result = {};
+    result = await ApiIpdService.magicPen(data);
+    return result;
+  } catch (error) {
+    console.log("error: ", error);
+    throw Error(error);
+  }
+});
+
 const ipdSlice = createSlice({
   name: "ipd",
   initialState,
@@ -262,6 +287,24 @@ const ipdSlice = createSlice({
         state.loading = false;
       })
       .addCase(markPatientAsDischarged.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(voiceRx.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(voiceRx.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(voiceRx.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(magicPen.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(magicPen.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(magicPen.rejected, (state) => {
         state.loading = false;
       });
   },

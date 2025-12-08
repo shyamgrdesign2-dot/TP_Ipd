@@ -6,28 +6,26 @@ import "./styles.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { Select, DatePicker, TimePicker } from "antd";
 import dayjs from "dayjs";
-import {
-  setReferringDepartment,
-  setReferringTo,
-  setSurgeryDate,
-  setSurgeryStartTime,
-  setSurgeryEndTime,
-  setDiagnosis,
-  //   searchReferringDepartments,
-  //   searchReferringTo,
-} from "../../../redux/ipd/crossReferralSlice";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { setCrossReferralInformationDetails } from "../../../redux/ipd/crossReferralSlice";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
+import { isEmptyRichText } from "../../../utils/utils";
 import { doctorDepartmentRoles } from "../../../redux/ipd/ipdSlice";
+import { useLocation } from "react-router-dom";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
+
+dayjs.extend(customParseFormat);
 
 const ReferralInformation = (props) => {
   const { isEditable = true, sectionData } = props || {};
   const { crossReferralFormDetails } = useSelector(
     (state) => state.crossReferral
   );
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const { filters } = useSelector((state) => state.inPatients);
   const { doctorDepartmentRoles: departmentRolesData } = useSelector(
     (state) => state.ipd
@@ -43,11 +41,33 @@ const ReferralInformation = (props) => {
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
 
   useEffect(() => {
     dispatch(fetchFilters({ field: "doctor" }));
     dispatch(doctorDepartmentRoles());
   }, [dispatch]);
+
+  const handleAIRecordingComplete = (payload, callback) =>
+    submitVoiceAiRecording({
+      payload,
+      schemaKey: "CROSS_REFERRAL.referralInformation.reasonForReferral",
+      previousOutput: initialValue?.reasonForReferral,
+      onSuccess: (updatedData) => {
+        if (!isEmptyRichText(updatedData)) {
+          dispatch(
+            setCrossReferralInformationDetails({
+              ...initialValue,
+              reasonForReferral: updatedData,
+            })
+          );
+        }
+      },
+      callback,
+    });
 
   const renderRelativesInformed = (role) => {
     let options = [];
@@ -146,11 +166,7 @@ const ReferralInformation = (props) => {
           speciality: doctor.speciality,
         }),
         value: doctor.doctorName,
-        label: (
-          <div key={doctor.doctorId}>
-            {doctor.doctorName}
-          </div>
-        ),
+        label: <div key={doctor.doctorId}>{doctor.doctorName}</div>,
       }));
     } else {
       options = (doctorsList || []).map((item) => ({
@@ -358,14 +374,20 @@ const ReferralInformation = (props) => {
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
+        showVoiceAI={
+          isEditable &&
+          patientDetails?.details?.id &&
+          patientDetails?.admissionId
+        }
+        showMicrophone={true}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingComplete}
         title={data?.title}
         width="100%"
         icon={otNotesIcons[data?.id]}
         showAutoFill={false}
         containerClass={` ${!isEditable ? "ipd-wrapper-class-readonly" : ""}`}
         opdDate="11 Sep 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
         onChange={(data) =>
           dispatch(
             setCrossReferralInformationDetails({
@@ -404,6 +426,22 @@ const ReferralInformation = (props) => {
 
   const renderSurgeryDate = (data) => {
     const dateDisplayFormat = "D MMM YYYY";
+    const normalizeDate = (value) => {
+      if (!value) return "";
+      const formats = [
+        "D MMM YYYY",
+        "Do MMM YYYY",
+        "Do MMMM YYYY",
+        "D MMMM YYYY",
+        "YYYY-MM-DD",
+      ];
+      const parsed = dayjs(value, formats, true);
+      if (parsed.isValid()) return parsed.format(dateDisplayFormat);
+      const fallback = dayjs(value);
+      return fallback.isValid() ? fallback.format(dateDisplayFormat) : "";
+    };
+
+    const normalizedReferralDate = normalizeDate(initialValue?.[data?.id]);
     const isRelative = data?.id === "informedOnDate";
     return (
       <div>
@@ -419,8 +457,8 @@ const ReferralInformation = (props) => {
                     dateDisplayFormat
                   )
                 : null
-              : initialValue?.[data?.id]
-              ? dayjs(initialValue[data.id], dateDisplayFormat)
+              : normalizedReferralDate
+              ? dayjs(normalizedReferralDate, dateDisplayFormat)
               : null
           }
           onChange={(date) =>

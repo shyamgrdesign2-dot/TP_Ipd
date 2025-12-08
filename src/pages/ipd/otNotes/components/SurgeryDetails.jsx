@@ -28,6 +28,17 @@ const SurgeryDetails = ({ surgeryDetails, id }) => {
 
       <ul className="surgery-card__list">
         {Object.keys(SURGERY_DETAILS_MAP)?.map((detail) => {
+          const value = surgeryDetails[detail];
+          if (
+            (typeof value === "string" && value === "") ||
+            (Array.isArray(value) &&
+              value?.[0]?.children &&
+              isEmptyRichText(value)) ||
+            value === null ||
+            value === undefined
+          ) {
+            return null;
+          }
           if (typeof surgeryDetails[detail] === "string") {
             return (
               <li className="surgery-card__item">
@@ -40,10 +51,8 @@ const SurgeryDetails = ({ surgeryDetails, id }) => {
               </li>
             );
           }
-          if (
-            surgeryDetails[detail]?.[0]?.children
-          ) {
-            if(isEmptyRichText(surgeryDetails[detail])) {
+          if (surgeryDetails[detail]?.[0]?.children) {
+            if (isEmptyRichText(surgeryDetails[detail])) {
               return null;
             }
             return (

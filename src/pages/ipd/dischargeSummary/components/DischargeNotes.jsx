@@ -8,13 +8,22 @@ import { isEmptyRichText } from "../../../../utils/utils";
 import { setPatientCondition } from "../../../../redux/ipd/dischargeSummarySlice";
 import CurrentMedications from "../../assessmentForm/CurrentMedications";
 import { useTemplateManagement } from "../../../../hooks/useTemplateManagement";
+import { defaultIcons as defaultAssetIcons } from "../../../../assets/images/icons";
+import { useVoiceAiRecordingComplete } from "../../../../hooks/useVoiceAiRecordingComplete";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const DischargeNotes = (props) => {
-  const { isEditable = true, sectionData } = props || {};
-  const { dischargeSummaryData } = useSelector((state) => state.dischargeSummary);
+  const {
+    isEditable = true,
+    sectionData,
+    patientId: patientIdProp = null,
+    admissionId: admissionIdProp = null,
+  } = props || {};
+  const { dischargeSummaryData } = useSelector(
+    (state) => state.dischargeSummary
+  );
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
 
@@ -26,7 +35,21 @@ const DischargeNotes = (props) => {
   ];
 
   // Template management for patientCondition using the hook
-  const doctorId = dischargeSummaryData?.patientInformation?.primaryConsultant?.id;
+  const doctorId =
+    dischargeSummaryData?.patientInformation?.primaryConsultant?.id;
+  const resolvedPatientId =
+    patientIdProp ||
+    dischargeSummaryData?.patientInformation?.patientId ||
+    dischargeSummaryData?.patientInformation?.id ||
+    null;
+  const resolvedAdmissionId =
+    admissionIdProp ||
+    dischargeSummaryData?.patientInformation?.admissionId ||
+    null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: resolvedPatientId,
+    admissionId: resolvedAdmissionId,
+  });
 
   // Helper to get current value
   const getCurrentPatientConditionValue = useCallback(() => {
@@ -63,6 +86,22 @@ const DischargeNotes = (props) => {
     ),
   });
 
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "DISRCHARGED_SUMMARY.dischargeNotes.patientCondition",
+        previousOutput: dischargeSummaryData?.patientCondition,
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            dispatch(setPatientCondition(updatedData));
+          }
+        },
+        callback,
+      }),
+    [dischargeSummaryData?.patientCondition, dispatch, submitVoiceAiRecording]
+  );
+
   const handlePatientConditionChange = (data) => {
     dispatch(setPatientCondition(data));
   };
@@ -82,8 +121,10 @@ const DischargeNotes = (props) => {
         showAutoFill={false}
         containerClass={` ${!isEditable ? "ipd-wrapper-class-readonly" : ""}`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
+        showVoiceAI={isEditable && resolvedPatientId && resolvedAdmissionId}
+        showMicrophone={true}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingComplete}
         onChange={handlePatientConditionChange}
         initialValue={
           !isEmptyRichText(dischargeSummaryData?.patientCondition)

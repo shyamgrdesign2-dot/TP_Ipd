@@ -19,9 +19,9 @@ const ObstetricSummary = ({ data, pastPregnancyData }) => {
     ],
     values: [
       [
-        formatDateToShortMonthYear(data?.lmp),
-        formatDateToShortMonthYear(data?.edd),
-        formatDateToShortMonthYear(data?.edd),
+        formatDateToShortMonthYear(data?.lmp)|| "-",
+        formatDateToShortMonthYear(data?.edd)|| "-",
+        formatDateToShortMonthYear(data?.ceed) || "-",
         data?.gestationWeeks || data?.gestationDays
           ? `${data?.gestationWeeks ? `${data?.gestationWeeks}W` : ""}${
               data?.gestationWeeks && data?.gestationDays ? ", " : ""

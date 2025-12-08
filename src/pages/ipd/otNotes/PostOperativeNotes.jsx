@@ -1,4 +1,10 @@
-import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,11 +13,16 @@ import { fetchFilters } from "../../../redux/ipd/inPatientsSlice";
 import { Select } from "antd";
 import { isEmptyRichText, hasNoData } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { useLocation } from "react-router-dom";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const PostOperativeNotes = (props) => {
-  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
+  const { isEditable = true, sectionData } = props || {};
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   let { postOperativeNotes = {} } = useSelector((state) => state.otNotes);
   postOperativeNotes = props.postOperativeNotes || postOperativeNotes;
   const { profile } = useSelector((state) => state.doctors);
@@ -20,13 +31,13 @@ const PostOperativeNotes = (props) => {
   const {
     filters: { ward: wardFilters },
   } = useSelector((state) => state.inPatients);
-  const handleChange = useCallback((value, key) => {
-    dispatch(setPostOperativeNotes({ key, value }));
-  }, [dispatch]);
+  const handleChange = useCallback(
+    (value, key) => {
+      dispatch(setPostOperativeNotes({ key, value }));
+    },
+    [dispatch]
+  );
 
-  useEffect(() => {
-    dispatch(fetchFilters({ field: "ward" }));
-  }, []);
   const wards = useMemo(() => {
     return (
       wardFilters?.map((ward) => ({
@@ -47,9 +58,7 @@ const PostOperativeNotes = (props) => {
         <div className="ipdot-ion-metrics-container">
           <ul className="ipdot-ion-metrics-list">
             <li>
-              <span className="ipdot-ion-metrics-list-label">
-                {data.title}
-              </span>{" "}
+              <span className="ipdot-ion-metrics-list-label">{data.title}</span>{" "}
               :{" "}
               <span className="ipdot-ion-metrics-list-value">
                 {props.postOperativeNotes?.[data.id]}
@@ -77,6 +86,12 @@ const PostOperativeNotes = (props) => {
 
   const doctorId =
     patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
+  const patientId = patientDetails?.details?.id || null;
+  const admissionId = patientDetails?.admissionId || null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+  });
   const defaultRichText = useMemo(
     () => [
       {
@@ -89,7 +104,8 @@ const PostOperativeNotes = (props) => {
 
   const getFieldValue = useCallback(
     (key) => {
-      const value = props.postOperativeNotes?.[key] ?? postOperativeNotes?.[key];
+      const value =
+        props.postOperativeNotes?.[key] ?? postOperativeNotes?.[key];
       if (Array.isArray(value) && value.length) {
         return value;
       }
@@ -104,7 +120,9 @@ const PostOperativeNotes = (props) => {
   // Memoize the initial value to prevent infinite loops
   // Depend on actual Redux values, not the function
   const additionalInstructionsValue = useMemo(() => {
-    const value = props.postOperativeNotes?.["additionalInstructions"] ?? postOperativeNotes?.["additionalInstructions"];
+    const value =
+      props.postOperativeNotes?.["additionalInstructions"] ??
+      postOperativeNotes?.["additionalInstructions"];
     if (Array.isArray(value) && value.length) {
       return value;
     }
@@ -152,14 +170,28 @@ const PostOperativeNotes = (props) => {
     }));
   }, [defaultRichText]); // Remove handleChange from deps, use ref instead
 
-  const handleSetAutoFillTextToAppend = useCallback(
-    (value) => {
-      setAutoFillTextToAppend((prev) => ({
-        ...prev,
-        ["additionalInstructions"]: value,
-      }));
-    },
-    []
+  const handleSetAutoFillTextToAppend = useCallback((value) => {
+    setAutoFillTextToAppend((prev) => ({
+      ...prev,
+      ["additionalInstructions"]: value,
+    }));
+  }, []);
+
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "OT_NOTES.postOperativeNotes.additionalInstructions",
+        previousOutput: getAdditionalInstructionsValue(),
+        selector: (data) => data?.notes || data,
+        onSuccess: (updatedNotes) => {
+          if (!isEmptyRichText(updatedNotes)) {
+            handleChange(updatedNotes, "additionalInstructions");
+          }
+        },
+        callback,
+      }),
+    [getAdditionalInstructionsValue, handleChange, submitVoiceAiRecording]
   );
 
   const renderRichTextEditorWrapper = (data) => {
@@ -176,18 +208,20 @@ const PostOperativeNotes = (props) => {
         title={data?.title}
         data-testid={data?.id}
         width="100%"
-        icon={isEditable ? otNotesIcons[data?.id]: null}
+        icon={isEditable ? otNotesIcons[data?.id] : null}
         showAutoFill={false}
         containerClass={`wrapper-class ${
           !isEditable
             ? "ipd-wrapper-class-readonly rich-text-editor-container-readonly ipdot-on-extraMargin"
             : ""
         }`}
-        showMagicPenGif={false}
+        showVoiceAI={isEditable && patientId && admissionId}
+        showMicrophone={true}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingComplete}
         onErase={handleAdditionalInstructionsOnErase}
         newAutoFillTextToAppend={autoFillTextToAppend[data?.id]}
         setNewAutoFillTextToAppend={handleSetAutoFillTextToAppend}
-        showMicrophone={false}
         templates={templateHandlers?.templates}
         templateType={templateHandlers ? "entries" : undefined}
         showTempButtons={isEditable && !!templateHandlers}
@@ -202,19 +236,18 @@ const PostOperativeNotes = (props) => {
         onSave={() => {}}
         placeholder={data?.placeholder}
       />
-    )
-  }
+    );
+  };
 
   const renderRichTextEditorSection = (data) => {
-    if (!isEditable && isEmptyRichText(postOperativeNotes?.[data?.id])) return null;
+    if (!isEditable && isEmptyRichText(postOperativeNotes?.[data?.id]))
+      return null;
     if (!isEditable) {
       return (
         <ul>
-          <li>
-            {renderRichTextEditorWrapper(data)}
-          </li>
+          <li>{renderRichTextEditorWrapper(data)}</li>
         </ul>
-      )
+      );
     }
     return renderRichTextEditorWrapper(data);
   };
@@ -225,7 +258,7 @@ const PostOperativeNotes = (props) => {
         switch (item?.id) {
           case "postOpDestination":
             return renderPostOpDestination(item);
-            case "additionalInstructions":
+          case "additionalInstructions":
             return renderRichTextEditorSection(item);
           default:
             return null;

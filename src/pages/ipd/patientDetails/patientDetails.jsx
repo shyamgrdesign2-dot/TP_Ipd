@@ -78,12 +78,9 @@ import useOnlyViewMode from "../../../hooks/useOnlyViewMode";
 import PatientDetails from "../../PatientDetails";
 import { downloadModule, printModule } from "../utils/printDownload";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
+import { createRemoteComponent } from "../../../shared/remoteComponents";
 
-const PatientDetailsLayout = React.lazy(() => {
-  return import("shared_ui/components").then((m) =>
-    normalizeToDefault(m, "PatientDetailsLayout")
-  );
-});
+const PatientDetailsLayout = createRemoteComponent("PatientDetailsLayout");
 
 const IPDPatientDetails = () => {
   const navigate = useNavigate();
@@ -95,7 +92,7 @@ const IPDPatientDetails = () => {
     activeTab,
     fromTab,
   } = state || {};
-  
+
   const patientId = patientDetails?.details?.id;
   const { admissionId } = patientDetails;
 
@@ -484,6 +481,7 @@ const IPDPatientDetails = () => {
     dispatch(resetOtNotesForm());
     dispatch(resetCrossReferralForm());
     dispatch(resetActualDischargeSummaryData());
+    dispatch(resetDischargeSummaryToInitialState());
     dispatch(resetDischargeSummaryData());
     if (fromTab === "inPatients") {
       navigate("/ipd/inPatients");
@@ -552,6 +550,9 @@ const IPDPatientDetails = () => {
   // console.log("INTEL ==> patientDetails", patientDetails);
   // console.log('INTEL ==> TRANSFORMED PATIENT DETAILS', transformAdmissionToPatient(patientDetails))
   const onHandleSelect = (id) => {
+    if (activeMenuItem === id) {
+      return;
+    }
     setActiveMenuItem(id);
     setIsLoading(true);
     if (id === "dischargeSummary" || id === "opd") {
@@ -561,6 +562,9 @@ const IPDPatientDetails = () => {
       dispatch(resetOtNotesToInitialState());
     } else if (id === "consultantNotes") {
       dispatch(resetAssessmentForm());
+    } else if (id === "assessment") {
+      dispatch(resetAssessmentForm());
+      dispatch(resetDischargeSummaryToInitialState());
     }
     navigate("/ipd/patient-details", {
       state: {

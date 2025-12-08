@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { IPD } from "../../../utils/locale.js";
 import "../assessmentForm/styles.scss";
 import "./styles.scss";
@@ -14,6 +14,7 @@ import useIpdCustomModules from "../../../hooks/useIpdCustomModules";
 import {
   resetCrossReferralForm,
   updateCrossReferralData,
+  setCrossReferralFormDetails,
 } from "../../../redux/ipd/crossReferralSlice.js";
 import BackConfirmationModal from "../../../components/BackConfirmationModal.js";
 import {
@@ -25,6 +26,10 @@ import dayjs from "dayjs";
 import FullPageLoader from "../../vaccination/components/Loader.js";
 import { errorMessage } from "../../../utils/utils.js";
 import { useSelector } from "react-redux";
+import useCrossReferralRequestData from "../../../hooks/useCrossReferralRequestData.js";
+import GlobalVoiceAI from "../components/GlobalVoiceAI.jsx";
+import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel.jsx";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -46,6 +51,7 @@ const CrossReferral = (props) => {
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
+  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
 
   const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.crossReferral;
   const { customization = {} } = useSelector((state) => state.ipd);
@@ -59,16 +65,12 @@ const CrossReferral = (props) => {
       : IPD.DEFAULT_CROSS_REFERRAL_FORM_STRUCTURE
   );
 
-  useEffect(() => {
-    if (crossReferral.length > 0) {
-      setModelData(crossReferral);
-    }
-  }, [crossReferral]);
-
   const {
     customModuleContents,
     hydrateFromSavedModules,
     serializeCustomModules,
+    handleCustomModuleRenamed,
+    handleCustomModuleDeleted,
     defaultCustomModulesForCustomization,
   } = useIpdCustomModules({
     formType: customModuleFormType,
@@ -79,6 +81,16 @@ const CrossReferral = (props) => {
     patientId: patientDetails?.details?.id,
     patientData: patient_data,
     isEditable,
+  });
+  const reqData = useCrossReferralRequestData({
+    crossReferralFormDetails: crossReferralState.crossReferralFormDetails,
+    customModuleContents,
+    serializeCustomModules,
+  });
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+    isRichTextRequired: false,
   });
 
   useEffect(() => {
@@ -167,12 +179,45 @@ const CrossReferral = (props) => {
     );
   };
 
-  const onAddReferralClick = async () => {
-    const reqData = {
-      ...crossReferralState.crossReferralFormDetails,
-      customModules: serializeCustomModules(customModuleContents),
-    };
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "CROSS_REFERRAL",
+        previousOutput: reqData,
+        parseResponse: (response) => {
+          if (response?.meta?.requestStatus !== "fulfilled") {
+            return { data: null, success: false };
+          }
+          const updatedData =
+            response?.payload?.data?.rxDigitizationHistory?.[0]?.response || {};
+          const updatedReferral = updatedData?.crossReferral || updatedData;
+          return { data: updatedReferral, success: true };
+        },
+        onSuccess: (updatedReferral) => {
+          if (!updatedReferral) return;
+          const normalizedReferral = { ...updatedReferral };
+          const referralDate =
+            updatedReferral?.referralInformation?.referralDate || null;
+          if (referralDate) {
+            const parsed = dayjs(referralDate);
+            if (parsed.isValid()) {
+              normalizedReferral.referralInformation = {
+                ...(updatedReferral.referralInformation || {}),
+                referralDate: parsed.format("D MMM YYYY"),
+              };
+            }
+          }
 
+          dispatch(setCrossReferralFormDetails(normalizedReferral));
+        },
+        callback,
+        fallbackToTranscription: false,
+      }),
+    [dispatch, reqData, submitVoiceAiRecording]
+  );
+
+  const onAddReferralClick = async () => {
     const response = await dispatch(
       updateCrossReferralData({
         data: reqData,
@@ -291,6 +336,22 @@ const CrossReferral = (props) => {
     console.log("INTEL ==> activeId", activeId);
   };
 
+  const renderBottomSection = () => (
+    <>
+      {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+      <div className="global-voice-ai-wrapper">
+        {isVoiceAssistantOpen ? (
+          <AgentAlexVoicePanel
+            onSubmit={handleAIRecordingComplete}
+            onClose={() => setIsVoiceAssistantOpen(false)}
+          />
+        ) : (
+          <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+        )}
+      </div>
+    </>
+  );
+
   // Early return if essential data is missing to prevent undefined errors
   if (!patientDetails && isEditable) {
     return (
@@ -330,12 +391,13 @@ const CrossReferral = (props) => {
                   handler: onAddReferralClick,
                   title: "Add Referral",
                 }}
-                items={[modelData[0]]}
+                items={modelData}
                 renderSection={renderSections}
                 onRequestClose={() => {
                   setIsBackModalOpen(true);
                 }}
                 renderHeaderSection={renderHeaderSection}
+                renderBottomSection={renderBottomSection}
                 headerOffset={72}
                 onMenuItemClick={onMenuItemClick}
               />
@@ -382,6 +444,8 @@ const CrossReferral = (props) => {
                   setModelData(e);
                 }}
                 customModel={[modelData?.[0]]}
+                onUpdateCustomModuleName={handleCustomModuleRenamed}
+                onDeleteCustomModule={handleCustomModuleDeleted}
               />
             </div>
           </Suspense>

@@ -501,6 +501,18 @@ const PatientsTable = ({
         dischargeType={warningModalOpen?.dischargeType}
         dischargeRemarks={warningModalOpen?.dischargeRemarks}
         apiToCall={apiToCall}
+        patientId={
+          warningModalOpen?.details?.id || 
+          warningModalOpen?.patientId ||
+          warningModalOpen?.patient_id ||
+          warningModalOpen?.patientDetails?.id
+        }
+        admissionId={
+          warningModalOpen?.admissionId ||
+          warningModalOpen?.admission_id ||
+          warningModalOpen?.admissionDetails?.id ||
+          warningModalOpen?.admission?.id
+        }
       />
       <DischargeConfirmationPopup
         apiToCall={apiToCall}

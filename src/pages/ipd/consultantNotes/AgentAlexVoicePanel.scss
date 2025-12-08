@@ -1,0 +1,395 @@
+.agent-alex-voice-panel {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 400px;
+  background: linear-gradient(180deg, #2c0f44 0%, #0d0817 100%);
+  border-radius: 26px;
+  box-shadow: 0px 26px 60px rgba(0, 0, 0, 0.35),
+    0px 6px 18px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  color: #ffffff !important;
+  font-family: "Poppins", sans-serif;
+  animation: agentAlexVoiceFadeIn 0.2s ease;
+  z-index: 1001;
+}
+
+.agent-alex-voice-header {
+  position: relative;
+  background: linear-gradient(105deg, #582979 0%, #3a1e57 100%);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 74px;
+}
+
+.agent-alex-voice-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.02) 100%
+    ),
+    linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.02) 100%
+    );
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.agent-alex-voice-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.agent-alex-voice-avatar {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px 12px 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.agent-alex-voice-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px 12px 0 12px;
+}
+
+.agent-alex-voice-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.agent-alex-voice-name {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 20px;
+  color: #ffffff !important;
+}
+
+.agent-alex-voice-role {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
+  color: #e7e0ef !important;
+}
+
+.agent-alex-voice-close-button {
+  width: 24px;
+  height: 24px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.agent-alex-voice-close-button:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: scale(1.02);
+  opacity: 0.9;
+}
+
+.agent-alex-voice-close-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.agent-alex-voice-body {
+  padding: 25px 32px 40px;
+  text-align: center;
+  background: radial-gradient(
+      120% 140% at 20% 20%,
+      rgba(104, 48, 140, 0.35),
+      transparent 60%
+    ),
+    linear-gradient(180deg, #1a0e2b 0%, #0a050f 100%);
+}
+
+.agent-alex-voice-loading {
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 32px;
+  color: #f3f0ff !important;
+  margin-bottom: 10px;
+}
+
+.agent-alex-voice-loading-subtitle {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: #9a94a7 !important;
+}
+
+.agent-alex-voice-body.processing {
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  .voice-ai-recorder-processing-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .voice-ai-recorder-processing-indicator-text {
+    font-size: 18px;
+    font-weight: 500;
+    color: #FFFFFF !important;
+    font-family: "Poppins", sans-serif;
+    z-index: 1;
+    text-align: center;
+    position: relative;
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    margin-top: 18px;
+
+    .dots-container {
+      display: inline-flex;
+      gap: 2px;
+      margin-left: 2px;
+      margin-bottom: 6px;
+    }
+
+    .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      animation: dotFade 1.5s ease-in-out infinite;
+
+      &:nth-child(1) {
+        background-color: #FFFFFF;
+        animation-delay: 0s;
+      }
+
+      &:nth-child(2) {
+        background-color: #FFFFFF;
+        animation-delay: 0.2s;
+      }
+
+      &:nth-child(3) {
+        background-color: #FFFFFF;
+        animation-delay: 0.4s;
+      }
+    }
+  }
+  .voice-ai-recorder-processing-indicator-sub-header {
+    font-size: 12px;
+    color: #FFFFFF66;
+    font-weight: 400;
+    line-height: 27px;
+  }
+
+  @keyframes dotFade {
+    0%,
+    20% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    40%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+.agent-alex-voice-body.active {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+  justify-content: center;
+}
+
+.agent-alex-voice-title {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: #fff !important;
+  text-align: center;
+  padding: 0 40px;
+}
+
+.agent-alex-voice-visualizer-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 12px;
+}
+
+.agent-alex-voice-timer {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.agent-alex-voice-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.agent-alex-voice-mic {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  // background: radial-gradient(circle at 30% 30%, #ff8c8c, #d13f60);
+  box-shadow: 0 10px 24px rgba(209, 63, 96, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(209, 63, 96, 0.45);
+  }
+
+  &.paused {
+    // filter: grayscale(0.2);
+    background: radial-gradient(circle at 30% 30%, #f4d2d2, #c7bac6);
+  }
+}
+
+.agent-alex-voice-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #b3a9c5 !important;
+}
+
+.agent-alex-voice-dots {
+  display: inline-flex;
+  gap: 4px;
+
+  span {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #b3a9c5;
+    animation: agentAlexVoicePulse 1.2s ease-in-out infinite;
+
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+  }
+}
+
+.agent-alex-voice-submit {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  color: #2c123e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  }
+}
+
+@media (max-width: 480px) {
+  .agent-alex-voice-panel {
+    width: 92vw;
+    max-width: 360px;
+    right: 0;
+  }
+}
+
+@keyframes agentAlexVoiceFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes agentAlexVoicePulse {
+  0% {
+    opacity: 0.2;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+  100% {
+    opacity: 0.2;
+    transform: translateY(0);
+  }
+}
+
+.agent-alex-voice-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 23, 0.45);
+  backdrop-filter: blur(1px);
+  z-index: 1000;
+}
+
+.agent-alex-voice-grid-vector {
+  position: absolute;
+  top: 0;
+  right: 0;
+  pointer-events: none;
+}

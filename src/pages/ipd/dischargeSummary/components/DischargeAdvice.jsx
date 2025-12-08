@@ -16,6 +16,8 @@ import {
 } from "../../../../redux/ipd/dischargeSummarySlice";
 import { useDispatch } from "react-redux";
 import { useTemplateManagement } from "../../../../hooks/useTemplateManagement";
+import { defaultIcons as defaultAssetIcons } from "../../../../assets/images/icons";
+import { useVoiceAiRecordingComplete } from "../../../../hooks/useVoiceAiRecordingComplete";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -27,15 +29,33 @@ const EMPTY_RICH_TEXT_VALUE = [
   },
 ];
 
-
 const DischargeAdvice = (props) => {
-  const { isEditable = true, sectionData } = props || {};
+  const {
+    isEditable = true,
+    sectionData,
+    patientId: patientIdProp = null,
+    admissionId: admissionIdProp = null,
+  } = props || {};
   const { dischargeSummaryData } = useSelector(
     (state) => state.dischargeSummary
   );
 
   // Get doctorId from dischargeSummaryData
-  const doctorId = dischargeSummaryData?.patientInformation?.primaryConsultant?.id;
+  const doctorId =
+    dischargeSummaryData?.patientInformation?.primaryConsultant?.id;
+  const resolvedPatientId =
+    patientIdProp ||
+    dischargeSummaryData?.patientInformation?.patientId ||
+    dischargeSummaryData?.patientInformation?.id ||
+    null;
+  const resolvedAdmissionId =
+    admissionIdProp ||
+    dischargeSummaryData?.patientInformation?.admissionId ||
+    null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: resolvedPatientId,
+    admissionId: resolvedAdmissionId,
+  });
 
   const [
     autoFillTextToAppendWarningSigns,
@@ -68,16 +88,16 @@ const DischargeAdvice = (props) => {
     (moduleId) => {
       const key = moduleId;
       // Array-based modules (diet, physicalActivities) should return empty array, not EMPTY_RICH_TEXT_VALUE
-      const arrayBasedModules = ['diet', 'physicalActivities'];
+      const arrayBasedModules = ["diet", "physicalActivities"];
       const isArrayBasedModule = arrayBasedModules.includes(moduleId);
-      
+
       if (
         Array.isArray(dischargeSummaryData?.[key]) &&
         dischargeSummaryData[key].length
       ) {
         return dischargeSummaryData[key];
       }
-      
+
       // For array-based modules, return empty array; for rich text modules, return EMPTY_RICH_TEXT_VALUE
       return isArrayBasedModule ? [] : EMPTY_RICH_TEXT_VALUE;
     },
@@ -86,7 +106,7 @@ const DischargeAdvice = (props) => {
 
   const extractEntries = useCallback((template) => {
     if (!template) return EMPTY_RICH_TEXT_VALUE;
-    
+
     // Template structure from API: { _id: "...", template: { entries: [...], title: "..." } }
     // Priority: Check nested template object first (actual API structure), then root level (fallback)
     const candidates = [
@@ -108,18 +128,24 @@ const DischargeAdvice = (props) => {
     const found = candidates.find(
       (candidate) => Array.isArray(candidate) && candidate.length
     );
-    const result = found && Array.isArray(found) && found.length
-      ? found
-      : EMPTY_RICH_TEXT_VALUE;
-    
+    const result =
+      found && Array.isArray(found) && found.length
+        ? found
+        : EMPTY_RICH_TEXT_VALUE;
+
     // Ensure result is always a valid array (deep clone to avoid reference issues)
     if (!Array.isArray(result)) {
       return EMPTY_RICH_TEXT_VALUE;
     }
-    
+
     // Validate that each entry has the expected structure
     const validated = result.map((entry) => {
-      if (entry && typeof entry === 'object' && entry.type && Array.isArray(entry.children)) {
+      if (
+        entry &&
+        typeof entry === "object" &&
+        entry.type &&
+        Array.isArray(entry.children)
+      ) {
         return entry;
       }
       // If entry is malformed, return a default paragraph
@@ -128,14 +154,14 @@ const DischargeAdvice = (props) => {
         children: [{ text: "" }],
       };
     });
-    
+
     return validated.length > 0 ? validated : EMPTY_RICH_TEXT_VALUE;
   }, []);
 
   // Helper to extract array data from template (for diet/physicalActivities)
   const extractArrayData = useCallback((template, moduleId) => {
     if (!template) return [];
-    
+
     // Template structure from API: { _id: "...", template: { [moduleId]: [...], title: "..." } }
     // Priority: Check nested template object first (actual API structure), then root level (fallback)
     const candidates = [
@@ -158,10 +184,10 @@ const DischargeAdvice = (props) => {
 
   const getTemplateTitle = useCallback((template) => {
     if (!template) return "Untitled Template";
-    
+
     // Check both root level and nested template object
     const templateData = template.template || template;
-    
+
     return (
       templateData.title ||
       template.title ||
@@ -186,7 +212,10 @@ const DischargeAdvice = (props) => {
     doctorId,
     isEditable,
     moduleType: "richText",
-    getCurrentValue: useCallback(() => getCurrentValue("warningSigns"), [getCurrentValue]),
+    getCurrentValue: useCallback(
+      () => getCurrentValue("warningSigns"),
+      [getCurrentValue]
+    ),
     onValueChange: useCallback(
       (data) => handleOthersChange(data, "warningSigns"),
       [handleOthersChange]
@@ -200,7 +229,10 @@ const DischargeAdvice = (props) => {
     doctorId,
     isEditable,
     moduleType: "richText",
-    getCurrentValue: useCallback(() => getCurrentValue("preventiveMeasures"), [getCurrentValue]),
+    getCurrentValue: useCallback(
+      () => getCurrentValue("preventiveMeasures"),
+      [getCurrentValue]
+    ),
     onValueChange: useCallback(
       (data) => handleOthersChange(data, "preventiveMeasures"),
       [handleOthersChange]
@@ -214,7 +246,10 @@ const DischargeAdvice = (props) => {
     doctorId,
     isEditable,
     moduleType: "richText",
-    getCurrentValue: useCallback(() => getCurrentValue("emergencyContact"), [getCurrentValue]),
+    getCurrentValue: useCallback(
+      () => getCurrentValue("emergencyContact"),
+      [getCurrentValue]
+    ),
     onValueChange: useCallback(
       (data) => handleOthersChange(data, "emergencyContact"),
       [handleOthersChange]
@@ -228,7 +263,10 @@ const DischargeAdvice = (props) => {
     doctorId,
     isEditable,
     moduleType: "richText",
-    getCurrentValue: useCallback(() => getCurrentValue("otherAdvice"), [getCurrentValue]),
+    getCurrentValue: useCallback(
+      () => getCurrentValue("otherAdvice"),
+      [getCurrentValue]
+    ),
     onValueChange: useCallback(
       (data) => handleOthersChange(data, "otherAdvice"),
       [handleOthersChange]
@@ -243,11 +281,11 @@ const DischargeAdvice = (props) => {
     doctorId,
     isEditable,
     moduleType: "array",
-    getCurrentValue: useCallback(() => getCurrentValue("diet"), [getCurrentValue]),
-    onArrayChange: useCallback(
-      (data) => dispatch(setDiet(data)),
-      [dispatch]
+    getCurrentValue: useCallback(
+      () => getCurrentValue("diet"),
+      [getCurrentValue]
     ),
+    onArrayChange: useCallback((data) => dispatch(setDiet(data)), [dispatch]),
     isDuplicate: useCallback((existing, newItem) => {
       if (existing.id && newItem.id && existing.id === newItem.id) {
         return true;
@@ -263,7 +301,10 @@ const DischargeAdvice = (props) => {
     doctorId,
     isEditable,
     moduleType: "array",
-    getCurrentValue: useCallback(() => getCurrentValue("physicalActivities"), [getCurrentValue]),
+    getCurrentValue: useCallback(
+      () => getCurrentValue("physicalActivities"),
+      [getCurrentValue]
+    ),
     onArrayChange: useCallback(
       (data) => dispatch(setPhysicalActivities(data)),
       [dispatch]
@@ -276,6 +317,24 @@ const DischargeAdvice = (props) => {
     }, []),
     autoFetch: false,
   });
+
+  const getVoiceHandler = useCallback(
+    (fieldKey, previousOutput, onDataUpdate, setAutoFillFn) =>
+      (payload, callback) =>
+        submitVoiceAiRecording({
+          payload,
+          schemaKey: `DISRCHARGED_SUMMARY.dischargeAdvice.${fieldKey}`,
+          previousOutput,
+          onSuccess: (updatedData) => {
+            if (!isEmptyRichText(updatedData)) {
+              onDataUpdate(updatedData);
+              // setAutoFillFn?.(updatedData);
+            }
+          },
+          callback,
+        }),
+    [submitVoiceAiRecording]
+  );
 
   // Simple memoization for initial values
   const otherAdviceInitialValue = useMemo(() => {
@@ -301,7 +360,7 @@ const DischargeAdvice = (props) => {
     }
     return EMPTY_RICH_TEXT_VALUE;
   }, [dischargeSummaryData?.warningSigns]);
-  
+
   const preventiveMeasuresInitialValue = useMemo(() => {
     const currentData = dischargeSummaryData?.preventiveMeasures;
     if (!isEmptyRichText(currentData)) {
@@ -313,7 +372,7 @@ const DischargeAdvice = (props) => {
     }
     return EMPTY_RICH_TEXT_VALUE;
   }, [dischargeSummaryData?.preventiveMeasures]);
-  
+
   const emergencyContactInitialValue = useMemo(() => {
     const currentData = dischargeSummaryData?.emergencyContact;
     if (!isEmptyRichText(currentData)) {
@@ -439,8 +498,15 @@ const DischargeAdvice = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
+        showVoiceAI={isEditable && resolvedPatientId && resolvedAdmissionId}
+        showMicrophone={true}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={getVoiceHandler(
+          "warningSigns",
+          dischargeSummaryData?.warningSigns,
+          (data) => handleOthersChange(data, "warningSigns"),
+          setAutoFillTextToAppendWarningSigns
+        )}
         onChange={(data) => handleOthersChange(data, "warningSigns")}
         initialValue={warningSignsInitialValue}
         placeholder={
@@ -471,7 +537,10 @@ const DischargeAdvice = (props) => {
   };
 
   const renderPreventiveMeasures = (data) => {
-    if (!isEditable && isEmptyRichText(dischargeSummaryData?.preventiveMeasures))
+    if (
+      !isEditable &&
+      isEmptyRichText(dischargeSummaryData?.preventiveMeasures)
+    )
       return null;
 
     return (
@@ -489,8 +558,15 @@ const DischargeAdvice = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
+        showVoiceAI={isEditable && resolvedPatientId && resolvedAdmissionId}
+        showMicrophone={true}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={getVoiceHandler(
+          "preventiveMeasures",
+          dischargeSummaryData?.preventiveMeasures,
+          (data) => handleOthersChange(data, "preventiveMeasures"),
+          setAutoFillTextToAppendPreventiveMeasures
+        )}
         onChange={(data) => handleOthersChange(data, "preventiveMeasures")}
         initialValue={preventiveMeasuresInitialValue}
         placeholder={
@@ -509,7 +585,9 @@ const DischargeAdvice = (props) => {
         onTemplateSelected={preventiveMeasuresTemplate.handleTemplateSelected}
         addTemplate={preventiveMeasuresTemplate.handleAddTemplate}
         updateTemplate={preventiveMeasuresTemplate.handleUpdateTemplate}
-        onDeleteTemplateClicked={preventiveMeasuresTemplate.handleDeleteTemplate}
+        onDeleteTemplateClicked={
+          preventiveMeasuresTemplate.handleDeleteTemplate
+        }
         loading={preventiveMeasuresTemplate.templatesLoading}
         newAutoFillTextToAppend={autoFillTextToAppendPreventiveMeasures}
         setNewAutoFillTextToAppend={setAutoFillTextToAppendPreventiveMeasures}
@@ -539,8 +617,15 @@ const DischargeAdvice = (props) => {
           !isEditable ? "ipd-wrapper-class-readonly" : ""
         }`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
+        showVoiceAI={isEditable && resolvedPatientId && resolvedAdmissionId}
+        showMicrophone={true}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={getVoiceHandler(
+          "emergencyContact",
+          dischargeSummaryData?.emergencyContact,
+          (data) => handleOthersChange(data, "emergencyContact"),
+          setAutoFillTextToAppendEmergencyContact
+        )}
         onChange={(data) => handleOthersChange(data, "emergencyContact")}
         initialValue={emergencyContactInitialValue}
         placeholder={
@@ -589,8 +674,15 @@ const DischargeAdvice = (props) => {
             !isEditable ? "ipd-wrapper-class-readonly" : ""
           }`}
           opdDate="15 Jun 2025"
-          showMagicPenGif={false}
-          showMicrophone={false}
+          showVoiceAI={isEditable && resolvedPatientId && resolvedAdmissionId}
+          showMicrophone={true}
+          voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+          onVoiceAIRecordingComplete={getVoiceHandler(
+            "otherAdvice",
+            dischargeSummaryData?.otherAdvice,
+            (data) => handleOthersChange(data, "otherAdvice"),
+            setAutoFillTextToAppendOtherAdvice
+          )}
           onChange={(data) => handleOthersChange(data, "otherAdvice")}
           initialValue={otherAdviceInitialValue}
           placeholder={
@@ -653,10 +745,15 @@ const DischargeAdvice = (props) => {
                       onTemplateSelected={dietTemplate.handleTemplateSelected}
                       addTemplate={dietTemplate.handleAddTemplate}
                       updateTemplate={dietTemplate.handleUpdateTemplate}
-                      onDeleteTemplateClicked={dietTemplate.handleDeleteTemplate}
+                      onDeleteTemplateClicked={
+                        dietTemplate.handleDeleteTemplate
+                      }
                       loading={dietTemplate.templatesLoading}
                       data={dischargeSummaryData?.diet || []}
-                      isDataPresent={Array.isArray(dischargeSummaryData?.diet) && dischargeSummaryData.diet.length > 0}
+                      isDataPresent={
+                        Array.isArray(dischargeSummaryData?.diet) &&
+                        dischargeSummaryData.diet.length > 0
+                      }
                       renderBody={() => {
                         return <DietPickerTable isEditable={isEditable} />;
                       }}
@@ -684,13 +781,23 @@ const DischargeAdvice = (props) => {
                       }}
                       showTempButtons={true}
                       onTemplate={physicalActivitiesTemplate.refreshTemplates}
-                      onTemplateSelected={physicalActivitiesTemplate.handleTemplateSelected}
+                      onTemplateSelected={
+                        physicalActivitiesTemplate.handleTemplateSelected
+                      }
                       addTemplate={physicalActivitiesTemplate.handleAddTemplate}
-                      updateTemplate={physicalActivitiesTemplate.handleUpdateTemplate}
-                      onDeleteTemplateClicked={physicalActivitiesTemplate.handleDeleteTemplate}
+                      updateTemplate={
+                        physicalActivitiesTemplate.handleUpdateTemplate
+                      }
+                      onDeleteTemplateClicked={
+                        physicalActivitiesTemplate.handleDeleteTemplate
+                      }
                       loading={physicalActivitiesTemplate.templatesLoading}
                       data={dischargeSummaryData?.physicalActivities || []}
-                      isDataPresent={Array.isArray(dischargeSummaryData?.physicalActivities) && dischargeSummaryData.physicalActivities.length > 0}
+                      isDataPresent={
+                        Array.isArray(
+                          dischargeSummaryData?.physicalActivities
+                        ) && dischargeSummaryData.physicalActivities.length > 0
+                      }
                       renderBody={() => {
                         return (
                           <PhysicalActivitiesPickerTable

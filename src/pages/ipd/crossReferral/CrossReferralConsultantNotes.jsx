@@ -1,4 +1,10 @@
-import React, { Suspense, useEffect, useState, useMemo } from "react";
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { IPD } from "../../../utils/locale.js";
 import "../assessmentForm/styles.scss";
 import "./styles.scss";
@@ -21,19 +27,27 @@ import {
   getCrossReferralData,
   setSingleCrossReferralData,
   setCrossReferralConsultantNoteDetails,
+  setCrossReferralFormDetails,
 } from "../../../redux/ipd/crossReferralSlice.js";
 import ReferralInformation from "./ReferralInformation.jsx";
 import ReferralInformationView from "./ReferralInformationView.jsx";
 import { defaultIcons as newIcons } from "../../../assets/images/indices";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { defaultIcons } from "../../../assets/images/icons/index.js";
+import { isEmptyRichText } from "../../../utils/utils";
+import GlobalVoiceAI from "../components/GlobalVoiceAI.jsx";
+import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel.jsx";
+import useCrossReferralRequestData from "../../../hooks/useCrossReferralRequestData.js";
 import useIpdCustomModules from "../../../hooks/useIpdCustomModules.js";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
 const FilledByCard = createRemoteComponent("FilledByCard");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
-const RichTextEditor = createRemoteComponent("RichTextEditor");
+
+dayjs.extend(customParseFormat);
 
 const CrossReferralConsultantNotes = (props) => {
   const dispatch = useDispatch();
@@ -49,7 +63,7 @@ const CrossReferralConsultantNotes = (props) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
-  const [autoFillTextToAppend, setAutoFillTextToAppend] = useState({});
+  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
   const { customization = {} } = useSelector((state) => state.ipd);
   const crossReferralState = useSelector((state) => state.crossReferral);
   const { crossReferralFormDetails, selectedConsultantNoteId } = useSelector(
@@ -90,6 +104,16 @@ const CrossReferralConsultantNotes = (props) => {
     patientId: patientDetails?.details?.id,
     patientData: patient_data,
     isEditable,
+  });
+  const reqData = useCrossReferralRequestData({
+    crossReferralFormDetails,
+    customModuleContents,
+    serializeCustomModules,
+  });
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+    isRichTextRequired: false,
   });
 
   useEffect(() => {
@@ -143,6 +167,29 @@ const CrossReferralConsultantNotes = (props) => {
     hydrateFromSavedModules,
   ]);
 
+  const handleAIRecordingComplete = useCallback(
+    (fieldId, payload, callback) => {
+      if (!fieldId) {
+        callback?.();
+        return;
+      }
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: `CROSS_REFERRAL.consultantNotes.${fieldId}`,
+        previousOutput: initialValue?.[fieldId],
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            dispatch(
+              setCrossReferralConsultantNoteDetails({ [fieldId]: updatedData })
+            );
+          }
+        },
+        callback,
+      });
+    },
+    [dispatch, initialValue, submitVoiceAiRecording]
+  );
+
   const handleChange = (value, key) => {
     if (!isEditable) return;
     dispatch(setCrossReferralConsultantNoteDetails({ [key]: value }));
@@ -171,34 +218,57 @@ const CrossReferralConsultantNotes = (props) => {
     if (!isEditable && !crossReferralFormDetails?.[data?.id]) return null;
     if (showOnlyEditorToolbar) {
       return (
-        <>
-          <div className="d-flex-align-center-gap-8">
-            <img src={newIcons[`${data?.id}Pc`]} alt="x" />
-            <div className="rich-text-editor-wrapper-header-title">
-              {data?.title}
-            </div>
-          </div>
-          <RichTextEditor
-            showAutoFill={false}
-            showMagicPenGif={false}
-            showMicrophone={false}
-            showToolbar={true}
-            readOnly={false}
-            className={"rich-text-editor-container"}
-            onChange={(val) => handleChange(val, data?.id)}
-            initialValue={
-              initialValue?.[data?.id]
-                ? initialValue?.[data?.id]
-                : [
-                    {
-                      type: "paragraph",
-                      children: [{ text: "" }],
-                    },
-                  ]
-            }
-            placeholder={data?.placeholder}
-          />
-        </>
+        <RichTextEditWrapper
+          readOnly={!isEditable}
+          showToolbar={isEditable}
+          showActionBtns={isEditable}
+          title={data?.title}
+          width="100%"
+          icon={newIcons[`${data?.id}Pc`]}
+          showAutoFill={false}
+          showVoiceAI={
+            isEditable &&
+            patientDetails?.details?.id &&
+            patientDetails?.admissionId
+          }
+          showMicrophone={
+            isEditable &&
+            patientDetails?.details?.id &&
+            patientDetails?.admissionId
+          }
+          voiceAiIcon={defaultIcons.voiceAiIcon}
+          onVoiceAIRecordingComplete={(payload, callback) =>
+            handleAIRecordingComplete(data?.id, payload, callback)
+          }
+          containerClass={
+            !isEditable
+              ? "ipd-wrapper-class-readonly rich-text-editor-container-readonly ipdot-on-extraMargin"
+              : "rich-text-editor-wrapper-bg"
+          }
+          onErase={() =>
+            handleChange(
+              [
+                {
+                  type: "paragraph",
+                  children: [{ text: "" }],
+                },
+              ],
+              data?.id
+            )
+          }
+          onChange={(val) => handleChange(val, data?.id)}
+          initialValue={
+            initialValue?.[data?.id]
+              ? initialValue?.[data?.id]
+              : [
+                  {
+                    type: "paragraph",
+                    children: [{ text: "" }],
+                  },
+                ]
+          }
+          placeholder={data?.placeholder}
+        />
       );
     }
     return (
@@ -215,21 +285,27 @@ const CrossReferralConsultantNotes = (props) => {
             ? "ipd-wrapper-class-readonly rich-text-editor-container-readonly ipdot-on-extraMargin"
             : "rich-text-editor-wrapper-bg"
         }`}
-        showMagicPenGif={false}
+        showVoiceAI={
+          isEditable &&
+          patientDetails?.details?.id &&
+          patientDetails?.admissionId
+        }
+        showMicrophone={true}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={(payload, callback) =>
+          handleAIRecordingComplete(data?.id, payload, callback)
+        }
         onErase={() => {
-          setAutoFillTextToAppend((prev) => ({
-            ...prev,
-            [data?.id]: ["clear"],
-          }));
+          handleChange(
+            [
+              {
+                type: "paragraph",
+                children: [{ text: "" }],
+              },
+            ],
+            data?.id
+          );
         }}
-        newAutoFillTextToAppend={autoFillTextToAppend[data?.id]}
-        setNewAutoFillTextToAppend={(value) => {
-          setAutoFillTextToAppend((prev) => ({
-            ...prev,
-            [data?.id]: value,
-          }));
-        }}
-        showMicrophone={false}
         onChange={(val) => handleChange(val, data?.id)}
         initialValue={
           initialValue?.[data?.id]
@@ -280,8 +356,32 @@ const CrossReferralConsultantNotes = (props) => {
                         );
                       case "followUp":
                         const dateDisplayFormat = "D MMM YYYY";
+                        const normalizeDate = (value) => {
+                          if (!value) return "";
+                          const formats = [
+                            "D MMM YYYY",
+                            "Do MMM YYYY",
+                            "Do MMMM YYYY",
+                            "D MMMM YYYY",
+                            "D-M-YYYY",
+                            "DD-MM-YYYY",
+                            "D/M/YYYY",
+                            "DD/MM/YYYY",
+                            "YYYY-MM-DD",
+                          ];
+                          const parsed = dayjs(value, formats, true);
+                          if (parsed.isValid())
+                            return parsed.format(dateDisplayFormat);
+                          const fallback = dayjs(value);
+                          return fallback.isValid()
+                            ? fallback.format(dateDisplayFormat)
+                            : "";
+                        };
+                        const normalizedFollowUp = normalizeDate(
+                          initialValue?.[grandChildItem?.id]
+                        );
                         return (
-                          <div>
+                          <div className="cross-consult-add-follow-up">
                             <div className="otNotes-label">
                               {grandChildItem?.title}
                             </div>
@@ -292,11 +392,8 @@ const CrossReferralConsultantNotes = (props) => {
                                 type: "mask",
                               }}
                               value={
-                                initialValue?.[grandChildItem?.id]
-                                  ? dayjs(
-                                      initialValue?.[grandChildItem?.id],
-                                      dateDisplayFormat
-                                    )
+                                normalizedFollowUp
+                                  ? dayjs(normalizedFollowUp, dateDisplayFormat)
                                   : null
                               }
                               placeholder={"dd/mm/yyyy"}
@@ -349,19 +446,6 @@ const CrossReferralConsultantNotes = (props) => {
   };
 
   const onAddReferralClick = () => {
-    const consultantNotesData =
-      crossReferralState.crossReferralFormDetails.consultantNotesData || [];
-
-    const reqData = {
-      ...crossReferralState.crossReferralFormDetails,
-      consultantNotes: consultantNotesData,
-      customModules: serializeCustomModules(customModuleContents),
-    };
-
-    delete reqData.consultantNotesData;
-
-    console.log("cross referral ==> REQ", reqData);
-
     dispatch(
       updateCrossReferralData({
         data: reqData,
@@ -399,7 +483,62 @@ const CrossReferralConsultantNotes = (props) => {
     });
   };
 
-  const renderBottomSection = () => renderCustomModulesFooter();
+  const handleAIRecordingCompleteAgent = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "CROSS_REFERRAL",
+        previousOutput: reqData,
+        parseResponse: (response) => {
+          if (response?.meta?.requestStatus !== "fulfilled") {
+            return { data: null, success: false };
+          }
+          const updatedData =
+            response?.payload?.data?.rxDigitizationHistory?.[0]?.response || {};
+          const updatedReferral = updatedData?.crossReferral || updatedData;
+          return { data: updatedReferral, success: true };
+        },
+        onSuccess: (updatedReferral) => {
+          if (!updatedReferral) return;
+          dispatch(setCrossReferralFormDetails(updatedReferral));
+          const consultantNotesArr = updatedReferral.consultantNotes || [];
+          if (
+            Array.isArray(consultantNotesArr) &&
+            consultantNotesArr[selectedConsultantNoteId]
+          ) {
+            dispatch(
+              setCrossReferralConsultantNoteDetails(
+                consultantNotesArr[selectedConsultantNoteId]
+              )
+            );
+          }
+        },
+        callback,
+        fallbackToTranscription: false,
+      }),
+    [dispatch, reqData, selectedConsultantNoteId, submitVoiceAiRecording]
+  );
+
+  const renderBottomSection = () => {
+    return (
+      <>
+        {/* {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+        <div className="global-voice-ai-wrapper">
+          {isVoiceAssistantOpen ? (
+            <AgentAlexVoicePanel
+              onSubmit={(payload, cb) =>
+                handleAIRecordingCompleteAgent(payload, cb)
+              }
+              onClose={() => setIsVoiceAssistantOpen(false)}
+            />
+          ) : (
+            <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+          )}
+        </div> */}
+        {renderCustomModulesFooter()}
+      </>
+    );
+  };
 
   const renderHeaderSection = () => {
     return (

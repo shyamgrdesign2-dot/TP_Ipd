@@ -3,6 +3,7 @@ import { createRemoteComponent } from "../../../shared/remoteComponents";
 import ExaminationSection from "./ExaminationSection";
 import Vitals from "./Vitals";
 import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
+import { defaultIcons as assetIcons } from "../../../assets/images/icons";
 import {
   setPhysicalExaminationOthersData,
   setPhysicalExaminationProvisionalDiagnosisData,
@@ -11,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { isEmptyRichText } from "../../../utils/utils";
 import useCheckExaminationData from "../../../hooks/useCheckExaminationData";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 
@@ -75,6 +77,26 @@ const PhysicalExamination = (props) => {
       [dispatch]
     ),
   });
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+  });
+
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "ASSESSMENTS.physicalExamination.others",
+        previousOutput: physicalExaminationOthersData,
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            dispatch(setPhysicalExaminationOthersData(updatedData));
+          }
+        },
+        callback,
+      }),
+    [dispatch, physicalExaminationOthersData, submitVoiceAiRecording]
+  );
 
   const renderOthers = (data) => {
     if (!isEditable && isEmptyRichText(physicalExaminationOthersData))
@@ -92,8 +114,10 @@ const PhysicalExamination = (props) => {
           containerClass={`ipdpe-others-section ${
             !isEditable ? "ipd-wrapper-class-readonly" : ""
           }`}
-          showMagicPenGif={false}
-          showMicrophone={false}
+          showVoiceAI={isEditable && patientDetails?.details?.id && patientDetails?.admissionId}
+          showMicrophone={true}
+          voiceAiIcon={assetIcons.voiceAiIcon}
+          onVoiceAIRecordingComplete={handleAIRecordingComplete}
           templates={physicalExamTemplates}
           templateType="entries"
           showTempButtons={true}

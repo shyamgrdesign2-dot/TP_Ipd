@@ -44,6 +44,10 @@ import FullPageLoader from "../../vaccination/components/Loader.js";
 import { formatDateWithTime } from "../../../utils/utils.js";
 import { isEmptyRichText } from "../../../components/PDFGenerator/index.js";
 import PNExaminationSection from "../assessmentForm/PNExaminationSection.jsx";
+import useProgressNotesRequestData from "../../../hooks/useProgressNotesRequestData";
+import GlobalVoiceAI from "../components/GlobalVoiceAI";
+import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -61,6 +65,11 @@ const ProgressNotes = (props) => {
   } = state || {};
   const patientId = patientDetails?.details?.id;
   const { admissionId } = patientDetails || {};
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+    isRichTextRequired: false,
+  });
 
   // const { isEditable = true } = props; // Default patientId for testing
 
@@ -71,6 +80,7 @@ const ProgressNotes = (props) => {
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [shouldAutofill, setShouldAutofill] = useState(false);
+  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
 
   const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.progressNotes;
 
@@ -216,30 +226,59 @@ const ProgressNotes = (props) => {
     );
   }, [vitals, chiefComplaint, findings, additionalRemarks]);
 
+  const progressNotesRequestData = useProgressNotesRequestData({
+    vitals,
+    chiefComplaint,
+    findings,
+    physicalExaminationBasicData,
+    additionalRemarks,
+    filledDate,
+    filledAtTime,
+    customModuleContents,
+    serializeCustomModules,
+  });
+
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "PROGRESS_NOTES",
+        previousOutput: progressNotesRequestData,
+        parseResponse: (response) => {
+          if (response?.meta?.requestStatus !== "fulfilled") {
+            return { data: null, success: false };
+          }
+          const updatedData =
+            response?.payload?.data?.rxDigitizationHistory?.[0]?.response || {};
+          const updatedNotes = updatedData?.progressNotes || updatedData;
+          return { data: updatedNotes, success: true };
+        },
+        onSuccess: (updatedNotes) => {
+          if (!updatedNotes) return;
+          if (updatedNotes.vitals) dispatch(setVitals(updatedNotes.vitals));
+          if (updatedNotes.chiefComplaint)
+            dispatch(setChiefComplaint(updatedNotes.chiefComplaint));
+          if (updatedNotes.findings)
+            dispatch(setFindings(updatedNotes.findings));
+          if (updatedNotes.additionalRemarks)
+            dispatch(setAdditionalRemarks(updatedNotes.additionalRemarks));
+          if (updatedNotes.examination)
+            dispatch(setPhysicalExaminationBasicData(updatedNotes.examination));
+          if (updatedNotes.date) setFilledDate(new Date(updatedNotes.date));
+          if (updatedNotes.time) setFilledAtTime(new Date(updatedNotes.time));
+        },
+        callback,
+        fallbackToTranscription: false,
+      }),
+    [
+      dispatch,
+      progressNotesRequestData,
+      submitVoiceAiRecording,
+    ]
+  );
+
   const saveProgressNotes = async () => {
     try {
-      // Collect data from Redux state
-      const progressNotesData = {
-        vitals: vitals || {},
-        chiefComplaint: chiefComplaint || [],
-        findings: findings || [],
-        examination: Object.entries(physicalExaminationBasicData || {}).reduce(
-          (acc, [key, value]) => {
-            acc[key] = {
-              title: value?.title || "",
-              notes: value?.notes || [],
-              value: value?.value || null,
-            };
-            return acc;
-          },
-          {}
-        ),
-        additionalRemarks: additionalRemarks || [],
-        date: filledDate,
-        time: filledAtTime,
-        customModules: serializeCustomModules(customModuleContents),
-      };
-
       // Validate that there's actual data to save
       const hasVitalsData =
         vitals &&
@@ -341,7 +380,7 @@ const ProgressNotes = (props) => {
           patientId,
           admissionId,
           _id: currentProgressNote?._id || progressNotesData?._id,
-          data: progressNotesData,
+          data: progressNotesRequestData,
         })
       );
 
@@ -532,7 +571,22 @@ const ProgressNotes = (props) => {
     ]
   );
 
-  const renderBottomSection = () => renderCustomModulesFooter();
+  const renderBottomSection = () => (
+    <>
+      {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+      <div className="global-voice-ai-wrapper">
+        {isVoiceAssistantOpen ? (
+          <AgentAlexVoicePanel
+            onSubmit={handleAIRecordingComplete}
+            onClose={() => setIsVoiceAssistantOpen(false)}
+          />
+        ) : (
+          <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+        )}
+      </div>
+      {renderCustomModulesFooter()}
+    </>
+  );
 
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
   const handleTimePeriodChange = useCallback((value) => {

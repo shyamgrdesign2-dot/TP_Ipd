@@ -13,6 +13,9 @@
   &:active {
     transform: scale(0.95);
   }
+  &.global-ai {
+    width: 100px;
+  }
 }
 
 .progress-summary-background {
@@ -30,6 +33,24 @@
   box-shadow: 1.798px 4.494px 10.787px 0px rgba(88, 28, 135, 0.4);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.global-voice-ai-background {
+  position: absolute;
+  background: linear-gradient(
+    135deg,
+    rgba(164, 97, 216, 0.1) 0%,
+    rgba(75, 74, 213, 0.1) 100%
+  );
+  border-radius: 106.485px;
+  box-shadow: 1.798px 4.494px 10.787px 0px rgba(88, 28, 135, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 72.227px;
 }
 
 .progress-summary-voice-button {
@@ -63,6 +84,7 @@
   align-items: center;
   justify-content: center;
 
+  img,
   svg {
     width: 100%;
     height: 100%;
@@ -76,12 +98,12 @@
   justify-content: center;
 
   span {
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     font-weight: 600;
     font-size: 14px;
     line-height: normal;
     white-space: nowrap;
-    background: linear-gradient(90deg, #A461D8 0%, #4B4AD5 100%);
+    background: linear-gradient(90deg, #a461d8 0%, #4b4ad5 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

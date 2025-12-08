@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { createRemoteComponent } from "../../../../shared/remoteComponents";
 import { defaultIcons as dischargeSummaryIcons } from "../../../../assets/images/indices";
-import { defaultIcons } from "../../../../assets/images/icons";
+import { defaultIcons as defaultAssetIcons } from "../../../../assets/images/icons";
 import "./styles.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { Select, DatePicker, Input, Button } from "antd";
@@ -16,10 +16,8 @@ import {
   removeFollowUp,
 } from "../../../../redux/ipd/dischargeSummarySlice";
 import { fetchFilters } from "../../../../redux/ipd/inPatientsSlice";
-import {
-  isEmptyRichText,
-  onlyNumberFormat,
-} from "../../../../utils/utils";
+import { isEmptyRichText, onlyNumberFormat } from "../../../../utils/utils";
+import { useVoiceAiRecordingComplete } from "../../../../hooks/useVoiceAiRecordingComplete";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -27,7 +25,12 @@ const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const dateDisplayFormat = "D MMM YYYY";
 
 const FollowUp = (props) => {
-  const { isEditable = true, sectionData } = props || {};
+  const {
+    isEditable = true,
+    sectionData,
+    patientId: patientIdProp = null,
+    admissionId: admissionIdProp = null,
+  } = props || {};
   const { dischargeSummaryData } = useSelector(
     (state) => state.dischargeSummary
   );
@@ -38,6 +41,19 @@ const FollowUp = (props) => {
     autoFillTextToAppendAdditionalNotes,
     setAutoFillTextToAppendAdditionalNotes,
   ] = useState([]);
+  const resolvedPatientId =
+    patientIdProp ||
+    dischargeSummaryData?.patientInformation?.patientId ||
+    dischargeSummaryData?.patientInformation?.id ||
+    null;
+  const resolvedAdmissionId =
+    admissionIdProp ||
+    dischargeSummaryData?.patientInformation?.admissionId ||
+    null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: resolvedPatientId,
+    admissionId: resolvedAdmissionId,
+  });
 
   // Initialize with at least one follow-up row if none exist
   useEffect(() => {
@@ -187,6 +203,22 @@ const FollowUp = (props) => {
     );
   };
 
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "DISRCHARGED_SUMMARY.followUp.additionalNotes",
+        previousOutput: dischargeSummaryData?.additionalNotes,
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            handleOthersChange(updatedData, "additionalNotes");
+          }
+        },
+        callback,
+      }),
+    [dischargeSummaryData?.additionalNotes, handleOthersChange, submitVoiceAiRecording]
+  );
+
   const handleDoctorChange = (id, values, options) => {
     const selectedDoctors = values.map((value, index) => {
       const option = Array.isArray(options) ? options[index] : options;
@@ -225,8 +257,10 @@ const FollowUp = (props) => {
         showAutoFill={false}
         containerClass={`${!isEditable ? "ipd-wrapper-class-readonly" : ""}`}
         opdDate="15 Jun 2025"
-        showMagicPenGif={false}
-        showMicrophone={false}
+        showVoiceAI={isEditable && resolvedPatientId && resolvedAdmissionId}
+        showMicrophone={true}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingComplete}
         onChange={(data) => handleOthersChange(data, "additionalNotes")}
         initialValue={
           dischargeSummaryData?.additionalNotes
@@ -275,8 +309,7 @@ const FollowUp = (props) => {
   };
 
   const renderFollowUpRow = (followUp, index) => {
-    const { id, followUpInput, date, doctor, dateOptions } =
-      followUp;
+    const { id, followUpInput, date, doctor, dateOptions } = followUp;
 
     const doctorOptions = (doctorsList || []).map((item) => ({
       key: JSON.stringify(item),
@@ -324,7 +357,10 @@ const FollowUp = (props) => {
                 }
                 value={date ? dayjs(date, dateDisplayFormat) : null}
                 suffixIcon={
-                  <img src={defaultIcons.calendarPlainIcon} alt="calendar" />
+                  <img
+                    src={defaultAssetIcons.calendarPlainIcon}
+                    alt="calendar"
+                  />
                 }
                 placeholder="YYYY MMM D"
               />

@@ -216,7 +216,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
             </div>
           </div>
           <div className="ipdot-readonly-ot-header-right-section">
-            {/* <img
+            <img
               className="medical-progress__content-download-icon"
               style={{ fill: "#581C87", cursor: "pointer" }}
               src={defaultIcons.downloadIcon}
@@ -237,7 +237,7 @@ const OtNotesTimeline = ({ isLiteMode = false }) => {
                 e.stopPropagation();
               }}
               title="Print this date's OT notes"
-            /> */}
+            />
             {!isOnlyViewMode ? (
               <img
                 className="medical-progress__content-calendar-icon"

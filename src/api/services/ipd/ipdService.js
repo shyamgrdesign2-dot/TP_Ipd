@@ -1,5 +1,6 @@
 import config from "../../../config";
 import api from "../axiosService";
+import { convertBlobToFile } from "../../../utils/utils";
 
 const baseUrl = { customBaseUrl: config.ipd_api_url };
 const symptomTemplateBaseUrl = { customBaseUrl: config.symptoms_api_url };
@@ -87,6 +88,73 @@ ApiIpdService.sendForDischargeApproval = function ({
     `/patients/mark-discharged-approval?admissionId=${admissionId}`,
     { dateOfDischarge, dischargeType, timeOfDischarge, dischargeRemarks },
     baseUrl
+  );
+};
+
+ApiIpdService.magicPen = function ({ patientId, admissionId, paragraph }) {
+  return api.post(
+    `/ai/magic-pen?patientId=${patientId}&admissionId=${admissionId}`,
+    { paragraph },
+    {
+      ...baseUrl,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+
+ApiIpdService.voiceRx = function ({
+  patientId,
+  admissionId,
+  schemaKey,
+  audioFile,
+  filename,
+  mimeType,
+  previousOutput,
+}) {
+  // Convert Blob to File if it's a Blob object
+  let fileToUpload = audioFile;
+  if (audioFile instanceof Blob && !(audioFile instanceof File)) {
+    fileToUpload = convertBlobToFile(audioFile, filename, mimeType);
+  }
+
+  const formData = new FormData();
+  formData.append("audio_file", fileToUpload);
+  // Only append previousOutput if it is not null/undefined/empty object
+  let shouldAppendPreviousOutput = false;
+  let previousOutputToSend = previousOutput;
+
+  if (
+    previousOutput !== null &&
+    previousOutput !== undefined &&
+    !(typeof previousOutput === "object" && Object.keys(previousOutput).length === 0)
+  ) {
+    shouldAppendPreviousOutput = true;
+    if (typeof previousOutput === "string") {
+      try {
+        previousOutputToSend = JSON.stringify(JSON.parse(previousOutput));
+      } catch (e) {
+        previousOutputToSend = previousOutput; // Not a JSON string, leave as-is
+      }
+    } else if (typeof previousOutput === "object") {
+      previousOutputToSend = JSON.stringify(previousOutput);
+    }
+  }
+
+  if (shouldAppendPreviousOutput) {
+    formData.append("previousOutput", previousOutputToSend);
+  }
+  return api.post(
+    `/ai/voice-rx?patientId=${patientId}&admissionId=${admissionId}&schemaKey=${schemaKey}`,
+    formData,
+    {
+      ...baseUrl,
+      timeout: 120000,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
   );
 };
 

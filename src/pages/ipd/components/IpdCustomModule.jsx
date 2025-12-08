@@ -2,6 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { isEmptyRichText } from "../../../utils/utils";
 import customModuleIcon from "../../../assets/images/custom-module.svg";
+import { useDispatch } from "react-redux";
+import { defaultIcons } from "../../../assets/images/icons";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
@@ -45,7 +48,15 @@ const IpdCustomModule = ({
   footerComponent = null,
   onUpdateModuleName,
   onDeleteModule,
+  patientId = null,
+  admissionId = null,
+  formType = "customModule",
 }) => {
+  const dispatch = useDispatch();
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+  });
   const moduleTitle =
     module?.moduleName ||
     module?.title ||
@@ -195,6 +206,34 @@ const IpdCustomModule = ({
     }
   }, [onDeleteModule]);
 
+  const schemaKeyMapping = {
+    assessments: "ASSESSMENTS",
+    progressNotes: "PROGRESS_NOTES",
+    consultantNotes: "CONSULTANT_NOTES",
+    crossReferral: "CROSS_REFERRAL",
+    dischargeSummary: "DISRCHARGED_SUMMARY",
+    otNotes: "OT_NOTES",
+  };
+
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) => {
+      const schemaKey = `${schemaKeyMapping?.[formType]}.customModules`;
+      submitVoiceAiRecording({
+        payload,
+        schemaKey,
+        previousOutput: editorValue,
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            // setTemplateAppendValue(updatedData);
+            handleChange(updatedData);
+          }
+        },
+        callback,
+      });
+    },
+    [editorValue, formType, handleChange, moduleTitle, submitVoiceAiRecording]
+  );
+
   if (!isEditable && isValueEmpty) {
     return null;
   }
@@ -208,6 +247,10 @@ const IpdCustomModule = ({
         readOnly={!isEditable}
         showToolbar={isEditable}
         showActionBtns={isEditable}
+        showVoiceAI={isEditable && patientId && admissionId}
+        showMicrophone={isEditable && patientId && admissionId}
+        voiceAiIcon={defaultIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={handleAIRecordingComplete}
         title={moduleTitle}
         data-testid={module?.id || module?.module_id}
         width="100%"

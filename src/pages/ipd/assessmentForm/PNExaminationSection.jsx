@@ -1,4 +1,10 @@
-import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { Radio } from "antd";
 import { defaultIcons } from "../../../assets/images/assessmentIcons/index";
@@ -7,6 +13,9 @@ import { useSelector } from "react-redux";
 import useCheckExaminationData from "../../../hooks/useCheckExaminationData";
 import { isEmptyRichText } from "../../../components/PDFGenerator";
 import { setPhysicalExaminationBasicData } from "../../../redux/ipd/progressNotesSlice";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { useLocation } from "react-router-dom";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -16,9 +25,20 @@ const PNExaminationSection = (props) => {
     sectionData,
     examinationData = null,
   } = props || {};
-  const { physicalExaminationBasicData = {} } = useSelector((state) => state.progressNotes);
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
+  const { physicalExaminationBasicData = {} } = useSelector(
+    (state) => state.progressNotes
+  );
+  const patientId = patientDetails?.details?.id;
+  const admissionId = patientDetails?.admissionId;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+  });
   const dispatch = useDispatch();
-  const checkReadableExaminationDataPresent = useCheckExaminationData(examinationData);
+  const checkReadableExaminationDataPresent =
+    useCheckExaminationData(examinationData);
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [disableFocusEffect, setDisableFocusEffect] = useState({});
   const defaultNotes = useMemo(
@@ -46,10 +66,10 @@ const PNExaminationSection = (props) => {
     }
     const optionValueType = typeof firstOptionValue;
     // Convert value to match option value type
-    if (optionValueType === 'number') {
+    if (optionValueType === "number") {
       const numValue = Number(value);
       return isNaN(numValue) ? undefined : numValue;
-    } else if (optionValueType === 'string') {
+    } else if (optionValueType === "string") {
       return String(value);
     }
     return value;
@@ -62,39 +82,72 @@ const PNExaminationSection = (props) => {
   }, [physicalExaminationBasicData]);
 
   // Stable callback for radio change - uses ref to access latest state
-  const onExaminationRadioChange = useCallback((e, item) => {
-    const { id } = item;
-    const normalizedValue = normalizeRadioValue(e.target.value, item.options);
-    const currentState = physicalExaminationBasicDataRef.current;
-    dispatch(
-      setPhysicalExaminationBasicData({
-        ...currentState,
-        [id]: {
-          ...currentState[id],
-          value: normalizedValue,
-          title: item.options.find((option) => option.value === normalizedValue)
-            ?.label,
-        },
-      })
-    );
-  }, [dispatch, normalizeRadioValue]);
+  const onExaminationRadioChange = useCallback(
+    (e, item) => {
+      const { id } = item;
+      const normalizedValue = normalizeRadioValue(e.target.value, item.options);
+      const currentState = physicalExaminationBasicDataRef.current;
+      dispatch(
+        setPhysicalExaminationBasicData({
+          ...currentState,
+          [id]: {
+            ...currentState[id],
+            value: normalizedValue,
+            title: item.options.find(
+              (option) => option.value === normalizedValue
+            )?.label,
+          },
+        })
+      );
+    },
+    [dispatch, normalizeRadioValue]
+  );
 
   // Stable callback for notes change - uses ref to access latest state
-  const handleExaminationNotesChange = useCallback((data, id) => {
-    const currentState = physicalExaminationBasicDataRef.current;
-    dispatch(
-      setPhysicalExaminationBasicData({
-        ...currentState,
-        [id]: { ...currentState[id], notes: data },
-      })
-    );
-  }, [dispatch]);
+  const handleExaminationNotesChange = useCallback(
+    (data, id) => {
+      const currentState = physicalExaminationBasicDataRef.current;
+      dispatch(
+        setPhysicalExaminationBasicData({
+          ...currentState,
+          [id]: { ...currentState[id], notes: data },
+        })
+      );
+    },
+    [dispatch]
+  );
 
   // Store stable callback in ref for use in map callbacks
   const handleExaminationNotesChangeRef = useRef(handleExaminationNotesChange);
   useEffect(() => {
     handleExaminationNotesChangeRef.current = handleExaminationNotesChange;
   }, [handleExaminationNotesChange]);
+
+  const handleAIRecordingComplete = useCallback(
+    (itemId, payload, callback) => {
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: `PROGRESS_NOTES.physicalExamination.examination.${itemId}.notes`,
+        previousOutput: physicalExaminationBasicData?.[itemId]?.notes,
+        selector: (data) => data?.notes || data,
+        onSuccess: (updatedNotes) => {
+          if (!isEmptyRichText(updatedNotes)) {
+            dispatch(
+              setPhysicalExaminationBasicData({
+                ...physicalExaminationBasicData,
+                [itemId]: {
+                  ...physicalExaminationBasicData[itemId],
+                  notes: updatedNotes,
+                },
+              })
+            );
+          }
+        },
+        callback,
+      });
+    },
+    [dispatch, physicalExaminationBasicData, submitVoiceAiRecording]
+  );
 
   const renderReadOnlyExamination = () => {
     return (
@@ -110,8 +163,10 @@ const PNExaminationSection = (props) => {
               const data = examinationData[item.id];
               if (
                 !data?.title &&
-                ((data?.value === undefined || data?.value == null || data?.value === 0) &&
-                  isEmptyRichText(data?.notes))
+                (data?.value === undefined ||
+                  data?.value == null ||
+                  data?.value === 0) &&
+                isEmptyRichText(data?.notes)
               )
                 return null;
 
@@ -166,9 +221,7 @@ const PNExaminationSection = (props) => {
       ?.forEach((item) => {
         const notes = physicalExaminationBasicData[item.id]?.notes;
         values[item.id] =
-          Array.isArray(notes) && notes.length
-            ? notes
-            : defaultNotes;
+          Array.isArray(notes) && notes.length ? notes : defaultNotes;
       });
     return values;
   }, [physicalExaminationBasicData, sectionData, defaultNotes]);
@@ -244,9 +297,14 @@ const PNExaminationSection = (props) => {
                 setNewAutoFillTextToAppend={itemSetAutoFillCallbacks[item.id]}
                 toolbarClass={"small-toolbar"}
                 showAutoFill={false}
-                showMagicPenGif={false}
+                size={"small"}
                 disableFocusEffect={disableFocusEffect[item?.id]}
-                showMicrophone={false}
+                showVoiceAI={isEditable && patientId && admissionId}
+                showMicrophone={true}
+                voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+                onVoiceAIRecordingComplete={(payload, callback) =>
+                  handleAIRecordingComplete(item.id, payload, callback)
+                }
                 placeholder={"Additional notes if any"}
                 containerClass="wrapper-class examination-rich-container"
                 onChange={itemOnChangeCallbacks[item.id]}
@@ -283,9 +341,7 @@ const PNExaminationSection = (props) => {
   ]);
 
   const renderExaminationSection = () => {
-    return isEditable
-      ? renderEditableExamination
-      : renderReadOnlyExamination();
+    return isEditable ? renderEditableExamination : renderReadOnlyExamination();
   };
 
   if (!isEditable && !checkReadableExaminationDataPresent) return null;
@@ -310,11 +366,16 @@ const PNExaminationSection = (props) => {
       icon={defaultIcons[`${sectionData?.id}Pc`]}
       showAutoFill={false}
       showMagicPenGif={false}
+      showVoiceAI={false}
       showMicrophone={false}
       placeholder={"Additional notes if any"}
       containerClass={`examination-rich-container ${
         !isEditable ? "examination-rich-readonly-container" : ""
-      } ${!isEditable ? "consultant-notes-examination-container progress-notes-examination-container" : ""}`}
+      } ${
+        !isEditable
+          ? "consultant-notes-examination-container progress-notes-examination-container"
+          : ""
+      }`}
       renderBody={renderExaminationSection}
     />
   );

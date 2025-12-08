@@ -14,9 +14,6 @@ $muted: #6f6b88;
 }
 
 .ipd-generic-form-container {
-  .toolbar-container {
-    justify-content: flex-end !important;
-  }
   #cw-panel-additional-notes,
   #cw-panel-functional-assessment,
   #cw-panel-treatment-plan {
@@ -209,7 +206,6 @@ $muted: #6f6b88;
     }
   }
 
-  
   .ipd-custom-module-container {
     background-color: #fff;
     padding: 24px 24px 24px 18px;
@@ -699,9 +695,42 @@ $muted: #6f6b88;
   &-readonly {
     margin-left: 20px;
     margin-right: 20px;
-    background-color: #fbfafd !important
+    background-color: #fbfafd !important;
   }
 }
 .assessment-form-filled-by-cards-container {
   padding: 0 !important;
+}
+
+.ipdaf-past-medical-history-container {
+  .ipdaf-pmh-generic-card-container {
+    flex: 1;
+  }
+  &:has(.voice-ai-recorder-container) {
+    .ipdaf-pmh-generic-card-container {
+      display: none !important;
+    }
+  }
+  &:has(.voice-ai-recorder-processing-indicator) {
+    .ipdaf-pmh-generic-card-container {
+      display: none !important;
+    }
+  }
+}
+
+.rich-text-editor-wrapper.ipd-pmh-wrapper-class {
+  &:has(.voice-ai-recorder-container) {
+    padding-bottom: 0 !important;
+  }
+  &:has(.voice-ai-recorder-processing-indicator) {
+    padding-bottom: 0 !important;
+  }
+}
+.ipdaf-generic-card-container {
+  &:has(.voice-ai-recorder-container) {
+    padding-bottom: 0 !important;
+  }
+  &:has(.voice-ai-recorder-processing-indicator) {
+    padding-bottom: 0 !important;
+  }
 }

@@ -1,20 +1,24 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons } from "../../../assets/images/icons";
 import { defaultIcons as assessmentsIcons } from "../../../assets/images/assessmentIcons/index";
 import { useSelector, useDispatch } from "react-redux";
 import MedicalHistoryList from "../../../components/MedicalHistoryList";
 import MedicalHistoryBox from "../../../components/MedicalHistoryBox";
-import { Drawer } from "antd";
+import { Drawer, message } from "antd";
 import { setMedicalHistoryData } from "../../../redux/prescriptionSlice";
 import {
   formatDateToShortMonthYear,
   mergeArraysOfObjects,
 } from "../../../utils/utils";
 import { useDischargeSummaryData } from "../dischargeSummary/utils/useDischargeSummaryData";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
+import { useLocation } from "react-router-dom";
+import { listSectionwithTag } from "../../../redux/medicalhistorySlice";
 
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const GenericCard = createRemoteComponent("GenericCard");
+const VoiceAI = createRemoteComponent("VoiceAI");
 const AutoFillButton = createRemoteComponent("AutoFillButton");
 
 const PastMedicalHistory = (props) => {
@@ -23,24 +27,106 @@ const PastMedicalHistory = (props) => {
     sectionData,
     isDischargeSummary = false,
   } = props || {};
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   const { showLastUpdatedAt } = useDischargeSummaryData();
   let { medicalHistoryData } = useSelector((state) => state.prescription);
   const { lastPrescriptionDataForAssessment, lastPrescriptionDate } =
     useSelector((state) => state.assessment);
+  const { defaultList } = useSelector((state) => state.medicalhistory);
   const { lastRxDate } = lastPrescriptionDate || {};
   const dispatch = useDispatch();
   const [addMedicalHistoryDrawer, setAddMedicaHistoryDrawer] = useState(false);
   const [autoFillButtonRef, setAutoFillButtonRef] = useState(null);
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: patientDetails?.details?.id,
+    admissionId: patientDetails?.admissionId,
+    isRichTextRequired: false,
+  });
   const handleAddMedicalHistory = () => {
     setAddMedicaHistoryDrawer(!addMedicalHistoryDrawer);
   };
 
+  const mapIdsFromDefaultList = useCallback(
+    (data = []) => {
+      if (!Array.isArray(data) || !defaultList?.length) return data;
+
+      const normalize = (value) =>
+        (value || "").toString().trim().toLowerCase();
+
+      return data.map((item) => {
+        let section = defaultList.find(
+          (defaultItem) =>
+            normalize(defaultItem?.title) === normalize(item?.title)
+        );
+
+        if (!section && normalize(item?.title) === "others") {
+          section = defaultList.find(
+            (defaultItem) => normalize(defaultItem?.title) === "lifestyle"
+          );
+        }
+
+        const mappedTags = Array.isArray(item?.tags)
+          ? item.tags.map((tag) => {
+              const matchedTag = section?.tags?.find(
+                (defaultTag) =>
+                  normalize(defaultTag?.title) === normalize(tag?.title)
+              );
+              return matchedTag?.tmmhst_id
+                ? {
+                    ...tag,
+                    note: tag?.notes || tag?.note,
+                    tmmhst_id: matchedTag.tmmhst_id,
+                    enable:
+                      tag?.enable === "" || tag?.enable === undefined
+                        ? "Y"
+                        : tag?.enable,
+                  }
+                : {
+                    ...tag,
+                    note: tag?.notes || tag?.note,
+                    enable:
+                      tag?.enable === "" || tag?.enable === undefined
+                        ? "Y"
+                        : tag?.enable,
+                  };
+            })
+          : item?.tags;
+
+        return section?.tmmhs_id
+          ? { ...item, tmmhs_id: section.tmmhs_id, tags: mappedTags }
+          : { ...item, tags: mappedTags };
+      });
+    },
+    [defaultList]
+  );
+
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "ASSESSMENTS.basicInfo.pastMedicalHistory",
+        previousOutput: medicalHistoryData,
+        onSuccess: (updatedData) => {
+          if (updatedData?.length) {
+            const dataWithIds = mapIdsFromDefaultList(updatedData);
+            dispatch(setMedicalHistoryData(dataWithIds));
+          }
+        },
+        callback,
+      }),
+    [
+      dispatch,
+      mapIdsFromDefaultList,
+      medicalHistoryData,
+      submitVoiceAiRecording,
+    ]
+  );
+
   const renderAutoFillButton = useCallback(() => {
     const { pastMedicalHistory: lastPastMedicalHistory = {} } =
       lastPrescriptionDataForAssessment || {};
-    if (
-      !lastPrescriptionDataForAssessment?.pastMedicalHistory?.length
-    )
+    if (!lastPrescriptionDataForAssessment?.pastMedicalHistory?.length)
       return null;
     return (
       <AutoFillButton
@@ -62,7 +148,9 @@ const PastMedicalHistory = (props) => {
             );
           }
         }}
-        title={`Autofill From OPD ${lastRxDate ? `(${formatDateToShortMonthYear(lastRxDate)})` : ""}`}
+        title={`Autofill From OPD ${
+          lastRxDate ? `(${formatDateToShortMonthYear(lastRxDate)})` : ""
+        }`}
       />
     );
   }, [lastPrescriptionDataForAssessment, medicalHistoryData]);
@@ -70,7 +158,7 @@ const PastMedicalHistory = (props) => {
   const renderMedicalHistory = () => {
     return (
       <div
-        className={`ipdaf-generic-card-container ${
+        className={`ipdaf-generic-card-container ipdaf-past-medical-history-container ${
           medicalHistoryData?.length ? "ipdaf-padding-0 ipdaf-margin-0" : ""
         } ${!isEditable ? "ipdaf-readable-renderer" : null}`}
       >
@@ -81,21 +169,30 @@ const PastMedicalHistory = (props) => {
           />
         ) : null}
         {isEditable ? (
-          <div onClick={handleAddMedicalHistory}>
-            <GenericCard
-              icon={
-                medicalHistoryData?.length
-                  ? defaultIcons.editIcon
-                  : defaultIcons.plusIconColoured
-              }
-              title={
-                medicalHistoryData?.length
-                  ? "Add/Edit Past Medical History"
-                  : "Add Past Medical History"
-              }
+          <div className="d-flex align-items-center">
+            <div
+              className="ipdaf-pmh-generic-card-container"
+              onClick={handleAddMedicalHistory}
             >
-              {renderAutoFillButton()}
-            </GenericCard>
+              <GenericCard
+                icon={
+                  medicalHistoryData?.length
+                    ? defaultIcons.editIcon
+                    : defaultIcons.plusIconColoured
+                }
+                title={
+                  medicalHistoryData?.length
+                    ? "Add/Edit Past Medical History"
+                    : "Add Past Medical History"
+                }
+              >
+                {renderAutoFillButton()}
+              </GenericCard>
+            </div>
+            <VoiceAI
+              voiceAiIcon={defaultIcons.voiceAiIcon}
+              onRecordingComplete={handleAIRecordingComplete}
+            />
           </div>
         ) : null}
       </div>

@@ -1,15 +1,26 @@
-import React, { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  useRef,
+} from "react";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import { defaultIcons as otNotesIcons } from "../../../assets/images/indices";
 import { useDispatch, useSelector } from "react-redux";
 import { setOperativeNotes } from "../../../redux/ipd/otNotesSlice";
 import { isEmptyRichText, hasNoData } from "../../../utils/utils";
 import { useTemplateManagement } from "../../../hooks/useTemplateManagement";
+import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
+import { defaultIcons as defaultAssetIcons } from "../../../assets/images/icons";
+import { useLocation } from "react-router-dom";
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 
 const OperativeNotes = (props) => {
-  const { isEditable = true, sectionData, patientDetails = {} } = props || {};
+  const { isEditable = true, sectionData } = props || {};
+  const { state } = useLocation();
+  const { patientDetails } = state || {};
   let { operativeNotes = {} } = useSelector((state) => state.otNotes);
   operativeNotes = props.operativeNotes || operativeNotes;
   const { profile } = useSelector((state) => state.doctors);
@@ -17,10 +28,19 @@ const OperativeNotes = (props) => {
   const dispatch = useDispatch();
   const doctorId =
     patientDetails?.doctor?.id || profile?.id || profile?.um_id || null;
-  const handleChange = useCallback((value, key) => {
-    dispatch(setOperativeNotes({ key, value }));
-  }, [dispatch]);
-  
+  const patientId = patientDetails?.details?.id || null;
+  const admissionId = patientDetails?.admissionId || null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId,
+    admissionId,
+  });
+  const handleChange = useCallback(
+    (value, key) => {
+      dispatch(setOperativeNotes({ key, value }));
+    },
+    [dispatch]
+  );
+
   const defaultRichText = useMemo(
     () => [
       {
@@ -37,8 +57,8 @@ const OperativeNotes = (props) => {
   const getReduxKey = useCallback((sectionId) => {
     const mapping = {
       operativeFindings: "operativeFindings",
-      procedures: "operativeProcedure",
-      additionalNotes: "operativeAdditionalNotes",
+      procedures: "procedures",
+      additionalNotes: "additionalNotes",
     };
     return mapping[sectionId] || sectionId;
   }, []);
@@ -47,7 +67,8 @@ const OperativeNotes = (props) => {
     (key) => {
       // Convert section ID to Redux key if needed
       const reduxKey = getReduxKey(key);
-      const value = props.operativeNotes?.[reduxKey] ?? operativeNotes?.[reduxKey];
+      const value =
+        props.operativeNotes?.[reduxKey] ?? operativeNotes?.[reduxKey];
       if (Array.isArray(value) && value.length) {
         return value;
       }
@@ -63,7 +84,8 @@ const OperativeNotes = (props) => {
   const getFieldValueBySectionId = useCallback(
     (sectionId) => {
       const reduxKey = getReduxKey(sectionId);
-      const value = props.operativeNotes?.[reduxKey] ?? operativeNotes?.[reduxKey];
+      const value =
+        props.operativeNotes?.[reduxKey] ?? operativeNotes?.[reduxKey];
       if (Array.isArray(value) && value.length) {
         return value;
       }
@@ -129,7 +151,12 @@ const OperativeNotes = (props) => {
     [operativeAdditionalValue]
   );
 
-  const useOperativeTemplate = (moduleName, key, getCurrentValueFn, onValueChangeFn) =>
+  const useOperativeTemplate = (
+    moduleName,
+    key,
+    getCurrentValueFn,
+    onValueChangeFn
+  ) =>
     useTemplateManagement({
       moduleName,
       templateSite: "ipd",
@@ -171,6 +198,24 @@ const OperativeNotes = (props) => {
       operativeProcedureTemplate,
       operativeAdditionalTemplate,
     ]
+  );
+
+  const getVoiceHandler = useCallback(
+    (sectionId) => (payload, callback) => {
+      const reduxKey = getReduxKey(sectionId);
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: `OT_NOTES.operativeNotes.${reduxKey}`,
+        previousOutput: getFieldValueBySectionId(sectionId),
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            handleChange(updatedData, reduxKey);
+          }
+        },
+        callback,
+      });
+    },
+    [getFieldValueBySectionId, getReduxKey, handleChange, submitVoiceAiRecording]
   );
 
   // Use ref to store the latest handleChange to prevent callback recreation
@@ -294,10 +339,10 @@ const OperativeNotes = (props) => {
   const renderRichTextEditorSection = (data) => {
     const sectionId = data?.id;
     const reduxKey = getReduxKey(sectionId);
-    
+
     if (!isEditable && isEmptyRichText(operativeNotes?.[reduxKey])) return null;
     const templateHandlers = templateMap[sectionId];
-    
+
     return (
       <RichTextEditWrapper
         readOnly={!isEditable}
@@ -311,10 +356,14 @@ const OperativeNotes = (props) => {
         newAutoFillTextToAppend={autoFillTextToAppend[sectionId]}
         setNewAutoFillTextToAppend={setAutoFillMap[sectionId]}
         containerClass={`wrapper-class ${
-          !isEditable ? "ipd-wrapper-class-readonly rich-text-editor-container-readonly ipdot-on-extraMargin" : ""
+          !isEditable
+            ? "ipd-wrapper-class-readonly rich-text-editor-container-readonly ipdot-on-extraMargin"
+            : ""
         }`}
-        showMagicPenGif={false}
-        showMicrophone={false}
+        showVoiceAI={isEditable && patientId && admissionId}
+        showMicrophone={true}
+        voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+        onVoiceAIRecordingComplete={getVoiceHandler(sectionId)}
         templates={templateHandlers?.templates}
         templateType={templateHandlers ? "entries" : undefined}
         showTempButtons={isEditable && !!templateHandlers}
@@ -337,15 +386,12 @@ const OperativeNotes = (props) => {
         <ul>
           {sectionData?.children?.map((item) => {
             const reduxKey = getReduxKey(item?.id);
-            if (!isEditable && isEmptyRichText(operativeNotes?.[reduxKey])) return null;
-            return (
-              <li key={item.id}>
-                {renderRichTextEditorSection(item)}
-              </li>
-            )
+            if (!isEditable && isEmptyRichText(operativeNotes?.[reduxKey]))
+              return null;
+            return <li key={item.id}>{renderRichTextEditorSection(item)}</li>;
           })}
         </ul>
-      )
+      );
     return sectionData?.children?.map((item) => {
       return renderRichTextEditorSection(item);
     });
@@ -363,7 +409,9 @@ const OperativeNotes = (props) => {
         collapsible={isEditable}
         width={"100%"}
         className={`collapsible-wrapper-class ${
-          isEditable ? "" : "collapsible-wrapper-class-readonly ipdot-ion-readonly readonly-container-box"
+          isEditable
+            ? ""
+            : "collapsible-wrapper-class-readonly ipdot-ion-readonly readonly-container-box"
         }`}
         defaultOpen
       >

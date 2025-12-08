@@ -325,13 +325,93 @@ function MedicalHistoryBox(props) {
             }))
             ] : data1;
 
-            setCloneMedicalHistoryData(mergedArray ? JSON.parse(JSON.stringify(mergedArray)) : []);
+            const generateRandomId = () =>
+                Number(`${Date.now()}${Math.floor(Math.random() * 1000)}`);
+  
+              const mergedWithExtras =
+                data2?.length > 0
+                  ? mergedArray?.map((section) => {
+                      const data2Section = data2.find(
+                        (item) => item?.tmmhs_id === section?.tmmhs_id
+                      );
+                      if (!data2Section?.tags?.length) return section;
+  
+                      const existingTags = section?.tags || [];
+                      const missingTags = data2Section.tags
+                        ?.filter((tag) => {
+                          return !existingTags.some((existingTag) => {
+                            const idMatch =
+                              existingTag?.tmmhst_id &&
+                              tag?.tmmhst_id &&
+                              existingTag.tmmhst_id === tag.tmmhst_id;
+                            const titleMatch =
+                              (existingTag?.title || "")
+                                .toString()
+                                .trim()
+                                .toLowerCase() ===
+                              (tag?.title || "").toString().trim().toLowerCase();
+                            return idMatch || titleMatch;
+                          });
+                        })
+                        ?.map((tag) => ({
+                          ...tag,
+                          tmmhst_id: tag?.tmmhst_id || generateRandomId(),
+                        }));
+  
+                      if (missingTags?.length) {
+                        return { ...section, tags: [...existingTags, ...missingTags] };
+                      }
+                      return section;
+                    })
+                  : mergedArray;
+  
+              const normalize = (value) => (value || "").toString().trim().toLowerCase();
+              const mergedWithFlagsAndNotes =
+                data2?.length > 0
+                  ? mergedWithExtras?.map((section) => {
+                      const data2Section = data2.find(
+                        (item) => item?.tmmhs_id === section?.tmmhs_id
+                      );
+                      if (!data2Section?.tags?.length) return section;
+  
+                      const updatedTags = (section?.tags || []).map((tag) => {
+                        const matchingTag =
+                          data2Section.tags?.find((t) => {
+                            if (t?.tmmhst_id && tag?.tmmhst_id) {
+                              return t.tmmhst_id === tag.tmmhst_id;
+                            }
+                            return normalize(t?.title) === normalize(tag?.title);
+                          }) || null;
+  
+                        if (!matchingTag) return tag;
+  
+                        return {
+                          ...tag,
+                          enable:
+                            matchingTag?.enable === "" ||
+                            matchingTag?.enable === undefined
+                              ? "Y"
+                              : matchingTag?.enable,
+                          ...(matchingTag?.notes !== undefined
+                            ? { note: matchingTag.notes }
+                            : {}),
+                            ...(matchingTag?.note !== undefined
+                              ? { note: matchingTag.note }
+                              : {}),
+                        };
+                      });
+  
+                      return { ...section, tags: updatedTags };
+                    })
+                  : mergedWithExtras;
+  
+              setCloneMedicalHistoryData(mergedWithFlagsAndNotes ? JSON.parse(JSON.stringify(mergedWithFlagsAndNotes)) : []);
         } catch (error) {
             console.error("Error merging medical history data:", error);
             setCloneMedicalHistoryData([]);
         }
         }
-    }, [defaultList]);
+    }, [defaultList, medicalHistoryData]);
 
     const onNoKnownHistoryChange = useCallback((e, i) => {
         cloneMedicalHistoryData[i].no_know_history = e.target.checked
@@ -1218,8 +1298,7 @@ function MedicalHistoryBox(props) {
                     <div className='align-items-center d-flex h-100'>
                         <div className='border-end h-100 text-center me-3'>
                             <div
-                                onClick={onSaveClicked}
-                                // onClick={handleDrawerMedicalHistory} 
+                                onClick={handleDrawerMedicalHistory} 
                                 className='btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer'>
                                 <i className='icon-right'></i>
                             </div>
@@ -1250,7 +1329,7 @@ function MedicalHistoryBox(props) {
                         </Button>
                     </div>
                 </div>
-                <Tabs defaultActiveKey="gynec" onChange={onTabChange}>
+                <Tabs className="ipd-medicalhistory-scroll-fix" defaultActiveKey="gynec" onChange={onTabChange}>
                     {isGynaecHistoryAccessable && showMenstrualHistory &&
                         <TabPane tab="Menstrual History" key="gynec">
                             <div style={{ marginTop: "-1rem" }}>

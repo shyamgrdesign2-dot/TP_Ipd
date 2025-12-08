@@ -1,9 +1,9 @@
 import { Button, Divider } from "antd";
 import arrow from "../../assets/images/shaded-arrow.svg";
-import cdssWallpaper from "../../assets/images/cdss-wallpaper.gif";
 import tryGenRxIcon from "../../assets/images/try-gen-rx.svg";
 
 const TabVoiceRx = ({ handleGenRxKnowMore, setIsGenRxDrawerVisible }) => {
+  const cdssWallpaper = `${process.env.PUBLIC_URL || ""}/static-media/cdss-wallpaper.gif`;
   return (
     <div
       style={{

@@ -17,6 +17,8 @@ import {
 import TreatmentGiven from "../../../../components/DynamicPickerTable/TreatmentGiven";
 import { greenTick } from "../../../../assets/images/dischargeSummaryIcons";
 import { useTemplateManagement } from "../../../../hooks/useTemplateManagement";
+import { useVoiceAiRecordingComplete } from "../../../../hooks/useVoiceAiRecordingComplete";
+import { defaultIcons as defaultAssetIcons } from "../../../../assets/images/icons";
 
 const CollapsibleWrapper = createRemoteComponent("CollapsibleWrapper");
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
@@ -29,7 +31,12 @@ const EMPTY_RICH_TEXT_VALUE = [
 ];
 
 const CourseInHospital = (props) => {
-  const { isEditable = true, sectionData } = props || {};
+  const {
+    isEditable = true,
+    sectionData,
+    patientId = null,
+    admissionId = null,
+  } = props || {};
 
   const {
     dischargeSummaryData = {},
@@ -43,6 +50,19 @@ const CourseInHospital = (props) => {
     dischargeSummaryData?.patientInformation?.primaryConsultant?.id ||
     actualDischargeSummaryData?.patientInformation?.primaryConsultant?.id ||
     null;
+  const resolvedPatientId =
+    patientId ||
+    dischargeSummaryData?.patientInformation?.patientId ||
+    dischargeSummaryData?.patientInformation?.id ||
+    null;
+  const resolvedAdmissionId =
+    admissionId ||
+    dischargeSummaryData?.patientInformation?.admissionId ||
+    null;
+  const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
+    patientId: resolvedPatientId,
+    admissionId: resolvedAdmissionId,
+  });
 
   // console.log("INTEL ==> chronologicalSummary", chronologicalSummary);
 
@@ -53,7 +73,6 @@ const CourseInHospital = (props) => {
     dispatch(setCourseInHospital({ ...courseInHospital, [key]: data }));
   };
 
-  // Get current value callback for chronological summary
   const getCurrentChronologicalValue = useCallback(() => {
     if (
       Array.isArray(courseInHospital?.chronologicalSummary) &&
@@ -89,6 +108,33 @@ const CourseInHospital = (props) => {
       ? courseInHospital?.chronologicalSummary
       : EMPTY_RICH_TEXT_VALUE;
   }, [chronologicalSummary, courseInHospital]);
+
+  const handleAIRecordingComplete = useCallback(
+    (payload, callback) =>
+      submitVoiceAiRecording({
+        payload,
+        schemaKey: "DISRCHARGED_SUMMARY.courseInHospital.chronologicalSummary",
+        previousOutput: getCurrentChronologicalValue(),
+        onSuccess: (updatedData) => {
+          if (!isEmptyRichText(updatedData)) {
+            dispatch(
+              setCourseInHospital({
+                ...courseInHospital,
+                chronologicalSummary: updatedData,
+              })
+            );
+            dispatch(setChronologicalSummary(updatedData));
+          }
+        },
+        callback,
+      }),
+    [
+      courseInHospital,
+      dispatch,
+      getCurrentChronologicalValue,
+      submitVoiceAiRecording,
+    ]
+  );
 
   // Use template management hook for chronological summary
   const {
@@ -166,21 +212,14 @@ const CourseInHospital = (props) => {
         ];
 
         if (moduleCode) {
+          const sourceText = [dayData.module, dayData.subModule]
+            .filter(Boolean)
+            .join(" - ");
+          const tooltipText = `Source: ${sourceText} | Date: ${dayData.date || ""}`;
           childrenOfList.push({
             type: "link",
             url: null,
-            tooltip: () => (
-              <div className="chrosum-tooltip-container">
-                <div className="chrotol-source">
-                  <span>Source:</span>
-                  {dayData.module} - {dayData.subModule}
-                </div>
-                <div className="chrotol-source">
-                  <span>Date:</span>
-                  {dayData.date}
-                </div>
-              </div>
-            ),
+            tooltip: tooltipText,
             children: [{ text: `[${moduleCode}]` }],
           });
         }
@@ -273,8 +312,11 @@ const CourseInHospital = (props) => {
             !isEditable ? "ipd-wrapper-class-readonly" : ""
           }`}
           opdDate="15 Jun 2025"
-          showMagicPenGif={false}
+          showVoiceAI={isEditable && resolvedPatientId && resolvedAdmissionId}
           showMicrophone={false}
+          showMagicPenGif={false}
+          voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+          onVoiceAIRecordingComplete={handleAIRecordingComplete}
           onChange={(data) => handleOthersChange(data, "chronologicalSummary")}
           initialValue={getInitialValue()}
           placeholder={
