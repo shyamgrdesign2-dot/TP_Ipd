@@ -6,6 +6,43 @@ import ApiIpdService from "../api/services/ipd/ipdService"; // TODO: adjust path
 import magicPen from "../assets/images/icons/magic-pen.svg";
 import { isEmptyRichText } from "../utils/utils";
 
+const REMOTE_RELOAD_FLAG = "shared_ui_reload_attempted";
+
+const isRemoteChunkFetchError = (err) => {
+  const message = err?.message || "";
+  return (
+    err?.type === "chunkload" ||
+    /ChunkLoadError/i.test(message) ||
+    /Failed to fetch dynamically imported module/i.test(message) ||
+    /Importing a module script failed/i.test(message)
+  );
+};
+
+const loadRemoteModuleWithRefresh = async (loader) => {
+  try {
+    const mod = await loader();
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.removeItem(REMOTE_RELOAD_FLAG);
+    }
+    return mod;
+  } catch (err) {
+    const shouldReload =
+      typeof window !== "undefined" &&
+      typeof sessionStorage !== "undefined" &&
+      isRemoteChunkFetchError(err) &&
+      !sessionStorage.getItem(REMOTE_RELOAD_FLAG);
+
+    if (shouldReload) {
+      // Remote was likely redeployed; force a one-time refresh to pull the latest chunks.
+      sessionStorage.setItem(REMOTE_RELOAD_FLAG, "1");
+      window.location.reload();
+      return new Promise(() => {});
+    }
+
+    throw err;
+  }
+};
+
 const normalizeToDefault = (m, key) => {
   if (key && m[key]) return { default: m[key] };
   if (m?.default) return { default: m.default };
@@ -16,8 +53,8 @@ const normalizeToDefault = (m, key) => {
 // Centralized component loading
 const loadComponent = (componentName) => {
   return React.lazy(() =>
-    import("shared_ui/components").then((m) =>
-      normalizeToDefault(m, componentName)
+    loadRemoteModuleWithRefresh(() => import("shared_ui/components")).then(
+      (m) => normalizeToDefault(m, componentName)
     )
   );
 };
