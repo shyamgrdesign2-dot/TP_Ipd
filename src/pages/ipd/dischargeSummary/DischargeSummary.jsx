@@ -544,7 +544,7 @@ const DischargeSummary = (props) => {
 
   const renderBottomSection = () => (
     <>
-      {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+      {/* {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
       <div className="global-voice-ai-wrapper">
         {isVoiceAssistantOpen ? (
           <AgentAlexVoicePanel
@@ -554,7 +554,7 @@ const DischargeSummary = (props) => {
         ) : (
           <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
         )}
-      </div>
+      </div> */}
       {renderCustomModulesFooter()}
     </>
   );

@@ -397,7 +397,7 @@ const CrossReferral = (props) => {
                   setIsBackModalOpen(true);
                 }}
                 renderHeaderSection={renderHeaderSection}
-                renderBottomSection={renderBottomSection}
+                // renderBottomSection={renderBottomSection}
                 headerOffset={72}
                 onMenuItemClick={onMenuItemClick}
               />

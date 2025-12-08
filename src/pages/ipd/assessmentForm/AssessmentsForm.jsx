@@ -44,6 +44,7 @@ import GlobalVoiceAI from "../components/GlobalVoiceAI";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel";
 import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 import { listSectionwithTag } from "../../../redux/medicalhistorySlice";
+import IPDSnapRx from "../snapRx/SnapRx";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -507,7 +508,7 @@ const AssessmentsForm = (props) => {
   const renderBottomSection = () => (
     <>
       {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
-      <div className="global-voice-ai-wrapper">
+      {/* <div className="global-voice-ai-wrapper">
         {isVoiceAssistantOpen ? (
           <AgentAlexVoicePanel
             onSubmit={handleAIRecordingComplete}
@@ -516,7 +517,7 @@ const AssessmentsForm = (props) => {
         ) : (
           <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
         )}
-      </div>
+      </div> */}
       {renderCustomModulesFooter()}
     </>
   );

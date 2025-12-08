@@ -93,6 +93,9 @@ import IpdAddNewPatient from "./pages/ipd/addNewPatient/IpdAddNewPatient";
 import CreateAdmission from "./pages/ipd/createAdmission/CreateAdmission";
 import WardAndBedManagement from "./pages/ipd/wardAndBedManagement/WardAndBedManagement";
 import IpdBillingHistory from "./pages/ipd/billing/IpdBillingHistory";
+import IPDSnapRx from "./pages/ipd/snapRx/SnapRx";
+import IPDSnapRxPreview from "./pages/ipd/snapRx/SnapRxPreview";
+import IPDSnapRxDigitise from "./pages/ipd/snapRx/SnapRxDigitise";
 
 
 const growthbook = new GrowthBook({
@@ -599,6 +602,9 @@ function App() {
                 <Route path="snap-rx" element={<SnapRx />} />
                 <Route path="snap-rx/preview" element={<SnapRxPreview />} />
                 <Route path="snap-rx/digitise" element={<SnapRxDigitise />} />
+                <Route path="ipd/snap-rx" element={<IPDSnapRx />} />
+                <Route path="ipd/snap-rx/preview" element={<IPDSnapRxPreview />} />
+                <Route path="ipd/snap-rx/digitise" element={<IPDSnapRxDigitise />} />
                 <Route
                   path="get-unlimited-access"
                   element={<GetUnlimitedAccess />}

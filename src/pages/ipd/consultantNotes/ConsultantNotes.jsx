@@ -561,7 +561,7 @@ const ConsultantNotes = (props) => {
       {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
       {showProgressSummary ? (
         <div className="floating-bottom-row">
-          <div className="global-voice-ai-wrapper">
+          {/* <div className="global-voice-ai-wrapper">
             {isVoiceAssistantOpen ? (
               <AgentAlexVoicePanel
                 onSubmit={handleAIRecordingComplete}
@@ -570,21 +570,21 @@ const ConsultantNotes = (props) => {
             ) : (
               <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
             )}
-          </div>
+          </div> */}
           <div className="progress-summary-wrapper">
             <ProgressSummary onClick={handleProgressSummaryClick} />
           </div>
         </div>
       ) : (
         <div className="global-voice-ai-wrapper">
-          {isVoiceAssistantOpen ? (
+          {/* {isVoiceAssistantOpen ? (
             <AgentAlexVoicePanel
               onSubmit={handleAIRecordingComplete}
               onClose={() => setIsVoiceAssistantOpen(false)}
             />
           ) : (
             <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
-          )}
+          )} */}
         </div>
       )}
       {renderCustomModulesFooter()}

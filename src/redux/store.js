@@ -27,6 +27,7 @@ import surgicalSlice from "./surgicalSlice";
 import bulkMessagesSlice from "./bulkMessagesSlice";
 import customModuleReducer from "./customModuleSlice";
 import snapRxDigitizationSlice from "./snapRxDigitizationSlice";
+import ipdSnapRxDigitizationSlice from "./ipd/ipdSnapRxDigitizationSlice";
 import billingSlice from "./billingSlice";
 import shortLinkSlice from "./shortLinkSlice";
 import monetizationSlice from "./monetizationSlice";
@@ -82,6 +83,7 @@ const rootReducer = combineReducers({
   customModules: customModuleReducer,
   billing: billingSlice,
   snapRx: snapRxDigitizationSlice,
+  ipdSnapRx: ipdSnapRxDigitizationSlice,
   shortLink: shortLinkSlice,
   monetization: monetizationSlice,
   prescription: prescriptionSlice,
