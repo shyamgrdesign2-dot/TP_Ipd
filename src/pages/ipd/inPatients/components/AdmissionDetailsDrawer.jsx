@@ -36,8 +36,6 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
     const room = patientData?.room || {};
     const doctor = patientData?.doctor || {};
 
-    console.log(patientData?.details,"patientData?.details")
-
     return {
       patientInformation: {
         name: details?.name || "",

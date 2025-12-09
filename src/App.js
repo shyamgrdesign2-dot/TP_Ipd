@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Routes,
   Route,
@@ -102,57 +102,7 @@ const growthbook = new GrowthBook({
   enableDevMode: process.env.REACT_APP_ENV !== "prod",
 });
 
-const ConditionalRedirect = () => {
-  const location = useLocation();
-  const [searchParams] = useSearchParams();
-  
-  // Check if redirectTo is in URL params or localStorage
-  const redirectTo = localStorage.getItem("redirectTo") || searchParams.get("redirectTo");
-  console.log("this is getting called")
-  // If we have a redirectTo, handle it
-  if (redirectTo) {
-    // Check if redirectTo includes /ipd
-    if (redirectTo.includes("/ipd")) {
-      // Extract path and query params from redirectTo
-      const [path, queryString] = redirectTo.split("?");
-      const redirectPath = path.startsWith("/") ? path : `/${path}`;
-      
-      // Only redirect if we're not already on this path
-      if (location.pathname !== redirectPath) {
-        // Clean up localStorage
-        localStorage.removeItem("redirectTo");
-        
-        // Navigate with query params if they exist
-        if (queryString) {
-          return <Navigate to={`${redirectPath}?${queryString}`} replace />;
-        }
-        return <Navigate to={redirectPath} replace />;
-      }
-    } else {
-      // For other redirectTo values, use as is
-      const redirectPath = redirectTo.startsWith("/") ? redirectTo : `/${redirectTo}`;
-      localStorage.removeItem("redirectTo");
-      return <Navigate to={redirectPath} replace />;
-    }
-  }
-  
-  // If we're on /ipd (exact match - no nested route), redirect to inPatients
-  // This happens when /ipd route matches the parent layout but has no index route
-  if (location.pathname === "/ipd") {
-    return <Navigate to="/ipd/inPatients" replace />;
-  }
-  
-  // If we're on root path, redirect to inPatients
-  if (location.pathname === "/") {
-    return <Navigate to="/ipd/inPatients" replace />;
-  }
-  
-  // Default redirect for any other unmatched routes
-  return <Navigate to="/ipd/inPatients" replace />;
-};
-
 function App() {
-  const [redirectReady, setRedirectReady] = useState(false);
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const authToken = searchParams.get("authToken");
@@ -173,6 +123,15 @@ function App() {
   const isLoginPage = location.pathname === "/login";
   const isRootPath = location.pathname === "/";
   const token = getToken();
+  
+  // State to track if initial redirect check is complete
+  // This prevents Routes from rendering the catch-all before we process redirectTo
+  const [initialRedirectChecked, setInitialRedirectChecked] = useState(false);
+  
+  // Use ref to track if redirectTo has been processed (prevents re-runs)
+  const redirectToProcessed = useRef(false);
+  // Store redirectTo in ref so it persists even after URL changes
+  const redirectToRef = useRef(null);
 
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
@@ -311,6 +270,11 @@ function App() {
       setToken(authToken);
       localStorage.removeItem(PERSISTANT_STORAGE_KEY_BILL_TOKEN);
 
+      // If redirectTo exists, don't navigate - let redirectTo handler process it first
+      if (redirectTo) {
+        return;
+      }
+
       // Clean up URL but preserve other params
       const params = new URLSearchParams(location.search);
       if (!isReceptionist) {
@@ -327,7 +291,7 @@ function App() {
           );
       }
     }
-  }, [authToken, setToken, navigate]);
+  }, [authToken, setToken, navigate, redirectTo, location.pathname, location.search, isReceptionist]);
 
   useEffect(() => {
     if (uploadParams) {
@@ -341,43 +305,84 @@ function App() {
     }
   }, [uploadParams]);
 
-  // Add effect to handle redirectTo parameter
+  // Handle redirectTo parameter - HIGHEST PRIORITY
+  // This runs FIRST and blocks Routes rendering until complete
   useEffect(() => {
-    if (redirectTo) {
-      localStorage.setItem("redirectTo", redirectTo);
-      setRedirectReady(true);
-
-      // Clean up URL but preserve other params
-      const params = new URLSearchParams(location.search);
-      params.delete("redirectTo");
-      // Update URL without the redirectTo parameter
-      navigate(
-        {
-          pathname: location.pathname,
-          search: params.toString(),
-        },
-        { replace: true }
-      );
-    } else {
-      setRedirectReady(false);
+    // Store redirectTo in ref when it first appears (before URL changes)
+    if (redirectTo && !redirectToRef.current) {
+      redirectToRef.current = redirectTo;
     }
-  }, [redirectTo, location.search, location.pathname, navigate]);
+    
+    // Only process if redirectTo exists (from URL or ref) and hasn't been processed yet
+    const currentRedirectTo = redirectTo || redirectToRef.current;
+    if (currentRedirectTo && !redirectToProcessed.current) {
+      redirectToProcessed.current = true;
+      
+      // Extract path and query params from redirectTo
+      // redirectTo format: "ipd/create-admission?patientData=eyJwbV9m="
+      const [path, queryString] = currentRedirectTo.split("?");
+      const redirectPath = path.startsWith("/") ? path : `/${path}`;
+      
+      // Check if we're already on the target path (prevent infinite loops)
+      if (location.pathname === redirectPath) {
+        redirectToRef.current = null; // Clear ref after successful navigation
+        redirectToProcessed.current = false; // Reset flag
+        setInitialRedirectChecked(true);
+        return;
+      }
+      
+      // Navigate to the redirect path
+      if (queryString) {
+        navigate(
+          {
+            pathname: redirectPath,
+            search: `?${queryString}`,
+          },
+          { replace: true }
+        );
+      } else {
+        navigate(redirectPath, { replace: true });
+      }
+      
+      return;
+    }
+    
+    // No redirectTo to process, allow Routes to render
+    setInitialRedirectChecked(true);
+  }, [redirectTo, navigate, location.pathname]);
 
-  // Determine where to redirect on root path
+  // Handle /ipd route - redirect to /ipd/inPatients if directly accessed
   useEffect(() => {
+    // Skip if redirectTo is being processed (check both URL param and ref)
+    if (redirectTo || redirectToRef.current || redirectToProcessed.current) {
+      return;
+    }
+    
+    // If directly navigating to /ipd, redirect to /ipd/inPatients
+    if (location.pathname === "/ipd") {
+      navigate("/ipd/inPatients", { replace: true });
+      return;
+    }
+  }, [location.pathname, navigate, redirectTo]);
+
+  // Determine where to redirect on root path (only if redirectTo is not present)
+  useEffect(() => {
+    // Skip if redirectTo is being processed (check both URL param and ref)
+    if (redirectTo || redirectToRef.current || redirectToProcessed.current) {
+      return;
+    }
+    
     // Skip redirection for receptionist or non-relevant paths
     if (isReceptionist || (!isRootPath && !isLoginPage)) {
       return;
     }
 
-    // Check authentication and get stored redirect path
+    // Check authentication
     const hasAuth = token || authToken;
-    const localRedirectTo = localStorage.getItem("redirectTo");
 
     // Handle unauthenticated users
     if (!hasAuth) {
       const urlParams = new URLSearchParams(window.location.search);
-
       // Only collect UTM params that have values
       const utmParams = new URLSearchParams();
       [
@@ -401,24 +406,11 @@ function App() {
       return;
     }
 
+    // Authenticated users - redirect to default IPD page
     if (isChrome || isSafari) {
-      // Determine and execute redirection
-      const redirectPath =
-        localRedirectTo === "profile"
-          ? "/doctor_profile"
-          : redirectReady
-            ? localRedirectTo
-            : "/";
-
-      // Clean up localStorage if redirecting to profile
-      if (localRedirectTo === "profile" || redirectReady) {
-        localStorage.removeItem("redirectTo");
-        setRedirectReady(false);
-      }
-
-      navigate(redirectPath);
+      navigate("/ipd/inPatients");
     }
-  }, [isRootPath, token, authToken, navigate, redirectTo, redirectReady]);
+  }, [isRootPath, token, authToken, navigate, redirectTo, isReceptionist, isLoginPage]);
 
   //Upgraded Services Modal
   const upgrade_services = searchParams.get("upgrade_services");
@@ -482,6 +474,9 @@ function App() {
                 handleUpgradeModal={handleUpgradeModal}
               />
             )}
+            {/* Don't render Routes until initial redirect check is complete */}
+            {/* This prevents the catch-all route from firing before redirectTo is processed */}
+            {!initialRedirectChecked ? null : (
             <Routes>
               {/* Public route */}
               {/* <Route path="/login" element={<AuthContainer />} /> */}
@@ -494,7 +489,6 @@ function App() {
 
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>
-                <Route path="/*" element={<ConditionalRedirect />} />
                 <Route
                   path={`/ipd/patient-details`}
                   element={<IPDPatientDetails />}
@@ -678,7 +672,9 @@ function App() {
                 />
               </Route>
               <Route path="opd-bill" element={<OpdBill />} />
+              <Route path="/*" element={<Navigate to="/ipd/inPatients" replace />} />
             </Routes>
+            )}
           </PersistGate>
         </Provider>
       </ErrorBoundary>
