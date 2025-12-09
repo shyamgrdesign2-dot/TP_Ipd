@@ -113,7 +113,7 @@ const CourseInHospital = (props) => {
     (payload, callback) =>
       submitVoiceAiRecording({
         payload,
-        schemaKey: "DISRCHARGED_SUMMARY.courseInHospital.chronologicalSummary",
+        schemaKey: "DISCHARGED_SUMMARY.courseInHospital.chronologicalSummary",
         previousOutput: getCurrentChronologicalValue(),
         onSuccess: (updatedData) => {
           if (!isEmptyRichText(updatedData)) {

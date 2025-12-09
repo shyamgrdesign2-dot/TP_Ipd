@@ -207,7 +207,7 @@ const FollowUp = (props) => {
     (payload, callback) =>
       submitVoiceAiRecording({
         payload,
-        schemaKey: "DISRCHARGED_SUMMARY.followUp.additionalNotes",
+        schemaKey: "DISCHARGED_SUMMARY.followUp.additionalNotes",
         previousOutput: dischargeSummaryData?.additionalNotes,
         onSuccess: (updatedData) => {
           if (!isEmptyRichText(updatedData)) {

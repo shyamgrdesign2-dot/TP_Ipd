@@ -90,7 +90,7 @@ const DischargeNotes = (props) => {
     (payload, callback) =>
       submitVoiceAiRecording({
         payload,
-        schemaKey: "DISRCHARGED_SUMMARY.dischargeNotes.patientCondition",
+        schemaKey: "DISCHARGED_SUMMARY.dischargeNotes.patientCondition",
         previousOutput: dischargeSummaryData?.patientCondition,
         onSuccess: (updatedData) => {
           if (!isEmptyRichText(updatedData)) {

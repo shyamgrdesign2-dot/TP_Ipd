@@ -211,7 +211,7 @@ const IpdCustomModule = ({
     progressNotes: "PROGRESS_NOTES",
     consultantNotes: "CONSULTANT_NOTES",
     crossReferral: "CROSS_REFERRAL",
-    dischargeSummary: "DISRCHARGED_SUMMARY",
+    dischargeSummary: "DISCHARGED_SUMMARY",
     otNotes: "OT_NOTES",
   };
 

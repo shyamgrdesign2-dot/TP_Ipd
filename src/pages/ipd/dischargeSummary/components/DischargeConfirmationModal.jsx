@@ -110,7 +110,7 @@ const DischargeConfirmationModal = forwardRef(
         submitVoiceAiRecording({
           payload,
           schemaKey:
-            "DISRCHARGED_SUMMARY.dischargeConfirmation",
+            "DISCHARGED_SUMMARY.dischargeConfirmation",
           previousOutput: formData.dischargeRemarks,
           onSuccess: (updatedData) => {
             if (!isEmptyRichText(updatedData)) {
