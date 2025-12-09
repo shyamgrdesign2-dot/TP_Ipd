@@ -57,8 +57,8 @@ const OperativeNotes = (props) => {
   const getReduxKey = useCallback((sectionId) => {
     const mapping = {
       operativeFindings: "operativeFindings",
-      procedures: "procedures",
-      additionalNotes: "additionalNotes",
+      procedures: "operativeProcedure",
+      additionalNotes: "operativeAdditionalNotes",
     };
     return mapping[sectionId] || sectionId;
   }, []);
