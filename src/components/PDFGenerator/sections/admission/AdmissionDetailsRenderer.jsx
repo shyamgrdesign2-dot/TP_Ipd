@@ -78,6 +78,11 @@ const styles = StyleSheet.create({
     fontSize: 10,
     flex: 1,
   },
+  wrappedLabel: {
+    fontWeight: 600,
+    color: "#000000",
+    fontSize: 10,
+  },
   listContainer: {
     marginLeft: 8,
     marginBottom: 4,
@@ -159,8 +164,8 @@ const renderWrappedFieldRow = (label, value) => {
   if (!value && value !== 0) return null;
   return (
     <View style={styles.rowWithWrap} key={label}>
-      <Text style={styles.label}>{label}:</Text>
-      <Text style={styles.wrappedValue}>{String(value)}</Text>
+       <Text style={styles.wrappedLabel}>{label}:</Text>
+       <Text style={styles.wrappedValue}> {String(value)}</Text>
     </View>
   );
 };
@@ -182,6 +187,7 @@ const renderPatientDetails = (data) => {
   
   // Left column fields (excluding Patient Name which will be full width with wrap)
   const leftFields = [
+    { label: "Patient Name", value: patientName || "-" },
     { label: "Age/Gender", value: ageGender || "-" },
     { label: "Contact No", value: patientInfo.contact || "-" },
   ];
@@ -196,15 +202,12 @@ const renderPatientDetails = (data) => {
   return (
     <View style={styles.sectionContainer}>
       <View style={styles.topBorder} />
-      {/* Patient Name - Full width with wrapping */}
-      {renderWrappedFieldRow("Patient Name", patientName || "-")}
-      {/* Other fields in two columns */}
       <View style={styles.twoColumnContainer}>
         <View style={styles.leftColumn}>
-          {leftFields.map((field) => renderFieldRow(field.label, field.value))}
+          {leftFields.map((field) => renderWrappedFieldRow(field.label, field.value))}
         </View>
         <View style={styles.rightColumn}>
-          {rightFields.map((field) => renderFieldRow(field.label, field.value))}
+          {rightFields.map((field) => renderWrappedFieldRow(field.label, field.value))}
         </View>
       </View>
       <View style={styles.topBorder} />
@@ -251,10 +254,10 @@ const renderAdmissionDetailsSection = (data) => {
       <View style={styles.subsectionContainer}>
         <View style={styles.twoColumnContainer}>
           <View style={styles.leftColumn}>
-            {leftFields.map((field) => renderFieldRow(field.label, field.value))}
+            {leftFields.map((field) => renderWrappedFieldRow(field.label, field.value))}
           </View>
           <View style={styles.rightColumn}>
-            {rightFields.map((field) => renderFieldRow(field.label, field.value))}
+            {rightFields.map((field) => renderWrappedFieldRow(field.label, field.value))}
           </View>
         </View>
       </View>
