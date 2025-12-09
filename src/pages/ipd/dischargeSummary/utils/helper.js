@@ -1,8 +1,8 @@
 import { db } from "../../../../firebase";
 import { doc, setDoc } from "firebase/firestore";
-import { browserName, isMobile, osName } from "react-device-detect";
+import { browserName, isMobile, isTablet } from "react-device-detect";
 import { uploadDocsToAzure } from "../../../medicalRecords/service";
-import { sendMessageToParent } from "../../../../utils/utils";
+import { isIPad, sendMessageToParent } from "../../../../utils/utils";
 import { EVENTS } from "../../../../utils/events";
 import { printBlobInNewTab } from "../../../opdBilling/utils/helper";
 
@@ -34,7 +34,9 @@ export const printDocument = async (printBlob) => {
 
     sendMessageToParent(EVENTS.PRINT, { url: printUrl });
   } else {
-    if (isMobile || osName === "Linux") {
+    const isMobileDevice = isMobile || isTablet || isIPad();
+
+    if (isMobileDevice) {
       printBlobInNewTab(printBlob);
     } else {
       // For regular browsers
