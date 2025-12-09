@@ -2,14 +2,14 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 // import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
 import { Col, Row, Select, Button, message, Spin, Drawer } from "antd";
-import { isMobile, browserName, osName } from "react-device-detect";
+import { isMobile, browserName, isTablet } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import { useReactToPrint } from 'react-to-print';
 
 // import { PDFReader } from 'reactjs-pdf-reader';
 
-import { errorMessage, getClinic, sendMessageToParent, trackEvent } from "../utils/utils";
+import { errorMessage, getClinic, isIPad, sendMessageToParent, trackEvent } from "../utils/utils";
 
 import messageSent from '../assets/images/message-sent.svg';
 import wtsp from '../assets/images/wtsp.svg';
@@ -219,7 +219,9 @@ function PrescriptionPrintView() {
     // });
 
     const printContent = async () => {
-        if (isMobile || osName == 'Linux') {
+        const isMobileDevice = isMobile || isTablet || isIPad();
+
+        if (isMobileDevice) {
             printBlobInNewTab(printBlob);
         } else {
             var blobURL = URL.createObjectURL(printBlob);
