@@ -174,12 +174,21 @@ const TableBillingDashboard = forwardRef(
           label: (
             <div className="d-flex align-items-center">
               <i className="icon-billings"></i>
-              {`Billing (${billingCount})`}
+              {`OPD Billing (${billingCount})`}
             </div>
           ),
         },
         {
           key: 2,
+          label: (
+            <div className="d-flex align-items-center">
+              <i className="icon-billings"></i>
+              {`IPD Billing (${billingCount})`}
+            </div>
+          ),
+        },
+        {
+          key: 3,
           label: (
             <div
               className="d-flex align-items-center"
@@ -188,12 +197,12 @@ const TableBillingDashboard = forwardRef(
             >
               <img
                 src={
-                  selectedTab === 2 || isHovered
+                  selectedTab === 3 || isHovered
                     ? depositSelectedIcon
                     : depositIcon
                 }
                 className="me-2"
-                alt={selectedTab === 2 ? "selected-deposit" : "default-deposit"}
+                alt={selectedTab === 3 ? "selected-deposit" : "default-deposit"}
                 style={{
                   width: "20px",
                   height: "20px",
@@ -229,6 +238,8 @@ const TableBillingDashboard = forwardRef(
         if (key === 1) {
           onTabChange("billingtable");
           setIsBillingTab(true);
+        } else if (key === 2) {
+          onTabChange("ipdbillingtable");
         } else {
           onTabChange("advancetable");
           setIsAdvanceDepositTab(false);
@@ -248,6 +259,21 @@ const TableBillingDashboard = forwardRef(
           />
           <div className="appointment-data">
             {selectedTab === 1 ? (
+              <BillingTable
+                patientData={patientData}
+                handleTotalAdvanceUpdate={handleTotalAdvanceUpdate}
+                setBillingCount={setBillingCount}
+                dateRange={dateRange}
+                setDateRange={setDateRange}
+                dateStatus={dateStatus}
+                setDateStatus={setDateStatus}
+                selectedDoctors={selectedDoctors}
+                setSelectedDoctors={setSelectedDoctors}
+                createBillDrawer={createBillDrawer}
+                totalAdvanceBalance={totalAdvanceBalance}
+                showHideSubModal={showHideSubModal}
+              />
+            ) : selectedTab === 2 ? (
               <BillingTable
                 patientData={patientData}
                 handleTotalAdvanceUpdate={handleTotalAdvanceUpdate}

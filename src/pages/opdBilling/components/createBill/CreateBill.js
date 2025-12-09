@@ -77,6 +77,7 @@ import tutorial from "../../../../assets/images/tutorial-icon.svg";
 import videorotate from "../../../../assets/images/videorotate.gif";
 import VideoModal from "../../../../common/VideoModal";
 import { Popover } from "antd";
+import BillTemplate from "./BillTemplate";
 
 const CreateBill = ({
   handleCreateBillDrawer,
@@ -86,6 +87,7 @@ const CreateBill = ({
   patientData = {},
   isDashboard,
   isPreviewFromTable,
+  editBillData,
 }) => {
   const { state } = useLocation();
   const { pam_id } = state || {};
@@ -109,42 +111,60 @@ const CreateBill = ({
   );
   const [billNotesDrawer, setBillNotesDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
-  const [patientBillNotes, setPatientBillNotes] = useState("");
+  const [patientBillNotes, setPatientBillNotes] = useState(
+    editBillData?.notes || ""
+  );
   const [searchItemSelected, setSearchItemSelected] = useState(null);
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
-  const [dataSource, setDataSource] = useState([
-    {
-      masterId: "",
-      name: "",
-      quantity: "",
-      amount: "",
-      discount: "",
-      discountType: "",
-      gst: "",
-      totalAmount: "",
-      createdBy: "",
-    },
-  ]);
+  const [dataSource, setDataSource] = useState(
+    editBillData?.billItems || [
+      {
+        masterId: "",
+        name: "",
+        quantity: "",
+        amount: "",
+        discount: "",
+        discountType: "",
+        gst: "",
+        totalAmount: "",
+        createdBy: "",
+      },
+    ]
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOptions, setSearchOptions] = useState([]);
   const [patientSearchOptions, setPatientSearchOptions] = useState([]);
-  const [includeInRx, setIncludeInRx] = useState(false);
-  const [shouldAddBillTo3C, setAddBillTo3C] = useState(false);
+  const [includeInRx, setIncludeInRx] = useState(
+    editBillData?.includeInRx || false
+  );
+  const [shouldAddBillTo3C, setAddBillTo3C] = useState(
+    editBillData?.isForm3C || false
+  );
   const [editIndex, setEditIndex] = useState(-1);
-  const [extraDiscount, setExtraDiscount] = useState(undefined);
-  const [extraDiscountType, setExtraDiscountType] = useState("flat");
-  const [patientDueAmount, setPatientDueAmount] = useState(0);
+  const [extraDiscount, setExtraDiscount] = useState(
+    editBillData?.extraDiscount || undefined
+  );
+  const [extraDiscountType, setExtraDiscountType] = useState(
+    editBillData?.extraDiscountType || "flat"
+  );
+  const [patientDueAmount, setPatientDueAmount] = useState(
+    editBillData?.dueFromPreviousBill || 0
+  );
   const [patientWalletBalance, setPatientWalletBalance] = useState(0);
-  const [paymentModes, setPaymentModes] = useState([]);
+  const [paymentModes, setPaymentModes] = useState(
+    editBillData?.paymentModes || []
+  );
   const [disableSaveBtn, setDisableSaveBtn] = useState(true);
   const [getToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
   const [tokenData, setTokenData] = useState(null);
-  const [billData, setBillData] = useState({});
+  const [billData, setBillData] = useState(editBillData || {});
   const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
   const [totalAdvanceBalance, setTotalAdvanceBalance] = useState(null);
 
   // Search patient related states
-  const [patientDetails, setPatientDetails] = useState(null);
+  const [patientDetails, setPatientDetails] = useState(
+    editBillData?.patient || null
+  );
   const [searchQueryName, setSearchQueryName] = useState("");
   const [searchQueryMobile, setSearchQueryMobile] = useState("");
   const [isEditingName, setIsEditingName] = useState(true);
@@ -250,7 +270,9 @@ const CreateBill = ({
 
   useEffect(() => {
     const patientUniqueId =
-      patientData?.patient_unique_id || patientDetails?.patientUniqueId;
+      patientData?.patient_unique_id ||
+      patientDetails?.patientUniqueId ||
+      editBillData?.patient?.patientId;
     if (patientUniqueId) {
       getPatientDueAmount(patientUniqueId);
       getPatientWalletBalance(patientUniqueId);
@@ -829,7 +851,9 @@ const CreateBill = ({
     //   return;
     // }
     const patientUniqueId =
-      patientData?.patient_unique_id || patientDetails?.patientUniqueId;
+      patientData?.patient_unique_id ||
+      patientDetails?.patientUniqueId ||
+      editBillData?.patientId;
     const payload = {
       patientId: patientUniqueId,
       doctorId: isReceptionist
@@ -865,7 +889,9 @@ const CreateBill = ({
             <div>
               <div className="title-common text-start fontroboto">
                 {`${
-                  patientData?.pm_fullname || patientDetails?.patientName
+                  patientData?.pm_fullname ||
+                  patientDetails?.patientName ||
+                  editBillData?.patient?.name
                 }'s new bill saved successfully`}
               </div>
             </div>
@@ -978,6 +1004,12 @@ const CreateBill = ({
     },
     [setSearchQueryMobile]
   );
+
+  useEffect(() => {
+    if (editBillData?.patient) {
+      handleAddRow(dataSource);
+    }
+  }, [editBillData?.patient]);
 
   useEffect(() => {
     const data = [];
@@ -1397,7 +1429,8 @@ const CreateBill = ({
                       disabled={
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
-                          !patientDetails?.patientUniqueId)
+                          !patientDetails?.patientUniqueId &&
+                          !editBillData?.patientId)
                         //    || Number(payableAmount) === 0
                       }
                     >
@@ -1412,7 +1445,8 @@ const CreateBill = ({
                       disabled={
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
-                          !patientDetails?.patientUniqueId)
+                          !patientDetails?.patientUniqueId &&
+                          !editBillData?.patientId)
                         //    || Number(payableAmount) === 0
                       }
                     >
@@ -1432,7 +1466,8 @@ const CreateBill = ({
                       disabled={
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
-                          !patientDetails?.patientUniqueId) ||
+                          !patientDetails?.patientUniqueId &&
+                          !editBillData?.patientId) ||
                         // Number(payableAmount) === 0 ||
                         (isReceptionist &&
                           doctorsList?.length > 1 &&
@@ -1452,7 +1487,8 @@ const CreateBill = ({
                       disabled={
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
-                          !patientDetails?.patientUniqueId) ||
+                          !patientDetails?.patientUniqueId &&
+                          !editBillData?.patientId) ||
                         // Number(payableAmount) === 0 ||
                         (isReceptionist &&
                           doctorsList?.length > 1 &&
@@ -1488,7 +1524,9 @@ const CreateBill = ({
                     <span className="lab-params-warning">*</span>{" "}
                   </div>
                   {isEditingName &&
-                  (!patientData || Object.keys(patientData).length === 0) ? (
+                  (!patientData || Object.keys(patientData).length === 0) &&
+                  (!patientDetails ||
+                    Object.keys(patientDetails).length === 0) ? (
                     <AutoComplete
                       ref={nameAutoCompleteRef} // Attach ref for name AutoComplete
                       value={searchQueryName}
@@ -1538,20 +1576,24 @@ const CreateBill = ({
                         <i className="icon-patients backbar me-2"></i>{" "}
                         <span className="patientInfo">
                           {patientDetails?.patientName ||
-                            patientData?.pm_fullname}
+                            patientData?.pm_fullname ||
+                            editBillData?.patient?.name}
                         </span>
                       </div>
                       <div className="list-patientName d-flex align-items-center me-4">
                         <i className="icon-phone backbar me-2"></i>
                         <span className="patientInfo">
                           {patientDetails?.mobileNumber ||
-                            patientData?.pm_contact_no}
+                            patientData?.pm_contact_no ||
+                            editBillData?.patient?.phone}
                         </span>
                       </div>
                       <div className="list-patientName d-flex align-items-center me-4">
                         <i className="icon-Id backbar me-2"></i>
                         <span className="patientInfo">
-                          {patientDetails?.pmPid || patientData?.pm_pid}
+                          {patientDetails?.pmPid ||
+                            patientData?.pm_pid ||
+                            editBillData?.patient?.id}
                         </span>
                       </div>
                     </div>
@@ -1600,6 +1642,7 @@ const CreateBill = ({
                 </div>
               </div>
               <Divider />
+              <BillTemplate setDataSource={setDataSource} dataSource={dataSource} totalBillAmount={totalBillAmount} />
               <Table
                 dataSource={dataSource}
                 columns={columns}
@@ -1708,9 +1751,13 @@ const CreateBill = ({
                                     const clinic = getClinic();
                                     trackEvent("TP_Billing_UPIRefID", {
                                       patientName:
-                                        patientDetails?.patientName || "",
+                                        patientDetails?.patientName ||
+                                        editBillData?.patient?.name ||
+                                        "",
                                       patientId:
-                                        patientDetails?.patientUniqueId || "",
+                                        patientDetails?.patientUniqueId ||
+                                        editBillData?.patientId ||
+                                        "",
                                       doctorId: profile?.doctor_unique_id,
                                       doctorContact: profile?.um_contact,
                                       city: clinic?.hm_city,
@@ -2021,6 +2068,7 @@ const CreateBill = ({
             billData={billData}
             isPreviewFromTable={isPreviewFromTable}
             totalAdvanceBalance={patientWalletBalance}
+            handleEditBillDrawer={handleDrawerPreviewBill}
           />
         </Drawer>
       )}

@@ -40,6 +40,7 @@ const PreviewBill = ({
   patientAdvanceData,
   handleMessageForm3c,
   getPatientBills,
+  handleEditBillDrawer,
 }) => {
   const [getBillToken, setBillToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_BILL_TOKEN
@@ -395,6 +396,17 @@ const PreviewBill = ({
                       <i className="icon-right iconrotate180 ms-auto"></i>
                     </Button>
                   )}
+                <Button
+                  type="text"
+                  className={`btn btnicon20 align-items-center d-flex btn-41 w-100 mb-3 ${
+                    isReceptionist ? "receptionist-white-btn" : "btn-input"
+                  }`}
+                  icon={<i className="icon-Edit" />}
+                  onClick={() => handleEditBillDrawer()}
+                >
+                  <span className="fw-semibold">Edit Bill</span>
+                  <i className="icon-right iconrotate180 ms-auto"></i>
+                </Button>
 
                 <div className="bg-body d-flex flex-column p-3 rounded-10px border">
                   <div className="d-flex">
