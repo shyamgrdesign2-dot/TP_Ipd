@@ -51,6 +51,30 @@ const ReferralInformation = (props) => {
     dispatch(doctorDepartmentRoles());
   }, [dispatch]);
 
+  useEffect(() => {
+    const admittingDoctorId = patientDetails?.doctor?.id;
+    const selectedDoctor = initialValue?.relativesInformed?.informedByDoctor;
+    if (!admittingDoctorId || selectedDoctor) return;
+
+    const matchedDoctor = (doctorsList || []).find((doctor) => {
+      const doctorId =
+        doctor?.id ?? doctor?.doctorId ?? doctor?.um_id ?? doctor?._id;
+      return doctorId && String(doctorId) === String(admittingDoctorId);
+    });
+
+    if (matchedDoctor) {
+      dispatch(
+        setCrossReferralInformationDetails({
+          ...initialValue,
+          relativesInformed: {
+            ...(initialValue?.relativesInformed || {}),
+            informedByDoctor: matchedDoctor,
+          },
+        })
+      );
+    }
+  }, [dispatch, doctorsList, initialValue, patientDetails?.doctor?.id]);
+
   const handleAIRecordingComplete = (payload, callback) =>
     submitVoiceAiRecording({
       payload,
@@ -95,6 +119,10 @@ const ReferralInformation = (props) => {
       {
         id: 6,
         role: "Wife",
+      },
+      {
+        id: 7,
+        role: "Relative",
       },
     ].map((relative) => ({
       key: JSON.stringify(relative),
