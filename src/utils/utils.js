@@ -2368,3 +2368,7 @@ export const groupIpdCustomModulesById = (customModules = []) => {
 
   return Object.values(groupedModules);
 };
+
+export const isIPad = () => {
+  return navigator.userAgent.includes("iPad") || (navigator.userAgent.includes("Macintosh") && navigator.maxTouchPoints > 1);
+};
