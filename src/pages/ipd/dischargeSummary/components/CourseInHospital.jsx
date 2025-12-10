@@ -313,8 +313,7 @@ const CourseInHospital = (props) => {
           }`}
           opdDate="15 Jun 2025"
           showVoiceAI={isEditable && resolvedPatientId && resolvedAdmissionId}
-          showMicrophone={false}
-          showMagicPenGif={false}
+          showMicrophone={true}
           voiceAiIcon={defaultAssetIcons.voiceAiIcon}
           onVoiceAIRecordingComplete={handleAIRecordingComplete}
           onChange={(data) => handleOthersChange(data, "chronologicalSummary")}
