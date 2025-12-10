@@ -87,6 +87,7 @@ export default function BillingTable({
   createBillDrawer,
   totalAdvanceBalance,
   showHideSubModal,
+  billType,
 }) {
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
@@ -230,7 +231,8 @@ export default function BillingTable({
         setStartLoader();
         const response = await fetchItemizedBillData(
           dateRange.startDate,
-          dateRange.endDate
+          dateRange.endDate,
+          billType
         );
 
         if (response?.totalPaidAmount > 0) {
@@ -551,7 +553,7 @@ export default function BillingTable({
     const params = {
       status:
         selectedCard === 1
-          ? null
+          ? ["FullyPaid","Due","CarriedForward"]
           : selectedCard === 2
           ? ["FullyPaid"]
           : selectedCard === 3
@@ -569,7 +571,7 @@ export default function BillingTable({
     };
 
     try {
-      const response = await fetchBillingDashboard(params);
+      const response = await fetchBillingDashboard(params, billType);
       setPage(resetData ? 2 : page + 1);
       setHasMore(response.bills.length >= 25);
       setData((prev) =>
@@ -622,7 +624,7 @@ export default function BillingTable({
     const params = {
       status:
         selectedCard === 1
-          ? null
+          ? ["FullyPaid","Due","CarriedForward"]
           : selectedCard === 2
           ? ["FullyPaid"]
           : selectedCard === 3
@@ -641,7 +643,7 @@ export default function BillingTable({
       // appointmentId: patientData?.pam_id,
     };
     try {
-      const response = await fetchBillsByPatient(params);
+      const response = await fetchBillsByPatient(params, billType);
       setPage(resetData ? 2 : page + 1);
       setHasMore(response.bills.length >= 25);
       setData((prev) =>
@@ -659,8 +661,11 @@ export default function BillingTable({
   useEffect(() => {
     resetTableScroll();
     if (finalDoctorList?.length > 0 || userId) {
+      // Reset data and pagination when billType changes
+      setPage(1);
+      setHasMore(true);
       const fetchData = patientData ? patientBillingData : loadData;
-      fetchData();
+      fetchData(true); // Always reset data when fetching
     }
   }, [
     selectedCard,
@@ -671,6 +676,7 @@ export default function BillingTable({
     sortConfig,
     doctorList,
     createBillDrawer,
+    billType, // Add billType to dependencies - triggers refetch when switching between OPD/IPD
   ]);
 
   const handleRefundSuccess = () => {
@@ -713,8 +719,8 @@ export default function BillingTable({
           ? await fetchBillsByPatient({
               ...params,
               patientId: patientData?.patient_unique_id,
-            })
-          : await fetchBillingDashboard(params);
+            }, billType)
+          : await fetchBillingDashboard(params, billType);
         if (response?.bills?.length > 0) {
           allBills = [...allBills, ...response.bills];
           currentPage += 1;

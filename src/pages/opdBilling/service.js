@@ -37,24 +37,25 @@ export const deletePrintSetting = async function (billType) {
 };
 
 // Function to process a bill refund
-export const processBillRefund = async function (payload) {
+export const processBillRefund = async function (payload, billType = "opd") {
   let res = {};
   try {
-    const apiUrl = `/api/v1/billing/bill/refund`;
+    const apiUrl = billType === "ipd" ? `/api/v1/billing/ipd-bill/refund` : `/api/v1/billing/bill/refund`;
 
     // Make the API call
     res = await api.post(apiUrl, payload, baseUrl);
   } catch (e) {
-    console.error("Error while processing bill refund: ", e);
+    console.error(`Error while processing ${billType.toUpperCase()} bill refund: `, e);
   }
   return res;
 };
-export const createBill = async function (payload, billType) {
+export const createBill = async function (payload, billType = "opd") {
   let res = {};
   try {
-    res = await api.post(`/api/v1/billing/bill${billType ? `/ipd-bill` : ""}`, payload, baseUrl);
+    const endpoint = billType === "ipd" ? "/api/v1/billing/ipd-bill" : "/api/v1/billing/bill";
+    res = await api.post(endpoint, payload, baseUrl);
   } catch (e) {
-    console.error("Error while Creating Bill: ", e);
+    console.error(`Error while Creating ${billType.toUpperCase()} Bill: `, e);
   }
   return res;
 };
@@ -95,7 +96,7 @@ export const listBillItem = async function (queryParams) {
   return res;
 };
 
-export const fetchBillingDashboard = async function (params) {
+export const fetchBillingDashboard = async function (params, billType = "opd") {
   let res = {};
   try {
     // Construct query parameters
@@ -108,6 +109,10 @@ export const fetchBillingDashboard = async function (params) {
       page: params.page || 1,
       limit: params.limit || 25,
     };
+
+    if (params.patientId && billType === "ipd") {
+      queryParams.patientId = params.patientId;
+    }
 
     // Conditionally add isForm3C **only if the key exists in params**
     if ("isForm3C" in params) {
@@ -132,14 +137,15 @@ export const fetchBillingDashboard = async function (params) {
 
     // Construct the final query string
     const queryString = new URLSearchParams(queryParams).toString();
-    const apiUrl = `/api/v1/billing/bill/dashboard?${queryString}${
+    const endpoint = billType === "ipd" ? "/api/v1/billing/ipd-bill/dashboard" : "/api/v1/billing/bill/dashboard";
+    const apiUrl = `${endpoint}?${queryString}${
       statusParams ? `&${statusParams}` : ""
     }${doctorIdsParams ? `&${doctorIdsParams}` : ""}`;
 
     // Make the API call
     res = await api.get(apiUrl, baseUrl);
   } catch (e) {
-    console.error("Error while fetching billing dashboard data: ", e);
+    console.error(`Error while fetching ${billType.toUpperCase()} billing dashboard data: `, e);
   }
   return res;
 };
@@ -155,12 +161,13 @@ export const upsertBillItem = async function (payload) {
 };
 
 // Function to add bills to Form 3C
-export const addBillsToForm3C = async function (payload) {
+export const addBillsToForm3C = async function (payload, billType = "opd") {
   let res = {};
   try {
-    res = await api.post(`api/v1/billing/bill/addToForm3C`, payload, baseUrl);
+    const endpoint = billType === "ipd" ? "/api/v1/billing/ipd-bill/addToForm3C" : "/api/v1/billing/bill/addToForm3C";
+    res = await api.post(endpoint, payload, baseUrl);
   } catch (e) {
-    console.error("Error while adding bills to Form 3C: ", e);
+    console.error(`Error while adding ${billType.toUpperCase()} bills to Form 3C: `, e);
   }
   return res;
 };
@@ -248,14 +255,14 @@ export const listAdvancedDepositByPatient = async function (params) {
   return res;
 };
 
-export const fetchBillsByPatient = async function (params) {
+export const fetchBillsByPatient = async function (params, billType = "opd") {
   let res = {};
   try {
     // Construct query parameters dynamically
     const queryParams = {
       search: params.search ?? "",
       sortBy: params.sortBy || "date",
-      sortOrder: params.sortOrder || "asc",
+      sortOrder: params.sortOrder || (billType === "ipd" ? "desc" : "asc"),
       page: params.page || 1,
       limit: params.limit || 25,
       patientId: params.patientId,
@@ -285,11 +292,10 @@ export const fetchBillsByPatient = async function (params) {
         .join("&");
     }
 
-    if (params.includeInRx) {
+    if (params.includeInRx && billType === "opd") {
       queryParams.includeInRx = params.includeInRx;
     }
-    if ("appointmentId" in params && params.appointmentId) {
-      // Conditionally add isForm3C **only if the key exists in params**
+    if ("appointmentId" in params && params.appointmentId && billType === "opd") {
       queryParams.appointmentId = params.appointmentId;
     }
 
@@ -300,12 +306,13 @@ export const fetchBillsByPatient = async function (params) {
       (statusParams ? `&${statusParams}` : "");
 
     // API call
+    const endpoint = billType === "ipd" ? "/api/v1/billing/ipd-bill/listByPatient" : "/api/v1/billing/bill/listByPatient";
     res = await api.get(
-      `/api/v1/billing/bill/listByPatient?${queryString}`,
+      `${endpoint}?${queryString}`,
       baseUrl
     );
   } catch (e) {
-    console.error("Error while fetching bills by patient: ", e);
+    console.error(`Error while fetching ${billType.toUpperCase()} bills by patient: `, e);
   }
   return res;
 };
@@ -353,7 +360,7 @@ export const fetchAdvancedDepositDashboard = async function (params) {
 };
 
 // Function to add bills to Form 3C
-export const addToForm3C = async function (billIds) {
+export const addToForm3C = async function (billIds, billType = "opd") {
   let res = {};
   try {
     // API request payload
@@ -361,9 +368,10 @@ export const addToForm3C = async function (billIds) {
       billIds: billIds, // Array of bill IDs
     };
 
-    res = await api.post(`/api/v1/billing/bill/addToForm3C`, payload, baseUrl);
+    const endpoint = billType === "ipd" ? "/api/v1/billing/ipd-bill/addToForm3C" : "/api/v1/billing/bill/addToForm3C";
+    res = await api.post(endpoint, payload, baseUrl);
   } catch (e) {
-    console.error("Error while adding bills to Form 3C: ", e);
+    console.error(`Error while adding ${billType.toUpperCase()} bills to Form 3C: `, e);
   }
   return res;
 };
@@ -414,15 +422,25 @@ export const updateAdvancedSettings = async function (payload) {
   return res;
 };
 
-export const fetchBillDetailsByBillNumber = async function (billNumber) {
+export const fetchBillDetailsByBillNumber = async function (billNumber, admissionId = null, billType = "opd") {
   let res = {};
   try {
+    const queryParams = {
+      billNumber: billNumber,
+    };
+    
+    if (admissionId && billType === "ipd") {
+      queryParams.admissionId = admissionId;
+    }
+
+    const queryString = new URLSearchParams(queryParams).toString();
+    const endpoint = billType === "ipd" ? "/api/v1/billing/ipd-bill/getByBillNumber" : "/api/v1/billing/bill/getByBillNumber";
     res = await api.get(
-      `/api/v1/billing/bill/getByBillNumber?billNumber=${billNumber}`,
+      `${endpoint}?${queryString}`,
       baseUrl
     );
   } catch (e) {
-    console.error("Error while fetching Bill details by bill number: ", e);
+    console.error(`Error while fetching ${billType.toUpperCase()} bill details by bill number: `, e);
   }
   return res;
 };
@@ -459,11 +477,28 @@ export const fetchBillDetails = async function (
   billNumber,
   patientId,
   doctorId,
-  token
+  token,
+  admissionId = null,
+  billType = "opd"
 ) {
   try {
+    const queryParams = {
+      billNumber: billNumber,
+      patientId: patientId,
+      doctorId: doctorId,
+    };
+    
+    if (admissionId && billType === "ipd") {
+      queryParams.admissionId = admissionId;
+    }
+
+    const queryString = new URLSearchParams(queryParams).toString();
+    const endpoint = billType === "ipd" 
+      ? "/api/v1/billing/bill-pdf/ipd-bill-details" 
+      : "/api/v1/billing/bill-pdf/bill-details";
+    
     const response = await fetch(
-      `${baseUrl.customBaseUrl}/api/v1/billing/bill-pdf/bill-details?billNumber=${billNumber}&patientId=${patientId}&doctorId=${doctorId}`,
+      `${baseUrl.customBaseUrl}${endpoint}?${queryString}`,
       {
         method: "GET",
         headers: {
@@ -480,7 +515,7 @@ export const fetchBillDetails = async function (
     const data = await response.json();
     return data;
   } catch (e) {
-    console.error("Error while fetching bill details: ", e);
+    console.error(`Error while fetching ${billType.toUpperCase()} bill details: `, e);
     return null;
   }
 };
@@ -565,15 +600,40 @@ export const createShortLink = async function (targetUrl) {
   }
 };
 
-export const fetchItemizedBillData = async function (startDate, endDate) {
+export const fetchItemizedBillData = async function (startDate, endDate, billType = "opd") {
   let res = {};
   try {
+    const endpoint = billType === "ipd" 
+      ? "/api/v1/billing/ipd-bill/itemized-bill-data" 
+      : "/api/v1/billing/bill/itemized-bill-data";
     res = await api.get(
-      `/api/v1/billing/bill/itemized-bill-data?startDate=${startDate}&endDate=${endDate}`,
+      `${endpoint}?startDate=${startDate}&endDate=${endDate}`,
       baseUrl
     );
   } catch (e) {
-    console.error("Error while fetching Print settings details: ", e);
+    console.error(`Error while fetching ${billType.toUpperCase()} itemized bill data: `, e);
+  }
+  return res;
+};
+
+// Function to get IPD bills by admission IDs (IPD specific)
+export const fetchBillsByAdmissionIds = async function (admissionIds) {
+  let res = {};
+  try {
+    // Convert admissionIds array into multiple query params
+    let admissionIdsParams = "";
+    if (admissionIds && Array.isArray(admissionIds)) {
+      admissionIdsParams = admissionIds
+        .map((id) => `admissionIds=${encodeURIComponent(id)}`)
+        .join("&");
+    }
+
+    const apiUrl = `/api/v1/billing/ipd-bill/getByAdmissionIds?${admissionIdsParams}`;
+
+    // Make the API call
+    res = await api.get(apiUrl, baseUrl);
+  } catch (e) {
+    console.error("Error while fetching IPD bills by admission IDs: ", e);
   }
   return res;
 };

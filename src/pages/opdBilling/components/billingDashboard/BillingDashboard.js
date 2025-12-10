@@ -393,7 +393,7 @@ function BillingDashboard({ patientData, fromPath }) {
                         <span>Manage Form 3c Bills</span>
                       </Button>
                     )}
-                  {selectedTab !== "billingtable" && !patientData && (
+                  {selectedTab !== "billingtable" && selectedTab !== "ipdbillingtable"   && !patientData && (
                     <Button
                       className={`btn-create-bill ${
                         isReceptionist ? "receptionist-btn" : ""
@@ -404,7 +404,7 @@ function BillingDashboard({ patientData, fromPath }) {
                       <span>{"Add Advance Deposit"}</span>
                     </Button>
                   )}
-                  {(selectedTab === "billingtable" || patientData) && (
+                  {(selectedTab === "billingtable" || selectedTab === "ipdbillingtable" || patientData) && (
                     <Button
                       className={`btn-create-bill ${
                         isReceptionist ? "receptionist-btn" : ""
@@ -429,6 +429,7 @@ function BillingDashboard({ patientData, fromPath }) {
             createBillDrawer={createBillDrawer}
             addAdvanceDrawer={addAdvanceDrawer}
             showHideSubModal={showHideSubModal}
+            fromPath={fromPath}
           />
         </div>
 

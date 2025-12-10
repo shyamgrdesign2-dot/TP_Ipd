@@ -190,11 +190,11 @@ const BillTable = ({
         }
       : undefined,
     {
-      title: "TOTAL AMOUNT",
+      title: "Billed",
       dataIndex: "totalAmount",
       key: "totalAmount",
       ellipsis: true,
-      width: "14%",
+      width: "10%",
       sorter: true,
       onFilter: (value, record) => record.send_on.startsWith(value),
       render: (text, record) => (
@@ -204,132 +204,179 @@ const BillTable = ({
       ),
     },
     {
-      title: "PAID AMOUNT",
+      title: "Paid",
       dataIndex: "paidAmount",
       key: "paidAmount",
-      width: "13%",
+      width: "10%",
       ellipsis: true,
       sorter: true,
-      render: (text, record) => (
-        <div className="dashboard-table-font-style"> ₹{record.paidAmount} </div>
-      ),
-    },
-    {
-      title: "STATUS",
-      width: "21%",
-      dataIndex: "paymentStatus",
-      key: "paymentStatus",
-      ellipsis: true,
       render: (text, record) => {
-        // Determine the class name and display value based on the status
-        const getStatusDetails = (status) => {
-          switch (status.toLowerCase()) {
-            case "fullypaid":
-              return {
-                className: "status-paid-fully",
-                displayText: "Paid Fully",
-              };
-            case "due":
-              return {
-                className: "status-due",
-                displayText: `Due: ₹${parseFloat(record.dueAmount).toFixed(2)}`,
-              };
-            case "refunded":
-              return {
-                className: "status-refunded",
-                displayText: `Refunded ₹${parseFloat(record.paidAmount).toFixed(
-                  2
-                )}`,
-              };
-            case "carriedforward":
-              return {
-                className: "status-carriedforrward",
-                displayText: `Due ₹${parseFloat(record.dueAmount).toFixed(2)}`,
-              };
-            default:
-              return {
-                className: "status-due",
-                displayText: `Due: ₹${parseFloat(record.dueAmount).toFixed(2)}`,
-              };
-          }
-        };
-
-        // Get status details
-        const { className, displayText } = getStatusDetails(
-          record.paymentStatus
-        );
-
+        // Calculate total paid amount: record.paidAmount + sum of all paidAmount from paidDues array
+        const paidDuesSum = record?.paidDues?.reduce((sum, item) => {
+          return sum + (parseFloat(item.paidAmount) || 0);
+        }, 0) || 0;
+        const totalPaidAmount = (parseFloat(record.paidAmount) || 0) + paidDuesSum;
         return (
-          <div className="d-flex">
-            <div className={className}>{displayText}</div>
-            {("CarriedForward" === record.paymentStatus ||
-              ("Refunded" === record.paymentStatus && record.notes)) && (
-              <InfoTooltip
-                type={record.paymentStatus}
-                amount={
-                  record.paymentStatus === "Refunded"
-                    ? record.paidAmount
-                    : record.dueAmount
-                }
-                notes={record.notes}
-                billNo={record.nextBillNumber}
-              />
-            )}
-          </div>
+          <div className="dashboard-table-font-style"> ₹{totalPaidAmount.toFixed(2)} </div>
         );
       },
     },
     {
+      title: "Due",
+      dataIndex: "dueAmount",
+      key: "dueAmount",
+      width: "10%",
+      ellipsis: true,
+      sorter: true,
+      render: (text, record) => (
+        <div className="dashboard-table-font-style"> ₹{record.dueAmount} </div>
+      ),
+    },
+    {
+      title: "Refund",
+      dataIndex: "refundAmount",
+      key: "refundAmount",
+      width: "10%",
+      ellipsis: true,
+      sorter: true,
+      render: (text, record) => (
+        <div className="dashboard-table-font-style"> {record?.refundedAmount ? `₹ ${record.refundedAmount}` : "-"} </div>
+      ),
+    },
+    // {
+    //   title: "STATUS",
+    //   width: "21%",
+    //   dataIndex: "paymentStatus",
+    //   key: "paymentStatus",
+    //   ellipsis: true,
+    //   render: (text, record) => {
+    //     // Determine the class name and display value based on the status
+    //     const getStatusDetails = (status) => {
+    //       switch (status.toLowerCase()) {
+    //         case "fullypaid":
+    //           return {
+    //             className: "status-paid-fully",
+    //             displayText: "Paid Fully",
+    //           };
+    //         case "due":
+    //           return {
+    //             className: "status-due",
+    //             displayText: `Due: ₹${parseFloat(record.dueAmount).toFixed(2)}`,
+    //           };
+    //         case "refunded":
+    //           return {
+    //             className: "status-refunded",
+    //             displayText: `Refunded ₹${parseFloat(record.paidAmount).toFixed(
+    //               2
+    //             )}`,
+    //           };
+    //         case "carriedforward":
+    //           return {
+    //             className: "status-carriedforrward",
+    //             displayText: `Due ₹${parseFloat(record.dueAmount).toFixed(2)}`,
+    //           };
+    //         default:
+    //           return {
+    //             className: "status-due",
+    //             displayText: `Due: ₹${parseFloat(record.dueAmount).toFixed(2)}`,
+    //           };
+    //       }
+    //     };
+
+    //     // Get status details
+    //     const { className, displayText } = getStatusDetails(
+    //       record.paymentStatus
+    //     );
+
+    //     return (
+    //       <div className="d-flex">
+    //         <div className={className}>{displayText}</div>
+    //         {("CarriedForward" === record.paymentStatus ||
+    //           ("Refunded" === record.paymentStatus && record.notes)) && (
+    //           <InfoTooltip
+    //             type={record.paymentStatus}
+    //             amount={
+    //               record.paymentStatus === "Refunded"
+    //                 ? record.paidAmount
+    //                 : record.dueAmount
+    //             }
+    //             notes={record.notes}
+    //             billNo={record.nextBillNumber}
+    //           />
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    // },
+    {
       title: "Action",
       key: "action",
       width: "9%",
-      render: (text, record) => (
-        <div
-          className="d-flex align-items-center justify-content-center gap-2"
-          style={{ marginLeft: "-60px" }}
-        >
-          <button className="btn p-0 ms-3" onClick={ async () => {
-            let token = getBillToken();
-            if (!token) {
-              token = await generateBillToken();
-              setBillToken(token);
-            }
-            const billLink = 
-              `${config.doctor_portal_url}/opd-bill?token=${token}${
-                record?.billNumber ? `&billNumber=${record?.billNumber}` : ""
-              }${record?.patientId ? `&patientId=${record?.patientId}` : ""}${
-                record?.doctorId ? `&doctorId=${record?.doctorId}` : ""
-              }&patientViewBill=true`;
-              if (browserName == "Chrome WebView" || browserName == "WebKit") {
-                sendMessageToParent(EVENTS.PRINT, { url: billLink });
-              } else {
-                window.open(billLink, "_blank");
-              }
-          }}>
-            <i className="icon-Print"></i>
-          </button>
-          <button className="btn p-0" onClick={() => {
-            handleEditBillDrawer()
-            setBillData(record);
-          }}>
-            <i className="icon-Edit"></i>
-          </button>
-          <Dropdown
-            className="cursor-pointer"
-            menu={{
-              items: getMenuItems(record),
-            }}
-            trigger={["click"]}
-            onClick={() => {
-              if (!isPatientScreen) {
-                getPatientWalletBalance(record?.patientId);
-              }
-            }}
+      render: (text, record) => {
+        // Check if edit button should be disabled
+        const hasPaidDues = record?.paidDues && Array.isArray(record.paidDues) && record.paidDues.length > 0;
+        const hasRefundedAmount = record?.refundedAmount && parseFloat(record.refundedAmount) > 0;
+        const isEditDisabled = hasPaidDues || hasRefundedAmount;
+
+        return (
+          <div
+            className="d-flex align-items-center justify-content-center gap-2"
+            style={{ marginLeft: "-60px" }}
           >
-            <i className="icon-More iconrotate270"></i>
-          </Dropdown>
-        </div>
-      ),
+            <button className="btn p-0 ms-3" onClick={ async () => {
+              let token = getBillToken();
+              if (!token) {
+                token = await generateBillToken();
+                setBillToken(token);
+              }
+              const billLink = 
+                `${config.doctor_portal_url}/opd-bill?token=${token}${
+                  record?.billNumber ? `&billNumber=${record?.billNumber}` : ""
+                }${record?.patientId ? `&patientId=${record?.patientId}` : ""}${
+                  record?.doctorId ? `&doctorId=${record?.doctorId}` : ""
+                }&patientViewBill=true`;
+                if (browserName == "Chrome WebView" || browserName == "WebKit") {
+                  sendMessageToParent(EVENTS.PRINT, { url: billLink });
+                } else {
+                  window.open(billLink, "_blank");
+                }
+            }}>
+              <i className="icon-Print"></i>
+            </button>
+            <button 
+              className="btn p-0" 
+              disabled={isEditDisabled}
+              onClick={() => {
+                if (!isEditDisabled) {
+                  handleEditBillDrawer();
+                  setBillData(record);
+                }
+              }}
+              style={{
+                opacity: isEditDisabled ? 0.5 : 1,
+                cursor: isEditDisabled ? "not-allowed" : "pointer",
+                border: "none", 
+              }}
+            >
+              <i className="icon-Edit"></i>
+            </button>
+            <Dropdown
+              className="cursor-pointer"
+              menu={{
+                items: getMenuItems(record),
+              }}
+              trigger={["click"]}
+              onClick={() => {
+                if (!isPatientScreen) {
+                  getPatientWalletBalance(record?.patientId);
+                }
+              }}
+            >
+              <i className="icon-More iconrotate270"></i>
+            </Dropdown>
+          </div>
+        );
+      },
     },
   ]?.filter((item) => item);
 
@@ -347,7 +394,7 @@ const BillTable = ({
     const items = [
       {
         label: (
-          <div onClick={() => onBillingDetailsClick(1, record)}>View bill</div>
+          <div onClick={() => onBillingDetailsClick(1, record)}>View Bill</div>
         ),
         key: "view_bill",
       },
@@ -365,7 +412,7 @@ const BillTable = ({
       });
     }
 
-    // Conditionally add "Add to Form 3C" if isForm3C is false
+    // Conditionally add "Refund bill" if not refunded
     if (record.paymentStatus !== "Refunded") {
       items.push({
         label: (
@@ -374,6 +421,22 @@ const BillTable = ({
           </div>
         ),
         key: "refund_bill",
+      });
+    }
+
+    // Conditionally add "clear " if (due amount & not refunded)
+    if (record.dueAmount && record.paymentStatus !== "Refunded") {
+      items.push({
+        label: (
+          <div 
+            onClick={() => 
+              // {onBillingDetailsClick(2, record)}
+              console.log("TODO => Handle Clear Due")
+            }>
+            Clear Due
+          </div>
+        ),
+        key: "clear_bill",
       });
     }
 

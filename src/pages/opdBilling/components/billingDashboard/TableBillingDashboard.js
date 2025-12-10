@@ -17,6 +17,7 @@ import {
   isSafari,
 } from "react-device-detect";
 import { Tabs, Select, Input } from "antd";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { Row, Col, ButtonGroup } from "react-bootstrap";
 import BillingTable from "./BillingTable/BillingTable";
 import AdvanceDeposit from "./AdvanceDepositTable/AdvanceDepositTable";
@@ -35,6 +36,7 @@ import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useDispatch } from "react-redux";
 import { deleteDocsUploadedFromAndroid } from "../../../medicalRecords/service";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
+import { GB_NEW_IPD, GB_NEW_IPD_HOS_BUSINESS_ID } from "../../../../utils/constants";
 
 const dateFormat = "YYYY-MM-DD";
 const TableBillingDashboard = forwardRef(
@@ -46,7 +48,8 @@ const TableBillingDashboard = forwardRef(
       totalAdvanceBalance,
       createBillDrawer,
       addAdvanceDrawer,
-      showHideSubModal
+      showHideSubModal,
+      fromPath="opdDashboard",
     },
     ref
   ) => {
@@ -80,6 +83,11 @@ const TableBillingDashboard = forwardRef(
     //     startDate: moment().format(dateFormat),
     //     endDate: moment().format(dateFormat),
     //   });
+
+    const isNewIPDAccessableFromGB = useFeatureIsOn(GB_NEW_IPD);
+    const isNewIPDHosBusinessIdAccessableFromGB = useFeatureIsOn(
+      GB_NEW_IPD_HOS_BUSINESS_ID
+    );
 
     useEffect(() => {
       if (!createBillDrawer || !addAdvanceDrawer) {
@@ -167,8 +175,8 @@ const TableBillingDashboard = forwardRef(
     };
 
     // Move items into the component body and make them depend on selectedTab
-    const items = useMemo(
-      () => [
+    const items = useMemo(() => {
+      const baseItems = [
         {
           key: 1,
           label: (
@@ -178,7 +186,11 @@ const TableBillingDashboard = forwardRef(
             </div>
           ),
         },
-        {
+      ];
+
+      // Only show IPD Billing tab if either feature flag is true
+      if ((isNewIPDAccessableFromGB || isNewIPDHosBusinessIdAccessableFromGB) && ! (fromPath === "opdDashboard")) {
+        baseItems.push({
           key: 2,
           label: (
             <div className="d-flex align-items-center">
@@ -186,36 +198,45 @@ const TableBillingDashboard = forwardRef(
               {`IPD Billing (${billingCount})`}
             </div>
           ),
-        },
-        {
-          key: 3,
-          label: (
-            <div
-              className="d-flex align-items-center"
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-            >
-              <img
-                src={
-                  selectedTab === 3 || isHovered
-                    ? depositSelectedIcon
-                    : depositIcon
-                }
-                className="me-2"
-                alt={selectedTab === 3 ? "selected-deposit" : "default-deposit"}
-                style={{
-                  width: "20px",
-                  height: "20px",
-                  display: "block",
-                }}
-              />
-              {`Advance Deposit (${advanceCount})`}
-            </div>
-          ),
-        },
-      ],
-      [selectedTab, isHovered, billingCount, advanceCount]
-    ); // Add isHovered as dependency
+        });
+      }
+
+      baseItems.push({
+        key: 3,
+        label: (
+          <div
+            className="d-flex align-items-center"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <img
+              src={
+                selectedTab === 3 || isHovered
+                  ? depositSelectedIcon
+                  : depositIcon
+              }
+              className="me-2"
+              alt={selectedTab === 3 ? "selected-deposit" : "default-deposit"}
+              style={{
+                width: "20px",
+                height: "20px",
+                display: "block",
+              }}
+            />
+            {`Advance Deposit (${advanceCount})`}
+          </div>
+        ),
+      });
+
+      return baseItems;
+    }, [
+      selectedTab,
+      isHovered,
+      billingCount,
+      advanceCount,
+      isNewIPDAccessableFromGB,
+      isNewIPDHosBusinessIdAccessableFromGB,
+    ]); // Add feature flags as dependencies
 
     // Create a ref for the AdvanceDepositTable
     const advanceTableRef = useRef(null);
@@ -272,6 +293,7 @@ const TableBillingDashboard = forwardRef(
                 createBillDrawer={createBillDrawer}
                 totalAdvanceBalance={totalAdvanceBalance}
                 showHideSubModal={showHideSubModal}
+                billType={"opd"}
               />
             ) : selectedTab === 2 ? (
               <BillingTable
@@ -287,6 +309,7 @@ const TableBillingDashboard = forwardRef(
                 createBillDrawer={createBillDrawer}
                 totalAdvanceBalance={totalAdvanceBalance}
                 showHideSubModal={showHideSubModal}
+                billType={"ipd"}
               />
             ) : (
               <AdvanceDepositTable
