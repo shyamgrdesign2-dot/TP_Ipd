@@ -500,6 +500,7 @@ function BillingDashboard({ patientData, fromPath }) {
               isDashboard={true}
               isPreviewFromTable={true}
               editBillData={editBillData}
+              isIpdBill={true}
             />
           </Drawer>
         )}

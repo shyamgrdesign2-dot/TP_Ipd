@@ -14,7 +14,7 @@ import {
   generateBillToken,
   sendWhatsAppMessage,
 } from "./service";
-import { setBillPrintSettings } from "../../redux/billingSlice";
+import { setBillPrintSettings, setIpdBillPrintSettings } from "../../redux/billingSlice";
 import { useDispatch } from "react-redux";
 import { Container, Navbar } from "react-bootstrap";
 import { handleDownload, printContent } from "./utils/helper";
@@ -61,7 +61,7 @@ const PreviewBill = ({
   };
   const dispatch = useDispatch();
   const deviceUid = localStorage.getItem("app_device_unique_id");
-  const { billPrintSettings, advancedSettings } = useSelector(
+  const { billPrintSettings, advancedSettings, ipdBillPrintSettings } = useSelector(
     (state) => state.billing
   );
   const { userId } = useSelector((state) => state.doctors);
@@ -122,6 +122,11 @@ const PreviewBill = ({
     ) {
       getBillPrintSettings();
     }
+    if (
+      (ipdBillPrintSettings && Object.keys(ipdBillPrintSettings).length === 0) || isReceptionist
+    ) {
+      getIpdBillPrintSettings();
+    }
   }, []);
 
   const getBillPrintSettings = async () => {
@@ -130,6 +135,13 @@ const PreviewBill = ({
     );
     if (printSettingsResponse) {
       dispatch(setBillPrintSettings(printSettingsResponse));
+    }
+  };
+
+  const getIpdBillPrintSettings = async () => {
+    const printSettingsResponse = await fetchPrintSetting("", "ipdBill");
+    if (printSettingsResponse) {
+      dispatch(setIpdBillPrintSettings(printSettingsResponse));
     }
   };
 
@@ -532,6 +544,7 @@ const PreviewBill = ({
             billData={billDetails}
             totalAdvanceBalance={totalAdvanceBalance}
             isDepositReceipt={isDepositReceipt}
+            isIpdBill={true}
           />
         </Drawer>
       )}

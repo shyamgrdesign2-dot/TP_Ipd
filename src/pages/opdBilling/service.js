@@ -3,11 +3,11 @@ import config from "../../config";
 
 const baseUrl = { customBaseUrl: config.lab_params_api_url };
 
-export const fetchPrintSetting = async function (doctorId) {
+export const fetchPrintSetting = async function (doctorId, billType) {
   let res = {};
   try {
     res = await api.get(
-      `/api/v1/billing/printSetting${doctorId ? `?um_id=${doctorId}` : ""}`,
+      `/api/v1/billing/printSetting?${doctorId ? `um_id=${doctorId}` : ""}${billType ? `&billType=ipdBill` : ""}`,
       baseUrl
     );
   } catch (e) {
@@ -16,20 +16,20 @@ export const fetchPrintSetting = async function (doctorId) {
   return res;
 };
 
-export const updatePrintSetting = async function (payload) {
+export const updatePrintSetting = async function (payload, billType) {
   let res = {};
   try {
-    res = await api.post(`/api/v1/billing/printSetting`, payload, baseUrl);
+    res = await api.post(`/api/v1/billing/printSetting?${billType ? `billType=ipdBill` : ""}`, payload, baseUrl);
   } catch (e) {
     console.error("Error while updating Billing Print Setting Data: ", e);
   }
   return res;
 };
 
-export const deletePrintSetting = async function () {
+export const deletePrintSetting = async function (billType) {
   let res = {};
   try {
-    res = await api.delete(`/api/v1/billing/printSetting`, baseUrl);
+    res = await api.delete(`/api/v1/billing/printSetting?${billType ? `billType=ipdBill` : ""}`, baseUrl);
   } catch (e) {
     console.error("Error while deleting the Print Setting: ", e);
   }
@@ -49,10 +49,10 @@ export const processBillRefund = async function (payload) {
   }
   return res;
 };
-export const createBill = async function (payload) {
+export const createBill = async function (payload, billType) {
   let res = {};
   try {
-    res = await api.post(`/api/v1/billing/bill`, payload, baseUrl);
+    res = await api.post(`/api/v1/billing/bill${billType ? `/ipd-bill` : ""}`, payload, baseUrl);
   } catch (e) {
     console.error("Error while Creating Bill: ", e);
   }

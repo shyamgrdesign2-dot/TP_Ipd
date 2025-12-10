@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   billPrintSettings: {},
+  ipdBillPrintSettings: {},
   advancedSettings: {},
   shouldShowOpdBilling: false,
   isOpdBillChecked: false,
@@ -14,6 +15,9 @@ const billingSlice = createSlice({
     resetBillPrintSettingsState: () => initialState,
     setBillPrintSettings: (state, action) => {
       state.billPrintSettings = action.payload;
+    },
+    setIpdBillPrintSettings: (state, action) => {
+      state.ipdBillPrintSettings = action.payload;
     },
     setAdvancedSettings: (state, action) => {
       state.advancedSettings = action.payload;
@@ -28,6 +32,7 @@ const billingSlice = createSlice({
 export const {
   resetBillPrintSettingsState,
   setBillPrintSettings,
+  setIpdBillPrintSettings,
   setAdvancedSettings,
   setShouldShowOpdBilling,
 } = billingSlice.actions;

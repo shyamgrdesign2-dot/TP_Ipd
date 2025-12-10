@@ -4,6 +4,7 @@ import {
   AutoComplete,
   Button,
   Checkbox,
+  DatePicker,
   Divider,
   Drawer,
   Input,
@@ -51,6 +52,7 @@ import { deleteDocsUploadedFromAndroid } from "../../../medicalRecords/service";
 import {
   setAdvancedSettings,
   setBillPrintSettings,
+  setIpdBillPrintSettings,
 } from "../../../../redux/billingSlice";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -78,6 +80,7 @@ import videorotate from "../../../../assets/images/videorotate.gif";
 import VideoModal from "../../../../common/VideoModal";
 import { Popover } from "antd";
 import BillTemplate from "./BillTemplate";
+import dayjs from "dayjs";
 
 const CreateBill = ({
   handleCreateBillDrawer,
@@ -88,6 +91,7 @@ const CreateBill = ({
   isDashboard,
   isPreviewFromTable,
   editBillData,
+  isIpdBill,
 }) => {
   const { state } = useLocation();
   const { pam_id } = state || {};
@@ -106,7 +110,7 @@ const CreateBill = ({
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const { profile, userId } = useSelector((state) => state.doctors);
   const { patients, error } = useSelector((state) => state.records);
-  const { billPrintSettings, advancedSettings } = useSelector(
+  const { billPrintSettings, advancedSettings, ipdBillPrintSettings } = useSelector(
     (state) => state.billing
   );
   const [billNotesDrawer, setBillNotesDrawer] = useState(false);
@@ -128,6 +132,7 @@ const CreateBill = ({
         gst: "",
         totalAmount: "",
         createdBy: "",
+        itemDate: dayjs().format("DD-MM-YYYY") || "",
       },
     ]
   );
@@ -266,6 +271,9 @@ const CreateBill = ({
     if (billPrintSettings && Object.keys(billPrintSettings).length === 0) {
       getBillPrintSettings();
     }
+    if (ipdBillPrintSettings && Object.keys(ipdBillPrintSettings).length === 0) {
+      getIpdBillPrintSettings();
+    }
   }, []);
 
   useEffect(() => {
@@ -314,6 +322,13 @@ const CreateBill = ({
     );
     if (printSettingsResponse) {
       dispatch(setBillPrintSettings(printSettingsResponse));
+    }
+  };
+
+  const getIpdBillPrintSettings = async () => {
+    const printSettingsResponse = await fetchPrintSetting("", "ipdBill");
+    if (printSettingsResponse) {
+      dispatch(setIpdBillPrintSettings(printSettingsResponse));
     }
   };
 
@@ -383,10 +398,10 @@ const CreateBill = ({
   useEffect(() => {
     if (advancedSettings && Object.keys(advancedSettings)?.length) {
       setIncludeInRx(advancedSettings.defaultRxFlag);
-      setAddBillTo3C(advancedSettings.defaultForm3cFlag);
+      setAddBillTo3C( isIpdBill ? advancedSettings?.ipdSetting?.defaultForm3cFlag : advancedSettings?.defaultForm3cFlag);
       setPaymentModes([
         {
-          paymentMode: advancedSettings.defaultPaymentMode,
+          paymentMode: isIpdBill ? advancedSettings?.ipdSetting?.defaultPaymentMode : advancedSettings?.defaultPaymentMode,
           amount: undefined,
           refId: "",
         },
@@ -471,6 +486,7 @@ const CreateBill = ({
       gst: "",
       totalAmount: "",
       createdBy: "",
+      itemDate: dayjs().format("DD-MM-YYYY") || "",
     };
     setDataSource([...updatedData, newRow]);
     setSearchQuery("");
@@ -580,6 +596,31 @@ const CreateBill = ({
         </>
       ),
     },
+    isIpdBill && {
+      title: "DATE",
+      dataIndex: "itemDate",
+      width: "15%",
+      render: (_, record, index) => (
+        <div>
+          <DatePicker
+            placeholder="Select Date"
+            onChange={(_, d) => {
+              handleInputChange(d ?? "", index, "itemDate");
+            }}
+            format={{
+              format: "DD MMM YYYY",
+              type: "mask",
+            }}
+            value={record.itemDate ? dayjs(record.itemDate) : ""}
+            style={{
+              border: "none",
+            }}
+            disabledDate={(current) => current && current > dayjs()}
+            allowClear={false}
+          />
+        </div>
+      ),
+    },
     {
       title: "QTY",
       dataIndex: "quantity",
@@ -622,7 +663,7 @@ const CreateBill = ({
     {
       title: "DISCOUNT",
       dataIndex: "discount",
-      width: "22%",
+      width: isIpdBill ? "14%" : "22%",
       render: (_, record, index) => (
         <>
           <Input
@@ -736,7 +777,7 @@ const CreateBill = ({
     {
       title: "ACTION",
       dataIndex: "action",
-      width: "6%",
+      width: "4%",
       render: (_, record, index) => (
         <Button
           className={`btn btn-delete-prescription p-0 ${
@@ -877,7 +918,7 @@ const CreateBill = ({
       dueFromPreviousBill: patientDueAmount,
       appointmentId: pam_id || patientData?.pam_id,
     };
-    const createRes = await createBill(payload);
+    const createRes = await createBill(payload, isIpdBill ? "ipdBill" : "");
     if (createRes?.id) {
       message.open({
         key: MESSAGE_KEY,
@@ -943,7 +984,7 @@ const CreateBill = ({
             profile={profile}
             billData={createRes}
             gstIn={advancedSettings?.GSTIN}
-            showCreatedBy={advancedSettings?.enableCreatedByInRx}
+            showCreatedBy={isIpdBill ? advancedSettings?.ipdSetting?.enableCreatedByInRx : advancedSettings?.enableCreatedByInRx}
           />
         ).toBlob();
         printContent(blob, createRes.patientId, setStartLoader);
@@ -1642,7 +1683,11 @@ const CreateBill = ({
                 </div>
               </div>
               <Divider />
-              <BillTemplate setDataSource={setDataSource} dataSource={dataSource} totalBillAmount={totalBillAmount} />
+              {/* <BillTemplate
+                setDataSource={setDataSource}
+                dataSource={dataSource}
+                totalBillAmount={totalBillAmount}
+              /> */}
               <Table
                 dataSource={dataSource}
                 columns={columns}
