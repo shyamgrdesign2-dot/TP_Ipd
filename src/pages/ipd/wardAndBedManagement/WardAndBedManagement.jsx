@@ -313,7 +313,7 @@ function WardAndBedManagement() {
         actions={headerActions}
       />
       <div className="ward-bed-management-page-wrap">
-        {hasNoWards || true ? (
+        {hasNoWards ? (
           <WardEmptyState onAddWardClick={handleAddWardClick} />
         ) : (
           <div className="ward-bed-management-content">
