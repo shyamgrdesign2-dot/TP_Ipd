@@ -1,0 +1,170 @@
+.add-ward-modal {
+  .ant-modal-content {
+    border-radius: 20px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .ant-modal-close {
+    top: 16px;
+    right: 20px;
+    width: 24px;
+    height: 24px;
+    color: #171725;
+
+    .add-ward-modal-close-icon {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .add-ward-modal-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .add-ward-modal-header {
+    border-bottom: 1px solid #e2e2ea;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .add-ward-modal-title {
+    font-family: "Poppins", sans-serif;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 36px;
+    color: #171725;
+    margin: 0;
+    letter-spacing: 0.1px;
+  }
+
+  .add-ward-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 0 20px 30px;
+    align-items: flex-end;
+    margin-top: 30px;
+  }
+
+  .add-ward-modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    min-height: 66.667px;
+  }
+
+  .add-ward-modal-label {
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: normal;
+    color: #454551;
+    letter-spacing: 0.1px;
+    margin: 0;
+  }
+
+  .add-ward-modal-required {
+    color: #fc5a5a;
+  }
+
+  .add-ward-modal-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .add-ward-modal-input {
+    height: 40px !important;
+    border: 1px solid #e2e2ea !important;
+    border-radius: 10px !important;
+    padding: 9px 60px 9px 12px !important;
+    font-family: "Poppins", sans-serif !important;
+    font-size: 14px !important;
+    color: #454551 !important;
+
+    &::placeholder {
+      color: rgba(162, 162, 168, 0.6) !important;
+      font-weight: 400 !important;
+    }
+
+    &:focus,
+    &:hover {
+      border-color: #4b4ad5 !important;
+    }
+  }
+
+  .add-ward-modal-char-count {
+    position: absolute;
+    right: 12px;
+    font-family: "Poppins", sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 18px;
+    color: #a2a2a8 !important;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .add-ward-modal-actions {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+  }
+
+  .add-ward-modal-cancel-btn {
+    font-family: "Poppins", sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #fc5a5a !important;
+    text-decoration: underline !important;
+    padding: 0 !important;
+    height: auto !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+
+    &:hover,
+    &:focus {
+      color: #fc5a5a !important;
+      text-decoration: underline !important;
+      background: transparent !important;
+    }
+
+    span {
+        color: #FC5A5A !important;
+    }
+  }
+
+  .add-ward-modal-save-btn {
+    height: 41px !important;
+    width: 122px !important;
+    border-radius: 10px !important;
+    background: #4b4ad5 !important;
+    border-color: #4b4ad5 !important;
+    font-family: "Poppins", sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+
+    &:hover:not(:disabled),
+    &:focus:not(:disabled) {
+      background: #4b4ad5 !important;
+      border-color: #4b4ad5 !important;
+      opacity: 0.9;
+    }
+
+    &:disabled {
+      opacity: 0.2 !important;
+      background: #4b4ad5 !important;
+      border-color: #4b4ad5 !important;
+      color: #ffffff !important;
+    }
+  }
+}
+

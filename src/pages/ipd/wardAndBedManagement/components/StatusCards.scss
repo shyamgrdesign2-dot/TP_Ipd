@@ -1,0 +1,46 @@
+.status-cards-container {
+  display: flex;
+  gap: 18px;
+  width: 100%;
+
+  .status-card {
+    flex: 1;
+    min-width: 0;
+    height: 92px;
+    background: white;
+    border: 1px solid #e2e2ea;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+
+    .status-card-header {
+      padding: 10px 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .status-card-title {
+      font-family: "Poppins", sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: normal;
+      margin: 0;
+      text-align: center;
+    }
+
+    .status-card-value {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 28px;
+      font-weight: 700;
+      line-height: normal;
+      color: #454551 !important;
+      margin: 0;
+      letter-spacing: 0.1px;
+      font-family: 'Roboto' !important;
+    }
+  }
+}
+

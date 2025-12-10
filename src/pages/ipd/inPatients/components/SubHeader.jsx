@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_NEW_IPD_ZYDUS } from "../../../../utils/constants";
 
-const SubHeader = ({ headerTitle, showAddAdmission = true }) => {
+const SubHeader = ({ headerTitle, showAddAdmission = true, actions = null }) => {
   const isNewIPDZydusAccessableFromGB = useFeatureIsOn(
     GB_NEW_IPD_ZYDUS
   );
@@ -34,6 +34,7 @@ const SubHeader = ({ headerTitle, showAddAdmission = true }) => {
         </Button>
         </div>
       )}
+      {actions}
     </div>
   );
 };

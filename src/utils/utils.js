@@ -22,6 +22,8 @@ import packageJson from "../../package.json";
 import { EVENTS } from "./events.js";
 import { env } from "../EnvironmentConfig.js";
 import { uploadDocsToAzure } from "../pages/medicalRecords/service.js";
+import successIcon from "../assets/images/end-visit.svg";
+import closeIcon from "../assets/images/close-visit.svg";
 
 /**
  * Converts a Blob to a File object with proper filename
@@ -2372,3 +2374,34 @@ export const groupIpdCustomModulesById = (customModules = []) => {
 export const isIPad = () => {
   return navigator.userAgent.includes("iPad") || (navigator.userAgent.includes("Macintosh") && navigator.maxTouchPoints > 1);
 };
+
+export const showSuccessToast = ({
+  title,
+  duration = 3,
+  className = "",
+}) => {
+  message.open({
+    key: MESSAGE_KEY,
+    className: `message-appointment ${className}`,
+    duration,
+
+    content: (
+      <div className="d-flex align-items-center">
+        <img src={successIcon} className="me-3" alt="" />
+
+        <div className="title-common text-start fontroboto">
+          {title}
+        </div>
+
+        <img
+          src={closeIcon}
+          className="ms-3"
+          onClick={() => message.destroy(MESSAGE_KEY)}
+          alt="close"
+          style={{ cursor: "pointer" }}
+        />
+      </div>
+    ),
+  });
+};
+

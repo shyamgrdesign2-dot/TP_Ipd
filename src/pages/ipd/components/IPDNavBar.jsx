@@ -8,6 +8,8 @@ import config from "../../../config";
 import { env } from "../../../EnvironmentConfig";
 import { GB_ZYDUS_USER } from "../../../utils/constants";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import bedPrimaryIcon from "../../../assets/images/icons/bedPrimary.svg";
+import bedSecondaryIcon from "../../../assets/images/icons/bedSecondary.svg";
 
 function IPDNavbar() {
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
@@ -117,7 +119,7 @@ function IPDNavbar() {
         </NavLink>
       </div>
       {!izZydusUser ? (
-      // {false ? (
+        // {false ? (
         <div>
           <NavLink
             to="/ipd/ward-bed-management"
@@ -126,15 +128,17 @@ function IPDNavbar() {
               handleWardBedManagementClick();
             }}
           >
-            {() => (
+            {({ isActive }) => (
               <>
                 <img
-                  src={defaultIcons.wardBedManagementOutline}
+                  src={isActive ? bedPrimaryIcon : bedSecondaryIcon}
                   alt="Ward/Bed Management"
-                  style={{ filter: "grayscale(100%)" }}
+                  style={{
+                    filter: isActive ? "grayscale(0%)" : "grayscale(100%)",
+                  }}
                 />
                 <div className="mt-1 px-2">
-                  <div>ATD & Ward/Bed Management</div>
+                  <div>Ward & Bed Management</div>
                 </div>
               </>
             )}

@@ -1,0 +1,30 @@
+.ward-search-bar {
+  width: 532px;
+
+  .ward-search-input {
+    height: 38px !important;
+    border: 1px solid #e2e2ea !important;
+    border-radius: 10px !important;
+    padding: 7px 13px !important;
+    font-family: "Poppins", sans-serif !important;
+    font-size: 12px !important;
+    color: #a2a2a8 !important;
+    letter-spacing: 0.012px !important;
+
+    &::placeholder {
+      color: rgba(162, 162, 168, 0.8) !important;
+      font-weight: 400 !important;
+    }
+
+    &:focus,
+    &:hover {
+      border-color: #4b4ad5 !important;
+    }
+
+    .ant-input-prefix {
+      margin-right: 8px;
+      color: #a2a2a8;
+    }
+  }
+}
+

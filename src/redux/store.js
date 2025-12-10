@@ -44,6 +44,7 @@ import printSettingsSlice from "./ipd/printSettingsSlice";
 import dischargeSummarySlice from "./ipd/dischargeSummarySlice";
 import ipdCustomModulesSlice from "./ipd/customModuleSlice";
 import ipdTemplatesSlice from "./ipd/tempaltesSlice";
+import wardAndBedManagementSlice from "./ipd/wardAndBedManagementSlice";
 
 const persistConfig = {
   key: "root",
@@ -93,13 +94,13 @@ const rootReducer = combineReducers({
   printSettings: printSettingsSlice,
   ipdCustomModules: ipdCustomModulesSlice,
   ipdTemplates: ipdTemplatesSlice,
+  wardAndBedManagement: wardAndBedManagementSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 // Create listener middleware
 const listenerMiddleware = createListenerMiddleware();
-
 
 const store = configureStore({
   reducer: persistedReducer,

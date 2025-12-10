@@ -1,0 +1,136 @@
+.delete-bed-modal {
+  .ant-modal-content {
+    border-radius: 20px;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .ant-modal-body {
+    padding: 0;
+  }
+}
+
+.delete-bed-modal-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.delete-bed-modal-header {
+  border-bottom: 1px solid #e2e2ea;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .delete-bed-modal-title {
+    font-family: "Poppins", sans-serif;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 36px;
+    color: #171725;
+    letter-spacing: 0.1px;
+    margin: 0;
+  }
+
+  .delete-bed-modal-close-icon {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+  }
+}
+
+.delete-bed-modal-body {
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: flex-end;
+}
+
+.delete-bed-modal-warning {
+  background: rgba(237, 138, 0, 0.1);
+  border-radius: 10px;
+  padding: 20px 21px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  width: 100%;
+
+  .delete-bed-modal-warning-icon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  .delete-bed-modal-warning-text {
+    font-family: "Roboto", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 26px;
+    color: #454551 !important;
+    letter-spacing: 0.1px;
+    flex: 1;
+
+    p {
+      margin: 0;
+
+      strong {
+        font-family: "Roboto", sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        color: #454551 !important;
+      }
+    }
+  }
+}
+
+.delete-bed-modal-actions {
+  display: flex;
+  gap: 25px;
+  align-items: center;
+
+  .delete-bed-modal-cancel-btn {
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: normal;
+    color: #454551 !important;
+    text-decoration: underline;
+    padding: 0;
+    height: auto;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+
+    &:hover {
+      color: #454551 !important;
+      text-decoration: underline;
+      background: transparent;
+    }
+  }
+
+  .delete-bed-modal-delete-btn {
+    width: 125px;
+    height: 41px;
+    border-radius: 10px;
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: normal;
+    background: #4b4ad5;
+    border-color: #4b4ad5;
+
+    &:hover {
+      background: #3d3cc4;
+      border-color: #3d3cc4;
+    }
+
+    &:disabled {
+      background: #d9d9d9;
+      border-color: #d9d9d9;
+      color: rgba(0, 0, 0, 0.25);
+    }
+  }
+}
+

@@ -15,7 +15,6 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import config from "./config";
 
-import AppointmentList from "./pages/AppointmentList";
 import PatientDetails from "./pages/PatientDetails";
 import Prescription from "./pages/Prescription";
 import SmartPrescription from "./pages/SmartPrescription";
@@ -47,7 +46,6 @@ import PlanExpirationBanner from "./common/PlanExpirationBanner";
 import DoctorModal from "./common/DoctorModal";
 import ExpiredPlanCard from "./common/ExpiredPlanCard";
 import ApolloConsultations from "./pages/apolloConsultations/ApolloConsultations";
-import AuthContainer from "./pages/auth/auth";
 import GenRxPrescriptionPrintView from "./pages/GenRxPrescriptionPrintView";
 import BillingDashboard from "./pages/opdBilling/components/billingDashboard/BillingDashboard";
 import BillingSettings from "./pages/opdBilling/components/advanceBillSettings/BillingSettings";
@@ -76,7 +74,6 @@ import HomePageLayout from "./pages/ipd/HomePageLayout";
 import ConsultantNotes from "./pages/ipd/consultantNotes/ConsultantNotes";
 import LabResults from "./pages/ipd/labResults/LabResults";
 import ProgressNotes from "./pages/ipd/progressNotes/progressNotes";
-import IPDMedicalRecords from "./pages/ipd/medicalRecords/IPDMedicalRecords";
 import CrossReferral from "./pages/ipd/crossReferral/CrossReferral";
 import CrossReferralConsultantNotes from "./pages/ipd/crossReferral/CrossReferralConsultantNotes";
 import DischargeSummary from "./pages/ipd/dischargeSummary/DischargeSummary";
@@ -94,6 +91,7 @@ import DischargedPatients from "./pages/ipd/inPatients/DischargedPatients";
 import ApproveToDischargePatients from "./pages/ipd/inPatients/ApproveToDischargePatients";
 import IpdAddNewPatient from "./pages/ipd/addNewPatient/IpdAddNewPatient";
 import CreateAdmission from "./pages/ipd/createAdmission/CreateAdmission";
+import WardAndBedManagement from "./pages/ipd/wardAndBedManagement/WardAndBedManagement";
 
 
 const growthbook = new GrowthBook({
@@ -619,6 +617,7 @@ function App() {
                   <Route path="dischargedPatients" element={<DischargedPatients />} />
                   <Route path="add-admission" element={<AddAdmission />} />
                   <Route path="patient-admission" element={<PatientAdmission />} />
+                  <Route path="ward-bed-management" element={<WardAndBedManagement />} />
                 </Route>
                 <Route path="ipd/create-admission" element={<CreateAdmission />} />
                 <Route path="ipd/add-new-patient" element={<IpdAddNewPatient />} />

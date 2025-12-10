@@ -79,6 +79,10 @@ import treatment from "./treatment.svg";
 import docIcon from "./doc-icon.svg";
 import deleteIconBlue from '../delete-icon-blue.svg';
 import voiceAiIcon from './voice-ai.gif';
+import crossIconBlackBg from "../close-black-bg.svg";
+import bedPrimaryIcon from "./bedPrimary.svg";
+import bedSecondaryIcon from "./bedSecondary.svg";
+
 // Icon exports
 export const defaultIcons = {
   aidKit,
@@ -159,4 +163,7 @@ export const defaultIcons = {
   microphoneWhiteRounded,
   microphoneSlash,
   submitIcon,
+  crossIconBlackBg,
+  bedPrimaryIcon,
+  bedSecondaryIcon,
 };

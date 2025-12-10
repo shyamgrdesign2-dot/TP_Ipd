@@ -1,0 +1,54 @@
+.bed-summary-cards-container {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+
+  .bed-summary-card {
+    flex: 1;
+    min-width: 0;
+    height: 56px;
+    border-radius: 12px;
+    padding: 6px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+
+    .bed-summary-card-title {
+      font-family: "Poppins", sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: normal;
+      margin: 0;
+      text-align: center;
+    }
+
+    .bed-summary-card-value {
+      font-family: "Poppins", sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: normal;
+      margin: 0;
+      text-align: center;
+    }
+
+    .purple {
+      color: #A461D8 !important;
+    }
+
+    .green {
+      color: #3D8C40 !important;
+    }
+
+    .orange {
+      color: #ED8A00 !important;
+    }
+
+    .red {
+      color: #FC5A5A !important;
+    }
+
+  }
+}
+
