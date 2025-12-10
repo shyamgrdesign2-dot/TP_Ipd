@@ -24,6 +24,12 @@ export const useOtNotesRequestData = ({
       },
       surgeryTeam: {
         ...otNotesState.surgeryTeam,
+      anaesthesiologist:
+        !otNotesState.surgeryTeam?.anaesthesiologist ||
+        (Array.isArray(otNotesState.surgeryTeam?.anaesthesiologist) &&
+          otNotesState.surgeryTeam?.anaesthesiologist.length === 0)
+          ? ""
+          : otNotesState.surgeryTeam.anaesthesiologist,
       },
       operativeNotes: Object.entries(otNotesState.operativeNotes || {}).reduce(
         (acc, [key, value]) => {
