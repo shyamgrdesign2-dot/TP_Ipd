@@ -148,6 +148,8 @@ function WardAndBedManagement() {
             limit: 50,
           })
         );
+        // Refresh ward stats to update the count
+        await dispatch(fetchWardStats());
       } catch (error) {
         // Error is handled by Redux and shown in useEffect
         console.error("Error saving ward:", error);
@@ -187,13 +189,23 @@ function WardAndBedManagement() {
         showSuccessToast({ title: "Ward Deleted Successfully" });
         setIsDeleteWardModalOpen(false);
         setSelectedWardForDelete(null);
-        // Wards list is automatically updated in Redux
+        // Refresh wards list
+        await dispatch(
+          fetchAllWards({
+            search: debouncedSearchQuery.trim(),
+            sort: null,
+            page: 1,
+            limit: 50,
+          })
+        );
+        // Refresh ward stats to update the count
+        await dispatch(fetchWardStats());
       } catch (error) {
         // Error is handled by Redux and shown in useEffect
         console.error("Error deleting ward:", error);
       }
     },
-    [dispatch]
+    [dispatch, debouncedSearchQuery]
   );
 
   const handleCloseEditWardModal = useCallback(() => {
@@ -266,6 +278,8 @@ function WardAndBedManagement() {
             limit: 50,
           })
         );
+        // Refresh ward stats to update the count
+        await dispatch(fetchWardStats());
         // Return the ward name so AddBedsDrawer can find and select it
         return { wardName, result };
       } catch (error) {

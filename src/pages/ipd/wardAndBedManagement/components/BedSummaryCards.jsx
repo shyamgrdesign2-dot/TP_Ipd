@@ -8,7 +8,7 @@ const BedSummaryCards = ({ summary }) => {
       title: "Total Beds",
       value: summary?.totalBeds || 0,
       bgColor: "rgba(164, 97, 216, 0.1)",
-      textColor: "purple",
+      textColor: "purple-text",
     },
     {
       id: 2,

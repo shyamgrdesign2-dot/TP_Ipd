@@ -17,11 +17,11 @@ const WardsTable = ({
     () => [
       {
         title: "#",
-        dataIndex: "index",
-        key: "index",
+        dataIndex: "srno",
+        key: "srno",
         width: 50,
         className: "col-sno",
-        render: (text) => <span className="ward-table-cell">{text}</span>,
+        render: (text, record, index) => <span>{index + 1}</span>,
       },
       {
         title: "WARD NAME",
@@ -145,11 +145,16 @@ const WardsTable = ({
                       label: "Edit Ward Name",
                       onClick: () => onMoreActions?.(record, "edit"),
                     },
-                    {
-                      key: "delete",
-                      label: "Delete Ward",
-                      onClick: () => onMoreActions?.(record, "delete"),
-                    },
+                    // Only show delete option if ward has no occupied beds
+                    ...(record.occupiedBeds === 0 || !record.occupiedBeds
+                      ? [
+                          {
+                            key: "delete",
+                            label: "Delete Ward",
+                            onClick: () => onMoreActions?.(record, "delete"),
+                          },
+                        ]
+                      : []),
                     {
                       key: "add-edit-beds",
                       label: "Add/Edit Beds",
@@ -178,6 +183,7 @@ const WardsTable = ({
         ...ward,
         key: ward.id || index,
         index: index + 1,
+        originalIndex: index + 1, // Preserve original index for serial number
       })) || []
     );
   }, [data]);
