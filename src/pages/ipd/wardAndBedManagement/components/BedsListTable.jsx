@@ -27,6 +27,7 @@ const BedsListTable = ({
   pagination,
   onLoadMore,
   onStatusFilterChange,
+  isReadOnly = false,
 }) => {
   const dispatch = useDispatch();
   const [selectedBed, setSelectedBed] = useState(null);
@@ -232,55 +233,59 @@ const BedsListTable = ({
         },
         filters: STATUS_FILTERS,
       },
-      {
-        title: "ACTION",
-        key: "action",
-        width: 80,
-        className: "col-action",
-        render: (_, record) => {
-          const bedId = record.id || record._id;
-          const isEditing = editingBedId === bedId;
+      ...(!isReadOnly
+        ? [
+            {
+              title: "ACTION",
+              key: "action",
+              width: 80,
+              className: "col-action",
+              render: (_, record) => {
+                const bedId = record.id || record._id;
+                const isEditing = editingBedId === bedId;
 
-          if (isEditing) {
-            return (
-              <div className="bed-edit-actions">
-                <button
-                  className="bed-edit-save-btn"
-                  onClick={() => handleSaveEditBed(record)}
-                  title="Save"
-                >
-                  <img
-                    src={dIcons.greenTick}
-                    alt="Save"
-                    className="bed-edit-save-icon"
-                  />
-                </button>
-                <button
-                  className="bed-edit-cancel-btn"
-                  onClick={handleCancelEdit}
-                  title="Cancel"
-                >
-                  <img
-                    src={closeIcon}
-                    alt="Cancel"
-                    className="bed-edit-cancel-icon"
-                  />
-                </button>
-              </div>
-            );
-          }
+                if (isEditing) {
+                  return (
+                    <div className="bed-edit-actions">
+                      <button
+                        className="bed-edit-save-btn"
+                        onClick={() => handleSaveEditBed(record)}
+                        title="Save"
+                      >
+                        <img
+                          src={dIcons.greenTick}
+                          alt="Save"
+                          className="bed-edit-save-icon"
+                        />
+                      </button>
+                      <button
+                        className="bed-edit-cancel-btn"
+                        onClick={handleCancelEdit}
+                        title="Cancel"
+                      >
+                        <img
+                          src={closeIcon}
+                          alt="Cancel"
+                          className="bed-edit-cancel-icon"
+                        />
+                      </button>
+                    </div>
+                  );
+                }
 
-          return (
-            <BedActionsDropdown
-              record={record}
-              onEdit={handleEditBed}
-              onBlock={handleBlockBed}
-              onUnblock={handleUnblockBed}
-              onDelete={handleDeleteBed}
-            />
-          );
-        },
-      },
+                return (
+                  <BedActionsDropdown
+                    record={record}
+                    onEdit={handleEditBed}
+                    onBlock={handleBlockBed}
+                    onUnblock={handleUnblockBed}
+                    onDelete={handleDeleteBed}
+                  />
+                );
+              },
+            },
+          ]
+        : []),
     ],
     [
       handleEditBed,
@@ -291,6 +296,7 @@ const BedsListTable = ({
       editingBedName,
       handleSaveEditBed,
       handleCancelEdit,
+      isReadOnly,
     ]
   );
 

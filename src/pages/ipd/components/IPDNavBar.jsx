@@ -118,33 +118,23 @@ function IPDNavbar() {
           )}
         </NavLink>
       </div>
-      {!izZydusUser ? (
-        // {false ? (
-        <div>
-          <NavLink
-            to="/ipd/ward-bed-management"
-            onClick={(e) => {
-              e.preventDefault();
-              handleWardBedManagementClick();
-            }}
-          >
-            {({ isActive }) => (
-              <>
-                <img
-                  src={isActive ? bedPrimaryIcon : bedSecondaryIcon}
-                  alt="Ward/Bed Management"
-                  style={{
-                    filter: isActive ? "grayscale(0%)" : "grayscale(100%)",
-                  }}
-                />
-                <div className="mt-1 px-2">
-                  <div>Ward & Bed Management</div>
-                </div>
-              </>
-            )}
-          </NavLink>
-        </div>
-      ) : null}
+
+      <NavLink to="/ipd/ward-bed-management" replace={true}>
+        {({ isActive }) => (
+          <>
+            <img
+              src={isActive ? bedPrimaryIcon : bedSecondaryIcon}
+              alt="Ward/Bed Management"
+              style={{
+                filter: isActive ? "grayscale(0%)" : "grayscale(100%)",
+              }}
+            />
+            <div className="mt-1 px-2">
+              <div>Ward & Bed Management</div>
+            </div>
+          </>
+        )}
+      </NavLink>
     </div>
   );
 }

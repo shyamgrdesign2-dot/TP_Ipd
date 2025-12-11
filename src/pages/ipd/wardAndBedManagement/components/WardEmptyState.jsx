@@ -4,7 +4,7 @@ import { defaultIcons } from "../../../../assets/images/icons";
 import emptyFileIcon from "../../../../assets/images/empty-file.svg";
 import "./WardEmptyState.scss";
 
-const WardEmptyState = ({ onAddWardClick }) => {
+const WardEmptyState = ({ onAddWardClick, isReadOnly = false }) => {
   return (
     <div className="ward-empty-state">
       <div className="ward-empty-state-container">
@@ -15,16 +15,18 @@ const WardEmptyState = ({ onAddWardClick }) => {
           <p className="ward-empty-state-message">
             You haven't created any wards yet.
             <br />
-            Start adding wards!
+            {isReadOnly ? "No wards available." : "Start adding wards!"}
           </p>
-          <Button
-            type="primary"
-            icon={<img src={defaultIcons.plusIcon} alt="+" />}
-            onClick={onAddWardClick}
-            className="ward-empty-state-button"
-          >
-            Add New Ward
-          </Button>
+          {!isReadOnly && (
+            <Button
+              type="primary"
+              icon={<img src={defaultIcons.plusIcon} alt="+" />}
+              onClick={onAddWardClick}
+              className="ward-empty-state-button"
+            >
+              Add New Ward
+            </Button>
+          )}
         </div>
       </div>
     </div>

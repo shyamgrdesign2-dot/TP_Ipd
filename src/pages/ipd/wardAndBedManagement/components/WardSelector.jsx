@@ -9,6 +9,7 @@ const WardSelector = ({
   wards = [],
   onAddNewWard,
   placeholder = "Search by Ward Name",
+  isReadOnly = false,
 }) => {
   const [wardSearchQuery, setWardSearchQuery] = useState("");
   const [isAddWardModalOpen, setIsAddWardModalOpen] = useState(false);
@@ -139,19 +140,21 @@ const WardSelector = ({
                 </div>
               )}
 
-              <div
-                className="add-new-ward-option"
-                onClick={handleAddNewWardClick}
-              >
-                <img src={defaultIcons.plusIconColoured} alt="Add" />
-                {newWardText ? (
-                  <span>
-                    Add <strong>"{newWardText}"</strong> as New Ward
-                  </span>
-                ) : (
-                  filteredWards.length > 0 && <span>Add New Ward</span>
-                )}
-              </div>
+              {!isReadOnly && (
+                <div
+                  className="add-new-ward-option"
+                  onClick={handleAddNewWardClick}
+                >
+                  <img src={defaultIcons.plusIconColoured} alt="Add" />
+                  {newWardText ? (
+                    <span>
+                      Add <strong>"{newWardText}"</strong> as New Ward
+                    </span>
+                  ) : (
+                    filteredWards.length > 0 && <span>Add New Ward</span>
+                  )}
+                </div>
+              )}
             </div>
           )}
           getPopupContainer={(triggerNode) => triggerNode.parentNode}

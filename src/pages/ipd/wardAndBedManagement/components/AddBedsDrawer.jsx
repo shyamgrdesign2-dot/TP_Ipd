@@ -44,6 +44,7 @@ const AddBedsDrawer = ({
   wards = [],
   onAddNewWard,
   currentSearchQuery = "",
+  isReadOnly = false,
 }) => {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState(TABS.MULTIPLE);
@@ -454,7 +455,11 @@ const AddBedsDrawer = ({
   }, [currentSelectedWard, wards, currentWardBeds]);
 
   // Determine drawer title based on whether ward has beds
-  const drawerTitle = hasBeds ? "View/Edit Beds" : "Add Beds";
+  const drawerTitle = hasBeds
+    ? isReadOnly
+      ? "View Beds"
+      : "View/Edit Beds"
+    : "Add Beds";
 
   // Use bed stats from API instead of calculating from beds array
   const bedSummary = useMemo(() => {
@@ -471,7 +476,7 @@ const AddBedsDrawer = ({
       open={open}
       onClose={onClose}
       placement="right"
-      width={"1000px"}
+      width={isReadOnly ? "700px" : "1000px"}
       className="add-beds-drawer"
       closeIcon={false}
       destroyOnClose
@@ -497,6 +502,7 @@ const AddBedsDrawer = ({
             onChange={handleWardSelect}
             wards={wards}
             onAddNewWard={onAddNewWard}
+            isReadOnly={isReadOnly}
           />
         </div>
 
@@ -504,46 +510,52 @@ const AddBedsDrawer = ({
         {currentSelectedWard && (
           <div className="add-beds-drawer-body">
             {/* Left Panel - Form */}
-            <div className="add-beds-drawer-form-panel">
-              {/* Form Container */}
-              <div className="add-beds-form-container">
-                <BedFormTabs
-                  activeTab={activeTab}
-                  onTabChange={handleTabChange}
-                />
+            {!isReadOnly && (
+              <div className="add-beds-drawer-form-panel">
+                {/* Form Container */}
+                <div className="add-beds-form-container">
+                  <BedFormTabs
+                    activeTab={activeTab}
+                    onTabChange={handleTabChange}
+                  />
 
-                {/* Form Content */}
-                <div className="add-beds-form-content">
-                  {activeTab === TABS.MULTIPLE ? (
-                    <MultipleBedsForm
-                      numberOfBeds={numberOfBeds}
-                      setNumberOfBeds={setNumberOfBeds}
-                      bedNameFormat={bedNameFormat}
-                      setBedNameFormat={setBedNameFormat}
-                      prefixText={prefixText}
-                      setPrefixText={setPrefixText}
-                      suffixText={suffixText}
-                      setSuffixText={setSuffixText}
-                      startingNumber={startingNumber}
-                      setStartingNumber={setStartingNumber}
-                      bedPreview={generateBedPreview}
-                      onAddBed={handleAddBed}
-                      isAddBedDisabled={isAddBedDisabled}
-                    />
-                  ) : (
-                    <SingleBedForm
-                      singleBedName={singleBedName}
-                      setSingleBedName={setSingleBedName}
-                      onAddBed={handleAddBed}
-                      isAddBedDisabled={isAddBedDisabled}
-                    />
-                  )}
+                  {/* Form Content */}
+                  <div className="add-beds-form-content">
+                    {activeTab === TABS.MULTIPLE ? (
+                      <MultipleBedsForm
+                        numberOfBeds={numberOfBeds}
+                        setNumberOfBeds={setNumberOfBeds}
+                        bedNameFormat={bedNameFormat}
+                        setBedNameFormat={setBedNameFormat}
+                        prefixText={prefixText}
+                        setPrefixText={setPrefixText}
+                        suffixText={suffixText}
+                        setSuffixText={setSuffixText}
+                        startingNumber={startingNumber}
+                        setStartingNumber={setStartingNumber}
+                        bedPreview={generateBedPreview}
+                        onAddBed={handleAddBed}
+                        isAddBedDisabled={isAddBedDisabled}
+                      />
+                    ) : (
+                      <SingleBedForm
+                        singleBedName={singleBedName}
+                        setSingleBedName={setSingleBedName}
+                        onAddBed={handleAddBed}
+                        isAddBedDisabled={isAddBedDisabled}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Right Panel - Summary and Table */}
-            <div className="add-beds-drawer-summary-panel">
+            <div
+              className={`add-beds-drawer-summary-panel ${
+                isReadOnly ? "add-beds-drawer-summary-panel-full-width" : ""
+              }`}
+            >
               <BedSummaryCards summary={bedSummary} />
               <BedsListTable
                 beds={currentWardBeds}
@@ -567,6 +579,7 @@ const AddBedsDrawer = ({
                   refreshBeds(currentSelectedWard, 1, false);
                   fetchBedStats(currentSelectedWard);
                 }}
+                isReadOnly={isReadOnly}
               />
             </div>
           </div>

@@ -18,11 +18,13 @@ import {
   fetchWardStats,
 } from "../../../redux/ipd/wardAndBedManagementSlice";
 import { useDebounce } from "../inPatients/hooks/useDebounce";
+import useWardBedReadOnly from "../../../hooks/useWardBedReadOnly";
 import "./WardAndBedManagement.scss";
 import { showSuccessToast } from "../../../utils/utils";
 
 function WardAndBedManagement() {
   const dispatch = useDispatch();
+  const isReadOnly = useWardBedReadOnly();
 
   // Redux state
   const {
@@ -277,7 +279,7 @@ function WardAndBedManagement() {
   // Check if there are no wards
   const hasNoWards = !searchQuery.trim() && (!wards || wards.length === 0);
 
-  const headerActions = (
+  const headerActions = isReadOnly ? null : (
     <div className="d-flex gap-4 align-items-center">
       <Button
         icon={
@@ -314,7 +316,10 @@ function WardAndBedManagement() {
       />
       <div className="ward-bed-management-page-wrap">
         {hasNoWards ? (
-          <WardEmptyState onAddWardClick={handleAddWardClick} />
+          <WardEmptyState
+            onAddWardClick={handleAddWardClick}
+            isReadOnly={isReadOnly}
+          />
         ) : (
           <div className="ward-bed-management-content">
             <div className="ward-bed-management-inner">
@@ -330,6 +335,7 @@ function WardAndBedManagement() {
                 onMoreActions={handleMoreActions}
                 pagination={wardsPagination}
                 onLoadMore={handleLoadMoreWards}
+                isReadOnly={isReadOnly}
               />
             </div>
           </div>
@@ -361,6 +367,7 @@ function WardAndBedManagement() {
         beds={selectedWard?.rooms || []}
         onAddNewWard={handleAddNewWard}
         currentSearchQuery={debouncedSearchQuery}
+        isReadOnly={isReadOnly}
       />
     </>
   );

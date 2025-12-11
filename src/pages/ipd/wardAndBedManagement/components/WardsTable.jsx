@@ -11,6 +11,7 @@ const WardsTable = ({
   onMoreActions,
   pagination,
   onLoadMore,
+  isReadOnly = false,
 }) => {
   const columns = useMemo(
     () => [
@@ -89,6 +90,31 @@ const WardsTable = ({
         width: 242,
         className: "col-action",
         render: (_, record) => {
+          // In read-only mode, only show "View Beds" if beds exist, otherwise empty
+          if (isReadOnly) {
+            const hasBeds =
+              (record.totalBeds && record.totalBeds > 0) ||
+              (record.rooms &&
+                Array.isArray(record.rooms) &&
+                record.rooms.length > 0);
+
+            if (!hasBeds) {
+              return null; // Empty action column
+            }
+
+            return (
+              <div className="ward-table-actions">
+                <Button
+                  type="default"
+                  onClick={() => onAddBeds?.(record)}
+                  className="add-beds-button"
+                >
+                  View Beds
+                </Button>
+              </div>
+            );
+          }
+
           // Check if ward has beds
           const hasBeds =
             (record.totalBeds && record.totalBeds > 0) ||
@@ -143,7 +169,7 @@ const WardsTable = ({
         },
       },
     ],
-    [onAddBeds, onMoreActions]
+    [onAddBeds, onMoreActions, isReadOnly]
   );
 
   const tableData = useMemo(() => {

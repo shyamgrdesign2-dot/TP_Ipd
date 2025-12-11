@@ -197,6 +197,10 @@
   flex-direction: column;
   gap: 24px;
   overflow-y: auto;
+
+  &.add-beds-drawer-summary-panel-full-width {
+    width: 100%;
+  }
 }
 
 .add-beds-form-field {
