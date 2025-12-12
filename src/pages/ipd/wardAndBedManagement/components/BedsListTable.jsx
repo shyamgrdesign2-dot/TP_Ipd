@@ -232,6 +232,7 @@ const BedsListTable = ({
           );
         },
         filters: STATUS_FILTERS,
+        filterMultiple: true,
       },
       ...(!isReadOnly
         ? [
@@ -347,10 +348,13 @@ const BedsListTable = ({
         rowClassName="bed-table-row"
         onChange={(pagination, filters, sorter) => {
           // Handle status filter change - trigger API call
-          if (filters && filters.status) {
-            const filterValue = filters.status[0] || null;
-            onStatusFilterChange?.(filterValue);
-          } else if (filters && !filters.status) {
+          if (filters && filters.status && filters.status.length > 0) {
+            // Multiple filters selected - pass array to parent
+            onStatusFilterChange?.(filters.status);
+          } else if (
+            filters &&
+            (!filters.status || filters.status.length === 0)
+          ) {
             // Filter was cleared
             onStatusFilterChange?.(null);
           }

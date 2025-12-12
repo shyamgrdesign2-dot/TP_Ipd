@@ -80,9 +80,30 @@ const AddBedsDrawer = ({
     if (open && selectedWard?.id) {
       setCurrentSelectedWard(selectedWard.id);
     } else if (!open) {
-      // Reset when drawer closes
+      // Reset all form fields and state when drawer closes
       setCurrentSelectedWard(null);
       setFetchedBeds([]);
+      setActiveTab(TABS.MULTIPLE);
+      setNumberOfBeds("");
+      setBedNameFormat(BED_NAME_FORMAT.PREFIX);
+      setPrefixText("");
+      setSuffixText("");
+      setStartingNumber("");
+      setSingleBedName("");
+      setBedsStatusFilter(null);
+      setBedsCurrentPage(1);
+      setBedsPagination({
+        page: 1,
+        limit: 50,
+        total: 0,
+        totalPages: 0,
+      });
+      setBedStats({
+        totalBeds: 0,
+        availableBeds: 0,
+        occupiedBeds: 0,
+        blockedBeds: 0,
+      });
     }
   }, [open, selectedWard]);
 
@@ -92,13 +113,34 @@ const AddBedsDrawer = ({
       if (!wardId) return;
 
       try {
-        // Build filter string - if status filter is set, use it
-        const filterString = filter || bedsStatusFilter || "";
+        // Build filter - can be array or string (API will handle multiple filter params)
+        let filterValue = null;
+        if (filter !== null && filter !== undefined) {
+          // If filter is passed as parameter, use it (could be array or string)
+          if (Array.isArray(filter) && filter.length > 0) {
+            filterValue = filter; // Pass array directly
+          } else if (typeof filter === "string" && filter.trim() !== "") {
+            filterValue = filter; // Pass string directly
+          }
+        } else if (
+          bedsStatusFilter !== null &&
+          bedsStatusFilter !== undefined
+        ) {
+          // Use current state filter (array)
+          if (Array.isArray(bedsStatusFilter) && bedsStatusFilter.length > 0) {
+            filterValue = bedsStatusFilter; // Pass array directly
+          } else if (
+            typeof bedsStatusFilter === "string" &&
+            bedsStatusFilter.trim() !== ""
+          ) {
+            filterValue = bedsStatusFilter; // Pass string directly
+          }
+        }
 
         const result = await dispatch(
           fetchBeds({
             wardId,
-            filter: filterString,
+            filter: filterValue,
             sort: null,
             page,
             limit: 50,
@@ -570,6 +612,7 @@ const AddBedsDrawer = ({
                 currentSearchQuery={currentSearchQuery}
                 onStatusFilterChange={(filterValue) => {
                   // Update filter and reset to page 1
+                  // filterValue can be null (cleared) or an array of selected statuses
                   // The useEffect will handle the API call when bedsStatusFilter changes
                   setBedsStatusFilter(filterValue);
                   setBedsCurrentPage(1);

@@ -35,9 +35,10 @@ const WardBedDrawer = ({
 
   // Calculate available and occupied beds
   const bedStats = useMemo(() => {
-    const available = rooms.filter((room) => room.available !== false).length;
-    const occupied = rooms.filter((room) => room.available === false).length;
-    return { available, occupied };
+    const available = rooms.filter((room) => room.available && !room.isBlocked && !room.isDeleted).length;
+    const occupied = rooms.filter((room) => !room.available && !room.isBlocked && !room.isDeleted).length;
+    const blocked = rooms.filter((room) => room.isBlocked && !room.isDeleted).length;
+    return { available, occupied, blocked };
   }, [rooms]);
 
   const handleWardSelect = (wardId) => {
@@ -169,6 +170,9 @@ const WardBedDrawer = ({
                   </span>
                   <span className="stat-item occupied-stat">
                     Occupied ({bedStats.occupied})
+                  </span>
+                  <span className="stat-item blocked-stat">
+                    Blocked ({bedStats.blocked})
                   </span>
                 </div>
               </div>

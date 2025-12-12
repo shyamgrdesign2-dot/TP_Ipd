@@ -97,7 +97,22 @@ ApiWardAndBedManagement.getBeds = function (
   limit = 10
 ) {
   const params = new URLSearchParams();
-  if (filter) params.append("filter", filter);
+
+  // Handle multiple filters - can be array or string
+  if (filter) {
+    if (Array.isArray(filter) && filter.length > 0) {
+      // Append each filter as a separate query parameter
+      filter.forEach((f) => {
+        if (f && f.trim() !== "") {
+          params.append("filter", f.trim());
+        }
+      });
+    } else if (typeof filter === "string" && filter.trim() !== "") {
+      // Single filter as string
+      params.append("filter", filter.trim());
+    }
+  }
+
   if (sort !== null) params.append("sort", sort);
   params.append("page", page);
   params.append("limit", limit);
