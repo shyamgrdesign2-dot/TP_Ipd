@@ -12,7 +12,7 @@ const StatusCards = () => {
       value: stats?.totalWards || 0,
       gradientFrom: "rgba(164, 97, 216, 0.1)",
       gradientTo: "rgba(164, 97, 216, 0)",
-      textColor: "#A461D8",
+      textColor: "wm-text-purple",
     },
     {
       id: 2,
@@ -20,7 +20,7 @@ const StatusCards = () => {
       value: stats?.availableBeds || 0,
       gradientFrom: "rgba(61, 140, 64, 0.2)",
       gradientTo: "rgba(61, 140, 64, 0)",
-      textColor: "#3D8C40",
+      textColor: "wm-text-green",
     },
     {
       id: 3,
@@ -28,7 +28,7 @@ const StatusCards = () => {
       value: stats?.occupiedBeds || 0,
       gradientFrom: "rgba(237, 138, 0, 0.1)",
       gradientTo: "rgba(237, 138, 0, 0)",
-      textColor: "#ED8A00",
+      textColor: "wm-text-orange",
     },
     {
       id: 4,
@@ -36,7 +36,7 @@ const StatusCards = () => {
       value: stats?.blockedBeds || 0,
       gradientFrom: "rgba(252, 90, 90, 0.1)",
       gradientTo: "rgba(252, 90, 90, 0)",
-      textColor: "#FC5A5A",
+      textColor: "wm-text-red",
     },
   ];
 
@@ -50,7 +50,7 @@ const StatusCards = () => {
               background: `linear-gradient(180deg, ${card.gradientFrom} 0%, ${card.gradientTo} 100%)`,
             }}
           >
-            <p className="status-card-title" style={{ color: card.textColor }}>
+            <p className={`status-card-title ${card.textColor}`}>
               {card.title}
             </p>
           </div>
