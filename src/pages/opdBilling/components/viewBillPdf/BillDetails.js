@@ -2,7 +2,7 @@ import { Text, View } from "@react-pdf/renderer";
 import { PX_TO_PT, styles } from "./constants";
 import React from "react";
 
-const BillDetails = ({ pageFormat, billData, totalAdvanceBalance }) => {
+const BillDetails = ({ pageFormat, billData, totalAdvanceBalance, isIpdBill }) => {
   const {
     billItems,
     subTotal,
@@ -117,6 +117,23 @@ const BillDetails = ({ pageFormat, billData, totalAdvanceBalance }) => {
           >
             #
           </Text>
+          {isIpdBill && (
+            <Text
+              style={[
+                styles.cell,
+                {
+                  flex: 0.3,
+                  fontFamily: pageFormat?.fontFamily,
+                  fontSize: PX_TO_PT * pageFormat?.fontSize,
+                  fontWeight: 500,
+                  color: "#000",
+                  backgroundColor: "#F1F1F5",
+                },
+              ]}
+            >
+              DATE
+            </Text>
+          )}
           <Text
             style={[
               styles.cell,
@@ -136,7 +153,7 @@ const BillDetails = ({ pageFormat, billData, totalAdvanceBalance }) => {
             style={[
               styles.cell,
               {
-                flex: 0.4,
+                flex: isIpdBill ? 0.2 : 0.4,
                 fontFamily: pageFormat?.fontFamily,
                 fontSize: PX_TO_PT * pageFormat?.fontSize,
                 fontWeight: 500,
@@ -151,7 +168,7 @@ const BillDetails = ({ pageFormat, billData, totalAdvanceBalance }) => {
             style={[
               styles.cell,
               {
-                flex: 0.4,
+                flex: isIpdBill ? 0.3 : 0.4,
                 fontFamily: pageFormat?.fontFamily,
                 fontSize: PX_TO_PT * pageFormat?.fontSize,
                 fontWeight: 500,
@@ -224,6 +241,20 @@ const BillDetails = ({ pageFormat, billData, totalAdvanceBalance }) => {
             >
               {i + 1}
             </Text>
+            {isIpdBill && <Text
+              style={[
+                styles.cell,
+                {
+                  flex: 0.3,
+                  color: "#171725",
+                  fontFamily: pageFormat?.fontFamily,
+                  fontSize: PX_TO_PT * pageFormat?.fontSize,
+                  fontWeight: 400,
+                },
+              ]}
+            >
+              {item?.itemDate ?? ""}
+            </Text>}
             <Text
               style={[
                 styles.cell,
@@ -242,7 +273,7 @@ const BillDetails = ({ pageFormat, billData, totalAdvanceBalance }) => {
               style={[
                 styles.cell,
                 {
-                  flex: 0.4,
+                  flex: isIpdBill ? 0.2 : 0.4,
                   color: "#171725",
                   fontFamily: pageFormat?.fontFamily,
                   fontSize: PX_TO_PT * pageFormat?.fontSize,
@@ -256,7 +287,7 @@ const BillDetails = ({ pageFormat, billData, totalAdvanceBalance }) => {
               style={[
                 styles.cell,
                 {
-                  flex: 0.4,
+                  flex: isIpdBill ? 0.3 : 0.4,
                   color: "#171725",
                   fontFamily: pageFormat?.fontFamily,
                   fontSize: PX_TO_PT * pageFormat?.fontSize,

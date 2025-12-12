@@ -1,4 +1,4 @@
-import { Drawer, Dropdown, Table, message } from "antd";
+import { Drawer, Dropdown, Table, message, Tooltip } from "antd";
 import { useState, useCallback } from "react";
 import PreviewBill from "../../../PreviewBill";
 import RefundBill from "../RefundBill/RefundBill";
@@ -28,6 +28,7 @@ import config from "../../../../../config";
 import { useLocalStorage } from "../../../../../utils/localStorage";
 import { EVENTS } from "../../../../../utils/events";
 import { sendMessageToParent } from "../../../../../utils/utils";
+import { EditBillDeployedDate } from "../../../utils/constants";
 
 const BillTable = ({
   data,
@@ -353,13 +354,9 @@ const BillTable = ({
       width: "9%",
       render: (text, record) => {
         // Check if edit button should be disabled
-        const hasPaidDues =
-          record?.paidDues &&
-          Array.isArray(record.paidDues) &&
-          record.paidDues.length > 0;
-        const hasRefundedAmount =
-          record?.refundedAmount && parseFloat(record.refundedAmount) > 0;
-        const isEditDisabled = hasPaidDues || hasRefundedAmount;
+        const hasPaidDues = record?.paidDues && Array.isArray(record.paidDues) && record.paidDues.length > 0;
+        const hasRefundedAmount = record?.refundedAmount && parseFloat(record.refundedAmount) > 0;
+        const isEditDisabled = hasPaidDues || hasRefundedAmount || moment(record?.date).isBefore(EditBillDeployedDate);
 
         return (
           <div
@@ -380,6 +377,10 @@ const BillTable = ({
                   record?.billNumber ? `&billNumber=${record?.billNumber}` : ""
                 }${record?.patientId ? `&patientId=${record?.patientId}` : ""}${
                   record?.doctorId ? `&doctorId=${record?.doctorId}` : ""
+                }${
+                  record?.admissionId
+                    ? `&admissionId=${record?.admissionId}`
+                    : ""
                 }&patientViewBill=true`;
                 if (
                   browserName == "Chrome WebView" ||
@@ -393,23 +394,38 @@ const BillTable = ({
             >
               <i className="icon-Print"></i>
             </button>
-            <button
-              className="btn p-0"
-              disabled={isEditDisabled}
-              onClick={() => {
-                if (!isEditDisabled) {
-                  handleEditBillDrawer();
-                  setBillData(record);
-                }
-              }}
-              style={{
-                opacity: isEditDisabled ? 0.5 : 1,
-                cursor: isEditDisabled ? "not-allowed" : "pointer",
-                border: "none",
-              }}
+            <Tooltip
+              title={
+                isEditDisabled
+                  ? hasRefundedAmount && hasPaidDues
+                    ? "A refund and due clearance have been processed for this bill, so editing isn’t allowed."
+                    : hasRefundedAmount
+                    ? "A refund has already been issued for this bill, so editing isn’t allowed."
+                    : hasPaidDues
+                    ? "The full due amount or some of the due amount has been cleared for this bill, so editing isn’t allowed."
+                    : "Cannot edit bill"
+                  : ""
+              }
             >
-              <i className="icon-Edit"></i>
-            </button>
+              <span>
+                <button
+                  className="btn p-0"
+                  disabled={isEditDisabled}
+                  onClick={() => {
+                    if (!isEditDisabled) {
+                      handleEditBillDrawer();
+                      setBillData(record);
+                    }
+                  }}
+                  style={{
+                    opacity: isEditDisabled ? 0.5 : 1,
+                    border: "none",
+                  }}
+                >
+                  <i className="icon-Edit"></i>
+                </button>
+              </span>
+            </Tooltip>
             <Dropdown
               className="cursor-pointer"
               menu={{
@@ -608,6 +624,7 @@ const BillTable = ({
           <CreateBill
             handleCreateBillDrawer={handleEditBillDrawer}
             editBillData={billData}
+            admissionId={billData?.admissionId}
           />
         </Drawer>
       )}

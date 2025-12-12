@@ -91,8 +91,9 @@ const CreateBill = ({
   isDashboard,
   isPreviewFromTable,
   editBillData,
-  isIpdBill,
+  admissionId,
 }) => {
+  const isIpdBill = !!admissionId;
   const { state } = useLocation();
   const { pam_id } = state || {};
   const dispatch = useDispatch();
@@ -121,20 +122,7 @@ const CreateBill = ({
   const [searchItemSelected, setSearchItemSelected] = useState(null);
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
   const [dataSource, setDataSource] = useState(
-    editBillData?.billItems || [
-      {
-        masterId: "",
-        name: "",
-        quantity: "",
-        amount: "",
-        discount: "",
-        discountType: "",
-        gst: "",
-        totalAmount: "",
-        createdBy: "",
-        itemDate: dayjs().format("DD-MM-YYYY") || "",
-      },
-    ]
+    editBillData?.billItems || []
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOptions, setSearchOptions] = useState([]);
@@ -152,9 +140,7 @@ const CreateBill = ({
   const [extraDiscountType, setExtraDiscountType] = useState(
     editBillData?.extraDiscountType || "flat"
   );
-  const [patientDueAmount, setPatientDueAmount] = useState(
-    editBillData?.dueFromPreviousBill || 0
-  );
+  const [patientDueAmount, setPatientDueAmount] = useState();
   const [patientWalletBalance, setPatientWalletBalance] = useState(0);
   const [paymentModes, setPaymentModes] = useState(
     editBillData?.paymentModes || []
@@ -245,8 +231,7 @@ const CreateBill = ({
 
   const payableAmount = (
     totalBillAmount -
-    extraDiscountAmount +
-    (Number(patientDueAmount) || 0)
+    extraDiscountAmount
   ).toFixed(2);
 
   const paidAmount = paymentModes
@@ -282,7 +267,7 @@ const CreateBill = ({
       patientDetails?.patientUniqueId ||
       editBillData?.patient?.patientId;
     if (patientUniqueId) {
-      getPatientDueAmount(patientUniqueId);
+      // getPatientDueAmount(patientUniqueId);
       getPatientWalletBalance(patientUniqueId);
       patientAdvanceData(patientUniqueId);
     }
@@ -294,8 +279,7 @@ const CreateBill = ({
         (sum, service) => sum + (Number(service.totalAmount) || 0),
         0
       ) -
-      (Number(extraDiscountAmount) || 0) +
-      (Number(patientDueAmount) || 0)
+      (Number(extraDiscountAmount) || 0)
     ).toFixed(2);
 
     if (
@@ -308,7 +292,7 @@ const CreateBill = ({
       );
       setPaymentModes(updatedPaymentModes);
     }
-  }, [extraDiscount, patientDueAmount, dataSource]);
+  }, [extraDiscount, dataSource]);
 
   useEffect(() => {
     if (isEditingName && nameAutoCompleteRef.current) {
@@ -789,7 +773,7 @@ const CreateBill = ({
         </Button>
       ),
     },
-  ];
+  ]?.filter(item => !!item);
 
   const handleModeChange = (value, index, type) => {
     const updatedModes = [...paymentModes];
@@ -915,10 +899,12 @@ const CreateBill = ({
       isForm3C: shouldAddBillTo3C,
       date: moment().format("YYYY-MM-DD"),
       notes: patientBillNotes,
-      dueFromPreviousBill: patientDueAmount,
+      // dueFromPreviousBill: patientDueAmount,
       appointmentId: pam_id || patientData?.pam_id,
+      admissionId: admissionId,
+      id: editBillData?.id,
     };
-    const createRes = await createBill(payload, isIpdBill ? "ipdBill" : "");
+    const createRes = await createBill(payload, isIpdBill ? "ipdBill" : "", editBillData?.id);
     if (createRes?.id) {
       message.open({
         key: MESSAGE_KEY,
@@ -963,7 +949,7 @@ const CreateBill = ({
       } else {
         const blob = await pdf(
           <ViewBillPdf
-            printSettings={billPrintSettings}
+            printSettings={isIpdBill ? ipdBillPrintSettings : billPrintSettings}
             patientData={
               patientData && Object.keys(patientData).length > 0
                 ? patientData
@@ -1047,10 +1033,8 @@ const CreateBill = ({
   );
 
   useEffect(() => {
-    if (editBillData?.patient) {
       handleAddRow(dataSource);
-    }
-  }, [editBillData?.patient]);
+  }, []);
 
   useEffect(() => {
     const data = [];
@@ -1358,7 +1342,7 @@ const CreateBill = ({
                         </span>
                       </button>
                     </div>
-                    {Number(patientDueAmount) > 0 && (
+                    {/* {Number(patientDueAmount) > 0 && (
                       <div className="billing-dashboard-wraper">
                         <div
                           className={`total-due-container ${
@@ -1371,7 +1355,7 @@ const CreateBill = ({
                           </span>
                         </div>
                       </div>
-                    )}
+                    )} */}
                   </>
                 )}
               </div>
@@ -1402,34 +1386,38 @@ const CreateBill = ({
                       });
                       setAddBillTo3C(e.target.checked);
                     }}
+                    disabled={editBillData?.isForm3C}
                   />
                   Add bill for Form 3C
                 </div>
-                {!isDashboard && (
-                  <div>
-                    <Checkbox
-                      className="me-2"
-                      checked={includeInRx}
-                      onChange={(e) => {
-                        const clinic = getClinic();
-                        trackEvent("TP_Billing_IncludeinRx", {
-                          patientName: patientDetails?.patientName || "",
-                          patientId: patientDetails?.patientUniqueId || "",
-                          doctorSpeciality: profile?.dp_name,
-                          doctorId: profile?.doctor_unique_id,
-                          doctorContact: profile?.um_contact,
-                          city: clinic?.hm_city,
-                          pincode: clinic?.hm_pincode,
-                          subscriptionStatus: planDetails?.currentPlanStatus,
-                          receptionistId: receptionistId,
-                          receptionistName: receptionistName,
-                        });
-                        setIncludeInRx(e.target.checked);
-                      }}
-                    />
-                    Include in RX
-                  </div>
-                )}
+                {!isDashboard &&
+                  (editBillData?.appointmentId ||
+                    pam_id ||
+                    patientData?.pam_id) && (
+                    <div>
+                      <Checkbox
+                        className="me-2"
+                        checked={includeInRx}
+                        onChange={(e) => {
+                          const clinic = getClinic();
+                          trackEvent("TP_Billing_IncludeinRx", {
+                            patientName: patientDetails?.patientName || "",
+                            patientId: patientDetails?.patientUniqueId || "",
+                            doctorSpeciality: profile?.dp_name,
+                            doctorId: profile?.doctor_unique_id,
+                            doctorContact: profile?.um_contact,
+                            city: clinic?.hm_city,
+                            pincode: clinic?.hm_pincode,
+                            subscriptionStatus: planDetails?.currentPlanStatus,
+                            receptionistId: receptionistId,
+                            receptionistName: receptionistName,
+                          });
+                          setIncludeInRx(e.target.checked);
+                        }}
+                      />
+                      Include in RX
+                    </div>
+                  )}
 
                 {!isReceptionist && (
                   <div className="d-sm-flex d-block">
@@ -1457,7 +1445,26 @@ const CreateBill = ({
                   </div>
                 )}
 
-                {isRxPage ? (
+                {isIpdBill ? (
+                  <Button
+                    type="button"
+                    className={`btn btn-primary3 btn-41 me-20 ${
+                      isMobile ? "" : "px-4"
+                    }`}
+                    onClick={() => {
+                      handleCreateBill("exit");
+                    }}
+                    disabled={
+                      disableSaveBtn ||
+                      (!patientData?.patient_unique_id &&
+                        !patientDetails?.patientUniqueId &&
+                        !editBillData?.patientId)
+                      //    || Number(payableAmount) === 0
+                    }
+                  >
+                    Save
+                  </Button>
+                ) : isRxPage ? (
                   <>
                     <Button
                       type="button"
@@ -1927,8 +1934,7 @@ const CreateBill = ({
                               (sum, service) =>
                                 sum + (Number(service.totalAmount) || 0),
                               0
-                            ) -
-                              (Number(patientDueAmount) || 0))
+                            ))
                       ) {
                         setExtraDiscount(value);
                       }
@@ -1980,14 +1986,14 @@ const CreateBill = ({
                   </div>
                 </div>
               </div>
-              {patientDueAmount > 0 && (
+              {/* {patientDueAmount > 0 && (
                 <div className="d-flex justify-content-between">
                   <span>Due from Previous bill:</span>
                   <span className="text-scheduled">
                     ₹{patientDueAmount.toFixed(2)}
                   </span>
                 </div>
-              )}
+              )} */}
               <Divider style={{ margin: 0 }} />
               <div className="d-flex justify-content-between">
                 <span style={{ fontWeight: 600 }}>Total Payable Amount:</span>

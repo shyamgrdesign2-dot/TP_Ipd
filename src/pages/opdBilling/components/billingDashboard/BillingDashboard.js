@@ -501,7 +501,7 @@ function BillingDashboard({ patientData, fromPath }) {
               isDashboard={true}
               isPreviewFromTable={true}
               editBillData={editBillData}
-              isIpdBill={true}
+              admissionId={editBillData?.admissionId}
             />
           </Drawer>
         )}

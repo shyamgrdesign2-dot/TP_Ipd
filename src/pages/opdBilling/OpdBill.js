@@ -12,14 +12,13 @@ const OpdBill = () => {
   const patientId = urlParams.get("patientId") || "";
   const doctorId = urlParams.get("doctorId") || "";
   const token = urlParams.get("token") || "";
-  const isIpdBill = true;
+  const admissionId = urlParams.get("admissionId") || "";
 
   const isDepositReceipt = !!receiptNumber;
 
   const [pdfUrl, setPdfUrl] = useState(null);
   const [billDetails, setBillDetails] = useState(null);
   const [billPrintSettings, setBillPrintSettings] = useState(null);
-  const [ipdBillPrintSettings, setIpdBillPrintSettings] = useState(null);
   const [patientWalletBalance, setPatientWalletBalance] = useState(0);
   const [advancedSettings, setAdvancedSettings] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -47,10 +46,10 @@ const OpdBill = () => {
   }, []);
 
   useEffect(() => {
-    if (billDetails && billPrintSettings && ipdBillPrintSettings) {
+    if (billDetails && billPrintSettings) {
       makePDFUrl();
     }
-  }, [billDetails, billPrintSettings, ipdBillPrintSettings]);
+  }, [billDetails, billPrintSettings]);
 
   const getOpdBillDetails = async () => {
     try {
@@ -58,7 +57,8 @@ const OpdBill = () => {
         billNumber,
         patientId,
         doctorId,
-        token
+        token,
+        admissionId,
       );
 
       if (billDetailsRes && Object.keys(billDetailsRes).length > 0) {
@@ -66,7 +66,6 @@ const OpdBill = () => {
         setPatientWalletBalance(billDetailsRes?.walletBalance);
         setAdvancedSettings(billDetailsRes?.advancedSetting);
         setBillPrintSettings(billDetailsRes?.printSetting);
-        setIpdBillPrintSettings(billDetailsRes?.ipdBillPrintSetting);
         setProfile(billDetailsRes?.doctor);
       }
     } catch (error) {
@@ -90,7 +89,6 @@ const OpdBill = () => {
         setPatientWalletBalance(advancedDepositDetailsRes?.walletBalance);
         setAdvancedSettings(advancedDepositDetailsRes?.advancedSetting);
         setBillPrintSettings(advancedDepositDetailsRes?.printSetting);
-        setIpdBillPrintSettings(advancedDepositDetailsRes?.ipdBillPrintSetting);
         setProfile(advancedDepositDetailsRes?.doctor);
       }
     } catch (error) {
@@ -101,7 +99,7 @@ const OpdBill = () => {
   const makePDFUrl = async () => {
     const blob = await pdf(
       <ViewBillPdf
-        printSettings={isIpdBill ? ipdBillPrintSettings : billPrintSettings}
+        printSettings={billPrintSettings}
         isDepositReceipt={isDepositReceipt}
         patientData={patientData}
         profile={profile}

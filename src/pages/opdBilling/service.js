@@ -84,11 +84,11 @@ export const processClearDue = async function (payload, billType = "opd") {
   }
   return res;
 };
-export const createBill = async function (payload, billType = "opd") {
+export const createBill = async function (payload, billType = "opd", id = null) {
   let res = {};
   try {
-    const endpoint =
-      billType === "ipd" ? "/api/v1/billing/ipd-bill" : "/api/v1/billing/bill";
+    const base = billType === "ipd" ? "ipd-bill" : "bill";
+    const endpoint = `/api/v1/billing/${base}${id ? "/edit-bill" : ""}`;
     res = await api.post(endpoint, payload, baseUrl);
   } catch (e) {
     console.error(`Error while Creating ${billType.toUpperCase()} Bill: `, e);
@@ -547,7 +547,6 @@ export const fetchBillDetails = async function (
   doctorId,
   token,
   admissionId = null,
-  billType = "opd"
 ) {
   try {
     const queryParams = {
@@ -555,17 +554,16 @@ export const fetchBillDetails = async function (
       patientId: patientId,
       doctorId: doctorId,
     };
-
-    if (admissionId && billType === "ipd") {
+    
+    if (admissionId) {
       queryParams.admissionId = admissionId;
     }
 
     const queryString = new URLSearchParams(queryParams).toString();
-    const endpoint =
-      billType === "ipd"
-        ? "/api/v1/billing/bill-pdf/ipd-bill-details"
-        : "/api/v1/billing/bill-pdf/bill-details";
-
+    const endpoint = admissionId 
+      ? "/api/v1/billing/bill-pdf/ipd-bill-details" 
+      : "/api/v1/billing/bill-pdf/bill-details";
+    
     const response = await fetch(
       `${baseUrl.customBaseUrl}${endpoint}?${queryString}`,
       {
@@ -584,10 +582,7 @@ export const fetchBillDetails = async function (
     const data = await response.json();
     return data;
   } catch (e) {
-    console.error(
-      `Error while fetching ${billType.toUpperCase()} bill details: `,
-      e
-    );
+    console.error(`Error while fetching bill details: `, e);
     return null;
   }
 };

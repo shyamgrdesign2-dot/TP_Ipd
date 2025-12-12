@@ -538,7 +538,7 @@ const ConfigureBillSettings = ({
                   onChange={onTabChange}
                   className="print-tabs"
                 />
-                {printSettingsDifferFromRx &&
+                {!isIpdBill && printSettingsDifferFromRx &&
                   Object.keys(printSettingsDifferFromRx)?.length > 0 && (
                     <Button
                       type="button"

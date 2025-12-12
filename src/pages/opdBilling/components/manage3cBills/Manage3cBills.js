@@ -516,7 +516,7 @@ const Manage3cBills = forwardRef(
                   record?.billNumber ? `&billNumber=${record?.billNumber}` : ""
                 }${record?.patientId ? `&patientId=${record?.patientId}` : ""}${
                   record?.doctorId ? `&doctorId=${record?.doctorId}` : ""
-                }&patientViewBill=true`;
+                }${record?.admissionId ? `&admissionId=${record?.admissionId}` : ""}&patientViewBill=true`;
                 if (
                   browserName == "Chrome WebView" ||
                   browserName == "WebKit"

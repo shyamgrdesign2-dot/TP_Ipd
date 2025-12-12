@@ -42,6 +42,7 @@ const PreviewBill = ({
   getPatientBills,
   handleEditBillDrawer,
 }) => {
+  const isIpdBill = !!billData?.admissionId;
   const [getBillToken, setBillToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_BILL_TOKEN
   );
@@ -106,6 +107,12 @@ const PreviewBill = ({
   const clinic = getClinic(profile?.hospital_data);
 
   useEffect(() => {
+    if (billDetails && Object.keys(billDetails).length > 0 && isIpdBill) {
+      handleRefundSuccess();
+    }
+  }, []);
+
+  useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
   }, [divRef]);
 
@@ -148,7 +155,7 @@ const PreviewBill = ({
   const makePDFUrl = async () => {
     const blob = await pdf(
       <ViewBillPdf
-        printSettings={billPrintSettings}
+        printSettings={isIpdBill ? ipdBillPrintSettings : billPrintSettings}
         isDepositReceipt={isDepositReceipt}
         patientData={patientData}
         profile={profile}
@@ -235,7 +242,7 @@ const PreviewBill = ({
         isDepositReceipt ? `&receiptNumber=${billDetails?.receiptNumber}` : ""
       }${billDetails?.patientId ? `&patientId=${billDetails?.patientId}` : ""}${
         doctorId ? `&doctorId=${doctorId}` : ""
-      }&receptionist=true&patientViewBill=true`
+      }${isIpdBill ? `&admissionId=${billDetails?.admissionId}` : ""}&receptionist=true&patientViewBill=true`
     );
     const message = {
       patient_name: patient?.name,
@@ -256,7 +263,9 @@ const PreviewBill = ({
 
   const handleRefundSuccess = async () => {
     const billDetailsRes = await fetchBillDetailsByBillNumber(
-      billDetails?.billNumber
+      billDetails?.billNumber,
+      isIpdBill ? billDetails?.admissionId : null,
+      isIpdBill ? "ipd" : "opd"
     );
     setBillDetails(billDetailsRes);
   };
@@ -544,7 +553,7 @@ const PreviewBill = ({
             billData={billDetails}
             totalAdvanceBalance={totalAdvanceBalance}
             isDepositReceipt={isDepositReceipt}
-            isIpdBill={true}
+            isIpdBill={!!billDetails?.admissionId}
           />
         </Drawer>
       )}
