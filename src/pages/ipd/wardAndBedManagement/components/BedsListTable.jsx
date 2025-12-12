@@ -16,6 +16,7 @@ import { BED_STATUS, STATUS_CONFIG, STATUS_FILTERS } from "../constants";
 import { defaultIcons as dIcons } from "../../../../assets/images/dischargeSummaryIcons";
 import closeIcon from "../../../../assets/images/icons/close-red.svg";
 import "./BedsListTable.scss";
+import { showSuccessToast } from "../../../../utils/utils";
 
 const BedsListTable = ({
   beds,
@@ -94,7 +95,7 @@ const BedsListTable = ({
         const roomId = selectedBed.roomId;
         await dispatch(action({ wardId, roomId })).unwrap();
 
-        message.success(successMessage);
+        showSuccessToast({ title: successMessage });
         setSelectedBed(null);
         onBedUpdated?.();
         return true;
@@ -115,12 +116,12 @@ const BedsListTable = ({
   const handleConfirmBlockBed = useCallback(async () => {
     const success = await handleBedAction(
       blockRoom,
-      "Bed blocked successfully"
+      `${selectedBed.bedName} Bed Blocked successfully`
     );
     if (success) {
       setModalState((prev) => ({ ...prev, isBlockOpen: false }));
     }
-  }, [handleBedAction]);
+  }, [handleBedAction, selectedBed]);
 
   const handleCloseBlockModal = useCallback(() => {
     setModalState((prev) => ({ ...prev, isBlockOpen: false }));
@@ -135,12 +136,12 @@ const BedsListTable = ({
   const handleConfirmUnblockBed = useCallback(async () => {
     const success = await handleBedAction(
       unblockRoom,
-      "Bed unblocked successfully"
+      `${selectedBed.bedName} Bed Unblocked successfully`
     );
     if (success) {
       setModalState((prev) => ({ ...prev, isUnblockOpen: false }));
     }
-  }, [handleBedAction]);
+  }, [handleBedAction, selectedBed]);
 
   const handleCloseUnblockModal = useCallback(() => {
     setModalState((prev) => ({ ...prev, isUnblockOpen: false }));
@@ -155,12 +156,12 @@ const BedsListTable = ({
   const handleConfirmDeleteBed = useCallback(async () => {
     const success = await handleBedAction(
       deleteRoom,
-      "Bed deleted successfully"
+      `${selectedBed.bedName} Bed Deleted successfully`
     );
     if (success) {
       setModalState((prev) => ({ ...prev, isDeleteOpen: false }));
     }
-  }, [handleBedAction]);
+  }, [handleBedAction, selectedBed]);
 
   const handleCloseDeleteModal = useCallback(() => {
     setModalState((prev) => ({ ...prev, isDeleteOpen: false }));
