@@ -50,6 +50,7 @@ const PreviewDrawer = forwardRef(
       handleGoBackToMainFiles,
       onZoomIn,
       onZoomOut,
+      schemaKey,
     },
     ref
   ) => {
@@ -420,6 +421,7 @@ const PreviewDrawer = forwardRef(
             uploadIpdFiles({
               files: filesToUpload,
               fileUploadToken,
+              schemaKey,
             })
           ).unwrap();
           setTimeout(() => {

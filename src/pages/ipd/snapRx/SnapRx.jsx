@@ -37,17 +37,27 @@ import { SNAP_RX_TOKENS_STORAGE_KEY } from "../../../utils/constants";
 import { useAssessmentDataStore } from "../../../hooks/useAssessmentDataStore";
 const UPLOADED_FILES_DOMAIN = "iscribe.blob.core.windows.net";
 
-function SnapRxContent({ previousOutput, handleClose }) {
+function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS", onSuccess }) {
   const { addDataToStore } = useAssessmentDataStore();
   const { state } = useLocation();
   const { patientDetails } = state || {};
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const {
-    uploadedFiles: uploadedFilesFromStore,
+    uploadedFiles: uploadedFilesFromStoreRaw,
+    uploadedFilesScope,
     fileUploadToken,
     fileUploadSessionId: sessionId,
   } = useSelector((state) => state.ipdSnapRx);
+  
+  const patientId = patientDetails?.details?.id;
+  const admissionId = patientDetails?.admissionId;
+  
+  const uploadedFilesFromStore =
+    uploadedFilesScope?.patientId === patientId &&
+    uploadedFilesScope?.admissionId === admissionId
+      ? (uploadedFilesFromStoreRaw || [])
+      : [];
   const { userId } = useSelector((state) => state.doctors);
   const uploadWrittenRxRef = useRef(null);
   const timerForLoadingRef = useRef(null);
@@ -120,10 +130,11 @@ function SnapRxContent({ previousOutput, handleClose }) {
         generateFileUploadToken({
           patientId,
           admissionId,
+          schemaKey,
         })
       );
     }
-  }, [dispatch, fileUploadToken, patientDetails]);
+  }, [dispatch, fileUploadToken, patientDetails, schemaKey]);
 
   useEffect(() => {
     return () => {
@@ -151,6 +162,7 @@ function SnapRxContent({ previousOutput, handleClose }) {
         admissionId,
         sessionId,
         fileUploadToken: tokenForFiles,
+        type: schemaKey,
       };
       dispatch(
         getFiles({
@@ -175,7 +187,7 @@ function SnapRxContent({ previousOutput, handleClose }) {
     if (fileUploadToken) {
       fetchUploadedFiles();
     }
-  }, [fileUploadToken, patientDetails]);
+  }, [fileUploadToken, patientDetails, schemaKey]);
 
   useEffect(() => {
     return () => {
@@ -528,9 +540,17 @@ function SnapRxContent({ previousOutput, handleClose }) {
       const res = await dispatch(
         digitizeAssessments({
           previousOutput,
+          schemaKey,
         })
       ).unwrap();
-      addDataToStore(res?.data?.rxDigitizationHistory?.[0]?.response || {});
+      const digitizedData =
+        res?.data?.rxDigitizationHistory?.[0]?.response || {};
+
+      if (onSuccess) {
+        onSuccess(digitizedData);
+      } else {
+        addDataToStore(digitizedData || {}, true);
+      }
       dispatch(resetFileUploadToken());
       removeFileUploadTokenFromLS();
       handleClose();
@@ -588,6 +608,7 @@ function SnapRxContent({ previousOutput, handleClose }) {
         handleGoBackToMainFiles={handleGoBackToMainFiles}
         onAddMore={handleAddMore}
         isUploadMoreDrawer={false}
+        schemaKey={schemaKey}
         style={{
           display: isPreviewOpen ? "block" : "none",
         }}
@@ -705,12 +726,14 @@ function SnapRxContent({ previousOutput, handleClose }) {
 }
 
 // Main component with session provider
-export default function IPDSnapRx({ previousOutput, handleClose }) {
+export default function IPDSnapRx({ previousOutput, handleClose, schemaKey, onSuccess }) {
   return (
     <IPDSnapRxSessionProvider>
       <SnapRxContent
         previousOutput={previousOutput}
         handleClose={handleClose}
+        schemaKey={schemaKey}
+        onSuccess={onSuccess}
       />
     </IPDSnapRxSessionProvider>
   );

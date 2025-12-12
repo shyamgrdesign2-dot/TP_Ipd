@@ -155,7 +155,7 @@ export const convertBlobToFile = (blob, filename = null, mimeType = null) => {
 
   // Use provided filename or generate one
   const finalFilename = filename || `recording-${Date.now()}.webm`;
-  
+
   // Use provided mimeType, blob's type, or default
   const finalMimeType = mimeType || blob.type || "audio/webm";
 
@@ -1722,34 +1722,34 @@ export const convertMedicationFormat = (medications) => {
     ? medications
     : [medications];
 
-  return medicationArray.map((medication) => {
+  console.log("INTEL ==> medication", medicationArray);
+  return medicationArray?.map((medication) => {
     // Extract frequency and schedule from the medication object
     let frequency = "";
     let schedule = [];
-
     // Convert frequency type to human readable format
-    if (medication.tmm_freq_type_name) {
+    if (medication?.tmm_freq_type_name) {
       frequency = medication.tmm_freq_type_name;
     }
 
     // Build schedule based on morning, afternoon, evening, night values
-    if (medication.tcm_tmm_freq_morning === "1") schedule.push("Morning");
-    if (medication.tcm_tmm_freq_afternoon === "1") schedule.push("Afternoon");
-    if (medication.tcm_tmm_freq_evening === "1") schedule.push("Evening");
-    if (medication.tcm_tmm_freq_night === "1") schedule.push("Night");
+    if (medication?.tcm_tmm_freq_morning === "1") schedule.push("Morning");
+    if (medication?.tcm_tmm_freq_afternoon === "1") schedule.push("Afternoon");
+    if (medication?.tcm_tmm_freq_evening === "1") schedule.push("Evening");
+    if (medication?.tcm_tmm_freq_night === "1") schedule.push("Night");
 
     // If tmm_time_name exists, use that for schedule
-    if (medication.tmm_time_name) {
-      schedule = [medication.tmm_time_name];
+    if (medication?.tmm_time_name) {
+      schedule = [medication?.tmm_time_name];
     }
 
     return {
-      name: medication.tmm_medicine_name || "",
-      unitPerDose: medication.tmm_generic || "",
+      name: medication?.tmm_medicine_name || "",
+      unitPerDose: medication?.tmm_generic || "",
       frequency: frequency || "Once daily", // Default to once daily if not specified
       schedule: schedule.join(", ") || "As needed",
-      duration: medication.tmm_duration_type || "as needed",
-      notes: medication.tmm_remarks || "",
+      duration: medication?.tmm_duration_type || "as needed",
+      notes: medication?.tmm_remarks || "",
     };
   });
 };
@@ -2500,14 +2500,13 @@ export const groupIpdCustomModulesById = (customModules = []) => {
 };
 
 export const isIPad = () => {
-  return navigator.userAgent.includes("iPad") || (navigator.userAgent.includes("Macintosh") && navigator.maxTouchPoints > 1);
+  return (
+    navigator.userAgent.includes("iPad") ||
+    (navigator.userAgent.includes("Macintosh") && navigator.maxTouchPoints > 1)
+  );
 };
 
-export const showSuccessToast = ({
-  title,
-  duration = 3,
-  className = "",
-}) => {
+export const showSuccessToast = ({ title, duration = 3, className = "" }) => {
   message.open({
     key: MESSAGE_KEY,
     className: `message-appointment ${className}`,
@@ -2517,9 +2516,7 @@ export const showSuccessToast = ({
       <div className="d-flex align-items-center">
         <img src={successIcon} className="me-3" alt="" />
 
-        <div className="title-common text-start fontroboto">
-          {title}
-        </div>
+        <div className="title-common text-start fontroboto">{title}</div>
 
         <img
           src={closeIcon}

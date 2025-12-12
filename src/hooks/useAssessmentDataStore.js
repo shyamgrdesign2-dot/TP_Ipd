@@ -85,7 +85,7 @@ export const useAssessmentDataStore = () => {
   );
 
   const addDataToStore = useCallback(
-    (data, fromVoice = false) => {
+    (data, fromAIPipeline = false) => {
       if (data) {
         // Basic Info dispatches
         dispatch(
@@ -97,9 +97,24 @@ export const useAssessmentDataStore = () => {
             data?.basicInfo?.historyOfPresentIllness || []
           )
         );
-        dispatch(setMedicationData(data?.basicInfo?.medications || []));
+        const updatedMedications = data?.basicInfo?.currentMedications?.map(
+          (med) => {
+            return (
+              med?.grounding?.[0]?.structuralMedicationData || {
+                ...med?.grounding?.[0],
+              }
+            );
+          }
+        );
+        dispatch(
+          setMedicationData(
+            fromAIPipeline
+              ? updatedMedications
+              : data?.basicInfo?.medications || []
+          )
+        );
         dispatch(setLabResults(data?.basicInfo?.labResults || []));
-        const dataWithIds = fromVoice
+        const dataWithIds = fromAIPipeline
           ? mapIdsFromDefaultList(data?.basicInfo?.pastMedicalHistory)
           : data?.basicInfo?.pastMedicalHistory;
         dispatch(setMedicalHistoryData(dataWithIds || []));

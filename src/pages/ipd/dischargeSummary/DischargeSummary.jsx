@@ -50,6 +50,7 @@ import { errorMessage } from "../../../utils/utils.js";
 import useDischargeSummaryRequestData from "../../../hooks/useDischargeSummaryRequestData.js";
 import GlobalVoiceAI from "../components/GlobalVoiceAI.jsx";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel.jsx";
+import AgentAlexSnapRxPanel from "../components/AgentAlexSnapRxPanel.jsx";
 import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
@@ -79,7 +80,7 @@ const DischargeSummary = (props) => {
   const [autoFillTitleLocal, setAutoFillTitleLocal] = useState("");
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
-  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [activeAssistantPanel, setActiveAssistantPanel] = useState(null);
   const { customization = {} } = useSelector((state) => state.ipd);
   const assessmentData = useSelector((state) => state.assessment);
   const dischargeSummaryState = useSelector((state) => state.dischargeSummary);
@@ -278,6 +279,20 @@ const DischargeSummary = (props) => {
     });
   };
 
+  const handleDigitizationSuccess = useCallback(
+    (digitizedData) => {
+      const updatedSummary = digitizedData?.dischargeSummary || digitizedData;
+      if (updatedSummary) {
+        dispatch(resetDischargeSummaryForm());
+        addDischargeDataToStore(
+          { dischargeSummary: updatedSummary },
+          dispatch
+        );
+      }
+    },
+    [addDischargeDataToStore, dispatch]
+  );
+
   const handleAIRecordingComplete = useCallback(
     (payload, callback) =>
       submitVoiceAiRecording({
@@ -294,19 +309,11 @@ const DischargeSummary = (props) => {
           const updatedSummary = updatedData?.dischargeSummary || updatedData;
           return { data: updatedSummary, success: true };
         },
-        onSuccess: (updatedSummary) => {
-          if (updatedSummary) {
-            dispatch(resetDischargeSummaryForm());
-            addDischargeDataToStore(
-              { dischargeSummary: updatedSummary },
-              dispatch
-            );
-          }
-        },
+        onSuccess: handleDigitizationSuccess,
         callback,
         fallbackToTranscription: false,
       }),
-    [addDischargeDataToStore, dispatch, reqData, submitVoiceAiRecording]
+    [handleDigitizationSuccess, reqData, submitVoiceAiRecording]
   );
 
   const renderSections = (data) => {
@@ -544,15 +551,25 @@ const DischargeSummary = (props) => {
 
   const renderBottomSection = () => (
     <>
-      {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+      {activeAssistantPanel && <div className="agent-alex-voice-overlay" />}
       <div className="global-voice-ai-wrapper">
-        {isVoiceAssistantOpen ? (
+        {activeAssistantPanel === "voice" ? (
           <AgentAlexVoicePanel
             onSubmit={handleAIRecordingComplete}
-            onClose={() => setIsVoiceAssistantOpen(false)}
+            onClose={() => setActiveAssistantPanel(null)}
+          />
+        ) : activeAssistantPanel === "snaprx" ? (
+          <AgentAlexSnapRxPanel
+            onClose={() => setActiveAssistantPanel(null)}
+            previousOutput={reqData}
+            schemaKey="DISCHARGE_SUMMARY"
+            onSuccess={handleDigitizationSuccess}
           />
         ) : (
-          <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+          <GlobalVoiceAI
+            onVoiceClick={() => setActiveAssistantPanel("voice")}
+            onSnapRxClick={() => setActiveAssistantPanel("snaprx")}
+          />
         )}
       </div>
       {renderCustomModulesFooter()}

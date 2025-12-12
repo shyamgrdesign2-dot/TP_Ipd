@@ -11,7 +11,7 @@ import {
 } from "../../../redux/ipd/ipdSnapRxDigitizationSlice";
 import { SNAP_RX_TOKENS_STORAGE_KEY } from "../../../utils/constants";
 
-const AgentAlexSnapRxPanel = ({ onClose, previousOutput }) => {
+const AgentAlexSnapRxPanel = ({ onClose, previousOutput, schemaKey, onSuccess }) => {
   const dispatch = useDispatch();
 
   const handleClose = () => {
@@ -59,7 +59,12 @@ const AgentAlexSnapRxPanel = ({ onClose, previousOutput }) => {
         </div>
       </div> */}
           <div className="agent-alex-snaprx-scroll">
-            <IPDSnapRx previousOutput={previousOutput} handleClose={handleClose} />
+            <IPDSnapRx
+              previousOutput={previousOutput}
+              handleClose={handleClose}
+              schemaKey={schemaKey}
+              onSuccess={onSuccess}
+            />
           </div>
     </div>
   );

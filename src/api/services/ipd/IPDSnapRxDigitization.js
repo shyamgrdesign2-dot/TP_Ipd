@@ -8,9 +8,13 @@ const IPDSnapRxDigitization = {};
 IPDSnapRxDigitization.generateFileUploadToken = function ({
   patientId,
   admissionId,
+  schemaKey,
 }) {
+  const query = [`patientId=${patientId}`, `admissionId=${admissionId}`];
+  if (schemaKey) query.push(`form=${schemaKey}`);
+
   return api.get(
-    `/ai/smart-rx/snap-rx/generate-file-upload-token?patientId=${patientId}&admissionId=${admissionId}`,
+    `/ai/smart-rx/snap-rx/generate-file-upload-token?${query.join("&")}`,
     baseUrl
   );
 };
@@ -19,6 +23,7 @@ IPDSnapRxDigitization.uploadSnapRxFiles = function (data) {
   const {
     files,
     fileUploadToken,
+    schemaKey,
   } = data;
 
   const formData = new FormData();
@@ -37,8 +42,10 @@ IPDSnapRxDigitization.uploadSnapRxFiles = function (data) {
     timeout: 120000,
   };
 
+  const formQuery = schemaKey ? `?form=${schemaKey}` : "";
+
   return api.post(
-    `/ai/smart-rx/snap-rx/upload-files`,
+    `/ai/smart-rx/snap-rx/upload-files${formQuery}`,
     formData,
     configWithHeaders
   );
@@ -50,6 +57,8 @@ IPDSnapRxDigitization.getFiles = function (data = {}) {
     admissionId,
     sessionId,
     fileUploadToken,
+    type,
+    schemaKey,
     
   } = data;
 
@@ -59,6 +68,8 @@ IPDSnapRxDigitization.getFiles = function (data = {}) {
   if (patientId) query.push(`patientId=${patientId}`);
   if (admissionId) query.push(`admissionId=${admissionId}`);
   if (sessionId) query.push(`sessionId=${sessionId}`);
+  const formKey = type || schemaKey;
+  if (formKey) query.push(`form=${formKey}`);
   const qs = query.length ? `?${query.join("&")}` : "";
 
   const configWithHeaders = {
@@ -95,7 +106,9 @@ IPDSnapRxDigitization.digitize = function ({
   };
 
   return api.post(
-    `/ai/smart-rx?schemaKey=${schemaKey}&needGrounding=true&model=gemini`,
+    `/ai/smart-rx?schemaKey=${schemaKey}&needGrounding=true&model=gemini${
+      schemaKey ? `&form=${schemaKey}` : ""
+    }`,
     data,
     configWithHeaders
   );

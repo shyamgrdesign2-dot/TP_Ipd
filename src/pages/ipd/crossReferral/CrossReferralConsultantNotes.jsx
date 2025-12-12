@@ -38,6 +38,7 @@ import { defaultIcons } from "../../../assets/images/icons/index.js";
 import { isEmptyRichText } from "../../../utils/utils";
 import GlobalVoiceAI from "../components/GlobalVoiceAI.jsx";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel.jsx";
+import AgentAlexSnapRxPanel from "../components/AgentAlexSnapRxPanel.jsx";
 import useCrossReferralRequestData from "../../../hooks/useCrossReferralRequestData.js";
 import useIpdCustomModules from "../../../hooks/useIpdCustomModules.js";
 import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
@@ -63,7 +64,7 @@ const CrossReferralConsultantNotes = (props) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
-  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [activeAssistantPanel, setActiveAssistantPanel] = useState(null);
   const { customization = {} } = useSelector((state) => state.ipd);
   const crossReferralState = useSelector((state) => state.crossReferral);
   const { crossReferralFormDetails, selectedConsultantNoteId } = useSelector(
@@ -445,6 +446,26 @@ const CrossReferralConsultantNotes = (props) => {
     );
   };
 
+  const handleDigitizationSuccess = useCallback(
+    (digitizedData) => {
+      const updatedReferral = digitizedData?.crossReferral || digitizedData;
+      if (!updatedReferral) return;
+      dispatch(setCrossReferralFormDetails(updatedReferral));
+      const consultantNotesArr = updatedReferral.consultantNotes || [];
+      if (
+        Array.isArray(consultantNotesArr) &&
+        consultantNotesArr[selectedConsultantNoteId]
+      ) {
+        dispatch(
+          setCrossReferralConsultantNoteDetails(
+            consultantNotesArr[selectedConsultantNoteId]
+          )
+        );
+      }
+    },
+    [dispatch, selectedConsultantNoteId]
+  );
+
   const onAddReferralClick = () => {
     dispatch(
       updateCrossReferralData({
@@ -498,43 +519,39 @@ const CrossReferralConsultantNotes = (props) => {
           const updatedReferral = updatedData?.crossReferral || updatedData;
           return { data: updatedReferral, success: true };
         },
-        onSuccess: (updatedReferral) => {
-          if (!updatedReferral) return;
-          dispatch(setCrossReferralFormDetails(updatedReferral));
-          const consultantNotesArr = updatedReferral.consultantNotes || [];
-          if (
-            Array.isArray(consultantNotesArr) &&
-            consultantNotesArr[selectedConsultantNoteId]
-          ) {
-            dispatch(
-              setCrossReferralConsultantNoteDetails(
-                consultantNotesArr[selectedConsultantNoteId]
-              )
-            );
-          }
-        },
+        onSuccess: handleDigitizationSuccess,
         callback,
         fallbackToTranscription: false,
       }),
-    [dispatch, reqData, selectedConsultantNoteId, submitVoiceAiRecording]
+    [handleDigitizationSuccess, reqData, submitVoiceAiRecording]
   );
 
   const renderBottomSection = () => {
     return (
       <>
-        {/* {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+        {activeAssistantPanel && <div className="agent-alex-voice-overlay" />}
         <div className="global-voice-ai-wrapper">
-          {isVoiceAssistantOpen ? (
+          {activeAssistantPanel === "voice" ? (
             <AgentAlexVoicePanel
               onSubmit={(payload, cb) =>
                 handleAIRecordingCompleteAgent(payload, cb)
               }
-              onClose={() => setIsVoiceAssistantOpen(false)}
+              onClose={() => setActiveAssistantPanel(null)}
+            />
+          ) : activeAssistantPanel === "snaprx" ? (
+            <AgentAlexSnapRxPanel
+              onClose={() => setActiveAssistantPanel(null)}
+              previousOutput={reqData}
+              schemaKey="CROSS_REFERRAL"
+              onSuccess={handleDigitizationSuccess}
             />
           ) : (
-            <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+            <GlobalVoiceAI
+              onVoiceClick={() => setActiveAssistantPanel("voice")}
+              onSnapRxClick={() => setActiveAssistantPanel("snaprx")}
+            />
           )}
-        </div> */}
+        </div>
         {renderCustomModulesFooter()}
       </>
     );

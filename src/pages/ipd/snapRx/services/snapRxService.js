@@ -11,7 +11,8 @@ const SNAP_RX_BASE_URL = `${config.ipd_api_url}/ai/smart-rx/snap-rx`;
  */
 export const uploadSnapRxFiles = async (
   files,
-  fileUploadToken
+  fileUploadToken,
+  schemaKey
 ) => {
   try {
     const formData = new FormData();
@@ -31,7 +32,13 @@ export const uploadSnapRxFiles = async (
       snapRxFileUpload: true,
     };
 
-    const response = await axiosService.post("/upload-files", formData, config);
+    const formQuery = schemaKey ? `?form=${schemaKey}` : "";
+
+    const response = await axiosService.post(
+      `/upload-files${formQuery}`,
+      formData,
+      config
+    );
     return response;
   } catch (error) {
     console.error("Error uploading snap rx files:", error);
