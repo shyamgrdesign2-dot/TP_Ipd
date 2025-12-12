@@ -41,6 +41,7 @@ const ReferralInformation = (props) => {
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const admittingDoctorId = patientDetails?.doctor?.id;
   const { submitVoiceAiRecording } = useVoiceAiRecordingComplete({
     patientId: patientDetails?.details?.id,
     admissionId: patientDetails?.admissionId,
@@ -186,16 +187,22 @@ const ReferralInformation = (props) => {
     let options = [];
 
     if (role.id === "referringTo" && selectedDepartment?.doctors) {
-      options = selectedDepartment.doctors.map((doctor) => ({
-        key: JSON.stringify({
-          id: doctor.doctorId,
-          name: doctor.doctorName,
-          role: doctor.role,
-          speciality: doctor.speciality,
-        }),
-        value: doctor.doctorName,
-        label: <div key={doctor.doctorId}>{doctor.doctorName}</div>,
-      }));
+      options = selectedDepartment?.doctors
+        ?.filter(
+          (doctor) =>
+            !admittingDoctorId ||
+            String(doctor.doctorId) !== String(admittingDoctorId)
+        )
+        ?.map((doctor) => ({
+          key: JSON.stringify({
+            id: doctor.doctorId,
+            name: doctor.doctorName,
+            role: doctor.role,
+            speciality: doctor.speciality,
+          }),
+          value: doctor.doctorName,
+          label: <div key={doctor.doctorId}>{doctor.doctorName}</div>,
+        }));
     } else {
       options = (doctorsList || []).map((item) => ({
         key: JSON.stringify(item),
